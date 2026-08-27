@@ -309,11 +309,16 @@ impl GlyphPoint {
     }
 }
 
-/// One item of an IDC line: a component, or the gap in front of it.
+/// One item of an IDC line: a component, or a number beside it.
 #[derive(Clone, Debug, PartialEq)]
 pub enum ComposeItem {
-    /// A number written between (or around) the components: how much room is
-    /// left at that position along the split axis. Negative is an overlap.
+    /// A number written between (or around) the components. What it says is the
+    /// operator's to answer and [`crate::compose`] is where that is written
+    /// down: on a **split** it is a gap — how much room is left at that
+    /// position along the axis, negative being an overlap — and on an
+    /// **enclosure** the two trailing numbers are the inner component's
+    /// top-left offsets inside the box. The parser keeps the token where it was
+    /// written and asks no further, so one item type covers both.
     Gap(i16),
     /// A component, in written order. `raw_name` holds the name as *written*
     /// whenever that differs from `name` — the `@…` form, as
@@ -328,11 +333,12 @@ pub enum ComposeItem {
     },
 }
 
-/// A `⿰`/`⿱`/`⿲`/`⿳` line: the glyph's box split along one axis.
+/// An IDC line: the glyph's box split along one axis (`⿰⿱⿲⿳`) or filled by one
+/// component with the other seated in the cavity it leaves (`⿴⿵⿶⿷⿸⿹⿺⿼⿽`).
 ///
 /// A sibling of `ref` inside a glyph block, not sugar for one — see
-/// [`crate::compose`] for what the split means, which sizes it reads, and the
-/// `ref`s it derives.
+/// [`crate::compose`] for what each operator means, which sizes it reads, and
+/// the `ref`s it derives.
 #[derive(Clone, Debug, PartialEq)]
 pub struct GlyphCompose {
     pub op: crate::compose::IdcOp,

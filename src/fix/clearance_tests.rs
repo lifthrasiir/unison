@@ -1044,3 +1044,185 @@ fn a_part_that_is_itself_split_can_be_chosen() {
     assert_eq!((fixes[0].before, fixes[0].after), (Some(4), 2));
     assert_eq!(fixes[0].new_line, "\u{2FF0} 1 left:4x4 -2 nested:4x4");
 }
+
+// ------------------------------------------------------------------ enclosures
+
+/// A 6x6 ring with a one-cell wall and a 2x2 seed, held to `1..2` as an
+/// enclosure and `0..1` as a split. The only layout that satisfies the ring is
+/// the centred one.
+const RING: &str = "\
+audit ideal-clearance test-* 0 1 1 2
+
+glyph ring:6x6.4x4 6 6
+@@@@@@@@@@@@
+@@........@@
+@@........@@
+@@........@@
+@@........@@
+@@@@@@@@@@@@
+
+glyph seed:2x2 2 2
+@@@@
+@@@@
+
+glyph test-x 6 6
+\u{2FF4} ring:6x6.4x4 seed:2x2 1 1
+";
+
+/// A `⿴` has no side the glyph opens on, so the tie-break that pushes a split's
+/// parts out against the box has nothing to say and the evenness of the two
+/// inner clearances is what decides. Without it the lexicographic rule would
+/// wedge the seed into a corner of the ring and call that an answer.
+#[test]
+fn a_full_surround_centres_what_it_holds() {
+    let fixes = plan(RING);
+    assert_eq!(fixes.len(), 1, "{fixes:?}");
+    let fix = &fixes[0];
+    assert_eq!(fix.old_line, "\u{2FF4} ring:6x6.4x4 seed:2x2 1 1");
+    // As written the seed touches the top-left of the ring: two clearances of
+    // 0 against a band of 1..2.
+    assert_eq!(fix.before, Some(2));
+    assert_eq!(fix.after, 0);
+    assert_eq!(fix.new_line, "\u{2FF4} ring:6x6.4x4 seed:2x2 2 2");
+}
+
+/// A line already in the range is a decision its author made.
+#[test]
+fn a_centred_surround_is_left_alone() {
+    let src = RING.replace(
+        "\u{2FF4} ring:6x6.4x4 seed:2x2 1 1",
+        "\u{2FF4} ring:6x6.4x4 seed:2x2 2 2",
+    );
+    assert!(plan(&src).is_empty());
+}
+
+/// `⿸` 广: walls left and top, open right and below. Both open sides get a
+/// clearance to the glyph's own edge, and minimizing those is what puts the
+/// inner part into the corner the operator opens on.
+const GUANG: &str = "\
+audit ideal-clearance test-* 0 1 0 1
+
+glyph guang:6x6.5x5 6 6
+@@@@@@@@@@@@
+@@..........
+@@..........
+@@..........
+@@..........
+@@..........
+
+glyph seed:4x4 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph test-x 6 6
+\u{2FF8} guang:6x6.5x5 seed:4x4 0 0
+";
+
+#[test]
+fn a_corner_enclosure_pushes_what_it_holds_into_the_corner_it_opens_on() {
+    let fixes = plan(GUANG);
+    assert_eq!(fixes.len(), 1, "{fixes:?}");
+    // At (0, 0) the seed is under the top bar and inside the left stroke, so
+    // each axis reads -6 against the wall and 2 to the open edge, and each
+    // axis's total is -4. Wrong in every one of those six numbers.
+    assert_eq!(fixes[0].before, Some(22));
+    // Each axis leaves 1 in total whatever the placement, so the only question
+    // is where it goes — and the tie-break puts the seed against the sides the
+    // operator opens on, leaving the cell beside the walls.
+    assert_eq!(fixes[0].new_line, "\u{2FF8} guang:6x6.5x5 seed:4x4 2 2");
+    assert_eq!(fixes[0].after, 0);
+}
+
+/// An enclosure line with no offsets has decided nothing, exactly as a
+/// component with no variant has: there is no layout to have measured badly, so
+/// `before` is `None` and any decision is more than none.
+#[test]
+fn an_unplaced_enclosure_is_planned_like_a_todo() {
+    let src = RING.replace(
+        "\u{2FF4} ring:6x6.4x4 seed:2x2 1 1",
+        "\u{2FF4} ring:6x6.4x4 seed:2x2",
+    );
+    let fixes = plan(&src);
+    assert_eq!(fixes.len(), 1, "{fixes:?}");
+    assert_eq!(fixes[0].before, None);
+    assert_eq!(fixes[0].new_line, "\u{2FF4} ring:6x6.4x4 seed:2x2 2 2");
+}
+
+/// The inner slot picks from the family the same way a split's slot does, and a
+/// drawing that promises a cavity is not offered for it.
+#[test]
+fn an_enclosure_picks_the_inner_variant_that_fits() {
+    let src = "\
+audit ideal-clearance test-* 0 1 1 2
+
+glyph ring:6x6.4x4 6 6
+@@@@@@@@@@@@
+@@........@@
+@@........@@
+@@........@@
+@@........@@
+@@@@@@@@@@@@
+
+glyph seed:4x4 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph seed:2x2 2 2
+@@@@
+@@@@
+
+glyph test-x 6 6
+\u{2FF4} ring:6x6.4x4 seed:4x4 1 1
+";
+    let fixes = plan(src);
+    assert_eq!(fixes.len(), 1, "{fixes:?}");
+    // `seed:4x4` fills the ring's cavity edge to edge — every clearance is 0
+    // and no placement helps — so the 2x2 is chosen and centred.
+    assert_eq!(fixes[0].new_line, "\u{2FF4} ring:6x6.4x4 seed:2x2 2 2");
+    assert_eq!(fixes[0].after, 0);
+}
+
+/// A pattern block that encloses is not planned: what a family shares on a
+/// split is its gaps, and an offset is only meaningful against one glyph's own
+/// walls.
+#[test]
+fn a_pattern_enclosure_line_is_left_to_its_author() {
+    let src = "\
+audit ideal-clearance test-* 0 1 1 2
+
+glyph ring:6x6.4x4 6 6
+@@@@@@@@@@@@
+@@........@@
+@@........@@
+@@........@@
+@@........@@
+@@@@@@@@@@@@
+
+glyph seed:2x2 2 2
+@@@@
+@@@@
+
+glyph test-(x|y) 6 6
+\u{2FF4} ring:6x6.4x4 seed:2x2 1 1
+";
+    assert!(plan(src).is_empty());
+}
+
+/// The same, for an enclosure: the four numbers the placement search scores are
+/// the four the check warns about, and applying the plan clears them.
+#[test]
+fn applying_an_enclosure_plan_removes_the_warnings_it_was_scored_on() {
+    for src in [RING.to_string(), GUANG.to_string()] {
+        let before = clearance_warnings(&src);
+        assert!(!before.is_empty(), "{before:?}");
+        let after = clearance_warnings(&fixed(&src));
+        assert!(after.is_empty(), "{after:?}");
+        // A second run is a no-op: what it would rewrite, it already did.
+        let once = fixed(&src);
+        assert_eq!(fixed(&once), once);
+    }
+}

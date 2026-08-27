@@ -624,10 +624,9 @@ fn expand_compose_lines(
             let contact = audit.max_contact_run.for_glyph(&glyph_name);
             let rule = clearances
                 .for_glyph(&glyph_name)
-                .map(|(written, min, max)| crate::compose::ClearanceRule {
+                .map(|(written, band)| crate::compose::ClearanceRule {
                     written,
-                    min,
-                    max,
+                    band,
                     ink: &ink,
                     max_contact_run: contact.map(|(_, max)| max),
                     contact_written: contact.map_or("", |(w, _)| w),

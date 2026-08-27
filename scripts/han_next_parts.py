@@ -8,8 +8,13 @@ because the work they ask for is not the same size:
 
   A. the part is not drawn at all, and
   B. the part is drawn, but at no size that could sit in the slot the line needs
-     (`compose::fits_slot`, mirrored in `gen_ids_composites.feasible`), so all
-     that is wanted is one more variant of a drawing that already exists.
+     (`compose::fits_slot` / `compose::fits_enclosure_slot`, mirrored in
+     `gen_ids_composites.feasible`), so all that is wanted is one more variant
+     of a drawing that already exists.
+
+An enclosure counts under B too, and its two slots ask opposite things: the
+outer part wants a 15x16 drawing that promises a cavity (`:15x16.NxM`) and the
+inner one wants a drawing small enough to sit in some such cavity.
 
 Only a character *one* missing part stands between is counted for that part, so
 a count is what drawing it buys on its own. `--greedy N` instead picks N parts
@@ -72,29 +77,56 @@ def main() -> int:
     def drawn(cp):
         return bool(inv.variants.get(G.han_name(cp)))
 
-    def fits(cp, horizontal):
+    def fits(cp, op, slot):
+        """Whether some drawing of `cp` could sit in slot `slot` of an `op` line."""
+        variants = inv.variants.get(G.han_name(cp), [])
+        if op in G.ENCLOSING:
+            # The outer slot wants the glyph exactly, with a cavity; the inner
+            # one wants anything without a cavity that some drawn cavity holds.
+            if slot == 0:
+                return any(
+                    (v.w, v.h) == (G.BOX_W, G.BOX_H) and v.cavity is not None
+                    for v in variants
+                )
+            cavities = [
+                v.cavity
+                for vs in inv.variants.values()
+                for v in vs
+                if (v.w, v.h) == (G.BOX_W, G.BOX_H) and v.cavity is not None
+            ]
+            return any(
+                v.cavity is None and v.w <= n and v.h <= m
+                for v in variants
+                for n, m in cavities
+            )
+        horizontal = op in G.HORIZONTAL
         axis, cross = (G.BOX_W, G.BOX_H) if horizontal else (G.BOX_H, G.BOX_W)
         return any(
             (v.h if horizontal else v.w) == cross and (v.w if horizontal else v.h) < axis
-            for v in inv.variants.get(G.han_name(cp), [])
+            for v in variants
         )
 
     undrawn = collections.Counter()
     unsized = collections.Counter()
     orient: dict[int, collections.Counter] = collections.defaultdict(collections.Counter)
     for cp, op, comps in todo:
-        horizontal = op in G.HORIZONTAL
-        tag = "Nx16" if horizontal else "15xN"
+        if op in G.ENCLOSING:
+            tag = "15x16.NxM"
+        else:
+            tag = "Nx16" if op in G.HORIZONTAL else "15xN"
         missing = {c for c in comps if not drawn(c)}
         if len(missing) == 1:
             part = next(iter(missing))
             undrawn[part] += 1
             orient[part][tag] += 1
         elif not missing:
-            bad = [c for c in set(comps) if not fits(c, horizontal)]
+            # By slot rather than by part: an enclosure's two slots ask opposite
+            # things of a drawing, so the same character can fit one and not the
+            # other.
+            bad = {c for slot, c in enumerate(comps) if not fits(c, op, slot)}
             if len(bad) == 1:
-                unsized[bad[0]] += 1
-                orient[bad[0]][tag] += 1
+                unsized[next(iter(bad))] += 1
+                orient[next(iter(bad))][tag] += 1
 
     def table(title, counter):
         total = sum(counter.values())

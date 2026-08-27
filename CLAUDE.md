@@ -292,13 +292,20 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | A base offering several slot sizes, and the first-fit that picks the one a following mark is put in | `render/ttf_builder/gpos.rs` (`slot_holds`, `CcmpKey`), `collect.rs` (the base-alt reachability loop) |
 | Why a precomposed mark and a shaped one attach by the same rule, and the exact-before-holds tier only the composite has | `ref_composite/anchors.rs` (`Fit`, `aligned_delta`), `render/ttf_builder/gpos.rs` (`slot_holds`) |
 | `⿰⿱⿲⿳`: the split, the gap term, and why the offsets are derived rather than written | `compose.rs` |
+| `⿴⿵⿶⿷⿸⿹⿺⿼⿽`: which sides an enclosure fills, and why its two numbers are offsets rather than gaps | `compose.rs` (`Walls`, `expand_enclosure`) |
+| The four boundaries of one line, and the one type every gap on either kind of line is measured between | `compose.rs` (`InkLine`, `Face`, `GapSide`) |
+| Which run of a line is the wall a cavity sees, and why it is not the first one | `compose.rs` (`WallFace`) |
+| Why an enclosure's clearance total is per axis, and where the split's own total is unchanged by that | `compose.rs` (`Clearance::horizontal`, `report_clearances`) |
+| `:WxH.NxM`: the cavity a name promises, why it is a lower bound where the size is an equality, and what rides on it | `compose.rs` (`VariantSpec::inner`, `cavity_fits`, `enclosure_rank`) |
+| Where an enclosure's cavity may sit — flush with the open sides, free along a walled axis | `compose.rs` (`cavity_fits`) |
+| Why the fixer searches an enclosure's placements where it solves a split's gaps, and why a pattern enclosure is not planned | `fix/clearance.rs` (`optimize_enclosure_line`) |
 | The `:WxH-l` variant name rule, and the position tie-break between same-sized variants | `compose.rs` (`VariantSpec`, `direction_rank`) |
 | An IDC line written as a pattern, and why its layout is still solved per glyph | `compose.rs`, `document/name_parts.rs` (`expand_glyph_block`) |
 | What a pattern glyph block shares with every name it declares (the grid, the box, the flags) | `document/name_parts.rs` (`expand_glyph_block`) |
 | Clearance: the ink a split leaves between its parts and the box, and why the per-part range and the total are both needed | `compose.rs` (`InkProfile`, `measure_clearances`) |
-| `audit ideal-clearance PREFIX* MIN MAX`: the prefix match, and which rule wins | `audit.rs` (`IdealClearances`) |
+| `audit ideal-clearance PREFIX* MIN MAX [MIN MAX]`: the prefix match, which rule wins, and why an enclosure may have a band of its own | `audit.rs` (`IdealClearances`, `ClearanceBand`) |
 | `audit max-contact-run PREFIX* N`: how far two parts may run together, and why that is a clearance rather than a complaint of its own | `audit.rs` (`MaxContactRuns`), `compose.rs` (`contact_run`) |
-| Why a contact needs no hardblank term, and why the two never both fire on one junction | `compose.rs` (`contact_run`, `InkLine::ink`) |
+| Why a contact needs no hardblank term, and why the two never both fire on one junction | `compose.rs` (`contact_run`, `Face::ink`) |
 | Why a contact is measured between two contours and not two cells, and the covers a profile keeps for it | `compose.rs` (`contact_run`, `EdgeCover`), `detail.rs` (`DetailRegion::edge_coverage`) |
 | What a `uniform fix` command may rewrite, and the two frontends that apply one | `fix/mod.rs` |
 | Optimizing clearance: the variant search, the score, and why the gaps are arithmetic and not a search | `fix/clearance.rs` (`optimize_clearance`, `arrange`) |

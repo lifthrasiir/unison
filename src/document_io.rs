@@ -320,6 +320,14 @@
 //!   what the parts leave each other inside the box is checked rather than
 //!   merely drawn. See [`crate::compose`] for the arity, the clearance check
 //!   and the `:WxH-l` variant name rule it reads.
+//! - `⿴`/`⿵`/`⿶`/`⿷`/`⿸`/`⿹`/`⿺`/`⿼`/`⿽ OUTER INNER P Q` — an *enclosure*
+//!   line: the first component fills the glyph's box and the second sits in the
+//!   cavity it leaves. `P Q` are the inner component's top-left offsets inside
+//!   the box and **not gaps**, which is the one place an IDC line's numbers
+//!   read differently; both are written or neither, and a line with neither has
+//!   picked no placement yet. The outer component names the cavity it offers as
+//!   `:WxH.NxM`. See [`crate::compose`] for which sides each operator fills and
+//!   how the four clearances are measured.
 //!
 //!   A component name takes the patterns of [`crate::pattern`] and expands in
 //!   lock-step with the block's name, as a `ref` target does — but the layout
@@ -711,13 +719,14 @@ fn parse_ref_line(
     })
 }
 
-/// Parse an IDC line — the tokens after `⿰`/`⿱`/`⿲`/`⿳` — into a
-/// [`GlyphCompose`].
+/// Parse an IDC line — the tokens after the operator — into a [`GlyphCompose`].
 ///
-/// A token that reads as a number is a gap, anything else is a component name;
-/// arity, sizes and the layout are [`crate::compose`]'s business, so a line
-/// that tokenizes at all parses here. `base` is the `@` base in force, as for a
-/// `ref`.
+/// A token that reads as a number is a [`ComposeItem::Gap`], anything else is a
+/// component name; arity, sizes and the layout are [`crate::compose`]'s
+/// business, so a line that tokenizes at all parses here. That includes what a
+/// number *means*: a gap on a split and an offset on an enclosure, which is a
+/// question about the operator and not about the token. `base` is the `@` base
+/// in force, as for a `ref`.
 fn parse_compose_line(
     op: crate::compose::IdcOp,
     parts: &[String],

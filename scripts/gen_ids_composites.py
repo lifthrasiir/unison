@@ -6,12 +6,24 @@ radical-stroke that decides which slice file and which `## R.S` heading a glyph
 goes under), and writes one glyph block per character that
 
   * has no glyph in `font/` yet,
-  * decomposes, at the top level, into one of the four one-dimensional IDCs
-    (`⿰⿱⿲⿳` — the only ones `compose.rs` implements) with single-character
-    operands, and
+  * decomposes, at the top level, into one of the IDCs `compose.rs` implements
+    (the four splits `⿰⿱⿲⿳` or the nine enclosures `⿴⿵⿶⿷⿸⿹⿺⿼⿽`) with
+    single-character operands, and
   * has every operand drawn in the source, at any size — a size that does not
     fit the box only comments the line out, since a declaration is what says
     which parts are still to be drawn.
+
+An **enclosure** line is written `⿷ han-531a han-4e00` with no offsets, which is
+the state `compose.rs` calls unplaced: the components have picked no variant and
+the line has picked no placement, and both are for `--optimize-clearance` to
+decide. What holds such a line back is not the box but the *cavity*: it is
+written uncommented only where the source draws the outer part at 15x16 with a
+`:15x16.NxM` cavity and draws the inner part small enough to sit in it. An outer
+character drawn only as an ordinary full-size glyph therefore comments the line
+out, which is this script's shape for "draw the enclosing variant of 匚".
+
+Inlining (below) is a split's transform and never applies to an enclosure: there
+is no ternary enclosure for a nested operand to be folded into.
 
 An operand that splits along the same axis as the whole is *inlined* rather
 than lost: `⿰⿰XYC` is written as `⿲XYC` and `⿱⿱XYC` as `⿳XYC`. Only one
@@ -97,18 +109,26 @@ def open_text(path: str, encoding: str):
         return gzip.open(path, "rt", encoding=encoding)
     return open(path, encoding=encoding)
 
-# The four one-dimensional IDCs and their arity (see `src/compose.rs`).
-IDC_ARITY = {"⿰": 2, "⿱": 2, "⿲": 3, "⿳": 3}
-# Everything else that may appear in an IDS, with its arity, so that a sequence
-# can still be *parsed* (and then rejected) rather than mis-read.
-OTHER_ARITY = {
-    "⿴": 2, "⿵": 2, "⿶": 2, "⿷": 2, "⿸": 2, "⿹": 2, "⿺": 2,
-    "⿻": 2, "⿼": 2, "⿽": 2, "㇯": 2, "⿾": 1, "⿿": 1,
+# The IDCs `compose.rs` lays out, and their arity: the four one-dimensional
+# splits and the nine enclosures.
+SPLIT_ARITY = {"⿰": 2, "⿱": 2, "⿲": 3, "⿳": 3}
+ENCLOSE_ARITY = {
+    "⿴": 2, "⿵": 2, "⿶": 2, "⿷": 2, "⿸": 2, "⿹": 2, "⿺": 2, "⿼": 2, "⿽": 2,
 }
+IDC_ARITY = {**SPLIT_ARITY, **ENCLOSE_ARITY}
+# Everything else that may appear in an IDS, with its arity, so that a sequence
+# can still be *parsed* (and then rejected) rather than mis-read. `⿻` says two
+# drawings share a box and nothing about where; `⿾`/`⿿` transform one drawing
+# rather than composing two; `㇯` is a subtraction. None of the three is a
+# layout, which is why `compose.rs` does not implement them.
+OTHER_ARITY = {"⿻": 2, "㇯": 2, "⿾": 1, "⿿": 1}
 ARITY = {**IDC_ARITY, **OTHER_ARITY}
 
-# The two that split the box left to right; the other two split it top to bottom.
+# Of the splits, the two that divide the box left to right; the other two divide
+# it top to bottom. An *enclosure* has no split axis at all and is asked a
+# different question entirely -- see `feasible`.
 HORIZONTAL = {"⿰", "⿲"}
+ENCLOSING = set(ENCLOSE_ARITY)
 
 # The box every full-size han glyph declares.
 BOX_W, BOX_H = 15, 16
@@ -185,23 +205,35 @@ def expand_pattern(name: str, parts: dict[str, list[str]]) -> list[str]:
     return out
 
 
-SIZE_RE = re.compile(r"^(\d+)x(\d+)$")
+# A size token is `WxH`, or `WxH.NxM` for an enclosure's outer part, where
+# `NxM` is the cavity the drawing promises to leave (`compose.rs`, D1).
+SIZE_RE = re.compile(r"^(\d+)x(\d+)(?:\.(\d+)x(\d+))?$")
 
 
-def split_variant(name: str) -> tuple[str, tuple[int, int] | None, str | None]:
-    """`han-6728:5x16-l` -> (`han-6728`, (5, 16), `l`); see `compose.rs` (D1)."""
+def split_variant(
+    name: str,
+) -> tuple[str, tuple[int, int] | None, tuple[int, int] | None, str | None]:
+    """`han-6728:5x16-l` -> (`han-6728`, (5, 16), None, `l`); see `compose.rs` (D1).
+
+    The third member is the cavity a `WxH.NxM` name promises, which is what
+    marks a drawing as an enclosure's *outer* part — the enclosure's answer to
+    the `l`/`r` a split's name carries.
+    """
     base, sep, spec = name.partition(":")
     if not sep:
-        return name, None, None
+        return name, None, None, None
     size = None
+    cavity = None
     direction = None
     for tok in spec.split("-"):
         m = SIZE_RE.match(tok)
         if m and size is None:
             size = (int(m.group(1)), int(m.group(2)))
+            if m.group(3) is not None:
+                cavity = (int(m.group(3)), int(m.group(4)))
         elif tok in ("l", "r", "u", "d", "c") and direction is None:
             direction = tok
-    return base, size, direction
+    return base, size, cavity, direction
 
 
 # --------------------------------------------------------------------------
@@ -215,6 +247,10 @@ class Variant:
     h: int
     direction: str | None
     handdrawn: bool
+    # The `NxM` an enclosure's outer part promises to leave clear; `None` for
+    # every ordinary drawing, which is what `compose::enclosure_rank` reads to
+    # tell the two slots' candidates apart.
+    cavity: tuple[int, int] | None = None
 
 
 @dataclass
@@ -303,7 +339,7 @@ def load_inventory(font_dir: str, parts: dict[str, list[str]]) -> Inventory:
                 break
             handdrawn = bool(body) and body[0] not in IDC_ARITY and not body.startswith("ref ")
             for expanded in expand_pattern(name, parts):
-                base, size, direction = split_variant(expanded)
+                base, size, cavity, direction = split_variant(expanded)
                 m = NAME_CP_RE.match(base)
                 if not m:
                     continue
@@ -314,7 +350,7 @@ def load_inventory(font_dir: str, parts: dict[str, list[str]]) -> Inventory:
                 if size is not None and size != (w, h):
                     continue  # a lying name; `compose.rs` checks this itself
                 inv.variants[base].append(
-                    Variant(expanded, w, h, direction, handdrawn)
+                    Variant(expanded, w, h, direction, handdrawn, cavity)
                 )
     return inv
 
@@ -664,49 +700,86 @@ def feasible(inv: Inventory, op: str, comps: list[int], inlined: bool = False) -
     exactly the line that asks for a narrow variant to be drawn, and dropping it
     would hide the request.
 
-    *Fit* decides whether it is written commented out, and mirrors
-    `compose::fits_slot`: a variant can go in a slot when its extent across the
-    split is the glyph's and its extent along the split is strictly shorter than
-    the glyph's — a part as long as the glyph fills it on its own and leaves the
-    rest of the line nowhere to stand — and the line fits when the smallest such
-    variants still tile the box together. Which variant is actually written is
-    `uniform fix --optimize-clearance`'s to choose.
+    *Fit* decides whether it is written commented out. What "fit" means is the
+    operator's to say, and the two answers are `feasible_split` and
+    `feasible_enclosure` below; both mirror what `compose.rs` will demand of the
+    line, so that nothing is written uncommented that the build then refuses.
 
     Those are two questions, not one, and an `inlined` line is only asked the
-    first. A line written *as it stands* is held to the box because the box is
-    all that says the parts are the wrong size: nothing else would ever ask for
-    a narrower 項 than the one 15x16 drawing. An inlined line has already
-    answered that -- it is written because its own smaller parts are drawn, and
-    what its total says is how much narrower they have to become, which is a
-    thing to be *seen*: `--optimize-clearance` lays it out anyway, with the
-    overflow showing as a negative clearance and as ink out of the box in the
-    editor. Commenting it out instead hides exactly the measurement that would
-    have been acted on. `--ignore-box` is the same relaxation for the
-    un-inlined line, where it is a much blunter thing to ask for.
+    first — see `feasible_split`, which is the only place inlining arises.
+    """
+    cands = [inv.variants.get(han_name(cp), []) for cp in comps]
+    if any(not c for c in cands):
+        return Verdict(None, False, "component not drawn")
+    kind = "handdrawn" if all(any(v.handdrawn for v in c) for c in cands) else "composite"
+    fits = (
+        feasible_enclosure(cands)
+        if op in ENCLOSING
+        else feasible_split(op, cands, inlined)
+    )
+    return Verdict(kind, fits, "")
+
+
+def feasible_split(op: str, cands: list[list[Variant]], inlined: bool) -> bool:
+    """Whether the parts drawn today tile the box along the split's axis.
+
+    Mirrors `compose::fits_slot`: a variant can go in a slot when its extent
+    across the split is the glyph's and its extent along the split is strictly
+    shorter than the glyph's — a part as long as the glyph fills it on its own
+    and leaves the rest of the line nowhere to stand — and the line fits when
+    the smallest such variants still tile the box together. Which variant is
+    actually written is `uniform fix --optimize-clearance`'s to choose.
+
+    An `inlined` line is held only to the first half. A line written *as it
+    stands* is held to the box because the box is all that says the parts are
+    the wrong size: nothing else would ever ask for a narrower 項 than the one
+    15x16 drawing. An inlined line has already answered that -- it is written
+    because its own smaller parts are drawn, and what its total says is how much
+    narrower they have to become, which is a thing to be *seen*:
+    `--optimize-clearance` lays it out anyway, with the overflow showing as a
+    negative clearance and as ink out of the box in the editor. Commenting it
+    out instead hides exactly the measurement that would have been acted on.
+    `--ignore-box` is the same relaxation for the un-inlined line, where it is a
+    much blunter thing to ask for.
     """
     horizontal = op in HORIZONTAL
     axis, cross = (BOX_W, BOX_H) if horizontal else (BOX_H, BOX_W)
-    all_hand = True
     total = 0
-    parts_fit = True
-    for cp in comps:
-        cands = inv.variants.get(han_name(cp), [])
-        if not cands:
-            return Verdict(None, False, "component not drawn")
-        if not any(v.handdrawn for v in cands):
-            all_hand = False
+    for variants in cands:
         along = [
             (v.w if horizontal else v.h)
-            for v in cands
+            for v in variants
             if (v.h if horizontal else v.w) == cross
             and (v.w if horizontal else v.h) < axis
         ]
-        if along:
-            total += min(along)
-        else:
-            parts_fit = False
-    fits = parts_fit and (inlined or total <= axis)
-    return Verdict("handdrawn" if all_hand else "composite", fits, "")
+        if not along:
+            return False
+        total += min(along)
+    return inlined or total <= axis
+
+
+def feasible_enclosure(cands: list[list[Variant]]) -> bool:
+    """Whether some drawn outer part offers a cavity some drawn inner part fits.
+
+    Mirrors `compose::fits_enclosure_slot` and the candidate lists
+    `fix::clearance::Inventory::enclosure_candidates` builds from it, so that a
+    line written uncommented is one the fixer can actually place:
+
+    * the **outer** part is the glyph exactly and promises a cavity. The
+      promise is what marks a drawing as one made to enclose, and a `匚` drawn
+      only as an ordinary 15x16 glyph is a request to draw the enclosing variant
+      rather than a part this line can use;
+    * the **inner** part promises none and fits inside that cavity.
+
+    The cavity is a lower bound the drawing keeps (`compose::cavity_fits`), so
+    comparing boxes to it is the same arithmetic the splits do against the axis.
+    """
+    outer, inner = cands
+    cavities = [
+        v.cavity for v in outer if (v.w, v.h) == (BOX_W, BOX_H) and v.cavity is not None
+    ]
+    held = [(v.w, v.h) for v in inner if v.cavity is None]
+    return any(w <= n and h <= m for n, m in cavities for w, h in held)
 
 
 # --------------------------------------------------------------------------
@@ -893,7 +966,7 @@ def insert_block(sec: Section, cp: int, block: list[str]) -> None:
 REASON_ORDER = [
     "component not drawn",
     "a nested component nothing names",
-    "not a one-dimensional IDC",
+    "not an IDC this source lays out",
     "marked 〾",
     "an unrepresentable component",
     "unparsable IDS",
@@ -1090,7 +1163,8 @@ def main() -> int:
                 why = min(why, "no decomposition at all", key=reason_rank)
                 continue
             if tree.op not in IDC_ARITY:
-                why = min(why, f"not a one-dimensional IDC ({tree.op})", key=reason_rank)
+                why = min(why, f"not an IDC this source lays out ({tree.op})",
+                          key=reason_rank)
                 continue
             cands = candidates(tree, inline, splits)
             if not cands:
@@ -1134,7 +1208,14 @@ def main() -> int:
         if verdict.kind == "composite" and not args.include_composite_parts:
             holds.append("composite parts")
         if not verdict.fits and not args.ignore_box:
-            holds.append("parts do not fit the box")
+            # What the parts fell short of is the operator's to say: a split's
+            # parts have to tile the box, an enclosure's have to be a cavity and
+            # something that goes in it.
+            holds.append(
+                "no drawn cavity holds the inner part"
+                if op in ENCLOSING
+                else "parts do not fit the box"
+            )
         block = build_blocks(op, comps, cp, entry.char, bool(holds), origin, cand.alt)
         if revive:
             # Only a line that is now unheld is worth rewriting, and only where

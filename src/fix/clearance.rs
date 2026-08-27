@@ -146,12 +146,42 @@
 //! Steps 2–4 are the same order [`arrange`] builds one layout in; they appear
 //! again as a comparison because two *different* variant choices also have to
 //! be ordered against each other.
+//!
+//! # An enclosure
+//!
+//! Everything above is about a **split**. An enclosure is planned by
+//! [`optimize_enclosure_line`] and differs in three ways, each of which follows
+//! from what the layout is rather than from a preference:
+//!
+//! - **the placements are searched, not solved.** A split's clearances sum to a
+//!   number that mentions no position, which is what lets [`arrange`] solve the
+//!   gaps. An enclosure's do too, *per axis* — but the two axes are not
+//!   independent: how much room the left wall leaves depends on which **rows**
+//!   the inner part covers, and that is the other axis's answer. A `⿴` 囗 does
+//!   not care and a `⿺` 辶 cares a great deal, and there is no arithmetic right
+//!   for both. Trying them is affordable exactly because they are *offsets*: a
+//!   gap is any integer, while an inner part has to sit inside the glyph, so
+//!   the search is over a box a few cells on a side;
+//! - **`edge_sum` is over the sides the operator opens on**, which is one
+//!   clearance per open side and none at all on a `⿴`. Minimizing it is the
+//!   same statement it is on a split — push the parts out against the box —
+//!   read where there is a box to push against;
+//! - **`inner_spread` is over the axes walled on both sides.** That is what
+//!   centres the inner part of a `⿴`; without it the lexicographic rule would
+//!   wedge it into a corner of the ring and call that an answer.
+//!
+//! A pattern block that encloses is **not planned at all**. What a family
+//! shares on a split is its gaps, and an enclosure has none: it shares two
+//! offsets, and an offset is only meaningful against one glyph's own walls,
+//! which are the thing that differs from member to member.
 
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::rc::Rc;
 
-use crate::compose::{AxisFrontier, Direction, InkProfile, VariantSpec, effective_facing};
+use crate::compose::{
+    AxisFrontier, Direction, GapSide, InkProfile, VariantSpec, effective_facing,
+};
 use crate::document::{ComposeItem, Document, DocumentItem, GlyphBody, GlyphCompose, PixelGrid};
 
 /// One IDC line the optimizer would rewrite.
@@ -258,18 +288,40 @@ pub fn optimize_clearance(docs: &[&Document]) -> Vec<DocumentFixes> {
             for (compose_idx, compose) in body.compose.iter().enumerate() {
                 // A pattern block is one line over a family, and what its
                 // glyphs share is the gaps; a plain one is a layout of its own.
-                let planned: Option<PlannedLine> = match is_plain_name(&glyph) {
-                    true => rules.for_glyph(&glyph).and_then(|(_, min, max)| {
-                        optimize_line(
-                            &inventory,
-                            parent,
-                            compose,
-                            min as i32,
-                            max as i32,
-                            audit.max_contact_run.for_glyph(&glyph).map(|(_, m)| m),
-                        )
+                let planned: Option<PlannedLine> = match (is_plain_name(&glyph), compose.op.walls())
+                {
+                    (true, walls) => rules.for_glyph(&glyph).and_then(|(_, band)| {
+                        let (min, max) = band.range(walls.is_some());
+                        let contact = audit.max_contact_run.for_glyph(&glyph).map(|(_, m)| m);
+                        match walls {
+                            Some(walls) => optimize_enclosure_line(
+                                &inventory,
+                                walls,
+                                parent,
+                                compose,
+                                min as i32,
+                                max as i32,
+                                contact,
+                            ),
+                            None => optimize_line(
+                                &inventory,
+                                parent,
+                                compose,
+                                min as i32,
+                                max as i32,
+                                contact,
+                            ),
+                        }
                     }),
-                    false => optimize_pattern_line(
+                    // A pattern block that *encloses* is not planned. What a
+                    // family shares on a split is its gaps, and an enclosure
+                    // has none: it shares two offsets, and an offset is only
+                    // meaningful against one glyph's own walls, which are the
+                    // thing that differs from member to member. There is
+                    // nothing here for one rewrite to be right about, so the
+                    // line keeps its warning and an author decides.
+                    (false, Some(_)) => None,
+                    (false, None) => optimize_pattern_line(
                         &inventory,
                         &audit,
                         &name_parts,
@@ -913,7 +965,12 @@ fn optimize_line(
     let mut at = key.clearances[0] - chosen[0].frontier.near;
     positions.push(at);
     for (i, pair) in chosen.windows(2).enumerate() {
-        let facing = effective_facing(&pair[0].profile, &pair[1].profile, horizontal, contact)?;
+        let facing = effective_facing(
+            GapSide::linear(&pair[0].profile),
+            GapSide::linear(&pair[1].profile),
+            horizontal,
+            contact,
+        )?;
         at += key.clearances[i + 1] - facing;
         positions.push(at);
     }
@@ -1112,12 +1169,13 @@ fn optimize_pattern_line(
             continue;
         };
         let member_name = name.display();
-        let Some((_, lo, hi)) = audit.ideal_clearance.for_glyph(&member_name) else {
+        let Some((_, band)) = audit.ideal_clearance.for_glyph(&member_name) else {
             continue;
         };
         let Some(line) = body.compose.first() else {
             continue;
         };
+        let (lo, hi) = band.range(line.op.enclosing());
         let names: Vec<String> = line.part_names().map(str::to_string).collect();
         if names.len() != written.len() {
             continue;
@@ -1451,7 +1509,12 @@ fn affine_layout(
     let mut base = vec![parts[0].frontier.near];
     let mut total = parts[0].frontier.near + (axis_extent - 1 - parts[last].frontier.far);
     for pair in parts.windows(2) {
-        let facing = effective_facing(&pair[0].profile, &pair[1].profile, horizontal, contact)?;
+        let facing = effective_facing(
+            GapSide::linear(&pair[0].profile),
+            GapSide::linear(&pair[1].profile),
+            horizontal,
+            contact,
+        )?;
         base.push(pair[0].extent + facing);
         total += facing;
     }
@@ -1630,7 +1693,12 @@ fn evaluate(
     // The sum every layout of these variants has, whatever the gaps do.
     let mut total = chosen[0].frontier.near + (axis_extent - 1 - chosen[n - 2].frontier.far);
     for pair in chosen.windows(2) {
-        total += effective_facing(&pair[0].profile, &pair[1].profile, horizontal, contact)?;
+        total += effective_facing(
+            GapSide::linear(&pair[0].profile),
+            GapSide::linear(&pair[1].profile),
+            horizontal,
+            contact,
+        )?;
     }
     let clearances = arrange(n, total, lo, hi);
     Some(Key {
@@ -1684,8 +1752,8 @@ fn clearances_at(
     let mut out = vec![positions[0] + parts[0].frontier.near];
     for i in 0..last {
         let facing = effective_facing(
-            &parts[i].profile,
-            &parts[i + 1].profile,
+            GapSide::linear(&parts[i].profile),
+            GapSide::linear(&parts[i + 1].profile),
             horizontal,
             contact,
         )?;
@@ -1807,6 +1875,416 @@ fn arrange(n: usize, total: i32, lo: i32, hi: i32) -> Vec<i32> {
     out.extend(std::iter::repeat_n(share + 1, over));
     out.push(edge_sum - near);
     out
+}
+
+// ------------------------------------------------------------------ enclosures
+
+/// How many placements one variant pair may be tried at, and how much work a
+/// whole enclosure line may be. A 16x16 glyph holding a 4x4 part has 169
+/// placements and a handful of variant pairs, so no real line comes near
+/// either; the caps are there so that an unexpected inventory cannot turn one
+/// line into an afternoon.
+const MAX_ENCLOSURE_PLACEMENTS: usize = 4_096;
+const MAX_ENCLOSURE_WORK: usize = 1_048_576;
+
+/// One name an enclosure slot could hold. The counterpart of [`Candidate`],
+/// and different from it in exactly the way the two layouts are: an enclosure
+/// part is placed on both axes, so what is kept is its whole box rather than
+/// one extent and one axis's frontier.
+#[derive(Clone)]
+struct EnclosurePart {
+    name: String,
+    size: (u16, u16),
+    /// [`crate::compose::enclosure_rank`] for the slot it is considered for:
+    /// 0 a drawing made for it, 1 one that claims nothing, 2 one made for the
+    /// other slot — which is exactly the case `compose` warns about.
+    rank: u8,
+    profile: Rc<InkProfile>,
+}
+
+/// [`SlotState`] for an enclosure slot; the three answers mean the same things.
+enum EnclosureSlot {
+    Ok(Box<EnclosurePart>),
+    Faulty,
+    Unmeasurable,
+}
+
+impl Inventory<'_> {
+    /// One name, ready to be put in an enclosure slot.
+    fn enclosure_slot(&self, written: &str, parent: (u16, u16), outer: bool) -> EnclosureSlot {
+        let canonical = self.canonical(written);
+        let Some(&Some((w, h))) = self.boxes.get(&canonical) else {
+            return EnclosureSlot::Faulty;
+        };
+        let spec = VariantSpec::parse(&canonical);
+        if spec.size.is_some_and(|size| size != (w, h)) {
+            return EnclosureSlot::Faulty;
+        }
+        if !crate::compose::fits_enclosure_slot((w, h), parent, outer) {
+            return EnclosureSlot::Faulty;
+        }
+        let Some(profile) = self.profile(&canonical) else {
+            return EnclosureSlot::Unmeasurable;
+        };
+        // Both axes, since an enclosure is measured on both: a part with ink on
+        // one and none on the other is not something this pass can place.
+        if profile.frontier(true).is_none() || profile.frontier(false).is_none() {
+            return EnclosureSlot::Unmeasurable;
+        }
+        EnclosureSlot::Ok(Box::new(EnclosurePart {
+            // Ranked on the name as *written*, which is the name the check
+            // reads when it decides whether to warn.
+            rank: crate::compose::enclosure_rank(written, outer),
+            name: written.to_string(),
+            size: (w, h),
+            profile,
+        }))
+    }
+
+    /// Everything that could fill the enclosure slot `current` fills now,
+    /// `current` itself first — the same rule [`Self::candidates`] states, with
+    /// the cavity in a name standing in for the direction letter.
+    fn enclosure_candidates(
+        &self,
+        current: &str,
+        parent: (u16, u16),
+        outer: bool,
+    ) -> Vec<EnclosurePart> {
+        let mut out: Vec<EnclosurePart> = Vec::new();
+        let canonical = self.canonical(current);
+        let base = if crate::compose::is_undecided(&canonical) {
+            canonical.clone()
+        } else {
+            match self.enclosure_slot(current, parent, outer) {
+                EnclosureSlot::Ok(mine) => {
+                    out.push(*mine);
+                    let Some((base, _)) = canonical.split_once(':') else {
+                        return out;
+                    };
+                    base.to_string()
+                }
+                _ => canonical
+                    .split_once(':')
+                    .map_or_else(|| canonical.clone(), |(base, _)| base.to_string()),
+            }
+        };
+        for name in self.variants.get(&base).into_iter().flatten() {
+            if out.len() >= MAX_CANDIDATES {
+                break;
+            }
+            if *name == canonical
+                || out
+                    .iter()
+                    .any(|c| c.name == *name || self.canonical(&c.name) == *name)
+            {
+                continue;
+            }
+            // A drawing made for the other slot is not an alternative for this
+            // one; see `compose::enclosure_rank`.
+            if crate::compose::enclosure_rank(name, outer) > 1 {
+                continue;
+            }
+            if let EnclosureSlot::Ok(candidate) = self.enclosure_slot(name, parent, outer) {
+                out.push(*candidate);
+            }
+        }
+        out
+    }
+}
+
+/// How the optimizer orders two answers for an enclosure line. Derived `Ord`
+/// is the whole rule, and the fields are the split's own
+/// ([`Key`]) with the two that mean something different here changed:
+///
+/// - **`edge_sum`** is over the clearances that touch the glyph's *own*
+///   boundary, which for an enclosure is one per open side and none at all on
+///   a `⿴`. Minimizing it is the same statement it is on a split — push the
+///   parts out against the box — read on the sides the operator leaves open;
+/// - **`inner_spread`** is over the axes with no open side, where there is
+///   nothing to push against. Evening the two out is what centres the inner
+///   part of a `⿴`, and without it the lexicographic rule below would wedge it
+///   into a corner of the ring and call that an answer.
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+struct EnclosureKey {
+    score: i32,
+    mismatched: usize,
+    directed: std::cmp::Reverse<usize>,
+    /// The clearances that run to a side the operator leaves open, added.
+    edge_sum: i32,
+    /// How far apart an axis's two clearances are, over the axes walled on
+    /// both sides.
+    inner_spread: i32,
+    clearances: Vec<i32>,
+    /// `false` — the line as written — sorts first.
+    changed: bool,
+    names: Vec<String>,
+    /// Last, so that two answers alike in every way still order.
+    placement: (i32, i32),
+}
+
+/// What the check would warn about on an enclosure line, as one number: every
+/// clearance's distance from the range, plus **each axis's** total's.
+///
+/// Per axis and not over all four, for the reason
+/// [`crate::compose::measure_enclosure_clearances`] gives: the two sums say two
+/// different things, and one number made of both would be neither.
+fn enclosure_score(clearances: &[crate::compose::Clearance], lo: i32, hi: i32) -> i32 {
+    let per_gap: i32 = clearances
+        .iter()
+        .map(|c| distance(c.value, lo, hi))
+        .sum::<i32>();
+    let per_axis: i32 = [true, false]
+        .into_iter()
+        .map(|h| {
+            let total: i32 = clearances
+                .iter()
+                .filter(|c| c.horizontal == h)
+                .map(|c| c.value)
+                .sum();
+            distance(total, lo, hi)
+        })
+        .sum();
+    per_gap + per_axis
+}
+
+/// Score one placement of one variant pair.
+#[allow(clippy::too_many_arguments)]
+fn evaluate_enclosure(
+    outer: &EnclosurePart,
+    inner: &EnclosurePart,
+    written: &[&str],
+    walls: crate::compose::Walls,
+    parent: (u16, u16),
+    at: (i32, i32),
+    lo: i32,
+    hi: i32,
+    contact: Option<u16>,
+) -> Option<EnclosureKey> {
+    let clearances = crate::compose::measure_enclosure_clearances(
+        walls,
+        parent,
+        (&outer.name, &outer.profile),
+        (&inner.name, &inner.profile),
+        at,
+        contact,
+    )?;
+    let values: Vec<i32> = clearances.iter().map(|c| c.value).collect();
+    let edge_sum: i32 = clearances
+        .iter()
+        .filter(|c| c.at_edge)
+        .map(|c| c.value)
+        .sum();
+    let inner_spread: i32 = [true, false]
+        .into_iter()
+        .filter(|&h| walls.open_count(h) == 0)
+        .map(|h| {
+            let pair: Vec<i32> = clearances
+                .iter()
+                .filter(|c| c.horizontal == h)
+                .map(|c| c.value)
+                .collect();
+            match pair.as_slice() {
+                [a, b] => (a - b).abs(),
+                _ => 0,
+            }
+        })
+        .sum();
+    let names = [&outer.name, &inner.name];
+    Some(EnclosureKey {
+        score: enclosure_score(&clearances, lo, hi),
+        mismatched: [outer.rank, inner.rank].iter().filter(|&&r| r == 2).count(),
+        directed: std::cmp::Reverse(
+            [outer.rank, inner.rank].iter().filter(|&&r| r == 0).count(),
+        ),
+        edge_sum,
+        inner_spread,
+        clearances: values,
+        changed: names.iter().zip(written).any(|(a, b)| a.as_str() != *b),
+        names: names.iter().map(|n| (*n).clone()).collect(),
+        placement: at,
+    })
+}
+
+/// Plan one enclosure line, or `None` when it does not warn, cannot be
+/// measured, or cannot be improved.
+///
+/// # Why the placements are searched where a split's gaps are not
+///
+/// A split's clearances sum to a number that mentions no position, which is
+/// what lets [`arrange`] solve the gaps instead of trying them. An enclosure's
+/// do too — *per axis* — but the two axes are not independent: how much room
+/// the left wall leaves depends on which **rows** the inner part covers, and
+/// that is the other axis's answer. A `⿴` 囗 does not care and a `⿺` 辶 cares a
+/// great deal, and there is no arithmetic that is right for both.
+///
+/// So the offsets are tried rather than solved. That is affordable exactly
+/// because they are *offsets*: a split's gap is any integer, while an inner
+/// part has to sit inside the glyph, so the search is over a box a few cells on
+/// a side rather than over the integers. A part that has to overhang the box is
+/// the author's to write, and the line as written is always a candidate.
+fn optimize_enclosure_line(
+    inv: &Inventory,
+    walls: crate::compose::Walls,
+    parent: (u16, u16),
+    compose: &GlyphCompose,
+    lo: i32,
+    hi: i32,
+    contact: Option<u16>,
+) -> Option<PlannedLine> {
+    let written: Vec<&str> = compose.part_names().collect();
+    if written.len() != 2 || written.iter().any(|n| !is_plain_name(n)) {
+        return None;
+    }
+    // The line has to be one this file could write back: two components and
+    // then their offsets. Anything else is an error the source answers first.
+    let mut offsets: Vec<i32> = Vec::new();
+    let mut seen_parts = 0usize;
+    for item in &compose.items {
+        match item {
+            ComposeItem::Gap(n) => {
+                if seen_parts < 2 {
+                    return None;
+                }
+                offsets.push(*n as i32);
+            }
+            ComposeItem::Part { .. } => seen_parts += 1,
+        }
+    }
+    if !matches!(offsets.len(), 0 | 2) {
+        return None;
+    }
+    let placed = (offsets.len() == 2).then(|| (offsets[0], offsets[1]));
+
+    // As written — when there is a "as written" at all. An undecided component
+    // or an unwritten placement leaves the line with no layout to have measured
+    // badly, exactly as on a split, and it is planned whatever it scores.
+    let mut faulty = false;
+    let current: Option<[EnclosurePart; 2]> = match placed {
+        None => None,
+        Some(_) if written.iter().any(|n| crate::compose::is_undecided(n)) => None,
+        Some(_) => {
+            let mut parts: Vec<EnclosurePart> = Vec::with_capacity(2);
+            for (slot, name) in written.iter().enumerate() {
+                match inv.enclosure_slot(name, parent, slot == 0) {
+                    EnclosureSlot::Ok(part) => parts.push(*part),
+                    EnclosureSlot::Faulty => faulty = true,
+                    EnclosureSlot::Unmeasurable => return None,
+                }
+            }
+            match (faulty, <[EnclosurePart; 2]>::try_from(parts)) {
+                (false, Ok(pair)) => Some(pair),
+                _ => None,
+            }
+        }
+    };
+    let before = match (&current, placed) {
+        (Some([outer, inner]), Some(at)) => {
+            let key = evaluate_enclosure(
+                outer, inner, &written, walls, parent, at, lo, hi, contact,
+            )?;
+            if (key.score, key.mismatched) == (0, 0) {
+                return None; // nothing warns, so nothing to fix
+            }
+            Some((key.score, key.mismatched))
+        }
+        _ => None,
+    };
+
+    let outers = inv.enclosure_candidates(written[0], parent, true);
+    let inners = inv.enclosure_candidates(written[1], parent, false);
+    if outers.is_empty() || inners.is_empty() {
+        return None;
+    }
+    // The box the inner part may sit in, per pair — plus the placement the line
+    // already writes, which is the source's own choice and stands whatever it
+    // measures.
+    let work: usize = outers
+        .len()
+        .saturating_mul(inners.len())
+        .saturating_mul(inners.iter().map(|i| placements(parent, i.size)).max()?);
+    if work > MAX_ENCLOSURE_WORK {
+        return None;
+    }
+
+    let mut best: Option<EnclosureKey> = None;
+    for outer in &outers {
+        for inner in &inners {
+            let (span_x, span_y) = (
+                parent.0.saturating_sub(inner.size.0) as i32,
+                parent.1.saturating_sub(inner.size.1) as i32,
+            );
+            if placements(parent, inner.size) > MAX_ENCLOSURE_PLACEMENTS {
+                continue;
+            }
+            let written_here = placed
+                .filter(|_| outer.name == written[0] && inner.name == written[1])
+                .filter(|&(p, q)| p < 0 || q < 0 || p > span_x || q > span_y);
+            let grid = (0..=span_y).flat_map(move |q| (0..=span_x).map(move |p| (p, q)));
+            for at in grid.chain(written_here) {
+                let Some(key) = evaluate_enclosure(
+                    outer, inner, &written, walls, parent, at, lo, hi, contact,
+                ) else {
+                    continue;
+                };
+                if best.as_ref().is_none_or(|b| key < *b) {
+                    best = Some(key);
+                }
+            }
+        }
+    }
+    let key = best?;
+    if before.is_some_and(|before| (key.score, key.mismatched) >= before) {
+        return None; // a line nobody can improve keeps its warning
+    }
+    let line = write_enclosure_line(compose, &key.names, key.placement)?;
+    Some(PlannedLine {
+        line,
+        before: before.map(|(score, _)| score),
+        after: key.score,
+        mismatched: before.map(|(_, mismatched)| (mismatched, key.mismatched)),
+        glyphs_warning: None,
+        faulty,
+    })
+}
+
+/// How many places a part that size could sit inside the parent's box.
+fn placements(parent: (u16, u16), size: (u16, u16)) -> usize {
+    let span = |p: u16, s: u16| p.saturating_sub(s) as usize + 1;
+    span(parent.0, size.0).saturating_mul(span(parent.1, size.1))
+}
+
+/// The line that puts `names` at `at`: the same operator and comment, the
+/// chosen names, and the two offsets.
+///
+/// Both offsets are always written, `0 0` included — an enclosure line with
+/// none is one that has *not decided*, and a plan whose whole point is the
+/// decision must not write it back as though nothing had happened.
+fn write_enclosure_line(compose: &GlyphCompose, names: &[String], at: (i32, i32)) -> Option<String> {
+    let mut items: Vec<ComposeItem> = Vec::new();
+    for name in names {
+        // A component that did not change keeps how it was written, `@` form
+        // and all; a new one is written out as the glyph it names.
+        let raw_name = compose.items.iter().find_map(|item| match item {
+            ComposeItem::Part {
+                name: n, raw_name, ..
+            } if n == name => raw_name.clone(),
+            _ => None,
+        });
+        items.push(ComposeItem::Part {
+            name: name.clone(),
+            raw_name,
+        });
+    }
+    items.push(ComposeItem::Gap(i16::try_from(at.0).ok()?));
+    items.push(ComposeItem::Gap(i16::try_from(at.1).ok()?));
+    Some(
+        GlyphCompose {
+            op: compose.op,
+            items,
+            comment: compose.comment.clone(),
+        }
+        .format_line(),
+    )
 }
 
 /// The cartesian product of the slots' candidate lists, as index vectors over

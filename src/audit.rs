@@ -26,7 +26,8 @@
 //! The keys:
 //!
 //! ```text
-//! audit ideal-clearance han-* 0 1
+//! audit ideal-clearance han-* 0 1        // one band for every IDC line
+//! audit ideal-clearance han-* 0 1 1 2    // …or a second one for enclosures
 //! audit max-contact-run han-* 2
 //! ```
 //!
@@ -45,10 +46,15 @@ use crate::document::{Document, DocumentItem};
 /// a key some consumer handles.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum AuditEntry {
-    /// `ideal-clearance PREFIX* MIN MAX` — how much room an IDC line's parts
-    /// are meant to leave each other and the glyph's edges. See
-    /// [`IdealClearances`] and [`crate::compose`].
-    IdealClearance { prefix: String, min: i16, max: i16 },
+    /// `ideal-clearance PREFIX* MIN MAX [MIN MAX]` — how much room an IDC
+    /// line's parts are meant to leave each other and the glyph's edges. The
+    /// second pair, where a source writes one, is the band an *enclosure* line
+    /// is held to; with one pair both kinds of line share it. See
+    /// [`IdealClearances`], [`ClearanceBand`] and [`crate::compose`].
+    IdealClearance {
+        prefix: String,
+        band: ClearanceBand,
+    },
     /// `max-contact-run PREFIX* N` — how many consecutive lines two neighbouring
     /// parts of an IDC line may touch along before the layout owes them a cell
     /// of clearance. See [`MaxContactRuns`] and [`crate::compose::contact_run`].
@@ -111,27 +117,45 @@ pub fn parse_audit_entry(text: &str) -> Result<AuditEntry, String> {
     };
     match key.as_str() {
         "ideal-clearance" => {
-            let [prefix, min, max] = rest else {
-                return Err(format!(
-                    "`audit {key}` takes a glyph-name prefix and 2 values, got {}",
-                    rest.len(),
-                ));
+            // Two pairs or one, and nothing between: a one-dimensional split
+            // and an enclosure leave room for different reasons — an enclosure
+            // has to fit a whole drawing inside another one — so a source that
+            // wants them held apart says so, and one that does not writes the
+            // band once. What is refused is 3 or 5 values, which is a source
+            // half-way through saying something.
+            let (prefix, values) = match rest {
+                [prefix, rest @ ..] if rest.len() == 2 || rest.len() == 4 => (prefix, rest),
+                _ => {
+                    return Err(format!(
+                        "`audit {key}` takes a glyph-name prefix and 2 or 4 values, got {}",
+                        rest.len(),
+                    ));
+                }
             };
             check_prefix(key, prefix)?;
             let num = |v: &String| {
                 v.parse::<i16>()
                     .map_err(|_| format!("`audit {key}` takes numbers, got `{v}`"))
             };
-            let (min, max) = (num(min)?, num(max)?);
-            if min > max {
-                return Err(format!(
-                    "`audit {key}` range is {min}..{max}, which is empty"
-                ));
+            let mut pairs = Vec::new();
+            for pair in values.chunks(2) {
+                let (min, max) = (num(&pair[0])?, num(&pair[1])?);
+                if min > max {
+                    return Err(format!(
+                        "`audit {key}` range is {min}..{max}, which is empty"
+                    ));
+                }
+                pairs.push((min, max));
             }
+            let linear = pairs[0];
             Ok(AuditEntry::IdealClearance {
                 prefix: prefix.clone(),
-                min,
-                max,
+                band: ClearanceBand {
+                    linear,
+                    // One pair states one standard for every IDC line, which is
+                    // what a source that has never drawn an enclosure means.
+                    enclosing: pairs.get(1).copied().unwrap_or(linear),
+                },
             })
         }
         "max-contact-run" => {
@@ -179,8 +203,8 @@ impl AuditRules {
                     continue;
                 };
                 match parse_audit_entry(text) {
-                    Ok(AuditEntry::IdealClearance { prefix, min, max }) => {
-                        rules.ideal_clearance.rules.insert(prefix, (min, max));
+                    Ok(AuditEntry::IdealClearance { prefix, band }) => {
+                        rules.ideal_clearance.rules.insert(prefix, band);
                     }
                     Ok(AuditEntry::MaxContactRun { prefix, max }) => {
                         rules.max_contact_run.rules.insert(prefix, max);
@@ -203,10 +227,20 @@ impl AuditRules {
 ///
 /// Every key scopes the same way, so the matching lives here once; what a rule
 /// *says* is the type parameter.
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug)]
 pub struct PrefixRules<T> {
     /// Pattern as written -> what it states.
     rules: BTreeMap<String, T>,
+}
+
+// Hand-written rather than derived: a derived `Default` would demand one of
+// `T` as well, and "no rules at all" says nothing about what a rule states.
+impl<T> Default for PrefixRules<T> {
+    fn default() -> Self {
+        Self {
+            rules: BTreeMap::new(),
+        }
+    }
 }
 
 impl<T> PrefixRules<T> {
@@ -238,7 +272,29 @@ impl<T> PrefixRules<T> {
 /// See [`crate::compose`] for what a clearance is and where it is measured;
 /// violating one is a warning, since it is a drawing that has drifted rather
 /// than a source that cannot be built.
-pub type IdealClearances = PrefixRules<(i16, i16)>;
+pub type IdealClearances = PrefixRules<ClearanceBand>;
+
+/// What one `audit ideal-clearance` rule states: the band a one-dimensional
+/// split is held to, and the band an enclosure is.
+///
+/// They are two numbers rather than one because the two layouts spend room on
+/// different things. A `⿰` junction is two parts standing beside each other and
+/// a cell between them is generous; an enclosure has to seat a whole drawing
+/// inside the cavity of another, where the same cell is often the difference
+/// between "inside" and "wedged". A source that has not drawn an enclosure yet
+/// writes one pair and both read it.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct ClearanceBand {
+    pub linear: (i16, i16),
+    pub enclosing: (i16, i16),
+}
+
+impl ClearanceBand {
+    /// The band the line at hand is held to.
+    pub fn range(&self, enclosing: bool) -> (i16, i16) {
+        if enclosing { self.enclosing } else { self.linear }
+    }
+}
 
 /// The `audit max-contact-run` rules: how many consecutive lines two
 /// neighbouring parts may touch along before the layout owes them a cell.
@@ -258,9 +314,11 @@ pub type IdealClearances = PrefixRules<(i16, i16)>;
 pub type MaxContactRuns = PrefixRules<u16>;
 
 impl IdealClearances {
-    /// The pattern the rule was written as and its inclusive range.
-    pub fn for_glyph(&self, glyph: &str) -> Option<(&str, i16, i16)> {
-        self.get(glyph).map(|(p, &(min, max))| (p, min, max))
+    /// The pattern the rule was written as and what it states. Which of the
+    /// two bands applies is [`ClearanceBand::range`], asked with the operator
+    /// the line at hand carries.
+    pub fn for_glyph(&self, glyph: &str) -> Option<(&str, &ClearanceBand)> {
+        self.get(glyph)
     }
 }
 
@@ -287,14 +345,17 @@ mod tests {
             parse_audit_entry("ideal-clearance han-* 0 1").unwrap(),
             AuditEntry::IdealClearance {
                 prefix: "han-*".to_string(),
-                min: 0,
-                max: 1,
+                band: ClearanceBand {
+                    linear: (0, 1),
+                    // One pair is one standard for every IDC line.
+                    enclosing: (0, 1),
+                },
             },
         );
         // A range may admit an overlap.
         assert!(matches!(
             parse_audit_entry("ideal-clearance han-* -1 1"),
-            Ok(AuditEntry::IdealClearance { min: -1, .. })
+            Ok(AuditEntry::IdealClearance { band, .. }) if band.linear == (-1, 1)
         ));
         // The `*` matches a name's front, so it can only be at the end.
         assert!(
@@ -310,6 +371,27 @@ mod tests {
         assert!(parse_audit_entry("ideal-clearance han-* 0").is_err());
         assert!(parse_audit_entry("clearance han-* 0 1").is_err());
         assert!(parse_audit_entry("").is_err());
+    }
+
+    #[test]
+    fn an_ideal_clearance_rule_may_state_the_enclosure_band_apart() {
+        let entry = parse_audit_entry("ideal-clearance han-* 0 1 1 2").unwrap();
+        let AuditEntry::IdealClearance { band, .. } = entry else {
+            panic!("not an ideal-clearance rule");
+        };
+        assert_eq!(band.linear, (0, 1));
+        assert_eq!(band.enclosing, (1, 2));
+        assert_eq!(band.range(false), (0, 1));
+        assert_eq!(band.range(true), (1, 2));
+        // Either range may be empty, and either says so.
+        assert!(
+            parse_audit_entry("ideal-clearance han-* 0 1 2 1")
+                .unwrap_err()
+                .contains("empty")
+        );
+        // Half of a second pair is a source that stopped mid-sentence.
+        assert!(parse_audit_entry("ideal-clearance han-* 0 1 2").is_err());
+        assert!(parse_audit_entry("ideal-clearance han-* 0 1 2 3 4").is_err());
     }
 
     #[test]
@@ -340,8 +422,8 @@ mod tests {
         // Its own key, so it neither collides with nor replaces the other one.
         let r = rules_of("audit ideal-clearance han-* 0 1\naudit max-contact-run han-* 2\n");
         assert_eq!(
-            r.ideal_clearance.for_glyph("han-4e00"),
-            Some(("han-*", 0, 1))
+            r.ideal_clearance.for_glyph("han-4e00").map(|(p, b)| (p, b.linear)),
+            Some(("han-*", (0, 1)))
         );
         assert_eq!(r.max_contact_run.for_glyph("han-4e00"), Some(("han-*", 2)));
         assert!(r.max_contact_run.for_glyph("latin-a").is_none());
@@ -376,11 +458,12 @@ mod tests {
              audit ideal-clearance han-4e00 3 4\n",
         )
         .ideal_clearance;
-        assert_eq!(r.for_glyph("han-53ef"), Some(("han-*", 0, 1)));
-        assert_eq!(r.for_glyph("han-6c35"), Some(("han-6c*", 1, 2)));
+        let band = |g: &str| r.for_glyph(g).map(|(p, b)| (p, b.linear));
+        assert_eq!(band("han-53ef"), Some(("han-*", (0, 1))));
+        assert_eq!(band("han-6c35"), Some(("han-6c*", (1, 2))));
         // A bare name is a rule for that one glyph, and beats every prefix of it.
-        assert_eq!(r.for_glyph("han-4e00"), Some(("han-4e00", 3, 4)));
-        assert_eq!(r.for_glyph("latin-a"), None);
+        assert_eq!(band("han-4e00"), Some(("han-4e00", (3, 4))));
+        assert_eq!(band("latin-a"), None);
         assert!(rules_of("").ideal_clearance.is_empty());
     }
 

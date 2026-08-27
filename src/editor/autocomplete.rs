@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::compose::{Direction, IdcOp, VariantSpec, direction_rank};
+use crate::compose::{Direction, IdcOp, VariantSpec, direction_rank, enclosure_rank};
 use crate::document::{DocLine, Document, DocumentItem, NamePartsMap};
 use crate::document_io::{TokenSpan, tokenize_with_spans};
 use crate::editor::caret::{Caret, char_to_byte};
@@ -33,7 +33,7 @@ pub(crate) struct AutocompleteState {
     pub line: usize,
     all_candidates: Vec<CompletionCandidate>,
     kind: CompletionKind,
-    slot: Option<Direction>,
+    slot: Option<IdcSlot>,
 }
 
 struct CompletionContext {
@@ -42,7 +42,7 @@ struct CompletionContext {
     replace_start: usize,
     /// Which slot of an enclosing IDC line the name being written fills, if it
     /// is on one at all. Only the ordering below reads it.
-    slot: Option<Direction>,
+    slot: Option<IdcSlot>,
 }
 
 pub(crate) struct CompletionSource<'a> {
@@ -77,7 +77,7 @@ pub(crate) fn trigger(
         &ctx,
         source,
         &at_context(lines, state.cursor.line),
-        idc_cross_extent(line_text, lines, state.cursor.line),
+        idc_slot_fit(line_text, col, lines, state.cursor.line),
     );
     if all_candidates.is_empty() {
         return;
@@ -357,7 +357,7 @@ fn filter_candidates(
     all: &[CompletionCandidate],
     kind: &CompletionKind,
     prefix: &str,
-    slot: Option<Direction>,
+    slot: Option<IdcSlot>,
 ) -> Vec<CompletionCandidate> {
     let prefix = effective_prefix(kind, prefix);
     let mut out: Vec<CompletionCandidate> = all
@@ -365,10 +365,34 @@ fn filter_candidates(
         .filter(|c| c.label.starts_with(prefix))
         .cloned()
         .collect();
-    if *kind == CompletionKind::Glyph && slot.is_some() && prefix.contains(':') {
-        out.sort_by_key(|c| direction_rank(&c.label, slot));
+    if *kind == CompletionKind::Glyph
+        && let Some(slot) = slot
+        && prefix.contains(':')
+    {
+        out.sort_by_key(|c| slot.rank(&c.label));
     }
     out
+}
+
+/// Which slot of an IDC line the caret is writing, and what a name is ranked
+/// by for it. The two kinds of line claim different things of a name — a share
+/// of an axis says which side it was drawn for, an enclosure's outer part says
+/// what it can hold — so the ranking is the slot's to answer.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum IdcSlot {
+    /// A share of a split's axis, named by the direction it stands for.
+    Split(Direction),
+    /// One of an enclosure's two; `outer` is the part that does the enclosing.
+    Enclosure { outer: bool },
+}
+
+impl IdcSlot {
+    fn rank(self, name: &str) -> u8 {
+        match self {
+            Self::Split(d) => direction_rank(name, Some(d)),
+            Self::Enclosure { outer } => enclosure_rank(name, outer),
+        }
+    }
 }
 
 /// Which slot of an IDC line the caret is writing in, as the direction that slot
@@ -379,7 +403,22 @@ fn filter_candidates(
 /// slot is how many parts stand before the caret. A caret past the last token is
 /// therefore writing the next slot, which is the one an unwritten component
 /// would fill.
-fn idc_slot(line: &str, col: usize) -> Option<Direction> {
+fn idc_slot(line: &str, col: usize) -> Option<IdcSlot> {
+    let (op, before) = idc_op_and_slot(line, col)?;
+    match op.walls() {
+        None => op.slot_direction(before).map(IdcSlot::Split),
+        // Past the second component the caret is writing an offset, not a
+        // name, and the popup does not open on a number anyway.
+        Some(_) => (before < 2).then_some(IdcSlot::Enclosure {
+            outer: before == 0,
+        }),
+    }
+}
+
+/// The operator an IDC line writes and how many components stand before the
+/// caret. Shared by the slot's ranking and the slot's size filter, which have
+/// to agree about which slot is being written.
+fn idc_op_and_slot(line: &str, col: usize) -> Option<(IdcOp, usize)> {
     let trimmed = line.trim_start();
     let leading = line.chars().count() - trimmed.chars().count();
     let spans = tokenize_with_spans(trimmed).ok()?;
@@ -390,7 +429,7 @@ fn idc_slot(line: &str, col: usize) -> Option<Direction> {
         .iter()
         .filter(|s| s.raw_end < adj_col && is_idc_part(s))
         .count();
-    op.slot_direction(before)
+    Some((op, before))
 }
 
 fn is_idc_part(span: &TokenSpan) -> bool {
@@ -408,14 +447,23 @@ fn is_idc_part(span: &TokenSpan) -> bool {
 /// last (see [`filter_candidates`]). A listing must not offer what the build
 /// would refuse, so these names are dropped outright.
 #[derive(Clone, Copy)]
-struct CrossExtent {
-    /// The parent's extent across the axis, in declared cells.
-    cells: u16,
-    /// Whether the split is horizontal, i.e. which side of a box to read.
-    horizontal: bool,
+enum SlotFit {
+    /// A share of a split's axis: the box must be exactly this many cells
+    /// across it.
+    Across {
+        /// The parent's extent across the axis, in declared cells.
+        cells: u16,
+        /// Whether the split is horizontal, i.e. which side of a box to read.
+        horizontal: bool,
+    },
+    /// A slot of an enclosure: the outer part is the glyph exactly and the
+    /// inner one fits inside it
+    /// ([`fits_enclosure_slot`](crate::compose::fits_enclosure_slot)). Both are
+    /// errors on the line when they fail, so both are dropped here.
+    Enclosure { parent: (u16, u16), outer: bool },
 }
 
-impl CrossExtent {
+impl SlotFit {
     /// Whether `name`, whose header declares `declared`, may fill the slot.
     ///
     /// A name whose box nothing states — a family name, a pattern, a glyph
@@ -424,22 +472,40 @@ impl CrossExtent {
     /// suffix is measured by that when it has no box of its own, since that
     /// suffix is exactly the claim the author is choosing between.
     fn admits(self, name: &str, declared: Option<(u16, u16)>) -> bool {
-        let Some((w, h)) = declared.or_else(|| VariantSpec::parse(name).size) else {
+        let Some(size) = declared.or_else(|| VariantSpec::parse(name).size) else {
             return true;
         };
-        self.cells == if self.horizontal { h } else { w }
+        match self {
+            Self::Across { cells, horizontal } => {
+                cells == if horizontal { size.1 } else { size.0 }
+            }
+            Self::Enclosure { parent, outer } => {
+                crate::compose::fits_enclosure_slot(size, parent, outer)
+            }
+        }
     }
 }
 
 /// What the slot the caret is writing demands across the axis, or `None` when
 /// the line is not an IDC line or the enclosing glyph declares no box (which
 /// `compose` reports on its own — there is nothing to filter by).
-fn idc_cross_extent(line: &str, lines: &[DocLine], line_idx: usize) -> Option<CrossExtent> {
-    let op = IdcOp::from_token(&tokenize_with_spans(line.trim_start()).ok()?.first()?.value)?;
+fn idc_slot_fit(
+    line: &str,
+    col: usize,
+    lines: &[DocLine],
+    line_idx: usize,
+) -> Option<SlotFit> {
+    let (op, before) = idc_op_and_slot(line, col)?;
     let (w, h) = enclosing_glyph_box(lines, line_idx)?;
-    Some(CrossExtent {
-        cells: if op.horizontal() { h } else { w },
-        horizontal: op.horizontal(),
+    Some(match op.walls() {
+        None => SlotFit::Across {
+            cells: if op.horizontal() { h } else { w },
+            horizontal: op.horizontal(),
+        },
+        Some(_) => SlotFit::Enclosure {
+            parent: (w, h),
+            outer: before == 0,
+        },
     })
 }
 
@@ -705,7 +771,7 @@ fn find_rest_token_at(rest: &[crate::document_io::TokenSpan], adj_col: usize) ->
 }
 
 /// `cross` narrows the glyph listing to the names that fit the IDC slot the
-/// caret is in; see [`CrossExtent`]. It is applied here rather than in
+/// caret is in; see [`SlotFit`]. It is applied here rather than in
 /// [`filter_candidates`] because it does not depend on what is typed, so the
 /// popup's stored list is already the admissible one and every keystroke after
 /// it filters by prefix alone.
@@ -713,7 +779,7 @@ fn collect_candidates(
     ctx: &CompletionContext,
     source: &CompletionSource,
     at_base: &Option<String>,
-    cross: Option<CrossExtent>,
+    cross: Option<SlotFit>,
 ) -> Vec<CompletionCandidate> {
     let mut candidates = Vec::new();
 
@@ -1239,7 +1305,7 @@ glyph parent 15 16
         let shown = |line_text: &str, col: usize, line: usize| -> Vec<String> {
             let ctx = detect_context(line_text, col).unwrap();
             assert_eq!(ctx.kind, CompletionKind::Glyph);
-            let cross = idc_cross_extent(line_text, &lines, line);
+            let cross = idc_slot_fit(line_text, col, &lines, line);
             let all = collect_candidates(&ctx, &source, &None, cross);
             filter_candidates(&all, &ctx.kind, &ctx.prefix, ctx.slot)
                 .into_iter()
@@ -1253,6 +1319,56 @@ glyph parent 15 16
 
         // Off an IDC line there is no slot to fit, so the family lists whole.
         assert_eq!(shown("ref p:5", 7, idc), vec!["p:16x5", "p:5x10", "p:5x16"],);
+    }
+
+    /// An enclosure's two slots want opposite things of a name: the outer one
+    /// is the glyph exactly and promises a cavity, the inner one fits inside it
+    /// and promises none. Both are errors on the line when they fail, so the
+    /// listing drops what the build would refuse and orders the rest by which
+    /// slot the drawing was made for.
+    #[test]
+    fn an_enclosure_slot_lists_the_names_made_for_it() {
+        let src = "\
+glyph p:15x16.9x10 15 16
+glyph p:15x16 15 16
+glyph p:9x10 9 10
+glyph p:16x16 16 16
+glyph parent 15 16
+\u{2FF4} p:1 q
+";
+        let doc = crate::document_io::parse_document_from_str(src, "t.unf".into()).unwrap();
+        let lines = crate::document_io::parse_doclines(src);
+        let named_glyphs = HashMap::new();
+        let name_parts = NamePartsMap::new();
+        let source = CompletionSource {
+            named_glyphs: &named_glyphs,
+            name_parts: &name_parts,
+            doc: &doc,
+        };
+        let idc = lines
+            .iter()
+            .position(|l| l.as_text().is_some_and(|t| t.starts_with('\u{2FF4}')))
+            .unwrap();
+        let shown = |line_text: &str, col: usize| -> Vec<String> {
+            let ctx = detect_context(line_text, col).unwrap();
+            let cross = idc_slot_fit(line_text, col, &lines, idc);
+            let all = collect_candidates(&ctx, &source, &None, cross);
+            filter_candidates(&all, &ctx.kind, &ctx.prefix, ctx.slot)
+                .into_iter()
+                .map(|c| c.label)
+                .collect()
+        };
+
+        // The outer slot: only a drawing that is the glyph exactly, and the one
+        // promising a cavity first.
+        assert_eq!(shown("\u{2FF4} p:1 q", 5), vec!["p:15x16.9x10", "p:15x16"]);
+        // The inner slot: anything that fits inside the glyph, and the one
+        // promising a cavity last — it was drawn to hold something, not to be
+        // held.
+        assert_eq!(
+            shown("\u{2FF4} p:15x16.9x10 p:1", 18),
+            vec!["p:15x16", "p:9x10", "p:15x16.9x10"],
+        );
     }
 
     /// A header's own `@` stands for the base that was already in force, so the

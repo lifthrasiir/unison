@@ -3,6 +3,40 @@
 use super::*;
 use crate::document::{ComposeItem, GlyphCompose};
 
+/// One `audit ideal-clearance` band, as a test writes it: the same range for a
+/// split and for an enclosure, which is what a source stating one pair means.
+fn band(min: i16, max: i16) -> crate::audit::ClearanceBand {
+    crate::audit::ClearanceBand {
+        linear: (min, max),
+        enclosing: (min, max),
+    }
+}
+
+/// One line of a part that does not enclose: a single run, whose inner faces
+/// are its outer ones crossed over. Every profile a one-dimensional test
+/// builds is made of these.
+fn one_run(near: i32, far: i32, near_hardblanks: u16, far_hardblanks: u16) -> InkLine {
+    // A pivot the run covers, so the one run is the wall on both sides — which
+    // is what a line of a part spanning the box is.
+    InkLine::from_runs(&[(near, far, near_hardblanks, far_hardblanks)], near)
+        .expect("one run is a line")
+}
+
+/// [`facing_offset`] between two parts of a one-dimensional line.
+fn facing(a: &InkProfile, b: &InkProfile, horizontal: bool) -> Option<i32> {
+    facing_offset(GapSide::linear(a), GapSide::linear(b), horizontal)
+}
+
+/// [`contact_run`] between two parts of a one-dimensional line.
+fn contact(a: &InkProfile, b: &InkProfile, horizontal: bool, delta: i32) -> u16 {
+    contact_run(GapSide::linear(a), GapSide::linear(b), horizontal, delta)
+}
+
+/// [`contact_demand`] between two parts of a one-dimensional line.
+fn demand(a: &InkProfile, b: &InkProfile, horizontal: bool, max: u16) -> Option<ContactDemand> {
+    contact_demand(GapSide::linear(a), GapSide::linear(b), horizontal, max)
+}
+
 fn part(name: &str) -> ComposeItem {
     ComposeItem::Part {
         name: name.to_string(),
@@ -63,6 +97,7 @@ fn variant_spec_reads_size_and_direction() {
         VariantSpec::parse("x:r-5x16"),
         VariantSpec {
             size: Some((5, 16)),
+            inner: None,
             direction: Some(Direction::Right),
         }
     );
@@ -76,6 +111,39 @@ fn variant_spec_reads_size_and_direction() {
     assert_eq!(VariantSpec::parse("4x16").size, None);
     // One spelling per size.
     assert_eq!(VariantSpec::parse("x:04x16").size, None);
+    // A name with no `.` promises no cavity, which is what an ordinary part is.
+    assert_eq!(VariantSpec::parse("x:4x16-l").inner, None);
+}
+
+#[test]
+fn variant_spec_reads_the_cavity_an_enclosure_promises() {
+    let spec = VariantSpec::parse("han-5e7f:15x16.11x12");
+    assert_eq!(spec.size, Some((15, 16)));
+    assert_eq!(spec.inner, Some((11, 12)));
+    // The cavity rides on the size token, so a direction still parses beside it.
+    let spec = VariantSpec::parse("x:15x16.11x12-l");
+    assert_eq!(spec.inner, Some((11, 12)));
+    assert_eq!(spec.direction, Some(Direction::Left));
+    // Half a cavity is not a size token at all: a name that cannot be read
+    // claims nothing rather than claiming the outer box alone.
+    assert_eq!(VariantSpec::parse("x:15x16.").size, None);
+    assert_eq!(VariantSpec::parse("x:.11x12").size, None);
+    assert_eq!(VariantSpec::parse("x:15x16.11").size, None);
+    // One spelling per cavity, exactly as for the box.
+    assert_eq!(VariantSpec::parse("x:15x16.011x12").size, None);
+}
+
+#[test]
+fn enclosure_rank_reads_the_cavity_instead_of_a_direction() {
+    // A drawing that promises a cavity was made to hold something.
+    assert_eq!(enclosure_rank("a:15x16.11x12", true), 0);
+    assert_eq!(enclosure_rank("a:15x16.11x12", false), 2);
+    // One that does not was made to be held.
+    assert_eq!(enclosure_rank("a:11x12", false), 0);
+    assert_eq!(enclosure_rank("a:11x12", true), 2);
+    // A component that has picked nothing claims nothing, on either slot.
+    assert_eq!(enclosure_rank("a", true), 1);
+    assert_eq!(enclosure_rank("a", false), 1);
 }
 
 #[test]
@@ -759,10 +827,10 @@ fn with_clearance(
     max: i16,
 ) -> Vec<String> {
     let ink = |name: &str| profiles.get(name);
+    let band = band(min, max);
     let rule = ClearanceRule {
         written: "test*",
-        min,
-        max,
+        band: &band,
         ink: &ink,
         max_contact_run: None,
         contact_written: "test*",
@@ -777,42 +845,40 @@ fn with_clearance(
 
 #[test]
 fn ink_profile_reads_both_frontiers_and_counts_a_hardblank() {
-    let ink = |near, far| {
-        Some(InkLine {
-            near,
-            far,
-            near_hardblanks: 0,
-            far_hardblanks: 0,
-        })
-    };
+    let ink = |near, far| Some(one_run(near, far, 0, 0));
     let p = whole(&grid(&[".##.", "....", "$..#"]), 1);
     assert_eq!(
         p.rows,
         vec![
             ink(1, 2),
             None,
-            // The lone `$` is the near frontier, and a run of one.
-            Some(InkLine {
-                near: 0,
-                far: 3,
-                near_hardblanks: 1,
-                far_hardblanks: 0,
-            }),
+            // The lone `$` is the near frontier, and a run of one — so this
+            // is a line of *two* runs, and its inner faces are the `$`'s far
+            // side and the `#`'s near side rather than the line's own ends.
+            InkLine::from_runs(&[(0, 0, 1, 1), (3, 3, 0, 0)], 2),
         ],
     );
+    // Read down instead, the box is 3 tall and the pivot is row 1, so a run
+    // that does not reach it is a wall on one side only: there is no drawing
+    // on the other side of the cavity for anything to be measured against.
+    let col = |runs: &[(i32, i32, u16, u16)]| InkLine::from_runs(runs, 1);
     assert_eq!(
         p.cols,
         vec![
-            Some(InkLine {
-                near: 2,
-                far: 2,
-                near_hardblanks: 1,
-                far_hardblanks: 1,
-            }),
-            ink(0, 0),
-            ink(0, 0),
-            ink(2, 2),
+            col(&[(2, 2, 1, 1)]),
+            col(&[(0, 0, 0, 0)]),
+            col(&[(0, 0, 0, 0)]),
+            col(&[(2, 2, 0, 0)]),
         ],
+    );
+    assert_eq!(p.cols[0].unwrap().low_wall, None);
+    assert_eq!(
+        p.cols[0].unwrap().high_wall,
+        Some(WallFace {
+            at: 2,
+            hardblanks: 1,
+            run: 1
+        }),
     );
     // Declared units, so a scale-2 grid measures like the 1-unit glyph it is,
     // and a declared cell with any ink in it is ink.
@@ -826,18 +892,18 @@ fn facing_hardblanks_overlap_as_far_as_both_reach() {
     // them the frontiers would face at -4 on every row.
     let a = whole(&grid(&["##$$", "###$"]), 1);
     let b = whole(&grid(&["$###", "$$##"]), 1);
-    assert_eq!(facing_offset(&a, &b, true), Some(-3));
+    assert_eq!(facing(&a, &b, true), Some(-3));
     // Only the shared part counts: a row whose other side has none is measured
     // as before, and one row is enough to hold the whole line back.
     let plain = whole(&grid(&["####", "$$##"]), 1);
-    assert_eq!(facing_offset(&a, &plain, true), Some(-4));
+    assert_eq!(facing(&a, &plain, true), Some(-4));
     // The reach is the whole facing run, not one cell of it.
     let deep_a = whole(&grid(&["##$$", "#$$$"]), 1);
     let deep_b = whole(&grid(&["$$##", "$$$#"]), 1);
-    assert_eq!(facing_offset(&deep_a, &deep_b, true), Some(-2));
+    assert_eq!(facing(&deep_a, &deep_b, true), Some(-2));
     // A hardblank pointing the other way is not on this side.
     let away = whole(&grid(&["###$", "###$"]), 1);
-    assert_eq!(facing_offset(&a, &away, true), Some(-4));
+    assert_eq!(facing(&a, &away, true), Some(-4));
 }
 
 #[test]
@@ -1096,33 +1162,34 @@ fn a_contact_run_is_the_longest_seam_two_edges_share() {
     // Flat faces: they run together over every line they share.
     let flat = whole(&grid(&["####", "####", "####"]), 1);
     let facing = whole(&grid(&["####", "####", "####"]), 1);
-    assert_eq!(contact_run(&flat, &facing, true, 4), 3);
-    assert_eq!(contact_run(&flat, &facing, true, 5), 0, "drawn apart");
-    assert_eq!(contact_run(&flat, &facing, true, 3), 3, "overlapping");
+    assert_eq!(contact(&flat, &facing, true, 4), 3);
+    assert_eq!(contact(&flat, &facing, true, 5), 0, "drawn apart");
+    assert_eq!(contact(&flat, &facing, true, 3), 3, "overlapping");
 
     // A tip: the seam is one line long however flat the other side is.
     let tip = whole(&grid(&["...#", "####", "...#"]), 1);
-    assert_eq!(contact_run(&flat, &tip, true, 4), 1);
+    assert_eq!(contact(&flat, &tip, true, 4), 1);
 
     // Two lines that touch with a third between them are two seams, not one.
     let notched = whole(&grid(&["####", "...#", "####"]), 1);
     let reversed = whole(&grid(&["####", "#...", "####"]), 1);
-    assert_eq!(contact_run(&reversed, &notched, true, 4), 1);
+    assert_eq!(contact(&reversed, &notched, true, 4), 1);
 
     // A line one of them draws nothing on has no contact on it.
     let gapped = whole(&grid(&["####", "....", "####"]), 1);
-    assert_eq!(contact_run(&flat, &gapped, true, 4), 1);
+    assert_eq!(contact(&flat, &gapped, true, 4), 1);
 
     // A hardblank holds the ink back, so the same edges no longer meet.
     let claimed = whole(&grid(&["###$", "###$", "###$"]), 1);
-    assert_eq!(contact_run(&claimed, &facing, true, 4), 0);
-    assert_eq!(contact_run(&claimed, &facing, true, 3), 3);
+    assert_eq!(contact(&claimed, &facing, true, 4), 0);
+    assert_eq!(contact(&claimed, &facing, true, 3), 3);
 
     // The demand is read where the ink *would* meet, so it is the same however
     // the line places the parts — and a hardblank that already holds them apart
     // is the rule's answer rather than a second claim on top of it.
     let demand = |a: &InkProfile, b: &InkProfile, max| {
-        contact_demand(a, b, true, max).expect("both draw on some line")
+        contact_demand(GapSide::linear(a), GapSide::linear(b), true, max)
+            .expect("both draw on some line")
     };
     assert_eq!(demand(&flat, &facing, 2), ContactDemand { run: 3, owed: 1 });
     assert_eq!(demand(&flat, &facing, 3), ContactDemand { run: 3, owed: 0 });
@@ -1140,33 +1207,33 @@ fn a_contact_run_is_the_longest_seam_two_edges_share() {
 fn a_contact_is_where_the_ink_meets_and_not_where_the_cells_do() {
     let flat = whole(&grid(&["####", "####", "####"]), 1);
     let facing = whole(&grid(&["####", "####", "####"]), 1);
-    assert_eq!(contact_run(&flat, &facing, true, 4), 3);
+    assert_eq!(contact(&flat, &facing, true, 4), 3);
 
     // `/` inks its cell and covers none of its right edge, so the cells abut
     // and the ink does not.
     let tapered = whole(&grid(&["###/", "###/", "###/"]), 1);
-    assert_eq!(contact_run(&tapered, &facing, true, 4), 0);
+    assert_eq!(contact(&tapered, &facing, true, 4), 0);
     // The cells are still what an overlap is measured by.
-    assert_eq!(contact_run(&tapered, &facing, true, 3), 3);
+    assert_eq!(contact(&tapered, &facing, true, 3), 3);
 
     // Opposite halves of the same boundary: both cells are inked, the two
     // frontiers meet, and the contours miss each other.
     let upper = whole(&grid(&["###^", "###^", "###^"]), 1);
     let lower = whole(&grid(&["v###", "v###", "v###"]), 1);
-    assert_eq!(contact_run(&upper, &lower, true, 4), 0);
+    assert_eq!(contact(&upper, &lower, true, 4), 0);
     // Against a flat edge each of them shares half the boundary, which is a
     // seam like any other.
-    assert_eq!(contact_run(&upper, &facing, true, 4), 3);
-    assert_eq!(contact_run(&flat, &lower, true, 4), 3);
+    assert_eq!(contact(&upper, &facing, true, 4), 3);
+    assert_eq!(contact(&flat, &lower, true, 4), 3);
 
     // And so the demand follows the ink: no cell is owed for a seam that is
     // not there.
     assert_eq!(
-        contact_demand(&tapered, &facing, true, 2).map(|d| d.owed),
+        demand(&tapered, &facing, true, 2).map(|d| d.owed),
         Some(0),
     );
     assert_eq!(
-        contact_demand(&flat, &facing, true, 2).map(|d| d.owed),
+        demand(&flat, &facing, true, 2).map(|d| d.owed),
         Some(1),
     );
 }
@@ -1180,10 +1247,10 @@ fn with_contact_run(
     max_contact_run: Option<u16>,
 ) -> Vec<String> {
     let ink = |name: &str| profiles.get(name);
+    let band = band(0, 1);
     let rule = ClearanceRule {
         written: "test*",
-        min: 0,
-        max: 1,
+        band: &band,
         ink: &ink,
         max_contact_run,
         contact_written: "test*",
@@ -1284,8 +1351,7 @@ fn an_undecided_line_is_not_measured() {
         None,
         Some(&ClearanceRule {
             written: "test*",
-            min: 0,
-            max: 1,
+            band: &band(0, 1),
             ink: &ink_fn,
             max_contact_run: None,
             contact_written: "test*",
@@ -1374,4 +1440,436 @@ fn an_undecided_nested_part_is_still_not_measured() {
         "\u{2FF0} in-a in:2x4-r\n\nglyph in-a 2 4\n..@@\n..@@\n..@@\n..@@",
     );
     assert!(clearance_warnings(&src).is_empty(), "{src}");
+}
+
+// ---------------------------------------------------------------------------
+// Enclosures: `⿴⿵⿶⿷⿸⿹⿺⿼⿽`.
+// ---------------------------------------------------------------------------
+
+/// A `gap` item, which an enclosure line reads as an offset rather than a gap.
+fn at(v: i16) -> ComposeItem {
+    ComposeItem::Gap(v)
+}
+
+#[test]
+fn every_enclosing_operator_knows_which_sides_it_fills() {
+    let walls = |c: char| IdcOp::from_char(c).expect("an IDC").walls().expect("enclosing");
+    // ⿴ is walled all round; every other enclosure leaves at least one side open.
+    assert_eq!(
+        walls('\u{2FF4}'),
+        Walls { left: true, right: true, top: true, bottom: true },
+    );
+    // ⿷ 匚 opens to the right, ⿼ to the left.
+    assert_eq!(walls('\u{2FF7}').along(true), (true, false));
+    assert_eq!(walls('\u{2FFC}').along(true), (false, true));
+    // ⿵ 冂 opens below, ⿶ 凵 above.
+    assert_eq!(walls('\u{2FF5}').along(false), (true, false));
+    assert_eq!(walls('\u{2FF6}').along(false), (false, true));
+    // The four corners fill exactly two adjacent sides.
+    assert_eq!(walls('\u{2FF8}'), Walls { left: true, right: false, top: true, bottom: false });
+    assert_eq!(walls('\u{2FF9}'), Walls { left: false, right: true, top: true, bottom: false });
+    assert_eq!(walls('\u{2FFA}'), Walls { left: true, right: false, top: false, bottom: true });
+    assert_eq!(walls('\u{2FFD}'), Walls { left: false, right: true, top: false, bottom: true });
+    // Never open on both sides of one axis: an enclosure always has a wall to
+    // be measured against, which is what makes the axis's sum a property of
+    // the parts alone.
+    for c in "\u{2FF4}\u{2FF5}\u{2FF6}\u{2FF7}\u{2FF8}\u{2FF9}\u{2FFA}\u{2FFC}\u{2FFD}".chars() {
+        let w = walls(c);
+        assert!(w.open_count(true) <= 1 && w.open_count(false) <= 1, "{c}");
+        let op = IdcOp::from_char(c).expect("an IDC");
+        assert_eq!(op.arity(), 2, "{c}");
+        assert!(op.enclosing(), "{c}");
+        // No `l`/`r`/`u`/`d` slot: an outer and an inner part are not shares of
+        // an axis. See `enclosure_rank`.
+        assert_eq!(op.slot_direction(0), None, "{c}");
+        assert_eq!(op.slot_direction(1), None, "{c}");
+    }
+    // `⿻` overlaid, `⿾` mirrored and `⿿` rotated are not compositions this
+    // module lays out, so they are not IDCs here at all.
+    for c in "\u{2FFB}\u{2FFE}\u{2FFF}".chars() {
+        assert!(IdcOp::from_char(c).is_none(), "{c}");
+    }
+    // A one-dimensional operator has no walls and keeps its axis.
+    assert!(IdcOp::LeftRight.walls().is_none());
+    assert!(!IdcOp::LeftRight.enclosing());
+}
+
+#[test]
+fn an_enclosure_places_the_inner_part_at_the_offsets_the_line_writes() {
+    let dims = table(&[("o:6x6.4x4", (6, 6)), ("i:2x2", (2, 2))]);
+    let (refs, issues) = expand(
+        Some((6, 6)),
+        &line(
+            IdcOp::Surround,
+            vec![part("o:6x6.4x4"), part("i:2x2"), at(2), at(3)],
+        ),
+        &dims,
+    );
+    assert!(errors(&issues).is_empty(), "{issues:?}");
+    // The outer part fills the glyph and so sits at the origin; the inner one
+    // sits exactly where the line put it — the numbers are its own top-left
+    // offsets, not the room left beside it.
+    assert_eq!(refs.len(), 2);
+    assert_eq!(refs[0].offset, Some((0, 0)));
+    assert_eq!(refs[1].offset, Some((2, 3)));
+}
+
+#[test]
+fn an_enclosure_offset_is_scaled_like_every_other_derived_ref() {
+    let dims = table(&[("o:6x6.4x4", (6, 6)), ("i:2x2", (2, 2))]);
+    let compose = line(
+        IdcOp::Surround,
+        vec![part("o:6x6.4x4"), part("i:2x2"), at(2), at(3)],
+    );
+    let (refs, _) = expand_compose("test", Some((6, 6)), 2, &compose, &dims, None, None);
+    assert_eq!(refs[1].offset, Some((4, 6)));
+}
+
+#[test]
+fn an_enclosure_outer_part_must_be_exactly_the_glyph() {
+    let dims = table(&[("o:5x6.3x4", (5, 6)), ("i:2x2", (2, 2))]);
+    let issues = expand(
+        Some((6, 6)),
+        &line(
+            IdcOp::Surround,
+            vec![part("o:5x6.3x4"), part("i:2x2"), at(1), at(1)],
+        ),
+        &dims,
+    )
+    .1;
+    // Not `fits_axis`'s "shorter than the glyph" but an equality: an enclosure
+    // whose outer part is smaller than the glyph has walls that are not the
+    // glyph's, and the cavity it offers is measured against the wrong box.
+    assert_eq!(errors(&issues).len(), 1, "{issues:?}");
+    assert!(errors(&issues)[0].contains("5x6"), "{issues:?}");
+}
+
+#[test]
+fn an_enclosure_inner_part_must_fit_the_glyph() {
+    let dims = table(&[("o:6x6.4x4", (6, 6)), ("i:7x2", (7, 2))]);
+    let issues = expand(
+        Some((6, 6)),
+        &line(
+            IdcOp::Surround,
+            vec![part("o:6x6.4x4"), part("i:7x2"), at(0), at(1)],
+        ),
+        &dims,
+    )
+    .1;
+    assert_eq!(errors(&issues).len(), 1, "{issues:?}");
+    assert!(errors(&issues)[0].contains("7x2"), "{issues:?}");
+}
+
+#[test]
+fn an_enclosure_line_with_no_offsets_is_a_todo() {
+    let dims = table(&[("o:6x6.4x4", (6, 6)), ("i:2x2", (2, 2))]);
+    // Nothing has been decided about where the inner part goes, which is the
+    // ordinary state of a line populated from IDS — not a placement of (0, 0),
+    // which would wedge the inner part into the corner of the walls.
+    let issues = expand(
+        Some((6, 6)),
+        &line(IdcOp::Surround, vec![part("o:6x6.4x4"), part("i:2x2")]),
+        &dims,
+    )
+    .1;
+    assert!(errors(&issues).is_empty(), "{issues:?}");
+    assert_eq!(todos(&issues).len(), 1, "{issues:?}");
+    // Half a placement is not a placement.
+    let issues = expand(
+        Some((6, 6)),
+        &line(
+            IdcOp::Surround,
+            vec![part("o:6x6.4x4"), part("i:2x2"), at(1)],
+        ),
+        &dims,
+    )
+    .1;
+    assert_eq!(errors(&issues).len(), 1, "{issues:?}");
+}
+
+#[test]
+fn an_enclosure_warns_when_a_part_is_drawn_for_the_other_slot() {
+    let dims = table(&[("o:6x6.4x4", (6, 6)), ("i:6x6.2x2", (6, 6))]);
+    // Both names promise a cavity, so the inner slot holds a drawing made to
+    // enclose. That is a warning and not an error, exactly as a `-r` variant
+    // in a `⿰`'s left slot is: it may still be what the author wanted.
+    let issues = expand(
+        Some((6, 6)),
+        &line(
+            IdcOp::Surround,
+            vec![part("o:6x6.4x4"), part("i:6x6.2x2"), at(0), at(0)],
+        ),
+        &dims,
+    )
+    .1;
+    let warnings = of_severity(&issues, Severity::Warning);
+    assert!(
+        warnings.iter().any(|w| w.contains("i:6x6.2x2")),
+        "{issues:?}"
+    );
+}
+
+/// `⿷` 匚: three walls and an opening to the right. The horizontal axis has one
+/// clearance to the wall's inner face and one to the glyph's own edge; the
+/// vertical axis has two inner ones. Four in all, and each axis's sum is a
+/// property of the parts, not of where the line puts them.
+#[test]
+fn an_enclosure_is_measured_against_the_walls_and_the_open_edges() {
+    // A 6x6 匚 with a one-cell wall: the cavity is columns 1..5, rows 1..4.
+    let outer = whole(
+        &grid(&[
+            "######", "#.....", "#.....", "#.....", "#.....", "######",
+        ]),
+        1,
+    );
+    let inner = whole(&grid(&["##", "##"]), 1);
+    let measure = |at| {
+        crate::compose::measure_enclosure_clearances(
+            IdcOp::SurroundLeft.walls().expect("enclosing"),
+            (6, 6),
+            ("o", &outer),
+            ("i", &inner),
+            at,
+            None,
+        )
+        .expect("both parts draw")
+    };
+    let values = |at| measure(at).iter().map(|c| c.value).collect::<Vec<_>>();
+    // Placed at (2, 2): 1 from the left wall's inner face, 2 to the right edge,
+    // 1 from the top wall and 1 to the bottom one.
+    assert_eq!(values((2, 2)), vec![1, 2, 1, 1]);
+    // One cell right and one down moves each axis's pair in opposite
+    // directions, and leaves both sums where they were.
+    assert_eq!(values((3, 3)), vec![2, 1, 2, 0]);
+    let sums = |at: (i32, i32)| {
+        let c = measure(at);
+        let axis = |h: bool| {
+            c.iter()
+                .filter(|c| c.horizontal == h)
+                .map(|c| c.value)
+                .sum::<i32>()
+        };
+        (axis(true), axis(false))
+    };
+    assert_eq!(sums((2, 2)), sums((3, 3)));
+    assert_eq!(sums((2, 2)), sums((1, 1)));
+
+    // Which of the four touch the glyph's own boundary: only the open side.
+    let at_edge: Vec<bool> = measure((2, 2)).iter().map(|c| c.at_edge).collect();
+    assert_eq!(at_edge, vec![false, true, false, false]);
+}
+
+/// `⿴` 囗 is walled all round, so none of its four clearances touches the
+/// glyph's boundary and every one of them is measured against the ring.
+#[test]
+fn a_full_surround_measures_every_side_against_the_ring() {
+    let outer = whole(
+        &grid(&[
+            "######", "#....#", "#....#", "#....#", "#....#", "######",
+        ]),
+        1,
+    );
+    let inner = whole(&grid(&["##", "##"]), 1);
+    let c = crate::compose::measure_enclosure_clearances(
+        IdcOp::Surround.walls().expect("enclosing"),
+        (6, 6),
+        ("o", &outer),
+        ("i", &inner),
+        (2, 2),
+        None,
+    )
+    .expect("both parts draw");
+    assert_eq!(c.iter().map(|c| c.value).collect::<Vec<_>>(), vec![1, 1, 1, 1]);
+    assert!(c.iter().all(|c| !c.at_edge));
+}
+
+#[test]
+fn a_cavity_must_be_flush_with_the_sides_the_operator_opens() {
+    let walls = |c: char| IdcOp::from_char(c).expect("an IDC").walls().expect("enclosing");
+    // 广: a top bar and a stroke down the left, opening right and below.
+    let guang = whole(
+        &grid(&[
+            "######", "#.....", "#.....", "#.....", "#.....", "#.....",
+        ]),
+        1,
+    );
+    // The cavity is the 5x5 block at the bottom right, so anything up to that
+    // fits — flush against both open sides.
+    assert!(cavity_fits(&guang, walls('\u{2FF8}'), (6, 6), (5, 5)));
+    assert!(cavity_fits(&guang, walls('\u{2FF8}'), (6, 6), (3, 2)));
+    // One cell wider or taller than the drawing leaves, and it does not.
+    assert!(!cavity_fits(&guang, walls('\u{2FF8}'), (6, 6), (6, 5)));
+    assert!(!cavity_fits(&guang, walls('\u{2FF8}'), (6, 6), (5, 6)));
+
+    // 匚: walled top and bottom, open right. The rectangle is flush right but
+    // free to sit anywhere down the axis, so a 5x4 fits where a 5x5 does not.
+    let fang = whole(
+        &grid(&[
+            "######", "#.....", "#.....", "#.....", "#.....", "######",
+        ]),
+        1,
+    );
+    assert!(cavity_fits(&fang, walls('\u{2FF7}'), (6, 6), (5, 4)));
+    assert!(!cavity_fits(&fang, walls('\u{2FF7}'), (6, 6), (5, 5)));
+
+    // 囗: walled all round, so the rectangle is free both ways — and bounded
+    // both ways.
+    let wei = whole(
+        &grid(&[
+            "######", "#....#", "#....#", "#....#", "#....#", "######",
+        ]),
+        1,
+    );
+    assert!(cavity_fits(&wei, walls('\u{2FF4}'), (6, 6), (4, 4)));
+    assert!(!cavity_fits(&wei, walls('\u{2FF4}'), (6, 6), (5, 4)));
+
+    // A hardblank is wall: it is space the source keeps clear of whatever goes
+    // inside, so it takes room out of the cavity exactly as ink does.
+    let claimed = whole(
+        &grid(&[
+            "######", "#$....", "#$....", "#$....", "#$....", "#$....",
+        ]),
+        1,
+    );
+    assert!(cavity_fits(&claimed, walls('\u{2FF8}'), (6, 6), (4, 5)));
+    assert!(!cavity_fits(&claimed, walls('\u{2FF8}'), (6, 6), (5, 5)));
+}
+
+/// The cavity a name promises is a *lower bound*: a drawing more generous than
+/// its name is fine, one that cannot keep the promise is a warning.
+#[test]
+fn an_outer_part_that_cannot_keep_its_cavity_promise_warns() {
+    let dims = table(&[("o:6x6.5x5", (6, 6)), ("i:2x2", (2, 2))]);
+    let profiles = profiles(&[
+        // A 广 whose left stroke is two cells wide leaves only 4 columns.
+        ("o:6x6.5x5", &["######", "##....", "##....", "##....", "##....", "##...."]),
+        ("i:2x2", &["##", "##"]),
+    ]);
+    let ink = |name: &str| profiles.get(name);
+    let band = band(0, 2);
+    let rule = ClearanceRule {
+        written: "test*",
+        band: &band,
+        ink: &ink,
+        max_contact_run: None,
+        contact_written: "test*",
+    };
+    let (_, issues) = expand_compose(
+        "test",
+        Some((6, 6)),
+        1,
+        &line(
+            IdcOp::SurroundUpperLeft,
+            vec![part("o:6x6.5x5"), part("i:2x2"), at(3), at(3)],
+        ),
+        &dims,
+        None,
+        Some(&rule),
+    );
+    assert!(errors(&issues).is_empty(), "{issues:?}");
+    let warnings = of_severity(&issues, Severity::Warning);
+    assert!(
+        warnings.iter().any(|w| w.contains("5x5 cavity")),
+        "{issues:?}"
+    );
+}
+
+/// The whole pipeline over an inline enclosure source: the line parses, derives
+/// its two `ref`s, and is measured — which is what says the enclosure reaches
+/// the build the same way a split does.
+#[test]
+fn an_enclosure_line_survives_the_whole_pipeline() {
+    const SRC: &str = "\
+audit ideal-clearance test-* 0 1 1 2
+
+glyph ring:6x6.4x4 6 6
+@@@@@@@@@@@@
+@@........@@
+@@........@@
+@@........@@
+@@........@@
+@@@@@@@@@@@@
+
+glyph seed:2x2 2 2
+@@@@
+@@@@
+
+glyph test-x 6 6
+\u{2FF4} ring:6x6.4x4 seed:2x2 2 2
+";
+    let doc = crate::document_io::parse_document_from_str(SRC, "test.unf".into()).unwrap();
+    let r = crate::resolve::Resolution::compute(&[&doc]);
+    let hard: Vec<&str> = r
+        .expansion
+        .diagnostics
+        .iter()
+        .filter(|d| d.severity == Severity::Error)
+        .map(|d| d.message.as_str())
+        .collect();
+    assert!(hard.is_empty(), "{hard:?}");
+    // Every clearance is 1, which the enclosure band `1 2` admits, so the line
+    // is silent — and the *linear* band `0 1` it would have been held to under
+    // one pair is not what was read.
+    assert_eq!(clearance_warnings(SRC), Vec::<String>::new());
+
+    // Wedged into the corner instead: the two clearances the inner part leaves
+    // behind it go to 0 and the two ahead of it to 2, so both axes warn twice.
+    // The IDC line's own offsets, not the `glyph` header that reads alike.
+    let wedged = SRC.replace("\u{2FF4} ring:6x6.4x4 seed:2x2 2 2", "\u{2FF4} ring:6x6.4x4 seed:2x2 1 1");
+    let warnings = clearance_warnings(&wedged);
+    assert_eq!(warnings.len(), 2, "{warnings:?}");
+    assert!(warnings.iter().all(|w| w.contains("leaves 0 between")), "{warnings:?}");
+}
+
+
+/// A wall is the run *nearest the middle of the box*, not the line's first run.
+///
+/// Every han part writes its side bearing as a detached hardblank column at the
+/// box's edge, so the first run of nearly every line is a bearing and not a
+/// wall. Measuring a cavity against it swallows the wall itself: the `⿸` below
+/// read 0 where the inner part is a cell into the wall, and a fixer would have
+/// placed it there.
+#[test]
+fn a_wall_is_the_run_beside_the_cavity_and_not_the_side_bearing() {
+    // A 广 drawn the way the source draws every part: a hardblank bearing at
+    // cell 0, and the wall itself at cell 2.
+    let guang = whole(
+        &grid(&[
+            "$#####", "$.#...", "$.#...", "$.#...", "$.#...", "$.#...",
+        ]),
+        1,
+    );
+    let row = guang.rows[3].expect("the row draws");
+    assert_eq!(row.near, 0, "the bearing is still the line's near end");
+    assert_eq!(
+        row.low_wall.expect("a wall below the middle").at,
+        2,
+        "but the wall a cavity sees is the stroke, not the bearing",
+    );
+
+    let seed = whole(&grid(&["##", "##"]), 1);
+    let walls = IdcOp::SurroundUpperLeft.walls().expect("enclosing");
+    let measure = |at| {
+        crate::compose::measure_enclosure_clearances(
+            walls,
+            (6, 6),
+            ("o", &guang),
+            ("i", &seed),
+            at,
+            None,
+        )
+        .expect("both parts draw")
+        .iter()
+        .map(|c| c.value)
+        .collect::<Vec<_>>()
+    };
+    // At (1, 1) the seed's left column is the wall's own: an overlap, not room.
+    assert_eq!(measure((1, 1))[0], -2);
+    // Clear of it at (3, 1): one cell from the wall, two to the open edge.
+    assert_eq!(measure((3, 1))[0], 0);
+
+    // The cavity a name may promise is bounded the same way, so the promise and
+    // the measurement cannot disagree: three columns clear, not five.
+    assert!(cavity_fits(&guang, walls, (6, 6), (3, 5)));
+    assert!(!cavity_fits(&guang, walls, (6, 6), (4, 5)));
 }
