@@ -78,6 +78,7 @@ As of 2026-08-20:
 | Greek | Main block 50% (enough for modern Greek), Extended >90% |
 | Cyrillic | Main block 70% (enough for many Slavic languages) |
 | Armenian | Complete |
+| Hebrew | Complete for modern Hebrew and Yiddish |
 | Unified Canadian Aboriginal Syllabics | Complete |
 | Ogham | Complete |
 | Runic | Complete |
