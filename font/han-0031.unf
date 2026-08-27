@@ -526,6 +526,12 @@ glyph han-580b:15x16 15 16 // 堋
 glyph han-581a:15x16 15 16 // 堚
 ⿰ han-571f:7x16 1 han-8ecd:7x16 // ⿰土軍
 
+// glyph han-581e:15x16 15 16 // 堞
+// ⿰ han-571f han-67bc // ⿰土枼
+
+// glyph han-5822:15x16 15 16 // 堢
+// ⿲ han-571f han-4ebb han-5446 // ⿲土亻呆 <- ⿰土保
+
 glyph han-5824:15x16 15 16 // 堤
 ⿰ han-571f:5x16-l 1 han-662f:9x16 // ⿰土是
 

@@ -124,11 +124,14 @@ glyph han-21a3c:15x16 15 16 // 𡨼
 // glyph han-21a41:15x16 15 16 // 𡩁
 // ⿳ han-5b80 han-7acb han-6728 // ⿳宀立木 <- ⿱宀亲
 
-// glyph han-21a48:15x16 15 16 // 𡩈
-// ⿳ han-5b80 han-76ee han-6728 // ⿳宀目木 <- ⿱宀𣐥
+glyph han-21a48:15x16 15 16 // 𡩈
+⿳ -2 han-5b80:15x4 han-76ee:15x7 han-6728:15x7 // ⿳宀目木
 
 glyph han-21a49:15x16 15 16 // 𡩉
 ⿳ han-5b80:15x4 -1 han-5fc3:15x5 1 han-65e6:15x7 // ⿳宀心旦
+
+// glyph han-21a55:15x16 15 16 // 𡩕
+// ⿳ han-5b80 han-4e36 han-6772 // ⿳宀丶杲
 
 // glyph han-21a56:15x16 15 16 // 𡩖
 // ⿳ han-5b80 han-5341 han-898b // ⿳宀十見

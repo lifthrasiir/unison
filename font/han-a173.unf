@@ -124,6 +124,11 @@ glyph han-4ab6:15x16 15 16 // 䪶
 glyph han-4ab7:15x16 15 16 // 䪷
 ⿰ han-53e5:7x16 1 han-9801:7x16 // ⿰句頁
 
+## 181.7
+
+// glyph han-4ac5:15x16 15 16 // 䫅
+// ⿰ han-5b8b han-9801 // ⿰宋頁
+
 ## 181.8
 
 glyph han-4acc:15x16 15 16 // 䫌
@@ -196,6 +201,19 @@ glyph han-4b3a:15x16 15 16 // 䬺
 // glyph han-4b42:15x16 15 16 // 䭂
 // ⿰ han-98e0 han-9091 // ⿰飠邑
 
+## 184.9
+
+// glyph han-4b4b:15x16 15 16 // 䭋
+// ⿲ han-98e0 han-4ebb han-5446 // ⿲飠亻呆 <- ⿰飠保
+
+// glyph han-4b4e:15x16 15 16 // 䭎
+// ⿰ han-98e0 han-67bc // ⿰飠枼
+
+## 184.13
+
+// glyph han-4b5f:15x16 15 16 // 䭟
+// ⿰ han-98e0 han-8449 // ⿰飠葉
+
 # CJK unified ideographs extension A: 馬 (187)
 
 ## 187.2
@@ -241,6 +259,9 @@ glyph han-4b92:15x16 15 16 // 䮒
 // ⿲ han-99ac han-961d han-4ed8 // ⿲馬阝付 <- ⿰馬附
 
 ## 187.9
+
+// glyph han-4b9c:15x16 15 16 // 䮜
+// ⿰ han-99ac han-67bc // ⿰馬枼
 
 glyph han-4b9d:15x16 15 16 // 䮝
 ⿰ han-99ac:7x16 1 han-8ecd:7x16 // ⿰馬軍
@@ -300,6 +321,9 @@ glyph han-4bcd-($han-regions):15x16 15 16 // 䯍
 
 // glyph han-4bcf:15x16 15 16 // 䯏
 // ⿰ han-9aa8 han-820c // ⿰骨舌
+
+// glyph han-4bd0:15x16 15 16 // 䯐
+// ⿰ han-9aa8 han-8089 // ⿰骨肉
 
 glyph han-4bd3:15x16 15 16 // 䯓
 ⿰ han-9aa8:7x16 1 han-572d:7x16 // ⿰骨圭
@@ -509,6 +533,9 @@ glyph han-4ce8:15x16 15 16 // 䳨
 
 glyph han-4cec:15x16 15 16 // 䳬
 ⿰ han-9769:7x16 1 han-9ce5:7x16 // ⿰革鳥
+
+// glyph han-4cf0:15x16 15 16 // 䳰
+// ⿲ han-4ebb han-5446 han-9ce5 // ⿲亻呆鳥 <- ⿰保鳥
 
 ## 196.11
 

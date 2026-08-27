@@ -131,8 +131,8 @@ glyph han-26e9e:15x16 15 16 // 𦺞
 // glyph han-26eb8:15x16 15 16 // 𦺸
 // ⿱ han-8279 han-7ca6 // ⿱艹粦
 
-// glyph han-26ec6:15x16 15 16 // 𦻆
-// ⿳ han-8279 han-5176 han-6728 // ⿳艹其木 <- ⿱艹棊
+glyph han-26ec6:15x16 15 16 // 𦻆
+⿳ -4 han-8279:15x3 han-5176:15x10 han-6728:15x7 // ⿳艹其木
 
 // glyph han-26eca:15x16 15 16 // 𦻊
 // ⿱ han-8279 han-68cb // ⿱艹棋

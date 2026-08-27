@@ -541,6 +541,16 @@ glyph han-2c69f:15x16 15 16 // 𬚟
 
 # CJK unified ideographs extension E: 肉 (130)
 
+## 130.4
+
+// glyph han-2c6b2:15x16 15 16 // 𬚲
+// ⿰ han-8089 han-5fc3 // ⿰肉心
+
+## 130.6
+
+// glyph han-2c6b8:15x16 15 16 // 𬚸
+// ⿰ han-820c han-8089 // ⿰舌肉
+
 ## 130.8
 
 // glyph han-2c6c4:15x16 15 16 // 𬛄
@@ -553,6 +563,11 @@ glyph han-2c6c5:15x16 15 16 // 𬛅
 
 glyph han-2c6d2-($han-regions):15x16 15 16 // 𬛒
 ⿲ han-6708:5x16-l han-6c35:3x16 han-8005-($-1):7x16 // ⿲月氵者
+
+## 130.13
+
+// glyph han-2c6da:15x16 15 16 // 𬛚
+// ⿰ han-6708 han-8449 // ⿰月葉
 
 ## 130.20
 

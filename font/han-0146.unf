@@ -515,6 +515,9 @@ glyph han-8acb-(k|p):15x16 15 16 // 請
 
 ## 149.9
 
+// glyph han-8adc:15x16 15 16 // 諜
+// ⿰ han-8a01 han-67bc // ⿰訁枼
+
 glyph han-8adf:15x16 15 16 // 諟
 ⿰ han-8a01:5x16 1 han-662f:9x16 // ⿰訁是
 
@@ -751,6 +754,9 @@ glyph han-8c08:15x16 15 16 // 谈
 // ⿰ han-8ba0 han-5b9c // ⿰讠宜
 
 ## 149'.9
+
+// glyph han-8c0d:15x16 15 16 // 谍
+// ⿰ han-8ba0 han-67bc // ⿰讠枼
 
 glyph han-8c12:15x16 15 16 // 谒
 ⿰ han-8ba0:5x16 1 han-66f7:9x16 // ⿰讠曷

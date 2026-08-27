@@ -262,6 +262,12 @@ glyph han-7dd9:15x16 15 16 // 緙
 // glyph han-7de2:15x16 15 16 // 緢
 // ⿰ han-7cf8 han-82d7 // ⿰糸苗
 
+// glyph han-7de4:15x16 15 16 // 緤
+// ⿰ han-7cf9 han-67bc // ⿰糹枼
+
+// glyph han-7de5:15x16 15 16 // 緥
+// ⿲ han-7cf9 han-4ebb han-5446 // ⿲糹亻呆 <- ⿰糹保
+
 // glyph han-7de6:15x16 15 16 // 緦
 // ⿰ han-7cf9 han-601d // ⿰糹思
 

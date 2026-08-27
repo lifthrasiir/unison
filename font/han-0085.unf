@@ -466,6 +466,9 @@ glyph han-6d66:15x16 15 16 // 浦
 // glyph han-6d67:15x16 15 16 // 浧
 // ⿰ han-6c35 han-5448 // ⿰氵呈
 
+// glyph han-6d68:15x16 15 16 // 浨
+// ⿰ han-6c35 han-5b8b // ⿰氵宋
+
 glyph han-6d69-(g|t|j|k|p|v):15x16 15 16 // 浩
 ⿰ han-6c35:5x16 han-544a:10x16 // ⿰氵告
 glyph han-6d69-h:15x16 15 16 // 浩

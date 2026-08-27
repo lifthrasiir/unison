@@ -93,6 +93,9 @@ glyph han-25b37:15x16 15 16 // 𥬷
 glyph han-25b45:15x16 15 16 // 𥭅
 ⿳ han-25ad7:15x5 -1 han-571f:15x4 1 han-53e3:15x7 // ⿳𥫗土口
 
+// glyph han-25b4a:15x16 15 16 // 𥭊
+// ⿱ han-25ad7 han-8089 // ⿱𥫗肉
+
 ## 118.7
 
 // glyph han-25b54:15x16 15 16 // 𥭔
@@ -209,6 +212,9 @@ glyph han-25be8:15x16 15 16 // 𥯨
 
 glyph han-25bec:15x16 15 16 // 𥯬
 ⿳ han-25ad7:15x5 han-800c:15x6 han-5927:15x5 // ⿳𥫗而大
+
+// glyph han-25bf2:15x16 15 16 // 𥯲
+// ⿳ han-25ad7 han-4ea0 han-5446 // ⿳𥫗亠呆 <- ⿱𥫗⿱亠呆
 
 glyph han-25bf6:15x16 15 16 // 𥯶
 ⿳ han-25ad7:15x5 han-8279:15x3 han-53e4:15x8 // ⿳𥫗艹古

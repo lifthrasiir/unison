@@ -326,6 +326,9 @@ glyph han-5a93:15x16 15 16 // 媓
 glyph han-5a9e:15x16 15 16 // 媞
 ⿰ han-5973:5x16-l 1 han-662f:9x16 // ⿰女是
 
+// glyph han-5a9f:15x16 15 16 // 媟
+// ⿰ han-5973 han-67bc // ⿰女枼
+
 // glyph han-5aa2:15x16 15 16 // 媢
 // ⿰ han-5973 han-5192 // ⿰女冒
 
@@ -334,6 +337,9 @@ glyph han-5a9e:15x16 15 16 // 媞
 
 glyph han-5aa9:15x16 15 16 // 媩
 ⿲ han-5973:5x16-l han-53e4:5x16 han-6708:5x16 // ⿲女古月
+
+// glyph han-5aac:15x16 15 16 // 媬
+// ⿲ han-5973 han-4ebb han-5446 // ⿲女亻呆 <- ⿰女保
 
 glyph han-5aae:15x16 15 16 // 媮
 ⿰ han-5973:7x16 1 han-4fde:7x16 // ⿰女俞
@@ -437,8 +443,8 @@ glyph han-5b82:15x16 15 16 // 宂
 
 ## 40.4
 
-// glyph han-5b8b:15x16 15 16 // 宋
-// ⿱ han-5b80 han-6728 // ⿱宀木
+glyph han-5b8b:15x16 15 16 // 宋
+⿱ han-5b80:15x4 han-6728:15x12 // ⿱宀木
 
 glyph han-5b8c:15x16 15 16 // 完
 ⿱ han-5b80:15x5 han-5143:15x11 // ⿱宀元
@@ -497,8 +503,8 @@ glyph han-5bab:15x16 15 16 // 宫
 // glyph han-5bb0:15x16 15 16 // 宰
 // ⿳ han-5b80 han-7acb han-5341 // ⿳宀立十 <- ⿱宀辛
 
-// glyph han-5bb2:15x16 15 16 // 宲
-// ⿳ han-5b80 han-53e3 han-6728 // ⿳宀口木 <- ⿱宀呆
+glyph han-5bb2:15x16 15 16 // 宲
+⿳ han-5b80:15x4 han-53e3:15x4 han-6728:15x8 // ⿳宀口木
 
 // glyph han-5bb4:15x16 15 16 // 宴
 // ⿳ han-5b80 han-65e5 han-5973 // ⿳宀日女 <- ⿱宀妟

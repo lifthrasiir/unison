@@ -262,6 +262,9 @@ glyph han-7893:15x16 15 16 // 碓
 // glyph han-789e:15x16 15 16 // 碞
 // ⿳ han-53e3 han-5405 han-77f3 // ⿳口吅石 <- ⿱品石
 
+// glyph han-789f:15x16 15 16 // 碟
+// ⿰ han-77f3 han-67bc // ⿰石枼
+
 glyph han-78a3:15x16 15 16 // 碣
 ⿰ han-77f3:5x16 1 han-66f7:9x16 // ⿰石曷
 
@@ -276,6 +279,9 @@ glyph han-78ad:15x16 15 16 // 碭
 
 glyph han-78ae:15x16 15 16 // 碮
 ⿰ han-77f3:5x16 1 han-662f:9x16 // ⿰石是
+
+// glyph han-78b4:15x16 15 16 // 碴
+// ⿰ han-77f3 han-67e5 // ⿰石查
 
 ## 112.10
 

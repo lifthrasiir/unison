@@ -242,6 +242,9 @@ glyph han-3969-j:15x16 15 16 // 㥩
 
 ## 64.7
 
+// glyph han-39f2:15x16 15 16 // 㧲
+// ⿰ han-624c han-5b8b // ⿰扌宋
+
 // glyph han-39f3:15x16 15 16 // 㧳
 // ⿱ han-626e han-624b // ⿱扮手
 
@@ -275,10 +278,16 @@ glyph han-3a0b-j:15x16 15 16 // 㨋
 // glyph han-3a0e:15x16 15 16 // 㨎
 // ⿰ han-624c han-800e // ⿰扌耎
 
+// glyph han-3a10:15x16 15 16 // 㨐
+// ⿲ han-624c han-4ebb han-5446 // ⿲扌亻呆 <- ⿰扌保
+
 // glyph han-3a12:15x16 15 16 // 㨒
 // ⿰ han-624c han-594e // ⿰扌奎
 
 ## 64.11
+
+// glyph han-3a32:15x16 15 16 // 㨲
+// ⿰ han-624c han-26bd5 // ⿰扌𦯕
 
 // glyph han-3a33:15x16 15 16 // 㨳
 // ⿰ han-624c han-5bc4 // ⿰扌寄

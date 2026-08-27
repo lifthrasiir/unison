@@ -188,8 +188,16 @@ glyph han-31c33:15x16 15 16 // 𱰳
 
 ## 107.6
 
+// glyph han-31c83:15x16 15 16 // 𱲃
+// ⿰ han-76ae han-8089 // ⿰皮肉
+
 glyph han-31c84:15x16 15 16 // 𱲄
 ⿰ han-76ae:8x16 han-5146:7x16 // ⿰皮兆
+
+## 107.13
+
+// glyph han-31c87:15x16 15 16 // 𱲇
+// ⿰ han-76ae han-8449 // ⿰皮葉
 
 # CJK unified ideographs extension H: 目 (109)
 

@@ -69,6 +69,11 @@ glyph han-31d9e:15x16 15 16 // 𱶞
 // glyph han-31da0:15x16 15 16 // 𱶠
 // ⿰ han-79be han-5bc4 // ⿰禾寄
 
+## 115.13
+
+// glyph han-31da6:15x16 15 16 // 𱶦
+// ⿰ han-79be han-8449 // ⿰禾葉
+
 # CJK unified ideographs extension H: 穴 (116)
 
 ## 116.8
@@ -255,6 +260,11 @@ ref han-4e8c:15x8 0 8
 glyph han-31f02:15x16 15 16 // 𱼂
 ⿰ han-6708:5x16-l 1 han-4e0b:9x16 // ⿰月下
 
+## 130.5
+
+// glyph han-31f04:15x16 15 16 // 𱼄
+// ⿱ han-7f52 han-8089 // ⿱罒肉
+
 ## 130.7
 
 glyph han-31f09:15x16 15 16 // 𱼉
@@ -264,6 +274,9 @@ glyph han-31f0b:15x16 15 16 // 𱼋
 ⿰ han-6708:5x16-l 1 han-826f:9x16 // ⿰月良
 
 ## 130.9
+
+// glyph han-31f0d:15x16 15 16 // 𱼍
+// ⿰ han-6708 han-67e5 // ⿰月查
 
 glyph han-31f12:15x16 15 16 // 𱼒
 ⿲ -2 han-6708:5x16-l han-5973:5x16 han-81f3:7x16 // ⿲月女至
@@ -286,6 +299,9 @@ glyph han-31f2a:15x16 15 16 // 𱼪
 // ⿱ han-8279 han-7533 // ⿱艹申
 
 ## 140.6
+
+// glyph han-31f60:15x16 15 16 // 𱽠
+// ⿱ han-8279 han-8089 // ⿱艹肉
 
 // glyph han-31f65:15x16 15 16 // 𱽥
 // ⿱ han-8279 han-7c73 // ⿱艹米

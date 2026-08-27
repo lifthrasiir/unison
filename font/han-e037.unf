@@ -82,6 +82,9 @@ glyph han-2bc24:15x16 15 16 // 𫰤
 glyph han-2bc27:15x16 15 16 // 𫰧
 ⿰ han-5973:5x16-l 1 han-7f8a:9x16 // ⿰女羊
 
+// glyph han-2bc29:15x16 15 16 // 𫰩
+// ⿰ han-5973 han-21d6c // ⿰女𡵬
+
 ## 38.7
 
 glyph han-2bc2c:15x16 15 16 // 𫰬
@@ -252,6 +255,11 @@ glyph han-2bd72:15x16 15 16 // 𫵲
 
 // glyph han-2bd7b:15x16 15 16 // 𫵻
 // ⿳ han-5c71 han-5b80 han-5973 // ⿳山宀女 <- ⿱山安
+
+## 46.7
+
+// glyph han-2bd80:15x16 15 16 // 𫶀
+// ⿰ han-5c71 han-5b8b // ⿰山宋
 
 ## 46.8
 

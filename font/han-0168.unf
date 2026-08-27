@@ -631,8 +631,8 @@ glyph han-96eb:15x16 15 16 // 雫
 
 ## 173.4
 
-// glyph han-96ec:15x16 15 16 // 雬
-// ⿱ han-96e8 han-6728 // ⿱雨木
+glyph han-96ec:15x16 15 16 // 雬
+⿱ han-96e8:15x7 han-6728:15x9 // ⿱雨木
 
 // glyph han-96f0:15x16 15 16 // 雰
 // ⿱ han-96e8 han-5206 // ⿱雨分
@@ -1139,6 +1139,9 @@ glyph han-97a1:15x16 15 16 // 鞡
 ⿲ han-9769:7x16 han-624c:3x16 han-7acb:5x16 // ⿲革扌立
 
 ## 177.9
+
+// glyph han-97a2:15x16 15 16 // 鞢
+// ⿰ han-9769 han-67bc // ⿰革枼
 
 // glyph han-97a4:15x16 15 16 // 鞤
 // ⿱ han-5c01 han-9769 // ⿱封革

@@ -64,6 +64,11 @@ glyph han-313c3:15x16 15 16 // 𱏃
 glyph han-313d2:15x16 15 16 // 𱏒
 ⿲ -2 han-4ebb:3x16 han-91d2:7x16 han-6b20:7x16 // ⿲亻釒欠
 
+## 9.14
+
+// glyph han-313d8:15x16 15 16 // 𱏘
+// ⿲ han-4ebb han-5446 han-8eca // ⿲亻呆車 <- ⿰保車
+
 # CJK unified ideographs extension H: 刀 (18)
 
 ## 18.4

@@ -904,6 +904,9 @@ glyph han-76b4:15x16 15 16 // 皴
 
 ## 107.9
 
+// glyph han-76b6:15x16 15 16 // 皶
+// ⿰ han-67e5 han-76ae // ⿰查皮
+
 glyph han-76b8:15x16 15 16 // 皸
 ⿰ han-8ecd:7x16 han-76ae:8x16 // ⿰軍皮
 
@@ -1418,6 +1421,9 @@ glyph han-77b5:15x16 15 16 // 瞵
 ⿰ han-76ee:6x16 han-7ca6:9x16 // ⿰目粦
 
 ## 109.13
+
+// glyph han-77b8:15x16 15 16 // 瞸
+// ⿰ han-76ee han-8449 // ⿰目葉
 
 // glyph han-77bf:15x16 15 16 // 瞿
 // ⿱ han-4020 han-96b9 // ⿱䀠隹

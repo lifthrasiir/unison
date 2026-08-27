@@ -153,8 +153,8 @@ glyph han-30a74:15x16 15 16 // 𰩴
 
 ## 118.9
 
-// glyph han-30a88:15x16 15 16 // 𰪈
-// ⿳ han-25ad7 han-6728 han-65e6 // ⿳𥫗木旦 <- ⿱𥫗查
+glyph han-30a88:15x16 15 16 // 𰪈
+⿳ -2 han-25ad7:15x5 -1 han-6728:15x7 han-65e6:15x7 // ⿳𥫗木旦
 
 // glyph han-30a8a:15x16 15 16 // 𰪊
 // ⿱ han-25ad7 han-949f // ⿱𥫗钟
@@ -236,6 +236,11 @@ glyph han-30ad4:15x16 15 16 // 𰫔
 glyph han-30ae0:15x16 15 16 // 𰫠
 ⿰ han-7cf9:5x16 1 han-7532:9x16 // ⿰糹甲
 
+## 120.7
+
+// glyph han-30ae7:15x16 15 16 // 𰫧
+// ⿰ han-7cf9 han-5b8b // ⿰糹宋
+
 ## 120.8
 
 // glyph han-30aea:15x16 15 16 // 𰫪
@@ -286,10 +291,42 @@ glyph han-30b59:15x16 15 16 // 𰭙
 
 # CJK unified ideographs extension G: 肉 (130)
 
+## 130.1
+
+// glyph han-30b7e:15x16 15 16 // 𰭾
+// ⿰ han-8089 han-4e5a // ⿰肉乚
+
 ## 130.2
+
+// glyph han-30b80:15x16 15 16 // 𰮀
+// ⿱ han-516b han-8089 // ⿱八肉
 
 // glyph han-30b81:15x16 15 16 // 𰮁
 // ⿰ han-6708 han-5200 // ⿰月刀
+
+// glyph han-30b82:15x16 15 16 // 𰮂
+// ⿰ han-8089 han-529b // ⿰肉力
+
+## 130.3
+
+// glyph han-30b84:15x16 15 16 // 𰮄
+// ⿱ han-53e3 han-8089 // ⿱口肉
+
+## 130.5
+
+// glyph han-30b96:15x16 15 16 // 𰮖
+// ⿰ han-8089 han-6b63 // ⿰肉正
+
+// glyph han-30b98:15x16 15 16 // 𰮘
+// ⿰ han-8089 han-4e14 // ⿰肉且
+
+// glyph han-30b9c:15x16 15 16 // 𰮜
+// ⿰ han-8089 han-53f0 // ⿰肉台
+
+## 130.8
+
+// glyph han-30bab:15x16 15 16 // 𰮫
+// ⿱ han-6797 han-8089 // ⿱林肉
 
 ## 130.9
 
@@ -301,10 +338,20 @@ glyph han-30bb8:15x16 15 16 // 𰮸
 // glyph han-30bc1:15x16 15 16 // 𰯁
 // ⿰ han-6708 han-8695 // ⿰月蚕
 
+## 130.13
+
+// glyph han-30be0:15x16 15 16 // 𰯠
+// ⿱ han-28fb1 han-8089 // ⿱𨾱肉
+
 ## 130.14
 
 // glyph han-30be1:15x16 15 16 // 𰯡
 // ⿰ han-6708 han-84b2 // ⿰月蒲
+
+## 130.15
+
+// glyph han-30be6:15x16 15 16 // 𰯦
+// ⿰ han-8089 han-5bdb // ⿰肉寛
 
 # CJK unified ideographs extension G: 舌 (135)
 
@@ -343,8 +390,8 @@ glyph han-30bb8:15x16 15 16 // 𰮸
 // glyph han-30c41:15x16 15 16 // 𰱁
 // ⿱ han-8279 han-514b // ⿱艹克
 
-// glyph han-30c45:15x16 15 16 // 𰱅
-// ⿳ han-8279 han-53e3 han-6728 // ⿳艹口木 <- ⿱艹呆
+glyph han-30c45:15x16 15 16 // 𰱅
+⿳ han-8279:15x3 han-53e3:15x4 han-6728:15x9 // ⿳艹口木
 
 ## 140.8
 

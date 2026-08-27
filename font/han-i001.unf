@@ -175,6 +175,9 @@ glyph han-2ed1b:15x16 15 16 // 𮴛
 glyph han-2ed32:15x16 15 16 // 𮴲
 ⿲ han-248e9:3x16 han-5176:6x16 1 han-6708:5x16 // ⿲𤣩其月
 
+// glyph han-2ed33:15x16 15 16 // 𮴳
+// ⿰ han-248e9 han-96ec // ⿰𤣩雬
+
 ## 96.14
 
 glyph han-2ed37:15x16 15 16 // 𮴷
@@ -338,6 +341,11 @@ glyph han-2ede9:15x16 15 16 // 𮷩
 ⿰ han-6708:8x16 2 han-961d:5x16-r // ⿰月阝
 
 # CJK unified ideographs extension I: 金 (167)
+
+## 167.7
+
+// glyph han-2edf0:15x16 15 16 // 𮷰
+// ⿰ han-91d2 han-5446 // ⿰釒呆
 
 ## 167.8
 

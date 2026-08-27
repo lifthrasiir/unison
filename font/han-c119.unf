@@ -310,6 +310,11 @@ glyph han-2b2a5:15x16 15 16 // 𫊥
 // glyph han-2b2ba:15x16 15 16 // 𫊺
 // ⿰ han-866b han-7cf8 // ⿰虫糸
 
+## 142.7
+
+// glyph han-2b2c0:15x16 15 16 // 𫋀
+// ⿰ han-866b han-5b8b // ⿰虫宋
+
 ## 142.8
 
 // glyph han-2b2c3:15x16 15 16 // 𫋃
@@ -354,6 +359,11 @@ glyph han-2b305:15x16 15 16 // 𫌅
 // ⿰ han-8864 han-57fa // ⿰衤基
 
 # CJK unified ideographs extension C: 見 (147)
+
+## 147.9
+
+// glyph han-2b323:15x16 15 16 // 𫌣
+// ⿰ han-898b han-67bc // ⿰見枼
 
 ## 147.13
 

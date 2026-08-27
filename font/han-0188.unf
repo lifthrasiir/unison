@@ -489,6 +489,9 @@ glyph han-9bfa-j:15x16 15 16 // 鯺
 glyph han-9c02:15x16 15 16 // 鰂
 ⿲ -2 han-9b5a:7x16 1 han-8c9d:5x16 1 han-5202:3x16 // ⿲魚貝刂
 
+// glyph han-9c08:15x16 15 16 // 鰈
+// ⿰ han-9b5a han-67bc // ⿰魚枼
+
 glyph han-9c09:15x16 15 16 // 鰉
 ⿰ han-9b5a:7x16 1 han-7687:7x16 // ⿰魚皇
 
