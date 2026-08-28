@@ -42,8 +42,8 @@ glyph han-2846f-($han-regions):15x16 15 16 // 𨑯
 // glyph han-28479-($han-regions):15x16 15 16 // 𨑹
 // ⿺ han-8fb6-($-1) han-4ece // ⿺辶从
 
-// glyph han-2847a-($han-regions):15x16 15 16 // 𨑺
-// ⿺ han-8fb6-($-1) han-6bdb // ⿺辶毛
+glyph han-2847a-($han-regions):15x16 15 16 // 𨑺
+⿺ han-8fb6-($-1):15x16.11x14 han-6bdb:11x14 4 0 // ⿺辶毛
 
 // glyph han-2847e:15x16 15 16 // 𨑾
 // ⿺ han-8fb6 han-6c34 // ⿺辶水

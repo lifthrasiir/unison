@@ -86,3 +86,20 @@ glyph han-20521:15x16 15 16 // 𠔡
 
 // glyph han-20535:15x16 15 16 // 𠔵
 // ⿰ han-5176 han-5947 // ⿰其奇
+
+# CJK unified ideographs extension B: 𠘨 (16)
+
+## 16.2
+
+// glyph han-2062a:15x16 15 16 // 𠘪
+// ⿵ han-20628 han-4e5d // ⿵𠘨九
+
+## 16.3
+
+glyph han-20633:15x16 15 16 // 𠘳
+⿵ han-20628:15x16.9x15 han-5c71:7x14 4 2 // ⿵𠘨山
+
+## 16.6
+
+// glyph han-2064c:15x16 15 16 // 𠙌
+// ⿵ han-20628 han-7f8a // ⿵𠘨羊

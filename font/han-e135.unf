@@ -406,8 +406,8 @@ glyph han-2c9d0:15x16 15 16 // 𬧐
 
 ## 162.5
 
-// glyph han-2ca22:15x16 15 16 // 𬨢
-// ⿺ han-8fb6 han-7acb // ⿺辶立
+glyph han-2ca22-($han-regions):15x16 15 16 // 𬨢
+⿺ han-8fb6-($-1):15x16.11x14 han-7acb:11x13 4 0 // ⿺辶立
 
 ## 162.7
 

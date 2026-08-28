@@ -131,8 +131,8 @@ glyph han-3824:15x16 15 16 // 㠤
 
 ## 53.5
 
-// glyph han-3874:15x16 15 16 // 㡴
-// ⿸ han-5e7f han-7acb // ⿸广立
+glyph han-3874:15x16 15 16 // 㡴
+⿸ han-5e7f:15x16.11x13 han-7acb:9x12 5 4 // ⿸广立
 
 // glyph han-3875-($han-regions):15x16 15 16 // 㡵
 // ⿸ han-5e7f han-4ee4-($-1) // ⿸广令

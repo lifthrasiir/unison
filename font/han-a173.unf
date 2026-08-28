@@ -173,6 +173,64 @@ glyph han-4af0:15x16 15 16 // 䫰
 // glyph han-4af1:15x16 15 16 // 䫱
 // ⿰ han-264d4 han-9801 // ⿰𦓔頁
 
+# CJK unified ideographs extension A: 風 (182)
+
+## 182.2
+
+// glyph han-4af8:15x16 15 16 // 䫸
+// ⿺ han-98a8 han-5200 // ⿺風刀
+
+## 182.3
+
+// glyph han-4af9:15x16 15 16 // 䫹
+// ⿺ han-98a8 han-5de5 // ⿺風工
+
+## 182.4
+
+glyph han-4afb:15x16 15 16 // 䫻
+⿺ han-98a8:15x16.5x15 han-65e5:4x14 11 0 // ⿺風日
+
+// glyph han-4afc:15x16 15 16 // 䫼
+// ⿺ han-98a8 han-592c // ⿺風夬
+
+glyph han-4afd:15x16 15 16 // 䫽
+⿺ han-98a8:15x16.5x15 han-6bdb:4x14 11 0 // ⿺風毛
+
+## 182.5
+
+// glyph han-4aff:15x16 15 16 // 䫿
+// ⿺ han-98a8 han-53ec // ⿺風召
+
+glyph han-4b03:15x16 15 16 // 䬃
+⿺ han-98a8:15x16.5x15 han-7acb:5x14 10 0 // ⿺風立
+
+## 182.7
+
+// glyph han-4b06:15x16 15 16 // 䬆
+// ⿺ han-98a8 han-5229 // ⿺風利
+
+## 182.9
+
+// glyph han-4b14:15x16 15 16 // 䬔
+// ⿺ han-98a8 han-4fde // ⿺風俞
+
+// glyph han-4b15:15x16 15 16 // 䬕
+// ⿰ han-98a8 han-98a8 // ⿰風風
+
+// glyph han-4b16:15x16 15 16 // 䬖
+// ⿺ han-98a8 han-7687 // ⿺風皇
+
+// glyph han-4b17:15x16 15 16 // 䬗
+// ⿰ han-661c han-98a8 // ⿰昜風
+
+## 182.10
+
+// glyph han-4b18:15x16 15 16 // 䬘
+// ⿺ han-98a8 han-9ad8 // ⿺風高
+
+// glyph han-4b1a:15x16 15 16 // 䬚
+// ⿺ han-98a8 han-99ac // ⿺風馬
+
 # CJK unified ideographs extension A: 食 (184)
 
 ## 184.2

@@ -584,6 +584,9 @@ glyph han-8aed:15x16 15 16 // 諭
 // glyph han-8af0:15x16 15 16 // 諰
 // ⿰ han-8a01 han-601d // ⿰訁思
 
+// glyph han-8af7:15x16 15 16 // 諷
+// ⿰ han-8a01 han-98a8 // ⿰訁風
+
 glyph han-8af8-($han-regions):15x16 15 16 // 諸
 ⿰ han-8a01:7x16 1 han-8005-($-1):7x16 // ⿰訁者
 

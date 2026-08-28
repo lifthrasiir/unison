@@ -215,6 +215,11 @@ glyph han-26844-($han-regions):15x16 15 16 // 𦡄
 glyph han-268a6:15x16 15 16 // 𦢦
 ⿲ -3 han-6708:5x16-l 1 han-9b5a:7x16 han-79be:5x16 // ⿲月魚禾
 
+## 130.20
+
+// glyph han-268d5:15x16 15 16 // 𦣕
+// ⿲ han-6708 han-7968 han-98a8 // ⿲月票風 <- ⿰月飄
+
 ## 130.21
 
 glyph han-268d7:15x16 15 16 // 𦣗

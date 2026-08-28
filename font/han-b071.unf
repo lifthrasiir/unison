@@ -210,6 +210,9 @@ glyph han-23225:15x16 15 16 // 𣈥
 glyph han-23237:15x16 15 16 // 𣈷
 ⿰ han-65e5:4x16-l 2 han-7687:9x16 // ⿰日皇
 
+// glyph han-2323c:15x16 15 16 // 𣈼
+// ⿰ han-65e5 han-98a8 // ⿰日風
+
 // glyph han-2323d:15x16 15 16 // 𣈽
 // ⿰ han-65e5 han-67bc // ⿰日枼
 

@@ -141,6 +141,9 @@ glyph han-29107:15x16 15 16 // 𩄇
 // glyph han-2910d:15x16 15 16 // 𩄍
 // ⿱ han-96e8 han-79cb // ⿱雨秋
 
+// glyph han-2910f-($han-regions):15x16 15 16 // 𩄏
+// ⿱ han-96e8-($-1) han-98a8 // ⿱雨風
+
 // glyph han-29112:15x16 15 16 // 𩄒
 // ⿳ han-96e8 han-7acb han-65e5 // ⿳雨立日 <- ⿱雨音
 

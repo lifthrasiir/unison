@@ -556,6 +556,9 @@ glyph han-7142:15x16 15 16 // 煂
 glyph han-7147:15x16 15 16 // 煇
 ⿰ han-706b:7x16 1 han-8ecd:7x16 // ⿰火軍
 
+// glyph han-7148:15x16 15 16 // 煈
+// ⿰ han-706b han-98a8 // ⿰火風
+
 glyph han-714c:15x16 15 16 // 煌
 ⿰ han-706b:5x16-l 1 han-7687:9x16 // ⿰火皇
 

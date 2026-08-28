@@ -379,6 +379,18 @@ glyph han-322ac:15x16 15 16 // 𲊬
 glyph han-322b4-($han-regions):15x16 15 16 // 𲊴
 ⿰ han-8005-($-1):7x16 1 han-9801:7x16 // ⿰者頁
 
+# CJK unified ideographs extension H: 風 (182)
+
+## 182.7
+
+// glyph han-322c5:15x16 15 16 // 𲋅
+// ⿺ han-98a8 han-590b // ⿺風夋
+
+## 182.13
+
+// glyph han-322ca:15x16 15 16 // 𲋊
+// ⿳ han-98a8 han-4fde han-5fc3 // ⿳風俞心 <- ⿱風愈
+
 # CJK unified ideographs extension H: 食 (184)
 
 ## 184.5

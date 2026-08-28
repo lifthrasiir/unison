@@ -2491,6 +2491,9 @@ glyph han-5048:15x16 15 16 // 偈
 glyph han-504d:15x16 15 16 // 偍
 ⿰ han-4ebb:5x16 1 han-662f:9x16 // ⿰亻是
 
+// glyph han-5051:15x16 15 16 // 偑
+// ⿰ han-4ebb han-98a8 // ⿰亻風
+
 glyph han-5052:15x16 15 16 // 偒
 ⿰ han-4ebb:5x16 1 han-661c:9x16 // ⿰亻昜
 

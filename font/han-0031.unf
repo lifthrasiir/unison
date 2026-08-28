@@ -882,6 +882,9 @@ glyph han-5835-(g|h|t|k|p|v):15x16 15 16 // 堵
 glyph han-5835-j:15x16 15 16 // 堵
 ⿰ han-571f:7x16 1 han-8005.1:7x16 // ⿰土者
 
+// glyph han-5838:15x16 15 16 // 堸
+// ⿰ han-571f han-98a8 // ⿰土風
+
 // glyph han-583c:15x16 15 16 // 堼
 // ⿱ han-5c01 han-571f // ⿱封土
 

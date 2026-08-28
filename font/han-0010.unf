@@ -545,6 +545,26 @@ $$/0@P/................\9@0\$$
 glyph han-5192:15x16 15 16 // 冒
 ⿱ han-65e5:15x7 2 han-76ee:15x7 // ⿱日目
 
+# CJK unified ideographs: 𠘨 (16)
+
+## 16.4
+
+glyph han-51e9:15x16 15 16 // 凩
+⿵ han-20628:15x16.9x15 han-6728:7x13 4 2 // ⿵𠘨木
+
+glyph han-51ea:15x16 15 16 // 凪
+⿵ han-20628:15x16.9x15 han-6b62:9x14 3 2 // ⿵𠘨止
+
+## 16.6
+
+// glyph han-51ee:15x16 15 16 // 凮
+// ⿵ han-20628 han-767e // ⿵𠘨百
+
+## 16.9
+
+// glyph han-51f0:15x16 15 16 // 凰
+// ⿵ han-20628 han-7687 // ⿵𠘨皇
+
 # CJK unified ideographs: 刀 (18)
 
 ## 18.0

@@ -72,6 +72,13 @@ glyph han-2a76c:15x16 15 16 // 𪝬
 glyph han-2a770:15x16 15 16 // 𪝰
 ⿲ han-4ebb:3x16 han-248e9:3x16 han-99ac:9x16 // ⿲亻𤣩馬
 
+# CJK unified ideographs extension C: 𠘨 (16)
+
+## 16.5
+
+glyph han-2a7b2:15x16 15 16 // 𪞲
+⿺ han-20628:15x16.9x15 han-5360:7x13 4 2 // ⿺𠘨占
+
 # CJK unified ideographs extension C: 刀 (18)
 
 ## 18.4

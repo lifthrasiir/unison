@@ -82,6 +82,31 @@ glyph han-3103a:15x16 15 16 // 𱀺
 // glyph han-31098:15x16 15 16 // 𱂘
 // ⿰ han-3693 han-9801 // ⿰㚓頁
 
+# CJK unified ideographs extension G: 風 (182)
+
+## 182.5
+
+// glyph han-310bd:15x16 15 16 // 𱂽
+// ⿰ han-5360 han-98a8 // ⿰占風
+
+// glyph han-310bf:15x16 15 16 // 𱂿
+// ⿰ han-5305 han-98a8 // ⿰包風
+
+## 182.7
+
+// glyph han-310c0:15x16 15 16 // 𱃀
+// ⿺ han-98a8 han-72c4 // ⿺風狄
+
+## 182.8
+
+// glyph han-310c5:15x16 15 16 // 𱃅
+// ⿺ han-98a8 han-670b // ⿺風朋
+
+## 182.9
+
+// glyph han-310c7:15x16 15 16 // 𱃇
+// ⿰ han-67bc han-98a8 // ⿰枼風
+
 # CJK unified ideographs extension G: 食 (184)
 
 ## 184.3
