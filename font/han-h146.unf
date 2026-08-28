@@ -79,6 +79,9 @@ glyph han-320db:15x16 15 16 // 𲃛
 // glyph han-320e4:15x16 15 16 // 𲃤
 // ⿲ han-27fb7 han-793b han-4e5a // ⿲𧾷礻乚 <- ⿰𧾷礼
 
+// glyph han-320e6:15x16 15 16 // 𲃦
+// ⿰ han-27fb7 han-8fb9 // ⿰𧾷边
+
 ## 157.8
 
 // glyph han-320ec:15x16 15 16 // 𲃬
@@ -118,6 +121,28 @@ glyph han-32116:15x16 15 16 // 𲄖
 
 glyph han-3213a:15x16 15 16 // 𲄺
 ⿰ han-8ecd:7x16 1 han-590b:7x16 // ⿰軍夋
+
+# CJK unified ideographs extension H: 辶 (162)
+
+## 162.5
+
+// glyph han-32156:15x16 15 16 // 𲅖
+// ⿺ han-8fb6 han-76ae // ⿺辶皮
+
+## 162.7
+
+// glyph han-3215b:15x16 15 16 // 𲅛
+// ⿺ han-8fb6 han-4f4d // ⿺辶位
+
+## 162.8
+
+// glyph han-32163:15x16 15 16 // 𲅣
+// ⿺ han-8fb6 han-5b99 // ⿺辶宙
+
+## 162.15
+
+// glyph han-32185:15x16 15 16 // 𲆅
+// ⿰ han-708e han-9023 // ⿰炎連
 
 # CJK unified ideographs extension H: 邑 (163)
 
@@ -225,6 +250,11 @@ glyph han-32221:15x16 15 16 // 𲈡
 
 // glyph han-3222e:15x16 15 16 // 𲈮
 // ⿵ han-9580 han-7687 // ⿵門皇
+
+## 169.11
+
+// glyph han-32231:15x16 15 16 // 𲈱
+// ⿵ han-9580 han-9023 // ⿵門連
 
 # CJK unified ideographs extension H: 阜 (170)
 
@@ -381,3 +411,10 @@ glyph han-32301:15x16 15 16 // 𲌁
 
 glyph han-3233a:15x16 15 16 // 𲌺
 ⿲ -2 han-9b5a:7x16 han-5973:5x16 han-53e4:5x16 // ⿲魚女古
+
+# CJK unified ideographs extension H: 鳥 (196)
+
+## 196.7
+
+// glyph han-32361:15x16 15 16 // 𲍡
+// ⿰ han-9ce5 han-8fc7 // ⿰鳥过

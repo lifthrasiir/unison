@@ -362,6 +362,65 @@ glyph han-2e74c:15x16 15 16 // 𮝌
 // glyph han-2e767:15x16 15 16 // 𮝧
 // ⿰ han-8eca han-958f // ⿰車閏
 
+# CJK unified ideographs extension F: 辶 (162)
+
+## 162.3
+
+// glyph han-2e781:15x16 15 16 // 𮞁
+// ⿺ han-8fb6 han-4e09 // ⿺辶三
+
+## 162.5
+
+// glyph han-2e788:15x16 15 16 // 𮞈
+// ⿺ han-8fb6 han-5144 // ⿺辶兄
+
+## 162.6
+
+// glyph han-2e791:15x16 15 16 // 𮞑
+// ⿺ han-8fb6 han-5404 // ⿺辶各
+
+## 162.8
+
+glyph han-2e79b-($han-regions):15x16 15 16 // 𮞛
+⿺ han-8fb6-($-1):15x16.11x14 han-96e8:9x12 6 0 // ⿺辶雨
+
+// glyph han-2e79d:15x16 15 16 // 𮞝
+// ⿺ han-8fb6 han-6790 // ⿺辶析
+
+// glyph han-2e79f:15x16 15 16 // 𮞟
+// ⿺ han-8fb6 han-82b7 // ⿺辶芷
+
+## 162.9
+
+// glyph han-2e7b0:15x16 15 16 // 𮞰
+// ⿺ han-8fb6 han-6cc9 // ⿺辶泉
+
+// glyph han-2e7b1:15x16 15 16 // 𮞱
+// ⿺ han-8fb6 han-5351 // ⿺辶卑
+
+## 162.10
+
+// glyph han-2e7b9:15x16 15 16 // 𮞹
+// ⿺ han-8fb6 han-21dfe // ⿺辶𡷾
+
+## 162.11
+
+// glyph han-2e7bf:15x16 15 16 // 𮞿
+// ⿺ han-8fb6 han-52d2 // ⿺辶勒
+
+// glyph han-2e7c6:15x16 15 16 // 𮟆
+// ⿺ han-8fb6 han-41e5 // ⿺辶䇥
+
+## 162.12
+
+// glyph han-2e7cc:15x16 15 16 // 𮟌
+// ⿺ han-8fb6 han-3aff // ⿺辶㫿
+
+## 162.15
+
+// glyph han-2e7e0:15x16 15 16 // 𮟠
+// ⿺ han-8fb6 han-96a3 // ⿺辶隣
+
 # CJK unified ideographs extension F: 邑 (163)
 
 ## 163.4

@@ -351,6 +351,11 @@ glyph han-2c278:15x16 15 16 // 𬉸
 // glyph han-2c2bb:15x16 15 16 // 𬊻
 // ⿱ han-3fdf han-706b // ⿱㿟火
 
+## 86.11
+
+// glyph han-2c2bf:15x16 15 16 // 𬊿
+// ⿰ han-706b han-9023 // ⿰火連
+
 ## 86.12
 
 // glyph han-2c2c7:15x16 15 16 // 𬋇
@@ -387,3 +392,8 @@ glyph han-2c332:15x16 15 16 // 𬌲
 
 glyph han-2c33a:15x16 15 16 // 𬌺
 ⿰ han-72ad:6x16 han-661c:9x16 // ⿰犭昜
+
+## 94.11
+
+// glyph han-2c341:15x16 15 16 // 𬍁
+// ⿰ han-72ad han-9023 // ⿰犭連

@@ -581,6 +581,9 @@ glyph han-8b24:15x16 15 16 // 謤
 glyph han-8b2c:15x16 15 16 // 謬
 ⿰ han-8a01:5x16 1 han-7fcf:9x16 // ⿰訁翏
 
+// glyph han-8b30:15x16 15 16 // 謰
+// ⿰ han-8a01 han-9023 // ⿰訁連
+
 ## 149.12
 
 glyph han-8b4a:15x16 15 16 // 譊

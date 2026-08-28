@@ -75,6 +75,11 @@ glyph han-3bdd:15x16 15 16 // 㯝
 glyph han-3bf9:15x16 15 16 // 㯹
 ⿲ -3 han-6728:5x16 han-7968:7x16 han-5bf8:6x16 // ⿲木票寸
 
+## 75.15
+
+// glyph han-3c08:15x16 15 16 // 㰈
+// ⿱ han-6797 han-9023 // ⿱林連
+
 ## 75.16
 
 // glyph han-3c0a:15x16 15 16 // 㰊
@@ -192,6 +197,9 @@ glyph han-3cdc:15x16 15 16 // 㳜
 
 glyph han-3cde:15x16 15 16 // 㳞
 ⿲ han-6c35:3x16 han-4ebb:3x16 han-4e2d:9x16 // ⿲氵亻中
+
+// glyph han-3ce1:15x16 15 16 // 㳡
+// ⿰ han-6c35 han-8fc7 // ⿰氵过
 
 ## 85.7
 

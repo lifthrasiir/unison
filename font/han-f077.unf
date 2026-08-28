@@ -200,6 +200,9 @@ glyph han-2dd3c-($han-regions):15x16 15 16 // 𭴼
 // glyph han-2dd4c:15x16 15 16 // 𭵌
 // ⿰ han-82e6 han-706b // ⿰苦火
 
+// glyph han-2dd4d:15x16 15 16 // 𭵍
+// ⿰ han-706b han-8fea // ⿰火迪
+
 glyph han-2dd4e:15x16 15 16 // 𭵎
 ⿲ han-706b:5x16-l 1 han-8c9d:5x16 1 han-5202:3x16 // ⿲火貝刂
 

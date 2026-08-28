@@ -143,6 +143,9 @@ glyph han-2d5ab:15x16 15 16 // 𭖫
 // glyph han-2d5d4:15x16 15 16 // 𭗔
 // ⿱ han-5c71 han-690e // ⿱山椎
 
+// glyph han-2d5dd:15x16 15 16 // 𭗝
+// ⿰ han-5c71 han-9032 // ⿰山進
+
 ## 46.14
 
 glyph han-2d5e3:15x16 15 16 // 𭗣
@@ -310,6 +313,11 @@ glyph han-2d73c:15x16 15 16 // 𭜼
 
 // glyph han-2d795:15x16 15 16 // 𭞕
 // ⿳ han-65e5 han-52a9 han-5fc3 // ⿳日助心 <- ⿱勗心
+
+## 61.12
+
+// glyph han-2d7b7:15x16 15 16 // 𭞷
+// ⿰ han-5fc4 han-9032 // ⿰忄進
 
 ## 61.14
 

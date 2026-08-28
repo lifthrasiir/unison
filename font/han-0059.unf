@@ -489,6 +489,9 @@ glyph han-6153:15x16 15 16 // 慓
 glyph han-615a:15x16 15 16 // 慚
 ⿲ -1 han-5fc4:5x16 han-8eca:5x16 han-65a4:6x16 // ⿲忄車斤
 
+// glyph han-6169:15x16 15 16 // 慩
+// ⿰ han-5fc4 han-9023 // ⿰忄連
+
 glyph han-6180:15x16 15 16 // 憀
 ⿰ han-5fc4:5x16 1 han-7fcf:9x16 // ⿰忄翏
 

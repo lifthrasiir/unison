@@ -305,6 +305,9 @@ glyph han-7e1e:15x16 15 16 // 縞
 glyph han-7e39:15x16 15 16 // 縹
 ⿰ han-7cf9:5x16 1 han-7968:9x16 // ⿰糹票
 
+// glyph han-7e3a:15x16 15 16 // 縺
+// ⿰ han-7cf9 han-9023 // ⿰糹連
+
 glyph han-7e46:15x16 15 16 // 繆
 ⿰ han-7cf9:5x16 1 han-7fcf:9x16 // ⿰糹翏
 
