@@ -537,10 +537,7 @@ fn derive_compose_body<'b>(
     let [compose] = &body.compose[..] else {
         return None;
     };
-    if compose
-        .part_names()
-        .any(crate::compose::is_undecided)
-    {
+    if compose.part_names().any(crate::compose::is_undecided) {
         return None;
     }
     let dims = |part: &str| match body_of(part) {

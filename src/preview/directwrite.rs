@@ -13,9 +13,11 @@
 //! HarfBuzz does — is the thing to check on a real Windows run; if it does not,
 //! the code point swap has to happen here before the call.
 //!
-//! Nor does it pin down the *order* a backward run's glyphs come back in, which
-//! is why `shape_runs` normalizes every run to visual order rather than
-//! trusting this one to have produced it.
+//! A backward run comes back in the order DirectWrite's own pen walks it —
+//! rightmost first, a cluster's marks after their base — and both the glyph
+//! order and the sign of `advanceOffset` are turned around here so that what
+//! leaves this backend is the geometric, left-to-right arrangement HarfBuzz
+//! produces. `shape_runs` still normalizes the cluster order on top of that.
 
 use crate::preview::{Feature, Paragraph, ShapeError, ShapedGlyph, ShaperBackend, shape_runs};
 
@@ -68,10 +70,16 @@ impl ShaperBackend for DirectWriteBackend {
 
             let analyzer: IDWriteTextAnalyzer = factory.CreateTextAnalyzer().map_err(err)?;
 
-            // The feature values live in their own Vec so the pointers stored
-            // in `dw_features` stay valid for the GetGlyphs/GetGlyphPlacements
-            // calls below; a `&DWRITE_FONT_FEATURE { .. }` temporary inside the
-            // map would be freed as soon as the closure returned.
+            // Every feature goes in *one* range covering the whole run: the
+            // range lengths handed to GetGlyphs have to sum to the run's own
+            // length, so a range per feature would claim `features.len()`
+            // times the text there is. A feature narrower than a run is not
+            // passed on — nothing asks for one yet.
+            //
+            // The values live in their own Vec so the pointer stored in
+            // `typographic` stays valid for the GetGlyphs/GetGlyphPlacements
+            // calls below; a temporary would be freed as soon as the closure
+            // returned.
             let feature_values: Vec<DWRITE_FONT_FEATURE> = features
                 .iter()
                 .map(|f| DWRITE_FONT_FEATURE {
@@ -79,13 +87,11 @@ impl ShaperBackend for DirectWriteBackend {
                     parameter: f.value,
                 })
                 .collect();
-            let dw_features: Vec<DWRITE_TYPOGRAPHIC_FEATURES> = feature_values
-                .iter()
-                .map(|v| DWRITE_TYPOGRAPHIC_FEATURES {
-                    features: v as *const _ as *mut _,
-                    featureCount: 1,
-                })
-                .collect();
+            let typographic = DWRITE_TYPOGRAPHIC_FEATURES {
+                features: feature_values.as_ptr() as *mut _,
+                featureCount: feature_values.len() as u32,
+            };
+            let feature_ptr: *const DWRITE_TYPOGRAPHIC_FEATURES = &typographic;
 
             let shaped = shape_runs(para, features, |text, level, _run_features| {
                 let rtl = level % 2 == 1;
@@ -98,8 +104,10 @@ impl ShaperBackend for DirectWriteBackend {
                 // The run is already one script by `crate::script_run`, but the
                 // analyzer is what produces the `DWRITE_SCRIPT_ANALYSIS` the
                 // shaping calls need, so it still runs over it. Should it split
-                // the run further, a backward one is walked back to front so
-                // the glyphs still come out in visual order.
+                // the run further, the pieces are shaped in the order the
+                // analyzer gives them — which is the order DirectWrite's own
+                // pen visits them, backward run included — and the whole run is
+                // turned around once at the end.
                 let source = TextAnalysisSource::new(&utf16, rtl);
                 let sink = TextAnalysisSink::new();
                 analyzer
@@ -107,7 +115,7 @@ impl ShaperBackend for DirectWriteBackend {
                     .map_err(err)?;
 
                 let sink_impl: &TextAnalysisSink = sink.as_impl();
-                let mut script_runs: Vec<ScriptRun> = sink_impl
+                let script_runs: Vec<ScriptRun> = sink_impl
                     .runs
                     .borrow()
                     .iter()
@@ -117,9 +125,6 @@ impl ShaperBackend for DirectWriteBackend {
                         analysis: r.analysis,
                     })
                     .collect();
-                if rtl {
-                    script_runs.reverse();
-                }
 
                 let utf16_to_char = build_utf16_to_char_map(text);
                 let mut all_glyphs = Vec::new();
@@ -137,17 +142,14 @@ impl ShaperBackend for DirectWriteBackend {
                         vec![DWRITE_SHAPING_GLYPH_PROPERTIES::default(); max_glyphs as usize];
                     let mut actual_glyph_count = 0u32;
 
-                    let feature_ptrs: Vec<*const DWRITE_TYPOGRAPHIC_FEATURES> =
-                        dw_features.iter().map(|f| f as *const _).collect();
-                    let feature_range_lengths: Vec<u32> = vec![len as u32; dw_features.len()];
-
-                    let (feat_opt, feat_range_opt, feat_count) = if dw_features.is_empty() {
+                    let feature_range_lengths: [u32; 1] = [len as u32];
+                    let (feat_opt, feat_range_opt, feat_count) = if feature_values.is_empty() {
                         (None, None, 0u32)
                     } else {
                         (
-                            Some(feature_ptrs.as_ptr() as *const *const DWRITE_TYPOGRAPHIC_FEATURES),
+                            Some(&feature_ptr as *const *const DWRITE_TYPOGRAPHIC_FEATURES),
                             Some(feature_range_lengths.as_ptr()),
-                            dw_features.len() as u32,
+                            1u32,
                         )
                     };
 
@@ -244,10 +246,32 @@ impl ShaperBackend for DirectWriteBackend {
                             level,
                             x_advance: advances[i] / upm as f32,
                             y_advance: 0.0,
-                            x_offset: offsets[i].advanceOffset / upm as f32,
+                            // `advanceOffset` is along the *run's* advance
+                            // direction, so a positive one moves a glyph left
+                            // in a backward run. A `ShapedGlyph`'s offset is
+                            // geometric — the painter adds it to x — which is
+                            // what HarfBuzz produces and what the reversal
+                            // below leaves this consistent with.
+                            x_offset: if rtl {
+                                -offsets[i].advanceOffset / upm as f32
+                            } else {
+                                offsets[i].advanceOffset / upm as f32
+                            },
                             y_offset: offsets[i].ascenderOffset / upm as f32,
                         });
                     }
+                }
+
+                // DirectWrite hands a backward run back in the order its own
+                // pen walks it, which starts at the *right*: the clusters run
+                // logically, and a cluster's marks follow their base. Painting
+                // that left to right would put every mark one base advance too
+                // far along, so the whole run is mirrored — clusters and the
+                // glyphs inside one alike — which is exactly the arrangement
+                // HarfBuzz returns and `shape_runs` expects. Reversing the
+                // cluster *groups* alone is not the same thing.
+                if rtl {
+                    all_glyphs.reverse();
                 }
 
                 Ok(all_glyphs)
