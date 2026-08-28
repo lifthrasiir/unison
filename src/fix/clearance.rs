@@ -58,6 +58,22 @@
 //! The *base* is never searched — a name is one glyph's answer and cannot be
 //! the family's.
 //!
+//! A family's line is held to the same four reports a plain one is, the **TODO**
+//! and the **error** included. A component that has picked no label at all is
+//! the label case with nothing to replace: the base is whatever the line writes
+//! before the `:` and is put back verbatim — a `($-1)` and all, since only the
+//! label was ever this pass's to choose — and the label found for the family is
+//! appended to it. Such a glyph has no layout as written, so it is counted
+//! among the ones that warn and left out of every sum, exactly as one whose
+//! component errors is; what tells the two apart is only which of the two the
+//! report names ([`MemberNames::errored`]).
+//!
+//! Which family a component's label is looked for in is each member's own, and
+//! it is asked for under the name the *member* carries rather than the one the
+//! line writes — a name reached only through an `exists`-scoped alias
+//! ([`crate::exists`]) is a family like any other, and a source whose parts are
+//! all written that way would otherwise offer nothing to search at all.
+//!
 //! One set of gaps and labels then has to serve every glyph, which makes the
 //! objective a different one: **the fewest glyphs warning at all**, and only then the
 //! summed score and the same tie-breaks below. The warnings are a work queue
@@ -264,7 +280,13 @@ pub fn optimize_clearance(docs: &[&Document]) -> Vec<DocumentFixes> {
     // whichever face is being built, and a slice-scoped binding would make one
     // line several, which is not something one rewrite could be right for.
     let name_parts = crate::document::collect_name_parts(docs);
-    let inventory = Inventory::collect(docs, &name_parts);
+    // The searches too, so that the inventory reads the same set of names the
+    // build does. A `glyph A = B` under an `exists` is how a source states a
+    // whole family of second names at once ([`crate::exists`]), and the fixer
+    // that cannot see one cannot find the drawing behind a component that uses
+    // it; the diagnostics are the resolution pass's to report, not this one's.
+    let (exists, _) = crate::exists::resolve_scopes(docs, &name_parts);
+    let inventory = Inventory::collect(docs, &name_parts, &exists);
 
     let mut out: Vec<DocumentFixes> = Vec::new();
     for (doc_idx, doc) in docs.iter().enumerate() {
@@ -418,12 +440,16 @@ struct Inventory<'a> {
 }
 
 impl<'a> Inventory<'a> {
-    fn collect(docs: &[&'a Document], name_parts: &crate::document::NamePartsMap) -> Self {
+    fn collect(
+        docs: &[&'a Document],
+        name_parts: &crate::document::NamePartsMap,
+        exists: &crate::exists::ExistsScopes,
+    ) -> Self {
         let mut inv = Self {
             boxes: HashMap::new(),
             grids: HashMap::new(),
             variants: HashMap::new(),
-            aliases: crate::alias::AliasMap::collect(docs, name_parts),
+            aliases: crate::alias::AliasMap::collect_with_merges(docs, name_parts, exists),
             aligns: crate::document::collect_anchor_aligns(
                 docs.iter().flat_map(|d| d.items.iter()),
             ),
@@ -1005,12 +1031,16 @@ struct MemberNames {
     /// One per slot, in the line's order.
     names: Vec<String>,
     contact: Option<u16>,
-    /// Whether the line as written names something the check errors on in any
-    /// of this glyph's slots ([`SlotState::Faulty`]). Such a glyph has no
-    /// layout as written — it is counted among the ones that warn and left out
-    /// of every sum — and a label that draws for the whole family, this glyph
-    /// included, is what puts it right.
+    /// Whether any of this glyph's slots holds no part as the line writes it —
+    /// a name the check errors on ([`SlotState::Faulty`]), or one it leaves
+    /// undecided. Such a glyph has no layout as written — it is counted among
+    /// the ones that warn and left out of every sum — and a label that draws
+    /// for the whole family, this glyph included, is what puts it right.
     faulty: bool,
+    /// Of those, the half the check calls an *error* rather than a TODO. It
+    /// changes nothing about the search and only says which of the two a
+    /// report is about ([`ClearanceFix::faulty`]).
+    errored: bool,
 }
 
 /// One glyph of the family at one choice of labels: the range its own rule
@@ -1167,23 +1197,28 @@ fn optimize_pattern_line(
         if names.len() != written.len() {
             continue;
         }
-        // An undecided component names no drawing, here as anywhere: the glyph
-        // has no layout to measure and waits for its author, while the rest of
-        // the family is optimized around it.
-        if names.iter().any(|n| crate::compose::is_undecided(n)) {
-            continue;
-        }
         // Per slot, so that a glyph one of whose components errors keeps the
         // parts of the slots that are sound: a label found for the slot that
         // errors has to be laid out beside them.
         let mut parts: Vec<Option<Candidate>> = Vec::with_capacity(names.len());
         let mut faulty = false;
+        let mut errored = false;
         let mut unmeasurable = false;
         for (slot, n) in names.iter().enumerate() {
+            // An undecided component names no drawing however the source
+            // declares it, so this glyph has no part here — the same state a
+            // name the check errors on leaves the slot in, and planned the same
+            // way, since picking from the family is what the TODO asks for.
+            if crate::compose::is_undecided(n) {
+                faulty = true;
+                parts.push(None);
+                continue;
+            }
             match inv.candidate_state(n, op.slot_direction(slot), cross_extent, horizontal) {
                 SlotState::Ok(candidate) => parts.push(Some(*candidate)),
                 SlotState::Faulty => {
                     faulty = true;
+                    errored = true;
                     parts.push(None);
                 }
                 SlotState::Unmeasurable => unmeasurable = true,
@@ -1210,6 +1245,7 @@ fn optimize_pattern_line(
             names,
             contact,
             faulty,
+            errored,
         });
         as_written.push(parts);
     }
@@ -1253,6 +1289,11 @@ fn optimize_pattern_line(
 
     let unchanged = vec![0usize; slots.len()];
     let written_members = member_layouts(&members, &slots, &unchanged, axis_extent, horizontal)?;
+    // Whether the line as written has a layout at all. A family every glyph of
+    // which waits on a decision is the pattern line's TODO, and its `before` is
+    // `None` for the same reason [`optimize_line`]'s is: there is no
+    // measurement that came out wrong, so there is none to report against.
+    let measured_before = written_members.iter().flatten().count();
     let before = evaluate_gaps(
         &written_members,
         &slots,
@@ -1348,11 +1389,11 @@ fn optimize_pattern_line(
     }
     Some(PlannedLine {
         line,
-        before: Some(before.score),
+        before: (measured_before > 0).then_some(before.score),
         after: key.score,
         mismatched: Some((before.mismatched, key.mismatched)),
         glyphs_warning: Some((before.warnings, key.warnings)),
-        faulty: members.iter().any(|m| m.faulty),
+        faulty: members.iter().any(|m| m.errored),
     })
 }
 
@@ -1386,13 +1427,22 @@ fn slot_choices(
         // here to keep; one that errors at another slot keeps this one.
         parts: as_written.iter().map(|p| p[slot].clone()).collect(),
     }];
-    let Some((base, label)) = written.split_once(':') else {
-        return out; // undecided: no label to move, and no drawing to move it to
+    // The line's component, taken apart the only way a pattern can be: what it
+    // writes before the label and what it writes as one. Everything before the
+    // `:` is kept verbatim and never searched — it may be a pattern
+    // (`A-($-1)`), and a name is one glyph's answer where a label is the
+    // family's — so the base here is the *text* a rewrite puts back, and the
+    // family a variant is looked for in is each member's own, below.
+    let (base, label) = match written.split_once(':') {
+        Some((base, label)) => (base, Some(label)),
+        // An undecided component: no label to move, and the whole name is the
+        // text a chosen one is appended to.
+        None => (written, None),
     };
-    if !is_plain_name(label) {
+    if label.is_some_and(|label| !is_plain_name(label)) {
         return out; // a label the block's own pattern reaches
     }
-    let suffix = format!(":{label}");
+    let suffix = label.map_or_else(String::new, |label| format!(":{label}"));
     // Each glyph's own base, twice over: as the line's own pattern expands it,
     // which is what a rewrite writes, and canonically — through the aliases,
     // exactly as [`Inventory::candidates`] does — which is the family a variant
@@ -1403,9 +1453,9 @@ fn slot_choices(
             return out; // the line's label is not this glyph's after all
         };
         let canonical = inv.canonical(&member.names[slot]);
-        let Some((canonical_base, _)) = canonical.split_once(':') else {
-            return out;
-        };
+        let canonical_base = canonical
+            .split_once(':')
+            .map_or(canonical.as_str(), |(base, _)| base);
         bases.push((written_base.to_string(), canonical_base.to_string()));
     }
     // The labels every one of them offers, and no more: one label has to serve
@@ -1431,7 +1481,7 @@ fn slot_choices(
         if out.len() >= MAX_CANDIDATES {
             break;
         }
-        if candidate_label == label {
+        if Some(candidate_label) == label {
             continue; // the line's own, already first
         }
         let name = format!("{base}:{candidate_label}");
@@ -1449,7 +1499,14 @@ fn slot_choices(
             .map(|(written_base, base)| {
                 let name = format!("{written_base}:{candidate_label}");
                 let part = inv.candidate(&name, dir, cross, horizontal)?;
-                (inv.canonical(&name) == format!("{base}:{candidate_label}")).then_some(part)
+                // The same glyph the family offered, and not merely a name
+                // that reads like it: both sides are canonicalized, because
+                // the base a family is looked up under is not itself stable
+                // under the aliases — a component the line leaves undecided is
+                // looked up under the name as written, whose labels are the
+                // very things the aliases move.
+                (inv.canonical(&name) == inv.canonical(&format!("{base}:{candidate_label}")))
+                    .then_some(part)
             })
             .collect::<Option<Vec<Candidate>>>()
         else {
@@ -1647,10 +1704,12 @@ fn write_pattern_line(
             // already writes it, with the new label in place of the old.
             Some((label, name)) => ComposeItem::Part {
                 name: name.clone(),
-                raw_name: raw_name
-                    .as_deref()
-                    .and_then(|raw| raw.split_once(':'))
-                    .map(|(raw_base, _)| format!("{raw_base}:{label}")),
+                raw_name: raw_name.as_deref().map(|raw| match raw.split_once(':') {
+                    Some((raw_base, _)) => format!("{raw_base}:{label}"),
+                    // An undecided component has no label to replace; the one
+                    // chosen for it is simply appended.
+                    None => format!("{raw}:{label}"),
+                }),
             },
         });
     }

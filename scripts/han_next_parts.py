@@ -74,36 +74,47 @@ def main() -> int:
     ids = G.load_ids(G.IDS_PATH)
     todo = collect(inv, ids)
 
+    # What a line may name a character as: for one drawn per region that is the
+    # labels every region draws, which is the same question `feasible` asks and
+    # so the same answer a generated line would be held to.
+    def variants(cp):
+        family = inv.families.get(cp)
+        return family.shared if family is not None else []
+
     def drawn(cp):
-        return bool(inv.variants.get(G.han_name(cp)))
+        return bool(variants(cp))
+
+    # Every cavity the source promises anywhere, which is what an enclosure's
+    # inner slot is measured against. Collected once: it does not depend on the
+    # character being asked about.
+    cavities = [
+        v.cavity
+        for family in inv.families.values()
+        for v in family.shared
+        if (v.w, v.h) == (G.BOX_W, G.BOX_H) and v.cavity is not None
+    ]
 
     def fits(cp, op, slot):
         """Whether some drawing of `cp` could sit in slot `slot` of an `op` line."""
-        variants = inv.variants.get(G.han_name(cp), [])
+        drawings = variants(cp)
         if op in G.ENCLOSING:
             # The outer slot wants the glyph exactly, with a cavity; the inner
             # one wants anything without a cavity that some drawn cavity holds.
             if slot == 0:
                 return any(
                     (v.w, v.h) == (G.BOX_W, G.BOX_H) and v.cavity is not None
-                    for v in variants
+                    for v in drawings
                 )
-            cavities = [
-                v.cavity
-                for vs in inv.variants.values()
-                for v in vs
-                if (v.w, v.h) == (G.BOX_W, G.BOX_H) and v.cavity is not None
-            ]
             return any(
                 v.cavity is None and v.w <= n and v.h <= m
-                for v in variants
+                for v in drawings
                 for n, m in cavities
             )
         horizontal = op in G.HORIZONTAL
         axis, cross = (G.BOX_W, G.BOX_H) if horizontal else (G.BOX_H, G.BOX_W)
         return any(
             (v.h if horizontal else v.w) == cross and (v.w if horizontal else v.h) < axis
-            for v in variants
+            for v in drawings
         )
 
     undrawn = collections.Counter()

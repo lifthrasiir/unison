@@ -57,6 +57,22 @@ the initial state `compose.rs` documents for a glyph populated from IDS; run
 `cargo run -r -- fix -i font/ --optimize-clearance` afterwards to pick the
 variants and the gaps.
 
+A part whose shape differs by **region** has no plain name to write. The source
+draws such a character as `han-XXXX-R` blocks, or as `han-XXXX.S` shapes with
+`exists`-scoped aliases tying each region to one of them, and a line that uses
+it names it `han-XXXX-($-1)` -- the region the block's own name is expanding
+for. So a block with any such component is written as a *family*:
+
+    glyph han-4f36-($han-regions):15x16 15 16 // 伶
+    ⿰ han-4ebb han-4ee4-($-1) // ⿰亻令
+
+and what such a component may be drawn at is the labels **every** region draws,
+since the one name has to resolve in each of them (`Family.shared`). A
+character only some regions draw is no part at all here, and the line asking
+for it is commented out like any other whose parts are missing. `HAN_NAME_RE`
+is the whole of the name grammar this reads; it is Unison's own convention and
+nothing outside this script depends on it.
+
 A line the parts cannot lay out yet is emitted commented out (`// glyph …`), so
 that nothing is lost and nothing unbuildable is added either: either because its
 parts are drawn at no size that tiles the box (`--ignore-box` writes it anyway),
@@ -174,7 +190,9 @@ def expand_pattern(name: str, parts: dict[str, list[str]]) -> list[str]:
 
     Only the subset `font/han-*.unf` uses: `(a|b|c)` alternations and
     `($name-parts)` references, several of which run in lock-step (see
-    `src/pattern.rs`). A name with no group expands to itself.
+    `src/pattern.rs`). A name with no group expands to itself, and one whose
+    groups this cannot read (a `($1)` an `exists` binds, a `($-1)` back
+    reference) expands to nothing -- it is not this function's to guess.
     """
     groups = GROUP_RE.findall(name)
     if not groups:
@@ -210,22 +228,17 @@ def expand_pattern(name: str, parts: dict[str, list[str]]) -> list[str]:
 SIZE_RE = re.compile(r"^(\d+)x(\d+)(?:\.(\d+)x(\d+))?$")
 
 
-def split_variant(
-    name: str,
-) -> tuple[str, tuple[int, int] | None, tuple[int, int] | None, str | None]:
-    """`han-6728:5x16-l` -> (`han-6728`, (5, 16), None, `l`); see `compose.rs` (D1).
+def parse_label(label: str) -> tuple[tuple[int, int] | None, tuple[int, int] | None, str | None]:
+    """`5x16-l` -> ((5, 16), None, `l`); see `compose.rs` (D1).
 
-    The third member is the cavity a `WxH.NxM` name promises, which is what
-    marks a drawing as an enclosure's *outer* part — the enclosure's answer to
+    The second member is the cavity a `WxH.NxM` label promises, which is what
+    marks a drawing as an enclosure's *outer* part -- the enclosure's answer to
     the `l`/`r` a split's name carries.
     """
-    base, sep, spec = name.partition(":")
-    if not sep:
-        return name, None, None, None
     size = None
     cavity = None
     direction = None
-    for tok in spec.split("-"):
+    for tok in label.split("-"):
         m = SIZE_RE.match(tok)
         if m and size is None:
             size = (int(m.group(1)), int(m.group(2)))
@@ -233,7 +246,73 @@ def split_variant(
                 cavity = (int(m.group(3)), int(m.group(4)))
         elif tok in ("l", "r", "u", "d", "c") and direction is None:
             direction = tok
-    return base, size, cavity, direction
+    return size, cavity, direction
+
+
+# --------------------------------------------------------------------------
+# han glyph names
+# --------------------------------------------------------------------------
+
+# The one place that knows what a han glyph name may look like. Every form the
+# source writes, in full:
+#
+#     han-XXXX                 the character, drawn one way for every region
+#     han-XXXX.S               one *shape* of it, where the regions differ
+#     han-XXXX-R               the drawing one region uses, as a name of its own
+#     han-XXXX-(R1|R2|…)       several regions at once, as a written pattern
+#     han-XXXX-($han-regions)  every region, as a written pattern
+#     han-XXXX-($-1)           the region the enclosing block is expanding for
+#
+# each optionally followed by `:LABEL`, the `WxH[.NxM][-l]` variant spec
+# `compose.rs` reads. A name never carries a shape *and* a region: the regions
+# are tied to the shapes by `exists`-scoped aliases instead (`exists
+# han-XXXX\.0:(…)` over `glyph han-XXXX-(j|k):($1) = ($0)`), which is how
+# `load_inventory` reads them.
+HAN_NAME_RE = re.compile(
+    r"^han-(?P<cp>[0-9a-f]{4,5})"
+    r"(?:\.(?P<shape>[0-9a-z]+)|-(?P<region>\([^()]*\)|[a-z]))?"
+    r"(?::(?P<label>.*))?$"
+)
+
+# The region letters `$han-regions` names, for a source that states none.
+DEFAULT_REGIONS = ["g", "h", "t", "j", "k", "p", "v"]
+
+# What a component names when the region is the enclosing block's own, and the
+# group the block's name has to carry for it to mean anything.
+BACKREF = "($-1)"
+REGION_GROUP = "($han-regions)"
+
+
+@dataclass(frozen=True)
+class HanName:
+    """One han glyph name, taken apart."""
+
+    cp: int
+    shape: str | None
+    # a single region letter, or the written group (`(g|h|t)`, `($-1)`) when
+    # the name is a pattern rather than one glyph's
+    region: str | None
+    label: str | None
+
+    @property
+    def family(self) -> str:
+        """The name with its label dropped: `han-4ee4-g:9x16` -> `han-4ee4-g`."""
+        stem = f"han-{self.cp:04x}"
+        if self.shape is not None:
+            return f"{stem}.{self.shape}"
+        if self.region is not None:
+            return f"{stem}-{self.region}"
+        return stem
+
+
+def parse_han_name(name: str) -> HanName | None:
+    """One han glyph name, or `None` for anything that is not one at all."""
+    m = HAN_NAME_RE.match(name)
+    if m is None:
+        return None
+    return HanName(
+        int(m.group("cp"), 16), m.group("shape"), m.group("region"), m.group("label")
+    )
 
 
 # --------------------------------------------------------------------------
@@ -242,7 +321,10 @@ def split_variant(
 
 @dataclass
 class Variant:
+    """One drawing, under one of the names that reach it."""
+
     name: str
+    label: str
     w: int
     h: int
     direction: str | None
@@ -254,9 +336,35 @@ class Variant:
 
 
 @dataclass
+class Family:
+    """What one character offers a line that names it as a part.
+
+    `shared` is what a *single* written component name can stand for. For a
+    character drawn one way for everyone that is simply its own drawings; for
+    one whose shape differs by region it is the labels **every** region draws,
+    because a `han-XXXX-($-1)` component is one name that has to resolve in
+    each of them -- a label only some regions draw is no use to such a line.
+
+    `regional` is what decides how the component is written and, through it,
+    whether the block that names it is a pattern block: a character with any
+    region-suffixed name of its own has no plain name to write, so a line using
+    it says `han-XXXX-($-1)` and its own header says `-($han-regions)`.
+    """
+
+    cp: int
+    regional: bool
+    shared: list[Variant]
+
+
+@dataclass
 class Inventory:
-    # base name (`han-6728`) -> the variants the source draws for it
-    variants: dict[str, list[Variant]] = field(default_factory=lambda: defaultdict(list))
+    regions: list[str] = field(default_factory=lambda: list(DEFAULT_REGIONS))
+    # full name (`han-4ee4.0:9x16`) -> the drawing it is
+    drawings: dict[str, Variant] = field(default_factory=dict)
+    # full name -> the name it is a second name for (`alias.rs`)
+    aliases: dict[str, str] = field(default_factory=dict)
+    # what each character offers a line, once the two above are read together
+    families: dict[int, Family] = field(default_factory=dict)
     # code points that already have a glyph of any kind
     covered: set[int] = field(default_factory=set)
     # code points that have a full-size (15x16) glyph
@@ -272,8 +380,22 @@ class Inventory:
     # a pattern declares several characters through, is left out of this.
     declared_blocks: dict[int, tuple[str, list[str]]] = field(default_factory=dict)
 
+    def resolve(self, name: str) -> Variant | None:
+        """Follow a name through the aliases to the drawing it reaches."""
+        seen = set()
+        while name not in self.drawings:
+            if name in seen:
+                return None  # a cycle; `alias.rs` reports it, we just stop
+            seen.add(name)
+            target = self.aliases.get(name)
+            if target is None:
+                return None
+            name = target
+        return self.drawings[name]
 
-NAME_CP_RE = re.compile(r"^han-([0-9a-f]{4,5})(?:-[a-z])?(?:\.[0-9a-f]{1,2})?$")
+
+NAME_PARTS_RE = re.compile(r"^name-parts\s+\$(\S+)\s*=\s*(.*?)(?://.*)?$")
+EXISTS_RE = re.compile(r"^exists\s+(\S+)\s*(?://.*)?$")
 
 
 def load_name_parts(font_dir: str) -> dict[str, list[str]]:
@@ -283,36 +405,59 @@ def load_name_parts(font_dir: str) -> dict[str, list[str]]:
             continue
         with open(os.path.join(font_dir, fname), encoding="utf-8") as f:
             for line in f:
-                m = re.match(r"^name-parts\s+\$(\S+)\s*=\s*(.*?)(?://.*)?$", line.strip())
+                m = NAME_PARTS_RE.match(line.strip())
                 if m:
                     parts[m.group(1)] = m.group(2).split()
     return parts
 
 
 def load_inventory(font_dir: str, parts: dict[str, list[str]]) -> Inventory:
-    inv = Inventory()
+    """Read every `.unf` in the directory into an [`Inventory`].
+
+    Three kinds of `glyph` line matter and they are read in three passes,
+    because each rests on the one before: a **drawing** (`glyph NAME W H` over a
+    grid), a plain **alias** (`glyph A = B`), and an alias under an **`exists`**
+    scope, which names a whole family at once and so has to wait until the
+    names it searches are known.
+    """
+    inv = Inventory(regions=list(parts.get("han-regions", DEFAULT_REGIONS)))
+    plain_aliases: list[tuple[str, str]] = []
+    # (the `exists` pattern, the scoped `glyph A = B` line's two sides)
+    scoped_aliases: list[tuple[str, str, str]] = []
+
     for fname in sorted(os.listdir(font_dir)):
         if not fname.endswith(".unf"):
             continue
         path = os.path.join(font_dir, fname)
         with open(path, encoding="utf-8") as f:
             lines = f.read().split("\n")
+        # `exists` governs exactly one following item and does not stack
+        # (`exists.rs`, "# Scope"), so the scope is cleared by the very next
+        # line that is one.
+        scope: str | None = None
         for i, line in enumerate(lines):
             commented = line.lstrip("/ ")
             if line.startswith("//") and commented.startswith("glyph "):
                 toks = commented.split()
-                cps = []
+                cps = set()
                 for expanded in expand_pattern(toks[1], parts) if len(toks) > 1 else []:
-                    m = NAME_CP_RE.match(split_variant(expanded)[0])
-                    if m:
-                        cps.append(int(m.group(1), 16))
+                    hn = parse_han_name(expanded)
+                    if hn is not None:
+                        cps.add(hn.cp)
                 inv.declared.update(cps)
                 if len(cps) == 1 and (i == 0 or not lines[i - 1].strip()):
                     end = i + 1
                     while end < len(lines) and lines[end].strip():
                         end += 1
-                    inv.declared_blocks[cps[0]] = (fname[:-4], lines[i:end])
+                    inv.declared_blocks[next(iter(cps))] = (fname[:-4], lines[i:end])
                 continue
+            if not line.strip() or line.lstrip().startswith("//"):
+                continue
+            m = EXISTS_RE.match(line.strip())
+            if m:
+                scope = m.group(1)
+                continue
+            here, scope = scope, None
             if not line.startswith("glyph "):
                 continue
             head = line.split("//")[0].strip()
@@ -320,10 +465,14 @@ def load_inventory(font_dir: str, parts: dict[str, list[str]]) -> Inventory:
             if not toks:
                 continue
             name = toks[0]
-            if len(toks) > 1 and toks[1] == "=":
-                continue  # `glyph A = B`: an alias, not a drawing
-            if "$1" in name or "$2" in name:
-                continue  # an `exists`-scoped wrapper, not a part
+            if len(toks) > 2 and toks[1] == "=":
+                # `glyph A = B`: a second *name* for a drawing, and the only way
+                # the source says which shape a region uses.
+                if here is not None:
+                    scoped_aliases.append((here, name, toks[2]))
+                else:
+                    plain_aliases.append((name, toks[2]))
+                continue
             if len(toks) < 3 or not (toks[1].isdigit() and toks[2].isdigit()):
                 continue  # no declared `W H`: nothing a component could rest on
             w, h = int(toks[1]), int(toks[2])
@@ -339,20 +488,155 @@ def load_inventory(font_dir: str, parts: dict[str, list[str]]) -> Inventory:
                 break
             handdrawn = bool(body) and body[0] not in IDC_ARITY and not body.startswith("ref ")
             for expanded in expand_pattern(name, parts):
-                base, size, cavity, direction = split_variant(expanded)
-                m = NAME_CP_RE.match(base)
-                if not m:
+                hn = parse_han_name(expanded)
+                if hn is None:
                     continue
-                cp = int(m.group(1), 16)
-                inv.covered.add(cp)
+                inv.covered.add(hn.cp)
                 if (w, h) == (BOX_W, BOX_H):
-                    inv.covered_full.add(cp)
+                    inv.covered_full.add(hn.cp)
+                if hn.label is None:
+                    continue  # a name with no variant spec is nothing to place
+                size, cavity, direction = parse_label(hn.label)
                 if size is not None and size != (w, h):
                     continue  # a lying name; `compose.rs` checks this itself
-                inv.variants[base].append(
-                    Variant(expanded, w, h, direction, handdrawn, cavity)
+                inv.drawings.setdefault(
+                    expanded,
+                    Variant(expanded, hn.label, w, h, direction, handdrawn, cavity),
                 )
+
+    for lhs, rhs in plain_aliases:
+        add_aliases(inv, lhs, rhs, parts)
+    resolve_scoped_aliases(inv, scoped_aliases, parts)
+    build_families(inv)
     return inv
+
+
+def add_aliases(inv: Inventory, lhs: str, rhs: str, parts: dict[str, list[str]]) -> None:
+    """`glyph A = B` for every name the two patterns declare, in lock-step."""
+    left = expand_pattern(lhs, parts)
+    right = expand_pattern(rhs, parts)
+    if not left or not right:
+        return
+    for i, name in enumerate(left):
+        target = right[min(i, len(right) - 1)]
+        if name != target:
+            inv.aliases.setdefault(name, target)
+        inv.covered.update(
+            hn.cp for hn in [parse_han_name(name)] if hn is not None
+        )
+
+
+# An `exists` pattern, in the one shape the han source writes: a name with the
+# regex metacharacters escaped, a `:`, and one group over the variant label.
+# `exists.rs` allows more than this; what more would mean here is a search this
+# script cannot answer, and the alias under it is then simply not read.
+def exists_matches(inv: Inventory, spec: str) -> list[tuple[str, str]]:
+    """The `($0)`/`($1)` bindings one `exists` pattern finds, as (name, label).
+
+    The names searched are the ones the source *declares* -- drawings and the
+    aliases already resolved -- exactly as `exists.rs` describes, and never the
+    on-demand ones.
+    """
+    base, sep, label_re = spec.partition(":")
+    if not sep:
+        return []
+    base = base.replace("\\", "")
+    try:
+        compiled = re.compile(label_re)
+    except re.error:
+        return []
+    out = []
+    for name in sorted(set(inv.drawings) | set(inv.aliases)):
+        hn = parse_han_name(name)
+        if hn is None or hn.label is None or hn.family != base:
+            continue
+        if compiled.fullmatch(hn.label):
+            out.append((name, hn.label))
+    return out
+
+
+# How many rounds of `exists` resolution to run: a search may find a name an
+# earlier search declared, which `exists.rs` settles as a fixpoint with a cycle
+# budget. The han source never nests them more than one deep; a couple of extra
+# rounds cost nothing and stop the count from being a rule.
+EXISTS_ROUNDS = 4
+
+
+def resolve_scoped_aliases(
+    inv: Inventory, scoped: list[tuple[str, str, str]], parts: dict[str, list[str]]
+) -> None:
+    """`exists BASE:(…)` over `glyph han-XXXX-(j|k):($1) = ($0)`.
+
+    This is the whole of how a region is tied to a shape: the search binds `$0`
+    to a drawing's full name and `$1` to its label, and the line under it
+    declares that name again for each region it lists. Substituting the
+    bindings *before* expanding the pattern is what keeps `($1)` from being
+    read as an alternation.
+    """
+    for _ in range(EXISTS_ROUNDS):
+        before = len(inv.aliases)
+        for spec, lhs, rhs in scoped:
+            for name, label in exists_matches(inv, spec):
+                add_aliases(
+                    inv,
+                    lhs.replace("($1)", label).replace("($0)", name),
+                    rhs.replace("($1)", label).replace("($0)", name),
+                    parts,
+                )
+        if len(inv.aliases) == before:
+            return
+
+
+def build_families(inv: Inventory) -> None:
+    """Fold the drawings and the aliases into one answer per character.
+
+    A character with any region-suffixed name is *regional*: the source draws it
+    per region and has no plain name for it, so what a line may name is
+    `han-XXXX-($-1)` and what it may pick from is the labels every region
+    draws. A character with none is written plainly and offers its own labels.
+    """
+    # family name (`han-4ee4-g`) -> {label: the full name that reaches it}
+    by_family: dict[str, dict[str, str]] = defaultdict(dict)
+    cps: set[int] = set()
+    for name in sorted(set(inv.drawings) | set(inv.aliases)):
+        hn = parse_han_name(name)
+        if hn is None:
+            continue
+        cps.add(hn.cp)
+        if hn.label is not None:
+            by_family[hn.family].setdefault(hn.label, name)
+
+    for cp in sorted(cps):
+        stem = han_name(cp)
+        per_region = {r: by_family.get(f"{stem}-{r}", {}) for r in inv.regions}
+        regional = any(per_region.values())
+        shared: list[Variant] = []
+        if not regional:
+            for label, name in sorted(by_family.get(stem, {}).items()):
+                got = inv.resolve(name)
+                if got is not None:
+                    shared.append(got)
+        elif all(per_region.values()):
+            labels = set.intersection(*(set(m) for m in per_region.values()))
+            for label in sorted(labels):
+                drawn = [inv.resolve(per_region[r][label]) for r in inv.regions]
+                if any(v is None for v in drawn):
+                    continue
+                first = drawn[0]
+                # One name stands for all of them, so what it promises is what
+                # every region keeps: hand-drawn only where each of them is.
+                shared.append(
+                    Variant(
+                        f"{stem}-{BACKREF}:{label}",
+                        label,
+                        first.w,
+                        first.h,
+                        first.direction,
+                        all(v.handdrawn for v in drawn),
+                        first.cavity,
+                    )
+                )
+        inv.families[cp] = Family(cp, regional, shared)
 
 
 # --------------------------------------------------------------------------
@@ -707,10 +991,15 @@ def feasible(inv: Inventory, op: str, comps: list[int], inlined: bool = False) -
 
     Those are two questions, not one, and an `inlined` line is only asked the
     first — see `feasible_split`, which is the only place inlining arises.
+
+    What a component *is* asked is [`Family.shared`], so a character whose
+    shape differs by region is held to the labels every region draws: the line
+    names it once and that one name has to resolve in each of them.
     """
-    cands = [inv.variants.get(han_name(cp), []) for cp in comps]
-    if any(not c for c in cands):
+    families = [inv.families.get(cp) for cp in comps]
+    if any(f is None or not f.shared for f in families):
         return Verdict(None, False, "component not drawn")
+    cands = [f.shared for f in families]
     kind = "handdrawn" if all(any(v.handdrawn for v in c) for c in cands) else "composite"
     fits = (
         feasible_enclosure(cands)
@@ -986,10 +1275,58 @@ def tag_score(tags: str) -> int:
     return len(set(re.sub(r"\[.*?\]", "", tags)) & set("GHTJKPV"))
 
 
-def idc_line(op: str, comps: list[int]) -> str:
+@dataclass(frozen=True)
+class Line:
+    """One IDC line, ready to be written: what it composes and how it names it.
+
+    A component whose character is drawn per region is written `han-XXXX-($-1)`
+    -- the region the block's own name is expanding for -- and a block with any
+    such component is a *pattern* block, its header naming `-($han-regions)`.
+    `patterned` is kept beside the flags rather than derived from them because
+    an inlined block's header answers to two lines (the one it drew and the
+    un-inlined one it kept above it), and because it is what
+    `script_block_idc` reads back out of a block it is about to regenerate.
+    """
+
+    op: str
+    comps: tuple[int, ...]
+    # per component: write it as `han-XXXX-($-1)` rather than `han-XXXX`
+    regional: tuple[bool, ...]
+    patterned: bool
+
+    def part_names(self) -> list[str]:
+        return [
+            f"{han_name(cp)}-{BACKREF}" if r else han_name(cp)
+            for cp, r in zip(self.comps, self.regional)
+        ]
+
+
+def make_line(inv: Inventory, op: str, comps: list[int], also: list[int] = ()) -> Line:
+    """The line those components spell, asking the inventory how to name each.
+
+    `also` is a second component list the same block will carry (an inlined
+    block's un-inlined line): a region in either of them is one the header has
+    to bind, since a `($-1)` means nothing under a header that has no group.
+    """
+    regional = tuple(regional_flags(inv, comps))
+    patterned = any(regional) or any(regional_flags(inv, list(also)))
+    return Line(op, tuple(comps), regional, patterned)
+
+
+def regional_flags(inv: Inventory, comps: list[int]) -> list[bool]:
+    return [cp in inv.families and inv.families[cp].regional for cp in comps]
+
+
+def glyph_head(cp: int, char: str, patterned: bool) -> str:
+    """The block's own header: a family's name where any component names one."""
+    name = han_name(cp) + (f"-{REGION_GROUP}" if patterned else "")
+    return f"glyph {name}:{BOX_W}x{BOX_H} {BOX_W} {BOX_H} // {char}"
+
+
+def idc_line(line: Line) -> str:
     """One IDC line: the component names, and the sequence they spell."""
-    names = " ".join(han_name(c) for c in comps)
-    return f"{op} {names} // " + op + "".join(chr(c) for c in comps)
+    names = " ".join(line.part_names())
+    return f"{line.op} {names} // " + line.op + "".join(chr(c) for c in line.comps)
 
 
 # What an un-inlined line carries so that a hand can leave it un-inlined, and
@@ -1000,16 +1337,16 @@ def idc_line(op: str, comps: list[int]) -> str:
 NO_INLINE_MARK = "-- no-inline"
 
 
-def build_blocks(op: str, comps: list[int], cp: int, char: str, commented: bool,
+def build_blocks(line: Line, cp: int, char: str, commented: bool,
                  origin: str | None = None,
-                 alt: tuple[str, list[int]] | None = None,
+                 alt: Line | None = None,
                  no_inline: bool = False) -> list[str]:
-    head = f"glyph {han_name(cp)}:{BOX_W}x{BOX_H} {BOX_W} {BOX_H} // {char}"
+    head = glyph_head(cp, char, line.patterned)
     mark = f" {NO_INLINE_MARK}" if no_inline else ""
     if commented:
         # an inlined line keeps the sequence it came from beside the one it
         # draws, since the two are the same split but not the same text
-        body = idc_line(op, comps) + (f" <- {origin}" if origin else "") + mark
+        body = idc_line(line) + (f" <- {origin}" if origin else "") + mark
         return [f"// {head}", f"// {body}"]
     if alt is not None:
         # An inline that gave up on a part *nameable* keeps that un-inlined line
@@ -1027,8 +1364,8 @@ def build_blocks(op: str, comps: list[int], cp: int, char: str, commented: bool,
         # judgement about a part that no rule here can make, so every block this
         # form writes has to be looked at and settled by hand, one of the two
         # ways above, before the source builds again.
-        return [head, f"// {idc_line(*alt)} {NO_INLINE_MARK}", idc_line(op, comps)]
-    return [head, idc_line(op, comps) + (f" <- {origin}" if origin else "") + mark]
+        return [head, f"// {idc_line(alt)} {NO_INLINE_MARK}", idc_line(line)]
+    return [head, idc_line(line) + (f" <- {origin}" if origin else "") + mark]
 
 
 def is_script_block(cp: int, char: str, block: list[str]) -> bool:
@@ -1044,15 +1381,27 @@ def is_script_block(cp: int, char: str, block: list[str]) -> bool:
     got = script_block_idc(block)
     if got is None:
         return False
-    op, comps, origin, no_inline = got
-    return block == build_blocks(op, comps, cp, char, True, origin,
-                                 no_inline=no_inline)
+    line, origin, no_inline = got
+    return block == build_blocks(line, cp, char, True, origin, no_inline=no_inline)
 
 
-def script_block_idc(block: list[str]) -> tuple[str, list[int], str | None, bool] | None:
-    """The `(op, components, origin, no_inline)` a commented-out block states."""
+def script_block_idc(block: list[str]) -> tuple[Line, str | None, bool] | None:
+    """The `(line, origin, no_inline)` a commented-out block states.
+
+    Read back out of the block's own text rather than out of today's inventory,
+    including whether the header names a family: `is_script_block` regenerates
+    the block from this and compares, and an inventory that has moved on since
+    would otherwise make every earlier block look like a hand edit.
+    """
     if len(block) != 2:
         return None
+    head_toks = block[0].lstrip("/ ").split()
+    if len(head_toks) < 2 or head_toks[0] != "glyph":
+        return None
+    header = parse_han_name(head_toks[1])
+    if header is None:
+        return None
+    patterned = header.region == REGION_GROUP
     body = block[1].lstrip("/ ")
     head, _, rest = body.partition("//")
     no_inline = False
@@ -1066,14 +1415,18 @@ def script_block_idc(block: list[str]) -> tuple[str, list[int], str | None, bool
     toks = head.split()
     if not toks or toks[0] not in IDC_ARITY:
         return None
-    comps = []
+    comps: list[int] = []
+    regional: list[bool] = []
     for tok in toks[1:]:
-        m = NAME_CP_RE.match(tok)
-        if not m:
+        hn = parse_han_name(tok)
+        if hn is None or hn.label is not None or hn.shape is not None:
             return None
-        comps.append(int(m.group(1), 16))
+        if hn.region is not None and hn.region != BACKREF:
+            return None
+        comps.append(hn.cp)
+        regional.append(hn.region == BACKREF)
     origin = rest.split("<-", 1)[1].strip() if "<-" in rest else None
-    return toks[0], comps, origin, no_inline
+    return Line(toks[0], tuple(comps), tuple(regional), patterned), origin, no_inline
 
 
 def main() -> int:
@@ -1115,7 +1468,9 @@ def main() -> int:
     splits = build_split_index(ids, args.allow_ivi) if inline and args.inline_parts else None
     rad_chars = {**prime_chars, **load_radical_chars(args.font_dir)}
 
-    print(f"{len(inv.variants)} part families, {len(inv.covered)} characters drawn, "
+    regional = sum(1 for f in inv.families.values() if f.regional)
+    print(f"{len(inv.families)} part families ({regional} drawn per region), "
+          f"{len(inv.covered)} characters drawn, "
           f"{len(slices)} slices, {len(ids)} IDS entries", file=sys.stderr)
 
     stats = defaultdict(int)
@@ -1216,7 +1571,17 @@ def main() -> int:
                 if op in ENCLOSING
                 else "parts do not fit the box"
             )
-        block = build_blocks(op, comps, cp, entry.char, bool(holds), origin, cand.alt)
+        # How each component is named, and so whether this block is a family:
+        # the un-inlined line the block may keep beside the drawn one is asked
+        # too, since its `($-1)` needs the same header group.
+        line = make_line(inv, op, comps, list(cand.alt[1]) if cand.alt else [])
+        alt = (
+            Line(cand.alt[0], tuple(cand.alt[1]),
+                 tuple(regional_flags(inv, list(cand.alt[1]))), line.patterned)
+            if cand.alt is not None
+            else None
+        )
+        block = build_blocks(line, cp, entry.char, bool(holds), origin, alt)
         if revive:
             # Only a line that is now unheld is worth rewriting, and only where
             # the block in the file is this script's own output: anything else
@@ -1229,7 +1594,7 @@ def main() -> int:
                 stats["declared, now writable, but not this script's own block"] += 1
                 continue
             got = script_block_idc(old[1])
-            if cand.inlined and got is not None and got[3]:
+            if cand.inlined and got is not None and got[2]:
                 # the block is the un-inlined line, marked: a hand undid the
                 # inline (or declined one), and writing the inlined line back is
                 # exactly what that asked not to happen

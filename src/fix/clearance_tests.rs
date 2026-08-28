@@ -1226,3 +1226,113 @@ fn applying_an_enclosure_plan_removes_the_warnings_it_was_scored_on() {
         assert_eq!(fixed(&once), once);
     }
 }
+
+/// A pattern line whose component has picked no label at all: the TODO case,
+/// which the plain path has always planned and this one used to skip whole.
+/// The name is the family's answer wherever the block's own pattern does not
+/// reach it, so the label the component is missing is exactly what one
+/// rewrite can supply.
+#[test]
+fn an_undecided_component_of_a_pattern_line_is_decided() {
+    let src = PATTERN_LABELS.replace("\u{2FF0} l:4x4 (rx|ry):5x4", "\u{2FF0} l:4x4 (rx|ry)");
+    let fixes = plan(&src);
+    assert_eq!(fixes.len(), 1, "{fixes:?}");
+    let fix = &fixes[0];
+    // No layout as written, so nothing was measured to report against — the
+    // same `None` the plain path's TODO carries — and no error either.
+    assert_eq!((fix.before, fix.after), (None, 0));
+    assert!(
+        !fix.faulty,
+        "an undecided component is a TODO, not an error"
+    );
+    assert_eq!(fix.glyphs_warning, Some((2, 0)));
+    assert_eq!(fix.new_line, "\u{2FF0} l:4x4 (rx|ry):4x4");
+}
+
+/// The same, with the component written as a *pattern* rather than spelled
+/// out: only the label is the line's to choose, so everything the source wrote
+/// before the `:` comes back verbatim — the back-reference included.
+const BACKREF_PARTS: &str = "\
+audit ideal-clearance test-* 0 1
+
+glyph l:4x4 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph r-(x|y):5x4 5 4
+@@@@@@@@@@
+@@@@@@@@@@
+@@@@@@@@@@
+@@@@@@@@@@
+
+glyph r-(x|y):4x4 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph test-(x|y) 8 4
+\u{2FF0} l:4x4 r-($-1)
+";
+
+#[test]
+fn an_undecided_component_keeps_the_pattern_it_is_written_with() {
+    let fixes = plan(BACKREF_PARTS);
+    assert_eq!(fixes.len(), 1, "{fixes:?}");
+    assert_eq!((fixes[0].before, fixes[0].after), (None, 0));
+    assert_eq!(fixes[0].new_line, "\u{2FF0} l:4x4 r-($-1):4x4");
+}
+
+/// A component whose family is reached only through an `exists`-scoped alias:
+/// `glyph r-(x|y):($1) = ($0)` is how a source says that two names draw one
+/// shape, and a fixer that read only the unscoped aliases found no family
+/// there at all — neither for a label to move nor for one to be supplied.
+const EXISTS_ALIASED_PARTS: &str = "\
+audit ideal-clearance test-* 0 1
+
+glyph l:4x4 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph r0:5x4 5 4
+@@@@@@@@@@
+@@@@@@@@@@
+@@@@@@@@@@
+@@@@@@@@@@
+
+glyph r0:4x4 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+exists r0:([0-9]+x[0-9]+)
+glyph r-(x|y):($1) = ($0)
+
+glyph test-(x|y) 8 4
+\u{2FF0} l:4x4 r-($-1):5x4
+";
+
+#[test]
+fn a_family_reached_through_an_exists_scoped_alias_is_searched() {
+    let fixes = plan(EXISTS_ALIASED_PARTS);
+    assert_eq!(fixes.len(), 1, "{fixes:?}");
+    let fix = &fixes[0];
+    assert_eq!((fix.before, fix.after), (Some(4), 0));
+    assert_eq!(fix.new_line, "\u{2FF0} l:4x4 r-($-1):4x4");
+}
+
+/// The two together, which is the shape a Han source actually writes: a
+/// component that has picked nothing, in a family only the searches name.
+#[test]
+fn an_undecided_component_of_an_exists_aliased_family_is_decided() {
+    let src = EXISTS_ALIASED_PARTS.replace("r-($-1):5x4", "r-($-1)");
+    let fixes = plan(&src);
+    assert_eq!(fixes.len(), 1, "{fixes:?}");
+    assert_eq!((fixes[0].before, fixes[0].after), (None, 0));
+    assert_eq!(fixes[0].new_line, "\u{2FF0} l:4x4 r-($-1):4x4");
+}

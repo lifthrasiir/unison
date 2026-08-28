@@ -315,7 +315,8 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Optimizing a line the check *errors* on, why it is planned like a TODO, and the extent an erroring name is still trusted for | `fix/clearance.rs` (`SlotState`, `Key::asked`) |
 | Optimizing an IDC line written as a pattern: the gaps its glyphs share, and why the count of warning glyphs comes before the score | `fix/clearance.rs` (`optimize_pattern_line`) |
 | Why a component's `:label` is the family's to choose where its base is not, and why one label must serve every glyph | `fix/clearance.rs` (`slot_choices`) |
-| Which parts the variant search knows about, pattern-declared blocks included | `fix/clearance.rs` (`Inventory::collect`, `block_names`) |
+| A family line whose component has picked nothing: appending a label to what the line writes, back-reference and all | `fix/clearance.rs` (`slot_choices`, `write_pattern_line`) |
+| Which parts the variant search knows about, pattern-declared blocks included, and why the searches are resolved for it | `fix/clearance.rs` (`Inventory::collect`, `block_names`), `alias.rs` (`collect_with_merges`) |
 | A fix in the editor: one undo entry per file, and why nothing is written to disk | `app/fix.rs` |
 | Saving off the UI thread, and why a finished write is credited to the revision it wrote rather than to the buffer | `app/save.rs`, `editor/undo.rs` (`SavePoint`) |
 | Why the bytes a write is putting on disk are recorded before it starts | `app/save.rs` (`enqueue_save`), `app/docs.rs` (`knows_disk_bytes`), `app/watch.rs` |
