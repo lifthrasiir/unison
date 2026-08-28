@@ -31,6 +31,26 @@ glyph han-2db66-($han-regions):15x16 15 16 // 𭭦
 // glyph han-2db74:15x16 15 16 // 𭭴
 // ⿱ han-23956 han-23956 // ⿱𣥖𣥖
 
+# CJK unified ideographs extension F: 毛 (82)
+
+## 82.5
+
+glyph han-2dbd6:15x16 15 16 // 𭯖
+⿺ han-6bdb:15x16.10x14 han-767d:10x13 5 0 // ⿺毛白
+
+## 82.6
+
+glyph han-2dbd8:15x16 15 16 // 𭯘
+⿰ han-5408:7x16 1 han-6bdb:7x16 // ⿰合毛
+
+## 82.7
+
+// glyph han-2dbd9:15x16 15 16 // 𭯙
+// ⿺ han-6bdb han-826f // ⿺毛良
+
+// glyph han-2dbda:15x16 15 16 // 𭯚
+// ⿺ han-6bdb han-590b // ⿺毛夋
+
 # CJK unified ideographs extension F: 氏 (83)
 
 ## 83.7
@@ -170,6 +190,9 @@ glyph han-2dd0c:15x16 15 16 // 𭴌
 // glyph han-2dd0d:15x16 15 16 // 𭴍
 // ⿲ han-706b han-4ebb han-4e5d // ⿲火亻九 <- ⿰火仇
 
+glyph han-2dd0e:15x16 15 16 // 𭴎
+⿰ han-706b:5x16-l 1 han-6bdb:9x16 // ⿰火毛
+
 ## 86.5
 
 glyph han-2dd13:15x16 15 16 // 𭴓
@@ -295,6 +318,9 @@ glyph han-2de28:15x16 15 16 // 𭸨
 // ⿰ han-248e9 han-5200 // ⿰𤣩刀
 
 ## 96.4
+
+glyph han-2de36:15x16 15 16 // 𭸶
+⿰ han-248e9:5x16 1 han-6bdb:9x16 // ⿰𤣩毛
 
 // glyph han-2de39:15x16 15 16 // 𭸹
 // ⿲ han-248e9 han-4ebb han-4e8c // ⿲𤣩亻二 <- ⿰𤣩仁

@@ -153,6 +153,9 @@ glyph han-958a:15x16 15 16 // 閊
 glyph han-958f:15x16 15 16 // 閏
 ⿵ han-9580:15x16.13x11 han-738b:11x9 2 7 // ⿵門王
 
+// glyph han-9590:15x16 15 16 // 閐
+// ⿵ han-9580 han-6bdb // ⿵門毛
+
 glyph han-9591:15x16 15 16 // 閑
 ⿵ han-9580:15x16.13x11 han-6728:9x11 3 5 // ⿵門木
 
@@ -930,6 +933,9 @@ glyph han-96eb:15x16 15 16 // 雫
 
 glyph han-96ec:15x16 15 16 // 雬
 ⿱ han-96e8:15x7 han-6728:15x9 // ⿱雨木
+
+glyph han-96ee-($han-regions):15x16 15 16 // 雮
+⿱ han-96e8-($-1):15x7 han-6bdb:15x9 // ⿱雨毛
 
 // glyph han-96f0:15x16 15 16 // 雰
 // ⿱ han-96e8 han-5206 // ⿱雨分

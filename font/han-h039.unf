@@ -439,3 +439,10 @@ glyph han-31941:15x16 15 16 // 𱥁
 glyph han-31942:15x16 15 16 // 𱥂
 ⿱ han-6b63:15x5 2 han-6b63:15x9 // ⿱正正
 
+# CJK unified ideographs extension H: 毛 (82)
+
+## 82.6
+
+// glyph han-31960:15x16 15 16 // 𱥠
+// ⿰ han-5939 han-6bdb // ⿰夹毛
+

@@ -38,6 +38,9 @@ glyph han-46b4:15x16 15 16 // 䚴
 // glyph han-46b6:15x16 15 16 // 䚶
 // ⿰ han-8a01 han-5929 // ⿰訁天
 
+glyph han-46bd:15x16 15 16 // 䚽
+⿰ han-8a01:5x16 1 han-6bdb:9x16 // ⿰訁毛
+
 glyph han-46bf:15x16 15 16 // 䚿
 ⿰ han-8a01:7x16 1 han-6b20:7x16 // ⿰訁欠
 

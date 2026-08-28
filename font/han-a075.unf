@@ -61,6 +61,9 @@ glyph han-3b9f:15x16 15 16 // 㮟
 
 ## 75.12
 
+// glyph han-3bd4:15x16 15 16 // 㯔
+// ⿳ han-6bdb han-3c8e han-6728 // ⿳毛㲎木 <- ⿱毳木
+
 glyph han-3bd5:15x16 15 16 // 㯕
 ⿲ -2 han-6728:5x16 han-5176:6x16 han-65a4:6x16 // ⿲木其斤
 
@@ -143,6 +146,48 @@ glyph han-3c53-($han-regions):15x16 15 16 // 㱓
 
 glyph han-3c56:15x16 15 16 // 㱖
 ⿰ han-6b62:8x16 han-5352:7x16 // ⿰止卒
+
+# CJK unified ideographs extension A: 毛 (82)
+
+## 82.4
+
+glyph han-3c8e:15x16 15 16 // 㲎
+⿰ han-6bdb:7x16 1 han-6bdb:7x16 // ⿰毛毛
+
+// glyph han-3c90:15x16 15 16 // 㲐
+// ⿺ han-6bdb han-4eca // ⿺毛今
+
+// glyph han-3c91:15x16 15 16 // 㲑
+// ⿺ han-6bdb han-6c34 // ⿺毛水
+
+## 82.5
+
+glyph han-3c92:15x16 15 16 // 㲒
+⿰ han-53e5:8x16 han-6bdb:7x16 // ⿰句毛
+
+## 82.7
+
+glyph han-3c96:15x16 15 16 // 㲖
+⿰ han-8096:7x16 1 han-6bdb:7x16 // ⿰肖毛
+
+glyph han-3c98:15x16 15 16 // 㲘
+⿰ han-8c9d:6x16 han-6bdb:9x16 // ⿰貝毛
+
+## 82.8
+
+glyph han-3c9c:15x16 15 16 // 㲜
+⿰ han-708e:7x16 1 han-6bdb:7x16 // ⿰炎毛
+
+glyph han-3c9d:15x16 15 16 // 㲝
+⿺ han-6bdb:15x16.10x14 han-96b9:9x13 6 0 // ⿺毛隹
+
+glyph han-3c9e:15x16 15 16 // 㲞
+⿰ han-5352:7x16 1 han-6bdb:7x16 // ⿰卒毛
+
+## 82.10
+
+// glyph han-3ca8:15x16 15 16 // 㲨
+// ⿰ han-8338 han-6bdb // ⿰茸毛
 
 # CJK unified ideographs extension A: 氏 (83)
 

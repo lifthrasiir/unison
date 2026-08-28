@@ -467,6 +467,9 @@ glyph han-5b8c:15x16 15 16 // 完
 glyph han-5b8d:15x16 15 16 // 宍
 ⿱ han-5b80:15x4 -1 han-516d:15x13 // ⿱宀六
 
+glyph han-5b92:15x16 15 16 // 宒
+⿱ han-5b80:15x5 han-6bdb:15x11 // ⿱宀毛
+
 ## 40.5
 
 // glyph han-5b94:15x16 15 16 // 宔

@@ -248,6 +248,9 @@ glyph han-2cbef-($han-regions):15x16 15 16 // 𬯯
 glyph han-2cc8d:15x16 15 16 // 𬲍
 ⿰ han-98e0:7x16 1 han-5206:7x16 // ⿰飠分
 
+glyph han-2cc8e:15x16 15 16 // 𬲎
+⿰ han-98e0:7x16 1 han-6bdb:7x16 // ⿰飠毛
+
 ## 184.12
 
 glyph han-2cc9b:15x16 15 16 // 𬲛

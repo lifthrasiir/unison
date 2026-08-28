@@ -1,3 +1,58 @@
+# CJK unified ideographs extension G: 毛 (82)
+
+## 82.4
+
+// glyph han-30691:15x16 15 16 // 𰚑
+// ⿺ han-6bdb han-5206 // ⿺毛分
+
+## 82.5
+
+// glyph han-30692:15x16 15 16 // 𰚒
+// ⿺ han-6bdb han-7533 // ⿺毛申
+
+glyph han-30693:15x16 15 16 // 𰚓
+⿺ han-6bdb:15x16.10x14 han-7531:9x12 6 0 // ⿺毛由
+
+// glyph han-30694:15x16 15 16 // 𰚔
+// ⿰ han-5b81 han-6bdb // ⿰宁毛
+
+// glyph han-30695:15x16 15 16 // 𰚕
+// ⿺ han-6bdb han-53ec // ⿺毛召
+
+## 82.6
+
+glyph han-30697:15x16 15 16 // 𰚗
+⿰ han-5e76:8x16 han-6bdb:7x16 // ⿰并毛
+
+## 82.7
+
+// glyph han-3069a:15x16 15 16 // 𰚚
+// ⿺ han-6bdb han-4f55 // ⿺毛何
+
+## 82.8
+
+glyph han-3069e-($han-regions):15x16 15 16 // 𰚞
+⿰ han-9752-($-1):5x16 1 han-6bdb:9x16 // ⿰青毛
+
+// glyph han-306a1:15x16 15 16 // 𰚡
+// ⿺ han-6bdb han-5352 // ⿺毛卒
+
+glyph han-306a3:15x16 15 16 // 𰚣
+⿺ han-6bdb:15x16.10x14 han-9580:9x12 6 0 // ⿺毛門
+
+## 82.10
+
+// glyph han-306a7:15x16 15 16 // 𰚧
+// ⿺ han-6bdb han-99ac // ⿺毛馬
+
+// glyph han-306ab:15x16 15 16 // 𰚫
+// ⿱ han-9ad8 han-6bdb // ⿱高毛
+
+## 82.11
+
+glyph han-306af:15x16 15 16 // 𰚯
+⿰ han-7968:7x16 1 han-6bdb:7x16 // ⿰票毛
+
 # CJK unified ideographs extension G: 水 (85)
 
 ## 85.3

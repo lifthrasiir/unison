@@ -251,6 +251,23 @@ glyph han-2c178:15x16 15 16 // 𬅸
 // glyph han-2c189:15x16 15 16 // 𬆉
 // ⿱ han-65ac han-9fb0 // ⿱斬龰
 
+# CJK unified ideographs extension E: 毛 (82)
+
+## 82.5
+
+// glyph han-2c1c0:15x16 15 16 // 𬇀
+// ⿺ han-6bdb han-65e6 // ⿺毛旦
+
+## 82.10
+
+// glyph han-2c1c3:15x16 15 16 // 𬇃
+// ⿱ han-94cd han-6bdb // ⿱铍毛
+
+## 82.12
+
+// glyph han-2c1c6:15x16 15 16 // 𬇆
+// ⿺ han-6bdb han-582f // ⿺毛堯
+
 # CJK unified ideographs extension E: 氏 (83)
 
 ## 83.3

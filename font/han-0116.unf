@@ -165,6 +165,9 @@ ref 2x10-xs1 9 5
 
 ## 117.4
 
+glyph han-7ad3:15x16 15 16 // 竓
+⿰ han-7acb:5x16 1 han-6bdb:9x16 // ⿰立毛
+
 glyph han-7ad5:15x16 15 16 // 竕
 ⿰ han-7acb:7x16 -1 han-5206:9x16 // ⿰立分
 
@@ -271,6 +274,9 @@ glyph han-7b0e:15x16 15 16 // 笎
 
 // glyph han-7b12:15x16 15 16 // 笒
 // ⿱ han-25ad7 han-4eca // ⿱𥫗今
+
+glyph han-7b14:15x16 15 16 // 笔
+⿱ han-25ad7:15x5 han-6bdb:15x11 // ⿱𥫗毛
 
 ## 118.5
 
@@ -662,6 +668,9 @@ glyph han-7c87:15x16 15 16 // 粇
 
 glyph han-7c89:15x16 15 16 // 粉
 ⿰ han-7c73:7x16 1 han-5206:7x16 // ⿰米分
+
+glyph han-7c8d:15x16 15 16 // 粍
+⿰ han-7c73:5x16 1 han-6bdb:9x16 // ⿰米毛
 
 // glyph han-7c8f:15x16 15 16 // 粏
 // ⿰ han-7c73 han-592a // ⿰米太

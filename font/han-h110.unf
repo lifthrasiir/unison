@@ -255,6 +255,11 @@ glyph han-31ec5:15x16 15 16 // 𱻅
 
 # CJK unified ideographs extension H: 羊 (123)
 
+## 123.4
+
+// glyph han-31ecb:15x16 15 16 // 𱻋
+// ⿺ han-6bdb han-7f8a // ⿺毛羊
+
 ## 123.7
 
 glyph han-31ecd:15x16 15 16 // 𱻍

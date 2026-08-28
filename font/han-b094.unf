@@ -32,6 +32,9 @@ glyph han-24730:15x16 15 16 // 𤜰
 // glyph han-24741:15x16 15 16 // 𤝁
 // ⿰ han-72ad han-592a // ⿰犭太
 
+glyph han-24744:15x16 15 16 // 𤝄
+⿰ han-72ad:6x16 han-6bdb:9x16 // ⿰犭毛
+
 glyph han-24746:15x16 15 16 // 𤝆
 ⿰ han-72ad:6x16 han-6b20:9x16 // ⿰犭欠
 

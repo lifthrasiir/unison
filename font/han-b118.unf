@@ -344,6 +344,9 @@ ref han-9aa8:15x12 0 4
 // glyph han-25ca7:15x16 15 16 // 𥲧
 // ⿳ han-25ad7 han-5229 han-6728 // ⿳𥫗利木 <- ⿱𥫗梨
 
+// glyph han-25ca8:15x16 15 16 // 𥲨
+// ⿱ han-25ad7 han-3c98 // ⿱𥫗㲘
+
 // glyph han-25cb1:15x16 15 16 // 𥲱
 // ⿱ han-25ad7 han-6dee // ⿱𥫗淮
 
@@ -357,6 +360,9 @@ ref han-9aa8:15x12 0 4
 // ⿳ han-25ad7 han-7530 han-5404 // ⿳𥫗田各 <- ⿱𥫗畧
 
 ## 118.12
+
+// glyph han-25cc8:15x16 15 16 // 𥳈
+// ⿳ han-25ad7 han-6bdb han-3c8e // ⿳𥫗毛㲎 <- ⿱𥫗毳
 
 // glyph han-25cc9-($han-regions):15x16 15 16 // 𥳉
 // ⿱ han-25ad7 han-90fd-($-1) // ⿱𥫗都

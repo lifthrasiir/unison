@@ -140,6 +140,11 @@ glyph han-3fb8:15x16 15 16 // 㾸
 
 # CJK unified ideographs extension A: 白 (106)
 
+## 106.4
+
+glyph han-3fde:15x16 15 16 // 㿞
+⿰ han-767d:6x16 han-6bdb:9x16 // ⿰白毛
+
 ## 106.5
 
 glyph han-3fdf:15x16 15 16 // 㿟
@@ -405,6 +410,11 @@ glyph han-4116-g:15x16 15 16 // 䄖
 ⿰ han-793b:7x16 1 han-4fde:7x16 // ⿰礻俞
 glyph han-4116-k:15x16 15 16 // 䄖
 ⿰ han-793a:7x16 1 han-4fde:7x16 // ⿰示俞
+
+## 113.12
+
+// glyph han-411f:15x16 15 16 // 䄟
+// ⿳ han-6bdb han-3c8e han-793a // ⿳毛㲎示 <- ⿱毳示
 
 # CJK unified ideographs extension A: 禾 (115)
 

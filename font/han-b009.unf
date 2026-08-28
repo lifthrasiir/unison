@@ -26,6 +26,9 @@ glyph han-201af:15x16 15 16 // 𠆯
 glyph han-201c8:15x16 15 16 // 𠇈
 ⿰ han-4ebb:5x16 han-6b62:10x16 // ⿰亻止
 
+glyph han-201d4:15x16 15 16 // 𠇔
+⿰ han-4ebb:5x16 1 han-6bdb:9x16 // ⿰亻毛
+
 ## 9.5
 
 // glyph han-201dd:15x16 15 16 // 𠇝

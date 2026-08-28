@@ -115,6 +115,9 @@ glyph han-262c1:15x16 15 16 // 𦋁
 glyph han-262ca:15x16 15 16 // 𦋊
 ⿱ han-7f52:15x4 han-5176:15x12 // ⿱罒其
 
+// glyph han-262cb:15x16 15 16 // 𦋋
+// ⿱ han-7f52 han-3c8e // ⿱罒㲎
+
 glyph han-262ce:15x16 15 16 // 𦋎
 ⿳ han-7f52:15x4 han-706b:15x6 han-706b:15x6 // ⿳罒火火
 

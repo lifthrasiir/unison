@@ -171,6 +171,9 @@ ref han-571f:15x4 0 12
 
 ## 40.12
 
+// glyph han-21aa3:15x16 15 16 // 𡪣
+// ⿳ han-5b80 han-6bdb han-3c8e // ⿳宀毛㲎 <- ⿱宀毳
+
 // glyph han-21aa6-($han-regions):15x16 15 16 // 𡪦
 // ⿱ han-5b80 han-6e1a-($-1) // ⿱宀渚
 

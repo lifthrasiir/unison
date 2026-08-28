@@ -227,6 +227,9 @@ glyph han-2ac08:15x16 15 16 // 𪰈
 glyph han-2ac0a:15x16 15 16 // 𪰊
 ⿱ han-65e5:15x7 han-6b62:15x9 // ⿱日止
 
+glyph han-2ac0c:15x16 15 16 // 𪰌
+⿰ han-65e5:6x16 han-6bdb:9x16 // ⿰日毛
+
 ## 72.5
 
 glyph han-2ac0f:15x16 15 16 // 𪰏
@@ -398,3 +401,28 @@ glyph han-2ad01:15x16 15 16 // 𪴁
 
 // glyph han-2ad36:15x16 15 16 // 𪴶
 // ⿳ han-6b62 han-4e00 han-65e6 // ⿳止一旦 <- ⿱止亘
+
+# CJK unified ideographs extension C: 毛 (82)
+
+## 82.1
+
+// glyph han-2ad56:15x16 15 16 // 𪵖
+// ⿺ han-6bdb han-4e59 // ⿺毛乙
+
+## 82.4
+
+// glyph han-2ad57:15x16 15 16 // 𪵗
+// ⿱ han-6bdb han-6708 // ⿱毛月
+
+glyph han-2ad58:15x16 15 16 // 𪵘
+⿺ han-6bdb:15x16.10x14 han-706b:9x14 5 0 // ⿺毛火
+
+## 82.5
+
+glyph han-2ad59:15x16 15 16 // 𪵙
+⿺ han-6bdb:15x16.10x14 han-53e5:9x14 6 0 // ⿺毛句
+
+## 82.8
+
+// glyph han-2ad5d:15x16 15 16 // 𪵝
+// ⿱ han-6797 han-6bdb // ⿱林毛

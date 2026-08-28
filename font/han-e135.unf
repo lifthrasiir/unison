@@ -238,6 +238,11 @@ glyph han-2c8a1:15x16 15 16 // 𬢡
 glyph han-2c8da:15x16 15 16 // 𬣚
 ⿰ han-8ba0:5x16 1 han-53e3:9x16 // ⿰讠口
 
+## 149'.4
+
+glyph han-2c8dc:15x16 15 16 // 𬣜
+⿰ han-8ba0:5x16 1 han-6bdb:9x16 // ⿰讠毛
+
 ## 149'.6
 
 glyph han-2c8ec:15x16 15 16 // 𬣬

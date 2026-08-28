@@ -902,6 +902,9 @@ glyph han-79cd:15x16 15 16 // 种
 glyph han-79ce:15x16 15 16 // 秎
 ⿰ han-79be:7x16 1 han-5206:7x16 // ⿰禾分
 
+glyph han-79cf:15x16 15 16 // 秏
+⿰ han-79be:5x16 1 han-6bdb:9x16 // ⿰禾毛
+
 glyph han-79d4:15x16 15 16 // 秔
 ⿰ han-79be:7x16 1 han-4ea2:7x16 // ⿰禾亢
 

@@ -35,6 +35,9 @@
 // glyph han-26fd1:15x16 15 16 // 𦿑
 // ⿳ han-8278 han-660d han-8278 // ⿳艸昍艸
 
+glyph han-26fd7:15x16 15 16 // 𦿗
+⿳ -4 han-8279:15x3 han-9ad8:15x9 han-6bdb:15x8 // ⿳艹高毛
+
 // glyph han-26ff0:15x16 15 16 // 𦿰
 // ⿱ han-8279 han-746a // ⿱艹瑪
 

@@ -283,6 +283,9 @@ glyph han-8ed6:15x16 15 16 // 軖
 // glyph han-8eda:15x16 15 16 // 軚
 // ⿰ han-8eca han-592a // ⿰車太
 
+glyph han-8ede:15x16 15 16 // 軞
+⿰ han-8eca:5x16 1 han-6bdb:9x16 // ⿰車毛
+
 glyph han-8edf:15x16 15 16 // 軟
 ⿰ han-8eca:7x16 1 han-6b20:7x16 // ⿰車欠
 
@@ -1058,6 +1061,9 @@ glyph han-9152:15x16 15 16 // 酒
 
 // glyph han-9153:15x16 15 16 // 酓
 // ⿱ han-4eca han-9149 // ⿱今酉
+
+glyph han-9155:15x16 15 16 // 酕
+⿰ han-9149:7x16 1 han-6bdb:7x16 // ⿰酉毛
 
 glyph han-915a:15x16 15 16 // 酚
 ⿰ han-9149:7x16 1 han-5206:7x16 // ⿰酉分

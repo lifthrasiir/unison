@@ -12,6 +12,11 @@
 // glyph han-30031:15x16 15 16 // 𰀱
 // ⿱ han-5ddc han-5ddc // ⿱巜巜
 
+## 5.4
+
+glyph han-30034:15x16 15 16 // 𰀴
+⿱ han-6bdb:15x8 han-4e59:15x8 // ⿱毛乙
+
 ## 5.5
 
 // glyph han-30039:15x16 15 16 // 𰀹
@@ -308,6 +313,9 @@ glyph han-30249:15x16 15 16 // 𰉉
 
 // glyph han-3025c:15x16 15 16 // 𰉜
 // ⿱ han-571f han-4eca // ⿱土今
+
+glyph han-3025d:15x16 15 16 // 𰉝
+⿱ han-571f:15x6 1 han-6bdb:15x9 // ⿱土毛
 
 ## 32.5
 

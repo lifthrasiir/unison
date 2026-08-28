@@ -62,6 +62,9 @@ glyph han-23ca7:15x16 15 16 // 𣲧
 // glyph han-23cac:15x16 15 16 // 𣲬
 // ⿰ han-6c35 han-624b // ⿰氵手
 
+glyph han-23cad:15x16 15 16 // 𣲭
+⿰ han-6c35:5x16 1 han-6bdb:9x16 // ⿰氵毛
+
 glyph han-23cb1:15x16 15 16 // 𣲱
 ⿱ han-706b:15x6 1 han-6c34:15x9 // ⿱火水
 

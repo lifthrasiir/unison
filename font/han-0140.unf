@@ -114,6 +114,9 @@ glyph han-82b7:15x16 15 16 // 芷
 // glyph han-82b9:15x16 15 16 // 芹
 // ⿱ han-8279 han-65a4 // ⿱艹斤
 
+glyph han-82bc:15x16 15 16 // 芼
+⿱ han-8279:15x3 han-6bdb:15x13 // ⿱艹毛
+
 // glyph han-82c0:15x16 15 16 // 苀
 // ⿱ han-8279 han-4ea2 // ⿱艹亢
 
