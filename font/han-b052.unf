@@ -7,8 +7,8 @@
 
 ## 53.3
 
-// glyph han-221d7:15x16 15 16 // 𢇗
-// ⿸ han-5e7f han-4e0b // ⿸广下
+glyph han-221d7:15x16 15 16 // 𢇗
+⿸ han-5e7f:15x16.11x13 han-4e0b:9x12 6 4 // ⿸广下
 
 // glyph han-221d8:15x16 15 16 // 𢇘
 // ⿸ han-5e7f han-5973 // ⿸广女

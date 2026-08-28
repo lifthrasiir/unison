@@ -5,8 +5,8 @@
 glyph han-282a1:15x16 15 16 // 𨊡
 ⿰ han-8eca:5x16 1 han-4e01:9x16 // ⿰車丁
 
-// glyph han-282a4:15x16 15 16 // 𨊤
-// ⿰ han-8eca han-4eba // ⿰車人
+glyph han-282a4:15x16 15 16 // 𨊤
+⿰ han-8eca:5x16 1 han-4eba:9x16 // ⿰車人
 
 ## 159.3
 

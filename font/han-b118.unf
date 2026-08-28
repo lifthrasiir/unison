@@ -50,6 +50,9 @@ glyph han-25af8:15x16 15 16 // 𥫸
 // glyph han-25b05:15x16 15 16 // 𥬅
 // ⿱ han-25ad7 han-6708 // ⿱𥫗月
 
+// glyph han-25b08:15x16 15 16 // 𥬈
+// ⿱ han-25ad7 han-4ece // ⿱𥫗从
+
 // glyph han-25b0a:15x16 15 16 // 𥬊
 // ⿱ han-25ad7 han-65a4 // ⿱𥫗斤
 
@@ -298,6 +301,9 @@ glyph han-25c47:15x16 15 16 // 𥱇
 
 // glyph han-25c49:15x16 15 16 // 𥱉
 // ⿱ han-25ad7 han-72fc // ⿱𥫗狼
+
+// glyph han-25c63:15x16 15 16 // 𥱣
+// ⿳ han-25ad7 han-5408 han-4ece // ⿳𥫗合从
 
 glyph han-25c6a:15x16 15 16 // 𥱪
 ref han-25ad7:15x5 0 0 // ⿱𥫗骨

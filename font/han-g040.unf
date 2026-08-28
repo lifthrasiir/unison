@@ -54,8 +54,8 @@
 
 ## 46.4
 
-// glyph han-3038c:15x16 15 16 // 𰎌
-// ⿲ han-5c71 han-4eba han-4eba // ⿲山人人 <- ⿰山从
+glyph han-3038c:15x16 15 16 // 𰎌
+⿲ han-5c71:5x16 han-4eba:5x16 han-4eba:5x16 // ⿲山人人
 
 ## 46.5
 
@@ -111,8 +111,8 @@ glyph han-303e2:15x16 15 16 // 𰏢
 
 ## 53.7
 
-// glyph han-303f8:15x16 15 16 // 𰏸
-// ⿸ han-5e7f han-56de // ⿸广回
+glyph han-303f8:15x16 15 16 // 𰏸
+⿸ han-5e7f:15x16.11x13 han-56de:10x12 5 4 // ⿸广回
 
 ## 53.8
 
@@ -156,8 +156,8 @@ glyph han-3043c:15x16 15 16 // 𰐼
 glyph han-30443:15x16 15 16 // 𰑃
 ⿰ han-5fc4:7x16 1 han-65e5:7x16 // ⿰忄日
 
-// glyph han-30445:15x16 15 16 // 𰑅
-// ⿲ han-5fc4 han-4eba han-4eba // ⿲忄人人 <- ⿰忄从
+glyph han-30445:15x16 15 16 // 𰑅
+⿲ han-5fc4:5x16 han-4eba:5x16 han-4eba:5x16 // ⿲忄人人
 
 ## 61.6
 
@@ -358,6 +358,9 @@ glyph han-3059f:15x16 15 16 // 𰖟
 // ⿰ han-6728 han-5e7f // ⿰木广
 
 ## 75.6
+
+// glyph han-305e3:15x16 15 16 // 𰗣
+// ⿳ han-4ea0 han-4ece han-6728 // ⿳亠从木 <- ⿱𠅃木
 
 // glyph han-305e5:15x16 15 16 // 𰗥
 // ⿰ han-6728 han-8fb9 // ⿰木边

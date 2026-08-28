@@ -8,8 +8,8 @@
 // glyph han-2986a:15x16 15 16 // 𩡪
 // ⿰ han-5341 han-99ac // ⿰十馬
 
-// glyph han-2986e:15x16 15 16 // 𩡮
-// ⿰ han-99ac han-4eba // ⿰馬人
+glyph han-2986e:15x16 15 16 // 𩡮
+⿰ han-99ac:7x16 1 han-4eba:7x16 // ⿰馬人
 
 glyph han-2986f:15x16 15 16 // 𩡯
 ⿰ han-99ac:7x16 1 han-4e01:7x16 // ⿰馬丁

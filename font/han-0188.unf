@@ -313,8 +313,8 @@ $$..........$$
 // glyph han-9b5b:15x16 15 16 // 魛
 // ⿰ han-9b5a han-5200 // ⿰魚刀
 
-// glyph han-9b5c:15x16 15 16 // 魜
-// ⿰ han-9b5a han-4eba // ⿰魚人
+glyph han-9b5c:15x16 15 16 // 魜
+⿰ han-9b5a:7x16 1 han-4eba:7x16 // ⿰魚人
 
 glyph han-9b5d:15x16 15 16 // 魝
 ⿰ han-9b5a:7x16 2 han-5202:5x16 // ⿰魚刂
@@ -353,6 +353,9 @@ glyph han-9b7b:15x16 15 16 // 魻
 
 glyph han-9b7f-($han-regions):15x16 15 16 // 魿
 ⿰ han-9b5a:7x16 1 han-4ee4-($-1):7x16 // ⿰魚令
+
+// glyph han-9b82:15x16 15 16 // 鮂
+// ⿰ han-9b5a han-56da // ⿰魚囚
 
 glyph han-9b88:15x16 15 16 // 鮈
 ⿰ han-9b5a:7x16 1 han-53e5:7x16 // ⿰魚句

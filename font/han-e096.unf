@@ -140,6 +140,11 @@ glyph han-2c40d:15x16 15 16 // 𬐍
 
 # CJK unified ideographs extension E: 目 (109)
 
+## 109.5
+
+// glyph han-2c44b:15x16 15 16 // 𬑋
+// ⿰ han-76ee han-56da // ⿰目囚
+
 ## 109.10
 
 glyph han-2c463:15x16 15 16 // 𬑣
@@ -381,8 +386,8 @@ glyph han-2c554:15x16 15 16 // 𬕔
 
 ## 119.2
 
-// glyph han-2c58c:15x16 15 16 // 𬖌
-// ⿰ han-7c73 han-4eba // ⿰米人
+glyph han-2c58c:15x16 15 16 // 𬖌
+⿰ han-7c73:5x16 1 han-4eba:9x16 // ⿰米人
 
 // glyph han-2c58d:15x16 15 16 // 𬖍
 // ⿰ han-7c73 han-516b // ⿰米八
@@ -627,8 +632,8 @@ glyph han-2c6e1:15x16 15 16 // 𬛡
 
 ## 133.2
 
-// glyph han-2c6f1:15x16 15 16 // 𬛱
-// ⿰ han-81f3 han-4eba // ⿰至人
+glyph han-2c6f1:15x16 15 16 // 𬛱
+⿰ han-81f3:7x16 1 han-4eba:7x16 // ⿰至人
 
 ## 133.6
 

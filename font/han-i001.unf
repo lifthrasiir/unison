@@ -100,6 +100,11 @@ glyph han-2ec68:15x16 15 16 // 𮱨
 // glyph han-2ec86:15x16 15 16 // 𮲆
 // ⿱ han-752b han-5fc3 // ⿱甫心
 
+## 61.8
+
+// glyph han-2ec87:15x16 15 16 // 𮲇
+// ⿰ han-5fc4 han-56fd // ⿰忄国
+
 # CJK unified ideographs extension I: 日 (72)
 
 ## 72.6
@@ -118,6 +123,9 @@ glyph han-2ec68:15x16 15 16 // 𮱨
 
 // glyph han-2ecac:15x16 15 16 // 𮲬
 // ⿰ han-6728 han-592a // ⿰木太
+
+// glyph han-2ecad:15x16 15 16 // 𮲭
+// ⿱ han-6728 han-4ece // ⿱木从
 
 # CJK unified ideographs extension I: 止 (77)
 

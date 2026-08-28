@@ -96,8 +96,8 @@ glyph han-2b847:15x16 15 16 // 𫡇
 // glyph han-2b88b:15x16 15 16 // 𫢋
 // ⿰ han-4ebb han-5929 // ⿰亻天
 
-// glyph han-2b88d:15x16 15 16 // 𫢍
-// ⿰ han-65a4 han-4eba // ⿰斤人
+glyph han-2b88d:15x16 15 16 // 𫢍
+⿰ han-65a4:6x16 han-4eba:9x16 // ⿰斤人
 
 ## 9.7
 
@@ -289,8 +289,8 @@ glyph han-2b9c2-($han-regions):15x16 15 16 // 𫧂
 glyph han-2ba58:15x16 15 16 // 𫩘
 ⿰ han-53e3:5x16-l 1 han-4e2d:9x16 // ⿰口中
 
-// glyph han-2ba5b:15x16 15 16 // 𫩛
-// ⿲ han-53e3 han-4eba han-4eba // ⿲口人人 <- ⿰口从
+glyph han-2ba5b:15x16 15 16 // 𫩛
+⿲ han-53e3:3x16-l han-4eba:5x16 han-4eba:7x16 // ⿲口人人
 
 ## 30.5
 

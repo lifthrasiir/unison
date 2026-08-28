@@ -349,8 +349,8 @@ glyph han-20d4e:15x16 15 16 // 𠵎
 // glyph han-20d55:15x16 15 16 // 𠵕
 // ⿰ han-53e3 han-5774 // ⿰口坴
 
-// glyph han-20d58:15x16 15 16 // 𠵘
-// ⿰ han-53e3 han-9580 // ⿰口門
+glyph han-20d58:15x16 15 16 // 𠵘
+⿰ han-53e3:5x16-l 1 han-9580:9x16 // ⿰口門
 
 // glyph han-20d63:15x16 15 16 // 𠵣
 // ⿲ han-53e3 han-8eca han-4e5a // ⿲口車乚 <- ⿰口軋

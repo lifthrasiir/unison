@@ -96,6 +96,11 @@ glyph han-2dc4c:15x16 15 16 // 𭱌
 glyph han-2dc51:15x16 15 16 // 𭱑
 ⿲ han-6c35:3x16 han-76ee:7x16 han-6708:5x16 // ⿲氵目月
 
+## 85.10
+
+// glyph han-2dc6b-($han-regions):15x16 15 16 // 𭱫
+// ⿰ han-6c35 han-8ff4-($-1) // ⿰氵迴
+
 ## 85.11
 
 // glyph han-2dc7a:15x16 15 16 // 𭱺

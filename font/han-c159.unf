@@ -134,8 +134,8 @@ glyph han-2b4d9:15x16 15 16 // 𫓙
 // glyph han-2b4e7:15x16 15 16 // 𫓧
 // ⿰ han-9485 han-592b // ⿰钅夫
 
-// glyph han-2b4e9:15x16 15 16 // 𫓩
-// ⿲ han-9485 han-4eba han-4eba // ⿲钅人人 <- ⿰钅从
+glyph han-2b4e9:15x16 15 16 // 𫓩
+⿲ han-9485:5x16 han-4eba:5x16 han-4eba:5x16 // ⿲钅人人
 
 ## 167'.5
 
@@ -264,8 +264,8 @@ glyph han-2b548:15x16 15 16 // 𫕈
 
 ## 172.4
 
-// glyph han-2b55a:15x16 15 16 // 𫕚
-// ⿲ han-96b9 han-4eba han-4eba // ⿲隹人人 <- ⿰隹从
+glyph han-2b55a:15x16 15 16 // 𫕚
+⿲ -2 han-96b9:7x16 han-4eba:5x16 han-4eba:5x16 // ⿲隹人人
 
 ## 172.6
 

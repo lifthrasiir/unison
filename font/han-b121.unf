@@ -211,8 +211,8 @@ glyph han-262f3:15x16 15 16 // 𦋳
 
 ## 123.2
 
-// glyph han-2634f:15x16 15 16 // 𦍏
-// ⿰ han-7f8a han-4eba // ⿰羊人
+glyph han-2634f:15x16 15 16 // 𦍏
+⿰ han-7f8a:7x16 1 han-4eba:7x16 // ⿰羊人
 
 ## 123.3
 

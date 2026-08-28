@@ -50,16 +50,16 @@ glyph han-30041:15x16 15 16 // 𰁁
 // glyph han-30064:15x16 15 16 // 𰁤
 // ⿺ han-5143 han-4eba // ⿺元人
 
-// glyph han-30067:15x16 15 16 // 𰁧
-// ⿲ han-4ebb han-4eba han-4eba // ⿲亻人人 <- ⿰亻从
+glyph han-30067:15x16 15 16 // 𰁧
+⿲ han-4ebb:3x16 han-4eba:5x16 han-4eba:7x16 // ⿲亻人人
 
 ## 9.5
 
 glyph han-3006b:15x16 15 16 // 𰁫
 ⿲ han-4ebb:3x16 han-624c:3x16 han-4e01:9x16 // ⿲亻扌丁
 
-// glyph han-3006e:15x16 15 16 // 𰁮
-// ⿰ han-767d han-4eba // ⿰白人
+glyph han-3006e:15x16 15 16 // 𰁮
+⿰ han-767d:6x16 han-4eba:9x16 // ⿰白人
 
 ## 9.6
 
@@ -294,6 +294,9 @@ glyph han-30249:15x16 15 16 // 𰉉
 // glyph han-3024f:15x16 15 16 // 𰉏
 // ⿴ han-56d7 han-5360 // ⿴囗占
 
+// glyph han-30250:15x16 15 16 // 𰉐
+// ⿱ han-56db han-4e09 // ⿱四三
+
 ## 31.12
 
 // glyph han-30254:15x16 15 16 // 𰉔
@@ -428,8 +431,8 @@ glyph han-302fa:15x16 15 16 // 𰋺
 
 ## 38.8
 
-// glyph han-3030b:15x16 15 16 // 𰌋
-// ⿰ han-5973 han-9580 // ⿰女門
+glyph han-3030b:15x16 15 16 // 𰌋
+⿰ han-5973:5x16-l 1 han-9580:9x16 // ⿰女門
 
 ## 38.9
 

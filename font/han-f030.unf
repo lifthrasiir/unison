@@ -262,8 +262,8 @@ glyph han-2d347:15x16 15 16 // 𭍇
 glyph han-2d37f:15x16 15 16 // 𭍿
 ⿲ han-571f:3x16-l han-5e72:5x16 han-5e72:7x16 // ⿲土干干
 
-// glyph han-2d382:15x16 15 16 // 𭎂
-// ⿲ han-571f han-4eba han-4eba // ⿲土人人 <- ⿰土从
+glyph han-2d382:15x16 15 16 // 𭎂
+⿲ han-571f:3x16-l han-4eba:5x16 han-4eba:7x16 // ⿲土人人
 
 // glyph han-2d384:15x16 15 16 // 𭎄
 // ⿲ han-571f han-4e03 han-5200 // ⿲土七刀 <- ⿰土切

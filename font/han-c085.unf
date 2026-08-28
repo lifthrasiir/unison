@@ -129,6 +129,9 @@ glyph han-2ae14:15x16 15 16 // 𪸔
 // glyph han-2ae1b:15x16 15 16 // 𪸛
 // ⿰ han-706b han-7389 // ⿰火玉
 
+// glyph han-2ae1c:15x16 15 16 // 𪸜
+// ⿰ han-706b han-56da // ⿰火囚
+
 ## 86.6
 
 glyph han-2ae25:15x16 15 16 // 𪸥
@@ -196,15 +199,15 @@ glyph han-2ae7a:15x16 15 16 // 𪹺
 // glyph han-2aebe:15x16 15 16 // 𪺾
 // ⿰ han-72ad han-5393 // ⿰犭厓
 
-// glyph han-2aebf:15x16 15 16 // 𪺿
-// ⿰ han-72ad han-9580 // ⿰犭門
+glyph han-2aebf:15x16 15 16 // 𪺿
+⿰ han-72ad:6x16 han-9580:9x16 // ⿰犭門
 
 # CJK unified ideographs extension C: 玉 (96)
 
 ## 96.4
 
-// glyph han-2aed0:15x16 15 16 // 𪻐
-// ⿲ han-248e9 han-4eba han-4eba // ⿲𤣩人人 <- ⿰𤣩从
+glyph han-2aed0:15x16 15 16 // 𪻐
+⿲ han-248e9:3x16 han-4eba:5x16 han-4eba:7x16 // ⿲𤣩人人
 
 glyph han-2aed1:15x16 15 16 // 𪻑
 ⿰ han-248e9:5x16 1 han-4ea2:9x16 // ⿰𤣩亢
@@ -516,6 +519,9 @@ glyph han-2b081:15x16 15 16 // 𫂁
 ⿳ han-25ad7:15x5 han-65e5:15x5 1 han-5927:15x5 // ⿳𥫗日大
 
 ## 118.8
+
+// glyph han-2b086:15x16 15 16 // 𫂆
+// ⿱ han-25ad7 han-56fd // ⿱𥫗国
 
 // glyph han-2b087-($han-regions):15x16 15 16 // 𫂇
 // ⿱ han-25ad7 han-7684-($-1) // ⿱𥫗的

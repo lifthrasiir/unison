@@ -23,6 +23,9 @@ glyph han-31cee:15x16 15 16 // 𱳮
 
 ## 112.8
 
+// glyph han-31d0f:15x16 15 16 // 𱴏
+// ⿰ han-77f3 han-56fd // ⿰石国
+
 // glyph han-31d17:15x16 15 16 // 𱴗
 // ⿰ han-77f3 han-5e97 // ⿰石店
 
@@ -323,6 +326,9 @@ glyph han-31f2a:15x16 15 16 // 𱼪
 
 // glyph han-31f56:15x16 15 16 // 𱽖
 // ⿱ han-8279 han-7533 // ⿱艹申
+
+// glyph han-31f58:15x16 15 16 // 𱽘
+// ⿳ han-8279 han-4ece han-4e00 // ⿳艹从一 <- ⿱艹丛
 
 ## 140.6
 

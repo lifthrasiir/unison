@@ -401,8 +401,8 @@ glyph han-6359:15x16 15 16 // 捙
 // glyph han-6366:15x16 15 16 // 捦
 // ⿰ han-624c han-91d1 // ⿰扌金
 
-// glyph han-636b:15x16 15 16 // 捫
-// ⿰ han-624c han-9580 // ⿰扌門
+glyph han-636b:15x16 15 16 // 捫
+⿰ han-624c:5x16 1 han-9580:9x16 // ⿰扌門
 
 glyph han-636d:15x16 15 16 // 捭
 ⿰ han-624c:5x16 han-5351:10x16 // ⿰扌卑
@@ -449,6 +449,9 @@ glyph han-63a8:15x16 15 16 // 推
 
 // glyph han-63b0:15x16 15 16 // 掰
 // ⿲ han-624b han-5206 han-624b // ⿲手分手
+
+// glyph han-63b4:15x16 15 16 // 掴
+// ⿰ han-624c han-56fd // ⿰扌国
 
 ## 64.9
 

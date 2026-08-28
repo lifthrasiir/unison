@@ -32,6 +32,9 @@ glyph han-2c721:15x16 15 16 // 𬜡
 
 ## 140.8
 
+// glyph han-2c73f:15x16 15 16 // 𬜿
+// ⿱ han-8279 han-56fd // ⿱艹国
+
 // glyph han-2c744:15x16 15 16 // 𬝄
 // ⿳ han-8279 han-5b80 han-7389 // ⿳艹宀玉 <- ⿱艹宝
 
@@ -119,6 +122,9 @@ glyph han-2c7f4:15x16 15 16 // 𬟴
 ⿰ han-866b:5x16 1 han-5c71:9x16 // ⿰虫山
 
 ## 142.4
+
+// glyph han-2c7fa:15x16 15 16 // 𬟺
+// ⿱ han-4ece han-866b // ⿱从虫
 
 // glyph han-2c7fb:15x16 15 16 // 𬟻
 // ⿰ han-866b han-516d // ⿰虫六

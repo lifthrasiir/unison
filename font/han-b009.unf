@@ -7,8 +7,8 @@
 
 ## 9.2
 
-// glyph han-201a7:15x16 15 16 // 𠆧
-// ⿰ han-4ebb han-4eba // ⿰亻人
+glyph han-201a7:15x16 15 16 // 𠆧
+⿰ han-4ebb:5x16 1 han-4eba:9x16 // ⿰亻人
 
 ## 9.3
 
@@ -44,6 +44,9 @@ glyph han-201fa:15x16 15 16 // 𠇺
 // ⿰ han-4ebb han-7f52 // ⿰亻罒
 
 ## 9.6
+
+// glyph han-2020c:15x16 15 16 // 𠈌
+// ⿱ han-4ece han-4ece // ⿱从从
 
 // glyph han-2020f:15x16 15 16 // 𠈏
 // ⿱ han-5408 han-4eba // ⿱合人

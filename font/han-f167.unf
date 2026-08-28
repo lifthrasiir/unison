@@ -241,6 +241,11 @@ glyph han-2e9de-($han-regions):15x16 15 16 // 𮧞
 
 # CJK unified ideographs extension F: 頁 (181)
 
+## 181.5
+
+// glyph han-2ea03:15x16 15 16 // 𮨃
+// ⿰ han-56da han-9801 // ⿰囚頁
+
 ## 181.8
 
 glyph han-2ea12:15x16 15 16 // 𮨒

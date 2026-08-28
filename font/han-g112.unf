@@ -470,8 +470,8 @@ glyph han-30c45:15x16 15 16 // 𰱅
 glyph han-30cad:15x16 15 16 // 𰲭
 ⿱ han-65e5:15x7 1 han-866b:15x8 // ⿱日虫
 
-// glyph han-30caf:15x16 15 16 // 𰲯
-// ⿲ han-866b han-4eba han-4eba // ⿲虫人人 <- ⿰虫从
+glyph han-30caf:15x16 15 16 // 𰲯
+⿲ han-866b:5x16 han-4eba:5x16 han-4eba:5x16 // ⿲虫人人
 
 ## 142.7
 

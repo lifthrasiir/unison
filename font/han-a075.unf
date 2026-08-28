@@ -176,6 +176,9 @@ glyph han-3cbe:15x16 15 16 // 㲾
 
 ## 85.4
 
+// glyph han-3cc1:15x16 15 16 // 㳁
+// ⿰ han-6c35 han-4ec4 // ⿰氵仄
+
 glyph han-3cc4:15x16 15 16 // 㳄
 ⿰ han-6c35:5x16 1 han-6b20:9x16 // ⿰氵欠
 
@@ -256,6 +259,9 @@ glyph han-3d25:15x16 15 16 // 㴥
 
 // glyph han-3d2d:15x16 15 16 // 㴭
 // ⿰ han-6c35 han-7a85 // ⿰氵窅
+
+// glyph han-3d38:15x16 15 16 // 㴸
+// ⿰ han-6c35 han-9583 // ⿰氵閃
 
 ## 85.11
 

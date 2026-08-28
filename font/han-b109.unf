@@ -16,8 +16,8 @@
 // glyph han-250f0:15x16 15 16 // 𥃰
 // ⿱ han-4ea0 han-76ee // ⿱亠目
 
-// glyph han-250f1:15x16 15 16 // 𥃱
-// ⿰ han-76ee han-4eba // ⿰目人
+glyph han-250f1:15x16 15 16 // 𥃱
+⿰ han-76ee:6x16 han-4eba:9x16 // ⿰目人
 
 ## 109.3
 

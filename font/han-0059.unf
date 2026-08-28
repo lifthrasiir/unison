@@ -183,6 +183,9 @@ glyph han-5ffc:15x16 15 16 // 忼
 // glyph han-6001:15x16 15 16 // 态
 // ⿱ han-592a han-5fc3 // ⿱太心
 
+// glyph han-6002:15x16 15 16 // 怂
+// ⿱ han-4ece han-5fc3 // ⿱从心
+
 ## 61.5
 
 glyph han-6008:15x16 15 16 // 怈
@@ -247,6 +250,9 @@ glyph han-6022:15x16 15 16 // 怢
 
 // glyph han-6024:15x16 15 16 // 怤
 // ⿱ han-4ed8 han-5fc3 // ⿱付心
+
+// glyph han-602c:15x16 15 16 // 怬
+// ⿰ han-5fc4 han-56db // ⿰忄四
 
 // glyph han-6033:15x16 15 16 // 怳
 // ⿰ han-5fc4 han-5144 // ⿰忄兄
