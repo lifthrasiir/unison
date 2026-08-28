@@ -376,3 +376,115 @@ fn clicking_a_search_capture_goes_to_the_search() {
     // group of it.
     assert_eq!(h.state.cursor, Caret::new(exists_line, 7));
 }
+
+/// A word inside a `// …` comment links when — and only when — it names a
+/// glyph the font actually has. Prose says nothing about which of its words is
+/// a name, so existence is the whole test, and a word that names nothing stays
+/// plain text rather than becoming a link to a search.
+#[test]
+fn a_comment_word_that_names_a_glyph_is_a_link() {
+    use crate::editor::document_view::NavTarget;
+
+    let body = "ref a 0 0 // like a but not zzz";
+    let mut h = EditorHarness::new(&link_doc(body));
+    let ref_line = text_line_at(&h, "ref a");
+    let def_line = text_line_at(&h, "glyph a");
+    let a_col = body.rfind(" a ").unwrap() + 1;
+    let zzz_col = body.find("zzz").unwrap();
+
+    h.last_nav = None;
+    h.click_at_mod(h.text_pos(ref_line, a_col), Modifiers::COMMAND);
+    match h.last_nav.as_ref().expect("no navigation reported").target {
+        NavTarget::Local { line } => assert_eq!(line, def_line),
+        NavTarget::CrossFile(_) | NavTarget::Search(_) => {
+            panic!("`a` is defined in this document")
+        }
+    }
+
+    h.last_nav = None;
+    h.click_at_mod(h.text_pos(ref_line, zzz_col), Modifiers::COMMAND);
+    assert!(
+        h.last_nav.is_none(),
+        "`zzz` names no glyph, so it is not a link"
+    );
+}
+
+/// Ctrl/Cmd+`]` is the keyboard form of the same gesture: it follows whatever
+/// link the caret is sitting on, on a directive or in a comment alike.
+#[test]
+fn the_goto_key_follows_the_link_under_the_caret() {
+    use crate::editor::document_view::NavTarget;
+
+    let body = "ref a 0 0 // see a";
+    let mut h = EditorHarness::new(&link_doc(body));
+    let ref_line = text_line_at(&h, "ref a");
+    let def_line = text_line_at(&h, "glyph a");
+
+    // On the `ref`'s own target.
+    h.click_text(ref_line, 4);
+    h.last_nav = None;
+    h.key_mod(Key::CloseBracket, Modifiers::COMMAND);
+    let nav = h.last_nav.as_ref().expect("no navigation reported");
+    assert_eq!(nav.from, Caret::new(ref_line, 4));
+    match nav.target {
+        NavTarget::Local { line } => assert_eq!(line, def_line),
+        NavTarget::CrossFile(_) | NavTarget::Search(_) => {
+            panic!("`a` is defined in this document")
+        }
+    }
+
+    // And on the same name written in the comment.
+    h.click_text(ref_line, body.rfind('a').unwrap());
+    h.last_nav = None;
+    h.key_mod(Key::CloseBracket, Modifiers::COMMAND);
+    match h
+        .last_nav
+        .as_ref()
+        .expect("no navigation reported for the comment word")
+        .target
+    {
+        NavTarget::Local { line } => assert_eq!(line, def_line),
+        NavTarget::CrossFile(_) | NavTarget::Search(_) => {
+            panic!("`a` is defined in this document")
+        }
+    }
+}
+
+/// The key reports nothing where the caret is on no link at all — a bare word
+/// of prose included, so the gesture stays as quiet as the click is.
+#[test]
+fn the_goto_key_on_no_link_reports_nothing() {
+    let body = "ref a 0 0 // nothing here";
+    let mut h = EditorHarness::new(&link_doc(body));
+    let ref_line = text_line_at(&h, "ref a");
+
+    h.click_text(ref_line, body.find("nothing").unwrap() + 2);
+    h.last_nav = None;
+    h.key_mod(Key::CloseBracket, Modifiers::COMMAND);
+    assert!(h.last_nav.is_none(), "no link sits under the caret");
+}
+
+/// Edit ▸ Go to symbol asks for the same jump from outside the frame that
+/// carries it out, so the request has to survive to the next paint pass.
+#[test]
+fn the_menu_request_follows_the_link_under_the_caret() {
+    use crate::editor::document_view::NavTarget;
+
+    let mut h = EditorHarness::new(&link_doc("ref a 0 0"));
+    let ref_line = text_line_at(&h, "ref a");
+    let def_line = text_line_at(&h, "glyph a");
+
+    h.click_text(ref_line, 4);
+    h.last_nav = None;
+    h.state.request_goto_symbol();
+    h.frame();
+
+    let nav = h.last_nav.as_ref().expect("no navigation reported");
+    assert_eq!(nav.from, Caret::new(ref_line, 4));
+    match nav.target {
+        NavTarget::Local { line } => assert_eq!(line, def_line),
+        NavTarget::CrossFile(_) | NavTarget::Search(_) => {
+            panic!("`a` is defined in this document")
+        }
+    }
+}

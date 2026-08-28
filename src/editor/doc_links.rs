@@ -200,6 +200,57 @@ fn whole_field_link(f: &LineField, kind: LinkTargetKind, is_def: bool) -> LinkSp
     }
 }
 
+/// The words a `// …` comment is made of that name a glyph the font actually
+/// has.
+///
+/// Prose is not a directive, so nothing on a comment says which of its words is
+/// a name; the *existence* of the glyph is the whole test. A word here is a
+/// maximal run of glyph-name characters (`crate::pattern::is_valid_glyph_name`'s
+/// set), which is finer than whitespace: `han-4e00을` in a Korean sentence and
+/// `foo,` in a list both yield the name alone. A run that names nothing is left
+/// as plain text rather than becoming a dead link — unlike a `ref`, where a
+/// name that resolves to nothing is a fault worth clicking on.
+///
+/// The predicate is the editor's resolved glyph table (`EditorEnv::named_glyphs`),
+/// the same set completion offers, so a comment links exactly to what could
+/// have been written on a `ref` line.
+pub(crate) fn extract_comment_links(
+    line: &str,
+    is_glyph: &dyn Fn(&str) -> bool,
+    out: &mut Vec<LinkSpan>,
+) {
+    let Some(comment) = crate::document_io::split_comment(line).1 else {
+        return;
+    };
+    let base_col = line.chars().count() - comment.chars().count();
+    let chars: Vec<char> = comment.chars().collect();
+    let mut i = 0;
+    while i < chars.len() {
+        if !is_glyph_name_char(chars[i]) {
+            i += 1;
+            continue;
+        }
+        let start = i;
+        while i < chars.len() && is_glyph_name_char(chars[i]) {
+            i += 1;
+        }
+        let word: String = chars[start..i].iter().collect();
+        if is_glyph(&word) {
+            out.push(LinkSpan {
+                col_start: base_col + start,
+                col_end: base_col + i,
+                target: word,
+                kind: LinkTargetKind::Glyph,
+                is_def: false,
+            });
+        }
+    }
+}
+
+fn is_glyph_name_char(c: char) -> bool {
+    c.is_ascii_alphanumeric() || matches!(c, '-' | '.' | '_' | ':')
+}
+
 /// `at_base` is the `@` base in force on this line — see
 /// [`crate::document::at_base_at_line`], which is what every caller computes it
 /// with.
@@ -1389,5 +1440,63 @@ mod capture_target_tests {
         let r = at(&lines, "ref");
         assert_eq!(find_capture_target(&lines, r, "$foo"), None);
         assert_eq!(find_capture_target(&lines, r, "$-0"), None);
+    }
+}
+
+#[cfg(test)]
+mod comment_link_tests {
+    use super::*;
+    use std::collections::HashSet;
+
+    fn links(line: &str, known: &[&str]) -> Vec<(usize, usize, String)> {
+        let set: HashSet<&str> = known.iter().copied().collect();
+        let mut out = Vec::new();
+        extract_comment_links(line, &|n| set.contains(n), &mut out);
+        out.iter()
+            .map(|l| (l.col_start, l.col_end, l.target.clone()))
+            .collect()
+    }
+
+    #[test]
+    fn only_the_words_that_name_a_glyph_link() {
+        let line = "ref a 0 0 // like a, unlike zzz";
+        assert_eq!(
+            links(line, &["a", "b"]),
+            vec![(
+                line.rfind(" a,").unwrap() + 1,
+                line.find("a,").unwrap() + 1,
+                "a".to_string()
+            )]
+        );
+    }
+
+    #[test]
+    fn a_word_ends_where_a_name_character_does_not_continue() {
+        // Finer than whitespace on both sides: the Korean particle is no part
+        // of the name, and neither is the comma.
+        let line = "// han-4e00을, han-4e01";
+        let got = links(line, &["han-4e00", "han-4e01"]);
+        assert_eq!(
+            got.iter().map(|(_, _, n)| n.as_str()).collect::<Vec<_>>(),
+            ["han-4e00", "han-4e01"]
+        );
+        assert_eq!(got[0].0, 3);
+        assert_eq!(got[0].1, 11);
+    }
+
+    #[test]
+    fn a_line_with_no_comment_contributes_nothing() {
+        assert!(links("ref a 0 0", &["a"]).is_empty());
+        // A `//` that is not at a token start is not a comment, and the
+        // tokenizer already decided that — this only has to agree with it.
+        assert!(links("map a = a//b", &["a"]).is_empty());
+    }
+
+    #[test]
+    fn a_trailing_stop_is_part_of_the_word() {
+        // `.` is a glyph-name character (`num.1`), so the run does not stop at
+        // one: `a.` names nothing and links nowhere.
+        assert!(links("// see a.", &["a"]).is_empty());
+        assert_eq!(links("// see num.1", &["num.1"]).len(), 1);
     }
 }

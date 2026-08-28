@@ -244,6 +244,23 @@ pub(super) fn paint_document_area(
     let cmd_held = ui.input(|i| i.modifiers.command);
     let hover_pos = ui.input(|i| i.pointer.hover_pos());
 
+    // Ctrl/Cmd+`]` is the keyboard form of a Ctrl/Cmd+click: it follows the
+    // link under the caret, a comment's glyph words included. It is consumed
+    // here rather than in `keys.rs` because this is where a followed link
+    // becomes a navigation, and because consuming it first keeps a `]` from
+    // also reaching the text handler. Edit ▸ Go to symbol arrives as a flag
+    // instead — the menu is dispatched after this pass, so its request is one
+    // frame late by construction and cannot come in as an event.
+    let goto_asked = std::mem::take(&mut state.goto_symbol_requested)
+        || (has_focus
+            && ui.input_mut(|i| i.consume_key(egui::Modifiers::COMMAND, egui::Key::CloseBracket)));
+    if goto_asked && let Some(link) = link_at_caret(lines, state.cursor, named_glyphs) {
+        goto_glyph_kind = Some(link.kind);
+        goto_is_def = link.is_def;
+        goto_link_pos = Some(Caret::new(state.cursor.line, link.col_start));
+        goto_glyph_name = Some(link.target);
+    }
+
     // The gutter's markers are resolved before the lines, because a click that
     // lands on one must not reach the text hit test below — that one accepts
     // any x, so a gutter click would otherwise also move the caret.
@@ -423,9 +440,11 @@ pub(super) fn paint_document_area(
                 if cmd_held {
                     // Off the whole line, not this segment: a name cut by
                     // the wrap would otherwise name only its own half.
-                    let links = doc_links::extract_line_links(
+                    let links = line_links(
+                        lines,
+                        vl.doc_line,
                         doc_line_text(lines, vl, text),
-                        crate::document::at_base_at_line(lines, vl.doc_line).as_deref(),
+                        named_glyphs,
                     );
                     // Where a link falls on *this* segment, clipped to it —
                     // `None` for one that lies entirely on another segment.
@@ -1420,6 +1439,46 @@ fn contrast_text_color(bg: egui::Color32) -> egui::Color32 {
 /// (links, color tokens) has to read all of it: half a line classifies as
 /// different fields entirely. Falls back to the segment when the line is not
 /// text, which cannot happen for a `VLineKind::Text`.
+/// Every link on one document line: the ones its directive states, plus the
+/// glyph names a `// …` comment on it happens to mention.
+///
+/// The two are collected together so that a Ctrl/Cmd+click and its keyboard
+/// form (Ctrl/Cmd+`]`) see one list, and so a comment word never has to be a
+/// case of its own downstream — a link to a glyph is a link to a glyph
+/// whichever half of the line it was written on.
+fn line_links(
+    lines: &[DocLine],
+    doc_line: usize,
+    text: &str,
+    named_glyphs: &HashMap<String, ResolvedGlyph>,
+) -> Vec<LinkSpan> {
+    let mut links = doc_links::extract_line_links(
+        text,
+        crate::document::at_base_at_line(lines, doc_line).as_deref(),
+    );
+    doc_links::extract_comment_links(text, &|name| named_glyphs.contains_key(name), &mut links);
+    links
+}
+
+/// The link the caret is sitting on, for the keyboard form of a Ctrl/Cmd+click.
+///
+/// Overlaps are resolved the way the pointer resolves them — the shortest span
+/// wins — so a `$var` inside a pattern name is reached rather than the name
+/// that encloses it.
+fn link_at_caret(
+    lines: &[DocLine],
+    caret: Caret,
+    named_glyphs: &HashMap<String, ResolvedGlyph>,
+) -> Option<LinkSpan> {
+    let DocLine::Text(text) = lines.get(caret.line)? else {
+        return None;
+    };
+    line_links(lines, caret.line, text, named_glyphs)
+        .into_iter()
+        .filter(|l| caret.col >= l.col_start && caret.col <= l.col_end)
+        .min_by_key(|l| l.col_end - l.col_start)
+}
+
 fn doc_line_text<'a>(lines: &'a [DocLine], vl: &VisualLine, segment: &'a str) -> &'a str {
     match lines.get(vl.doc_line) {
         Some(DocLine::Text(s)) => s.as_str(),

@@ -34,6 +34,9 @@ pub(super) struct MenuActions {
     rename_file: bool,
     /// File ▸ Refresh filesystem (F5): scan the font directory now.
     refresh_fs: bool,
+    /// Edit ▸ Go to symbol: follow the link under the caret, as Ctrl/Cmd+`]`
+    /// and a Ctrl/Cmd+click both do.
+    goto_symbol: bool,
     rename_symbol: bool,
     type_codepoint: bool,
     export: bool,
@@ -136,6 +139,7 @@ impl UniformApp {
         let menu_open_folder = &mut menu.open_folder;
         let menu_rename = &mut menu.rename_file;
         let menu_refresh_fs = &mut menu.refresh_fs;
+        let menu_goto_symbol = &mut menu.goto_symbol;
         let menu_rename_symbol = &mut menu.rename_symbol;
         let menu_type_codepoint = &mut menu.type_codepoint;
         let menu_export = &mut menu.export;
@@ -317,6 +321,16 @@ impl UniformApp {
                         ui.close_menu();
                     }
                     ui.separator();
+                    if ui
+                        .add_enabled(
+                            editor_focused,
+                            egui::Button::new("Go to symbol").shortcut_text(format!("{mod_name}]")),
+                        )
+                        .clicked()
+                    {
+                        *menu_goto_symbol = true;
+                        ui.close_menu();
+                    }
                     if ui
                         .add_enabled(
                             editor_focused,
@@ -1018,6 +1032,12 @@ impl UniformApp {
         {
             let path = doc.document.path.clone();
             self.sidebar.start_rename(&path);
+        }
+
+        if menu.goto_symbol
+            && let Some(doc) = self.active_doc_mut()
+        {
+            doc.editor_state.request_goto_symbol();
         }
 
         if menu.rename_symbol

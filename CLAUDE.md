@@ -271,6 +271,8 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | A `glyph … = …` under an `exists`: a second name for every drawing a search found | `exists.rs` (`resolve_scopes`), `alias.rs` (`collect_inner`) |
 | What a `$-N` or a `($N)` draws on the grid, and why it is the first expansion | `editor/item_bindings.rs`, `exists.rs` (`FirstMatches`) |
 | Where a Ctrl/Cmd+click on a `$-N`/`($N)` goes, and why no `name-parts` lookup answers it | `editor/doc_links.rs` (`find_capture_target`) |
+| A glyph name mentioned in a `// …` comment: what counts as a word there, and why existence is the whole test | `editor/doc_links.rs` (`extract_comment_links`) |
+| Ctrl/Cmd+`]` as the keyboard form of a Ctrl/Cmd+click, and why the key is consumed where the link becomes a navigation | `editor/document_view/paint.rs` (`link_at_caret`) |
 | Why a scoped block's matches are still *one* merge candidate set | `merge.rs` (`collect_blocks`) |
 | Why searches are a fixpoint, and the round budget that stands in for cycle detection | `exists.rs` (`# Recursion`), `resolve_scopes` |
 | Which names a search may find — aliases yes, on-demand names no | `exists.rs` (`# What is searched`) |

@@ -207,6 +207,12 @@ pub struct EditorState {
     /// host jumped into before it was ever drawn, so the host cannot ask
     /// egui directly.
     pub(crate) pending_focus: bool,
+    /// Edit ▸ Go to symbol was asked for. The gesture's own form is
+    /// Ctrl/Cmd+`]`, which the editor reads off the event queue itself; the
+    /// menu cannot, because it runs after the frame that would have carried
+    /// the jump out. So it sets this instead and the next frame's paint pass
+    /// takes it, which is how a menu-driven rename reaches the caret too.
+    pub(crate) goto_symbol_requested: bool,
     pub(crate) autocomplete: Option<autocomplete::AutocompleteState>,
     scroll_intent: Option<ScrollIntent>,
     pub(crate) saved_scroll_frac: f32,
@@ -294,6 +300,7 @@ impl EditorState {
             codepoint_prediction: Default::default(),
             canvas_id: None,
             pending_focus: false,
+            goto_symbol_requested: false,
             autocomplete: None,
             scroll_intent: None,
             saved_scroll_frac: 0.0,
@@ -517,6 +524,21 @@ impl EditorState {
                 focus_set: false,
             };
         }
+    }
+
+    /// Asks for the link under the caret to be followed, as Ctrl/Cmd+`]` does.
+    ///
+    /// Guarded like a rename: over a grid or under an open popup the caret is
+    /// not what the user is pointing at, so there is nothing to go to.
+    pub fn request_goto_symbol(&mut self) {
+        if !matches!(self.mode, EditMode::Normal) {
+            return;
+        }
+        if !matches!(self.popup, PopupState::None) {
+            return;
+        }
+        self.goto_symbol_requested = true;
+        self.pending_focus = true;
     }
 
     /// Opens the Ctrl+K code point popup at the caret. Like a rename, it only
