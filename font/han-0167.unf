@@ -412,6 +412,9 @@ glyph han-9324:15x16 15 16 // 錤
 glyph han-932d:15x16 15 16 // 錭
 ⿰ han-91d2:7x16 han-5468:8x16 // ⿰釒周
 
+// glyph han-932e:15x16 15 16 // 錮
+// ⿰ han-91d2 han-56fa // ⿰釒固
+
 // glyph han-9331:15x16 15 16 // 錱
 // ⿱ han-91d1 han-73a8 // ⿱金玨
 
@@ -813,6 +816,9 @@ glyph han-951e:15x16 15 16 // 锞
 
 // glyph han-9520:15x16 15 16 // 锠
 // ⿰ han-9485 han-660c // ⿰钅昌
+
+// glyph han-9522:15x16 15 16 // 锢
+// ⿰ han-9485 han-56fa // ⿰钅固
 
 glyph han-9525:15x16 15 16 // 锥
 ⿰ han-9485:5x16 1 han-96b9:9x16 // ⿰钅隹

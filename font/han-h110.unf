@@ -79,6 +79,9 @@ glyph han-31d9e:15x16 15 16 // 𱶞
 // glyph han-31da6:15x16 15 16 // 𱶦
 // ⿰ han-79be han-8449 // ⿰禾葉
 
+// glyph han-31da8:15x16 15 16 // 𱶨
+// ⿳ han-4ea0 han-56de han-79dd // ⿳亠回秝 <- ⿱㐭秝
+
 # CJK unified ideographs extension H: 穴 (116)
 
 ## 116.8
@@ -316,6 +319,11 @@ glyph han-31f2a:15x16 15 16 // 𱼪
 
 // glyph han-31f66:15x16 15 16 // 𱽦
 // ⿳ han-8279 han-5b80 han-5bf8 // ⿳艹宀寸 <- ⿱艹守
+
+## 140.8
+
+// glyph han-31f72:15x16 15 16 // 𱽲
+// ⿳ han-8279 han-4ea0 han-56de // ⿳艹亠回 <- ⿱艹㐭
 
 ## 140.9
 

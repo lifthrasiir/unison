@@ -265,6 +265,23 @@ glyph han-30232:15x16 15 16 // 𰈲
 glyph han-30249:15x16 15 16 // 𰉉
 ⿲ -3 han-53e3:3x16-l 1 han-9b5a:7x16 han-7f8a:7x16 // ⿲口魚羊
 
+# CJK unified ideographs extension G: 囗 (31)
+
+## 31.4
+
+// glyph han-3024d:15x16 15 16 // 𰉍
+// ⿴ han-56d7 han-4eca // ⿴囗今
+
+## 31.5
+
+// glyph han-3024f:15x16 15 16 // 𰉏
+// ⿴ han-56d7 han-5360 // ⿴囗占
+
+## 31.12
+
+// glyph han-30254:15x16 15 16 // 𰉔
+// ⿴ han-56d7 han-9805 // ⿴囗項
+
 # CJK unified ideographs extension G: 土 (32)
 
 ## 32.4

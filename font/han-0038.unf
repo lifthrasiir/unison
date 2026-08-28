@@ -286,6 +286,9 @@ glyph han-5a50:15x16 15 16 // 婐
 glyph han-5a52:15x16 15 16 // 婒
 ⿰ han-5973:7x16 1 han-708e:7x16 // ⿰女炎
 
+// glyph han-5a5f:15x16 15 16 // 婟
+// ⿰ han-5973 han-56fa // ⿰女固
+
 glyph han-5a62:15x16 15 16 // 婢
 ⿰ han-5973:7x16 han-5351:8x16 // ⿰女卑
 

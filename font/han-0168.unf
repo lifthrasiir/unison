@@ -84,8 +84,8 @@ ref han-9580:15x16.13x11 // ⿵門一
 // glyph han-9589:15x16 15 16 // 閉
 // ⿵ han-9580 han-624d // ⿵門才
 
-// glyph han-958a:15x16 15 16 // 閊
-// ⿵ han-9580 han-5c71 // ⿵門山
+glyph han-958a:15x16 15 16 // 閊
+⿵ han-9580:15x16.13x11 han-5c71:9x10 3 6 // ⿵門山
 
 ## 169.4
 
@@ -136,6 +136,9 @@ glyph han-95a8:15x16 15 16 // 閨
 // ⿵ han-9580 han-866b // ⿵門虫
 
 ## 169.7
+
+// glyph han-95ab:15x16 15 16 // 閫
+// ⿵ han-9580 han-56f0 // ⿵門困
 
 // glyph han-95ac:15x16 15 16 // 閬
 // ⿵ han-9580 han-826f // ⿵門良
@@ -1195,6 +1198,13 @@ glyph han-975a-(g|h|t):15x16 15 16 // 靚
 ⿰ han-9752-($-1):7x16 1 han-898b:7x16 // ⿰青見
 glyph han-975a-(j|k|p):15x16 15 16 // 靚
 ⿰ han-9751-($-1):7x16 1 han-898b:7x16 // ⿰靑見
+
+# CJK unified ideographs: 面 (176)
+
+## 176.0
+
+// glyph han-9763:15x16 15 16 // 靣
+// ⿳ han-4e00 han-4e3f han-56de // ⿳一丿回 <- ⿱丆回
 
 # CJK unified ideographs: 革 (177)
 

@@ -16,6 +16,11 @@ glyph han-29ad0:15x16 15 16 // 𩫐
 glyph han-29ad1:15x16 15 16 // 𩫑
 ⿰ han-9ad8:7x16 han-5e76:8x16 // ⿰高并
 
+## 189.7
+
+// glyph han-29ad7:15x16 15 16 // 𩫗
+// ⿳ han-9ad8 han-56de han-4e28 // ⿳高回丨 <- ⿱高⿱回丨
+
 ## 189.8
 
 glyph han-29adb:15x16 15 16 // 𩫛

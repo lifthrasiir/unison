@@ -312,6 +312,9 @@ glyph han-3969-j:15x16 15 16 // 㥩
 // glyph han-39fa:15x16 15 16 // 㧺
 // ⿰ han-624c han-6c93 // ⿰扌沓
 
+// glyph han-39fd:15x16 15 16 // 㧽
+// ⿰ han-624c han-56fa // ⿰扌固
+
 glyph han-3a04:15x16 15 16 // 㨄
 ⿰ han-624c:5x16 han-5468:10x16 // ⿰扌周
 
@@ -493,3 +496,6 @@ glyph han-3b36-(g|t):15x16 15 16 // 㬶
 ⿰ han-6708:7x16 han-544a:8x16 // ⿰月告
 glyph han-3b36-j:15x16 15 16 // 㬶
 ⿰ han-6708:7x16 han-543f:8x16 // ⿰月吿
+
+// glyph han-3b37:15x16 15 16 // 㬷
+// ⿰ han-6708 han-56f0 // ⿰月困

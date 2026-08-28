@@ -406,6 +406,9 @@ glyph han-7b7d:15x16 15 16 // 筽
 // glyph han-7b84:15x16 15 16 // 箄
 // ⿱ han-25ad7 han-5351 // ⿱𥫗卑
 
+// glyph han-7b87:15x16 15 16 // 箇
+// ⿱ han-25ad7 han-56fa // ⿱𥫗固
+
 // glyph han-7b88:15x16 15 16 // 箈
 // ⿱ han-25ad7 han-6cbb // ⿱𥫗治
 
@@ -421,6 +424,9 @@ ref han-5176:15x12 0 4
 
 glyph han-7b96:15x16 15 16 // 箖
 ⿱ han-25ad7:15x5 han-6797:15x11 // ⿱𥫗林
+
+// glyph han-7b98:15x16 15 16 // 箘
+// ⿱ han-25ad7 han-56f7 // ⿱𥫗囷
 
 // glyph han-7b9a:15x16 15 16 // 箚
 // ⿱ han-25ad7 han-34e3 // ⿱𥫗㓣

@@ -40,6 +40,11 @@ glyph han-32086:15x16 15 16 // 𲂆
 // glyph han-32088:15x16 15 16 // 𲂈
 // ⿰ han-8ba0 han-800c // ⿰讠而
 
+## 149'.7
+
+// glyph han-3208b:15x16 15 16 // 𲂋
+// ⿰ han-8ba0 han-56f0 // ⿰讠困
+
 # CJK unified ideographs extension H: 貝 (154)
 
 ## 154.6
@@ -318,6 +323,11 @@ glyph han-322ab:15x16 15 16 // 𲊫
 
 glyph han-322ac:15x16 15 16 // 𲊬
 ⿰ han-5305:7x16 1 han-9801:7x16 // ⿰包頁
+
+## 181.7
+
+// glyph han-322af:15x16 15 16 // 𲊯
+// ⿰ han-56ef han-9801 // ⿰囯頁
 
 ## 181.8
 

@@ -90,6 +90,9 @@ glyph han-2bc27:15x16 15 16 // 𫰧
 glyph han-2bc2c:15x16 15 16 // 𫰬
 ⿲ han-5973:5x16-l han-6728:5x16 han-5de5:5x16 // ⿲女木工
 
+// glyph han-2bc2f:15x16 15 16 // 𫰯
+// ⿰ han-5973 han-56f0 // ⿰女困
+
 ## 38.8
 
 // glyph han-2bc37:15x16 15 16 // 𫰷
@@ -187,6 +190,9 @@ glyph han-2bcca:15x16 15 16 // 𫳊
 
 // glyph han-2bcd5:15x16 15 16 // 𫳕
 // ⿱ han-5b80 han-670b // ⿱宀朋
+
+// glyph han-2bcd6:15x16 15 16 // 𫳖
+// ⿳ han-5b80 han-4ea0 han-56de // ⿳宀亠回 <- ⿱宀㐭
 
 // glyph han-2bcd7:15x16 15 16 // 𫳗
 // ⿳ han-5b80 han-5ddb han-7530 // ⿳宀巛田 <- ⿱宀甾

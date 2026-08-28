@@ -660,6 +660,9 @@ glyph han-75c1:15x16 15 16 // 痁
 // glyph han-75cc:15x16 15 16 // 痌
 // ⿸ han-7592 han-540c // ⿸疒同
 
+// glyph han-75d0:15x16 15 16 // 痐
+// ⿸ han-7592 han-56de // ⿸疒回
+
 // glyph han-75d2:15x16 15 16 // 痒
 // ⿸ han-7592 han-7f8a // ⿸疒羊
 
@@ -693,6 +696,9 @@ glyph han-75f0:15x16 15 16 // 痰
 
 // glyph han-75fa:15x16 15 16 // 痺
 // ⿸ han-7592 han-5351 // ⿸疒卑
+
+// glyph han-75fc:15x16 15 16 // 痼
+// ⿸ han-7592 han-56fa // ⿸疒固
 
 glyph han-75fd:15x16 15 16 // 痽
 ⿸ han-7592:15x16.11x13 han-96b9:9x13 6 3 // ⿸疒隹
@@ -1545,6 +1551,9 @@ glyph han-7744:15x16 15 16 // 睄
 
 glyph han-774d:15x16 15 16 // 睍
 ⿰ han-76ee:4x16-l 1 han-898b:10x16 // ⿰目見
+
+// glyph han-774f:15x16 15 16 // 睏
+// ⿰ han-76ee han-56f0 // ⿰目困
 
 ## 109.8
 

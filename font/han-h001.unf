@@ -273,6 +273,18 @@ glyph han-31566:15x16 15 16 // 𱕦
 // glyph han-3156c:15x16 15 16 // 𱕬
 // ⿲ han-53e3 han-8a01 han-83ab // ⿲口訁莫 <- ⿰口謨
 
+# CJK unified ideographs extension H: 囗 (31)
+
+## 31.5
+
+// glyph han-31579:15x16 15 16 // 𱕹
+// ⿴ han-56d7 han-5305 // ⿴囗包
+
+## 31.6
+
+// glyph han-3157a:15x16 15 16 // 𱕺
+// ⿴ han-56d7 han-866b // ⿴囗虫
+
 # CJK unified ideographs extension H: 土 (32)
 
 ## 32.3
@@ -300,6 +312,9 @@ glyph han-31587:15x16 15 16 // 𱖇
 // ⿰ han-571f han-8863 // ⿰土衣
 
 ## 32.7
+
+// glyph han-315ae:15x16 15 16 // 𱖮
+// ⿰ han-571f han-56f0 // ⿰土困
 
 // glyph han-315b6:15x16 15 16 // 𱖶
 // ⿲ han-571f han-6c34 han-571f // ⿲土水土

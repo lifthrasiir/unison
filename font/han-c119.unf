@@ -26,6 +26,11 @@ glyph han-2b0ba:15x16 15 16 // 𫂺
 // glyph han-2b0bb:15x16 15 16 // 𫂻
 // ⿲ han-7c73 han-4e28 han-65e5 // ⿲米丨日 <- ⿰米旧
 
+## 119.8
+
+// glyph han-2b0c5:15x16 15 16 // 𫃅
+// ⿳ han-7c73 han-4ea0 han-56de // ⿳米亠回 <- ⿱米㐭
+
 ## 119.9
 
 // glyph han-2b0c6:15x16 15 16 // 𫃆
@@ -163,6 +168,9 @@ glyph han-2b19a:15x16 15 16 // 𫆚
 ⿰ han-6708:5x16-l 1 han-7531:9x16 // ⿰月由
 
 ## 130.8
+
+// glyph han-2b1a3:15x16 15 16 // 𫆣
+// ⿰ han-6708 han-56fa // ⿰月固
 
 // glyph han-2b1a4:15x16 15 16 // 𫆤
 // ⿰ han-6708 han-91d1 // ⿰月金

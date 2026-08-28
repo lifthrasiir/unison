@@ -443,6 +443,9 @@ glyph han-3eba:15x16 15 16 // 㺺
 
 ## 96.6
 
+glyph han-3ec1:15x16 15 16 // 㻁
+⿰ han-248e9:5x16 1 han-56de:9x16 // ⿰𤣩回
+
 glyph han-3ec2:15x16 15 16 // 㻂
 ⿰ han-248e9:5x16 1 han-5e76:9x16 // ⿰𤣩并
 
@@ -455,6 +458,9 @@ glyph han-3ed0:15x16 15 16 // 㻐
 ⿰ han-248e9:7x16 1 han-590b:7x16 // ⿰𤣩夋
 
 ## 96.8
+
+// glyph han-3ed2:15x16 15 16 // 㻒
+// ⿰ han-248e9 han-56f7 // ⿰𤣩囷
 
 glyph han-3eda:15x16 15 16 // 㻚
 ⿲ han-248e9:3x16 han-6708:5x16 han-6708:7x16 // ⿲𤣩月月

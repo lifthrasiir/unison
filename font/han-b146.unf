@@ -39,6 +39,9 @@ glyph han-2782b:15x16 15 16 // 𧠫
 glyph han-2782f:15x16 15 16 // 𧠯
 ⿰ han-5409:7x16 1 han-898b:7x16 // ⿰吉見
 
+glyph han-27832:15x16 15 16 // 𧠲
+⿰ han-56de:7x16 han-898b:8x16 // ⿰回見
+
 glyph han-27837:15x16 15 16 // 𧠷
 ⿰ han-4ea4:7x16 han-898b:8x16 // ⿰交見
 

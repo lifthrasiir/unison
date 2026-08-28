@@ -358,6 +358,9 @@ glyph han-6341-(g|t|k|p|v):15x16 15 16 // 捁
 glyph han-6341-(h|j):15x16 15 16 // 捁
 ⿰ han-624c:5x16 han-543f:10x16 // ⿰扌吿
 
+// glyph han-6346:15x16 15 16 // 捆
+// ⿰ han-624c han-56f0 // ⿰扌困
+
 // glyph han-6349:15x16 15 16 // 捉
 // ⿰ han-624c han-8db3 // ⿰扌足
 

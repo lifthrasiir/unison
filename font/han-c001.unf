@@ -216,6 +216,23 @@ glyph han-2a89f:15x16 15 16 // 𪢟
 glyph han-2a8a1:15x16 15 16 // 𪢡
 ⿰ han-544a:8x16 han-55ac:7x16 // ⿰告喬
 
+# CJK unified ideographs extension C: 囗 (31)
+
+## 31.6
+
+// glyph han-2a8aa:15x16 15 16 // 𪢪
+// ⿴ han-56d7 han-7f8a // ⿴囗羊
+
+## 31.7
+
+glyph han-2a8ab:15x16 15 16 // 𪢫
+⿴ han-56d7:15x16.11x12 han-8eca:11x12 2 2 // ⿴囗車
+
+## 31.11
+
+// glyph han-2a8af:15x16 15 16 // 𪢯
+// ⿴ han-56d7 han-83a7 // ⿴囗莧
+
 # CJK unified ideographs extension C: 土 (32)
 
 ## 32.3
@@ -429,6 +446,9 @@ glyph han-2a9c8:15x16 15 16 // 𪧈
 
 glyph han-2a9ce:15x16 15 16 // 𪧎
 ⿱ han-5b80:15x4 han-8db3:15x12 // ⿱宀足
+
+// glyph han-2a9cf:15x16 15 16 // 𪧏
+// ⿱ han-5b80 han-211c2 // ⿱宀𡇂
 
 // glyph han-2a9d0:15x16 15 16 // 𪧐
 // ⿱ han-5b80 han-4f2f // ⿱宀伯

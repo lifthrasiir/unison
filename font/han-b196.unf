@@ -143,6 +143,9 @@ glyph han-2a00d:15x16 15 16 // 𪀍
 glyph han-2a012:15x16 15 16 // 𪀒
 ⿰ han-9ce5:7x16 1 han-81f3:7x16 // ⿰鳥至
 
+glyph han-2a01f:15x16 15 16 // 𪀟
+⿰ han-56de:7x16 1 han-9ce5:7x16 // ⿰回鳥
+
 glyph han-2a024:15x16 15 16 // 𪀤
 ⿲ han-9ce5:7x16 han-6c35:3x16 han-5de5:5x16 // ⿲鳥氵工
 

@@ -225,6 +225,36 @@ glyph han-2d347:15x16 15 16 // 𭍇
 // glyph han-2d34b:15x16 15 16 // 𭍋
 // ⿲ han-53e3 han-7cf9 han-9821 // ⿲口糹頡 <- ⿰口纈
 
+# CJK unified ideographs extension F: 囗 (31)
+
+## 31.6
+
+// glyph han-2d35f:15x16 15 16 // 𭍟
+// ⿴ han-56d7 han-6c5f // ⿴囗江
+
+## 31.7
+
+// glyph han-2d362:15x16 15 16 // 𭍢
+// ⿴ han-56d7 han-72c2 // ⿴囗狂
+
+## 31.9
+
+// glyph han-2d36a:15x16 15 16 // 𭍪
+// ⿴ han-56d7 han-54a0 // ⿴囗咠
+
+## 31.10
+
+// glyph han-2d36b:15x16 15 16 // 𭍫
+// ⿴ han-56d7 han-7958 // ⿴囗祘
+
+## 31.11
+
+// glyph han-2d36f:15x16 15 16 // 𭍯
+// ⿴ han-56d7 han-9b5a // ⿴囗魚
+
+// glyph han-2d370:15x16 15 16 // 𭍰
+// ⿴ han-56d7 han-6dee // ⿴囗淮
+
 # CJK unified ideographs extension F: 土 (32)
 
 ## 32.4

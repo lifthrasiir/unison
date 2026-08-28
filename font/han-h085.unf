@@ -15,6 +15,9 @@
 // glyph han-31989:15x16 15 16 // 𱦉
 // ⿰ han-6c35 han-3193d // ⿰氵𱤽
 
+// glyph han-3198b:15x16 15 16 // 𱦋
+// ⿱ han-6c34 han-56de // ⿱水回
+
 // glyph han-31995:15x16 15 16 // 𱦕
 // ⿱ han-5408 han-6c34 // ⿱合水
 
@@ -27,6 +30,9 @@ glyph han-319a7:15x16 15 16 // 𱦧
 // ⿰ han-6c35 han-2bcba // ⿰氵𫲺
 
 ## 85.8
+
+// glyph han-319b3:15x16 15 16 // 𱦳
+// ⿰ han-6c35 han-56f7 // ⿰氵囷
 
 glyph han-319b7:15x16 15 16 // 𱦷
 ⿲ -1 han-6c35:3x16 han-65a4:6x16 han-6b20:7x16 // ⿲氵斤欠

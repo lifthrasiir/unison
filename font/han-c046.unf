@@ -324,11 +324,19 @@ glyph han-2ac74:15x16 15 16 // 𪱴
 // glyph han-2ac96:15x16 15 16 // 𪲖
 // ⿰ han-6728 han-5446 // ⿰木呆
 
+// glyph han-2ac97:15x16 15 16 // 𪲗
+// ⿰ han-6728 han-211c2 // ⿰木𡇂
+
 glyph han-2ac9a:15x16 15 16 // 𪲚
 ⿲ han-6728:5x16 han-6c35:3x16 han-6708:7x16 // ⿲木氵月
 
 // glyph han-2ac9d:15x16 15 16 // 𪲝
 // ⿰ han-6728 han-5e8a // ⿰木床
+
+## 75.8
+
+// glyph han-2acaa:15x16 15 16 // 𪲪
+// ⿳ han-4ea0 han-56de han-6728 // ⿳亠回木 <- ⿱㐭木
 
 ## 75.9
 

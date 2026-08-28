@@ -140,6 +140,9 @@ glyph han-7d53:15x16 15 16 // 絓
 // glyph han-7d54:15x16 15 16 // 絔
 // ⿰ han-7cf9 han-767e // ⿰糹百
 
+glyph han-7d57:15x16 15 16 // 絗
+⿰ han-7cf9:5x16 1 han-56de:9x16 // ⿰糹回
+
 glyph han-7d5e:15x16 15 16 // 絞
 ⿰ han-7cf9:5x16 1 han-4ea4:9x16 // ⿰糹交
 
@@ -192,6 +195,9 @@ glyph han-7d83:15x16 15 16 // 綃
 
 glyph han-7d87:15x16 15 16 // 綇
 ⿰ han-7cf9:5x16 1 han-9149:9x16 // ⿰糹酉
+
+// glyph han-7d91:15x16 15 16 // 綑
+// ⿰ han-7cf9 han-56f0 // ⿰糹困
 
 ## 120.8
 

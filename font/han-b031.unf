@@ -1,3 +1,110 @@
+# CJK unified ideographs extension B: 囗 (31)
+
+## 31.1
+
+// glyph han-211a0:15x16 15 16 // 𡆠
+// ⿴ han-56d7 han-4e59 // ⿴囗乙
+
+// glyph han-211a1:15x16 15 16 // 𡆡
+// ⿴ han-56d7 han-4e41 // ⿴囗乁
+
+## 31.2
+
+// glyph han-211a4:15x16 15 16 // 𡆤
+// ⿴ han-56d7 han-4e8c // ⿴囗二
+
+// glyph han-211a6:15x16 15 16 // 𡆦
+// ⿴ han-56d7 han-516b // ⿴囗八
+
+## 31.3
+
+glyph han-211ac:15x16 15 16 // 𡆬
+⿴ han-56d7:15x16.11x12 han-5de5:9x10 3 3 // ⿴囗工
+
+glyph han-211ae:15x16 15 16 // 𡆮
+⿴ han-56d7:15x16.11x12 han-571f:9x10 3 3 // ⿴囗土
+
+glyph han-211af:15x16 15 16 // 𡆯
+⿴ han-56d7:15x16.11x12 han-5c71:9x10 3 3 // ⿴囗山
+
+## 31.4
+
+// glyph han-211ba:15x16 15 16 // 𡆺
+// ⿴ han-56d7 han-624b // ⿴囗手
+
+glyph han-211c2:15x16 15 16 // 𡇂
+⿴ han-56d7:15x16.11x12 han-706b:11x12 2 2 // ⿴囗火
+
+// glyph han-211c7:15x16 15 16 // 𡇇
+// ⿴ han-56d7 han-5206 // ⿴囗分
+
+## 31.5
+
+// glyph han-211c8:15x16 15 16 // 𡇈
+// ⿴ han-56d7 han-77f3 // ⿴囗石
+
+// glyph han-211c9:15x16 15 16 // 𡇉
+// ⿴ han-56d7 han-20ba1 // ⿴囗𠮡
+
+glyph han-211cc:15x16 15 16 // 𡇌
+⿴ han-56d7:15x16.11x12 han-76ee:7x10 4 3 // ⿴囗目
+
+## 31.6
+
+// glyph han-211d2:15x16 15 16 // 𡇒
+// ⿴ han-56d7 han-7c73 // ⿴囗米
+
+// glyph han-211d3:15x16 15 16 // 𡇓
+// ⿴ han-56d7 han-81f3 // ⿴囗至
+
+// glyph han-211da:15x16 15 16 // 𡇚
+// ⿴ han-56d7 han-767e // ⿴囗百
+
+// glyph han-211dc:15x16 15 16 // 𡇜
+// ⿴ han-56d7 han-820c // ⿴囗舌
+
+// glyph han-211de:15x16 15 16 // 𡇞
+// ⿴ han-56d7 han-5408 // ⿴囗合
+
+## 31.7
+
+// glyph han-211ea:15x16 15 16 // 𡇪
+// ⿴ han-56d7 han-544a // ⿴囗告
+
+## 31.8
+
+// glyph han-211fb:15x16 15 16 // 𡇻
+// ⿴ han-56d7 han-5352 // ⿴囗卒
+
+## 31.9
+
+// glyph han-211fc:15x16 15 16 // 𡇼
+// ⿴ han-56d7 han-66f7 // ⿴囗曷
+
+// glyph han-21201:15x16 15 16 // 𡈁
+// ⿴ han-56d7 han-7687 // ⿴囗皇
+
+## 31.10
+
+// glyph han-2120a:15x16 15 16 // 𡈊
+// ⿴ han-56d7 han-99ac // ⿴囗馬
+
+## 31.11
+
+// glyph han-21217:15x16 15 16 // 𡈗
+// ⿴ han-56d7 han-83ab // ⿴囗莫
+
+// glyph han-21219:15x16 15 16 // 𡈙
+// ⿴ han-56d7 han-9ce5 // ⿴囗鳥
+
+// glyph han-2121c:15x16 15 16 // 𡈜
+// ⿴ han-56d7 han-7968 // ⿴囗票
+
+## 31.12
+
+// glyph han-21226:15x16 15 16 // 𡈦
+// ⿴ han-56d7 han-582f // ⿴囗堯
+
 # CJK unified ideographs extension B: 土 (32)
 
 ## 32.1
@@ -137,6 +244,9 @@ glyph han-212b1:15x16 15 16 // 𡊱
 
 // glyph han-212d6:15x16 15 16 // 𡋖
 // ⿱ han-5978 han-571f // ⿱奸土
+
+glyph han-212d9:15x16 15 16 // 𡋙
+⿰ han-571f:5x16-l 1 han-56de:9x16 // ⿰土回
 
 // glyph han-212db:15x16 15 16 // 𡋛
 // ⿱ han-5408 han-571f // ⿱合土

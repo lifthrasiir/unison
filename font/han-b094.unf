@@ -90,6 +90,9 @@ glyph han-24787:15x16 15 16 // 𤞇
 // glyph han-2478b:15x16 15 16 // 𤞋
 // ⿰ han-72ad han-65e9 // ⿰犭早
 
+glyph han-24791:15x16 15 16 // 𤞑
+⿰ han-72ad:6x16 han-56de:9x16 // ⿰犭回
+
 ## 94.7
 
 glyph han-2479a:15x16 15 16 // 𤞚
@@ -100,6 +103,9 @@ glyph han-2479a:15x16 15 16 // 𤞚
 
 // glyph han-247a5:15x16 15 16 // 𤞥
 // ⿰ han-72ad han-5446 // ⿰犭呆
+
+// glyph han-247a7:15x16 15 16 // 𤞧
+// ⿰ han-72ad han-56f0 // ⿰犭困
 
 glyph han-247a8:15x16 15 16 // 𤞨
 ⿰ han-72ad:6x16 han-752b:9x16 // ⿰犭甫

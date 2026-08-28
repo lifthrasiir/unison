@@ -256,6 +256,11 @@ glyph han-30ae0:15x16 15 16 // 𰫠
 // glyph han-30aea:15x16 15 16 // 𰫪
 // ⿰ han-7cf8 han-21da9 // ⿰糸𡶩
 
+## 120.12
+
+// glyph han-30af4:15x16 15 16 // 𰫴
+// ⿲ han-7cf9 han-56f0 han-7acb // ⿲糹困立 <- ⿰綑立
+
 ## 120.22
 
 // glyph han-30afb:15x16 15 16 // 𰫻
