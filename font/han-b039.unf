@@ -155,6 +155,9 @@ glyph han-21a49:15x16 15 16 // 𡩉
 
 ## 40.11
 
+// glyph han-21a84-($han-regions):15x16 15 16 // 𡪄
+// ⿰ han-5b81 han-8005-($-1) // ⿰宁者
+
 glyph han-21a88:15x16 15 16 // 𡪈
 ref han-5b80:15x4 0 0 // ⿳宀其土
 ref han-5176:15x10 0 3
@@ -167,6 +170,9 @@ ref han-571f:15x4 0 12
 // ⿳ han-5b80 han-5973 han-660e // ⿳宀女明 <- ⿱安明
 
 ## 40.12
+
+// glyph han-21aa6-($han-regions):15x16 15 16 // 𡪦
+// ⿱ han-5b80 han-6e1a-($-1) // ⿱宀渚
 
 // glyph han-21aa9:15x16 15 16 // 𡪩
 // ⿱ han-5b80 han-582f // ⿱宀堯

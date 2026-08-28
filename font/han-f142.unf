@@ -198,6 +198,9 @@ glyph han-2e67b:15x16 15 16 // 𮙻
 glyph han-2e67c:15x16 15 16 // 𮙼
 ⿲ han-8c9d:5x16 han-4ebb:3x16 han-5bf8:7x16 // ⿲貝亻寸
 
+// glyph han-2e67f-($han-regions):15x16 15 16 // 𮙿
+// ⿱ han-4ee4-($-1) han-8c9d // ⿱令貝
+
 ## 154.6
 
 // glyph han-2e684:15x16 15 16 // 𮚄
@@ -373,6 +376,9 @@ glyph han-2e74c:15x16 15 16 // 𮝌
 
 // glyph han-2e788:15x16 15 16 // 𮞈
 // ⿺ han-8fb6 han-5144 // ⿺辶兄
+
+// glyph han-2e78a-($han-regions):15x16 15 16 // 𮞊
+// ⿺ han-8fb6-($-1) han-4ee4-($-1) // ⿺辶令
 
 ## 162.6
 

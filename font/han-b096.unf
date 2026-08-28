@@ -227,6 +227,9 @@ glyph han-249ae:15x16 15 16 // 𤦮
 // glyph han-249b8:15x16 15 16 // 𤦸
 // ⿲ han-248e9 han-4ebb han-5446 // ⿲𤣩亻呆 <- ⿰𤣩保
 
+// glyph han-249c2-($han-regions):15x16 15 16 // 𤧂
+// ⿱ han-73a8 han-4ee4-($-1) // ⿱玨令
+
 glyph han-249c7:15x16 15 16 // 𤧇
 ⿲ han-248e9:3x16 han-6728:5x16 han-76ee:7x16 // ⿲𤣩木目
 

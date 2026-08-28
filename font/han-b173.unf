@@ -86,6 +86,9 @@ glyph han-290c8:15x16 15 16 // 𩃈
 glyph han-290c9:15x16 15 16 // 𩃉
 ⿳ -5 han-96e8:15x7 1 han-53e3:15x4 1 han-5929:15x8 // ⿳雨口天
 
+// glyph han-290cf-($han-regions):15x16 15 16 // 𩃏
+// ⿳ han-96e8-($-1) han-2b739 han-706b // ⿳雨𫜹火 <- ⿱雨灵
+
 // glyph han-290d0:15x16 15 16 // 𩃐
 // ⿱ han-96e8 han-4f4e // ⿱雨低
 
@@ -207,6 +210,9 @@ glyph han-29115:15x16 15 16 // 𩄕
 // glyph han-29174:15x16 15 16 // 𩅴
 // ⿱ han-96e8 han-6e3e // ⿱雨渾
 
+// glyph han-2917b-($han-regions):15x16 15 16 // 𩅻
+// ⿱ han-96e8-($-1) han-6e1a-($-1) // ⿱雨渚
+
 ## 173.13
 
 // glyph han-2918f:15x16 15 16 // 𩆏
@@ -216,6 +222,9 @@ glyph han-29115:15x16 15 16 // 𩄕
 
 // glyph han-29191:15x16 15 16 // 𩆑
 // ⿱ han-96e8 han-9178 // ⿱雨酸
+
+// glyph han-29196-($han-regions):15x16 15 16 // 𩆖
+// ⿳ han-96e8-($-1) han-20c60 han-4ee4-($-1) // ⿳雨𠱠令 <- ⿱霝令
 
 // glyph han-2919c:15x16 15 16 // 𩆜
 // ⿳ han-96e8 han-20c60 han-7389 // ⿳雨𠱠玉 <- ⿱霝玉
@@ -239,7 +248,15 @@ glyph han-29115:15x16 15 16 // 𩄕
 // glyph han-291bb:15x16 15 16 // 𩆻
 // ⿳ han-96e8 han-20c60 han-56f7 // ⿳雨𠱠囷 <- ⿱霝囷
 
+// glyph han-291bc-($han-regions):15x16 15 16 // 𩆼
+// ⿳ han-96e8-($-1) han-20c60 han-6ce0-($-1) // ⿳雨𠱠泠 <- ⿱霝泠
+
 # CJK unified ideographs extension B: 靑 (174)
+
+## 174.4
+
+// glyph han-291d6-($han-regions):15x16 15 16 // 𩇖
+// ⿺ han-5143 han-9752-($-1) // ⿺元青
 
 ## 174.5
 

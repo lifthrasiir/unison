@@ -45,6 +45,11 @@ glyph han-2dbf1:15x16 15 16 // 𭯱
 glyph han-2dbf6:15x16 15 16 // 𭯶
 ⿱ han-53e3:15x7 han-6c34:15x9 // ⿱口水
 
+## 85.4
+
+// glyph han-2dbf8:15x16 15 16 // 𭯸
+// ⿲ han-6c35 han-4e28 han-2b739 // ⿲氵丨𫜹 <- ⿰氵𠁣
+
 ## 85.5
 
 glyph han-2dbfe:15x16 15 16 // 𭯾

@@ -106,6 +106,9 @@ glyph han-2514b:15x16 15 16 // 𥅋
 // glyph han-2514c:15x16 15 16 // 𥅌
 // ⿳ han-4e2d han-4e00 han-76ee // ⿳中一目 <- ⿱𠀐目
 
+// glyph han-2514d-($han-regions):15x16 15 16 // 𥅍
+// ⿱ han-4ee4-($-1) han-76ee // ⿱令目
+
 // glyph han-2514f:15x16 15 16 // 𥅏
 // ⿳ han-76ee han-4e00 han-65e5 // ⿳目一日 <- ⿱目𣄼
 

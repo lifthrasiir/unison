@@ -269,6 +269,9 @@ glyph han-5cb6:15x16 15 16 // 岶
 glyph han-5cb9:15x16 15 16 // 岹
 ⿰ han-5c71:7x16 han-53ec:8x16 // ⿰山召
 
+// glyph han-5cba-($han-regions):15x16 15 16 // 岺
+// ⿱ han-5c71 han-4ee4-($-1) // ⿱山令
+
 glyph han-5cbb:15x16 15 16 // 岻
 ⿰ han-5c71:7x16 han-6c10:8x16 // ⿰山氐
 
@@ -513,6 +516,9 @@ glyph han-5da2:15x16 15 16 // 嶢
 // ⿱ han-5c71 han-582f // ⿱山堯
 
 ## 46.14
+
+// glyph han-5dba-($han-regions):15x16 15 16 // 嶺
+// ⿱ han-5c71 han-9818-($-1) // ⿱山領
 
 glyph han-5dbf:15x16 15 16 // 嶿
 ⿰ han-5c71:5x16 1 han-9700:9x16 // ⿰山需
@@ -1194,4 +1200,9 @@ exists han-5f50\.0:([0-9]+x[0-9]+)
 glyph han-5f50-(h|t|j|k|v):($1) = ($0)
 exists han-5f50\.1:([0-9]+x[0-9]+)
 glyph han-5f50-(g|p):($1) = ($0)
+
+## 58.2
+
+// glyph han-5f52:15x16 15 16 // 归
+// ⿲ han-4e36 han-4e3f han-2b739 // ⿲丶丿𫜹 <- ⿰⿰丶丿𫜹
 

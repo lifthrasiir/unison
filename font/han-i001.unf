@@ -88,6 +88,11 @@ glyph han-2ec43:15x16 15 16 // 𮱃
 glyph han-2ec68:15x16 15 16 // 𮱨
 ⿱ han-5c71:15x4 1 han-8033:15x11 // ⿱山耳
 
+## 46.8
+
+// glyph han-2ec6d-($han-regions):15x16 15 16 // 𮱭
+// ⿱ han-5c71 han-5cad-($-1) // ⿱山岭
+
 # CJK unified ideographs extension I: 心 (61)
 
 ## 61.7

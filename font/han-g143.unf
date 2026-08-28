@@ -230,6 +230,11 @@ glyph han-30e2d:15x16 15 16 // 𰸭
 glyph han-30e30:15x16 15 16 // 𰸰
 ⿲ -1 han-27fb7:5x16 han-6b62:6x16 han-9801:5x16 // ⿲𧾷止頁
 
+## 157.14
+
+glyph han-30e35-($han-regions):15x16 15 16 // 𰸵
+⿲ -2 han-27fb7:5x16 han-4ee4-($-1):7x16 han-9801:5x16 // ⿲𧾷令頁
+
 # CJK unified ideographs extension G: 車 (159)
 
 ## 159.1

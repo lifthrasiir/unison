@@ -40,6 +40,9 @@ glyph han-2a74b:15x16 15 16 // 𪝋
 glyph han-2a74d:15x16 15 16 // 𪝍
 ⿲ han-4ebb:3x16 han-53e4:7x16 han-6708:5x16 // ⿲亻古月
 
+glyph han-2a74e-($han-regions):15x16 15 16 // 𪝎
+⿲ han-4ebb:3x16 han-6728:5x16 han-4ee4-($-1):7x16 // ⿲亻木令
+
 ## 9.11
 
 // glyph han-2a761:15x16 15 16 // 𪝡

@@ -42,6 +42,11 @@ glyph han-20042-($han-regions):15x16 15 16 // 𠁂
 
 # CJK unified ideographs extension B: 丨 (2)
 
+## 2.3
+
+// glyph han-20063:15x16 15 16 // 𠁣
+// ⿰ han-4e28 han-2b739 // ⿰丨𫜹
+
 ## 2.8
 
 glyph han-2006f:15x16 15 16 // 𠁯

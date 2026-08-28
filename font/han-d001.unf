@@ -47,6 +47,13 @@ glyph han-2b7ae:15x16 15 16 // 𫞮
 glyph han-2b7bb:15x16 15 16 // 𫞻
 ⿰ han-7acb:7x16 -1 han-4e01:9x16 // ⿰立丁
 
+# CJK unified ideographs extension D: 艸 (140)
+
+## 140.7
+
+// glyph han-2b7d1:15x16 15 16 // 𫟑
+// ⿳ han-8279 han-2b739 han-706b // ⿳艹𫜹火 <- ⿱艹灵
+
 # CJK unified ideographs extension D: 讠 (149')
 
 ## 149'.4

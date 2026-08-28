@@ -245,6 +245,9 @@ glyph han-2b21b:15x16 15 16 // 𫈛
 // glyph han-2b243:15x16 15 16 // 𫉃
 // ⿱ han-8279 han-6d70 // ⿱艹浰
 
+// glyph han-2b244-($han-regions):15x16 15 16 // 𫉄
+// ⿱ han-8279 han-8bf8-($-1) // ⿱艹诸
+
 // glyph han-2b245:15x16 15 16 // 𫉅
 // ⿳ han-8279 han-5982 han-5fc3 // ⿳艹如心 <- ⿱艹恕
 

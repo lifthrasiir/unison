@@ -38,6 +38,9 @@ glyph han-2896e:15x16 15 16 // 𨥮
 // glyph han-28974:15x16 15 16 // 𨥴
 // ⿱ han-77f3 han-91d1 // ⿱石金
 
+// glyph han-28977-($han-regions):15x16 15 16 // 𨥷
+// ⿰ han-4ee4-($-1) han-91d1 // ⿰令金
+
 // glyph han-2897c:15x16 15 16 // 𨥼
 // ⿲ han-91d2 han-6728 han-4e5a // ⿲釒木乚 <- ⿰釒札
 
@@ -97,6 +100,9 @@ glyph han-289e0:15x16 15 16 // 𨧠
 
 glyph han-289f9:15x16 15 16 // 𨧹
 ⿲ -1 han-91d2:5x16-l 1 han-65e5:5x16 han-6708:5x16 // ⿲釒日月
+
+// glyph han-289fd-($han-regions):15x16 15 16 // 𨧽
+// ⿱ han-793e-($-1) han-91d1 // ⿱社金
 
 // glyph han-289ff:15x16 15 16 // 𨧿
 // ⿱ han-708f han-91d1 // ⿱炏金
@@ -238,6 +244,11 @@ glyph han-28bac:15x16 15 16 // 𨮬
 
 glyph han-28bb6:15x16 15 16 // 𨮶
 ⿲ han-91d2:5x16-l han-6c35:3x16 han-7968:7x16 // ⿲釒氵票
+
+## 167.15
+
+// glyph han-28bce-($han-regions):15x16 15 16 // 𨯎
+// ⿳ han-6b3d han-96e8-($-1) han-2b739 // ⿳欽雨𫜹 <- ⿱欽雪
 
 ## 167.21
 

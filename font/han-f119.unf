@@ -179,6 +179,11 @@ glyph han-2e342:15x16 15 16 // 𮍂
 
 # CJK unified ideographs extension F: 舌 (135)
 
+## 135.5
+
+// glyph han-2e376-($han-regions):15x16 15 16 // 𮍶
+// ⿰ han-820c han-4ee4-($-1) // ⿰舌令
+
 ## 135.9
 
 // glyph han-2e37b:15x16 15 16 // 𮍻
@@ -277,6 +282,9 @@ glyph han-2e3f2:15x16 15 16 // 𮏲
 // glyph han-2e441:15x16 15 16 // 𮑁
 // ⿱ han-8279 han-6b3a // ⿱艹欺
 
+// glyph han-2e442-($han-regions):15x16 15 16 // 𮑂
+// ⿳ han-8279 han-5927 han-8005-($-1) // ⿳艹大者 <- ⿱艹奢
+
 // glyph han-2e443:15x16 15 16 // 𮑃
 // ⿳ han-8279 han-73a8 han-6728 // ⿳艹玨木 <- ⿱艹琹
 
@@ -288,6 +296,9 @@ glyph han-2e3f2:15x16 15 16 // 𮏲
 
 // glyph han-2e450:15x16 15 16 // 𮑐
 // ⿳ han-8279 han-219df han-516d // ⿳艹𡧟六
+
+// glyph han-2e456-($han-regions):15x16 15 16 // 𮑖
+// ⿱ han-8279 han-8996-($-1) // ⿱艹視
 
 // glyph han-2e457:15x16 15 16 // 𮑗
 // ⿱ han-8279 han-7d61 // ⿱艹絡

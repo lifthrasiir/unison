@@ -126,6 +126,11 @@ glyph han-31d9e:15x16 15 16 // 𱶞
 glyph han-31df3:15x16 15 16 // 𱷳
 ⿱ han-25ad7:15x5 han-65e5:15x11 // ⿱𥫗日
 
+## 118.6
+
+// glyph han-31dfd:15x16 15 16 // 𱷽
+// ⿳ han-25ad7 han-2b739 han-5bf8 // ⿳𥫗𫜹寸 <- ⿱𥫗寻
+
 ## 118.8
 
 // glyph han-31e04:15x16 15 16 // 𱸄
@@ -143,6 +148,11 @@ glyph han-31df3:15x16 15 16 // 𱷳
 // glyph han-31e0c:15x16 15 16 // 𱸌
 // ⿱ han-25ad7 han-9644 // ⿱𥫗附
 
+## 118.9
+
+// glyph han-31e13-($han-regions):15x16 15 16 // 𱸓
+// ⿱ han-25ad7 han-7956-($-1) // ⿱𥫗祖
+
 ## 118.10
 
 // glyph han-31e16:15x16 15 16 // 𱸖
@@ -155,6 +165,11 @@ glyph han-31df3:15x16 15 16 // 𱷳
 
 // glyph han-31e22:15x16 15 16 // 𱸢
 // ⿳ han-25ad7 han-7acb han-5146 // ⿳𥫗立兆 <- ⿱𥫗𱷥
+
+## 118.16
+
+// glyph han-31e30-($han-regions):15x16 15 16 // 𱸰
+// ⿱ han-25ad7 han-89a9-($-1) // ⿱𥫗覩
 
 # CJK unified ideographs extension H: 米 (119)
 

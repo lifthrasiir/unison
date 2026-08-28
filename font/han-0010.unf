@@ -760,6 +760,9 @@ glyph han-521e:15x16 15 16 // 刞
 glyph han-521f:15x16 15 16 // 刟
 ⿰ han-53ec:10x16 1 han-5202:4x16 // ⿰召刂
 
+glyph han-5222-($han-regions):15x16 15 16 // 刢
+⿰ han-4ee4-($-1):9x16 1 han-5202:5x16 // ⿰令刂
+
 glyph han-5223:15x16 15 16 // 刣
 ⿰ han-53f0:9x16 1 han-5202:5x16 // ⿰台刂
 

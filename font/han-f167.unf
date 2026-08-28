@@ -90,10 +90,20 @@ glyph han-2e8f2:15x16 15 16 // 𮣲
 // glyph han-2e90f:15x16 15 16 // 𮤏
 // ⿵ han-9580 han-6c5f // ⿵門江
 
+## 169.8
+
+// glyph han-2e912-($han-regions):15x16 15 16 // 𮤒
+// ⿵ han-9580 han-9751-($-1) // ⿵門靑
+
 ## 169.9
 
 // glyph han-2e919:15x16 15 16 // 𮤙
 // ⿵ han-9580 han-82e6 // ⿵門苦
+
+## 169.13
+
+// glyph han-2e927-($han-regions):15x16 15 16 // 𮤧
+// ⿵ han-9580 han-9234-($-1) // ⿵門鈴
 
 # CJK unified ideographs extension F: 阜 (170)
 
@@ -189,6 +199,9 @@ glyph han-2e98b:15x16 15 16 // 𮦋
 // ⿳ han-96e8 han-5b80 han-7389 // ⿳雨宀玉 <- ⿱雨宝
 
 ## 173.9
+
+// glyph han-2e99c-($han-regions):15x16 15 16 // 𮦜
+// ⿱ han-96e8-($-1) han-73b2-($-1) // ⿱雨玲
 
 glyph han-2e99f:15x16 15 16 // 𮦟
 ⿳ -2 han-96e8:15x7 1 han-7530:15x5 han-706b:15x5 // ⿳雨田火

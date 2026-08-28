@@ -252,6 +252,9 @@ glyph han-226fa:15x16 15 16 // 𢛺
 // glyph han-22703:15x16 15 16 // 𢜃
 // ⿱ han-6cbd han-5fc3 // ⿱沽心
 
+// glyph han-22705-($han-regions):15x16 15 16 // 𢜅
+// ⿱ han-6ce0-($-1) han-5fc3 // ⿱泠心
+
 glyph han-22707:15x16 15 16 // 𢜇
 ⿳ han-5b80:15x4 han-76ee:15x7 han-5fc3:15x5 // ⿳宀目心
 

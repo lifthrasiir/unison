@@ -1,3 +1,10 @@
+# CJK unified ideographs extension G: 丨 (2)
+
+## 2.7
+
+// glyph han-30024:15x16 15 16 // 𰀤
+// ⿲ han-4e28 han-2b739 han-738b // ⿲丨𫜹王 <- ⿰𠁣王
+
 # CJK unified ideographs extension G: 乙 (5)
 
 ## 5.3
@@ -264,6 +271,11 @@ glyph han-3020b:15x16 15 16 // 𰈋
 
 glyph han-30232:15x16 15 16 // 𰈲
 ⿲ -2 han-53e3:3x16-l han-91d2:7x16 han-5931:7x16 // ⿲口釒失
+
+## 30.14
+
+glyph han-3023c-($han-regions):15x16 15 16 // 𰈼
+⿲ han-53e3:3x16-l han-4ee4-($-1):7x16 han-9801:5x16 // ⿲口令頁
 
 ## 30.17
 

@@ -18,6 +18,9 @@ glyph han-25ae6:15x16 15 16 // 𥫦
 // glyph han-25ae8:15x16 15 16 // 𥫨
 // ⿱ han-25ad7 han-5ddd // ⿱𥫗川
 
+// glyph han-25ae9-($han-regions):15x16 15 16 // 𥫩
+// ⿱ han-25ad7 han-52fa-($-1) // ⿱𥫗勺
+
 glyph han-25aeb:15x16 15 16 // 𥫫
 ⿱ han-25ad7:15x5 han-4e0b:15x11 // ⿱𥫗下
 
@@ -98,8 +101,14 @@ glyph han-25b45:15x16 15 16 // 𥭅
 
 ## 118.7
 
+// glyph han-25b53-($han-regions):15x16 15 16 // 𥭓
+// ⿱ han-25ad7 han-707c-($-1) // ⿱𥫗灼
+
 // glyph han-25b54:15x16 15 16 // 𥭔
 // ⿱ han-25ad7 han-34e0 // ⿱𥫗㓠
+
+// glyph han-25b56-($han-regions):15x16 15 16 // 𥭖
+// ⿱ han-25ad7 han-8091-($-1) // ⿱𥫗肑
 
 glyph han-25b5b:15x16 15 16 // 𥭛
 ⿱ han-25ad7:15x5 han-9149:15x11 // ⿱𥫗酉
@@ -128,8 +137,14 @@ glyph han-25b68:15x16 15 16 // 𥭨
 // glyph han-25b74:15x16 15 16 // 𥭴
 // ⿳ han-25ad7 han-7acb han-5341 // ⿳𥫗立十 <- ⿱𥫗辛
 
+// glyph han-25b7c:15x16 15 16 // 𥭼
+// ⿳ han-25ad7 han-2b739 han-6c34 // ⿳𥫗𫜹水
+
 glyph han-25b7d:15x16 15 16 // 𥭽
 ⿱ han-25ad7:15x5 han-8db3:15x11 // ⿱𥫗足
+
+// glyph han-25b80-($han-regions):15x16 15 16 // 𥮀
+// ⿱ han-25ad7 han-65f3-($-1) // ⿱𥫗旳
 
 glyph han-25b85:15x16 15 16 // 𥮅
 ⿳ han-25ad7:15x5 han-738b:15x5 1 han-5927:15x5 // ⿳𥫗王大
@@ -314,6 +329,9 @@ ref han-9aa8:15x12 0 4
 // glyph han-25c9b:15x16 15 16 // 𥲛
 // ⿱ han-25ad7 han-7d28 // ⿱𥫗紨
 
+// glyph han-25c9f-($han-regions):15x16 15 16 // 𥲟
+// ⿱ han-25ad7 han-91e3-($-1) // ⿱𥫗釣
+
 // glyph han-25ca3:15x16 15 16 // 𥲣
 // ⿱ han-25ad7 han-27d46 // ⿱𥫗𧵆
 
@@ -333,6 +351,9 @@ ref han-9aa8:15x12 0 4
 // ⿳ han-25ad7 han-7530 han-5404 // ⿳𥫗田各 <- ⿱𥫗畧
 
 ## 118.12
+
+// glyph han-25cc9-($han-regions):15x16 15 16 // 𥳉
+// ⿱ han-25ad7 han-90fd-($-1) // ⿱𥫗都
 
 // glyph han-25cd1:15x16 15 16 // 𥳑
 // ⿱ han-25ad7 han-9592 // ⿱𥫗閒
@@ -378,6 +399,9 @@ ref han-9aa8:15x12 0 4
 // glyph han-25d2d:15x16 15 16 // 𥴭
 // ⿱ han-25ad7 han-696c // ⿱𥫗楬
 
+// glyph han-25d30-($han-regions):15x16 15 16 // 𥴰
+// ⿱ han-25ad7 han-9756-($-1) // ⿱𥫗靖
+
 // glyph han-25d34:15x16 15 16 // 𥴴
 // ⿱ han-25ad7 han-9264 // ⿱𥫗鉤
 
@@ -388,6 +412,12 @@ glyph han-25d49:15x16 15 16 // 𥵉
 // ⿱ han-25ad7 han-7891 // ⿱𥫗碑
 
 ## 118.14
+
+// glyph han-25d5d-($han-regions):15x16 15 16 // 𥵝
+// ⿱ han-25ad7 han-9818-($-1) // ⿱𥫗領
+
+// glyph han-25d5f-($han-regions):15x16 15 16 // 𥵟
+// ⿳ han-25ad7 han-7f52 han-8005-($-1) // ⿳𥫗罒者 <- ⿱𥫗署
 
 // glyph han-25d7b:15x16 15 16 // 𥵻
 // ⿱ han-25ad7 han-7dad // ⿱𥫗維

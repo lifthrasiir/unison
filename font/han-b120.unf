@@ -254,6 +254,9 @@ glyph han-26195:15x16 15 16 // 𦆕
 glyph han-2619d:15x16 15 16 // 𦆝
 ⿲ -3 han-7cf9:5x16 han-7968:7x16 han-5bf8:6x16 // ⿲糹票寸
 
+glyph han-261ba-($han-regions):15x16 15 16 // 𦆺
+⿲ -2 han-7cf9:5x16 han-4ee4-($-1):7x16 han-9801:5x16 // ⿲糹令頁
+
 ## 120.17
 
 glyph han-261eb:15x16 15 16 // 𦇫

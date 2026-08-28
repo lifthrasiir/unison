@@ -170,6 +170,9 @@ glyph han-2d998:15x16 15 16 // 𭦘
 // glyph han-2d99a:15x16 15 16 // 𭦚
 // ⿳ han-767e han-516b han-65e5 // ⿳百八日
 
+// glyph han-2d99d-($han-regions):15x16 15 16 // 𭦝
+// ⿰ han-65f1 han-4ee4-($-1) // ⿰旱令
+
 glyph han-2d9a1:15x16 15 16 // 𭦡
 ⿲ -2 han-65e5:4x16-l han-65a4:6x16 han-6b20:7x16 // ⿲日斤欠
 

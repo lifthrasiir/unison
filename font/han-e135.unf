@@ -59,6 +59,9 @@ glyph han-2c75e:15x16 15 16 // 𬝞
 // glyph han-2c775:15x16 15 16 // 𬝵
 // ⿱ han-8279 han-8edf // ⿱艹軟
 
+// glyph han-2c779-($han-regions):15x16 15 16 // 𬝹
+// ⿳ han-8279 han-96e8-($-1) han-2b739 // ⿳艹雨𫜹 <- ⿱艹雪
+
 // glyph han-2c77f:15x16 15 16 // 𬝿
 // ⿱ han-8279 han-4899 // ⿱艹䢙
 
@@ -94,6 +97,11 @@ glyph han-2c7a9:15x16 15 16 // 𬞩
 
 // glyph han-2c7bc:15x16 15 16 // 𬞼
 // ⿱ han-8279 han-7dad // ⿱艹維
+
+## 140.15
+
+// glyph han-2c7cb-($han-regions):15x16 15 16 // 𬟋
+// ⿱ han-8279 han-7dd2-($-1) // ⿱艹緒
 
 ## 140.16
 
@@ -164,6 +172,11 @@ glyph han-2c843:15x16 15 16 // 𬡃
 
 glyph han-2c845:15x16 15 16 // 𬡅
 ⿰ han-8864:7x16 1 han-961d:7x16-r // ⿰衤阝
+
+## 145.5
+
+// glyph han-2c84c-($han-regions):15x16 15 16 // 𬡌
+// ⿱ han-4ee4-($-1) han-8863 // ⿱令衣
 
 ## 145.6
 
@@ -402,6 +415,11 @@ glyph han-2c9d0:15x16 15 16 // 𬧐
 
 // glyph han-2ca3a:15x16 15 16 // 𬨺
 // ⿺ han-9023 han-4e0a // ⿺連上
+
+## 162.11
+
+// glyph han-2ca45-($han-regions):15x16 15 16 // 𬩅
+// ⿺ han-8fb6-($-1) han-6e1a-($-1) // ⿺辶渚
 
 # CJK unified ideographs extension E: 邑 (163)
 

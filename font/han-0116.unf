@@ -179,6 +179,9 @@ glyph han-7ad9:15x16 15 16 // 站
 // glyph han-7ada:15x16 15 16 // 竚
 // ⿰ han-7acb han-5b81 // ⿰立宁
 
+glyph han-7adb-($han-regions):15x16 15 16 // 竛
+⿰ han-7acb:5x16 1 han-4ee4-($-1):9x16 // ⿰立令
+
 glyph han-7add:15x16 15 16 // 竝
 ⿰ han-7acb:7x16 1 han-7acb:7x16 // ⿰立立
 
@@ -287,7 +290,7 @@ glyph han-7b1b:15x16 15 16 // 笛
 // ⿱ han-25ad7 han-7acb // ⿱𥫗立
 
 glyph han-7b21:15x16 15 16 // 笡
-⿱ han-25ad7:15x5 1 han-4e14:15x10 // ⿱𥫗且
+⿱ han-25ad7:15x5 han-4e14:15x11 // ⿱𥫗且
 
 // glyph han-7b23:15x16 15 16 // 笣
 // ⿱ han-25ad7 han-5305 // ⿱𥫗包
@@ -300,6 +303,9 @@ glyph han-7b26:15x16 15 16 // 符
 
 glyph han-7b2a:15x16 15 16 // 笪
 ⿱ han-25ad7:15x5 han-65e6:15x11 // ⿱𥫗旦
+
+// glyph han-7b2d-($han-regions):15x16 15 16 // 笭
+// ⿱ han-25ad7 han-4ee4-($-1) // ⿱𥫗令
 
 // glyph han-7b31:15x16 15 16 // 笱
 // ⿱ han-25ad7 han-53e5 // ⿱𥫗句
@@ -378,7 +384,7 @@ glyph han-7b66:15x16 15 16 // 筦
 ⿳ han-25ad7:15x5 -1 han-5b80:15x4 -1 han-5143:15x9 // ⿳𥫗宀元
 
 glyph han-7b67:15x16 15 16 // 筧
-⿱ han-25ad7:15x5 1 han-898b:15x10 // ⿱𥫗見
+⿱ han-25ad7:15x5 han-898b:15x11 // ⿱𥫗見
 
 // glyph han-7b68:15x16 15 16 // 筨
 // ⿳ han-25ad7 han-4eca han-53e3 // ⿳𥫗今口 <- ⿱𥫗含
@@ -418,6 +424,9 @@ glyph han-7b7d:15x16 15 16 // 筽
 // glyph han-7b8c:15x16 15 16 // 箌
 // ⿱ han-25ad7 han-5230 // ⿱𥫗到
 
+// glyph han-7b90-($han-regions):15x16 15 16 // 箐
+// ⿱ han-25ad7 han-9752-($-1) // ⿱𥫗青
+
 // glyph han-7b94:15x16 15 16 // 箔
 // ⿱ han-25ad7 han-6cca // ⿱𥫗泊
 
@@ -448,6 +457,12 @@ glyph han-7bb1:15x16 15 16 // 箱
 glyph han-7bb6:15x16 15 16 // 箶
 ⿱ han-25ad7:15x5 han-80e1:15x11 // ⿱𥫗胡
 
+// glyph han-7bb8-($han-regions):15x16 15 16 // 箸
+// ⿱ han-25ad7 han-8005-($-1) // ⿱𥫗者
+
+// glyph han-7bb9-($han-regions):15x16 15 16 // 箹
+// ⿱ han-25ad7 han-7d04-($-1) // ⿱𥫗約
+
 // glyph han-7bbe:15x16 15 16 // 箾
 // ⿱ han-25ad7 han-524a // ⿱𥫗削
 
@@ -476,6 +491,9 @@ glyph han-7bcd:15x16 15 16 // 篍
 
 glyph han-7bd9:15x16 15 16 // 篙
 ⿱ han-25ad7:15x5 -1 han-9ad8:15x12 // ⿱𥫗高
+
+// glyph han-7bdf-($han-regions):15x16 15 16 // 篟
+// ⿱ han-25ad7 han-5029-($-1) // ⿱𥫗倩
 
 // glyph han-7be2:15x16 15 16 // 篢
 // ⿳ han-25ad7 han-5de5 han-8c9d // ⿳𥫗工貝 <- ⿱𥫗貢

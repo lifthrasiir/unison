@@ -136,6 +136,9 @@ glyph han-3c35:15x16 15 16 // 㰵
 glyph han-3c52:15x16 15 16 // 㱒
 ⿱ han-6b62:15x5 1 han-53ef:15x10 // ⿱止可
 
+glyph han-3c53-($han-regions):15x16 15 16 // 㱓
+⿰ han-6b62:6x16 han-4ee4-($-1):9x16 // ⿰止令
+
 ## 77.8
 
 glyph han-3c56:15x16 15 16 // 㱖

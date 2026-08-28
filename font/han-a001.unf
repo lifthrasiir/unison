@@ -621,6 +621,9 @@ glyph han-3700:15x16 15 16 // 㜀
 
 ## 38.11
 
+// glyph han-3715-($han-regions):15x16 15 16 // 㜕
+// ⿰ han-5973 han-9023-($-1) // ⿰女連
+
 glyph han-371b:15x16 15 16 // 㜛
 ⿲ -2 han-5973:5x16-l han-8eca:5x16 han-6b20:7x16 // ⿲女車欠
 

@@ -434,6 +434,9 @@ glyph han-7f67:15x16 15 16 // 罧
 // glyph han-7f68:15x16 15 16 // 罨
 // ⿳ han-7f52 han-5927 han-7535 // ⿳罒大电 <- ⿱罒奄
 
+// glyph han-7f72-($han-regions):15x16 15 16 // 署
+// ⿱ han-7f52 han-8005-($-1) // ⿱罒者
+
 ## 122.9
 
 // glyph han-7f6f:15x16 15 16 // 罯
