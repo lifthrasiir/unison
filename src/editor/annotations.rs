@@ -418,21 +418,19 @@ impl<'a> AnnotatedText<'a> {
         let mut display_len = 0usize;
         let mut pending = String::new();
         let mut ai = 0usize;
-        let push = |runs: &mut Vec<Run>,
-                    display_len: &mut usize,
-                    text: String,
-                    kind: AnnotationKind| {
-            if text.is_empty() {
-                return;
-            }
-            let start = *display_len;
-            *display_len += text.len();
-            runs.push(Run {
-                text,
-                kind,
-                display_start: start,
-            });
-        };
+        let push =
+            |runs: &mut Vec<Run>, display_len: &mut usize, text: String, kind: AnnotationKind| {
+                if text.is_empty() {
+                    return;
+                }
+                let start = *display_len;
+                *display_len += text.len();
+                runs.push(Run {
+                    text,
+                    kind,
+                    display_start: start,
+                });
+            };
         while self.annotations.get(ai).is_some_and(|a| a.col == 0) {
             push(
                 &mut runs,
@@ -500,6 +498,7 @@ impl<'a> AnnotatedText<'a> {
     /// `placeholder` is the color the zero-advance circles are drawn in; they
     /// are deliberately not the text color, since the point is that they are
     /// not text.
+    #[allow(clippy::too_many_arguments)]
     pub(crate) fn paint(
         &self,
         painter: &egui::Painter,
@@ -927,4 +926,3 @@ mod tests {
         assert_eq!(at.display_prefix(6), "map 가 U+AC00 ");
     }
 }
-

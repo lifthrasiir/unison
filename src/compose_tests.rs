@@ -1228,14 +1228,8 @@ fn a_contact_is_where_the_ink_meets_and_not_where_the_cells_do() {
 
     // And so the demand follows the ink: no cell is owed for a seam that is
     // not there.
-    assert_eq!(
-        demand(&tapered, &facing, true, 2).map(|d| d.owed),
-        Some(0),
-    );
-    assert_eq!(
-        demand(&flat, &facing, true, 2).map(|d| d.owed),
-        Some(1),
-    );
+    assert_eq!(demand(&tapered, &facing, true, 2).map(|d| d.owed), Some(0),);
+    assert_eq!(demand(&flat, &facing, true, 2).map(|d| d.owed), Some(1),);
 }
 
 /// `expand`, holding the line to `min..max` and to a contact-run rule.
@@ -1453,11 +1447,21 @@ fn at(v: i16) -> ComposeItem {
 
 #[test]
 fn every_enclosing_operator_knows_which_sides_it_fills() {
-    let walls = |c: char| IdcOp::from_char(c).expect("an IDC").walls().expect("enclosing");
+    let walls = |c: char| {
+        IdcOp::from_char(c)
+            .expect("an IDC")
+            .walls()
+            .expect("enclosing")
+    };
     // ⿴ is walled all round; every other enclosure leaves at least one side open.
     assert_eq!(
         walls('\u{2FF4}'),
-        Walls { left: true, right: true, top: true, bottom: true },
+        Walls {
+            left: true,
+            right: true,
+            top: true,
+            bottom: true
+        },
     );
     // ⿷ 匚 opens to the right, ⿼ to the left.
     assert_eq!(walls('\u{2FF7}').along(true), (true, false));
@@ -1466,10 +1470,42 @@ fn every_enclosing_operator_knows_which_sides_it_fills() {
     assert_eq!(walls('\u{2FF5}').along(false), (true, false));
     assert_eq!(walls('\u{2FF6}').along(false), (false, true));
     // The four corners fill exactly two adjacent sides.
-    assert_eq!(walls('\u{2FF8}'), Walls { left: true, right: false, top: true, bottom: false });
-    assert_eq!(walls('\u{2FF9}'), Walls { left: false, right: true, top: true, bottom: false });
-    assert_eq!(walls('\u{2FFA}'), Walls { left: true, right: false, top: false, bottom: true });
-    assert_eq!(walls('\u{2FFD}'), Walls { left: false, right: true, top: false, bottom: true });
+    assert_eq!(
+        walls('\u{2FF8}'),
+        Walls {
+            left: true,
+            right: false,
+            top: true,
+            bottom: false
+        }
+    );
+    assert_eq!(
+        walls('\u{2FF9}'),
+        Walls {
+            left: false,
+            right: true,
+            top: true,
+            bottom: false
+        }
+    );
+    assert_eq!(
+        walls('\u{2FFA}'),
+        Walls {
+            left: true,
+            right: false,
+            top: false,
+            bottom: true
+        }
+    );
+    assert_eq!(
+        walls('\u{2FFD}'),
+        Walls {
+            left: false,
+            right: true,
+            top: false,
+            bottom: true
+        }
+    );
     // Never open on both sides of one axis: an enclosure always has a wall to
     // be measured against, which is what makes the axis's sum a property of
     // the parts alone.
@@ -1617,9 +1653,7 @@ fn an_enclosure_warns_when_a_part_is_drawn_for_the_other_slot() {
 fn an_enclosure_is_measured_against_the_walls_and_the_open_edges() {
     // A 6x6 匚 with a one-cell wall: the cavity is columns 1..5, rows 1..4.
     let outer = whole(
-        &grid(&[
-            "######", "#.....", "#.....", "#.....", "#.....", "######",
-        ]),
+        &grid(&["######", "#.....", "#.....", "#.....", "#.....", "######"]),
         1,
     );
     let inner = whole(&grid(&["##", "##"]), 1);
@@ -1664,9 +1698,7 @@ fn an_enclosure_is_measured_against_the_walls_and_the_open_edges() {
 #[test]
 fn a_full_surround_measures_every_side_against_the_ring() {
     let outer = whole(
-        &grid(&[
-            "######", "#....#", "#....#", "#....#", "#....#", "######",
-        ]),
+        &grid(&["######", "#....#", "#....#", "#....#", "#....#", "######"]),
         1,
     );
     let inner = whole(&grid(&["##", "##"]), 1);
@@ -1679,18 +1711,24 @@ fn a_full_surround_measures_every_side_against_the_ring() {
         None,
     )
     .expect("both parts draw");
-    assert_eq!(c.iter().map(|c| c.value).collect::<Vec<_>>(), vec![1, 1, 1, 1]);
+    assert_eq!(
+        c.iter().map(|c| c.value).collect::<Vec<_>>(),
+        vec![1, 1, 1, 1]
+    );
     assert!(c.iter().all(|c| !c.at_edge));
 }
 
 #[test]
 fn a_cavity_must_be_flush_with_the_sides_the_operator_opens() {
-    let walls = |c: char| IdcOp::from_char(c).expect("an IDC").walls().expect("enclosing");
+    let walls = |c: char| {
+        IdcOp::from_char(c)
+            .expect("an IDC")
+            .walls()
+            .expect("enclosing")
+    };
     // 广: a top bar and a stroke down the left, opening right and below.
     let guang = whole(
-        &grid(&[
-            "######", "#.....", "#.....", "#.....", "#.....", "#.....",
-        ]),
+        &grid(&["######", "#.....", "#.....", "#.....", "#.....", "#....."]),
         1,
     );
     // The cavity is the 5x5 block at the bottom right, so anything up to that
@@ -1704,9 +1742,7 @@ fn a_cavity_must_be_flush_with_the_sides_the_operator_opens() {
     // 匚: walled top and bottom, open right. The rectangle is flush right but
     // free to sit anywhere down the axis, so a 5x4 fits where a 5x5 does not.
     let fang = whole(
-        &grid(&[
-            "######", "#.....", "#.....", "#.....", "#.....", "######",
-        ]),
+        &grid(&["######", "#.....", "#.....", "#.....", "#.....", "######"]),
         1,
     );
     assert!(cavity_fits(&fang, walls('\u{2FF7}'), (6, 6), (5, 4)));
@@ -1715,9 +1751,7 @@ fn a_cavity_must_be_flush_with_the_sides_the_operator_opens() {
     // 囗: walled all round, so the rectangle is free both ways — and bounded
     // both ways.
     let wei = whole(
-        &grid(&[
-            "######", "#....#", "#....#", "#....#", "#....#", "######",
-        ]),
+        &grid(&["######", "#....#", "#....#", "#....#", "#....#", "######"]),
         1,
     );
     assert!(cavity_fits(&wei, walls('\u{2FF4}'), (6, 6), (4, 4)));
@@ -1726,9 +1760,7 @@ fn a_cavity_must_be_flush_with_the_sides_the_operator_opens() {
     // A hardblank is wall: it is space the source keeps clear of whatever goes
     // inside, so it takes room out of the cavity exactly as ink does.
     let claimed = whole(
-        &grid(&[
-            "######", "#$....", "#$....", "#$....", "#$....", "#$....",
-        ]),
+        &grid(&["######", "#$....", "#$....", "#$....", "#$....", "#$...."]),
         1,
     );
     assert!(cavity_fits(&claimed, walls('\u{2FF8}'), (6, 6), (4, 5)));
@@ -1742,7 +1774,10 @@ fn an_outer_part_that_cannot_keep_its_cavity_promise_warns() {
     let dims = table(&[("o:6x6.5x5", (6, 6)), ("i:2x2", (2, 2))]);
     let profiles = profiles(&[
         // A 广 whose left stroke is two cells wide leaves only 4 columns.
-        ("o:6x6.5x5", &["######", "##....", "##....", "##....", "##....", "##...."]),
+        (
+            "o:6x6.5x5",
+            &["######", "##....", "##....", "##....", "##....", "##...."],
+        ),
         ("i:2x2", &["##", "##"]),
     ]);
     let ink = |name: &str| profiles.get(name);
@@ -1815,12 +1850,17 @@ glyph test-x 6 6
     // Wedged into the corner instead: the two clearances the inner part leaves
     // behind it go to 0 and the two ahead of it to 2, so both axes warn twice.
     // The IDC line's own offsets, not the `glyph` header that reads alike.
-    let wedged = SRC.replace("\u{2FF4} ring:6x6.4x4 seed:2x2 2 2", "\u{2FF4} ring:6x6.4x4 seed:2x2 1 1");
+    let wedged = SRC.replace(
+        "\u{2FF4} ring:6x6.4x4 seed:2x2 2 2",
+        "\u{2FF4} ring:6x6.4x4 seed:2x2 1 1",
+    );
     let warnings = clearance_warnings(&wedged);
     assert_eq!(warnings.len(), 2, "{warnings:?}");
-    assert!(warnings.iter().all(|w| w.contains("leaves 0 between")), "{warnings:?}");
+    assert!(
+        warnings.iter().all(|w| w.contains("leaves 0 between")),
+        "{warnings:?}"
+    );
 }
-
 
 /// A wall is the run *nearest the middle of the box*, not the line's first run.
 ///
@@ -1834,9 +1874,7 @@ fn a_wall_is_the_run_beside_the_cavity_and_not_the_side_bearing() {
     // A 广 drawn the way the source draws every part: a hardblank bearing at
     // cell 0, and the wall itself at cell 2.
     let guang = whole(
-        &grid(&[
-            "$#####", "$.#...", "$.#...", "$.#...", "$.#...", "$.#...",
-        ]),
+        &grid(&["$#####", "$.#...", "$.#...", "$.#...", "$.#...", "$.#..."]),
         1,
     );
     let row = guang.rows[3].expect("the row draws");

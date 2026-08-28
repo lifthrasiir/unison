@@ -586,7 +586,11 @@ fn dragging_a_paste_larger_than_the_grid_does_not_panic() {
     assert_eq!((sel.width, sel.height), (4, 5));
 
     h.drag_grid(1, (0, 0), (1, 0));
-    let sel = h.state.pixel_selection.as_ref().expect("selection survives");
+    let sel = h
+        .state
+        .pixel_selection
+        .as_ref()
+        .expect("selection survives");
     assert_eq!(sel.col, 0, "no room to move horizontally");
     assert!(
         (-2..=0).contains(&sel.row),

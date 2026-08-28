@@ -997,9 +997,7 @@ fn a_script_that_already_names_the_tag_gets_no_second_feature_record() {
         .feature_indices
         .iter()
         .copied()
-        .filter(|&i| {
-            gsub.feature_list.feature_records[i as usize].feature_tag == Tag::new(b"ccmp")
-        })
+        .filter(|&i| gsub.feature_list.feature_records[i as usize].feature_tag == Tag::new(b"ccmp"))
         .collect();
     assert_eq!(
         ccmp_indices.len(),

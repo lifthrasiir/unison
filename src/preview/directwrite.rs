@@ -125,129 +125,129 @@ impl ShaperBackend for DirectWriteBackend {
                 let mut all_glyphs = Vec::new();
 
                 for run in &script_runs {
-                let start = run.start as usize;
-                let len = run.len as usize;
-                let sub_text = &utf16[start..start + len];
+                    let start = run.start as usize;
+                    let len = run.len as usize;
+                    let sub_text = &utf16[start..start + len];
 
-                let max_glyphs = (len as u32 * 3 / 2 + 16).max(len as u32 + 1);
-                let mut cluster_map = vec![0u16; len];
-                let mut text_props = vec![DWRITE_SHAPING_TEXT_PROPERTIES::default(); len];
-                let mut glyph_indices = vec![0u16; max_glyphs as usize];
-                let mut glyph_props =
-                    vec![DWRITE_SHAPING_GLYPH_PROPERTIES::default(); max_glyphs as usize];
-                let mut actual_glyph_count = 0u32;
+                    let max_glyphs = (len as u32 * 3 / 2 + 16).max(len as u32 + 1);
+                    let mut cluster_map = vec![0u16; len];
+                    let mut text_props = vec![DWRITE_SHAPING_TEXT_PROPERTIES::default(); len];
+                    let mut glyph_indices = vec![0u16; max_glyphs as usize];
+                    let mut glyph_props =
+                        vec![DWRITE_SHAPING_GLYPH_PROPERTIES::default(); max_glyphs as usize];
+                    let mut actual_glyph_count = 0u32;
 
-                let feature_ptrs: Vec<*const DWRITE_TYPOGRAPHIC_FEATURES> =
-                    dw_features.iter().map(|f| f as *const _).collect();
-                let feature_range_lengths: Vec<u32> = vec![len as u32; dw_features.len()];
+                    let feature_ptrs: Vec<*const DWRITE_TYPOGRAPHIC_FEATURES> =
+                        dw_features.iter().map(|f| f as *const _).collect();
+                    let feature_range_lengths: Vec<u32> = vec![len as u32; dw_features.len()];
 
-                let (feat_opt, feat_range_opt, feat_count) = if dw_features.is_empty() {
-                    (None, None, 0u32)
-                } else {
-                    (
-                        Some(feature_ptrs.as_ptr() as *const *const DWRITE_TYPOGRAPHIC_FEATURES),
-                        Some(feature_range_lengths.as_ptr()),
-                        dw_features.len() as u32,
-                    )
-                };
-
-                analyzer
-                    .GetGlyphs(
-                        PCWSTR(sub_text.as_ptr()),
-                        len as u32,
-                        &face,
-                        // isSideways, isRightToLeft
-                        BOOL::from(false),
-                        BOOL::from(rtl),
-                        &run.analysis,
-                        PCWSTR::null(),
-                        None,
-                        feat_opt,
-                        feat_range_opt,
-                        feat_count,
-                        max_glyphs,
-                        cluster_map.as_mut_ptr(),
-                        text_props.as_mut_ptr(),
-                        glyph_indices.as_mut_ptr(),
-                        glyph_props.as_mut_ptr(),
-                        &mut actual_glyph_count,
-                    )
-                    .map_err(err)?;
-
-                let glyph_count = actual_glyph_count as usize;
-                glyph_indices.truncate(glyph_count);
-                glyph_props.truncate(glyph_count);
-
-                let mut advances = vec![0.0f32; glyph_count];
-                let mut offsets = vec![DWRITE_GLYPH_OFFSET::default(); glyph_count];
-
-                analyzer
-                    .GetGlyphPlacements(
-                        PCWSTR(sub_text.as_ptr()),
-                        cluster_map.as_ptr(),
-                        text_props.as_mut_ptr(),
-                        len as u32,
-                        glyph_indices.as_ptr(),
-                        glyph_props.as_ptr(),
-                        glyph_count as u32,
-                        &face,
-                        upm as f32,
-                        // isSideways, isRightToLeft
-                        BOOL::from(false),
-                        BOOL::from(rtl),
-                        &run.analysis,
-                        PCWSTR::null(),
-                        feat_opt,
-                        feat_range_opt,
-                        feat_count,
-                        advances.as_mut_ptr(),
-                        offsets.as_mut_ptr(),
-                    )
-                    .map_err(err)?;
-
-                // `cluster_map[p]` names the *first* glyph of the cluster the
-                // text position `p` is in, so inverting it leaves a cluster's
-                // remaining glyphs — a base's marks — unassigned. They are
-                // filled forward from the glyph that did get a position, since
-                // DirectWrite keeps one cluster's glyphs in logical order
-                // whichever way the run reads. Reading the map the other way
-                // round (`position(|c| c == i)`) instead dropped every mark
-                // onto the start of the run.
-                let mut glyph_to_utf16 = vec![usize::MAX; glyph_count];
-                for (p, &g) in cluster_map.iter().enumerate() {
-                    let g = g as usize;
-                    if g < glyph_count && glyph_to_utf16[g] == usize::MAX {
-                        glyph_to_utf16[g] = start + p;
-                    }
-                }
-                let mut last = start;
-                for slot in &mut glyph_to_utf16 {
-                    if *slot == usize::MAX {
-                        *slot = last;
+                    let (feat_opt, feat_range_opt, feat_count) = if dw_features.is_empty() {
+                        (None, None, 0u32)
                     } else {
-                        last = *slot;
-                    }
-                }
-
-                for i in 0..glyph_count {
-                    let cluster_utf16 = glyph_to_utf16[i];
-                    let cluster = if cluster_utf16 < utf16_to_char.len() {
-                        utf16_to_char[cluster_utf16]
-                    } else {
-                        text.chars().count()
+                        (
+                            Some(feature_ptrs.as_ptr() as *const *const DWRITE_TYPOGRAPHIC_FEATURES),
+                            Some(feature_range_lengths.as_ptr()),
+                            dw_features.len() as u32,
+                        )
                     };
 
-                    all_glyphs.push(ShapedGlyph {
-                        glyph_id: glyph_indices[i],
-                        cluster,
-                        // `shape_runs` overwrites this with the run's level.
-                        level,
-                        x_advance: advances[i] / upm as f32,
-                        y_advance: 0.0,
-                        x_offset: offsets[i].advanceOffset / upm as f32,
-                        y_offset: offsets[i].ascenderOffset / upm as f32,
-                    });
-                }
+                    analyzer
+                        .GetGlyphs(
+                            PCWSTR(sub_text.as_ptr()),
+                            len as u32,
+                            &face,
+                            // isSideways, isRightToLeft
+                            BOOL::from(false),
+                            BOOL::from(rtl),
+                            &run.analysis,
+                            PCWSTR::null(),
+                            None,
+                            feat_opt,
+                            feat_range_opt,
+                            feat_count,
+                            max_glyphs,
+                            cluster_map.as_mut_ptr(),
+                            text_props.as_mut_ptr(),
+                            glyph_indices.as_mut_ptr(),
+                            glyph_props.as_mut_ptr(),
+                            &mut actual_glyph_count,
+                        )
+                        .map_err(err)?;
+
+                    let glyph_count = actual_glyph_count as usize;
+                    glyph_indices.truncate(glyph_count);
+                    glyph_props.truncate(glyph_count);
+
+                    let mut advances = vec![0.0f32; glyph_count];
+                    let mut offsets = vec![DWRITE_GLYPH_OFFSET::default(); glyph_count];
+
+                    analyzer
+                        .GetGlyphPlacements(
+                            PCWSTR(sub_text.as_ptr()),
+                            cluster_map.as_ptr(),
+                            text_props.as_mut_ptr(),
+                            len as u32,
+                            glyph_indices.as_ptr(),
+                            glyph_props.as_ptr(),
+                            glyph_count as u32,
+                            &face,
+                            upm as f32,
+                            // isSideways, isRightToLeft
+                            BOOL::from(false),
+                            BOOL::from(rtl),
+                            &run.analysis,
+                            PCWSTR::null(),
+                            feat_opt,
+                            feat_range_opt,
+                            feat_count,
+                            advances.as_mut_ptr(),
+                            offsets.as_mut_ptr(),
+                        )
+                        .map_err(err)?;
+
+                    // `cluster_map[p]` names the *first* glyph of the cluster the
+                    // text position `p` is in, so inverting it leaves a cluster's
+                    // remaining glyphs — a base's marks — unassigned. They are
+                    // filled forward from the glyph that did get a position, since
+                    // DirectWrite keeps one cluster's glyphs in logical order
+                    // whichever way the run reads. Reading the map the other way
+                    // round (`position(|c| c == i)`) instead dropped every mark
+                    // onto the start of the run.
+                    let mut glyph_to_utf16 = vec![usize::MAX; glyph_count];
+                    for (p, &g) in cluster_map.iter().enumerate() {
+                        let g = g as usize;
+                        if g < glyph_count && glyph_to_utf16[g] == usize::MAX {
+                            glyph_to_utf16[g] = start + p;
+                        }
+                    }
+                    let mut last = start;
+                    for slot in &mut glyph_to_utf16 {
+                        if *slot == usize::MAX {
+                            *slot = last;
+                        } else {
+                            last = *slot;
+                        }
+                    }
+
+                    for i in 0..glyph_count {
+                        let cluster_utf16 = glyph_to_utf16[i];
+                        let cluster = if cluster_utf16 < utf16_to_char.len() {
+                            utf16_to_char[cluster_utf16]
+                        } else {
+                            text.chars().count()
+                        };
+
+                        all_glyphs.push(ShapedGlyph {
+                            glyph_id: glyph_indices[i],
+                            cluster,
+                            // `shape_runs` overwrites this with the run's level.
+                            level,
+                            x_advance: advances[i] / upm as f32,
+                            y_advance: 0.0,
+                            x_offset: offsets[i].advanceOffset / upm as f32,
+                            y_offset: offsets[i].ascenderOffset / upm as f32,
+                        });
+                    }
                 }
 
                 Ok(all_glyphs)

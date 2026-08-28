@@ -84,7 +84,10 @@ impl<'a> Paragraph<'a> {
     /// The level to label a glyph with, given the character it came from.
     #[cfg_attr(not(target_os = "macos"), expect(dead_code))]
     fn level_of_char(&self, char_idx: usize) -> u8 {
-        self.char_levels.get(char_idx).copied().unwrap_or(self.level)
+        self.char_levels
+            .get(char_idx)
+            .copied()
+            .unwrap_or(self.level)
     }
 }
 
@@ -198,7 +201,7 @@ fn to_visual_order(glyphs: &mut [ShapedGlyph], rtl: bool) {
     if glyphs.windows(2).all(|w| w[0].cluster >= w[1].cluster) {
         return;
     }
-    glyphs.sort_by(|a, b| b.cluster.cmp(&a.cluster));
+    glyphs.sort_by_key(|g| std::cmp::Reverse(g.cluster));
 }
 
 /// Restrict a feature's character range to a run and rebase it onto that run.
@@ -402,10 +405,7 @@ mod tests {
     fn script_runs_inside_a_backward_level_run_are_visited_back_to_front() {
         // Hebrew then Arabic, both RTL, one level run split by script.
         let (runs, _) = shape_recording("שלוםسلام");
-        assert_eq!(
-            runs,
-            vec![("سلام".to_string(), 1), ("שלום".to_string(), 1)],
-        );
+        assert_eq!(runs, vec![("سلام".to_string(), 1), ("שלום".to_string(), 1)],);
     }
 
     #[test]

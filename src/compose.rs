@@ -1176,7 +1176,12 @@ impl<'a> GapSide<'a> {
 
     /// The covers of the boundary this side presents to the gap, per line,
     /// indexed the way [`Self::paired_lines`] walks them.
-    fn facing_cover(self, horizontal: bool, upward: bool, index: usize) -> Option<&'a [(u16, u16)]> {
+    fn facing_cover(
+        self,
+        horizontal: bool,
+        upward: bool,
+        index: usize,
+    ) -> Option<&'a [(u16, u16)]> {
         let e = self.profile.along_edges(horizontal).get(index)?;
         Some(match (upward, self.inner) {
             (true, false) => &e.far,
@@ -1941,11 +1946,7 @@ fn expand_enclosure(
                 (p, q),
                 rule.max_contact_run,
             ) {
-                issues.extend(report_clearances(
-                    compose.op,
-                    &clearances,
-                    rule,
-                ));
+                issues.extend(report_clearances(compose.op, &clearances, rule));
             }
         }
     }
@@ -2197,8 +2198,7 @@ pub fn measure_clearances<'a>(
         )?;
         // Measured only where a rule asks for it: a source stating none pays
         // nothing, exactly as it pays nothing for the profiles themselves.
-        let contact =
-            max_contact_run.and_then(|max| {
+        let contact = max_contact_run.and_then(|max| {
             contact_demand(
                 GapSide::linear(a.profile),
                 GapSide::linear(b.profile),

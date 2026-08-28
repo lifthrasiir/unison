@@ -228,6 +228,7 @@ fn is_hangul_syllable(cp: u32) -> bool {
 /// them is one entry here. Hangul syllables are dropped outright: their names
 /// are the jamo they decompose into, which the page composes for itself and for
 /// undeclared cells too.
+#[allow(clippy::type_complexity)]
 fn collect_names(
     cps: impl Iterator<Item = u32>,
     props: &CharProps,

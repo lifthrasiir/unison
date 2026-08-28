@@ -409,9 +409,7 @@ fn idc_slot(line: &str, col: usize) -> Option<IdcSlot> {
         None => op.slot_direction(before).map(IdcSlot::Split),
         // Past the second component the caret is writing an offset, not a
         // name, and the popup does not open on a number anyway.
-        Some(_) => (before < 2).then_some(IdcSlot::Enclosure {
-            outer: before == 0,
-        }),
+        Some(_) => (before < 2).then_some(IdcSlot::Enclosure { outer: before == 0 }),
     }
 }
 
@@ -476,9 +474,7 @@ impl SlotFit {
             return true;
         };
         match self {
-            Self::Across { cells, horizontal } => {
-                cells == if horizontal { size.1 } else { size.0 }
-            }
+            Self::Across { cells, horizontal } => cells == if horizontal { size.1 } else { size.0 },
             Self::Enclosure { parent, outer } => {
                 crate::compose::fits_enclosure_slot(size, parent, outer)
             }
@@ -489,12 +485,7 @@ impl SlotFit {
 /// What the slot the caret is writing demands across the axis, or `None` when
 /// the line is not an IDC line or the enclosing glyph declares no box (which
 /// `compose` reports on its own — there is nothing to filter by).
-fn idc_slot_fit(
-    line: &str,
-    col: usize,
-    lines: &[DocLine],
-    line_idx: usize,
-) -> Option<SlotFit> {
+fn idc_slot_fit(line: &str, col: usize, lines: &[DocLine], line_idx: usize) -> Option<SlotFit> {
     let (op, before) = idc_op_and_slot(line, col)?;
     let (w, h) = enclosing_glyph_box(lines, line_idx)?;
     Some(match op.walls() {

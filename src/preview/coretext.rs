@@ -119,10 +119,7 @@ impl ShaperBackend for CoreTextBackend {
             let string_indices = run.string_indices();
             for j in 0..glyph_count {
                 let utf16_idx = string_indices[j] as usize;
-                let cluster = utf16_to_char
-                    .get(utf16_idx)
-                    .copied()
-                    .unwrap_or(total_chars);
+                let cluster = utf16_to_char.get(utf16_idx).copied().unwrap_or(total_chars);
                 let glyph_id = if substituted { 0 } else { glyphs[j] };
                 placed.push((glyph_id, cluster, positions[j].x as f32));
             }
@@ -176,9 +173,7 @@ fn run_is_font(run: &core_text::run::CTRun, own_name: &str) -> bool {
 /// A paragraph style pinning the base writing direction, or `None` when the
 /// direction is [`ParagraphDirection::Auto`] and Core Text's own P2/P3 is what
 /// we want to see.
-fn paragraph_style_for(
-    direction: ParagraphDirection,
-) -> Option<core_foundation::base::CFType> {
+fn paragraph_style_for(direction: ParagraphDirection) -> Option<core_foundation::base::CFType> {
     use core_foundation::base::TCFType;
 
     let writing_direction: i8 = match direction {

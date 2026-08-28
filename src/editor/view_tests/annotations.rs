@@ -189,7 +189,10 @@ fn a_zero_advance_character_is_given_a_cell_of_its_own() {
 
     match &h.snap().vlines[0].kind {
         SnapKind::Text { text, display, .. } => {
-            assert_eq!(text, "// a\u{301}\u{301}b", "the document line is unchanged");
+            assert_eq!(
+                text, "// a\u{301}\u{301}b",
+                "the document line is unchanged"
+            );
             // One placeholder per mark, each *before* the mark it stands for.
             assert_eq!(display, "// a \u{301} \u{301}b");
         }

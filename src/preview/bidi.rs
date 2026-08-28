@@ -44,9 +44,7 @@ use unicode_bidi::{Level, ParagraphBidiInfo};
 /// what a browser does with `dir="auto"` and what an editor should default to.
 /// The two explicit arms exist because proofing a font means being able to see
 /// a string under a direction its own characters would not have picked.
-#[derive(
-    Clone, Copy, Debug, Default, PartialEq, Eq, serde::Serialize, serde::Deserialize,
-)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum ParagraphDirection {
     #[default]
     Auto,
@@ -162,7 +160,11 @@ mod tests {
 
     #[test]
     fn empty_text_has_no_runs() {
-        assert!(split_bidi_runs("", ParagraphDirection::Auto).runs.is_empty());
+        assert!(
+            split_bidi_runs("", ParagraphDirection::Auto)
+                .runs
+                .is_empty()
+        );
     }
 
     #[test]
@@ -237,8 +239,14 @@ mod tests {
         );
         // An empty line has no first strong character, so only an explicit
         // direction can make it right-to-left.
-        assert_eq!(split_bidi_runs("", ParagraphDirection::Rtl).paragraph_level, 1);
-        assert_eq!(split_bidi_runs("", ParagraphDirection::Auto).paragraph_level, 0);
+        assert_eq!(
+            split_bidi_runs("", ParagraphDirection::Rtl).paragraph_level,
+            1
+        );
+        assert_eq!(
+            split_bidi_runs("", ParagraphDirection::Auto).paragraph_level,
+            0
+        );
     }
 
     #[test]

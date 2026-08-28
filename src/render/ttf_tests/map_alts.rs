@@ -266,7 +266,7 @@ fn lines_sharing_a_character_spec_keep_their_own_alternative_order() {
     );
     // Neither exists, and both lines end in the empty target: the row maps
     // nothing on either, and faults on neither.
-    assert!(settled.get(&("sa".into(), 0x43)).is_none());
-    assert!(settled.get(&("sb".into(), 0x43)).is_none());
+    assert!(!settled.contains_key(&("sa".into(), 0x43)));
+    assert!(!settled.contains_key(&("sb".into(), 0x43)));
     assert!(diagnostics(&src).is_empty(), "{:?}", diagnostics(&src));
 }

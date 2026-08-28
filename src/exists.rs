@@ -141,9 +141,7 @@ impl ExistsPattern {
             let msg = e.to_string();
             let last = msg
                 .lines()
-                .map(str::trim)
-                .filter(|l| !l.is_empty())
-                .next_back()
+                .map(str::trim).rfind(|l| !l.is_empty())
                 .unwrap_or("syntax error");
             let last = last.strip_prefix("error: ").unwrap_or(last);
             format!("invalid exists pattern `{source}`: {last}")

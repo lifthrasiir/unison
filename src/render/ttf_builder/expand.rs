@@ -529,7 +529,7 @@ fn expand_inner(
 /// errors per glyph across 20k glyphs, failing every build over source that is
 /// merely unfinished.
 fn expand_compose_lines(
-    all_items: &mut Vec<ExpandedItem>,
+    all_items: &mut [ExpandedItem],
     diagnostics: &mut Vec<Diagnostic>,
     undecided_parts: &mut HashSet<(Option<ItemRef>, String)>,
     audit: &crate::audit::AuditRules,
@@ -573,7 +573,7 @@ fn expand_compose_lines(
             .compose
             .iter()
             .flat_map(|c| c.part_names())
-            .any(|n| crate::compose::is_undecided(n)),
+            .any(crate::compose::is_undecided),
         _ => false,
     }) {
         for (name, size) in &boxes {
@@ -622,15 +622,15 @@ fn expand_compose_lines(
                 }
             }
             let contact = audit.max_contact_run.for_glyph(&glyph_name);
-            let rule = clearances
-                .for_glyph(&glyph_name)
-                .map(|(written, band)| crate::compose::ClearanceRule {
+            let rule = clearances.for_glyph(&glyph_name).map(|(written, band)| {
+                crate::compose::ClearanceRule {
                     written,
                     band,
                     ink: &ink,
                     max_contact_run: contact.map(|(_, max)| max),
                     contact_written: contact.map_or("", |(w, _)| w),
-                });
+                }
+            });
             let (refs, issues) = crate::compose::expand_compose(
                 &glyph_name,
                 parent,

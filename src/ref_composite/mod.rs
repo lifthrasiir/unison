@@ -441,7 +441,7 @@ pub(crate) fn resolve_reachable<'a, 'b>(
         ]
         .into_iter()
         .flatten()
-        .find_map(|n| body_of(n));
+        .find_map(body_of);
         if let Some(body) = found {
             // A line of its own is derived into refs first, and a line that
             // cannot be derived leaves the glyph unmeasurable as before.
@@ -461,7 +461,7 @@ pub(crate) fn resolve_reachable<'a, 'b>(
                     ]
                     .into_iter()
                     .flatten()
-                    .find_map(|n| body_of(n))
+                    .find_map(body_of)
                 };
                 let Some(body) = derive_compose_body(&name, body, &lookup) else {
                     continue;
@@ -539,7 +539,7 @@ fn derive_compose_body<'b>(
     };
     if compose
         .part_names()
-        .any(|n| crate::compose::is_undecided(n))
+        .any(crate::compose::is_undecided)
     {
         return None;
     }

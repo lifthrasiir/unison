@@ -96,7 +96,11 @@ struct GlyphRun {
 
 /// Build the spans of one shaped line. `glyphs` must be in visual order, as
 /// every [`crate::preview::ShaperBackend`] returns them.
-pub fn build_clusters(glyphs: &[ShapedGlyph], px_size: f32, total_chars: usize) -> Vec<ClusterSpan> {
+pub fn build_clusters(
+    glyphs: &[ShapedGlyph],
+    px_size: f32,
+    total_chars: usize,
+) -> Vec<ClusterSpan> {
     let runs = split_glyph_runs(glyphs);
     let run_ends = logical_run_ends(&runs, total_chars);
 
@@ -751,4 +755,3 @@ mod tests {
         assert_eq!(char_idx_from_x(&clusters, 10.0), 0);
     }
 }
-

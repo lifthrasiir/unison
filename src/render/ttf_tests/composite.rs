@@ -1485,8 +1485,6 @@ map B = inner
     );
 }
 
-
-
 /// A `:variant` no character and no `remap` reaches is still a real glyph when
 /// a composite's anchor alternative picks it: the build has to synthesize it
 /// from the ref alone. Synthesizing it with no bearing was the bug — the parent

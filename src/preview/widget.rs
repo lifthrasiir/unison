@@ -750,10 +750,7 @@ impl ShapedPreviewState {
                         // the line, the way every text editor draws it.
                         let stub = egui::Rect::from_min_max(
                             egui::pos2(origin_x + line.width, baseline_y - above),
-                            egui::pos2(
-                                origin_x + line.width + px_size * 0.3,
-                                baseline_y + below,
-                            ),
+                            egui::pos2(origin_x + line.width + px_size * 0.3, baseline_y + below),
                         );
                         painter.rect_filled(stub, 0.0, ui.visuals().selection.bg_fill);
                     }
@@ -920,11 +917,7 @@ impl ShapedPreviewState {
         let Some(shaped) = self.shaped.as_ref().and_then(|s| s.lines.get(line)) else {
             return (caret::clamp(&self.lines, Caret::new(line, 0)), 0);
         };
-        let hit = cluster::caret_from_x(
-            &shaped.clusters,
-            pos.x - origin_x,
-            shaped.paragraph_level,
-        );
+        let hit = cluster::caret_from_x(&shaped.clusters, pos.x - origin_x, shaped.paragraph_level);
         let col = display_to_committed(hit.char_idx, shaped.preedit_char_range);
         (caret::clamp(&self.lines, Caret::new(line, col)), hit.level)
     }
@@ -976,9 +969,7 @@ impl ShapedPreviewState {
     /// logical everywhere that has bidi, so all of them go to the shared
     /// handler untouched.
     fn take_visual_step(&mut self, ui: &egui::Ui) -> bool {
-        let bare = |m: &egui::Modifiers| {
-            !m.shift && !m.alt && !m.ctrl && !m.command && !m.mac_cmd
-        };
+        let bare = |m: &egui::Modifiers| !m.shift && !m.alt && !m.ctrl && !m.command && !m.mac_cmd;
         // Nothing is claimed before it is known to be answerable: a key
         // consumed on a frame the lines are not shaped on would be a keypress
         // that moved nothing and never reached the shared handler either.
@@ -1018,8 +1009,9 @@ impl ShapedPreviewState {
             // depends on its own direction, not on the arrow pressed.
             let next_line = match dir {
                 cluster::Step::Left => self.cursor.line.checked_sub(1),
-                cluster::Step::Right => Some(self.cursor.line + 1)
-                    .filter(|&l| l < shaped.lines.len()),
+                cluster::Step::Right => {
+                    Some(self.cursor.line + 1).filter(|&l| l < shaped.lines.len())
+                }
             };
             let Some(next_line) = next_line else {
                 return true;

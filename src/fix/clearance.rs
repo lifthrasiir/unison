@@ -179,9 +179,7 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 use std::rc::Rc;
 
-use crate::compose::{
-    AxisFrontier, Direction, GapSide, InkProfile, VariantSpec, effective_facing,
-};
+use crate::compose::{AxisFrontier, Direction, GapSide, InkProfile, VariantSpec, effective_facing};
 use crate::document::{ComposeItem, Document, DocumentItem, GlyphBody, GlyphCompose, PixelGrid};
 
 /// One IDC line the optimizer would rewrite.
@@ -295,21 +293,10 @@ pub fn optimize_clearance(docs: &[&Document]) -> Vec<DocumentFixes> {
                         let contact = audit.max_contact_run.for_glyph(&glyph).map(|(_, m)| m);
                         match walls {
                             Some(walls) => optimize_enclosure_line(
-                                &inventory,
-                                walls,
-                                parent,
-                                compose,
-                                min as i32,
-                                max as i32,
-                                contact,
+                                &inventory, walls, parent, compose, min as i32, max as i32, contact,
                             ),
                             None => optimize_line(
-                                &inventory,
-                                parent,
-                                compose,
-                                min as i32,
-                                max as i32,
-                                contact,
+                                &inventory, parent, compose, min as i32, max as i32, contact,
                             ),
                         }
                     }),
@@ -2093,9 +2080,7 @@ fn evaluate_enclosure(
     Some(EnclosureKey {
         score: enclosure_score(&clearances, lo, hi),
         mismatched: [outer.rank, inner.rank].iter().filter(|&&r| r == 2).count(),
-        directed: std::cmp::Reverse(
-            [outer.rank, inner.rank].iter().filter(|&&r| r == 0).count(),
-        ),
+        directed: std::cmp::Reverse([outer.rank, inner.rank].iter().filter(|&&r| r == 0).count()),
         edge_sum,
         inner_spread,
         clearances: values,
@@ -2179,9 +2164,8 @@ fn optimize_enclosure_line(
     };
     let before = match (&current, placed) {
         (Some([outer, inner]), Some(at)) => {
-            let key = evaluate_enclosure(
-                outer, inner, &written, walls, parent, at, lo, hi, contact,
-            )?;
+            let key =
+                evaluate_enclosure(outer, inner, &written, walls, parent, at, lo, hi, contact)?;
             if (key.score, key.mismatched) == (0, 0) {
                 return None; // nothing warns, so nothing to fix
             }
@@ -2221,9 +2205,9 @@ fn optimize_enclosure_line(
                 .filter(|&(p, q)| p < 0 || q < 0 || p > span_x || q > span_y);
             let grid = (0..=span_y).flat_map(move |q| (0..=span_x).map(move |p| (p, q)));
             for at in grid.chain(written_here) {
-                let Some(key) = evaluate_enclosure(
-                    outer, inner, &written, walls, parent, at, lo, hi, contact,
-                ) else {
+                let Some(key) =
+                    evaluate_enclosure(outer, inner, &written, walls, parent, at, lo, hi, contact)
+                else {
                     continue;
                 };
                 if best.as_ref().is_none_or(|b| key < *b) {
@@ -2259,7 +2243,11 @@ fn placements(parent: (u16, u16), size: (u16, u16)) -> usize {
 /// Both offsets are always written, `0 0` included — an enclosure line with
 /// none is one that has *not decided*, and a plan whose whole point is the
 /// decision must not write it back as though nothing had happened.
-fn write_enclosure_line(compose: &GlyphCompose, names: &[String], at: (i32, i32)) -> Option<String> {
+fn write_enclosure_line(
+    compose: &GlyphCompose,
+    names: &[String],
+    at: (i32, i32),
+) -> Option<String> {
     let mut items: Vec<ComposeItem> = Vec::new();
     for name in names {
         // A component that did not change keeps how it was written, `@` form

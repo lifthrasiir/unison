@@ -350,7 +350,11 @@ pub(super) fn build_anchor_gpos(
 
                 if own_pt.is_none() && candidates.len() == 1 {
                     let (name, pt) = candidates[0];
-                    to_record.push((name.expect("no own slot, so this is an alternative"), pt, None));
+                    to_record.push((
+                        name.expect("no own slot, so this is an alternative"),
+                        pt,
+                        None,
+                    ));
                 } else if candidates.iter().any(|(name, _)| name.is_some()) {
                     let empty = Vec::new();
                     let mark_sizes = class_mark_sizes.get(anchor_name.as_str()).unwrap_or(&empty);
@@ -673,8 +677,7 @@ pub(super) fn build_anchor_gpos(
     ) -> Lookup<SubstitutionChainContext> {
         match filtering_set {
             Some(set_idx) => {
-                let mut lookup =
-                    Lookup::new(LookupFlag::USE_MARK_FILTERING_SET, vec![sc]);
+                let mut lookup = Lookup::new(LookupFlag::USE_MARK_FILTERING_SET, vec![sc]);
                 lookup.mark_filtering_set = Some(set_idx);
                 lookup
             }
@@ -792,12 +795,7 @@ pub(super) fn build_anchor_gpos(
                 })
                 .map(|g| g.name.clone())
                 .collect();
-            (
-                source.clone(),
-                target.clone(),
-                anchor_name.clone(),
-                marks,
-            )
+            (source.clone(), target.clone(), anchor_name.clone(), marks)
         })
         .collect();
     #[cfg(test)]

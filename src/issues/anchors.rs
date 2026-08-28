@@ -233,6 +233,7 @@ pub(super) fn check_centred_anchor_parity(cx: &Cx<'_>, issues: &mut Vec<Issue>) 
     // Per class and side, the sizes declared and one place each was written.
     // `(anchor, is_plus)` → `(width, height)` → first site.
     type Site = (PathBuf, usize, usize, String);
+    #[allow(clippy::type_complexity)]
     let mut sizes: HashMap<(&str, bool), HashMap<(u16, u16), Site>> = HashMap::new();
     for doc in cx.docs {
         for (item_idx, item) in doc.items.iter().enumerate() {
@@ -257,7 +258,10 @@ pub(super) fn check_centred_anchor_parity(cx: &Cx<'_>, issues: &mut Vec<Issue>) 
                 }
                 let (line, file_line) = doc.item_lines(item_idx);
                 sizes
-                    .entry((centred.get_key_value(name).expect("just checked").0, is_plus))
+                    .entry((
+                        centred.get_key_value(name).expect("just checked").0,
+                        is_plus,
+                    ))
                     .or_default()
                     .entry((pt.width(), pt.height()))
                     .or_insert((

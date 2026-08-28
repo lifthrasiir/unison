@@ -114,6 +114,7 @@ type PoolAnchor = (GlyphPoint, Option<usize>);
 /// the drawing is, so a written offset is converted on the way in by
 /// `lookup_origin` and every offset that comes back out is converted once by
 /// [`rebase_offsets_to_box`].
+#[allow(clippy::too_many_arguments)]
 pub(crate) fn derive_ref_offsets_with(
     declared_anchors: &[GlyphPoint],
     refs: &[GlyphRef],
@@ -188,6 +189,7 @@ pub(crate) fn rebase_offsets_to_box(
 }
 
 /// [`derive_ref_offsets_with`] with the anchor-placement flags kept.
+#[allow(clippy::too_many_arguments)]
 pub(crate) fn derive_ref_offsets_detailed(
     declared_anchors: &[GlyphPoint],
     refs: &[GlyphRef],

@@ -51,10 +51,7 @@ pub enum AuditEntry {
     /// second pair, where a source writes one, is the band an *enclosure* line
     /// is held to; with one pair both kinds of line share it. See
     /// [`IdealClearances`], [`ClearanceBand`] and [`crate::compose`].
-    IdealClearance {
-        prefix: String,
-        band: ClearanceBand,
-    },
+    IdealClearance { prefix: String, band: ClearanceBand },
     /// `max-contact-run PREFIX* N` — how many consecutive lines two neighbouring
     /// parts of an IDC line may touch along before the layout owes them a cell
     /// of clearance. See [`MaxContactRuns`] and [`crate::compose::contact_run`].
@@ -292,7 +289,11 @@ pub struct ClearanceBand {
 impl ClearanceBand {
     /// The band the line at hand is held to.
     pub fn range(&self, enclosing: bool) -> (i16, i16) {
-        if enclosing { self.enclosing } else { self.linear }
+        if enclosing {
+            self.enclosing
+        } else {
+            self.linear
+        }
     }
 }
 
@@ -422,7 +423,9 @@ mod tests {
         // Its own key, so it neither collides with nor replaces the other one.
         let r = rules_of("audit ideal-clearance han-* 0 1\naudit max-contact-run han-* 2\n");
         assert_eq!(
-            r.ideal_clearance.for_glyph("han-4e00").map(|(p, b)| (p, b.linear)),
+            r.ideal_clearance
+                .for_glyph("han-4e00")
+                .map(|(p, b)| (p, b.linear)),
             Some(("han-*", (0, 1)))
         );
         assert_eq!(r.max_contact_run.for_glyph("han-4e00"), Some(("han-*", 2)));
