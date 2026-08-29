@@ -1024,6 +1024,415 @@ map ʘ = bilabial-click
 map ʬ = bilabial-percussive
 map ʭ = bidental-percussive
 
+## combining marks
+
+// see also comb.unf for general purpose marks also in use with IPA
+
+glyph angle-ur-above-right 8 3 mark advance 0 origin 8 0 // ̚
+..........@@@@@@
+..............@@
+..............@@
+
+glyph angle-ur-above 8 3 mark advance 0 origin 8 0 // ᫩
+......@@@@@@....
+..........@@....
+..........@@....
+anchor -above 4 2
+anchor +above 4 -2
+glyph @:wide 8 3 mark advance 0 origin 8 0
+......@@@@@@....
+..........@@....
+..........@@....
+anchor -above 4..5 2
+anchor +above 4..5 -2
+
+glyph angle-ur-below 8 3 mark advance 0 origin 8 -13 // ͉
+......@@@@@@....
+..........@@....
+..........@@....
+anchor -below 4 0
+anchor +below 4 4
+glyph @:wide 8 3 mark advance 0 origin 8 -13
+......@@@@@@....
+..........@@....
+..........@@....
+anchor -below 4..5 0
+anchor +below 4..5 4
+
+glyph palatalized-hook-below 8 3 mark advance 0 origin 8 -13 // ̡
+............@@@@
+............@@@@
+..........@@@@0/
+glyph retroflex-hook-below 8 3 mark advance 0 origin 8 -13 // ̢
+..........@@@@..
+..........@@@@..
+..........\0@@@@
+
+glyph bridge-above 8 2 mark advance 0 origin 8 0 // ͆
+....@@@@@@@@....
+....@@....@@....
+anchor -above 3 1
+anchor +above 3 -2
+glyph @:wide 8 2 mark advance 0 origin 8 0
+....@@@@@@@@....
+....@@....@@....
+anchor -above 3..4 1
+anchor +above 3..4 -2
+
+glyph bridge-inverted-above 8 2 mark advance 0 origin 8 0 // ᫣
+....@@....@@....
+....@@@@@@@@....
+anchor -above 3 1
+anchor +above 3 -2
+glyph @:wide 8 2 mark advance 0 origin 8 0
+....@@....@@....
+....@@@@@@@@....
+anchor -above 3..4 1
+anchor +above 3..4 -2
+
+glyph bridge-below 8 2 mark advance 0 origin 8 -14 // ̪
+....@@@@@@@@....
+....@@....@@....
+anchor -below 3 0
+anchor +below 3 3
+glyph @:wide 8 2 mark advance 0 origin 8 -13
+....@@@@@@@@....
+....@@....@@....
+anchor -below 3..4 0
+anchor +below 3..4 3
+
+glyph bridge-inverted-below 8 2 mark advance 0 origin 8 -14 // ̺
+....@@....@@....
+....@@@@@@@@....
+anchor -below 3 0
+anchor +below 3 3
+glyph @:wide 8 2 mark advance 0 origin 8 -14
+....@@....@@....
+....@@@@@@@@....
+anchor -below 3..4 0
+anchor +below 3..4 3
+
+glyph omega-turned-above 8 3 mark advance 0 origin 8 0 // ᫧
+..../0@@2d@@0\..
+....@@..@@..@@..
+....@@..@@..@@..
+anchor -above 4 2
+anchor +above 4 -2
+glyph @:wide 8 3 mark advance 0 origin 8 0
+..../0@@2d@@0\..
+....@@..@@..@@..
+....@@..@@..@@..
+anchor -above 4..5 2
+anchor +above 4..5 -2
+
+glyph omega-below 8 3 mark advance 0 origin 8 -13 // ̫
+....@@..@@..@@..
+....@@..@@..@@..
+....\0@@P2@@0/..
+anchor -below 4 0
+anchor +below 4 4
+glyph @:wide 8 3 mark advance 0 origin 8 -13
+....@@..@@..@@..
+....@@..@@..@@..
+....\0@@P2@@0/..
+anchor -below 4..5 0
+anchor +below 4..5 4
+
+glyph omega-turned-below 8 3 mark advance 0 origin 8 -13 // ᫦
+..../0@@2d@@0\..
+....@@..@@..@@..
+....@@..@@..@@..
+anchor -below 4 0
+anchor +below 4 4
+glyph @:wide 8 3 mark advance 0 origin 8 -13
+..../0@@2d@@0\..
+....@@..@@..@@..
+....@@..@@..@@..
+anchor -below 4..5 0
+anchor +below 4..5 4
+
+glyph square-above 8 3 mark advance 0 origin 8 0 // ᫤
+....@@@@@@@@@@..
+....@@......@@..
+....@@@@@@@@@@..
+anchor -above 4 2
+anchor +above 4 -2
+glyph @:wide 8 3 mark advance 0 origin 8 0
+....@@@@@@@@....
+....@@....@@....
+....@@@@@@@@....
+anchor -above 3..4 2
+anchor +above 3..4 -2
+
+glyph square-below 8 3 mark advance 0 origin 8 -13 // ̻
+....@@@@@@@@@@..
+....@@......@@..
+....@@@@@@@@@@..
+anchor -below 4 0
+anchor +below 4 4
+glyph @:wide 8 3 mark advance 0 origin 8 -13
+....@@@@@@@@....
+....@@....@@....
+....@@@@@@@@....
+anchor -below 3..4 0
+anchor +below 3..4 4
+
+glyph seagull-above 8 2 mark advance 0 origin 8 0 // ᫥
+..../0@@2d@@0\..
+....1/..3P..\1..
+anchor -above 4 1
+anchor +above 4 -2
+glyph @:wide 8 2 mark advance 0 origin 8 0
+../0@@0\/0@@0\..
+..1/..\11/..\1..
+anchor -above 3..4 1
+anchor +above 3..4 -2
+
+glyph seagull-below 8 2 mark advance 0 origin 8 -14 // ̼
+..../0@@2d@@0\..
+....1/..3P..\1..
+anchor -below 4 0
+anchor +below 4 3
+glyph @:wide 8 2 mark advance 0 origin 8 -14
+../0@@0\/0@@0\..
+..1/..\11/..\1..
+anchor -below 3..4 0
+anchor +below 3..4 3
+
+glyph not-tilde-above 8 4 mark advance 0 origin 8 0 // ͊
+.........vV.....
+......../Vv'....
+.......vV/......
+......`Vv'......
+ref comb-tilde 2 1
+anchor -above 4 2
+anchor +above 4 -1
+glyph @:wide 8 4 mark advance 0 origin 8 0
+.........vV.....
+......../Vv'....
+.......vV/......
+......`Vv'......
+ref comb-tilde 2 1
+anchor -above 3..4 2
+anchor +above 3..4 -1
+
+glyph homothetic-above 8 4 mark advance 0 origin 8 0 // ͋
+........{}......
+................
+................
+........{}......
+ref comb-tilde 2 1
+anchor -above 4 2
+anchor +above 4 -1
+glyph @:wide 8 4 mark advance 0 origin 8 0
+........{}......
+................
+................
+........{}......
+ref comb-tilde 2 1
+anchor -above 3..4 2
+anchor +above 3..4 -1
+
+glyph tilde2-above 8 4 mark advance 0 origin 8 0 // ͌
+ref comb-tilde 2 0
+ref comb-tilde 2 2
+anchor -above 4 3
+anchor +above 4 -1
+glyph @:wide 8 4 mark advance 0 origin 8 0
+ref comb-tilde 2 0
+ref comb-tilde 2 2
+anchor -above 3..4 3
+anchor +above 3..4 -1
+
+glyph eq-below 8 3 mark advance 0 origin 8 -13 // ͇
+......@@@@@@....
+................
+......@@@@@@....
+anchor -below 4 0
+anchor +below 4 4
+glyph @:wide 8 3 mark advance 0 origin 8 -13
+....@@@@@@@@....
+................
+....@@@@@@@@....
+anchor -below 3..4 0
+anchor +below 3..4 4
+
+glyph arrow-horiz-above 8 3 mark advance 0 origin 8 0 // ⃡
+....../1..1\....
+....<1@@@@@@1>..
+......\1..1/....
+anchor -above 4 2
+anchor +above 4 -1
+glyph @:wide 8 3 mark advance 0 origin 8 0
+..../1....1\....
+..<1@@@@@@@@1>..
+....\1....1/....
+anchor -above 3..4 2
+anchor +above 3..4 -1
+
+glyph arrow-horiz-below 8 3 mark advance 0 origin 8 -13 // ͍
+....../1..1\....
+....<1@@@@@@1>..
+......\1..1/....
+anchor -below 4 0
+anchor +below 4 3
+glyph @:wide 8 3 mark advance 0 origin 8 -13
+..../1....1\....
+..<1@@@@@@@@1>..
+....\1....1/....
+anchor -below 3..4 0
+anchor +below 3..4 3
+
+glyph arrow-d2u-above 8 3 mark advance 0 origin 8 0 // ᫪
+.......d^1b.....
+.....dd@@@@bb...
+........@@......
+anchor -above 4 2
+anchor +above 4 -1
+glyph @:wide 8 3 mark advance 0 origin 8 0
+.......d^1b.....
+.....dd@@@@bb...
+........@@......
+anchor -above 3..4 2
+anchor +above 3..4 -1
+
+glyph arrow-d2u-below 8 3 mark advance 0 origin 8 -13 // ͎
+.......d^1b.....
+.....dd@@@@bb...
+........@@......
+anchor -below 4 0
+anchor +below 4 3
+glyph @:wide 8 3 mark advance 0 origin 8 -13
+.......d^1b.....
+.....dd@@@@bb...
+........@@......
+anchor -below 3..4 0
+anchor +below 3..4 3
+
+glyph lt-above 8 3 mark advance 0 origin 8 0 // ᷾
+....../h~HH_....
+......@@2<......
+......\h_HH~....
+anchor -above 4 2
+anchor +above 4 -1
+glyph @:wide 8 3 mark advance 0 origin 8 0
+....../h~HH_....
+......@@2<......
+......\h_HH~....
+anchor -above 3..4 2
+anchor +above 3..4 -1
+
+glyph lt-below 8 3 mark advance 0 origin 8 -13 // ͔
+....../h~HH_....
+......@@2<......
+......\h_HH~....
+anchor -below 4 0
+anchor +below 4 3
+glyph @:wide 8 3 mark advance 0 origin 8 -13
+....../h~HH_....
+......@@2<......
+......\h_HH~....
+anchor -below 3..4 0
+anchor +below 3..4 3
+
+glyph gt-above 8 3 mark advance 0 origin 8 0 // ͐
+......_HH~h\....
+........>2@@....
+......~HH_h/....
+anchor -above 4 2
+anchor +above 4 -1
+glyph @:wide 8 3 mark advance 0 origin 8 0
+......_HH~h\....
+........>2@@....
+......~HH_h/....
+anchor -above 3..4 2
+anchor +above 3..4 -1
+
+glyph gt-below 8 3 mark advance 0 origin 8 -13 // ͕
+......_HH~h\....
+........>2@@....
+......~HH_h/....
+anchor -below 4 0
+anchor +below 4 3
+glyph @:wide 8 3 mark advance 0 origin 8 -13
+......_HH~h\....
+........>2@@....
+......~HH_h/....
+anchor -below 3..4 0
+anchor +below 3..4 3
+
+glyph gt-wedge-below 8 3 mark advance 0 origin 8 -13 // ͦ
+.._HH~h\.v@@v...
+....>2@@/VP2V\..
+..~HH_h/V/..\V..
+anchor -below 4 0
+anchor +below 4 3
+glyph @:wide 8 3 mark advance 0 origin 8 -13
+.._HH~h\.v@@v...
+....>2@@/VP2V\..
+..~HH_h/V/..\V..
+anchor -below 3..4 0
+anchor +below 3..4 3
+
+glyph gt-vee-below 8 3 mark advance 0 origin 8 -13 // ᷿
+.._HH~h\V\../V..
+....>2@@\V2dV/..
+..~HH_h/`v@@v'..
+anchor -below 4 0
+anchor +below 4 3
+glyph @:wide 8 3 mark advance 0 origin 8 -13
+.._HH~h\V\../V..
+....>2@@\V2dV/..
+..~HH_h/`v@@v'..
+anchor -below 3..4 0
+anchor +below 3..4 3
+
+glyph fermata-above 8 3 mark advance 0 origin 8 0 // ͒
+..../0@@@@@@0\..
+....@@......@@..
+......<0@@0>....
+anchor -above 4 2
+anchor +above 4 -1
+glyph @:wide 8 3 mark advance 0 origin 8 0
+..../0@@@@@@0\..
+....@@......@@..
+......<0@@0>....
+anchor -above 3..4 2
+anchor +above 3..4 -1
+
+map U+031A = angle-ur-above-right
+map U+1AE9 = angle-ur-above
+map U+0346 = bridge-above
+map U+1AE3 = bridge-inverted-above
+map U+1AE7 = omega-turned-above
+map U+1AE4 = square-above
+map U+1AE5 = seagull-above
+map U+034A = not-tilde-above
+map U+034B = homothetic-above
+map U+034C = tilde2-above
+map U+20E1 = arrow-horiz-above
+map U+1AEA = arrow-d2u-above
+map U+1DFE = lt-above
+map U+0350 = gt-above
+map U+0352 = fermata-above
+
+map U+0349 = angle-ur-below
+map U+0321 = palatalized-hook-below
+map U+0322 = retroflex-hook-below
+map U+032A = bridge-below
+map U+033A = bridge-inverted-below
+map U+032B = omega-below
+map U+1AE6 = omega-turned-below
+map U+033B = square-below
+map U+033C = seagull-below
+map U+0347 = eq-below
+map U+034D = arrow-horiz-below
+map U+034E = arrow-d2u-below
+map U+0354 = lt-below
+map U+0355 = gt-below
+map U+0366 = gt-wedge-below
+map U+1DFF = gt-vee-below
+
 ## modifiers
 
 glyph primary-stress 8 16

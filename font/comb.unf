@@ -201,7 +201,11 @@ map U+0331 = mac-below
 glyph mac-above-spacing 8 16
 ref mac-wide 2 3
 
+glyph mac-below-spacing 8 16
+ref mac-wide 2 13
+
 map ¯ = mac-above-spacing
+map ˍ = mac-below-spacing
 
 ## cedilla/comma
 
@@ -369,7 +373,18 @@ ref caron
 anchor -above 1..2 1
 anchor +above 1..2 -1
 
+glyph caron-below mark advance 0 origin 6 -11 // ̬
+ref caron
+anchor -above 2 0
+anchor +above 2 2
+
+glyph caron-below:wide mark advance 0 origin 6 -11
+ref caron
+anchor -above 1..2 0
+anchor +above 1..2 2
+
 map U+030C = caron-above
+map U+032C = caron-below
 
 // identical to com, used for czech and slovak
 // attached from the letter's right side, unlike `above` anchor
@@ -401,13 +416,13 @@ anchor +above 1..2 -1
 
 glyph circ-below mark advance 0 origin 6 -12 // ̭
 ref circ
-anchor -below 2 1
-anchor +below 2 3
+anchor -below 2 0
+anchor +below 2 2
 
 glyph circ-below:wide mark advance 0 origin 6 -12
 ref circ
-anchor -below 1..2 1
-anchor +below 1..2 3
+anchor -below 1..2 0
+anchor +below 1..2 2
 
 map U+0302 = circ-above
 map U+032D = circ-below
@@ -469,7 +484,18 @@ ref arch
 anchor -above 1..2 1
 anchor +above 1..2 -1
 
+glyph arch-below mark advance 0 origin 6 -12 // ̯
+ref arch
+anchor -below 2 0
+anchor +below 2 2
+
+glyph arch-below:wide mark advance 0 origin 6 -12
+ref arch
+anchor -below 1..2 0
+anchor +below 1..2 2
+
 map U+0311 = arch-above
+map U+032F = arch-below
 
 ## ring
 
@@ -477,29 +503,41 @@ glyph ring 3 3
 /0@@0\
 @@..@@
 \0@@0/
+glyph ring-l 3 3
+/0@@..
+@@....
+\0@@..
+glyph ring-r 3 3
+..@@0\
+....@@
+..@@0/
 
-glyph ring-above mark advance 0 origin 5 -2 // ̊
-ref ring
+glyph ring(|-l|-r)-above mark advance 0 origin 5 -2 // ̊
+ref ring($-1)
 anchor -above 1 1
 anchor +above 1 -2
 
-glyph ring-above:wide mark advance 0 origin 5 -2
-ref ring
+glyph @:wide mark advance 0 origin 5 -2
+ref ring($-1)
 anchor -above 1..2 1
 anchor +above 1..2 -2
 
-glyph ring-below mark advance 0 origin 5 -11 // ̥
-ref ring
+glyph ring(|-l|-r)-below mark advance 0 origin 5 -11 // ̥
+ref ring($-1)
 anchor -below 1 1
 anchor +below 1 4
 
-glyph ring-below:wide mark advance 0 origin 5 -11
-ref ring
+glyph @:wide mark advance 0 origin 5 -11
+ref ring($-1)
 anchor -below 1..2 1
 anchor +below 1..2 4
 
 map U+030A = ring-above
+map U+0351 = ring-l-above
+map U+0357 = ring-r-above
 map U+0325 = ring-below
+map U+031C = ring-l-below
+map U+0339 = ring-r-below
 
 glyph ring-above-spacing 8 16
 ref ring 3 0
@@ -522,6 +560,9 @@ ref comb-tilde
 anchor -above 1..2 1
 anchor +above 1..2 -1
 
+glyph tilde-through mark advance 0 origin 6 -8 // ̴
+ref comb-tilde
+
 glyph tilde-below mark advance 0 origin 6 -12 // ̰
 ref comb-tilde
 anchor -below 2 0
@@ -533,6 +574,7 @@ anchor -below 2..3 0
 anchor +below 2..3 2
 
 map U+0303 = tilde-above
+map U+0334 = tilde-through
 map U+0330 = tilde-below
 
 glyph tilde-above-spacing 8 16
@@ -559,6 +601,12 @@ ref comb-dot
 anchor -above 0..1 1
 anchor +above 0..1 -1
 
+glyph dot-above-left mark advance 0 origin 8 0 // ᵸ
+ref comb-dot
+
+glyph dot-above-right mark advance 0 origin 2 0 // ͘
+ref comb-dot
+
 glyph dot-below mark advance 0 origin 5 -12 // ̣
 ref comb-dot
 anchor -below 0 0
@@ -570,6 +618,8 @@ anchor -below 0..1 0
 anchor +below 0..1 2
 
 map U+0307 = dot-above
+map U+1D78 = dot-above-left
+map U+0358 = dot-above-right
 map U+0323 = dot-below
 
 glyph dot-above-spacing 8 16
@@ -610,6 +660,164 @@ anchor -above 0..1 1
 anchor +above 0..1 -2
 
 map U+0309 = hook-above
+
+## tacks and elks
+
+glyph tack-u-comb 3 3
+..@@..
+..@@..
+@@@@@@
+glyph tack-d-comb 3 3
+@@@@@@
+..@@..
+..@@..
+glyph tack-l-comb 3 3
+....@@
+@@@@@@
+....@@
+glyph tack-r-comb 3 3
+@@....
+@@@@@@
+@@....
+glyph plus-comb 3 3
+..@@..
+@@@@@@
+..@@..
+glyph minus-comb 3 3
+......
+@@@@@@
+......
+glyph vert-comb 3 3
+..@@..
+..@@..
+..@@..
+glyph dvert-comb 3 3
+@@..@@
+@@..@@
+@@..@@
+glyph x-comb 3 3 scale 2
+/11\..../11\
+\1@@0\/0@@1/
+..\0@@@@0/..
+../0@@@@0\..
+/1@@0/\0@@1\
+\11/....\11/
+
+name-parts $tacklike = tack-u tack-d tack-l tack-r plus minus vert dvert x
+
+glyph ($tacklike)-above mark advance 0 origin 6 -2 // ᷵᫘᫠᫡᫈᫢̍̎̽
+ref ($-1)-comb
+anchor -above 1 1
+anchor +above 1 -2
+
+glyph @:wide mark advance 0 origin 6 -2
+ref ($-1)-comb
+anchor -above 0..1 1
+anchor +above 0..1 -2
+
+glyph ($tacklike)-below mark advance 0 origin 6 -12 // ̝̞̘̙̟̠̩͈͓
+ref ($-1)-comb
+anchor -below 1 1
+anchor +below 1 4
+
+glyph @:wide mark advance 0 origin 6 -12
+ref ($-1)-comb
+anchor -below 0..1 1
+anchor +below 0..1 4
+
+map U+1DF5 = tack-u-above
+map U+1AD8 = tack-d-above
+map U+1AE0 = tack-l-above
+map U+1AE1 = tack-r-above
+map U+1AC8 = plus-above
+map U+1AE2 = minus-above
+map U+030D = vert-above
+map U+030E = dvert-above
+map U+033D = x-above
+
+map U+031D = tack-u-below
+map U+031E = tack-d-below
+map U+0318 = tack-l-below
+map U+0319 = tack-r-below
+map U+031F = plus-below
+map U+0320 = minus-below
+map U+0329 = vert-below
+map U+0348 = dvert-below
+map U+0353 = x-below
+
+glyph ($tacklike)-spacing 8 16
+ref ($-1)-comb 2 6
+
+map ˔ = tack-u-spacing
+map ˕ = tack-d-spacing
+map ꭪ = tack-l-spacing
+map ꭫ = tack-r-spacing
+map ˖ = plus-spacing
+map ˗ = minus-spacing
+
+## lines and overstrikes
+
+glyph bar-through 8 1 advance 0 origin 8 -8 // ̵
+....@@@@@@@@....
+
+glyph line-above 8 1 advance 0 origin 8 -1 // ̅
+@@@@@@@@@@@@@@@@
+
+glyph dline-above 8 3 advance 0 origin 8 0 // ̿
+@@@@@@@@@@@@@@@@
+................
+@@@@@@@@@@@@@@@@
+
+glyph line-through 8 1 advance 0 origin 8 -8 // ̶
+@@@@@@@@@@@@@@@@
+
+glyph line-below 8 1 advance 0 origin 8 -14 // ̲
+@@@@@@@@@@@@@@@@
+
+glyph dline-below 8 3 advance 0 origin 8 -13 // ̳
+@@@@@@@@@@@@@@@@
+................
+@@@@@@@@@@@@@@@@
+
+glyph short-slash-through 8 4 advance 0 origin 8 -6 // ̷
+........./d/....
+......./d//.....
+...../d//.......
+....d//.........
+
+glyph slash-through 8 10 advance 0 origin 8 -3 // ̸
+...........vV/..
+........../vV'..
+.........vV/....
+......../vV'....
+.......vV/......
+....../vV'......
+.....vV/........
+..../vV'........
+...vV/..........
+../vV'..........
+
+// TODO: make these adapt to the base character's advance (is this even possible though?)
+
+map U+0305 = line-above
+map U+033F = dline-above
+
+map U+0335 = bar-through
+map U+0336 = line-through
+map U+0337 = short-slash-through
+map U+0338 = slash-through
+
+map U+0332 = line-below
+map U+0333 = dline-below
+
+## others
+
+// TODO
+// map U+033E = tilde-rotated-above
+// map U+0359 = star-below
+// map U+035A = dring-below
+// map U+035B = zigzag-above
+// map U+031B = horn-comb
 
 ## tests
 

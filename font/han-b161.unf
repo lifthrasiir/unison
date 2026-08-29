@@ -27,9 +27,6 @@ glyph han-2845c-($han-regions):15x16 15 16 // 𨑜
 glyph han-28468-($han-regions):15x16 15 16 // 𨑨
 ⿺ han-8fb6-($-1):15x16.11x14 han-65e5:7x12 6 0 // ⿺辶日
 
-glyph han-2846-($han-regions):15x16 15 16 // 𨑭
-⿺ han-8fb6-($-1):15x16.11x14 han-6b62:10x12 5 0 // ⿺辶止
-
 glyph han-2846d-($han-regions):15x16 15 16 // 𨑭
 ⿺ han-8fb6-($-1):15x16.11x14 han-6b62:10x13 4 0 // ⿺辶止
 
