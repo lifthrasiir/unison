@@ -4,10 +4,17 @@
 //! three each wrote *rendered output* — an SVG path per glyph per size, a PNG
 //! of the whole repertoire — which is why `sample.html` reached 6.6 MB for a
 //! font whose WOFF2 is 250 KB. This page embeds the **font** instead and lets
-//! the browser draw: two `@font-face` rules (the bitmap build and the vector
-//! build of the primary face) plus one JSON blob saying which characters exist,
-//! which of them the font maps, and what block each falls in. Everything that
-//! used to be markup is now built by `demo.js` from that blob.
+//! the browser draw: one `@font-face` rule — the primary face as a variable
+//! font carrying both drawings, switched by the `BMAP` axis — plus one JSON
+//! blob saying which characters exist, which of them the font maps, and what
+//! block each falls in. Everything that used to be markup is now built by
+//! `demo.js` from that blob.
+//!
+//! The font used to be two files and two `@font-face` rules, one per flavor.
+//! One variable font is a little *smaller* than the pair (the two static faces
+//! each carried a whole `glyf`; this carries one plus `gvar`), and it is one
+//! fewer thing for the page to keep in step: the two drawings share glyph ids
+//! and metrics because they are one glyph set.
 //!
 //! # What the specimen shows
 //!
@@ -43,17 +50,22 @@ use crate::document::Document;
 use crate::render::sample::{SampleSource, base64_encode};
 use crate::ucd::{BlockMap, CharProps, format_block_range};
 
-/// The two flavors of one face, WOFF2-encoded: what the page embeds and
-/// switches between. See [`crate::render::build_face_ttf_pair`].
+/// One face carrying both drawings, WOFF2-encoded: what the page embeds and
+/// switches between. See [`crate::render::build_face_variable`].
+///
+/// It used to be two files and two `@font-face` rules, one per flavor. One
+/// variable font is the same two drawings with the *same* glyph ids and the
+/// same metrics, which is one fewer thing for the page to keep in step, and it
+/// costs about 16 KB against the pair it replaces.
 pub struct DemoFonts<'a> {
-    pub bitmap_woff2: &'a [u8],
-    pub vector_woff2: &'a [u8],
-    /// The bitmap build's TTF. Not embedded — the WOFF2 above is — but read for
+    pub woff2: &'a [u8],
+    /// The same font as TTF. Not embedded — the WOFF2 above is — but read for
     /// its `hmtx`, which is where the zero-advance characters come from. Asking
     /// the built font is the same rule the editor's placeholders follow: what
     /// gets a circle is what the font gives no advance, not what Unicode calls
-    /// a mark.
-    pub bitmap_ttf: &'a [u8],
+    /// a mark. Advances do not vary along the axis, so one reading serves both
+    /// drawings.
+    pub ttf: &'a [u8],
 }
 
 /// A cell the source maps to a glyph, as opposed to one only listed because the
@@ -318,7 +330,7 @@ pub fn write_demo_html(
     docs: &[&Document],
     fonts: DemoFonts<'_>,
 ) -> io::Result<()> {
-    let data = collect(src, docs, fonts.bitmap_ttf);
+    let data = collect(src, docs, fonts.ttf);
     let title = format!("{} \u{2014} specimen", data.meta.family);
     // `</` inside the blob would end the script element early whatever it sits
     // in; JSON has no other way to spell a slash, so it is escaped here rather
@@ -342,14 +354,12 @@ pub fn write_demo_html(
         "<!doctype html>\n<html lang=en><head><meta charset=utf-8>\n\
          <meta name=viewport content=\"width=device-width,initial-scale=1\">\n\
          <title>{title}</title>\n<style>\n\
-         @font-face{{font-family:'UnisonBitmap';src:url(data:font/woff2;base64,{bitmap}) format('woff2');font-feature-settings:{feature_css}}}\n\
-         @font-face{{font-family:'UnisonVector';src:url(data:font/woff2;base64,{vector}) format('woff2');font-feature-settings:{feature_css}}}\n\
+         @font-face{{font-family:'Unison';src:url(data:font/woff2;base64,{font}) format('woff2');font-feature-settings:{feature_css}}}\n\
          {css}</style>\n</head><body>\n\
          <script type=\"application/json\" id=\"demo-data\">{json}</script>\n\
          <script>\n{js}</script>\n</body></html>\n",
         title = html_escape(&title),
-        bitmap = base64_encode(fonts.bitmap_woff2),
-        vector = base64_encode(fonts.vector_woff2),
+        font = base64_encode(fonts.woff2),
         css = include_str!("demo.css"),
         js = include_str!("demo.js"),
     )

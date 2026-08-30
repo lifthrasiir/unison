@@ -30,6 +30,7 @@ use super::outlines::{
 };
 use super::*;
 use super::masters;
+use super::masters::NoVariation;
 use write_fonts::tables::fvar::{AxisInstanceArrays, Fvar, VariationAxisRecord};
 use write_fonts::tables::gvar::{GlyphDelta, GlyphDeltas, GlyphVariations, Gvar, Tent};
 use write_fonts::tables::stat::{AxisRecord, Stat};
@@ -581,7 +582,7 @@ pub(super) fn build_ttf(
         let (fvar, stat) = build_variable_tables();
         builder.add_table(&fvar).unwrap();
         builder.add_table(&stat).unwrap();
-        if let Some(gvar) = build_gvar(variations) {
+        if let Some(gvar) = build_gvar(variations, num_glyphs) {
             builder.add_table(&gvar).unwrap();
         }
     }
@@ -746,8 +747,16 @@ fn build_variable_tables() -> (Fvar, Stat) {
 ///
 /// A glyph with no deltas gets an empty entry rather than none: `gvar` is
 /// indexed by glyph id, so every glyph is present whether or not it varies.
+///
+/// `num_glyphs` is the font's, not the delta list's. The two differ:
+/// [`add_color_layer_glyphs`] synthesizes a glyph per COLR layer *after* the
+/// glyph list this ran over, and those glyphs need entries too. A `gvar`
+/// shorter than `maxp.numGlyphs` is not a partial table but an invalid one —
+/// Firefox's sanitiser drops every variation table over it, so the axis stops
+/// working with nothing to show for it, while Chrome renders on regardless.
 fn build_gvar(
     variations: &[Result<masters::PointDeltas, masters::NoVariation>],
+    num_glyphs: u16,
 ) -> Option<Gvar> {
     let tent = Tent::new(
         F2Dot14::from_f32(1.0),
@@ -756,10 +765,9 @@ fn build_gvar(
             F2Dot14::from_f32(1.0),
         )),
     );
-    let entries: Vec<GlyphVariations> = variations
-        .iter()
-        .enumerate()
-        .map(|(gid, v)| {
+    let entries: Vec<GlyphVariations> = (0..num_glyphs as usize)
+        .map(|gid| {
+            let v = variations.get(gid).unwrap_or(&Err(NoVariation::Colour));
             let gid = GlyphId::new(gid as u32);
             match v {
                 Ok(deltas) if deltas.iter().any(|&(x, y)| x != 0 || y != 0) => {

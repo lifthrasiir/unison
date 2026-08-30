@@ -941,37 +941,29 @@ fn main() {
         }
 
         if let Some(path) = demo_html {
-            // The demo page embeds the font rather than pictures of it, and it
-            // embeds *both* flavors of the primary face: the bitmap build for
-            // the small sizes and the vector build for the large ones, which
-            // are the two things `sample.png` and `sample.html` used to be.
-            // Neither is one of the `--output` files — those are the shipping
-            // faces, and only one of them is a flavor — so the pair is built
-            // here rather than borrowed from the outputs above.
-            let Some((bitmap_ttf, vector_ttf)) =
-                render::build_face_ttf_pair(&refs, faces.primary())
-            else {
+            // The demo page embeds the font rather than pictures of it, and
+            // it embeds the primary face as one *variable* font: the bitmap
+            // drawing for the small sizes and the vector one for the large,
+            // which are the two things `sample.png` and `sample.html` used to
+            // be, switched by the `BMAP` axis. It is not one of the `--output`
+            // files — those are the shipping faces, and whether *they* carry
+            // the axis is `meta bitmap-axis`'s to say — so it is built here
+            // rather than borrowed from the outputs above.
+            let Some(ttf) = render::build_face_variable(&refs, faces.primary()) else {
                 eprintln!("Failed to build the demo page: no glyph data");
                 std::process::exit(1);
             };
-            let encode = |ttf: &[u8]| {
-                render::ttf_to_woff2(ttf, woff2_quality).unwrap_or_else(|e| {
-                    eprintln!("Failed to write the demo page: {e}");
-                    std::process::exit(1);
-                })
-            };
-            let (bitmap_woff2, vector_woff2) = std::thread::scope(|s| {
-                let b = s.spawn(|| encode(&bitmap_ttf));
-                (b.join().unwrap(), encode(&vector_ttf))
+            let woff2 = render::ttf_to_woff2(&ttf, woff2_quality).unwrap_or_else(|e| {
+                eprintln!("Failed to write the demo page: {e}");
+                std::process::exit(1);
             });
             let mut f = std::fs::File::create(&path).unwrap_or_else(|e| {
                 eprintln!("Failed to create {}: {e}", path.display());
                 std::process::exit(1);
             });
             let fonts = render::demo::DemoFonts {
-                bitmap_woff2: &bitmap_woff2,
-                vector_woff2: &vector_woff2,
-                bitmap_ttf: &bitmap_ttf,
+                woff2: &woff2,
+                ttf: &ttf,
             };
             if let Err(e) =
                 render::demo::write_demo_html(&mut f, sample_source.as_ref().unwrap(), &refs, fonts)

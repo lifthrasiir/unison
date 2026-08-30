@@ -168,7 +168,7 @@ Core (feature-independent):
   feature — the headless `build` lays out `demo.html` with them — which is why `icu_properties` is a
   plain dependency rather than an optional one.
 - `render/demo/` — `demo.html`: the page the three sample outputs are being folded into. It embeds
-  the *font* (both flavors of the primary face) and one JSON blob instead of pre-rendered SVG, and
+  the *font* (the primary face as one variable font, `BMAP` switching the two drawings) and one JSON blob instead of pre-rendered SVG, and
   `demo.js`/`demo.css` build every cell from them. Holds what the specimen there does differently
   from the editor's and why.
 - `render/` — `contour.rs` (pixel shapes → contours; note the normalized vs `_at` coordinate spaces),
@@ -333,7 +333,8 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why the demo's cells are rendered in lazy chunks, and why a chunk knows its height before its content | `render/demo/demo.js` |
 | The dotted circle in a demo cell, why the built font's `hmtx` decides which cells get one, and why it rides on the cell flags | `render/demo/mod.rs` (`CELL_ZERO_ADVANCE`, `zero_advance_codepoints`), `render/demo/demo.css` (`.dc`) |
 | Why a demo cell is bidi-isolated | `render/demo/demo.css` (`.cell`) |
-| One face's bitmap and vector builds with no cache between them (the demo's pair, as against the editor's) | `render/ttf_builder/mod.rs` (`build_face_ttf_pair`) |
+| The demo's font: one variable face carrying both drawings, and why it asks for the axis whatever `meta` says | `render/ttf_builder/mod.rs` (`build_face_variable`), `render/demo/mod.rs` |
+| Why the editor's preview keeps two static faces where the demo took the axis | `render/ttf_builder/mod.rs` (`build_face_variable`), `app/background.rs` |
 | Why an IDC line becomes `ref`s at expansion time, and why the parts are sized by what they *declare* | `render/ttf_builder/expand.rs` (`expand_compose_lines`), `ref_composite/mod.rs` (`declared_box`) |
 | Why an anchor error drops the glyph (and so its cmap entry), like a missing ref | `render/glyph_cache.rs` (`resolve_pending`) |
 | What each severity means, and which of them a build, `uniform test` and CI may ignore | `issues/mod.rs` (`Severity`) |

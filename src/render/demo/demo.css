@@ -220,11 +220,24 @@ section.block { width: fit-content; min-width: min(100%, 40rem); margin: 1.75rem
   height: var(--em);
   line-height: var(--em);
   font-size: var(--em);
-  font-family: var(--font), monospace;
+  font-family: 'Unison', monospace;
+  font-variation-settings: 'BMAP' 0;
   font-variant-ligatures: none;
   font-kerning: none;
   white-space: pre;
 }
+/* The whole bitmap/vector switch: one font, one axis, two static rules.
+   The axis value is written out per class rather than pulled from a custom
+   property, because `font-variation-settings: 'BMAP' var(--x)` applies in
+   Chrome and silently does not in Firefox. Nothing else here needs the
+   indirection — the value only ever takes two values, and they are both
+   known at build time. `BMAP` is 0 or 1 and nothing in between: see
+   `ttf_builder::tables::BITMAP_AXIS_TENT_START` for why a value between them
+   is not a half-way drawing. */
+.bitmap .cell .g {
+  font-variation-settings: 'BMAP' 1;
+}
+
 /* The placeholder for a character the font gives no advance: one cell held
    open, with a ring of eight dots drawn in it. Sized and proportioned like the
    editor's (`annotations::paint_dotted_circle`): the ring's radius is 0.30 of

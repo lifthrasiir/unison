@@ -196,7 +196,7 @@
     var m = metrics();
     var root = document.documentElement.style;
     root.setProperty("--em", m.em + "px");
-    root.setProperty("--font", state.mode === "bitmap" ? "'UnisonBitmap'" : "'UnisonVector'");
+    document.body.classList.toggle("bitmap", state.mode === "bitmap");
     chunks.forEach(function (chunk) {
       chunk.style.height = chunkHeight(chunk.__lines, m) + "px";
     });

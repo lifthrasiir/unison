@@ -169,3 +169,46 @@ fn the_axis_name_is_declared_or_defaulted() {
         assert_eq!(got, want);
     }
 }
+
+/// `gvar` is indexed by glyph id, so it must carry an entry for *every* glyph
+/// the font ends up with — including the ones `add_color_layer_glyphs`
+/// synthesizes after the glyph list is collected. A `gvar` shorter than
+/// `maxp.numGlyphs` is not a partial font: Firefox's sanitiser rejects the
+/// table and drops **all** variation data, so the axis silently stops working
+/// while Chrome carries on regardless.
+#[test]
+fn gvar_covers_every_glyph_including_the_synthesized_colour_layers() {
+    let input = "\
+meta height 4
+meta ascent 4
+meta descent 0
+meta bitmap-axis
+color red = #FF0000
+color blue = #0000FF
+glyph base 2 2
+b...
+....
+glyph overlay 2 2
+..@@
+@@..
+glyph combo
+ref base fill red
+ref overlay fill blue
+map A = combo
+map B = base
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let ttf = build_font_from_documents(&[&doc]).expect("font should build");
+    let font = read_fonts::FontRef::new(&ttf).unwrap();
+    let num_glyphs = font.maxp().unwrap().num_glyphs();
+    let gvar = font.gvar().expect("the font should carry gvar");
+    assert!(
+        font.colr().is_ok(),
+        "the fixture is pointless without colour layers to synthesize glyphs for",
+    );
+    assert_eq!(
+        gvar.glyph_count(),
+        num_glyphs,
+        "gvar must have an entry per glyph, colour layer glyphs included",
+    );
+}
