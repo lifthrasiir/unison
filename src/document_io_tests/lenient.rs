@@ -120,6 +120,8 @@ fn strict_parse_accepts_valid_glyph_headers() {
         "glyph foo 2 1 keep advance 5 origin -1 2\n..@@\n",
         "glyph foo 2 1 desync\n..@@\n",
         "glyph foo desync 2 1\n..@@\n",
+        "glyph foo 2 1 vectoronly\n..@@\n",
+        "glyph foo vectoronly 2 1\n..@@\n",
         "glyph foo = bar\n",
     ] {
         assert!(
@@ -159,6 +161,49 @@ fn desync_header_owns_its_pixel_grid_and_round_trips() {
             "glyph foo 2 1 desync\n..@@\n",
         );
     }
+}
+
+/// `vectoronly` is `desync`'s mirror and shares its shape: a keyword flag on
+/// either side of `W H`, on a header that still owns the grid below it.
+#[test]
+fn vectoronly_header_owns_its_pixel_grid_and_round_trips() {
+    for input in [
+        "glyph foo 2 1 vectoronly\n..@@\n",
+        "glyph foo vectoronly 2 1\n..@@\n",
+    ] {
+        let tokens = tokenize_tokens(input.lines().next().unwrap()).unwrap();
+        assert_eq!(
+            glyph_header_dims(&tokens[1..]).map(|d| (d.width, d.height)),
+            Some((2, 1)),
+            "vectoronly header should still own a grid: {input:?}"
+        );
+
+        let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+        let DocumentItem::Glyph { body, .. } = &doc.items[0] else {
+            panic!("expected a glyph item, got {:?}", doc.items[0]);
+        };
+        assert!(body.vectoronly, "vectoronly should reach the body: {input:?}");
+        assert!(body.pixels.is_some(), "the grid is still parsed: {input:?}");
+
+        let mut output = Vec::new();
+        serialize_document(&doc, &mut output).unwrap();
+        assert_eq!(
+            String::from_utf8(output).unwrap(),
+            "glyph foo 2 1 vectoronly\n..@@\n",
+        );
+    }
+}
+
+/// The two flags name opposite drawings — one takes the grid out of the vector
+/// build, the other puts the vector drawing into the bitmap one — so a header
+/// asking for both is rejected rather than resolved in some order.
+#[test]
+fn desync_and_vectoronly_together_are_rejected() {
+    assert!(
+        parse_document_from_str("glyph foo 2 1 desync vectoronly\n..@@\n", "test.unf".into())
+            .is_err(),
+        "desync + vectoronly should not parse",
+    );
 }
 
 /// `origin C R` and `extent W H` are the only two-valued header flags, so the

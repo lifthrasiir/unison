@@ -242,7 +242,8 @@
 //! # Glyph blocks
 //!
 //! `glyph NAME [W H] [flags...]`, with flags `keep`, `inline`, `mark`,
-//! `desync`, `origin C R`, `advance W`, `extent W H` and `scale N` (the
+//! `desync`, `vectoronly`, `origin C R`, `advance W`, `extent W H` and
+//! `scale N` (the
 //! per-glyph sub-pixel detail resolution: the grid is N× finer, and
 //! `document_io` multiplies the declared dimensions by it but not the other
 //! flags).
@@ -280,6 +281,14 @@
 //!   glyph's dimensions in both. With refs to on-demand `:zero` shapes — which
 //!   are the mirror case, geometry that lights no pixel — the two faces become
 //!   fully independent drawings. See [`crate::render::ttf_builder`].
+//! - `vectoronly` is `desync`'s mirror: the glyph is not meant to be rendered
+//!   as pixels at all, so the **bitmap** build draws it exactly as the vector
+//!   build does instead of squaring it off. Flag artwork is the case it exists
+//!   for — the blocky form carries no information and costs a second drawing to
+//!   say so. The glyph is flattened to its own contours in the bitmap build, so
+//!   the exemption reaches everything it pulls in through `ref` without a
+//!   component shared with an unflagged glyph having to choose. Writing it
+//!   beside `desync` is an error, the two asking for opposite things.
 //! - `keep` puts the glyph in the font whether or not anything reaches it. A
 //!   glyph normally survives only by being mapped, named in a `remap`, or used
 //!   as a composite component, and one nothing reaches is dropped and warned
@@ -797,6 +806,7 @@ pub struct GlyphHeaderFlags {
     pub inline: bool,
     pub mark: bool,
     pub desync: bool,
+    pub vectoronly: bool,
     pub advance: Option<u16>,
     pub origin: Option<(i16, i16)>,
     pub extent: Option<(u16, u16)>,
@@ -816,7 +826,8 @@ pub struct GlyphHeaderFlags {
 /// name, with any `= ALIAS` part already stripped).
 ///
 /// This is the single implementation of the header flag grammar: keyword
-/// flags (`keep`, `inline`, `mark`, `desync`), valued flags (`advance N`,
+/// flags (`keep`, `inline`, `mark`, `desync`, `vectoronly`), valued flags
+/// (`advance N`,
 /// `origin C R`, `extent W H`) and the `W H` dimension pair may appear in any
 /// order. It is
 /// shared by `derive_document` and [`glyph_header_dims`] so that the
@@ -826,8 +837,19 @@ pub fn parse_glyph_flag_parts<S: AsRef<str>>(flag_parts: &[S]) -> GlyphHeaderFla
     parse_glyph_flag_parts_impl(flag_parts, &mut |_| {})
 }
 
-const GLYPH_FLAG_KEYWORDS: [&str; 8] = [
-    "keep", "inline", "mark", "desync", "advance", "origin", "extent", "scale",
+/// Every keyword a `glyph` header may carry, valued flags included. The
+/// parser matches on it and the editor completes from it, so a flag added in
+/// one place cannot go missing in the other.
+pub const GLYPH_FLAG_KEYWORDS: [&str; 9] = [
+    "keep",
+    "inline",
+    "mark",
+    "desync",
+    "vectoronly",
+    "advance",
+    "origin",
+    "extent",
+    "scale",
 ];
 
 /// The one walker behind both the lenient parse and the strict validation.
@@ -845,6 +867,7 @@ fn parse_glyph_flag_parts_impl<S: AsRef<str>>(
             "inline" => flags.inline = true,
             "mark" => flags.mark = true,
             "desync" => flags.desync = true,
+            "vectoronly" => flags.vectoronly = true,
             "advance" => {
                 fp += 1;
                 flags.advance = flag_parts.get(fp).and_then(|t| t.as_ref().parse().ok());
@@ -919,6 +942,12 @@ fn parse_glyph_flag_parts_impl<S: AsRef<str>>(
     // rejects the line, so nothing downstream has to pick a winner.
     if flags.advance.is_some() && flags.extent.is_some() {
         err("'advance' and 'extent' both state the declared box's width".to_string());
+    }
+    // `desync` keeps the grid out of the vector build; `vectoronly` puts the
+    // vector drawing into the bitmap one. A glyph asking for both is asking
+    // which of two drawings does not exist, so neither is assumed.
+    if flags.desync && flags.vectoronly {
+        err("'desync' and 'vectoronly' ask for opposite things".to_string());
     }
     flags
 }
@@ -1391,6 +1420,9 @@ fn format_glyph_flags(body: &GlyphBody) -> String {
     if body.desync {
         flags.push_str(" desync");
     }
+    if body.vectoronly {
+        flags.push_str(" vectoronly");
+    }
     if let Some(adv) = body.advance {
         flags.push_str(&format!(" advance {adv}"));
     }
@@ -1803,6 +1835,7 @@ pub fn derive_document(
                         body.inline = flags.inline;
                         body.mark = flags.mark;
                         body.desync = flags.desync;
+                        body.vectoronly = flags.vectoronly;
                         body.advance = flags.advance;
                         body.origin = flags.origin;
                         body.extent = flags.extent;

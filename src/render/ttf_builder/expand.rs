@@ -2051,6 +2051,13 @@ fn inject_on_demand_glyph_items(
                         (None, None) => (None, false),
                     };
 
+                    // `vectoronly` does not travel with the grid the way
+                    // `desync` does: it describes the *drawing*, not what one
+                    // grid is for, and the merged glyph is one drawing. Either
+                    // half saying it is not meant to be rendered as pixels
+                    // settles it for the pair.
+                    let vectoronly = mono_body.vectoronly || color_body.vectoronly;
+
                     all_items.push(ExpandedItem {
                         item: DocumentItem::Glyph {
                             name: GlyphName(name),
@@ -2059,6 +2066,7 @@ fn inject_on_demand_glyph_items(
                                 points,
                                 pixels,
                                 desync,
+                                vectoronly,
                                 scale: combined_scale,
                                 advance: mono_body.advance.or(color_body.advance),
                                 origin: mono_body.origin.or(color_body.origin),

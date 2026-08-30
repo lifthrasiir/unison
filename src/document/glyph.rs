@@ -395,6 +395,14 @@ pub struct GlyphBody {
     /// so the two faces can describe different shapes; see
     /// [`crate::render::ttf_builder`].
     pub desync: bool,
+    /// `vectoronly`: this drawing is not meant to be rendered as pixels, so
+    /// the bitmap build is to draw it exactly as the vector build does rather
+    /// than squaring it off. The mirror of [`desync`](Self::desync), which
+    /// keeps a grid *out* of the vector build: this keeps the vector geometry
+    /// *in* the bitmap one. Flag artwork and the like, where the squared-off
+    /// form is unreadable and paying for it is pointless; see
+    /// [`crate::render::ttf_builder`].
+    pub vectoronly: bool,
     /// `advance W`: the declared box's width, with its height left to the
     /// grid. The common half of [`extent`](Self::extent), and the one a source
     /// states on its own — see [`GlyphBody::declared_extent`].
@@ -510,6 +518,7 @@ impl GlyphBody {
             inline: false,
             mark: false,
             desync: false,
+            vectoronly: false,
             advance: None,
             origin: None,
             extent: None,

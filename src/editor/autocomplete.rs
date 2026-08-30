@@ -884,9 +884,7 @@ fn collect_candidates(
             candidates.sort_by(|a, b| a.label.cmp(&b.label));
         }
         CompletionKind::GlyphFlag => {
-            for flag in &[
-                "keep", "inline", "mark", "desync", "advance", "origin", "extent",
-            ] {
+            for flag in crate::document_io::GLYPH_FLAG_KEYWORDS {
                 candidates.push(CompletionCandidate {
                     label: flag.to_string(),
                     kind: CompletionKind::GlyphFlag,
