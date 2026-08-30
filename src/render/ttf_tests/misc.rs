@@ -995,12 +995,13 @@ fn directory_load_keeps_its_order_and_reports_every_bad_file() {
 /// `gasp` is the switch that decides whether a rasterizer grid-fits and
 /// antialiases at a given size, and only the Windows rasterizers read it. Both
 /// halves of the value matter here and for opposite reasons, so both are
-/// asserted: `GRIDFIT` because `hints.rs` emits instructions that would
-/// otherwise never run under GDI, and `DOGRAY` because a PPEM that is not a
-/// multiple of the font height cannot land on the pixel grid anyway — blurred
-/// is the acceptable outcome there, bi-level nearest-neighbour is not.
+/// asserted: `DOGRAY` because a PPEM that is not a multiple of the font height
+/// cannot land on the pixel grid anyway — blurred is the acceptable outcome
+/// there, bi-level nearest-neighbour is not — and the grid-fitting bits *off*
+/// because the builder emits no instructions, so asking for grid fitting would
+/// buy nothing and opt into the aliasing `DOGRAY` is here to avoid.
 #[test]
-fn gasp_asks_for_grid_fitting_and_grayscale_at_every_size() {
+fn gasp_asks_for_grayscale_and_no_grid_fitting_at_every_size() {
     let ttf = build_from("glyph a 2 2\n@@\n@@\nmap A = a\n");
     let gasp = read_fonts::FontRef::new(&ttf).unwrap().gasp().unwrap();
     assert_eq!(gasp.version(), 1, "the symmetric bits need version 1");
@@ -1011,8 +1012,8 @@ fn gasp_asks_for_grid_fitting_and_grayscale_at_every_size() {
         .collect();
     assert_eq!(
         ranges,
-        vec![(0xFFFF, 0x000F)],
-        "one range covering every size, with all four behaviour bits set"
+        vec![(0xFFFF, 0x000A)],
+        "one range covering every size: the two grayscale bits, neither gridfit bit"
     );
 }
 

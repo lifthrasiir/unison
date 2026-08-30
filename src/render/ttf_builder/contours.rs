@@ -703,20 +703,3 @@ fn to_bitmap_grid(grid: &PixelGrid) -> PixelGrid {
     bg
 }
 
-pub(super) fn gcd(a: i32, b: i32) -> i32 {
-    crate::pattern::gcd(a.unsigned_abs() as usize, b.unsigned_abs() as usize) as i32
-}
-
-pub(super) fn contour_signed_area(contour: &[(i16, i16)]) -> i64 {
-    let n = contour.len();
-    if n < 3 {
-        return 0;
-    }
-    let mut area = 0i64;
-    for i in 0..n {
-        let (x0, y0) = contour[i];
-        let (x1, y1) = contour[(i + 1) % n];
-        area += x0 as i64 * y1 as i64 - x1 as i64 * y0 as i64;
-    }
-    area
-}

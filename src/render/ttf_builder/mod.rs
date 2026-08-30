@@ -100,7 +100,6 @@ mod contours;
 mod expand;
 mod gpos;
 mod gsub;
-mod hints;
 mod os2_ranges;
 mod outlines;
 mod tables;
@@ -260,7 +259,8 @@ pub type LoadedDir = (Vec<Document>, Vec<ParseError>, Vec<DocSource>);
 /// The editor's build product for one face.
 #[cfg(feature = "editor")]
 pub struct BuiltFontPair {
-    /// The bitmap face's TTF: hinted to the pixel grid.
+    /// The bitmap face's TTF: its outlines are already squared off to the
+    /// pixel grid, so there is nothing left for a hint to say.
     pub bitmap: Vec<u8>,
     /// The vector face's TTF.
     pub vector: Vec<u8>,
@@ -658,12 +658,6 @@ fn build_pair_from_shared(
     let v_ascender = (v_meta.ascent() as f32 * v_scale).round() as i16;
     let v_descender = -((v_meta.descent() as f32 * v_scale).round() as i16);
 
-    let v_hint_ppem = if UNITS_PER_EM.is_multiple_of(v_meta.height()) {
-        v_meta.height()
-    } else {
-        0
-    };
-
     let _t3 = crate::startup::PerfStage::new("font pair: tables");
     let (bitmap, vector) = std::thread::scope(|s| {
         let bh = s.spawn(|| {
@@ -671,7 +665,6 @@ fn build_pair_from_shared(
                 b_ascender,
                 b_descender,
                 &b_glyphs,
-                0,
                 &b_gsub,
                 &b_palette,
                 b_scale,
@@ -682,7 +675,6 @@ fn build_pair_from_shared(
             v_ascender,
             v_descender,
             &v_glyphs,
-            v_hint_ppem,
             &v_gsub,
             &v_palette,
             v_scale,
@@ -797,15 +789,10 @@ pub fn build_faces_from(
 
         let ascender = (meta.ascent() as f32 * scale).round() as i16;
         let descender = -((meta.descent() as f32 * scale).round() as i16);
-        let hint_ppem = if UNITS_PER_EM.is_multiple_of(meta.height()) {
-            meta.height()
-        } else {
-            0
-        };
         out.push((
             face.id.clone(),
             tables::build_ttf(
-                ascender, descender, &glyphs, hint_ppem, &gsub_data, &palette, scale, &meta,
+                ascender, descender, &glyphs, &gsub_data, &palette, scale, &meta,
             ),
         ));
     }
@@ -883,19 +870,12 @@ pub fn build_face_ttf_pair(
     let b_descender = -((b_meta.descent() as f32 * b_scale).round() as i16);
     let v_ascender = (v_meta.ascent() as f32 * v_scale).round() as i16;
     let v_descender = -((v_meta.descent() as f32 * v_scale).round() as i16);
-    let v_hint_ppem = if UNITS_PER_EM.is_multiple_of(v_meta.height()) {
-        v_meta.height()
-    } else {
-        0
-    };
-
     let (bitmap, vector) = std::thread::scope(|s| {
         let bh = s.spawn(|| {
             build_ttf(
                 b_ascender,
                 b_descender,
                 &b_glyphs,
-                0,
                 &b_gsub,
                 &b_palette,
                 b_scale,
@@ -906,7 +886,6 @@ pub fn build_face_ttf_pair(
             v_ascender,
             v_descender,
             &v_glyphs,
-            v_hint_ppem,
             &v_gsub,
             &v_palette,
             v_scale,
@@ -949,12 +928,6 @@ fn build_with_gid_map(
 ) -> Option<FontWithGidMap> {
     let ascender = (meta.ascent() as f32 * scale).round() as i16;
     let descender = -((meta.descent() as f32 * scale).round() as i16);
-    let hint_ppem = if UNITS_PER_EM.is_multiple_of(meta.height()) {
-        meta.height()
-    } else {
-        0
-    };
-
     let mut gid_to_name: HashMap<u16, String> = HashMap::new();
     let mut seen = std::collections::HashSet::new();
     for (i, g) in glyph_data.iter().enumerate() {
@@ -967,7 +940,6 @@ fn build_with_gid_map(
         ascender,
         descender,
         &glyph_data,
-        hint_ppem,
         &gsub_data,
         &palette,
         scale,
@@ -992,16 +964,10 @@ fn build_font_from_documents_inner(
     let ascender = (meta.ascent() as f32 * scale).round() as i16;
     let descender = -((meta.descent() as f32 * scale).round() as i16);
 
-    let hint_ppem = if !bitmap && UNITS_PER_EM.is_multiple_of(meta.height()) {
-        meta.height()
-    } else {
-        0
-    };
     Some(build_ttf(
         ascender,
         descender,
         &glyph_data,
-        hint_ppem,
         &gsub_data,
         &palette,
         scale,

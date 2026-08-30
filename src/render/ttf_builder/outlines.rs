@@ -1,7 +1,6 @@
 //! Pass over the collected glyphs that emits glyf outlines, metrics, cmap
 //! entries and the color layer glyphs.
 
-use super::hints::generate_grid_snap_hints;
 use super::tables::glyph_bounds;
 use super::*;
 
@@ -14,8 +13,6 @@ pub(super) struct OutlineBuild {
     pub(super) name_to_gid: HashMap<String, GlyphId16>,
     pub(super) max_points: u16,
     pub(super) max_contours: u16,
-    pub(super) max_insn_size: u16,
-    pub(super) max_stack: u16,
     pub(super) max_composite_points: u16,
     pub(super) max_composite_contours: u16,
     pub(super) max_component_elements: u16,
@@ -30,14 +27,14 @@ enum Emitted {
 }
 
 /// Passes 1 and 2 of the build: assign GIDs, collect cmap mappings, and add
-/// every glyph's outline (TrueType composite, empty, or hinted simple glyph)
-/// with its horizontal metric.  Pass 3 then sizes the composite `maxp` limits
+/// every glyph's outline (TrueType composite, empty, or simple glyph) with
+/// its horizontal metric.  Pass 3 then sizes the composite `maxp` limits
 /// from what pass 2 emitted.
 ///
 /// A glyph's GID is its index in `glyphs`, with no offset: [`collect`] has
 /// already put [`NOTDEF`] at index 0, so GID 0 is emitted by the ordinary loop
 /// and carries whatever outline the source drew for it.
-pub(super) fn build_glyph_outlines(glyphs: &[CollectedGlyph], hint_ppem: u16) -> OutlineBuild {
+pub(super) fn build_glyph_outlines(glyphs: &[CollectedGlyph]) -> OutlineBuild {
     let mut out = OutlineBuild {
         glyf_builder: GlyfLocaBuilder::new(),
         h_metrics: Vec::new(),
@@ -45,8 +42,6 @@ pub(super) fn build_glyph_outlines(glyphs: &[CollectedGlyph], hint_ppem: u16) ->
         name_to_gid: HashMap::new(),
         max_points: 0,
         max_contours: 0,
-        max_insn_size: 0,
-        max_stack: 0,
         max_composite_points: 0,
         max_composite_contours: 0,
         max_component_elements: 0,
@@ -191,14 +186,8 @@ pub(super) fn build_glyph_outlines(glyphs: &[CollectedGlyph], hint_ppem: u16) ->
                 side_bearing: 0,
             });
         } else {
-            let mut hinted_contours = g.contours.clone();
-            let instructions = if hint_ppem > 0 {
-                generate_grid_snap_hints(&mut hinted_contours, hint_ppem)
-            } else {
-                Vec::new()
-            };
-
-            let contours: Vec<Contour> = hinted_contours
+            let contours: Vec<Contour> = g
+                .contours
                 .iter()
                 .map(|c| {
                     let points: Vec<CurvePoint> =
@@ -214,15 +203,11 @@ pub(super) fn build_glyph_outlines(glyphs: &[CollectedGlyph], hint_ppem: u16) ->
             });
             out.max_points = out.max_points.max(n_points as u16);
             out.max_contours = out.max_contours.max(contours.len() as u16);
-            out.max_insn_size = out.max_insn_size.max(instructions.len() as u16);
-            if !instructions.is_empty() {
-                out.max_stack = out.max_stack.max(2);
-            }
 
             let mut sg = SimpleGlyph {
                 bbox: Bbox::default(),
                 contours,
-                instructions,
+                instructions: Vec::new(),
             };
             sg.recompute_bounding_box();
 

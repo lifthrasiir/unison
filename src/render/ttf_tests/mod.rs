@@ -7,7 +7,6 @@
 use super::contours::layers_have_subpixel_conflicts;
 use super::gpos::build_anchor_gpos;
 use super::gsub::build_gsub;
-use super::hints::generate_grid_snap_hints;
 use super::tables::glyph_bounds;
 use super::*;
 use read_fonts::TableProvider;
@@ -18,7 +17,6 @@ mod composite;
 mod desync;
 mod gpos;
 mod gsub;
-mod hints;
 mod map_alts;
 mod merge;
 mod misc;

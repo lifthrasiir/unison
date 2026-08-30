@@ -2,20 +2,26 @@
 //!
 //! # `gasp` is derived, not declared
 //!
-//! The one range this writes — every size, all four behaviour bits — follows
-//! from how *this builder* draws, so it is not a `meta` key: any font Uniform
-//! builds wants the same value, and a different one would simply be wrong.
-//! `GRIDFIT` because [`super::hints`] emits instructions, which GDI runs only
-//! when the table asks it to; `DOGRAY` because a PPEM that is not a multiple of
-//! the font height cannot land on the pixel grid, and blurred is the acceptable
-//! outcome there where bi-level nearest-neighbour is not. The symmetric bits say
-//! the same two things to DirectWrite. Note what this cannot buy: horizontal
-//! hinting runs only under GDI Classic (DirectWrite's symmetric modes and
-//! FreeType's default interpreter both drop x-moves, and CoreText runs no
-//! instructions at all), so `gasp` keeps the 16-PPEM hints reachable rather than
-//! making them universal. Should a font ever want its bitmap face deliberately
-//! aliased at large sizes, the key to add states *that intent* — never a raw
-//! bitmask, which is a rasterizer detail with no place in `.unf`.
+//! The one range this writes — every size, grayscale only — follows from how
+//! *this builder* draws, so it is not a `meta` key: any font Uniform builds
+//! wants the same value, and a different one would simply be wrong. `DOGRAY`
+//! (and its symmetric twin, which says the same to DirectWrite) because a PPEM
+//! that is not a multiple of the font height cannot land on the pixel grid, and
+//! blurred is the acceptable outcome there where bi-level nearest-neighbour is
+//! not. At a PPEM that *is* a multiple, every edge falls exactly on a pixel
+//! boundary, so coverage is 0 or 1 and grayscale costs that size nothing.
+//!
+//! The grid-fitting bits are deliberately **off**: this builder emits no
+//! TrueType instructions, so asking a rasterizer to grid-fit buys nothing and
+//! opts the font into GDI's bi-level scan conversion, which is the aliasing
+//! `DOGRAY` exists to avoid. They were on while `hints.rs` emitted a 16-PPEM
+//! grid-snap program; that program only ever ran under GDI Classic — every
+//! other rasterizer drops the x-moves a staircase is made of, or runs no
+//! instructions at all — and cost 40% of `glyf` to reach one rasterizer, so it
+//! was removed rather than kept reachable. Should a font ever want its bitmap
+//! face deliberately aliased at large sizes, the key to add states *that
+//! intent* — never a raw bitmask, which is a rasterizer detail with no place in
+//! `.unf`.
 
 use super::gpos::{build_anchor_gpos, merge_anchor_feature_lookups};
 use super::gsub::{build_gsub, compute_max_context};
@@ -259,7 +265,6 @@ pub(super) fn build_ttf(
     ascender: i16,
     descender: i16,
     glyphs: &[CollectedGlyph],
-    hint_ppem: u16,
     gsub_data: &GsubData,
     palette: &[Rgba],
     scale: f32,
@@ -275,7 +280,7 @@ pub(super) fn build_ttf(
         .map(|g| g.advance_width)
         .unwrap_or(UNITS_PER_EM / 2);
 
-    let mut outlines = build_glyph_outlines(glyphs, hint_ppem);
+    let mut outlines = build_glyph_outlines(glyphs);
     let (colr_base_glyphs, colr_layers) =
         add_color_layer_glyphs(glyphs, &mut outlines, &mut num_glyphs);
     let has_color = !colr_base_glyphs.is_empty();
@@ -288,8 +293,6 @@ pub(super) fn build_ttf(
         name_to_gid,
         max_points,
         max_contours,
-        max_insn_size,
-        max_stack,
         max_composite_points,
         max_composite_contours,
         max_component_elements,
@@ -366,8 +369,8 @@ pub(super) fn build_ttf(
         max_storage: Some(0),
         max_function_defs: Some(0),
         max_instruction_defs: Some(0),
-        max_stack_elements: Some(max_stack),
-        max_size_of_instructions: Some(max_insn_size),
+        max_stack_elements: Some(0),
+        max_size_of_instructions: Some(0),
         max_component_elements: Some(max_component_elements),
         max_component_depth: Some(max_component_depth),
     };
@@ -514,9 +517,7 @@ pub(super) fn build_ttf(
         num_ranges: 1,
         gasp_ranges: vec![GaspRange {
             range_max_ppem: u16::MAX,
-            range_gasp_behavior: GaspRangeBehavior::GASP_GRIDFIT
-                | GaspRangeBehavior::GASP_DOGRAY
-                | GaspRangeBehavior::GASP_SYMMETRIC_GRIDFIT
+            range_gasp_behavior: GaspRangeBehavior::GASP_DOGRAY
                 | GaspRangeBehavior::GASP_SYMMETRIC_SMOOTHING,
         }],
     };
