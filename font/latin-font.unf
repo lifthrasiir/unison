@@ -1,5 +1,114 @@
 # latin font variants
 
+## modifiers
+
+glyph sup-($a-z)-upper 8 16
+ref sm-($-1)-upper 2 1
+
+glyph sup-($a-z)-lower 8 16
+ref sm-($-1)-lower 2 1
+
+glyph sub-($a-z)-lower 8 16
+ref sm-($-1)-lower 2 10
+
+map ᴬ = sup-a-upper
+map ᴮ = sup-b-upper
+map ꟲ = sup-c-upper
+map ᴰ = sup-d-upper
+map ᴱ = sup-e-upper
+map ꟳ = sup-f-upper
+map ᴳ = sup-g-upper
+map ᴴ = sup-h-upper
+map ᴵ = sup-i-upper
+map ᴶ = sup-j-upper
+map ᴷ = sup-k-upper
+map ᴸ = sup-l-upper
+map ᴹ = sup-m-upper
+map ᴺ = sup-n-upper
+map ᴼ = sup-o-upper
+map ᴾ = sup-p-upper
+map ꟴ = sup-q-upper
+map ᴿ = sup-r-upper
+map ꟱ = sup-s-upper
+map ᵀ = sup-t-upper
+map ᵁ = sup-u-upper
+map ⱽ = sup-v-upper
+map ᵂ = sup-w-upper
+map  = sup-x-upper
+map  = sup-y-upper
+map  = sup-z-upper
+
+map ᵃ = sup-a-lower
+map ᵇ = sup-b-lower
+map ᶜ = sup-c-lower
+map ᵈ = sup-d-lower
+map ᵉ = sup-e-lower
+map ᶠ = sup-f-lower
+map ᵍ = sup-g-lower
+map ʰ = sup-h-lower
+map ⁱ = sup-i-lower
+map ʲ = sup-j-lower
+map ᵏ = sup-k-lower
+map ˡ = sup-l-lower
+map ᵐ = sup-m-lower
+map ⁿ = sup-n-lower
+map ᵒ = sup-o-lower
+map ᵖ = sup-p-lower
+map 𐞥 = sup-q-lower
+map ʳ = sup-r-lower
+map ˢ = sup-s-lower
+map ᵗ = sup-t-lower
+map ᵘ = sup-u-lower
+map ᵛ = sup-v-lower
+map ʷ = sup-w-lower
+map ˣ = sup-x-lower
+map ʸ = sup-y-lower
+map ᶻ = sup-z-lower
+
+map ₐ = sub-a-lower
+map  = sub-b-lower
+map  = sub-c-lower
+map  = sub-d-lower
+map ₑ = sub-e-lower
+map  = sub-f-lower
+map  = sub-g-lower
+map ₕ = sub-h-lower
+map ᵢ = sub-i-lower
+map ⱼ = sub-j-lower
+map ₖ = sub-k-lower
+map ₗ = sub-l-lower
+map ₘ = sub-m-lower
+map ₙ = sub-n-lower
+map ₒ = sub-o-lower
+map ₚ = sub-p-lower
+map  = sub-q-lower
+map ᵣ = sub-r-lower
+map ₛ = sub-s-lower
+map ₜ = sub-t-lower
+map ᵤ = sub-u-lower
+map ᵥ = sub-v-lower
+map ₝ = sub-w-lower
+map ₓ = sub-x-lower
+map ₞ = sub-y-lower
+map ₟ = sub-z-lower
+
+prop block `Alphanumeric Presentation Forms Appendix-A` = U+EE00..EEBF
+prop block `Kreative Compatibility` = U+F700..F7FF
+
+prop U+F768 = `MODIFIER LETTER CAPITAL X` gc Lm // Nishiki-Teki, Fairfax, Catrinity
+prop U+F769 = `MODIFIER LETTER CAPITAL Y` gc Lm // Nishiki-Teki, Fairfax, Catrinity
+prop U+F76A = `MODIFIER LETTER CAPITAL Z` gc Lm // Nishiki-Teki, Fairfax, Catrinity
+
+prop U+EE07 = `LATIN SUBSCRIPT SMALL LETTER B` gc Lm // Nishiki-Teki, Catrinity
+prop U+EE08 = `LATIN SUBSCRIPT SMALL LETTER C` gc Lm // Nishiki-Teki, Catrinity
+prop U+EE09 = `LATIN SUBSCRIPT SMALL LETTER D` gc Lm // Nishiki-Teki, Catrinity
+prop U+EE0A = `LATIN SUBSCRIPT SMALL LETTER F` gc Lm // Nishiki-Teki, Catrinity
+prop U+EE0B = `LATIN SUBSCRIPT SMALL LETTER G` gc Lm // Nishiki-Teki, Catrinity
+prop U+EE0C = `LATIN SUBSCRIPT SMALL LETTER Q` gc Lm // Nishiki-Teki, Catrinity
+prop U+209D = `LATIN SUBSCRIPT SMALL LETTER W` gc Lm // Unicode 18.0
+prop U+209E = `LATIN SUBSCRIPT SMALL LETTER Y` gc Lm // Unicode 18.0
+prop U+209F = `LATIN SUBSCRIPT SMALL LETTER Z` gc Lm // Unicode 18.0
+
 ## narrow letters
 
 // narrow-*-{upper,lower} are designed so that three of them fit in 15x16
@@ -1097,16 +1206,16 @@ glyph sm-u-upper 4 5
 glyph sm-v-upper 5 5
 @@......@@
 @@......@@
-@@0\../0@@
-\0@@0d@@0/
+@@\..../@@
+\0@bM0d@0/
 ..\0@@0/..
 
 glyph sm-w-upper 5 5
 @@......@@
 @@......@@
-@@0d@@0d@@
-\1@@@@@@1/
-..1P..1P..
+@@2d@@2d@@
+\V@@P3@@V/
+`vV/..\Vv'
 
 glyph sm-x-upper 5 5
 \10\../01/
@@ -1129,7 +1238,199 @@ glyph sm-z-upper 5 5
 /01/......
 @@@@@@@@@@
 
+glyph sm-a-lower 4 5
+..@@@@0\
+......@@
+/0@@@@@@
+@@....@@
+\0@@@@@@
+
+glyph sm-b-lower 4 5
+@@......
+@@......
+@@@@@@0\
+@@....@@
+@@@@@@0/
+
+glyph sm-c-lower 4 5
+........
+/0@@@@@@
+@@......
+@@......
+\0@@@@@@
+assert distinct sm-c-upper sm-c-lower
+
+glyph sm-d-lower 4 5
+......@@
+......@@
+/0@@@@@@
+@@....@@
+\0@@@@@@
+
+glyph sm-e-lower 4 5
+/0@@@@0\
+@@....@@
+@@@@@@0/
+@@......
+\0@@@@@@
+
+glyph sm-f-lower 4 5
+../0@@@@
+..@@....
+@@@@@@@@
+..@@....
+..@@....
+
+glyph sm-g-lower 4 5
+/0@@@@0\
+@@....@@
+\0@@@@@@
+......@@
+..@@@@0/
+
+glyph sm-h-lower 4 5
+@@......
+@@......
+@@@@@@0\
+@@....@@
+@@....@@
+
+glyph sm-i-lower 3 5
+..@@..
+......
+..@@..
+..@@..
+@@@@@@
+
+glyph sm-j-lower 4 5
+......@@
+........
+......@@
+@@....@@
+\0@@@@0/
+
+glyph sm-k-lower 3 5
+@@....
+@@....
+@@/0@P
+@@@@<.
+@@\0@b
+
+glyph sm-l-lower 3 5
+@@@@..
+..@@..
+..@@..
+..@@..
+@@@@@@
+
+glyph sm-m-lower 5 5
+..........
+..........
+@@@@0\@@0\
+@@..@@..@@
+@@..@@..@@
+
+glyph sm-n-lower 4 5
+........
+........
+@@@@@@0\
+@@....@@
+@@....@@
+
+glyph sm-o-lower 4 5
+........
+/0@@@@0\
+@@....@@
+@@....@@
+\0@@@@0/
+assert distinct sm-o-upper sm-o-lower
+
+glyph sm-p-lower 4 5
+........
+@@@@@@0\
+@@....@@
+@@@@@@0/
+@@......
+assert distinct sm-p-upper sm-p-lower
+
+glyph sm-q-lower 4 5
+........
+/0@@@@@@
+@@....@@
+\0@@@@@@
+......@@
+
+glyph sm-r-lower 4 5
+........
+/0@@@@0\
+@@....@@
+@@......
+@@......
+
+glyph sm-s-lower 4 5
+/0@@@@..
+@@......
+\0@@@@0\
+......@@
+..@@@@0/
+assert distinct sm-s-upper sm-s-lower
+
+glyph sm-t-lower 4 5
+..@@....
+..@@....
+@@@@@@@@
+..@@....
+..\0@@@@
+
+glyph sm-u-lower 4 5
+........
+@@....@@
+@@....@@
+@@....@@
+\0@@@@@@
+assert distinct sm-u-upper sm-u-lower
+
+glyph sm-v-lower 5 5
+..........
+@@......@@
+9@0\../0@P
+.\9@0d@P/.
+...\1v/...
+assert distinct sm-v-upper sm-v-lower
+
+glyph sm-w-lower 5 5
+..........
+@@......@@
+@@2d@@2d@@
+\V@@P3@@V/
+`vV/..\Vv'
+assert distinct sm-w-upper sm-w-lower
+
+glyph sm-x-lower 5 5
+..........
+H~h\../h~H
+\h9@1d@Ph/
+/hd@P1@bh\
+H_h/..\h_H
+assert distinct sm-x-upper sm-x-lower
+
+glyph sm-y-lower 5 5
+@b\..../d@
+\0@bM0d@0/
+..\0@@0/..
+./~H0/....
+d@0/......
+
+glyph sm-z-lower 5 5
+..........
+@@@@@@@@@@
+..../h~HH_
+/h~HH_h/..
+@@@@@@@@@@
+assert distinct sm-z-upper sm-z-lower
+
 assume unused sm-($a-z)-upper
+assume unused sm-($a-z)-lower
 
 // sm-*-bold are designed to fit and fill 5x5
 // harmonizes with numeric sm-*-bold
