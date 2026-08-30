@@ -803,8 +803,34 @@ fn collect_candidates(
         CompletionKind::Glyph => {
             let admits =
                 |name: &str, declared| cross.is_none_or(|cross| cross.admits(name, declared));
+            // The names this document declares outright, so a source that does
+            // write a shape-shaped name keeps it below.
+            let declared_here: HashSet<String> = source
+                .doc
+                .items
+                .iter()
+                .filter_map(|item| match item {
+                    DocumentItem::Glyph { name, .. } | DocumentItem::GlyphAlias { name, .. } => {
+                        Some(name.display())
+                    }
+                    _ => None,
+                })
+                .collect();
+            // An on-demand *shape* (`3x10`, `2x1-circle`, `4x8-poly5`) is not a
+            // name anyone wrote: it is resolved because some `ref` spelled the
+            // geometry out, and there are as many of them as a source cares to
+            // spell. Offering them buries the declared names — they lead with a
+            // digit, so they sort to the very top — and completing one saves no
+            // typing, since the name *is* the shape. The color/mono pair is not
+            // one of these: its halves are declared and
+            // `parse_on_demand_glyph` never matches it (see
+            // `on_demand::detect_color_mono_glyph`).
+            let synthesized = |name: &str| {
+                crate::on_demand::parse_on_demand_glyph(name).is_some()
+                    && !declared_here.contains(name)
+            };
             for (name, glyph) in source.named_glyphs {
-                if admits(name, glyph.declared_box) {
+                if admits(name, glyph.declared_box) && !synthesized(name) {
                     candidates.push(CompletionCandidate {
                         label: name.clone(),
                         kind: CompletionKind::Glyph,
@@ -1376,5 +1402,39 @@ glyph parent 15 16
         // suffix not being part of the base.
         let lines = crate::document_io::parse_doclines("glyph foo:mono\nref @-bar\n");
         assert_eq!(at_context(&lines, 1).as_deref(), Some("foo"));
+    }
+
+    /// An on-demand shape (`3x10`, `2x1-circle`, …) is a name the source never
+    /// declares: it exists only because something referred to it, and being
+    /// digits it sorts to the very top of the list. The popup offers the names
+    /// the source actually writes instead — and still offers a shape-shaped
+    /// name that a `glyph` block does declare.
+    #[test]
+    fn on_demand_shapes_are_not_offered() {
+        let labels = |src: &str| -> Vec<String> {
+            let doc = crate::document_io::parse_document_from_str(src, "t.unf".into()).unwrap();
+            let name_parts = NamePartsMap::new();
+            let (named_glyphs, _) =
+                crate::ref_composite::resolve_named_glyphs_with_parts(&[&doc], &name_parts);
+            let source = CompletionSource {
+                named_glyphs: &named_glyphs,
+                name_parts: &name_parts,
+                doc: &doc,
+            };
+            let ctx = detect_context("ref ", 4).unwrap();
+            collect_candidates(&ctx, &source, &None, None)
+                .into_iter()
+                .map(|c| c.label)
+                .collect()
+        };
+
+        // `3x10` is resolved (the `ref` names it) but never declared.
+        let shown = labels("glyph foo 3 10\nref 3x10\n");
+        assert!(shown.contains(&"foo".to_string()));
+        assert!(!shown.contains(&"3x10".to_string()), "{shown:?}");
+
+        // Declared outright, it is an ordinary glyph again.
+        let shown = labels("glyph 3x10 3 10\n...\nglyph foo 3 10\nref 3x10\n");
+        assert!(shown.contains(&"3x10".to_string()), "{shown:?}");
     }
 }
