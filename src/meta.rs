@@ -133,7 +133,17 @@ pub const NAME_KEYS: &[(&str, u16)] = &[
     ("family-text", 16),
     ("subfamily-text", 17),
     ("sample-text", 19),
+    ("bitmap-axis-name", BITMAP_AXIS_NAME_ID),
 ];
+
+/// The name record `bitmap-axis-name` writes, and the id `fvar` labels the
+/// axis with.
+///
+/// Name IDs from 256 up are the font's own to allocate, and this font allocates
+/// exactly one, so it is the first. Anything else that ever needs a
+/// font-specific name — a named instance, a feature's parameters — takes the
+/// next id and must not reuse this one.
+pub const BITMAP_AXIS_NAME_ID: u16 = 256;
 
 /// One parsed `meta` line.
 ///
@@ -175,6 +185,15 @@ pub enum MetaEntry {
     /// `head.created`/`head.modified`, as seconds since the 1904 epoch.
     Created(i64),
     Flag(StyleFlag),
+    /// `bitmap-axis`: carry both drawings in one font, switched by a variation
+    /// axis, instead of writing the bitmap face as a file of its own. Off by
+    /// default — it is a decision about what the *output* is, which is why it
+    /// is a `meta` key and not something the builder infers.
+    ///
+    /// Not a [`StyleFlag`], despite being spelled like one: those are
+    /// `OS/2.fsSelection` bits describing the typeface, and this describes the
+    /// file. See [`crate::render::ttf_builder`] for what it emits.
+    BitmapAxis,
     /// Any name record, however it was spelled.
     Name {
         id: u16,
@@ -255,6 +274,7 @@ impl MetaEntry {
             Self::Panose(_) => "panose".to_string(),
             Self::CaretSlope(..) => "caret-slope".to_string(),
             Self::Created(_) => "created".to_string(),
+            Self::BitmapAxis => "bitmap-axis".to_string(),
             Self::Flag(f) => STYLE_FLAGS
                 .iter()
                 .find(|(_, g)| g == f)
@@ -299,6 +319,7 @@ fn known_keys() -> String {
         "created",
         "revision",
         "vendor-id",
+        "bitmap-axis",
         "name",
     ];
     known.extend(NAME_KEYS.iter().map(|(k, _)| *k));
@@ -419,6 +440,13 @@ pub fn parse_meta_entry(text: &str) -> Result<(Option<String>, MetaEntry), Strin
         }
         Ok(v)
     };
+
+    if key == "bitmap-axis" {
+        if !rest.is_empty() {
+            return Err(format!("`meta {key}` is a flag and takes no value"));
+        }
+        return Ok((scope, MetaEntry::BitmapAxis));
+    }
 
     if let Some(&(_, flag)) = STYLE_FLAGS.iter().find(|(k, _)| *k == key) {
         if !rest.is_empty() {
@@ -666,6 +694,9 @@ pub struct FontMeta {
     pub caret_slope: Option<(i16, i16)>,
     pub created: Option<i64>,
     pub flags: std::collections::BTreeSet<StyleFlag>,
+    /// `meta bitmap-axis`: emit one variable font carrying both drawings
+    /// rather than a separate bitmap face. See [`MetaEntry::BitmapAxis`].
+    pub bitmap_axis: bool,
     /// Declared name records, keyed by `(name ID, Windows language ID)`.
     pub names: BTreeMap<(u16, u16), String>,
     /// The last `meta` line that set anything, for error reporting.
@@ -677,6 +708,8 @@ pub struct FontMeta {
 pub const DEFAULT_FAMILY: &str = "Untitled";
 pub const DEFAULT_SUBFAMILY: &str = "Regular";
 pub const DEFAULT_VENDOR_ID: &str = "NONE";
+/// What the bitmap axis is called when `meta name bitmap-axis` says nothing.
+pub const DEFAULT_BITMAP_AXIS_NAME: &str = "Bitmap";
 
 impl FontMeta {
     pub fn height(&self) -> u16 {
@@ -861,6 +894,13 @@ impl FontMeta {
             .or_insert_with(|| self.version_text());
         out.entry((6, LANG_EN_US))
             .or_insert_with(|| self.postscript_name());
+        // The axis has to be labelled by *something*: `fvar` names it by id,
+        // and an id no record answers is a font a validator rejects. Derived
+        // like every other unstated name rather than left to the builder.
+        if self.bitmap_axis {
+            out.entry((BITMAP_AXIS_NAME_ID, LANG_EN_US))
+                .or_insert_with(|| DEFAULT_BITMAP_AXIS_NAME.to_string());
+        }
         let mut records: Vec<(u16, u16, String)> = out
             .into_iter()
             .map(|((id, lang), text)| (id, lang, text))
@@ -925,6 +965,7 @@ impl FontMeta {
                     MetaEntry::Flag(f) => {
                         meta.flags.insert(f);
                     }
+                    MetaEntry::BitmapAxis => meta.bitmap_axis = true,
                     MetaEntry::Revision(v) => meta.revision = Some(v),
                     MetaEntry::VendorId(v) => meta.vendor_id = Some(v),
                     MetaEntry::Name { id, lang, text } => {

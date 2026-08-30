@@ -49,6 +49,8 @@
 //! drawings genuinely disagree about where their corners are. The whole pass
 //! takes ~180 ms for the font, against a ~1.7 s build.
 
+use super::CollectedGlyph;
+
 /// A contour's signed area, doubled — sign is the winding direction.
 fn signed_area2(c: &[(i16, i16)]) -> i64 {
     let n = c.len();
@@ -210,8 +212,7 @@ pub(super) struct MasterPair {
 impl MasterPair {
     /// True when the two sides really do have the same shape. The invariant the
     /// rest of the pipeline may assume, asserted rather than trusted.
-    #[cfg_attr(not(test), expect(dead_code))]
-    pub(super) fn is_compatible(&self) -> bool {
+        pub(super) fn is_compatible(&self) -> bool {
         self.vector.len() == self.bitmap.len()
             && self
                 .vector
@@ -278,7 +279,6 @@ fn pair_contours(v: &[Vec<(i16, i16)>], b: &[Vec<(i16, i16)>]) -> Vec<(Option<us
 /// The result always satisfies [`MasterPair::is_compatible`], and each side
 /// draws exactly what it drew before: every added point is a repeat of one
 /// already there, and every added contour has zero area.
-#[cfg_attr(not(test), expect(dead_code))]
 pub(super) fn compatible_masters(
     vector: &[Vec<(i16, i16)>],
     bitmap: &[Vec<(i16, i16)>],
@@ -309,4 +309,112 @@ pub(super) fn compatible_masters(
         }
     }
     out
+}
+
+/// The move from the vector drawing to the bitmap one, per point, in the order
+/// [`compatible_masters`] left them — plus the four phantom points every
+/// `gvar` entry ends with.
+///
+/// The phantom deltas are always zero. They carry the advance and the side
+/// bearings, and the two masters declare the same box (the grid's dimensions
+/// are re-applied to both — see `glyph_cache::resolve_pending`), so a glyph
+/// that changes shape across the axis must still not change width.
+pub(super) type PointDeltas = Vec<(i16, i16)>;
+
+/// The number of phantom points a simple glyph's `gvar` entry carries after
+/// its real ones: left and right side bearing, top and bottom.
+pub(super) const PHANTOM_POINTS: usize = 4;
+
+/// Why a glyph carries no variation. Kept as a reason rather than a bare
+/// `None` so the build can say what it skipped and the tests can pin it.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) enum NoVariation {
+    /// The two drawings are the same, which is the common case: a glyph with no
+    /// sub-pixel detail rounds to itself.
+    Identical,
+    /// A TrueType composite. Its components carry their own deltas and its
+    /// offsets are the same in both builds, so it varies correctly with no
+    /// entry of its own — see [`assert_composites_agree`].
+    Composite,
+    /// A colour glyph. Its layers are separate outlines that this stage does
+    /// not compatibilize, so varying only its base would take the two apart.
+    Colour,
+    /// The bitmap build has no such glyph at all.
+    Missing,
+}
+
+/// Make `vector`'s outlines point-compatible with `bitmap`'s, in place, and
+/// return each glyph's deltas.
+///
+/// The vector master is the one rewritten because it is the font's *default*
+/// instance: everything that does not read `gvar` — an old rasterizer, a static
+/// instance cut from this font — gets it, and padding is invisible to all of
+/// them.
+pub(super) fn variations_for(
+    vector: &mut [CollectedGlyph],
+    bitmap: &[CollectedGlyph],
+) -> Vec<Result<PointDeltas, NoVariation>> {
+    let by_name: std::collections::HashMap<&str, &CollectedGlyph> =
+        bitmap.iter().map(|g| (g.name.as_str(), g)).collect();
+
+    vector
+        .iter_mut()
+        .map(|v| {
+            let Some(b) = by_name.get(v.name.as_str()) else {
+                return Err(NoVariation::Missing);
+            };
+            if !v.composite_refs.is_empty() {
+                return Err(NoVariation::Composite);
+            }
+            if !v.color_layers.is_empty() {
+                return Err(NoVariation::Colour);
+            }
+            if v.contours == b.contours {
+                return Err(NoVariation::Identical);
+            }
+
+            let pair = compatible_masters(&v.contours, &b.contours);
+            debug_assert!(pair.is_compatible());
+            let deltas: PointDeltas = pair
+                .vector
+                .iter()
+                .flatten()
+                .zip(pair.bitmap.iter().flatten())
+                .map(|(p, q)| {
+                    (
+                        q.0.saturating_sub(p.0),
+                        q.1.saturating_sub(p.1),
+                    )
+                })
+                .chain(std::iter::repeat_n((0, 0), PHANTOM_POINTS))
+                .collect();
+            v.contours = pair.vector;
+            Ok(deltas)
+        })
+        .collect()
+}
+
+/// The invariant a composite's empty `gvar` entry rests on: the two builds
+/// place the same components at the same offsets, so a composite needs no
+/// deltas of its own and still varies with its parts.
+///
+/// Returns the name of the first composite where that is not true. Nothing in
+/// the pipeline makes it false — the two builds differ in how a *grid* is
+/// traced, never in what a `ref` line says — but an empty entry is a silent
+/// way to be wrong, so it is checked rather than assumed.
+pub(super) fn assert_composites_agree(
+    vector: &[CollectedGlyph],
+    bitmap: &[CollectedGlyph],
+) -> Option<String> {
+    let by_name: std::collections::HashMap<&str, &CollectedGlyph> =
+        bitmap.iter().map(|g| (g.name.as_str(), g)).collect();
+    for v in vector {
+        let Some(b) = by_name.get(v.name.as_str()) else {
+            continue;
+        };
+        if v.composite_refs != b.composite_refs || v.advance_width != b.advance_width {
+            return Some(v.name.clone());
+        }
+    }
+    None
 }

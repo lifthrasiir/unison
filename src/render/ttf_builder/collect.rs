@@ -211,7 +211,7 @@ fn build_composite_refs(
 }
 
 pub(super) struct SharedFontInput {
-    meta: FontMeta,
+    pub(super) meta: FontMeta,
     scale: f32,
     all_items: Vec<DocumentItem>,
     declared_anchors_map: HashMap<String, Vec<GlyphPoint>>,

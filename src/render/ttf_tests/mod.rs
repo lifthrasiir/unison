@@ -12,6 +12,7 @@ use super::*;
 use read_fonts::TableProvider;
 
 mod alias;
+mod bitmap_axis;
 mod color;
 mod composite;
 mod desync;

@@ -29,6 +29,11 @@ use super::outlines::{
     GlobalBounds, OutlineBuild, add_color_layer_glyphs, build_glyph_outlines, compute_global_bounds,
 };
 use super::*;
+use super::masters;
+use write_fonts::tables::fvar::{AxisInstanceArrays, Fvar, VariationAxisRecord};
+use write_fonts::tables::gvar::{GlyphDelta, GlyphDeltas, GlyphVariations, Gvar, Tent};
+use write_fonts::tables::stat::{AxisRecord, Stat};
+use write_fonts::types::F2Dot14;
 
 /// `head.created`/`modified` when `meta created` says nothing.
 ///
@@ -265,6 +270,11 @@ pub(super) fn build_ttf(
     ascender: i16,
     descender: i16,
     glyphs: &[CollectedGlyph],
+    // `bitmap_masters`: the same glyphs as the *bitmap* build drew them, when
+    // `meta bitmap-axis` asked for one font carrying both. `glyphs` is made
+    // point-compatible with them before any outline is emitted, and the move
+    // between the two becomes `gvar`.
+    bitmap_masters: Option<&[CollectedGlyph]>,
     gsub_data: &GsubData,
     palette: &[Rgba],
     scale: f32,
@@ -279,6 +289,18 @@ pub(super) fn build_ttf(
         .or(glyphs.first())
         .map(|g| g.advance_width)
         .unwrap_or(UNITS_PER_EM / 2);
+
+    // Before anything reads an outline: padding the vector master is what
+    // makes the two point-compatible, and `glyf` has to carry the padded form.
+    let mut padded;
+    let (glyphs, variations) = match bitmap_masters {
+        Some(bitmap) => {
+            padded = glyphs.to_vec();
+            let v = masters::variations_for(&mut padded, bitmap);
+            (&padded[..], Some(v))
+        }
+        None => (glyphs, None),
+    };
 
     let mut outlines = build_glyph_outlines(glyphs);
     let (colr_base_glyphs, colr_layers) =
@@ -551,6 +573,19 @@ pub(super) fn build_ttf(
         .add_table(&loca)
         .unwrap();
 
+    // The variable tables, when the two drawings are being carried in one
+    // font. `gvar` is added whatever it holds — an entry per glyph is what its
+    // glyph-id indexing means — but `fvar`/`STAT` describe the axis, so all
+    // three appear together or not at all.
+    if let Some(variations) = &variations {
+        let (fvar, stat) = build_variable_tables();
+        builder.add_table(&fvar).unwrap();
+        builder.add_table(&stat).unwrap();
+        if let Some(gvar) = build_gvar(variations) {
+            builder.add_table(&gvar).unwrap();
+        }
+    }
+
     let has_gsub = gsub.is_some();
     let has_gpos = anchor_data.gpos.is_some();
 
@@ -649,4 +684,113 @@ pub(super) fn glyph_bounds(contours: &[Vec<(i16, i16)>]) -> (i16, i16, i16, i16)
         return (0, 0, 0, 0);
     }
     (x_min, y_min, x_max, y_max)
+}
+
+/// The axis the two drawings hang off. Private tags are uppercase; the
+/// registered ones are lowercase, so this can never collide with a future
+/// registration.
+pub(super) const BITMAP_AXIS_TAG: &[u8; 4] = b"BMAP";
+
+/// Where the bitmap master takes over, in normalized axis coordinates.
+///
+/// A `gvar` tuple's scalar is piecewise linear — the spec fixes the arithmetic,
+/// so every rasterizer computes the same ramp — and there is no way to ask for
+/// a step. What there *is* is the tuple's intermediate region, whose width is
+/// the ramp's width: put the start close enough to the peak and the ramp
+/// becomes one, and every axis value a caller would plausibly set lands
+/// squarely on one master or the other.
+///
+/// It is not narrower still (the F2Dot14 lattice would allow `1 - 1/16384`)
+/// because a threshold that tight is at the mercy of how a caller's float
+/// rounds on its way to F2Dot14. Pangea VAR's condition sets draw the same line
+/// at 0.01 for the same reason.
+///
+/// The consequence worth stating: an axis value inside `(START, 1)` renders a
+/// half-interpolated glyph, and since the correspondence in
+/// [`super::masters`] is not built to look like anything partway across, that
+/// is a nonsense shape. It is unreachable rather than impossible.
+pub(super) const BITMAP_AXIS_TENT_START: f32 = 0.99;
+
+/// `fvar` and `STAT` for a font carrying both drawings.
+///
+/// `STAT` is not optional: a variable font without one is invalid, however
+/// little it has to say, and what it has to say here is one axis with no
+/// values — the axis is a switch, not a range anyone names points along.
+fn build_variable_tables() -> (Fvar, Stat) {
+    let tag = Tag::new(BITMAP_AXIS_TAG);
+    let name_id = NameId::new(crate::meta::BITMAP_AXIS_NAME_ID);
+    let fvar = Fvar::new(AxisInstanceArrays::new(
+        vec![VariationAxisRecord::new(
+            tag,
+            Fixed::from_f64(0.0),
+            Fixed::from_f64(0.0),
+            Fixed::from_f64(1.0),
+            0,
+            name_id,
+        )],
+        // No named instances: the two ends are not styles of the typeface, and
+        // an instance list is what a font menu offers as one.
+        Vec::new(),
+    ));
+    let stat = Stat {
+        design_axes: vec![AxisRecord::new(tag, name_id, 0)].into(),
+        offset_to_axis_values: None.into(),
+        // Nothing about this axis belongs in a face name, so every projection
+        // of it elides — which is exactly what the fallback id is for.
+        elided_fallback_name_id: Some(NameId::new(2)),
+    };
+    (fvar, stat)
+}
+
+/// `gvar` from the deltas [`super::masters::variations_for`] produced.
+///
+/// A glyph with no deltas gets an empty entry rather than none: `gvar` is
+/// indexed by glyph id, so every glyph is present whether or not it varies.
+fn build_gvar(
+    variations: &[Result<masters::PointDeltas, masters::NoVariation>],
+) -> Option<Gvar> {
+    let tent = Tent::new(
+        F2Dot14::from_f32(1.0),
+        Some((
+            F2Dot14::from_f32(BITMAP_AXIS_TENT_START),
+            F2Dot14::from_f32(1.0),
+        )),
+    );
+    let entries: Vec<GlyphVariations> = variations
+        .iter()
+        .enumerate()
+        .map(|(gid, v)| {
+            let gid = GlyphId::new(gid as u32);
+            match v {
+                Ok(deltas) if deltas.iter().any(|&(x, y)| x != 0 || y != 0) => {
+                    let deltas = full_deltas(deltas);
+                    GlyphVariations::new(gid, vec![GlyphDeltas::new(vec![tent.clone()], deltas)])
+                }
+                _ => GlyphVariations::new(gid, Vec::new()),
+            }
+        })
+        .collect();
+    Gvar::new(entries, 1).ok()
+}
+
+/// Every delta, written out in full.
+///
+/// The `required` flag on a [`GlyphDelta`] is a claim the *caller* makes, not
+/// something the encoder works out: `false` says "an inferred delta would land
+/// here anyway", and write-fonts then omits it. Claiming that of every delta —
+/// the obvious-looking thing to do — drops them all, and a glyph with no
+/// deltas at all does not move. That is a font that builds cleanly and is
+/// simply static, so the flag is `true`.
+///
+/// The honest alternative is to *compute* the claim with `write-fonts`'s
+/// `gvar::iup` optimizer. That was tried: over `font/` it takes `gvar` from
+/// 1,469,995 bytes to 1,430,220 — **2.7%** — because a staircase moves nearly
+/// every point it has and almost nothing is interpolatable. It also needs
+/// `kurbo` as a direct dependency, since the optimizer takes its point type and
+/// `write-fonts` does not re-export it. 2.7% does not buy a dependency here.
+fn full_deltas(deltas: &[(i16, i16)]) -> Vec<GlyphDelta> {
+    deltas
+        .iter()
+        .map(|&(x, y)| GlyphDelta::new(x, y, true))
+        .collect()
 }

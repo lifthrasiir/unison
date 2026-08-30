@@ -1,0 +1,171 @@
+//! Tests for `meta bitmap-axis`: one font carrying both drawings.
+//!
+//! The assertions that matter are about the *built font*, not the stage that
+//! feeds it — so these load the bytes back with `skrifa` and draw the glyph at
+//! each end of the axis, which is what a rasterizer will do.
+
+use super::*;
+use skrifa::MetadataProvider;
+use skrifa::instance::{LocationRef, Size};
+use skrifa::outline::{DrawSettings, OutlinePen};
+use skrifa::raw::TableProvider as _;
+
+/// Every point a glyph draws at one axis setting, rounded to whole units and
+/// sorted — enough to say "these are the same drawing" without depending on
+/// contour order or on where a contour starts.
+#[derive(Default)]
+struct Points(Vec<(i32, i32)>);
+
+impl OutlinePen for Points {
+    fn move_to(&mut self, x: f32, y: f32) {
+        self.0.push((x.round() as i32, y.round() as i32));
+    }
+    fn line_to(&mut self, x: f32, y: f32) {
+        self.0.push((x.round() as i32, y.round() as i32));
+    }
+    fn quad_to(&mut self, _: f32, _: f32, x: f32, y: f32) {
+        self.0.push((x.round() as i32, y.round() as i32));
+    }
+    fn curve_to(&mut self, _: f32, _: f32, _: f32, _: f32, x: f32, y: f32) {
+        self.0.push((x.round() as i32, y.round() as i32));
+    }
+    fn close(&mut self) {}
+}
+
+/// Draw `gid` at `bmap`, in font units, deduplicated and sorted.
+fn drawn_at(ttf: &[u8], gid: u16, bmap: f32) -> Vec<(i32, i32)> {
+    let font = read_fonts::FontRef::new(ttf).unwrap();
+    let axes = font.axes();
+    let loc = axes.location([("BMAP", bmap)]);
+    let outlines = font.outline_glyphs();
+    let glyph = outlines
+        .get(skrifa::GlyphId::new(gid as u32))
+        .expect("glyph should have an outline");
+    let mut pen = Points::default();
+    glyph
+        .draw(
+            DrawSettings::unhinted(Size::unscaled(), LocationRef::from(&loc)),
+            &mut pen,
+        )
+        .unwrap();
+    let mut pts = pen.0;
+    pts.sort_unstable();
+    pts.dedup();
+    pts
+}
+
+/// The two drawings of the same source, as the two builds produce them, with
+/// the same treatment applied so they can be compared to what the font draws.
+fn collected_points(doc: &Document, name: &str, bitmap: bool) -> Vec<(i32, i32)> {
+    let (_, _, glyphs, _, _) = collect_glyph_data(&[doc], bitmap).unwrap();
+    let g = glyphs.iter().find(|g| g.name == name).unwrap();
+    let mut pts: Vec<(i32, i32)> = g
+        .contours
+        .iter()
+        .flatten()
+        .map(|&(x, y)| (x as i32, y as i32))
+        .collect();
+    pts.sort_unstable();
+    pts.dedup();
+    pts
+}
+
+const SOURCE: &str = "\
+meta height 4
+meta ascent 4
+meta descent 0
+meta bitmap-axis
+glyph slope 2 2
+b...
+....
+map A = slope
+";
+
+/// The whole point: one font, and the axis switches between the two drawings.
+/// Each end is compared against what that build actually produced, so this
+/// fails if the padding, the deltas or the tent is wrong.
+#[test]
+fn the_axis_switches_between_the_two_drawings() {
+    let doc = document_io::parse_document_from_str(SOURCE, "test.unf".into()).unwrap();
+    let ttf = build_font_from_documents(&[&doc]).expect("font should build");
+    let font = read_fonts::FontRef::new(&ttf).unwrap();
+    let gid = font.cmap().unwrap().map_codepoint('A').unwrap().to_u32() as u16;
+
+    assert_eq!(
+        drawn_at(&ttf, gid, 0.0),
+        collected_points(&doc, "slope", false),
+        "at BMAP=0 the font must draw the vector master",
+    );
+    assert_eq!(
+        drawn_at(&ttf, gid, 1.0),
+        collected_points(&doc, "slope", true),
+        "at BMAP=1 the font must draw the bitmap master",
+    );
+    assert_ne!(
+        drawn_at(&ttf, gid, 0.0),
+        drawn_at(&ttf, gid, 1.0),
+        "the fixture is pointless if the two ends agree",
+    );
+}
+
+/// The tent is what makes the axis a switch rather than a slider: below its
+/// start nothing has moved yet. A caller setting 0.5 gets the vector drawing,
+/// not a half-interpolated nonsense.
+#[test]
+fn the_tent_keeps_every_reachable_value_on_one_master_or_the_other() {
+    let doc = document_io::parse_document_from_str(SOURCE, "test.unf".into()).unwrap();
+    let ttf = build_font_from_documents(&[&doc]).expect("font should build");
+    let font = read_fonts::FontRef::new(&ttf).unwrap();
+    let gid = font.cmap().unwrap().map_codepoint('A').unwrap().to_u32() as u16;
+
+    let vector = drawn_at(&ttf, gid, 0.0);
+    for v in [0.1f32, 0.25, 0.5, 0.75, 0.9, 0.98] {
+        assert_eq!(
+            drawn_at(&ttf, gid, v),
+            vector,
+            "BMAP={v} should still be the vector drawing",
+        );
+    }
+}
+
+/// Without the `meta` key there is no axis and no variation data at all — the
+/// font is exactly the static one it always was.
+#[test]
+fn without_the_meta_key_nothing_variable_is_emitted() {
+    let plain = SOURCE.replace("meta bitmap-axis\n", "");
+    let doc = document_io::parse_document_from_str(&plain, "test.unf".into()).unwrap();
+    let ttf = build_font_from_documents(&[&doc]).expect("font should build");
+    let font = read_fonts::FontRef::new(&ttf).unwrap();
+    assert!(font.fvar().is_err(), "no fvar without the key");
+    assert!(font.gvar().is_err(), "no gvar without the key");
+    assert!(font.stat().is_err(), "no STAT without the key");
+}
+
+/// The axis is labelled by a name record of its own, defaulted when the source
+/// says nothing and overridable when it does.
+#[test]
+fn the_axis_name_is_declared_or_defaulted() {
+    for (source, want) in [
+        (SOURCE.to_string(), "Bitmap"),
+        (
+            SOURCE.replace(
+                "meta bitmap-axis\n",
+                "meta bitmap-axis\nmeta bitmap-axis-name Pixels\n",
+            ),
+            "Pixels",
+        ),
+    ] {
+        let doc = document_io::parse_document_from_str(&source, "test.unf".into()).unwrap();
+        let ttf = build_font_from_documents(&[&doc]).expect("font should build");
+        let font = read_fonts::FontRef::new(&ttf).unwrap();
+        let axis = font.axes().iter().next().expect("one axis");
+        assert_eq!(axis.tag().to_string(), "BMAP");
+        let name_id = axis.name_id();
+        let got = font
+            .localized_strings(name_id)
+            .next()
+            .expect("the axis name record must exist")
+            .to_string();
+        assert_eq!(got, want);
+    }
+}

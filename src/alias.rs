@@ -103,6 +103,11 @@ impl AliasMap {
     /// an alias a search declares is not in it. Everything that reads glyph
     /// names as the font will carry them goes through
     /// [`collect_with_merges`](Self::collect_with_merges), which does bind.
+    ///
+    /// Every one of those callers is the editor's or a test's, so the headless
+    /// binary alone never reaches it — `expect` rather than `allow` so that
+    /// stops being true loudly.
+    #[cfg_attr(all(not(feature = "editor"), not(test)), expect(dead_code))]
     pub fn collect(docs: &[&Document], name_parts: &NamePartsMap) -> Self {
         Self::collect_inner(docs, name_parts, None)
     }

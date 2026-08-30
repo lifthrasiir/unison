@@ -355,6 +355,9 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | `glyph … desync`: a grid the bitmap face draws and the vector face ignores | `render/ttf_builder/mod.rs`, `ref_composite/mod.rs` (`ResolvedGlyph`) |
 | `glyph … vectoronly`: a drawing the bitmap face must not square off, and why the exemption is a closure over the `ref` graph | `render/ttf_builder/mod.rs`, `collect.rs` (`vectoronly_closure`) |
 | Making the two builds' outlines point-compatible: the two shape-preserving padding moves, why the alignment is a monotone walk and not arc length, and what it costs | `render/ttf_builder/masters.rs` |
+| `meta bitmap-axis`: both drawings in one font, and the three tables that carry them | `render/ttf_builder/mod.rs`, `meta.rs` (`MetaEntry::BitmapAxis`) |
+| Why the `BMAP` axis is a switch rather than a slider, and why a `gvar` tent is what makes it one | `render/ttf_builder/tables.rs` (`BITMAP_AXIS_TENT_START`) |
+| Why every `gvar` delta is written out in full, and what IUP was measured to save | `render/ttf_builder/tables.rs` (`full_deltas`) |
 | What an exemption costs a component shared with an unflagged glyph | `issues/flags.rs` |
 | Why the view synthesizes an on-demand ref instead of waiting for the resolve | `ref_composite/mod.rs` (`resolve_ref_name_for_view`) |
 | Why a `ref` to a composite that subtracts is one sample layer, not its parts | `render/sample.rs` (`push_ref_components`) |
@@ -494,7 +497,7 @@ past the source it tests, it lives in a sibling file (or directory) declared as 
 
 | Module | Tests |
 | --- | --- |
-| `render/ttf_builder/` | `render/ttf_tests/` — `misc`, `gsub`, `gpos`, `color`, `composite`, `collection`, `masters`, `vectoronly`, with shared canonicalization helpers in its `mod.rs` |
+| `render/ttf_builder/` | `render/ttf_tests/` — `misc`, `gsub`, `gpos`, `color`, `composite`, `collection`, `masters`, `bitmap_axis`, `vectoronly`, with shared canonicalization helpers in its `mod.rs` |
 | `document_io.rs` | `document_io_tests/` — `roundtrip`, `doclines`, `derive`, `lenient`, `tokenizer`, `maps`, `colors`, `asserts`, `comments`, `misc`, `at_names` |
 | `document/` | `document/document_tests.rs` |
 | `issues/` | `issues/issues_tests.rs` |

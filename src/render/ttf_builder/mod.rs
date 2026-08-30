@@ -14,6 +14,31 @@
 //! [`crate::on_demand`] on `BitmapFill` for what a synthesized shape has to
 //! decide because of that.
 //!
+//! # `meta bitmap-axis`: both drawings in one font
+//!
+//! Without it the two builds are two font *files*, and a consumer that wants
+//! the pixel-exact one loads a different family. With it they are one file and
+//! one glyph set, switched by a private variation axis `BMAP` (0 = vector,
+//! 1 = bitmap).
+//!
+//! Three pieces make that work, and each is written where it happens:
+//!
+//! - [`masters`] pads the two outlines until they are point-compatible,
+//!   changing neither. That is what a `gvar` delta needs and the only reason
+//!   the padding exists.
+//! - [`tables::build_gvar`] writes the move from one to the other, under a
+//!   tuple whose intermediate region is narrow enough that the axis behaves as
+//!   a switch — see [`tables::BITMAP_AXIS_TENT_START`] for why a step is not
+//!   directly expressible and what the narrow ramp costs.
+//! - `fvar` and `STAT` describe the axis. A composite gets an *empty* entry:
+//!   its components carry their own deltas and both builds place them at the
+//!   same offsets, so it varies correctly with nothing of its own — checked by
+//!   [`masters::assert_composites_agree`] rather than assumed.
+//!
+//! A colour glyph does not vary: its layers are separate outlines that
+//! [`masters`] does not compatibilize, and varying only its base would take the
+//! two apart.
+//!
 //! # `vectoronly`: a glyph the bitmap build does not square off
 //!
 //! The other direction from `desync` below, and the only glyph flag whose
@@ -155,7 +180,7 @@ pub const UNITS_PER_EM: u16 = 1024;
 /// there on a glyph's GID is simply its index.
 pub(crate) const NOTDEF: &str = ".notdef";
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq)]
 struct CompositeRef {
     component_name: String,
     x_offset: i16,
@@ -685,6 +710,7 @@ fn build_pair_from_shared(
                 b_ascender,
                 b_descender,
                 &b_glyphs,
+                None,
                 &b_gsub,
                 &b_palette,
                 b_scale,
@@ -695,6 +721,7 @@ fn build_pair_from_shared(
             v_ascender,
             v_descender,
             &v_glyphs,
+            None,
             &v_gsub,
             &v_palette,
             v_scale,
@@ -758,17 +785,26 @@ pub fn build_faces_from(
     //
     // They still run at once rather than one after another: the union's trace
     // dominates, and a face's cmap is free beside it.
+    // Shared once, so the two flavors below trace the same expansion rather
+    // than each computing it — and so that `meta bitmap-axis` can be read
+    // before deciding whether the bitmap flavor is wanted at all.
+    let shared = collect::compute_shared_font_input_from(docs, &union_face, expansion, &never)?;
+    let want_bitmap_axis = shared.meta.bitmap_axis;
     let collect_union = || {
         let _collect = crate::startup::PerfStage::new("collect");
-        let shared = collect::compute_shared_font_input_from(docs, &union_face, expansion, &never)?;
         collect::collect_glyph_data_with_shared(&shared, false, None, &never)
+    };
+    let collect_bitmap = || {
+        let _collect = crate::startup::PerfStage::new("collect bitmap masters");
+        collect::collect_glyph_data_with_shared(&shared, true, None, &never)
     };
     let collect_face = |face: &crate::faces::Face| {
         let _t = crate::startup::PerfStage::new("face cmap");
         collect::collect_face_cmap(docs, face, expansion, &never)
     };
-    let (union_collected, per_face) = std::thread::scope(|scope| {
+    let (union_collected, bitmap_collected, per_face) = std::thread::scope(|scope| {
         let union = scope.spawn(collect_union);
+        let bitmap = want_bitmap_axis.then(|| scope.spawn(collect_bitmap));
         let per_face: Vec<_> = faces
             .faces
             .iter()
@@ -776,6 +812,7 @@ pub fn build_faces_from(
             .collect();
         (
             union.join().unwrap(),
+            bitmap.map(|h| h.join().unwrap()),
             per_face
                 .into_iter()
                 .map(|h| h.join().unwrap())
@@ -785,6 +822,24 @@ pub fn build_faces_from(
     // The palette comes from the union along with the glyphs, and has to: a
     // glyph's `color_layers` index into it, and those are the union's.
     let (_, _, union_glyphs, _, palette) = union_collected?;
+    let bitmap_masters: Option<Vec<CollectedGlyph>> = match bitmap_collected {
+        Some(collected) => {
+            let (_, _, glyphs, _, _) = collected?;
+            Some(glyphs)
+        }
+        None => None,
+    };
+    // The empty `gvar` entry every composite gets rests on the two builds
+    // placing the same components at the same offsets. Nothing in the pipeline
+    // makes that false, but being wrong about it is silent, so it is checked.
+    if let Some(bitmap) = &bitmap_masters
+        && let Some(name) = masters::assert_composites_agree(&union_glyphs, bitmap)
+    {
+        debug_assert!(
+            false,
+            "the two builds disagree about composite '{name}'; its `gvar` entry would be empty and wrong",
+        );
+    }
 
     let mut out = Vec::new();
     for (face, collected) in faces.faces.iter().zip(per_face) {
@@ -812,7 +867,14 @@ pub fn build_faces_from(
         out.push((
             face.id.clone(),
             tables::build_ttf(
-                ascender, descender, &glyphs, &gsub_data, &palette, scale, &meta,
+                ascender,
+                descender,
+                &glyphs,
+                bitmap_masters.as_deref(),
+                &gsub_data,
+                &palette,
+                scale,
+                &meta,
             ),
         ));
     }
@@ -896,6 +958,7 @@ pub fn build_face_ttf_pair(
                 b_ascender,
                 b_descender,
                 &b_glyphs,
+                None,
                 &b_gsub,
                 &b_palette,
                 b_scale,
@@ -906,6 +969,7 @@ pub fn build_face_ttf_pair(
             v_ascender,
             v_descender,
             &v_glyphs,
+            None,
             &v_gsub,
             &v_palette,
             v_scale,
@@ -960,6 +1024,7 @@ fn build_with_gid_map(
         ascender,
         descender,
         &glyph_data,
+        None,
         &gsub_data,
         &palette,
         scale,
@@ -981,6 +1046,17 @@ fn build_font_from_documents_inner(
     let (meta, scale, glyph_data, gsub_data, palette) =
         collect_glyph_data_cached(docs, bitmap, contour_cache)?;
 
+    // `meta bitmap-axis` asks for one font carrying both drawings, so the
+    // vector build collects the bitmap one as well. Only the vector build
+    // does: the bitmap flavor is what the axis leads *to*, and a font of it
+    // alone has nothing to vary.
+    let bitmap_masters = if meta.bitmap_axis && !bitmap {
+        let (_, _, masters, _, _) = collect_glyph_data_cached(docs, true, None)?;
+        Some(masters)
+    } else {
+        None
+    };
+
     let ascender = (meta.ascent() as f32 * scale).round() as i16;
     let descender = -((meta.descent() as f32 * scale).round() as i16);
 
@@ -988,6 +1064,7 @@ fn build_font_from_documents_inner(
         ascender,
         descender,
         &glyph_data,
+        bitmap_masters.as_deref(),
         &gsub_data,
         &palette,
         scale,
