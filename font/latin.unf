@@ -457,7 +457,7 @@ glyph epsilon-upper-reversed 8 16
 ................
 anchor +above 4 1
 anchor +below 4 14
-assert distinct epsilon-upper-reversed cy-ze-upper cy-e-upper
+assert distinct epsilon-upper-reversed cy-ze-upper cy-e-upper 3
 
 glyph f-upper 8 16
 ................

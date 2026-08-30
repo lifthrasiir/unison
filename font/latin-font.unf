@@ -8,6 +8,9 @@ ref sm-($-1)-upper 2 1
 glyph sup-($a-z)-lower 8 16
 ref sm-($-1)-lower 2 1
 
+glyph sup-(h-lower-hook|r-upper-inverted|r-lower-turned|r-lower-turned-hook) 8 16
+ref sm-($-1) 2 1
+
 glyph sub-($a-z)-lower 8 16
 ref sm-($-1)-lower 2 10
 
@@ -29,6 +32,7 @@ map ᴼ = sup-o-upper
 map ᴾ = sup-p-upper
 map ꟴ = sup-q-upper
 map ᴿ = sup-r-upper
+map ʶ = sup-r-upper-inverted
 map ꟱ = sup-s-upper
 map ᵀ = sup-t-upper
 map ᵁ = sup-u-upper
@@ -46,6 +50,7 @@ map ᵉ = sup-e-lower
 map ᶠ = sup-f-lower
 map ᵍ = sup-g-lower
 map ʰ = sup-h-lower
+map ʱ = sup-h-lower-hook
 map ⁱ = sup-i-lower
 map ʲ = sup-j-lower
 map ᵏ = sup-k-lower
@@ -56,6 +61,8 @@ map ᵒ = sup-o-lower
 map ᵖ = sup-p-lower
 map 𐞥 = sup-q-lower
 map ʳ = sup-r-lower
+map ʴ = sup-r-lower-turned
+map ʵ = sup-r-lower-turned-hook
 map ˢ = sup-s-lower
 map ᵗ = sup-t-lower
 map ᵘ = sup-u-lower
@@ -1182,6 +1189,13 @@ glyph sm-r-upper 4 5
 @@..\10\
 @@....\1
 
+glyph sm-r-upper-inverted 4 5
+@@..../1
+@@../10/
+@@@@@@0\
+@@....@@
+@@@@@@0/
+
 glyph sm-s-upper 4 5
 /0@@@@@@
 @@......
@@ -1295,6 +1309,13 @@ glyph sm-h-lower 4 5
 @@....@@
 @@....@@
 
+glyph sm-h-lower-hook 4 5
+/0@@....
+@@......
+@@@@@@0\
+@@....@@
+@@....@@
+
 glyph sm-i-lower 3 5
 ..@@..
 ......
@@ -1366,6 +1387,20 @@ glyph sm-r-lower 4 5
 @@....@@
 @@......
 @@......
+
+glyph sm-r-lower-turned 4 5
+........
+......@@
+......@@
+@@....@@
+\0@@@@0/
+
+glyph sm-r-lower-turned-hook 4 5
+....@@..
+....@@..
+@@..@@..
+\0@@@@..
+....\0@@
 
 glyph sm-s-lower 4 5
 /0@@@@..
