@@ -598,3 +598,29 @@ fn dragging_a_paste_larger_than_the_grid_does_not_panic() {
         sel.row
     );
 }
+
+/// The selection transforms answer to the bare letter as well as to the
+/// Ctrl/Cmd chord: in a pixel mode nothing else claims a plain `M`, so the
+/// modifier is optional there. Both modes take it, and the chord keeps working.
+#[test]
+fn a_bare_letter_transforms_the_selection() {
+    // Row 0 of the fixture is `@@ @@ @@ ..` — mirroring moves the gap to the
+    // left edge, which no other transform does.
+    let mirrored = |h: &EditorHarness| {
+        let g = h.grid(1);
+        g.get(0, 0).is_clear() && !g.get(0, 3).is_clear()
+    };
+
+    let mut h = make_pixel_select_harness();
+    h.key(Key::M);
+    assert!(mirrored(&h), "a bare M mirrors in PixelSelect mode");
+
+    let mut h = make_pixel_select_harness();
+    h.key(Key::Num1); // back to GlyphEdit
+    h.key(Key::M);
+    assert!(mirrored(&h), "a bare M mirrors in GlyphEdit mode too");
+
+    let mut h = make_pixel_select_harness();
+    h.key_mod(Key::M, Modifiers::COMMAND);
+    assert!(mirrored(&h), "the Ctrl/Cmd chord still mirrors");
+}

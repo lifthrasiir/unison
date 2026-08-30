@@ -423,7 +423,10 @@ impl UniformApp {
                 });
                 any_menu_open |= edit_open.inner.is_some();
                 let sel_open = ui.menu_button("Selection", |ui| {
-                    let (mod_name, _) = crate::edit_menu::platform_shortcut_names();
+                    // The transforms answer to the bare letter as well as to
+                    // the Ctrl/Cmd chord (see `document_view::keys`); the menu
+                    // names the shorter of the two.
+                    let (_, shift_name) = crate::edit_menu::platform_shortcut_names();
                     let active_doc = self.active_doc();
                     let in_grid_mode = self.in_grid_edit();
                     let has_sel =
@@ -458,7 +461,7 @@ impl UniformApp {
                         .add_enabled(
                             can_do(SelectionTransform::MirrorH),
                             egui::Button::new("Mirror selection")
-                                .shortcut_text(format!("{mod_name}M")),
+                                .shortcut_text("M"),
                         )
                         .clicked()
                     {
@@ -470,7 +473,7 @@ impl UniformApp {
                         .add_enabled(
                             can_do(SelectionTransform::FlipV),
                             egui::Button::new("Flip selection")
-                                .shortcut_text(format!("{mod_name}I")),
+                                .shortcut_text("I"),
                         )
                         .clicked()
                     {
@@ -483,7 +486,7 @@ impl UniformApp {
                             .add_enabled(
                                 can_do(SelectionTransform::RotateCCW),
                                 egui::Button::new("Counterclockwise")
-                                    .shortcut_text(format!("{mod_name}J")),
+                                    .shortcut_text("J"),
                             )
                             .clicked()
                         {
@@ -495,7 +498,7 @@ impl UniformApp {
                             .add_enabled(
                                 can_do(SelectionTransform::Rotate180),
                                 egui::Button::new("180 degrees")
-                                    .shortcut_text(format!("{mod_name}K")),
+                                    .shortcut_text("K"),
                             )
                             .clicked()
                         {
@@ -507,7 +510,7 @@ impl UniformApp {
                             .add_enabled(
                                 can_do(SelectionTransform::RotateCW),
                                 egui::Button::new("Clockwise")
-                                    .shortcut_text(format!("{mod_name}L")),
+                                    .shortcut_text("L"),
                             )
                             .clicked()
                         {
@@ -523,7 +526,7 @@ impl UniformApp {
                         .add_enabled(
                             can_do(SelectionTransform::Opposite),
                             egui::Button::new("Opposite subglyphs")
-                                .shortcut_text(format!("{mod_name}O")),
+                                .shortcut_text("O"),
                         )
                         .clicked()
                     {
@@ -535,7 +538,7 @@ impl UniformApp {
                         .add_enabled(
                             can_do(SelectionTransform::OppositeBitmap),
                             egui::Button::new("Opposite bitmap")
-                                .shortcut_text(format!("{mod_name}\u{21e7}O")),
+                                .shortcut_text(format!("{shift_name}O")),
                         )
                         .clicked()
                     {

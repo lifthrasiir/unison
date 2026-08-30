@@ -231,14 +231,20 @@ pub(super) fn handle_document_keys(
                 }
             }
 
-            // Selection transforms (Ctrl+M/I/O/J/K/L) in GlyphEdit/PixelSelect
+            // Selection transforms (M/I/O/J/K/L, with or without Ctrl/Cmd) in
+            // GlyphEdit/PixelSelect. The modifier is optional because neither
+            // mode takes plain text and none of these six letters is a shape
+            // shortcut (`handle_shape_shortcuts` owns asdf/qwer/zxcv and `1`),
+            // so the bare key is free to mean the transform.
             if matches!(
                 state.mode,
                 EditMode::GlyphEdit { .. } | EditMode::PixelSelect { .. }
             ) {
                 use pixel_selection::SelectionTransform;
                 let transform = ui.input(|i| {
-                    if i.modifiers.command && !i.modifiers.alt && !i.modifiers.shift {
+                    if i.modifiers.alt {
+                        None
+                    } else if !i.modifiers.shift {
                         if i.key_pressed(egui::Key::M) {
                             Some(SelectionTransform::MirrorH)
                         } else if i.key_pressed(egui::Key::I) {
@@ -254,12 +260,8 @@ pub(super) fn handle_document_keys(
                         } else {
                             None
                         }
-                    } else if i.modifiers.command && !i.modifiers.alt && i.modifiers.shift {
-                        if i.key_pressed(egui::Key::O) {
-                            Some(SelectionTransform::OppositeBitmap)
-                        } else {
-                            None
-                        }
+                    } else if i.key_pressed(egui::Key::O) {
+                        Some(SelectionTransform::OppositeBitmap)
                     } else {
                         None
                     }
