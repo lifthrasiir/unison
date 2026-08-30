@@ -400,8 +400,12 @@ pub struct GlyphBody {
     /// than squaring it off. The mirror of [`desync`](Self::desync), which
     /// keeps a grid *out* of the vector build: this keeps the vector geometry
     /// *in* the bitmap one. Flag artwork and the like, where the squared-off
-    /// form is unreadable and paying for it is pointless; see
-    /// [`crate::render::ttf_builder`].
+    /// form is unreadable and paying for it is pointless.
+    ///
+    /// It is the one glyph flag whose effect reaches past the glyph it is
+    /// written on: see [`crate::render::ttf_builder`] for why the exemption is
+    /// a closure over the `ref` graph, and [`crate::issues`] for what that
+    /// costs a component shared with an unflagged glyph.
     pub vectoronly: bool,
     /// `advance W`: the declared box's width, with its height left to the
     /// grid. The common half of [`extent`](Self::extent), and the one a source

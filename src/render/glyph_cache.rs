@@ -128,7 +128,8 @@ pub(crate) fn build_alt_index<V: CachedGlyphEntry>(
 }
 
 /// Seeds the cache from expanded document items: pixel-only glyphs enter
-/// directly via `from_grid` (which is told whether the glyph is `desync`),
+/// directly via `from_grid` (which is told the glyph's name and whether it is
+/// `desync`),
 /// glyphs with refs (or pixels alongside refs) become pending, and bodiless
 /// `keep` placeholders enter as `empty` entries that only carry anchors.
 ///
@@ -137,7 +138,7 @@ pub(crate) fn build_alt_index<V: CachedGlyphEntry>(
 /// built so far, which the caller discards along with everything downstream.
 pub(crate) fn seed_cache<'a, V: CachedGlyphEntry>(
     all_items: impl IntoIterator<Item = &'a DocumentItem>,
-    mut from_grid: impl FnMut(&PixelGrid, bool) -> V,
+    mut from_grid: impl FnMut(&str, &PixelGrid, bool) -> V,
     mut empty: impl FnMut() -> V,
     cancel: &crate::cancel::CancelToken,
 ) -> (HashMap<String, V>, Vec<PendingGlyph>) {
@@ -159,7 +160,7 @@ pub(crate) fn seed_cache<'a, V: CachedGlyphEntry>(
             if let Some(ref pixels) = body.pixels
                 && body.refs.is_empty()
             {
-                let mut cached = from_grid(pixels, body.desync);
+                let mut cached = from_grid(&cache_key, pixels, body.desync);
                 cached.set_resolution(body.points.clone(), body.scale, body.declared_origin());
                 cache.insert(cache_key, cached);
             } else if body.pixels.is_some() || !body.refs.is_empty() {
@@ -590,7 +591,7 @@ mod tests {
 
         let (cache, _pending) = seed_cache(
             &doc.items,
-            |_, _| {
+            |_, _, _| {
                 traced += 1;
                 cancel.cancel();
                 Counted::default()
@@ -619,7 +620,7 @@ mod tests {
         let never = CancelToken::never();
         let (mut cache, pending) = seed_cache(
             &doc.items,
-            |_, _| Counted::default(),
+            |_, _, _| Counted::default(),
             Counted::default,
             &never,
         );
@@ -661,7 +662,7 @@ mod tests {
         let never = CancelToken::never();
         let (mut cache, pending) = seed_cache(
             &doc.items,
-            |_, _| Counted::default(),
+            |_, _, _| Counted::default(),
             Counted::default,
             &never,
         );

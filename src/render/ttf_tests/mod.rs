@@ -21,6 +21,7 @@ mod map_alts;
 mod merge;
 mod misc;
 mod uvs;
+mod vectoronly;
 
 /// Rotate a contour so it starts at its lexicographically-smallest point.
 /// `render::contour::track_contour` traces contours via `HashMap`

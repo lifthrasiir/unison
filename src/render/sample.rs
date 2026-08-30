@@ -262,7 +262,7 @@ fn collect_sample_data_with(
 
     let (mut cache, pending) = crate::render::glyph_cache::seed_cache(
         all_items(),
-        CachedGlyph::from_grid,
+        |_, grid, desync| CachedGlyph::from_grid(grid, desync),
         CachedGlyph::empty,
         &crate::cancel::CancelToken::never(),
     );

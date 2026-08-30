@@ -583,12 +583,35 @@ impl CachedContours {
 /// to run on every core at once.
 pub(super) struct ContourBuilder<'a> {
     bitmap: bool,
+    /// The `vectoronly` closure — see `collect::vectoronly_closure`. Empty
+    /// unless this is the bitmap build.
+    exempt: &'a HashSet<String>,
     cache: Option<&'a mut ContourCache>,
 }
 
 impl<'a> ContourBuilder<'a> {
-    pub(super) fn new(bitmap: bool, cache: Option<&'a mut ContourCache>) -> Self {
-        Self { bitmap, cache }
+    pub(super) fn new(
+        bitmap: bool,
+        exempt: &'a HashSet<String>,
+        cache: Option<&'a mut ContourCache>,
+    ) -> Self {
+        Self {
+            bitmap,
+            exempt,
+            cache,
+        }
+    }
+
+    /// Which flavor one glyph is traced in. A `vectoronly` glyph, and anything
+    /// it reaches, is traced as the vector build traces it even while the
+    /// bitmap face is being assembled. Everything keyed by flavor — the grid
+    /// hash, the composite key — takes *this* rather than `self.bitmap`, so a
+    /// cached entry can never cross between the two.
+    fn flavor(&self, name: &str) -> bool {
+        // `is_empty` first: this runs once per glyph on the build's most
+        // expensive stage, and almost every source has no `vectoronly` in it
+        // at all, so the common case must not hash a name to find that out.
+        self.bitmap && (self.exempt.is_empty() || !self.exempt.contains(name))
     }
 
     /// The glyph's own grid, as this flavor sees it: the vector build resolves a
@@ -598,7 +621,9 @@ impl<'a> ContourBuilder<'a> {
         &self,
         pg: &'p crate::render::glyph_cache::PendingGlyph,
     ) -> Option<&'p PixelGrid> {
-        pg.pixels.as_ref().filter(|_| self.bitmap || !pg.desync)
+        pg.pixels
+            .as_ref()
+            .filter(|_| self.flavor(&pg.name) || !pg.desync)
     }
 }
 
@@ -611,7 +636,12 @@ impl crate::render::glyph_cache::CompositeBuilder<CachedContours> for ContourBui
         refs: &[GlyphRef],
         cache: &HashMap<String, CachedContours>,
     ) -> (u64, Option<CachedContours>) {
-        let key = CachedContours::hash_composite_key(self.own_pixels(pg), refs, cache, self.bitmap);
+        let key = CachedContours::hash_composite_key(
+            self.own_pixels(pg),
+            refs,
+            cache,
+            self.flavor(&pg.name),
+        );
         let hit = self.cache.as_deref_mut().and_then(|cc| {
             let cur_gen = cc.gen_id;
             cc.composite_entries.get_mut(&key).map(|entry| {
@@ -629,13 +659,14 @@ impl crate::render::glyph_cache::CompositeBuilder<CachedContours> for ContourBui
         cache: &HashMap<String, CachedContours>,
     ) -> CachedContours {
         let own = self.own_pixels(pg);
-        CachedContours::from_components_inner(own, refs, cache, self.bitmap, pg.scale)
+        let flavor = self.flavor(&pg.name);
+        CachedContours::from_components_inner(own, refs, cache, flavor, pg.scale)
             .unwrap_or_else(|| match own {
                 // Unreachable while `resolve_pending` only ever hands over a
                 // glyph whose every ref already resolved, which is the only way
                 // the tracer above gives up. Kept as the same fallback it always
                 // was rather than as a panic.
-                Some(grid) => CachedContours::from_grid(grid, self.bitmap, None),
+                Some(grid) => CachedContours::from_grid(grid, flavor, None),
                 None => CachedContours::empty(),
             })
     }

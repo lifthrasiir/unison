@@ -113,6 +113,62 @@ fn resolve_glyph_metrics(
 /// the glyph is forced inline.  Compensates for each component glyph's own
 /// left/top offset so that the shift doesn't propagate into parent composites.
 #[expect(clippy::too_many_arguments)]
+/// Every glyph the bitmap build is to draw with *vector* geometry: the
+/// `vectoronly` glyphs and everything they reach through `ref`.
+///
+/// The exemption has to reach the whole subtree, not just the flagged glyph.
+/// [`CachedContours::from_grid`] squares a grid off **into the cache** in the
+/// bitmap flavor, so a composite assembled from cached components inherits
+/// their squared-off form; exempting only the parent would compose blocks and
+/// call the result vector artwork. Reaching down instead means a component
+/// shared with an unflagged glyph is drawn as vector artwork for that glyph
+/// too — [`crate::issues`] reports exactly that case rather than letting it
+/// pass, because the alternative (a second, differently traced copy of the
+/// component) is a glyph the source never wrote.
+///
+/// Empty for the vector build, which draws everything this way already.
+fn vectoronly_closure<'a>(
+    all_items: impl IntoIterator<Item = &'a DocumentItem>,
+    bitmap: bool,
+) -> HashSet<String> {
+    let mut exempt: HashSet<String> = HashSet::new();
+    if !bitmap {
+        return exempt;
+    }
+    let mut refs_of: HashMap<&str, &[GlyphRef]> = HashMap::new();
+    let mut queue: Vec<&str> = Vec::new();
+    for item in all_items {
+        let DocumentItem::Glyph {
+            name: GlyphName(n),
+            body,
+        } = item
+        else {
+            continue;
+        };
+        refs_of.entry(n.as_str()).or_insert(&body.refs);
+        if body.vectoronly {
+            queue.push(n.as_str());
+        }
+    }
+    while let Some(name) = queue.pop() {
+        if !exempt.insert(name.to_string()) {
+            continue;
+        }
+        for r in refs_of.get(name).copied().unwrap_or(&[]) {
+            if !exempt.contains(r.name.as_str()) {
+                // Borrowed from the map so the walk stays allocation-free
+                // except for the set itself.
+                if let Some((k, _)) = refs_of.get_key_value(r.name.as_str()) {
+                    queue.push(k);
+                } else {
+                    exempt.insert(r.name.clone());
+                }
+            }
+        }
+    }
+    exempt
+}
+
 fn build_composite_refs(
     resolved: &CachedContours,
     inline: bool,
@@ -516,20 +572,26 @@ pub(super) fn collect_glyph_data_with_shared(
     let inline_glyphs = &shared.inline_glyphs;
     let glyph_bodies = &shared.glyph_bodies;
 
+    let exempt = vectoronly_closure(all_items, bitmap);
+
     let seed_timer = crate::startup::PerfStage::new("seed cache");
     let (mut cache, pending) = {
         let cc = &mut contour_cache;
+        let exempt = &exempt;
         crate::render::glyph_cache::seed_cache(
             all_items,
-            |pixels, desync| {
+            |name, pixels, desync| {
+                // `vectoronly` and everything it reaches is traced the way the
+                // vector build traces it, whichever face is being built.
+                let flavor = bitmap && (exempt.is_empty() || !exempt.contains(name));
                 // A `desync` grid is ink for the bitmap build and geometry for
                 // nobody: the vector build keeps only the dimensions it
                 // declares, so a blank grid of the same size stands in.
-                if desync && !bitmap {
+                if desync && !flavor {
                     let blank = PixelGrid::new(pixels.width, pixels.height);
-                    CachedContours::from_grid(&blank, bitmap, cc.as_deref_mut())
+                    CachedContours::from_grid(&blank, flavor, cc.as_deref_mut())
                 } else {
-                    CachedContours::from_grid(pixels, bitmap, cc.as_deref_mut())
+                    CachedContours::from_grid(pixels, flavor, cc.as_deref_mut())
                 }
             },
             CachedContours::empty,
@@ -539,7 +601,7 @@ pub(super) fn collect_glyph_data_with_shared(
     drop(seed_timer);
     {
         let _t = crate::startup::PerfStage::new("resolve composites");
-        let mut builder = super::contours::ContourBuilder::new(bitmap, contour_cache);
+        let mut builder = super::contours::ContourBuilder::new(bitmap, &exempt, contour_cache);
         crate::render::glyph_cache::resolve_pending(
             &mut cache,
             pending,
@@ -1009,8 +1071,10 @@ pub(super) fn collect_glyph_data_with_shared(
         // of their own.  Cutting is per pass: a monoonly negation cannot reach
         // the coloronly layers, which are not present when it is drawn.
         let has_negated = body.refs.iter().any(|r| r.negated);
-        // Same rule as the outline path above: a `desync` grid is ink for the
+        // Same rules as the outline path above: `vectoronly` picks the
+        // flavor this glyph is drawn in, and a `desync` grid is ink for the
         // bitmap build and geometry for nobody.
+        let bitmap = bitmap && (exempt.is_empty() || !exempt.contains(g.name.as_str()));
         let own_pixels = body.pixels.as_ref().filter(|_| bitmap || !body.desync);
         let ref_layers: Vec<Option<(PixelGrid, i32, i32)>> = if has_negated {
             effective_refs

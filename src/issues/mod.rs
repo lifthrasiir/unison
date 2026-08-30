@@ -24,6 +24,7 @@
 mod anchors;
 mod colors;
 mod directives;
+mod flags;
 mod glyph_names;
 mod maps;
 mod patterns;
@@ -255,6 +256,7 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
     // do nothing with is never collected as one; see `unused::GlyphGraph`.
     let graph = unused::collect_graph(&cx);
     let mapped_glyphs = maps::check_maps(&cx, &graph, &mut issues);
+    flags::check_vectoronly_reach(&cx, &mapped_glyphs, &mut issues);
     unused::check_unused_glyphs(&cx, &graph, mapped_glyphs, &mut issues);
     anchors::check_ambiguous_anchors(&cx, &mut issues);
     anchors::check_centred_anchor_parity(&cx, &mut issues);

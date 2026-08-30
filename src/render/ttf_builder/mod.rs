@@ -14,6 +14,25 @@
 //! [`crate::on_demand`] on `BitmapFill` for what a synthesized shape has to
 //! decide because of that.
 //!
+//! # `vectoronly`: a glyph the bitmap build does not square off
+//!
+//! The other direction from `desync` below, and the only glyph flag whose
+//! effect reaches past the glyph carrying it. A `vectoronly` glyph says its
+//! drawing is not meant to be pixels at all — flag artwork, where the blocky
+//! form carries no information — so the bitmap build traces it the way the
+//! vector build does.
+//!
+//! Because [`contours::CachedContours::from_grid`] squares a grid off *into
+//! the cache*, exempting the glyph alone would still compose it out of
+//! squared-off components. So the exemption is a **closure over the `ref`
+//! graph** ([`collect::vectoronly_closure`]), and everything keyed by flavor —
+//! the grid hash, the composite key, the seed — takes the *effective* flavor of
+//! the glyph in hand rather than the pass's, which is what keeps a cached entry
+//! from crossing between the two. The price is that a component the closure
+//! shares with an unflagged glyph is exempt for that glyph too;
+//! [`crate::issues`] reports exactly that, because the alternative is a second
+//! copy of a component the source never wrote.
+//!
 //! # `desync`: a grid the vector build does not read
 //!
 //! Normally the two builds draw the same shapes and differ only in how finely:

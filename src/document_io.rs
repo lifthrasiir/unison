@@ -285,10 +285,13 @@
 //!   as pixels at all, so the **bitmap** build draws it exactly as the vector
 //!   build does instead of squaring it off. Flag artwork is the case it exists
 //!   for — the blocky form carries no information and costs a second drawing to
-//!   say so. The glyph is flattened to its own contours in the bitmap build, so
-//!   the exemption reaches everything it pulls in through `ref` without a
-//!   component shared with an unflagged glyph having to choose. Writing it
-//!   beside `desync` is an error, the two asking for opposite things.
+//!   say so. The exemption reaches everything the glyph pulls in through `ref`,
+//!   because the bitmap flavor squares a grid off into the shared cache and a
+//!   composite exempted alone would still be assembled out of blocks; a
+//!   component that reach shares with an unflagged glyph is drawn as vector
+//!   artwork for that glyph too, which [`crate::issues`] reports rather than
+//!   leaves silent. Writing it beside `desync` is an error, the two asking for
+//!   opposite things.
 //! - `keep` puts the glyph in the font whether or not anything reaches it. A
 //!   glyph normally survives only by being mapped, named in a `remap`, or used
 //!   as a composite component, and one nothing reaches is dropped and warned

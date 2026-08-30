@@ -1885,3 +1885,90 @@ anchor -slot 3..5 0
     );
     assert!(!has(&issues, Severity::Warning, "lands half a pixel off"));
 }
+
+fn vectoronly_warnings(input: &str) -> Vec<String> {
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    collect_issues(&[&doc])
+        .into_iter()
+        .filter(|i| i.message.contains("vector artwork in the bitmap face"))
+        .map(|i| i.message)
+        .collect()
+}
+
+/// `vectoronly` reaches down the `ref` graph, so a component it reaches is
+/// drawn as vector artwork for everyone. Where the component is the flagged
+/// glyph's own, that is exactly what was asked for and nothing is said.
+#[test]
+fn a_vectoronly_glyph_with_its_own_parts_warns_about_nothing() {
+    assert!(
+        vectoronly_warnings(
+            "\
+glyph part 1 1
+@@
+glyph flag 1 1 vectoronly
+ref part
+map A = flag
+",
+        )
+        .is_empty(),
+    );
+}
+
+/// Shared with an unflagged glyph, the reach is a surprise: the other glyph
+/// gets vector artwork in the bitmap face without asking, so it is reported
+/// on the component both of them name.
+#[test]
+fn a_component_shared_with_an_unflagged_glyph_is_reported() {
+    let msgs = vectoronly_warnings(
+        "\
+glyph part 1 1
+@@
+glyph flag 1 1 vectoronly
+ref part
+glyph plain 1 1
+ref part
+map A = flag
+map B = plain
+",
+    );
+    assert_eq!(msgs.len(), 1, "expected one warning, got {msgs:?}");
+    assert!(msgs[0].contains("'part'"), "{}", msgs[0]);
+    assert!(msgs[0].contains("'plain'"), "{}", msgs[0]);
+}
+
+/// A component that is a character in its own right is reached the same way,
+/// and the character's own drawing changes with it — so it is reported even
+/// with no second glyph referring to it.
+#[test]
+fn a_mapped_component_inside_the_reach_is_reported() {
+    let msgs = vectoronly_warnings(
+        "\
+glyph part 1 1
+@@
+glyph flag 1 1 vectoronly
+ref part
+map A = flag
+map B = part
+",
+    );
+    assert_eq!(msgs.len(), 1, "expected one warning, got {msgs:?}");
+    assert!(msgs[0].contains("mapped to a character"), "{}", msgs[0]);
+}
+
+/// Nothing is said about a source with no `vectoronly` in it at all — the
+/// walk has to bail before it builds anything.
+#[test]
+fn a_source_without_the_flag_is_never_walked() {
+    assert!(
+        vectoronly_warnings(
+            "\
+glyph part 1 1
+@@
+glyph plain 1 1
+ref part
+map A = plain
+",
+        )
+        .is_empty(),
+    );
+}

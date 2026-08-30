@@ -155,8 +155,8 @@ Core (feature-independent):
   besides the ones it reached. The specimen's cell backgrounds and clicks are the consumer.
 - `issues/` — cross-document validation (missing refs, duplicate maps, unused glyphs, remap sanity).
   `mod.rs` is `Severity`, `Issue` and the driver that runs every check over one shared `Cx`; each
-  check is a module of its own (`slices`, `glyph_names`, `remap`, `directives`, `maps`, `unused`,
-  `anchors`, `colors`, `patterns`).
+  check is a module of its own (`slices`, `glyph_names`, `remap`, `directives`, `flags`, `maps`,
+  `unused`, `anchors`, `colors`, `patterns`).
 - `script_run.rs` — script segmentation for shaping, mirroring browser behavior.
 - `startup.rs` — the timeline of everything before the first painted frame (loader, directory read,
   initial font build), and the three ways to read it out. Written for the slow-launch-over-SMB
@@ -352,6 +352,8 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | On-demand glyph names, `BitmapFill`, circles, polygons and shears | `on_demand.rs` |
 | Which on-demand grids are remembered between builds, and why the line is not drawn at the shape | `on_demand.rs` (`make_on_demand_grid`) |
 | `glyph … desync`: a grid the bitmap face draws and the vector face ignores | `render/ttf_builder/mod.rs`, `ref_composite/mod.rs` (`ResolvedGlyph`) |
+| `glyph … vectoronly`: a drawing the bitmap face must not square off, and why the exemption is a closure over the `ref` graph | `render/ttf_builder/mod.rs`, `collect.rs` (`vectoronly_closure`) |
+| What an exemption costs a component shared with an unflagged glyph | `issues/flags.rs` |
 | Why the view synthesizes an on-demand ref instead of waiting for the resolve | `ref_composite/mod.rs` (`resolve_ref_name_for_view`) |
 | Why a `ref` to a composite that subtracts is one sample layer, not its parts | `render/sample.rs` (`push_ref_components`) |
 | Sub-pixel shape codes, `PX_CUSTOM` | `pixel.rs` |

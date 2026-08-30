@@ -167,7 +167,7 @@ pub(super) fn check_anchor_derivation(cx: &Cx<'_>, issues: &mut Vec<Issue>) {
 
     let (mut cache, pending) = crate::render::glyph_cache::seed_cache(
         expansion.items(),
-        |_, _| AnchorsOnly::new(),
+        |_, _, _| AnchorsOnly::new(),
         AnchorsOnly::new,
         &crate::cancel::CancelToken::never(),
     );
