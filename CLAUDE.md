@@ -175,6 +175,7 @@ Core (feature-independent):
   `glyph_cache.rs` (the composite-resolution driver `ttf_builder` and `sample` share), `sample.rs`,
   `assert.rs` (`assert` directives).
 - `render/ttf_builder/` — contours → TrueType, GSUB, cmap. `mod.rs` lists the stage submodules;
+  `masters.rs` is the pair of point-compatible outlines the variable output will carry;
   `gsub.rs` documents feature targets and OpenType scope fallback. Tests in `render/ttf_tests/`.
 - `golden.rs` — `cfg(test)` golden snapshots over `testdata/`.
 
@@ -353,6 +354,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Which on-demand grids are remembered between builds, and why the line is not drawn at the shape | `on_demand.rs` (`make_on_demand_grid`) |
 | `glyph … desync`: a grid the bitmap face draws and the vector face ignores | `render/ttf_builder/mod.rs`, `ref_composite/mod.rs` (`ResolvedGlyph`) |
 | `glyph … vectoronly`: a drawing the bitmap face must not square off, and why the exemption is a closure over the `ref` graph | `render/ttf_builder/mod.rs`, `collect.rs` (`vectoronly_closure`) |
+| Making the two builds' outlines point-compatible: the two shape-preserving padding moves, why the alignment is a monotone walk and not arc length, and what it costs | `render/ttf_builder/masters.rs` |
 | What an exemption costs a component shared with an unflagged glyph | `issues/flags.rs` |
 | Why the view synthesizes an on-demand ref instead of waiting for the resolve | `ref_composite/mod.rs` (`resolve_ref_name_for_view`) |
 | Why a `ref` to a composite that subtracts is one sample layer, not its parts | `render/sample.rs` (`push_ref_components`) |
@@ -492,7 +494,7 @@ past the source it tests, it lives in a sibling file (or directory) declared as 
 
 | Module | Tests |
 | --- | --- |
-| `render/ttf_builder/` | `render/ttf_tests/` — `misc`, `hints`, `gsub`, `gpos`, `color`, `composite`, `collection`, with shared canonicalization helpers in its `mod.rs` |
+| `render/ttf_builder/` | `render/ttf_tests/` — `misc`, `gsub`, `gpos`, `color`, `composite`, `collection`, `masters`, `vectoronly`, with shared canonicalization helpers in its `mod.rs` |
 | `document_io.rs` | `document_io_tests/` — `roundtrip`, `doclines`, `derive`, `lenient`, `tokenizer`, `maps`, `colors`, `asserts`, `comments`, `misc`, `at_names` |
 | `document/` | `document/document_tests.rs` |
 | `issues/` | `issues/issues_tests.rs` |

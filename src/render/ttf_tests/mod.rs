@@ -18,6 +18,7 @@ mod desync;
 mod gpos;
 mod gsub;
 mod map_alts;
+mod masters;
 mod merge;
 mod misc;
 mod uvs;

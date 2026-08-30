@@ -119,6 +119,7 @@ mod contours;
 mod expand;
 mod gpos;
 mod gsub;
+mod masters;
 mod os2_ranges;
 mod outlines;
 mod tables;
