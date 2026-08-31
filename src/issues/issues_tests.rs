@@ -2059,16 +2059,22 @@ fn a_duplicate_sample_name_is_an_error() {
     assert!(msgs[0].contains("give this one a sublabel"), "{}", msgs[0]);
 }
 
-/// The `: MODE` tail parses so the grammar is settled; until something is
-/// defined for it, writing one is a mistake and not a no-op.
+/// A mode is a word off a list, so one that is not on it is a mistake and not
+/// a no-op — the text would otherwise be offered read the wrong way round.
 #[test]
-fn every_sample_mode_is_unknown_so_far() {
+fn a_mode_that_names_nothing_is_an_error() {
     let msgs = sample_errors("sample L a : vertical\n|| text\n");
     assert_eq!(msgs.len(), 1, "{msgs:?}");
     assert!(
         msgs[0].contains("unknown sample mode `vertical`"),
         "{}",
         msgs[0]
+    );
+    assert!(msgs[0].contains("`matrix`"), "{}", msgs[0]);
+
+    assert!(
+        sample_errors("sample L a : matrix\n|| ab\n|| cd\n").is_empty(),
+        "a mode on the list is not a complaint"
     );
 }
 

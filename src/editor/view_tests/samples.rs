@@ -44,6 +44,15 @@ fn pressing_use_hands_over_the_whole_text() {
     );
 }
 
+/// A `matrix` sample's text is its axes, and what *Use* is for is the product
+/// of them: the preview would otherwise be handed the two lines an author
+/// wrote instead of the specimen they wrote them for.
+#[test]
+fn pressing_use_expands_a_matrix() {
+    let mut h = EditorHarness::new("sample Latin pairs : matrix\n|| ab\n|| xy\n");
+    assert_eq!(h.click_sample_use(0).as_deref(), Some("axay\nbxby"));
+}
+
 /// The press is the button's: it must not also land the caret at the end of
 /// the header, which is the line the button is painted past.
 #[test]

@@ -1295,14 +1295,22 @@ const SAMPLE_USE_LABEL: &str = "Use";
 /// that is what the line is.
 ///
 /// A sample's text is the item's, not the buffer's: the `||` lines have already
-/// been dedented, and joining them here is what the preview is handed.
+/// been dedented, and joining them here is what the preview is handed — read
+/// through the line's [mode](crate::samples::SampleMode), so *Use* hands over
+/// what the sample stands for and not the axes a `matrix` writes it as.
 fn sample_text_at(doc: &Document, doc_line: usize) -> Option<String> {
     let idx = line_to_item_idx(&doc.item_line_starts, doc_line)?;
     if doc.item_line_starts.get(idx) != Some(&doc_line) {
         return None;
     }
     match doc.items.get(idx) {
-        Some(DocumentItem::Sample { text, .. }) if !text.is_empty() => Some(text.join("\n")),
+        Some(DocumentItem::Sample { mode, text, .. }) if !text.is_empty() => Some(
+            crate::samples::SampleText {
+                raw: text.join("\n"),
+                mode: crate::samples::SampleMode::from_tokens(mode),
+            }
+            .expanded(),
+        ),
         _ => None,
     }
 }

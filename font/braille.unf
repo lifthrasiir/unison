@@ -44,3 +44,14 @@ remap group braille-8dot-rev reversed after braille-8dot
 feature calt for DFLT : braille-8dot
 feature calt for DFLT : braille-8dot-rev
 
+sample `Braille` `Cat`
+|| ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣴
+|| ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿
+|| ⢠⡀⠀⠀⢀⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿
+|| ⢸⠈⡒⠒⡁⢇⠀⠀⠀⠀⠀⣀⣀⣀⠀⠀⠀⠀⠀⣿
+|| ⠘⢄⠀⠀⠀⠈⠒⠒⠒⠉⠉⠀⠀⠀⠉⠉⠒⢄⣤⠟
+|| ⠀⠀⠉⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠀⠀
+|| ⠀⠀⠀⠸⡀⠀⠀⢀⣀⣀⣀⣀⣀⣀⡀⠀⠀⡇⠀⠀
+|| ⠀⠀⠀⠀⡸⢀⠔⡇⡇⠀⠀⠀⠀⢸⢸⠑⡄⢣⠀⠀
+|| ⠀⠀⠀⣔⡱⠁⠀⣕⣱⠀⠀⠀⣔⡡⠊⣔⣡⠊⠀⠀
+

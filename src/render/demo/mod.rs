@@ -190,6 +190,10 @@ struct DemoSampleGroup {
     /// title on the list a thing to click.
     #[serde(skip_serializing_if = "String::is_empty")]
     text: String,
+    /// Whether that text is a [`matrix`](crate::samples::SampleMode::Matrix),
+    /// which the page expands for itself.
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
+    matrix: bool,
     items: Vec<DemoSample>,
 }
 
@@ -204,7 +208,14 @@ struct DemoSample {
     /// where the id is already the name.
     #[serde(skip_serializing_if = "String::is_empty")]
     name: String,
+    /// The text as the source wrote it — a `matrix` is *not* expanded here.
+    /// The page expands it (`demo.js`'s `sampleText`), because the product is
+    /// what the mode exists to avoid writing out: the blob carries the four
+    /// lines an author typed, not the four thousand cells they stand for.
     text: String,
+    /// Whether `text` is a [`matrix`](crate::samples::SampleMode::Matrix).
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
+    matrix: bool,
 }
 
 /// The sample texts to embed: the source's own [`sample`](crate::samples)
@@ -230,7 +241,11 @@ fn collect_samples(
                 title: group.label,
                 note: String::new(),
                 lang: false,
-                text: group.text.unwrap_or_default(),
+                matrix: group
+                    .text
+                    .as_ref()
+                    .is_some_and(|t| t.mode == crate::samples::SampleMode::Matrix),
+                text: group.text.map(|t| t.raw).unwrap_or_default(),
                 items: group
                     .items
                     .into_iter()
@@ -240,7 +255,8 @@ fn collect_samples(
                         // holds the source to that), so it needs no second string.
                         id: item.sublabel,
                         name: String::new(),
-                        text: item.text,
+                        matrix: item.text.mode == crate::samples::SampleMode::Matrix,
+                        text: item.text.raw,
                     })
                     .collect(),
             })
@@ -257,12 +273,14 @@ fn collect_samples(
                 .to_string(),
             lang: true,
             text: String::new(),
+            matrix: false,
             items: entries
                 .into_iter()
                 .map(|e| DemoSample {
                     id: e.lang,
                     name: e.name,
                     text: e.text,
+                    matrix: false,
                 })
                 .collect(),
         });

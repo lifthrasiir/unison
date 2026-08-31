@@ -1,5 +1,5 @@
 //! `sample` lines and the `||` continuations they take: is there a text, is
-//! the reserved mode one that exists, and is each name on the list reachable.
+//! the mode one that exists, and is each name on the list reachable.
 //!
 //! See [`crate::samples`] for the model and why a label may carry a text of
 //! its own.
@@ -73,8 +73,12 @@ pub(super) fn check_samples(cx: &Cx<'_>, issues: &mut Vec<Issue>) {
                         item_idx,
                         Severity::Error,
                         format!(
-                            "unknown sample mode `{mode}`: the `: MODE` tail is reserved \
-                             and nothing is defined for it yet"
+                            "unknown sample mode `{mode}`: the modes are {}",
+                            SAMPLE_MODES
+                                .iter()
+                                .map(|m| format!("`{m}`"))
+                                .collect::<Vec<_>>()
+                                .join(", ")
                         ),
                     ));
                 }

@@ -256,9 +256,14 @@
 //!   both are ordinary tokens, so a label with a space in it is backtick
 //!   quoted.
 //!
-//!   `: MODE...` is reserved. The tail parses so that the grammar is settled
-//!   before there is anything to put in it; every mode is unknown today and
-//!   [`crate::issues`] says so.
+//!   `: MODE...` says how the `||` lines are read. With no tail they are the
+//!   text itself. `matrix` reads each line as an axis of characters and offers
+//!   their *product* — every character of the last line along a line, of the
+//!   one before it down the lines, and every earlier one a block of its own —
+//!   so `|| ab` over `|| xy` is `axay` / `bxby`. A word that names no mode is
+//!   an error [`crate::issues`] reports; see [`crate::samples`] for the axes
+//!   and for why the product is expanded where it is shown rather than where
+//!   it is collected.
 //! - `exclude-from-sample NAME`
 //! - `assume unused NAME...` — suppresses the unused-glyph warning (patterns
 //!   accepted).
@@ -1068,11 +1073,11 @@ fn parse_glyph_flag_parts_impl<S: AsRef<str>>(
 /// `LABEL [SUBLABEL] [: MODE...]` — the tokens of a `sample` line after the
 /// keyword, or `None` if they do not read as one.
 ///
-/// The reserved tail is told from the labels by a bare `:` token, the same rule
-/// a slice qualifier is told by; a label that is literally `:` is written
+/// The mode tail is told from the labels by a bare `:` token, the same rule a
+/// slice qualifier is told by; a label that is literally `:` is written
 /// `` `:` `` like any other token holding punctuation. Nothing validates `MODE`
-/// here — there is no mode yet, and [`crate::issues`] is where the author is
-/// told so.
+/// here — the words are kept as written, [`crate::samples::SampleMode`] reads
+/// them and [`crate::issues`] is where one that names nothing is reported.
 fn parse_sample_header<S: AsRef<str>>(
     parts: &[S],
 ) -> Option<(String, Option<String>, Vec<String>)> {

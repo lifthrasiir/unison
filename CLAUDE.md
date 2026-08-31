@@ -396,7 +396,8 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | `#`/`##`/`###` headings: the syntax, and why they are a comment to every build stage | `document_io.rs` (`# Headings`), `document/mod.rs` (`DocumentItem::Heading`) |
 | `|| TEXT` continuation lines: why they are a line's keyword rather than a mid-line escape, and what "the shared whitespace" removes | `document_io.rs` (`# Continuation lines`, `dedent_continuations`) |
 | Why a continuation is never tokenized, and the round trip that rests on one dedented line starting at column 0 | `document_io.rs` (`tokenize_strict`), `document/serialize.rs` (`sample_lines`) |
-| `sample LABEL [SUBLABEL] [: MODE]`: the two levels, why a label may carry a text itself, and why the mode tail is reserved | `samples.rs`, `document_io.rs` (`# Directives`) |
+| `sample LABEL [SUBLABEL] [: MODE]`: the two levels, why a label may carry a text itself, and what a mode says | `samples.rs`, `document_io.rs` (`# Directives`) |
+| `sample … : matrix`: the lines read as axes, which axis runs where, and why the product is expanded by each consumer rather than by the collection | `samples.rs` (`SampleMode`, `SampleText::expanded`), `render/demo/demo.js` (`sampleText`) |
 | Where a `sample` reaches the reader: the demo's panel and the editor's *Use* button | `render/demo/mod.rs` (`collect_samples`), `editor/document_view/paint.rs` (`sample_use_rect`), `app/mod.rs` |
 | What a heading section holds, and why one lone `#` folds nothing | `editor/folding.rs` (`fold_groups`) |
 | Why a heading draws in zoom *steps*, and what marks the minimap | `document_view/layout.rs` (`heading_font_size`), `editor/minimap.rs` |

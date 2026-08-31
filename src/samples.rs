@@ -22,6 +22,34 @@
 //! one name would be one entry the second of which is unreachable.
 //! [`crate::issues`] reports both, and this collection keeps the first — a
 //! source with a duplicate still shows what it can.
+//!
+//! # Modes, and why one is written rather than expanded
+//!
+//! The `: MODE` tail says how the `||` lines are *read*. Plain — no tail — is
+//! the text itself, one line per line. `matrix` reads each line as an axis of
+//! characters and offers their product: every character of the first line
+//! against every character of the second, and so on, which is the specimen a
+//! font's author actually wants for a pair of interacting characters (every
+//! base against every mark, every jamo against every vowel) and which nobody
+//! wants to type out by hand.
+//!
+//! The mode is kept beside the text and expanded by whoever shows it
+//! ([`SampleText::expanded`]) rather than folded into the source's text at
+//! collection time, because *not writing the product out* is the whole point:
+//! four lines of eight characters are 32 characters written and 4096 shown,
+//! and the demo page carries the four. Its `demo.js` expands the same way this
+//! does, which is the one duplication the mode costs.
+//!
+//! # What the axes are
+//!
+//! The last line is the innermost axis and runs *along* a line; the one before
+//! it runs down the lines; every earlier one is a block separated by one more
+//! blank line than the axis inside it. So two lines are a table (rows from the
+//! first, columns from the second), three are a page of such tables, and a
+//! fourth is a run of pages — the rule stated once and read outwards. A line
+//! with nothing on it is no axis: an empty axis has an empty product, and a
+//! blank continuation is much more likely to be spacing than a claim that
+//! there is nothing to show.
 
 use crate::document::DocumentItem;
 
@@ -30,14 +58,101 @@ use crate::document::DocumentItem;
 pub struct SampleGroup {
     pub label: String,
     /// The text the `sample LABEL` line with no sublabel gave the heading.
-    pub text: Option<String>,
+    pub text: Option<SampleText>,
     pub items: Vec<SampleItem>,
 }
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct SampleItem {
     pub sublabel: String,
-    pub text: String,
+    pub text: SampleText,
+}
+
+/// How a `sample` line's `||` lines are read.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum SampleMode {
+    /// The text as written.
+    #[default]
+    Plain,
+    /// Each line an axis of characters; what is offered is their product.
+    Matrix,
+}
+
+impl SampleMode {
+    /// The mode a line's `: MODE...` tail states.
+    ///
+    /// A word that names no mode is an error [`crate::issues`] reports by
+    /// name; here it is simply not the mode, so a source with a typo in it
+    /// still offers its text rather than offering nothing.
+    pub fn from_tokens<S: AsRef<str>>(tokens: &[S]) -> SampleMode {
+        for token in tokens {
+            if token.as_ref() == "matrix" {
+                return SampleMode::Matrix;
+            }
+        }
+        SampleMode::Plain
+    }
+}
+
+/// One offered text: what the source wrote, and how to read it.
+#[derive(Clone, Debug, PartialEq)]
+pub struct SampleText {
+    /// The `||` lines as written, joined by newlines.
+    pub raw: String,
+    pub mode: SampleMode,
+}
+
+impl SampleText {
+    /// The text to actually show.
+    ///
+    /// The headless binary never asks: it hands the demo page the raw text and
+    /// the mode, and the page is what expands one.
+    #[cfg_attr(all(not(feature = "editor"), not(test)), expect(dead_code))]
+    pub fn expanded(&self) -> String {
+        match self.mode {
+            SampleMode::Plain => self.raw.clone(),
+            SampleMode::Matrix => expand_matrix(&self.raw),
+        }
+    }
+}
+
+/// The product of `raw`'s lines read as axes of characters; see the module
+/// docs for which axis runs where.
+fn expand_matrix(raw: &str) -> String {
+    let axes: Vec<Vec<char>> = raw
+        .lines()
+        .map(|line| line.chars().collect::<Vec<char>>())
+        .filter(|axis| !axis.is_empty())
+        .collect();
+    let mut out = String::new();
+    if !axes.is_empty() {
+        push_matrix(&axes, &mut String::new(), &mut out);
+    }
+    out
+}
+
+/// Walk the axes outermost first, carrying the cell built so far.
+///
+/// The recursion is over the axes and not over the output, so the separator is
+/// what the *remaining* depth says it is: the innermost axis writes cells side
+/// by side, and every level outside it adds one more newline to what it writes
+/// between its children.
+fn push_matrix(axes: &[Vec<char>], cell: &mut String, out: &mut String) {
+    let (axis, rest) = axes.split_first().expect("a non-empty axis list");
+    let sep = "\n".repeat(rest.len());
+    for (i, ch) in axis.iter().enumerate() {
+        if i > 0 {
+            out.push_str(&sep);
+        }
+        let len = cell.len();
+        cell.push(*ch);
+        if rest.is_empty() {
+            out.push_str(cell);
+        } else {
+            push_matrix(rest, cell, out);
+        }
+        cell.truncate(len);
+    }
 }
 
 /// The `sample` lines of a source, grouped by label in the order the labels are
@@ -54,6 +169,7 @@ impl SampleSet {
             let DocumentItem::Sample {
                 label,
                 sublabel,
+                mode,
                 text,
                 ..
             } = item
@@ -65,7 +181,10 @@ impl SampleSet {
             if text.is_empty() {
                 continue;
             }
-            let text = text.join("\n");
+            let text = SampleText {
+                raw: text.join("\n"),
+                mode: SampleMode::from_tokens(mode),
+            };
             let group = match set.groups.iter().position(|g| g.label == *label) {
                 Some(at) => &mut set.groups[at],
                 None => {
@@ -97,12 +216,9 @@ impl SampleSet {
     }
 }
 
-/// The `: MODE` values a `sample` line may state.
-///
-/// Empty: the tail parses so that the grammar is settled before there is
-/// anything to put in it, and until there is, every mode written is one
+/// The `: MODE` values a `sample` line may state; anything else is a mode
 /// [`crate::issues`] rejects by name rather than one the build ignores.
-pub const SAMPLE_MODES: &[&str] = &[];
+pub const SAMPLE_MODES: &[&str] = &["matrix"];
 
 #[cfg(test)]
 mod tests {
@@ -129,7 +245,7 @@ mod tests {
             set.groups[0]
                 .items
                 .iter()
-                .map(|i| (i.sublabel.as_str(), i.text.as_str()))
+                .map(|i| (i.sublabel.as_str(), i.text.raw.as_str()))
                 .collect::<Vec<_>>(),
             vec![("one", "A"), ("two", "C")]
         );
@@ -138,7 +254,10 @@ mod tests {
     #[test]
     fn a_line_with_no_sublabel_gives_the_heading_a_text() {
         let set = set_of("sample Pangram\n|| Sphinx\n|| of quartz\n");
-        assert_eq!(set.groups[0].text.as_deref(), Some("Sphinx\nof quartz"));
+        assert_eq!(
+            set.groups[0].text.as_ref().map(|t| t.raw.as_str()),
+            Some("Sphinx\nof quartz")
+        );
         assert!(set.groups[0].items.is_empty());
     }
 
@@ -150,8 +269,71 @@ mod tests {
             "sample L a\n|| first\nsample L a\n|| second\nsample L\n|| head\nsample L\n|| again\n",
         );
         assert_eq!(set.groups[0].items.len(), 1);
-        assert_eq!(set.groups[0].items[0].text, "first");
-        assert_eq!(set.groups[0].text.as_deref(), Some("head"));
+        assert_eq!(set.groups[0].items[0].text.raw, "first");
+        assert_eq!(
+            set.groups[0].text.as_ref().map(|t| t.raw.as_str()),
+            Some("head")
+        );
+    }
+
+    #[test]
+    fn a_matrix_of_two_lines_is_rows_by_columns() {
+        let set = set_of("sample M x : matrix\n|| abc\n|| DEF\n");
+        assert_eq!(set.groups[0].items[0].text.mode, SampleMode::Matrix);
+        assert_eq!(
+            set.groups[0].items[0].text.expanded(),
+            "aDaEaF\nbDbEbF\ncDcEcF"
+        );
+    }
+
+    /// A third line is the innermost axis: the one that used to run along a
+    /// line now runs down it, and the outermost is a block of its own.
+    #[test]
+    fn a_third_line_pushes_the_others_outwards() {
+        let set = set_of("sample M x : matrix\n|| ab\n|| DEF\n|| 123\n");
+        assert_eq!(
+            set.groups[0].items[0].text.expanded(),
+            "aD1aD2aD3\naE1aE2aE3\naF1aF2aF3\n\nbD1bD2bD3\nbE1bE2bE3\nbF1bF2bF3"
+        );
+    }
+
+    /// Every further line is one more blank line between the blocks, which is
+    /// the same rule the third one stated read outwards.
+    #[test]
+    fn a_fourth_line_is_one_more_blank_line() {
+        let set = set_of("sample M x : matrix\n|| ab\n|| cd\n|| ef\n|| gh\n");
+        let text = set.groups[0].items[0].text.expanded();
+        assert!(
+            text.starts_with("acegaceh\nacfgacfh\n\nadegadeh\nadfgadfh\n\n\nbceg"),
+            "{text}"
+        );
+        assert_eq!(text.matches("\n\n\n").count(), 1, "{text}");
+    }
+
+    /// One line is the plain text it already reads as, and a line with nothing
+    /// on it is no axis at all — an empty axis would empty the whole product.
+    #[test]
+    fn one_axis_is_the_line_itself_and_a_blank_line_is_none() {
+        let set = set_of("sample M x : matrix\n|| abc\n||\n");
+        assert_eq!(set.groups[0].items[0].text.expanded(), "abc");
+    }
+
+    /// The mode is the line's, so a heading that carries its own text carries
+    /// its own mode with it.
+    #[test]
+    fn a_heading_text_carries_the_mode() {
+        let set = set_of("sample M : matrix\n|| ab\n|| xy\n");
+        let text = set.groups[0].text.as_ref().expect("heading text");
+        assert_eq!(text.expanded(), "axay\nbxby");
+    }
+
+    /// A plain sample is untouched by any of this: what is written is what is
+    /// offered, newlines and all.
+    #[test]
+    fn a_plain_sample_is_its_own_text() {
+        let set = set_of("sample M x\n|| abc\n|| DEF\n");
+        assert_eq!(set.groups[0].items[0].text.mode, SampleMode::Plain);
+        assert_eq!(set.groups[0].items[0].text.expanded(), "abc\nDEF");
     }
 
     #[test]

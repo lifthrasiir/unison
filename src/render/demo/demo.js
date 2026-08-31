@@ -311,6 +311,32 @@
     return group.lang ? langName(item) : (item.name || item.id);
   }
 
+  /* A sample's text, read through its mode. A `matrix` sample carries the
+     axes its author wrote and not their product — the blob would otherwise
+     carry four thousand cells where four lines say the same thing — so the
+     product is built here, by the rule `crate::samples` states: the last line
+     runs along a line, the one before it down the lines, and every earlier one
+     is a block separated by one more blank line than the axis inside it.
+     Axes are code points and not UTF-16 units, so an astral character is one
+     cell rather than a broken pair. */
+  function sampleText(item) {
+    if (!item.matrix) return item.text;
+    var axes = item.text.split("\n")
+      .map(function (line) { return Array.from(line); })
+      .filter(function (axis) { return axis.length; });
+    if (!axes.length) return "";
+    var out = [];
+    (function walk(at, cell) {
+      var sep = "\n".repeat(axes.length - 1 - at);
+      for (var i = 0; i < axes[at].length; i++) {
+        if (i) out.push(sep);
+        if (at === axes.length - 1) out.push(cell + axes[at][i]);
+        else walk(at + 1, cell + axes[at][i]);
+      }
+    })(0, "");
+    return out.join("");
+  }
+
   function sampleList() {
     if (!samples.length) {
       return '<p class="s-none">No sample text was built into this page.</p>';
@@ -318,7 +344,7 @@
     return samples.map(function (group, gi) {
       var items = group.items.map(function (item) {
         var key = gi + "/" + item.id;
-        sampleTexts[key] = item.text;
+        sampleTexts[key] = sampleText(item);
         sampleLabels[key] = itemName(group, item);
         return '<button type="button" class="s-item" data-key="' + esc(key) +
           '" aria-pressed="false">' + esc(sampleLabels[key]) + "</button>";
@@ -338,7 +364,7 @@
       var head;
       if (group.text) {
         var hkey = gi + "/";
-        sampleTexts[hkey] = group.text;
+        sampleTexts[hkey] = sampleText(group);
         sampleLabels[hkey] = group.title;
         head = '<button type="button" class="s-head-item" data-key="' +
           esc(hkey) + '" aria-pressed="false">' + esc(group.title) + "</button>";

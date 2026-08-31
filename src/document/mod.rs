@@ -343,9 +343,9 @@ pub enum DocumentItem {
     ///
     /// `label` is the heading the text is listed under and `sublabel` the entry
     /// beneath it; a line with no sublabel gives the heading *itself* a text.
-    /// `mode` is the reserved `: MODE...` tail, kept as written so that the
-    /// grammar is settled before there is anything to put in it — nothing is
-    /// accepted yet and [`crate::issues`] says so.
+    /// `mode` is the `: MODE...` tail, kept as written; it says how the text
+    /// is read ([`crate::samples::SampleMode`]), and a word that names no mode
+    /// is an error [`crate::issues`] reports.
     ///
     /// `text` is one entry per continuation line, already dedented (see
     /// [`crate::document_io::dedent_continuations`]); empty means the `sample`
