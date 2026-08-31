@@ -37,21 +37,34 @@
 
   /* What the page opens at, in whole multiples of the pixel grid. */
   var INITIAL_ZOOM = 2;
+  /* The zoom steps the bitmap face is offered at, and so — multiplied by the
+     pixel grid — the range the vector face is sized over too. */
+  var MIN_ZOOM = 1;
+  var MAX_ZOOM = 6;
 
+  /* The size is *one* number for both drawings, in px of em. Switching between
+     bitmap and vector is for comparing them, and a switch that also changed the
+     size would make that a worse comparison — so the mode changes what is
+     drawn, never how big it is drawn.
+     The one thing a switch may do is round: the bitmap face is only crisp at
+     whole multiples of the pixel grid, so entering bitmap mode snaps the shared
+     size to the nearest multiple of `meta.height` (a tie rounds up), and leaves
+     it there. Everything is derived from `meta.height` rather than stated, so it
+     stays true for a font whose pixel grid is not this one's. */
   var state = {
     mode: "bitmap",
-    /* The bitmap face is only crisp at whole multiples of the pixel grid, so
-       it is zoomed in steps rather than sized freely. */
-    zoom: INITIAL_ZOOM,
-    /* Freely sized, but opening at the same em as the bitmap face does:
-       switching between the two is for comparing them, and a switch that also
-       changed the size would make that a worse comparison. Derived rather than
-       stated, so it stays true for a font whose pixel grid is not this one's. */
-    size: meta.height * INITIAL_ZOOM
+    em: meta.height * INITIAL_ZOOM
   };
 
   function em() {
-    return state.mode === "bitmap" ? meta.height * state.zoom : state.size;
+    return state.em;
+  }
+
+  /* The shared size read as a bitmap zoom: nearest whole multiple of the pixel
+     grid, ties up (`Math.round` rounds a positive half up), clamped to the steps
+     the control offers. */
+  function snapZoom(px) {
+    return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Math.round(px / meta.height)));
   }
 
   function metrics() {
@@ -273,17 +286,29 @@
 
   function sizeControl() {
     var input = document.getElementById("size");
+    /* One control, one shared value; only its granularity is the mode's. The
+       vector face steps finely over the same span the zoom steps cover, so a
+       size reachable in one mode is reachable in the other. */
     if (state.mode === "bitmap") {
-      input.min = 1; input.max = 6; input.step = 1; input.value = state.zoom;
+      input.min = MIN_ZOOM;
+      input.max = MAX_ZOOM;
+      input.step = 1;
+      input.value = state.em / meta.height;
     } else {
-      input.min = 16; input.max = 96; input.step = 4; input.value = state.size;
+      input.min = meta.height * MIN_ZOOM;
+      input.max = meta.height * MAX_ZOOM;
+      input.step = Math.max(1, Math.round(meta.height / 4));
+      input.value = state.em;
     }
     document.getElementById("size-val").textContent =
-      state.mode === "bitmap" ? state.zoom + "× (" + em() + "px)" : em() + "px";
+      state.mode === "bitmap"
+        ? state.em / meta.height + "× (" + state.em + "px)"
+        : state.em + "px";
   }
 
   function setMode(mode) {
     state.mode = mode;
+    if (mode === "bitmap") state.em = snapZoom(state.em) * meta.height;
     document.getElementById("m-bitmap").setAttribute("aria-pressed", String(mode === "bitmap"));
     document.getElementById("m-vector").setAttribute("aria-pressed", String(mode === "vector"));
     sizeControl();
@@ -310,8 +335,7 @@
   document.getElementById("m-bitmap").onclick = function () { setMode("bitmap"); };
   document.getElementById("m-vector").onclick = function () { setMode("vector"); };
   document.getElementById("size").oninput = function () {
-    if (state.mode === "bitmap") state.zoom = +this.value;
-    else state.size = +this.value;
+    state.em = state.mode === "bitmap" ? +this.value * meta.height : +this.value;
     sizeControl();
     applyMetrics();
   };

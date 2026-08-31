@@ -12,12 +12,26 @@
   --bg-cell: #1b2029;
   --bg-cell-alt: #171c24;
   --fg: #e8ecf3;
-  --fg-dim: #8b95a7;
-  --fg-faint: #4d5768;
-  --line: #262d38;
+  /* The two dimmer text weights and the two graphical ones below all clear
+     WCAG 2.2 against every background they are drawn on — the page, the raised
+     header, both cell stripes and the cell hover — rather than only against the
+     page. Text (`--fg-dim`, `--fg-faint`: the block chrome, the ruler, the row
+     gutters, the hex label under a glyph) is held to 1.4.3's 4.5:1, and the
+     non-text marks (`--line` for every border and the grid between cells,
+     `--hatch` for the fill of a character the font does not have) to 1.4.11's
+     3:1. The hover tint is a token of its own and deliberately close to the
+     cells in luminance: a mid-luminance highlight would be the one background
+     that nothing drawn over it could clear. */
+  --fg-dim: #b3bcca;
+  --fg-faint: #98a2b3;
+  --line: #6f7989;
   --accent: #7cc7ff;
   --accent-dim: #2b4a63;
-  --missing: #2a2f3a;
+  --bg-cell-hover: #1d2a38;
+  --hatch: #7a8496;
+  /* The coverage bar's unfilled track: a background, not a mark, so it stays
+     quiet where `--hatch` had to become loud. */
+  --track: #2a2f3a;
   /* The dotted circle standing in for a character with no advance. A sky blue
      in both schemes: it is not text, and not a warning either. Kept in step
      with `Palette::zero_advance`. */
@@ -36,12 +50,14 @@
     --bg-cell: #ffffff;
     --bg-cell-alt: #f4f6fa;
     --fg: #10151d;
-    --fg-dim: #5c677a;
-    --fg-faint: #a7b0be;
-    --line: #e2e6ee;
+    --fg-dim: #4f5a6c;
+    --fg-faint: #616b7c;
+    --line: #828b9b;
     --accent: #0b6bcb;
     --accent-dim: #cfe3f7;
-    --missing: #eef0f5;
+    --bg-cell-hover: #e8f1fc;
+    --hatch: #7c8598;
+    --track: #eef0f5;
     --zero-advance: #2382c8;
   }
 }
@@ -155,7 +171,7 @@ section.block { width: fit-content; min-width: min(100%, 40rem); margin: 1.75rem
 }
 .block-head .cov { margin-left: auto; display: flex; align-items: center; gap: 0.5rem; }
 .block-head .cov span { color: var(--fg-dim); font-size: 0.75rem; font-variant-numeric: tabular-nums; }
-.bar { width: 6rem; height: 5px; border-radius: 3px; background: var(--missing); overflow: hidden; }
+.bar { width: 6rem; height: 5px; border-radius: 3px; background: var(--track); overflow: hidden; }
 .bar i { display: block; height: 100%; background: var(--accent); }
 
 .ruler, .row {
@@ -209,9 +225,17 @@ section.block { width: fit-content; min-width: min(100%, 40rem); margin: 1.75rem
 }
 /* The stripe follows the row's own code point, not its place in the DOM: rows
    are rendered in lazy chunks and a collapsed run of excluded rows is a child
-   like any other, so `nth-child` would restripe the grid at every gap. */
-.row.alt .cell { background: var(--bg-cell-alt); }
-.cell:hover { background: var(--accent-dim); }
+   like any other, so `nth-child` would restripe the grid at every gap.
+
+   `background-color`, not the shorthand, for the same reason the hover below
+   is: the shorthand also writes `background-image: none`, and this selector
+   out-specifies `.cell.missing`, so an alternate row would lose its hatch. */
+.row.alt .cell { background-color: var(--bg-cell-alt); }
+/* `background-color`, not the shorthand: a missing cell's hatch is a background
+   *image* and the hover has to tint under it, not replace it. The selector
+   carries the `.row` so that it out-specifies `.row.alt .cell`, which would
+   otherwise leave every second row with no hover at all. */
+.row .cell:hover { background-color: var(--bg-cell-hover); }
 
 /* The glyph. Its box is exactly the em square so that a full-width glyph and a
    half-width one sit on the same baseline and the same left edge — the cell
@@ -272,8 +296,7 @@ section.block { width: fit-content; min-width: min(100%, 40rem); margin: 1.75rem
 }
 /* An image rather than a background color, so the row's stripe still shows
    through and the hatch does not have to out-specify it. */
-.cell.missing { background-image: repeating-linear-gradient(135deg, transparent 0 4px, var(--missing) 4px 5px); }
-.cell.missing .n { color: var(--fg-faint); opacity: 0.7; }
+.cell.missing { background-image: repeating-linear-gradient(135deg, transparent 0 4px, var(--hatch) 4px 5px); }
 .cell.empty { background: transparent; background-image: none; border-right-color: transparent; border-bottom-color: transparent; }
 
 .gap {
@@ -305,4 +328,4 @@ footer .legend i {
   border: 1px solid var(--line);
 }
 footer .legend i.declared { background: var(--bg-cell); }
-footer .legend i.missing { background-image: repeating-linear-gradient(135deg, transparent 0 4px, var(--missing) 4px 5px); }
+footer .legend i.missing { background-image: repeating-linear-gradient(135deg, transparent 0 4px, var(--hatch) 4px 5px); }

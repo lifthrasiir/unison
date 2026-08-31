@@ -333,6 +333,8 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why the demo's cells are rendered in lazy chunks, and why a chunk knows its height before its content | `render/demo/demo.js` |
 | The dotted circle in a demo cell, why the built font's `hmtx` decides which cells get one, and why it rides on the cell flags | `render/demo/mod.rs` (`CELL_ZERO_ADVANCE`, `zero_advance_codepoints`), `render/demo/demo.css` (`.dc`) |
 | Why a demo cell is bidi-isolated | `render/demo/demo.css` (`.cell`) |
+| The demo's one size for both drawings, and the rounding a switch to bitmap does | `render/demo/demo.js` (`state.em`, `snapZoom`) |
+| Which contrast the demo's tokens are held to, and why the cell hover is a token of its own | `render/demo/demo.css` (`:root`) |
 | The demo's font: one variable face carrying both drawings, and why it asks for the axis whatever `meta` says | `render/ttf_builder/mod.rs` (`build_face_variable`), `render/demo/mod.rs` |
 | Why the editor's preview keeps two static faces where the demo took the axis | `render/ttf_builder/mod.rs` (`build_face_variable`), `app/background.rs` |
 | Why an IDC line becomes `ref`s at expansion time, and why the parts are sized by what they *declare* | `render/ttf_builder/expand.rs` (`expand_compose_lines`), `ref_composite/mod.rs` (`declared_box`) |
