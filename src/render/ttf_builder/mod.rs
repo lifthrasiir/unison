@@ -35,9 +35,17 @@
 //!   same offsets, so it varies correctly with nothing of its own — checked by
 //!   [`masters::assert_composites_agree`] rather than assumed.
 //!
-//! A colour glyph does not vary: its layers are separate outlines that
-//! [`masters`] does not compatibilize, and varying only its base would take the
-//! two apart.
+//! A colour glyph varies through its *layers*. What a colour rasterizer draws
+//! is the layer glyphs [`outlines::add_color_layer_glyphs`] synthesizes, not
+//! the base outline, so each layer is compatibilized against its counterpart in
+//! the other master and gets a `gvar` entry of its own — their glyph ids follow
+//! the collected list, which is why [`masters::Variations`] keeps them as a
+//! second list to concatenate. The layers are paired by
+//! [`CollectedColorLayer::source`] rather than by position, because the bitmap
+//! build drops a layer it lights no pixel of; such a layer collapses at the
+//! bitmap end instead, which is how an outline says "not drawn here". The
+//! mirror case — ink the *vector* build traced nothing of — has no layer glyph
+//! to carry it and cannot be shown.
 //!
 //! # `vectoronly`: a glyph the bitmap build does not square off
 //!
@@ -214,6 +222,26 @@ struct CollectedGlyph {
 struct CollectedColorLayer {
     contours: Vec<Vec<(i16, i16)>>,
     palette_index: u16,
+    /// Which of the glyph's own layers this one is.
+    ///
+    /// The two builds trace the same source, so they produce the same layers —
+    /// but not necessarily the same *number* of them, since a layer the bitmap
+    /// build lights no pixel of is dropped where the vector build kept it. That
+    /// makes the position in `color_layers` no way to say which layer of one
+    /// build stands for which of the other, and [`masters::variations_for`]
+    /// needs exactly that to vary a layer across the axis. This is the identity
+    /// it matches on.
+    source: ColorLayerSource,
+}
+
+/// Where one [`CollectedColorLayer`] came from — see its `source` field.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum ColorLayerSource {
+    /// The merged foreground layer: the glyph's own pixels and every `fg` ref,
+    /// which are one layer however many pieces they were written as.
+    Foreground,
+    /// The `ref` at this index of the glyph body.
+    Ref(usize),
 }
 
 #[derive(Clone)]

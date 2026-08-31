@@ -336,62 +336,107 @@ pub(super) enum NoVariation {
     /// offsets are the same in both builds, so it varies correctly with no
     /// entry of its own — see [`assert_composites_agree`].
     Composite,
-    /// A colour glyph. Its layers are separate outlines that this stage does
-    /// not compatibilize, so varying only its base would take the two apart.
-    Colour,
     /// The bitmap build has no such glyph at all.
     Missing,
 }
 
+/// Every outline the font will carry, and what each of them varies by.
+///
+/// Two lists rather than one because `gvar` is indexed by glyph id and the COLR
+/// layer glyphs get theirs *after* the collected list — see
+/// [`super::outlines::add_color_layer_glyphs`]. Concatenating the two in this
+/// order is what puts each entry at its own glyph's id.
+pub(super) struct Variations {
+    /// One entry per collected glyph, in glyph order.
+    pub(super) base: Vec<Result<PointDeltas, NoVariation>>,
+    /// One entry per synthesized COLR layer glyph: every glyph carrying layers,
+    /// in glyph order, each glyph's layers in layer order.
+    pub(super) layers: Vec<Result<PointDeltas, NoVariation>>,
+}
+
 /// Make `vector`'s outlines point-compatible with `bitmap`'s, in place, and
-/// return each glyph's deltas.
+/// return each outline's deltas.
 ///
 /// The vector master is the one rewritten because it is the font's *default*
 /// instance: everything that does not read `gvar` — an old rasterizer, a static
 /// instance cut from this font — gets it, and padding is invisible to all of
 /// them.
+///
+/// A colour glyph is not an exception to any of that. Its layers are outlines
+/// like every other, they are what a colour rasterizer actually draws, and they
+/// are compatibilized one against its counterpart in the other master
+/// ([`super::CollectedColorLayer::source`] is what pairs them). Only the *records* —
+/// which layer takes which palette entry — stay the vector build's.
 pub(super) fn variations_for(
     vector: &mut [CollectedGlyph],
     bitmap: &[CollectedGlyph],
-) -> Vec<Result<PointDeltas, NoVariation>> {
+) -> Variations {
     let by_name: std::collections::HashMap<&str, &CollectedGlyph> =
         bitmap.iter().map(|g| (g.name.as_str(), g)).collect();
 
-    vector
-        .iter_mut()
-        .map(|v| {
-            let Some(b) = by_name.get(v.name.as_str()) else {
-                return Err(NoVariation::Missing);
-            };
-            if !v.composite_refs.is_empty() {
-                return Err(NoVariation::Composite);
-            }
-            if !v.color_layers.is_empty() {
-                return Err(NoVariation::Colour);
-            }
-            if v.contours == b.contours {
-                return Err(NoVariation::Identical);
-            }
+    let mut out = Variations {
+        base: Vec::with_capacity(vector.len()),
+        layers: Vec::new(),
+    };
+    for v in vector.iter_mut() {
+        let b = by_name.get(v.name.as_str()).copied();
+        out.base.push(match b {
+            None => Err(NoVariation::Missing),
+            // A composite's own outline is its components, which vary
+            // themselves; a colour glyph's base is a fallback outline like any
+            // other and varies like one.
+            Some(_) if !v.composite_refs.is_empty() => Err(NoVariation::Composite),
+            Some(b) => outline_deltas(&mut v.contours, &b.contours),
+        });
 
-            let pair = compatible_masters(&v.contours, &b.contours);
-            debug_assert!(pair.is_compatible());
-            let deltas: PointDeltas = pair
-                .vector
+        // The layer glyphs `add_color_layer_glyphs` synthesizes take their GIDs
+        // in exactly this order, which is what lets the two lists be handed to
+        // `gvar` one after the other.
+        for layer in v.color_layers.iter_mut() {
+            let Some(b) = b else {
+                out.layers.push(Err(NoVariation::Missing));
+                continue;
+            };
+            // A layer the bitmap build dropped — every cell of it fell short of
+            // the ink flag — has no counterpart to pair with. `compatible_masters`
+            // already says what that means: the outline collapses to a point, so
+            // the layer is simply not drawn at the bitmap end. The mirror case, a
+            // layer only the *bitmap* build traced, has no glyph in the font at
+            // all (COLR is built from the vector master) and so cannot be shown.
+            let empty: Vec<Vec<(i16, i16)>> = Vec::new();
+            let b_contours = b
+                .color_layers
                 .iter()
-                .flatten()
-                .zip(pair.bitmap.iter().flatten())
-                .map(|(p, q)| {
-                    (
-                        q.0.saturating_sub(p.0),
-                        q.1.saturating_sub(p.1),
-                    )
-                })
-                .chain(std::iter::repeat_n((0, 0), PHANTOM_POINTS))
-                .collect();
-            v.contours = pair.vector;
-            Ok(deltas)
-        })
-        .collect()
+                .find(|l| l.source == layer.source)
+                .map_or(&empty, |l| &l.contours);
+            out.layers
+                .push(outline_deltas(&mut layer.contours, b_contours));
+        }
+    }
+    out
+}
+
+/// One outline's move from the vector drawing to the bitmap one, padding the
+/// vector side in place so the two are point-compatible.
+fn outline_deltas(
+    vector: &mut Vec<Vec<(i16, i16)>>,
+    bitmap: &[Vec<(i16, i16)>],
+) -> Result<PointDeltas, NoVariation> {
+    if *vector == bitmap {
+        return Err(NoVariation::Identical);
+    }
+    let pair = compatible_masters(vector, bitmap);
+    debug_assert!(pair.is_compatible());
+    let deltas: PointDeltas = pair
+        .vector
+        .iter()
+        .flatten()
+        .zip(pair.bitmap.iter().flatten())
+        .map(|(p, q)| (q.0.saturating_sub(p.0), q.1.saturating_sub(p.1)))
+        .chain(std::iter::repeat_n((0, 0), PHANTOM_POINTS))
+        .collect();
+    *vector = pair.vector;
+    Ok(deltas)
 }
 
 /// The invariant a composite's empty `gvar` entry rests on: the two builds

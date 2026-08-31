@@ -1219,6 +1219,7 @@ pub(super) fn collect_glyph_data_with_shared(
                 g.color_layers.push(CollectedColorLayer {
                     contours: layer_contours,
                     palette_index,
+                    source: ColorLayerSource::Ref(ri),
                 });
             }
         }
@@ -1229,6 +1230,7 @@ pub(super) fn collect_glyph_data_with_shared(
                 CollectedColorLayer {
                     contours: fg_contours,
                     palette_index: 0xFFFF,
+                    source: ColorLayerSource::Foreground,
                 },
             );
         }

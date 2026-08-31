@@ -298,7 +298,10 @@ pub(super) fn build_ttf(
         Some(bitmap) => {
             padded = glyphs.to_vec();
             let v = masters::variations_for(&mut padded, bitmap);
-            (&padded[..], Some(v))
+            // The layer glyphs' entries follow the collected ones, which is
+            // exactly the order `add_color_layer_glyphs` hands out their GIDs.
+            let all: Vec<_> = v.base.into_iter().chain(v.layers).collect();
+            (&padded[..], Some(all))
         }
         None => (glyphs, None),
     };
@@ -765,9 +768,14 @@ fn build_gvar(
             F2Dot14::from_f32(1.0),
         )),
     );
+    debug_assert_eq!(
+        variations.len(),
+        num_glyphs as usize,
+        "every glyph, colour layers included, should have been offered a delta",
+    );
     let entries: Vec<GlyphVariations> = (0..num_glyphs as usize)
         .map(|gid| {
-            let v = variations.get(gid).unwrap_or(&Err(NoVariation::Colour));
+            let v = variations.get(gid).unwrap_or(&Err(NoVariation::Missing));
             let gid = GlyphId::new(gid as u32);
             match v {
                 Ok(deltas) if deltas.iter().any(|&(x, y)| x != 0 || y != 0) => {

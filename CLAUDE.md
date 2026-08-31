@@ -357,6 +357,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | `glyph … vectoronly`: a drawing the bitmap face must not square off, and why the exemption is a closure over the `ref` graph | `render/ttf_builder/mod.rs`, `collect.rs` (`vectoronly_closure`) |
 | Making the two builds' outlines point-compatible: the two shape-preserving padding moves, why the alignment is a monotone walk and not arc length, and what it costs | `render/ttf_builder/masters.rs` |
 | `meta bitmap-axis`: both drawings in one font, and the three tables that carry them | `render/ttf_builder/mod.rs`, `meta.rs` (`MetaEntry::BitmapAxis`) |
+| How a colour glyph varies: per COLR layer, paired by source rather than by position, and what a layer only one build draws does | `render/ttf_builder/masters.rs` (`variations_for`, `Variations`), `mod.rs` (`CollectedColorLayer::source`) |
 | Why the `BMAP` axis is a switch rather than a slider, and why a `gvar` tent is what makes it one | `render/ttf_builder/tables.rs` (`BITMAP_AXIS_TENT_START`) |
 | Why every `gvar` delta is written out in full, and what IUP was measured to save | `render/ttf_builder/tables.rs` (`full_deltas`) |
 | What an exemption costs a component shared with an unflagged glyph | `issues/flags.rs` |

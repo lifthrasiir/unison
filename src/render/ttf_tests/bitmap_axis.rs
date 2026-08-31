@@ -8,7 +8,6 @@ use super::*;
 use skrifa::MetadataProvider;
 use skrifa::instance::{LocationRef, Size};
 use skrifa::outline::{DrawSettings, OutlinePen};
-use skrifa::raw::TableProvider as _;
 
 /// Every point a glyph draws at one axis setting, rounded to whole units and
 /// sorted — enough to say "these are the same drawing" without depending on
@@ -210,5 +209,136 @@ map B = base
         gvar.glyph_count(),
         num_glyphs,
         "gvar must have an entry per glyph, colour layer glyphs included",
+    );
+}
+
+/// The COLR layer glyphs of `name`'s base glyph, as GIDs in layer order.
+fn layer_gids(ttf: &[u8], ch: char) -> Vec<u16> {
+    let font = read_fonts::FontRef::new(ttf).unwrap();
+    let base_gid = font.cmap().unwrap().map_codepoint(ch).unwrap().to_u32() as u16;
+    let colr = font.colr().expect("the fixture should build a COLR table");
+    let bases = colr
+        .base_glyph_records()
+        .expect("COLRv0 base glyph records")
+        .unwrap();
+    let layers = colr.layer_records().expect("COLRv0 layer records").unwrap();
+    let base = bases
+        .iter()
+        .find(|b| b.glyph_id().to_u32() as u16 == base_gid)
+        .expect("the mapped glyph should be a COLR base glyph");
+    let first = base.first_layer_index() as usize;
+    layers[first..first + base.num_layers() as usize]
+        .iter()
+        .map(|l| l.glyph_id().to_u32() as u16)
+        .collect()
+}
+
+/// One color layer's points, as the given build produced them.
+fn collected_layer_points(doc: &Document, name: &str, layer: usize, bitmap: bool) -> Vec<(i32, i32)> {
+    let (_, _, glyphs, _, _) = collect_glyph_data(&[doc], bitmap).unwrap();
+    let g = glyphs.iter().find(|g| g.name == name).unwrap();
+    let mut pts: Vec<(i32, i32)> = g.color_layers[layer]
+        .contours
+        .iter()
+        .flatten()
+        .map(|&(x, y)| (x as i32, y as i32))
+        .collect();
+    pts.sort_unstable();
+    pts.dedup();
+    pts
+}
+
+const COLOR_SOURCE: &str = "\
+meta height 4
+meta ascent 4
+meta descent 0
+meta bitmap-axis
+color red = #FF0000
+glyph slope 2 2
+b...
+....
+glyph tint 2 2
+ref slope fill red
+map A = tint
+";
+
+/// A colour glyph's layers are outlines like any other, so the axis has to
+/// switch them too: the drawing a COLR layer glyph carries is what actually
+/// reaches the screen for an emoji, and freezing it at the vector master left
+/// the bitmap face drawing sub-pixel shapes.
+#[test]
+fn a_colour_layer_follows_the_axis() {
+    let doc = document_io::parse_document_from_str(COLOR_SOURCE, "test.unf".into()).unwrap();
+    let ttf = build_font_from_documents(&[&doc]).expect("font should build");
+    let gids = layer_gids(&ttf, 'A');
+    assert_eq!(gids.len(), 1, "the fixture has one colour layer");
+
+    assert_eq!(
+        drawn_at(&ttf, gids[0], 0.0),
+        collected_layer_points(&doc, "tint", 0, false),
+        "at BMAP=0 a colour layer must draw the vector master",
+    );
+    assert_eq!(
+        drawn_at(&ttf, gids[0], 1.0),
+        collected_layer_points(&doc, "tint", 0, true),
+        "at BMAP=1 a colour layer must draw the bitmap master",
+    );
+    assert_ne!(
+        drawn_at(&ttf, gids[0], 0.0),
+        drawn_at(&ttf, gids[0], 1.0),
+        "the fixture is pointless if the two ends agree",
+    );
+}
+
+/// A layer the bitmap build lights no pixel of (`:zero`) is dropped from *its*
+/// layer list, so the two lists no longer line up by position. Matching them by
+/// position would then vary one layer into another's shape — hence the source
+/// identity every layer carries. The dropped layer itself collapses, which is
+/// the only way an outline can say "not drawn at this end of the axis".
+#[test]
+fn a_layer_only_the_vector_build_draws_collapses_and_misplaces_nobody() {
+    let input = "\
+meta height 4
+meta ascent 4
+meta descent 0
+meta bitmap-axis
+color red = #FF0000
+color blue = #0000FF
+glyph slope 2 2
+b...
+....
+glyph tint 2 2
+ref 2x2-circle:zero fill red
+ref slope fill blue
+map A = tint
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let ttf = build_font_from_documents(&[&doc]).expect("font should build");
+    let gids = layer_gids(&ttf, 'A');
+    assert_eq!(gids.len(), 2, "the vector build keeps both layers");
+    assert_eq!(
+        collect_glyph_data(&[&doc], true).unwrap().2
+            .iter()
+            .find(|g| g.name == "tint")
+            .unwrap()
+            .color_layers
+            .len(),
+        1,
+        "the fixture is pointless unless the bitmap build drops the `:zero` layer",
+    );
+
+    let collapsed = drawn_at(&ttf, gids[0], 1.0);
+    assert!(
+        collapsed.len() <= 1,
+        "a layer the bitmap build does not draw must collapse to a point, got {collapsed:?}",
+    );
+    assert!(
+        drawn_at(&ttf, gids[0], 0.0).len() > 1,
+        "the same layer must still be drawn at the vector end",
+    );
+    assert_eq!(
+        drawn_at(&ttf, gids[1], 1.0),
+        collected_layer_points(&doc, "tint", 0, true),
+        "the surviving layer must vary into its own bitmap drawing, not another's",
     );
 }

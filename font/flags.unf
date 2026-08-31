@@ -319,7 +319,7 @@ remap flag-tag-6 : black-flag-hole-5 tag-cancel -> black-flag-hole-5-bad
 ## flags: a
 
 // Andorra (aspect 10:7 -> 1:1, division 8:9:8 -> 9:10:9)
-glyph flag-ad:color 16 16
+glyph flag-ad:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #fedd00
 ref 4p1r2x14 1 1 fill #10069f
@@ -328,7 +328,7 @@ ref -4p1r2x14 10 1 fill #d50032
 assume unused flag-ad:color // XX: needs a seal
 
 // United Arab Emirates (aspect 2:1 -> 1:1, division 1:1:1 & 1:3)
-glyph flag-ae:color 16 16
+glyph flag-ae:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #E1E1E1
 ref 14x4p2r3 1 1 fill #00843D
@@ -337,7 +337,7 @@ ref 3p1r2x14 1 1 fill #C8102E
 
 // Antigua and Barbuda (aspect 3:2 -> 1:1, division 9:5:9)
 // star outer & inner diameter / height = 15/23 & 15/46
-glyph flag-ag:color 16 16
+glyph flag-ag:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #000000
 ref _9p1r6x-9p1r6-poly16.510 3 1 fill #FCD116
@@ -347,21 +347,21 @@ ref 7x14-dl 1 1 fill #CC0033
 ref 7x14-dr 8 1 fill #CC0033
 
 // Armenia (aspect 2:1 -> 1:1, division 1:1:1)
-glyph flag-am:color 16 16
+glyph flag-am:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #0033A0
 ref 14x4p2r3 1 1 fill #D90012
 ref 14x-4p2r3 1 10 fill #F2A800
 
 // Argentina (aspect 8:5 or 14:9 -> 1:1, division 1:1:1)
-glyph flag-ar:color 16 16
+glyph flag-ar:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #ffffff
 ref 14x4p2r3 1 1 fill #74ACDF
 ref 14x-4p2r3 1 10 fill #74ACDF
 
 // Austria (aspect 3:2 -> 1:1, division 1:1:1)
-glyph flag-at:color 16 16
+glyph flag-at:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #ffffff
 ref 14x4p2r3 1 1 fill #C8102E
@@ -370,7 +370,7 @@ ref 14x-4p2r3 1 10 fill #C8102E
 // Aruba (aspect 3:2 -> 1:1, division 1:6:5:1:1:1:3)
 // star outer & inner diameter / height = 1/3 & 1/9
 // star border width / height = 1/133 (inset) -> whatever this is
-glyph flag-aw:color 16 16 scale 2
+glyph flag-aw:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #418FDE
 ref _4p2r3x_4p2r3-poly4.471 3 3 fill #FFFFFF
@@ -379,7 +379,7 @@ ref 14x_2p1r3 2 20 fill #F7D417
 ref 14x_0p7r9 2 22 fill #418FDE
 
 // Åland Islands (aspect 26:17 -> 1:1, division 16:3:4:3:26 & 12:3:4:3:12 -> 9+1/7:3:4:3:14+6/7 & 12:3:4:3:12)
-glyph flag-ax:color 16 16
+glyph flag-ax:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #0064AD
 ref -3p1r4x14 4 1 fill #FFD300
@@ -393,7 +393,7 @@ ref 14x_1p2r3 1 7 fill #DA0E15
 // crescent outer & inner center from flag center / height = 1/20 & 1/60
 // star outer & inner diameter / height = 1/6 & 1/12
 // star center from flag center / height = 7/60
-glyph flag-az:color 16 16 scale 4
+glyph flag-az:color 16 16 scale 4 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 4 4 fill #EF3340
 ref 14x4p2r3 4 4 fill #00B5E2
@@ -413,7 +413,7 @@ remap flag : regional-indicator-a-left regional-indicator-($flag-a)-right -> fla
 // horizontal offset from star center to antidiagonal / height = 19/100 -> whatever this is
 // star-circumscribing circle diameter = 19/100
 // bottommost star center from flag bottom = (19sqrt(5)-38)/2 -> 1/112
-glyph flag-ba:color 16 16 scale 2
+glyph flag-ba:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #001489
 ref 7x14-ur 9 2 fill #FFCD00
@@ -434,13 +434,13 @@ ref 11x1 -4 56 negated
 // Bangladesh (aspect 5:3 -> 1:1)
 // circle diameter / height = 2/3
 // circle center from flag center / height = 1/12 -> 1/28
-glyph flag-bd:color 16 16 scale 2
+glyph flag-bd:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #006747
 ref _9p1r3x_9p1r3-circle 5 6 fill #DA291C
 
 // Belgium (aspect 15:13 -> 1:1)
-glyph flag-be:color 16 16
+glyph flag-be:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #fdda25
 ref 4p2r3x14 1 1 fill #000000
@@ -448,21 +448,21 @@ ref -4p2r3x14 10 1 fill #ef3340
 
 // Burkina Faso (aspect 3:2 -> 1:1, division 1:1)
 // star-circumscribing circle diameter / height = 1/3
-glyph flag-bf:color 16 16 scale 2
+glyph flag-bf:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x7 2 2 fill #EF2B2D
 ref 14x7 2 16 fill #009E49
 ref _4p2r3x_4p2r3-poly5r2 11 11 fill #FCD116
 
 // Bulgaria (aspect 5:3 -> 1:1, division 1:1:1)
-glyph flag-bg:color 16 16
+glyph flag-bg:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #00966E
 ref 14x4p2r3 1 1 fill #ffffff
 ref 14x-4p2r3 1 10 fill #D62612
 
 // Bahrain (aspect 5:3 -> 1:1, division 5:3:12 -> 2+4/7:3:6+3/7)
-glyph flag-bh:color 16 16
+glyph flag-bh:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #ffffff
 ref @-right 1 1 fill #DA291C
@@ -485,7 +485,7 @@ ref 3p5r10x-1p4r10-dr 15 60
 // outer & inner circle diameter / height = 17/30 & 22/75
 // star-circumscribing circle diameter / height = 2/15
 // star border width / height = 3/500
-glyph flag-bi:color 16 16 scale 4
+glyph flag-bi:color 16 16 scale 4 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 4 4 fill #FFFFFF
 ref -5p2r3x5p2r3-ur 8 4 fill #C8102E
@@ -505,21 +505,21 @@ ref _1p13r15x_1p13r15-poly6r2 35 32 fill #43B02A
 ref _1p7r10x_1p7r10-poly6r2 35 32 fill #C8102E
 
 // Benin (aspect 3:2 -> 1:1, division 2:3 & 1:1)
-glyph flag-bj:color 16 16
+glyph flag-bj:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x7 1 1 fill #FCD20F
 ref 14x7 1 8 fill #E90929
 ref 5p3r5x14 1 1 fill #008850
 
 // Bolivia (aspect 22:15 -> 1:1, division 1:1:1)
-glyph flag-bo:color 16 16
+glyph flag-bo:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #F4E400
 ref 14x4p2r3 1 1 fill #DA291C
 ref 14x-4p2r3 1 10 fill #007A33
 
 // Brazil (aspect 10:7 -> 1:1, division 17:48:70:48:17 & 17:18:70:18:17)
-glyph flag-br:color 16 16 scale 2
+glyph flag-br:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #302681
 ref @-arc 0 13 fill #ffffff
@@ -636,7 +636,7 @@ ref 13x10 0 6 negated
 
 // The Bahamas (aspect 2:1 -> 1:1, division 1:1:1)
 // apex position / height = sqrt(3)/2 -> sqrt(3)/4
-glyph flag-bs:color 16 16
+glyph flag-bs:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #FFC72C
 ref 14x4p2r3 1 1 fill #00778B
@@ -648,7 +648,7 @@ ref 6x7-ul 1 8 fill #000000
 glyph flag-bv:color = flag-no:color
 
 // Botswana (aspect 3:2 -> 1:1, division 9:1:4:1:9)
-glyph flag-bw:color 16 16
+glyph flag-bw:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #000000
 ref 14x5p5r6 1 1 fill #ffffff
@@ -664,7 +664,7 @@ remap flag : regional-indicator-b-left regional-indicator-($flag-b)-right -> fla
 
 // Canada (aspect 2:1 -> 1:1, division 1:2:1)
 // amazingly enough, the maple leaf is constructible in ~70 primitive shapes!
-glyph flag-ca:color 16 16 scale 2
+glyph flag-ca:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #FFFFFF
 ref 3p1r2x14 2 2 fill #EF3340
@@ -742,7 +742,7 @@ ref _0p19r80x_0p38r80-circle 214 632 negated
 
 // Democratic Republic of the Congo (aspect 4:3 -> 1:1, division 15:1:4?)
 // star height / flag height = unspecified -> 3/8
-glyph flag-cd:color 16 16 scale 2
+glyph flag-cd:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #CE1021
 ref 14x-11p1r5-dr 2 6 fill #F7D618
@@ -753,7 +753,7 @@ ref -5p1r4x-5p1r4-poly5r2 2 2 fill #F7D618
 
 // Central African Republic (aspect 5:3 or 3:2 -> 1:1, division x:1:x & 1:1:1:1 with x depending on aspect ratio)
 // star-circumscribing circle diameter / height = 9/40
-glyph flag-cf:color 16 16 scale 2
+glyph flag-cf:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x7 2 2 fill #FFFFFF
 ref 14x3p1r2 2 2 fill #003082
@@ -763,21 +763,21 @@ ref _3p1r2x14 12 2 fill #D21034
 ref 3p3r20x-3p3r20-poly5r2 3 1 fill #FFCE00
 
 // Republic of the Congo (aspect 3:2 -> 1:1, division 2:1 & 1:2)
-glyph flag-cg:color 16 16
+glyph flag-cg:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #FFD100
 ref 9p1r3x14-ul 1 1 fill #009739
 ref -9p1r3x14-dr 5 1 fill #EF3340
 
 // Switzerland (aspect 1:1, division 6:7:6:7:6)
-glyph flag-ch:color 16 16 scale 2
+glyph flag-ch:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #DA291C
 ref _8p3r4x_3p3r4 7 12 fill #FFFFFF
 ref _3p3r4x_8p3r4 12 7 fill #FFFFFF
 
 // Ivory Coast (aspect 3:2 -> 1:1, division 1:1:1)
-glyph flag-ci:color 16 16
+glyph flag-ci:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #FFFFFF
 ref 4p2r3x14 1 1 fill #FF8200
@@ -785,7 +785,7 @@ ref -4p2r3x14 10 1 fill #009A44
 
 // Chile (aspect 3:2 -> 1:1, division 1:2 & 1:1 -> 1:1 & 1:1)
 // star-circumscribing circle diameter / height = 1/4
-glyph flag-cl:color 16 16 scale 2
+glyph flag-cl:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x7 2 2 fill #FFFFFF
 ref 14x7 2 16 fill #d52b1e
@@ -794,7 +794,7 @@ ref _3p1r2x_3p1r2-poly5r2 5 5 fill #FFFFFF
 
 // Cameroon (aspect 3:2 -> 1:1)
 // star-circumscribing circle diameter / height = unspecified -> 3/14
-glyph flag-cm:color 16 16 scale 2
+glyph flag-cm:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #CE1126
 ref 4p2r3x14 2 2 fill #007A5E
@@ -803,7 +803,7 @@ ref 3x3-poly5r2 13 13 fill #FCD116
 
 // China (aspect 3:2 -> 1:1)
 // big & small star-circumscribing circle diameter / height = 3/10 & 1/10
-glyph flag-cn:color 16 16 scale 2
+glyph flag-cn:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #EE1C25
 ref _4p1r5x_4p1r5-poly5r2 4 4 fill #FFFF00
@@ -813,7 +813,7 @@ ref _1p2r5x_1p2r5-poly5r2-ccw74 17 10 fill #FFFF00
 ref _1p2r5x_1p2r5-poly5r2-ccw51 14 13 fill #FFFF00
 
 // Colombia (aspect 3:2 -> 1:1, division 2:1:1)
-glyph flag-co:color 16 16
+glyph flag-co:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x7 1 1 fill #FFCD00
 ref 14x7 1 8 fill #003087
@@ -823,7 +823,7 @@ ref 14x-3p1r2 1 11 fill #C8102E
 glyph flag-cp:color = flag-fr:color
 
 // Costa Rica (aspect 5:3 -> 1:1, division 1:1:2:1:1)
-glyph flag-cr:color 16 16
+glyph flag-cr:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #DA291C
 ref 14x4p2r3 1 1 fill #FFFFFF
@@ -834,7 +834,7 @@ ref 14x-2p1r3 1 12 fill #001489
 // Cuba (aspect 2:1 -> 1:1, division 1:1:1:1:1)
 // apex position / height = sqrt(3)/2 -> sqrt(3)/3
 // star-circumscribing circle diameter = 1/3
-glyph flag-cu:color 16 16 scale 2
+glyph flag-cu:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #FFFFFF
 ref 14x2p4r5 2 2 fill #002590
@@ -848,7 +848,7 @@ ref -4p2r3x_4p2r3-poly5r2 2 11 fill #FFFFFF
 // star height / flag height = 1/12
 // outer circle diameter / height = 1/2
 // outer circle center horizontal position = 3:5
-glyph flag-cv:color 16 16 scale 2
+glyph flag-cv:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #003893
 ref 14x3p1r2 2 16 fill #FFFFFF
@@ -868,7 +868,7 @@ ref _1p1r3x-1p1r3-poly5r2 4 19 fill #F7D116
 // Curaçao (aspect 3:2 -> 1:1, division 5:1:2)
 // star offset from top/left margin of flag / height = 1/6 & 1/3
 // star-circumscribing circle diameter / height = 2/9 & 1/6
-glyph flag-cw:color 16 16 scale 2
+glyph flag-cw:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #002B7F
 ref 14x-1p3r4 2 19 fill #F9E814
@@ -877,7 +877,7 @@ ref _3p1r9x_3p1r9-poly5r2 7 7 fill #FFFFFF
 
 // Czech Republic (aspect 3:2, division 1:1)
 // apex position = 1/2
-glyph flag-cz:color 16 16
+glyph flag-cz:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x7 1 1 fill #FFFFFF
 ref 14x7 1 8 fill #D7141A
@@ -891,7 +891,7 @@ remap flag : regional-indicator-c-left regional-indicator-($flag-c)-right -> fla
 ## flags: d
 
 // Germany (aspect 5:3 -> 1:1, division 1:1:1)
-glyph flag-de:color 16 16
+glyph flag-de:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #FF0000
 ref 14x4p2r3 1 1 fill #000000
@@ -900,7 +900,7 @@ ref 14x-4p2r3 1 10 fill #FFCC00
 // Djibouti (aspect 3:2 -> 1:1, division 1:1)
 // apex position / height = unspecified -> sqrt(3)/3
 // star-circumscribing circle diameter / height = unspecified -> 2/7
-glyph flag-dj:color 16 16 scale 2
+glyph flag-dj:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x7 2 2 fill #6AB4E8
 ref 14x7 2 16 fill #09AF27
@@ -909,7 +909,7 @@ ref 8x7-ul 2 16 fill #FFFFFF
 ref 4x4-poly5r2 3 13 fill #D80C13
 
 // Denmark (aspect 37:28 -> 1:1, division 12:4:21 & 12:4:12 -> 8+2/3:4:15+1/3 & 12:4:12)
-glyph flag-dk:color 16 16
+glyph flag-dk:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #D21034
 ref 14x2 1 7 fill #FFFFFF
@@ -921,7 +921,7 @@ ref 1p1r3x14 6 1 fill #FFFFFF
 // inner circle center from flag center / height = (5sqrt(3)-sqrt(39))/40
 // star-circumscribing circle diameter / height = 1/4
 // star center from flag center / height = (1+sqrt(5))/32
-glyph flag-dz:color 16 16 scale 2
+glyph flag-dz:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #FFFFFF
 ref 7x14 2 2 fill #007A33
@@ -939,7 +939,7 @@ remap flag : regional-indicator-d-left regional-indicator-($flag-d)-right -> fla
 ## flags: e
 
 // Estonia (aspect 11:7 -> 1:1, division 1:1:1)
-glyph flag-ee:color 16 16
+glyph flag-ee:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #000000
 ref 14x4p2r3 1 1 fill #0072CE
@@ -949,7 +949,7 @@ ref 14x-4p2r3 1 10 fill #FFFFFF
 // outer & inner circle diameter / height = 5/21 & 5/21
 // outer & inner circle center from flag center / height = 1/42 & 1/42
 // star-circumscribing circle diameter / height = 4/21
-glyph flag-eh:color 16 16 scale 2
+glyph flag-eh:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #FFFFFF
 ref 14x4p2r3 2 2 fill #000000
@@ -963,7 +963,7 @@ ref _2p2r3x_2p2r3-poly5r2 15 13 fill #C4111B
 // European Union (aspect 3:2 -> 1:1)
 // star center from flag center / height = 1/3
 // star-circumscribing circle diameter / height = 1/9
-glyph flag-eu:color 16 16 scale 2
+glyph flag-eu:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #003399
 ref _1p5r9x_1p5r9-poly5r2 14 3 fill #FFCC00
@@ -986,7 +986,7 @@ remap flag : regional-indicator-e-left regional-indicator-($flag-e)-right -> fla
 ## flags: f
 
 // Finland (aspect 18:11 -> 1:1, division 5:3:10 & 4:3:4 -> 2+9/14:3:5+5/14 & 4:3:4)
-glyph flag-fi:color 16 16
+glyph flag-fi:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #FFFFFF
 ref -0p7r11x14 4 1 fill #002F6C
@@ -996,7 +996,7 @@ ref 14x_3p9r11 1 6 fill #002F6C
 // Micronesia (aspect 19:10 -> 1:1)
 // star-circumscribing circle diameter / height = 1/5
 // star center from flag center / height = unspecified -> 2/7
-glyph flag-fm:color 16 16 scale 2
+glyph flag-fm:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #ABCAE9
 ref _2p4r5x_2p4r5-poly5r2 13 5 fill #FFFFFF
@@ -1005,7 +1005,7 @@ ref _2p4r5x_2p4r5-poly5r2-cw180 13 21 fill #FFFFFF
 ref _2p4r5x_2p4r5-poly5r2-ccw90 5 13 fill #FFFFFF
 
 // Faroe Islands (aspect 11:8 -> 1:1, division 6:1:2:1:12 & 6:1:2:1:6 -> 4:1:2:1:8 & 6:1:2:1:6)
-glyph flag-fo:color 16 16
+glyph flag-fo:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #FFFFFF
 ref -3p4r8x14 4 1 fill #005EB9
@@ -1015,7 +1015,7 @@ ref 1p1r8x14 6 1 fill #EF303E
 ref 14x_1p6r8 1 7 fill #EF303E
 
 // France (aspect 3:2 -> 1:1, division 1:1:1)
-glyph flag-fr:color 16 16
+glyph flag-fr:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #FFFFFF
 ref 4p2r3x14 1 1 fill #000091
@@ -1028,14 +1028,14 @@ remap flag : regional-indicator-f-left regional-indicator-($flag-f)-right -> fla
 ## flags: g
 
 // Gabon (aspect 4:3 -> 1:1, division 1:1:1)
-glyph flag-ga:color 16 16
+glyph flag-ga:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #FFD100
 ref 14x4p2r3 1 1 fill #009639
 ref 14x-4p2r3 1 10 fill #003DA5
 
 // United Kingdom (aspect 2:1 -> 1:1, division 25:2:6:2:25 & 10:2:6:2:10 -> 10:2:6:2:10 & 10:2:6:2:10)
-glyph flag-gb:color 16 16 scale 6
+glyph flag-gb:color 16 16 scale 6 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 6 6 fill #FFFFFF
 ref 2p4r6x2p4r6-ur 18 6 fill #012169
@@ -1087,7 +1087,7 @@ ref black-flag-hole-5
 
 // French Guiana (unofficial; aspect 3:2 -> 1:1)
 // star-circumscribing circle diameter / height = 2/5?
-glyph flag-gf:color 16 16
+glyph flag-gf:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #FCDD09
 ref 14x14-ur 1 1 fill #078930
@@ -1096,7 +1096,7 @@ ref _5p3r5x_5p3r5-poly5r2 5 5 fill #DA121A
 // Guernsey (aspect 3:2 -> 1:1, division 5:2:5 & 3:2:3 -> 3:2:3 & 3:2:3)
 // cross outer width & length / height = 1/6 & 3/4
 // cross inner width & length / height = 1/12 & 2/3
-glyph flag-gg:color 16 16 scale 6
+glyph flag-gg:color 16 16 scale 6 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 6 6 fill #FFFFFF
 ref 14x_3p1r2 6 36 fill #E8112D
@@ -1114,7 +1114,7 @@ ref _1p1r6x1p1r6-ur 70 48 fill #F9DD16
 
 // Ghana (aspect 3:2 -> 1:1, division 1:1:1)
 // star-circumscribing circle diameter = (40-8sqrt(5))/5
-glyph flag-gh:color 16 16 scale 3
+glyph flag-gh:color 16 16 scale 3 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 3 3 fill #FCD20F
 ref 14x4p2r3 3 3 fill #CF0921
@@ -1122,7 +1122,7 @@ ref 14x-4p2r3 3 30 fill #006B3D
 ref _5p1r6x5p1r6-poly5r2 15 17 fill #000000
 
 // Greenland (aspect 3:2 -> 1:1, division 3:8:7 & 2:8:2 -> 1+1/7:8:2+6/7 & 2:8:2)
-glyph flag-gl:color 16 16
+glyph flag-gl:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x7 1 1 fill #FFFFFF
 ref 14x7 1 8 fill #C8102E
@@ -1138,7 +1138,7 @@ ref _9p1r3x_9p1r3-circle
 ref 10x5 negated
 
 // The Gambia (aspect 3:2 -> 1:1, division 6:1:4:1:6)
-glyph flag-gm:color 16 16
+glyph flag-gm:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #0c1c8c
 ref 14x5p4r9 1 1 fill #ffffff
@@ -1147,14 +1147,14 @@ ref 14x-5p4r9 1 9 fill #ffffff
 ref 14x-4p2r3 1 10 fill #3a7728
 
 // Guinea (aspect 3:2 -> 1:1, division 1:1:1)
-glyph flag-gn:color 16 16
+glyph flag-gn:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #FCD116
 ref 4p2r3x14 1 1 fill #CE1126
 ref -4p2r3x14 10 1 fill #009460
 
 // Greece (aspect 3:2 -> 1:1, division 4:2:4:17 & 2:..:2 -> 4:2:4:8 & 2:..:2)
-glyph flag-gr:color 16 16
+glyph flag-gr:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #FFFFFF
 ref @-blue 1 1 fill #014488
@@ -1172,7 +1172,7 @@ ref 3p1r9x3p1r9 42 42
 
 // Guinea-Bissau (aspect 2:1 -> 1:1, division 4:8 & 3:3)
 // star-circumscribing circle diameter / height = 1/3?
-glyph flag-gw:color 16 16 scale 3
+glyph flag-gw:color 16 16 scale 3 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x7 3 3 fill #FCD116
 ref 14x7 3 24 fill #009460
@@ -1181,7 +1181,7 @@ ref 4p2r3x4p2r3-poly5r2 3 17 fill #000000
 
 // Guynea (aspect 5:3 -> 1:1, division 1:1 & 1:1)
 // black & white stripe width / height = 1/30
-glyph flag-gy:color 16 16 scale 2
+glyph flag-gy:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #2A936A
 ref 14x7-dl 2 2 fill #FFFFFF
@@ -1204,7 +1204,7 @@ remap flag : black-flag tag-g tag-b tag-s tag-c tag-t tag-cancel -> flag-gbsct
 
 // Honduras (aspect 2:1 -> 1:1, division 24:4:6:4:6:4:24 & 12:1:4:2:4:1:12 -> )
 // star-circumscribing circle diameter / height = 1/9
-glyph flag-hn:color 16 16 scale 2
+glyph flag-hn:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #FFFFFF
 ref 14x4p2r3 2 2 fill #0D3B99
@@ -1216,7 +1216,7 @@ ref -1p5r9x-1p5r9-poly5r2 6 16 fill #0D3B99
 ref 1p5r9x-1p5r9-poly5r2 22 16 fill #0D3B99
 
 // Hungary (aspect 2:1 -> 1:1, division 1:1:1)
-glyph flag-hu:color 16 16
+glyph flag-hu:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #FFFFFF
 ref 14x4p2r3 1 1 fill #CE2939
@@ -1229,20 +1229,20 @@ remap flag : regional-indicator-h-left regional-indicator-($flag-h)-right -> fla
 ## flags: i
 
 // Indonesia (aspect 3:2 -> 1:1, division 1:1)
-glyph flag-id:color 16 16
+glyph flag-id:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x7 1 1 fill #FF0000
 ref 14x7 1 8 fill #FFFFFF
 
 // Ireland (aspect 2:1 -> 1:1, division 1:1:1)
-glyph flag-ie:color 16 16
+glyph flag-ie:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #FFFFFF
 ref 4p2r3x14 1 1 fill #169B62
 ref -4p2r3x14 10 1 fill #FF883E
 
 // Israel (aspect 11:8 -> 1:1, division 3:5:16:5:3)
-glyph flag-il:color 16 16
+glyph flag-il:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #FFFFFF
 ref 14x3p1r2 1 1 fill #0038b8
@@ -1270,7 +1270,7 @@ glyph @-david 6 6 scale 2
 // chakra inner circle diameter / height = 6/115
 // chakra spoke outer & middle & inner diameter / height = 63/230 & 6/115 & 3/230 -> 63/230 & ignored & 9/115
 // chakra small circle diameter / height = 3/460 (not reproduced)
-glyph flag-in:color 16 16 scale 2
+glyph flag-in:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #FFFFFF
 ref 14x4p2r3 2 2 fill #FF671F
@@ -1280,7 +1280,7 @@ ref _3p2r3x_3p2r3-circle 12 12 fill #FFFFFF
 ref _3p5r6x_3p5r6-poly24.712 12 12 fill #06038D
 
 // Iceland (aspect 25:18 -> 19:14, division 7:1:2:1:14 & 7:1:2:1:7 -> 4+5/7:1:2:1:9+2/7 & 7:1:2:1:7)
-glyph flag-is:color 16 16
+glyph flag-is:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #02529C
 ref -2p3r9x14 4 1 fill #FFFFFF
@@ -1290,7 +1290,7 @@ ref -1p5r9x14 5 1 fill #DC1E35
 ref 14x_1p5r9 1 7 fill #DC1E35
 
 // Italy (aspect 3:2 -> 1:1, division 1:1:1)
-glyph flag-it:color 16 16
+glyph flag-it:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #F4F5F0
 ref 4p2r3x14 1 1 fill #008C45
@@ -1304,7 +1304,7 @@ remap flag : regional-indicator-i-left regional-indicator-($flag-i)-right -> fla
 
 // Jamaica (aspect 2:1 -> 1:1)
 // stripe width / height = 1/6
-glyph flag-jm:color 16 16
+glyph flag-jm:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #FFC700
 ref -5p1r3x5p1r3-ur 2 1 fill #19975D
@@ -1319,7 +1319,7 @@ ref -5p1r3x5p1r3-ur 9 8 fill #2d2926
 // Jordan (aspect 2:1 -> 1:1, division 1:1 & 1:1:1)
 // outer & inner star diameter / height = 1/7 & 1/14
 // star center from flag left / height = (sqrt(5)-1)/4 -> (sqrt(5)-1)/8 -> 1/7
-glyph flag-jo:color 16 16
+glyph flag-jo:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #FFFFFF
 ref 14x4p2r3 1 1 fill #000000
@@ -1330,7 +1330,7 @@ ref 2x2-poly7.445 2 7 fill #FFFFFF
 
 // Japan (aspect 3:2 -> 1:1)
 // circle diameter / height = 3/5
-glyph flag-jp:color 16 16 scale 2
+glyph flag-jp:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #ffffff
 ref _8p2r5x_8p2r5-circle 7 7 fill #ee0000
@@ -1346,7 +1346,7 @@ remap flag : regional-indicator-j-left regional-indicator-($flag-j)-right -> fla
 // burst head diameter / height = 1/25 (not drawn here)
 // yurt circle from flag center / height = very small but non-zero upwards?
 // arc center = opposing burst's tail end? (close but still inaccurate)
-glyph flag-kg:color 16 16 scale 2
+glyph flag-kg:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #FF0000
 ref @-burst 7 7 fill #FFFF00
@@ -1382,7 +1382,7 @@ ref _7p1r3x_7p1r3-circle 0 0 negated
 // outer & inner circle center from flag left / height = 41/144 & 3/8 -> whatever this is
 // star-circumscribing circle diameter / height = 7/72 -> 7/108
 // star-circumscribing circle distance / height = 5/48 -> 5/72
-glyph flag-km:color 16 16 scale 2
+glyph flag-km:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x7 2 2 fill #FFFFFF
 ref 14x3p1r2 2 2 fill #FFD100
@@ -1398,7 +1398,7 @@ ref -0p9r10x_0p9r10-poly5r2 7 16 fill #FFFFFF
 ref -0p9r10x_0p9r10-poly5r2 7 18 fill #FFFFFF
 
 // North Korea (aspect 33:20 -> 1:1, division 59:80:158 & 30:5:110:5:30 -> 20:80:80 & 30:5+1/7:109+5/7:5+1/7:30)
-glyph flag-kp:color 16 16 scale 6
+glyph flag-kp:color 16 16 scale 6 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 6 6 fill #ED1C27
 ref 14x3p1r5 6 6 fill #FFFFFF
@@ -1413,7 +1413,7 @@ ref _6p1r8x_6p1r8-poly5r2 13 28 fill #ED1C27
 // inscribing semicircle diameter / height = 1/4 -> 9/35
 // circle-trigram distance / height = 1/8 -> whatever this is
 // trigram aspect = 11:2:11 & 2:1:2:1:2 -> whatever this is
-glyph flag-kr:color 16 16
+glyph flag-kr:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #ffffff
 ref @-taegeuk-u 4 4 fill #CD2E3A
@@ -1461,7 +1461,7 @@ glyph @-trigrams 14 12 scale 2
 ........1P....................................1P........
 
 // Kuwait (aspect 2:1 -> 1:1, division 1:1:1 & 1:3)
-glyph flag-kw:color 16 16
+glyph flag-kw:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #ffffff
 ref 3p1r2x14 1 1 fill #000000
@@ -1478,7 +1478,7 @@ remap flag : regional-indicator-k-left regional-indicator-($flag-k)-right -> fla
 
 // Laos (aspect 3:2 -> 1:1, division 1:2:1)
 // circle diameter / height = 2/5
-glyph flag-la:color 16 16
+glyph flag-la:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #002868
 ref 14x3p1r2 1 1 fill #CE1126
@@ -1486,7 +1486,7 @@ ref 14x-3p1r2 1 11 fill #CE1126
 ref _5p3r5x_5p3r5-circle 5 5 fill #FFFFFF
 
 // Saint Lucia (aspect 2:1 -> 1:1)
-glyph flag-lc:color 16 16 scale 3
+glyph flag-lc:color 16 16 scale 3 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 3 3 fill #66ccff
 ref -4p2r3x11p1r3-dr 9 7 fill #ffffff
@@ -1498,7 +1498,7 @@ ref 4p2r3x5p2r3-dl 24 24 fill #fcd116
 
 // Liberia (aspect 19:10 -> 14:11, division 50:159 & 1:..:1 -> 5:9 & 1:..:1)
 // star-circumscribing circle diameter / height = "large" -> 10/33
-glyph flag-lr:color 16 16 scale 2
+glyph flag-lr:color 16 16 scale 2 vectoronly
 ref 16x13 0 2 fill #00000080
 ref 14x11 2 4 fill #FFFFFF
 ref 14x1 2 4 fill #BF0A30
@@ -1511,21 +1511,21 @@ ref 5x5 2 4 fill #002868
 ref _3p1r3x_3p1r3-poly5r2 3 5 fill #FFFFFF
 
 // Lithuania (aspect 5:3 -> 1:1, ratio 1:1:1)
-glyph flag-lt:color 16 16
+glyph flag-lt:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #006A44
 ref 14x4p2r3 1 1 fill #FDB913
 ref 14x-4p2r3 1 10 fill #C1272D
 
 // Luxembourg (aspect 5:3 -> 1:1, ratio 1:1:1)
-glyph flag-lu:color 16 16
+glyph flag-lu:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #FFFFFF
 ref 14x4p2r3 1 1 fill #EF3340
 ref 14x-4p2r3 1 10 fill #00A3E0
 
 // Latvia (aspect 2:1 -> 1:1, ratio 2:1:2)
-glyph flag-lv:color 16 16
+glyph flag-lv:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #FFFFFF
 ref 14x5p3r5 1 1 fill #9D2235
@@ -1537,7 +1537,7 @@ ref 14x-5p3r5 1 9 fill #9D2235
 // crescent width / height = 1/24
 // star-circumscribing circle diameter / height = (5-sqrt(5))*sqrt(5+sqrt(5))/40
 // star center from flag center / height = (40+(5-sqrt(5))*sqrt(5+sqrt(5)))/320
-glyph flag-ly:color 16 16 scale 6
+glyph flag-ly:color 16 16 scale 6 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 6 6 fill #000000
 ref 14x3p1r2 6 6 fill #E70013
@@ -1555,7 +1555,7 @@ remap flag : regional-indicator-l-left regional-indicator-($flag-l)-right -> fla
 // Morocco (aspect 3:2 -> 1:1)
 // star-circumscribing circle diameter / height = 1/2
 // star stroke width / height = sqrt(10+2sqrt(5))/160
-glyph flag-ma:color 16 16 scale 2
+glyph flag-ma:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #B7312C
 ref 7x7-poly5r2 9 9 fill #006341
@@ -1579,13 +1579,13 @@ ref 0p9r20x1p6r20-dl 27 25
 ref -1p2r10x-0p9r10-dl 18 27 negated
 
 // Monaco (aspect 5:4 -> 1:1, ratio 1:1)
-glyph flag-mc:color 16 16
+glyph flag-mc:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x7 1 1 fill #CE1126
 ref 14x7 1 8 fill #FFFFFF
 
 // Madagascar (aspect 3:2 -> 1:1, ratio 1:2 & 1:1)
-glyph flag-mg:color 16 16
+glyph flag-mg:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x7 1 1 fill #f9423a
 ref 14x7 1 8 fill #00843d
@@ -1593,7 +1593,7 @@ ref 4p2r3x14 1 1 fill #ffffff
 
 // Marshall Islands (aspect 19:10 -> 1:1, division 238:4:4:4 & 4:49:49:148)
 // outer & center & inner star diameter / height = 31/50 & 111/250 & 49/250
-glyph flag-mh:color 16 16 scale 2
+glyph flag-mh:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #003893
 ref 14x13p1r10-dr 2 3 fill #DD7500
@@ -1607,7 +1607,7 @@ ref _8p2r3x_8p2r3-poly4.887 2 2 fill #FFFFFF
 // North Macedonia (aspect 2:1 -> 1:1, division 3:6:2:6:3 & 4:2:4)
 // red & yellow circle diameter / height = 5/14 & 2/7
 // ray-touching internal circle diameter / height = 3/14
-glyph flag-mk:color 16 16 scale 2
+glyph flag-mk:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #CE2028
 ref -5p9r10x8-dl 6 2 fill #F9D616
@@ -1632,7 +1632,7 @@ ref 5x5-circle 11 11 fill #CE2028
 ref 4x4-circle 12 12 fill #F9D616
 
 // Mali (aspect 3:2 -> 1:1, division 1:1:1)
-glyph flag-ml:color 16 16
+glyph flag-ml:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #FCD116
 ref 4p2r3x14 1 1 fill #14B53A
@@ -1640,7 +1640,7 @@ ref -4p2r3x14 10 1 fill #CE1126
 
 // Myanmar (aspect 3:2 -> 1:1, division 1:1:1)
 // star-circumscribing circle diameter / height = (20-4sqrt(5))/15
-glyph flag-mm:color 16 16 scale 2
+glyph flag-mm:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #34B233
 ref 14x4p2r3 2 2 fill #FECB00
@@ -1652,7 +1652,7 @@ ref _10p1r3x_10p1r3-poly5r2 5 6 fill #FFFFFF
 // crescent width / height = 51/500
 // star height / flag height = 191/1000
 // star bottom from inner circle bottom / height = 107/1000
-glyph flag-mr:color 16 16 scale 2
+glyph flag-mr:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #00A95C
 ref 14x2p4r5 2 2 fill #D01C1F
@@ -1665,7 +1665,7 @@ ref _10p1r2x_10p1r2-circle 1 0
 ref _10p1r2x_10p1r2-circle 1 -3 negated
 
 // Mauritius (aspect 3:2 -> 1:1, division 1:1:1:1)
-glyph flag-mu:color 16 16
+glyph flag-mu:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x7 1 1 fill #2D3359
 ref 14x3p1r2 1 1 fill #D01C1F
@@ -1675,7 +1675,7 @@ ref 14x3p1r2 1 8 fill #F7B718
 // Maldives (aspect 3:2 -> 1:1, division 1:4:1 & 1:2:1)
 // crescent diameter / height = 1/3
 // crescent width / height = 1/16
-glyph flag-mv:color 16 16 scale 2
+glyph flag-mv:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #D21034
 ref _9p1r3x7 6 9 fill #007E3A
@@ -1689,7 +1689,7 @@ ref _4p2r3x_4p2r3-circle 7 0 negated
 // ray outer & inner circle diameter / height = 1/3 & 29/120 (inner circle center is vertically offset by 1/40)
 // sun diameter / height = 5/24
 // total cropped height / flag height = 17/60
-glyph flag-mw:color 16 16 scale 2
+glyph flag-mw:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #CE1126
 ref 14x4p2r3 2 2 fill #000000
@@ -1707,7 +1707,7 @@ ref 14x-5p5r10 0 8 negated
 // star outer & inner circle diameter / height = 5/14 & 1/7
 // crescent outer & inner circle center distance / height = 1/21
 // star center from crescent outer center / height = 3/14
-glyph flag-my:color 16 16 scale 2
+glyph flag-my:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #FFFFFF
 ref @-stripes 2 2 fill #CC0001
@@ -1758,7 +1758,7 @@ remap flag : regional-indicator-m-left regional-indicator-($flag-m)-right -> fla
 // star outer & inner diameter / height = 1/3 & 1/5
 // star rim width / height = 1/60
 // star center from flag left & top / height = 3/10 & (87sqrt(13)-281)/120 -> whatever this is
-glyph flag-na:color 16 16 scale 2
+glyph flag-na:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #C8102E
 ref 11p1r2x11p1r2-ul 2 2 fill #FFFFFF
@@ -1771,7 +1771,7 @@ ref _2p1r3x_2p1r3-circle 5 5 fill #FFCD00
 
 // Niger (aspect 7:6 -> 1:1, division 1:1:1)
 // circle diameter / height = 17/60?
-glyph flag-ne:color 16 16
+glyph flag-ne:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #FFFFFF
 ref 14x4p2r3 1 1 fill #E05206
@@ -1779,21 +1779,21 @@ ref 14x-4p2r3 1 10 fill #0DB02B
 ref 4x4-circle 6 6 fill #E05206
 
 // Nigeria (aspect 2:1 -> 1:1, division 1:1:1)
-glyph flag-ng:color 16 16
+glyph flag-ng:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #FFFFFF
 ref 4p2r3x14 1 1 fill #008751
 ref -4p2r3x14 10 1 fill #008751
 
 // Netherlands (aspect 3:2 -> 1:1, division 1:1:1)
-glyph flag-nl:color 16 16
+glyph flag-nl:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #FFFFFF
 ref 14x4p2r3 1 1 fill #AD1D25
 ref 14x-4p2r3 1 10 fill #1E4785
 
 // Norway (aspect 11:8 -> 1:1, division 6:1:2:1:12 & 6:1:2:1:6 -> 4:1:2:1:8 & 6:1:2:1:6)
-glyph flag-no:color 16 16
+glyph flag-no:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #D21034
 ref -3p4r8x14 4 1 fill #FFFFFF
@@ -1804,7 +1804,7 @@ ref 14x_1p6r8 1 7 fill #003698
 
 // Nauru (aspect 2:1 -> 1:1, division 8:8:32 & 11:2:8:3)
 // star inner diameter / height = 1/6
-glyph flag-nr:color 16 16 scale 2
+glyph flag-nr:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #002B7F
 ref 14x_1p1r6 2 14 fill #FFC61E
@@ -1818,7 +1818,7 @@ remap flag : regional-indicator-n-left regional-indicator-($flag-n)-right -> fla
 
 // Panama (aspect 3:2 -> 1:1, division 3:3 & 1:2:1:1:2:1)
 // star-circumscribing circle diameter / height = (5-sqrt(5))/10
-glyph flag-pa:color 16 16 scale 2
+glyph flag-pa:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #FFFFFF
 ref 7x7 16 2 fill #DA121A
@@ -1827,7 +1827,7 @@ ref _3p5r6x-3p5r6-poly5r2 5 5 fill #072357
 ref _3p5r6x-3p5r6-poly5r2 19 19 fill #DA121A
 
 // Peru (aspect 3:2 -> 1:1, division 1:1:1)
-glyph flag-pe:color 16 16
+glyph flag-pe:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #FFFFFF
 ref 4p2r3x14 1 1 fill #D91023
@@ -1838,7 +1838,7 @@ ref -4p2r3x14 10 1 fill #D91023
 // star-circumscribing circle diameter / height = 1/5
 // inner circle center from flag center / height = (sqrt(3625)-52)/80
 // star center from flag center / height = 1/5
-glyph flag-pk:color 16 16 scale 2
+glyph flag-pk:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #01411C
 ref 3p1r2x14 2 2 fill #FFFFFF
@@ -1847,7 +1847,7 @@ ref _7p7r10x_7p7r10-circle 13 6 fill #01411C
 ref -2p4r5x2p4r5-poly5r2-cw45 20 9 fill #FFFFFF
 
 // Poland (aspect 8:5 -> 1:1, division 1:1)
-glyph flag-pl:color 16 16
+glyph flag-pl:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x7 1 1 fill #ffffff
 ref 14x7 1 8 fill #dc143c
@@ -1855,7 +1855,7 @@ ref 14x7 1 8 fill #dc143c
 // Puerto Rico (aspect 3:2 -> 1:1, division 1:1:1:1:1)
 // apex position / height = sqrt(3)/2 -> sqrt(3)/3
 // star-circumscribing circle diameter / height = 1/3?
-glyph flag-pr:color 16 16 scale 2
+glyph flag-pr:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #FFFFFF
 ref 14x2p4r5 2 2 fill #ed0000
@@ -1866,7 +1866,7 @@ ref 8x7-ul 2 16 fill #0044ff
 ref -4p2r3x_4p2r3-poly5r2 2 11 fill #FFFFFF
 
 // Palestine (aspect 2:1 -> 1:1, division 1:1:1 & 1:2)
-glyph flag-ps:color 16 16
+glyph flag-ps:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #FFFFFF
 ref 14x4p2r3 1 1 fill #000000
@@ -1877,7 +1877,7 @@ ref 4p2r3x7-ul 1 8 fill #EE2A35
 // Palau (aspect 8:5 -> 1:1)
 // circle center division = 7:9 & 1:1 -> 4.6:5.4 & 1:1
 // circle diameter / height = 3/5
-glyph flag-pw:color 16 16 scale 2
+glyph flag-pw:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #0099FF
 ref _8p2r5x_8p2r5-circle 6 7 fill #FFFF00
@@ -1889,7 +1889,7 @@ remap flag : regional-indicator-p-left regional-indicator-($flag-p)-right -> fla
 ## flags: q
 
 // Qatar (aspect 28:11 -> 1:1, division 22:6:47 -> 6+23/28:6:16+9/14)
-glyph flag-qa:color 16 16
+glyph flag-qa:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #FFFFFF
 ref @-right 1 1 fill #8A1538
@@ -1924,7 +1924,7 @@ remap flag : regional-indicator-q-left regional-indicator-($flag-q)-right -> fla
 // Reunion (unofficial; aspect 3:2 -> 1:1, division 1:1 & 1:1)
 // ray-hitting corner segment length / height = 1/16
 // ray-hitting side segment length / height = 3/40
-glyph flag-re:color 16 16
+glyph flag-re:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x7 1 1 fill #FFFF00
 ref 14x7 1 8 fill #3366FF
@@ -1942,14 +1942,14 @@ ref 7x7-dr 1 8 fill #FF0000
 ref 7x7-dl 8 8 fill #FF0000
 
 // Romania (aspect 3:2 -> 1:1, division 1:1:1)
-glyph flag-ro:color 16 16
+glyph flag-ro:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #FCD116
 ref 4p2r3x14 1 1 fill #002B7F
 ref -4p2r3x14 10 1 fill #CE1126
 
 // Russia (aspect 3:2 -> 1:1, division 1:1:1)
-glyph flag-ru:color 16 16
+glyph flag-ru:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #0032A0
 ref 14x4p2r3 1 1 fill #FFFFFF
@@ -1958,7 +1958,7 @@ ref 14x-4p2r3 1 10 fill #DA291C
 // Rwanda (aspect 3:2 -> 1:1, division 26:84:20:65:65)
 // outer & inner star diameter / height = 21/65 & 1/10
 // rim width / height = 3/260
-glyph flag-rw:color 16 16 scale 4
+glyph flag-rw:color 16 16 scale 4 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x7 4 4 fill #00A5E1
 ref 14x7 4 32 fill #1A603A
@@ -1976,7 +1976,7 @@ remap flag : regional-indicator-r-left regional-indicator-($flag-r)-right -> fla
 // Solomon Islands (aspect 2:1 -> 1:1)
 // stripe width / height = 1/10?
 // star-circumscribing circle diameter / height = 1/5? -> 1/7
-glyph flag-sb:color 16 16 scale 2
+glyph flag-sb:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #FCD116
 ref 13x13-ul 2 2 fill #0051BA
@@ -1988,7 +1988,7 @@ ref 2x2-poly5r2 3 9 fill #FFFFFF
 ref 2x2-poly5r2 11 9 fill #FFFFFF
 
 // Seychelles (aspect 2:1 -> 1:1, division 1:1:1 & 1:1:1)
-glyph flag-sc:color 16 16
+glyph flag-sc:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #D92323
 ref 9p1r3x14-ul 1 1 fill #FED141
@@ -1997,7 +1997,7 @@ ref 14x-9p1r3-dr 1 5 fill #ffffff
 ref 14x-4p2r3-dr 1 10 fill #007A33
 
 // Sudan (aspect 2:1 -> 11:7, division 1:1:1 & 1:2)
-glyph flag-sd:color 16 16
+glyph flag-sd:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #FFFFFF
 ref 14x4p2r3 1 1 fill #D21034
@@ -2006,7 +2006,7 @@ ref 4p2r3x7-dl 1 1 fill #007229
 ref 4p2r3x7-ul 1 8 fill #007229
 
 // Sweden (aspect 8:5 -> 1:1, division 5:2:9 & 4:2:4 -> 2+6/7:2:5+1/7 & 4:2:4)
-glyph flag-se:color 16 16 scale 2
+glyph flag-se:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #005583
 ref 2p4r5x14 10 2 fill #FFC200
@@ -2018,7 +2018,7 @@ ref 14x_2p4r5 2 13 fill #FFC200
 // constellation circle center from flag left / height = 167/400
 // constellation circle diameter / height = 19/90
 // star-circumscribing circle diameter / height = 23/240
-glyph flag-sg:color 16 16 scale 2
+glyph flag-sg:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x7 2 2 fill #EE2536
 ref 14x7 2 16 fill #FFFFFF
@@ -2034,7 +2034,7 @@ ref -1p1r3x1p1r3-poly5r2 8 7 fill #FFFFFF
 glyph flag-sj:color = flag-no:color
 
 // Sierra Leone (aspect 3:2 -> 1:1, division 1:1:1)
-glyph flag-sl:color 16 16
+glyph flag-sl:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #FFFFFF
 ref 14x4p2r3 1 1 fill #1EB53A
@@ -2042,7 +2042,7 @@ ref 14x-4p2r3 1 10 fill #0072C6
 
 // Senegal (aspect 3:2 -> 1:1, division 1:1:1)
 // star-circumscribing circle diameter / height = unspecified -> 1/4
-glyph flag-sn:color 16 16 scale 2
+glyph flag-sn:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #FDEF42
 ref 4p2r3x14 2 2 fill #00853F
@@ -2051,14 +2051,14 @@ ref _3p1r2x_3p1r2-poly5r2 12 12 fill #00853F
 
 // Somalia (aspect 3:2 -> 1:1)
 // star-circumscribing circle diameter / height = unspecified -> 1/2
-glyph flag-so:color 16 16 scale 2
+glyph flag-so:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #418FDE
 ref 7x7-poly5r2 9 9 fill #FFFFFF
 
 // Suriname (aspect 3:2 -> 1:1, division 2:1:4:1:2)
 // star-circumscribing circle diameter = 2/5
-glyph flag-sr:color 16 16 scale 3
+glyph flag-sr:color 16 16 scale 3 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 3 3 fill #FFFFFF
 ref 14x2p4r5 3 3 fill #377E3F
@@ -2069,7 +2069,7 @@ ref _5p2r3x5p2r3-poly5r2 15 16 fill #ECC81D
 // South Sudan (aspect 2:1 -> 1:1, division 6:1:6:1:6)
 // apex position / height = sqrt(3)/2 -> sqrt(3)/3 (sqrt(3)/4 is too much)
 // star-circumscribing circle diameter / height = 1/6
-glyph flag-ss:color 16 16 scale 2
+glyph flag-ss:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #FFFFFF
 ref 14x4p1r5 2 2 fill #000000
@@ -2080,7 +2080,7 @@ ref 8x7-ul 2 16 fill #00B6F2
 ref 4p1r5x_4p1r5-poly5r2 3 11 fill #FFE51A
 
 // São Tomé and Príncipe (aspect 2:1 -> 1:1, division 42:29:26:16:26:29 & 24:36:24 -> whatever this is)
-glyph flag-st:color 16 16 scale 4
+glyph flag-st:color 16 16 scale 4 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 4 4 fill #006633
 ref 14x6 4 20 fill #FCD116
@@ -2090,7 +2090,7 @@ ref _4p4r5x_4p4r5-poly5r2 19 23 fill #000000
 ref _4p4r5x_4p4r5-poly5r2 39 23 fill #000000
 
 // Syria (aspect 3:2 -> 1:1, division 17:20:7:20:7:20:17 & 24:24:24 -> 2+1/2:20:2+1/2:20:2+1/2:20:2+1/2 & 24:24:24)
-glyph flag-sy:color 16 16 scale 2
+glyph flag-sy:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #FFFFFF
 ref 14x4p2r3 2 2 fill #007A3D
@@ -2106,7 +2106,7 @@ remap flag : regional-indicator-s-left regional-indicator-($flag-s)-right -> fla
 ## flags: t
 
 // Chad (aspect 3:2 -> 1:1, division 1:1:1)
-glyph flag-td:color 16 16
+glyph flag-td:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #FFCD00
 ref 4p2r3x14 1 1 fill #00205B
@@ -2114,7 +2114,7 @@ ref -4p2r3x14 10 1 fill #C8102E
 
 // Togo (aspect 5:3 or 3:2 or phi:1 -> 1:1, division 1:1:1:1:1)
 // star-circumscribing circle diameter / height = unspecified -> 2/5
-glyph flag-tg:color 16 16 scale 2
+glyph flag-tg:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #FFCE00
 ref 14x2p4r5 2 2 fill #006A4E
@@ -2124,7 +2124,7 @@ ref 8p2r5x8p2r5 2 2 fill #D21034
 ref -5p3r5x-5p3r5-poly5r2 4 4 fill #FFFFFF
 
 // Thailand (aspect 3:2 -> 1:1, division 1:1:2:1:1)
-glyph flag-th:color 16 16
+glyph flag-th:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #2D2A4A
 ref 14x4p2r3 1 1 fill #F4F5F8
@@ -2134,7 +2134,7 @@ ref 14x-2p1r3 1 12 fill #A51931
 
 // Timor-Leste (aspect 2:1 -> 1:1, division 2:1:3 & 1:1 -> 2:1:1 & 1:1)
 // star-circumscribing circle diameter / height = 1/3
-glyph flag-tl:color 16 16 scale 2
+glyph flag-tl:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #DA291C
 ref 10p1r2x7-dl 2 2 fill #FFC72C
@@ -2147,7 +2147,7 @@ ref 4p2r3x_4p2r3-poly5r2 2 11 fill #FFFFFF
 // outer & middle & inner circle diameter / height = 1/2 & 3/8 & 3/10
 // star-circumscribing circle diameter / height = 9/40
 // star center from flag center / height = 1/20
-glyph flag-tn:color 16 16 scale 4
+glyph flag-tn:color 16 16 scale 4 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 4 4 fill #E70013
 ref 7x7-circle 18 18 fill #FFFFFF
@@ -2157,7 +2157,7 @@ ref _3p3r20x_3p3r20-poly5r2-ccw90 27 24 fill #E70013
 
 // Tonga (aspect 2:1 -> 1:1, division 5:7 & 3:3 -> 3:3 & 3:3)
 // division inside white rectangle = 5.5:3:3:3:5.5 & 1.5:3:3:3:1.5 -> 1.5:3:3:3:1.5 & 1.5:3:3:3:1.5
-glyph flag-to:color 16 16
+glyph flag-to:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #C10000
 ref 7x7 1 1 fill #FFFFFF
@@ -2172,7 +2172,7 @@ ref 1p3r4x5p1r4 21 7
 // outer & inner circle center from flag left / height = 1/2 & 9/16 -> 3/8 & 7/16
 // star-circumscribing circle diameter / height = 1/4
 // star center from flag left / height = 197/240 -> 137/240
-glyph flag-tr:color 16 16 scale 4
+glyph flag-tr:color 16 16 scale 4 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 4 4 fill #E30A17
 ref 7x7-circle 11 18 fill #FFFFFF
@@ -2183,7 +2183,7 @@ ref _3p1r2x_3p1r2-poly5r2-ccw90 35 24 fill #FFFFFF
 // white stripe width / height = 1/18
 // black stripe width / height = 2/9
 // stripe horizontal width / height = (3*sqrt(33)-5)/24 -> (sqrt(17)-1)/8 -> 5.5/14
-glyph flag-tt:color 16 16
+glyph flag-tt:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #000000
 ref 1x14 1 1 fill #FFFFFF
@@ -2196,7 +2196,7 @@ ref -8p1r2x14-ur 6 1 fill #DA1A35
 // Taiwan (aspect 3:2 -> 1:1, division 1:1 & 1:1)
 // star outer & inner diameter / height = 3/8 & 3/16
 // rim stroke width = 1/80
-glyph flag-tw:color 16 16 scale 2
+glyph flag-tw:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #F30001
 ref 7x7 2 2 fill #0028CC
@@ -2208,7 +2208,7 @@ ref _2p5r8x_2p5r8-circle 6 6 fill #FFFFFF
 // yellow stripe width / height = 1/16
 // black stripe width / height = 13/48
 // stripe horizontal width / height = 19*sqrt(13)/96 -> 19*sqrt(2)/48 -> 8/14
-glyph flag-tz:color 16 16
+glyph flag-tz:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #000000
 ref 11p1r3x11p1r3-ul 1 1 fill #fcd116
@@ -2223,7 +2223,7 @@ remap flag : regional-indicator-t-left regional-indicator-($flag-t)-right -> fla
 ## flags: u
 
 // Ukraine (aspect 3:2 -> 1:1, division 1:1)
-glyph flag-ua:color 16 16
+glyph flag-ua:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x7 1 1 fill #0057B7
 ref 14x7 1 8 fill #FFD700
@@ -2233,7 +2233,7 @@ glyph flag-um:color = flag-us:color
 
 // United States (aspect 19:10 -> 14:13, division 9.88:14.82 & 1:..:1 -> 6:8 & 1:..:1)
 // star-circumscribing circle diameter / height = 4/65
-glyph flag-us:color 16 16
+glyph flag-us:color 16 16 vectoronly
 ref 16x15 0 0 fill #00000080
 ref 14x13 1 1 fill #ffffff
 ref @-stripes 1 1 fill #BF0A30
@@ -2313,7 +2313,7 @@ ref _0p8r10x_0p8r10-poly5r2 50 58 negated
 // leftmost star center from flag left / height = 44/125 -> 34/125
 // star-circumscribing circle diameter / height = 6/125
 // star-circumscribing circle distance / height = 12/125 (in both directions)
-glyph flag-uz:color 16 16 scale 3
+glyph flag-uz:color 16 16 scale 3 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 3 3 fill #FFFFFF
 ref 14x4p3r4 3 3 fill #EE162E
@@ -2342,7 +2342,7 @@ remap flag : regional-indicator-u-left regional-indicator-($flag-u)-right -> fla
 ## flags: v
 
 // Saint Vincent and the Grenadines (aspect 3:2 -> 1:1, division 1:2:1)
-glyph flag-vc:color 16 16
+glyph flag-vc:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #fcd022
 ref 3p1r2x14 1 1 fill #002674
@@ -2389,7 +2389,7 @@ glyph @-diamond 6 9 scale 4
 
 // Vietnam (aspect 3:2 -> 1:1)
 // star-circumscribing circle diameter / height = 3/5
-glyph flag-vn:color 16 16
+glyph flag-vn:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #DA251D
 ref _9p1r3x_9p1r3-poly5r2 3 3 fill #FFFF00
@@ -2401,7 +2401,7 @@ remap flag : regional-indicator-v-left regional-indicator-($flag-v)-right -> fla
 ## flags: w
 
 // Samoa (aspect 2:1 -> 1:1, division 1:1 & 1:1)
-glyph flag-ws:color 16 16 scale 2
+glyph flag-ws:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #CE1126
 ref 7x7 2 2 fill #002B7F
@@ -2412,7 +2412,7 @@ ref 2x2-poly5r2 7 12 fill #FFFFFF
 ref 1x1-poly5r2 10 9 fill #FFFFFF
 
 // Wallis and Futuna (unofficial; aspect 3:2 -> 1:1, division unspecified -> 10:10:10:15:15:15 & 18:27 -> 6:6:6:6:15:6 & 18:27)
-glyph flag-wf:color 16 16 scale 4
+glyph flag-wf:color 16 16 scale 4 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 4 4 fill #CE1126
 ref 5p1r2x5p1r2 4 4 fill #FFFFFF
@@ -2434,7 +2434,7 @@ remap flag : regional-indicator-w-left regional-indicator-($flag-w)-right -> fla
 ## flags: y
 
 // Yemen (aspect 3:2 -> 1:1, division 1:1:1)
-glyph flag-ye:color 16 16
+glyph flag-ye:color 16 16 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #FFFFFF
 ref 14x4p2r3 1 1 fill #CE1126
@@ -2447,7 +2447,7 @@ remap flag : regional-indicator-y-left regional-indicator-($flag-y)-right -> fla
 ## flags: z
 
 // South Africa (aspect 3:2 -> 1:1, division 5:1:3:1:5)
-glyph flag-za:color 16 16 scale 2
+glyph flag-za:color 16 16 scale 2 vectoronly
 ref 16x16 0 0 fill #00000080
 ref 14x7 2 2 fill #DE3831
 ref 14x7 2 16 fill #002395
