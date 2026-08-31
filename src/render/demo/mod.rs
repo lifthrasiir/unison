@@ -184,10 +184,14 @@ struct DemoSampleGroup {
 #[derive(serde::Serialize)]
 struct DemoSample {
     /// The UDHR's own key for the translation; the page turns it into a
-    /// language name with `Intl.DisplayNames` rather than being told one, so
-    /// the blob carries no table of language names. See
-    /// [`crate::render::sample::UdhrEntry`].
+    /// language name with `Intl.DisplayNames` rather than reading one off the
+    /// blob, because CLDR names a language the way a reader of this page
+    /// expects it named. See [`crate::render::sample::UdhrEntry`].
     id: String,
+    /// The UDHR's own name for the translation, for the numeric keys `Intl`
+    /// cannot name. Carried per item and not as a table because it is one
+    /// string per translation the page already carries a paragraph for.
+    name: String,
     text: String,
 }
 
@@ -216,6 +220,7 @@ fn collect_samples(src: &SampleSource, data_dir: Option<&Path>) -> Vec<DemoSampl
             .into_iter()
             .map(|e| DemoSample {
                 id: e.lang,
+                name: e.name,
                 text: e.text,
             })
             .collect(),

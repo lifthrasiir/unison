@@ -338,7 +338,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | The demo's sample panel: running text beside the chart, and why it has no size control of its own | `render/demo/mod.rs` (`# The sample panel`) |
 | Which translations of UDHR Article 1 a page offers, and why the two pages offer the same ones | `render/sample.rs` (`udhr_selection`) |
 | Where the text a reader types into the sample panel is kept, and why it is per sample | `render/demo/demo.js` (`selectSample`, `ssSet`) |
-| Turning the UDHR's own key for a translation into a language name without a table of them | `render/demo/demo.js` (`langName`) |
+| Turning the UDHR's own key for a translation into a language name: the browser first, the data's own name as the fallback | `render/demo/demo.js` (`langName`), `render/sample.rs` (`UdhrEntry`) |
 | The demo's one size for both drawings, and the rounding a switch to bitmap does | `render/demo/demo.js` (`state.em`, `snapZoom`) |
 | Which contrast the demo's tokens are held to, and why the cell hover is a token of its own | `render/demo/demo.css` (`:root`) |
 | The demo's font: one variable face carrying both drawings, and why it asks for the axis whatever `meta` says | `render/ttf_builder/mod.rs` (`build_face_variable`), `render/demo/mod.rs` |

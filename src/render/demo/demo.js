@@ -241,12 +241,20 @@
     try { sessionStorage.removeItem(SS + key); } catch (e) { /* no storage */ }
   }
 
-  /* What to call a translation. The blob carries the UDHR's own key for it —
-     an ISO 639-3 code, sometimes with a variant suffix — and never a language
-     name: the browser already has the whole table, and shipping five hundred
-     names to write a hundred and nineteen of them is the same mistake the
-     character names on this page were modelled to avoid. A code the browser
-     cannot name is left as a code, in capitals so that it reads as one. */
+  /* What to call a translation. The name is the browser's wherever it has one:
+     the blob carries the UDHR's own key for the translation — an ISO 639-3
+     code, sometimes with a variant suffix — and `Intl.DisplayNames` turns that
+     into a name CLDR spells the way a reader of this page expects.
+
+     Only where that fails does the UDHR's own name for the translation stand
+     in, which is why the blob carries one per item: a numeric key names no
+     language the browser knows. Asking first and falling back second, rather
+     than printing the carried name outright, is what keeps `Crioulo, Upper
+     Guinea (008)` to the entries that have nothing better — and the fallback
+     is the UDHR's name and not the tag it also states, because a name says
+     which of two translations of one language this is (`Swahili (Chimwiini)`)
+     where the tag would collapse the two. A key with no name on either side is
+     left as a code, in capitals so that it reads as one. */
   function displayNamesOf(type) {
     try {
       return new Intl.DisplayNames(["en"], { type: type, fallback: "code" });
@@ -264,9 +272,15 @@
     return name && name !== code ? name : null;
   }
 
-  function langName(id) {
-    var parts = id.split("_");
-    var name = named(languageNames, parts[0], /^[a-z]{2,3}$/) || parts[0].toUpperCase();
+  function langName(item) {
+    var parts = item.id.split("_");
+    var name = named(languageNames, parts[0], /^[a-z]{2,3}$/);
+    /* The key names no language the browser knows — it is one of the numeric
+       ones. The UDHR's own name for the translation is what is left, and it is
+       taken whole: the suffix loop below is about the *key*'s suffixes, and a
+       name that says `(2)` or `(Chimwiini)` has already said which of two
+       translations of one language this is. */
+    if (name === null) return item.name || parts[0].toUpperCase();
     /* A suffix is the UDHR's own qualifier on the translation, and most of them
        are the script it is written in — the two Serbian texts differ in nothing
        else. A script code is spelled out like the language; anything else
@@ -284,6 +298,9 @@
      one entry no group carries: the reader's own text, which is what the panel
      shows when nothing is selected. */
   var sampleTexts = { custom: "" };
+  /* What the header calls the shown sample, settled once while the list is
+     built so that a key alone is enough to label it afterwards. */
+  var sampleLabels = {};
   var CUSTOM = "custom";
   var current = CUSTOM;
 
@@ -295,8 +312,9 @@
       var items = group.items.map(function (item) {
         var key = gi + "/" + item.id;
         sampleTexts[key] = item.text;
+        sampleLabels[key] = langName(item);
         return '<button type="button" class="s-item" data-key="' + esc(key) +
-          '" aria-pressed="false">' + esc(langName(item.id)) + "</button>";
+          '" aria-pressed="false">' + esc(sampleLabels[key]) + "</button>";
       }).join('<span class="s-sep">; </span>');
       /* One heading per body of built-in data, with its items run together
          under it: a hundred and nineteen translations of one paragraph are one
@@ -338,7 +356,7 @@
     var stored = ssGet("text/" + key);
     var text = document.getElementById("s-text");
     text.value = stored === null ? sampleTexts[key] : stored;
-    var label = key === CUSTOM ? "your own text" : langName(key.slice(key.indexOf("/") + 1));
+    var label = key === CUSTOM ? "your own text" : sampleLabels[key];
     document.getElementById("s-current").textContent = label;
     document.getElementById("s-revert").hidden = key === CUSTOM;
     Array.prototype.forEach.call(document.querySelectorAll(".s-item"), function (b) {

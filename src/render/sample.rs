@@ -1511,12 +1511,18 @@ Y88b. .d88P 888  888 888      X88 Y88..88P 888  888
 ///
 /// `lang` is the UDHR's own key for the translation — an ISO 639-3 code where
 /// the data has one (`eng`, `kor`), sometimes with a variant suffix
-/// (`aka_asante`), and a bare number where it has none. Nothing here turns it
-/// into a language *name*: `live.html` prints it as it stands and `demo.html`
-/// asks the browser (`Intl.DisplayNames`), so no table of five hundred
-/// language names has to be carried for either.
+/// (`aka_asante`), and a bare number where it has none.
+///
+/// `name` is the UDHR's own name for the translation, which is a *fallback*
+/// and not the first answer: `demo.html` asks the browser
+/// (`Intl.DisplayNames`) about the key first, because CLDR names a language
+/// the way a reader expects it named where this table names it the UDHR's way
+/// (`Crioulo, Upper Guinea (008)`). It is carried at all because the browser
+/// has no name for the numeric keys, and because `live.html` has no `Intl` to
+/// ask — that page prints this name outright.
 pub(crate) struct UdhrEntry {
     pub lang: String,
+    pub name: String,
     pub text: String,
 }
 
@@ -1541,6 +1547,7 @@ pub(crate) fn udhr_selection(
     #[derive(serde::Deserialize)]
     struct RawEntry {
         lang: String,
+        name: String,
         text: String,
     }
 
@@ -1566,6 +1573,7 @@ pub(crate) fn udhr_selection(
         covered.extend(entry.text.chars().map(|ch| ch as u32));
         selected.push(UdhrEntry {
             lang: entry.lang,
+            name: entry.name,
             text: entry.text,
         });
     }
@@ -1593,7 +1601,7 @@ fn write_live_udhr(
         writeln!(
             w,
             "\u{2022} {}: <span>{}</span>",
-            html_escape(&entry.lang),
+            html_escape(&entry.name),
             html_escape(&entry.text),
         )?;
     }
