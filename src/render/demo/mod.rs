@@ -46,6 +46,25 @@
 //!    The directive keeps its meaning everywhere else (`crate::specimen`,
 //!    `crate::render::sample`).
 //!
+//! # The sample panel
+//!
+//! A code chart says which characters the font has; it cannot say what they
+//! look like as running text, which is the other half of what a specimen is
+//! read for. The panel pinned to the bottom of the page is that half: a list of
+//! the texts the page carries on the left, and the selected one — editable — on
+//! the right. It collapses to its own title bar, since the chart is what the
+//! page is mostly for.
+//!
+//! Three things it deliberately does not do. It has no size or mode control of
+//! its own: the header's two drive it, so the running text and the chart are
+//! always the same drawing at the same size and can be compared. It does not
+//! invent sample text, which is why the one group here is the UDHR selection
+//! `live.html` already shows ([`crate::render::sample::udhr_selection`]) —
+//! written out per translation rather than as one blob, because the *list* is
+//! what makes the panel worth having. And it does not keep what the reader
+//! types anywhere but `sessionStorage`, per sample: an edit survives a reload
+//! and a jump to another block, and nothing on this page outlives the tab.
+//!
 //! # What the blob costs
 //!
 //! Everything in it is *modelled* before it is written — nothing here is a
@@ -59,6 +78,7 @@
 
 use std::collections::BTreeMap;
 use std::io::{self, Write};
+use std::path::Path;
 
 use crate::document::Document;
 use crate::render::sample::{SampleSource, base64_encode};
@@ -141,6 +161,65 @@ struct DemoData {
     /// UCD names every ideograph. The page spells them out rather than reading
     /// them.
     name_runs: Vec<(u32, u32, String)>,
+    /// The ready-made texts the sample panel offers; empty when the build was
+    /// given no `-d` directory to read them from.
+    samples: Vec<DemoSampleGroup>,
+}
+
+/// One heading's worth of ready-made sample texts.
+///
+/// A group is a *body of data the page carries*, as against the empty sample a
+/// reader types into: it has a title of its own because a hundred and nineteen
+/// translations of one paragraph are one thing on the list and not a hundred
+/// and nineteen. The panel is a list of groups so that a second body of text
+/// added later needs nothing but another entry here.
+#[derive(serde::Serialize)]
+struct DemoSampleGroup {
+    title: String,
+    /// What the group is, spelled out where the title cannot be.
+    note: String,
+    items: Vec<DemoSample>,
+}
+
+#[derive(serde::Serialize)]
+struct DemoSample {
+    /// The UDHR's own key for the translation; the page turns it into a
+    /// language name with `Intl.DisplayNames` rather than being told one, so
+    /// the blob carries no table of language names. See
+    /// [`crate::render::sample::UdhrEntry`].
+    id: String,
+    text: String,
+}
+
+/// The sample texts to embed: the UDHR selection `live.html` shows, and nothing
+/// else yet.
+///
+/// The data directory is optional for every other part of this page, so a build
+/// with no `-d` still writes a demo — it just has no ready-made text in it, and
+/// the panel says so rather than disappearing.
+fn collect_samples(src: &SampleSource, data_dir: Option<&Path>) -> Vec<DemoSampleGroup> {
+    let Some(dir) = data_dir else {
+        return Vec::new();
+    };
+    let Ok(entries) = crate::render::sample::udhr_selection(dir, src.cmap()) else {
+        return Vec::new();
+    };
+    if entries.is_empty() {
+        return Vec::new();
+    }
+    vec![DemoSampleGroup {
+        title: "UDHR Article 1".to_string(),
+        note: "Article 1 of the Universal Declaration of Human Rights, in every \
+               translation this font can draw whole"
+            .to_string(),
+        items: entries
+            .into_iter()
+            .map(|e| DemoSample {
+                id: e.lang,
+                text: e.text,
+            })
+            .collect(),
+    }]
 }
 
 /// The character names the page cannot spell for itself, front-coded.
@@ -201,7 +280,12 @@ impl DemoNames {
     }
 }
 
-fn collect(src: &SampleSource, docs: &[&Document], bitmap_ttf: &[u8]) -> DemoData {
+fn collect(
+    src: &SampleSource,
+    docs: &[&Document],
+    bitmap_ttf: &[u8],
+    data_dir: Option<&Path>,
+) -> DemoData {
     let meta = crate::meta::FontMeta::collect(docs);
     let faces = crate::faces::FaceSet::collect(docs);
     let face = faces.primary();
@@ -286,6 +370,7 @@ fn collect(src: &SampleSource, docs: &[&Document], bitmap_ttf: &[u8]) -> DemoDat
         blocks: out_blocks,
         names,
         name_runs,
+        samples: collect_samples(src, data_dir),
     }
 }
 
@@ -473,8 +558,9 @@ pub fn write_demo_html(
     src: &SampleSource,
     docs: &[&Document],
     fonts: DemoFonts<'_>,
+    data_dir: Option<&Path>,
 ) -> io::Result<()> {
-    let data = collect(src, docs, fonts.ttf);
+    let data = collect(src, docs, fonts.ttf, data_dir);
     let title = format!("{} \u{2014} specimen", data.meta.family);
     // `</` inside the blob would end the script element early whatever it sits
     // in; JSON has no other way to spell a slash, so it is escaped here rather

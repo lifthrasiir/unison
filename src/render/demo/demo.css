@@ -350,3 +350,149 @@ footer .legend i {
 }
 footer .legend i.declared { background: var(--bg-cell); }
 footer .legend i.missing { background-image: repeating-linear-gradient(135deg, transparent 0 4px, var(--hatch) 4px 5px); }
+
+/* ---- the sample panel --------------------------------------------------- */
+
+/* Pinned to the bottom of the window, and in flow rather than fixed: it is the
+   last child of the page, so `sticky` floats it over the chart while there is
+   chart left below it and sets it down under the footer at the end. Nothing has
+   to be told its height — a fixed panel would need the page padded by whatever
+   it measures, and the panel's height is the reader's to change. */
+.samples {
+  position: sticky;
+  bottom: 0;
+  z-index: 40;
+  background: color-mix(in srgb, var(--bg-raised) 96%, transparent);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--line);
+}
+
+.s-head { display: flex; align-items: center; gap: 0.6rem; padding: 0.4rem 0.9rem; }
+
+.s-toggle {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 0;
+  background: transparent;
+  color: var(--fg);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 620;
+  padding: 0.15rem 0;
+  cursor: pointer;
+}
+/* The caret points down at an open panel and right at a closed one, which is
+   the one piece of state the collapsed panel still shows. */
+.s-caret {
+  width: 0;
+  height: 0;
+  border: 0.32rem solid transparent;
+  border-top-color: var(--fg-dim);
+  transform: translateY(0.16rem);
+}
+.s-collapsed .s-caret {
+  border-top-color: transparent;
+  border-left-color: var(--fg-dim);
+  transform: translateX(0.16rem);
+}
+.s-toggle:focus-visible, .s-revert:focus-visible, .s-item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.s-current { margin-right: auto; color: var(--fg-dim); font-size: 0.78rem; }
+.s-revert {
+  appearance: none;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--accent);
+  font: inherit;
+  font-size: 0.75rem;
+  padding: 0.1rem 0.6rem;
+  cursor: pointer;
+}
+.s-revert:hover { border-color: var(--accent); }
+.s-collapsed .s-revert { display: none; }
+
+/* The list on the left, the text on the right. The panel is a fixed fraction of
+   the window: it has to leave the chart readable behind it, and the text it
+   holds is a paragraph, not a document. */
+.s-body {
+  display: grid;
+  grid-template-columns: minmax(11rem, 18rem) 1fr;
+  gap: 0.7rem;
+  padding: 0 0.9rem 0.8rem;
+  height: min(34vh, 20rem);
+}
+/* `hidden` on its own loses to the `display: grid` above, so the collapse has
+   to say it here. The attribute stays the state — the toggle's `aria-expanded`
+   is derived from the same thing. */
+.s-body[hidden] { display: none; }
+
+.s-list {
+  overflow: auto;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg);
+}
+.s-group + .s-group { margin-top: 0.7rem; }
+.s-group h3 { margin: 0 0 0.15rem; font-size: 0.78rem; font-weight: 620; }
+.s-items { margin: 0; font-size: 0.78rem; line-height: 1.9; }
+/* The item's own padding is its hover box, and it would otherwise read as a
+   space in front of the separator: the semicolon belongs to the name before
+   it. */
+.s-sep { color: var(--fg-faint); margin-left: -0.25rem; }
+.s-none { margin: 0; color: var(--fg-faint); font-size: 0.78rem; }
+
+.s-item {
+  appearance: none;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--accent);
+  font: inherit;
+  font-size: 0.78rem;
+  padding: 0.05rem 0.3rem;
+  cursor: pointer;
+}
+.s-item:hover { background: var(--bg-cell-hover); }
+.s-item[aria-pressed="true"] {
+  background: var(--accent-dim);
+  border-color: var(--line);
+  color: var(--fg);
+}
+
+/* The text is drawn by the same font, at the same size and in the same drawing
+   as the chart above it: the header's two controls are the page's only ones,
+   and a panel with a size of its own would be a second answer to the same
+   question. `line-height` is a whole multiple of the em for the same reason the
+   sizes are whole multiples of the pixel grid — a bitmap row landing on a half
+   pixel is a blurred one. */
+.s-text {
+  width: 100%;
+  height: 100%;
+  resize: none;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg-cell);
+  color: var(--fg);
+  font-family: 'Unison', monospace;
+  font-size: var(--em);
+  line-height: 1.5;
+  font-variation-settings: 'BMAP' 0;
+  font-variant-ligatures: none;
+  font-kerning: none;
+}
+.bitmap .s-text { font-variation-settings: 'BMAP' 1; }
+.s-text:focus-visible { outline: 2px solid var(--accent); outline-offset: -1px; }
+
+/* Narrow windows: the two columns become two rows, and the list gives up most
+   of its height — it is a chooser, and the text is what is being read. */
+@media (max-width: 46rem) {
+  .s-body { grid-template-columns: 1fr; grid-template-rows: minmax(3.5rem, 6rem) 1fr; }
+}

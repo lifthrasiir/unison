@@ -335,6 +335,10 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Folding a block longer than 0x100 code points in the middle, and why the demo ignores `exclude-from-sample` where the specimen and the sample obey it | `render/demo/demo.js` (`FOLD_OVER`, `foldMarker`), `render/demo/mod.rs` |
 | The dotted circle in a demo cell, why the built font's `hmtx` decides which cells get one, and why it rides on the cell flags | `render/demo/mod.rs` (`CELL_ZERO_ADVANCE`, `zero_advance_codepoints`), `render/demo/demo.css` (`.dc`) |
 | Why a demo cell is bidi-isolated | `render/demo/demo.css` (`.cell`) |
+| The demo's sample panel: running text beside the chart, and why it has no size control of its own | `render/demo/mod.rs` (`# The sample panel`) |
+| Which translations of UDHR Article 1 a page offers, and why the two pages offer the same ones | `render/sample.rs` (`udhr_selection`) |
+| Where the text a reader types into the sample panel is kept, and why it is per sample | `render/demo/demo.js` (`selectSample`, `ssSet`) |
+| Turning the UDHR's own key for a translation into a language name without a table of them | `render/demo/demo.js` (`langName`) |
 | The demo's one size for both drawings, and the rounding a switch to bitmap does | `render/demo/demo.js` (`state.em`, `snapZoom`) |
 | Which contrast the demo's tokens are held to, and why the cell hover is a token of its own | `render/demo/demo.css` (`:root`) |
 | The demo's font: one variable face carrying both drawings, and why it asks for the axis whatever `meta` says | `render/ttf_builder/mod.rs` (`build_face_variable`), `render/demo/mod.rs` |

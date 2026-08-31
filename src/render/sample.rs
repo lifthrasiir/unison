@@ -1507,54 +1507,77 @@ Y88b. .d88P 888  888 888      X88 Y88..88P 888  888
 // live.html: UDHR section
 // ---------------------------------------------------------------------------
 
-fn write_live_udhr(
-    w: &mut dyn Write,
+/// One language's Article 1, as `udhr-article1.json` writes it.
+///
+/// `lang` is the UDHR's own key for the translation — an ISO 639-3 code where
+/// the data has one (`eng`, `kor`), sometimes with a variant suffix
+/// (`aka_asante`), and a bare number where it has none. Nothing here turns it
+/// into a language *name*: `live.html` prints it as it stands and `demo.html`
+/// asks the browser (`Intl.DisplayNames`), so no table of five hundred
+/// language names has to be carried for either.
+pub(crate) struct UdhrEntry {
+    pub lang: String,
+    pub text: String,
+}
+
+/// The translations of Article 1 a font can actually show, in the order the
+/// pages list them.
+///
+/// Two filters, in this order. First a translation whose text holds one
+/// character the font does not map is dropped outright — a sample with a
+/// notdef box in it says nothing about the font. Then the survivors are taken
+/// greedily in file order, keeping only one that draws a code point no kept
+/// translation drew before it: five hundred translations of one paragraph are
+/// mostly the same Latin letters over again, and what a reader of a specimen
+/// wants is the ones that are *not*. The file's own order is what decides ties,
+/// which is why it opens with English, Russian and Korean.
+///
+/// Shared by `live.html` and the demo page's sample panel so the two offer the
+/// same list; see [`crate::render::demo`].
+pub(crate) fn udhr_selection(
     data_dir: &Path,
     cmap: &BTreeMap<u32, String>,
-) -> io::Result<()> {
+) -> io::Result<Vec<UdhrEntry>> {
     #[derive(serde::Deserialize)]
-    struct UdhrEntry {
+    struct RawEntry {
         lang: String,
         text: String,
     }
 
     let path = data_dir.join("udhr-article1.json");
     let content = std::fs::read_to_string(&path)?;
-    let entries: Vec<UdhrEntry> = serde_json::from_str(&content)
+    let entries: Vec<RawEntry> = serde_json::from_str(&content)
         .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?;
 
     let cmap_set: HashSet<u32> = cmap.keys().copied().collect();
-
-    // Filter to entries whose characters are all in the font
-    let mut displayable: Vec<&UdhrEntry> = Vec::new();
-    let mut unsupported_chars_by_entry: HashMap<usize, BTreeSet<char>> = HashMap::new();
-    for (i, entry) in entries.iter().enumerate() {
-        let mut unsupported = BTreeSet::new();
-        for ch in entry.text.chars() {
-            if !cmap_set.contains(&(ch as u32)) {
-                unsupported.insert(ch);
-            }
-        }
-        if unsupported.is_empty() {
-            displayable.push(entry);
-        } else {
-            unsupported_chars_by_entry.insert(i, unsupported);
-        }
-    }
-
-    // Greedy set cover in JSON order: select entries that add new codepoints
     let mut covered: HashSet<u32> = HashSet::new();
-    let mut selected_indices: Vec<usize> = Vec::new();
-
-    for (i, entry) in displayable.iter().enumerate() {
-        let has_new = entry.text.chars().any(|ch| !covered.contains(&(ch as u32)));
-        if has_new {
-            selected_indices.push(i);
-            for ch in entry.text.chars() {
-                covered.insert(ch as u32);
-            }
+    let mut selected: Vec<UdhrEntry> = Vec::new();
+    for entry in entries {
+        if entry
+            .text
+            .chars()
+            .any(|ch| !cmap_set.contains(&(ch as u32)))
+        {
+            continue;
         }
+        if !entry.text.chars().any(|ch| !covered.contains(&(ch as u32))) {
+            continue;
+        }
+        covered.extend(entry.text.chars().map(|ch| ch as u32));
+        selected.push(UdhrEntry {
+            lang: entry.lang,
+            text: entry.text,
+        });
     }
+    Ok(selected)
+}
+
+fn write_live_udhr(
+    w: &mut dyn Write,
+    data_dir: &Path,
+    cmap: &BTreeMap<u32, String>,
+) -> io::Result<()> {
+    let selected = udhr_selection(data_dir, cmap)?;
 
     let udhr_title = "Article 1 of Universal Declaration of Human Rights";
     let border: String = std::iter::repeat_n('\u{2500}', udhr_title.len()).collect();
@@ -1566,22 +1589,13 @@ fn write_live_udhr(
 \u{2514}{border}\u{2518}\n\n"
     )?;
 
-    let selected_set: HashSet<usize> = selected_indices.iter().copied().collect();
-
-    let mut disp_idx = 0;
-    for (orig_idx, entry) in entries.iter().enumerate() {
-        if unsupported_chars_by_entry.contains_key(&orig_idx) {
-            continue;
-        }
-        if selected_set.contains(&disp_idx) {
-            writeln!(
-                w,
-                "\u{2022} {}: <span>{}</span>",
-                html_escape(&entry.lang),
-                html_escape(&entry.text),
-            )?;
-        }
-        disp_idx += 1;
+    for entry in &selected {
+        writeln!(
+            w,
+            "\u{2022} {}: <span>{}</span>",
+            html_escape(&entry.lang),
+            html_escape(&entry.text),
+        )?;
     }
 
     Ok(())

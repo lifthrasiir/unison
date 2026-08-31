@@ -16,6 +16,9 @@
  *    them all in the layout tree afterwards. Every chunk therefore knows its
  *    own height before it has any content, which is why line heights are
  *    computed here rather than measured — see metrics().
+ * 3. The chart and the sample panel share one size and one drawing — the two
+ *    header controls drive both — because the panel is there to answer what a
+ *    code chart cannot: what the font looks like as running text.
  */
 (function () {
   "use strict";
@@ -215,6 +218,141 @@
     return html + "</div>";
   }
 
+  /* ---- the sample panel -------------------------------------------------- */
+
+  /* The panel is pinned to the bottom of the window and the text in it is
+     editable, which is the whole point of it: a specimen answers "does the font
+     have this character", and running text answers "does it read", and the
+     second question is one the reader has to be able to ask with their own
+     words. What the reader types is *theirs*, so it is kept — per sample, in
+     sessionStorage, which is the lifetime that matches a page whose state is
+     otherwise all in the URL-less DOM: it survives a reload and a jump to a
+     block, and it does not follow the reader into next week.
+     Every access is guarded: a browser set to block site data throws on the
+     accessor itself, and a specimen must still work with no storage at all. */
+  var SS = "unison-demo/";
+  function ssGet(key) {
+    try { return sessionStorage.getItem(SS + key); } catch (e) { return null; }
+  }
+  function ssSet(key, val) {
+    try { sessionStorage.setItem(SS + key, val); } catch (e) { /* no storage */ }
+  }
+  function ssDel(key) {
+    try { sessionStorage.removeItem(SS + key); } catch (e) { /* no storage */ }
+  }
+
+  /* What to call a translation. The blob carries the UDHR's own key for it —
+     an ISO 639-3 code, sometimes with a variant suffix — and never a language
+     name: the browser already has the whole table, and shipping five hundred
+     names to write a hundred and nineteen of them is the same mistake the
+     character names on this page were modelled to avoid. A code the browser
+     cannot name is left as a code, in capitals so that it reads as one. */
+  function displayNamesOf(type) {
+    try {
+      return new Intl.DisplayNames(["en"], { type: type, fallback: "code" });
+    } catch (e) {
+      return null;
+    }
+  }
+  var languageNames = displayNamesOf("language");
+  var scriptNames = displayNamesOf("script");
+
+  function named(table, code, pattern) {
+    if (!table || !pattern.test(code)) return null;
+    var name = null;
+    try { name = table.of(code); } catch (e) { name = null; }
+    return name && name !== code ? name : null;
+  }
+
+  function langName(id) {
+    var parts = id.split("_");
+    var name = named(languageNames, parts[0], /^[a-z]{2,3}$/) || parts[0].toUpperCase();
+    /* A suffix is the UDHR's own qualifier on the translation, and most of them
+       are the script it is written in — the two Serbian texts differ in nothing
+       else. A script code is spelled out like the language; anything else
+       (`asante`, `polytonic`, a year) is the data's own word and stands. */
+    for (var i = 1; i < parts.length; i++) {
+      var part = parts[i];
+      var script = named(scriptNames, part.charAt(0).toUpperCase() + part.slice(1), /^[A-Z][a-z]{3}$/);
+      name += " (" + (script || part) + ")";
+    }
+    return name;
+  }
+
+  var samples = data.samples || [];
+  /* Every offered text by the key its edits are stored under. `custom` is the
+     one entry no group carries: the reader's own text, which is what the panel
+     shows when nothing is selected. */
+  var sampleTexts = { custom: "" };
+  var CUSTOM = "custom";
+  var current = CUSTOM;
+
+  function sampleList() {
+    if (!samples.length) {
+      return '<p class="s-none">No sample text was built into this page.</p>';
+    }
+    return samples.map(function (group, gi) {
+      var items = group.items.map(function (item) {
+        var key = gi + "/" + item.id;
+        sampleTexts[key] = item.text;
+        return '<button type="button" class="s-item" data-key="' + esc(key) +
+          '" aria-pressed="false">' + esc(langName(item.id)) + "</button>";
+      }).join('<span class="s-sep">; </span>');
+      /* One heading per body of built-in data, with its items run together
+         under it: a hundred and nineteen translations of one paragraph are one
+         entry on this list, not a hundred and nineteen. They keep the order the
+         blob wrote them in, which is the order they were *chosen* in — each one
+         earns its place by drawing something no earlier one did — so the head
+         of the list is where the widely-read languages are. */
+      return '<div class="s-group"><h3 title="' + esc(group.note) + '">' +
+        esc(group.title) + "</h3>" +
+        '<p class="s-items">' + items + "</p></div>";
+    }).join("");
+  }
+
+  function samplePanel() {
+    var el = document.createElement("section");
+    el.className = "samples";
+    el.innerHTML =
+      '<div class="s-head">' +
+      '<button type="button" class="s-toggle" id="s-toggle" aria-expanded="true" aria-controls="s-body">' +
+      '<span class="s-caret" aria-hidden="true"></span>Sample</button>' +
+      '<span class="s-current" id="s-current"></span>' +
+      '<button type="button" class="s-revert" id="s-revert">Revert</button>' +
+      "</div>" +
+      '<div class="s-body" id="s-body">' +
+      '<div class="s-list">' + sampleList() + "</div>" +
+      '<textarea class="s-text" id="s-text" dir="auto" spellcheck="false" ' +
+      'aria-label="sample text"></textarea>' +
+      "</div>";
+    return el;
+  }
+
+  /* Show one sample. What the reader last typed into it wins over what the blob
+     carries — an edit is not undone by looking at something else and coming
+     back — and `Revert` is what puts the built-in text back. */
+  function selectSample(key) {
+    if (!(key in sampleTexts)) key = CUSTOM;
+    current = key;
+    ssSet("sample", key);
+    var stored = ssGet("text/" + key);
+    var text = document.getElementById("s-text");
+    text.value = stored === null ? sampleTexts[key] : stored;
+    var label = key === CUSTOM ? "your own text" : langName(key.slice(key.indexOf("/") + 1));
+    document.getElementById("s-current").textContent = label;
+    document.getElementById("s-revert").hidden = key === CUSTOM;
+    Array.prototype.forEach.call(document.querySelectorAll(".s-item"), function (b) {
+      b.setAttribute("aria-pressed", String(b.dataset.key === key));
+    });
+  }
+
+  function setCollapsed(collapsed) {
+    document.body.classList.toggle("s-collapsed", collapsed);
+    document.getElementById("s-toggle").setAttribute("aria-expanded", String(!collapsed));
+    document.getElementById("s-body").hidden = collapsed;
+    ssSet("collapsed", collapsed ? "1" : "0");
+  }
+
   /* ---- page -------------------------------------------------------------- */
 
   var chunks = [];
@@ -393,6 +531,10 @@
   data.blocks.forEach(function (b, i) { main.appendChild(buildBlock(b, i)); });
   document.body.appendChild(main);
   document.body.appendChild(footer());
+  /* Last in the document, so that `position: sticky; bottom: 0` pins it over
+     the chart while there is chart left and lands it under the footer at the
+     end — no fixed panel, and so no height for the page to be told about. */
+  document.body.appendChild(samplePanel());
 
   document.getElementById("m-bitmap").onclick = function () { setMode("bitmap"); };
   document.getElementById("m-vector").onclick = function () { setMode("vector"); };
@@ -407,6 +549,26 @@
     this.value = "";
   };
 
+  Array.prototype.forEach.call(document.querySelectorAll(".s-item"), function (b) {
+    b.onclick = function () { selectSample(b.dataset.key); };
+  });
+  document.getElementById("s-text").oninput = function () {
+    ssSet("text/" + current, this.value);
+  };
+  document.getElementById("s-revert").onclick = function () {
+    ssDel("text/" + current);
+    selectSample(current);
+    document.getElementById("s-text").focus();
+  };
+  document.getElementById("s-toggle").onclick = function () {
+    setCollapsed(!document.body.classList.contains("s-collapsed"));
+  };
+
+  /* The panel opens on what the reader was last looking at, and on the first
+     entry of the first group otherwise — the sample worth showing unasked is
+     the one the data put first. */
+  setCollapsed(ssGet("collapsed") === "1");
+  selectSample(ssGet("sample") || (samples.length ? "0/" + samples[0].items[0].id : CUSTOM));
   sizeControl();
   applyMetrics();
 })();

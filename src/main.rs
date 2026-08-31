@@ -965,9 +965,13 @@ fn main() {
                 woff2: &woff2,
                 ttf: &ttf,
             };
-            if let Err(e) =
-                render::demo::write_demo_html(&mut f, sample_source.as_ref().unwrap(), &refs, fonts)
-            {
+            if let Err(e) = render::demo::write_demo_html(
+                &mut f,
+                sample_source.as_ref().unwrap(),
+                &refs,
+                fonts,
+                data_dir.as_deref(),
+            ) {
                 eprintln!("Failed to write the demo HTML: {e}");
                 std::process::exit(1);
             }
