@@ -106,7 +106,11 @@ fn a_contour_only_one_master_has_is_collapsed_on_the_other() {
         .iter()
         .find(|c| c.iter().all(|p| *p == c[0]))
         .expect("one bitmap contour should be fully collapsed");
-    assert_eq!(stand_in.len(), 4, "it matches its counterpart's point count");
+    assert_eq!(
+        stand_in.len(),
+        4,
+        "it matches its counterpart's point count"
+    );
 }
 
 /// The same in the other direction — the rounding joined two pieces into one,
@@ -177,7 +181,11 @@ fn empty_and_one_sided_inputs_are_handled() {
     let c = vec![vec![(0, 0), (100, 0), (100, 100)]];
     let only_vector = check(&c, &[]);
     assert_eq!(only_vector.bitmap.len(), 1);
-    assert!(only_vector.bitmap[0].iter().all(|p| *p == only_vector.bitmap[0][0]));
+    assert!(
+        only_vector.bitmap[0]
+            .iter()
+            .all(|p| *p == only_vector.bitmap[0][0])
+    );
     let only_bitmap = check(&[], &c);
     assert_eq!(only_bitmap.vector.len(), 1);
 }

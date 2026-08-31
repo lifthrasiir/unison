@@ -74,6 +74,22 @@
 
   /* ---- the line model ---------------------------------------------------- */
 
+  /* One block's runs, as the blob writes them: `gap,len,flags` in hex,
+     separated by `;`, a gap being the distance past the end of the run before
+     it (past the block's start, for the first). Written out in full the runs
+     were a third of this page. */
+  function eachRun(block, fn) {
+    if (!block.runs) return;
+    var cp = block.start;
+    block.runs.split(";").forEach(function (tok) {
+      var f = tok.split(",");
+      var start = cp + parseInt(f[0], 16);
+      var len = parseInt(f[1], 16);
+      fn(start, len, parseInt(f[2], 16));
+      cp = start + len;
+    });
+  }
+
   /* One block's runs turned into what the grid actually draws: rows keyed by
      `cp & ~0xF`, with a run of wholly excluded rows collapsed into one marker.
      The exclusion rule is the editor's — `exclude-from-sample` hides a row only
@@ -82,16 +98,16 @@
   function linesOf(block) {
     var rows = [];
     var cur = null;
-    block.runs.forEach(function (run) {
-      for (var cp = run[0]; cp < run[0] + run[1]; cp++) {
+    eachRun(block, function (start, len, flags) {
+      for (var cp = start; cp < start + len; cp++) {
         var base = cp - (cp % 16);
         if (!cur || cur.base !== base) {
           cur = { base: base, cells: new Array(16), excluded: true };
           for (var i = 0; i < 16; i++) cur.cells[i] = -1;
           rows.push(cur);
         }
-        cur.cells[cp % 16] = run[2];
-        if (!(run[2] & EXCLUDED)) cur.excluded = false;
+        cur.cells[cp % 16] = flags;
+        if (!(flags & EXCLUDED)) cur.excluded = false;
       }
     });
     var out = [];
@@ -122,6 +138,25 @@
   var JAMO_V = "A,AE,YA,YAE,EO,E,YEO,YE,O,WA,WAE,OE,YO,U,WEO,WE,WI,YU,EU,YI,I".split(",");
   var JAMO_T = ",G,GG,GS,N,NJ,NH,D,L,LG,LM,LB,LS,LT,LP,LH,M,B,BS,S,SS,NG,J,C,K,T,P,H".split(",");
 
+  /* The names the blob does write out, undone: code points delta-coded, and
+     each name stored as one base-62 digit saying what it shares with the name
+     before it plus the rest. Character names are written to sort together, so
+     that halves them — see `DemoNames` on the Rust side. */
+  var B62 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+  var names = (function (blob) {
+    var out = new Map();
+    if (!blob.cps) return out;
+    var deltas = blob.cps.split(",");
+    var cp = 0, prev = "";
+    for (var i = 0; i < deltas.length; i++) {
+      cp += parseInt(deltas[i], 16);
+      var e = blob.text[i];
+      prev = prev.slice(0, B62.indexOf(e.charAt(0))) + e.slice(1);
+      out.set(cp, prev);
+    }
+    return out;
+  })(data.names);
+
   /* What to call a code point. The blob carries only the names that cannot be
      spelled here: the ideographs are a prefix and their own code point, and the
      Hangul syllables are their jamo, so both are composed rather than sent —
@@ -133,7 +168,7 @@
       return "HANGUL SYLLABLE " + JAMO_L[Math.floor(i / 588)] +
         JAMO_V[Math.floor(i / 28) % 21] + JAMO_T[i % 28];
     }
-    var named = data.names[hex(cp, 1)];
+    var named = names.get(cp);
     if (named) return named;
     for (var r = 0; r < data.name_runs.length; r++) {
       var run = data.name_runs[r];

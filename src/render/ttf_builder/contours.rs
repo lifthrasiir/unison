@@ -660,15 +660,16 @@ impl crate::render::glyph_cache::CompositeBuilder<CachedContours> for ContourBui
     ) -> CachedContours {
         let own = self.own_pixels(pg);
         let flavor = self.flavor(&pg.name);
-        CachedContours::from_components_inner(own, refs, cache, flavor, pg.scale)
-            .unwrap_or_else(|| match own {
+        CachedContours::from_components_inner(own, refs, cache, flavor, pg.scale).unwrap_or_else(
+            || match own {
                 // Unreachable while `resolve_pending` only ever hands over a
                 // glyph whose every ref already resolved, which is the only way
                 // the tracer above gives up. Kept as the same fallback it always
                 // was rather than as a panic.
                 Some(grid) => CachedContours::from_grid(grid, flavor, None),
                 None => CachedContours::empty(),
-            })
+            },
+        )
     }
 
     fn store(&mut self, key: u64, value: &CachedContours) {
@@ -733,4 +734,3 @@ fn to_bitmap_grid(grid: &PixelGrid) -> PixelGrid {
     }
     bg
 }
-

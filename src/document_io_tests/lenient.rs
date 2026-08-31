@@ -182,7 +182,10 @@ fn vectoronly_header_owns_its_pixel_grid_and_round_trips() {
         let DocumentItem::Glyph { body, .. } = &doc.items[0] else {
             panic!("expected a glyph item, got {:?}", doc.items[0]);
         };
-        assert!(body.vectoronly, "vectoronly should reach the body: {input:?}");
+        assert!(
+            body.vectoronly,
+            "vectoronly should reach the body: {input:?}"
+        );
         assert!(body.pixels.is_some(), "the grid is still parsed: {input:?}");
 
         let mut output = Vec::new();

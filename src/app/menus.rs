@@ -460,8 +460,7 @@ impl UniformApp {
                     if ui
                         .add_enabled(
                             can_do(SelectionTransform::MirrorH),
-                            egui::Button::new("Mirror selection")
-                                .shortcut_text("M"),
+                            egui::Button::new("Mirror selection").shortcut_text("M"),
                         )
                         .clicked()
                     {
@@ -472,8 +471,7 @@ impl UniformApp {
                     if ui
                         .add_enabled(
                             can_do(SelectionTransform::FlipV),
-                            egui::Button::new("Flip selection")
-                                .shortcut_text("I"),
+                            egui::Button::new("Flip selection").shortcut_text("I"),
                         )
                         .clicked()
                     {
@@ -485,8 +483,7 @@ impl UniformApp {
                         if ui
                             .add_enabled(
                                 can_do(SelectionTransform::RotateCCW),
-                                egui::Button::new("Counterclockwise")
-                                    .shortcut_text("J"),
+                                egui::Button::new("Counterclockwise").shortcut_text("J"),
                             )
                             .clicked()
                         {
@@ -497,8 +494,7 @@ impl UniformApp {
                         if ui
                             .add_enabled(
                                 can_do(SelectionTransform::Rotate180),
-                                egui::Button::new("180 degrees")
-                                    .shortcut_text("K"),
+                                egui::Button::new("180 degrees").shortcut_text("K"),
                             )
                             .clicked()
                         {
@@ -509,8 +505,7 @@ impl UniformApp {
                         if ui
                             .add_enabled(
                                 can_do(SelectionTransform::RotateCW),
-                                egui::Button::new("Clockwise")
-                                    .shortcut_text("L"),
+                                egui::Button::new("Clockwise").shortcut_text("L"),
                             )
                             .clicked()
                         {
@@ -525,8 +520,7 @@ impl UniformApp {
                     if ui
                         .add_enabled(
                             can_do(SelectionTransform::Opposite),
-                            egui::Button::new("Opposite subglyphs")
-                                .shortcut_text("O"),
+                            egui::Button::new("Opposite subglyphs").shortcut_text("O"),
                         )
                         .clicked()
                     {

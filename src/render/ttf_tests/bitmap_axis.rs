@@ -234,7 +234,12 @@ fn layer_gids(ttf: &[u8], ch: char) -> Vec<u16> {
 }
 
 /// One color layer's points, as the given build produced them.
-fn collected_layer_points(doc: &Document, name: &str, layer: usize, bitmap: bool) -> Vec<(i32, i32)> {
+fn collected_layer_points(
+    doc: &Document,
+    name: &str,
+    layer: usize,
+    bitmap: bool,
+) -> Vec<(i32, i32)> {
     let (_, _, glyphs, _, _) = collect_glyph_data(&[doc], bitmap).unwrap();
     let g = glyphs.iter().find(|g| g.name == name).unwrap();
     let mut pts: Vec<(i32, i32)> = g.color_layers[layer]
@@ -317,7 +322,9 @@ map A = tint
     let gids = layer_gids(&ttf, 'A');
     assert_eq!(gids.len(), 2, "the vector build keeps both layers");
     assert_eq!(
-        collect_glyph_data(&[&doc], true).unwrap().2
+        collect_glyph_data(&[&doc], true)
+            .unwrap()
+            .2
             .iter()
             .find(|g| g.name == "tint")
             .unwrap()

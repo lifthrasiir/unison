@@ -38,6 +38,17 @@
 //!    only because a click can go to the source).
 //! 4. Nothing is clickable. There is nowhere to click *to*.
 //!
+//! # What the blob costs
+//!
+//! Everything in it is *modelled* before it is written — nothing here is a
+//! compressed stream, only a shape chosen so that what repeats is written
+//! once. Three of those pay for themselves: a block's cells are runs written
+//! as distances rather than code points ([`DemoBlock::runs`]), the character
+//! names are front-coded against each other ([`DemoNames`]), and a range the
+//! UCD names by rule is one entry however few of it the font draws
+//! ([`widen_runs`]). Together they took the blob of this font from 587 KB to
+//! 197 KB, and the page from 1.5 MB to 1.1 MB.
+//!
 //! The exclusion rule is kept as it is: a row whose every character is
 //! `exclude-from-sample` collapses, and a run of them becomes one marker,
 //! so an excluded range still reads differently from one the source never
@@ -95,10 +106,9 @@ struct DemoMeta {
 /// One block's worth of cells.
 ///
 /// The cells are runs rather than a list: a filled block is contiguous almost
-/// everywhere, so `[start, len, flags]` triples are a few dozen numbers where
-/// the code points themselves would be tens of thousands. The page lays them
-/// out by code point, so a hole in the runs *is* an empty slot in the chart and
-/// needs nothing said about it.
+/// everywhere, so a few dozen runs stand for what would be tens of thousands of
+/// code points. The page lays them out by code point, so a hole in the runs
+/// *is* an empty slot in the chart and needs nothing said about it.
 #[derive(serde::Serialize)]
 struct DemoBlock {
     name: String,
@@ -111,29 +121,83 @@ struct DemoBlock {
     /// as the editor's: only when every mapped code point of the block is a
     /// character, so the fraction can never read over 100%.
     coverage: Option<[usize; 2]>,
-    runs: Vec<[u32; 3]>,
+    /// `gap,len,flags` triples in lowercase hexadecimal, separated by `;`; see
+    /// [`runs_of`]. A run's *gap* is how far its first code point sits past the
+    /// end of the run before it (past `start`, for the first one), which is what
+    /// keeps the numbers one or two digits long: written out in full, the
+    /// eleven thousand runs of this font were 188 KB of the page.
+    runs: String,
 }
 
 #[derive(serde::Serialize)]
 struct DemoData {
     meta: DemoMeta,
     blocks: Vec<DemoBlock>,
-    /// Character names, for the mapped characters alone: hex code point to
-    /// name. The whole repertoire's names would be several times the size of
-    /// everything else here, and an undeclared cell has its code point to say
-    /// what it is.
-    ///
-    /// The *derivable* names are not in here at all — see [`DemoData::name_runs`]
-    /// and the Hangul rule in `demo.js`. They were 720 KB of the first page
-    /// this wrote, against 770 KB for both fonts together: a font whose
-    /// repertoire is mostly ideographs and syllables is mostly names that a
-    /// dozen lines of JavaScript can spell for itself.
-    names: BTreeMap<String, String>,
+    /// The character names that have to be written out; see [`DemoNames`].
+    names: DemoNames,
     /// `[start, len, prefix]` — the code point ranges whose character name is
     /// its prefix followed by the code point in hexadecimal, which is how the
     /// UCD names every ideograph. The page spells them out rather than reading
     /// them.
     name_runs: Vec<(u32, u32, String)>,
+}
+
+/// The character names the page cannot spell for itself, front-coded.
+///
+/// Only the *mapped* characters are here — the whole repertoire's names would
+/// be several times the size of everything else on the page, and an undeclared
+/// cell has its code point to say what it is — and only the ones nothing else
+/// accounts for: the ideographs are [`DemoData::name_runs`] and the Hangul
+/// syllables are their jamo, both spelled by `demo.js`. Those two were 720 KB
+/// of the first page this wrote, against 770 KB for both fonts together.
+///
+/// What is left is still mostly repetition, since character names are written
+/// to sort together — a hundred lines of `LATIN SMALL LETTER …` in a row — so
+/// each name is stored as what it does *not* share with the one before it.
+/// That is a model, not an encoding: it halves the blob before the transport's
+/// own compression sees it, and costs the page one `slice` per name.
+#[derive(serde::Serialize)]
+struct DemoNames {
+    /// The code points, ascending, each as its distance from the one before it
+    /// (from 0, for the first) in lowercase hexadecimal, separated by `,`.
+    cps: String,
+    /// One entry per code point, in that order: a single base-62 digit saying
+    /// how many leading characters the name shares with the previous one,
+    /// followed by the rest of it. The shared count is measured in ASCII
+    /// characters alone — a `prop` line may name a character anything at all,
+    /// and only ASCII is one JavaScript string index per character — and capped
+    /// at what one digit can say.
+    text: Vec<String>,
+}
+
+/// The digits [`DemoNames::text`] writes a shared-prefix length with, and so
+/// the longest one it can state. `demo.js` decodes with `indexOf` over the same
+/// string.
+const B62: &[u8] = b"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+impl DemoNames {
+    fn front_code(names: &[(u32, String)]) -> DemoNames {
+        let mut cps = String::new();
+        let mut text = Vec::with_capacity(names.len());
+        let mut prev_cp = 0u32;
+        let mut prev = "";
+        for (cp, name) in names {
+            if !cps.is_empty() {
+                cps.push(',');
+            }
+            cps.push_str(&format!("{:x}", cp - prev_cp));
+            prev_cp = *cp;
+            let shared = name
+                .bytes()
+                .zip(prev.bytes())
+                .take(B62.len() - 1)
+                .take_while(|(a, b)| a == b && a.is_ascii())
+                .count();
+            text.push(format!("{}{}", B62[shared] as char, &name[shared..]));
+            prev = name;
+        }
+        DemoNames { cps, text }
+    }
 }
 
 fn collect(src: &SampleSource, docs: &[&Document], bitmap_ttf: &[u8]) -> DemoData {
@@ -190,7 +254,7 @@ fn collect(src: &SampleSource, docs: &[&Document], bitmap_ttf: &[u8]) -> DemoDat
             start,
             end,
             coverage,
-            runs: runs_of(members, declared, excluded, &zero_advance),
+            runs: runs_of(members, start, declared, excluded, &zero_advance),
         });
     }
     if !no_block.is_empty() {
@@ -201,7 +265,13 @@ fn collect(src: &SampleSource, docs: &[&Document], bitmap_ttf: &[u8]) -> DemoDat
             start,
             end,
             coverage: None,
-            runs: runs_of(no_block.iter().copied(), declared, excluded, &zero_advance),
+            runs: runs_of(
+                no_block.iter().copied(),
+                start,
+                declared,
+                excluded,
+                &zero_advance,
+            ),
         });
     }
 
@@ -240,13 +310,24 @@ fn is_hangul_syllable(cp: u32) -> bool {
 /// them is one entry here. Hangul syllables are dropped outright: their names
 /// are the jamo they decompose into, which the page composes for itself and for
 /// undeclared cells too.
-#[allow(clippy::type_complexity)]
+///
+/// A run is not cut where the *font* stops: the mapped ideographs of a real
+/// font are thousands of short stretches with gaps between them, which wrote
+/// out as thousands of copies of the same prefix (202 KB of one page here).
+/// A run therefore grows over a gap whenever nothing in the gap is named
+/// anything else — the same reasoning the Hangul rule rests on, that a whole
+/// UCD range is one naming rule. What a gap may hold is a code point the UCD
+/// names the same way (mapped or not) or one it assigns no character at all,
+/// and an unassigned code point never gets a cell, so nothing on the page can
+/// read a name it was not meant to have. The undeclared ideographs inside the
+/// span gain a name they had no entry for before.
 fn collect_names(
     cps: impl Iterator<Item = u32>,
     props: &CharProps,
-) -> (BTreeMap<String, String>, Vec<(u32, u32, String)>) {
-    let mut names = BTreeMap::new();
+) -> (DemoNames, Vec<(u32, u32, String)>) {
+    let mut names: Vec<(u32, String)> = Vec::new();
     let mut runs: Vec<(u32, u32, String)> = Vec::new();
+    // Ascending, so a run only ever grows at its end.
     for cp in cps {
         if is_hangul_syllable(cp) {
             continue;
@@ -254,33 +335,97 @@ fn collect_names(
         let Some(name) = props.name(cp) else {
             continue;
         };
-        // The `-` is required, so a name that merely happens to end in the
-        // digits of its own code point is written out like any other.
-        match name
-            .strip_suffix(&format!("{cp:X}"))
-            .filter(|p| p.ends_with('-'))
-        {
+        match algorithmic_prefix(&name, cp) {
             Some(prefix) => match runs.last_mut() {
-                Some(run) if run.0 + run.1 == cp && run.2 == prefix => run.1 += 1,
+                Some(run)
+                    if run.2 == prefix
+                        && (run.0 + run.1 == cp
+                            || gap_is_free(props, run.0 + run.1, cp, prefix)) =>
+                {
+                    run.1 = cp + 1 - run.0;
+                }
                 _ => runs.push((cp, 1, prefix.to_string())),
             },
-            None => {
-                names.insert(format!("{cp:X}"), name);
-            }
+            None => names.push((cp, name)),
         }
     }
-    (names, runs)
+    widen_runs(&mut runs, props);
+    (DemoNames::front_code(&names), runs)
 }
 
-/// Ascending code points to `[start, len, flags]` runs, breaking wherever the
-/// code points are not consecutive or the flags differ.
+/// Grow each run out to the whole range the UCD names that way, past the code
+/// points the font happens to map.
+///
+/// A run is born spanning the *mapped* ideographs, which is an accident of the
+/// font; the naming rule is the range's. Widening it costs a few bytes and
+/// gives the undeclared cells of the range — most of a code chart of
+/// ideographs — the name they describe. Only code points the same rule names
+/// are swallowed here, unlike a gap *inside* a run, since there is no mapped
+/// code point past the edge to say where the rule ought to stop.
+fn widen_runs(runs: &mut [(u32, u32, String)], props: &CharProps) {
+    let named = |cp: u32, prefix: &str| {
+        props
+            .name(cp)
+            .is_some_and(|name| algorithmic_prefix(&name, cp) == Some(prefix))
+    };
+    // A run never grows into the one beside it: the two are different rules,
+    // and the page reads the runs in order.
+    let mut floor = 0;
+    for i in 0..runs.len() {
+        let ceiling = runs.get(i + 1).map_or(char::MAX as u32, |next| next.0 - 1);
+        let (start, len, prefix) = &mut runs[i];
+        while *start > floor && named(*start - 1, prefix) {
+            *start -= 1;
+            *len += 1;
+        }
+        while *start + *len <= ceiling && named(*start + *len, prefix) {
+            *len += 1;
+        }
+        floor = *start + *len;
+    }
+}
+
+/// The prefix of `name` when it is `PREFIX-` followed by `cp` in hexadecimal,
+/// which is how the UCD names a whole range at once.
+///
+/// The `-` is required, so a name that merely happens to end in the digits of
+/// its own code point is written out like any other.
+fn algorithmic_prefix(name: &str, cp: u32) -> Option<&str> {
+    name.strip_suffix(&format!("{cp:X}"))
+        .filter(|p| p.ends_with('-'))
+}
+
+/// Whether `from..to` may be swallowed by a run of `prefix`: every code point
+/// in it is either named the same way or is no character at all.
+fn gap_is_free(props: &CharProps, from: u32, to: u32, prefix: &str) -> bool {
+    (from..to).all(|cp| match props.name(cp) {
+        Some(name) => algorithmic_prefix(&name, cp) == Some(prefix),
+        None => !props.is_assigned(cp),
+    })
+}
+
+/// Ascending code points to `gap,len,flags` runs, breaking wherever the code
+/// points are not consecutive or the flags differ. See [`DemoBlock::runs`] for
+/// the written form; `origin` is what the first run's gap is measured from.
 fn runs_of(
     cps: impl Iterator<Item = u32>,
+    origin: u32,
     declared: &BTreeMap<u32, String>,
     excluded: &std::collections::BTreeSet<u32>,
     zero_advance: &std::collections::BTreeSet<u32>,
-) -> Vec<[u32; 3]> {
-    let mut runs: Vec<[u32; 3]> = Vec::new();
+) -> String {
+    let mut out = String::new();
+    // The end of the last run written, which the next run's gap is measured
+    // from, and the run being extended.
+    let mut prev_end = origin;
+    let mut cur: Option<(u32, u32, u32)> = None;
+    let flush = |out: &mut String, prev_end: &mut u32, (start, len, flags): (u32, u32, u32)| {
+        if !out.is_empty() {
+            out.push(';');
+        }
+        out.push_str(&format!("{:x},{len:x},{flags:x}", start - *prev_end));
+        *prev_end = start + len;
+    };
     for cp in cps {
         let mut flags = 0;
         if declared.contains_key(&cp) {
@@ -292,12 +437,21 @@ fn runs_of(
         if zero_advance.contains(&cp) {
             flags |= CELL_ZERO_ADVANCE;
         }
-        match runs.last_mut() {
-            Some(run) if run[0] + run[1] == cp && run[2] == flags => run[1] += 1,
-            _ => runs.push([cp, 1, flags]),
+        match cur {
+            Some((start, len, f)) if start + len == cp && f == flags => {
+                cur = Some((start, len + 1, f));
+            }
+            Some(run) => {
+                flush(&mut out, &mut prev_end, run);
+                cur = Some((cp, 1, flags));
+            }
+            None => cur = Some((cp, 1, flags)),
         }
     }
-    runs
+    if let Some(run) = cur {
+        flush(&mut out, &mut prev_end, run);
+    }
+    out
 }
 
 /// The mapped code points the font gives no horizontal advance.
@@ -384,22 +538,36 @@ mod tests {
         let declared = cps(&[1, 2, 3, 10]);
         let excluded: std::collections::BTreeSet<u32> = [3].into_iter().collect();
         let zero: std::collections::BTreeSet<u32> = [2].into_iter().collect();
-        let runs = runs_of([0, 1, 2, 3, 4, 10].into_iter(), &declared, &excluded, &zero);
+        let runs = runs_of(
+            [0, 1, 2, 3, 4, 10].into_iter(),
+            0,
+            &declared,
+            &excluded,
+            &zero,
+        );
         assert_eq!(
             runs,
-            vec![
-                [0, 1, 0],
-                [1, 1, CELL_DECLARED],
+            concat!(
+                "0,1,0;", "0,1,1;",
                 // A zero-advance cell breaks the run the way any other flag
                 // does, so the marks of a block cost one run between them.
-                [2, 1, CELL_DECLARED | CELL_ZERO_ADVANCE],
-                [3, 1, CELL_DECLARED | CELL_EXCLUDED],
-                [4, 1, 0],
+                "0,1,5;", "0,1,3;", "0,1,0;",
                 // A gap in the code points breaks the run even though the
-                // flags match: the page lays the cells out by code point.
-                [10, 1, CELL_DECLARED],
-            ]
+                // flags match: the page lays the cells out by code point, and
+                // the gap is the distance the run is written with.
+                "5,1,1",
+            )
         );
+    }
+
+    /// The first gap is measured from the block's own start, so a block high in
+    /// the code space costs no more than one low in it.
+    #[test]
+    fn the_first_run_is_written_relative_to_the_blocks_start() {
+        let declared = cps(&[0x20001]);
+        let empty = Default::default();
+        let runs = runs_of([0x20001].into_iter(), 0x20000, &declared, &empty, &empty);
+        assert_eq!(runs, "1,1,1");
     }
 
     /// The circle follows the *font*, not the character: what gets one is what
@@ -429,24 +597,98 @@ map U+0301 = mark
     fn names_that_end_in_their_own_code_point_become_prefix_runs() {
         let props = CharProps::default();
         // U+4E00..4E02 are `CJK UNIFIED IDEOGRAPH-4E00` and so on, so all
-        // three are one run; U+0041 is a name of its own.
+        // three are one run — widened to the range that names them, U+4E00..
+        // 9FFF; U+0041 is a name of its own.
         let (names, runs) = collect_names([0x41, 0x4e00, 0x4e01, 0x4e02].into_iter(), &props);
-        assert_eq!(
-            names.get("41").map(String::as_str),
-            Some("LATIN CAPITAL LETTER A")
-        );
-        assert_eq!(names.len(), 1);
+        assert_eq!(names.cps, "41");
+        assert_eq!(names.text, vec!["0LATIN CAPITAL LETTER A"]);
         assert_eq!(
             runs,
-            vec![(0x4e00, 3, "CJK UNIFIED IDEOGRAPH-".to_string())]
+            vec![(
+                0x4e00,
+                0x9fff - 0x4e00 + 1,
+                "CJK UNIFIED IDEOGRAPH-".to_string()
+            )]
         );
+    }
+
+    /// The gaps a font leaves in a UCD range must not cut the run: the whole
+    /// range is one naming rule, and what falls in a gap is either named by
+    /// that rule or is not a character at all.
+    #[test]
+    fn a_prefix_run_grows_over_the_code_points_the_font_skips() {
+        let props = CharProps::default();
+        let (_, runs) = collect_names([0x4e00, 0x9fff].into_iter(), &props);
+        assert_eq!(
+            runs,
+            vec![(
+                0x4e00,
+                0x9fff - 0x4e00 + 1,
+                "CJK UNIFIED IDEOGRAPH-".to_string()
+            )]
+        );
+    }
+
+    /// A run stands for the whole range the UCD names that way, not for the
+    /// stretch of it the font happens to draw: an undeclared ideograph is
+    /// still an ideograph, and its cell says so.
+    #[test]
+    fn a_prefix_run_covers_the_range_and_not_just_the_mapped_part() {
+        let props = CharProps::default();
+        let (_, runs) = collect_names([0x4e05].into_iter(), &props);
+        assert_eq!(
+            runs,
+            vec![(
+                0x4e00,
+                0x9fff - 0x4e00 + 1,
+                "CJK UNIFIED IDEOGRAPH-".to_string()
+            )]
+        );
+    }
+
+    /// ... but a character named anything else in the gap does cut it, or the
+    /// page would read it out under the run's prefix.
+    #[test]
+    fn a_named_character_in_the_gap_cuts_the_run() {
+        let props = CharProps::default();
+        // U+A000 YI SYLLABLE IT sits between the two ideograph ranges.
+        let (_, runs) = collect_names([0x9fff, 0x20000].into_iter(), &props);
+        assert_eq!(runs.len(), 2, "{runs:?}");
     }
 
     #[test]
     fn hangul_syllable_names_are_left_to_the_page() {
         let props = CharProps::default();
         let (names, runs) = collect_names([0xac00, 0xd7a3].into_iter(), &props);
-        assert!(names.is_empty(), "{names:?}");
+        assert!(names.text.is_empty(), "{:?}", names.text);
         assert!(runs.is_empty(), "{runs:?}");
+    }
+
+    /// Each name is written as what it does not share with the one before it,
+    /// and the shared count is a base-62 digit.
+    #[test]
+    fn names_are_front_coded_against_the_previous_one() {
+        let names = DemoNames::front_code(&[
+            (0x41, "LATIN CAPITAL LETTER A".to_string()),
+            (0x42, "LATIN CAPITAL LETTER B".to_string()),
+            (0x100, "LATIN CAPITAL LETTER A WITH MACRON".to_string()),
+        ]);
+        assert_eq!(names.cps, "41,1,be");
+        assert_eq!(
+            names.text,
+            vec!["0LATIN CAPITAL LETTER A", "LB", "LA WITH MACRON"]
+        );
+    }
+
+    /// A name a `prop` line writes may be anything; the shared count is one
+    /// JavaScript string index per character, so it stops at the first
+    /// non-ASCII byte rather than counting bytes the page would not agree on.
+    #[test]
+    fn a_shared_prefix_is_counted_in_ascii_alone() {
+        let names = DemoNames::front_code(&[
+            (1, "\u{ac00}FOO".to_string()),
+            (2, "\u{ac00}FOO BAR".to_string()),
+        ]);
+        assert_eq!(names.text, vec!["0\u{ac00}FOO", "0\u{ac00}FOO BAR"]);
     }
 }

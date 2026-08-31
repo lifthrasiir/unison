@@ -329,6 +329,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why a clearance is measured over the declared box, and what ink escaping it costs | `compose.rs` (`InkProfile::of`) |
 | What a sample cell paints a background over, and why only its width is the box's | `render/sample.rs` (`sample_background`) |
 | What `demo.html` embeds instead of rendered output, and the four ways its specimen differs from the editor's | `render/demo/mod.rs` |
+| What the demo blob is modelled into before it is written: delta-coded cell runs, front-coded names, one entry per naming rule | `render/demo/mod.rs` (`DemoBlock::runs`, `DemoNames`, `widen_runs`) |
 | Which character names the demo page is told and which it spells for itself | `render/demo/mod.rs` (`collect_names`), `render/demo/demo.js` (`nameOf`) |
 | Why the demo's cells are rendered in lazy chunks, and why a chunk knows its height before its content | `render/demo/demo.js` |
 | The dotted circle in a demo cell, why the built font's `hmtx` decides which cells get one, and why it rides on the cell flags | `render/demo/mod.rs` (`CELL_ZERO_ADVANCE`, `zero_advance_codepoints`), `render/demo/demo.css` (`.dc`) |

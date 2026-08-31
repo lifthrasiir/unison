@@ -25,12 +25,12 @@
 
 use super::gpos::{build_anchor_gpos, merge_anchor_feature_lookups};
 use super::gsub::{build_gsub, compute_max_context};
+use super::masters;
+use super::masters::NoVariation;
 use super::outlines::{
     GlobalBounds, OutlineBuild, add_color_layer_glyphs, build_glyph_outlines, compute_global_bounds,
 };
 use super::*;
-use super::masters;
-use super::masters::NoVariation;
 use write_fonts::tables::fvar::{AxisInstanceArrays, Fvar, VariationAxisRecord};
 use write_fonts::tables::gvar::{GlyphDelta, GlyphDeltas, GlyphVariations, Gvar, Tent};
 use write_fonts::tables::stat::{AxisRecord, Stat};

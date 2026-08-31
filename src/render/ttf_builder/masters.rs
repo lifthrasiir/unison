@@ -212,7 +212,7 @@ pub(super) struct MasterPair {
 impl MasterPair {
     /// True when the two sides really do have the same shape. The invariant the
     /// rest of the pipeline may assume, asserted rather than trusted.
-        pub(super) fn is_compatible(&self) -> bool {
+    pub(super) fn is_compatible(&self) -> bool {
         self.vector.len() == self.bitmap.len()
             && self
                 .vector
@@ -234,7 +234,10 @@ impl MasterPair {
 ///   grid the rounding left it alone, so the two contours literally share those
 ///   points; counting them finds the intended pairing far more reliably than
 ///   any distance does.
-fn pair_contours(v: &[Vec<(i16, i16)>], b: &[Vec<(i16, i16)>]) -> Vec<(Option<usize>, Option<usize>)> {
+fn pair_contours(
+    v: &[Vec<(i16, i16)>],
+    b: &[Vec<(i16, i16)>],
+) -> Vec<(Option<usize>, Option<usize>)> {
     let shared = |x: &[(i16, i16)], y: &[(i16, i16)]| -> usize {
         let set: std::collections::HashSet<(i16, i16)> = x.iter().copied().collect();
         y.iter().filter(|p| set.contains(p)).count()
@@ -269,8 +272,16 @@ fn pair_contours(v: &[Vec<(i16, i16)>], b: &[Vec<(i16, i16)>]) -> Vec<(Option<us
             pairs.push((Some(i), Some(j)));
         }
     }
-    pairs.extend((0..v.len()).filter(|&i| !v_taken[i]).map(|i| (Some(i), None)));
-    pairs.extend((0..b.len()).filter(|&j| !b_taken[j]).map(|j| (None, Some(j))));
+    pairs.extend(
+        (0..v.len())
+            .filter(|&i| !v_taken[i])
+            .map(|i| (Some(i), None)),
+    );
+    pairs.extend(
+        (0..b.len())
+            .filter(|&j| !b_taken[j])
+            .map(|j| (None, Some(j))),
+    );
     pairs
 }
 
