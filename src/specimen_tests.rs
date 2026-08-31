@@ -242,7 +242,7 @@ fn grouping_gives_each_block_a_heading_row() {
     assert_eq!(
         state.row_summaries(2),
         vec![
-            "# Basic Latin  U+0000..007F  2 / 128 (1.6%)",
+            "# Basic Latin  U+0000..007F  2 / 95 (2.1%)",
             "0041 0042",
             "# Mathematical Operators  U+2200..22FF  1 / 256 (0.4%)",
             "2200",
@@ -288,6 +288,36 @@ fn a_heading_states_its_block_coverage() {
     );
 }
 
+/// A control (`gc=Cc`) is not a character the font can be missing: it is in
+/// neither side of a heading's fraction, and a filled grid gives it no cell.
+#[test]
+fn controls_are_neither_counted_nor_listed() {
+    let mut state = state(concat!(
+        "meta height 16\n",
+        "meta ascent 14\n",
+        "meta descent 2\n",
+        "glyph sq 1 1\n",
+        "@@\n",
+        "map U+0041 = sq\n",
+    ));
+    // Basic Latin is 128 code points, 33 of which are controls, so 95
+    // characters.
+    let heading = |s: &mut SpecimenState| s.row_summaries(8)[0].clone();
+    assert_eq!(
+        heading(&mut state),
+        "# Basic Latin  U+0000..007F  1 / 95 (1.1%)"
+    );
+    state.options.show_undeclared = true;
+    let rows = state.row_summaries(8);
+    let cells: Vec<&String> = rows.iter().filter(|r| !r.starts_with('#')).collect();
+    assert!(
+        !cells
+            .iter()
+            .any(|r| r.contains("0000") || r.contains("007F")),
+        "a control got a cell: {cells:?}"
+    );
+}
+
 /// Remap-only glyphs have no code point to sort among the blocks, so they
 /// come last — under a heading of their own once the grid is grouped.
 #[test]
@@ -315,7 +345,7 @@ fn remap_only_glyphs_are_a_section_of_their_own() {
     assert_eq!(
         state.row_summaries(4),
         vec![
-            "# Basic Latin  U+0000..007F  1 / 128 (0.8%)",
+            "# Basic Latin  U+0000..007F  1 / 95 (1.1%)",
             "0061",
             // The remaps have no block, so there is nothing to be a
             // fraction of.
@@ -501,10 +531,11 @@ fn an_entirely_excluded_row_is_hidden_only_while_filling() {
     assert_eq!(rows[hidden - 1], "0040 0041");
     assert_eq!(rows[hidden + 1], "0044 0045");
     assert!(!rows.contains(&"0042 0043".to_string()));
-    // At three columns the same characters fall on rows that also carry an
-    // unexcluded one, so nothing is hidden at all.
+    // At three columns the same characters fall on a row that also carries an
+    // unexcluded one, so nothing is hidden at all. (The block's cells start at
+    // U+0020, its first non-control, which is what puts U+0041 on that row.)
     let rows = state.row_summaries(3);
-    assert!(rows.contains(&"0042 0043 0044".to_string()));
+    assert!(rows.contains(&"0041 0042 0043".to_string()));
     assert!(!rows.contains(&"\u{2026}".to_string()));
 }
 

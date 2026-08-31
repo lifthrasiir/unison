@@ -205,7 +205,7 @@ impl CharProps {
     pub fn is_assigned(&self, cp: u32) -> bool {
         let stated = self.stated(cp);
         if let Some(gc) = stated.and_then(|s| s.values.gc.as_deref()) {
-            return gc != "Cn";
+            return gc != "Cn" && gc != "Cc";
         }
         if is_private_use(cp) {
             // A `prop` line with no `gc` of its own still states the character;
@@ -398,18 +398,24 @@ pub(crate) fn property_summary(ch: char) -> String {
     format_properties(gc, ccc, eaw)
 }
 
-/// Whether the UCD gives `cp` a character at all — `gc` other than `Cn`.
+/// Whether the UCD gives `cp` a character at all — `gc` other than `Cn` or `Cc`.
 ///
 /// A surrogate code point is `Cs` rather than `Cn`, but it is not a `char` and
-/// nothing can draw it, so it counts as unassigned here. This is what keeps the
-/// specimen's "show undeclared characters" from filling a block's permanent
-/// holes and its unused tail with cells.
+/// nothing can draw it, so it counts as unassigned here. A control (`Cc`) is
+/// excluded for the same reason from the other side: the UCD assigns all 65 of
+/// them and none is a shape, so a font that draws none of them is not
+/// incomplete. This is what keeps the specimen's "show undeclared characters"
+/// from filling a block's permanent holes, its control rows and its unused tail
+/// with cells.
 pub(crate) fn is_assigned(cp: u32) -> bool {
     use icu_properties::CodePointMapData;
     use icu_properties::props::GeneralCategory;
 
     char::from_u32(cp).is_some_and(|ch| {
-        CodePointMapData::<GeneralCategory>::new().get(ch) != GeneralCategory::Unassigned
+        !matches!(
+            CodePointMapData::<GeneralCategory>::new().get(ch),
+            GeneralCategory::Unassigned | GeneralCategory::Control
+        )
     })
 }
 
@@ -662,6 +668,22 @@ mod tests {
         assert!(!is_assigned(0xFFFE));
         // Private Use is `Co` — assigned, whether a `prop` line names it or not.
         assert!(is_assigned(0xE000));
+        // A control is `Cc`: a code point no font draws, so not a character
+        // here either.
+        assert!(!is_assigned(0x00));
+        assert!(!is_assigned(0x1F));
+        assert!(!is_assigned(0x7F));
+        assert!(!is_assigned(0x9F));
+    }
+
+    #[test]
+    fn a_stated_control_is_no_more_a_character_than_a_ucd_one() {
+        let p = props("prop U+E000 gc Cc\n");
+        assert!(!p.is_assigned(0xE000));
+        // The Private Use code point beside it is still the source's to state.
+        let p = props("prop U+E001 gc So\n");
+        assert!(p.is_assigned(0xE001));
+        assert!(!p.is_assigned(0xE000));
     }
 
     #[test]
