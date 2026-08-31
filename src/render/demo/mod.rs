@@ -36,7 +36,15 @@
 //! 3. Variation sequences and remap-only glyphs get no cell yet. They need an
 //!    interface of their own here (the editor puts them inline, which reads
 //!    only because a click can go to the source).
-//! 4. Nothing is clickable. There is nowhere to click *to*.
+//! 4. A block longer than 0x100 code points is *folded* in the middle, and
+//!    `exclude-from-sample` is ignored outright. The editor hides the rows a
+//!    source excluded, which is a font-design judgement about what is worth
+//!    looking at; a code chart of a whole font is read by scrolling, and the
+//!    one thing it cannot afford is ten thousand identical rows between two
+//!    blocks. Folding says the same thing for every long block without the
+//!    source having to name one, and a click still opens it — see `demo.js`.
+//!    The directive keeps its meaning everywhere else (`crate::specimen`,
+//!    `crate::render::sample`).
 //!
 //! # What the blob costs
 //!
@@ -48,11 +56,6 @@
 //! UCD names by rule is one entry however few of it the font draws
 //! ([`widen_runs`]). Together they took the blob of this font from 587 KB to
 //! 197 KB, and the page from 1.5 MB to 1.1 MB.
-//!
-//! The exclusion rule is kept as it is: a row whose every character is
-//! `exclude-from-sample` collapses, and a run of them becomes one marker,
-//! so an excluded range still reads differently from one the source never
-//! mentions.
 
 use std::collections::BTreeMap;
 use std::io::{self, Write};
@@ -82,12 +85,10 @@ pub struct DemoFonts<'a> {
 /// A cell the source maps to a glyph, as opposed to one only listed because the
 /// character exists.
 const CELL_DECLARED: u32 = 1;
-/// A cell whose character is `exclude-from-sample`.
-const CELL_EXCLUDED: u32 = 2;
 /// A cell whose character the font gives no advance, so the page draws a dotted
 /// circle for it to sit on. See `demo.css`'s `.dc`, and
 /// [`crate::editor::annotations`] for why the circle is drawn and not typed.
-const CELL_ZERO_ADVANCE: u32 = 4;
+const CELL_ZERO_ADVANCE: u32 = 2;
 
 #[derive(serde::Serialize)]
 struct DemoMeta {
@@ -208,7 +209,6 @@ fn collect(src: &SampleSource, docs: &[&Document], bitmap_ttf: &[u8]) -> DemoDat
     let blocks_map = BlockMap::collect(docs);
     let props: &CharProps = src.char_props();
     let declared = src.cmap();
-    let excluded = src.excluded();
     let zero_advance = zero_advance_codepoints(bitmap_ttf, declared);
 
     // Group the mapped characters by block, exactly as the specimen does: a
@@ -254,7 +254,7 @@ fn collect(src: &SampleSource, docs: &[&Document], bitmap_ttf: &[u8]) -> DemoDat
             start,
             end,
             coverage,
-            runs: runs_of(members, start, declared, excluded, &zero_advance),
+            runs: runs_of(members, start, declared, &zero_advance),
         });
     }
     if !no_block.is_empty() {
@@ -265,13 +265,7 @@ fn collect(src: &SampleSource, docs: &[&Document], bitmap_ttf: &[u8]) -> DemoDat
             start,
             end,
             coverage: None,
-            runs: runs_of(
-                no_block.iter().copied(),
-                start,
-                declared,
-                excluded,
-                &zero_advance,
-            ),
+            runs: runs_of(no_block.iter().copied(), start, declared, &zero_advance),
         });
     }
 
@@ -411,7 +405,6 @@ fn runs_of(
     cps: impl Iterator<Item = u32>,
     origin: u32,
     declared: &BTreeMap<u32, String>,
-    excluded: &std::collections::BTreeSet<u32>,
     zero_advance: &std::collections::BTreeSet<u32>,
 ) -> String {
     let mut out = String::new();
@@ -430,9 +423,6 @@ fn runs_of(
         let mut flags = 0;
         if declared.contains_key(&cp) {
             flags |= CELL_DECLARED;
-        }
-        if excluded.contains(&cp) {
-            flags |= CELL_EXCLUDED;
         }
         if zero_advance.contains(&cp) {
             flags |= CELL_ZERO_ADVANCE;
@@ -536,22 +526,15 @@ mod tests {
     #[test]
     fn runs_merge_consecutive_code_points_with_equal_flags() {
         let declared = cps(&[1, 2, 3, 10]);
-        let excluded: std::collections::BTreeSet<u32> = [3].into_iter().collect();
         let zero: std::collections::BTreeSet<u32> = [2].into_iter().collect();
-        let runs = runs_of(
-            [0, 1, 2, 3, 4, 10].into_iter(),
-            0,
-            &declared,
-            &excluded,
-            &zero,
-        );
+        let runs = runs_of([0, 1, 2, 3, 4, 10].into_iter(), 0, &declared, &zero);
         assert_eq!(
             runs,
             concat!(
                 "0,1,0;", "0,1,1;",
                 // A zero-advance cell breaks the run the way any other flag
                 // does, so the marks of a block cost one run between them.
-                "0,1,5;", "0,1,3;", "0,1,0;",
+                "0,1,3;", "0,1,1;", "0,1,0;",
                 // A gap in the code points breaks the run even though the
                 // flags match: the page lays the cells out by code point, and
                 // the gap is the distance the run is written with.
@@ -566,7 +549,7 @@ mod tests {
     fn the_first_run_is_written_relative_to_the_blocks_start() {
         let declared = cps(&[0x20001]);
         let empty = Default::default();
-        let runs = runs_of([0x20001].into_iter(), 0x20000, &declared, &empty, &empty);
+        let runs = runs_of([0x20001].into_iter(), 0x20000, &declared, &empty);
         assert_eq!(runs, "1,1,1");
     }
 

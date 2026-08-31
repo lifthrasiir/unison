@@ -224,8 +224,8 @@ section.block { width: fit-content; min-width: min(100%, 40rem); margin: 1.75rem
   overflow: hidden;
 }
 /* The stripe follows the row's own code point, not its place in the DOM: rows
-   are rendered in lazy chunks and a collapsed run of excluded rows is a child
-   like any other, so `nth-child` would restripe the grid at every gap.
+   are rendered in lazy chunks and a fold marker is a child like any other, so
+   `nth-child` would restripe the grid at every fold.
 
    `background-color`, not the shorthand, for the same reason the hover below
    is: the shorthand also writes `background-image: none`, and this selector
@@ -299,17 +299,38 @@ section.block { width: fit-content; min-width: min(100%, 40rem); margin: 1.75rem
 .cell.missing { background-image: repeating-linear-gradient(135deg, transparent 0 4px, var(--hatch) 4px 5px); }
 .cell.empty { background: transparent; background-image: none; border-right-color: transparent; border-bottom-color: transparent; }
 
-.gap {
+/* The fold: what a long block shows in place of its middle. A button, because
+   it is one — the whole band is the click target, and the keyboard gets it for
+   free. Its height is its own; nothing in the chunk model has to know it,
+   since a fold sits between chunks rather than inside one. */
+.fold {
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  height: 1.9rem;
+  width: 100%;
+  height: 2.4rem;
   padding-left: calc(var(--gutter) + 0.5rem);
-  color: var(--fg-faint);
+  padding-right: 0.6rem;
+  color: var(--fg-dim);
+  font-family: inherit;
   font-size: 0.75rem;
+  text-align: left;
+  background: var(--bg-cell-alt);
+  border: 0;
   border-bottom: 1px solid var(--line);
+  cursor: pointer;
 }
-.gap::before { content: "\22EF"; letter-spacing: 0.2em; }
+.fold::before { content: "\22EF"; letter-spacing: 0.2em; color: var(--fg-faint); }
+.fold .more {
+  margin-left: auto;
+  padding: 0.15rem 0.5rem;
+  color: var(--accent);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+.fold:hover { background: var(--bg-cell-hover); }
+.fold:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.fold:hover .more { border-color: var(--accent); }
 
 footer {
   padding: 1.5rem 1.25rem 3rem;

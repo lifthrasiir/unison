@@ -24,13 +24,9 @@
   var meta = data.meta;
 
   var DECLARED = 1;
-  var EXCLUDED = 2;
-  var ZERO_ADVANCE = 4;
+  var ZERO_ADVANCE = 2;
   /* Rows per lazily-rendered chunk. */
   var CHUNK = 16;
-  /* The height of a collapsed run of excluded rows, in px; also stated in
-     demo.css, and border-box makes the two the same number. */
-  var GAP_H = 30;
   /* The label line under a glyph, plus the cell's own padding: the difference
      between the em box and the cell, kept in step with `--cell-h`. */
   var CELL_PAD = 22;
@@ -67,9 +63,23 @@
     return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Math.round(px / meta.height)));
   }
 
+  /* A block of more than this many code points is folded in the middle, and
+     this many rows are left showing at each end. A code chart is read by
+     scrolling, so a block of twenty thousand ideographs otherwise puts a
+     thousand identical rows between its neighbours; the fold keeps its two
+     ends — where a block's own character is — and puts everything between
+     them one click away. The source has no say in it: `exclude-from-sample`
+     is what says this in the editor and in sample.html, and this page ignores
+     it, since a rule stated once here covers every long block rather than the
+     ones a font's author happened to name. */
+  var FOLD_OVER = 0x100;
+  /* Half the fold's threshold, in rows: a block right at the threshold shows
+     every row it has, and one past it hides at least one. */
+  var FOLD_EDGE = FOLD_OVER / 32;
+
   function metrics() {
     var e = em();
-    return { em: e, rowH: e + CELL_PAD, gapH: GAP_H };
+    return { em: e, rowH: e + CELL_PAD };
   }
 
   /* ---- the line model ---------------------------------------------------- */
@@ -91,10 +101,8 @@
   }
 
   /* One block's runs turned into what the grid actually draws: rows keyed by
-     `cp & ~0xF`, with a run of wholly excluded rows collapsed into one marker.
-     The exclusion rule is the editor's — `exclude-from-sample` hides a row only
-     when every character on it is excluded, so an excluded range still reads
-     differently from a range the source never mentions. */
+     `cp & ~0xF`, in code point order. A row exists as soon as one character on
+     it does; the slots around it are empty cells. */
   function linesOf(block) {
     var rows = [];
     var cur = null;
@@ -102,25 +110,14 @@
       for (var cp = start; cp < start + len; cp++) {
         var base = cp - (cp % 16);
         if (!cur || cur.base !== base) {
-          cur = { base: base, cells: new Array(16), excluded: true };
+          cur = { base: base, cells: new Array(16) };
           for (var i = 0; i < 16; i++) cur.cells[i] = -1;
           rows.push(cur);
         }
         cur.cells[cp % 16] = flags;
-        if (!(flags & EXCLUDED)) cur.excluded = false;
       }
     });
-    var out = [];
-    rows.forEach(function (r) {
-      if (!r.excluded) {
-        out.push(r);
-        return;
-      }
-      var last = out[out.length - 1];
-      if (last && last.gap) last.gap += 1;
-      else out.push({ gap: 1 });
-    });
-    return out;
+    return rows;
   }
 
   /* ---- cell markup ------------------------------------------------------- */
@@ -211,10 +208,6 @@
   }
 
   function lineHtml(line) {
-    if (line.gap) {
-      return '<div class="gap" style="height:' + GAP_H + 'px">' + line.gap +
-        (line.gap === 1 ? " row" : " rows") + " excluded from the sample</div>";
-    }
     var label = hex(line.base, 4);
     var alt = (line.base >> 4) % 2 ? " alt" : "";
     var html = '<div class="row' + alt + '"><div class="gut">' + label.slice(0, -1) + "_</div>";
@@ -235,9 +228,7 @@
   }, { rootMargin: "800px 0px" });
 
   function chunkHeight(lines, m) {
-    var h = 0;
-    lines.forEach(function (l) { h += l.gap ? m.gapH : m.rowH; });
-    return h;
+    return lines.length * m.rowH;
   }
 
   function applyMetrics() {
@@ -254,6 +245,44 @@
     var html = '<div class="ruler"><div></div>';
     for (var i = 0; i < 16; i++) html += "<div>" + i.toString(16).toUpperCase() + "</div>";
     return html + "</div>";
+  }
+
+  /* One run of lines, appended as lazily-rendered chunks. `before` is the node
+     to insert them in front of — the fold marker, when a fold is opening — or
+     null to append at the end. */
+  function appendChunks(rows, lines, before, m) {
+    for (var i = 0; i < lines.length; i += CHUNK) {
+      var slice = lines.slice(i, i + CHUNK);
+      var chunk = document.createElement("div");
+      chunk.className = "chunk";
+      chunk.__lines = slice;
+      chunk.style.height = chunkHeight(slice, m) + "px";
+      rows.insertBefore(chunk, before || null);
+      chunks.push(chunk);
+      observer.observe(chunk);
+    }
+  }
+
+  /* The marker standing in for a folded block's middle. It says how much is
+     behind it and where, since the two ends on either side of it are all the
+     reader has to place it by, and opening it is one click: the hidden rows
+     take the marker's place, still in chunks, so opening the CJK block costs
+     what scrolling to it would have. A fold does not close again — a reader
+     who opened one is looking for something in it. */
+  function foldMarker(hidden, rows) {
+    var first = hidden[0].base;
+    var last = hidden[hidden.length - 1].base + 15;
+    var el = document.createElement("button");
+    el.type = "button";
+    el.className = "fold";
+    el.innerHTML =
+      "<span>" + hidden.length + " rows hidden · U+" + hex(first, 4) +
+      "\u2013U+" + hex(last, 4) + '</span><span class="more">Show all</span>';
+    el.onclick = function () {
+      appendChunks(rows, hidden, el, metrics());
+      el.remove();
+    };
+    return el;
   }
 
   function buildBlock(block, index) {
@@ -274,15 +303,13 @@
     var rows = section.querySelector(".rows");
     var lines = linesOf(block);
     var m = metrics();
-    for (var i = 0; i < lines.length; i += CHUNK) {
-      var slice = lines.slice(i, i + CHUNK);
-      var chunk = document.createElement("div");
-      chunk.className = "chunk";
-      chunk.__lines = slice;
-      chunk.style.height = chunkHeight(slice, m) + "px";
-      rows.appendChild(chunk);
-      chunks.push(chunk);
-      observer.observe(chunk);
+    if (lines.length > 2 * FOLD_EDGE) {
+      var hidden = lines.slice(FOLD_EDGE, lines.length - FOLD_EDGE);
+      appendChunks(rows, lines.slice(0, FOLD_EDGE), null, m);
+      rows.appendChild(foldMarker(hidden, rows));
+      appendChunks(rows, lines.slice(lines.length - FOLD_EDGE), null, m);
+    } else {
+      appendChunks(rows, lines, null, m);
     }
     return section;
   }

@@ -908,6 +908,10 @@ Its use is bulk coverage that would swamp the page, such as most of the Hangul s
 exclude-from-sample U+AD00..D699
 ```
 
+`demo.html` ignores it entirely. That page folds *every* block longer than 0x100 code points in the
+middle — the first and last eight rows stay, and one click opens the rest — so what this directive
+is for there is said once for the whole repertoire rather than range by range.
+
 The sample page shows the first declared face, so this concerns that face alone. It is not slice-
 qualified, and nothing about it reaches any output but the sample.
 

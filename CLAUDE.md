@@ -332,6 +332,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | What the demo blob is modelled into before it is written: delta-coded cell runs, front-coded names, one entry per naming rule | `render/demo/mod.rs` (`DemoBlock::runs`, `DemoNames`, `widen_runs`) |
 | Which character names the demo page is told and which it spells for itself | `render/demo/mod.rs` (`collect_names`), `render/demo/demo.js` (`nameOf`) |
 | Why the demo's cells are rendered in lazy chunks, and why a chunk knows its height before its content | `render/demo/demo.js` |
+| Folding a block longer than 0x100 code points in the middle, and why the demo ignores `exclude-from-sample` where the specimen and the sample obey it | `render/demo/demo.js` (`FOLD_OVER`, `foldMarker`), `render/demo/mod.rs` |
 | The dotted circle in a demo cell, why the built font's `hmtx` decides which cells get one, and why it rides on the cell flags | `render/demo/mod.rs` (`CELL_ZERO_ADVANCE`, `zero_advance_codepoints`), `render/demo/demo.css` (`.dc`) |
 | Why a demo cell is bidi-isolated | `render/demo/demo.css` (`.cell`) |
 | The demo's one size for both drawings, and the rounding a switch to bitmap does | `render/demo/demo.js` (`state.em`, `snapZoom`) |

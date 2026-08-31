@@ -892,11 +892,6 @@ impl SampleSource {
         &self.data.cmap
     }
 
-    /// The `exclude-from-sample` code points.
-    pub fn excluded(&self) -> &BTreeSet<u32> {
-        &self.data.excluded
-    }
-
     /// The `prop` lines of the source: what a character is called here, and
     /// which Private Use code points are characters at all.
     pub fn char_props(&self) -> &CharProps {
