@@ -407,6 +407,17 @@ pub struct GlyphBody {
     /// a closure over the `ref` graph, and [`crate::issues`] for what that
     /// costs a component shared with an unflagged glyph.
     pub vectoronly: bool,
+    /// Which of a glyph's layers the [`vectoronly`](Self::vectoronly) above
+    /// covers. `None` — everything a source writes — is the whole drawing.
+    ///
+    /// A synthesized color/mono glyph is the one exception: it carries *two*
+    /// drawings, one per half, and the flag was written on one of them. The
+    /// closure over the `ref` graph must not cross from the half that asked
+    /// into the half that did not, or a flagged colour drawing would exempt
+    /// every component the mono fallback is built from. Each half is still an
+    /// item of its own, and so is its own root of that closure, so nothing is
+    /// lost by stopping the merged glyph at its own drawing.
+    pub vectoronly_layers: Option<LayerVisibility>,
     /// `advance W`: the declared box's width, with its height left to the
     /// grid. The common half of [`extent`](Self::extent), and the one a source
     /// states on its own — see [`GlyphBody::declared_extent`].
@@ -512,6 +523,17 @@ impl GlyphBody {
         }
     }
 
+    /// Whether a `vectoronly` exemption scoped to `layers` (see
+    /// [`vectoronly_layers`](Self::vectoronly_layers)) reaches through one
+    /// `ref`. A scope of `None` — every glyph a source writes — reaches
+    /// through all of them.
+    pub fn vectoronly_covers(layers: Option<LayerVisibility>, r: &GlyphRef) -> bool {
+        match (layers, r.visibility) {
+            (None, _) | (_, None) | (_, Some(LayerVisibility::Both)) => true,
+            (Some(scope), Some(vis)) => scope == vis,
+        }
+    }
+
     pub fn new() -> Self {
         Self {
             pixels: None,
@@ -523,6 +545,7 @@ impl GlyphBody {
             mark: false,
             desync: false,
             vectoronly: false,
+            vectoronly_layers: None,
             advance: None,
             origin: None,
             extent: None,

@@ -355,6 +355,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Which on-demand grids are remembered between builds, and why the line is not drawn at the shape | `on_demand.rs` (`make_on_demand_grid`) |
 | `glyph … desync`: a grid the bitmap face draws and the vector face ignores | `render/ttf_builder/mod.rs`, `ref_composite/mod.rs` (`ResolvedGlyph`) |
 | `glyph … vectoronly`: a drawing the bitmap face must not square off, and why the exemption is a closure over the `ref` graph | `render/ttf_builder/mod.rs`, `collect.rs` (`vectoronly_closure`) |
+| Why a `vectoronly` half of a color/mono pair exempts only its own layers, and the scope the closure walks by | `document/glyph.rs` (`vectoronly_layers`, `vectoronly_covers`), `render/ttf_builder/expand.rs` |
 | Making the two builds' outlines point-compatible: the two shape-preserving padding moves, why the alignment is a monotone walk and not arc length, and what it costs | `render/ttf_builder/masters.rs` |
 | `meta bitmap-axis`: both drawings in one font, and the three tables that carry them | `render/ttf_builder/mod.rs`, `meta.rs` (`MetaEntry::BitmapAxis`) |
 | How a colour glyph varies: per COLR layer, paired by source rather than by position, and what a layer only one build draws does | `render/ttf_builder/masters.rs` (`variations_for`, `Variations`), `mod.rs` (`CollectedColorLayer::source`) |

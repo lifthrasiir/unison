@@ -1,7 +1,7 @@
 CARGO = cargo
 CARGOFLAGS = -r
 
-SRC = Cargo.* src/*.rs src/*/*.rs
+SRC = Cargo.* src/*.rs src/*/*.rs src/*/*/*.rs
 INPATH = font
 
 # One file per `face` in font/Unison.unf. Kept explicit rather than derived:
@@ -54,3 +54,6 @@ clean:
 $(OUTPUTS): $(INPATH)/*.unf $(SRC)
 	$(CARGO) run $(CARGOFLAGS) -- build -i $(INPATH) -o $(TTC) -o unison-%.woff2 --woff2-quality $(WOFF2QUALITY) --sample-html sample.html --sample-png sample.png --live-html live.html \
 	    --demo-html demo.html -d data
+
+demo.html: src/render/demo/demo.js src/render/demo/demo.css
+

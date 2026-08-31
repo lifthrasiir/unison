@@ -158,3 +158,42 @@ map A = a
         contours_of(&without, false, "a"),
     );
 }
+
+/// `vectoronly` on one half of a color/mono pair covers *that drawing*, not
+/// the pair. The synthesized `X` carries both halves' refs (tagged
+/// `monoonly`/`coloronly`), so letting the flag reach the whole merged glyph
+/// exempts the mono half's components as well — every glyph the bitmap face
+/// draws below a flagged colour drawing stops being squared off. Each half is
+/// still an item of its own, and so is its own closure root; the merged glyph
+/// owes nothing beyond its own grid.
+#[test]
+fn a_vectoronly_colour_half_does_not_exempt_the_mono_halfs_components() {
+    let input = format!(
+        "{HEAD}\
+glyph mono-part 2 2
+b...
+....
+glyph colour-part 2 2
+b...
+....
+glyph x:mono 2 2
+ref mono-part 0 0
+glyph x:color 2 2 vectoronly
+ref colour-part 0 0 fill #ff0000
+map A = x
+map B = mono-part
+map C = colour-part
+"
+    );
+
+    assert_eq!(
+        contours_of(&input, true, "colour-part"),
+        contours_of(&input, false, "colour-part"),
+        "the colour half asked for the exemption, so its component keeps it",
+    );
+    assert_ne!(
+        contours_of(&input, true, "mono-part"),
+        contours_of(&input, false, "mono-part"),
+        "the mono half asked for nothing, so its component is still squared off",
+    );
+}

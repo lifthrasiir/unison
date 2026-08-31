@@ -66,6 +66,15 @@
 //! [`crate::issues`] reports exactly that, because the alternative is a second
 //! copy of a component the source never wrote.
 //!
+//! A synthesized color/mono glyph is where that closure has to stop short.
+//! It carries *two* drawings — the mono half's layers and the colour half's,
+//! each tagged with its visibility — and the flag was written on one of them.
+//! Walking the whole merged glyph would exempt every component the mono
+//! fallback is drawn from because the colour artwork asked, which is a
+//! silent loss of the bitmap face's own drawing; each half is still an item
+//! of its own, and so is its own root here, so the walk is scoped instead
+//! ([`crate::document::GlyphBody::vectoronly_layers`]).
+//!
 //! # `desync`: a grid the vector build does not read
 //!
 //! Normally the two builds draw the same shapes and differ only in how finely:

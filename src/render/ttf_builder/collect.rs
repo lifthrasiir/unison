@@ -109,10 +109,6 @@ fn resolve_glyph_metrics(
     (advance_width, left_offset, top_offset)
 }
 
-/// Composite references for a resolved glyph in font units, or empty when
-/// the glyph is forced inline.  Compensates for each component glyph's own
-/// left/top offset so that the shift doesn't propagate into parent composites.
-#[expect(clippy::too_many_arguments)]
 /// Every glyph the bitmap build is to draw with *vector* geometry: the
 /// `vectoronly` glyphs and everything they reach through `ref`.
 ///
@@ -126,6 +122,10 @@ fn resolve_glyph_metrics(
 /// pass, because the alternative (a second, differently traced copy of the
 /// component) is a glyph the source never wrote.
 ///
+/// The walk stays inside the drawing that asked, which is only ever a
+/// question for a synthesized color/mono glyph: see
+/// [`GlyphBody::vectoronly_layers`].
+///
 /// Empty for the vector build, which draws everything this way already.
 fn vectoronly_closure<'a>(
     all_items: impl IntoIterator<Item = &'a DocumentItem>,
@@ -136,6 +136,7 @@ fn vectoronly_closure<'a>(
         return exempt;
     }
     let mut refs_of: HashMap<&str, &[GlyphRef]> = HashMap::new();
+    let mut layers_of: HashMap<&str, Option<LayerVisibility>> = HashMap::new();
     let mut queue: Vec<&str> = Vec::new();
     for item in all_items {
         let DocumentItem::Glyph {
@@ -147,6 +148,7 @@ fn vectoronly_closure<'a>(
         };
         refs_of.entry(n.as_str()).or_insert(&body.refs);
         if body.vectoronly {
+            layers_of.insert(n.as_str(), body.vectoronly_layers);
             queue.push(n.as_str());
         }
     }
@@ -154,7 +156,11 @@ fn vectoronly_closure<'a>(
         if !exempt.insert(name.to_string()) {
             continue;
         }
+        let layers = layers_of.get(name).copied().flatten();
         for r in refs_of.get(name).copied().unwrap_or(&[]) {
+            if !GlyphBody::vectoronly_covers(layers, r) {
+                continue;
+            }
             if !exempt.contains(r.name.as_str()) {
                 // Borrowed from the map so the walk stays allocation-free
                 // except for the set itself.
@@ -169,6 +175,10 @@ fn vectoronly_closure<'a>(
     exempt
 }
 
+/// Composite references for a resolved glyph in font units, or empty when
+/// the glyph is forced inline.  Compensates for each component glyph's own
+/// left/top offset so that the shift doesn't propagate into parent composites.
+#[expect(clippy::too_many_arguments)]
 fn build_composite_refs(
     resolved: &CachedContours,
     inline: bool,

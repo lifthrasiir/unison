@@ -1955,6 +1955,49 @@ map B = part
     assert!(msgs[0].contains("mapped to a character"), "{}", msgs[0]);
 }
 
+/// One half of a color/mono pair asking for the exemption must not drag the
+/// other half's components in with it: the mono fallback of a flagged colour
+/// drawing is ordinary pixel work, shared with ordinary glyphs, and reporting
+/// it was the symptom of the merged glyph carrying the flag for both halves.
+#[test]
+fn a_vectoronly_colour_half_says_nothing_about_the_mono_halfs_components() {
+    let msgs = vectoronly_warnings(
+        "\
+glyph mono-part 1 1
+@@
+glyph colour-part 1 1
+@@
+glyph x:mono 1 1
+ref mono-part
+glyph x:color 1 1 vectoronly
+ref colour-part fill #ff0000
+map A = x
+map B = mono-part
+",
+    );
+    assert!(msgs.is_empty(), "expected no warning, got {msgs:?}");
+}
+
+/// The colour half's own components are still reached, and still reported
+/// where they are shared — the scope narrows the walk, it does not stop it.
+#[test]
+fn a_vectoronly_colour_half_still_reports_its_own_shared_component() {
+    let msgs = vectoronly_warnings(
+        "\
+glyph colour-part 1 1
+@@
+glyph x:mono 1 1
+ref colour-part
+glyph x:color 1 1 vectoronly
+ref colour-part fill #ff0000
+map A = x
+map B = colour-part
+",
+    );
+    assert_eq!(msgs.len(), 1, "expected one warning, got {msgs:?}");
+    assert!(msgs[0].contains("'colour-part'"), "{}", msgs[0]);
+}
+
 /// Nothing is said about a source with no `vectoronly` in it at all — the
 /// walk has to bail before it builds anything.
 #[test]

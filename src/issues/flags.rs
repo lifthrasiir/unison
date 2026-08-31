@@ -2,7 +2,7 @@
 
 use std::collections::{HashMap, HashSet};
 
-use crate::document::{DocumentItem, GlyphName};
+use crate::document::{DocumentItem, GlyphBody, GlyphName, GlyphRef, LayerVisibility};
 
 use super::{Cx, Issue, Severity, issue_at};
 
@@ -24,7 +24,8 @@ pub(super) fn check_vectoronly_reach(
     issues: &mut Vec<Issue>,
 ) {
     let mut roots: HashSet<&str> = HashSet::new();
-    let mut refs_of: HashMap<&str, Vec<&str>> = HashMap::new();
+    let mut layers_of: HashMap<&str, Option<LayerVisibility>> = HashMap::new();
+    let mut refs_of: HashMap<&str, Vec<&GlyphRef>> = HashMap::new();
     for item in cx.expansion.items() {
         let DocumentItem::Glyph {
             name: GlyphName(n),
@@ -35,11 +36,9 @@ pub(super) fn check_vectoronly_reach(
         };
         if body.vectoronly {
             roots.insert(n.as_str());
+            layers_of.insert(n.as_str(), body.vectoronly_layers);
         }
-        refs_of
-            .entry(n.as_str())
-            .or_default()
-            .extend(body.refs.iter().map(|r| r.name.as_str()));
+        refs_of.entry(n.as_str()).or_default().extend(&body.refs);
     }
     if roots.is_empty() {
         return;
@@ -50,7 +49,14 @@ pub(super) fn check_vectoronly_reach(
     let mut reached: HashSet<&str> = HashSet::new();
     let mut queue: Vec<&str> = roots.iter().copied().collect();
     while let Some(name) = queue.pop() {
+        // The same scope rule the build's own closure walks by, so the two
+        // agree on what a flagged drawing reaches.
+        let layers = layers_of.get(name).copied().flatten();
         for &r in refs_of.get(name).map(Vec::as_slice).unwrap_or(&[]) {
+            if !GlyphBody::vectoronly_covers(layers, r) {
+                continue;
+            }
+            let r = r.name.as_str();
             if !roots.contains(r) && reached.insert(r) {
                 queue.push(r);
             }
@@ -68,7 +74,8 @@ pub(super) fn check_vectoronly_reach(
         if roots.contains(user) || reached.contains(user) {
             continue;
         }
-        for &r in refs {
+        for r in refs {
+            let r = r.name.as_str();
             if reached.contains(r) {
                 outside_users.entry(r).or_insert(user);
             }
