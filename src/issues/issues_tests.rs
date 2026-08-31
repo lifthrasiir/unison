@@ -2015,3 +2015,73 @@ map A = plain
         .is_empty(),
     );
 }
+
+// ---------------------------------------------------------------------------
+// `sample` and its `||` continuations
+// ---------------------------------------------------------------------------
+
+fn sample_errors(input: &str) -> Vec<String> {
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    collect_issues(&[&doc])
+        .into_iter()
+        .filter(|i| i.severity == Severity::Error)
+        .map(|i| i.message)
+        .collect()
+}
+
+/// The one thing a `sample` line cannot do without. Without the check it is a
+/// text that silently never appears anywhere.
+#[test]
+fn a_sample_with_no_continuation_is_an_error() {
+    let msgs = sample_errors("sample Latin pangram\n");
+    assert_eq!(msgs.len(), 1, "{msgs:?}");
+    assert!(msgs[0].contains("at least one `||` line"), "{}", msgs[0]);
+}
+
+#[test]
+fn a_well_formed_sample_says_nothing() {
+    assert!(
+        sample_errors("sample Latin pangram\n|| The quick brown fox.\nsample Latin\n|| head\n")
+            .is_empty()
+    );
+}
+
+/// The second of two texts of one name is unreachable — the list shows one
+/// entry per name — so it is named rather than quietly dropped.
+#[test]
+fn a_duplicate_sample_name_is_an_error() {
+    let msgs = sample_errors("sample L a\n|| one\nsample L a\n|| two\n");
+    assert_eq!(msgs.len(), 1, "{msgs:?}");
+    assert!(msgs[0].contains("more than once"), "{}", msgs[0]);
+
+    let msgs = sample_errors("sample L\n|| one\nsample L\n|| two\n");
+    assert_eq!(msgs.len(), 1, "{msgs:?}");
+    assert!(msgs[0].contains("give this one a sublabel"), "{}", msgs[0]);
+}
+
+/// The `: MODE` tail parses so the grammar is settled; until something is
+/// defined for it, writing one is a mistake and not a no-op.
+#[test]
+fn every_sample_mode_is_unknown_so_far() {
+    let msgs = sample_errors("sample L a : vertical\n|| text\n");
+    assert_eq!(msgs.len(), 1, "{msgs:?}");
+    assert!(
+        msgs[0].contains("unknown sample mode `vertical`"),
+        "{}",
+        msgs[0]
+    );
+}
+
+/// A `||` with nothing above it to continue is reported as what it is, rather
+/// than as an unrecognized directive that leaves the author rereading a line
+/// that is spelled perfectly well.
+#[test]
+fn an_orphan_continuation_names_itself() {
+    let msgs = sample_errors("meta family Foo\n|| stranded\n");
+    assert_eq!(msgs.len(), 1, "{msgs:?}");
+    assert!(
+        msgs[0].contains("continues the command above it"),
+        "{}",
+        msgs[0]
+    );
+}

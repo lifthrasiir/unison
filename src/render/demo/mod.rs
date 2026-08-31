@@ -176,55 +176,98 @@ struct DemoData {
 #[derive(serde::Serialize)]
 struct DemoSampleGroup {
     title: String,
-    /// What the group is, spelled out where the title cannot be.
+    /// What the group is, spelled out where the title cannot be. Empty for a
+    /// group the source wrote, whose label is the whole of what it says.
+    #[serde(skip_serializing_if = "String::is_empty")]
     note: String,
+    /// The items' ids are UDHR translation keys the page turns into language
+    /// names. A group of [`sample`](crate::samples) lines is the other kind:
+    /// its ids are the sublabels as written, and the page prints them.
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
+    lang: bool,
+    /// The text the heading itself carries, from a `sample LABEL` line with no
+    /// sublabel; empty when the heading is only a heading. It is what makes the
+    /// title on the list a thing to click.
+    #[serde(skip_serializing_if = "String::is_empty")]
+    text: String,
     items: Vec<DemoSample>,
 }
 
 #[derive(serde::Serialize)]
 struct DemoSample {
-    /// The UDHR's own key for the translation; the page turns it into a
-    /// language name with `Intl.DisplayNames` rather than reading one off the
-    /// blob, because CLDR names a language the way a reader of this page
-    /// expects it named. See [`crate::render::sample::UdhrEntry`].
+    /// What the sample is keyed and — for a source-written group — named by:
+    /// the UDHR's own key for a translation, or the `sample` line's sublabel.
     id: String,
     /// The UDHR's own name for the translation, for the numeric keys `Intl`
     /// cannot name. Carried per item and not as a table because it is one
-    /// string per translation the page already carries a paragraph for.
+    /// string per translation the page already carries a paragraph for. Empty
+    /// where the id is already the name.
+    #[serde(skip_serializing_if = "String::is_empty")]
     name: String,
     text: String,
 }
 
-/// The sample texts to embed: the UDHR selection `live.html` shows, and nothing
-/// else yet.
+/// The sample texts to embed: the source's own [`sample`](crate::samples)
+/// lines, then the UDHR selection `live.html` shows.
+///
+/// The source's come first because they are what the font's author chose to be
+/// read in; the UDHR selection is a body of text every font gets, and no font
+/// is *about* it.
 ///
 /// The data directory is optional for every other part of this page, so a build
-/// with no `-d` still writes a demo — it just has no ready-made text in it, and
-/// the panel says so rather than disappearing.
-fn collect_samples(src: &SampleSource, data_dir: Option<&Path>) -> Vec<DemoSampleGroup> {
-    let Some(dir) = data_dir else {
-        return Vec::new();
-    };
-    let Ok(entries) = crate::render::sample::udhr_selection(dir, src.cmap()) else {
-        return Vec::new();
-    };
-    if entries.is_empty() {
-        return Vec::new();
-    }
-    vec![DemoSampleGroup {
-        title: "UDHR Article 1".to_string(),
-        note: "Article 1 of the Universal Declaration of Human Rights, in every \
-               translation this font can draw whole"
-            .to_string(),
-        items: entries
+/// with no `-d` still writes a demo — it just has no UDHR in it, and the panel
+/// says so rather than disappearing.
+fn collect_samples(
+    src: &SampleSource,
+    docs: &[&Document],
+    data_dir: Option<&Path>,
+) -> Vec<DemoSampleGroup> {
+    let mut groups: Vec<DemoSampleGroup> =
+        crate::samples::SampleSet::collect(docs.iter().flat_map(|doc| doc.items.iter()))
+            .groups
             .into_iter()
-            .map(|e| DemoSample {
-                id: e.lang,
-                name: e.name,
-                text: e.text,
+            .map(|group| DemoSampleGroup {
+                title: group.label,
+                note: String::new(),
+                lang: false,
+                text: group.text.unwrap_or_default(),
+                items: group
+                    .items
+                    .into_iter()
+                    .map(|item| DemoSample {
+                        // The sublabel is both the key an edit is stored under and the
+                        // name on the list: it is unique within its group (`issues`
+                        // holds the source to that), so it needs no second string.
+                        id: item.sublabel,
+                        name: String::new(),
+                        text: item.text,
+                    })
+                    .collect(),
             })
-            .collect(),
-    }]
+            .collect();
+
+    if let Some(dir) = data_dir
+        && let Ok(entries) = crate::render::sample::udhr_selection(dir, src.cmap())
+        && !entries.is_empty()
+    {
+        groups.push(DemoSampleGroup {
+            title: "UDHR Article 1".to_string(),
+            note: "Article 1 of the Universal Declaration of Human Rights, in every \
+                   translation this font can draw whole"
+                .to_string(),
+            lang: true,
+            text: String::new(),
+            items: entries
+                .into_iter()
+                .map(|e| DemoSample {
+                    id: e.lang,
+                    name: e.name,
+                    text: e.text,
+                })
+                .collect(),
+        });
+    }
+    groups
 }
 
 /// The character names the page cannot spell for itself, front-coded.
@@ -375,7 +418,7 @@ fn collect(
         blocks: out_blocks,
         names,
         name_runs,
-        samples: collect_samples(src, data_dir),
+        samples: collect_samples(src, docs, data_dir),
     }
 }
 

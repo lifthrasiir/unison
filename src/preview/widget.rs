@@ -179,20 +179,57 @@ impl ShapedPreviewState {
             .join("\n")
     }
 
-    /// Replaces the text outright, putting the caret at its end. Undo history
-    /// is dropped: this is not an edit the user made.
-    pub fn set_text(&mut self, text: &str) {
-        self.lines = text
+    /// `text` as the line buffer this widget edits. Never empty: a document of
+    /// no lines has nowhere to put the caret.
+    fn text_as_lines(text: &str) -> Vec<DocLine> {
+        let mut lines: Vec<DocLine> = text
             .split('\n')
             .map(|l| DocLine::Text(l.replace('\r', "")))
             .collect();
-        if self.lines.is_empty() {
-            self.lines.push(DocLine::Text(String::new()));
+        if lines.is_empty() {
+            lines.push(DocLine::Text(String::new()));
         }
+        lines
+    }
+
+    /// Replaces the text outright, putting the caret at its end. Undo history
+    /// is dropped: this is not an edit the user made.
+    ///
+    /// This is for *restoring* the panel — the text a previous run left in the
+    /// settings. Something the user asked for while the panel is in front of
+    /// them is [`replace_text`](Self::replace_text) instead.
+    pub fn set_text(&mut self, text: &str) {
+        self.lines = Self::text_as_lines(text);
         self.undo = UndoStack::new();
         self.selection_anchor = None;
         self.cursor = caret::doc_end(&self.lines);
         self.shaped = None;
+    }
+
+    /// Replaces the text as **one undoable edit**, putting the caret at its
+    /// end.
+    ///
+    /// A `sample` line's *Use* button comes through here rather than through
+    /// [`set_text`](Self::set_text): what it overwrites is the reader's own
+    /// text, typed into this panel, and an action that throws that away
+    /// without a Ctrl/Cmd+Z to answer it is one they cannot take back. The
+    /// whole buffer is one `Lines` entry, so the undo is the press and not the
+    /// lines it happened to touch.
+    pub fn replace_text(&mut self, text: &str) {
+        let new = Self::text_as_lines(text);
+        if new == self.lines {
+            return;
+        }
+        let caret_before = self.cursor;
+        let caret_after = caret::doc_end(&new);
+        let old = std::mem::replace(&mut self.lines, new);
+        self.undo
+            .push_lines(0, old, self.lines.clone(), caret_before, caret_after);
+        // Typing after a press is an edit of its own, not more of it.
+        self.undo.break_coalesce();
+        self.selection_anchor = None;
+        self.cursor = caret_after;
+        self.scroll_to_caret = true;
     }
 
     /// The screen rect the preview text occupied on the last frame it was
@@ -1535,6 +1572,61 @@ mod tests {
             )],
         );
         assert_eq!(state.text(), "ab\n");
+    }
+
+    /// A `sample`'s *Use* button overwrites what the reader typed here, so the
+    /// press has to be one thing Ctrl/Cmd+Z takes back — the whole buffer at
+    /// once, and in one step however many lines it replaced.
+    #[test]
+    fn using_a_sample_is_one_undoable_edit() {
+        let ctx = egui::Context::default();
+        let mut state = state_with("mine");
+        assert!(!state.can_undo(), "restoring the panel is not an edit");
+
+        state.replace_text("first line\nsecond line");
+        assert_eq!(state.text(), "first line\nsecond line");
+        assert_eq!(
+            state.cursor,
+            Caret::new(1, 11),
+            "the caret lands at the end"
+        );
+        assert!(state.can_undo());
+
+        let cmd = egui::Modifiers {
+            command: true,
+            ..Default::default()
+        };
+        key_frame(&ctx, &mut state, vec![key_with(egui::Key::Z, cmd)]);
+        assert_eq!(state.text(), "mine", "one press, one undo");
+        assert!(!state.can_undo());
+
+        key_frame(
+            &ctx,
+            &mut state,
+            vec![key_with(
+                egui::Key::Z,
+                egui::Modifiers {
+                    command: true,
+                    shift: true,
+                    ..Default::default()
+                },
+            )],
+        );
+        assert_eq!(state.text(), "first line\nsecond line");
+    }
+
+    /// Pressing it twice on the same sample leaves one entry, not two: the
+    /// second press changed nothing, and an undo that does nothing visible is
+    /// a press of Ctrl/Cmd+Z the reader has to make twice.
+    #[test]
+    fn using_the_same_sample_twice_records_one_edit() {
+        let mut state = state_with("mine");
+        state.replace_text("sample text");
+        state.replace_text("sample text");
+        assert!(state.can_undo());
+        let mut lines = state.lines.clone();
+        assert!(state.undo.undo(&mut lines).is_some());
+        assert!(!state.undo.can_undo());
     }
 
     #[test]

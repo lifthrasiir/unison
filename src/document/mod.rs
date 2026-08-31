@@ -33,6 +33,9 @@ pub enum Directive<'a> {
     ExcludeFromSample(&'a str),
     /// `assume unused NAME...` — the argument text.
     AssumeUnused(&'a str),
+    /// A `|| …` continuation line with nothing in front of it to continue.
+    /// See [`crate::document_io`] (`# Continuation lines`).
+    OrphanContinuation,
     /// Blank or whitespace only.
     Empty,
     /// A keyword we do not know, or a known keyword whose arguments did not
@@ -57,6 +60,11 @@ pub fn classify_directive(text: &str) -> Directive<'_> {
     }
     if let Some(rest) = trimmed.strip_prefix("assume unused ") {
         return Directive::AssumeUnused(rest);
+    }
+    // A continuation that reached the directive list is one no `sample` line
+    // claimed: the parser hands every claimed one to its own item.
+    if trimmed.starts_with(crate::document_io::CONTINUATION) {
+        return Directive::OrphanContinuation;
     }
     // `assert` lines that parse become typed items, so an `assert` reaching
     // here is malformed and should be reported like any other unknown line.
@@ -324,6 +332,32 @@ pub enum DocumentItem {
         expected: Vec<ExpectedGlyph>,
         comment: Option<String>,
     },
+    /// `sample LABEL [SUBLABEL] [: MODE...]` plus the `||` continuation lines
+    /// under it — a ready-made specimen text the source carries.
+    ///
+    /// It builds nothing: the demo page offers it in its sample panel and the
+    /// editor puts it in the preview, and a font with no `sample` line at all
+    /// is byte-for-byte the font it would be otherwise. Which is why it is not
+    /// a `meta` key — see [`crate::meta`] — and why the two labels are prose
+    /// rather than names: they are what the reader picks the text by.
+    ///
+    /// `label` is the heading the text is listed under and `sublabel` the entry
+    /// beneath it; a line with no sublabel gives the heading *itself* a text.
+    /// `mode` is the reserved `: MODE...` tail, kept as written so that the
+    /// grammar is settled before there is anything to put in it — nothing is
+    /// accepted yet and [`crate::issues`] says so.
+    ///
+    /// `text` is one entry per continuation line, already dedented (see
+    /// [`crate::document_io::dedent_continuations`]); empty means the `sample`
+    /// line had no `||` under it at all, which is an error `issues` reports
+    /// rather than a silently empty sample.
+    Sample {
+        label: String,
+        sublabel: Option<String>,
+        mode: Vec<String>,
+        text: Vec<String>,
+        comment: Option<String>,
+    },
     /// `assert same GLYPH1 GLYPH2 ...`
     AssertSame {
         names: Vec<String>,
@@ -365,6 +399,9 @@ impl DocumentItem {
                 | DocumentItem::AssertShape { .. }
                 | DocumentItem::AssertSame { .. }
                 | DocumentItem::AssertDistinct { .. }
+                // A sample is read by the demo page and by the preview; no
+                // stage of the font build ever sees one.
+                | DocumentItem::Sample { .. }
         )
     }
 }

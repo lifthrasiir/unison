@@ -304,6 +304,13 @@
   var CUSTOM = "custom";
   var current = CUSTOM;
 
+  /* What to call one entry. A UDHR group's ids are translation keys and are
+     spelled out above; a group the source wrote with `sample` lines named its
+     own entries, and those are printed as written. */
+  function itemName(group, item) {
+    return group.lang ? langName(item) : (item.name || item.id);
+  }
+
   function sampleList() {
     if (!samples.length) {
       return '<p class="s-none">No sample text was built into this page.</p>';
@@ -312,7 +319,7 @@
       var items = group.items.map(function (item) {
         var key = gi + "/" + item.id;
         sampleTexts[key] = item.text;
-        sampleLabels[key] = langName(item);
+        sampleLabels[key] = itemName(group, item);
         return '<button type="button" class="s-item" data-key="' + esc(key) +
           '" aria-pressed="false">' + esc(sampleLabels[key]) + "</button>";
       }).join('<span class="s-sep">; </span>');
@@ -321,10 +328,26 @@
          entry on this list, not a hundred and nineteen. They keep the order the
          blob wrote them in, which is the order they were *chosen* in — each one
          earns its place by drawing something no earlier one did — so the head
-         of the list is where the widely-read languages are. */
-      return '<div class="s-group"><h3 title="' + esc(group.note) + '">' +
-        esc(group.title) + "</h3>" +
-        '<p class="s-items">' + items + "</p></div>";
+         of the list is where the widely-read languages are.
+
+         A heading that carries a text of its own — a `sample LABEL` line with
+         no sublabel — is a button like any entry, so a label standing for one
+         text does not have to invent a second level to be clickable. The key
+         is the group's with an empty item name, which no item can collide
+         with: a sublabel cannot be empty. */
+      var head;
+      if (group.text) {
+        var hkey = gi + "/";
+        sampleTexts[hkey] = group.text;
+        sampleLabels[hkey] = group.title;
+        head = '<button type="button" class="s-head-item" data-key="' +
+          esc(hkey) + '" aria-pressed="false">' + esc(group.title) + "</button>";
+      } else {
+        head = esc(group.title);
+      }
+      var title = group.note ? ' title="' + esc(group.note) + '"' : "";
+      return '<div class="s-group"><h3' + title + ">" + head + "</h3>" +
+        (items ? '<p class="s-items">' + items + "</p>" : "") + "</div>";
     }).join("");
   }
 
@@ -359,7 +382,7 @@
     var label = key === CUSTOM ? "your own text" : sampleLabels[key];
     document.getElementById("s-current").textContent = label;
     document.getElementById("s-revert").hidden = key === CUSTOM;
-    Array.prototype.forEach.call(document.querySelectorAll(".s-item"), function (b) {
+    Array.prototype.forEach.call(document.querySelectorAll(".s-list [data-key]"), function (b) {
       b.setAttribute("aria-pressed", String(b.dataset.key === key));
     });
   }
@@ -567,7 +590,10 @@
     this.value = "";
   };
 
-  Array.prototype.forEach.call(document.querySelectorAll(".s-item"), function (b) {
+  /* Both levels of the list are the same thing to click — a heading that
+     carries a text and an entry under one — so both are found by the key they
+     carry rather than by which of the two they are. */
+  Array.prototype.forEach.call(document.querySelectorAll(".s-list [data-key]"), function (b) {
     b.onclick = function () { selectSample(b.dataset.key); };
   });
   document.getElementById("s-text").oninput = function () {
@@ -584,9 +610,13 @@
 
   /* The panel opens on what the reader was last looking at, and on the first
      entry of the first group otherwise — the sample worth showing unasked is
-     the one the data put first. */
+     the one the data put first, which is the source's own text where it wrote
+     one. A group whose heading carries the text has no entry to name, and its
+     key is the group's alone. */
   setCollapsed(ssGet("collapsed") === "1");
-  selectSample(ssGet("sample") || (samples.length ? "0/" + samples[0].items[0].id : CUSTOM));
+  selectSample(ssGet("sample") || (samples.length
+    ? "0/" + (samples[0].items.length ? samples[0].items[0].id : "")
+    : CUSTOM));
   sizeControl();
   applyMetrics();
 })();

@@ -397,7 +397,8 @@ footer .legend i.missing { background-image: repeating-linear-gradient(135deg, t
   border-left-color: var(--fg-dim);
   transform: translateX(0.16rem);
 }
-.s-toggle:focus-visible, .s-revert:focus-visible, .s-item:focus-visible {
+.s-toggle:focus-visible, .s-revert:focus-visible, .s-item:focus-visible,
+.s-head-item:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
@@ -441,6 +442,17 @@ footer .legend i.missing { background-image: repeating-linear-gradient(135deg, t
 }
 .s-group + .s-group { margin-top: 0.7rem; }
 .s-group h3 { margin: 0 0 0.15rem; font-size: 0.78rem; font-weight: 620; }
+/* A heading that carries a text of its own is a button, and reads as the
+   heading it still is: the entry chrome (the box, the padding) would put it on
+   the same footing as the entries it is meant to be above. */
+.s-head-item {
+  all: unset;
+  cursor: pointer;
+  border-bottom: 1px dotted var(--fg-faint);
+}
+.s-head-item:hover { border-bottom-color: var(--accent); }
+.s-head-item[aria-pressed="true"] { color: var(--accent); border-bottom-color: var(--accent); }
+
 .s-items { margin: 0; font-size: 0.78rem; line-height: 1.9; }
 /* The item's own padding is its hover box, and it would otherwise read as a
    space in front of the separator: the semicolon belongs to the name before

@@ -465,6 +465,53 @@ impl DocumentItem {
         })
     }
 
+    /// The lines a [`Sample`](DocumentItem::Sample) is written as: its header
+    /// and one `||` line per line of its text. `None` for every other item.
+    ///
+    /// Separate from [`serialize_line`](Self::serialize_line) because it is the
+    /// one item that is more than a line, and a caller that means to write one
+    /// line has to say which.
+    ///
+    /// The text is written back with exactly one space after each marker, which
+    /// is what makes the round trip stable: the model's text is already
+    /// dedented (see [`crate::document_io::dedent_continuations`]), so at least
+    /// one of its non-blank lines starts at column 0 and the prefix a re-parse
+    /// finds is that one space and nothing more. A blank line is written as a
+    /// bare `||` rather than a marker and a trailing space.
+    #[cfg(any(feature = "editor", test))]
+    pub fn sample_lines(&self) -> Option<Vec<String>> {
+        use crate::document_io::{CONTINUATION, quote_token};
+        let DocumentItem::Sample {
+            label,
+            sublabel,
+            mode,
+            text,
+            comment,
+        } = self
+        else {
+            return None;
+        };
+        let mut header = format!("sample {}", quote_token(label));
+        if let Some(sublabel) = sublabel {
+            header.push(' ');
+            header.push_str(&quote_token(sublabel));
+        }
+        if !mode.is_empty() {
+            let qmode: Vec<String> = mode.iter().map(|m| quote_token(m)).collect();
+            header.push_str(&format!(" : {}", qmode.join(" ")));
+        }
+        header.push_str(&serialize_comment_suffix(comment));
+        let mut lines = vec![header];
+        lines.extend(text.iter().map(|line| {
+            if line.is_empty() {
+                CONTINUATION.to_string()
+            } else {
+                format!("{CONTINUATION} {line}")
+            }
+        }));
+        Some(lines)
+    }
+
     #[cfg(any(feature = "editor", test))]
     pub fn serialize_line(&self) -> Option<String> {
         use crate::document_io::quote_token;

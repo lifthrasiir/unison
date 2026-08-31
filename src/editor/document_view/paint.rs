@@ -231,6 +231,8 @@ pub(super) fn paint_document_area(
         }
     });
 
+    #[cfg(test)]
+    let mut sample_use_rects: Vec<(usize, egui::Rect)> = Vec::new();
     let mut click_result: Option<ClickTarget> = None;
     let mut cursor_screen: Option<egui::Pos2> = None;
     let mut error_tooltip: Option<(egui::Pos2, String)> = None;
@@ -264,7 +266,7 @@ pub(super) fn paint_document_area(
     // The gutter's markers are resolved before the lines, because a click that
     // lands on one must not reach the text hit test below — that one accepts
     // any x, so a gutter click would otherwise also move the caret.
-    let click_pos = paint_fold_markers(
+    let mut click_pos = paint_fold_markers(
         ui,
         &painter,
         lines,
@@ -517,6 +519,35 @@ pub(super) fn paint_document_area(
                                 goto_link_pos = Some(Caret::new(vl.doc_line, link.col_start));
                             }
                         }
+                    }
+                }
+
+                // The *Use* button a `sample` header carries, drawn past the
+                // end of the line and hit-tested before the text below: a
+                // click on it is the button's, not a caret move to the end of
+                // the line it happens to sit past.
+                if let Some(rect) = sample_use_rect(
+                    doc,
+                    lines,
+                    ui,
+                    font_id,
+                    &atext,
+                    vl,
+                    egui::Rect::from_min_size(
+                        egui::pos2(origin.x + LEFT_PAD, origin.y + y),
+                        egui::vec2(0.0, h),
+                    ),
+                ) {
+                    let hovered = hover_pos.is_some_and(|p| rect.contains(p));
+                    paint_sample_use_button(&painter, ui, font_id, rect, pal, hovered);
+                    #[cfg(test)]
+                    sample_use_rects.push((vl.doc_line, rect));
+                    if hovered {
+                        ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
+                    }
+                    if response.clicked() && click_pos.is_some_and(|p| rect.contains(p)) {
+                        state.pending_use_sample = sample_text_at(doc, vl.doc_line);
+                        click_pos = None;
                     }
                 }
 
@@ -885,6 +916,9 @@ pub(super) fn paint_document_area(
         }
     }
 
+    #[cfg(test)]
+    crate::editor::harness::capture_sample_use_buttons(ui.ctx(), state.id(), &sample_use_rects);
+
     // Resize overlay and drag: the boundary is painted here, after every grid
     // row, and one of its edges follows the pointer.
     //
@@ -1250,6 +1284,101 @@ pub(super) fn paint_document_area(
 /// button, and the menu is gone by the next frame — so the editor is left with
 /// no focus and swallows the very next keystroke. Any menu item that acts on
 /// this editor has to take focus back.
+/// The gap between the end of a `sample` header and its *Use* button, and the
+/// padding inside the button, both in the text font's own units so that the
+/// button follows the zoom the rest of the line does.
+const SAMPLE_USE_GAP: f32 = 1.0;
+const SAMPLE_USE_PAD: f32 = 0.4;
+const SAMPLE_USE_LABEL: &str = "Use";
+
+/// The text of the [`sample`](crate::samples) whose header is `doc_line`, if
+/// that is what the line is.
+///
+/// A sample's text is the item's, not the buffer's: the `||` lines have already
+/// been dedented, and joining them here is what the preview is handed.
+fn sample_text_at(doc: &Document, doc_line: usize) -> Option<String> {
+    let idx = line_to_item_idx(&doc.item_line_starts, doc_line)?;
+    if doc.item_line_starts.get(idx) != Some(&doc_line) {
+        return None;
+    }
+    match doc.items.get(idx) {
+        Some(DocumentItem::Sample { text, .. }) if !text.is_empty() => Some(text.join("\n")),
+        _ => None,
+    }
+}
+
+/// Where the *Use* button of a `sample` header goes on this visual line, or
+/// `None` if the line is not one, carries no text, or is not the segment the
+/// header *ends* on — a wrapped header puts the button after its last piece,
+/// which is where the line ends on screen.
+fn sample_use_rect(
+    doc: &Document,
+    lines: &[DocLine],
+    ui: &egui::Ui,
+    font_id: &egui::FontId,
+    atext: &AnnotatedText,
+    vl: &VisualLine,
+    line_rect: egui::Rect,
+) -> Option<egui::Rect> {
+    let segment = atext.text();
+    let seg_len = segment.chars().count();
+    if vl.col_offset + seg_len != doc_line_text(lines, vl, segment).chars().count() {
+        return None;
+    }
+    sample_text_at(doc, vl.doc_line)?;
+    let end = atext.x_pos(ui, font_id, seg_len);
+    let label_w = ui.fonts(|f| {
+        f.layout_no_wrap(
+            SAMPLE_USE_LABEL.to_string(),
+            font_id.clone(),
+            egui::Color32::WHITE,
+        )
+        .rect
+        .width()
+    });
+    let space = font_id.size * SAMPLE_USE_GAP;
+    let pad = font_id.size * SAMPLE_USE_PAD;
+    Some(egui::Rect::from_min_size(
+        egui::pos2(line_rect.min.x + end + space, line_rect.min.y + 1.0),
+        egui::vec2(label_w + pad * 2.0, (line_rect.height() - 2.0).max(1.0)),
+    ))
+}
+
+/// The button itself: an outline that fills in under the pointer, so that it
+/// reads as a control rather than as more of the line it trails.
+fn paint_sample_use_button(
+    painter: &egui::Painter,
+    ui: &egui::Ui,
+    font_id: &egui::FontId,
+    rect: egui::Rect,
+    pal: &Palette,
+    hovered: bool,
+) {
+    let accent = pal.link;
+    let radius = rect.height() * 0.3;
+    if hovered {
+        painter.rect_filled(rect, radius, accent);
+    }
+    painter.rect_stroke(
+        rect,
+        radius,
+        egui::Stroke::new(1.0, accent),
+        egui::StrokeKind::Inside,
+    );
+    painter.text(
+        rect.center(),
+        egui::Align2::CENTER_CENTER,
+        SAMPLE_USE_LABEL,
+        font_id.clone(),
+        if hovered {
+            contrast_text_color(accent)
+        } else {
+            accent
+        },
+    );
+    let _ = ui;
+}
+
 fn refocus_after_menu(ui: &egui::Ui, wid: egui::Id) {
     ui.memory_mut(|m| m.request_focus(wid));
 }

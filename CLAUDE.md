@@ -137,6 +137,10 @@ Core (feature-independent):
   first, whole lines in place, only what already warns). `clearance.rs` is
   `--optimize-clearance`: the variant search, the score, and why the gaps are solved arithmetically
   rather than searched. Tests in `fix/clearance_tests.rs`.
+- `samples.rs` — the `sample` directive: the ready-made specimen texts a source
+  carries, grouped the way they are offered. Holds why a label may carry a text of
+  its own, and why this is not a `meta` key. The demo page's sample panel and the
+  editor's preview are the consumers; nothing in the font is built from one.
 - `meta.rs` — the `meta` directive: the key set, the `@LANG` language slot, and which font fields are
   *declared*, *derived* and *computed*. Tests in `meta_tests.rs`. Values on the pixel grid are
   declared in pixels and scaled by the builder, like everything else in `.unf`.
@@ -390,6 +394,10 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | The editor as a widget; what is per-instance vs per-pane | `editor/mod.rs`, `editor/ids.rs` |
 | Folding a glyph block: what a group is, and when the group list is recomputed | `editor/folding.rs` |
 | `#`/`##`/`###` headings: the syntax, and why they are a comment to every build stage | `document_io.rs` (`# Headings`), `document/mod.rs` (`DocumentItem::Heading`) |
+| `|| TEXT` continuation lines: why they are a line's keyword rather than a mid-line escape, and what "the shared whitespace" removes | `document_io.rs` (`# Continuation lines`, `dedent_continuations`) |
+| Why a continuation is never tokenized, and the round trip that rests on one dedented line starting at column 0 | `document_io.rs` (`tokenize_strict`), `document/serialize.rs` (`sample_lines`) |
+| `sample LABEL [SUBLABEL] [: MODE]`: the two levels, why a label may carry a text itself, and why the mode tail is reserved | `samples.rs`, `document_io.rs` (`# Directives`) |
+| Where a `sample` reaches the reader: the demo's panel and the editor's *Use* button | `render/demo/mod.rs` (`collect_samples`), `editor/document_view/paint.rs` (`sample_use_rect`), `app/mod.rs` |
 | What a heading section holds, and why one lone `#` folds nothing | `editor/folding.rs` (`fold_groups`) |
 | Why a heading draws in zoom *steps*, and what marks the minimap | `document_view/layout.rs` (`heading_font_size`), `editor/minimap.rs` |
 | Why an enlarged heading re-picks the *face* and not just the size | `document_view/layout.rs` (`heading_font`), `app/mod.rs` (`uniform_family_at_size`) |
@@ -509,7 +517,7 @@ past the source it tests, it lives in a sibling file (or directory) declared as 
 | Module | Tests |
 | --- | --- |
 | `render/ttf_builder/` | `render/ttf_tests/` — `misc`, `gsub`, `gpos`, `color`, `composite`, `collection`, `masters`, `bitmap_axis`, `vectoronly`, with shared canonicalization helpers in its `mod.rs` |
-| `document_io.rs` | `document_io_tests/` — `roundtrip`, `doclines`, `derive`, `lenient`, `tokenizer`, `maps`, `colors`, `asserts`, `comments`, `misc`, `at_names` |
+| `document_io.rs` | `document_io_tests/` — `roundtrip`, `doclines`, `derive`, `lenient`, `tokenizer`, `maps`, `colors`, `asserts`, `comments`, `misc`, `at_names`, `samples` |
 | `document/` | `document/document_tests.rs` |
 | `issues/` | `issues/issues_tests.rs` |
 | `exists.rs` | `exists_tests.rs` |

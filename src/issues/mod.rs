@@ -29,6 +29,7 @@ mod glyph_names;
 mod maps;
 mod patterns;
 mod remap;
+mod samples;
 mod slices;
 mod unused;
 
@@ -262,6 +263,7 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
     anchors::check_centred_anchor_parity(&cx, &mut issues);
     anchors::check_anchor_derivation(&cx, &mut issues);
     colors::check_colors(&cx, &mut issues);
+    samples::check_samples(&cx, &mut issues);
     patterns::check_props(docs, &mut issues);
     maps::check_uvs_maps(&cx, &mut issues);
     patterns::check_ragged_patterns(docs, cx.name_parts, &mut issues);

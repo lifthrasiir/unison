@@ -30,6 +30,7 @@ mod preview;
 mod ref_composite;
 mod render;
 mod resolve;
+mod samples;
 mod script_run;
 #[cfg(feature = "editor")]
 mod sidebar;

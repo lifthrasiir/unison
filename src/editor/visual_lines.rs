@@ -448,6 +448,7 @@ pub(crate) fn build_visual_lines(
             // `audit` states a rule about the source rather than a font
             // value, so it reads with `assert` and not with `meta`.
             || trimmed.starts_with("audit ")
+            || trimmed.starts_with("sample ")
         {
             directive_color
         } else if trimmed.starts_with("name-parts ")
@@ -522,6 +523,29 @@ pub(crate) fn build_visual_lines(
                     );
                 }
                 line_idx = item_start + 1;
+            }
+            // The header plus the `||` lines under it. A sample is the one
+            // item outside a glyph block that spans several lines, so the
+            // catch-up loop above never reaches its continuations: they are
+            // this item's, and they are laid out with it.
+            DocumentItem::Sample { text, .. } => {
+                for offset in 0..=text.len() {
+                    let Some(DocLine::Text(s)) = lines.get(item_start + offset) else {
+                        break;
+                    };
+                    push_wrapped_text_vlines(
+                        &mut vlines,
+                        s,
+                        item_start + offset,
+                        color_for_text(s),
+                        Vec::new(),
+                        wrap_width,
+                        ctx,
+                        font_id,
+                        heading_of(s),
+                    );
+                }
+                line_idx = item_start + 1 + text.len();
             }
             // An alias declares no glyph, so it is one text line with no grid,
             // no refs and nothing to preview — only its target is checked.

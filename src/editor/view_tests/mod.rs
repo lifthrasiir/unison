@@ -24,6 +24,7 @@ mod palette;
 mod pixel_select;
 mod popups;
 mod resize;
+mod samples;
 mod scroll_zoom;
 mod structure;
 

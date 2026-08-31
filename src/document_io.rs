@@ -235,9 +235,52 @@
 //!   no face satisfies is an error, not an assertion that quietly never runs.
 //! - `assert same NAME...` / `assert distinct NAME...` — resolved-glyph
 //!   equality assertions.
+//! - `sample LABEL [SUBLABEL] [: MODE...]` — a ready-made specimen text,
+//!   written on the `||` continuation lines that must follow it. It builds
+//!   nothing: `demo.html` lists it in its sample panel and the editor's
+//!   preview offers it, and the font is byte-for-byte what it would be with
+//!   the line deleted.
+//!
+//!   ```text
+//!   sample Latin `English pangram`
+//!   || The quick brown fox jumps over the lazy dog.
+//!   || Mr Jock, TV quiz PhD, bags few lynx.
+//!   ```
+//!
+//!   `LABEL` is the heading the text is listed under and `SUBLABEL` the entry
+//!   beneath it, so several texts of one family are written as several lines
+//!   sharing a label. A line with no `SUBLABEL` gives the *heading* a text of
+//!   its own, which is how a label that stands for one text avoids inventing a
+//!   second level for it; a label may have one such line and no more. Both are
+//!   prose rather than names — they are what a reader picks a text by — and
+//!   both are ordinary tokens, so a label with a space in it is backtick
+//!   quoted.
+//!
+//!   `: MODE...` is reserved. The tail parses so that the grammar is settled
+//!   before there is anything to put in it; every mode is unknown today and
+//!   [`crate::issues`] says so.
 //! - `exclude-from-sample NAME`
 //! - `assume unused NAME...` — suppresses the unused-glyph warning (patterns
 //!   accepted).
+//!
+//! # Continuation lines
+//!
+//! `|| TEXT` continues the command above it with one more line of text. It is
+//! not a directive of its own — it is how a command that takes *prose* takes
+//! more than one line of it — and the only command that takes one so far is
+//! `sample`.
+//!
+//! A continuation is a line's keyword and not a mid-line escape, which is where
+//! it differs from `//`: only whitespace may come in front of the marker, and
+//! everything after it is taken raw. So a continuation has no tokens, no
+//! backtick quoting and no `// …` comment of its own, and a `||` with nothing
+//! above it to continue is an error rather than a line of text nobody reads.
+//!
+//! The whitespace *every* continuation of one command shares is removed on the
+//! way in ([`dedent_continuations`]), so `|| text` costs the text no leading
+//! space while a line indented past its neighbours keeps the difference. The
+//! rule has one consequence worth stating: a text whose every line is indented
+//! is read, and written back, dedented.
 //!
 //! # Glyph blocks
 //!
@@ -476,6 +519,66 @@ pub fn split_heading(line: &str) -> Option<(u8, &str)> {
 
 /// The prose of a comment returned by [`split_comment`]: the text after `//`,
 /// trimmed. Empty when the line ends right after the marker.
+/// The marker a continuation line starts with. See
+/// [`dedent_continuations`] and `# Continuation lines` in this module's docs.
+pub const CONTINUATION: &str = "||";
+
+/// The text a continuation line carries, or `None` if `line` is not one.
+///
+/// Only leading whitespace may come in front of the marker — a `||` is a line's
+/// *keyword*, not something that may turn up in the middle of one the way `//`
+/// can. Everything after the marker is taken raw: a continuation carries prose,
+/// so it has neither tokens nor a `// …` comment of its own, and a backtick in
+/// it is a backtick.
+pub fn continuation_text(line: &str) -> Option<&str> {
+    line.trim_start().strip_prefix(CONTINUATION)
+}
+
+/// Strip the whitespace every continuation of one command shares.
+///
+/// A continuation is written `|| text`, so the space after the marker is
+/// punctuation rather than content — but only the part of it that *every* line
+/// has, which is what lets a text indent one of its own lines relative to the
+/// rest. A whitespace-only line is not a line of the text as far as the shared
+/// prefix goes (it would otherwise cap the prefix at nothing whenever the text
+/// has a paragraph break) and becomes empty.
+///
+/// Nothing here can put a common indent *back*: a text whose every line is
+/// indented is written, and read, dedented. That is the whole of what the rule
+/// costs, and it is what makes the model round-trip — see `serialize_sample`.
+pub fn dedent_continuations(raw: &[String]) -> Vec<String> {
+    let mut prefix: Option<&str> = None;
+    for line in raw {
+        if line.trim().is_empty() {
+            continue;
+        }
+        let ws = &line[..line.len() - line.trim_start().len()];
+        prefix = Some(match prefix {
+            None => ws,
+            Some(prev) => {
+                let shared = prev
+                    .char_indices()
+                    .zip(ws.chars())
+                    .take_while(|((_, a), b)| a == b)
+                    .map(|((i, a), _)| i + a.len_utf8())
+                    .last()
+                    .unwrap_or(0);
+                &prev[..shared]
+            }
+        });
+    }
+    let prefix = prefix.unwrap_or("");
+    raw.iter()
+        .map(|line| {
+            if line.trim().is_empty() {
+                String::new()
+            } else {
+                line[prefix.len()..].to_string()
+            }
+        })
+        .collect()
+}
+
 pub fn comment_text(comment: &str) -> &str {
     comment.strip_prefix("//").unwrap_or(comment).trim()
 }
@@ -962,6 +1065,39 @@ fn parse_glyph_flag_parts_impl<S: AsRef<str>>(
 /// Returns `None` for ref-only headers (`glyph NAME`) or simple aliases
 /// (`glyph NAME = ALIAS`). Handles keyword flags like `keep`, `advance N`,
 /// `origin C R` appearing before or after `W H`.
+/// `LABEL [SUBLABEL] [: MODE...]` — the tokens of a `sample` line after the
+/// keyword, or `None` if they do not read as one.
+///
+/// The reserved tail is told from the labels by a bare `:` token, the same rule
+/// a slice qualifier is told by; a label that is literally `:` is written
+/// `` `:` `` like any other token holding punctuation. Nothing validates `MODE`
+/// here — there is no mode yet, and [`crate::issues`] is where the author is
+/// told so.
+fn parse_sample_header<S: AsRef<str>>(
+    parts: &[S],
+) -> Option<(String, Option<String>, Vec<String>)> {
+    let colon = parts.iter().position(|p| p.as_ref() == ":");
+    let (labels, mode) = match colon {
+        Some(at) => (
+            &parts[..at],
+            parts[at + 1..]
+                .iter()
+                .map(|p| p.as_ref().to_string())
+                .collect(),
+        ),
+        None => (parts, Vec::new()),
+    };
+    match labels {
+        [label] => Some((label.as_ref().to_string(), None, mode)),
+        [label, sublabel] => Some((
+            label.as_ref().to_string(),
+            Some(sublabel.as_ref().to_string()),
+            mode,
+        )),
+        _ => None,
+    }
+}
+
 pub fn glyph_header_dims<S: AsRef<str>>(parts: &[S]) -> Option<GlyphHeaderDims> {
     if parts.is_empty() {
         return None;
@@ -1144,7 +1280,13 @@ fn tokenize_strict(content: &str) -> Result<Vec<DocLine>> {
         // Comments and headings are free text — `derive_document` passes them
         // through verbatim, and tokenizing them would let a backtick in prose
         // abort the whole file.
-        if trimmed.starts_with("//") || split_heading(trimmed).is_some() {
+        // A continuation carries prose and is passed through with the rest of
+        // the free text: tokenizing one would let a backtick in a sample abort
+        // the whole file.
+        if trimmed.starts_with("//")
+            || split_heading(trimmed).is_some()
+            || continuation_text(trimmed).is_some()
+        {
             lines.push(DocLine::Text(line.to_string()));
             continue;
         }
@@ -1333,6 +1475,11 @@ pub fn serialize_document(doc: &Document, writer: &mut dyn Write) -> Result<()> 
             | item @ DocumentItem::AssertSame { .. }
             | item @ DocumentItem::AssertDistinct { .. } => {
                 if let Some(line) = item.serialize_line() {
+                    writeln!(writer, "{line}")?;
+                }
+            }
+            DocumentItem::Sample { .. } => {
+                for line in item.sample_lines().into_iter().flatten() {
                     writeln!(writer, "{line}")?;
                 }
             }
@@ -1595,6 +1742,7 @@ pub fn starts_item(token: &str) -> bool {
             | "prop"
             | "exists"
             | "color"
+            | "sample"
     )
 }
 
@@ -1629,6 +1777,17 @@ pub fn derive_document(
                 if let Some(comment) = trimmed.strip_prefix("//") {
                     item_line_starts.push(i);
                     doc.items.push(DocumentItem::Comment(comment.to_string()));
+                    i += 1;
+                    continue;
+                }
+
+                // A continuation reaching here is one nothing claimed: every
+                // command that takes them swallows its own below. Kept as an
+                // opaque directive so the line survives a round trip and
+                // `issues` can name it — see `Directive::OrphanContinuation`.
+                if continuation_text(trimmed).is_some() {
+                    item_line_starts.push(i);
+                    doc.items.push(DocumentItem::Directive(trimmed.to_string()));
                     i += 1;
                     continue;
                 }
@@ -1936,6 +2095,39 @@ pub fn derive_document(
                             doc.items.push(DocumentItem::Directive(trimmed.to_string()));
                         }
                         i += 1;
+                    }
+                    "sample" => {
+                        item_line_starts.push(i);
+                        // A header the grammar cannot read keeps its own line
+                        // as an opaque directive and claims nothing: its
+                        // continuations fall through to the orphan branch on
+                        // the next pass, so both halves of the mistake are
+                        // reported instead of one being folded into the other.
+                        let Some((label, sublabel, mode)) = parse_sample_header(&tokens[1..])
+                        else {
+                            doc.items.push(DocumentItem::Directive(trimmed.to_string()));
+                            i += 1;
+                            continue;
+                        };
+                        i += 1;
+                        // The continuations are the command's, not the
+                        // document's: they are read here so that no later pass
+                        // has to know a `sample` spans more than one line.
+                        let mut raw: Vec<String> = Vec::new();
+                        while let Some(DocLine::Text(t)) = lines.get(i) {
+                            let Some(rest) = continuation_text(t) else {
+                                break;
+                            };
+                            raw.push(rest.to_string());
+                            i += 1;
+                        }
+                        doc.items.push(DocumentItem::Sample {
+                            label,
+                            sublabel,
+                            mode,
+                            text: dedent_continuations(&raw),
+                            comment,
+                        });
                     }
                     "color" => {
                         item_line_starts.push(i);

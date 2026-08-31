@@ -784,6 +784,22 @@ impl eframe::App for UniformApp {
             self.follow_nav_request(ctx, from_doc, nav);
         }
 
+        // A `sample` line's *Use* button. It goes in as one undoable edit —
+        // what it overwrites is whatever the reader typed into the panel, and
+        // Ctrl/Cmd+Z is what answers for that. The panel is opened along with
+        // it: the button says what to do with the text, and putting it
+        // somewhere the reader cannot see would be a press with nothing to
+        // show for it. The bottom panel has already run this frame, so the
+        // text appears on the next one — which is the frame the panel opens
+        // on.
+        if let Some(text) = editor_panel.use_sample {
+            self.shaped_preview.replace_text(&text);
+            if self.bottom_panel_tab != Some(0) {
+                let screen_h = ctx.input(|i| i.screen_rect.height());
+                self.open_bottom_panel(0, screen_h);
+            }
+        }
+
         // A specimen click is not a link in a document, so there is no position
         // to come back to and nothing to record.
         if let Some(click) = bottom.specimen_click {

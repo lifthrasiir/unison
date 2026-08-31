@@ -201,6 +201,10 @@ pub(crate) enum Slot {
     /// `EditorHarness`.
     #[cfg(test)]
     TestFoldMarkerHover,
+    /// Rects of the *Use* buttons `sample` headers painted this frame,
+    /// published for `EditorHarness`.
+    #[cfg(test)]
+    TestSampleUseButtons,
 }
 
 #[cfg(test)]

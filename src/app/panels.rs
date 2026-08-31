@@ -747,6 +747,7 @@ impl UniformApp {
         nav_request: &mut Option<(usize, crate::editor::document_view::NavRequest)>,
         rename_request: &mut Option<crate::editor::document_view::RenameAction>,
         resize_request: &mut Option<crate::editor::glyph_resize::ResizeAction>,
+        use_sample: &mut Option<String>,
     ) -> Option<egui::Rect> {
         let pane = self.panes.get(pane_idx)?;
         let zoom_level = pane.zoom_level;
@@ -800,6 +801,9 @@ impl UniformApp {
         if let Some(resize) = result.resize {
             *resize_request = Some(resize);
         }
+        if let Some(text) = result.use_sample {
+            *use_sample = Some(text);
+        }
         Some(rect)
     }
 }
@@ -812,6 +816,9 @@ pub(super) struct EditorPanelResult {
     pub nav: Option<(usize, crate::editor::document_view::NavRequest)>,
     pub rename: Option<crate::editor::document_view::RenameAction>,
     pub resize: Option<crate::editor::glyph_resize::ResizeAction>,
+    /// The text of a `sample` line whose *Use* button was pressed, for the
+    /// preview panel. See [`crate::samples`].
+    pub use_sample: Option<String>,
     pub divider_closed_pane: Option<usize>,
 }
 
@@ -824,6 +831,7 @@ impl UniformApp {
         let mut nav_request = None;
         let mut rename_request = None;
         let mut resize_request = None;
+        let mut use_sample = None;
         let mut divider_closed_pane = None;
         let mut pane_rects = [None, None];
         egui::CentralPanel::default().show(ctx, |ui| {
@@ -834,6 +842,7 @@ impl UniformApp {
                     &mut nav_request,
                     &mut rename_request,
                     &mut resize_request,
+                    &mut use_sample,
                 );
                 return;
             }
@@ -853,6 +862,7 @@ impl UniformApp {
                     &mut nav_request,
                     &mut rename_request,
                     &mut resize_request,
+                    &mut use_sample,
                 );
             }
 
@@ -889,6 +899,7 @@ impl UniformApp {
             nav: nav_request,
             rename: rename_request,
             resize: resize_request,
+            use_sample,
             divider_closed_pane,
         }
     }

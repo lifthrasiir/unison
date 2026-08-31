@@ -13,6 +13,7 @@ mod lenient;
 mod maps;
 mod misc;
 mod roundtrip;
+mod samples;
 mod tokenizer;
 
 use super::*;

@@ -309,6 +309,18 @@ pub(super) fn check_maps(
                                 legacy_font_meta_replacement(text),
                             ),
                         ));
+                    } else if classify_directive(text) == Directive::OrphanContinuation {
+                        // Named apart from the generic error below: the line
+                        // is spelled correctly, it is only in the wrong place,
+                        // and what is wrong is the line *above* it.
+                        issues.push(issue_at(
+                            doc,
+                            item_idx,
+                            Severity::Error,
+                            "a `||` line continues the command above it, and there is none \
+                             here that takes one (only `sample` does)"
+                                .to_string(),
+                        ));
                     } else if classify_directive(text) == Directive::Unrecognized {
                         // An error rather than a warning because of the one
                         // way this line is usually written: a pixel row whose

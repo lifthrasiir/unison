@@ -266,6 +266,10 @@ pub struct EditorState {
     /// `ref`s it has to move along may live in any file. See
     /// [`glyph_resize`].
     pub(crate) pending_resize: Option<glyph_resize::ResizeAction>,
+    /// The text of a `sample` line whose *Use* button was pressed this frame,
+    /// handed to the host at the end of it: the preview panel is the host's,
+    /// not the editor's. See [`crate::samples`].
+    pub(crate) pending_use_sample: Option<String>,
 }
 
 impl EditorState {
@@ -317,6 +321,7 @@ impl EditorState {
             suppress_font_rebuild: false,
             pending_nav: None,
             pending_resize: None,
+            pending_use_sample: None,
         }
     }
 

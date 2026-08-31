@@ -139,6 +139,10 @@ pub struct DocumentViewResult {
     /// that move with it may live in any file. See
     /// [`crate::editor::glyph_resize`].
     pub resize: Option<crate::editor::glyph_resize::ResizeAction>,
+    /// A `sample` line's *Use* button was pressed: this is its text, for the
+    /// host to put in the preview panel. The editor cannot do it itself — the
+    /// preview is one panel shared by every editor. See [`crate::samples`].
+    pub use_sample: Option<String>,
 }
 
 /// Everything an editor reads but never owns: the resolved font data, the
@@ -764,5 +768,6 @@ fn show_document(
         nav: state.pending_nav.take(),
         rename: rename_result,
         resize: state.pending_resize.take(),
+        use_sample: state.pending_use_sample.take(),
     }
 }

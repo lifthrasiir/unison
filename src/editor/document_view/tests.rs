@@ -488,6 +488,8 @@ fn assert_all_doc_lines_covered(input: &str) {
                 | DocumentItem::AssertSame { .. }
                 | DocumentItem::AssertDistinct { .. }
                 | DocumentItem::GlyphAlias { .. } => start + 1,
+                // The header plus one `||` line per line of its text.
+                DocumentItem::Sample { text, .. } => start + 1 + text.len(),
                 DocumentItem::Glyph { body, .. } => {
                     // One past the glyph's last layer line.
                     pixel_interaction::layer_doc_line(

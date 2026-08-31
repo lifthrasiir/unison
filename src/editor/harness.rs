@@ -268,6 +268,20 @@ pub(crate) fn capture_fold_marker_hover(
     ctx.data_mut(|d| d.insert_temp(fold_marker_hover_id(editor), hovered));
 }
 
+fn sample_use_buttons_id(editor: EditorId) -> egui::Id {
+    editor.key(Slot::TestSampleUseButtons)
+}
+
+/// Called from `paint_document_area` (test builds only) with the *Use* button
+/// each `sample` header painted, so a test presses one where it really is.
+pub(crate) fn capture_sample_use_buttons(
+    ctx: &egui::Context,
+    editor: EditorId,
+    buttons: &[(usize, egui::Rect)],
+) {
+    ctx.data_mut(|d| d.insert_temp(sample_use_buttons_id(editor), buttons.to_vec()));
+}
+
 /// Called from `show_document` (test builds only) to publish the layout the
 /// frame is about to paint.
 #[allow(clippy::too_many_arguments)]
@@ -370,6 +384,9 @@ pub(crate) struct EditorHarness {
     /// The navigation request the primary editor reported on the most recent
     /// frame that produced one — what the host would act on and record.
     pub last_nav: Option<crate::editor::document_view::NavRequest>,
+    /// The text a `sample` line's *Use* button handed the host on the most
+    /// recent frame that produced one.
+    last_use_sample: Option<String>,
     /// The resize the primary editor applied on the most recent frame that
     /// produced one — what the host would then carry across the font.
     last_resize: Option<crate::editor::glyph_resize::ResizeAction>,
@@ -460,6 +477,7 @@ impl EditorHarness {
             last_copied_text: None,
             last_shapes: Vec::new(),
             last_nav: None,
+            last_use_sample: None,
             last_resize: None,
             last_rename: None,
             menu_overlay: None,
@@ -517,6 +535,7 @@ impl EditorHarness {
         let prev_second_gen = self.second.as_ref().map(|p| p.doc.edit_gen);
         let ctx = self.ctx.clone();
         let mut nav_result = None;
+        let mut use_sample_result = None;
         let mut resize_result = None;
         let mut rename_result = None;
         let menu_overlay = self.menu_overlay;
@@ -557,6 +576,7 @@ impl EditorHarness {
                         )
                         .show(ui);
                         nav_result = result.nav;
+                        use_sample_result = result.use_sample;
                         resize_result = result.resize;
                         rename_result = result.rename;
                     };
@@ -599,6 +619,7 @@ impl EditorHarness {
                         )
                         .show(ui);
                         nav_result = result.nav;
+                        use_sample_result = result.use_sample;
                         resize_result = result.resize;
                     });
                     ui.allocate_ui(pane_size, |ui| {
@@ -629,6 +650,9 @@ impl EditorHarness {
         });
         if nav_result.is_some() {
             self.last_nav = nav_result;
+        }
+        if use_sample_result.is_some() {
+            self.last_use_sample = use_sample_result;
         }
         if resize_result.is_some() {
             self.last_resize = resize_result;
@@ -1280,6 +1304,29 @@ impl EditorHarness {
         self.ctx
             .data(|d| d.get_temp::<Vec<FoldMarkerRect>>(fold_markers_id(self.state.id())))
             .unwrap_or_default()
+    }
+
+    /// The *Use* buttons the last frame painted, by the `sample` header line
+    /// each one belongs to.
+    pub fn sample_use_buttons(&self) -> Vec<(usize, egui::Rect)> {
+        self.ctx
+            .data(|d| {
+                d.get_temp::<Vec<(usize, egui::Rect)>>(sample_use_buttons_id(self.state.id()))
+            })
+            .unwrap_or_default()
+    }
+
+    /// Presses the *Use* button of the `sample` headed by `doc_line`, and
+    /// reports the text it handed the host.
+    pub fn click_sample_use(&mut self, doc_line: usize) -> Option<String> {
+        let rect = self
+            .sample_use_buttons()
+            .into_iter()
+            .find(|(line, _)| *line == doc_line)
+            .unwrap_or_else(|| panic!("no Use button on line {doc_line}"))
+            .1;
+        self.click_at(rect.center());
+        self.last_use_sample.take()
     }
 
     /// The group whose marker the last frame drew shaded, if any.
