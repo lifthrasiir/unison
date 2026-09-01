@@ -2100,3 +2100,90 @@ ref a-j
         "the merged-away name resolves to the glyph it is a name for",
     );
 }
+
+/// A `ref` to a glyph that is itself coloured draws in that glyph's colours,
+/// and a `fill` claims every colour below it — the two rules the font build
+/// follows, seen from the editor's live composite. The layer stays one layer;
+/// what carries the colours is `cell_colors`.
+// Both the colours and the walk that derives them are the editor's.
+#[cfg(feature = "editor")]
+#[test]
+fn a_ref_to_a_colored_glyph_draws_its_colors() {
+    use crate::document_io;
+
+    let input = "\
+color red = #ff0000
+color blue = #0000ff
+color green = #00ff00
+
+glyph left 1 2
+@@
+@@
+
+glyph right 1 2
+@@
+@@
+
+glyph combo 2 2
+ref left 0 0 fill red
+ref right 1 0 fill blue
+
+glyph outer 2 2
+ref combo
+
+glyph forced 2 2
+ref outer fill green
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let (resolved, alt_index) = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::new());
+    let aliases = crate::render::ttf_builder::collect_color_aliases(&[&doc]);
+    let body_of = |name: &str| {
+        doc.items
+            .iter()
+            .find_map(|item| match item {
+                DocumentItem::Glyph {
+                    name: glyph_name,
+                    body,
+                    ..
+                } if glyph_name.0 == name => {
+                    Some(body.clone())
+                }
+                _ => None,
+            })
+            .expect("glyph is declared")
+    };
+    let composite_of = |name: &str| {
+        compute_composite(
+            &body_of(name),
+            &resolved,
+            &NamePartsMap::new(),
+            &alt_index,
+            &aliases,
+            &AnchorAligns::default(),
+        )
+        .expect("has refs")
+    };
+    let red = egui::Color32::from_rgba_unmultiplied(0xff, 0, 0, 0xff);
+    let blue = egui::Color32::from_rgba_unmultiplied(0, 0, 0xff, 0xff);
+    let green = egui::Color32::from_rgba_unmultiplied(0, 0xff, 0, 0xff);
+
+    // The unfilled ref keeps both of its target's colours, cell by cell.
+    let outer = composite_of("outer");
+    assert_eq!(outer.layers.len(), 1, "one ref is still one layer");
+    let layer = &outer.layers[0];
+    assert_eq!(layer.fill_color, None, "the ref writes no colour of its own");
+    let colors = layer.cell_colors.as_ref().expect("colours travel up");
+    let at = |r: u16, c: u16| colors[r as usize * layer.grid.width as usize + c as usize];
+    assert_eq!(at(0, 0), Some(red), "the left half is its target's red");
+    assert_eq!(at(0, 1), Some(blue), "the right half is its target's blue");
+
+    // A `fill` two levels above claims all of it.
+    let forced = composite_of("forced");
+    let layer = &forced.layers[0];
+    assert_eq!(layer.fill_color, Some(green));
+    assert!(
+        layer.cell_colors.is_none(),
+        "a filled ref needs no per-cell colours: {:?}",
+        layer.cell_colors
+    );
+}

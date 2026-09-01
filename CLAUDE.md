@@ -376,6 +376,8 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | What an exemption costs a component shared with an unflagged glyph | `issues/flags.rs` |
 | Why the view synthesizes an on-demand ref instead of waiting for the resolve | `ref_composite/mod.rs` (`resolve_ref_name_for_view`) |
 | Why a `ref` to a composite that subtracts is one sample layer, not its parts | `render/sample.rs` (`push_ref_components`) |
+| A `ref` to a coloured glyph: which colours travel up, what a `fill` claims, and why a difference hands up only one | `render/ttf_builder/collect.rs` (`ColorPiece`, `color_pieces_for_body`), `render/sample.rs` (`push_ref_components`) |
+| The same colours in the editor's live composite: why a layer stays one layer and the colour is per cell | `ref_composite/composite.rs` (`layer_cell_colors`, `target_draws_color`) |
 | Sub-pixel shape codes, `PX_CUSTOM` | `pixel.rs` |
 | `$$`, the blank that is not `..`, and why it is an id rather than a spare bit combination | `pixel.rs` (`PX_HARDBLANK`) |
 | A hardblank is a *claim*, not geometry: how claims and ink combine, and why only a claim cancels a claim | `pixel.rs` (`blank_op`) |

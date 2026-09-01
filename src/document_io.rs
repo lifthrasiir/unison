@@ -357,7 +357,10 @@
 //!   — a composite reference. Omitting the offset auto-resolves it from
 //!   `anchor`s; `fill` takes a `#RRGGBB[AA]` literal or a `color` name. Refs
 //!   stack in source order and `negated` subtracts from what is already there,
-//!   so a later ref draws back over an earlier negation.
+//!   so a later ref draws back over an earlier negation. A ref to a glyph that
+//!   is itself coloured keeps that glyph's colours; a `fill` is a claim over
+//!   everything the ref reaches, however deep, and draws all of it in that one
+//!   colour — see `ColorPiece` in [`crate::render::ttf_builder`]'s `collect`.
 //! - `anchor POS COL ROW` — an anchor for auto-ref alignment; supports `+`/`-`
 //!   prefixes and cell ranges. A range does two jobs: its size says which
 //!   drawing of a mark a base wants (`GlyphPoint::size_matches`), and it

@@ -532,3 +532,58 @@ fn subglyph_menu_on_thumbnail_keeps_editor_focus() {
 // ---------------------------------------------------------------------------
 // Pixel selection mode tests
 // ---------------------------------------------------------------------------
+
+/// A `ref` to a glyph that draws colours of its own is painted in those
+/// colours, not in the one colour a layer used to get. The rule is the font
+/// build's (`ColorPiece` in `render::ttf_builder`'s `collect`): a colour
+/// travels up through every `ref` that writes no `fill` of its own.
+#[test]
+fn a_ref_to_a_colored_glyph_is_painted_in_its_colors() {
+    let src = "\
+color red = #ff0000
+color blue = #0000ff
+
+glyph left 1 1
+@@
+
+glyph right 1 1
+@@
+
+glyph combo 2 1
+ref left 0 0 fill red
+ref right 1 0 fill blue
+
+glyph outer 2 1
+ref combo
+";
+    let h = EditorHarness::new(src);
+    // `outer` states a box, so its (empty) grid line is where its composite
+    // draws — the line right after the header.
+    let grid_line = h
+        .lines
+        .iter()
+        .position(|l| matches!(l, DocLine::Text(t) if t.trim() == "glyph outer 2 1"))
+        .expect("the header is in the document")
+        + 1;
+    // The last rect covering the cell: paint order decides what is seen.
+    let fill_at = |pos: egui::Pos2| {
+        h.painted_rects()
+            .iter()
+            .rev()
+            .find(|r| r.rect.contains(pos) && r.clip.contains(pos))
+            .map(|r| r.fill)
+            .expect("the cell is painted")
+    };
+    let red = egui::Color32::from_rgba_unmultiplied(0xff, 0, 0, 0xff);
+    let blue = egui::Color32::from_rgba_unmultiplied(0, 0, 0xff, 0xff);
+    assert_eq!(
+        fill_at(h.grid_cell_pos(grid_line, 0, 0)),
+        red,
+        "the left cell keeps its target's red"
+    );
+    assert_eq!(
+        fill_at(h.grid_cell_pos(grid_line, 0, 1)),
+        blue,
+        "the right cell keeps its target's blue"
+    );
+}

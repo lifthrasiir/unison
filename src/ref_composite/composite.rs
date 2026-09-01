@@ -222,6 +222,187 @@ fn resolve_fill_display_color(
     ))
 }
 
+/// How deep a `ref` chain the colour walk follows. The resolved cache is built
+/// bottom-up and so cannot be cyclic, but a name that reaches itself through
+/// pattern expansion has no such guarantee, and the walk is on the stack.
+#[cfg(feature = "editor")]
+const COLOR_WALK_DEPTH: u32 = 16;
+
+/// Does this `ref` target draw a colour of its own, anywhere below it?
+///
+/// Names and `fill`s only — no layout, no grids — because every unfilled `ref`
+/// in the document asks this, and only the ones that answer yes pay for
+/// [`layer_cell_colors`]. The first `fill` found ends the search.
+#[cfg(feature = "editor")]
+fn target_draws_color(
+    resolved: &ResolvedGlyph,
+    named_glyphs: &HashMap<String, ResolvedGlyph>,
+    name_parts: &NamePartsMap,
+    depth: u32,
+) -> bool {
+    if depth == 0 {
+        return false;
+    }
+    let Some(src) = resolved.inline_source.as_ref() else {
+        return false;
+    };
+    src.refs.iter().any(|r| {
+        r.fill.is_some()
+            || lookup_ref_name(&r.name, named_glyphs, name_parts, true).is_some_and(|child| {
+                target_draws_color(child, named_glyphs, name_parts, depth - 1)
+            })
+    })
+}
+
+/// The colours one layer draws, cell by cell over the grid it flattened to.
+///
+/// A `ref` with no `fill` of its own draws whatever colours its target draws,
+/// however deep they sit, and a `fill` is a claim over everything below it —
+/// the same two rules the font build follows (`ColorPiece` in
+/// `render::ttf_builder`'s `collect`), so the editor and the font agree on
+/// which cell is which colour.
+///
+/// The layer stays *one* layer: a ref index is how everything else in the
+/// editor addresses a layer — the active-ref highlight, "Inline once", the
+/// minimap — so what travels up is a colour per cell and not a layer per
+/// colour. `None` at a cell means the layer's own colour, and `None` for the
+/// whole layer means nothing below it was coloured.
+#[cfg(feature = "editor")]
+fn layer_cell_colors(
+    resolved: &ResolvedGlyph,
+    grid: &PixelGrid,
+    parent_scale: u8,
+    named_glyphs: &HashMap<String, ResolvedGlyph>,
+    name_parts: &NamePartsMap,
+    color_aliases: &crate::render::ttf_builder::ColorAliasMap,
+) -> Option<Vec<Option<egui::Color32>>> {
+    if grid.width == 0
+        || grid.height == 0
+        || !target_draws_color(resolved, named_glyphs, name_parts, COLOR_WALK_DEPTH)
+    {
+        return None;
+    }
+    let mut walk = ColorWalk {
+        named_glyphs,
+        name_parts,
+        color_aliases,
+        width: grid.width,
+        height: grid.height,
+        cells: vec![None; grid.width as usize * grid.height as usize],
+        painted: false,
+    };
+    // One cell of the target's own grid is this many cells of the layer's,
+    // which is that grid rescaled to the parent.
+    let f = parent_scale.max(1) as f32 / resolved.scale.max(1) as f32;
+    walk.walk(resolved, 0.0, 0.0, f, None, COLOR_WALK_DEPTH);
+    walk.painted.then_some(walk.cells)
+}
+
+/// The walk [`layer_cell_colors`] runs, carrying the map it stamps into.
+#[cfg(feature = "editor")]
+struct ColorWalk<'a> {
+    named_glyphs: &'a HashMap<String, ResolvedGlyph>,
+    name_parts: &'a NamePartsMap,
+    color_aliases: &'a crate::render::ttf_builder::ColorAliasMap,
+    width: u16,
+    height: u16,
+    cells: Vec<Option<egui::Color32>>,
+    painted: bool,
+}
+
+#[cfg(feature = "editor")]
+impl ColorWalk<'_> {
+    /// Stamp `color` over every inked cell of `grid`, whose cell `(0, 0)` sits
+    /// at `(row, col)` in map cells and whose cells are `f` map cells across.
+    fn stamp(&mut self, grid: &PixelGrid, row: f32, col: f32, f: f32, color: egui::Color32) {
+        for r in 0..grid.height {
+            for c in 0..grid.width {
+                if grid.get(r, c).is_clear() {
+                    continue;
+                }
+                let r0 = (row + r as f32 * f).round() as i32;
+                let r1 = (row + (r + 1) as f32 * f).round() as i32;
+                let c0 = (col + c as f32 * f).round() as i32;
+                let c1 = (col + (c + 1) as f32 * f).round() as i32;
+                for mr in r0.max(0)..r1.min(self.height as i32) {
+                    for mc in c0.max(0)..c1.min(self.width as i32) {
+                        self.cells[mr as usize * self.width as usize + mc as usize] = Some(color);
+                        self.painted = true;
+                    }
+                }
+            }
+        }
+    }
+
+    /// Walk one target's own declaration, colouring what it draws. `inherited`
+    /// is the colour claimed by a `fill` further up, if any; a target with no
+    /// declaration left to walk is stamped whole in it.
+    fn walk(
+        &mut self,
+        resolved: &ResolvedGlyph,
+        row: f32,
+        col: f32,
+        f: f32,
+        inherited: Option<egui::Color32>,
+        depth: u32,
+    ) {
+        let src = match (depth > 0).then_some(resolved.inline_source.as_ref()).flatten() {
+            Some(src) => src,
+            None => {
+                if let Some(color) = inherited {
+                    self.stamp(&resolved.grid, row, col, f, color);
+                }
+                return;
+            }
+        };
+        // The target's grid starts at its resolved raster origin, so its own
+        // pixels — which sit at its logical origin — are that far into it.
+        let (base_row, base_col) = (
+            row - resolved.origin_row as f32 * f,
+            col - resolved.origin_col as f32 * f,
+        );
+        if let Some(pixels) = &src.pixels
+            && let Some(color) = inherited
+        {
+            self.stamp(pixels, base_row, base_col, f, color);
+        }
+        let layout = resolve_composite_layout(
+            src.pixels.as_ref(),
+            &src.refs,
+            self.named_glyphs,
+            self.name_parts,
+            resolved.scale,
+            true,
+        );
+        for layer in &layout.layers {
+            // A negation draws nothing of its own; it only takes area away,
+            // and the flattened grid this map is read against already lost it.
+            if layer.gref.negated {
+                continue;
+            }
+            let color = match &layer.gref.fill {
+                // `fill fg` resolves to no colour: the layer's own is right.
+                Some(fill) => resolve_fill_display_color(fill, self.color_aliases),
+                None => inherited,
+            };
+            let (r, c) = (
+                base_row + layer.raster_row as f32 * f,
+                base_col + layer.raster_col as f32 * f,
+            );
+            let child_f = f * resolved.scale.max(1) as f32 / layer.resolved.scale.max(1) as f32;
+            if layer.gref.fill.is_some() {
+                // A `fill` claims everything below it, so the target goes down
+                // as one drawing in that one colour.
+                if let Some(color) = color {
+                    self.stamp(&layer.resolved.grid, r, c, child_f, color);
+                }
+            } else {
+                self.walk(layer.resolved, r, c, child_f, color, depth - 1);
+            }
+        }
+    }
+}
+
 /// The `ref`s a body's IDC lines stand for, as the *editor* sees them.
 ///
 /// The same derivation the build runs in `ttf_builder::expand`, reading the
@@ -333,6 +514,19 @@ pub fn compute_composite(
             .fill
             .as_ref()
             .and_then(|f| resolve_fill_display_color(f, color_aliases));
+        // A `fill` is the layer's one colour whatever the target draws; only a
+        // ref that writes none lets its target's colours through.
+        #[cfg(feature = "editor")]
+        let cell_colors = orig_ref.fill.is_none().then(|| {
+            layer_cell_colors(
+                layer.resolved,
+                &scaled_grid,
+                body.scale,
+                named_glyphs,
+                name_parts,
+                color_aliases,
+            )
+        }).flatten();
         #[cfg(not(feature = "editor"))]
         {
             let _ = color_aliases;
@@ -349,6 +543,8 @@ pub fn compute_composite(
             negated: layer.gref.negated,
             #[cfg(feature = "editor")]
             fill_color,
+            #[cfg(feature = "editor")]
+            cell_colors,
         });
     }
 

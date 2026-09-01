@@ -688,3 +688,193 @@ map A = test-flag
         advance,
     );
 }
+
+/// A `ref` to a glyph that is itself colored keeps that glyph's colors: the
+/// target's layers are spliced into the referring glyph, each with the palette
+/// entry it was drawn in, rather than being flattened into the foreground.
+#[test]
+fn a_ref_to_a_colored_glyph_keeps_its_colors() {
+    let input = "\
+meta height 16
+meta ascent 12
+meta descent 4
+
+color red = #ff0000
+color blue = #0000ff
+
+glyph base 2 2
+@@@@
+@@@@
+
+glyph overlay 2 2
+..@@
+@@..
+
+glyph combo
+ref base fill red
+ref overlay fill blue
+
+glyph outer
+ref combo
+
+map A = outer
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let (_, _, glyph_data, _, palette) = collect_glyph_data(&[&doc], false).unwrap();
+    let outer = glyph_data.iter().find(|g| g.name == "outer").unwrap();
+    let indices: Vec<u16> = outer.color_layers.iter().map(|l| l.palette_index).collect();
+    let blue = palette
+        .iter()
+        .position(|c| *c == Rgba { r: 0, g: 0, b: 255, a: 255 })
+        .expect("blue in palette") as u16;
+    let red = palette
+        .iter()
+        .position(|c| *c == Rgba { r: 255, g: 0, b: 0, a: 255 })
+        .expect("red in palette") as u16;
+    assert_eq!(indices, vec![red, blue], "outer should keep both colors");
+}
+
+/// `fill` on a `ref` is a claim over everything the ref draws: every layer the
+/// target carries, however deep, comes out in that one color.
+#[test]
+fn a_fill_recolors_every_layer_the_ref_reaches() {
+    let input = "\
+meta height 16
+meta ascent 12
+meta descent 4
+
+color red = #ff0000
+color blue = #0000ff
+color green = #00ff00
+
+glyph base 2 2
+@@@@
+@@@@
+
+glyph overlay 2 2
+..@@
+@@..
+
+glyph combo
+ref base fill red
+ref overlay fill blue
+
+glyph outer
+ref combo
+
+glyph forced
+ref outer fill green
+
+map A = forced
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let (_, _, glyph_data, _, palette) = collect_glyph_data(&[&doc], false).unwrap();
+    let forced = glyph_data.iter().find(|g| g.name == "forced").unwrap();
+    let green = palette
+        .iter()
+        .position(|c| *c == Rgba { r: 0, g: 255, b: 0, a: 255 })
+        .expect("green in palette") as u16;
+    assert!(
+        forced
+            .color_layers
+            .iter()
+            .all(|l| l.palette_index == green),
+        "every layer should be green: {:?}",
+        forced
+            .color_layers
+            .iter()
+            .map(|l| l.palette_index)
+            .collect::<Vec<_>>()
+    );
+    assert!(!forced.color_layers.is_empty(), "should still draw");
+}
+
+/// A `ref` to a composite that *subtracts* is one layer, not its parts — the
+/// same rule the sample splits a ref by. It still hands up a colour, but only
+/// the one every part it draws agrees on.
+#[test]
+fn a_ref_to_a_subtracting_colored_glyph_hands_up_its_one_color() {
+    let input = "\
+meta height 16
+meta ascent 12
+meta descent 4
+
+color red = #ff0000
+
+glyph base 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph hole 2 2
+@@@@
+@@@@
+
+glyph ring
+ref base fill red
+ref hole 1 1 negated
+
+glyph outer
+ref ring
+
+map A = outer
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let (_, _, glyph_data, _, palette) = collect_glyph_data(&[&doc], false).unwrap();
+    let outer = glyph_data.iter().find(|g| g.name == "outer").unwrap();
+    let red = palette
+        .iter()
+        .position(|c| *c == Rgba { r: 255, g: 0, b: 0, a: 255 })
+        .expect("red in palette") as u16;
+    assert_eq!(
+        outer
+            .color_layers
+            .iter()
+            .map(|l| l.palette_index)
+            .collect::<Vec<_>>(),
+        vec![red],
+        "the difference is one red layer"
+    );
+    // Two contours: the outside of the ring and the hole it keeps.
+    assert_eq!(outer.color_layers[0].contours.len(), 2);
+}
+
+/// A colour layer is placed by the same rule the mono outline is: the offset
+/// runs box origin to box origin, so a target that declares an `origin` shifts
+/// a filled `ref` exactly as far as an unfilled one.
+#[test]
+fn a_filled_ref_reads_its_targets_origin_like_every_other_ref() {
+    let input = "\
+meta height 16
+meta ascent 12
+meta descent 4
+
+color red = #ff0000
+
+glyph part 4 4 origin 2 1
+........
+..@@@@..
+..@@@@..
+........
+
+glyph plain
+ref part 4 4
+
+glyph colored
+ref part 4 4 fill red
+
+map A = plain
+map B = colored
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let (_, _, glyph_data, _, _) = collect_glyph_data(&[&doc], false).unwrap();
+    let plain = glyph_data.iter().find(|g| g.name == "plain").unwrap();
+    let colored = glyph_data.iter().find(|g| g.name == "colored").unwrap();
+    assert_eq!(colored.color_layers.len(), 1);
+    assert_eq!(
+        sorted_contours(&colored.color_layers[0].contours),
+        sorted_contours(&plain.contours),
+        "the filled layer should sit where the mono outline does"
+    );
+}

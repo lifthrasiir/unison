@@ -419,6 +419,7 @@ mod tests {
                 logical_offset_col: 5,
                 negated: false,
                 fill_color: None,
+                cell_colors: None,
             }],
         };
         assert_eq!(layer_effective_offset(&composite, 7), Some((4, 5)));

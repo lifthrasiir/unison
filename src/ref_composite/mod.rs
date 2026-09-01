@@ -916,6 +916,11 @@ pub struct CompositeLayer {
     pub negated: bool,
     #[cfg(feature = "editor")]
     pub fill_color: Option<egui::Color32>,
+    /// A colour per cell of `grid`, for a layer whose target draws colours of
+    /// its own — see `layer_cell_colors`. `None` (here, or at a cell) means
+    /// `fill_color`, the layer's one colour, is the whole answer.
+    #[cfg(feature = "editor")]
+    pub cell_colors: Option<Vec<Option<egui::Color32>>>,
 }
 
 /// A synthesized on-demand shape, memoized per name.

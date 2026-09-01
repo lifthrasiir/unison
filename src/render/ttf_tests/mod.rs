@@ -74,6 +74,15 @@ fn canonicalize_contour(c: &[(i16, i16)]) -> Vec<(i16, i16)> {
     rotated
 }
 
+/// Contours in an order-independent form, for the comparisons that are about
+/// the shapes alone rather than about a whole glyph.
+fn sorted_contours(contours: &[Vec<(i16, i16)>]) -> Vec<Vec<(i16, i16)>> {
+    let mut out: Vec<Vec<(i16, i16)>> =
+        contours.iter().map(|c| canonicalize_contour(c)).collect();
+    out.sort();
+    out
+}
+
 /// A glyph reduced to what two builds of the same source must agree on, in an
 /// order-independent form.
 #[derive(PartialEq, Eq, PartialOrd, Ord, Debug)]

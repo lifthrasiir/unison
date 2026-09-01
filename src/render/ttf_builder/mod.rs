@@ -244,13 +244,16 @@ struct CollectedColorLayer {
 }
 
 /// Where one [`CollectedColorLayer`] came from — see its `source` field.
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[derive(Clone, PartialEq, Eq, Debug)]
 enum ColorLayerSource {
     /// The merged foreground layer: the glyph's own pixels and every `fg` ref,
     /// which are one layer however many pieces they were written as.
     Foreground,
-    /// The `ref` at this index of the glyph body.
-    Ref(usize),
+    /// The chain of `ref` indices the layer was reached by: the index of a
+    /// `ref` on this glyph's own body, then — where that ref's target is itself
+    /// coloured and its layers were spliced in — the index of the `ref` inside
+    /// it, and so on down.
+    Ref(Vec<u16>),
 }
 
 #[derive(Clone)]

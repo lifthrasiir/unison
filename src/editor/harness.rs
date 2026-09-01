@@ -550,7 +550,10 @@ impl EditorHarness {
                     });
             }
             egui::CentralPanel::default().show(cx, |ui| {
-                let colors = crate::render::ttf_builder::ColorAliasMap::default();
+                // The `color` lines the document itself writes, as the app
+                // hands them in: a `fill` naming one is otherwise unresolvable
+                // and every colour a test asks about comes out the default.
+                let colors = crate::render::ttf_builder::collect_color_aliases(&[&self.doc]);
                 let aligns = crate::document::AnchorAligns::default();
                 let Some(second) = &mut self.second else {
                     let mut draw = |ui: &mut egui::Ui| {

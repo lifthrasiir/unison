@@ -5,6 +5,7 @@ use super::contours::CachedContours;
 use super::gsub::collect_gsub_data;
 use super::*;
 use crate::render::glyph_cache::CANCEL_STRIDE;
+use std::rc::Rc;
 
 /// One glyph's declared box, in the terms this stage works in: an advance and
 /// the two *bearings* of the box's corner, in pixels, each `None` when the
@@ -558,6 +559,264 @@ pub(super) fn collect_glyph_data_cached(
     collect_glyph_data_with_shared(&shared, bitmap, contour_cache, &never)
 }
 
+/// One drawing a colour glyph is made of, in that glyph's own logical space.
+///
+/// A `ref` to a glyph that is itself coloured is *spliced*: the target's own
+/// pieces come in one by one, each keeping the colour it was drawn in, so a
+/// colour survives however many `ref`s it is reached through. A `fill` on the
+/// way down is a claim over everything below it — the target is flattened to
+/// one piece in that colour — which is why the colour rides on a piece and not
+/// on the `ref` line.
+#[derive(Clone)]
+struct ColorPiece {
+    /// `None`: drawn in the text colour. `Some(rgba)`: a fill of its own, with
+    /// `Some(None)` a fill naming a colour nothing resolves — still a layer of
+    /// its own, which the rasterizer draws in the text colour.
+    fill: Option<Option<Rgba>>,
+    vis: LayerVisibility,
+    negated: bool,
+    /// The chain of `ref` indices this piece was reached by, empty for the
+    /// glyph's own pixels: the identity the two builds pair a layer by, see
+    /// [`CollectedColorLayer::source`].
+    path: Vec<u16>,
+    /// The piece's outline in the glyph's logical space.
+    contours: Vec<Vec<(f32, f32)>>,
+    /// The piece's raster grid and where it sits in the glyph's raster space.
+    /// Only a negation reads it; `None` when the target resolved to no grid.
+    grid: Option<(PixelGrid, i32, i32)>,
+}
+
+/// Everything the colour decomposition looks a name up in. One flavor's worth:
+/// `bitmap`/`exempt` are the face being built, so the memo beside it is too.
+struct PieceCtx<'a> {
+    cache: &'a HashMap<String, CachedContours>,
+    alt_index: &'a HashMap<String, Vec<(String, Vec<GlyphPoint>)>>,
+    declared_anchors_map: &'a HashMap<String, Vec<GlyphPoint>>,
+    aligns: &'a crate::document::AnchorAligns,
+    color_aliases: &'a ColorAliasMap,
+    bodies: &'a HashMap<&'a str, &'a GlyphBody>,
+    bitmap: bool,
+    exempt: &'a HashSet<String>,
+}
+
+/// How deep a `ref` chain the colour decomposition follows. The ref graph
+/// resolves bottom-up and so cannot be cyclic, but a name that reaches itself
+/// through pattern expansion has no such guarantee, and the recursion is on the
+/// stack.
+const COLOR_PIECE_DEPTH: u32 = 32;
+
+/// The body a `ref` name stands for, with the same pattern fallback
+/// [`resolve_cached`](crate::render::glyph_cache::resolve_cached) gives the
+/// contour cache.
+fn body_for_ref<'a>(
+    name: &str,
+    bodies: &HashMap<&'a str, &'a GlyphBody>,
+) -> Option<&'a GlyphBody> {
+    if let Some(body) = bodies.get(name) {
+        return Some(body);
+    }
+    let expanded = crate::ref_composite::parse_ref_pattern(name)?;
+    bodies.get(expanded.get(0).as_str()).copied()
+}
+
+/// Does anything this glyph draws carry a colour of its own?
+///
+/// A `fill` or a `visibility` on one of the glyph's own `ref`s says so
+/// outright, and so does a `ref` to a glyph that is itself coloured — that
+/// colour now travels up. Names only, no geometry: this is the gate in front of
+/// the colour path, and every mono glyph has to pass it cheaply.
+fn glyph_is_colored(
+    name: &str,
+    bodies: &HashMap<&str, &GlyphBody>,
+    alt_index: &HashMap<String, Vec<(String, Vec<GlyphPoint>)>>,
+    memo: &mut HashMap<String, bool>,
+) -> bool {
+    if let Some(&known) = memo.get(name) {
+        return known;
+    }
+    // Seeded `false` for the length of the walk, so a name that reaches itself
+    // answers rather than recurses.
+    memo.insert(name.to_string(), false);
+    let colored = body_for_ref(name, bodies).is_some_and(|body| {
+        body.refs.iter().any(|r| {
+            r.fill.is_some()
+                || r.visibility.is_some()
+                || glyph_is_colored(&r.name, bodies, alt_index, memo)
+                || alt_index.get(&r.name).is_some_and(|alts| {
+                    alts.iter()
+                        .any(|(n, _)| glyph_is_colored(n, bodies, alt_index, memo))
+                })
+        })
+    });
+    memo.insert(name.to_string(), colored);
+    colored
+}
+
+/// The pieces a `ref` target hands its parent, or `None` when it has none to
+/// hand over — nothing coloured to keep, no body to read them from, or a chain
+/// too deep to follow. The parent then reads the target the way it always did,
+/// as one flattened drawing.
+fn color_pieces_for_name(
+    name: &str,
+    ctx: &PieceCtx,
+    colored_memo: &mut HashMap<String, bool>,
+    pieces_memo: &mut HashMap<String, Rc<Vec<ColorPiece>>>,
+    depth: u32,
+) -> Option<Rc<Vec<ColorPiece>>> {
+    if depth >= COLOR_PIECE_DEPTH
+        || !glyph_is_colored(name, ctx.bodies, ctx.alt_index, colored_memo)
+    {
+        return None;
+    }
+    if let Some(pieces) = pieces_memo.get(name) {
+        return Some(pieces.clone());
+    }
+    let body = body_for_ref(name, ctx.bodies)?;
+    let pieces = color_pieces_for_body(name, body, ctx, colored_memo, pieces_memo, depth);
+    pieces_memo.insert(name.to_string(), pieces.clone());
+    Some(pieces)
+}
+
+/// The one colour a group of pieces can be handed up as, once it is flattened
+/// into a single drawing: a difference has no per-part colouring left to give
+/// away, so only a colour every part already agrees on survives.
+fn agreed_fill(pieces: &[ColorPiece]) -> Option<Option<Rgba>> {
+    let mut parts = pieces.iter().filter(|p| !p.negated);
+    let first = parts.next()?.fill.clone();
+    parts.all(|p| p.fill == first).then_some(first).flatten()
+}
+
+/// Decompose one glyph body into the pieces its colour layers are built from.
+///
+/// The order is the drawing order — own pixels first, then each `ref` — because
+/// a negated piece subtracts from what is above it and from nothing else.
+fn color_pieces_for_body(
+    name: &str,
+    body: &GlyphBody,
+    ctx: &PieceCtx,
+    colored_memo: &mut HashMap<String, bool>,
+    pieces_memo: &mut HashMap<String, Rc<Vec<ColorPiece>>>,
+    depth: u32,
+) -> Rc<Vec<ColorPiece>> {
+    use crate::render::glyph_cache::CachedGlyphEntry;
+
+    let mut out: Vec<ColorPiece> = Vec::new();
+    // Same rules as the outline path: `vectoronly` picks the flavor this glyph
+    // is drawn in, and a `desync` grid is ink for the bitmap build and geometry
+    // for nobody.
+    let bitmap = ctx.bitmap && (ctx.exempt.is_empty() || !ctx.exempt.contains(name));
+    let own_pixels = body.pixels.as_ref().filter(|_| bitmap || !body.desync);
+    if let Some(own) = own_pixels
+        && !own.is_all_empty()
+    {
+        out.push(ColorPiece {
+            fill: None,
+            vis: LayerVisibility::Both,
+            negated: false,
+            path: Vec::new(),
+            contours: track_contour(own, PX_SUBPIXEL),
+            grid: Some((own.clone(), 0, 0)),
+        });
+    }
+
+    let (effective_refs, _) = derive_effective_refs(
+        &body.points,
+        &body.refs,
+        ctx.cache,
+        ctx.alt_index,
+        ctx.declared_anchors_map,
+        ctx.aligns,
+        body.scale,
+    );
+    let ps = body.scale.max(1);
+    for (ri, eref) in effective_refs.iter().enumerate() {
+        let orig = &body.refs[ri];
+        let Some(cached) = resolve_cached_ref(&eref.name, ctx.cache) else {
+            continue;
+        };
+        let rs = cached.scale.max(1);
+        let rsf = ps as f32 / rs as f32;
+        // Box coordinates in, grid coordinates out: the offset names the
+        // target's box corner, where the target's own drawing sits in its grid.
+        let (box_col, box_row) = cached.declared_origin();
+        let (base_row, base_col) = (
+            eref.row() as i32 - box_row as i32 * ps as i32,
+            eref.col() as i32 - box_col as i32 * ps as i32,
+        );
+        let place = |contours: &[Vec<(f32, f32)>]| -> Vec<Vec<(f32, f32)>> {
+            contours
+                .iter()
+                .map(|c| {
+                    c.iter()
+                        .map(|&(x, y)| (x * rsf + base_col as f32, y * rsf + base_row as f32))
+                        .collect()
+                })
+                .collect()
+        };
+        let rescaled = |grid: &PixelGrid| {
+            if rs == ps {
+                grid.clone()
+            } else {
+                grid.rescale(rs, ps)
+            }
+        };
+        let vis = effective_visibility(orig.visibility, orig.fill.as_ref(), ctx.color_aliases);
+        // A `fill` is a claim over everything the ref reaches, so it stops the
+        // target's own colours from coming up; so does a negation, which is a
+        // difference and has no parts to hand over (see `push_ref_components`
+        // in `render::sample`, which splits a ref by the same rule).
+        let sub = (orig.fill.is_none() && !orig.negated)
+            .then(|| color_pieces_for_name(&eref.name, ctx, colored_memo, pieces_memo, depth + 1))
+            .flatten();
+        let splice = sub.as_ref().filter(|s| !s.iter().any(|p| p.negated));
+
+        if let Some(sub) = splice {
+            for p in sub.iter() {
+                out.push(ColorPiece {
+                    fill: p.fill.clone(),
+                    // A `visibility` written on the ref is the ref's word for
+                    // everything under it; a colour is not overridden the same
+                    // way, because the ref wrote none.
+                    vis: if orig.visibility.is_some() { vis } else { p.vis },
+                    negated: false,
+                    path: std::iter::once(ri as u16)
+                        .chain(p.path.iter().copied())
+                        .collect(),
+                    contours: place(&p.contours),
+                    grid: p.grid.as_ref().map(|(g, r, c)| {
+                        (
+                            rescaled(g),
+                            base_row + (*r as f32 * rsf).round() as i32,
+                            base_col + (*c as f32 * rsf).round() as i32,
+                        )
+                    }),
+                });
+            }
+            continue;
+        }
+
+        let fill = match orig.fill.as_ref().filter(|f| f.color != "fg") {
+            Some(f) => Some(resolve_fill_rgba(f, ctx.color_aliases)),
+            // Nothing written: a target flattened into one drawing still hands
+            // up the one colour its parts agree on, if they agree on one.
+            None => sub.as_ref().and_then(|s| agreed_fill(s)),
+        };
+        out.push(ColorPiece {
+            fill,
+            vis,
+            negated: orig.negated,
+            path: vec![ri as u16],
+            contours: place(&cached.contours),
+            grid: cached.grid.as_ref().map(|g| {
+                let (row, col) = cached.placed_at(eref.row() as i32, eref.col() as i32, ps);
+                (rescaled(g), row, col)
+            }),
+        });
+    }
+
+    Rc::new(out)
+}
+
 /// Trace and collect every glyph of one build flavor.
 ///
 /// This is where a face build spends nearly all of its time, so it is also
@@ -1042,31 +1301,20 @@ pub(super) fn collect_glyph_data_with_shared(
     let mut color_to_index: HashMap<Rgba, u16> = HashMap::new();
     // Build per-glyph color layers
     let color_alt_index = build_cached_alternatives(&cache);
+    let mut colored_memo: HashMap<String, bool> = HashMap::new();
+    let mut pieces_memo: HashMap<String, Rc<Vec<ColorPiece>>> = HashMap::new();
     for g in &mut glyph_data {
-        let Some(body) = glyph_bodies_map.get(g.name.as_str()) else {
+        let name = g.name.clone();
+        let Some(body) = glyph_bodies_map.get(name.as_str()).copied() else {
             continue;
         };
-        let has_fill_or_vis = body
-            .refs
-            .iter()
-            .any(|r| r.fill.is_some() || r.visibility.is_some());
-        if !has_fill_or_vis {
+        if !glyph_is_colored(&name, &glyph_bodies_map, &color_alt_index, &mut colored_memo) {
             continue;
         }
 
-        let (effective_refs, _) = derive_effective_refs(
-            &body.points,
-            &body.refs,
-            &cache,
-            &color_alt_index,
-            declared_anchors_map,
-            &shared.anchor_aligns,
-            body.scale,
-        );
-
         let color_glyph_scale = scale / body.scale as f32;
         let color_ascent = meta.ascent() * body.scale as u16;
-        let g_meta = glyph_meta.get(&g.name);
+        let g_meta = glyph_meta.get(&name);
         let left_offset = g_meta
             .and_then(|m| m.left)
             .map_or(0, |left| (left as f32 * scale).round() as i16);
@@ -1074,166 +1322,100 @@ pub(super) fn collect_glyph_data_with_shared(
             .and_then(|m| m.top)
             .map_or(0, |top| (top as f32 * scale).round() as i16);
 
-        // A `negated` ref draws nothing of its own — it only removes area from
-        // the layers under it.  This path splits a composite into per-layer
-        // contour sets, so each surviving layer has to be traced against the
-        // negated layers that follow it, and negated refs contribute no layer
-        // of their own.  Cutting is per pass: a monoonly negation cannot reach
-        // the coloronly layers, which are not present when it is drawn.
-        let has_negated = body.refs.iter().any(|r| r.negated);
-        // Same rules as the outline path above: `vectoronly` picks the
-        // flavor this glyph is drawn in, and a `desync` grid is ink for the
-        // bitmap build and geometry for nobody.
-        let bitmap = bitmap && (exempt.is_empty() || !exempt.contains(g.name.as_str()));
-        let own_pixels = body.pixels.as_ref().filter(|_| bitmap || !body.desync);
-        let ref_layers: Vec<Option<(PixelGrid, i32, i32)>> = if has_negated {
-            effective_refs
-                .iter()
-                .map(|eref| {
-                    let ref_cached = resolve_cached_ref(&eref.name, &cache)?;
-                    let grid = ref_cached.grid.as_ref()?;
-                    let (rs, ps) = (ref_cached.scale.max(1), body.scale.max(1));
-                    let scaled = if rs == ps {
-                        grid.clone()
-                    } else {
-                        grid.rescale(rs, ps)
-                    };
-                    let (row, col) = ref_cached.placed_at(eref.row() as i32, eref.col() as i32, ps);
-                    Some((scaled, row, col))
-                })
-                .collect()
-        } else {
-            Vec::new()
+        let ctx = PieceCtx {
+            cache: &cache,
+            alt_index: &color_alt_index,
+            declared_anchors_map,
+            aligns: &shared.anchor_aligns,
+            color_aliases,
+            bodies: &glyph_bodies_map,
+            bitmap,
+            exempt: &exempt,
         };
-        let ref_vis: Vec<LayerVisibility> = (0..effective_refs.len())
-            .map(|ri| {
-                let orig_ref = &body.refs[ri];
-                effective_visibility(orig_ref.visibility, orig_ref.fill.as_ref(), color_aliases)
-            })
-            .collect();
-        // Negated layers drawn after ref `from` (all of them, for own pixels),
-        // restricted to the pass that `skip` selects.
-        let negated_after = |from: Option<usize>, skip: LayerVisibility| {
-            let start = from.map_or(0, |i| i + 1);
-            (start..ref_layers.len())
-                .filter(|&j| body.refs[j].negated && ref_vis[j] != skip)
-                .filter_map(|j| ref_layers[j].as_ref().map(|(g, r, c)| (g, *r, *c, true)))
+        let pieces = color_pieces_for_body(
+            &name,
+            body,
+            &ctx,
+            &mut colored_memo,
+            &mut pieces_memo,
+            0,
+        );
+
+        // A `negated` piece draws nothing of its own — it only removes area
+        // from the pieces above it.  This path splits a composite into
+        // per-layer contour sets, so each surviving piece has to be traced
+        // against the negated pieces that follow it.  Cutting is per pass: a
+        // monoonly negation cannot reach the coloronly layers, which are not
+        // present when it is drawn.
+        let has_negated = pieces.iter().any(|p| p.negated);
+        // Negated pieces drawn after piece `from`, restricted to the pass that
+        // `skip` selects.
+        let negated_after = |from: usize, skip: LayerVisibility| {
+            pieces[from + 1..]
+                .iter()
+                .filter(|p| p.negated && p.vis != skip)
+                .filter_map(|p| p.grid.as_ref().map(|(g, r, c)| (g, *r, *c, true)))
                 .collect::<Vec<_>>()
         };
-        // Trace one positive layer minus the negated layers that follow it.
-        // `None` when nothing cuts this layer, so a layer no negation reaches
-        // keeps its own exactly traced contours instead of being re-traced.
-        let cut_contours =
-            |grid: &PixelGrid, row: i32, col: i32, negs: Vec<(&PixelGrid, i32, i32, bool)>| {
-                if negs.is_empty() {
-                    return None;
-                }
-                let mut layers = vec![(grid, row, col, false)];
-                layers.extend(negs);
-                Some(track_contour_multi_diff_at(&layers, PX_SUBPIXEL))
-            };
+        // Trace one positive piece minus the negated pieces that follow it.
+        // `None` when nothing cuts it, so a piece no negation reaches keeps
+        // its own exactly traced contours instead of being re-traced.
+        let cut_contours = |piece: &ColorPiece, pi: usize, skip: LayerVisibility| {
+            if !has_negated {
+                return None;
+            }
+            let (grid, row, col) = piece.grid.as_ref()?;
+            let negs = negated_after(pi, skip);
+            if negs.is_empty() {
+                return None;
+            }
+            let mut layers = vec![(grid, *row, *col, false)];
+            layers.extend(negs);
+            Some(track_contour_multi_diff_at(&layers, PX_SUBPIXEL))
+        };
 
-        // Collect foreground contours (own pixels + refs without fill or with fill=fg)
-        // and separate color layers (refs with non-fg fill).
+        // The colour pass: every piece with a fill of its own becomes a COLR
+        // layer, and everything drawn in the text colour is one merged
+        // foreground layer.
         let mut fg_contours: Vec<Vec<(i16, i16)>> = Vec::new();
-
-        if let Some(own_grid) = own_pixels
-            && !own_grid.is_all_empty()
-        {
-            let c = has_negated
-                .then(|| {
-                    cut_contours(
-                        own_grid,
-                        0,
-                        0,
-                        negated_after(None, LayerVisibility::MonoOnly),
-                    )
-                })
-                .flatten()
-                .unwrap_or_else(|| track_contour(own_grid, PX_SUBPIXEL));
-            fg_contours.extend(scale_glyph_contours(
-                &c,
+        let mut color_layers: Vec<CollectedColorLayer> = Vec::new();
+        for (pi, piece) in pieces.iter().enumerate() {
+            if piece.negated || piece.vis == LayerVisibility::MonoOnly {
+                continue;
+            }
+            let traced = cut_contours(piece, pi, LayerVisibility::MonoOnly);
+            let logical = traced.as_ref().unwrap_or(&piece.contours);
+            let layer_contours = scale_glyph_contours(
+                logical,
                 color_glyph_scale,
                 color_ascent,
                 left_offset,
                 top_offset,
-            ));
-        }
-
-        for (ri, eref) in effective_refs.iter().enumerate() {
-            let orig_ref = &body.refs[ri];
-            let fill = orig_ref.fill.as_ref();
-            let vis = ref_vis[ri];
-            if vis == LayerVisibility::MonoOnly || orig_ref.negated {
-                continue;
-            }
-
-            let Some(ref_cached) = resolve_cached_ref(&eref.name, &cache) else {
-                continue;
-            };
-            let dx = eref.col() as f32;
-            let dy = eref.row() as f32;
-            let rsf = body.scale as f32 / ref_cached.scale.max(1) as f32;
-
-            let cut = has_negated
-                .then(|| {
-                    let (grid, row, col) = ref_layers[ri].as_ref()?;
-                    cut_contours(
-                        grid,
-                        *row,
-                        *col,
-                        negated_after(Some(ri), LayerVisibility::MonoOnly),
-                    )
-                })
-                .flatten();
-            let layer_contours: Vec<Vec<(i16, i16)>> = if let Some(c) = cut {
-                scale_glyph_contours(&c, color_glyph_scale, color_ascent, left_offset, top_offset)
-            } else {
-                ref_cached
-                    .contours
-                    .iter()
-                    .map(|c| {
-                        c.iter()
-                            .map(|&(x, y)| {
-                                (
-                                    ((x * rsf + dx) * color_glyph_scale).round() as i16
-                                        + left_offset,
-                                    ((color_ascent as f32 - (y * rsf + dy)) * color_glyph_scale)
-                                        .round() as i16
-                                        - top_offset,
-                                )
-                            })
-                            .collect()
-                    })
-                    .collect()
-            };
-
+            );
             if layer_contours.is_empty() {
                 continue;
             }
-
-            let is_fg = fill.is_none() || fill.is_some_and(|f| f.color == "fg");
-            if is_fg {
-                fg_contours.extend(layer_contours);
-            } else {
-                let f = fill.unwrap();
-                let palette_index = if let Some(rgba) = resolve_fill_rgba(f, color_aliases) {
-                    *color_to_index.entry(rgba.clone()).or_insert_with(|| {
-                        let idx = palette_colors.len() as u16;
-                        palette_colors.push(rgba);
-                        idx
-                    })
-                } else {
-                    0xFFFF
-                };
-                g.color_layers.push(CollectedColorLayer {
-                    contours: layer_contours,
-                    palette_index,
-                    source: ColorLayerSource::Ref(ri),
-                });
+            match &piece.fill {
+                None => fg_contours.extend(layer_contours),
+                Some(rgba) => {
+                    let palette_index = match rgba {
+                        Some(rgba) => *color_to_index.entry(rgba.clone()).or_insert_with(|| {
+                            let idx = palette_colors.len() as u16;
+                            palette_colors.push(rgba.clone());
+                            idx
+                        }),
+                        None => 0xFFFF,
+                    };
+                    color_layers.push(CollectedColorLayer {
+                        contours: layer_contours,
+                        palette_index,
+                        source: ColorLayerSource::Ref(piece.path.clone()),
+                    });
+                }
             }
         }
 
+        g.color_layers = color_layers;
         if !fg_contours.is_empty() {
             g.color_layers.insert(
                 0,
@@ -1245,78 +1427,21 @@ pub(super) fn collect_glyph_data_with_shared(
             );
         }
 
-        // Rebuild fallback contours: only non-coloronly layers
+        // Rebuild fallback contours: only non-coloronly pieces
         let mut fallback_contours: Vec<Vec<(i16, i16)>> = Vec::new();
-        if let Some(own_grid) = own_pixels
-            && !own_grid.is_all_empty()
-        {
-            let c = has_negated
-                .then(|| {
-                    cut_contours(
-                        own_grid,
-                        0,
-                        0,
-                        negated_after(None, LayerVisibility::ColorOnly),
-                    )
-                })
-                .flatten()
-                .unwrap_or_else(|| track_contour(own_grid, PX_SUBPIXEL));
+        for (pi, piece) in pieces.iter().enumerate() {
+            if piece.negated || piece.vis == LayerVisibility::ColorOnly {
+                continue;
+            }
+            let traced = cut_contours(piece, pi, LayerVisibility::ColorOnly);
+            let logical = traced.as_ref().unwrap_or(&piece.contours);
             fallback_contours.extend(scale_glyph_contours(
-                &c,
+                logical,
                 color_glyph_scale,
                 color_ascent,
                 left_offset,
                 top_offset,
             ));
-        }
-        for (ri, eref) in effective_refs.iter().enumerate() {
-            let orig_ref = &body.refs[ri];
-            let vis = ref_vis[ri];
-            if vis == LayerVisibility::ColorOnly || orig_ref.negated {
-                continue;
-            }
-            let cut = has_negated
-                .then(|| {
-                    let (grid, row, col) = ref_layers[ri].as_ref()?;
-                    cut_contours(
-                        grid,
-                        *row,
-                        *col,
-                        negated_after(Some(ri), LayerVisibility::ColorOnly),
-                    )
-                })
-                .flatten();
-            if let Some(c) = cut {
-                fallback_contours.extend(scale_glyph_contours(
-                    &c,
-                    color_glyph_scale,
-                    color_ascent,
-                    left_offset,
-                    top_offset,
-                ));
-                continue;
-            }
-            let Some(ref_cached) = resolve_cached_ref(&eref.name, &cache) else {
-                continue;
-            };
-            let dx = eref.col() as f32;
-            let dy = eref.row() as f32;
-            let fb_rsf = body.scale as f32 / ref_cached.scale.max(1) as f32;
-            for c in &ref_cached.contours {
-                fallback_contours.push(
-                    c.iter()
-                        .map(|&(x, y)| {
-                            (
-                                ((x * fb_rsf + dx) * color_glyph_scale).round() as i16
-                                    + left_offset,
-                                ((color_ascent as f32 - (y * fb_rsf + dy)) * color_glyph_scale)
-                                    .round() as i16
-                                    - top_offset,
-                            )
-                        })
-                        .collect(),
-                );
-            }
         }
         g.contours = fallback_contours;
         g.composite_refs.clear();

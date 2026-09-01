@@ -306,10 +306,19 @@ pub(crate) fn render_grid_row(
                 ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, layer.ref_idx)
             });
             let opacity = if is_layer_mode { 0.35 } else { 1.0 };
-            let color = if opacity < 1.0 {
-                apply_opacity(color, opacity)
-            } else {
-                color
+            // A layer whose target draws colours of its own is painted cell by
+            // cell; everywhere else the layer's one colour stands.
+            let cell_color = |lr: i16, lc: i16| {
+                let color = layer
+                    .cell_colors
+                    .as_ref()
+                    .and_then(|cc| cc[lr as usize * layer.grid.width as usize + lc as usize])
+                    .unwrap_or(color);
+                if opacity < 1.0 {
+                    apply_opacity(color, opacity)
+                } else {
+                    color
+                }
             };
 
             let lr_in_layer = comp.own_offset_row + row - layer.offset_row;
@@ -335,6 +344,7 @@ pub(crate) fn render_grid_row(
                                 pal.grid_bg,
                             );
                         } else {
+                            let color = cell_color(lr_in_layer, lc_in_layer);
                             let px_color = if shape.is_bitmap_filled() {
                                 color
                             } else {
@@ -432,7 +442,7 @@ pub(crate) fn render_grid_row(
         && let Some(comp) = composite
         && let Some(layer) = comp.layers.iter().find(|l| l.ref_idx == active)
     {
-        let color = layer.fill_color.unwrap_or_else(|| {
+        let base_color = layer.fill_color.unwrap_or_else(|| {
             ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, layer.ref_idx)
         });
         for dc in extent.left..extent.right {
@@ -449,6 +459,14 @@ pub(crate) fn render_grid_row(
                         egui::pos2(x + (dc - extent.left) as f32 * cs, y),
                         egui::vec2(cs, cs),
                     );
+                    let color = layer
+                        .cell_colors
+                        .as_ref()
+                        .and_then(|cc| {
+                            cc[lr_in_layer as usize * layer.grid.width as usize
+                                + lc_in_layer as usize]
+                        })
+                        .unwrap_or(base_color);
                     let px_color = if shape.is_bitmap_filled() {
                         color
                     } else {
