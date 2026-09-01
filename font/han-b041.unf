@@ -14,6 +14,11 @@ glyph han-21b24:15x16 15 16 // 𡬤
 // glyph han-21b26:15x16 15 16 // 𡬦
 // ⿳ han-516b han-5de5 han-5bf8 // ⿳八工寸
 
+## 41.6
+
+glyph han-21b2b:15x16 15 16 // 𡬫
+⿰ han-821f:9x16 han-5bf8:6x16 // ⿰舟寸
+
 ## 41.9
 
 // glyph han-21b37:15x16 15 16 // 𡬷
@@ -56,6 +61,139 @@ glyph han-21b41:15x16 15 16 // 𡭁
 
 // glyph han-21c1e:15x16 15 16 // 𡰞
 // ⿺ han-5140 han-96da // ⿺兀雚
+
+# CJK unified ideographs extension B: 尸 (44)
+
+## 44.2
+
+// glyph han-21c25:15x16 15 16 // 𡰥
+// ⿸ han-5c38 han-4e8c // ⿸尸二
+
+glyph han-21c26:15x16 15 16 // 𡰦
+⿸ han-5c38:15x16.11x12 han-4eba:9x10 6 6 // ⿸尸人
+
+glyph han-21c28:15x16 15 16 // 𡰨
+⿸ han-5c38:15x16.11x12 han-4e01:11x10 4 6 // ⿸尸丁
+
+## 44.3
+
+// glyph han-21c29:15x16 15 16 // 𡰩
+// ⿸ han-5c38 han-2b739 // ⿸尸𫜹
+
+glyph han-21c2a:15x16 15 16 // 𡰪
+⿸ han-5c38:15x16.11x12 han-53e3:10x12 5 4 // ⿸尸口
+
+// glyph han-21c2c:15x16 15 16 // 𡰬
+// ⿸ han-5c38 han-5f13 // ⿸尸弓
+
+// glyph han-21c2f:15x16 15 16 // 𡰯
+// ⿸ han-5c38 han-5dfe // ⿸尸巾
+
+glyph han-21c31:15x16 15 16 // 𡰱
+⿸ han-5c38:15x16.11x12 han-5de5:9x11 6 5 // ⿸尸工
+
+// glyph han-21c32:15x16 15 16 // 𡰲
+// ⿸ han-5c38 han-5c38 // ⿸尸尸
+
+## 44.4
+
+glyph han-21c36:15x16 15 16 // 𡰶
+⿸ han-5c38:15x16.11x12 han-65e5:7x10 7 6 // ⿸尸日
+
+## 44.5
+
+// glyph han-21c40:15x16 15 16 // 𡱀
+// ⿳ han-4ea0 han-53e3 han-5c38 // ⿳亠口尸
+
+// glyph han-21c47:15x16 15 16 // 𡱇
+// ⿸ han-5c38 han-5360 // ⿸尸占
+
+glyph han-21c48:15x16 15 16 // 𡱈
+⿸ han-5c38:15x16.11x12 han-53e5:9x12 6 4 // ⿸尸句
+
+// glyph han-21c4b:15x16 15 16 // 𡱋
+// ⿱ han-7531 han-5c38 // ⿱由尸
+
+## 44.6
+
+// glyph han-21c4e:15x16 15 16 // 𡱎
+// ⿸ han-5c38 han-8089 // ⿸尸肉
+
+// glyph han-21c4f:15x16 15 16 // 𡱏
+// ⿸ han-5c38 han-7cf8 // ⿸尸糸
+
+// glyph han-21c5c:15x16 15 16 // 𡱜
+// ⿸ han-5c38 han-5146 // ⿸尸兆
+
+// glyph han-21c5d:15x16 15 16 // 𡱝
+// ⿸ han-5c38 han-7f8a // ⿸尸羊
+
+// glyph han-21c60:15x16 15 16 // 𡱠
+// ⿱ han-5409 han-5c38 // ⿱吉尸
+
+glyph han-21c61:15x16 15 16 // 𡱡
+⿸ han-5c38:15x16.11x12 han-8033:7x12 6 4 // ⿸尸耳
+
+## 44.7
+
+// glyph han-21c64:15x16 15 16 // 𡱤
+// ⿸ han-5c38 han-23cad // ⿸尸𣲭
+
+// glyph han-21c65:15x16 15 16 // 𡱥
+// ⿸ han-5c38 han-590b // ⿸尸夋
+
+// glyph han-21c66-($han-regions):15x16 15 16 // 𡱦
+// ⿸ han-5c38 han-2846d-($-1) // ⿸尸𨑭
+
+// glyph han-21c76:15x16 15 16 // 𡱶
+// ⿸ han-5c38 han-5415 // ⿸尸吕
+
+## 44.8
+
+// glyph han-21c7a:15x16 15 16 // 𡱺
+// ⿸ han-5c38 han-38d8 // ⿸尸㣘
+
+// glyph han-21c7c:15x16 15 16 // 𡱼
+// ⿸ han-5c38 han-679c // ⿸尸果
+
+// glyph han-21c8e:15x16 15 16 // 𡲎
+// ⿸ han-5c38 han-5351 // ⿸尸卑
+
+## 44.9
+
+// glyph han-21ca2:15x16 15 16 // 𡲢
+// ⿸ han-5c38 han-8304 // ⿸尸茄
+
+## 44.10
+
+// glyph han-21cb2:15x16 15 16 // 𡲲
+// ⿸ han-5c38 han-224ed // ⿸尸𢓭
+
+## 44.11
+
+// glyph han-21cc7:15x16 15 16 // 𡳇
+// ⿸ han-5c38 han-7fcf // ⿸尸翏
+
+// glyph han-21cc8:15x16 15 16 // 𡳈
+// ⿸ han-5c38 han-70fe // ⿸尸烾
+
+// glyph han-21ccd:15x16 15 16 // 𡳍
+// ⿸ han-5c38 han-7d47 // ⿸尸絇
+
+## 44.12
+
+// glyph han-21cde:15x16 15 16 // 𡳞
+// ⿸ han-5c38 han-7ca6 // ⿸尸粦
+
+## 44.13
+
+// glyph han-21ce5:15x16 15 16 // 𡳥
+// ⿸ han-5c38 han-788e // ⿸尸碎
+
+## 44.16
+
+// glyph han-21cef:15x16 15 16 // 𡳯
+// ⿸ han-5c38 han-6a4b // ⿸尸橋
 
 # CJK unified ideographs extension B: 屮 (45)
 

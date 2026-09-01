@@ -505,6 +505,9 @@ glyph han-7949-(g|h|t|j):15x16 15 16 // 祉
 glyph han-7949-(k|p):15x16 15 16 // 祉
 ⿰ han-793a:5x16 han-6b62:10x16 // ⿰示止
 
+glyph han-794a:15x16 15 16 // 祊
+⿰ han-793b:5x16 1 han-65b9:9x16 // ⿰礻方
+
 glyph han-794c-(g|h|t):15x16 15 16 // 祌
 ⿰ han-793b:5x16 1 han-4e2d:9x16 // ⿰礻中
 glyph han-794c-(k|p):15x16 15 16 // 祌

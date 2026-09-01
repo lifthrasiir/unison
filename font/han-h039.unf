@@ -54,6 +54,39 @@ glyph han-3169f:15x16 15 16 // 𱚟
 // glyph han-316a0:15x16 15 16 // 𱚠
 // ⿱ han-800c han-5bf8 // ⿱而寸
 
+# CJK unified ideographs extension H: 尸 (44)
+
+## 44.2
+
+// glyph han-316b0:15x16 15 16 // 𱚰
+// ⿸ han-5c38 han-5341 // ⿸尸十
+
+## 44.3
+
+glyph han-316b1:15x16 15 16 // 𱚱
+⿸ han-5c38:15x16.11x12 han-5bf8:10x12 5 4 // ⿸尸寸
+
+glyph han-316b2:15x16 15 16 // 𱚲
+⿸ han-5c38:15x16.11x12 han-4e0b:9x10 6 6 // ⿸尸下
+
+## 44.5
+
+// glyph han-316b5:15x16 15 16 // 𱚵
+// ⿸ han-5c38 han-5931 // ⿸尸失
+
+// glyph han-316b6:15x16 15 16 // 𱚶
+// ⿸ han-5c38 han-52a0 // ⿸尸加
+
+## 44.6
+
+// glyph han-316b8:15x16 15 16 // 𱚸
+// ⿸ han-5c38 han-8863 // ⿸尸衣
+
+## 44.9
+
+// glyph han-316bc:15x16 15 16 // 𱚼
+// ⿸ han-5c38 han-67e5 // ⿸尸查
+
 # CJK unified ideographs extension H: 山 (46)
 
 ## 46.2
@@ -87,6 +120,9 @@ glyph han-316eb:15x16 15 16 // 𱛫
 // glyph han-316ec:15x16 15 16 // 𱛬
 // ⿱ han-5c71 han-65f6 // ⿱山时
 
+// glyph han-316f0:15x16 15 16 // 𱛰
+// ⿰ han-5c71 han-7075 // ⿰山灵
+
 ## 46.9
 
 glyph han-316f9:15x16 15 16 // 𱛹
@@ -99,6 +135,50 @@ glyph han-316f9:15x16 15 16 // 𱛹
 
 glyph han-3170a:15x16 15 16 // 𱜊
 ⿰ han-5c71:7x16 1 han-9b5a:7x16 // ⿰山魚
+
+# CJK unified ideographs extension H: 巾 (50)
+
+## 50.6
+
+// glyph han-31724:15x16 15 16 // 𱜤
+// ⿰ han-5dfe han-5939 // ⿰巾夹
+
+glyph han-31725:15x16 15 16 // 𱜥
+⿰ han-5dfe:5x16 1 han-821f:9x16 // ⿰巾舟
+
+## 50.10
+
+// glyph han-31732:15x16 15 16 // 𱜲
+// ⿳ han-48b8 han-4ea0 han-5dfe // ⿳䢸亠巾 <- ⿱䢸市
+
+# CJK unified ideographs extension H: 弓 (57)
+
+## 57.4
+
+glyph han-31759:15x16 15 16 // 𱝙
+⿰ han-5f13:7x16 1 han-4e2d:7x16 // ⿰弓中
+
+## 57.8
+
+// glyph han-3175e:15x16 15 16 // 𱝞
+// ⿰ han-5f13 han-56fd // ⿰弓国
+
+# CJK unified ideographs extension H: 彳 (60)
+
+## 60.3
+
+glyph han-3176b:15x16 15 16 // 𱝫
+⿰ han-5f73:5x16 1 han-4e0a:9x16 // ⿰彳上
+
+## 60.9
+
+glyph han-31774:15x16 15 16 // 𱝴
+⿲ han-5f73:3x16 han-53e4:5x16 han-6708:7x16 // ⿲彳古月
+
+## 60.18
+
+// glyph han-3177b:15x16 15 16 // 𱝻
+// ⿲ han-7b95 han-5f73 han-76ae // ⿲箕彳皮 <- ⿰箕彼
 
 # CJK unified ideographs extension H: 心 (61)
 
@@ -293,6 +373,9 @@ glyph han-318cd:15x16 15 16 // 𱣍
 // ⿰ han-6728 han-9091 // ⿰木邑
 
 ## 75.8
+
+// glyph han-318ed:15x16 15 16 // 𱣭
+// ⿲ han-6728 han-65b9 han-6728 // ⿲木方木
 
 glyph han-318ee:15x16 15 16 // 𱣮
 ⿲ han-6728:5x16 han-6c35:3x16 han-5305:7x16 // ⿲木氵包

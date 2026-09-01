@@ -49,6 +49,9 @@ glyph han-2d85e:15x16 15 16 // 𭡞
 // glyph han-2d864:15x16 15 16 // 𭡤
 // ⿰ han-624b han-5247 // ⿰手則
 
+// glyph han-2d865:15x16 15 16 // 𭡥
+// ⿰ han-624c han-2c659 // ⿰扌𬙙
+
 glyph han-2d86b:15x16 15 16 // 𭡫
 ⿲ han-624c:3x16 han-72ad:4x16 1 han-866b:7x16 // ⿲扌犭虫
 
@@ -87,6 +90,23 @@ glyph han-2d920:15x16 15 16 // 𭤠
 
 glyph han-2d922:15x16 15 16 // 𭤢
 ⿰ han-65a4:6x16 han-5931:9x16 // ⿰斤失
+
+# CJK unified ideographs extension F: 方 (70)
+
+## 70.4
+
+glyph han-2d92b:15x16 15 16 // 𭤫
+⿰ han-65b9:7x16 1 han-4e2d:7x16 // ⿰方中
+
+## 70.5
+
+glyph han-2d933:15x16 15 16 // 𭤳
+⿰ han-65b9:7x16 1 han-7acb:7x16 // ⿰方立
+
+## 70.6
+
+glyph han-2d936:15x16 15 16 // 𭤶
+⿰ han-65b9:9x16 han-8033:6x16 // ⿰方耳
 
 # CJK unified ideographs extension F: 日 (72)
 
@@ -173,6 +193,9 @@ glyph han-2d998:15x16 15 16 // 𭦘
 // glyph han-2d99d-($han-regions):15x16 15 16 // 𭦝
 // ⿰ han-65f1 han-4ee4-($-1) // ⿰旱令
 
+// glyph han-2d99f:15x16 15 16 // 𭦟
+// ⿳ han-65e5 han-7f52 han-4e07 // ⿳日罒万
+
 glyph han-2d9a1:15x16 15 16 // 𭦡
 ⿲ -2 han-65e5:4x16-l han-65a4:6x16 han-6b20:7x16 // ⿲日斤欠
 
@@ -219,6 +242,11 @@ glyph han-2da07-($han-regions):15x16 15 16 // 𭨇
 
 # CJK unified ideographs extension F: 月 (74)
 
+## 74.3
+
+glyph han-2da27:15x16 15 16 // 𭨧
+⿰ han-6708:5x16-l 1 han-5f13:9x16 // ⿰月弓
+
 ## 74.4
 
 glyph han-2da29:15x16 15 16 // 𭨩
@@ -229,6 +257,11 @@ glyph han-2da2a:15x16 15 16 // 𭨪
 
 glyph han-2da2c:15x16 15 16 // 𭨬
 ⿰ han-6708:5x16-l 1 han-706b:9x16 // ⿰月火
+
+## 74.5
+
+glyph han-2da31:15x16 15 16 // 𭨱
+⿲ han-6708:5x16-l 1 han-5f13:6x16 han-5202:3x16 // ⿲月弓刂
 
 ## 74.6
 

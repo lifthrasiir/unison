@@ -32,6 +32,11 @@ glyph han-2a730:15x16 15 16 // 𪜰
 glyph han-2a73e:15x16 15 16 // 𪜾
 ⿲ han-4ebb:3x16 han-4e14:7x16 han-529b:5x16 // ⿲亻且力
 
+## 9.8
+
+// glyph han-2a746:15x16 15 16 // 𪝆
+// ⿰ han-4ebb han-82b3 // ⿰亻芳
+
 ## 9.9
 
 glyph han-2a74b:15x16 15 16 // 𪝋
@@ -85,6 +90,9 @@ glyph han-2a7b2:15x16 15 16 // 𪞲
 
 // glyph han-2a7be:15x16 15 16 // 𪞾
 // ⿰ han-592b han-5202 // ⿰夫刂
+
+// glyph han-2a7c0:15x16 15 16 // 𪟀
+// ⿰ han-5200 han-65b9 // ⿰刀方
 
 ## 18.5
 
@@ -161,6 +169,9 @@ glyph han-2a7cb:15x16 15 16 // 𪟋
 
 // glyph han-2a83c:15x16 15 16 // 𪠼
 // ⿰ han-53e3 han-8089 // ⿰口肉
+
+glyph han-2a83e:15x16 15 16 // 𪠾
+⿰ han-53e3:5x16-l 1 han-821f:9x16 // ⿰口舟
 
 // glyph han-2a83f:15x16 15 16 // 𪠿
 // ⿰ han-53e3 han-7af9 // ⿰口竹
@@ -374,6 +385,9 @@ glyph han-2a944:15x16 15 16 // 𪥄
 // glyph han-2a94d:15x16 15 16 // 𪥍
 // ⿳ han-5927 han-4e00 han-7535 // ⿳大一电
 
+// glyph han-2a94f:15x16 15 16 // 𪥏
+// ⿲ han-5927 han-65b9 han-4eba // ⿲大方人 <- ⿰大㫃
+
 ## 37.7
 
 // glyph han-2a952:15x16 15 16 // 𪥒
@@ -419,6 +433,9 @@ glyph han-2a968:15x16 15 16 // 𪥨
 // ⿳ han-529b han-529f han-5973 // ⿳力功女
 
 ## 38.8
+
+// glyph han-2a980:15x16 15 16 // 𪦀
+// ⿰ han-5973 han-82b3 // ⿰女芳
 
 // glyph han-2a983:15x16 15 16 // 𪦃
 // ⿰ han-5973 han-5e97 // ⿰女店
@@ -498,3 +515,15 @@ glyph han-2a9d6:15x16 15 16 // 𪧖
 
 // glyph han-2a9fa:15x16 15 16 // 𪧺
 // ⿺ han-662f han-5bf8 // ⿺是寸
+
+# CJK unified ideographs extension C: 尸 (44)
+
+## 44.4
+
+// glyph han-2aa0a:15x16 15 16 // 𪨊
+// ⿸ han-5c38 han-4ece // ⿸尸从
+
+## 44.10
+
+// glyph han-2aa13:15x16 15 16 // 𪨓
+// ⿸ han-5c38 han-9ad8 // ⿸尸高

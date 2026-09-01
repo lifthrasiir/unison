@@ -159,6 +159,9 @@ glyph han-30d8c:15x16 15 16 // 𰶌
 glyph han-30db7:15x16 15 16 // 𰶷
 ⿰ han-8c9d:6x16 han-6b20:9x16 // ⿰貝欠
 
+// glyph han-30dbb:15x16 15 16 // 𰶻
+// ⿲ han-8c9d han-5f13 han-4e28 // ⿲貝弓丨 <- ⿰貝引
+
 ## 154.5
 
 glyph han-30dbc:15x16 15 16 // 𰶼
@@ -273,6 +276,12 @@ glyph han-30e50:15x16 15 16 // 𰹐
 
 // glyph han-30eb0:15x16 15 16 // 𰺰
 // ⿺ han-8fb6 han-5140 // ⿺辶兀
+
+// glyph han-30eb1-($han-regions):15x16 15 16 // 𰺱
+// ⿺ han-8fb6-($-1) han-5dfe // ⿺辶巾
+
+// glyph han-30eb3-($han-regions):15x16 15 16 // 𰺳
+// ⿺ han-8fb6-($-1) han-5f13 // ⿺辶弓
 
 ## 162.7
 
@@ -403,6 +412,9 @@ glyph han-30f60:15x16 15 16 // 𰽠
 glyph han-30f61:15x16 15 16 // 𰽡
 ⿰ han-9485:6x16 1 han-65e5:8x16 // ⿰钅日
 
+// glyph han-30f63:15x16 15 16 // 𰽣
+// ⿲ han-9485 han-5f13 han-4e28 // ⿲钅弓丨 <- ⿰钅引
+
 // glyph han-30f64:15x16 15 16 // 𰽤
 // ⿰ han-9485 han-592c // ⿰钅夬
 
@@ -472,6 +484,11 @@ glyph han-30fc2:15x16 15 16 // 𰿂
 ⿰ han-9485:5x16 1 han-9700:9x16 // ⿰钅需
 
 # CJK unified ideographs extension G: 門 (169)
+
+## 169.3
+
+// glyph han-30fd8:15x16 15 16 // 𰿘
+// ⿵ han-9580 han-4e07 // ⿵門万
 
 ## 169.4
 

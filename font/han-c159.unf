@@ -369,6 +369,11 @@ glyph han-2b60b-($han-regions):15x16 15 16 // 𫘋
 // glyph han-2b64f:15x16 15 16 // 𫙏
 // ⿰ han-9b5a han-5341 // ⿰魚十
 
+## 195.4
+
+// glyph han-2b652:15x16 15 16 // 𫙒
+// ⿲ han-9b5a han-5f13 han-4e28 // ⿲魚弓丨 <- ⿰魚引
+
 ## 195.8
 
 glyph han-2b664:15x16 15 16 // 𫙤

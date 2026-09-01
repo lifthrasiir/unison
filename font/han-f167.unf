@@ -1,5 +1,10 @@
 # CJK unified ideographs extension F: 金 (167)
 
+## 167.3
+
+glyph han-2e865:15x16 15 16 // 𮡥
+⿰ han-91d2:5x16-l 1 han-5dfe:9x16 // ⿰釒巾
+
 ## 167.4
 
 // glyph han-2e868:15x16 15 16 // 𮡨
@@ -145,6 +150,16 @@ glyph han-2e950:15x16 15 16 // 𮥐
 
 glyph han-2e952:15x16 15 16 // 𮥒
 ⿰ han-961d:5x16-l 1 han-8ecd:9x16 // ⿰阝軍
+
+## 170.10
+
+// glyph han-2e95a:15x16 15 16 // 𮥚
+// ⿰ han-961d han-2d735 // ⿰阝𭜵
+
+## 170.13
+
+// glyph han-2e967:15x16 15 16 // 𮥧
+// ⿰ han-961d han-3b05 // ⿰阝㬅
 
 # CJK unified ideographs extension F: 隹 (172)
 

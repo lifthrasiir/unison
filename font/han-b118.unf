@@ -12,6 +12,9 @@ glyph han-25ad9:15x16 15 16 // 𥫙
 
 ## 118.3
 
+// glyph han-25ae4:15x16 15 16 // 𥫤
+// ⿱ han-25ad7 han-5f13 // ⿱𥫗弓
+
 glyph han-25ae6:15x16 15 16 // 𥫦
 ⿱ han-25ad7:15x5 -1 han-571f:15x12 // ⿱𥫗土
 
@@ -35,11 +38,20 @@ glyph han-25aef:15x16 15 16 // 𥫯
 glyph han-25af0:15x16 15 16 // 𥫰
 ⿱ han-25ad7:15x5 -1 han-516d:15x12 // ⿱𥫗六
 
+glyph han-25af3:15x16 15 16 // 𥫳
+⿱ han-25ad7:15x5 -1 han-65b9:15x12 // ⿱𥫗方
+
+// glyph han-25af4:15x16 15 16 // 𥫴
+// ⿳ han-25ad7 han-4ea0 han-5dfe // ⿳𥫗亠巾 <- ⿱𥫗市
+
 // glyph han-25af5:15x16 15 16 // 𥫵
 // ⿱ han-25ad7 han-592a // ⿱𥫗太
 
 glyph han-25af8:15x16 15 16 // 𥫸
 ⿱ han-25ad7:15x5 -1 han-6c34:15x12 // ⿱𥫗水
+
+// glyph han-25aff:15x16 15 16 // 𥫿
+// ⿳ han-25ad7 han-4e36 han-5c38 // ⿳𥫗丶尸 <- ⿱𥫗户
 
 // glyph han-25b02:15x16 15 16 // 𥬂
 // ⿳ han-25ad7 han-4e00 han-5ddd // ⿳𥫗一川
@@ -140,8 +152,8 @@ glyph han-25b68:15x16 15 16 // 𥭨
 // glyph han-25b74:15x16 15 16 // 𥭴
 // ⿳ han-25ad7 han-7acb han-5341 // ⿳𥫗立十 <- ⿱𥫗辛
 
-// glyph han-25b7c:15x16 15 16 // 𥭼
-// ⿳ han-25ad7 han-2b739 han-6c34 // ⿳𥫗𫜹水
+glyph han-25b7c:15x16 15 16 // 𥭼
+⿳ han-25ad7:15x5 han-5f50-g:15x5 han-6c34:15x6 // ⿳𥫗𫜹水
 
 glyph han-25b7d:15x16 15 16 // 𥭽
 ⿱ han-25ad7:15x5 han-8db3:15x11 // ⿱𥫗足
@@ -174,6 +186,9 @@ glyph han-25b85:15x16 15 16 // 𥮅
 
 // glyph han-25b98:15x16 15 16 // 𥮘
 // ⿳ han-25ad7 han-4eca han-5fc3 // ⿳𥫗今心 <- ⿱𥫗念
+
+// glyph han-25b99:15x16 15 16 // 𥮙
+// ⿱ han-25ad7 han-26a09 // ⿱𥫗𦨉
 
 // glyph han-25ba0:15x16 15 16 // 𥮠
 // ⿱ han-25ad7 han-62c8 // ⿱𥫗拈
@@ -417,6 +432,9 @@ ref han-9aa8:15x12 0 4
 // glyph han-25d34:15x16 15 16 // 𥴴
 // ⿱ han-25ad7 han-9264 // ⿱𥫗鉤
 
+// glyph han-25d40:15x16 15 16 // 𥵀
+// ⿱ han-25ad7 han-3b05 // ⿱𥫗㬅
+
 glyph han-25d49:15x16 15 16 // 𥵉
 ⿳ -2 han-25ad7:15x5 han-96e8:15x7 1 han-7530:15x5 // ⿳𥫗雨田
 
@@ -431,6 +449,9 @@ glyph han-25d49:15x16 15 16 // 𥵉
 // glyph han-25d5f-($han-regions):15x16 15 16 // 𥵟
 // ⿳ han-25ad7 han-7f52 han-8005-($-1) // ⿳𥫗罒者 <- ⿱𥫗署
 
+// glyph han-25d75:15x16 15 16 // 𥵵
+// ⿳ han-25ad7 han-83ab han-5dfe // ⿳𥫗莫巾 <- ⿱𥫗幕
+
 // glyph han-25d7b:15x16 15 16 // 𥵻
 // ⿱ han-25ad7 han-7dad // ⿱𥫗維
 
@@ -438,6 +459,9 @@ glyph han-25d49:15x16 15 16 // 𥵉
 
 // glyph han-25d87:15x16 15 16 // 𥶇
 // ⿳ han-25ad7 han-9b5a han-65e5 // ⿳𥫗魚日 <- ⿱𥫗魯
+
+// glyph han-25d8b:15x16 15 16 // 𥶋
+// ⿱ han-25ad7 han-5e61 // ⿱𥫗幡
 
 // glyph han-25d8f:15x16 15 16 // 𥶏
 // ⿱ han-25ad7 han-8abf // ⿱𥫗調

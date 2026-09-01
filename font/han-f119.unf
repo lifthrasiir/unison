@@ -18,6 +18,9 @@
 // glyph han-2e1c8:15x16 15 16 // 𮇈
 // ⿲ han-7c73 han-4ebb han-4e5d // ⿲米亻九 <- ⿰米仇
 
+glyph han-2e1c9:15x16 15 16 // 𮇉
+⿰ han-7c73:5x16 1 han-65b9:9x16 // ⿰米方
+
 ## 119.5
 
 // glyph han-2e1cc:15x16 15 16 // 𮇌
@@ -44,6 +47,9 @@ glyph han-2e1db:15x16 15 16 // 𮇛
 
 // glyph han-2e1e0:15x16 15 16 // 𮇠
 // ⿰ han-7c73 han-5446 // ⿰米呆
+
+// glyph han-2e1e4:15x16 15 16 // 𮇤
+// ⿰ han-7c73 han-7075 // ⿰米灵
 
 ## 119.8
 
@@ -102,6 +108,9 @@ glyph han-2e202:15x16 15 16 // 𮈂
 // glyph han-2e22a:15x16 15 16 // 𮈪
 // ⿰ han-7cf8 han-8011 // ⿰糸耑
 
+// glyph han-2e22b:15x16 15 16 // 𮈫
+// ⿰ han-7cf8 han-2c659 // ⿰糸𬙙
+
 glyph han-2e22c:15x16 15 16 // 𮈬
 ⿰ han-7cf9:5x16 1 han-661c:9x16 // ⿰糹昜
 
@@ -157,6 +166,11 @@ glyph han-2e2f0:15x16 15 16 // 𮋰
 // glyph han-2e2f2:15x16 15 16 // 𮋲
 // ⿰ han-8033 han-5b8c // ⿰耳完
 
+## 128.8
+
+glyph han-2e2f4:15x16 15 16 // 𮋴
+⿲ -2 han-8033:6x16-l han-76ee:4x16 1 han-5f13:6x16 // ⿲耳目弓
+
 ## 128.9
 
 // glyph han-2e2f6:15x16 15 16 // 𮋶
@@ -187,6 +201,11 @@ glyph han-2e342:15x16 15 16 // 𮍂
 
 # CJK unified ideographs extension F: 舌 (135)
 
+## 135.3
+
+// glyph han-2e374:15x16 15 16 // 𮍴
+// ⿰ han-820c han-4e07 // ⿰舌万
+
 ## 135.5
 
 // glyph han-2e376-($han-regions):15x16 15 16 // 𮍶
@@ -199,6 +218,31 @@ glyph han-2e342:15x16 15 16 // 𮍂
 
 // glyph han-2e37e:15x16 15 16 // 𮍾
 // ⿰ han-820c han-7553 // ⿰舌畓
+
+# CJK unified ideographs extension F: 舟 (137)
+
+## 137.4
+
+// glyph han-2e384:15x16 15 16 // 𮎄
+// ⿰ han-821f han-516d // ⿰舟六
+
+## 137.5
+
+glyph han-2e389:15x16 15 16 // 𮎉
+⿰ han-821f:7x16 1 han-4e16:7x16 // ⿰舟世
+
+## 137.6
+
+// glyph han-2e38b:15x16 15 16 // 𮎋
+// ⿰ han-821f han-767e // ⿰舟百
+
+## 137.7
+
+// glyph han-2e38e:15x16 15 16 // 𮎎
+// ⿰ han-821f han-5415 // ⿰舟吕
+
+// glyph han-2e38f:15x16 15 16 // 𮎏
+// ⿰ han-821f han-5448 // ⿰舟呈
 
 # CJK unified ideographs extension F: 艸 (140)
 
@@ -264,6 +308,9 @@ glyph han-2e3f2:15x16 15 16 // 𮏲
 // ⿱ han-8279 han-72ec // ⿱艹独
 
 ## 140.10
+
+// glyph han-2e412:15x16 15 16 // 𮐒
+// ⿱ han-8279 han-224ed // ⿱艹𢓭
 
 // glyph han-2e419:15x16 15 16 // 𮐙
 // ⿱ han-8279 han-7a85 // ⿱艹窅
@@ -354,3 +401,6 @@ glyph han-2e3f2:15x16 15 16 // 𮏲
 
 // glyph han-2e4b2:15x16 15 16 // 𮒲
 // ⿱ han-8279 han-8af9 // ⿱艹諹
+
+// glyph han-2e4b3:15x16 15 16 // 𮒳
+// ⿱ han-8279 han-65d9 // ⿱艹旙

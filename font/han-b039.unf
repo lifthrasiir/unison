@@ -19,6 +19,9 @@ glyph han-219bc:15x16 15 16 // 𡦼
 glyph han-219c9:15x16 15 16 // 𡧉
 ⿱ han-5b80:15x4 han-5140:15x12 // ⿱宀兀
 
+// glyph han-219ca:15x16 15 16 // 𡧊
+// ⿱ han-5b80 han-4e07 // ⿱宀万
+
 ## 40.4
 
 // glyph han-219cb:15x16 15 16 // 𡧋
@@ -95,6 +98,9 @@ glyph han-21a12:15x16 15 16 // 𡨒
 
 ## 40.8
 
+// glyph han-21a22:15x16 15 16 // 𡨢
+// ⿱ han-5b80 han-5c45 // ⿱宀居
+
 // glyph han-21a27:15x16 15 16 // 𡨧
 // ⿱ han-5b80 han-5352 // ⿱宀卒
 
@@ -162,6 +168,9 @@ glyph han-21a88:15x16 15 16 // 𡪈
 ref han-5b80:15x4 0 0 // ⿳宀其土
 ref han-5176:15x10 0 3
 ref han-571f:15x4 0 12
+
+// glyph han-21a92:15x16 15 16 // 𡪒
+// ⿳ han-5b80 han-303d2 han-7530 // ⿳宀𰏒田
 
 // glyph han-21a95:15x16 15 16 // 𡪕
 // ⿳ han-2bcbd han-5405 han-4e00 // ⿳𫲽吅一

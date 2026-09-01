@@ -340,6 +340,12 @@ glyph han-9b6d:15x16 15 16 // 魭
 // glyph han-9b6f:15x16 15 16 // 魯
 // ⿱ han-9b5a han-65e5 // ⿱魚日
 
+// glyph han-9b73:15x16 15 16 // 魳
+// ⿰ han-9b5a han-5e00 // ⿰魚帀
+
+glyph han-9b74:15x16 15 16 // 魴
+⿰ han-9b5a:7x16 1 han-65b9:7x16 // ⿰魚方
+
 glyph han-9b75:15x16 15 16 // 魵
 ⿰ han-9b5a:7x16 1 han-5206:7x16 // ⿰魚分
 

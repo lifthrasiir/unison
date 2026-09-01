@@ -36,6 +36,9 @@ glyph han-206b6:15x16 15 16 // 𠚶
 glyph han-206bc:15x16 15 16 // 𠚼
 ⿰ han-5206:9x16 1 han-5202:5x16 // ⿰分刂
 
+glyph han-206cd:15x16 15 16 // 𠛍
+⿰ han-65b9:9x16 1 han-5202:5x16 // ⿰方刂
+
 ## 18.5
 
 glyph han-206ce:15x16 15 16 // 𠛎
@@ -116,6 +119,12 @@ glyph han-20734:15x16 15 16 // 𠜴
 // glyph han-20739:15x16 15 16 // 𠜹
 // ⿰ han-3094d han-5202 // ⿰𰥍刂
 
+// glyph han-2074b:15x16 15 16 // 𠝋
+// ⿰ han-2bd56 han-5200 // ⿰𫵖刀
+
+// glyph han-20751:15x16 15 16 // 𠝑
+// ⿰ han-2bd56 han-5202 // ⿰𫵖刂
+
 // glyph han-20754:15x16 15 16 // 𠝔
 // ⿱ han-59cb han-5200 // ⿱始刀
 
@@ -148,6 +157,9 @@ glyph han-207a1:15x16 15 16 // 𠞡
 
 glyph han-207b8:15x16 15 16 // 𠞸
 ⿰ han-9ce5:9x16 1 han-5202:5x16 // ⿰鳥刂
+
+glyph han-207be:15x16 15 16 // 𠞾
+⿲ han-5f73:3x16 han-91d2:7x16 han-5202:5x16 // ⿲彳釒刂
 
 // glyph han-207c0:15x16 15 16 // 𠟀
 // ⿱ han-5200 han-9ce5 // ⿱刀鳥

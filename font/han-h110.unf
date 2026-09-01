@@ -16,6 +16,11 @@ glyph han-31cee:15x16 15 16 // 𱳮
 // glyph han-31cf5:15x16 15 16 // 𱳵
 // ⿲ han-77f3 han-53e3 han-5341 // ⿲石口十 <- ⿰石叶
 
+## 112.6
+
+// glyph han-31cfb:15x16 15 16 // 𱳻
+// ⿳ han-53e3 han-5dfe han-77f3 // ⿳口巾石 <- ⿱吊石
+
 ## 112.7
 
 // glyph han-31d07:15x16 15 16 // 𱴇
@@ -131,6 +136,12 @@ glyph han-31df3:15x16 15 16 // 𱷳
 
 ## 118.6
 
+// glyph han-31df9:15x16 15 16 // 𱷹
+// ⿳ han-25ad7 han-53e3 han-5dfe // ⿳𥫗口巾 <- ⿱𥫗吊
+
+// glyph han-31dfc:15x16 15 16 // 𱷼
+// ⿳ han-25ad7 han-2b739 han-5dfe // ⿳𥫗𫜹巾 <- ⿱𥫗𭘒
+
 // glyph han-31dfd:15x16 15 16 // 𱷽
 // ⿳ han-25ad7 han-2b739 han-5bf8 // ⿳𥫗𫜹寸 <- ⿱𥫗寻
 
@@ -168,6 +179,11 @@ glyph han-31df3:15x16 15 16 // 𱷳
 
 // glyph han-31e22:15x16 15 16 // 𱸢
 // ⿳ han-25ad7 han-7acb han-5146 // ⿳𥫗立兆 <- ⿱𥫗𱷥
+
+## 118.12
+
+// glyph han-31e25:15x16 15 16 // 𱸥
+// ⿱ han-25ad7 han-446c // ⿱𥫗䑬
 
 ## 118.16
 
@@ -315,12 +331,34 @@ glyph han-31f0b:15x16 15 16 // 𱼋
 glyph han-31f12:15x16 15 16 // 𱼒
 ⿲ -2 han-6708:5x16-l han-5973:5x16 han-81f3:7x16 // ⿲月女至
 
+## 130.10
+
+// glyph han-31f13:15x16 15 16 // 𱼓
+// ⿲ han-6708 han-5f73 han-8d70 // ⿲月彳走 <- ⿰月徒
+
 # CJK unified ideographs extension H: 至 (133)
 
 ## 133.5
 
 glyph han-31f2a:15x16 15 16 // 𱼪
 ⿰ han-81f3:7x16 1 han-7530:7x16 // ⿰至田
+
+# CJK unified ideographs extension H: 舟 (137)
+
+## 137.4
+
+glyph han-31f37:15x16 15 16 // 𱼷
+⿰ han-821f:7x16 han-6b62:8x16 // ⿰舟止
+
+## 137.6
+
+// glyph han-31f39:15x16 15 16 // 𱼹
+// ⿰ han-821f han-5939 // ⿰舟夹
+
+## 137.12
+
+// glyph han-31f42-($han-regions):15x16 15 16 // 𱽂
+// ⿰ han-821f han-26cb8-($-1) // ⿰舟𦲸
 
 # CJK unified ideographs extension H: 艸 (140)
 
@@ -345,6 +383,11 @@ glyph han-31f2a:15x16 15 16 // 𱼪
 
 // glyph han-31f66:15x16 15 16 // 𱽦
 // ⿳ han-8279 han-5b80 han-5bf8 // ⿳艹宀寸 <- ⿱艹守
+
+## 140.7
+
+// glyph han-31f6b:15x16 15 16 // 𱽫
+// ⿱ han-8279 han-6c9b // ⿱艹沛
 
 ## 140.8
 
@@ -433,6 +476,9 @@ glyph han-31f2a:15x16 15 16 // 𱼪
 
 glyph han-31fea:15x16 15 16 // 𱿪
 ⿲ -3 han-866b:5x16 han-571f:7x16 han-53ec:6x16 // ⿲虫土召
+
+glyph han-31fed:15x16 15 16 // 𱿭
+⿲ han-866b:5x16 han-5f73:3x16 han-4e14:7x16 // ⿲虫彳且
 
 // glyph han-31fee:15x16 15 16 // 𱿮
 // ⿱ han-6ce2 han-866b // ⿱波虫

@@ -5,6 +5,13 @@
 // glyph han-2b75b:15x16 15 16 // 𫝛
 // ⿱ han-76f8 han-540c // ⿱相同
 
+# CJK unified ideographs extension D: 山 (46)
+
+## 46.3
+
+glyph han-2b773:15x16 15 16 // 𫝳
+⿰ han-5c71:5x16 1 han-5f13:9x16 // ⿰山弓
+
 # CJK unified ideographs extension D: 手 (64)
 
 ## 64.6
@@ -25,6 +32,13 @@ glyph han-2b77b:15x16 15 16 // 𫝻
 
 glyph han-2b79b-($han-regions):15x16 15 16 // 𫞛
 ⿲ han-6c35:3x16 han-8ba0:3x16 han-8005-($-1):9x16 // ⿲氵讠者
+
+# CJK unified ideographs extension D: 火 (86)
+
+## 86.7
+
+// glyph han-2b7a0:15x16 15 16 // 𫞠
+// ⿰ han-706b han-7075 // ⿰火灵
 
 # CJK unified ideographs extension D: 田 (102)
 
@@ -51,8 +65,11 @@ glyph han-2b7bb:15x16 15 16 // 𫞻
 
 ## 140.7
 
-// glyph han-2b7d1:15x16 15 16 // 𫟑
-// ⿳ han-8279 han-2b739 han-706b // ⿳艹𫜹火 <- ⿱艹灵
+glyph han-2b7d0:15x16 15 16 // 𫟐
+⿳ han-8279:15x3 han-5b80:15x4 -1 han-65b9:15x10 // ⿳艹宀方
+
+glyph han-2b7d1:15x16 15 16 // 𫟑
+⿳ han-8279:15x3 1 han-5f50.1:15x5 1 han-706b:15x6 // ⿳艹𫜹火
 
 # CJK unified ideographs extension D: 讠 (149')
 

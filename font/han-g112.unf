@@ -73,6 +73,11 @@ glyph han-309f9:15x16 15 16 // 𰧹
 glyph han-30a21:15x16 15 16 // 𰨡
 ⿰ han-79be:5x16 1 han-7532:9x16 // ⿰禾甲
 
+## 115.6
+
+// glyph han-30a28:15x16 15 16 // 𰨨
+// ⿰ han-79be han-22451 // ⿰禾𢑑
+
 ## 115.8
 
 // glyph han-30a2e:15x16 15 16 // 𰨮
@@ -143,6 +148,11 @@ glyph han-30a6c:15x16 15 16 // 𰩬
 glyph han-30a6d:15x16 15 16 // 𰩭
 ⿱ han-25ad7:15x5 -1 han-5c71:15x12 // ⿱𥫗山
 
+## 118.4
+
+// glyph han-30a6f:15x16 15 16 // 𰩯
+// ⿳ han-25ad7 han-4e00 han-5dfe // ⿳𥫗一巾 <- ⿱𥫗帀
+
 ## 118.5
 
 // glyph han-30a73:15x16 15 16 // 𰩳
@@ -160,6 +170,9 @@ glyph han-30a74:15x16 15 16 // 𰩴
 
 // glyph han-30a7f:15x16 15 16 // 𰩿
 // ⿱ han-25ad7 han-5778 // ⿱𥫗坸
+
+// glyph han-30a81:15x16 15 16 // 𰪁
+// ⿱ han-25ad7 han-5e15 // ⿱𥫗帕
 
 ## 118.9
 
@@ -242,6 +255,9 @@ glyph han-30ad4:15x16 15 16 // 𰫔
 # CJK unified ideographs extension G: 糸 (120)
 
 ## 120.4
+
+// glyph han-30ada:15x16 15 16 // 𰫚
+// ⿰ han-7cf8 han-5e00 // ⿰糸帀
 
 // glyph han-30adc:15x16 15 16 // 𰫜
 // ⿲ han-7cf9 han-4ebb han-4e5d // ⿲糹亻九 <- ⿰糹仇
@@ -343,6 +359,11 @@ glyph han-30b59:15x16 15 16 // 𰭙
 // glyph han-30b9c:15x16 15 16 // 𰮜
 // ⿰ han-8089 han-53f0 // ⿰肉台
 
+## 130.6
+
+// glyph han-30ba1:15x16 15 16 // 𰮡
+// ⿱ han-80ba han-516b // ⿱肺八
+
 ## 130.8
 
 // glyph han-30bab:15x16 15 16 // 𰮫
@@ -385,6 +406,21 @@ glyph han-30bb8:15x16 15 16 // 𰮸
 // glyph han-30c01:15x16 15 16 // 𰰁
 // ⿰ han-820c han-5415 // ⿰舌吕
 
+// glyph han-30c04:15x16 15 16 // 𰰄
+// ⿰ han-820c han-7075 // ⿰舌灵
+
+# CJK unified ideographs extension G: 舟 (137)
+
+## 137.9
+
+// glyph han-30c10:15x16 15 16 // 𰰐
+// ⿰ han-821f han-82fb // ⿰舟苻
+
+## 137.12
+
+// glyph han-30c13-($han-regions):15x16 15 16 // 𰰓
+// ⿰ han-821f han-9032-($-1) // ⿰舟進
+
 # CJK unified ideographs extension G: 艸 (140)
 
 ## 140.2
@@ -401,6 +437,9 @@ glyph han-30bb8:15x16 15 16 // 𰮸
 
 // glyph han-30c36:15x16 15 16 // 𰰶
 // ⿳ han-8279 han-4e5d han-6728 // ⿳艹九木 <- ⿱艹杂
+
+// glyph han-30c38:15x16 15 16 // 𰰸
+// ⿱ han-8279 han-2c1d7 // ⿱艹𬇗
 
 // glyph han-30c3c:15x16 15 16 // 𰰼
 // ⿱ han-8279 han-2ad69 // ⿱艹𪵩
@@ -425,6 +464,9 @@ glyph han-30c45:15x16 15 16 // 𰱅
 // ⿱ han-8279 han-7098 // ⿱艹炘
 
 ## 140.9
+
+// glyph han-30c60:15x16 15 16 // 𰱠
+// ⿰ han-828f han-21c31 // ⿰芏𡰱
 
 // glyph han-30c65:15x16 15 16 // 𰱥
 // ⿳ han-8279 han-53f0 han-5fc3 // ⿳艹台心 <- ⿱艹怠
@@ -472,6 +514,9 @@ glyph han-30cad:15x16 15 16 // 𰲭
 
 glyph han-30caf:15x16 15 16 // 𰲯
 ⿲ han-866b:5x16 han-4eba:5x16 han-4eba:5x16 // ⿲虫人人
+
+// glyph han-30cb1:15x16 15 16 // 𰲱
+// ⿳ han-4e36 han-4e07 han-866b // ⿳丶万虫 <- ⿱方虫
 
 ## 142.7
 

@@ -19,6 +19,9 @@ glyph han-2d1bc:15x16 15 16 // 𭆼
 glyph han-2d1bd:15x16 15 16 // 𭆽
 ⿱ han-53e3:15x7 han-4e0a:15x9 // ⿱口上
 
+glyph han-2d1c2:15x16 15 16 // 𭇂
+⿰ han-53e3:5x16-l 1 han-5f13:9x16 // ⿰口弓
+
 ## 30.4
 
 glyph han-2d1c4:15x16 15 16 // 𭇄
@@ -236,6 +239,11 @@ glyph han-2d347:15x16 15 16 // 𭍇
 
 // glyph han-2d362:15x16 15 16 // 𭍢
 // ⿴ han-56d7 han-72c2 // ⿴囗狂
+
+## 31.8
+
+// glyph han-2d366:15x16 15 16 // 𭍦
+// ⿴ han-56d7 han-82b3 // ⿴囗芳
 
 ## 31.9
 

@@ -56,6 +56,9 @@ glyph han-209c3:15x16 15 16 // 𠧃
 glyph han-2001d:15x16 15 16 // 𠀝
 ⿱ han-4e0b:15x5 han-4e0a:15x11 // ⿱下上
 
+// glyph han-209d5:15x16 15 16 // 𠧕
+// ⿱ han-4e0a han-5c38 // ⿱上尸
+
 glyph han-209d7:15x16 15 16 // 𠧗
 ⿱ han-4e0a:15x9 1 han-4e0b:15x6 // ⿱上下
 
@@ -87,6 +90,9 @@ glyph han-209d7:15x16 15 16 // 𠧗
 
 glyph han-20a5a:15x16 15 16 // 𠩚
 ⿸ han-5382:15x16.11x15 han-9149:9x12 5 3 // ⿸厂酉
+
+// glyph han-20a5d:15x16 15 16 // 𠩝
+// ⿸ han-5382 han-574a // ⿸厂坊
 
 glyph han-20a60:15x16 15 16 // 𠩠
 ⿸ han-5382:15x16.11x15 han-8c9d:8x13 6 3 // ⿸厂貝

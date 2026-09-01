@@ -35,3 +35,68 @@ glyph han-230b0:15x16 15 16 // 𣂰
 
 // glyph han-230d2:15x16 15 16 // 𣃒
 // ⿳ han-4020 han-4e00 han-65a6 // ⿳䀠一斦
+
+# CJK unified ideographs extension B: 方 (70)
+
+## 70.2
+
+// glyph han-230d7:15x16 15 16 // 𣃗
+// ⿰ han-65b9 han-5200 // ⿰方刀
+
+## 70.3
+
+// glyph han-230d9:15x16 15 16 // 𣃙
+// ⿳ han-4e00 han-516b han-65b9 // ⿳一八方
+
+## 70.4
+
+glyph han-230da:15x16 15 16 // 𣃚
+⿰ han-65b9:7x16 1 han-4ea2:7x16 // ⿰方亢
+
+glyph han-230db:15x16 15 16 // 𣃛
+⿰ han-65b9:7x16 1 han-706b:7x16 // ⿰方火
+
+## 70.5
+
+// glyph han-230dd:15x16 15 16 // 𣃝
+// ⿰ han-65b9 han-592e // ⿰方央
+
+glyph han-230e0-($han-regions):15x16 15 16 // 𣃠
+⿰ han-65b9:7x16 1 han-4ee4-($-1):7x16 // ⿰方令
+
+glyph han-230e3:15x16 15 16 // 𣃣
+⿰ han-65b9:7x16 han-76ae:8x16 // ⿰方皮
+
+glyph han-230e4:15x16 15 16 // 𣃤
+⿰ han-76ae:8x16 han-65b9:7x16 // ⿰皮方
+
+## 70.7
+
+glyph han-230f8:15x16 15 16 // 𣃸
+⿳ -2 han-65e5:15x5 han-5b80:15x4 -1 han-65b9:15x10 // ⿳日宀方
+
+## 70.8
+
+glyph han-23103:15x16 15 16 // 𣄃
+⿰ han-65b9:7x16 han-5176:8x16 // ⿰方其
+
+## 70.9
+
+glyph han-23108:15x16 15 16 // 𣄈
+⿰ han-65b9:7x16 1 han-8ecd:7x16 // ⿰方軍
+
+// glyph han-2310b:15x16 15 16 // 𣄋
+// ⿳ han-73c0 han-4e36 han-4e07 // ⿳珀丶万 <- ⿱珀方
+
+glyph han-2310d:15x16 15 16 // 𣄍
+⿰ han-65b9:7x16 1 han-662f:7x16 // ⿰方是
+
+## 70.10
+
+// glyph han-23113:15x16 15 16 // 𣄓
+// ⿰ han-65b9 han-7b14 // ⿰方笔
+
+## 70.11
+
+glyph han-23114:15x16 15 16 // 𣄔
+⿰ han-65b9:7x16 1 han-7968:7x16 // ⿰方票

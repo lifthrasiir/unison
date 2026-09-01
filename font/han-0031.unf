@@ -177,6 +177,11 @@ glyph han-56fa:15x16 15 16 // 固
 glyph han-56fd:15x16 15 16 // 国
 ⿴ han-56d7:15x16.11x12 han-7389:9x10 3 3 // ⿴囗玉
 
+## 31.6
+
+// glyph han-5700:15x16 15 16 // 圀
+// ⿴ han-56db han-65b9 // ⿴四方
+
 ## 31.7
 
 // glyph han-5703:15x16 15 16 // 圃
@@ -191,6 +196,9 @@ glyph han-56fd:15x16 15 16 // 国
 
 // glyph han-570c:15x16 15 16 // 圌
 // ⿴ han-56d7 han-8011 // ⿴囗耑
+
+// glyph han-5710:15x16 15 16 // 圐
+// ⿴ han-56d7 han-2c659 // ⿴囗𬙙
 
 # CJK unified ideographs: 土 (32)
 
@@ -617,6 +625,9 @@ glyph han-5743:15x16 15 16 // 坃
 glyph han-5745:15x16 15 16 // 坅
 ⿰ han-571f:7x16 1 han-4eca:7x16 // ⿰土今
 
+glyph han-574a:15x16 15 16 // 坊
+⿰ han-571f:5x16-l 1 han-65b9:9x16 // ⿰土方
+
 glyph han-574b:15x16 15 16 // 坋
 ⿰ han-571f:7x16 1 han-5206:7x16 // ⿰土分
 
@@ -746,6 +757,9 @@ glyph han-57bb:15x16 15 16 // 垻
 // glyph han-57be:15x16 15 16 // 垾
 // ⿰ han-571f han-65f1 // ⿰土旱
 
+// glyph han-57c5:15x16 15 16 // 埅
+// ⿱ han-9632 han-571f // ⿱防土
+
 glyph han-57c8:15x16 15 16 // 埈
 ⿰ han-571f:7x16 1 han-590b:7x16 // ⿰土夋
 
@@ -806,6 +820,9 @@ glyph han-580b:15x16 15 16 // 堋
 
 // glyph han-580c:15x16 15 16 // 堌
 // ⿰ han-571f han-56fa // ⿰土固
+
+// glyph han-580f:15x16 15 16 // 堏
+// ⿱ han-678b han-571f // ⿱枋土
 
 // glyph han-5810:15x16 15 16 // 堐
 // ⿰ han-571f han-5393 // ⿰土厓
@@ -888,6 +905,9 @@ glyph han-5835-j:15x16 15 16 // 堵
 // glyph han-583c:15x16 15 16 // 堼
 // ⿱ han-5c01 han-571f // ⿱封土
 
+// glyph han-5844:15x16 15 16 // 塄
+// ⿰ han-571f han-2c659 // ⿰土𬙙
+
 ## 32.10
 
 // glyph han-583d:15x16 15 16 // 堽
@@ -915,6 +935,9 @@ glyph han-5882:15x16 15 16 // 墂
 
 // glyph han-5893:15x16 15 16 // 墓
 // ⿱ han-83ab han-571f // ⿱莫土
+
+// glyph han-589b:15x16 15 16 // 墛
+// ⿲ han-571f han-2bd56 han-5bf8 // ⿲土𫵖寸 <- ⿰土尉
 
 ## 32.12
 

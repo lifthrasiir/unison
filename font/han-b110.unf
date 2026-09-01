@@ -72,6 +72,9 @@ glyph han-25472:15x16 15 16 // 𥑲
 // glyph han-25474:15x16 15 16 // 𥑴
 // ⿰ han-77f3 han-8863 // ⿰石衣
 
+glyph han-25478:15x16 15 16 // 𥑸
+⿰ han-77f3:8x16 han-821f:7x16 // ⿰石舟
+
 glyph han-25484:15x16 15 16 // 𥒄
 ⿰ han-77f3:7x16 1 han-7c73:7x16 // ⿰石米
 
@@ -136,6 +139,9 @@ glyph han-254eb:15x16 15 16 // 𥓫
 // glyph han-254ed:15x16 15 16 // 𥓭
 // ⿰ han-77f3 han-961c // ⿰石阜
 
+glyph han-254f3:15x16 15 16 // 𥓳
+⿲ -1 han-77f3:5x16 han-5f73:3x16 han-76ae:8x16 // ⿲石彳皮
+
 ## 112.9
 
 glyph han-2550d:15x16 15 16 // 𥔍
@@ -189,6 +195,9 @@ glyph han-2554c:15x16 15 16 // 𥕌
 
 glyph han-2555d:15x16 15 16 // 𥕝
 ⿲ han-77f3:5x16 han-7c73:5x16 han-77f3:5x16 // ⿲石米石
+
+// glyph han-2555f-($han-regions):15x16 15 16 // 𥕟
+// ⿰ han-77f3 han-5c5a-($-1) // ⿰石屚
 
 ## 112.12
 

@@ -65,6 +65,9 @@ glyph han-42e0:15x16 15 16 // 䋠
 
 ## 120.8
 
+// glyph han-42e7:15x16 15 16 // 䋧
+// ⿰ han-7cf9 han-5c45 // ⿰糹居
+
 glyph han-42ea:15x16 15 16 // 䋪
 ⿲ -1 han-7cf9:5x16 1 han-961d:4x16-c han-53ef:6x16 // ⿲糹阝可
 
@@ -224,6 +227,9 @@ glyph han-43d3:15x16 15 16 // 䏓
 glyph han-43d5:15x16 15 16 // 䏕
 ⿰ han-6708:5x16-l 1 han-738b:9x16 // ⿰月王
 
+// glyph han-43d6:15x16 15 16 // 䏖
+// ⿲ han-6708 han-5f13 han-4e28 // ⿲月弓丨 <- ⿰月引
+
 ## 130.5
 
 glyph han-43e0:15x16 15 16 // 䏠
@@ -341,6 +347,61 @@ glyph han-444f:15x16 15 16 // 䑏
 // glyph han-445c:15x16 15 16 // 䑜
 // ⿰ han-820c han-67bc // ⿰舌枼
 
+# CJK unified ideographs extension A: 舟 (137)
+
+## 137.3
+
+// glyph han-4462:15x16 15 16 // 䑢
+// ⿰ han-821f han-5140 // ⿰舟兀
+
+## 137.4
+
+glyph han-4464:15x16 15 16 // 䑤
+⿰ han-821f:7x16 1 han-4eca:7x16 // ⿰舟今
+
+## 137.5
+
+glyph han-4466:15x16 15 16 // 䑦
+⿰ han-821f:7x16 han-53e5:8x16 // ⿰舟句
+
+glyph han-4467:15x16 15 16 // 䑧
+⿲ -1 han-821f:7x16 han-4ebb:3x16 han-5bf8:6x16 // ⿲舟亻寸
+
+glyph han-4469:15x16 15 16 // 䑩
+⿰ han-821f:7x16 1 han-53e4:7x16 // ⿰舟古
+
+## 137.6
+
+glyph han-446a:15x16 15 16 // 䑪
+⿰ han-821f:7x16 1 han-5408:7x16 // ⿰舟合
+
+glyph han-446b:15x16 15 16 // 䑫
+⿰ han-821f:7x16 han-5e76:8x16 // ⿰舟并
+
+glyph han-446c:15x16 15 16 // 䑬
+⿰ han-821f:7x16 1 han-5146:7x16 // ⿰舟兆
+
+glyph han-446d:15x16 15 16 // 䑭
+⿲ han-821f:7x16 han-6c35:3x16 han-5de5:5x16 // ⿲舟氵工
+
+## 137.8
+
+glyph han-4474:15x16 15 16 // 䑴
+⿰ han-821f:7x16 han-5176:8x16 // ⿰舟其
+
+glyph han-4476-($han-regions):15x16 15 16 // 䑶
+⿰ han-821f:7x16 1 han-9752-($-1):7x16 // ⿰舟青
+
+## 137.9
+
+// glyph han-447a:15x16 15 16 // 䑺
+// ⿰ han-821f han-98a8 // ⿰舟風
+
+## 137.11
+
+// glyph han-4480:15x16 15 16 // 䒀
+// ⿰ han-821f han-7b26 // ⿰舟符
+
 # CJK unified ideographs extension A: 艸 (140)
 
 ## 140.2
@@ -357,6 +418,9 @@ glyph han-4499:15x16 15 16 // 䒙
 
 glyph han-44a4:15x16 15 16 // 䒤
 ⿱ han-8279:15x3 1 han-65e5:15x12 // ⿱艹日
+
+// glyph han-44a5:15x16 15 16 // 䒥
+// ⿳ han-8279 han-4e00 han-5dfe // ⿳艹一巾 <- ⿱艹帀
 
 ## 140.5
 
@@ -413,6 +477,9 @@ glyph han-44cd:15x16 15 16 // 䓍
 // ⿱ han-8279 han-6c67 // ⿱艹汧
 
 ## 140.8
+
+// glyph han-44da:15x16 15 16 // 䓚
+// ⿱ han-8279 han-5f82 // ⿱艹徂
 
 // glyph han-44dc:15x16 15 16 // 䓜
 // ⿱ han-8279 han-6cdc // ⿱艹泜
@@ -626,6 +693,11 @@ glyph han-45f2:15x16 15 16 // 䗲
 
 // glyph han-461a:15x16 15 16 // 䘚
 // ⿱ han-8863 han-5341 // ⿱衣十
+
+## 145.3
+
+glyph han-461c:15x16 15 16 // 䘜
+⿰ han-8864:5x16 1 han-5dfe:9x16 // ⿰衤巾
 
 ## 145.5
 

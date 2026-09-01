@@ -76,6 +76,9 @@ glyph han-286b4:15x16 15 16 // 𨚴
 glyph han-286c1:15x16 15 16 // 𨛁
 ⿰ han-7f8a:9x16 1 han-961d:5x16-r // ⿰羊阝
 
+// glyph han-286c3:15x16 15 16 // 𨛃
+// ⿰ han-22451 han-961d // ⿰𢑑阝
+
 // glyph han-286c7:15x16 15 16 // 𨛇
 // ⿰ han-8089 han-961d // ⿰肉阝
 
@@ -103,6 +106,9 @@ glyph han-286e9:15x16 15 16 // 𨛩
 ⿰ han-8eca:9x16 1 han-961d:5x16-r // ⿰車阝
 
 ## 163.8
+
+// glyph han-286ee:15x16 15 16 // 𨛮
+// ⿰ han-5c45 han-961d // ⿰居阝
 
 // glyph han-286ef:15x16 15 16 // 𨛯
 // ⿰ han-5b9c han-961d // ⿰宜阝

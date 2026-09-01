@@ -68,6 +68,11 @@ glyph han-4a18:15x16 15 16 // 䨘
 
 # CJK unified ideographs extension A: 革 (177)
 
+## 177.3
+
+glyph han-4a51:15x16 15 16 // 䩑
+⿰ han-9769:7x16 1 han-5f13:7x16 // ⿰革弓
+
 ## 177.4
 
 glyph han-4a57:15x16 15 16 // 䩗
@@ -166,6 +171,9 @@ glyph han-4ad8:15x16 15 16 // 䫘
 ⿰ han-66f7:8x16 han-9801:7x16 // ⿰曷頁
 
 ## 181.12
+
+// glyph han-4aef:15x16 15 16 // 䫯
+// ⿲ han-65b9 han-5947 han-9801 // ⿲方奇頁 <- ⿰旑頁
 
 glyph han-4af0:15x16 15 16 // 䫰
 ⿰ han-9801:7x16 han-7ca6:8x16 // ⿰頁粦
@@ -492,6 +500,9 @@ glyph han-4c51:15x16 15 16 // 䱑
 glyph han-4c5d:15x16 15 16 // 䱝
 ⿰ han-9b5a:7x16 han-5351:8x16 // ⿰魚卑
 
+// glyph han-4c5f:15x16 15 16 // 䱟
+// ⿰ han-9b5a han-5c45 // ⿰魚居
+
 glyph han-4c63:15x16 15 16 // 䱣
 ⿰ han-9b5a:7x16 1 han-5352:7x16 // ⿰魚卒
 
@@ -510,6 +521,9 @@ glyph han-4c7b:15x16 15 16 // 䱻
 
 glyph han-4c7f:15x16 15 16 // 䱿
 ⿲ -4 han-9b5a:7x16 1 han-8eca:5x16 han-65a4:6x16 // ⿲魚車斤
+
+// glyph han-4c81:15x16 15 16 // 䲁
+// ⿲ han-9b5a han-2bd56 han-5bf8 // ⿲魚𫵖寸 <- ⿰魚尉
 
 // glyph han-4c85:15x16 15 16 // 䲅
 // ⿲ han-9b5a han-592b han-898b // ⿲魚夫見 <- ⿰魚規
@@ -545,6 +559,9 @@ glyph han-4ca7:15x16 15 16 // 䲧
 glyph han-4ca8:15x16 15 16 // 䲨
 ⿰ han-5de5:7x16 1 han-9ce5:7x16 // ⿰工鳥
 
+// glyph han-4ca9:15x16 15 16 // 䲩
+// ⿸ han-5c38 han-9ce5 // ⿸尸鳥
+
 // glyph han-4caa:15x16 15 16 // 䲪
 // ⿰ han-5927 han-9ce5 // ⿰大鳥
 
@@ -555,6 +572,9 @@ glyph han-4ca8:15x16 15 16 // 䲨
 
 glyph han-4cae:15x16 15 16 // 䲮
 ⿰ han-5143:6x16 han-9ce5:9x16 // ⿰元鳥
+
+glyph han-4cb1:15x16 15 16 // 䲱
+⿰ han-9ce5:7x16 1 han-65b9:7x16 // ⿰鳥方
 
 glyph han-4cb3:15x16 15 16 // 䲳
 ⿰ han-4ea2:7x16 1 han-9ce5:7x16 // ⿰亢鳥
