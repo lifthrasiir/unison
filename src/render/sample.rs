@@ -83,6 +83,7 @@ struct SampleData {
 pub struct SampleSource {
     data: SampleData,
     char_props: CharProps,
+    samples: crate::samples::SampleSet,
 }
 
 /// The sample from documents alone, expanding for itself. Every shipping
@@ -903,6 +904,15 @@ impl SampleSource {
         &self.data.features
     }
 
+    /// The [`sample`](crate::samples) lines of the source.
+    ///
+    /// Collected here rather than by each page for itself so that `live.html`,
+    /// which is handed no documents, can ask the same question the demo page's
+    /// panel does: which of the generated bodies of text this source asked for.
+    pub fn samples(&self) -> &crate::samples::SampleSet {
+        &self.samples
+    }
+
     /// Resolve once for every sample document that follows, over an expansion
     /// the caller already has — see [`collect_sample_data_with`].
     pub fn collect_with(
@@ -912,12 +922,17 @@ impl SampleSource {
         Some(Self {
             data: collect_sample_data_with(docs, resolution)?,
             char_props: CharProps::collect(docs),
+            samples: crate::samples::SampleSet::collect(
+                docs.iter().flat_map(|doc| doc.items.iter()),
+            ),
         })
     }
 }
 
 pub fn write_sample_html(w: &mut dyn Write, src: &SampleSource) -> io::Result<()> {
-    let SampleSource { data, char_props } = src;
+    let SampleSource {
+        data, char_props, ..
+    } = src;
 
     let svg_scale: f32 = 2.0;
 
@@ -1360,7 +1375,9 @@ fn write_live_html_inner(
     woff2_bytes: Option<&[u8]>,
     data_dir: Option<&Path>,
 ) -> io::Result<()> {
-    let SampleSource { data, char_props } = src;
+    let SampleSource {
+        data, char_props, ..
+    } = src;
 
     let (font_mime, font_data) = if let Some(w2) = woff2_bytes {
         ("font/woff2", w2)
@@ -1379,7 +1396,14 @@ fn write_live_html_inner(
             .join(",")
     };
 
-    let has_udhr = data_dir.is_some_and(|d| d.join("udhr-article1.json").exists());
+    // A body of text the build assembles is on the page because the source
+    // asked for it with a `sample … : MODE` line, and not because the data
+    // directory happens to hold the file — see `crate::samples`.
+    let has_udhr = src.samples().uses(crate::samples::SampleMode::UdhrArticle1)
+        && data_dir.is_some_and(|d| d.join("udhr-article1.json").exists());
+    let has_flags = src
+        .samples()
+        .uses(crate::samples::SampleMode::SubdivisionFlags);
     let has_confusables = data_dir.is_some_and(|d| {
         std::fs::read_dir(d)
             .map(|entries| {
@@ -1391,17 +1415,7 @@ fn write_live_html_inner(
             })
             .unwrap_or(false)
     });
-    // CLDR subdivision containment, e.g. `cldr-subdivisions-48.2.0.json`; the version is part of
-    // the file name, so match by prefix rather than pinning a release here.
-    let subdivisions_path = data_dir.and_then(|d| {
-        std::fs::read_dir(d).ok().and_then(|entries| {
-            entries.filter_map(|e| e.ok()).map(|e| e.path()).find(|p| {
-                p.file_name()
-                    .and_then(|n| n.to_str())
-                    .is_some_and(|n| n.starts_with("cldr-subdivisions-") && n.ends_with(".json"))
-            })
-        })
-    });
+    let subdivisions_path = data_dir.and_then(subdivisions_path);
 
     write!(w, "\
 <!doctype html>
@@ -1428,7 +1442,9 @@ Load: ")?;
         links.push(("confus", "Confusables"));
     }
     links.push(("hangul", "All Hangul"));
-    links.push(("flags", "All Flags"));
+    if has_flags {
+        links.push(("flags", "All Flags"));
+    }
     links.push(("all", "All Glyphs"));
     for (i, (id, label)) in links.iter().enumerate() {
         if i > 0 {
@@ -1470,7 +1486,9 @@ Y88b. .d88P 888  888 888      X88 Y88..88P 888  888
     write_live_hangul(w)?;
 
     // Flags section
-    write_live_flags(w, subdivisions_path.as_deref())?;
+    if has_flags {
+        write_live_flags(w, subdivisions_path.as_deref())?;
+    }
 
     // All Glyphs section
     write!(
@@ -1816,7 +1834,22 @@ fn write_live_flags(w: &mut dyn Write, subdivisions_path: Option<&Path>) -> io::
     let Some(path) = subdivisions_path else {
         return Ok(());
     };
+    let text = subdivision_flags_text(path)?;
+    if !text.is_empty() {
+        writeln!(w, "\n{text}")?;
+    }
 
+    Ok(())
+}
+
+/// The CLDR subdivision containment data as one text: a line per region,
+/// naming it and then the emoji tag sequence of each of its subdivisions.
+///
+/// This is what a [`subdivision-flags`](crate::samples::SampleMode) sample
+/// stands for, and `live.html`'s own flags section writes the same string —
+/// the two pages offer one text and not two spellings of it. The regions come
+/// out in the file's key order, which is a `BTreeMap`'s and so alphabetical.
+pub(crate) fn subdivision_flags_text(path: &Path) -> io::Result<String> {
     #[derive(serde::Deserialize)]
     struct SubdivisionFile {
         subdivisions: BTreeMap<String, Vec<String>>,
@@ -1826,7 +1859,7 @@ fn write_live_flags(w: &mut dyn Write, subdivisions_path: Option<&Path>) -> io::
     let parsed: SubdivisionFile = serde_json::from_str(&content)
         .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?;
 
-    writeln!(w)?;
+    let mut out = String::new();
     for (region, codes) in &parsed.subdivisions {
         let seqs: Vec<String> = codes
             .iter()
@@ -1835,10 +1868,27 @@ fn write_live_flags(w: &mut dyn Write, subdivisions_path: Option<&Path>) -> io::
         if seqs.is_empty() {
             continue;
         }
-        writeln!(w, "{region} {}", seqs.join(""))?;
+        if !out.is_empty() {
+            out.push('\n');
+        }
+        out.push_str(region);
+        out.push(' ');
+        out.extend(seqs);
     }
+    Ok(out)
+}
 
-    Ok(())
+/// The CLDR subdivision containment file of a data directory, if it has one:
+/// `cldr-subdivisions-48.2.0.json` and the like. The version is part of the
+/// file name, so it is matched by prefix rather than pinned here.
+pub(crate) fn subdivisions_path(data_dir: &Path) -> Option<std::path::PathBuf> {
+    std::fs::read_dir(data_dir).ok().and_then(|entries| {
+        entries.filter_map(|e| e.ok()).map(|e| e.path()).find(|p| {
+            p.file_name()
+                .and_then(|n| n.to_str())
+                .is_some_and(|n| n.starts_with("cldr-subdivisions-") && n.ends_with(".json"))
+        })
+    })
 }
 
 pub(crate) fn base64_encode(data: &[u8]) -> String {

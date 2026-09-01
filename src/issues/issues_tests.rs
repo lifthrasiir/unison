@@ -2078,6 +2078,41 @@ fn a_mode_that_names_nothing_is_an_error() {
     );
 }
 
+/// A generated mode writes its own text, so the two rules about text are the
+/// other way round there: nothing under it is right, and a `||` line under it
+/// is text nothing will ever show.
+#[test]
+fn a_generated_sample_takes_no_continuation() {
+    assert!(
+        sample_errors("sample `UDHR Article 1` : udhr-article1\n").is_empty(),
+        "a generated sample is written with no text"
+    );
+    assert!(
+        sample_errors("sample F `Subdivisions` : subdivision-flags\n").is_empty(),
+        "and under a sublabel just the same"
+    );
+    let msgs = sample_errors("sample U : udhr-article1\n|| mine\n");
+    assert_eq!(msgs.len(), 1, "{msgs:?}");
+    assert!(msgs[0].contains("writes its own text"), "{}", msgs[0]);
+}
+
+/// `udhr-article1` stands for a list and names the entries itself, so a
+/// sublabel — written on the line or beside it — is a name that is never read.
+#[test]
+fn a_list_writing_mode_owns_its_labels() {
+    let msgs = sample_errors("sample U one : udhr-article1\n");
+    assert_eq!(msgs.len(), 1, "{msgs:?}");
+    assert!(msgs[0].contains("write it with no sublabel"), "{}", msgs[0]);
+
+    let msgs = sample_errors("sample U : udhr-article1\nsample U mine\n|| text\n");
+    assert_eq!(msgs.len(), 1, "{msgs:?}");
+    assert!(
+        msgs[0].contains("writes its own list of texts"),
+        "{}",
+        msgs[0]
+    );
+}
+
 /// A `||` with nothing above it to continue is reported as what it is, rather
 /// than as an unrecognized directive that leaves the author rereading a line
 /// that is spelled perfectly well.

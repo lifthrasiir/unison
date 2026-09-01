@@ -40,6 +40,27 @@
 //! and the demo page carries the four. Its `demo.js` expands the same way this
 //! does, which is the one duplication the mode costs.
 //!
+//! # The modes that write their own text
+//!
+//! `udhr-article1` and `subdivision-flags` are the other kind: they take no
+//! `||` lines at all, and stand for a body of text the *build* assembles from
+//! its `-d` data directory — the translations of Article 1 a font can draw
+//! whole, and the emoji tag sequence of every CLDR subdivision. Both were
+//! already on `live.html`; writing them as a mode is what lets a source say
+//! whether it wants them, since a page shows one because the font is about
+//! those characters and not because the data file happens to be there.
+//!
+//! `udhr-article1` stands for a hundred-odd texts and not one, so it is only
+//! ever written on a line with *no* sublabel: the sublabels are the
+//! generator's — one per translation — and a line that named one would be
+//! naming the group. `subdivision-flags` is a single text and takes either
+//! form.
+//!
+//! Whoever holds the data directory fills these in ([`crate::render::demo`],
+//! and `live.html`'s own sections). Everyone else — the editor, which has no
+//! `-d` — sees the empty text they are written as, which is why a generated
+//! sample has no *Use* button in the editor.
+//!
 //! # What the axes are
 //!
 //! The last line is the innermost axis and runs *along* a line; the one before
@@ -76,6 +97,13 @@ pub enum SampleMode {
     Plain,
     /// Each line an axis of characters; what is offered is their product.
     Matrix,
+    /// Article 1 of the Universal Declaration of Human Rights, one text per
+    /// translation the font can draw whole
+    /// ([`crate::render::sample::udhr_selection`]).
+    UdhrArticle1,
+    /// One line per region of the emoji tag sequences its subdivisions have,
+    /// read from the CLDR containment data.
+    SubdivisionFlags,
 }
 
 impl SampleMode {
@@ -86,11 +114,31 @@ impl SampleMode {
     /// still offers its text rather than offering nothing.
     pub fn from_tokens<S: AsRef<str>>(tokens: &[S]) -> SampleMode {
         for token in tokens {
-            if token.as_ref() == "matrix" {
-                return SampleMode::Matrix;
+            match token.as_ref() {
+                "matrix" => return SampleMode::Matrix,
+                "udhr-article1" => return SampleMode::UdhrArticle1,
+                "subdivision-flags" => return SampleMode::SubdivisionFlags,
+                _ => {}
             }
         }
         SampleMode::Plain
+    }
+
+    /// Whether the text is the build's to produce rather than the source's to
+    /// write: a generated mode takes no `||` lines, and what it stands for is
+    /// only there once a build has the data directory to read it from.
+    pub fn is_generated(self) -> bool {
+        matches!(
+            self,
+            SampleMode::UdhrArticle1 | SampleMode::SubdivisionFlags
+        )
+    }
+
+    /// Whether the mode stands for a *list* of texts rather than one, which is
+    /// why it can only be written on a line with no sublabel: the sublabels are
+    /// the generator's to name.
+    pub fn is_group(self) -> bool {
+        matches!(self, SampleMode::UdhrArticle1)
     }
 }
 
@@ -110,8 +158,12 @@ impl SampleText {
     #[cfg_attr(all(not(feature = "editor"), not(test)), expect(dead_code))]
     pub fn expanded(&self) -> String {
         match self.mode {
-            SampleMode::Plain => self.raw.clone(),
             SampleMode::Matrix => expand_matrix(&self.raw),
+            // A generated mode has nothing written under it, so this is the
+            // empty string: whoever has the data directory fills the text in
+            // (`crate::render::demo`), and whoever does not — the editor's
+            // *Use* button — offers nothing rather than offering a blank.
+            _ => self.raw.clone(),
         }
     }
 }
@@ -176,14 +228,17 @@ impl SampleSet {
             else {
                 continue;
             };
+            let mode = SampleMode::from_tokens(mode);
             // A line with no `||` under it is an error `issues` reports; there
-            // is no text to offer, so there is nothing to put on a list.
-            if text.is_empty() {
+            // is no text to offer, so there is nothing to put on a list. A
+            // generated mode is the one line that is *meant* to be empty here
+            // — its text is filled in by the consumer that has the data.
+            if text.is_empty() && !mode.is_generated() {
                 continue;
             }
             let text = SampleText {
                 raw: text.join("\n"),
-                mode: SampleMode::from_tokens(mode),
+                mode,
             };
             let group = match set.groups.iter().position(|g| g.label == *label) {
                 Some(at) => &mut set.groups[at],
@@ -218,7 +273,22 @@ impl SampleSet {
 
 /// The `: MODE` values a `sample` line may state; anything else is a mode
 /// [`crate::issues`] rejects by name rather than one the build ignores.
-pub const SAMPLE_MODES: &[&str] = &["matrix"];
+pub const SAMPLE_MODES: &[&str] = &["matrix", "udhr-article1", "subdivision-flags"];
+
+impl SampleSet {
+    /// Whether any line of the source states this mode.
+    ///
+    /// The generated bodies of text are offered because a source asked for
+    /// them and not because the build has a data file that would fit: see
+    /// [`crate::render::sample`]'s `live.html` sections, which are the pages
+    /// this answers for.
+    pub fn uses(&self, mode: SampleMode) -> bool {
+        self.groups.iter().any(|group| {
+            group.text.as_ref().is_some_and(|t| t.mode == mode)
+                || group.items.iter().any(|i| i.text.mode == mode)
+        })
+    }
+}
 
 #[cfg(test)]
 mod tests {
@@ -339,5 +409,37 @@ mod tests {
     #[test]
     fn a_sample_with_no_text_is_not_offered() {
         assert!(set_of("sample Latin one\n").groups.is_empty());
+    }
+
+    /// A generated mode is the one line that is meant to carry no text: it is
+    /// offered so that whoever holds the data directory can fill it in.
+    #[test]
+    fn a_generated_sample_with_no_text_is_still_offered() {
+        let set = set_of("sample `UDHR Article 1` : udhr-article1\n");
+        let text = set.groups[0].text.as_ref().expect("the heading's own text");
+        assert_eq!(text.mode, SampleMode::UdhrArticle1);
+        assert_eq!(text.expanded(), "", "there is nothing here to expand");
+        assert!(set.uses(SampleMode::UdhrArticle1));
+        assert!(!set.uses(SampleMode::SubdivisionFlags));
+    }
+
+    #[test]
+    fn a_generated_mode_is_found_under_a_sublabel_too() {
+        let set = set_of("sample Flags `All subdivisions` : subdivision-flags\n");
+        assert_eq!(
+            set.groups[0].items[0].text.mode,
+            SampleMode::SubdivisionFlags
+        );
+        assert!(set.uses(SampleMode::SubdivisionFlags));
+    }
+
+    /// Only `udhr-article1` names its own sublabels; the other generated mode
+    /// is one text and takes either form.
+    #[test]
+    fn only_the_list_writing_mode_is_a_group() {
+        assert!(SampleMode::UdhrArticle1.is_group());
+        assert!(!SampleMode::SubdivisionFlags.is_group());
+        assert!(SampleMode::SubdivisionFlags.is_generated());
+        assert!(!SampleMode::Matrix.is_generated());
     }
 }

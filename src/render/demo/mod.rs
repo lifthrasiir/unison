@@ -58,12 +58,14 @@
 //! Three things it deliberately does not do. It has no size or mode control of
 //! its own: the header's two drive it, so the running text and the chart are
 //! always the same drawing at the same size and can be compared. It does not
-//! invent sample text, which is why the one group here is the UDHR selection
-//! `live.html` already shows ([`crate::render::sample::udhr_selection`]) —
-//! written out per translation rather than as one blob, because the *list* is
-//! what makes the panel worth having. And it does not keep what the reader
-//! types anywhere but `sessionStorage`, per sample: an edit survives a reload
-//! and a jump to another block, and nothing on this page outlives the tab.
+//! invent sample text: every group on the list is a [`sample`](crate::samples)
+//! line of the source, the generated ones included — a
+//! [`udhr-article1`](crate::samples::SampleMode::UdhrArticle1) line is filled
+//! in from [`crate::render::sample::udhr_selection`] here, written out per
+//! translation rather than as one blob, because the *list* is what makes the
+//! panel worth having. And it does not keep what the reader types anywhere but
+//! `sessionStorage`, per sample: an edit survives a reload and a jump to
+//! another block, and nothing on this page outlives the tab.
 //!
 //! # What the blob costs
 //!
@@ -171,18 +173,22 @@ struct DemoData {
 /// A group is a *body of data the page carries*, as against the empty sample a
 /// reader types into: it has a title of its own because a hundred and nineteen
 /// translations of one paragraph are one thing on the list and not a hundred
-/// and nineteen. The panel is a list of groups so that a second body of text
-/// added later needs nothing but another entry here.
+/// and nineteen. Every group is one `sample` label of the source, whether it
+/// wrote the texts or named a mode that writes them.
 #[derive(serde::Serialize)]
 struct DemoSampleGroup {
     title: String,
-    /// What the group is, spelled out where the title cannot be. Empty for a
-    /// group the source wrote, whose label is the whole of what it says.
+    /// What the group is, spelled out where the title cannot be. Empty unless
+    /// the group came from a generated mode: a label the source wrote is the
+    /// whole of what it says, where `UDHR Article 1` over a list of language
+    /// names is not.
     #[serde(skip_serializing_if = "String::is_empty")]
     note: String,
     /// The items' ids are UDHR translation keys the page turns into language
-    /// names. A group of [`sample`](crate::samples) lines is the other kind:
-    /// its ids are the sublabels as written, and the page prints them.
+    /// names, which is what a
+    /// [`udhr-article1`](crate::samples::SampleMode::UdhrArticle1) group is.
+    /// Every other group's ids are the sublabels as written, and the page
+    /// prints them.
     #[serde(skip_serializing_if = "std::ops::Not::not")]
     lang: bool,
     /// The text the heading itself carries, from a `sample LABEL` line with no
@@ -219,74 +225,102 @@ struct DemoSample {
 }
 
 /// The sample texts to embed: the source's own [`sample`](crate::samples)
-/// lines, then the UDHR selection `live.html` shows.
+/// lines, in the order it writes them.
 ///
-/// The source's come first because they are what the font's author chose to be
-/// read in; the UDHR selection is a body of text every font gets, and no font
-/// is *about* it.
+/// A line whose mode is a generated one carries no text of its own, and is
+/// filled in here — this is the half of the build that has the `-d` directory
+/// the generators read. A hundred-odd translations of one paragraph are a
+/// *group* and not a text, which is why `udhr-article1` replaces a heading's
+/// items where `subdivision-flags` replaces one text.
 ///
 /// The data directory is optional for every other part of this page, so a build
-/// with no `-d` still writes a demo — it just has no UDHR in it, and the panel
-/// says so rather than disappearing.
-fn collect_samples(
-    src: &SampleSource,
-    docs: &[&Document],
-    data_dir: Option<&Path>,
-) -> Vec<DemoSampleGroup> {
-    let mut groups: Vec<DemoSampleGroup> =
-        crate::samples::SampleSet::collect(docs.iter().flat_map(|doc| doc.items.iter()))
-            .groups
-            .into_iter()
-            .map(|group| DemoSampleGroup {
+/// with no `-d` still writes a demo. A generated group it cannot fill is
+/// dropped rather than offered empty: a name on the list that opens onto
+/// nothing is worse than one absence.
+fn collect_samples(src: &SampleSource, data_dir: Option<&Path>) -> Vec<DemoSampleGroup> {
+    use crate::samples::SampleMode;
+
+    // Read once for the whole page, however many lines ask: both are a file
+    // read and a parse, and a source may well offer one text under two labels.
+    let udhr = || {
+        data_dir
+            .and_then(|dir| crate::render::sample::udhr_selection(dir, src.cmap()).ok())
+            .unwrap_or_default()
+    };
+    let flags = || {
+        data_dir
+            .and_then(crate::render::sample::subdivisions_path)
+            .and_then(|path| crate::render::sample::subdivision_flags_text(&path).ok())
+            .unwrap_or_default()
+    };
+    let udhr = std::sync::LazyLock::new(udhr);
+    let flags = std::sync::LazyLock::new(flags);
+
+    let mut groups: Vec<DemoSampleGroup> = Vec::new();
+    for group in src.samples().groups.iter().cloned() {
+        let heading = group.text.as_ref().map(|t| t.mode).unwrap_or_default();
+        if heading == SampleMode::UdhrArticle1 {
+            if udhr.is_empty() {
+                continue;
+            }
+            groups.push(DemoSampleGroup {
                 title: group.label,
-                note: String::new(),
-                lang: false,
-                matrix: group
-                    .text
-                    .as_ref()
-                    .is_some_and(|t| t.mode == crate::samples::SampleMode::Matrix),
-                text: group.text.map(|t| t.raw).unwrap_or_default(),
-                items: group
-                    .items
-                    .into_iter()
-                    .map(|item| DemoSample {
-                        // The sublabel is both the key an edit is stored under and the
-                        // name on the list: it is unique within its group (`issues`
-                        // holds the source to that), so it needs no second string.
-                        id: item.sublabel,
-                        name: String::new(),
-                        matrix: item.text.mode == crate::samples::SampleMode::Matrix,
-                        text: item.text.raw,
+                note: UDHR_NOTE.to_string(),
+                lang: true,
+                text: String::new(),
+                matrix: false,
+                items: udhr
+                    .iter()
+                    .map(|e| DemoSample {
+                        id: e.lang.clone(),
+                        name: e.name.clone(),
+                        text: e.text.clone(),
+                        matrix: false,
                     })
                     .collect(),
+            });
+            continue;
+        }
+        let text = |mode: SampleMode, raw: String| match mode {
+            SampleMode::SubdivisionFlags => flags.clone(),
+            _ => raw,
+        };
+        let items: Vec<DemoSample> = group
+            .items
+            .into_iter()
+            .map(|item| DemoSample {
+                // The sublabel is both the key an edit is stored under and the
+                // name on the list: it is unique within its group (`issues`
+                // holds the source to that), so it needs no second string.
+                id: item.sublabel,
+                name: String::new(),
+                matrix: item.text.mode == SampleMode::Matrix,
+                text: text(item.text.mode, item.text.raw),
             })
+            // A generated text the build could not assemble is no text.
+            .filter(|item| !item.text.is_empty())
             .collect();
-
-    if let Some(dir) = data_dir
-        && let Ok(entries) = crate::render::sample::udhr_selection(dir, src.cmap())
-        && !entries.is_empty()
-    {
+        let heading_text = group.text.map(|t| text(t.mode, t.raw)).unwrap_or_default();
+        if items.is_empty() && heading_text.is_empty() {
+            continue;
+        }
         groups.push(DemoSampleGroup {
-            title: "UDHR Article 1".to_string(),
-            note: "Article 1 of the Universal Declaration of Human Rights, in every \
-                   translation this font can draw whole"
-                .to_string(),
-            lang: true,
-            text: String::new(),
-            matrix: false,
-            items: entries
-                .into_iter()
-                .map(|e| DemoSample {
-                    id: e.lang,
-                    name: e.name,
-                    text: e.text,
-                    matrix: false,
-                })
-                .collect(),
+            title: group.label,
+            note: String::new(),
+            lang: false,
+            matrix: heading == SampleMode::Matrix,
+            text: heading_text,
+            items,
         });
     }
     groups
 }
+
+/// What the `udhr-article1` group is, spelled out: its title is a label the
+/// source chose, and a list of language names says nothing about where the
+/// paragraph comes from or why these translations and not others.
+const UDHR_NOTE: &str = "Article 1 of the Universal Declaration of Human Rights, in every \
+                         translation this font can draw whole";
 
 /// The character names the page cannot spell for itself, front-coded.
 ///
@@ -436,7 +470,7 @@ fn collect(
         blocks: out_blocks,
         names,
         name_runs,
-        samples: collect_samples(src, docs, data_dir),
+        samples: collect_samples(src, data_dir),
     }
 }
 
@@ -825,5 +859,97 @@ map U+0301 = mark
             (2, "\u{ac00}FOO BAR".to_string()),
         ]);
         assert_eq!(names.text, vec!["0\u{ac00}FOO", "0\u{ac00}FOO BAR"]);
+    }
+
+    fn samples_of(src_text: &str, data_dir: Option<&Path>) -> Vec<DemoSampleGroup> {
+        let doc = crate::document_io::parse_document_from_str(src_text, "test.unf".into()).unwrap();
+        let resolution = crate::resolve::Resolution::compute(&[&doc]);
+        let src = SampleSource::collect_with(&[&doc], &resolution).unwrap();
+        collect_samples(&src, data_dir)
+    }
+
+    const MINIMAL: &str =
+        "meta height 16\nmeta ascent 12\nmeta descent 4\n\nglyph a 1 1\n@\n\nmap A = a\n\n";
+
+    /// A `udhr-article1` line is a heading with no text of its own; what the
+    /// panel gets is one item per translation, keyed by the UDHR's own key.
+    #[test]
+    fn a_udhr_line_becomes_one_item_per_translation() {
+        let dir = std::env::temp_dir().join(format!("uniform-demo-udhr-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(
+            dir.join("udhr-article1.json"),
+            r#"[{"lang":"eng","name":"English","text":"A"},
+                {"lang":"zzz","name":"Nothing","text":"Z"}]"#,
+        )
+        .unwrap();
+
+        let text = format!("{MINIMAL}sample `Article 1` : udhr-article1\n");
+        let groups = samples_of(&text, Some(&dir));
+        assert_eq!(groups.len(), 1);
+        assert_eq!(groups[0].title, "Article 1", "the label is the source's");
+        assert!(groups[0].lang, "the ids are language keys");
+        assert!(
+            !groups[0].note.is_empty(),
+            "and the note says what they are"
+        );
+        assert_eq!(
+            groups[0]
+                .items
+                .iter()
+                .map(|i| (i.id.as_str(), i.text.as_str()))
+                .collect::<Vec<_>>(),
+            vec![("eng", "A")],
+            "a translation the font cannot draw whole is not offered"
+        );
+
+        assert!(
+            samples_of(&text, None).is_empty(),
+            "a group the build cannot fill is dropped, not offered empty"
+        );
+
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    /// A `subdivision-flags` line is one text, and is filled in where it is
+    /// written — under a sublabel here, beside the source's own texts.
+    #[test]
+    fn a_subdivision_flags_line_becomes_one_text() {
+        let dir = std::env::temp_dir().join(format!("uniform-demo-flags-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(
+            dir.join("cldr-subdivisions-1.2.3.json"),
+            r#"{"subdivisions":{"GB":["gbsct"]}}"#,
+        )
+        .unwrap();
+
+        let text = format!(
+            "{MINIMAL}sample F `Mine`\n|| written\nsample F `Subdivisions` : subdivision-flags\n"
+        );
+        let groups = samples_of(&text, Some(&dir));
+        assert_eq!(groups.len(), 1);
+        assert_eq!(
+            groups[0]
+                .items
+                .iter()
+                .map(|i| (i.id.as_str(), i.text.as_str()))
+                .collect::<Vec<_>>(),
+            vec![
+                ("Mine", "written"),
+                (
+                    "Subdivisions",
+                    "GB \u{1f3f4}\u{e0067}\u{e0062}\u{e0073}\u{e0063}\u{e0074}\u{e007f}"
+                )
+            ]
+        );
+
+        let groups = samples_of(&text, None);
+        assert_eq!(
+            groups[0].items.len(),
+            1,
+            "the text the source wrote survives a build with no data directory"
+        );
+
+        std::fs::remove_dir_all(&dir).ok();
     }
 }

@@ -65,3 +65,9 @@ glyph .notdef 8 16
 ....\v@@@@@@@@@@
 ................
 
+## samples
+
+// the translations of Article 1 the font can draw whole; the build assembles
+// the list from `data/udhr-article1.json`.
+sample `UDHR Article 1` : udhr-article1
+

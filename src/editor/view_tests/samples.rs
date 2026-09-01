@@ -71,3 +71,12 @@ fn a_textless_sample_gets_no_button() {
     let h = EditorHarness::new("sample Latin pangram\n");
     assert!(h.sample_use_buttons().is_empty());
 }
+
+/// A generated mode's text is the build's, assembled from the `-d` directory
+/// the editor does not have. So it is written with no `||` lines and gets no
+/// button: there is nothing here to hand the preview.
+#[test]
+fn a_generated_sample_gets_no_button() {
+    let h = EditorHarness::new("sample `UDHR Article 1` : udhr-article1\n");
+    assert!(h.sample_use_buttons().is_empty());
+}

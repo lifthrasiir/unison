@@ -398,6 +398,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why a continuation is never tokenized, and the round trip that rests on one dedented line starting at column 0 | `document_io.rs` (`tokenize_strict`), `document/serialize.rs` (`sample_lines`) |
 | `sample LABEL [SUBLABEL] [: MODE]`: the two levels, why a label may carry a text itself, and what a mode says | `samples.rs`, `document_io.rs` (`# Directives`) |
 | `sample … : matrix`: the lines read as axes, which axis runs where, and why the product is expanded by each consumer rather than by the collection | `samples.rs` (`SampleMode`, `SampleText::expanded`), `render/demo/demo.js` (`sampleText`) |
+| `sample … : udhr-article1` / `subdivision-flags`: a text the build assembles from `-d` rather than one the source writes, why one of them is a whole group, and why the pages show it only when a line asks | `samples.rs` (`SampleMode::is_generated`, `is_group`), `render/demo/mod.rs` (`collect_samples`), `render/sample.rs` (`udhr_selection`, `subdivision_flags_text`) |
 | Where a `sample` reaches the reader: the demo's panel and the editor's *Use* button | `render/demo/mod.rs` (`collect_samples`), `editor/document_view/paint.rs` (`sample_use_rect`), `app/mod.rs` |
 | What a heading section holds, and why one lone `#` folds nothing | `editor/folding.rs` (`fold_groups`) |
 | Why a heading draws in zoom *steps*, and what marks the minimap | `document_view/layout.rs` (`heading_font_size`), `editor/minimap.rs` |

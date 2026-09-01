@@ -919,3 +919,96 @@ fn assert_components_fit(g: &SampleGlyph, max_w: i32, max_h: i32, label: &str) {
         );
     }
 }
+
+// ---------------------------------------------------------------------------
+// The generated sample modes on `live.html`
+// ---------------------------------------------------------------------------
+
+/// A minimal document that draws one character, so a `SampleSource` collects.
+fn live_doc(samples: &str) -> Document {
+    parse(&format!(
+        "meta height 16\nmeta ascent 12\nmeta descent 4\n\nglyph a 1 1\n@\n\nmap A = a\n\n{samples}"
+    ))
+}
+
+fn live_html_of(doc: &Document, data_dir: Option<&Path>) -> String {
+    let resolution = crate::resolve::Resolution::compute(&[doc]);
+    let src = SampleSource::collect_with(&[doc], &resolution).unwrap();
+    let mut buf = Vec::new();
+    write_live_html(&mut buf, &src, &[], data_dir).unwrap();
+    String::from_utf8(buf).unwrap()
+}
+
+/// The flags section is on the page because a `sample … : subdivision-flags`
+/// line asked for it. A font with nothing to say about flags gets neither the
+/// section nor the link that would open an empty one.
+#[test]
+fn the_live_flags_section_follows_the_sample_line() {
+    let without = live_html_of(&live_doc(""), None);
+    assert!(!without.contains("id=flags"), "no line asked for it");
+    assert!(!without.contains("All Flags"), "and so no link either");
+
+    let with = live_html_of(
+        &live_doc("sample F `Subdivisions` : subdivision-flags\n"),
+        None,
+    );
+    assert!(with.contains("id=flags"), "the line asked for it");
+    assert!(with.contains("All Flags"));
+}
+
+/// The same for the UDHR section, which needs the data file *as well as* the
+/// line: the two are separate reasons for it not to be there.
+#[test]
+fn the_live_udhr_section_needs_the_line_and_the_data() {
+    let dir = std::env::temp_dir().join(format!("uniform-live-udhr-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    std::fs::write(
+        dir.join("udhr-article1.json"),
+        r#"[{"lang":"eng","name":"English","text":"A"}]"#,
+    )
+    .unwrap();
+
+    let asked = live_doc("sample `UDHR Article 1` : udhr-article1\n");
+    assert!(
+        !live_html_of(&asked, None).contains("id=udhr"),
+        "the line is there but the data directory is not"
+    );
+    assert!(
+        !live_html_of(&live_doc(""), Some(&dir)).contains("id=udhr"),
+        "the data is there but nothing asked for it"
+    );
+    let html = live_html_of(&asked, Some(&dir));
+    assert!(html.contains("id=udhr"), "{html:.0}");
+    assert!(html.contains("English"));
+
+    std::fs::remove_dir_all(&dir).ok();
+}
+
+/// The text a `subdivision-flags` sample stands for: a line per region, and
+/// the tag sequence of each of its subdivisions run together. A code that
+/// cannot form a well-formed sequence is dropped, and a region left with
+/// nothing is no line at all.
+#[test]
+fn the_subdivision_flags_text_is_a_line_per_region() {
+    let dir = std::env::temp_dir().join(format!("uniform-subdiv-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let path = dir.join("cldr-subdivisions-1.2.3.json");
+    std::fs::write(
+        &path,
+        r#"{"subdivisions":{"GB":["gbsct","gbwls"],"US":["us-tx"]}}"#,
+    )
+    .unwrap();
+
+    assert_eq!(subdivisions_path(&dir).as_deref(), Some(path.as_path()));
+    assert_eq!(
+        subdivision_flags_text(&path).unwrap(),
+        format!(
+            "GB {}{}",
+            subdivision_flag_seq("gbsct").unwrap(),
+            subdivision_flag_seq("gbwls").unwrap()
+        ),
+        "`us-tx` is no tag sequence, so `US` is left with no line"
+    );
+
+    std::fs::remove_dir_all(&dir).ok();
+}
