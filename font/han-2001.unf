@@ -44,7 +44,8 @@
 // U+2F825  勇 (U+52C7 + VS2) != T1-502D (U+52C7 T-source)
 // U+2F826  勉 (U+52C9 + VS2) != T1-502E (U+52C9 T-source)
 // U+2F827  勤 (U+52E4 + VS2) != T1-633B (U+52E4 T-source)
-// U+2F828  勺 (U+52FA + VS2) = U+52FA.0
+glyph han-2f828 = han-52fa.0 // 勺
+map U+52FA U+FE01 = han-2f828
 // U+2F829  包 (U+5305 + VS1) != T1-457D (U+5305 T-source)
 // U+2F82A  匆 (U+5306 + VS1) != T1-457E (U+5306 T-source)
 // U+2F82B  北 (U+5317 + VS2) != T1-4621 (U+5317 T-source)
