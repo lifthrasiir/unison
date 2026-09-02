@@ -21,8 +21,14 @@ glyph han-22a6d:15x16 15 16 // 𢩭
 glyph han-22a73:15x16 15 16 // 𢩳
 ⿰ han-624c:5x16 1 han-5c71:9x16 // ⿰扌山
 
+glyph han-22a75:15x16 15 16 // 𢩵
+⿰ han-624c:5x16 1 han-5df1:9x16 // ⿰扌己
+
 glyph han-22a79:15x16 15 16 // 𢩹
 ⿰ han-624c:5x16 1 han-4e0b:9x16 // ⿰扌下
+
+glyph han-22a7d:15x16 15 16 // 𢩽
+⿰ han-624c:5x16 1 han-5df2:9x16 // ⿰扌已
 
 glyph han-22a7f:15x16 15 16 // 𢩿
 ⿰ han-624c:3x16 1 han-58eb:11x16 // ⿰扌士
@@ -56,6 +62,9 @@ glyph han-22a8f:15x16 15 16 // 𢪏
 glyph han-22aa0:15x16 15 16 // 𢪠
 ⿰ han-624c:5x16 1 han-4e2d:9x16 // ⿰扌中
 
+// glyph han-22aa6:15x16 15 16 // 𢪦
+// ⿰ han-624c han-20a2c // ⿰扌𠨬
+
 // glyph han-22aac:15x16 15 16 // 𢪬
 // ⿲ han-624c han-5b50 han-4e5a // ⿲扌子乚 <- ⿰扌孔
 
@@ -85,11 +94,20 @@ glyph han-22ab7:15x16 15 16 // 𢪷
 // glyph han-22ac4:15x16 15 16 // 𢫄
 // ⿲ han-624c han-6728 han-4e5a // ⿲扌木乚 <- ⿰扌札
 
+// glyph han-22ac6:15x16 15 16 // 𢫆
+// ⿰ han-624c han-672c // ⿰扌本
+
 glyph han-22ac8:15x16 15 16 // 𢫈
 ⿰ han-624c:5x16 1 han-53e4:9x16 // ⿰扌古
 
+// glyph han-22ac9:15x16 15 16 // 𢫉
+// ⿰ han-624c han-592f // ⿰扌夯
+
 // glyph han-22acb:15x16 15 16 // 𢫋
 // ⿰ han-624c han-51f8 // ⿰扌凸
+
+// glyph han-22ad6:15x16 15 16 // 𢫖
+// ⿰ han-624c han-672f // ⿰扌术
 
 // glyph han-22ad7:15x16 15 16 // 𢫗
 // ⿰ han-624b han-767d // ⿰手白
@@ -150,11 +168,17 @@ glyph han-22b0a:15x16 15 16 // 𢬊
 // glyph han-22b21:15x16 15 16 // 𢬡
 // ⿰ han-624c han-7cf8 // ⿰扌糸
 
+// glyph han-22b23:15x16 15 16 // 𢬣
+// ⿰ han-624b han-897f // ⿰手西
+
 glyph han-22b25:15x16 15 16 // 𢬥
 ⿲ han-624c:3x16 han-6c35:3x16 han-5de5:9x16 // ⿲扌氵工
 
 // glyph han-22b26:15x16 15 16 // 𢬦
 // ⿲ han-624c han-793b han-4e5a // ⿲扌礻乚 <- ⿰扌礼
+
+// glyph han-22b27:15x16 15 16 // 𢬧
+// ⿰ han-624c han-5e74 // ⿰扌年
 
 glyph han-22b28:15x16 15 16 // 𢬨
 ⿲ han-624c:3x16 han-6c35:3x16 han-5973:9x16 // ⿲扌氵女
@@ -169,6 +193,9 @@ glyph han-22b32:15x16 15 16 // 𢬲
 
 glyph han-22b3a:15x16 15 16 // 𢬺
 ⿲ han-624c:3x16 han-72ad:4x16 1 han-6728:7x16 // ⿲扌犭木
+
+// glyph han-22b44:15x16 15 16 // 𢭄
+// ⿰ han-624c han-5fcc // ⿰扌忌
 
 // glyph han-22b45:15x16 15 16 // 𢭅
 // ⿰ han-624c han-3da3 // ⿰扌㶣
@@ -253,6 +280,9 @@ glyph han-22b8c:15x16 15 16 // 𢮌
 // glyph han-22bb7:15x16 15 16 // 𢮷
 // ⿰ han-624c han-82b3 // ⿰扌芳
 
+// glyph han-22bb8:15x16 15 16 // 𢮸
+// ⿰ han-624c han-594c // ⿰扌奌
+
 // glyph han-22bc1:15x16 15 16 // 𢯁
 // ⿰ han-624c han-241ac // ⿰扌𤆬
 
@@ -267,6 +297,9 @@ glyph han-22bcf:15x16 15 16 // 𢯏
 
 glyph han-22bd0:15x16 15 16 // 𢯐
 ⿲ han-624c:3x16 han-5973:5x16 han-53e4:7x16 // ⿲扌女古
+
+// glyph han-22bd3:15x16 15 16 // 𢯓
+// ⿰ han-624c han-82ad // ⿰扌芭
 
 // glyph han-22bd4:15x16 15 16 // 𢯔
 // ⿲ han-624c han-820c han-5202 // ⿲扌舌刂 <- ⿰扌刮
@@ -293,6 +326,9 @@ glyph han-22be9:15x16 15 16 // 𢯩
 
 // glyph han-22bf5:15x16 15 16 // 𢯵
 // ⿲ han-624c han-76ee han-592c // ⿲扌目夬 <- ⿰扌䀗
+
+glyph han-22bf7:15x16 15 16 // 𢯷
+⿰ han-624c:5x16 1 han-97cb:9x16 // ⿰扌韋
 
 glyph han-22bf9:15x16 15 16 // 𢯹
 ⿰ han-624c:5x16 1 han-9769:9x16 // ⿰扌革
@@ -339,11 +375,23 @@ glyph han-22c50:15x16 15 16 // 𢱐
 // glyph han-22c55:15x16 15 16 // 𢱕
 // ⿰ han-624c han-8037 // ⿰扌耷
 
+// glyph han-22c56:15x16 15 16 // 𢱖
+// ⿰ han-624c han-67d0 // ⿰扌某
+
 // glyph han-22c57:15x16 15 16 // 𢱗
 // ⿰ han-624c han-82e6 // ⿰扌苦
 
 // glyph han-22c5a:15x16 15 16 // 𢱚
 // ⿰ han-624c han-98a8 // ⿰扌風
+
+// glyph han-22c5b:15x16 15 16 // 𢱛
+// ⿲ han-624c han-6c35 han-897f // ⿲扌氵西
+
+// glyph han-22c5d:15x16 15 16 // 𢱝
+// ⿰ han-624c han-8301 // ⿰扌茁
+
+// glyph han-22c5e:15x16 15 16 // 𢱞
+// ⿰ han-624b han-8301 // ⿰手茁
 
 ## 64.10
 
@@ -352,6 +400,9 @@ glyph han-22c50:15x16 15 16 // 𢱐
 
 // glyph han-22c76:15x16 15 16 // 𢱶
 // ⿰ han-624c han-2c530 // ⿰扌𬔰
+
+// glyph han-22c7e:15x16 15 16 // 𢱾
+// ⿰ han-624c han-4673 // ⿰扌䙳
 
 // glyph han-22c8e:15x16 15 16 // 𢲎
 // ⿲ han-624c han-821f han-72ac // ⿲扌舟犬 <- ⿰扌𦨚
@@ -370,6 +421,9 @@ glyph han-22ca5:15x16 15 16 // 𢲥
 
 glyph han-22cab:15x16 15 16 // 𢲫
 ⿰ han-624c:5x16 1 han-99ac:9x16 // ⿰扌馬
+
+glyph han-22cad:15x16 15 16 // 𢲭
+⿲ -3 han-624c:3x16 han-9149:7x16 1 han-5df1:7x16 // ⿲扌酉己
 
 glyph han-22cae:15x16 15 16 // 𢲮
 ⿲ han-624c:3x16 han-8033:6x16 han-6b62:6x16 // ⿲扌耳止

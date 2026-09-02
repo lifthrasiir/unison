@@ -27,6 +27,9 @@ glyph han-23c7c:15x16 15 16 // 𣱼
 // glyph han-23c82:15x16 15 16 // 𣲂
 // ⿱ han-5ddb han-6c34 // ⿱巛水
 
+glyph han-23c86:15x16 15 16 // 𣲆
+⿰ han-6c35:5x16 1 han-5df1:9x16 // ⿰氵己
+
 glyph han-23c89:15x16 15 16 // 𣲉
 ⿱ han-6c34:15x9 1 han-4e0b:15x6 // ⿱水下
 
@@ -59,11 +62,17 @@ glyph han-23c92:15x16 15 16 // 𣲒
 glyph han-23ca7:15x16 15 16 // 𣲧
 ⿰ han-6c35:5x16 1 han-706b:9x16 // ⿰氵火
 
+glyph han-23ca9:15x16 15 16 // 𣲩
+⿰ han-6c35:5x16 1 han-5df4:9x16 // ⿰氵巴
+
 // glyph han-23cac:15x16 15 16 // 𣲬
 // ⿰ han-6c35 han-624b // ⿰氵手
 
 glyph han-23cad:15x16 15 16 // 𣲭
 ⿰ han-6c35:5x16 1 han-6bdb:9x16 // ⿰氵毛
+
+glyph han-23caf:15x16 15 16 // 𣲯
+⿱ han-6c34:15x8 han-5df4:15x8 // ⿱水巴
 
 glyph han-23cb1:15x16 15 16 // 𣲱
 ⿱ han-706b:15x6 1 han-6c34:15x9 // ⿱火水
@@ -72,6 +81,9 @@ glyph han-23cb1:15x16 15 16 // 𣲱
 
 glyph han-23cb2:15x16 15 16 // 𣲲
 ⿰ han-6c35:5x16 1 han-79be:9x16 // ⿰氵禾
+
+// glyph han-23cb4:15x16 15 16 // 𣲴
+// ⿱ han-5f17 han-6c34 // ⿱弗水
 
 // glyph han-23cbd:15x16 15 16 // 𣲽
 // ⿰ han-6c35 han-5b82 // ⿰氵宂
@@ -88,6 +100,12 @@ glyph han-23cc8:15x16 15 16 // 𣳈
 glyph han-23cd1:15x16 15 16 // 𣳑
 ⿰ han-6c35:5x16 1 han-7533:9x16 // ⿰氵申
 
+glyph han-23cd4:15x16 15 16 // 𣳔
+⿰ han-6c35:5x16 1 han-7528:8x16 // ⿰氵用
+
+// glyph han-23cd5:15x16 15 16 // 𣳕
+// ⿱ han-672a han-6c34 // ⿱未水
+
 glyph han-23cd6:15x16 15 16 // 𣳖
 ⿱ han-6c34:15x8 han-53e4:15x8 // ⿱水古
 
@@ -101,6 +119,9 @@ glyph han-23ce9:15x16 15 16 // 𣳩
 
 // glyph han-23cee:15x16 15 16 // 𣳮
 // ⿰ han-6c35 han-5415 // ⿰氵吕
+
+glyph han-23cf3:15x16 15 16 // 𣳳
+⿱ han-8980:15x7 han-6c34:15x9 // ⿱覀水
 
 // glyph han-23d0d:15x16 15 16 // 𣴍
 // ⿰ han-6c35 han-7cf8 // ⿰氵糸
@@ -188,6 +209,9 @@ glyph han-23d76:15x16 15 16 // 𣵶
 ⿲ han-6c35:3x16 han-53e3:4x16 1 han-6b20:7x16 // ⿲氵口欠
 
 ## 85.8
+
+glyph han-23d77:15x16 15 16 // 𣵷
+⿲ han-6c35:3x16 han-7518:7x16 han-961d:5x16-r // ⿲氵甘阝
 
 // glyph han-23d79:15x16 15 16 // 𣵹
 // ⿱ han-6d30 han-571f // ⿱洰土
@@ -345,6 +369,9 @@ glyph han-23e90:15x16 15 16 // 𣺐
 
 glyph han-23e95:15x16 15 16 // 𣺕
 ⿲ han-6c35:3x16 han-8eca:5x16 han-5e72:7x16 // ⿲氵車干
+
+// glyph han-23e97:15x16 15 16 // 𣺗
+// ⿰ han-6c35 han-4673 // ⿰氵䙳
 
 // glyph han-23e9e:15x16 15 16 // 𣺞
 // ⿰ han-6c35 han-8349 // ⿰氵草

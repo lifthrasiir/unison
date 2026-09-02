@@ -46,6 +46,11 @@ glyph han-3069e-($han-regions):15x16 15 16 // 𰚞
 glyph han-306a3:15x16 15 16 // 𰚣
 ⿺ han-6bdb:15x16.10x14 han-9580:9x12 6 0 // ⿺毛門
 
+## 82.9
+
+// glyph han-306a4:15x16 15 16 // 𰚤
+// ⿰ han-5794 han-6bdb // ⿰垔毛
+
 ## 82.10
 
 // glyph han-306a7:15x16 15 16 // 𰚧
@@ -93,6 +98,9 @@ glyph han-306cf:15x16 15 16 // 𰛏
 glyph han-306de:15x16 15 16 // 𰛞
 ⿲ han-6c35:3x16 han-738b:7x16 han-529b:5x16 // ⿲氵王力
 
+// glyph han-306e5:15x16 15 16 // 𰛥
+// ⿰ han-6c35 han-5c82 // ⿰氵岂
+
 ## 85.7
 
 // glyph han-306f6:15x16 15 16 // 𰛶
@@ -139,6 +147,9 @@ glyph han-3070c:15x16 15 16 // 𰜌
 // ⿰ han-6c35 han-4eb2 // ⿰氵亲
 
 ## 85.10
+
+// glyph han-30726:15x16 15 16 // 𰜦
+// ⿰ han-6c35 han-24bc5 // ⿰氵𤯅
 
 glyph han-30727:15x16 15 16 // 𰜧
 ⿲ han-6c35:3x16 han-65e5:5x16 han-5409:7x16 // ⿲氵日吉
@@ -320,6 +331,12 @@ glyph han-3083f:15x16 15 16 // 𰠿
 
 ## 94.5
 
+// glyph han-30843:15x16 15 16 // 𰡃
+// ⿰ han-72ad han-672a // ⿰犭未
+
+glyph han-30846:15x16 15 16 // 𰡆
+⿰ han-72ad:6x16 1 han-7528:8x16 // ⿰犭用
+
 // glyph han-30848:15x16 15 16 // 𰡈
 // ⿰ han-72ac han-4e14 // ⿰犬且
 
@@ -410,6 +427,23 @@ glyph han-30874:15x16 15 16 // 𰡴
 // glyph han-30892:15x16 15 16 // 𰢒
 // ⿱ han-967d han-7389 // ⿱陽玉
 
+# CJK unified ideographs extension G: 甘 (99)
+
+## 99.4
+
+glyph han-308a7:15x16 15 16 // 𰢧
+⿱ han-7518:15x9 1 han-5fc3:15x6 // ⿱甘心
+
+glyph han-308a8:15x16 15 16 // 𰢨
+⿰ han-7518:7x16 han-6708:8x16 // ⿰甘月
+
+# CJK unified ideographs extension G: 用 (101)
+
+## 101.5
+
+glyph han-308b1:15x16 15 16 // 𰢱
+⿰ han-7528:7x16 1 han-7528:7x16 // ⿰用用
+
 # CJK unified ideographs extension G: 田 (102)
 
 ## 102.1
@@ -444,6 +478,9 @@ glyph han-308c4:15x16 15 16 // 𰣄
 
 glyph han-308c6:15x16 15 16 // 𰣆
 ⿰ han-7532:7x16 1 han-5404:7x16 // ⿰甲各
+
+// glyph han-308c9:15x16 15 16 // 𰣉
+// ⿰ han-7537 han-738b // ⿰男王
 
 ## 102.12
 
@@ -534,6 +571,9 @@ glyph han-30926:15x16 15 16 // 𰤦
 // ⿰ han-76ae han-22451 // ⿰皮𢑑
 
 ## 107.7
+
+// glyph han-30928-($han-regions):15x16 15 16 // 𰤨
+// ⿰ han-76ae han-8fbe-($-1) // ⿰皮达
 
 glyph han-30929:15x16 15 16 // 𰤩
 ⿲ -1 han-76ae:8x16 han-79be:5x16 han-5202:3x16 // ⿲皮禾刂

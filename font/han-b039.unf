@@ -7,6 +7,9 @@
 
 ## 39.2
 
+// glyph han-2193e:15x16 15 16 // 𡤾
+// ⿸ han-5b50 han-20120 // ⿸子𠄠
+
 // glyph han-2193f:15x16 15 16 // 𡤿
 // ⿰ han-5b50 han-4eba // ⿰子人
 
@@ -46,6 +49,9 @@ glyph han-21950:15x16 15 16 // 𡥐
 // glyph han-21951:15x16 15 16 // 𡥑
 // ⿲ han-5b50 han-6728 han-4e5a // ⿲子木乚 <- ⿰子札
 
+// glyph han-21952:15x16 15 16 // 𡥒
+// ⿰ han-672a han-5b50 // ⿰未子
+
 glyph han-21954:15x16 15 16 // 𡥔
 ⿱ han-7530:15x5 2 han-5b50:15x9 // ⿱田子
 
@@ -59,6 +65,9 @@ glyph han-21954:15x16 15 16 // 𡥔
 
 // glyph han-2195c:15x16 15 16 // 𡥜
 // ⿳ han-5b80 han-5ddb han-5b50 // ⿳宀巛子 <- ⿱宀㜽
+
+glyph han-2195f:15x16 15 16 // 𡥟
+⿱ han-8980:15x5 2 han-5b50:15x9 // ⿱覀子
 
 // glyph han-21960:15x16 15 16 // 𡥠
 // ⿰ han-5b50 han-8840 // ⿰子血
@@ -159,8 +168,8 @@ glyph han-219c9:15x16 15 16 // 𡧉
 
 ## 40.5
 
-// glyph han-219da:15x16 15 16 // 𡧚
-// ⿳ han-5b80 han-5c71 han-529b // ⿳宀山力 <- ⿱宀屴
+glyph han-219da:15x16 15 16 // 𡧚
+⿳ han-5b80:15x4 -1 han-5c71:15x7 han-529b:15x6 // ⿳宀山力
 
 // glyph han-219db:15x16 15 16 // 𡧛
 // ⿱ han-5b80 han-4ed8 // ⿱宀付
@@ -177,8 +186,8 @@ glyph han-219e1:15x16 15 16 // 𡧡
 // glyph han-219e2:15x16 15 16 // 𡧢
 // ⿳ han-5b80 han-5de5 han-516b // ⿳宀工八
 
-// glyph han-219e8:15x16 15 16 // 𡧨
-// ⿱ han-5b80 han-51fa // ⿱宀出
+glyph han-219e8:15x16 15 16 // 𡧨
+⿱ han-5b80:15x4 han-51fa:15x12 // ⿱宀出
 
 ## 40.6
 
@@ -196,6 +205,9 @@ glyph han-219e9:15x16 15 16 // 𡧩
 
 // glyph han-219f2:15x16 15 16 // 𡧲
 // ⿰ han-5b81 han-4e2d // ⿰宁中
+
+// glyph han-219f3:15x16 15 16 // 𡧳
+// ⿱ han-5b80 han-897f // ⿱宀西
 
 glyph han-219f6:15x16 15 16 // 𡧶
 ⿳ han-5b80:15x5 -1 han-5927:15x5 han-53e3:15x7 // ⿳宀大口
@@ -278,6 +290,9 @@ glyph han-21a3c:15x16 15 16 // 𡨼
 
 ## 40.9
 
+// glyph han-21a3e:15x16 15 16 // 𡨾
+// ⿳ han-5b80 han-897f han-571f // ⿳宀西土
+
 glyph han-21a41:15x16 15 16 // 𡩁
 ⿳ han-5b80:15x4 han-7acb:15x5 han-6728:15x7 // ⿳宀立木
 
@@ -356,6 +371,9 @@ ref han-571f:15x4 0 12
 
 // glyph han-21ac5:15x16 15 16 // 𡫅
 // ⿳ han-5b8c han-76ee han-706b // ⿳完目火
+
+// glyph han-21aca:15x16 15 16 // 𡫊
+// ⿳ han-5b80 han-8980 han-8f9b // ⿳宀覀辛
 
 // glyph han-21acc:15x16 15 16 // 𡫌
 // ⿳ han-5b80 han-83ab han-529b // ⿳宀莫力 <- ⿱宀募

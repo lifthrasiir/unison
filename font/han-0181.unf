@@ -299,6 +299,9 @@ ref han-20628:15x16.9x15
 // glyph han-98b8:15x16 15 16 // 颸
 // ⿺ han-98a8 han-601d // ⿺風思
 
+// glyph han-98b9:15x16 15 16 // 颹
+// ⿺ han-98a8 han-97cb // ⿺風韋
+
 // glyph han-98ba:15x16 15 16 // 颺
 // ⿺ han-98a8 han-661c // ⿺風昜
 
@@ -660,6 +663,9 @@ glyph han-99ec:15x16 15 16 // 駬
 
 glyph han-99ee:15x16 15 16 // 駮
 ⿰ han-99ac:7x16 1 han-4ea4:7x16 // ⿰馬交
+
+// glyph han-99f0:15x16 15 16 // 駰
+// ⿰ han-99ac han-56e0 // ⿰馬因
 
 glyph han-99f1:15x16 15 16 // 駱
 ⿰ han-99ac:7x16 1 han-5404:7x16 // ⿰馬各

@@ -26,6 +26,9 @@ glyph han-31cf5:15x16 15 16 // 𱳵
 
 ## 112.7
 
+glyph han-31d03:15x16 15 16 // 𱴃
+⿲ han-77f3:5x16 han-624c:3x16 han-5df4:7x16 // ⿲石扌巴
+
 // glyph han-31d07:15x16 15 16 // 𱴇
 // ⿰ han-77f3 han-5448 // ⿰石呈
 
@@ -108,6 +111,11 @@ glyph han-31d9e:15x16 15 16 // 𱶞
 
 # CJK unified ideographs extension H: 穴 (116)
 
+## 116.5
+
+// glyph han-31db5:15x16 15 16 // 𱶵
+// ⿳ han-5b80 han-516b han-5f17 // ⿳宀八弗
+
 ## 116.6
 
 // glyph han-31db8:15x16 15 16 // 𱶸
@@ -119,6 +127,9 @@ glyph han-31d9e:15x16 15 16 // 𱶞
 // ⿳ han-5b80 han-513f han-8f9b // ⿳宀儿辛 <- ⿱⿱宀儿辛
 
 ## 116.8
+
+// glyph han-31dc4:15x16 15 16 // 𱷄
+// ⿳ han-5b80 han-513f han-5769 // ⿳宀儿坩
 
 // glyph han-31dc8:15x16 15 16 // 𱷈
 // ⿳ han-5b80 han-516b han-5351 // ⿳宀八卑 <- ⿱穴卑
@@ -196,6 +207,9 @@ glyph han-31e0b:15x16 15 16 // 𱸋
 
 ## 118.9
 
+// glyph han-31e0d:15x16 15 16 // 𱸍
+// ⿳ han-25ad7 han-8980 han-5973 // ⿳𥫗覀女
+
 // glyph han-31e13-($han-regions):15x16 15 16 // 𱸓
 // ⿱ han-25ad7 han-7956-($-1) // ⿱𥫗祖
 
@@ -248,7 +262,13 @@ glyph han-31e39:15x16 15 16 // 𱸹
 glyph han-31e44:15x16 15 16 // 𱹄
 ⿰ han-7c73:7x16 1 han-8eca:7x16 // ⿰米車
 
+// glyph han-31e45:15x16 15 16 // 𱹅
+// ⿳ han-4e00 han-897f han-7c73 // ⿳一西米
+
 ## 119.9
+
+// glyph han-31e4d:15x16 15 16 // 𱹍
+// ⿰ han-7c73 han-67d0 // ⿰米某
 
 // glyph han-31e50:15x16 15 16 // 𱹐
 // ⿰ han-7c73 han-8304 // ⿰米茄
@@ -408,6 +428,11 @@ glyph han-31f2a:15x16 15 16 // 𱼪
 
 # CJK unified ideographs extension H: 舟 (137)
 
+## 137.3
+
+glyph han-31f36:15x16 15 16 // 𱼶
+⿰ han-821f:7x16 1 han-5df3:7x16 // ⿰舟巳
+
 ## 137.4
 
 glyph han-31f37:15x16 15 16 // 𱼷
@@ -454,6 +479,9 @@ glyph han-31f37:15x16 15 16 // 𱼷
 // ⿳ han-8279 han-5b80 han-5bf8 // ⿳艹宀寸 <- ⿱艹守
 
 ## 140.7
+
+// glyph han-31f69:15x16 15 16 // 𱽩
+// ⿱ han-8279 han-628a // ⿱艹把
 
 // glyph han-31f6b:15x16 15 16 // 𱽫
 // ⿱ han-8279 han-6c9b // ⿱艹沛
@@ -578,6 +606,13 @@ glyph han-31ff2:15x16 15 16 // 𱿲
 
 // glyph han-31ffd:15x16 15 16 // 𱿽
 // ⿰ han-866b han-7f61 // ⿰虫罡
+
+# CJK unified ideographs extension H: 血 (143)
+
+## 143.9
+
+// glyph han-32019:15x16 15 16 // 𲀙
+// ⿰ han-8840 han-67d0 // ⿰血某
 
 # CJK unified ideographs extension H: 衣 (145)
 

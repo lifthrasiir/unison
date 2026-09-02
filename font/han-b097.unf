@@ -1,3 +1,87 @@
+# CJK unified ideographs extension B: 甘 (99)
+
+## 99.0
+
+// glyph han-24bba:15x16 15 16 // 𤮺
+// ⿶ han-51f5 han-20120 // ⿶凵𠄠
+
+## 99.3
+
+glyph han-24bbb:15x16 15 16 // 𤮻
+⿱ han-5e72:15x7 han-7518:15x9 // ⿱干甘
+
+glyph han-24bbd:15x16 15 16 // 𤮽
+⿰ han-7518:7x16 1 han-5e72:7x16 // ⿰甘干
+
+// glyph han-24bbe:15x16 15 16 // 𤮾
+// ⿰ han-5140 han-7518 // ⿰兀甘
+
+// glyph han-24bbf:15x16 15 16 // 𤮿
+// ⿰ han-7518 han-5140 // ⿰甘兀
+
+glyph han-24bc0:15x16 15 16 // 𤯀
+⿱ han-7518:15x9 1 han-5e72:15x6 // ⿱甘干
+
+## 99.4
+
+// glyph han-24bc2:15x16 15 16 // 𤯂
+// ⿰ han-7518 han-72ac // ⿰甘犬
+
+glyph han-24bc3:15x16 15 16 // 𤯃
+⿱ han-6728:15x7 han-7518:15x9 // ⿱木甘
+
+## 99.5
+
+glyph han-24bc5:15x16 15 16 // 𤯅
+⿱ han-7518:15x9 1 han-6b63:15x6 // ⿱甘正
+
+## 99.8
+
+glyph han-24bc7:15x16 15 16 // 𤯇
+⿰ han-7518:7x16 1 han-708e:7x16 // ⿰甘炎
+
+## 99.9
+
+glyph han-24bc8-($han-regions):15x16 15 16 // 𤯈
+⿰ han-7518:7x16 1 han-8005-($-1):7x16 // ⿰甘者
+
+## 99.11
+
+// glyph han-24bcc:15x16 15 16 // 𤯌
+// ⿸ han-9ebb han-7518 // ⿸麻甘
+
+# CJK unified ideographs extension B: 用 (101)
+
+## 101.2
+
+// glyph han-24c04:15x16 15 16 // 𤰄
+// ⿱ han-5200 han-7528 // ⿱刀用
+
+## 101.3
+
+// glyph han-21da4:15x16 15 16 // 𡶤
+// ⿱ han-5c71 han-7528 // ⿱山用
+
+## 101.5
+
+glyph han-20ceb:15x16 15 16 // 𠳫
+⿰ han-53e4:7x16 han-7528:8x16 // ⿰古用
+
+## 101.7
+
+// glyph han-24c09:15x16 15 16 // 𤰉
+// ⿱ han-8db3 han-7528 // ⿱足用
+
+## 101.9
+
+// glyph han-24c0a:15x16 15 16 // 𤰊
+// ⿳ han-8980 han-5973 han-7528 // ⿳覀女用
+
+## 101.10
+
+// glyph han-24c0c:15x16 15 16 // 𤰌
+// ⿱ han-7528 han-308b1 // ⿱用𰢱
+
 # CJK unified ideographs extension B: 田 (102)
 
 ## 102.1
@@ -16,13 +100,13 @@
 // glyph han-24c1a:15x16 15 16 // 𤰚
 // ⿱ han-4e5d han-7530 // ⿱九田
 
-// glyph han-24c1b:15x16 15 16 // 𤰛
-// ⿱ han-529b han-7530 // ⿱力田
+glyph han-24c1b:15x16 15 16 // 𤰛
+⿱ han-529b:15x6 1 han-7530:15x9 // ⿱力田
 
 ## 102.3
 
 glyph han-211cd:15x16 15 16 // 𡇍
-⿴ han-56d7:15x16.11x12 han-7530:9x11 3 2 // ⿴囗田
+⿴ han-56d7:15x16.11x12 han-7530:9x10 3 3 // ⿴囗田
 
 glyph han-22456:15x16 15 16 // 𢑖
 ⿱ han-5f50.1:15x7 2 han-7532:15x7 // ⿱𫜹甲
@@ -55,6 +139,9 @@ glyph han-24c2a:15x16 15 16 // 𤰪
 
 glyph han-24c33:15x16 15 16 // 𤰳
 ⿱ han-5929:15x8 1 han-7530:15x7 // ⿱天田
+
+glyph han-24c37:15x16 15 16 // 𤰷
+⿰ han-7533:7x16 1 han-5df4:7x16 // ⿰申巴
 
 glyph han-24c39:15x16 15 16 // 𤰹
 ⿰ han-7530:7x16-l 1 han-706b:7x16 // ⿰田火
@@ -90,6 +177,9 @@ glyph han-24c52:15x16 15 16 // 𤱒
 
 glyph han-24c57:15x16 15 16 // 𤱗
 ⿱ han-7530:15x9 han-7acb:15x7 // ⿱田立
+
+// glyph han-24c59:15x16 15 16 // 𤱙
+// ⿰ han-7530 han-672c // ⿰田本
 
 glyph han-24c5b:15x16 15 16 // 𤱛
 ⿰ han-7530:7x16-l 1 han-79be:7x16 // ⿰田禾
@@ -155,6 +245,9 @@ glyph han-24cad:15x16 15 16 // 𤲭
 
 // glyph han-24cb4:15x16 15 16 // 𤲴
 // ⿲ han-7530 han-6c34 han-7530 // ⿲田水田
+
+// glyph han-24cb6:15x16 15 16 // 𤲶
+// ⿰ han-7537 han-7537 // ⿰男男
 
 ## 102.10
 

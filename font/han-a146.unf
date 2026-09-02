@@ -1,3 +1,20 @@
+# CJK unified ideographs extension A: 襾 (146)
+
+## 146.3
+
+glyph han-4672:15x16 15 16 // 䙲
+⿱ han-8980:15x5 han-5927:15x11 // ⿱覀大
+
+## 146.4
+
+glyph han-4673:15x16 15 16 // 䙳
+⿱ -1 han-8980:15x5 han-706b:15x12 // ⿱覀火
+
+## 146.6
+
+// glyph han-4675:15x16 15 16 // 䙵
+// ⿱ han-8980 han-572d // ⿱覀圭
+
 # CJK unified ideographs extension A: 見 (147)
 
 ## 147.3
@@ -18,10 +35,18 @@ glyph han-467a:15x16 15 16 // 䙺
 glyph han-467c:15x16 15 16 // 䙼
 ⿰ han-53ec:8x16 han-898b:7x16 // ⿰召見
 
+// glyph han-467f:15x16 15 16 // 䙿
+// ⿰ han-672a han-898b // ⿰未見
+
 ## 147.6
 
 glyph han-4680:15x16 15 16 // 䚀
 ⿰ han-821f:7x16 han-898b:8x16 // ⿰舟見
+
+## 147.9
+
+// glyph han-4688:15x16 15 16 // 䚈
+// ⿰ han-5794 han-898b // ⿰垔見
 
 ## 147.10
 
@@ -74,8 +99,14 @@ glyph han-46c6:15x16 15 16 // 䛆
 glyph han-46cc:15x16 15 16 // 䛌
 ⿰ han-8a01:7x16 1 han-5305:7x16 // ⿰訁包
 
+glyph han-46cd:15x16 15 16 // 䛍
+⿰ han-8a01:5x16 1 han-5f17:9x16 // ⿰訁弗
+
 // glyph han-46ce:15x16 15 16 // 䛎
 // ⿰ han-8a01 han-5b82 // ⿰訁宂
+
+// glyph han-46cf:15x16 15 16 // 䛏
+// ⿰ han-8a01 han-5c3c // ⿰訁尼
 
 ## 149.6
 
@@ -195,6 +226,9 @@ glyph han-477c-(k|p):15x16 15 16 // 䝼
 // glyph han-479d:15x16 15 16 // 䞝
 // ⿺ han-8d70 han-7389 // ⿺走玉
 
+// glyph han-479e:15x16 15 16 // 䞞
+// ⿺ han-8d70 han-5f17 // ⿺走弗
+
 // glyph han-479f:15x16 15 16 // 䞟
 // ⿺ han-8d70 han-767d // ⿺走白
 
@@ -270,6 +304,9 @@ glyph han-47d8:15x16 15 16 // 䟘
 
 glyph han-47e1:15x16 15 16 // 䟡
 ⿰ han-27fb7:5x16 han-6c10:10x16 // ⿰𧾷氐
+
+// glyph han-47e3:15x16 15 16 // 䟣
+// ⿰ han-27fb7 han-672f // ⿰𧾷术
 
 glyph han-47e7:15x16 15 16 // 䟧
 ⿰ han-27fb7:5x16 1 han-7530:9x16 // ⿰𧾷田
@@ -529,6 +566,9 @@ glyph han-48f5:15x16 15 16 // 䣵
 
 ## 164.9
 
+// glyph han-4902:15x16 15 16 // 䤂
+// ⿰ han-9149 han-67d0 // ⿰酉某
+
 // glyph han-4903:15x16 15 16 // 䤃
 // ⿰ han-9149 han-97f3 // ⿰酉音
 
@@ -554,6 +594,11 @@ glyph han-4905:15x16 15 16 // 䤅
 
 glyph han-4920:15x16 15 16 // 䤠
 ⿰ han-91d2:5x16-l han-6b62:10x16 // ⿰釒止
+
+## 167.5
+
+// glyph han-4922:15x16 15 16 // 䤢
+// ⿰ han-91d2 han-53e6 // ⿰釒另
 
 ## 167.6
 
@@ -600,6 +645,11 @@ glyph han-493a:15x16 15 16 // 䤺
 
 glyph han-495f:15x16 15 16 // 䥟
 ⿲ han-91d2:5x16-l han-624c:3x16 han-66f7:7x16 // ⿲釒扌曷
+
+## 167.14
+
+// glyph han-4968:15x16 15 16 // 䥨
+// ⿰ han-91d2 han-95ad // ⿰釒閭
 
 ## 167.16
 
@@ -712,6 +762,9 @@ glyph han-49c4:15x16 15 16 // 䧄
 
 // glyph han-49c7:15x16 15 16 // 䧇
 // ⿰ han-961d han-8863 // ⿰阝衣
+
+// glyph han-49c8:15x16 15 16 // 䧈
+// ⿰ han-961d han-8980 // ⿰阝覀
 
 ## 170.7
 

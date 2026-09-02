@@ -99,6 +99,9 @@ glyph han-22d83:15x16 15 16 // 𢶃
 glyph han-22d86:15x16 15 16 // 𢶆
 ⿲ -2 han-624c:3x16 han-66f7:7x16 han-6b20:7x16 // ⿲扌曷欠
 
+// glyph han-22d8d:15x16 15 16 // 𢶍
+// ⿰ han-624c han-4a9e // ⿰扌䪞
+
 glyph han-22d8f:15x16 15 16 // 𢶏
 ⿲ han-624c:3x16 han-7968:7x16 1 han-5202:4x16 // ⿲扌票刂
 
@@ -116,6 +119,9 @@ glyph han-22d96:15x16 15 16 // 𢶖
 
 // glyph han-22db9:15x16 15 16 // 𢶹
 // ⿲ han-624c han-65e5 han-97f3 // ⿲扌日音 <- ⿰扌暗
+
+// glyph han-22dc3:15x16 15 16 // 𢷃
+// ⿰ han-624c han-9599 // ⿰扌閙
 
 ## 64.14
 

@@ -35,6 +35,9 @@
 // glyph han-2366b:15x16 15 16 // 𣙫
 // ⿰ han-6728 han-7b20 // ⿰木笠
 
+// glyph han-2366c:15x16 15 16 // 𣙬
+// ⿰ han-6817 han-5de8 // ⿰栗巨
+
 glyph han-2366f:15x16 15 16 // 𣙯
 ⿲ -2 han-6728:5x16 -1 han-571f:7x16 -1 han-96b9:7x16 // ⿲木土隹
 
@@ -87,8 +90,14 @@ glyph han-236ed-($han-regions):15x16 15 16 // 𣛭
 
 ## 75.13
 
+// glyph han-23702:15x16 15 16 // 𣜂
+// ⿰ han-6728 han-4a9e // ⿰木䪞
+
 // glyph han-2371d:15x16 15 16 // 𣜝
 // ⿰ han-6728 han-95a0 // ⿰木閠
+
+// glyph han-2373e-($han-regions):15x16 15 16 // 𣜾
+// ⿱ han-672a han-6e1a-($-1) // ⿱未渚
 
 // glyph han-2373f:15x16 15 16 // 𣜿
 // ⿰ han-6728 han-8449 // ⿰木葉
@@ -106,6 +115,9 @@ glyph han-23757:15x16 15 16 // 𣝗
 
 // glyph han-23769:15x16 15 16 // 𣝩
 // ⿰ han-6728 han-69c0 // ⿰木槀
+
+// glyph han-2376d:15x16 15 16 // 𣝭
+// ⿰ han-6817 han-6c93 // ⿰栗沓
 
 // glyph han-2377a:15x16 15 16 // 𣝺
 // ⿲ han-6728 han-54e5 han-6728 // ⿲木哥木
@@ -128,6 +140,9 @@ glyph han-237f2:15x16 15 16 // 𣟲
 
 // glyph han-237f6:15x16 15 16 // 𣟶
 // ⿳ han-8279 han-7a1a han-6728 // ⿳艹稚木 <- ⿱䕌木
+
+// glyph han-23816-($han-regions):15x16 15 16 // 𣠖
+// ⿱ han-672a han-8af8-($-1) // ⿱未諸
 
 ## 75.18
 

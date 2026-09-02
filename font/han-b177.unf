@@ -38,8 +38,14 @@ glyph han-29275:15x16 15 16 // 𩉵
 glyph han-29278:15x16 15 16 // 𩉸
 ⿰ han-9769:7x16 1 han-5de8:7x16 // ⿰革巨
 
+// glyph han-29279:15x16 15 16 // 𩉹
+// ⿰ han-9769 han-5c3c // ⿰革尼
+
 glyph han-2927c:15x16 15 16 // 𩉼
 ⿰ han-9769:7x16 1 han-7533:7x16 // ⿰革申
+
+// glyph han-2927d:15x16 15 16 // 𩉽
+// ⿰ han-9769 han-5f17 // ⿰革弗
 
 glyph han-2927e:15x16 15 16 // 𩉾
 ⿰ han-9769:7x16 1 han-7532:7x16 // ⿰革甲
@@ -163,6 +169,9 @@ glyph han-292f0:15x16 15 16 // 𩋰
 glyph han-292f5-($han-regions):15x16 15 16 // 𩋵
 ⿰ han-9769:7x16 1 han-8005-($-1):7x16 // ⿰革者
 
+glyph han-292fe:15x16 15 16 // 𩋾
+⿰ han-9769:7x16 1 han-97cb:7x16 // ⿰革韋
+
 ## 177.10
 
 // glyph han-25315:15x16 15 16 // 𥌕
@@ -218,22 +227,119 @@ glyph han-29365:15x16 15 16 // 𩍥
 // glyph han-2936e:15x16 15 16 // 𩍮
 // ⿰ han-9769 han-7b95 // ⿰革箕
 
+# CJK unified ideographs extension B: 韋 (178)
+
+## 178.3
+
+glyph han-29392:15x16 15 16 // 𩎒
+⿰ han-97cb:9x16 1 han-5e72:5x16 // ⿰韋干
+
+## 178.4
+
+// glyph han-29393:15x16 15 16 // 𩎓
+// ⿰ han-97cb han-72ac // ⿰韋犬
+
+glyph han-29396:15x16 15 16 // 𩎖
+⿰ han-97cb:7x16 1 han-4eca:7x16 // ⿰韋今
+
+glyph han-29397:15x16 15 16 // 𩎗
+⿰ han-97cb:7x16 1 han-6b20:7x16 // ⿰韋欠
+
+## 178.5
+
+glyph han-29398:15x16 15 16 // 𩎘
+⿰ han-97cb:7x16 1 han-5305:7x16 // ⿰韋包
+
+// glyph han-2939b:15x16 15 16 // 𩎛
+// ⿰ han-97cb han-5f17 // ⿰韋弗
+
+glyph han-2939e:15x16 15 16 // 𩎞
+⿰ han-53f0:7x16 1 han-97cb:7x16 // ⿰台韋
+
+// glyph han-2939f:15x16 15 16 // 𩎟
+// ⿰ han-97cb han-672a // ⿰韋未
+
+glyph han-293a0:15x16 15 16 // 𩎠
+⿲ -1 han-97cb:7x16 han-4ebb:3x16 han-5bf8:6x16 // ⿲韋亻寸
+
+// glyph han-293a1:15x16 15 16 // 𩎡
+// ⿰ han-5f17 han-97cb // ⿰弗韋
+
+glyph han-293a3:15x16 15 16 // 𩎣
+⿰ han-97cb:9x16 han-53ec:6x16 // ⿰韋召
+
+## 178.6
+
+glyph han-293a6:15x16 15 16 // 𩎦
+⿰ han-97cb:7x16 1 han-4ea4:7x16 // ⿰韋交
+
+// glyph han-293a7:15x16 15 16 // 𩎧
+// ⿲ han-97cb han-4ebb han-72ac // ⿲韋亻犬
+
+// glyph han-293aa:15x16 15 16 // 𩎪
+// ⿰ han-97cb han-56e0 // ⿰韋因
+
+glyph han-293ac:15x16 15 16 // 𩎬
+⿰ han-97cb:7x16 1 han-5404:7x16 // ⿰韋各
+
+## 178.7
+
+glyph han-293b5:15x16 15 16 // 𩎵
+⿲ -4 han-4ebb:3x16 han-5f17:9x16 han-97cb:7x16 // ⿲亻弗韋
+
+## 178.8
+
+glyph han-293bb:15x16 15 16 // 𩎻
+⿰ han-97cb:7x16 1 han-975e:7x16 // ⿰韋非
+
+// glyph han-293bd:15x16 15 16 // 𩎽
+// ⿰ han-97cb han-6c93 // ⿰韋沓
+
+// glyph han-293bf:15x16 15 16 // 𩎿
+// ⿰ han-97cb han-660c // ⿰韋昌
+
+glyph han-293c2:15x16 15 16 // 𩏂
+⿰ han-97cb:9x16 han-5351:6x16 // ⿰韋卑
+
+glyph han-293c3:15x16 15 16 // 𩏃
+⿲ -3 han-97cb:7x16 han-5f73:3x16 han-76ae:8x16 // ⿲韋彳皮
+
+## 178.9
+
+glyph han-293cc:15x16 15 16 // 𩏌
+⿰ han-97cb:7x16 han-66f7:8x16 // ⿰韋曷
+
+## 178.13
+
+// glyph han-293ed:15x16 15 16 // 𩏭
+// ⿲ han-97cb han-91d2 han-672c // ⿲韋釒本
+
 # CJK unified ideographs extension B: 韭 (179)
 
 ## 179.7
 
-// glyph han-29404:15x16 15 16 // 𩐄
-// ⿳ han-541e han-975e han-4e00 // ⿳吞非一 <- ⿱吞韭
+glyph han-29404:15x16 15 16 // 𩐄
+⿳ -4 han-5929:15x8 han-53e3:15x4 han-97ed:15x8 // ⿳天口韭
 
 ## 179.11
 
 // glyph han-2940d:15x16 15 16 // 𩐍
 // ⿳ han-83ab han-975e han-4e00 // ⿳莫非一 <- ⿱莫韭
 
+## 179.12
+
+// glyph han-2940f:15x16 15 16 // 𩐏
+// ⿰ han-756a han-97ed // ⿰番韭
+
 ## 179.13
 
 // glyph han-29411:15x16 15 16 // 𩐑
 // ⿳ han-282f0 han-975e han-4e00 // ⿳𨋰非一 <- ⿱𨋰韭
+
+## 179.16
+
+// glyph han-29416:15x16 15 16 // 𩐖
+// ⿳ han-79be han-83ab han-97ed // ⿳禾莫韭
 
 # CJK unified ideographs extension B: 音 (180)
 
@@ -246,6 +352,9 @@ glyph han-29365:15x16 15 16 // 𩍥
 // ⿰ han-97f3 han-65a4 // ⿰音斤
 
 ## 180.5
+
+// glyph han-2941a:15x16 15 16 // 𩐚
+// ⿰ han-97f3 han-5f17 // ⿰音弗
 
 // glyph han-2941c:15x16 15 16 // 𩐜
 // ⿰ han-97f3 han-5305 // ⿰音包

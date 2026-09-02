@@ -28,8 +28,14 @@ glyph han-2946d:15x16 15 16 // 𩑭
 glyph han-29470:15x16 15 16 // 𩑰
 ⿰ han-65e6:9x16 1 han-9801:5x16 // ⿰旦頁
 
+// glyph han-29475:15x16 15 16 // 𩑵
+// ⿰ han-672a han-9801 // ⿰未頁
+
 glyph han-29476:15x16 15 16 // 𩑶
 ⿰ han-53e4:7x16 1 han-9801:7x16 // ⿰古頁
+
+// glyph han-29477:15x16 15 16 // 𩑷
+// ⿰ han-672b han-9801 // ⿰末頁
 
 glyph han-29478:15x16 15 16 // 𩑸
 ⿰ han-53ef:8x16 han-9801:7x16 // ⿰可頁
@@ -42,6 +48,9 @@ glyph han-2947d:15x16 15 16 // 𩑽
 
 glyph han-2947e:15x16 15 16 // 𩑾
 ⿰ han-6c10:8x16 han-9801:7x16 // ⿰氐頁
+
+// glyph han-29485:15x16 15 16 // 𩒅
+// ⿰ han-672c han-9801 // ⿰本頁
 
 // glyph han-29487:15x16 15 16 // 𩒇
 // ⿰ han-5144 han-9801 // ⿰兄頁
@@ -143,6 +152,11 @@ glyph han-2950a:15x16 15 16 // 𩔊
 // glyph han-29511:15x16 15 16 // 𩔑
 // ⿰ han-67bc han-9801 // ⿰枼頁
 
+## 181.10
+
+// glyph han-29520:15x16 15 16 // 𩔠
+// ⿲ han-76ee han-672a han-9801 // ⿲目未頁
+
 ## 181.11
 
 // glyph han-29536:15x16 15 16 // 𩔶
@@ -232,14 +246,29 @@ glyph han-29587:15x16 15 16 // 𩖇
 // glyph han-295b5-($han-regions):15x16 15 16 // 𩖵
 // ⿺ han-98a8 han-4ee4-($-1) // ⿺風令
 
+// glyph han-295b6:15x16 15 16 // 𩖶
+// ⿺ han-98a8 han-672f // ⿺風术
+
 // glyph han-295b7:15x16 15 16 // 𩖷
 // ⿺ han-98a8 han-51fa // ⿺風出
+
+// glyph han-295b9:15x16 15 16 // 𩖹
+// ⿺ han-98a8 han-5c3c // ⿺風尼
+
+// glyph han-295ba:15x16 15 16 // 𩖺
+// ⿺ han-98a8 han-7518 // ⿺風甘
+
+// glyph han-295bc:15x16 15 16 // 𩖼
+// ⿺ han-98a8 han-5f17 // ⿺風弗
 
 // glyph han-295bd:15x16 15 16 // 𩖽
 // ⿺ han-98a8 han-76ae // ⿺風皮
 
 // glyph han-295c0:15x16 15 16 // 𩗀
 // ⿺ han-98a8 han-767d // ⿺風白
+
+// glyph han-295c2:15x16 15 16 // 𩗂
+// ⿺ han-98a8 han-672b // ⿺風末
 
 // glyph han-295c3:15x16 15 16 // 𩗃
 // ⿺ han-98a8 han-4e14 // ⿺風且
@@ -257,6 +286,9 @@ glyph han-29587:15x16 15 16 // 𩖇
 
 // glyph han-295cc:15x16 15 16 // 𩗌
 // ⿺ han-98a8 han-5218 // ⿺風刘
+
+// glyph han-295cf:15x16 15 16 // 𩗏
+// ⿱ han-8980 han-98a8 // ⿱覀風
 
 // glyph han-295d0:15x16 15 16 // 𩗐
 // ⿺ han-98a8 han-7c73 // ⿺風米
@@ -324,13 +356,22 @@ glyph han-29587:15x16 15 16 // 𩖇
 // glyph han-2960f:15x16 15 16 // 𩘏
 // ⿺ han-98a8 han-67bc // ⿺風枼
 
+// glyph han-29614:15x16 15 16 // 𩘔
+// ⿰ han-5794 han-98a8 // ⿰垔風
+
 // glyph han-29618:15x16 15 16 // 𩘘
 // ⿺ han-98a8 han-6cc9 // ⿺風泉
+
+// glyph han-2961a:15x16 15 16 // 𩘚
+// ⿰ han-97cb han-98a8 // ⿰韋風
 
 ## 182.10
 
 // glyph han-2960e:15x16 15 16 // 𩘎
 // ⿺ han-98a8 han-5bab // ⿺風宫
+
+// glyph han-2961f:15x16 15 16 // 𩘟
+// ⿺ han-98a8 han-6817 // ⿺風栗
 
 ## 182.11
 
@@ -342,3 +383,8 @@ glyph han-29587:15x16 15 16 // 𩖇
 
 // glyph han-29637:15x16 15 16 // 𩘷
 // ⿰ han-7fcf han-98a8 // ⿰翏風
+
+## 182.12
+
+// glyph han-29643:15x16 15 16 // 𩙃
+// ⿲ han-5f73 han-97cb han-98a8 // ⿲彳韋風

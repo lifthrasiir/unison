@@ -47,6 +47,9 @@ glyph han-221f6:15x16 15 16 // 𢇶
 glyph han-221f8:15x16 15 16 // 𢇸
 ⿸ han-5e7f:15x16.11x13 han-4e16:9x12 5 4 // ⿸广世
 
+// glyph han-221fe:15x16 15 16 // 𢇾
+// ⿸ han-5e7f han-7518 // ⿸广甘
+
 // glyph han-221ff:15x16 15 16 // 𢇿
 // ⿸ han-5e7f han-51fa // ⿸广出
 
@@ -139,6 +142,9 @@ glyph han-22258:15x16 15 16 // 𢉘
 // glyph han-22269:15x16 15 16 // 𢉩
 // ⿸ han-5e7f han-97f3 // ⿸广音
 
+// glyph han-2226c:15x16 15 16 // 𢉬
+// ⿸ han-5e7f han-5794 // ⿸广垔
+
 // glyph han-22274:15x16 15 16 // 𢉴
 // ⿸ han-5e7f han-662f // ⿸广是
 
@@ -179,6 +185,11 @@ glyph han-22258:15x16 15 16 // 𢉘
 
 // glyph han-222de-($han-regions):15x16 15 16 // 𢋞
 // ⿸ han-5e7f han-9818-($-1) // ⿸广領
+
+## 53.17
+
+// glyph han-22301:15x16 15 16 // 𢌁
+// ⿸ han-9ebb han-97ed // ⿸麻韭
 
 # CJK unified ideographs extension B: 弋 (56)
 

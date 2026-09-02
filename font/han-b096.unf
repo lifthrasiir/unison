@@ -92,6 +92,9 @@ ref han-248e9:7x16
 glyph han-248f0:15x16 15 16 // 𤣰
 ⿰ han-248e9:5x16 1 han-571f:9x16 // ⿰𤣩土
 
+glyph han-248f1:15x16 15 16 // 𤣱
+⿰ han-248e9:5x16 1 han-5df2:9x16 // ⿰𤣩已
+
 // glyph han-248f6:15x16 15 16 // 𤣶
 // ⿱ han-7389 han-5c71 // ⿱玉山
 
@@ -120,6 +123,12 @@ glyph han-24914:15x16 15 16 // 𤤔
 glyph han-24915:15x16 15 16 // 𤤕
 ⿲ han-248e9:3x16 han-4ebb:3x16 han-5bf8:9x16 // ⿲𤣩亻寸
 
+glyph han-24916:15x16 15 16 // 𤤖
+⿰ han-248e9:5x16 1 han-5f17:9x16 // ⿰𤣩弗
+
+// glyph han-24917:15x16 15 16 // 𤤗
+// ⿰ han-248e9 han-5c3c // ⿰𤣩尼
+
 // glyph han-24919:15x16 15 16 // 𤤙
 // ⿰ han-7389 han-4e16 // ⿰玉世
 
@@ -141,6 +150,9 @@ glyph han-24926:15x16 15 16 // 𤤦
 glyph han-24927:15x16 15 16 // 𤤧
 ⿰ han-248e9:5x16 1 han-7531:9x16 // ⿰𤣩由
 
+glyph han-2492a:15x16 15 16 // 𤤪
+⿰ han-248e9:7x16 han-7528:8x16 // ⿰𤣩用
+
 // glyph han-24934:15x16 15 16 // 𤤴
 // ⿰ han-7389 han-7389 // ⿰玉玉
 
@@ -158,11 +170,17 @@ glyph han-24944:15x16 15 16 // 𤥄
 glyph han-24947:15x16 15 16 // 𤥇
 ⿰ han-248e9:7x16 1 han-81f3:7x16 // ⿰𤣩至
 
+// glyph han-24949:15x16 15 16 // 𤥉
+// ⿰ han-248e9 han-827b // ⿰𤣩艻
+
 // glyph han-2494f:15x16 15 16 // 𤥏
 // ⿱ han-5982 han-7389 // ⿱如玉
 
 glyph han-24950:15x16 15 16 // 𤥐
 ⿰ han-248e9:5x16 1 han-5409:9x16 // ⿰𤣩吉
+
+// glyph han-24952:15x16 15 16 // 𤥒
+// ⿰ han-248e9 han-897f // ⿰𤣩西
 
 // glyph han-24953:15x16 15 16 // 𤥓
 // ⿱ han-5408 han-7389 // ⿱合玉
@@ -245,8 +263,14 @@ glyph han-249ae:15x16 15 16 // 𤦮
 // glyph han-249b8:15x16 15 16 // 𤦸
 // ⿲ han-248e9 han-4ebb han-5446 // ⿲𤣩亻呆 <- ⿰𤣩保
 
+// glyph han-249c0:15x16 15 16 // 𤧀
+// ⿰ han-248e9 han-67d0 // ⿰𤣩某
+
 // glyph han-249c2-($han-regions):15x16 15 16 // 𤧂
 // ⿱ han-73a8 han-4ee4-($-1) // ⿱玨令
+
+// glyph han-249c6:15x16 15 16 // 𤧆
+// ⿱ han-73a8 han-672c // ⿱玨本
 
 glyph han-249c7:15x16 15 16 // 𤧇
 ⿲ han-248e9:3x16 han-6728:5x16 han-76ee:7x16 // ⿲𤣩木目
@@ -259,6 +283,9 @@ glyph han-249d0:15x16 15 16 // 𤧐
 
 // glyph han-249d1:15x16 15 16 // 𤧑
 // ⿰ han-248e9 han-98a8 // ⿰𤣩風
+
+// glyph han-249d5:15x16 15 16 // 𤧕
+// ⿰ han-248e9 han-5794 // ⿰𤣩垔
 
 // glyph han-249e5:15x16 15 16 // 𤧥
 // ⿱ han-73c0 han-7389 // ⿱珀玉

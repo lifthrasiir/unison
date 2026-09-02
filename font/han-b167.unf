@@ -13,6 +13,9 @@ glyph han-2893f:15x16 15 16 // 𨤿
 glyph han-28947:15x16 15 16 // 𨥇
 ⿰ han-91d2:5x16-l 1 han-5bf8:9x16 // ⿰釒寸
 
+glyph han-28948:15x16 15 16 // 𨥈
+⿰ han-91d2:5x16-l 1 han-5df1:9x16 // ⿰釒己
+
 glyph han-28949:15x16 15 16 // 𨥉
 ⿰ han-91d2:5x16-l 1 han-5c71:9x16 // ⿰釒山
 
@@ -85,6 +88,9 @@ glyph han-2898d:15x16 15 16 // 𨦍
 glyph han-289a1:15x16 15 16 // 𨦡
 ⿰ han-91d2:7x16 1 han-7f8a:7x16 // ⿰釒羊
 
+// glyph han-289a7:15x16 15 16 // 𨦧
+// ⿰ han-91d2 han-5e74 // ⿰釒年
+
 ## 167.7
 
 glyph han-289ac:15x16 15 16 // 𨦬
@@ -95,6 +101,9 @@ glyph han-289ac:15x16 15 16 // 𨦬
 
 // glyph han-289ba:15x16 15 16 // 𨦺
 // ⿰ han-91d2 han-9091 // ⿰釒邑
+
+// glyph han-289bb:15x16 15 16 // 𨦻
+// ⿰ han-91d2 han-7537 // ⿰釒男
 
 glyph han-289c0:15x16 15 16 // 𨧀
 ⿲ -1 han-91d2:5x16-l han-6728:5x16 -1 han-571f:7x16 // ⿲釒木土
@@ -113,6 +122,9 @@ glyph han-289dd:15x16 15 16 // 𨧝
 
 glyph han-289e0:15x16 15 16 // 𨧠
 ⿲ han-91d2:5x16-l han-6708:5x16 han-5e72:5x16 // ⿲釒月干
+
+// glyph han-289e2:15x16 15 16 // 𨧢
+// ⿲ han-91d2 han-53e6 han-5202 // ⿲釒另刂
 
 ## 167.8
 
@@ -139,6 +151,9 @@ glyph han-28a0f:15x16 15 16 // 𨨏
 
 // glyph han-28a11:15x16 15 16 // 𨨑
 // ⿱ han-548c han-91d1 // ⿱和金
+
+// glyph han-28a13:15x16 15 16 // 𨨓
+// ⿲ han-91d2 han-5973 han-672a // ⿲釒女未
 
 // glyph han-28a16:15x16 15 16 // 𨨖
 // ⿱ han-73a8 han-91d1 // ⿱玨金
@@ -196,6 +211,9 @@ glyph han-28a65:15x16 15 16 // 𨩥
 // glyph han-28a69:15x16 15 16 // 𨩩
 // ⿰ han-91d2 han-5192 // ⿰釒冒
 
+// glyph han-28a80:15x16 15 16 // 𨪀
+// ⿰ han-91d2 han-67d0 // ⿰釒某
+
 // glyph han-28a85:15x16 15 16 // 𨪅
 // ⿱ han-9239 han-6bdb // ⿱鈹毛
 
@@ -218,6 +236,9 @@ glyph han-28ab7:15x16 15 16 // 𨪷
 
 // glyph han-28ac3:15x16 15 16 // 𨫃
 // ⿰ han-91d2 han-5bb0 // ⿰釒宰
+
+// glyph han-28aca:15x16 15 16 // 𨫊
+// ⿰ han-91d2 han-6817 // ⿰釒栗
 
 ## 167.11
 
@@ -298,6 +319,9 @@ glyph han-28b60:15x16 15 16 // 𨭠
 
 glyph han-28bac:15x16 15 16 // 𨮬
 ⿲ -3 han-91d2:5x16-l han-7968:7x16 han-5bf8:6x16 // ⿲釒票寸
+
+// glyph han-28bb1:15x16 15 16 // 𨮱
+// ⿰ han-91d2 han-7b87 // ⿰釒箇
 
 glyph han-28bb6:15x16 15 16 // 𨮶
 ⿲ han-91d2:5x16-l han-6c35:3x16 han-7968:7x16 // ⿲釒氵票

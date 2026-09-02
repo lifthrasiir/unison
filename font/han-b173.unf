@@ -33,7 +33,7 @@ glyph han-29081:15x16 15 16 // 𩂁
 // ⿱ han-96e8 han-4eca // ⿱雨今
 
 glyph han-29088:15x16 15 16 // 𩂈
-⿱ han-96e8:15x8 1 han-5fc3:15x6 // ⿱雨心
+⿱ han-96e8:15x8 1 han-5fc3:15x7 // ⿱雨心
 
 glyph han-29089:15x16 15 16 // 𩂉
 ⿱ han-96e8:15x7 1 han-5929:15x8 // ⿱雨天
@@ -48,6 +48,9 @@ glyph han-2908d:15x16 15 16 // 𩂍
 ⿱ han-96e8:15x7 han-6c34:15x9 // ⿱雨水
 
 ## 173.5
+
+// glyph han-29095-($han-regions):15x16 15 16 // 𩂕
+// ⿱ han-96e8-($-1) han-5f17 // ⿱雨弗
 
 // glyph han-29097-($han-regions):15x16 15 16 // 𩂗
 // ⿱ han-96e8-($-1) han-51fa // ⿱雨出
@@ -65,6 +68,9 @@ glyph han-29098:15x16 15 16 // 𩂘
 
 // glyph han-290a4-($han-regions):15x16 15 16 // 𩂤
 // ⿱ han-96e8-($-1) han-821f // ⿱雨舟
+
+// glyph han-290a5-($han-regions):15x16 15 16 // 𩂥
+// ⿱ han-96e8-($-1) han-56e0 // ⿱雨因
 
 // glyph han-290a6:15x16 15 16 // 𩂦
 // ⿱ han-96e8 han-5e76 // ⿱雨并
@@ -245,6 +251,9 @@ glyph han-29151:15x16 15 16 // 𩅑
 // glyph han-29183-($han-regions):15x16 15 16 // 𩆃
 // ⿳ han-96e8-($-1) han-6b21 han-8c9d // ⿳雨次貝 <- ⿱雨資
 
+glyph han-29185-($han-regions):15x16 15 16 // 𩆅
+⿳ -7 han-96e8:15x6 1 han-5929:15x8 han-97ed:15x8 // ⿳雨天韭
+
 // glyph han-2918f:15x16 15 16 // 𩆏
 // ⿱ han-96e8 han-8449 // ⿱雨葉
 
@@ -341,6 +350,9 @@ glyph han-291df-($han-regions):15x16 15 16 // 𩇟
 // glyph han-291ee:15x16 15 16 // 𩇮
 // ⿱ han-975e han-624b // ⿱非手
 
+// glyph han-291ef:15x16 15 16 // 𩇯
+// ⿱ han-975e han-5df4 // ⿱非巴
+
 // glyph han-291f0:15x16 15 16 // 𩇰
 // ⿳ han-4ea0 han-975e han-4eba // ⿳亠非人
 
@@ -357,6 +369,9 @@ glyph han-291df-($han-regions):15x16 15 16 // 𩇟
 
 // glyph han-291f5:15x16 15 16 // 𩇵
 // ⿱ han-975e han-53e4 // ⿱非古
+
+// glyph han-291f6:15x16 15 16 // 𩇶
+// ⿱ han-672c han-975e // ⿱本非
 
 ## 175.6
 
@@ -394,10 +409,18 @@ glyph han-291fe:15x16 15 16 // 𩇾
 // glyph han-29205:15x16 15 16 // 𩈅
 // ⿰ han-9762 han-5e72 // ⿰面干
 
+## 176.4
+
+// glyph han-29206:15x16 15 16 // 𩈆
+// ⿰ han-9762 han-5df4 // ⿰面巴
+
 ## 176.5
 
 // glyph han-2920d:15x16 15 16 // 𩈍
 // ⿰ han-9762 han-65e6 // ⿰面旦
+
+// glyph han-29210:15x16 15 16 // 𩈐
+// ⿰ han-9762 han-672a // ⿰面未
 
 // glyph han-29212:15x16 15 16 // 𩈒
 // ⿰ han-9762 han-79be // ⿰面禾
@@ -407,6 +430,9 @@ glyph han-291fe:15x16 15 16 // 𩇾
 
 // glyph han-29216-($han-regions):15x16 15 16 // 𩈖
 // ⿰ han-9762 han-4ee4-($-1) // ⿰面令
+
+// glyph han-29218:15x16 15 16 // 𩈘
+// ⿰ han-672b han-9762 // ⿰末面
 
 ## 176.6
 

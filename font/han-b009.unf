@@ -38,10 +38,16 @@ glyph han-201c8:15x16 15 16 // 𠇈
 glyph han-201d4:15x16 15 16 // 𠇔
 ⿰ han-4ebb:5x16 1 han-6bdb:9x16 // ⿰亻毛
 
+glyph han-201d5:15x16 15 16 // 𠇕
+⿰ han-4ebb:5x16 1 han-5df4:9x16 // ⿰亻巴
+
 ## 9.5
 
 // glyph han-201dd:15x16 15 16 // 𠇝
 // ⿰ han-4ebb han-20ba1 // ⿰亻𠮡
+
+// glyph han-201e0:15x16 15 16 // 𠇠
+// ⿺ han-672a han-4eba // ⿺未人
 
 glyph han-201e3:15x16 15 16 // 𠇣
 ⿰ 1 han-4ebb:5x16 1 han-793a:7x16 // ⿰亻示
@@ -51,6 +57,15 @@ glyph han-201e3:15x16 15 16 // 𠇣
 
 // glyph han-201e5:15x16 15 16 // 𠇥
 // ⿲ han-4ebb han-4e28 han-6587 // ⿲亻丨文
+
+// glyph han-201f1:15x16 15 16 // 𠇱
+// ⿰ han-4ebb han-672b // ⿰亻末
+
+// glyph han-201f2:15x16 15 16 // 𠇲
+// ⿰ han-4ebb han-672f // ⿰亻术
+
+// glyph han-201f4:15x16 15 16 // 𠇴
+// ⿰ han-4ebb han-592f // ⿰亻夯
 
 glyph han-201fa:15x16 15 16 // 𠇺
 ⿰ han-4ebb:5x16 1 han-7532:9x16 // ⿰亻甲
@@ -69,6 +84,9 @@ glyph han-20204:15x16 15 16 // 𠈄
 // glyph han-2020f:15x16 15 16 // 𠈏
 // ⿱ han-5408 han-4eba // ⿱合人
 
+// glyph han-20220:15x16 15 16 // 𠈠
+// ⿰ han-4ebb han-5e74 // ⿰亻年
+
 ## 9.7
 
 // glyph han-20233:15x16 15 16 // 𠈳
@@ -76,6 +94,9 @@ glyph han-20204:15x16 15 16 // 𠈄
 
 // glyph han-2023b:15x16 15 16 // 𠈻
 // ⿰ han-4ebb han-27bab // ⿰亻𧮫
+
+// glyph han-20242-($han-regions):15x16 15 16 // 𠉂
+// ⿰ han-4ebb han-8fbe-($-1) // ⿰亻达
 
 // glyph han-20244:15x16 15 16 // 𠉄
 // ⿰ han-4ebb han-8f9b // ⿰亻辛
@@ -95,10 +116,16 @@ glyph han-20204:15x16 15 16 // 𠈄
 // glyph han-20257:15x16 15 16 // 𠉗
 // ⿲ han-4ebb han-820c han-4e5a // ⿲亻舌乚 <- ⿰亻乱
 
+// glyph han-2025e:15x16 15 16 // 𠉞
+// ⿱ han-4eca han-5c3c // ⿱今尼
+
 ## 9.8
 
 // glyph han-20264:15x16 15 16 // 𠉤
 // ⿰ han-4ebb han-6c93 // ⿰亻沓
+
+// glyph han-20272:15x16 15 16 // 𠉲
+// ⿱ han-5408 han-5df4 // ⿱合巴
 
 // glyph han-20274:15x16 15 16 // 𠉴
 // ⿰ han-4ebb han-96e8 // ⿰亻雨
@@ -138,6 +165,9 @@ glyph han-2029c:15x16 15 16 // 𠊜
 glyph han-202c7:15x16 15 16 // 𠋇
 ⿲ han-4ebb:3x16 han-7c73:5x16 han-961d:7x16-r // ⿲亻米阝
 
+// glyph han-202e6:15x16 15 16 // 𠋦
+// ⿰ han-4ebb han-67d0 // ⿰亻某
+
 ## 9.10
 
 glyph han-202f4:15x16 15 16 // 𠋴
@@ -165,6 +195,9 @@ glyph han-20335:15x16 15 16 // 𠌵
 
 glyph han-20356-($han-regions):15x16 15 16 // 𠍖
 ⿲ han-4ebb:3x16 han-91d2:7x16 han-52fa-($-1):5x16 // ⿲亻釒勺
+
+glyph han-2035f:15x16 15 16 // 𠍟
+⿲ -5 han-4ebb:3x16 han-540c:7x16 1 han-5f17:9x16 // ⿲亻同弗
 
 glyph han-20363:15x16 15 16 // 𠍣
 ⿲ han-4ebb:3x16 han-624c:3x16 han-975e:9x16 // ⿲亻扌非
@@ -200,6 +233,9 @@ glyph han-203af:15x16 15 16 // 𠎯
 
 ## 9.13
 
+// glyph han-203b7:15x16 15 16 // 𠎷
+// ⿰ han-4ebb han-4a9e // ⿰亻䪞
+
 glyph han-203bc:15x16 15 16 // 𠎼
 ⿲ han-4ebb:3x16 han-7968:7x16 1 han-5202:4x16 // ⿲亻票刂
 
@@ -229,6 +265,11 @@ glyph han-20415:15x16 15 16 // 𠐕
 
 glyph han-2043e:15x16 15 16 // 𠐾
 ⿲ han-4ebb:3x16 han-5176:6x16 1 han-9801:5x16 // ⿲亻其頁
+
+## 9.18
+
+// glyph han-20452:15x16 15 16 // 𠑒
+// ⿲ han-4ebb han-97cb han-98a8 // ⿲亻韋風
 
 ## 9.20
 

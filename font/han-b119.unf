@@ -30,6 +30,9 @@ glyph han-25e37:15x16 15 16 // 𥸷
 glyph han-25e39:15x16 15 16 // 𥸹
 ⿰ han-7c73:5x16 1 han-6587:9x16 // ⿰米文
 
+// glyph han-25e3f:15x16 15 16 // 𥸿
+// ⿺ han-5df4 han-7c73 // ⿺巴米
+
 // glyph han-25e40:15x16 15 16 // 𥹀
 // ⿰ han-7c73 han-5fc3 // ⿰米心
 
@@ -37,6 +40,9 @@ glyph han-25e39:15x16 15 16 // 𥸹
 
 glyph han-25e43:15x16 15 16 // 𥹃
 ⿲ han-7c73:5x16 han-4ebb:3x16 han-5bf8:7x16 // ⿲米亻寸
+
+// glyph han-25e46:15x16 15 16 // 𥹆
+// ⿱ han-7c73 han-5c3c // ⿱米尼
 
 glyph han-25e4a:15x16 15 16 // 𥹊
 ⿰ han-7c73:5x16 han-56db:10x16 // ⿰米四
@@ -114,6 +120,9 @@ glyph han-25e90:15x16 15 16 // 𥺐
 // glyph han-25e94:15x16 15 16 // 𥺔
 // ⿱ han-5439 han-7c73 // ⿱吹米
 
+glyph han-25e95:15x16 15 16 // 𥺕
+⿲ han-7c73:5x16 han-624c:3x16 han-5df4:7x16 // ⿲米扌巴
+
 ## 119.8
 
 glyph han-25e98:15x16 15 16 // 𥺘
@@ -174,6 +183,9 @@ glyph han-25ec9:15x16 15 16 // 𥻉
 
 // glyph han-25eda:15x16 15 16 // 𥻚
 // ⿰ han-7c73 han-97f3 // ⿰米音
+
+// glyph han-25edb:15x16 15 16 // 𥻛
+// ⿰ han-7c73 han-5794 // ⿰米垔
 
 // glyph han-25edc:15x16 15 16 // 𥻜
 // ⿳ han-7c73 han-7530 han-72ac // ⿳米田犬

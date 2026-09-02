@@ -12,8 +12,14 @@
 
 ## 47.5
 
+// glyph han-21ff2:15x16 15 16 // 𡿲
+// ⿱ han-5ddb han-7528 // ⿱巛用
+
 // glyph han-21ff5:15x16 15 16 // 𡿵
 // ⿱ han-5ddb han-53e4 // ⿱巛古
+
+// glyph han-21ff6:15x16 15 16 // 𡿶
+// ⿱ han-5ddb han-672c // ⿱巛本
 
 ## 47.6
 
@@ -67,6 +73,31 @@
 
 // glyph han-22031:15x16 15 16 // 𢀱
 // ⿱ han-5de8 han-7a4c // ⿱巨穌
+
+# CJK unified ideographs extension B: 己 (49)
+
+## 49.3
+
+glyph han-22035:15x16 15 16 // 𢀵
+⿱ han-5df1:15x7 1 han-5df1:15x8 // ⿱己己
+
+glyph han-22036:15x16 15 16 // 𢀶
+⿰ han-5f13:6x16 han-5df1:9x16 // ⿰弓己
+
+## 49.5
+
+// glyph han-22037:15x16 15 16 // 𢀷
+// ⿳ han-4e5b han-6c34 han-5df3 // ⿳乛水巳
+
+## 49.8
+
+// glyph han-22042:15x16 15 16 // 𢁂
+// ⿱ han-5176 han-5df3 // ⿱其巳
+
+## 49.9
+
+// glyph han-22048:15x16 15 16 // 𢁈
+// ⿺ han-662f han-5df3 // ⿺是巳
 
 # CJK unified ideographs extension B: 巾 (50)
 
@@ -127,6 +158,9 @@ glyph han-2207e:15x16 15 16 // 𢁾
 glyph han-2207f:15x16 15 16 // 𢁿
 ⿰ han-5dfe:7x16 han-6b63:8x16 // ⿰巾正
 
+glyph han-22080:15x16 15 16 // 𢂀
+⿰ han-5dfe:5x16 1 han-5f17:9x16 // ⿰巾弗
+
 glyph han-22081:15x16 15 16 // 𢂁
 ⿰ han-5dfe:7x16 han-53e5:8x16 // ⿰巾句
 
@@ -173,6 +207,9 @@ glyph han-220b7:15x16 15 16 // 𢂷
 // glyph han-220c5:15x16 15 16 // 𢃅
 // ⿰ han-5dfe han-5e8a // ⿰巾床
 
+// glyph han-220c9:15x16 15 16 // 𢃉
+// ⿲ han-5dfe han-53e6 han-5202 // ⿲巾另刂
+
 // glyph han-220cb:15x16 15 16 // 𢃋
 // ⿳ han-5405 han-4e00 han-5dfe // ⿳吅一巾 <- ⿱吅帀
 
@@ -212,6 +249,9 @@ glyph han-220e6:15x16 15 16 // 𢃦
 
 glyph han-220f0:15x16 15 16 // 𢃰
 ⿰ han-5dfe:7x16 1 han-662f:7x16 // ⿰巾是
+
+// glyph han-220f1:15x16 15 16 // 𢃱
+// ⿰ han-5dfe han-67d0 // ⿰巾某
 
 glyph han-220f2:15x16 15 16 // 𢃲
 ⿰ han-5dfe:7x16 1 han-9769:7x16 // ⿰巾革
@@ -272,6 +312,9 @@ glyph han-2215a:15x16 15 16 // 𢅚
 // ⿱ han-5405 han-5e72 // ⿱吅干
 
 ## 51.7
+
+// glyph han-22198:15x16 15 16 // 𢆘
+// ⿰ han-5e74 han-6b20 // ⿰年欠
 
 // glyph han-22199:15x16 15 16 // 𢆙
 // ⿱ han-206aa han-5e75 // ⿱𠚪幵

@@ -64,6 +64,9 @@ glyph han-223c2:15x16 15 16 // 𢏂
 glyph han-223c6:15x16 15 16 // 𢏆
 ⿰ han-5f13:7x16 1 han-53e4:7x16 // ⿰弓古
 
+// glyph han-223c7:15x16 15 16 // 𢏇
+// ⿱ han-5f17 han-5f13 // ⿱弗弓
+
 glyph han-223ce:15x16 15 16 // 𢏎
 ⿰ han-5f13:4x16 1 han-56db:10x16 // ⿰弓四
 
@@ -242,6 +245,12 @@ glyph han-224d7:15x16 15 16 // 𢓗
 glyph han-224d9:15x16 15 16 // 𢓙
 ⿲ han-5f73:3x16 han-5f13:7x16 han-4eba:5x16 // ⿲彳弓人
 
+// glyph han-224da:15x16 15 16 // 𢓚
+// ⿰ han-5f73 han-5c3c // ⿰彳尼
+
+// glyph han-224db:15x16 15 16 // 𢓛
+// ⿰ han-5f73 han-672a // ⿰彳未
+
 ## 60.6
 
 glyph han-224dc:15x16 15 16 // 𢓜
@@ -249,6 +258,9 @@ glyph han-224dc:15x16 15 16 // 𢓜
 
 glyph han-224dd:15x16 15 16 // 𢓝
 ⿰ han-5f73:5x16 1 han-5146:9x16 // ⿰彳兆
+
+// glyph han-224e8:15x16 15 16 // 𢓨
+// ⿰ han-5f73 han-56e0 // ⿰彳因
 
 ## 60.7
 
