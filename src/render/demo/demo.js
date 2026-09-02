@@ -2,7 +2,7 @@
  *
  * Everything on the page is built here from the JSON blob and the two embedded
  * faces: the page ships the *font*, not pictures of it, which is what keeps it
- * a few hundred kilobytes where the old sample.html was 6.6 MB of inline SVG.
+ * a few hundred kilobytes where the old glyph-chart page was 6.6 MB of inline SVG.
  *
  * Two things are worth knowing before changing this file.
  *
@@ -71,10 +71,9 @@
      scrolling, so a block of twenty thousand ideographs otherwise puts a
      thousand identical rows between its neighbours; the fold keeps its two
      ends — where a block's own character is — and puts everything between
-     them one click away. The source has no say in it: `exclude-from-sample`
-     is what says this in the editor and in sample.html, and this page ignores
-     it, since a rule stated once here covers every long block rather than the
-     ones a font's author happened to name. */
+     them one click away. The source has no say in it: a rule stated once here
+     covers every long block rather than the ones a font's author happened to
+     name. The editor's specimen folds by the same rule. */
   var FOLD_OVER = 0x100;
   /* Half the fold's threshold, in rows: a block right at the threshold shows
      every row it has, and one past it hides at least one. */

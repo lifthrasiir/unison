@@ -652,11 +652,6 @@ fn detect_context(line: &str, col: usize) -> Option<CompletionContext> {
                 return ctx(CompletionKind::Glyph);
             }
         }
-        "exclude-from-sample" => {
-            if rest_token_idx.is_none() {
-                return ctx(CompletionKind::Glyph);
-            }
-        }
         "assume" => {
             if rest.first().is_some_and(|s| s.value == "unused") && rest.len() == 1 && past_last {
                 return ctx(CompletionKind::Glyph);
@@ -789,7 +784,6 @@ fn collect_candidates(
                 "exists",
                 "face",
                 "slice",
-                "exclude-from-sample",
                 "assume",
                 "color",
             ];
@@ -1011,13 +1005,6 @@ mod tests {
         let ctx = detect_context("glyph foo = ba", 14).unwrap();
         assert_eq!(ctx.kind, CompletionKind::Glyph);
         assert_eq!(ctx.prefix, "ba");
-    }
-
-    #[test]
-    fn detect_exclude_from_sample() {
-        let ctx = detect_context("exclude-from-sample fo", 22).unwrap();
-        assert_eq!(ctx.kind, CompletionKind::Glyph);
-        assert_eq!(ctx.prefix, "fo");
     }
 
     #[test]

@@ -14,8 +14,7 @@
 //! the last, because each is invalidated by something different:
 //!
 //! 1. **What the source says** — the cmap pairs, the variation sequences, the
-//!    remap-only glyphs, the `prop` lines, the blocks and the
-//!    `exclude-from-sample` set. Keyed on the
+//!    remap-only glyphs, the `prop` lines and the blocks. Keyed on the
 //!    two background generations ([`SpecimenState::cached_gen`]). This is the
 //!    step that reads the source the way the build does rather than as written:
 //!    an `exists` above a `map` unrolls it once per matched name, so a source
@@ -32,16 +31,16 @@
 //!    either way — counting a block's characters costs one pass, where giving
 //!    each of them a cell costs a `CharEntry`.
 //! 3. **Which row each cell is on** — [`GridLayout`]. Keyed additionally on the
-//!    column count, since a row is only hidden when *every* character on it is
-//!    excluded from the sample, and that depends on where the row happens to
-//!    break.
+//!    column count, since a long section is folded by *rows* and how many rows
+//!    it has depends on where they break.
 //!
-//! Row hiding is what makes step 2 affordable to look at: a source that excludes
-//! U+AC00..D7A3 says the 11,172 Hangul syllables are not worth 700 rows of
-//! screen, and hiding by the *displayed* row rather than per cell keeps the grid
-//! rectangular instead of leaving ragged holes in it. A run of hidden rows
-//! leaves an ellipsis row behind, so an excluded range still reads differently
-//! from a range the source never mentions.
+//! The fold is what makes step 2 affordable to look at: filling every block out
+//! to its whole range puts 700 rows of Hangul syllables between one block and
+//! the next, so a section past [`FOLD_EDGE_ROWS`] rows at each end keeps its two
+//! ends and puts everything between them one click away. It is `demo.html`'s
+//! rule (`demo.js`, `FOLD_OVER`) rather than one of the panel's own, and the
+//! source has no say in it. Only the filled grid folds: with undeclared
+//! characters hidden, every row is a glyph the source drew.
 
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
@@ -186,9 +185,10 @@ enum Row {
     Heading(usize),
     /// Range into [`SpecimenState::items`].
     Cells { start: usize, len: usize },
-    /// One or more consecutive rows the exclusion rule hid, drawn as `…` so the
-    /// grid says something was left out instead of quietly closing the gap.
-    Ellipsis,
+    /// The middle of a folded section: the rows between its two ends, drawn as
+    /// one `…` line saying how many they are. A click opens the section for
+    /// good — see [`SpecimenState::unfolded`].
+    Fold { section: usize, hidden: usize },
 }
 
 /// Cell size, the glyph size drawn in one, and the heights of the two rows that
@@ -197,6 +197,9 @@ const CELL_W: f32 = 64.0;
 const CELL_H: f32 = 80.0;
 const HEADING_H: f32 = 24.0;
 const ELLIPSIS_H: f32 = 18.0;
+/// How many rows of a folded section stay showing at each end — `demo.html`'s
+/// `FOLD_EDGE`, so the two pages fold to the same shape.
+const FOLD_EDGE_ROWS: usize = 8;
 const PX_SIZE: f32 = 48.0;
 
 const LABEL_COLOR: egui::Color32 = egui::Color32::from_gray(180);
@@ -331,8 +334,10 @@ pub struct SpecimenState {
     uvs: BTreeMap<u32, BTreeMap<u32, (String, bool)>>,
     /// Which block every code point falls in, `prop block` claims included.
     blocks: BlockMap,
-    /// The `exclude-from-sample` code points — the rows a filled grid drops.
-    excluded: BTreeSet<u32>,
+    /// The sections a reader has opened out of their fold, by index into
+    /// `sections`. Layout state and nothing more: it is cleared whenever the
+    /// sections are rebuilt, since an index means something else afterwards.
+    unfolded: HashSet<usize>,
     /// `(font_data_gen, derived_gen)` — the generations of the *two* background
     /// results the rebuild reads, never the generation of the build *request*.
     /// A remap-only glyph is listed only if `name_to_gid` knows its (name-part
@@ -372,7 +377,7 @@ impl SpecimenState {
             declared: BTreeMap::new(),
             uvs: BTreeMap::new(),
             blocks: BlockMap::default(),
-            excluded: BTreeSet::new(),
+            unfolded: HashSet::new(),
             cached_gen: None,
             glyph_cache: GlyphCache::new(),
             char_props: crate::ucd::CharProps::default(),
@@ -397,7 +402,7 @@ impl SpecimenState {
         self.uvs = data.uvs;
         self.remap_entries = data.remap_entries;
         self.blocks = data.blocks;
-        self.excluded = data.excluded;
+        self.unfolded.clear();
         self.char_props = data.char_props;
         self.glyph_flags = data.glyph_flags;
     }
@@ -450,7 +455,6 @@ pub struct SpecimenData {
     uvs: BTreeMap<u32, BTreeMap<u32, (String, bool)>>,
     remap_entries: Vec<RemapEntry>,
     blocks: BlockMap,
-    excluded: BTreeSet<u32>,
     char_props: crate::ucd::CharProps,
     glyph_flags: GlyphFlags,
 }
@@ -475,7 +479,6 @@ impl SpecimenData {
         let glyph_flags = glyph_flags.clone();
         let char_props = crate::ucd::CharProps::collect(docs);
         let blocks = BlockMap::collect(docs);
-        let excluded = crate::document::excluded_from_sample(docs.iter().flat_map(|d| &d.items));
 
         // An `exists` above a line binds `$0`/`$N` over the names the source
         // declares and unrolls the line below it once per matched name. A
@@ -821,7 +824,6 @@ impl SpecimenData {
             uvs,
             remap_entries,
             blocks,
-            excluded,
             char_props,
             glyph_flags,
         }
@@ -999,9 +1001,14 @@ impl SpecimenState {
 
     /// Step 3: which cells sit on which row, for `cols` columns.
     ///
-    /// Every section contributes at least one row — a wholly hidden one is an
-    /// ellipsis rather than nothing at all — so a grid with any cell in it never
-    /// comes out zero-height.
+    /// A long section is folded in the middle: [`FOLD_EDGE_ROWS`] rows stay at
+    /// each end and everything between them becomes one [`Row::Fold`] a click
+    /// opens. This is `demo.html`'s rule (`demo.js`, `FOLD_OVER`) applied to a
+    /// grid whose rows are as wide as the panel: filling a block out to its
+    /// whole range puts the 11,172 Hangul syllables on seven hundred rows, and
+    /// a code chart is read by scrolling. Only *that* mode folds — with
+    /// undeclared characters hidden every row on the grid is a glyph the source
+    /// drew, which is what the panel is open to look at.
     fn build_layout(&self, cols: usize) -> GridLayout {
         let mut rows: Vec<Row> = Vec::new();
         let mut row_y: Vec<f32> = vec![0.0];
@@ -1011,20 +1018,24 @@ impl SpecimenState {
             let mut i = sec.start;
             while i < sec.start + sec.len {
                 let len = cols.min(sec.start + sec.len - i);
-                if self.options.show_undeclared && self.row_is_all_excluded(i, len) {
-                    // A run of hidden rows collapses to one ellipsis: dropping
-                    // them silently makes an excluded range indistinguishable
-                    // from a range the source never mentions.
-                    if !matches!(cell_rows.last(), Some(Row::Ellipsis)) {
-                        cell_rows.push(Row::Ellipsis);
-                    }
-                } else {
-                    cell_rows.push(Row::Cells { start: i, len });
-                }
+                cell_rows.push(Row::Cells { start: i, len });
                 i += len;
             }
             if cell_rows.is_empty() {
                 continue;
+            }
+            if self.options.show_undeclared
+                && !self.unfolded.contains(&si)
+                && cell_rows.len() > 2 * FOLD_EDGE_ROWS
+            {
+                let hidden = cell_rows.len() - 2 * FOLD_EDGE_ROWS;
+                cell_rows.splice(
+                    FOLD_EDGE_ROWS..FOLD_EDGE_ROWS + hidden,
+                    [Row::Fold {
+                        section: si,
+                        hidden,
+                    }],
+                );
             }
             if sec.heading.is_some() {
                 rows.push(Row::Heading(si));
@@ -1033,7 +1044,7 @@ impl SpecimenState {
             }
             for row in cell_rows {
                 y += match row {
-                    Row::Ellipsis => ELLIPSIS_H,
+                    Row::Fold { .. } => ELLIPSIS_H,
                     _ => CELL_H,
                 };
                 rows.push(row);
@@ -1057,21 +1068,6 @@ impl SpecimenState {
     /// right edge of the final row — is simply not a boundary.
     fn uvs_boundary(&self, idx: usize) -> bool {
         matches!(self.items.get(idx), Some(Item::Uvs(_)))
-    }
-
-    /// Whether every character on one row is excluded from the sample — the
-    /// rule that hides the row. A remap cell is never excluded, so a row with
-    /// one on it always stays.
-    fn row_is_all_excluded(&self, start: usize, len: usize) -> bool {
-        self.items[start..start + len]
-            .iter()
-            .all(|item| match item {
-                Item::Char(i) => self.excluded.contains(&self.entries[*i].cp),
-                // A variation sequence is excluded with its base: the two are
-                // read together, so hiding one and not the other says nothing.
-                Item::Uvs(i) => self.excluded.contains(&self.uvs_entries[*i].base),
-                Item::Remap(_) => false,
-            })
     }
 
     #[cfg(test)]
@@ -1103,7 +1099,7 @@ impl SpecimenState {
                         .unwrap_or_default();
                     format!("# {}{cov}", sec.heading.as_deref().unwrap_or(""))
                 }
-                Row::Ellipsis => "\u{2026}".to_string(),
+                Row::Fold { hidden, .. } => format!("\u{2026} {hidden}"),
                 Row::Cells { start, len } => self.items[*start..*start + *len]
                     .iter()
                     .map(|item| match item {
@@ -1165,6 +1161,7 @@ impl SpecimenState {
         }
 
         let mut clicked: Option<SpecimenClick> = None;
+        let mut unfolded_now = false;
         let avail_width = ui.available_width();
         let cols = (avail_width / CELL_W).floor().max(1.0) as usize;
         if self.layout.as_ref().is_none_or(|l| l.cols != cols) {
@@ -1263,6 +1260,15 @@ impl SpecimenState {
                 let hovered = hover_pointer
                     .filter(|_| response.contains_pointer())
                     .and_then(cell_at);
+                // The fold is the one row that is not a cell and still answers
+                // a click, so it is the one that says so under the pointer.
+                if let Some(pos) = hover_pointer.filter(|_| response.contains_pointer())
+                    && response.rect.contains(pos)
+                    && let Some(row_idx) = layout.row_at(pos.y - origin.y)
+                    && matches!(layout.rows.get(row_idx), Some(Row::Fold { .. }))
+                {
+                    ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
+                }
 
                 let style = CellStyle {
                     px_size: PX_SIZE,
@@ -1305,9 +1311,12 @@ impl SpecimenState {
                                 painter.galley(egui::pos2(x, ty), galley, HEADING_FG);
                             }
                         }
-                        Row::Ellipsis => {
+                        Row::Fold { hidden, .. } => {
+                            // What is behind the fold and how to open it: a
+                            // bare `…` reads as a gap in the chart rather than
+                            // as something the panel is holding back.
                             let galley = painter.layout_no_wrap(
-                                "\u{2026}".to_string(),
+                                format!("\u{2026} {hidden} more rows — click to show"),
                                 label_font.clone(),
                                 LABEL_COLOR,
                             );
@@ -1391,6 +1400,19 @@ impl SpecimenState {
                     self.draw_item(&painter, cell_min, item, true, egui::Color32::WHITE, &style);
                 }
 
+                // A click on a fold opens that section and nothing else: the
+                // layout is what folded it, so dropping the layout is the whole
+                // change, and the next frame lays the section out in full.
+                if response.clicked()
+                    && let Some(pos) = response.interact_pointer_pos()
+                    && response.rect.contains(pos)
+                    && let Some(row_idx) = layout.row_at(pos.y - origin.y)
+                    && let Row::Fold { section, .. } = layout.rows[row_idx]
+                {
+                    self.unfolded.insert(section);
+                    unfolded_now = true;
+                }
+
                 if response.clicked()
                     && let Some(pos) = response.interact_pointer_pos()
                     && let Some((idx, _)) = cell_at(pos)
@@ -1423,7 +1445,8 @@ impl SpecimenState {
                 response.context_menu(|ui| self.options_menu(ui));
             });
 
-        self.layout = Some(layout);
+        // An opened fold invalidates the layout it was part of.
+        self.layout = (!unfolded_now).then_some(layout);
         clicked
     }
 

@@ -530,13 +530,6 @@ mod rename_tests {
     }
 
     #[test]
-    fn rename_glyph_exclude() {
-        let lines = vec![t("exclude-from-sample foo")];
-        let result = do_rename(&lines, "foo", "bar", &RenameKind::Glyph);
-        assert_eq!(result, vec!["exclude-from-sample bar"]);
-    }
-
-    #[test]
     fn rename_glyph_no_partial_match() {
         let lines = vec![t("glyph foobar 8 16"), t("ref foo-ext 0 0")];
         let result = do_rename(&lines, "foo", "bar", &RenameKind::Glyph);

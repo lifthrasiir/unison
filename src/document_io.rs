@@ -264,7 +264,6 @@
 //!   an error [`crate::issues`] reports; see [`crate::samples`] for the axes
 //!   and for why the product is expanded where it is shown rather than where
 //!   it is collected.
-//! - `exclude-from-sample NAME`
 //! - `assume unused NAME...` — suppresses the unused-glyph warning (patterns
 //!   accepted).
 //!
@@ -1737,7 +1736,6 @@ pub fn starts_item(token: &str) -> bool {
         token,
         "meta"
             | "audit"
-            | "exclude-from-sample"
             | "assume"
             | "map"
             | "glyph"
@@ -1859,7 +1857,7 @@ pub fn derive_document(
                         });
                         i += 1;
                     }
-                    "exclude-from-sample" | "assume" => {
+                    "assume" => {
                         item_line_starts.push(i);
                         let rest: Vec<String> =
                             tokens[1..].iter().map(|t| quote_token(t)).collect();

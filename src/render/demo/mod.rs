@@ -1,9 +1,9 @@
 //! `demo.html`: the font's one self-contained demonstration page.
 //!
-//! It is what `sample.html`, `sample.png` and `live.html` grew into. Those
-//! three each wrote *rendered output* — an SVG path per glyph per size, a PNG
-//! of the whole repertoire — which is why `sample.html` reached 6.6 MB for a
-//! font whose WOFF2 is 250 KB. This page embeds the **font** instead and lets
+//! It is what the three sample pages it replaced grew into. Those each wrote
+//! *rendered output* — an SVG path per glyph per size, a PNG of the whole
+//! repertoire — which is why the glyph-chart page reached 6.6 MB for a font
+//! whose WOFF2 is 250 KB. This page embeds the **font** instead and lets
 //! the browser draw: one `@font-face` rule — the primary face as a variable
 //! font carrying both drawings, switched by the `BMAP` axis — plus one JSON
 //! blob saying which characters exist, which of them the font maps, and what
@@ -36,15 +36,12 @@
 //! 3. Variation sequences and remap-only glyphs get no cell yet. They need an
 //!    interface of their own here (the editor puts them inline, which reads
 //!    only because a click can go to the source).
-//! 4. A block longer than 0x100 code points is *folded* in the middle, and
-//!    `exclude-from-sample` is ignored outright. The editor hides the rows a
-//!    source excluded, which is a font-design judgement about what is worth
-//!    looking at; a code chart of a whole font is read by scrolling, and the
-//!    one thing it cannot afford is ten thousand identical rows between two
-//!    blocks. Folding says the same thing for every long block without the
-//!    source having to name one, and a click still opens it — see `demo.js`.
-//!    The directive keeps its meaning everywhere else (`crate::specimen`,
-//!    `crate::render::sample`).
+//! 4. A block longer than 0x100 code points is *folded* in the middle. A code
+//!    chart of a whole font is read by scrolling, and the one thing it cannot
+//!    afford is ten thousand identical rows between two blocks; the fold keeps
+//!    a block's two ends and puts everything between them one click away — see
+//!    `demo.js`. The source has no say in which blocks fold, and the editor's
+//!    specimen folds by the same rule (`crate::specimen`).
 //!
 //! # The sample panel
 //!

@@ -45,10 +45,10 @@
 //! `udhr-article1` and `subdivision-flags` are the other kind: they take no
 //! `||` lines at all, and stand for a body of text the *build* assembles from
 //! its `-d` data directory — the translations of Article 1 a font can draw
-//! whole, and the emoji tag sequence of every CLDR subdivision. Both were
-//! already on `live.html`; writing them as a mode is what lets a source say
-//! whether it wants them, since a page shows one because the font is about
-//! those characters and not because the data file happens to be there.
+//! whole, and the emoji tag sequence of every CLDR subdivision. Writing them
+//! as a mode is what lets a source say whether it wants them, since a page
+//! shows one because the font is about those characters and not because the
+//! data file happens to be there.
 //!
 //! `udhr-article1` stands for a hundred-odd texts and not one, so it is only
 //! ever written on a line with *no* sublabel: the sublabels are the
@@ -56,10 +56,10 @@
 //! naming the group. `subdivision-flags` is a single text and takes either
 //! form.
 //!
-//! Whoever holds the data directory fills these in ([`crate::render::demo`],
-//! and `live.html`'s own sections). Everyone else — the editor, which has no
-//! `-d` — sees the empty text they are written as, which is why a generated
-//! sample has no *Use* button in the editor.
+//! Whoever holds the data directory fills these in
+//! ([`crate::render::demo`]). Everyone else — the editor, which has no `-d` —
+//! sees the empty text they are written as, which is why a generated sample
+//! has no *Use* button in the editor.
 //!
 //! # What the axes are
 //!
@@ -275,21 +275,6 @@ impl SampleSet {
 /// [`crate::issues`] rejects by name rather than one the build ignores.
 pub const SAMPLE_MODES: &[&str] = &["matrix", "udhr-article1", "subdivision-flags"];
 
-impl SampleSet {
-    /// Whether any line of the source states this mode.
-    ///
-    /// The generated bodies of text are offered because a source asked for
-    /// them and not because the build has a data file that would fit: see
-    /// [`crate::render::sample`]'s `live.html` sections, which are the pages
-    /// this answers for.
-    pub fn uses(&self, mode: SampleMode) -> bool {
-        self.groups.iter().any(|group| {
-            group.text.as_ref().is_some_and(|t| t.mode == mode)
-                || group.items.iter().any(|i| i.text.mode == mode)
-        })
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -419,8 +404,6 @@ mod tests {
         let text = set.groups[0].text.as_ref().expect("the heading's own text");
         assert_eq!(text.mode, SampleMode::UdhrArticle1);
         assert_eq!(text.expanded(), "", "there is nothing here to expand");
-        assert!(set.uses(SampleMode::UdhrArticle1));
-        assert!(!set.uses(SampleMode::SubdivisionFlags));
     }
 
     #[test]
@@ -430,7 +413,6 @@ mod tests {
             set.groups[0].items[0].text.mode,
             SampleMode::SubdivisionFlags
         );
-        assert!(set.uses(SampleMode::SubdivisionFlags));
     }
 
     /// Only `udhr-article1` names its own sublabels; the other generated mode

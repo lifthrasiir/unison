@@ -442,8 +442,7 @@ pub(crate) fn build_visual_lines(
             || trimmed.starts_with("slice ")
         {
             meta_color
-        } else if trimmed.starts_with("exclude-from-sample ")
-            || trimmed.starts_with("assume unused ")
+        } else if trimmed.starts_with("assume unused ")
             || trimmed.starts_with("assert ")
             // `audit` states a rule about the source rather than a font
             // value, so it reads with `assert` and not with `meta`.

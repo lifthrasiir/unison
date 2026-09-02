@@ -608,13 +608,10 @@ fn main() {
     }
 
     // Build subcommand: uniform build --input DIR --output FILE [--output FILE ...]
-    //   [--sample-html FILE] [--sample-png FILE] [--live-html FILE] [--demo-html FILE]
+    //   [--demo-html FILE]
     if args.get(1).map(|s| s.as_str()) == Some("build") {
         let mut input_dir = None;
         let mut output_files: Vec<std::path::PathBuf> = Vec::new();
-        let mut sample_html = None;
-        let mut sample_png = None;
-        let mut live_html = None;
         let mut demo_html = None;
         let mut data_dir = None;
         let mut woff2_quality = render::Woff2Quality::default();
@@ -630,18 +627,6 @@ fn main() {
                     if let Some(p) = args.get(i) {
                         output_files.push(std::path::PathBuf::from(p));
                     }
-                }
-                "--sample-html" => {
-                    i += 1;
-                    sample_html = args.get(i).map(std::path::PathBuf::from);
-                }
-                "--sample-png" => {
-                    i += 1;
-                    sample_png = args.get(i).map(std::path::PathBuf::from);
-                }
-                "--live-html" => {
-                    i += 1;
-                    live_html = args.get(i).map(std::path::PathBuf::from);
                 }
                 "--demo-html" => {
                     i += 1;
@@ -694,13 +679,10 @@ fn main() {
         // is a second of the wall clock either way. The report is still printed
         // before anything the build has to say, so a log reads as it always did.
         //
-        // The sample documents resolve their own glyphs, from the same
-        // documents and sharing nothing with either, so that goes here too
-        // rather than in front of the outputs that want it.
-        let wants_sample = sample_html.is_some()
-            || sample_png.is_some()
-            || live_html.is_some()
-            || demo_html.is_some();
+        // The demo page resolves its own glyphs, from the same documents and
+        // sharing nothing with either, so that goes here too rather than in
+        // front of the output that wants it.
+        let wants_sample = demo_html.is_some();
         // The build, validation and the sample all want the same expansion —
         // the union of every slice, which is face-independent (see
         // `faces::FaceSet::union`) — and it is the larger half of what any of
@@ -747,10 +729,6 @@ fn main() {
             eprintln!("Font build failed");
             std::process::exit(1);
         };
-        // The primary face is what the sample and preview outputs below show;
-        // they are one document, not one per typeface.
-        let font_bytes = built[0].1.clone();
-
         // Every `--output` is planned before anything is written, so a wrong
         // combination fails before it has half-produced a set of files.
         let plans: Vec<faces::OutputPlan> = output_files
@@ -766,8 +744,8 @@ fn main() {
 
         // What each output is, before any of it is produced. Splitting the plan
         // from the work is what lets the work run all at once below: a WOFF2 is
-        // a second or more of brotli per face, and the sample page is as much
-        // again, and none of them needs another's result.
+        // a second or more of brotli per face, and none of them needs
+        // another's result.
         enum OutputWork<'a> {
             Collection,
             /// Brotli over one face — by far the most expensive of these.
@@ -801,38 +779,12 @@ fn main() {
             }
         }
 
-        // Every font output and both sample documents at once. The live page is
-        // the one that cannot join them: it embeds whichever WOFF2 the outputs
-        // produced, so it waits for them below.
+        // Every font output at once: a WOFF2 is a second or more of brotli per
+        // face, and none of them needs another's result.
         //
         // Nothing here is written to disk yet — a failure in any one of these
         // still leaves the run's files as they were, rather than half replaced.
-        let render_to_vec =
-            |what: &'static str, f: &dyn Fn(&mut Vec<u8>) -> std::io::Result<()>| {
-                let _t = startup::PerfStage::new(what);
-                let mut buf = Vec::new();
-                if let Err(e) = f(&mut buf) {
-                    eprintln!("Failed to write {what}: {e}");
-                    std::process::exit(1);
-                }
-                buf
-            };
-        let (writes, sample_html_bytes, sample_png_bytes) = std::thread::scope(|scope| {
-            let src = sample_source.as_ref();
-            let html_job = sample_html.as_ref().map(|_| {
-                scope.spawn(move || {
-                    render_to_vec("sample HTML", &|w| {
-                        render::sample::write_sample_html(w, src.unwrap())
-                    })
-                })
-            });
-            let png_job = sample_png.as_ref().map(|_| {
-                scope.spawn(move || {
-                    render_to_vec("sample PNG", &|w| {
-                        render::sample::write_sample_png(w, src.unwrap())
-                    })
-                })
-            });
+        let writes = std::thread::scope(|scope| {
             let font_jobs: Vec<_> = works
                 .iter()
                 .map(|(_path, work)| {
@@ -867,11 +819,7 @@ fn main() {
                 .map(|(path, _)| path.clone())
                 .zip(font_jobs.into_iter().map(|h| h.join().unwrap()))
                 .collect();
-            (
-                writes,
-                html_job.map(|h| h.join().unwrap()),
-                png_job.map(|h| h.join().unwrap()),
-            )
+            writes
         });
 
         for (output, data) in &writes {
@@ -891,62 +839,11 @@ fn main() {
             }
         }
 
-        for (path, bytes) in [
-            (sample_html, sample_html_bytes),
-            (sample_png, sample_png_bytes),
-        ] {
-            let (Some(path), Some(bytes)) = (path, bytes) else {
-                continue;
-            };
-            if let Err(e) = std::fs::write(&path, &bytes) {
-                eprintln!("Write error for {}: {e}", path.display());
-                std::process::exit(1);
-            }
-            eprintln!("Wrote {}", path.display());
-        }
-
-        if let Some(path) = live_html {
-            let mut f = std::fs::File::create(&path).unwrap_or_else(|e| {
-                eprintln!("Failed to create {}: {e}", path.display());
-                std::process::exit(1);
-            });
-            // The live page embeds whichever WOFF2 the outputs produced, so
-            // that it shows the same bytes a browser would load; with none it
-            // falls back to the primary face's TTF.
-            let woff2_written = writes.iter().find(|(p, _)| {
-                p.extension()
-                    .and_then(|e| e.to_str())
-                    .is_some_and(|e| e.eq_ignore_ascii_case("woff2"))
-            });
-            let result = if let Some((_, w2)) = woff2_written {
-                render::sample::write_live_html_woff2(
-                    &mut f,
-                    sample_source.as_ref().unwrap(),
-                    &font_bytes,
-                    w2,
-                    data_dir.as_deref(),
-                )
-            } else {
-                render::sample::write_live_html(
-                    &mut f,
-                    sample_source.as_ref().unwrap(),
-                    &font_bytes,
-                    data_dir.as_deref(),
-                )
-            };
-            if let Err(e) = result {
-                eprintln!("Failed to write live HTML: {e}");
-                std::process::exit(1);
-            }
-            eprintln!("Wrote {}", path.display());
-        }
-
         if let Some(path) = demo_html {
             // The demo page embeds the font rather than pictures of it, and
             // it embeds the primary face as one *variable* font: the bitmap
             // drawing for the small sizes and the vector one for the large,
-            // which are the two things `sample.png` and `sample.html` used to
-            // be, switched by the `BMAP` axis. It is not one of the `--output`
+            // switched by the `BMAP` axis. It is not one of the `--output`
             // files — those are the shipping faces, and whether *they* carry
             // the axis is `meta bitmap-axis`'s to say — so it is built here
             // rather than borrowed from the outputs above.

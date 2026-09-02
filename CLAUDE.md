@@ -14,7 +14,7 @@ recording, put it next to the code and add at most a line here.
 ```sh
 cargo build -r    # normal build
 cargo test        # unit + golden + GUI-harness tests
-make              # build unison.ttf/.woff2 + sample.html/sample.png/live.html
+make              # build unison.ttf/.woff2 + demo.html
 make test         # the above, the headless test suite, then the `assert` directives in font/
 ```
 
@@ -37,7 +37,7 @@ The `build`/`test`/`fix` subcommands require native execution:
 
 ```sh
 cargo run -r -- build -i font/ -o unison.ttf [-o unison.woff2] [-o unison-%.ttf] [-o unison.ttc] \
-    [--sample-html F] [--sample-png F] [--live-html F] [--demo-html F] [-d data] \
+    [--demo-html F] [-d data] \
     [--woff2-quality fast|max]
 cargo run -r -- test -i font/       # run `assert` directives; exit 1 on failure
 cargo run -r -- fix -i font/ --optimize-clearance [--dry-run]   # rewrite the source: see `fix/`
@@ -167,16 +167,18 @@ Core (feature-independent):
   question; the `probe` subcommand is its headless form.
 - `ucd.rs` — the character properties shown beside a character name, and the `prop` directives a
   source states them with (`CharProps`). Nothing in the font depends on them; the status bars, the
-  `sample.html` tooltips and the demo page's grid do. Also `BlockMap`: the bundled `Blocks.txt` with
+  the demo page's grid and tooltips do. Also `BlockMap`: the bundled `Blocks.txt` with
   the source's own `prop block` claims over it. Blocks and assignedness are *not* behind the `editor`
   feature — the headless `build` lays out `demo.html` with them — which is why `icu_properties` is a
   plain dependency rather than an optional one.
-- `render/demo/` — `demo.html`: the page the three sample outputs are being folded into. It embeds
+- `render/demo/` — `demo.html`: the font's one specimen page, and what the three older sample
+  outputs were folded into. It embeds
   the *font* (the primary face as one variable font, `BMAP` switching the two drawings) and one JSON blob instead of pre-rendered SVG, and
   `demo.js`/`demo.css` build every cell from them. Holds what the specimen there does differently
   from the editor's and why.
 - `render/` — `contour.rs` (pixel shapes → contours; note the normalized vs `_at` coordinate spaces),
-  `glyph_cache.rs` (the composite-resolution driver `ttf_builder` and `sample` share), `sample.rs`,
+  `glyph_cache.rs` (the composite-resolution driver `ttf_builder` and `sample` share),
+  `sample.rs` (what a specimen page is told about a source: the cmap, the features, the samples),
   `assert.rs` (`assert` directives).
 - `render/ttf_builder/` — contours → TrueType, GSUB, cmap. `mod.rs` lists the stage submodules;
   `masters.rs` is the pair of point-compatible outlines the variable output will carry;
@@ -257,7 +259,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why an unstated box dimension is the raster's *far edge* — so an origin is a bearing rather than a shift of the whole box | `document/glyph.rs` (`declared_extent`), `render/ttf_builder/collect.rs` (`resolve_glyph_metrics`) |
 | The origin in the grid vs the side bearings it exports as, and why only one of them is written | `document/glyph.rs` (`GlyphBody::declared_origin`), `render/ttf_builder/collect.rs` (`resolve_glyph_metrics`) |
 | Grid coordinates vs box coordinates: which of the two an offset, an anchor and a ref placement are in, and the one conversion between them | `ref_composite/anchors.rs` (`rebase_offsets_to_box`), `ref_composite/composite.rs` (`ref_effective_offset_scaled`) |
-| Everyone who places a `ref` and so owes that conversion: the build, the sample, the backreference shadow, flattening | `render/ttf_builder/contours.rs` (`placed_at`), `render/sample.rs` (`placed_at`), `editor/backref_shadow.rs`, `editor/document_view/changes.rs` (`inline_ref_to_pixels`) |
+| Everyone who places a `ref` and so owes that conversion: the build, the backreference shadow, flattening | `render/ttf_builder/contours.rs` (`placed_at`), `editor/backref_shadow.rs`, `editor/document_view/changes.rs` (`inline_ref_to_pixels`) |
 | Why the anchor shadow is the one placement with no box term in it | `editor/anchor_shadow.rs`, `ref_composite/anchors.rs` (`derive_ref_offsets_detailed`) |
 | `meta` keys, name-record derivation, single-assignment rule | `meta.rs` |
 | Faces, slices, the base slice, and why there is no override | `faces.rs` |
@@ -331,16 +333,16 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Measuring a part that is itself a composite, and the walk the check and the fixer share so they measure the same set | `ref_composite/mod.rs` (`resolve_reachable`), `render/ttf_builder/expand.rs` (`ink_profiles`), `fix/clearance.rs` (`Inventory::flatten_composites`) |
 | A part that is itself split by an IDC line: deriving its line before flattening it, and what still leaves a line unmeasurable | `ref_composite/mod.rs` (`derive_compose_body`), `render/ttf_builder/expand.rs` (`ink_profiles`) |
 | Why a clearance is measured over the declared box, and what ink escaping it costs | `compose.rs` (`InkProfile::of`) |
-| What a sample cell paints a background over, and why only its width is the box's | `render/sample.rs` (`sample_background`) |
 | What `demo.html` embeds instead of rendered output, and the four ways its specimen differs from the editor's | `render/demo/mod.rs` |
 | What the demo blob is modelled into before it is written: delta-coded cell runs, front-coded names, one entry per naming rule | `render/demo/mod.rs` (`DemoBlock::runs`, `DemoNames`, `widen_runs`) |
 | Which character names the demo page is told and which it spells for itself | `render/demo/mod.rs` (`collect_names`), `render/demo/demo.js` (`nameOf`) |
 | Why the demo's cells are rendered in lazy chunks, and why a chunk knows its height before its content | `render/demo/demo.js` |
-| Folding a block longer than 0x100 code points in the middle, and why the demo ignores `exclude-from-sample` where the specimen and the sample obey it | `render/demo/demo.js` (`FOLD_OVER`, `foldMarker`), `render/demo/mod.rs` |
+| Folding a block longer than 0x100 code points in the middle, and why the source has no say in which blocks fold | `render/demo/demo.js` (`FOLD_OVER`, `foldMarker`), `render/demo/mod.rs` |
+| The same fold in the editor's specimen: which mode folds, and where an opened one is remembered | `specimen.rs` (`FOLD_EDGE_ROWS`, `Row::Fold`, `SpecimenState::unfolded`) |
 | The dotted circle in a demo cell, why the built font's `hmtx` decides which cells get one, and why it rides on the cell flags | `render/demo/mod.rs` (`CELL_ZERO_ADVANCE`, `zero_advance_codepoints`), `render/demo/demo.css` (`.dc`) |
 | Why a demo cell is bidi-isolated | `render/demo/demo.css` (`.cell`) |
 | The demo's sample panel: running text beside the chart, and why it has no size control of its own | `render/demo/mod.rs` (`# The sample panel`) |
-| Which translations of UDHR Article 1 a page offers, and why the two pages offer the same ones | `render/sample.rs` (`udhr_selection`) |
+| Which translations of UDHR Article 1 the demo page offers | `render/sample.rs` (`udhr_selection`) |
 | Where the text a reader types into the sample panel is kept, and why it is per sample | `render/demo/demo.js` (`selectSample`, `ssSet`) |
 | Turning the UDHR's own key for a translation into a language name: the browser first, the data's own name as the fallback | `render/demo/demo.js` (`langName`), `render/sample.rs` (`UdhrEntry`) |
 | The demo's one size for both drawings, and the rounding a switch to bitmap does | `render/demo/demo.js` (`state.em`, `snapZoom`) |
@@ -375,8 +377,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why every `gvar` delta is written out in full, and what IUP was measured to save | `render/ttf_builder/tables.rs` (`full_deltas`) |
 | What an exemption costs a component shared with an unflagged glyph | `issues/flags.rs` |
 | Why the view synthesizes an on-demand ref instead of waiting for the resolve | `ref_composite/mod.rs` (`resolve_ref_name_for_view`) |
-| Why a `ref` to a composite that subtracts is one sample layer, not its parts | `render/sample.rs` (`push_ref_components`) |
-| A `ref` to a coloured glyph: which colours travel up, what a `fill` claims, and why a difference hands up only one | `render/ttf_builder/collect.rs` (`ColorPiece`, `color_pieces_for_body`), `render/sample.rs` (`push_ref_components`) |
+| A `ref` to a coloured glyph: which colours travel up, what a `fill` claims, and why a difference hands up only one | `render/ttf_builder/collect.rs` (`ColorPiece`, `color_pieces_for_body`) |
 | The same colours in the editor's live composite: why a layer stays one layer and the colour is per cell | `ref_composite/composite.rs` (`layer_cell_colors`, `target_draws_color`) |
 | Sub-pixel shape codes, `PX_CUSTOM` | `pixel.rs` |
 | `$$`, the blank that is not `..`, and why it is an id rather than a spare bit combination | `pixel.rs` (`PX_HARDBLANK`) |
@@ -400,7 +401,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why a continuation is never tokenized, and the round trip that rests on one dedented line starting at column 0 | `document_io.rs` (`tokenize_strict`), `document/serialize.rs` (`sample_lines`) |
 | `sample LABEL [SUBLABEL] [: MODE]`: the two levels, why a label may carry a text itself, and what a mode says | `samples.rs`, `document_io.rs` (`# Directives`) |
 | `sample … : matrix`: the lines read as axes, which axis runs where, and why the product is expanded by each consumer rather than by the collection | `samples.rs` (`SampleMode`, `SampleText::expanded`), `render/demo/demo.js` (`sampleText`) |
-| `sample … : udhr-article1` / `subdivision-flags`: a text the build assembles from `-d` rather than one the source writes, why one of them is a whole group, and why the pages show it only when a line asks | `samples.rs` (`SampleMode::is_generated`, `is_group`), `render/demo/mod.rs` (`collect_samples`), `render/sample.rs` (`udhr_selection`, `subdivision_flags_text`) |
+| `sample … : udhr-article1` / `subdivision-flags`: a text the build assembles from `-d` rather than one the source writes, why one of them is a whole group, and why the page shows it only when a line asks | `samples.rs` (`SampleMode::is_generated`, `is_group`), `render/demo/mod.rs` (`collect_samples`), `render/sample.rs` (`udhr_selection`, `subdivision_flags_text`) |
 | Where a `sample` reaches the reader: the demo's panel and the editor's *Use* button | `render/demo/mod.rs` (`collect_samples`), `editor/document_view/paint.rs` (`sample_use_rect`), `app/mod.rs` |
 | What a heading section holds, and why one lone `#` folds nothing | `editor/folding.rs` (`fold_groups`) |
 | Why a heading draws in zoom *steps*, and what marks the minimap | `document_view/layout.rs` (`heading_font_size`), `editor/minimap.rs` |
@@ -429,7 +430,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why what the specimen reads out of the documents is collected in the background, and what asks for it | `specimen.rs` (`SpecimenData`), `app/background.rs` |
 | Which mapped glyph names the specimen bothers to remember, and why only those | `specimen.rs` (`remap_targets`) |
 | Why the specimen is handed the searches and aliases rather than deriving its own | `specimen.rs` (`SpecimenData::collect`), `ref_composite/mod.rs` (`resolve_expanded_items`) |
-| The specimen's three options, filling a block, and hiding an excluded row | `specimen.rs` (`SpecimenOptions`) |
+| The specimen's three options, and filling a block out to its whole range | `specimen.rs` (`SpecimenOptions`) |
 | Where a variation sequence sits on the specimen, the `+VS17` label it carries, and the undrawn border joining it to its base | `specimen.rs` (`UvsEntry`, `uvs_label`, `uvs_boundary`) |
 | Why the specimen resolves the `exists` searches itself, and the one clone per line that pays for it | `specimen.rs` (`rebuild_if_needed`), `exists.rs` (`Scope::rebind`) |
 | The text-editing keys, and the state both the editor and the preview edit through | `editor/doc_input.rs` (`TextEdit`) |
@@ -487,8 +488,8 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why an expansion is face-independent, and where a face is applied to it instead | `faces.rs` (`FaceSet::union`), `render/ttf_builder/collect.rs` (`face_items`) |
 | Why validation reads the union and not the primary face | `faces.rs` (`FaceSet::union`), `issues/mod.rs` |
 | The one check that is still per face, and why | `issues/maps.rs` (`uvs_collision_diagnostics`) |
-| Which of a `build`'s outputs are produced at once, and the one that has to wait | `main.rs` (`OutputWork`), `render/sample.rs` (`SampleSource`) |
-| Who shares the one expansion — the build, validation and the sample — and why it is computed ahead of all three | `main.rs` (the `build` thread scope), `resolve.rs` (`Resolution`), `render/ttf_builder/mod.rs` (`build_faces_from`), `render/sample.rs` (`collect_sample_data_with`) |
+| Which of a `build`'s outputs are produced at once | `main.rs` (`OutputWork`) |
+| Who shares the one expansion — the build, validation and the demo page — and why it is computed ahead of all three | `main.rs` (the `build` thread scope), `resolve.rs` (`Resolution`), `render/ttf_builder/mod.rs` (`build_faces_from`), `render/sample.rs` (`collect_sample_data_with`) |
 | Why a glyph the build drops silently is still accounted for, and the test that pins it | `issues/anchors.rs` (`check_anchor_derivation`), `issues/issues_tests.rs` (`a_faulted_anchor_derivation_is_a_glyph_the_build_drops`) |
 | Dropping a composite that can never resolve before the expensive loop sees it | `render/glyph_cache.rs` (`drop_unresolvable`) |
 | Why a resolve recomposes only what an edit reached (and why it used to trail the build) | `ref_composite/mod.rs` (`CompositeGridCache`) |
@@ -566,8 +567,8 @@ docs carry the detail; this is the ranking.
 2. **`detail.rs` / `pixel.rs` geometry** — degenerate cases when merging two shapes, extremely tiny
    glyphs, zero-width pixel grids. Exact-rational sweeps make these correct-by-construction only if
    the degenerate inputs are actually handled; test empty/1×1/zero-extent inputs explicitly.
-3. **`render/sample.rs` + `specimen.rs`** — usually "the font is right, the sample is wrong". When
-   fixing a rendering bug, check both the TTF and the sample.
+3. **`specimen.rs` + `render/demo/`** — usually "the font is right, the specimen is wrong". When
+   fixing a rendering bug, check both the TTF and what the specimen shows.
 4. **`editor/document_view/` and the interaction layer** — focus capture, wheel scroll over the
    pixel grid, delete-key behavior, lost glyph flags after dragging a layer. These are exactly the
    regressions `EditorHarness` exists for.

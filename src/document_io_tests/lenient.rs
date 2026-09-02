@@ -85,7 +85,7 @@ remap set1 : stem -> wide
 remap liga1 : stem wide -> batch
 remap liga2 : stem wide -> batch stem
 feature liga for latn : set1
-exclude-from-sample stem
+assume unused stem
 ";
     let lines = parse_doclines(input);
     let mut output = Vec::new();

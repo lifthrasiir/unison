@@ -7336,9 +7336,6 @@ ref hangul-med-($hangul-modern-med**28)-(nof|f*27)
 ref hangul-fin-($hangul-modern-fin0)-($hangul-modern-med-map-for-fin**28)
 map U+AC00..D7A3 = hangul-($#AC00..D7A3)
 
-// there are so many hangul syllables that we want to hide (most of) them from sample.html
-exclude-from-sample U+AD00..D699
-
 ## combining jamos
 
 // representative glyphs

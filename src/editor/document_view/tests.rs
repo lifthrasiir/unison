@@ -628,7 +628,7 @@ map A = stem
 map B = wide
 remap set1 : stem -> wide
 feature liga for latn : set1
-exclude-from-sample stem
+assume unused stem
 ",
     );
 }

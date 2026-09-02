@@ -178,9 +178,10 @@ pub(crate) use expand::expand_map_pairs_per_alternative;
 pub(crate) use expand::{
     ExpandedItem, Expansion, MapAlternativeIndex, UvsExpandError, decomposed_map_pairs,
     expand_documents, expand_documents_for, expand_map_codepoints, expand_map_pairs,
-    expand_uvs_map_triples, for_each_map_alternative_name, map_char_captures, parse_map_char,
-    resolved_map_target,
+    expand_uvs_map_triples, for_each_map_alternative_name, map_char_captures, resolved_map_target,
 };
+#[cfg(test)]
+pub(crate) use expand::parse_map_char;
 pub(crate) use gsub::{remap_rule_kind, shadowed_single_subst_rules};
 
 #[cfg(any(feature = "editor", test))]

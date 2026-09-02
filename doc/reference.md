@@ -658,7 +658,7 @@ face term : narrow
 ```
 
 Faces are emitted in declaration order, so the first one is what a consumer that does not choose
-gets, and what `--sample-html`, `--sample-png` and `--live-html` show.
+gets, and what `--demo-html` shows.
 
 Every face needs a name of its own: two faces producing the same family and subfamily would hide
 each other in the system font list, and two sharing a PostScript name break PDF embedding. Both are
@@ -885,35 +885,8 @@ plane one block, so only the source can say what a font put there. The editor's 
 what reads it, to group its cells and head each group with a block name.
 
 None of this reaches the font. The built TTF is byte-identical with or without `prop` — the
-directive describes characters for the person reading the editor's status bar and the `sample.html`
+directive describes characters for the person reading the editor's status bar and the `demo.html`
 tooltips, which is where a stated name and the `{gc=… ccc=… eaw=…}` group beside it come from.
-
-### `exclude-from-sample`: Exclude a codepoint range from sample.html
-
-```
-exclude-from-sample U+XXXX[..YYYY]
-```
-
-Drops the given codepoints from the generated sample page. Several arguments may appear on one line,
-each either a single character, a `U+NNNN` codepoint, or a range. This affects nothing but the
-sample; the characters are still mapped in the font.
-
-The editor's specimen panel reads the same set, but only while it is showing undeclared characters:
-there it hides a whole displayed row whose every character is excluded, and keeps any row with one
-character that is not. A run of hidden rows leaves an ellipsis row in its place.
-
-Its use is bulk coverage that would swamp the page, such as most of the Hangul syllables:
-
-```
-exclude-from-sample U+AD00..D699
-```
-
-`demo.html` ignores it entirely. That page folds *every* block longer than 0x100 code points in the
-middle — the first and last eight rows stay, and one click opens the rest — so what this directive
-is for there is said once for the whole repertoire rather than range by range.
-
-The sample page shows the first declared face, so this concerns that face alone. It is not slice-
-qualified, and nothing about it reaches any output but the sample.
 
 ## Non-Glyph Definition Commands
 

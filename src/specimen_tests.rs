@@ -500,11 +500,11 @@ fn filling_a_block_skips_the_code_points_nothing_assigns() {
     assert!(cps.iter().all(|cp| (0x370..=0x3FF).contains(cp)));
 }
 
-/// The row-hiding rule, both halves of it: a filled grid drops a row whose
-/// every character is excluded from the sample, and keeps one where any
-/// single character is not.
+/// The fold, both halves of it: a filled grid folds a section longer than
+/// twice [`FOLD_EDGE_ROWS`], and a grid showing only what the source drew
+/// folds nothing — every row there is a glyph somebody wanted to look at.
 #[test]
-fn an_entirely_excluded_row_is_hidden_only_while_filling() {
+fn a_long_section_folds_only_while_filling() {
     let src = concat!(
         "meta height 16\n",
         "meta ascent 14\n",
@@ -512,11 +512,7 @@ fn an_entirely_excluded_row_is_hidden_only_while_filling() {
         "glyph sq 1 1\n",
         "@@\n",
         "map U+0041 = sq\n",
-        "exclude-from-sample U+0042..0043\n",
     );
-    // Without filling, an excluded character that is *mapped* still shows:
-    // hiding exists to make a filled grid readable, and the grid is not
-    // filled here.
     let mut state = state(src);
     state.options.group_by_block = false;
     state.options.show_undeclared = false;
@@ -524,25 +520,22 @@ fn an_entirely_excluded_row_is_hidden_only_while_filling() {
 
     state.options.show_undeclared = true;
     let rows = state.row_summaries(2);
-    // U+0042..0043 is exactly one row at two columns, and it is gone — but
-    // an ellipsis stands where it was. The rows on either side, each with an
-    // unexcluded character, are untouched.
-    let hidden = rows.iter().position(|r| r == "\u{2026}").unwrap();
-    assert_eq!(rows[hidden - 1], "0040 0041");
-    assert_eq!(rows[hidden + 1], "0044 0045");
-    assert!(!rows.contains(&"0042 0043".to_string()));
-    // At three columns the same characters fall on a row that also carries an
-    // unexcluded one, so nothing is hidden at all. (The block's cells start at
-    // U+0020, its first non-control, which is what puts U+0041 on that row.)
-    let rows = state.row_summaries(3);
-    assert!(rows.contains(&"0041 0042 0043".to_string()));
-    assert!(!rows.contains(&"\u{2026}".to_string()));
+    // Basic Latin filled out is 48 rows at two columns: eight stay at each
+    // end and the fold stands for the other 32.
+    assert_eq!(rows.len(), 2 * FOLD_EDGE_ROWS + 1);
+    assert_eq!(rows[FOLD_EDGE_ROWS], "\u{2026} 32");
+    assert_eq!(rows[FOLD_EDGE_ROWS - 1], "002E 002F");
+    assert_eq!(rows[FOLD_EDGE_ROWS + 1], "0070 0071");
+
+    // Wide enough that the section is 16 rows or fewer, and nothing folds.
+    let rows = state.row_summaries(8);
+    assert!(!rows.iter().any(|r| r.starts_with('\u{2026}')));
 }
 
-/// A run of hidden rows is one ellipsis, not one per row: the point is to
-/// say something was left out, and the excluded ranges are the bulk ones.
+/// A fold is opened by a click and stays open: the layout is what folded the
+/// section, so the reader's answer lives beside it rather than in the source.
 #[test]
-fn consecutive_hidden_rows_collapse_into_one_ellipsis() {
+fn an_opened_fold_lays_the_whole_section_out() {
     let mut state = state(concat!(
         "meta height 16\n",
         "meta ascent 14\n",
@@ -550,19 +543,23 @@ fn consecutive_hidden_rows_collapse_into_one_ellipsis() {
         "glyph sq 1 1\n",
         "@@\n",
         "map U+0041 = sq\n",
-        "exclude-from-sample U+0042..0047\n",
     ));
+    state.options.group_by_block = true;
     state.options.show_undeclared = true;
-    let rows = state.row_summaries(2);
-    assert_eq!(rows.iter().filter(|r| *r == "\u{2026}").count(), 1);
-    assert!(rows.contains(&"0048 0049".to_string()));
+    let folded = state.row_summaries(2);
+    state.unfolded.insert(0);
+    let opened = state.row_summaries(2);
+    assert!(!opened.iter().any(|r| r.starts_with('\u{2026}')));
+    // The heading is the one row the fold never took, so the difference is
+    // exactly what the fold stood for.
+    assert_eq!(opened.len(), folded.len() + 32 - 1);
+    assert!(opened.contains(&"0042 0043".to_string()));
 }
 
-/// A section every row of which was hidden still keeps its heading, with the
-/// ellipsis under it — a block that is entirely excluded is a thing worth
+/// A folded section keeps its heading: a block worth folding is a block worth
 /// seeing the name of.
 #[test]
-fn a_wholly_excluded_block_keeps_its_heading_and_an_ellipsis() {
+fn a_folded_block_keeps_its_heading() {
     let mut state = state(concat!(
         "meta height 16\n",
         "meta ascent 14\n",
@@ -571,17 +568,21 @@ fn a_wholly_excluded_block_keeps_its_heading_and_an_ellipsis() {
         "@@\n",
         "map U+0041 = sq\n",
         "map U+2200 = sq\n",
-        "exclude-from-sample U+2200..22FF\n",
     ));
     state.options.group_by_block = true;
     state.options.show_undeclared = true;
     let rows = state.row_summaries(8);
+    let heading = rows
+        .iter()
+        .position(|r| r.starts_with("# Mathematical Operators"))
+        .expect("the block is on the grid");
     assert_eq!(
-        &rows[rows.len() - 2..],
-        [
-            "# Mathematical Operators  U+2200..22FF  1 / 256 (0.4%)",
-            "\u{2026}"
-        ]
+        rows[heading],
+        "# Mathematical Operators  U+2200..22FF  1 / 256 (0.4%)"
+    );
+    assert!(
+        rows[heading + 1 + FOLD_EDGE_ROWS].starts_with('\u{2026}'),
+        "its 32 rows fold after the eighth"
     );
 }
 

@@ -26,7 +26,7 @@ glyph test-glyph 4 3
 glyph uni0041
 ref test-glyph 2 0
 
-exclude-from-sample U+AD00
+assume unused test-glyph
 ";
     docline_roundtrip(input);
 

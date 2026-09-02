@@ -14,7 +14,7 @@ name-parts $x = a b // parts
 remap liga : a b -> ab // ligature
 feature liga for latn : liga // feature
 color red = #ff0000 // brand
-exclude-from-sample foo // not interesting
+assume unused foo // not interesting
 assume unused bar // deliberate
 glyph a-b 2 1 // header
 @@..
@@ -79,18 +79,11 @@ anchor top 0 0 // where marks go
 /// A comment must not leak into the arguments of the raw-text directives.
 #[test]
 fn comment_is_not_a_directive_argument() {
-    let input = "exclude-from-sample foo // not interesting\nassume unused bar // deliberate\n";
+    let input = "assume unused bar // deliberate\n";
     let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
-    let DocumentItem::Directive(a) = &doc.items[0] else {
+    let DocumentItem::Directive(b) = &doc.items[0] else {
         panic!()
     };
-    let DocumentItem::Directive(b) = &doc.items[1] else {
-        panic!()
-    };
-    assert_eq!(
-        crate::document::classify_directive(a),
-        crate::document::Directive::ExcludeFromSample("foo"),
-    );
     assert_eq!(
         crate::document::classify_directive(b),
         crate::document::Directive::AssumeUnused("bar"),

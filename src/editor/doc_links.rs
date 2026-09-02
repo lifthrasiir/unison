@@ -928,13 +928,6 @@ mod rename_detection_tests {
     }
 
     #[test]
-    fn exclude_from_sample() {
-        let t = find_renameable_at_caret("exclude-from-sample foo", 20, None).unwrap();
-        assert_eq!(t.name, "foo");
-        assert_eq!(t.kind, RenameKind::Glyph);
-    }
-
-    #[test]
     fn empty_line() {
         assert!(find_renameable_at_caret("", 0, None).is_none());
     }
@@ -1319,14 +1312,6 @@ mod rename_detection_tests {
             find_link_target_in_doc(&lines, "han-zzzz", &LinkTargetKind::Glyph, &parts),
             None,
         );
-    }
-
-    #[test]
-    fn exclude_from_sample_links_glyph_name() {
-        let links = extract_line_links("exclude-from-sample foo", None);
-        assert_eq!(links.len(), 1);
-        assert_eq!(links[0].target, "foo");
-        assert!(matches!(links[0].kind, LinkTargetKind::Glyph));
     }
 
     #[test]

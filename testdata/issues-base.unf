@@ -46,6 +46,5 @@ remap liga : ok -> also-never-defined
 feature liga for latn : liga
 feature calt for latn : no-such-remap-group
 
-exclude-from-sample ok
 assume unused dangling
 totally-unknown-directive foo bar

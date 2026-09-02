@@ -165,7 +165,7 @@ impl PixelShape {
 
     /// Does the *bitmap* face ink this logical pixel? The [`PX_FULL`] bit, which
     /// is carried through every geometric operation but read only by the bitmap
-    /// build (`render::contour::track_contour_fullpixel` and friends).
+    /// build (`render::ttf_builder::contours`'s `to_bitmap_grid` and friends).
     pub fn is_bitmap_filled(self) -> bool {
         self.0 & PX_FULL != 0
     }

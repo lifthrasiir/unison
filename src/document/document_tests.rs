@@ -33,10 +33,6 @@ fn pattern_ref(name: &str) -> GlyphRef {
 fn classify_directive_recognizes_exactly_the_untyped_directives() {
     use super::{Directive, classify_directive};
     assert_eq!(
-        classify_directive("exclude-from-sample a b"),
-        Directive::ExcludeFromSample("a b"),
-    );
-    assert_eq!(
         classify_directive("  assume unused foo  "),
         Directive::AssumeUnused("foo"),
     );

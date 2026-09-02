@@ -288,7 +288,7 @@ glyph test-glyph 4 3
 glyph uni0041
 ref test-glyph 2 0
 
-exclude-from-sample U+AD00
+assume unused test-glyph
 ";
     let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
     // comment, 3x meta, blank, glyph, blank, glyph, blank, directive = 10

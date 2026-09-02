@@ -32,7 +32,7 @@ pub(crate) enum FieldRole {
     /// `glyph NAME` — the defining name (may be a pattern).
     GlyphDef,
     /// A glyph reference: `ref` target, `map`/alias target, remap operands,
-    /// `assert` names, `assume unused` / `exclude-from-sample` arguments.
+    /// `assert` names, `assume unused` arguments.
     GlyphRef,
     /// `name-parts $NAME` — the defining name.
     NamePartsDef,
@@ -362,13 +362,6 @@ pub(crate) fn classify_line(line: &str) -> Vec<LineField> {
                 && !name.value.is_empty()
             {
                 fields.push(field(FieldRole::PointDef, leading, name));
-            }
-        }
-        "exclude-from-sample" => {
-            if let Some(name) = rest.first()
-                && !name.value.is_empty()
-            {
-                fields.push(field(FieldRole::GlyphRef, leading, name));
             }
         }
         "assume" => {

@@ -29,7 +29,7 @@
 //! decided so — the UCD reports no name at all and `{gc=Co eaw=A}` for the
 //! whole area. [`CharProps`] is the source's answer: the `prop` directives of
 //! every document, collected into one lookup that the two status lines and the
-//! `sample.html` tooltips ask instead of asking `unicode_names2`/`icu` alone.
+//! `demo.html` tooltips ask instead of asking `unicode_names2`/`icu` alone.
 //!
 //! ```text
 //! prop block `Unison Symbols` = U+F0000..F00FF

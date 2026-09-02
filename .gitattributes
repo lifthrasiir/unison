@@ -1,4 +1,2 @@
 # avoid prohibitively large diff
-sample.html -diff
-live.html -diff
 data/* -diff

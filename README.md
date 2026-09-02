@@ -5,8 +5,7 @@ It currently comes with two varieties, **Unison Regular** for the normal usages,
 and **Unison Term** for terminal emulators which expect non-CJK-specific symbols to be half-width.
 
 * Download: [TTC](https://lifthrasiir.github.io/unison/unison.ttc), [Regular WOFF2](https://lifthrasiir.github.io/unison/unison-regular.woff2), [Term WOFF2](https://lifthrasiir.github.io/unison/unison-term.woff2)
-* [Glyph samples](https://lifthrasiir.github.io/unison/sample.html) for Regular
-* [Live sample](https://lifthrasiir.github.io/unison/live.html) for Regular
+* [Specimen and samples](https://lifthrasiir.github.io/unison/demo.html)
 
 ## Pan-What?
 
@@ -70,7 +69,7 @@ The major differences (and possible advantages) are as follows:
 
 ## Coverage
 
-As of 2026-08-20:
+As of 2026-09-02:
 
 | Script | Status |
 |--------|--------|
@@ -87,11 +86,8 @@ As of 2026-08-20:
 | Hangul | Modern complete, archaic 80% |
 | General symbols | ~30% |
 | Mathematical symbols | ~20% |
-| Emoji | PoC only |
-| Sitelen Pona (UCSUR) | Complete |
-
-The detailed listing of available characters can be found in the
-[glyph chart](https://lifthrasiir.github.io/unison/sample.png).
+| Emoji | ~160 flags supported, otherwise PoC |
+| Sitelen Pona ([UCSUR](https://www.kreativekorp.com/ucsur/)) | Complete |
 
 ## Uniform
 

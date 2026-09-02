@@ -26,7 +26,7 @@ struct CellEdges {
 }
 
 use crate::document::PixelGrid;
-use crate::pixel::{self, PX_ALMOSTFULL, PX_EMPTY, PX_SUBPIXEL, PixelShape};
+use crate::pixel::{self, PX_EMPTY, PixelShape};
 
 pub fn track_contour(grid: &PixelGrid, mask: u8) -> Vec<Vec<(f32, f32)>> {
     let width = grid.width as usize;
@@ -500,18 +500,6 @@ fn winding_number(x: f32, y: f32, path: &[(f32, f32)]) -> i32 {
         yy0 = yy;
     }
     wn
-}
-
-pub fn track_contour_fullpixel(grid: &PixelGrid) -> Vec<Vec<(f32, f32)>> {
-    let mut fp_grid = PixelGrid::new(grid.width, grid.height);
-    for r in 0..grid.height {
-        for c in 0..grid.width {
-            if grid.get(r, c).is_bitmap_filled() {
-                fp_grid.set(r, c, PixelShape(PX_ALMOSTFULL));
-            }
-        }
-    }
-    track_contour(&fp_grid, PX_SUBPIXEL)
 }
 
 /// Bounding box of positioned layers: `(min_r, min_c, width, height)`.
