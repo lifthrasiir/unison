@@ -64,6 +64,9 @@ glyph han-279b5:15x16 15 16 // 𧦵
 glyph han-279d4:15x16 15 16 // 𧧔
 ⿰ han-8a01:5x16 1 han-821f:9x16 // ⿰訁舟
 
+// glyph han-279d5:15x16 15 16 // 𧧕
+// ⿰ han-8a01 han-5b57 // ⿰訁字
+
 // glyph han-279dc:15x16 15 16 // 𧧜
 // ⿰ han-8a01 han-7f51 // ⿰訁网
 
@@ -72,6 +75,9 @@ glyph han-279d4:15x16 15 16 // 𧧔
 
 // glyph han-279eb:15x16 15 16 // 𧧫
 // ⿰ han-8a01 han-21c31 // ⿰訁𡰱
+
+glyph han-279f0:15x16 15 16 // 𧧰
+⿰ han-8a01:5x16 1 han-81e3:9x16 // ⿰訁臣
 
 ## 149.7
 
@@ -101,6 +107,9 @@ glyph han-27a02:15x16 15 16 // 𧨂
 // glyph han-27a3d:15x16 15 16 // 𧨽
 // ⿲ han-8a01 han-961d han-4ed8 // ⿲訁阝付 <- ⿰訁附
 
+// glyph han-27a4c:15x16 15 16 // 𧩌
+// ⿰ han-8a01 han-5b5f // ⿰訁孟
+
 ## 149.9
 
 // glyph han-27a64:15x16 15 16 // 𧩤
@@ -114,6 +123,9 @@ glyph han-27a6c:15x16 15 16 // 𧩬
 
 // glyph han-27a87:15x16 15 16 // 𧪇
 // ⿰ han-8a01 han-8037 // ⿰訁耷
+
+// glyph han-27a8a:15x16 15 16 // 𧪊
+// ⿰ han-8a01 han-70b9 // ⿰訁点
 
 // glyph han-27a8d:15x16 15 16 // 𧪍
 // ⿰ han-8a01 han-6637 // ⿰訁昷
@@ -134,6 +146,9 @@ glyph han-27aa8:15x16 15 16 // 𧪨
 
 glyph han-27abb:15x16 15 16 // 𧪻
 ⿲ han-8a01:5x16 han-7acb:5x16 han-7acb:5x16 // ⿲訁立立
+
+// glyph han-27ac2:15x16 15 16 // 𧫂
+// ⿲ han-8a01 han-8eca han-5b50 // ⿲訁車子
 
 // glyph han-27ac8:15x16 15 16 // 𧫈
 // ⿱ han-46b4 han-5408 // ⿱䚴合

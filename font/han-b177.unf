@@ -2,8 +2,8 @@
 
 ## 177.2
 
-// glyph han-2925b:15x16 15 16 // 𩉛
-// ⿰ han-9769 han-5200 // ⿰革刀
+glyph han-2925b:15x16 15 16 // 𩉛
+⿰ han-9769:9x16 1 han-5200:5x16 // ⿰革刀
 
 ## 177.3
 
@@ -34,6 +34,9 @@ glyph han-29275:15x16 15 16 // 𩉵
 ⿰ han-9769:7x16 1 han-5206:7x16 // ⿰革分
 
 ## 177.5
+
+glyph han-29278:15x16 15 16 // 𩉸
+⿰ han-9769:7x16 1 han-5de8:7x16 // ⿰革巨
 
 glyph han-2927c:15x16 15 16 // 𩉼
 ⿰ han-9769:7x16 1 han-7533:7x16 // ⿰革申
@@ -118,6 +121,9 @@ glyph han-292bb:15x16 15 16 // 𩊻
 
 // glyph han-292c0:15x16 15 16 // 𩋀
 // ⿰ han-9769 han-6b68 // ⿰革歨
+
+glyph han-292c2:15x16 15 16 // 𩋂
+⿰ han-9769:7x16 1 han-975e:7x16 // ⿰革非
 
 glyph han-292cd:15x16 15 16 // 𩋍
 ⿲ -2 han-9769:7x16 han-4ebb:3x16 han-5146:7x16 // ⿲革亻兆
@@ -211,6 +217,23 @@ glyph han-29365:15x16 15 16 // 𩍥
 
 // glyph han-2936e:15x16 15 16 // 𩍮
 // ⿰ han-9769 han-7b95 // ⿰革箕
+
+# CJK unified ideographs extension B: 韭 (179)
+
+## 179.7
+
+// glyph han-29404:15x16 15 16 // 𩐄
+// ⿳ han-541e han-975e han-4e00 // ⿳吞非一 <- ⿱吞韭
+
+## 179.11
+
+// glyph han-2940d:15x16 15 16 // 𩐍
+// ⿳ han-83ab han-975e han-4e00 // ⿳莫非一 <- ⿱莫韭
+
+## 179.13
+
+// glyph han-29411:15x16 15 16 // 𩐑
+// ⿳ han-282f0 han-975e han-4e00 // ⿳𨋰非一 <- ⿱𨋰韭
 
 # CJK unified ideographs extension B: 音 (180)
 

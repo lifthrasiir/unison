@@ -1,5 +1,10 @@
 # CJK unified ideographs extension G: 阜 (170)
 
+## 170.3
+
+// glyph han-31002:15x16 15 16 // 𱀂
+// ⿰ han-961c han-5b50 // ⿰阜子
+
 ## 170.4
 
 // glyph han-31003:15x16 15 16 // 𱀃
@@ -82,12 +87,26 @@ glyph han-3103a:15x16 15 16 // 𱀺
 // glyph han-3106b:15x16 15 16 // 𱁫
 // ⿳ han-96e8 han-96b9 han-96d4 // ⿳雨隹雔 <- ⿱雨雥
 
+# CJK unified ideographs extension G: 非 (175)
+
+## 175.12
+
+// glyph han-3106f:15x16 15 16 // 𱁯
+// ⿳ han-6bdb han-3c8e han-975e // ⿳毛㲎非 <- ⿱毳非
+
 # CJK unified ideographs extension G: 革 (177)
 
 ## 177.6
 
 // glyph han-31075:15x16 15 16 // 𱁵
 // ⿰ han-9769 han-8fb9 // ⿰革边
+
+# CJK unified ideographs extension G: 韭 (179)
+
+## 179.5
+
+// glyph han-3108d:15x16 15 16 // 𱂍
+// ⿳ han-961f han-975e han-4e00 // ⿳队非一 <- ⿱队韭
 
 # CJK unified ideographs extension G: 頁 (181)
 
@@ -263,6 +282,9 @@ glyph han-3121e:15x16 15 16 // 𱈞
 ⿰ han-65a4:6x16 han-9ce5:9x16 // ⿰斤鳥
 
 ## 196.5
+
+// glyph han-31222:15x16 15 16 // 𱈢
+// ⿱ han-51f9 han-9ce5 // ⿱凹鳥
 
 glyph han-31223:15x16 15 16 // 𱈣
 ⿰ han-9ce5:7x16 1 han-65e6:7x16 // ⿰鳥旦

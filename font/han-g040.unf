@@ -134,8 +134,8 @@ glyph han-303a1:15x16 15 16 // 𰎡
 
 ## 50.2
 
-// glyph han-303d1:15x16 15 16 // 𰏑
-// ⿰ han-5200 han-5dfe // ⿰刀巾
+glyph han-303d1:15x16 15 16 // 𰏑
+⿰ han-5200:9x16 1 han-5dfe:5x16 // ⿰刀巾
 
 ## 50.3
 
@@ -266,10 +266,18 @@ glyph han-30443:15x16 15 16 // 𰑃
 glyph han-30445:15x16 15 16 // 𰑅
 ⿲ han-5fc4:5x16 han-4eba:5x16 han-4eba:5x16 // ⿲忄人人
 
+## 61.5
+
+// glyph han-3044b:15x16 15 16 // 𰑋
+// ⿱ han-5de8 han-5fc3 // ⿱巨心
+
 ## 61.6
 
 glyph han-30458:15x16 15 16 // 𰑘
 ⿰ han-5fc4:7x16 1 han-7f8a:7x16 // ⿰忄羊
+
+glyph han-30459:15x16 15 16 // 𰑙
+⿲ han-5fc4:5x16 han-6587:7x16 han-5202:3x16 // ⿲忄文刂
 
 ## 61.7
 
@@ -336,6 +344,9 @@ glyph han-304bd:15x16 15 16 // 𰒽
 // glyph han-304c1:15x16 15 16 // 𰓁
 // ⿲ han-624b han-5315 han-5315 // ⿲手匕匕 <- ⿰手比
 
+// glyph han-304c9:15x16 15 16 // 𰓉
+// ⿱ han-6587 han-624b // ⿱文手
+
 // glyph han-304cb:15x16 15 16 // 𰓋
 // ⿲ han-624c han-4e28 han-2b739 // ⿲扌丨𫜹 <- ⿰扌𠁣
 
@@ -367,6 +378,9 @@ glyph han-304de:15x16 15 16 // 𰓞
 // ⿱ han-5229 han-624b // ⿱利手
 
 ## 64.8
+
+glyph han-304fa:15x16 15 16 // 𰓺
+⿲ han-624c:3x16 han-81e3:6x16 1 han-4eba:5x16 // ⿲扌臣人
 
 // glyph han-304fe:15x16 15 16 // 𰓾
 // ⿰ han-624c han-21da9 // ⿰扌𡶩
@@ -461,6 +475,9 @@ glyph han-3058c:15x16 15 16 // 𰖌
 
 // glyph han-30594:15x16 15 16 // 𰖔
 // ⿰ han-65e5 han-6c93 // ⿰日沓
+
+// glyph han-30595:15x16 15 16 // 𰖕
+// ⿰ han-65e5 han-5b5f // ⿰日孟
 
 ## 72.10
 

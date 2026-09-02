@@ -10,8 +10,8 @@
 // glyph han-25419:15x16 15 16 // 𥐙
 // ⿰ han-77f3 han-516b // ⿰石八
 
-// glyph han-2541b:15x16 15 16 // 𥐛
-// ⿰ han-77f3 han-5200 // ⿰石刀
+glyph han-2541b:15x16 15 16 // 𥐛
+⿰ han-77f3:5x16 1 han-5200:9x16 // ⿰石刀
 
 // glyph han-2541c:15x16 15 16 // 𥐜
 // ⿰ han-77f3 han-4e5d // ⿰石九
@@ -67,8 +67,14 @@ glyph han-25464:15x16 15 16 // 𥑤
 // glyph han-25467:15x16 15 16 // 𥑧
 // ⿱ han-4ed8 han-77f3 // ⿱付石
 
+glyph han-2546d:15x16 15 16 // 𥑭
+⿰ han-77f3:8x16 han-5de8:7x16 // ⿰石巨
+
 glyph han-2546e:15x16 15 16 // 𥑮
 ⿰ han-77f3:8x16 han-53e4:7x16 // ⿰石古
+
+// glyph han-25471:15x16 15 16 // 𥑱
+// ⿱ han-34db han-77f3 // ⿱㓛石
 
 glyph han-25472:15x16 15 16 // 𥑲
 ⿰ han-77f3:5x16 1 han-65e6:9x16 // ⿰石旦
@@ -98,6 +104,9 @@ glyph han-25493:15x16 15 16 // 𥒓
 
 glyph han-25499-($han-regions):15x16 15 16 // 𥒙
 ⿲ han-77f3:5x16 han-72ad:4x16 1 han-52fa-($-1):5x16 // ⿲石犭勺
+
+// glyph han-2549c:15x16 15 16 // 𥒜
+// ⿲ han-77f3 han-51ab han-6c34 // ⿲石冫水 <- ⿰石冰
 
 glyph han-2549e:15x16 15 16 // 𥒞
 ⿰ han-77f3:7x16 1 han-7f8a:7x16 // ⿰石羊

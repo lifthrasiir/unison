@@ -70,7 +70,7 @@ glyph han-223ce:15x16 15 16 // 𢏎
 ## 57.6
 
 glyph han-223d5:15x16 15 16 // 𢏕
-⿰ han-5f13:7x16 han-540c:8x16 // ⿰弓同
+⿰ han-5f13:5x16 1 han-540c:9x16 // ⿰弓同
 
 // glyph han-223d7:15x16 15 16 // 𢏗
 // ⿱ han-5e75 han-5f13 // ⿱幵弓
@@ -298,6 +298,9 @@ glyph han-2253f:15x16 15 16 // 𢔿
 
 // glyph han-22557:15x16 15 16 // 𢕗
 // ⿰ han-5f73 han-5bc4 // ⿰彳寄
+
+// glyph han-22559:15x16 15 16 // 𢕙
+// ⿲ han-5f73 han-72ad han-5b5f // ⿲彳犭孟 <- ⿰彳猛
 
 glyph han-22562:15x16 15 16 // 𢕢
 ⿲ han-5f73:3x16 han-8eca:5x16 han-6b20:7x16 // ⿲彳車欠

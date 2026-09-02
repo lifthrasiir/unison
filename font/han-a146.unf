@@ -154,6 +154,9 @@ glyph han-4775:15x16 15 16 // 䝵
 
 ## 154.8
 
+// glyph han-477a:15x16 15 16 // 䝺
+// ⿱ han-2abe2 han-8c9d // ⿱𪯢貝
+
 // glyph han-477b:15x16 15 16 // 䝻
 // ⿰ han-8c9d han-5c45 // ⿰貝居
 
@@ -295,6 +298,9 @@ glyph han-47fa:15x16 15 16 // 䟺
 // glyph han-4805:15x16 15 16 // 䠅
 // ⿰ han-27fb7 han-56f7 // ⿰𧾷囷
 
+glyph han-480a:15x16 15 16 // 䠊
+⿰ han-27fb7:5x16 1 han-975e:9x16 // ⿰𧾷非
+
 glyph han-480b:15x16 15 16 // 䠋
 ⿰ han-27fb7:5x16 han-5351:10x16 // ⿰𧾷卑
 
@@ -387,6 +393,11 @@ glyph han-4873:15x16 15 16 // 䡳
 
 # CJK unified ideographs extension A: 辶 (162)
 
+## 162.3
+
+// glyph han-488a-($han-regions):15x16 15 16 // 䢊
+// ⿺ han-8fb6-($-1) han-5b50 // ⿺辶子
+
 ## 162.4
 
 // glyph han-488d-($han-regions):15x16 15 16 // 䢍
@@ -450,6 +461,17 @@ glyph han-48b6:15x16 15 16 // 䢶
 glyph han-48b8:15x16 15 16 // 䢸
 ⿰ han-4e14:9x16 1 han-961d:5x16-r // ⿰且阝
 
+glyph han-48b9:15x16 15 16 // 䢹
+⿰ han-5de8:7x16 1 han-961d:7x16-r // ⿰巨阝
+
+glyph han-48ba:15x16 15 16 // 䢺
+⿰ han-51fa:7x16 1 han-961d:7x16-r // ⿰出阝
+
+## 163.6
+
+glyph han-48bb:15x16 15 16 // 䢻
+⿰ han-81e3:8x16 han-961d:7x16-r // ⿰臣阝
+
 ## 163.7
 
 // glyph han-48c8:15x16 15 16 // 䣈
@@ -485,6 +507,9 @@ glyph han-48e6:15x16 15 16 // 䣦
 
 glyph han-48ef:15x16 15 16 // 䣯
 ⿰ han-9149:7x16 1 han-4e14:7x16 // ⿰酉且
+
+glyph han-48f0:15x16 15 16 // 䣰
+⿰ han-9149:7x16 1 han-5de8:7x16 // ⿰酉巨
 
 glyph han-48f1:15x16 15 16 // 䣱
 ⿰ han-9149:7x16 1 han-53e5:7x16 // ⿰酉句
@@ -540,6 +565,11 @@ glyph han-4927:15x16 15 16 // 䤧
 // glyph han-4930:15x16 15 16 // 䤰
 // ⿱ han-574e han-91d1 // ⿱坎金
 
+## 167.8
+
+glyph han-4935:15x16 15 16 // 䤵
+⿰ han-91d2:5x16-l 1 han-975e:9x16 // ⿰釒非
+
 ## 167.9
 
 glyph han-493a:15x16 15 16 // 䤺
@@ -547,6 +577,11 @@ glyph han-493a:15x16 15 16 // 䤺
 
 // glyph han-493c:15x16 15 16 // 䤼
 // ⿰ han-91d2 han-6cc9 // ⿰釒泉
+
+## 167.10
+
+// glyph han-4946:15x16 15 16 // 䥆
+// ⿳ han-4ea0 han-975e han-91d1 // ⿳亠非金
 
 ## 167.11
 
@@ -645,6 +680,11 @@ glyph han-49b9:15x16 15 16 // 䦹
 
 glyph han-49ba:15x16 15 16 // 䦺
 ⿰ han-961d:4x16-l han-4e01:11x16 // ⿰阝丁
+
+## 170.3
+
+// glyph han-49bb:15x16 15 16 // 䦻
+// ⿰ han-961d han-5b50 // ⿰阝子
 
 ## 170.4
 

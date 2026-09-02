@@ -389,6 +389,12 @@ glyph han-8f24-(g|h|t):15x16 15 16 // 輤
 glyph han-8f24-(k|p):15x16 15 16 // 輤
 ⿰ han-8eca:7x16 1 han-9751-($-1):7x16 // ⿰車靑
 
+// glyph han-8f29:15x16 15 16 // 輩
+// ⿱ han-975e han-8eca // ⿱非車
+
+glyph han-8f2b:15x16 15 16 // 輫
+⿰ han-8eca:5x16 1 han-975e:9x16 // ⿰車非
+
 ## 159.9
 
 // glyph han-8f2d:15x16 15 16 // 輭
@@ -485,6 +491,11 @@ glyph han-8f9c:15x16 15 16 // 辜
 
 // glyph han-8fa9:15x16 15 16 // 辩
 // ⿲ han-8f9b han-8ba0 han-8f9b // ⿲辛讠辛
+
+## 160.11
+
+// glyph han-8fac:15x16 15 16 // 辬
+// ⿲ han-8f9b han-6587 han-8f9b // ⿲辛文辛
 
 ## 160.13
 
@@ -622,6 +633,9 @@ glyph han-8fcc-($han-regions):15x16 15 16 // 迌
 
 // glyph han-8fd7:15x16 15 16 // 迗
 // ⿺ han-8fb6 han-5929 // ⿺辶天
+
+// glyph han-8fd9-($han-regions):15x16 15 16 // 这
+// ⿺ han-8fb6-($-1) han-6587 // ⿺辶文
 
 glyph han-8fda-($han-regions):15x16 15 16 // 迚
 ⿺ han-8fb6-($-1):15x16.11x14 han-4e2d:9x12 5 0 // ⿺辶中

@@ -1,3 +1,124 @@
+# CJK unified ideographs extension B: 子 (39)
+
+## 39.1
+
+// glyph han-2193d:15x16 15 16 // 𡤽
+// ⿱ han-5b50 han-4e00 // ⿱子一
+
+## 39.2
+
+// glyph han-2193f:15x16 15 16 // 𡤿
+// ⿰ han-5b50 han-4eba // ⿰子人
+
+// glyph han-21941:15x16 15 16 // 𡥁
+// ⿰ han-5b50 han-5202 // ⿰子刂
+
+## 39.3
+
+// glyph han-21257:15x16 15 16 // 𡉗
+// ⿰ han-571f han-5b50 // ⿰土子
+
+// glyph han-21943:15x16 15 16 // 𡥃
+// ⿰ han-5b50 han-5973 // ⿰子女
+
+glyph han-21944:15x16 15 16 // 𡥄
+⿱ han-5b50:15x9 han-53e3:15x7 // ⿱子口
+
+// glyph han-21945:15x16 15 16 // 𡥅
+// ⿰ han-624c han-5b50 // ⿰扌子
+
+## 39.4
+
+// glyph han-2194a:15x16 15 16 // 𡥊
+// ⿰ han-5b50 han-6bdb // ⿰子毛
+
+// glyph han-2194c:15x16 15 16 // 𡥌
+// ⿰ han-5b50 han-65e5 // ⿰子日
+
+## 39.5
+
+// glyph han-2194e:15x16 15 16 // 𡥎
+// ⿱ han-6b64 han-5b50 // ⿱此子
+
+glyph han-21950:15x16 15 16 // 𡥐
+⿳ -2 han-5c71:15x4 han-4eba:15x5 han-5b50:15x9 // ⿳山人子
+
+// glyph han-21951:15x16 15 16 // 𡥑
+// ⿲ han-5b50 han-6728 han-4e5a // ⿲子木乚 <- ⿰子札
+
+glyph han-21954:15x16 15 16 // 𡥔
+⿱ han-7530:15x5 2 han-5b50:15x9 // ⿱田子
+
+// glyph han-21959:15x16 15 16 // 𡥙
+// ⿰ han-5b50 han-53ec // ⿰子召
+
+// glyph han-2195a:15x16 15 16 // 𡥚
+// ⿰ han-5b50 han-53ef // ⿰子可
+
+## 39.6
+
+// glyph han-2195c:15x16 15 16 // 𡥜
+// ⿳ han-5b80 han-5ddb han-5b50 // ⿳宀巛子 <- ⿱宀㜽
+
+// glyph han-21960:15x16 15 16 // 𡥠
+// ⿰ han-5b50 han-8840 // ⿰子血
+
+// glyph han-21961:15x16 15 16 // 𡥡
+// ⿰ han-5b50 han-4ea4 // ⿰子交
+
+// glyph han-21966:15x16 15 16 // 𡥦
+// ⿲ han-5b50 han-5b50 han-5b50 // ⿲子子子
+
+## 39.7
+
+// glyph han-2196b:15x16 15 16 // 𡥫
+// ⿰ han-5408 han-5b50 // ⿰合子
+
+// glyph han-2196c:15x16 15 16 // 𡥬
+// ⿱ han-5229 han-5b50 // ⿱利子
+
+// glyph han-22232:15x16 15 16 // 𢈲
+// ⿸ han-5e7f han-3ad7 // ⿸广㫗
+
+## 39.8
+
+// glyph han-2196f:15x16 15 16 // 𡥯
+// ⿱ han-6010 han-5b50 // ⿱怐子
+
+// glyph han-21971:15x16 15 16 // 𡥱
+// ⿰ han-5b50 han-5468 // ⿰子周
+
+## 39.9
+
+// glyph han-2197b:15x16 15 16 // 𡥻
+// ⿱ han-79cb han-5b50 // ⿱秋子
+
+// glyph han-21982:15x16 15 16 // 𡦂
+// ⿰ han-5b57 han-5b57 // ⿰字字
+
+## 39.10
+
+// glyph han-21989:15x16 15 16 // 𡦉
+// ⿲ han-5b50 han-866b han-6587 // ⿲子虫文 <- ⿰子蚊
+
+## 39.12
+
+// glyph han-21998:15x16 15 16 // 𡦘
+// ⿰ han-5b50 han-264d4 // ⿰子𦓔
+
+// glyph han-21999:15x16 15 16 // 𡦙
+// ⿳ han-5c71 han-5c7e han-5b57 // ⿳山屾字 <- ⿱𡷈字
+
+## 39.13
+
+// glyph han-219a0:15x16 15 16 // 𡦠
+// ⿱ han-7a1a han-5b50 // ⿱稚子
+
+## 39.14
+
+glyph han-219a9:15x16 15 16 // 𡦩
+⿳ -7 han-65e5:15x5 han-9ad8:15x9 han-5b50:15x9 // ⿳日高子
+
 # CJK unified ideographs extension B: 宀 (40)
 
 ## 40.2
@@ -55,6 +176,9 @@ glyph han-219e1:15x16 15 16 // 𡧡
 
 // glyph han-219e2:15x16 15 16 // 𡧢
 // ⿳ han-5b80 han-5de5 han-516b // ⿳宀工八
+
+// glyph han-219e8:15x16 15 16 // 𡧨
+// ⿱ han-5b80 han-51fa // ⿱宀出
 
 ## 40.6
 
@@ -134,6 +258,9 @@ glyph han-21a12:15x16 15 16 // 𡨒
 // glyph han-21a2e:15x16 15 16 // 𡨮
 // ⿳ han-5b80 han-77f3 han-5927 // ⿳宀石大
 
+// glyph han-21a30:15x16 15 16 // 𡨰
+// ⿱ han-5b80 han-975e // ⿱宀非
+
 // glyph han-21a31:15x16 15 16 // 𡨱
 // ⿱ han-5b80 han-4f73 // ⿱宀佳
 
@@ -142,6 +269,9 @@ glyph han-21a35:15x16 15 16 // 𡨵
 
 glyph han-21a36:15x16 15 16 // 𡨶
 ⿳ han-5b80:15x5 han-65e5:15x5 han-706b:15x6 // ⿳宀日火
+
+// glyph han-21a38:15x16 15 16 // 𡨸
+// ⿰ han-5b81 han-5b57 // ⿰宁字
 
 glyph han-21a3c:15x16 15 16 // 𡨼
 ⿳ han-5b80:15x5 han-706b:15x5 han-706b:15x6 // ⿳宀火火
@@ -192,6 +322,9 @@ glyph han-21a88:15x16 15 16 // 𡪈
 ref han-5b80:15x4 0 0 // ⿳宀其土
 ref han-5176:15x10 0 3
 ref han-571f:15x4 0 12
+
+// glyph han-21a8d:15x16 15 16 // 𡪍
+// ⿳ han-5b80 han-250ed han-706c // ⿳宀𥃭灬
 
 // glyph han-21a92:15x16 15 16 // 𡪒
 // ⿳ han-5b80 han-303d2 han-7530 // ⿳宀𰏒田

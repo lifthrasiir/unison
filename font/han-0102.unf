@@ -727,6 +727,9 @@ glyph han-75e1:15x16 15 16 // 痡
 glyph han-75f0:15x16 15 16 // 痰
 ⿸ han-7592:15x16.11x13 han-708e:9x12 5 4 // ⿸疒炎
 
+// glyph han-75f1:15x16 15 16 // 痱
+// ⿸ han-7592 han-975e // ⿸疒非
+
 // glyph han-75f3:15x16 15 16 // 痳
 // ⿸ han-7592 han-6797 // ⿸疒林
 
@@ -1401,6 +1404,9 @@ glyph han-76c5:15x16 15 16 // 盅
 // glyph han-76d4:15x16 15 16 // 盔
 // ⿱ han-7070 han-76bf // ⿱灰皿
 
+// glyph han-76d7:15x16 15 16 // 盗
+// ⿱ han-6b21 han-76bf // ⿱次皿
+
 // glyph han-76d8:15x16 15 16 // 盘
 // ⿱ han-821f han-76bf // ⿱舟皿
 
@@ -1798,6 +1804,9 @@ glyph han-76fa:15x16 15 16 // 盺
 
 glyph han-76fc:15x16 15 16 // 盼
 ⿰ han-76ee:6x16 han-5206:9x16 // ⿰目分
+
+glyph han-76ff:15x16 15 16 // 盿
+⿰ han-76ee:6x16 han-6587:9x16 // ⿰目文
 
 glyph han-7700:15x16 15 16 // 眀
 ⿰ han-76ee:7x16 1 han-6708:7x16 // ⿰目月

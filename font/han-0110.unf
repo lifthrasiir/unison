@@ -81,6 +81,9 @@ glyph han-77f5:15x16 15 16 // 矵
 
 ## 112.3
 
+// glyph han-77f7:15x16 15 16 // 矷
+// ⿰ han-77f3 han-5b50 // ⿰石子
+
 glyph han-77f8:15x16 15 16 // 矸
 ⿰ han-77f3:7x16 1 han-5e72:7x16 // ⿰石干
 
@@ -106,6 +109,9 @@ glyph han-77fc:15x16 15 16 // 矼
 
 // glyph han-7806:15x16 15 16 // 砆
 // ⿰ han-77f3 han-592b // ⿰石夫
+
+glyph han-7807:15x16 15 16 // 砇
+⿰ han-77f3:5x16 1 han-6587:9x16 // ⿰石文
 
 glyph han-780a:15x16 15 16 // 砊
 ⿰ han-77f3:5x16 1 han-4ea2:9x16 // ⿰石亢
@@ -151,6 +157,9 @@ glyph han-7827:15x16 15 16 // 砧
 glyph han-782c:15x16 15 16 // 砬
 ⿰ han-77f3:8x16 han-7acb:7x16 // ⿰石立
 
+// glyph han-782f:15x16 15 16 // 砯
+// ⿰ han-77f3 han-6c37 // ⿰石氷
+
 glyph han-7831-($han-regions):15x16 15 16 // 砱
 ⿰ han-77f3:7x16 1 han-4ee4-($-1):7x16 // ⿰石令
 
@@ -168,6 +177,9 @@ glyph han-7836:15x16 15 16 // 砶
 
 glyph han-7837:15x16 15 16 // 砷
 ⿰ han-77f3:5x16 1 han-7533:9x16 // ⿰石申
+
+glyph han-7840:15x16 15 16 // 础
+⿰ han-77f3:5x16 1 han-51fa:9x16 // ⿰石出
 
 glyph han-9fec:15x16 15 16 // 鿬
 ⿰ han-77f3:5x16 1 han-7530:9x16 // ⿰石田
@@ -578,6 +590,9 @@ glyph han-795e-(g|h|t|j|v):15x16 15 16 // 神
 glyph han-795e-(k|p):15x16 15 16 // 神
 ⿰ han-793a:5x16 1 han-7533:9x16 // ⿰示申
 
+// glyph han-795f:15x16 15 16 // 祟
+// ⿱ han-51fa han-793a // ⿱出示
+
 // glyph han-7961:15x16 15 16 // 祡
 // ⿱ han-6b64 han-793a // ⿱此示
 
@@ -900,6 +915,9 @@ $$......@@......$$
 
 ## 115.3
 
+// glyph han-79c4:15x16 15 16 // 秄
+// ⿰ han-79be han-5b50 // ⿰禾子
+
 glyph han-79c6:15x16 15 16 // 秆
 ⿰ han-79be:7x16 1 han-5e72:7x16 // ⿰禾干
 
@@ -978,6 +996,9 @@ glyph han-79e9:15x16 15 16 // 秩
 glyph han-79ea:15x16 15 16 // 秪
 ⿰ han-79be:7x16 han-6c10:8x16 // ⿰禾氐
 
+glyph han-79ec:15x16 15 16 // 秬
+⿰ han-79be:5x16 1 han-5de8:9x16 // ⿰禾巨
+
 glyph han-79ee:15x16 15 16 // 秮
 ⿰ han-79be:7x16 1 han-53f0:7x16 // ⿰禾台
 
@@ -991,6 +1012,9 @@ glyph han-79f1:15x16 15 16 // 秱
 
 glyph han-79f4:15x16 15 16 // 秴
 ⿰ han-79be:7x16 1 han-5408:7x16 // ⿰禾合
+
+// glyph han-79f6:15x16 15 16 // 秶
+// ⿱ han-6b21 han-79be // ⿱次禾
 
 glyph han-79f7:15x16 15 16 // 秷
 ⿰ han-79be:7x16 1 han-81f3:7x16 // ⿰禾至
@@ -1061,6 +1085,9 @@ glyph han-7a20:15x16 15 16 // 稠
 
 glyph han-7a21:15x16 15 16 // 稡
 ⿰ han-79be:7x16 1 han-5352:7x16 // ⿰禾卒
+
+// glyph han-7a25:15x16 15 16 // 稥
+// ⿳ han-79be han-706c han-65e5 // ⿳禾灬日 <- ⿱𤇕日
 
 ## 115.9
 

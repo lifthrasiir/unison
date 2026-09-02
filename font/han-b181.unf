@@ -206,6 +206,9 @@ glyph han-29587:15x16 15 16 // 𩖇
 
 ## 182.4
 
+// glyph han-295a3:15x16 15 16 // 𩖣
+// ⿰ han-6587 han-98a8 // ⿰文風
+
 // glyph han-295a6:15x16 15 16 // 𩖦
 // ⿺ han-98a8 han-4eca // ⿺風今
 
@@ -229,6 +232,9 @@ glyph han-29587:15x16 15 16 // 𩖇
 // glyph han-295b5-($han-regions):15x16 15 16 // 𩖵
 // ⿺ han-98a8 han-4ee4-($-1) // ⿺風令
 
+// glyph han-295b7:15x16 15 16 // 𩖷
+// ⿺ han-98a8 han-51fa // ⿺風出
+
 // glyph han-295bd:15x16 15 16 // 𩖽
 // ⿺ han-98a8 han-76ae // ⿺風皮
 
@@ -248,6 +254,9 @@ glyph han-29587:15x16 15 16 // 𩖇
 
 // glyph han-295cb:15x16 15 16 // 𩗋
 // ⿺ han-98a8 han-821f // ⿺風舟
+
+// glyph han-295cc:15x16 15 16 // 𩗌
+// ⿺ han-98a8 han-5218 // ⿺風刘
 
 // glyph han-295d0:15x16 15 16 // 𩗐
 // ⿺ han-98a8 han-7c73 // ⿺風米

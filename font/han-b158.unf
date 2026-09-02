@@ -8,6 +8,9 @@ glyph han-282a1:15x16 15 16 // 𨊡
 glyph han-282a4:15x16 15 16 // 𨊤
 ⿰ han-8eca:5x16 1 han-4eba:9x16 // ⿰車人
 
+// glyph han-282a5:15x16 15 16 // 𨊥
+// ⿱ han-8eca han-51f5 // ⿱車凵
+
 ## 159.3
 
 glyph han-282a7:15x16 15 16 // 𨊧
@@ -65,6 +68,9 @@ glyph han-282dd:15x16 15 16 // 𨋝
 // glyph han-282e0:15x16 15 16 // 𨋠
 // ⿰ han-8eca han-5b82 // ⿰車宂
 
+// glyph han-282e1:15x16 15 16 // 𨋡
+// ⿱ han-51fa han-8eca // ⿱出車
+
 glyph han-282e2:15x16 15 16 // 𨋢
 ⿰ han-8eca:7x16 1 han-7acb:7x16 // ⿰車立
 
@@ -78,6 +84,12 @@ glyph han-282e2:15x16 15 16 // 𨋢
 
 glyph han-282eb:15x16 15 16 // 𨋫
 ⿰ han-8eca:7x16 1 han-5146:7x16 // ⿰車兆
+
+glyph han-282f0:15x16 15 16 // 𨋰
+⿲ han-8eca:5x16 han-51ab:3x16 han-6b20:7x16 // ⿲車冫欠
+
+// glyph han-282f2:15x16 15 16 // 𨋲
+// ⿲ han-8eca han-51ab han-6c34 // ⿲車冫水 <- ⿰車冰
 
 glyph han-282f6:15x16 15 16 // 𨋶
 ⿲ han-8eca:5x16 han-4ebb:3x16 han-738b:7x16 // ⿲車亻王
@@ -104,6 +116,9 @@ glyph han-28303:15x16 15 16 // 𨌃
 
 glyph han-28312:15x16 15 16 // 𨌒
 ⿰ han-8eca:7x16 han-544a:8x16 // ⿰車告
+
+// glyph han-28317:15x16 15 16 // 𨌗
+// ⿱ han-51fa han-8ecd // ⿱出軍
 
 glyph han-28318:15x16 15 16 // 𨌘
 ⿰ han-8eca:7x16 1 han-590b:7x16 // ⿰車夋

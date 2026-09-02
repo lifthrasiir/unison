@@ -22,6 +22,9 @@
 
 ## 30.2
 
+// glyph han-2067c:15x16 15 16 // 𠙼
+// ⿶ han-51f5 han-53e3 // ⿶凵口
+
 // glyph han-20b9f:15x16 15 16 // 𠮟
 // ⿰ han-53e3 han-4e03 // ⿰口七
 
@@ -71,6 +74,9 @@ glyph han-20bbf:15x16 15 16 // 𠮿
 
 glyph han-20bc0:15x16 15 16 // 𠯀
 ⿰ han-53e3:9x16 han-5ddd:6x16 // ⿰口川
+
+glyph han-20bc2:15x16 15 16 // 𠯂
+⿱ han-53e3:15x5 2 han-5b50:15x9 // ⿱口子
 
 glyph han-20bc6:15x16 15 16 // 𠯆
 ⿰ han-53e3:7x16 1 han-5973:7x16 // ⿰口女
@@ -151,6 +157,9 @@ glyph han-20c09:15x16 15 16 // 𠰉
 // glyph han-20c13:15x16 15 16 // 𠰓
 // ⿱ han-53e3 han-79be // ⿱口禾
 
+// glyph han-20c15:15x16 15 16 // 𠰕
+// ⿱ han-51fa han-53e3 // ⿱出口
+
 // glyph han-20c18:15x16 15 16 // 𠰘
 // ⿰ han-53e3 han-76bf // ⿰口皿
 
@@ -162,6 +171,9 @@ glyph han-20c1b:15x16 15 16 // 𠰛
 
 glyph han-20c1d:15x16 15 16 // 𠰝
 ⿱ han-7f52:15x7 2 han-53e3:15x7 // ⿱罒口
+
+glyph han-20c20:15x16 15 16 // 𠰠
+⿰ han-53e3:5x16-l 1 han-5de8:9x16 // ⿰口巨
 
 // glyph han-20c27:15x16 15 16 // 𠰧
 // ⿰ han-53e3 han-7389 // ⿰口玉
@@ -180,6 +192,12 @@ glyph han-20c34:15x16 15 16 // 𠰴
 
 glyph han-20c40:15x16 15 16 // 𠱀
 ⿰ han-53e3:7x16 han-76ae:8x16 // ⿰口皮
+
+// glyph han-20c42:15x16 15 16 // 𠱂
+// ⿰ han-53e3 han-51f8 // ⿰口凸
+
+// glyph han-20c43:15x16 15 16 // 𠱃
+// ⿰ han-53e3 han-51f9 // ⿰口凹
 
 glyph han-20c44:15x16 15 16 // 𠱄
 ⿱ han-53e3:15x5 2 han-76bf:15x9 // ⿱口皿
@@ -225,6 +243,9 @@ glyph han-20c62:15x16 15 16 // 𠱢
 glyph han-20c73:15x16 15 16 // 𠱳
 ⿲ han-53e3:3x16-l 1 han-5f13:4x16 han-5f13:7x16 // ⿲口弓弓
 
+glyph han-20c78:15x16 15 16 // 𠱸
+⿰ han-53e3:5x16-l 1 han-81e3:9x16 // ⿰口臣
+
 // glyph han-20c82:15x16 15 16 // 𠲂
 // ⿰ han-53e3 han-3566 // ⿰口㕦
 
@@ -237,11 +258,20 @@ glyph han-20c73:15x16 15 16 // 𠱳
 // glyph han-20c98:15x16 15 16 // 𠲘
 // ⿱ han-7f8a han-53e3 // ⿱羊口
 
+// glyph han-20c9a:15x16 15 16 // 𠲚
+// ⿲ han-53e3 han-5b50 han-5b50 // ⿲口子子 <- ⿰口孖
+
 glyph han-20c9b:15x16 15 16 // 𠲛
 ⿰ han-53e3:5x16-l 1 han-56de:9x16 // ⿰口回
 
+glyph han-20c9d:15x16 15 16 // 𠲝
+⿲ -1 han-53e3:3x16-l han-6587:7x16 han-5bf8:6x16 // ⿲口文寸
+
 glyph han-20c9e:15x16 15 16 // 𠲞
 ⿲ han-53e3:5x16-l han-624c:3x16 han-5de5:7x16 // ⿲口扌工
+
+// glyph han-20ca1:15x16 15 16 // 𠲡
+// ⿲ han-53e3 han-5973 han-5b50 // ⿲口女子 <- ⿰口好
 
 // glyph han-20ca3:15x16 15 16 // 𠲣
 // ⿰ han-53e3 han-8840 // ⿰口血
@@ -275,6 +305,9 @@ glyph han-20ccf:15x16 15 16 // 𠳏
 // glyph han-20cd2:15x16 15 16 // 𠳒
 // ⿰ han-53e3 han-215f6 // ⿰口𡗶
 
+glyph han-20cd4:15x16 15 16 // 𠳔
+⿲ han-53e3:3x16-l han-4ebb:3x16 han-5de8:9x16 // ⿲口亻巨
+
 // glyph han-20ce3:15x16 15 16 // 𠳣
 // ⿰ han-53e3 han-26274 // ⿰口𦉴
 
@@ -289,6 +322,9 @@ glyph han-20cec:15x16 15 16 // 𠳬
 
 // glyph han-20cf3:15x16 15 16 // 𠳳
 // ⿰ han-53e3 han-5446 // ⿰口呆
+
+// glyph han-20cf5:15x16 15 16 // 𠳵
+// ⿱ han-5405 han-6587 // ⿱吅文
 
 // glyph han-20cf9:15x16 15 16 // 𠳹
 // ⿰ han-53e3 han-5e8a // ⿰口床
@@ -409,11 +445,17 @@ glyph han-20d69:15x16 15 16 // 𠵩
 // glyph han-20d71:15x16 15 16 // 𠵱
 // ⿲ han-53e3 han-4ebb han-8863 // ⿲口亻衣 <- ⿰口依
 
+// glyph han-20d7c:15x16 15 16 // 𠵼
+// ⿰ han-53e3 han-5b5f // ⿰口孟
+
 glyph han-20d7f:15x16 15 16 // 𠵿
 ⿲ han-53e3:4x16-l han-624c:3x16 han-76ae:8x16 // ⿲口扌皮
 
 glyph han-20d83:15x16 15 16 // 𠶃
 ⿲ han-53e3:4x16-l han-248e9:3x16 han-5143:8x16 // ⿲口𤣩元
+
+// glyph han-20d84:15x16 15 16 // 𠶄
+// ⿲ han-53e3 han-5b50 han-53ef // ⿲口子可 <- ⿰口𡥚
 
 glyph han-20d85:15x16 15 16 // 𠶅
 ⿲ han-53e3:4x16-l han-624c:3x16 han-53ec:8x16 // ⿲口扌召
@@ -456,6 +498,9 @@ glyph han-20da2:15x16 15 16 // 𠶢
 
 glyph han-20dae:15x16 15 16 // 𠶮
 ⿳ -1 han-58eb:15x4 1 han-53e3:15x4 han-53e4:15x8 // ⿳士口古
+
+glyph han-20daf:15x16 15 16 // 𠶯
+⿲ han-53e3:3x16-l han-624c:3x16 han-51fa:9x16 // ⿲口扌出
 
 glyph han-20db1:15x16 15 16 // 𠶱
 ⿰ han-53ef:8x16 han-5404:7x16 // ⿰可各

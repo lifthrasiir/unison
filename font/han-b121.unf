@@ -55,6 +55,9 @@ glyph han-2628a:15x16 15 16 // 𦊊
 // glyph han-2628e:15x16 15 16 // 𦊎
 // ⿱ han-7f52 han-793a // ⿱罒示
 
+// glyph han-26290:15x16 15 16 // 𦊐
+// ⿱ han-7f52 han-5de8 // ⿱罒巨
+
 // glyph han-26292:15x16 15 16 // 𦊒
 // ⿱ han-7f52 han-53e5 // ⿱罒句
 
@@ -136,6 +139,9 @@ glyph han-262ce:15x16 15 16 // 𦋎
 // glyph han-262d9:15x16 15 16 // 𦋙
 // ⿳ han-7f51 han-5927 han-7535 // ⿳网大电 <- ⿱网奄
 
+// glyph han-262db:15x16 15 16 // 𦋛
+// ⿱ han-7f51 han-975e // ⿱网非
+
 // glyph han-262dc:15x16 15 16 // 𦋜
 // ⿱ han-7f51 han-96b9 // ⿱网隹
 
@@ -158,6 +164,9 @@ glyph han-262ce:15x16 15 16 // 𦋎
 
 // glyph han-262eb:15x16 15 16 // 𦋫
 // ⿳ han-7f51 han-7acb han-65e5 // ⿳网立日 <- ⿱网音
+
+// glyph han-262ec:15x16 15 16 // 𦋬
+// ⿱ han-7f51 han-30d29 // ⿱网𰴩
 
 // glyph han-262ee:15x16 15 16 // 𦋮
 // ⿳ han-7f51 han-7530 han-5fc3 // ⿳网田心 <- ⿱网思
@@ -242,10 +251,16 @@ glyph han-26358:15x16 15 16 // 𦍘
 // glyph han-26360:15x16 15 16 // 𦍠
 // ⿰ han-7f8a han-5386 // ⿰羊历
 
+glyph han-26362:15x16 15 16 // 𦍢
+⿰ han-6587:7x16 1 han-7f8a:7x16 // ⿰文羊
+
 glyph han-26364:15x16 15 16 // 𦍤
 ⿰ han-7f8a:7x16 1 han-6708:7x16 // ⿰羊月
 
 ## 123.5
+
+glyph han-26366:15x16 15 16 // 𦍦
+⿰ han-7f8a:7x16 1 han-51fa:7x16 // ⿰羊出
 
 // glyph han-26367:15x16 15 16 // 𦍧
 // ⿱ han-6b64 han-7f8a // ⿱此羊
@@ -263,6 +278,9 @@ glyph han-26377:15x16 15 16 // 𦍷
 ⿰ han-7f8a:7x16 han-76ae:8x16 // ⿰羊皮
 
 ## 123.6
+
+// glyph han-2637a:15x16 15 16 // 𦍺
+// ⿰ han-7f8a han-5b57 // ⿰羊字
 
 glyph han-2637b:15x16 15 16 // 𦍻
 ⿰ han-7f8a:7x16 1 han-540c:7x16 // ⿰羊同

@@ -12,6 +12,9 @@ glyph han-25ad9:15x16 15 16 // 𥫙
 
 ## 118.3
 
+glyph han-25ade:15x16 15 16 // 𥫞
+⿱ han-25ad7:15x5 1 han-5b50:15x9 // ⿱𥫗子
+
 // glyph han-25ae4:15x16 15 16 // 𥫤
 // ⿱ han-25ad7 han-5f13 // ⿱𥫗弓
 
@@ -50,6 +53,9 @@ glyph han-25af3:15x16 15 16 // 𥫳
 glyph han-25af8:15x16 15 16 // 𥫸
 ⿱ han-25ad7:15x5 -1 han-6c34:15x12 // ⿱𥫗水
 
+// glyph han-25afe:15x16 15 16 // 𥫾
+// ⿱ han-25ad7 han-6587 // ⿱𥫗文
+
 // glyph han-25aff:15x16 15 16 // 𥫿
 // ⿳ han-25ad7 han-4e36 han-5c38 // ⿳𥫗丶尸 <- ⿱𥫗户
 
@@ -82,8 +88,14 @@ glyph han-25af8:15x16 15 16 // 𥫸
 // glyph han-25b10:15x16 15 16 // 𥬐
 // ⿱ han-25ad7 han-7533 // ⿱𥫗申
 
+// glyph han-25b19:15x16 15 16 // 𥬙
+// ⿱ han-25ad7 han-5de8 // ⿱𥫗巨
+
 glyph han-25b1d:15x16 15 16 // 𥬝
 ⿱ han-25ad7:15x5 han-767d:15x11 // ⿱𥫗白
+
+// glyph han-25b23:15x16 15 16 // 𥬣
+// ⿱ han-25ad7 han-34db // ⿱𥫗㓛
 
 glyph han-25b25:15x16 15 16 // 𥬥
 ⿱ han-25ad7:15x5 1 han-76ee:15x10 // ⿱𥫗目
@@ -216,6 +228,9 @@ glyph han-25b85:15x16 15 16 // 𥮅
 
 // glyph han-25bbc:15x16 15 16 // 𥮼
 // ⿱ han-25ad7 han-62b1 // ⿱𥫗抱
+
+glyph han-25bbf:15x16 15 16 // 𥮿
+⿳ -1 han-25ad7:15x5 han-6bdb:15x8 han-706c:15x4 // ⿳𥫗毛灬
 
 // glyph han-25bc0:15x16 15 16 // 𥯀
 // ⿱ han-25ad7 han-91d1 // ⿱𥫗金
@@ -424,14 +439,23 @@ ref han-9aa8:15x12 0 4
 // glyph han-25cdf:15x16 15 16 // 𥳟
 // ⿱ han-25ad7 han-9032 // ⿱𥫗進
 
+// glyph han-25ced:15x16 15 16 // 𥳭
+// ⿳ han-25ad7 han-6b62 han-8220 // ⿳𥫗止舠 <- ⿱𥫗𣦃
+
 // glyph han-25cf3:15x16 15 16 // 𥳳
 // ⿱ han-25ad7 han-63d0 // ⿱𥫗提
 
 // glyph han-25cfd:15x16 15 16 // 𥳽
 // ⿱ han-25ad7 han-6b3a // ⿱𥫗欺
 
+// glyph han-25d03:15x16 15 16 // 𥴃
+// ⿳ han-25ad7 han-6b21 han-65e9 // ⿳𥫗次早
+
 // glyph han-25d0c:15x16 15 16 // 𥴌
 // ⿱ han-2e155 han-6728 // ⿱𮅕木
+
+// glyph han-25d0f:15x16 15 16 // 𥴏
+// ⿳ han-25ad7 han-91d1 han-706c // ⿳𥫗金灬
 
 // glyph han-25d16:15x16 15 16 // 𥴖
 // ⿱ han-25ad7 han-6911 // ⿱𥫗椑
@@ -470,6 +494,9 @@ glyph han-25d49:15x16 15 16 // 𥵉
 
 // glyph han-25d54:15x16 15 16 // 𥵔
 // ⿱ han-25ad7 han-7891 // ⿱𥫗碑
+
+// glyph han-25d55:15x16 15 16 // 𥵕
+// ⿳ han-25ad7 han-662d han-706c // ⿳𥫗昭灬 <- ⿱𥫗照
 
 ## 118.14
 

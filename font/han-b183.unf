@@ -73,6 +73,9 @@ glyph han-296c7:15x16 15 16 // 𩛇
 // glyph han-296d0:15x16 15 16 // 𩛐
 // ⿰ han-98e0 han-21c31 // ⿰飠𡰱
 
+glyph han-296dc:15x16 15 16 // 𩛜
+⿲ -5 han-98e0:7x16 han-6587:7x16 han-5bf8:6x16 // ⿲飠文寸
+
 ## 184.7
 
 glyph han-296e1:15x16 15 16 // 𩛡

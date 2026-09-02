@@ -67,8 +67,8 @@ ref han-91d2:7x16
 
 ## 167.2
 
-// glyph han-91d6:15x16 15 16 // 釖
-// ⿰ han-91d2 han-5200 // ⿰釒刀
+glyph han-91d6:15x16 15 16 // 釖
+⿰ han-91d2:5x16-l 1 han-5200:9x16 // ⿰釒刀
 
 glyph han-91d7:15x16 15 16 // 釗
 ⿰ 1 han-91d2:7x16 1 han-5202:5x16 // ⿰釒刂
@@ -103,6 +103,9 @@ glyph han-91e6:15x16 15 16 // 釦
 
 glyph han-91e7:15x16 15 16 // 釧
 ⿰ han-91d2:7x16 han-5ddd:8x16 // ⿰釒川
+
+// glyph han-91e8:15x16 15 16 // 釨
+// ⿰ han-91d2 han-5b50 // ⿰釒子
 
 glyph han-91ec:15x16 15 16 // 釬
 ⿰ han-91d2:5x16-l 1 han-5e72:9x16 // ⿰釒干
@@ -181,10 +184,16 @@ glyph han-9227:15x16 15 16 // 鈧
 glyph han-9228:15x16 15 16 // 鈨
 ⿰ han-91d2:7x16 han-5143:8x16 // ⿰釒元
 
+glyph han-922b:15x16 15 16 // 鈫
+⿰ han-91d2:5x16-l 1 han-6587:9x16 // ⿰釒文
+
 ## 167.5
 
 // glyph han-922d:15x16 15 16 // 鈭
 // ⿱ han-6b64 han-91d1 // ⿱此金
+
+glyph han-922f:15x16 15 16 // 鈯
+⿰ han-91d2:5x16-l 1 han-51fa:9x16 // ⿰釒出
 
 glyph han-9230:15x16 15 16 // 鈰
 ⿰ han-91d2:5x16-l 1 han-5e02:9x16 // ⿰釒市
@@ -218,6 +227,9 @@ glyph han-9240:15x16 15 16 // 鉀
 
 glyph han-9244:15x16 15 16 // 鉄
 ⿰ han-91d2:5x16-l 1 han-5931:9x16 // ⿰釒失
+
+glyph han-9245:15x16 15 16 // 鉅
+⿰ han-91d2:5x16-l 1 han-5de8:9x16 // ⿰釒巨
 
 glyph han-9246:15x16 15 16 // 鉆
 ⿰ han-91d2:7x16 1 han-5360:7x16 // ⿰釒占
@@ -448,8 +460,14 @@ glyph han-932d:15x16 15 16 // 錭
 // glyph han-932e:15x16 15 16 // 錮
 // ⿰ han-91d2 han-56fa // ⿰釒固
 
+// glyph han-9330:15x16 15 16 // 錰
+// ⿰ han-91d2 han-6770 // ⿰釒杰
+
 // glyph han-9331:15x16 15 16 // 錱
 // ⿱ han-91d1 han-73a8 // ⿱金玨
+
+// glyph han-9333:15x16 15 16 // 錳
+// ⿰ han-91d2 han-5b5f // ⿰釒孟
 
 // glyph han-9334:15x16 15 16 // 錴
 // ⿰ han-91d2 han-5774 // ⿰釒坴
@@ -728,6 +746,9 @@ glyph han-9495:15x16 15 16 // 钕
 // glyph han-949b:15x16 15 16 // 钛
 // ⿰ han-9485 han-592a // ⿰钅太
 
+glyph han-949c:15x16 15 16 // 钜
+⿰ han-9485:6x16 han-5de8:9x16 // ⿰钅巨
+
 glyph han-949f:15x16 15 16 // 钟
 ⿰ han-9485:6x16 han-4e2d:9x16 // ⿰钅中
 
@@ -900,6 +921,9 @@ glyph han-952c:15x16 15 16 // 锬
 
 // glyph han-952f:15x16 15 16 // 锯
 // ⿰ han-9485 han-5c45 // ⿰钅居
+
+// glyph han-9530:15x16 15 16 // 锰
+// ⿰ han-9485 han-5b5f // ⿰钅孟
 
 ## 167'.9
 

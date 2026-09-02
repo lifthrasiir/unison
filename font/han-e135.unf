@@ -49,6 +49,15 @@ glyph han-2c721:15x16 15 16 // 𬜡
 
 ## 140.7
 
+// glyph han-2c730:15x16 15 16 // 𬜰
+// ⿳ han-8279 han-53e3 han-6587 // ⿳艹口文 <- ⿱𦬅文
+
+// glyph han-2c735:15x16 15 16 // 𬜵
+// ⿳ han-8279 han-6587 han-53e3 // ⿳艹文口 <- ⿱艹吝
+
+// glyph han-2c737:15x16 15 16 // 𬜷
+// ⿱ han-8279 han-51b6 // ⿱艹冶
+
 // glyph han-2c739:15x16 15 16 // 𬜹
 // ⿱ han-8279 han-59a8 // ⿱艹妨
 
@@ -63,10 +72,16 @@ glyph han-2c721:15x16 15 16 // 𬜡
 // glyph han-2c745:15x16 15 16 // 𬝅
 // ⿱ han-8279 han-2abf2 // ⿱艹𪯲
 
+// glyph han-2c747:15x16 15 16 // 𬝇
+// ⿳ han-8279 han-4ea0 han-20bc2 // ⿳艹亠𠯂 <- ⿱艹享
+
 ## 140.9
 
 // glyph han-2c74c:15x16 15 16 // 𬝌
 // ⿱ han-8279 han-67cf // ⿱艹柏
+
+glyph han-2c750:15x16 15 16 // 𬝐
+⿳ -3 han-8279:15x3 han-5360:15x12 han-706c:15x4 // ⿳艹占灬
 
 // glyph han-2c752:15x16 15 16 // 𬝒
 // ⿱ han-8279 han-4fd0 // ⿱艹俐
@@ -79,10 +94,16 @@ glyph han-2c721:15x16 15 16 // 𬜡
 glyph han-2c75e:15x16 15 16 // 𬝞
 ⿳ -2 han-8279:15x3 han-6728:15x7 han-8033:15x8 // ⿳艹木耳
 
+// glyph han-2c769:15x16 15 16 // 𬝩
+// ⿳ han-8279 han-6b21 han-624b // ⿳艹次手 <- ⿱茨手
+
 // glyph han-2c772:15x16 15 16 // 𬝲
 // ⿱ han-8279 han-5a33 // ⿱艹娳
 
 ## 140.11
+
+// glyph han-2c774:15x16 15 16 // 𬝴
+// ⿱ han-8279 han-2e977 // ⿱艹𮥷
 
 // glyph han-2c775:15x16 15 16 // 𬝵
 // ⿱ han-8279 han-8edf // ⿱艹軟
@@ -115,6 +136,9 @@ glyph han-2c779-($han-regions):15x16 15 16 // 𬝹
 // glyph han-2c79a:15x16 15 16 // 𬞚
 // ⿱ han-8279 han-788e // ⿱艹碎
 
+// glyph han-2c79c:15x16 15 16 // 𬞜
+// ⿳ han-8279 han-662b han-706c // ⿳艹昫灬 <- ⿱艹煦
+
 glyph han-2c7a9:15x16 15 16 // 𬞩
 ⿳ han-8279:15x3 han-9ad8:15x9 han-571f:15x4 // ⿳艹高土
 
@@ -141,6 +165,11 @@ glyph han-2c7a9:15x16 15 16 // 𬞩
 
 // glyph han-2c7d1:15x16 15 16 // 𬟑
 // ⿱ han-8279 han-4cc6 // ⿱艹䳆
+
+## 140.19
+
+// glyph han-2c7e4:15x16 15 16 // 𬟤
+// ⿳ han-8279 han-8ab0 han-706c // ⿳艹誰灬 <- ⿱艹𰟳
 
 # CJK unified ideographs extension E: 虫 (142)
 
@@ -362,12 +391,18 @@ glyph han-2c958:15x16 15 16 // 𬥘
 // glyph han-2c989:15x16 15 16 // 𬦉
 // ⿺ han-8d70 han-53e4 // ⿺走古
 
+// glyph han-2c98b:15x16 15 16 // 𬦋
+// ⿺ han-8d70 han-6c37 // ⿺走氷
+
 ## 156.8
 
 // glyph han-2c992:15x16 15 16 // 𬦒
 // ⿺ han-8d70 han-670b // ⿺走朋
 
 ## 156.9
+
+// glyph han-2c995:15x16 15 16 // 𬦕
+// ⿺ han-8d70 han-80d0 // ⿺走胐
 
 // glyph han-2c996:15x16 15 16 // 𬦖
 // ⿺ han-8d70 han-8ecd // ⿺走軍
@@ -446,6 +481,11 @@ glyph han-2c9f1:15x16 15 16 // 𬧱
 
 // glyph han-2c9f3:15x16 15 16 // 𬧳
 // ⿰ han-8eca han-7535 // ⿰車电
+
+## 159.8
+
+// glyph han-2c9f7:15x16 15 16 // 𬧷
+// ⿰ han-8eca han-5b5f // ⿰車孟
 
 ## 159.13
 

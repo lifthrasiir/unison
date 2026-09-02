@@ -67,8 +67,8 @@ glyph han-216b7-($han-regions):15x16 15 16 // 𡚷
 
 ## 38.5
 
-// glyph han-216db:15x16 15 16 // 𡛛
-// ⿰ han-5973 han-5c80 // ⿰女岀
+glyph han-216db:15x16 15 16 // 𡛛
+⿰ han-5973:5x16-l 1 han-51fa:9x16 // ⿰女出
 
 glyph han-216dc:15x16 15 16 // 𡛜
 ⿰ han-5973:7x16 han-6c10:8x16 // ⿰女氐
@@ -186,6 +186,9 @@ glyph han-21770:15x16 15 16 // 𡝰
 
 glyph han-21775:15x16 15 16 // 𡝵
 ⿰ han-5973:7x16 1 han-5352:7x16 // ⿰女卒
+
+// glyph han-21779:15x16 15 16 // 𡝹
+// ⿰ han-5973 han-5b5f // ⿰女孟
 
 // glyph han-21783:15x16 15 16 // 𡞃
 // ⿰ han-5973 han-3696 // ⿰女㚖
