@@ -73,6 +73,13 @@ glyph han-2b468:15x16 15 16 // 𫑨
 // glyph han-2b46a:15x16 15 16 // 𫑪
 // ⿰ han-96f7 han-961d // ⿰雷阝
 
+# CJK unified ideographs extension C: 酉 (164)
+
+## 164.3
+
+// glyph han-2b473-($han-regions):15x16 15 16 // 𫑳
+// ⿰ han-9149 han-4e38-($-1) // ⿰酉丸
+
 # CJK unified ideographs extension C: 金 (167)
 
 ## 167.3
@@ -90,6 +97,14 @@ glyph han-2b489:15x16 15 16 // 𫒉
 
 // glyph han-2b48e:15x16 15 16 // 𫒎
 // ⿰ han-91d2 han-6c34 // ⿰釒水
+
+## 167.5
+
+// glyph han-2b48f:15x16 15 16 // 𫒏
+// ⿰ han-91d2 han-76bf // ⿰釒皿
+
+// glyph han-2b490:15x16 15 16 // 𫒐
+// ⿱ han-91d1 han-2b738 // ⿱金𫜸
 
 ## 167.6
 
@@ -204,6 +219,9 @@ ref han-9580:15x16.13x11 // ⿵門丨
 glyph han-2b51a:15x16 15 16 // 𫔚
 ⿵ han-9580:15x16.13x11 han-4e2d:9x11 3 5 // ⿵門中
 
+// glyph han-2b51b:15x16 15 16 // 𫔛
+// ⿵ han-9580 han-5316 // ⿵門化
+
 ## 169.5
 
 glyph han-2b51c:15x16 15 16 // 𫔜
@@ -284,6 +302,11 @@ glyph han-2b55e:15x16 15 16 // 𫕞
 // glyph han-2b55f:15x16 15 16 // 𫕟
 // ⿱ han-96e8 han-6708 // ⿱雨月
 
+## 173.6
+
+// glyph han-2b563-($han-regions):15x16 15 16 // 𫕣
+// ⿳ han-4e38-($-1) han-96e8-($-1) han-2b739 // ⿳丸雨𫜹 <- ⿱丸雪
+
 ## 173.8
 
 // glyph han-2b567:15x16 15 16 // 𫕧
@@ -322,6 +345,13 @@ glyph han-2b57b-(t):15x16 15 16 // 𫕻
 ⿰ han-9752-($-1):7x16 1 han-9752-($-1):7x16 // ⿰青青
 glyph han-2b57b-(j):15x16 15 16 // 𫕻
 ⿰ han-9751-($-1):7x16 1 han-9751-($-1):7x16 // ⿰靑靑
+
+# CJK unified ideographs extension C: 頁 (181)
+
+## 181.4
+
+glyph han-2b59d:15x16 15 16 // 𫖝
+⿲ han-5315:4x16 han-5315:4x16 han-9801:7x16 // ⿲匕匕頁
 
 # CJK unified ideographs extension C: 食 (184)
 
@@ -366,8 +396,8 @@ glyph han-2b60b-($han-regions):15x16 15 16 // 𫘋
 
 ## 195.2
 
-// glyph han-2b64f:15x16 15 16 // 𫙏
-// ⿰ han-9b5a han-5341 // ⿰魚十
+glyph han-2b64f:15x16 15 16 // 𫙏
+⿰ han-9b5a:7x16 1 han-5341:7x16 // ⿰魚十
 
 ## 195.4
 
@@ -393,6 +423,11 @@ glyph han-2b676:15x16 15 16 // 𫙶
 
 // glyph han-2b6ae:15x16 15 16 // 𫚮
 // ⿰ han-4e59 han-9ce5 // ⿰乙鳥
+
+## 196.4
+
+glyph han-2b6b0:15x16 15 16 // 𫚰
+⿲ han-5315:4x16 han-5315:4x16 han-9ce5:7x16 // ⿲匕匕鳥
 
 ## 196.5
 

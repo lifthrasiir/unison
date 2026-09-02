@@ -13,8 +13,8 @@ glyph han-31cee:15x16 15 16 // 𱳮
 
 ## 112.5
 
-// glyph han-31cf5:15x16 15 16 // 𱳵
-// ⿲ han-77f3 han-53e3 han-5341 // ⿲石口十 <- ⿰石叶
+glyph han-31cf5:15x16 15 16 // 𱳵
+⿲ -2 han-77f3:5x16 1 han-53e3:4x16 han-5341:7x16 // ⿲石口十
 
 ## 112.6
 
@@ -92,6 +92,11 @@ glyph han-31d9e:15x16 15 16 // 𱶞
 
 # CJK unified ideographs extension H: 穴 (116)
 
+## 116.6
+
+// glyph han-31db8:15x16 15 16 // 𱶸
+// ⿳ han-5b80 han-513f han-6b64 // ⿳宀儿此 <- ⿱⿱宀儿此
+
 ## 116.8
 
 // glyph han-31dc8:15x16 15 16 // 𱷈
@@ -152,6 +157,9 @@ glyph han-31df3:15x16 15 16 // 𱷳
 
 // glyph han-31e05:15x16 15 16 // 𱸅
 // ⿱ han-25ad7 han-5761 // ⿱𥫗坡
+
+// glyph han-31e08:15x16 15 16 // 𱸈
+// ⿳ han-25ad7 han-6b64 han-4e8c // ⿳𥫗此二 <- ⿱𥫗些
 
 // glyph han-31e09:15x16 15 16 // 𱸉
 // ⿳ han-25ad7 han-4ea0 han-5146 // ⿳𥫗亠兆
@@ -261,6 +269,9 @@ glyph han-31e88:15x16 15 16 // 𱺈
 
 ## 122.4
 
+// glyph han-31eb8:15x16 15 16 // 𱺸
+// ⿳ han-7f52 han-5315 han-5315 // ⿳罒匕匕 <- ⿱罒𫧇
+
 // glyph han-31eba:15x16 15 16 // 𱺺
 // ⿱ han-7f52 han-5206 // ⿱罒分
 
@@ -336,6 +347,11 @@ glyph han-31f12:15x16 15 16 // 𱼒
 // glyph han-31f13:15x16 15 16 // 𱼓
 // ⿲ han-6708 han-5f73 han-8d70 // ⿲月彳走 <- ⿰月徒
 
+## 130.11
+
+glyph han-31f16:15x16 15 16 // 𱼖
+⿲ han-6708:5x16-l 1 han-5315:4x16 han-9801:5x16 // ⿲月匕頁
+
 # CJK unified ideographs extension H: 至 (133)
 
 ## 133.5
@@ -378,6 +394,9 @@ glyph han-31f37:15x16 15 16 // 𱼷
 // glyph han-31f60:15x16 15 16 // 𱽠
 // ⿱ han-8279 han-8089 // ⿱艹肉
 
+// glyph han-31f63:15x16 15 16 // 𱽣
+// ⿳ han-8279 han-5316 han-5341 // ⿳艹化十 <- ⿱艹华
+
 // glyph han-31f65:15x16 15 16 // 𱽥
 // ⿱ han-8279 han-7c73 // ⿱艹米
 
@@ -402,10 +421,18 @@ glyph han-31f37:15x16 15 16 // 𱼷
 // glyph han-31f76:15x16 15 16 // 𱽶
 // ⿱ han-8279 han-54c8 // ⿱艹哈
 
+## 140.10
+
+// glyph han-31f84:15x16 15 16 // 𱾄
+// ⿳ han-8279 han-592e han-76bf // ⿳艹央皿 <- ⿱艹盎
+
 ## 140.11
 
 // glyph han-31f90:15x16 15 16 // 𱾐
 // ⿱ han-8279 han-52d2 // ⿱艹勒
+
+// glyph han-31f91:15x16 15 16 // 𱾑
+// ⿰ han-8349 han-76ae // ⿰草皮
 
 // glyph han-31f96:15x16 15 16 // 𱾖
 // ⿳ han-8279 han-96b9 han-53e3 // ⿳艹隹口 <- ⿱艹售

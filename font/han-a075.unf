@@ -13,6 +13,11 @@
 glyph han-3b49:15x16 15 16 // 㭉
 ⿱ han-8279:15x3 1 han-6728:15x12 // ⿱艹木
 
+## 75.5
+
+glyph han-3b57:15x16 15 16 // 㭗
+⿱ han-6728:15x7 han-76bf:15x9 // ⿱木皿
+
 ## 75.6
 
 glyph han-3b58:15x16 15 16 // 㭘
@@ -110,6 +115,9 @@ glyph han-3c20:15x16 15 16 // 㰠
 ⿰ han-4ea2:7x16 1 han-6b20:7x16 // ⿰亢欠
 
 ## 76.5
+
+glyph han-3c23:15x16 15 16 // 㰣
+⿲ -2 han-6b62:6x16 han-5315:4x16 han-6b20:7x16 // ⿲止匕欠
 
 glyph han-3c24:15x16 15 16 // 㰤
 ⿰ han-53ef:8x16 han-6b20:7x16 // ⿰可欠
@@ -211,8 +219,8 @@ glyph han-3cb3:15x16 15 16 // 㲳
 
 ## 85.2
 
-// glyph han-3cba:15x16 15 16 // 㲺
-// ⿰ han-6c35 han-4e03 // ⿰氵七
+glyph han-3cba:15x16 15 16 // 㲺
+⿰ han-6c35:5x16 1 han-5315:9x16 // ⿰氵匕
 
 // glyph han-3cbb:15x16 15 16 // 㲻
 // ⿰ han-4ebb han-6c34 // ⿰亻水
@@ -243,6 +251,9 @@ glyph han-3ccc:15x16 15 16 // 㳌
 
 // glyph han-3cd0:15x16 15 16 // 㳐
 // ⿲ han-6c35 han-6728 han-4e5a // ⿲氵木乚 <- ⿰氵札
+
+// glyph han-3cd1:15x16 15 16 // 㳑
+// ⿰ han-6c35 han-76bf // ⿰氵皿
 
 ## 85.6
 

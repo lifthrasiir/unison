@@ -7,6 +7,9 @@
 
 ## 86.2
 
+glyph han-24187:15x16 15 16 // 𤆇
+⿰ han-706b:5x16-l 1 han-5315:9x16 // ⿰火匕
+
 glyph han-24189:15x16 15 16 // 𤆉
 ⿰ han-4e01:7x16 1 han-706b:7x16 // ⿰丁火
 
@@ -52,6 +55,9 @@ glyph han-241b2:15x16 15 16 // 𤆲
 glyph han-241b6:15x16 15 16 // 𤆶
 ⿰ han-706b:7x16 1 han-5206:7x16 // ⿰火分
 
+glyph han-241b7:15x16 15 16 // 𤆷
+⿲ han-706b:5x16-l han-4ebb:3x16 han-5315:7x16 // ⿲火亻匕
+
 // glyph han-241b8:15x16 15 16 // 𤆸
 // ⿰ han-706b han-5fc3 // ⿰火心
 
@@ -90,8 +96,14 @@ glyph han-241e2:15x16 15 16 // 𤇢
 glyph han-241e5:15x16 15 16 // 𤇥
 ⿰ han-706b:7x16 1 han-7acb:7x16 // ⿰火立
 
+glyph han-241e7:15x16 15 16 // 𤇧
+⿲ han-706b:5x16-l han-4ebb:3x16 han-58eb:7x16 // ⿲火亻士
+
 // glyph han-241eb:15x16 15 16 // 𤇫
 // ⿱ han-79be han-706b // ⿱禾火
+
+// glyph han-241ec:15x16 15 16 // 𤇬
+// ⿱ han-6b64 han-706b // ⿱此火
 
 ## 86.6
 

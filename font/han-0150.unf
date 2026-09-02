@@ -98,6 +98,11 @@ $$../vV'..`Vv\..$$
 $$.vV/......\Vv.$$
 $$/Vv'......`vV\$$
 
+## 154.2
+
+// glyph han-8ca0:15x16 15 16 // 負
+// ⿱ han-52f9 han-8c9d // ⿱勹貝
+
 ## 154.3
 
 // glyph han-8ca1:15x16 15 16 // 財
@@ -117,6 +122,9 @@ glyph han-8ca6:15x16 15 16 // 貦
 // glyph han-8ca7:15x16 15 16 // 貧
 // ⿱ han-5206 han-8c9d // ⿱分貝
 
+// glyph han-8ca8:15x16 15 16 // 貨
+// ⿱ han-5316 han-8c9d // ⿱化貝
+
 // glyph han-8caa:15x16 15 16 // 貪
 // ⿱ han-4eca han-8c9d // ⿱今貝
 
@@ -130,6 +138,9 @@ glyph han-8ca6:15x16 15 16 // 貦
 
 glyph han-8cb1:15x16 15 16 // 貱
 ⿰ han-8c9d:6x16 1 han-76ae:8x16 // ⿰貝皮
+
+// glyph han-8cb2:15x16 15 16 // 貲
+// ⿱ han-6b64 han-8c9d // ⿱此貝
 
 // glyph han-8cb4:15x16 15 16 // 貴
 // ⿳ han-4e2d han-4e00 han-8c9d // ⿳中一貝 <- ⿱𠀐貝
@@ -178,6 +189,9 @@ glyph han-8cd0:15x16 15 16 // 賐
 
 glyph han-8cd9:15x16 15 16 // 賙
 ⿰ han-8c9d:6x16 1 han-5468:8x16 // ⿰貝周
+
+// glyph han-8ce3:15x16 15 16 // 賣
+// ⿳ han-58eb han-7f52 han-8c9d // ⿳士罒貝 <- ⿱士買
 
 glyph han-8ce5:15x16 15 16 // 賥
 ⿰ han-8c9d:8x16 han-5352:7x16 // ⿰貝卒
@@ -472,6 +486,9 @@ glyph han-8dcd:15x16 15 16 // 跍
 glyph han-8dcf:15x16 15 16 // 跏
 ⿲ han-27fb7:5x16 han-529b:5x16 1 han-53e3:4x16 // ⿲𧾷力口
 
+glyph han-8dd0:15x16 15 16 // 跐
+⿲ han-27fb7:5x16 han-6b62:6x16 han-5315:4x16 // ⿲𧾷止匕
+
 glyph han-8dd1:15x16 15 16 // 跑
 ⿰ han-27fb7:5x16 1 han-5305:9x16 // ⿰𧾷包
 
@@ -609,6 +626,9 @@ glyph han-8e58:15x16 15 16 // 蹘
 
 // glyph han-8e5d:15x16 15 16 // 蹝
 // ⿲ han-27fb7 han-5f73 han-6b68 // ⿲𧾷彳歨 <- ⿰𧾷徙
+
+glyph han-8e5e:15x16 15 16 // 蹞
+⿲ han-27fb7:5x16 1 han-5315:4x16 han-9801:5x16 // ⿲𧾷匕頁
 
 // glyph han-8e65:15x16 15 16 // 蹥
 // ⿰ han-27fb7 han-9023 // ⿰𧾷連

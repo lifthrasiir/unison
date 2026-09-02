@@ -17,8 +17,8 @@ glyph han-21520:15x16 15 16 // 𡔠
 
 ## 33.7
 
-// glyph han-21523:15x16 15 16 // 𡔣
-// ⿳ han-5341 han-4e00 han-5434 // ⿳十一吴 <- ⿱士吴
+glyph han-21523:15x16 15 16 // 𡔣
+⿳ -2 han-58eb:15x4 1 han-53e3:15x4 1 han-5929:15x8 // ⿳士口天
 
 ## 33.9
 
@@ -29,6 +29,11 @@ glyph han-21520:15x16 15 16 // 𡔠
 
 glyph han-21547:15x16 15 16 // 𡕇
 ⿲ han-5409:5x16 han-5409:5x16 han-5409:5x16 // ⿲吉吉吉
+
+## 33.18
+
+// glyph han-21155:15x16 15 16 // 𡅕
+// ⿰ han-20dae han-20dae // ⿰𠶮𠶮
 
 # CJK unified ideographs extension B: 夊 (35)
 
@@ -55,6 +60,9 @@ glyph han-2156c:15x16 15 16 // 𡕬
 // glyph han-215d8:15x16 15 16 // 𡗘
 // ⿳ han-4e00 han-5927 han-4e28 // ⿳一大丨 <- ⿱天丨
 
+// glyph han-215db:15x16 15 16 // 𡗛
+// ⿱ han-52f9 han-5927 // ⿱勹大
+
 ## 37.3
 
 // glyph han-215dd:15x16 15 16 // 𡗝
@@ -67,6 +75,9 @@ glyph han-215e3:15x16 15 16 // 𡗣
 
 glyph han-215e9:15x16 15 16 // 𡗩
 ⿱ han-706b:15x6 han-5927:15x10 // ⿱火大
+
+// glyph han-215ec:15x16 15 16 // 𡗬
+// ⿱ han-6bd4 han-5927 // ⿱比大
 
 // glyph han-215ef:15x16 15 16 // 𡗯
 // ⿱ han-5206 han-5927 // ⿱分大
@@ -82,17 +93,26 @@ glyph han-215f6:15x16 15 16 // 𡗶
 
 ## 37.5
 
+// glyph han-215fc:15x16 15 16 // 𡗼
+// ⿱ han-5927 han-6b64 // ⿱大此
+
 glyph han-21600:15x16 15 16 // 𡘀
 ⿱ han-53ef:15x6 han-5927:15x10 // ⿱可大
 
 // glyph han-21602:15x16 15 16 // 𡘂
 // ⿳ han-5927 han-4e0a han-516b // ⿳大上八
 
+glyph han-21603:15x16 15 16 // 𡘃
+⿱ han-5927:15x11 han-76bf:15x5 // ⿱大皿
+
 // glyph han-21607:15x16 15 16 // 𡘇
 // ⿱ han-5927 han-7389 // ⿱大玉
 
 glyph han-2160a:15x16 15 16 // 𡘊
 ⿱ han-5927:15x10 han-7531:15x6 // ⿱大由
+
+// glyph han-2160c:15x16 15 16 // 𡘌
+// ⿱ han-6b64 han-5927 // ⿱此大
 
 ## 37.6
 

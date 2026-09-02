@@ -24,6 +24,9 @@ glyph han-2722c:15x16 15 16 // 𧈬
 // glyph han-2722d:15x16 15 16 // 𧈭
 // ⿰ han-866b han-5140 // ⿰虫兀
 
+// glyph han-2722e-($han-regions):15x16 15 16 // 𧈮
+// ⿰ han-866b han-4e38-($-1) // ⿰虫丸
+
 // glyph han-27234:15x16 15 16 // 𧈴
 // ⿰ han-866b han-5e7f // ⿰虫广
 
@@ -185,6 +188,9 @@ glyph han-272f5:15x16 15 16 // 𧋵
 // glyph han-272f9:15x16 15 16 // 𧋹
 // ⿰ han-866b han-215f6 // ⿰虫𡗶
 
+// glyph han-272fa:15x16 15 16 // 𧋺
+// ⿰ han-866b han-5fd7 // ⿰虫志
+
 // glyph han-272fe:15x16 15 16 // 𧋾
 // ⿰ han-866b han-9091 // ⿰虫邑
 
@@ -240,6 +246,9 @@ glyph han-2733c:15x16 15 16 // 𧌼
 
 // glyph han-2733e:15x16 15 16 // 𧌾
 // ⿱ han-45b5 han-4e01 // ⿱䖵丁
+
+// glyph han-27340:15x16 15 16 // 𧍀
+// ⿹ han-52f9 han-45b5 // ⿹勹䖵
 
 // glyph han-27348:15x16 15 16 // 𧍈
 // ⿰ han-866b han-5e97 // ⿰虫店
@@ -326,6 +335,9 @@ glyph han-273d1:15x16 15 16 // 𧏑
 // glyph han-273db:15x16 15 16 // 𧏛
 // ⿱ han-8a0e han-866b // ⿱討虫
 
+// glyph han-273dc:15x16 15 16 // 𧏜
+// ⿰ han-866b han-21523 // ⿰虫𡔣
+
 // glyph han-273df:15x16 15 16 // 𧏟
 // ⿱ han-7c89 han-866b // ⿱粉虫
 
@@ -411,7 +423,7 @@ glyph han-2748c:15x16 15 16 // 𧒌
 // ⿳ han-65e5 han-5973 han-45b5 // ⿳日女䖵 <- ⿱妟䖵
 
 glyph han-2749c:15x16 15 16 // 𧒜
-⿳ -5 han-96e8:15x7 1 han-7530:15x5 han-866b:15x8 // ⿳雨田虫
+⿳ -4 han-96e8:15x6 1 han-7530:15x5 han-866b:15x8 // ⿳雨田虫
 
 // glyph han-274a7:15x16 15 16 // 𧒧
 // ⿳ han-5b80 han-5fc3 han-45b5 // ⿳宀心䖵 <- ⿱𫲽䖵
@@ -447,10 +459,16 @@ glyph han-2749c:15x16 15 16 // 𧒜
 // glyph han-27503:15x16 15 16 // 𧔃
 // ⿳ han-5b80 han-866b han-45b5 // ⿳宀虫䖵 <- ⿱宀蟲
 
+// glyph han-27506:15x16 15 16 // 𧔆
+// ⿱ han-6bd7 han-45b5 // ⿱毗䖵
+
 ## 142.16
 
 // glyph han-27534:15x16 15 16 // 𧔴
 // ⿳ han-8279 han-866b han-45b5 // ⿳艹虫䖵 <- ⿱艹蟲
+
+// glyph han-2753b:15x16 15 16 // 𧔻
+// ⿳ han-6bd4 han-866b han-45b5 // ⿳比虫䖵 <- ⿱比蟲
 
 glyph han-2753f:15x16 15 16 // 𧔿
 ⿲ -5 han-866b:5x16 han-5468:8x16 han-96b9:7x16 // ⿲虫周隹
@@ -483,6 +501,9 @@ glyph han-27547:15x16 15 16 // 𧕇
 // ⿱ han-9a1c han-866b // ⿱騜虫
 
 ## 142.21
+
+// glyph han-27588:15x16 15 16 // 𧖈
+// ⿳ han-6bd7 han-866b han-45b5 // ⿳毗虫䖵 <- ⿱毗蟲
 
 // glyph han-2758c:15x16 15 16 // 𧖌
 // ⿳ han-45b5 han-77f3 han-7833 // ⿳䖵石砳 <- ⿱䖵磊

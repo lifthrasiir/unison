@@ -85,6 +85,9 @@ glyph han-37e6:15x16 15 16 // 㟦
 glyph han-37f5:15x16 15 16 // 㟵
 ⿳ han-5c71:15x5 1 han-7f52:15x4 1 han-6b63:15x5 // ⿳山罒正
 
+// glyph han-37f8:15x16 15 16 // 㟸
+// ⿰ han-5c71 han-768b // ⿰山皋
+
 ## 46.11
 
 // glyph han-37fb:15x16 15 16 // 㟻
@@ -129,6 +132,11 @@ glyph han-3824:15x16 15 16 // 㠤
 
 # CJK unified ideographs extension A: 巾 (50)
 
+## 50.2
+
+glyph han-3832:15x16 15 16 // 㠲
+⿰ han-5dfe:5x16 1 han-5315:9x16 // ⿰巾匕
+
 ## 50.4
 
 // glyph han-3838:15x16 15 16 // 㠸
@@ -136,6 +144,11 @@ glyph han-3824:15x16 15 16 // 㠤
 
 glyph han-383c:15x16 15 16 // 㠼
 ⿰ han-5dfe:9x16 han-65a4:6x16 // ⿰巾斤
+
+## 50.5
+
+// glyph han-383f:15x16 15 16 // 㠿
+// ⿱ han-6b64 han-5dfe // ⿱此巾
 
 ## 50.8
 
@@ -245,7 +258,7 @@ glyph han-38b5:15x16 15 16 // 㢵
 ## 57.9
 
 glyph han-38bd:15x16 15 16 // 㢽
-⿲ -3 han-5f13:6x16 han-5f13:6x16 han-8033:6x16 // ⿲弓弓耳
+⿲ han-5f13:4x16 han-5f13:4x16 han-8033:7x16 // ⿲弓弓耳
 
 # CJK unified ideographs extension A: 彳 (60)
 
@@ -338,6 +351,9 @@ glyph han-390b:15x16 15 16 // 㤋
 // glyph han-3910:15x16 15 16 // 㤐
 // ⿱ han-5360 han-5fc3 // ⿱占心
 
+// glyph han-3912:15x16 15 16 // 㤒
+// ⿰ han-5fc4 han-5932 // ⿰忄夲
+
 glyph han-3914:15x16 15 16 // 㤔
 ⿲ han-5fc4:5x16 han-4ebb:3x16 han-5bf8:7x16 // ⿲忄亻寸
 
@@ -386,7 +402,7 @@ glyph han-3955:15x16 15 16 // 㥕
 ## 61.9
 
 glyph han-395d:15x16 15 16 // 㥝
-⿲ -2 han-5fc4:5x16 han-5f13:6x16 han-8033:6x16 // ⿲忄弓耳
+⿲ han-5fc4:5x16 han-5f13:4x16 han-8033:6x16 // ⿲忄弓耳
 
 // glyph han-3963:15x16 15 16 // 㥣
 // ⿳ han-5927 han-572d han-5fc3 // ⿳大圭心 <- ⿱奎心
@@ -444,6 +460,12 @@ glyph han-39cd:15x16 15 16 // 㧍
 ⿰ han-624c:5x16 1 han-65b9:9x16 // ⿰扌方
 
 ## 64.5
+
+glyph han-39d7:15x16 15 16 // 㧗
+⿲ han-624c:3x16 han-6b62:6x16 han-5315:6x16 // ⿲扌止匕
+
+// glyph han-39d8:15x16 15 16 // 㧘
+// ⿱ han-6b64 han-624b // ⿱此手
 
 // glyph han-39dd:15x16 15 16 // 㧝
 // ⿱ han-52a0 han-624b // ⿱加手
@@ -579,6 +601,9 @@ glyph han-3ac3:15x16 15 16 // 㫃
 
 ## 72.2
 
+// glyph han-3ad0:15x16 15 16 // 㫐
+// ⿱ han-65e5 han-5315 // ⿱日匕
+
 glyph han-3ad1:15x16 15 16 // 㫑
 ⿰ han-65e5:7x16 han-529b:8x16 // ⿰日力
 
@@ -620,6 +645,9 @@ glyph han-3add:15x16 15 16 // 㫝
 // glyph han-3aed:15x16 15 16 // 㫭
 // ⿳ han-65e5 han-571f han-5bf8 // ⿳日土寸 <- ⿱日寺
 
+// glyph han-3aee:15x16 15 16 // 㫮
+// ⿱ han-6b64 han-65e5 // ⿱此日
+
 ## 72.7
 
 glyph han-3aef:15x16 15 16 // 㫯
@@ -649,6 +677,9 @@ glyph han-3aff:15x16 15 16 // 㫿
 
 glyph han-3b05:15x16 15 16 // 㬅
 ⿳ -3 han-65e5:15x5 1 han-7f52:15x3 han-65b9:15x10 // ⿳日罒方
+
+// glyph han-3b08:15x16 15 16 // 㬈
+// ⿰ han-65e5 han-6637 // ⿰日昷
 
 // glyph han-3b09:15x16 15 16 // 㬉
 // ⿰ han-65e5 han-800e // ⿰日耎

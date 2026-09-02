@@ -1,5 +1,10 @@
 # CJK unified ideographs extension B: 高 (189)
 
+## 189.3
+
+// glyph han-29abf-($han-regions):15x16 15 16 // 𩪿
+// ⿰ han-9ad8 han-4e38-($-1) // ⿰高丸
+
 ## 189.4
 
 glyph han-29ac1:15x16 15 16 // 𩫁

@@ -35,8 +35,8 @@ ref han-27fb7:5x16
 glyph han-27fbc:15x16 15 16 // 𧾼
 ⿰ han-27fb7:5x16 1 han-529b:9x16 // ⿰𧾷力
 
-// glyph han-27fbd:15x16 15 16 // 𧾽
-// ⿰ han-27fb7 han-5341 // ⿰𧾷十
+glyph han-27fbd:15x16 15 16 // 𧾽
+⿰ han-27fb7:5x16 1 han-5341:9x16 // ⿰𧾷十
 
 // glyph han-27fc0:15x16 15 16 // 𧿀
 // ⿰ han-8db3 han-5202 // ⿰足刂
@@ -57,6 +57,9 @@ glyph han-27fc2:15x16 15 16 // 𧿂
 
 ## 157.4
 
+glyph han-27fd5:15x16 15 16 // 𧿕
+⿲ han-27fb7:5x16 han-4ebb:3x16 han-5315:7x16 // ⿲𧾷亻匕
+
 glyph han-27fd9:15x16 15 16 // 𧿙
 ⿰ han-27fb7:5x16 1 han-5143:9x16 // ⿰𧾷元
 
@@ -68,6 +71,9 @@ glyph han-27fdb:15x16 15 16 // 𧿛
 
 glyph han-27fde:15x16 15 16 // 𧿞
 ⿰ han-27fb7:5x16 1 han-6b20:9x16 // ⿰𧾷欠
+
+glyph han-27fe5:15x16 15 16 // 𧿥
+⿲ han-27fb7:5x16 1 han-5315:4x16 1 han-5315:4x16 // ⿲𧾷匕匕
 
 glyph han-27fe7:15x16 15 16 // 𧿧
 ⿰ han-27fb7:5x16 1 han-65a4:9x16 // ⿰𧾷斤
@@ -89,11 +95,17 @@ glyph han-27ff5:15x16 15 16 // 𧿵
 // glyph han-27ff7:15x16 15 16 // 𧿷
 // ⿰ han-27fb7 han-7389 // ⿰𧾷玉
 
+// glyph han-27fff:15x16 15 16 // 𧿿
+// ⿱ han-6b64 han-8db3 // ⿱此足
+
 // glyph han-28002:15x16 15 16 // 𨀂
 // ⿱ han-77f3 han-8db3 // ⿱石足
 
 // glyph han-28009:15x16 15 16 // 𨀉
 // ⿰ han-27fb7 han-5b81 // ⿰𧾷宁
+
+glyph han-2800b:15x16 15 16 // 𨀋
+⿲ han-27fb7:5x16 han-4ebb:3x16 han-58eb:7x16 // ⿲𧾷亻士
 
 glyph han-2800e:15x16 15 16 // 𨀎
 ⿰ han-27fb7:5x16 1 han-7acb:9x16 // ⿰𧾷立
@@ -315,6 +327,9 @@ glyph han-2816e-($han-regions):15x16 15 16 // 𨅮
 
 // glyph han-28174:15x16 15 16 // 𨅴
 // ⿱ han-756a han-8db3 // ⿱番足
+
+// glyph han-28179:15x16 15 16 // 𨅹
+// ⿲ han-27fb7 han-2099d han-6708 // ⿲𧾷𠦝月 <- ⿰𧾷朝
 
 // glyph han-2817d:15x16 15 16 // 𨅽
 // ⿰ han-27fb7 han-9591 // ⿰𧾷閑

@@ -5,6 +5,11 @@
 // glyph han-2925b:15x16 15 16 // 𩉛
 // ⿰ han-9769 han-5200 // ⿰革刀
 
+## 177.3
+
+// glyph han-2925d-($han-regions):15x16 15 16 // 𩉝
+// ⿰ han-9769 han-4e38-($-1) // ⿰革丸
+
 ## 177.4
 
 glyph han-29262:15x16 15 16 // 𩉢
@@ -12,6 +17,9 @@ glyph han-29262:15x16 15 16 // 𩉢
 
 glyph han-2926a:15x16 15 16 // 𩉪
 ⿰ han-9769:7x16 1 han-6bdb:7x16 // ⿰革毛
+
+glyph han-2926b:15x16 15 16 // 𩉫
+⿲ han-9769:7x16 han-5315:4x16 han-5315:4x16 // ⿲革匕匕
 
 glyph han-2926e:15x16 15 16 // 𩉮
 ⿰ han-9769:7x16 han-6b62:8x16 // ⿰革止
@@ -93,6 +101,9 @@ glyph han-2929e:15x16 15 16 // 𩊞
 
 glyph han-292ac:15x16 15 16 // 𩊬
 ⿰ han-9769:7x16 1 han-752b:7x16 // ⿰革甫
+
+// glyph han-292b4:15x16 15 16 // 𩊴
+// ⿰ han-9769 han-5fd7 // ⿰革志
 
 glyph han-292b9:15x16 15 16 // 𩊹
 ⿲ han-9769:7x16 han-4ebb:3x16 han-65e6:5x16 // ⿲革亻旦

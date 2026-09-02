@@ -25,6 +25,11 @@
 glyph han-3206a:15x16 15 16 // 𲁪
 ⿲ han-8a01:5x16 han-81f3:7x16 han-5202:3x16 // ⿲訁至刂
 
+## 149.14
+
+// glyph han-3207b:15x16 15 16 // 𲁻
+// ⿲ han-8a01 han-2099d han-821f // ⿲訁𠦝舟 <- ⿰訁𰰎
+
 # CJK unified ideographs extension H: 讠 (149')
 
 ## 149'.5
@@ -45,7 +50,17 @@ glyph han-32086:15x16 15 16 // 𲂆
 // glyph han-3208b:15x16 15 16 // 𲂋
 // ⿰ han-8ba0 han-56f0 // ⿰讠困
 
+## 149'.9
+
+// glyph han-32091:15x16 15 16 // 𲂑
+// ⿰ han-8ba0 han-6637 // ⿰讠昷
+
 # CJK unified ideographs extension H: 貝 (154)
+
+## 154.4
+
+glyph han-320a8:15x16 15 16 // 𲂨
+⿲ han-8c9d:5x16 han-4ebb:3x16 han-5315:7x16 // ⿲貝亻匕
 
 ## 154.6
 
@@ -131,6 +146,11 @@ glyph han-3213a:15x16 15 16 // 𲄺
 ⿰ han-8ecd:7x16 1 han-590b:7x16 // ⿰軍夋
 
 # CJK unified ideographs extension H: 辶 (162)
+
+## 162.4
+
+// glyph han-32152-($han-regions):15x16 15 16 // 𲅒
+// ⿺ han-8fb6-($-1) han-5316 // ⿺辶化
 
 ## 162.5
 
@@ -236,6 +256,11 @@ glyph han-321ef:15x16 15 16 // 𲇯
 // glyph han-321fc:15x16 15 16 // 𲇼
 // ⿰ han-9485 han-800c // ⿰钅而
 
+## 167'.7
+
+// glyph han-321fd:15x16 15 16 // 𲇽
+// ⿰ han-9485 han-5fd7 // ⿰钅志
+
 ## 167'.8
 
 // glyph han-32201:15x16 15 16 // 𲈁
@@ -271,6 +296,11 @@ glyph han-32221:15x16 15 16 // 𲈡
 
 // glyph han-32226:15x16 15 16 // 𲈦
 // ⿱ han-4e07 han-9580 // ⿱万門
+
+## 169.5
+
+// glyph han-32228:15x16 15 16 // 𲈨
+// ⿵ han-9580 han-76bf // ⿵門皿
 
 ## 169.6
 
@@ -341,6 +371,11 @@ glyph han-3226e:15x16 15 16 // 𲉮
 
 # CJK unified ideographs extension H: 雨 (173)
 
+## 173.4
+
+// glyph han-32272-($han-regions):15x16 15 16 // 𲉲
+// ⿱ han-96e8-($-1) han-8ba1 // ⿱雨计
+
 ## 173.5
 
 // glyph han-32273:15x16 15 16 // 𲉳
@@ -355,7 +390,7 @@ glyph han-3226e:15x16 15 16 // 𲉮
 // ⿱ han-96e8 han-679c // ⿱雨果
 
 glyph han-32280:15x16 15 16 // 𲊀
-⿳ -1 han-96e8:15x7 han-5b80:15x4 -1 han-4e14:15x7 // ⿳雨宀且
+⿳ han-96e8:15x6 han-5b80:15x4 -1 han-4e14:15x7 // ⿳雨宀且
 
 ## 173.11
 
@@ -426,6 +461,11 @@ glyph han-322d5:15x16 15 16 // 𲋕
 
 # CJK unified ideographs extension H: 馬 (187)
 
+## 187.4
+
+glyph han-322f3:15x16 15 16 // 𲋳
+⿲ -1 han-99ac:7x16 1 han-5315:4x16 han-5315:4x16 // ⿲馬匕匕
+
 ## 187.10
 
 // glyph han-322fe:15x16 15 16 // 𲋾
@@ -461,6 +501,11 @@ glyph han-3233a:15x16 15 16 // 𲌺
 ⿲ -2 han-9b5a:7x16 han-5973:5x16 han-53e4:5x16 // ⿲魚女古
 
 # CJK unified ideographs extension H: 鳥 (196)
+
+## 196.3
+
+glyph han-3235a:15x16 15 16 // 𲍚
+⿰ han-9ce5:7x16 1 han-58eb:7x16 // ⿰鳥士
 
 ## 196.5
 

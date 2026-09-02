@@ -61,6 +61,11 @@ glyph han-31369:15x16 15 16 // 𱍩
 // glyph han-313b0:15x16 15 16 // 𱎰
 // ⿰ han-4ebb han-573c // ⿰亻圼
 
+## 9.8
+
+// glyph han-313b7:15x16 15 16 // 𱎷
+// ⿱ han-6b64 han-4ece // ⿱此从
+
 ## 9.9
 
 glyph han-313bc:15x16 15 16 // 𱎼
@@ -185,6 +190,9 @@ glyph han-314b3:15x16 15 16 // 𱒳
 glyph han-314b4:15x16 15 16 // 𱒴
 ⿲ han-53e3:5x16-l han-4ebb:3x16 han-53e4:7x16 // ⿲口亻古
 
+// glyph han-314b7:15x16 15 16 // 𱒷
+// ⿳ han-4e36 han-738b han-2b738 // ⿳丶王𫜸 <- ⿱主𫜸
+
 glyph han-314ba:15x16 15 16 // 𱒺
 ⿲ han-53e3:4x16-l han-6c35:3x16 han-6b62:8x16 // ⿲口氵止
 
@@ -233,8 +241,8 @@ glyph han-314f9:15x16 15 16 // 𱓹
 // glyph han-314fa:15x16 15 16 // 𱓺
 // ⿲ han-53e3 han-4ebb han-5947 // ⿲口亻奇 <- ⿰口倚
 
-// glyph han-314fc:15x16 15 16 // 𱓼
-// ⿲ han-53e3 han-91d2 han-5341 // ⿲口釒十 <- ⿰口針
+glyph han-314fc:15x16 15 16 // 𱓼
+⿲ -2 han-53e3:3x16-l han-91d2:7x16 han-5341:7x16 // ⿲口釒十
 
 ## 30.11
 
@@ -261,6 +269,11 @@ glyph han-31522-($han-regions):15x16 15 16 // 𱔢
 glyph han-31532:15x16 15 16 // 𱔲
 ⿲ han-53e3:3x16-l han-7cf9:5x16 han-5408:7x16 // ⿲口糹合
 
+## 30.13
+
+// glyph han-31538:15x16 15 16 // 𱔸
+// ⿲ han-53e3 han-624c han-6637 // ⿲口扌昷 <- ⿰口揾
+
 ## 30.14
 
 glyph han-31546:15x16 15 16 // 𱕆
@@ -279,6 +292,9 @@ glyph han-31563-($han-regions):15x16 15 16 // 𱕣
 glyph han-31566:15x16 15 16 // 𱕦
 ⿲ -2 han-53e3:3x16-l han-9769:7x16 han-96b9:7x16 // ⿲口革隹
 
+// glyph han-31569:15x16 15 16 // 𱕩
+// ⿱ han-92e4 han-2b738 // ⿱鋤𫜸
+
 ## 30.18
 
 // glyph han-3156c:15x16 15 16 // 𱕬
@@ -296,6 +312,11 @@ glyph han-31566:15x16 15 16 // 𱕦
 // glyph han-3157a:15x16 15 16 // 𱕺
 // ⿴ han-56d7 han-866b // ⿴囗虫
 
+## 31.7
+
+// glyph han-3157e:15x16 15 16 // 𱕾
+// ⿱ han-6bd4 han-56de // ⿱比回
+
 # CJK unified ideographs extension H: 土 (32)
 
 ## 32.3
@@ -308,6 +329,11 @@ glyph han-31587:15x16 15 16 // 𱖇
 
 // glyph han-31589:15x16 15 16 // 𱖉
 // ⿱ han-5ddb han-571f // ⿱巛土
+
+## 32.4
+
+// glyph han-3158b:15x16 15 16 // 𱖋
+// ⿱ han-5316 han-571f // ⿱化土
 
 ## 32.5
 
@@ -362,6 +388,9 @@ glyph han-315cb:15x16 15 16 // 𱗋
 
 glyph han-315de:15x16 15 16 // 𱗞
 ⿰ han-571f:5x16-l 1 han-9aa8:9x16 // ⿰土骨
+
+// glyph han-315e4:15x16 15 16 // 𱗤
+// ⿰ han-571f han-768b // ⿰土皋
 
 ## 32.11
 
@@ -450,8 +479,8 @@ glyph han-3162e:15x16 15 16 // 𱘮
 
 ## 38.5
 
-// glyph han-3164c:15x16 15 16 // 𱙌
-// ⿰ han-5973 han-56db // ⿰女四
+glyph han-3164c:15x16 15 16 // 𱙌
+⿰ han-5973:5x16-l han-56db:10x16 // ⿰女四
 
 ## 38.7
 

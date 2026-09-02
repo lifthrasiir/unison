@@ -1,3 +1,28 @@
+# CJK unified ideographs extension B: 比 (81)
+
+## 81.3
+
+// glyph han-23b02:15x16 15 16 // 𣬂
+// ⿱ han-6bd4 han-5e72 // ⿱比干
+
+## 81.4
+
+// glyph han-23b04:15x16 15 16 // 𣬄
+// ⿱ han-6bd4 han-5206 // ⿱比分
+
+// glyph han-23b05:15x16 15 16 // 𣬅
+// ⿱ han-6bd4 han-6bd4 // ⿱比比
+
+## 81.6
+
+// glyph han-23b0a:15x16 15 16 // 𣬊
+// ⿱ han-6bd4 han-5e75 // ⿱比幵
+
+## 81.9
+
+// glyph han-23b0d:15x16 15 16 // 𣬍
+// ⿲ han-82d7 han-5315 han-5315 // ⿲苗匕匕 <- ⿰苗比
+
 # CJK unified ideographs extension B: 毛 (82)
 
 ## 82.2
@@ -64,6 +89,9 @@ glyph han-23b39-($han-regions):15x16 15 16 // 𣬹
 
 glyph han-23b40:15x16 15 16 // 𣭀
 ⿰ han-5305:7x16 1 han-6bdb:7x16 // ⿰包毛
+
+// glyph han-23b41:15x16 15 16 // 𣭁
+// ⿱ han-6b64 han-6bdb // ⿱此毛
 
 // glyph han-23b43:15x16 15 16 // 𣭃
 // ⿰ han-56da han-6bdb // ⿰囚毛
@@ -164,6 +192,9 @@ glyph han-23b94:15x16 15 16 // 𣮔
 // ⿺ han-6bdb han-5192 // ⿺毛冒
 
 ## 82.10
+
+// glyph han-23bce:15x16 15 16 // 𣯎
+// ⿰ han-6637 han-6bdb // ⿰昷毛
 
 // glyph han-23bcf:15x16 15 16 // 𣯏
 // ⿺ han-6bdb han-8338 // ⿺毛茸

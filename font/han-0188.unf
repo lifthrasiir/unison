@@ -88,6 +88,9 @@ $$....@@............\1@@....$$
 
 ## 188.3
 
+// glyph han-9aab-($han-regions):15x16 15 16 // 骫
+// ⿰ han-9aa8 han-4e38-($-1) // ⿰骨丸
+
 glyph han-9aad:15x16 15 16 // 骭
 ⿰ han-9aa8:7x16 1 han-5e72:7x16 // ⿰骨干
 
@@ -103,6 +106,9 @@ glyph han-9ab2:15x16 15 16 // 骲
 
 glyph han-9ab3:15x16 15 16 // 骳
 ⿰ han-9aa8:7x16 han-76ae:8x16 // ⿰骨皮
+
+glyph han-9ab4:15x16 15 16 // 骴
+⿲ -2 han-9aa8:7x16 han-6b62:6x16 han-5315:4x16 // ⿲骨止匕
 
 glyph han-9ab6:15x16 15 16 // 骶
 ⿰ han-9aa8:7x16 han-6c10:8x16 // ⿰骨氐
@@ -331,11 +337,17 @@ glyph han-9b61-j:15x16 15 16 // 魡
 
 ## 195.4
 
+glyph han-9b64:15x16 15 16 // 魤
+⿲ han-9b5a:7x16 han-4ebb:3x16 1 han-5315:4x16 // ⿲魚亻匕
+
 glyph han-9b67:15x16 15 16 // 魧
 ⿰ han-9b5a:7x16 1 han-4ea2:7x16 // ⿰魚亢
 
 glyph han-9b6d:15x16 15 16 // 魭
 ⿰ han-9b5a:7x16 han-5143:8x16 // ⿰魚元
+
+glyph han-9b6e:15x16 15 16 // 魮
+⿲ -1 han-9b5a:7x16 1 han-5315:4x16 han-5315:4x16 // ⿲魚匕匕
 
 // glyph han-9b6f:15x16 15 16 // 魯
 // ⿱ han-9b5a han-65e5 // ⿱魚日
@@ -365,6 +377,9 @@ glyph han-9b7f-($han-regions):15x16 15 16 // 魿
 
 // glyph han-9b82:15x16 15 16 // 鮂
 // ⿰ han-9b5a han-56da // ⿰魚囚
+
+// glyph han-9b86:15x16 15 16 // 鮆
+// ⿱ han-6b64 han-9b5a // ⿱此魚
 
 glyph han-9b88:15x16 15 16 // 鮈
 ⿰ han-9b5a:7x16 1 han-53e5:7x16 // ⿰魚句
@@ -524,6 +539,9 @@ glyph han-9c11:15x16 15 16 // 鰑
 
 glyph han-9c17:15x16 15 16 // 鰗
 ⿲ -3 han-9b5a:7x16 1 han-53e4:5x16 han-6708:5x16 // ⿲魚古月
+
+// glyph han-9c1b:15x16 15 16 // 鰛
+// ⿰ han-9b5a han-6637 // ⿰魚昷
 
 ## 195.10
 

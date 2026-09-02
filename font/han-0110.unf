@@ -122,6 +122,9 @@ glyph han-780d:15x16 15 16 // 砍
 glyph han-780f:15x16 15 16 // 砏
 ⿰ han-77f3:7x16 1 han-5206:7x16 // ⿰石分
 
+glyph han-7812:15x16 15 16 // 砒
+⿲ han-77f3:5x16 1 han-5315:4x16 1 han-5315:4x16 // ⿲石匕匕
+
 glyph han-781b:15x16 15 16 // 砛
 ⿰ han-77f3:7x16 1 han-4eca:7x16 // ⿰石今
 
@@ -138,6 +141,9 @@ glyph han-7822:15x16 15 16 // 砢
 
 glyph han-7825:15x16 15 16 // 砥
 ⿰ han-77f3:7x16 han-6c10:8x16 // ⿰石氐
+
+// glyph han-7826:15x16 15 16 // 砦
+// ⿱ han-6b64 han-77f3 // ⿱此石
 
 glyph han-7827:15x16 15 16 // 砧
 ⿰ han-77f3:7x16 1 han-5360:7x16 // ⿰石占
@@ -563,6 +569,9 @@ glyph han-795e-(g|h|t|j|v):15x16 15 16 // 神
 glyph han-795e-(k|p):15x16 15 16 // 神
 ⿰ han-793a:5x16 1 han-7533:9x16 // ⿰示申
 
+// glyph han-7961:15x16 15 16 // 祡
+// ⿱ han-6b64 han-793a // ⿱此示
+
 ## 113.6
 
 glyph han-7965-(g|h|t|j):15x16 15 16 // 祥
@@ -885,6 +894,9 @@ $$......@@......$$
 glyph han-79c6:15x16 15 16 // 秆
 ⿰ han-79be:7x16 1 han-5e72:7x16 // ⿰禾干
 
+// glyph han-79c7-($han-regions):15x16 15 16 // 秇
+// ⿰ han-79be han-4e38-($-1) // ⿰禾丸
+
 glyph han-79c8:15x12 15 12 // 秈
 ⿰ han-79be:7x12 1 han-5c71:7x12 // ⿰禾山
 glyph han-79c8:15x16 15 16 // 秈
@@ -913,6 +925,9 @@ glyph han-79cf:15x16 15 16 // 秏
 
 glyph han-79d4:15x16 15 16 // 秔
 ⿰ han-79be:7x16 1 han-4ea2:7x16 // ⿰禾亢
+
+glyph han-79d5:15x16 15 16 // 秕
+⿲ han-79be:5x16 han-5315:5x16 han-5315:5x16 // ⿲禾匕匕
 
 ## 115.5
 

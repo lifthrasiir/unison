@@ -365,6 +365,31 @@ glyph han-2af7b:15x16 15 16 // 𪽻
 // glyph han-2af89:15x16 15 16 // 𪾉
 // ⿱ han-76ae han-8036 // ⿱皮耶
 
+# CJK unified ideographs extension C: 皿 (108)
+
+## 108.5
+
+glyph han-2af8c:15x16 15 16 // 𪾌
+⿱ han-53ef:15x11 han-76bf:15x5 // ⿱可皿
+
+glyph han-2af8d:15x16 15 16 // 𪾍
+⿳ han-53e3:15x4 han-513f:15x4 1 han-76bf:15x7 // ⿳口儿皿
+
+## 108.8
+
+// glyph han-2af91:15x16 15 16 // 𪾑
+// ⿱ han-62b1 han-76bf // ⿱抱皿
+
+## 108.11
+
+// glyph han-2af96:15x16 15 16 // 𪾖
+// ⿱ han-76bf han-9ce5 // ⿱皿鳥
+
+## 108.12
+
+// glyph han-2af98:15x16 15 16 // 𪾘
+// ⿱ han-921a han-76bf // ⿱鈚皿
+
 # CJK unified ideographs extension C: 目 (109)
 
 ## 109.3
@@ -451,6 +476,11 @@ glyph han-2b008:15x16 15 16 // 𫀈
 
 // glyph han-2b00f:15x16 15 16 // 𫀏
 // ⿰ han-793a han-5b8c // ⿰示完
+
+## 113.9
+
+// glyph han-2b01a:15x16 15 16 // 𫀚
+// ⿰ han-793b han-6637 // ⿰礻昷
 
 ## 113.14
 

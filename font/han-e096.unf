@@ -13,6 +13,9 @@ glyph han-2c353:15x16 15 16 // 𬍓
 // glyph han-2c354:15x16 15 16 // 𬍔
 // ⿲ han-248e9 han-4e03 han-5200 // ⿲𤣩七刀 <- ⿰𤣩切
 
+glyph han-2c355:15x16 15 16 // 𬍕
+⿲ han-248e9:3x16 han-4ebb:3x16 han-5315:9x16 // ⿲𤣩亻匕
+
 // glyph han-2c356:15x16 15 16 // 𬍖
 // ⿰ han-248e9 han-6c34 // ⿰𤣩水
 
@@ -105,6 +108,11 @@ glyph han-2c3d4:15x16 15 16 // 𬏔
 // glyph han-2c3db:15x16 15 16 // 𬏛
 // ⿸ han-7592 han-624d // ⿸疒才
 
+## 104.4
+
+// glyph han-2c3df:15x16 15 16 // 𬏟
+// ⿸ han-7592 han-8ba1 // ⿸疒计
+
 ## 104.5
 
 // glyph han-2c3e3:15x16 15 16 // 𬏣
@@ -137,6 +145,29 @@ glyph han-2c40d:15x16 15 16 // 𬐍
 
 // glyph han-2c40e:15x16 15 16 // 𬐎
 // ⿱ han-767d han-5352 // ⿱白卒
+
+# CJK unified ideographs extension E: 皿 (108)
+
+## 108.4
+
+glyph han-2c418:15x16 15 16 // 𬐘
+⿱ han-5fc3:15x6 1 han-76bf:15x9 // ⿱心皿
+
+## 108.8
+
+glyph han-2c423:15x16 15 16 // 𬐣
+⿳ han-5927:15x5 han-53ef:15x6 han-76bf:15x5 // ⿳大可皿
+
+// glyph han-2c426:15x16 15 16 // 𬐦
+// ⿱ han-23cb2 han-76bf // ⿱𣲲皿
+
+## 108.9
+
+// glyph han-2c42a:15x16 15 16 // 𬐪
+// ⿳ han-4eca han-7f52 han-76bf // ⿳今罒皿 <- ⿱𮊀皿
+
+// glyph han-2c42f:15x16 15 16 // 𬐯
+// ⿱ han-6d00 han-76bf // ⿱洀皿
 
 # CJK unified ideographs extension E: 目 (109)
 
@@ -417,6 +448,9 @@ glyph han-2c58f:15x16 15 16 // 𬖏
 // glyph han-2c590:15x16 15 16 // 𬖐
 // ⿰ han-7c73 han-592b // ⿰米夫
 
+glyph han-2c592:15x16 15 16 // 𬖒
+⿲ han-7c73:5x16 han-4ebb:3x16 han-5315:7x16 // ⿲米亻匕
+
 ## 119.7
 
 // glyph han-2c59d:15x16 15 16 // 𬖝
@@ -551,6 +585,11 @@ glyph han-2c659:15x16 15 16 // 𬙙
 glyph han-2c65a:15x16 15 16 // 𬙚
 ⿱ han-7f52:15x4 han-4e16:15x12 // ⿱罒世
 
+## 122.6
+
+// glyph han-2c65d:15x16 15 16 // 𬙝
+// ⿳ han-7f52 han-6bd4 han-5341 // ⿳罒比十 <- ⿱罒毕
+
 ## 122.8
 
 // glyph han-2c661:15x16 15 16 // 𬙡
@@ -606,6 +645,11 @@ glyph han-2c69f:15x16 15 16 // 𬚟
 ⿰ han-8033:7x16 1 han-96b9:7x16 // ⿰耳隹
 
 # CJK unified ideographs extension E: 肉 (130)
+
+## 130.3
+
+glyph han-2c6af:15x16 15 16 // 𬚯
+⿰ han-6708:5x16-l 1 han-58eb:9x16 // ⿰月士
 
 ## 130.4
 

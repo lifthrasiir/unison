@@ -15,6 +15,9 @@
 // glyph han-225ab:15x16 15 16 // 𢖫
 // ⿱ han-5200 han-5fc3 // ⿱刀心
 
+glyph han-225ac:15x16 15 16 // 𢖬
+⿰ han-5fc4:5x16 1 han-5315:9x16 // ⿰忄匕
+
 // glyph han-225b0:15x16 15 16 // 𢖰
 // ⿱ han-529b han-5fc3 // ⿱力心
 
@@ -79,6 +82,9 @@ glyph han-225f3:15x16 15 16 // 𢗳
 glyph han-225fb:15x16 15 16 // 𢗻
 ⿱ han-516d:15x9 1 han-5fc3:15x6 // ⿱六心
 
+glyph han-225fd:15x16 15 16 // 𢗽
+⿲ han-5fc4:5x16 han-5315:5x16 han-5315:5x16 // ⿲忄匕匕
+
 ## 61.5
 
 // glyph han-22602:15x16 15 16 // 𢘂
@@ -117,6 +123,9 @@ glyph han-2262b:15x16 15 16 // 𢘫
 glyph han-2262e:15x16 15 16 // 𢘮
 ⿰ han-5fc4:7x16 1 han-7acb:7x16 // ⿰忄立
 
+// glyph han-2262f:15x16 15 16 // 𢘯
+// ⿳ han-5b80 han-5315 han-5fc3 // ⿳宀匕心 <- ⿱它心
+
 // glyph han-22632:15x16 15 16 // 𢘲
 // ⿱ han-592e han-5fc3 // ⿱央心
 
@@ -139,6 +148,9 @@ glyph han-2263e:15x16 15 16 // 𢘾
 
 // glyph han-2263f:15x16 15 16 // 𢘿
 // ⿱ han-8278 han-5fc3 // ⿱艸心
+
+// glyph han-22642:15x16 15 16 // 𢙂
+// ⿳ han-4e00 han-76bf han-5fc3 // ⿳一皿心
 
 // glyph han-22645:15x16 15 16 // 𢙅
 // ⿱ han-5408 han-5fc3 // ⿱合心
@@ -177,6 +189,9 @@ glyph han-22676:15x16 15 16 // 𢙶
 
 glyph han-22679:15x16 15 16 // 𢙹
 ⿲ han-5fc4:5x16 han-72ad:4x16 1 han-706b:5x16 // ⿲忄犭火
+
+// glyph han-2267a:15x16 15 16 // 𢙺
+// ⿰ han-5fc4 han-5fd7 // ⿰忄志
 
 // glyph han-22685:15x16 15 16 // 𢚅
 // ⿱ han-626e han-5fc3 // ⿱扮心
@@ -320,6 +335,9 @@ glyph han-22728:15x16 15 16 // 𢜨
 // glyph han-22740:15x16 15 16 // 𢝀
 // ⿰ han-5fc4 han-7a81 // ⿰忄突
 
+// glyph han-22748:15x16 15 16 // 𢝈
+// ⿰ han-5fc4 han-76c5 // ⿰忄盅
+
 // glyph han-22749:15x16 15 16 // 𢝉
 // ⿰ han-5fc4 han-8037 // ⿰忄耷
 
@@ -391,8 +409,8 @@ glyph han-227d1:15x16 15 16 // 𢟑
 // glyph han-227d7:15x16 15 16 // 𢟗
 // ⿲ han-5fc4 han-6c35 han-573c // ⿲忄氵圼 <- ⿰忄涅
 
-// glyph han-227d9:15x16 15 16 // 𢟙
-// ⿲ han-5fc4 han-91d2 han-5341 // ⿲忄釒十 <- ⿰忄針
+glyph han-227d9:15x16 15 16 // 𢟙
+⿲ -4 han-5fc4:5x16 han-91d2:7x16 han-5341:7x16 // ⿲忄釒十
 
 ## 61.11
 
@@ -478,6 +496,9 @@ glyph han-22875:15x16 15 16 // 𢡵
 
 glyph han-22882:15x16 15 16 // 𢢂
 ⿲ han-5fc4:5x16 han-7cf9:5x16 han-5409:5x16 // ⿲忄糹吉
+
+// glyph han-22885:15x16 15 16 // 𢢅
+// ⿲ han-5fc4 han-2099d han-6708 // ⿲忄𠦝月 <- ⿰忄朝
 
 ## 61.13
 

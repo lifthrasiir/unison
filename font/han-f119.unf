@@ -26,6 +26,9 @@ glyph han-2e1c9:15x16 15 16 // 𮇉
 // glyph han-2e1cc:15x16 15 16 // 𮇌
 // ⿰ han-7c73 han-592e // ⿰米央
 
+// glyph han-2e1ce:15x16 15 16 // 𮇎
+// ⿱ han-7c73 han-2b738 // ⿱米𫜸
+
 glyph han-2e1d2:15x16 15 16 // 𮇒
 ⿲ han-7c73:5x16 han-529b:5x16 1 han-53e3:4x16 // ⿲米力口
 
@@ -151,6 +154,13 @@ glyph han-2e28b:15x16 15 16 // 𮊋
 // glyph han-2e2a1:15x16 15 16 // 𮊡
 // ⿱ han-7f52 han-4cec // ⿱罒䳬
 
+# CJK unified ideographs extension F: 羊 (123)
+
+## 123.8
+
+// glyph han-2e2aa:15x16 15 16 // 𮊪
+// ⿰ han-2099d han-7f8a // ⿰𠦝羊
+
 # CJK unified ideographs extension F: 耳 (128)
 
 ## 128.4
@@ -169,7 +179,7 @@ glyph han-2e2f0:15x16 15 16 // 𮋰
 ## 128.8
 
 glyph han-2e2f4:15x16 15 16 // 𮋴
-⿲ -2 han-8033:6x16-l han-76ee:4x16 1 han-5f13:6x16 // ⿲耳目弓
+⿲ han-8033:6x16-l han-76ee:4x16 1 han-5f13:4x16 // ⿲耳目弓
 
 ## 128.9
 
@@ -193,6 +203,11 @@ glyph han-2e2f7:15x16 15 16 // 𮋷
 
 // glyph han-2e318:15x16 15 16 // 𮌘
 // ⿰ han-6708 han-8db3 // ⿰月足
+
+## 130.12
+
+// glyph han-2e33f:15x16 15 16 // 𮌿
+// ⿱ han-7ca5 han-8089 // ⿱粥肉
 
 ## 130.14
 
@@ -301,6 +316,12 @@ glyph han-2e3e6:15x16 15 16 // 𮏦
 // glyph han-2e3e7:15x16 15 16 // 𮏧
 // ⿳ han-8279 han-5b80 han-81f3 // ⿳艹宀至 <- ⿱艹室
 
+// glyph han-2e3f0:15x16 15 16 // 𮏰
+// ⿱ han-8279 han-401d // ⿱艹䀝
+
+// glyph han-2e3f1:15x16 15 16 // 𮏱
+// ⿰ han-8349 han-4e0b // ⿰草下
+
 glyph han-2e3f2:15x16 15 16 // 𮏲
 ⿳ han-8279:15x3 han-53e3:15x5 han-866b:15x8 // ⿳艹口虫
 
@@ -308,6 +329,9 @@ glyph han-2e3f2:15x16 15 16 // 𮏲
 // ⿱ han-8279 han-72ec // ⿱艹独
 
 ## 140.10
+
+// glyph han-2e40c:15x16 15 16 // 𮐌
+// ⿰ han-8349 han-4e94 // ⿰草五
 
 // glyph han-2e412:15x16 15 16 // 𮐒
 // ⿱ han-8279 han-224ed // ⿱艹𢓭
@@ -387,6 +411,9 @@ glyph han-2e3f2:15x16 15 16 // 𮏲
 // ⿱ han-8279 han-29faf // ⿱艹𩾯
 
 ## 140.15
+
+// glyph han-2e4a0:15x16 15 16 // 𮒠
+// ⿰ han-8349 han-82db // ⿰草苛
 
 // glyph han-2e4a7:15x16 15 16 // 𮒧
 // ⿱ han-8279 han-96a3 // ⿱艹隣

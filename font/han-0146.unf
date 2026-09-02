@@ -202,6 +202,9 @@ glyph han-899c:15x16 15 16 // 覜
 glyph han-899e:15x16 15 16 // 覞
 ⿰ han-898b:7x16 1 han-898b:7x16 // ⿰見見
 
+// glyph han-899f:15x16 15 16 // 覟
+// ⿰ han-5fd7 han-898b // ⿰志見
+
 ## 147.8
 
 glyph han-89a2:15x16 15 16 // 覢
@@ -333,8 +336,8 @@ glyph han-8a02:15x16 15 16 // 訂
 // glyph han-8a05:15x16 15 16 // 訅
 // ⿰ han-8a01 han-4e5d // ⿰訁九
 
-// glyph han-8a08:15x16 15 16 // 計
-// ⿰ han-8a01 han-5341 // ⿰訁十
+glyph han-8a08:15x16 15 16 // 計
+⿰ han-8a01:5x16 1 han-5341:9x16 // ⿰訁十
 
 ## 149.3
 
@@ -356,7 +359,13 @@ glyph han-8a13:15x16 15 16 // 訓
 glyph han-8a15:15x16 15 16 // 訕
 ⿰ han-8a01:5x16 1 han-5c71:9x16 // ⿰訁山
 
+// glyph han-8a19-($han-regions):15x16 15 16 // 訙
+// ⿰ han-8a01 han-4e38-($-1) // ⿰訁丸
+
 ## 149.4
+
+glyph han-8a1b:15x16 15 16 // 訛
+⿲ han-8a01:5x16 han-4ebb:3x16 han-5315:7x16 // ⿲訁亻匕
 
 glyph han-8a1c:15x16 15 16 // 訜
 ⿰ han-8a01:7x16 1 han-5206:7x16 // ⿰訁分
@@ -387,8 +396,8 @@ glyph han-8a32:15x16 15 16 // 訲
 
 ## 149.5
 
-// glyph han-8a35:15x16 15 16 // 訵
-// ⿰ han-8a01 han-56db // ⿰訁四
+glyph han-8a35:15x16 15 16 // 訵
+⿰ han-8a01:7x16 han-56db:8x16 // ⿰訁四
 
 glyph han-8a36:15x13 15 13 // 訶
 ⿰ han-8a01:5x13 han-53ef:10x13 // ⿰訁可
@@ -406,6 +415,9 @@ glyph han-8a3c:15x16 15 16 // 証
 
 glyph han-8a3d:15x16 15 16 // 訽
 ⿰ han-8a01:7x16 1 han-53e5:7x16 // ⿰訁句
+
+glyph han-8a3f:15x16 15 16 // 訿
+⿲ han-8a01:5x16 han-6b62:6x16 han-5315:4x16 // ⿲訁止匕
 
 glyph han-8a40:15x16 15 16 // 詀
 ⿰ han-8a01:7x16 1 han-5360:7x16 // ⿰訁占
@@ -500,6 +512,9 @@ glyph han-8a88:15x16 15 16 // 誈
 ⿰ han-8a01:7x16 1 han-81f3:7x16 // ⿰訁至
 
 ## 149.7
+
+// glyph han-8a8c:15x16 15 16 // 誌
+// ⿰ han-8a01 han-5fd7 // ⿰訁志
 
 glyph han-8a8f:15x16 15 16 // 誏
 ⿰ han-8a01:7x16 1 han-826f:7x16 // ⿰訁良
@@ -635,6 +650,9 @@ glyph han-8b2c:15x16 15 16 // 謬
 
 ## 149.12
 
+// glyph han-8b3f:15x16 15 16 // 謿
+// ⿲ han-8a01 han-2099d han-6708 // ⿲訁𠦝月 <- ⿰訁朝
+
 glyph han-8b4a:15x16 15 16 // 譊
 ⿰ han-8a01:7x16 1 han-582f:7x16 // ⿰訁堯
 
@@ -705,8 +723,8 @@ ref han-8ba0:5x16
 
 ## 149'.2
 
-// glyph han-8ba1:15x16 15 16 // 计
-// ⿰ han-8ba0 han-5341 // ⿰讠十
+glyph han-8ba1:15x16 15 16 // 计
+⿰ han-8ba0:5x16 1 han-5341:9x16 // ⿰讠十
 
 glyph han-8ba2:15x16 15 16 // 订
 ⿰ han-8ba0:5x16 -1 han-4e01:11x16 // ⿰讠丁
@@ -735,6 +753,9 @@ glyph han-8bad:15x16 15 16 // 训
 ⿰ han-8ba0:5x16 1 han-5ddd:9x16 // ⿰讠川
 
 ## 149'.4
+
+glyph han-8bb9:15x16 15 16 // 讹
+⿲ han-8ba0:3x16 han-4ebb:3x16 han-5315:9x16 // ⿲讠亻匕
 
 glyph han-8bbf:15x16 15 16 // 访
 ⿰ han-8ba0:5x16 1 han-65b9:9x16 // ⿰讠方

@@ -8,6 +8,9 @@
 // glyph han-22cc9:15x16 15 16 // 𢳉
 // ⿱ han-7d47 han-624b // ⿱絇手
 
+// glyph han-22cca-($han-regions):15x16 15 16 // 𢳊
+// ⿲ han-624c han-5774 han-4e38-($-1) // ⿲扌坴丸 <- ⿰扌埶
+
 glyph han-22ccf:15x16 15 16 // 𢳏
 ⿲ -1 han-624c:3x16 han-7cf9:5x16 1 han-7531:7x16 // ⿲扌糹由
 
@@ -51,6 +54,9 @@ glyph han-22d26:15x16 15 16 // 𢴦
 
 // glyph han-22d3d:15x16 15 16 // 𢴽
 // ⿰ han-624b han-582f // ⿰手堯
+
+// glyph han-22d3f:15x16 15 16 // 𢴿
+// ⿲ han-624c han-2099d han-6708 // ⿲扌𠦝月 <- ⿰扌朝
 
 glyph han-22d4b-($han-regions):15x16 15 16 // 𢵋
 ⿲ han-624c:3x16 han-8005-($-1):7x16 1 han-961d:4x16-r // ⿲扌者阝
@@ -98,6 +104,9 @@ glyph han-22d8f:15x16 15 16 // 𢶏
 
 glyph han-22d96:15x16 15 16 // 𢶖
 ⿲ -2 han-624c:3x16 han-4fde:7x16 han-6b20:7x16 // ⿲扌俞欠
+
+// glyph han-22da4:15x16 15 16 // 𢶤
+// ⿰ han-624c han-9774 // ⿰扌靴
 
 ## 64.14
 

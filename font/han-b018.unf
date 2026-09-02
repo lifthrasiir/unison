@@ -128,6 +128,9 @@ glyph han-20734:15x16 15 16 // 𠜴
 // glyph han-20754:15x16 15 16 // 𠝔
 // ⿱ han-59cb han-5200 // ⿱始刀
 
+// glyph han-20755:15x16 15 16 // 𠝕
+// ⿳ han-5200 han-65e5 han-6bd4 // ⿳刀日比 <- ⿱刀昆
+
 // glyph han-20757:15x16 15 16 // 𠝗
 // ⿱ han-5200 han-601b // ⿱刀怛
 
@@ -279,6 +282,35 @@ glyph han-20883:15x16 15 16 // 𠢃
 
 # CJK unified ideographs extension B: 勹 (20)
 
+## 20.3
+
+// glyph han-208cd:15x16 15 16 // 𠣍
+// ⿹ han-52f9 han-5e72 // ⿹勹干
+
+// glyph han-208cf:15x16 15 16 // 𠣏
+// ⿹ han-52f9 han-6b62 // ⿹勹止
+
+## 20.4
+
+// glyph han-208d1:15x16 15 16 // 𠣑
+// ⿹ han-52f9 han-5143 // ⿹勹元
+
+## 20.6
+
+// glyph han-208d8:15x16 15 16 // 𠣘
+// ⿹ han-52f9 han-821f // ⿹勹舟
+
+// glyph han-208dc:15x16 15 16 // 𠣜
+// ⿹ han-52f9 han-866b // ⿹勹虫
+
+## 20.7
+
+// glyph han-208de:15x16 15 16 // 𠣞
+// ⿹ han-52f9 han-8eca // ⿹勹車
+
+// glyph han-208df:15x16 15 16 // 𠣟
+// ⿹ han-52f9 han-590b // ⿹勹夋
+
 ## 20.8
 
 glyph han-208ea:15x16 15 16 // 𠣪
@@ -286,3 +318,41 @@ glyph han-208ea:15x16 15 16 // 𠣪
 
 glyph han-208eb:15x16 15 16 // 𠣫
 ⿰ han-53ec:6x16 han-53e5:9x16 // ⿰召句
+
+## 20.9
+
+// glyph han-208ef:15x16 15 16 // 𠣯
+// ⿹ han-52f9 han-82d7 // ⿹勹苗
+
+// glyph han-208f0-($han-regions):15x16 15 16 // 𠣰
+// ⿹ han-52f9 han-8005-($-1) // ⿹勹者
+
+## 20.18
+
+// glyph han-2090d:15x16 15 16 // 𠤍
+// ⿹ han-52f9 han-96da // ⿹勹雚
+
+# CJK unified ideographs extension B: 匕 (21)
+
+## 21.2
+
+// glyph han-2090f:15x16 15 16 // 𠤏
+// ⿱ han-5315 han-5341 // ⿱匕十
+
+## 21.3
+
+// glyph han-20910:15x16 15 16 // 𠤐
+// ⿱ han-5315 han-5140 // ⿱匕兀
+
+## 21.7
+
+// glyph han-20919:15x16 15 16 // 𠤙
+// ⿳ han-4e5d han-767d han-5315 // ⿳九白匕 <- ⿱九皀
+
+// glyph han-2091a:15x16 15 16 // 𠤚
+// ⿳ han-5315 han-65e5 han-5dfe // ⿳匕日巾 <- ⿱旨巾
+
+## 21.12
+
+// glyph han-20927:15x16 15 16 // 𠤧
+// ⿱ han-5315 han-63d0 // ⿱匕提

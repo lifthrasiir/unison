@@ -29,6 +29,9 @@ glyph han-2d82f:15x16 15 16 // 𭠯
 // glyph han-2d833:15x16 15 16 // 𭠳
 // ⿰ han-624b han-514b // ⿰手克
 
+// glyph han-2d836:15x16 15 16 // 𭠶
+// ⿰ han-624c han-5fd7 // ⿰扌志
+
 // glyph han-2d83a:15x16 15 16 // 𭠺
 // ⿰ han-624b han-898b // ⿰手見
 
@@ -59,6 +62,9 @@ glyph han-2d86b:15x16 15 16 // 𭡫
 // ⿲ han-624c han-6c35 han-820c // ⿲扌氵舌 <- ⿰扌活
 
 ## 64.10
+
+// glyph han-2d876:15x16 15 16 // 𭡶
+// ⿰ han-624c han-8349 // ⿰扌草
 
 glyph han-2d879:15x16 15 16 // 𭡹
 ⿲ -1 han-624c:3x16 han-65e6:5x16 1 han-7532:7x16 // ⿲扌旦甲
@@ -397,3 +403,6 @@ glyph han-2db4b:15x16 15 16 // 𭭋
 
 glyph han-2db50:15x16 15 16 // 𭭐
 ⿰ han-661c:7x16 1 han-6b20:7x16 // ⿰昜欠
+
+// glyph han-2db51:15x16 15 16 // 𭭑
+// ⿰ han-6637 han-6b20 // ⿰昷欠

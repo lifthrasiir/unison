@@ -71,8 +71,8 @@ glyph han-20e1e:15x16 15 16 // 𠸞
 glyph han-20e23:15x16 15 16 // 𠸣
 ⿲ han-53e3:5x16-l han-7cf9:5x16 han-5de5:5x16 // ⿲口糹工
 
-// glyph han-20e25:15x16 15 16 // 𠸥
-// ⿲ han-53e3 han-8a01 han-5341 // ⿲口訁十 <- ⿰口計
+glyph han-20e25:15x16 15 16 // 𠸥
+⿲ han-53e3:3x16-l han-8a01:5x16 han-5341:7x16 // ⿲口訁十
 
 glyph han-20e27:15x16 15 16 // 𠸧
 ⿲ han-53e3:3x16-l han-5fc4:5x16 han-5404:7x16 // ⿲口忄各
@@ -84,6 +84,9 @@ glyph han-20e2a:15x16 15 16 // 𠸪
 // ⿺ han-662f han-53e3 // ⿺是口
 
 ## 30.10
+
+// glyph han-20e4a:15x16 15 16 // 𠹊
+// ⿰ han-53e3 han-8349 // ⿰口草
 
 // glyph han-20e52:15x16 15 16 // 𠹒
 // ⿰ han-53e3 han-5bab // ⿰口宫
@@ -198,6 +201,9 @@ glyph han-20f17:15x16 15 16 // 𠼗
 glyph han-20f32:15x16 15 16 // 𠼲
 ⿲ -1 han-53e3:3x16-l han-571f:7x16 -1 han-96b9:7x16 // ⿲口土隹
 
+glyph han-20f34:15x16 15 16 // 𠼴
+⿲ han-53e3:3x16-l 1 han-5315:6x16 han-9801:5x16 // ⿲口匕頁
+
 glyph han-20f39:15x16 15 16 // 𠼹
 ⿲ han-53e3:3x16-l 1 han-8c9d:5x16 han-65a4:6x16 // ⿲口貝斤
 
@@ -226,6 +232,9 @@ glyph han-20f6f:15x16 15 16 // 𠽯
 
 // glyph han-20f74:15x16 15 16 // 𠽴
 // ⿰ han-53e3 han-264d4 // ⿰口𦓔
+
+// glyph han-20f77:15x16 15 16 // 𠽷
+// ⿳ han-53e3 han-6b64 han-8c9d // ⿳口此貝 <- ⿱口貲
 
 // glyph han-20f78:15x16 15 16 // 𠽸
 // ⿱ han-5405 han-9801 // ⿱吅頁
@@ -268,3 +277,6 @@ glyph han-20fc0:15x16 15 16 // 𠿀
 
 glyph han-20fc1:15x16 15 16 // 𠿁
 ⿲ -1 han-53e3:3x16-l han-5176:6x16 han-6b20:7x16 // ⿲口其欠
+
+// glyph han-21026:15x16 15 16 // 𡀦
+// ⿲ han-53e3 han-6c35 han-6637 // ⿲口氵昷 <- ⿰口温

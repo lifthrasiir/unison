@@ -53,6 +53,11 @@ glyph han-3103a:15x16 15 16 // 𱀺
 
 # CJK unified ideographs extension G: 雨 (173)
 
+## 173.2
+
+// glyph han-31051-($han-regions):15x16 15 16 // 𱁑
+// ⿱ han-96e8-($-1) han-5315 // ⿱雨匕
+
 ## 173.7
 
 // glyph han-31054-($han-regions):15x16 15 16 // 𱁔
@@ -92,6 +97,11 @@ glyph han-3103a:15x16 15 16 // 𱀺
 // ⿰ han-3693 han-9801 // ⿰㚓頁
 
 # CJK unified ideographs extension G: 風 (182)
+
+## 182.4
+
+// glyph han-310bc:15x16 15 16 // 𱂼
+// ⿱ han-6bd4 han-98a8 // ⿱比風
 
 ## 182.5
 
@@ -264,8 +274,8 @@ glyph han-3122e:15x16 15 16 // 𱈮
 
 ## 196.9
 
-// glyph han-31231:15x16 15 16 // 𱈱
-// ⿲ han-8a01 han-5341 han-9ce5 // ⿲訁十鳥 <- ⿰計鳥
+glyph han-31231:15x16 15 16 // 𱈱
+⿲ -4 han-8a01:5x16 han-5341:7x16 han-9ce5:7x16 // ⿲訁十鳥
 
 ## 196.13
 

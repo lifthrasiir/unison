@@ -58,6 +58,9 @@ glyph han-236ac:15x16 15 16 // 𣚬
 glyph han-236d5:15x16 15 16 // 𣛕
 ⿰ han-679c:7x16 1 han-679c:7x16 // ⿰果果
 
+// glyph han-236e8:15x16 15 16 // 𣛨
+// ⿲ han-6728 han-2099d han-6708 // ⿲木𠦝月 <- ⿰木朝
+
 glyph han-236ed-($han-regions):15x16 15 16 // 𣛭
 ⿲ han-6728:5x16 han-8005-($-1):5x16 1 han-961d:4x16-r // ⿲木者阝
 

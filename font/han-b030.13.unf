@@ -67,6 +67,9 @@ glyph han-2104c:15x16 15 16 // 𡁌
 glyph han-21054-($han-regions):15x16 15 16 // 𡁔
 ⿲ han-53e3:5x16-l han-7c73:5x16 han-9752-($-1):5x16 // ⿲口米青
 
+// glyph han-21062:15x16 15 16 // 𡁢
+// ⿰ han-54a0 han-20c44 // ⿰咠𠱄
+
 glyph han-2107c:15x16 15 16 // 𡁼
 ⿲ han-53e3:5x16-l han-6c35:3x16 han-7968:7x16 // ⿲口氵票
 
@@ -109,6 +112,9 @@ glyph han-210d8:15x16 15 16 // 𡃘
 
 // glyph han-210f7:15x16 15 16 // 𡃷
 // ⿳ han-5405 han-96e8 han-7530 // ⿳吅雨田 <- ⿱吅雷
+
+// glyph han-210f8:15x16 15 16 // 𡃸
+// ⿱ han-5472 han-9ce5 // ⿱呲鳥
 
 glyph han-210fd:15x16 15 16 // 𡃽
 ⿲ han-53e3:5x16-l han-4ebb:3x16 han-9700:7x16 // ⿲口亻需

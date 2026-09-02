@@ -589,6 +589,11 @@ glyph han-6b63:15x16 15 16 // 正
 ..............................
 ref han-6b62:15x16
 
+## 77.2
+
+glyph han-6b64:15x16 15 16 // 此
+⿰ han-6b62:6x16 han-5315:9x16 // ⿰止匕
+
 ## 77.4
 
 glyph han-6b68:15x16 15 16 // 歨
@@ -603,6 +608,26 @@ glyph han-6b68:15x16 15 16 // 歨
 
 // glyph han-6b6e:15x16 15 16 // 歮
 // ⿱ han-6b62 han-23956 // ⿱止𣥖
+
+# CJK unified ideographs: 比 (81)
+
+## 81.0
+
+glyph han-6bd4:15x16 15 16 // 比
+⿰ han-5315:6x16 han-5315:9x16 // ⿰匕匕
+
+## 81.2
+
+// glyph han-6bd5:15x16 15 16 // 毕
+// ⿱ han-6bd4 han-5341 // ⿱比十
+
+## 81.5
+
+glyph han-6bd7:15x16 15 16 // 毗
+⿲ han-7530:5x16-l 1 han-5315:4x16 1 han-5315:4x16 // ⿲田匕匕
+
+// glyph han-6bd8:15x16 15 16 // 毘
+// ⿱ han-7530 han-6bd4 // ⿱田比
 
 # CJK unified ideographs: 毛 (82)
 
@@ -791,6 +816,11 @@ $$..........................$$
 ref 9x2-ys1 3 1
 ref 11x2-ys1 2 5
 ref 13x2-ys1 1 9
+
+## 82.4
+
+// glyph han-6bde:15x16 15 16 // 毞
+// ⿱ han-6bd4 han-6bdb // ⿱比毛
 
 ## 82.5
 
