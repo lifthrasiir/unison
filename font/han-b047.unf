@@ -197,6 +197,9 @@ glyph han-220e6:15x16 15 16 // 𢃦
 
 ## 50.9
 
+// glyph han-220ee:15x16 15 16 // 𢃮
+// ⿰ han-5dfe han-9762 // ⿰巾面
+
 glyph han-220f0:15x16 15 16 // 𢃰
 ⿰ han-5dfe:7x16 1 han-662f:7x16 // ⿰巾是
 
@@ -217,6 +220,9 @@ glyph han-220f8:15x16 15 16 // 𢃸
 
 // glyph han-22106:15x16 15 16 // 𢄆
 // ⿳ han-8278 han-5b80 han-5dfe // ⿳艸宀巾 <- ⿱艸⿱宀巾
+
+// glyph han-22108:15x16 15 16 // 𢄈
+// ⿰ han-5dfe han-97f3 // ⿰巾音
 
 ## 50.11
 

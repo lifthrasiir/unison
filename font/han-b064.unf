@@ -102,6 +102,9 @@ glyph han-22ae9:15x16 15 16 // 𢫩
 // glyph han-22aed:15x16 15 16 // 𢫭
 // ⿰ han-624c han-8089 // ⿰扌肉
 
+// glyph han-22aef:15x16 15 16 // 𢫯
+// ⿲ han-624c han-4ebb han-72ac // ⿲扌亻犬 <- ⿰扌伏
+
 // glyph han-22af5:15x16 15 16 // 𢫵
 // ⿰ han-624c han-65e9 // ⿰扌早
 
@@ -119,6 +122,9 @@ glyph han-22b00:15x16 15 16 // 𢬀
 
 glyph han-22b0a:15x16 15 16 // 𢬊
 ⿰ han-624c:5x16 1 han-7c73:9x16 // ⿰扌米
+
+// glyph han-22b14:15x16 15 16 // 𢬔
+// ⿰ han-624c han-8840 // ⿰扌血
 
 // glyph han-22b1b:15x16 15 16 // 𢬛
 // ⿲ han-624b han-4eba han-624b // ⿲手人手
@@ -201,6 +207,9 @@ glyph han-22b7b:15x16 15 16 // 𢭻
 
 glyph han-22b8c:15x16 15 16 // 𢮌
 ⿲ han-624c:3x16 han-5409:7x16 han-529b:5x16 // ⿲扌吉力
+
+// glyph han-22b8f:15x16 15 16 // 𢮏
+// ⿰ han-624b han-5485 // ⿰手咅
 
 // glyph han-22b92:15x16 15 16 // 𢮒
 // ⿰ han-624c han-961c // ⿰扌阜
@@ -317,8 +326,14 @@ glyph han-22c50:15x16 15 16 // 𢱐
 // glyph han-22c76:15x16 15 16 // 𢱶
 // ⿰ han-624c han-2c530 // ⿰扌𬔰
 
+// glyph han-22c8e:15x16 15 16 // 𢲎
+// ⿲ han-624c han-821f han-72ac // ⿲扌舟犬 <- ⿰扌𦨚
+
 // glyph han-22c9b:15x16 15 16 // 𢲛
 // ⿲ han-624c han-5f73 han-8d70 // ⿲扌彳走 <- ⿰扌徒
+
+// glyph han-22c9f:15x16 15 16 // 𢲟
+// ⿰ han-624c han-5bb0 // ⿰扌宰
 
 // glyph han-22ca4:15x16 15 16 // 𢲤
 // ⿰ han-624b han-9ad8 // ⿰手高

@@ -220,6 +220,9 @@ glyph han-89a9-(g|h|t|k|p|v):15x16 15 16 // 覩
 glyph han-89a9-j:15x16 15 16 // 覩
 ⿰ han-8005.1:7x16 1 han-898b:7x16 // ⿰者見
 
+// glyph han-89aa:15x16 15 16 // 親
+// ⿰ han-4eb2 han-898b // ⿰亲見
+
 ## 147.11
 
 // glyph han-89b1:15x16 15 16 // 覱
@@ -605,6 +608,9 @@ glyph han-8aed:15x16 15 16 // 諭
 // glyph han-8af0:15x16 15 16 // 諰
 // ⿰ han-8a01 han-601d // ⿰訁思
 
+// glyph han-8af3:15x16 15 16 // 諳
+// ⿰ han-8a01 han-97f3 // ⿰訁音
+
 // glyph han-8af7:15x16 15 16 // 諷
 // ⿰ han-8a01 han-98a8 // ⿰訁風
 
@@ -664,6 +670,11 @@ glyph han-8b51:15x16 15 16 // 譑
 
 glyph han-8b52:15x16 15 16 // 譒
 ⿰ han-8a01:7x16 1 han-756a:7x16 // ⿰訁番
+
+## 149.13
+
+// glyph han-8b69:15x16 15 16 // 譩
+// ⿰ han-8a01 han-610f // ⿰訁意
 
 ## 149.14
 
@@ -856,6 +867,9 @@ glyph han-8c12:15x16 15 16 // 谒
 
 glyph han-8c15:15x16 15 16 // 谕
 ⿰ han-8ba0:5x16 1 han-4fde:9x16 // ⿰讠俞
+
+// glyph han-8c19:15x16 15 16 // 谙
+// ⿰ han-8ba0 han-97f3 // ⿰讠音
 
 ## 149'.10
 

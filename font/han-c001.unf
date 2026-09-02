@@ -141,6 +141,11 @@ glyph han-2a7cb:15x16 15 16 // 𪟋
 // glyph han-2a7d7:15x16 15 16 // 𪟗
 // ⿱ han-52a0 han-4e01 // ⿱加丁
 
+## 19.9
+
+// glyph han-2a7e0:15x16 15 16 // 𪟠
+// ⿰ han-97f3 han-529b // ⿰音力
+
 # CJK unified ideographs extension C: 匕 (21)
 
 ## 21.1
@@ -260,6 +265,9 @@ glyph han-2a85f:15x16 15 16 // 𪡟
 
 glyph han-2a86e:15x16 15 16 // 𪡮
 ⿲ han-53e3:3x16-l 1 han-8c9d:5x16 han-5bf8:6x16 // ⿲口貝寸
+
+// glyph han-2a873:15x16 15 16 // 𪡳
+// ⿰ han-5485 han-53f0 // ⿰咅台
 
 ## 30.11
 
@@ -405,6 +413,9 @@ glyph han-2a917:15x16 15 16 // 𪤗
 
 // glyph han-2a920:15x16 15 16 // 𪤠
 // ⿰ han-571f han-96f7 // ⿰土雷
+
+// glyph han-2a925:15x16 15 16 // 𪤥
+// ⿰ han-571f han-610f // ⿰土意
 
 ## 32.15
 

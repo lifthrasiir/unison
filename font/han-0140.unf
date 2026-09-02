@@ -176,8 +176,8 @@ glyph han-82d6:15x16 15 16 // 苖
 glyph han-82d7:15x16 15 16 // 苗
 ⿱ han-8279:15x3 1 han-7530:15x12 // ⿱艹田
 
-// glyph han-82d9:15x16 15 16 // 苙
-// ⿱ han-8279 han-7acb // ⿱艹立
+glyph han-82d9:15x16 15 16 // 苙
+⿱ 1 han-8279:15x3 1 han-7acb:15x10 // ⿱艹立
 
 glyph han-82db:15x16 15 16 // 苛
 ⿱ han-8279:15x3 1 han-53ef:15x12 // ⿱艹可
@@ -357,8 +357,8 @@ glyph han-8395:15x16 15 16 // 莕
 glyph han-8397:15x16 15 16 // 莗
 ⿱ han-8279:15x3 han-8eca:15x13 // ⿱艹車
 
-// glyph han-8398:15x16 15 16 // 莘
-// ⿳ han-8279 han-7acb han-5341 // ⿳艹立十 <- ⿱艹辛
+glyph han-8398:15x16 15 16 // 莘
+⿳ han-8279:15x3 han-7acb:15x10 han-5341:15x3 // ⿳艹立十
 
 glyph han-839e:15x16 15 16 // 莞
 ⿳ han-8279:15x3 han-5b80:15x5 -1 han-5143:15x9 // ⿳艹宀元
@@ -458,8 +458,8 @@ glyph han-83d7:15x16 15 16 // 菗
 // glyph han-83e8:15x16 15 16 // 菨
 // ⿳ han-8279 han-7acb han-5973 // ⿳艹立女 <- ⿱艹妾
 
-// glyph han-83e9:15x16 15 16 // 菩
-// ⿳ han-8279 han-7acb han-53e3 // ⿳艹立口 <- ⿱艹咅
+glyph han-83e9:15x16 15 16 // 菩
+⿳ han-8279:15x3 han-7acb:15x7 1 han-53e3:15x5 // ⿳艹立口
 
 // glyph han-83ea:15x16 15 16 // 菪
 // ⿳ han-8279 han-5b80 han-77f3 // ⿳艹宀石 <- ⿱艹宕
@@ -559,8 +559,8 @@ glyph han-8434:15x16 15 16 // 萴
 // glyph han-843a:15x16 15 16 // 萺
 // ⿱ han-8279 han-5192 // ⿱艹冒
 
-// glyph han-843b:15x16 15 16 // 萻
-// ⿳ han-8279 han-7acb han-65e5 // ⿳艹立日 <- ⿱艹音
+glyph han-843b:15x16 15 16 // 萻
+⿳ han-8279:15x3 han-7acb:15x7 1 han-65e5:15x5 // ⿳艹立日
 
 // glyph han-843d:15x16 15 16 // 落
 // ⿱ han-8279 han-6d1b // ⿱艹洛
@@ -753,6 +753,9 @@ glyph han-84f7:15x16 15 16 // 蓷
 // glyph han-8533-($han-regions):15x16 15 16 // 蔳
 // ⿱ han-8279 han-6e05-($-1) // ⿱艹清
 
+// glyph han-8534:15x16 15 16 // 蔴
+// ⿱ han-8279 han-9ebb // ⿱艹麻
+
 // glyph han-853c:15x16 15 16 // 蔼
 // ⿱ han-8279 han-8c12 // ⿱艹谒
 
@@ -813,6 +816,9 @@ glyph han-8583:15x16 15 16 // 薃
 
 // glyph han-858a:15x16 15 16 // 薊
 // ⿱ han-8279 han-9b5d // ⿱艹魝
+
+// glyph han-858f:15x16 15 16 // 薏
+// ⿳ han-8279 han-97f3 han-5fc3 // ⿳艹音心 <- ⿱艹意
 
 // glyph han-85a0:15x16 15 16 // 薠
 // ⿱ han-8279 han-7169 // ⿱艹煩

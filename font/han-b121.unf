@@ -76,8 +76,8 @@ glyph han-2628a:15x16 15 16 // 𦊊
 // glyph han-262a0:15x16 15 16 // 𦊠
 // ⿱ han-7f51 han-5305 // ⿱网包
 
-// glyph han-262a2:15x16 15 16 // 𦊢
-// ⿱ han-7f52 han-7acb // ⿱罒立
+glyph han-262a2:15x16 15 16 // 𦊢
+⿱ han-7f52:15x7 1 han-7acb:15x8 // ⿱罒立
 
 glyph han-262a5:15x16 15 16 // 𦊥
 ⿱ han-7f52:15x4 1 han-65e6:15x11 // ⿱罒旦

@@ -46,6 +46,9 @@ glyph han-225c4:15x16 15 16 // 𢗄
 
 ## 61.4
 
+// glyph han-225d7:15x16 15 16 // 𢗗
+// ⿰ han-5fc4 han-72ac // ⿰忄犬
+
 // glyph han-225e0:15x16 15 16 // 𢗠
 // ⿲ han-5fc4 han-4e03 han-5200 // ⿲忄七刀 <- ⿰忄切
 
@@ -406,6 +409,9 @@ glyph han-2279f:15x16 15 16 // 𢞟
 glyph han-227d1:15x16 15 16 // 𢟑
 ⿲ han-5fc4:5x16 han-8eca:5x16 han-5e72:5x16 // ⿲忄車干
 
+// glyph han-227d3:15x16 15 16 // 𢟓
+// ⿰ han-5fc4 han-5bb0 // ⿰忄宰
+
 // glyph han-227d7:15x16 15 16 // 𢟗
 // ⿲ han-5fc4 han-6c35 han-573c // ⿲忄氵圼 <- ⿰忄涅
 
@@ -441,6 +447,9 @@ glyph han-22810:15x16 15 16 // 𢠐
 // glyph han-22822:15x16 15 16 // 𢠢
 // ⿲ han-5fc4 han-2bd56 han-5bf8 // ⿲忄𫵖寸 <- ⿰忄尉
 
+// glyph han-22829:15x16 15 16 // 𢠩
+// ⿰ han-5fc4 han-9ebb // ⿰忄麻
+
 // glyph han-2282a:15x16 15 16 // 𢠪
 // ⿰ han-5fc4 han-7f63 // ⿰忄罣
 
@@ -463,6 +472,12 @@ glyph han-22839:15x16 15 16 // 𢠹
 
 // glyph han-22842:15x16 15 16 // 𢡂
 // ⿱ han-6e6f han-5fc3 // ⿱湯心
+
+// glyph han-22843:15x16 15 16 // 𢡃
+// ⿱ han-20db7 han-5fc3 // ⿱𠶷心
+
+// glyph han-22847:15x16 15 16 // 𢡇
+// ⿰ han-5fc4 han-8f9c // ⿰忄辜
 
 // glyph han-22857:15x16 15 16 // 𢡗
 // ⿳ han-8279 han-660e han-5fc3 // ⿳艹明心 <- ⿱萌心
@@ -528,6 +543,9 @@ glyph han-228c3:15x16 15 16 // 𢣃
 
 // glyph han-228c6:15x16 15 16 // 𢣆
 // ⿰ han-5fc4 han-5d69 // ⿰忄嵩
+
+// glyph han-228c7:15x16 15 16 // 𢣇
+// ⿲ han-5fc4 han-97f3 han-6b20 // ⿲忄音欠 <- ⿰忄歆
 
 ## 61.14
 

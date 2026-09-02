@@ -779,6 +779,9 @@ glyph han-578e:15x16 15 16 // 垎
 glyph han-5797:15x16 15 16 // 垗
 ⿰ han-571f:7x16 1 han-5146:7x16 // ⿰土兆
 
+// glyph han-5798:15x16 15 16 // 垘
+// ⿲ han-571f han-4ebb han-72ac // ⿲土亻犬 <- ⿰土伏
+
 // glyph han-579a:15x16 15 16 // 垚
 // ⿱ han-571f han-2a8b4 // ⿱土𪢴
 
@@ -798,6 +801,9 @@ glyph han-57aa:15x16 15 16 // 垪
 // ⿰ han-571f han-209d7 // ⿰土𠧗
 
 ## 32.7
+
+// glyph han-57b6:15x16 15 16 // 垶
+// ⿰ han-571f han-8f9b // ⿰土辛
 
 glyph han-57b7:15x16 15 16 // 垷
 ⿰ han-571f:7x16 1 han-898b:7x16 // ⿰土見
@@ -862,6 +868,9 @@ glyph han-57ee:15x16 15 16 // 埮
 
 // glyph han-57f6-($han-regions):15x16 15 16 // 埶
 // ⿰ han-5774 han-4e38-($-1) // ⿰坴丸
+
+// glyph han-57f9:15x16 15 16 // 培
+// ⿰ han-571f han-5485 // ⿰土咅
 
 glyph han-57fa:15x16 15 16 // 基
 ⿱ han-5176:15x12 han-571f:15x4 // ⿱其土
@@ -959,6 +968,9 @@ glyph han-5835-(g|h|t|k|p|v):15x16 15 16 // 堵
 glyph han-5835-j:15x16 15 16 // 堵
 ⿰ han-571f:7x16 1 han-8005.1:7x16 // ⿰土者
 
+// glyph han-5837:15x16 15 16 // 堷
+// ⿰ han-571f han-97f3 // ⿰土音
+
 // glyph han-5838:15x16 15 16 // 堸
 // ⿰ han-571f han-98a8 // ⿰土風
 
@@ -990,11 +1002,20 @@ glyph han-5859:15x16 15 16 // 塙
 // glyph han-5879:15x16 15 16 // 塹
 // ⿱ han-65ac han-571f // ⿱斬土
 
+// glyph han-587a:15x16 15 16 // 塺
+// ⿸ han-9ebb han-571f // ⿸麻土
+
 // glyph han-587b:15x16 15 16 // 塻
 // ⿰ han-571f han-83ab // ⿰土莫
 
 glyph han-5882:15x16 15 16 // 墂
 ⿰ han-571f:7x16 1 han-7968:7x16 // ⿰土票
+
+// glyph han-5883:15x16 15 16 // 境
+// ⿰ han-571f han-7adf // ⿰土竟
+
+// glyph han-5887:15x16 15 16 // 墇
+// ⿰ han-571f han-7ae0 // ⿰土章
 
 // glyph han-5893:15x16 15 16 // 墓
 // ⿱ han-83ab han-571f // ⿱莫土
@@ -1017,6 +1038,9 @@ glyph han-58a7:15x16 15 16 // 墧
 // ⿰ han-571f han-9593 // ⿰土間
 
 ## 32.13
+
+// glyph han-58c0:15x16 15 16 // 壀
+// ⿲ han-571f han-21c2a han-8f9b // ⿲土𡰪辛 <- ⿰土辟
 
 // glyph han-9fb3:15x16 15 16 // 龳
 // ⿰ han-5774 han-5774 // ⿰坴坴
@@ -1673,6 +1697,9 @@ glyph han-595f:15x16 15 16 // 奟
 
 glyph han-5963:15x16 15 16 // 奣
 ⿱ han-5929:15x8 han-660e:15x8 // ⿱天明
+
+// glyph han-5964:15x16 15 16 // 奤
+// ⿱ han-5927 han-9762 // ⿱大面
 
 ## 37.11
 

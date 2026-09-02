@@ -44,6 +44,9 @@ glyph han-2d83f:15x16 15 16 // 𭠿
 // glyph han-2d843:15x16 15 16 // 𭡃
 // ⿲ han-624c han-820c han-4e5a // ⿲扌舌乚 <- ⿰扌乱
 
+// glyph han-2d844:15x16 15 16 // 𭡄
+// ⿰ han-624c han-8f9b // ⿰扌辛
+
 ## 64.9
 
 glyph han-2d85e:15x16 15 16 // 𭡞
@@ -69,6 +72,11 @@ glyph han-2d86b:15x16 15 16 // 𭡫
 glyph han-2d879:15x16 15 16 // 𭡹
 ⿲ -1 han-624c:3x16 han-65e6:5x16 1 han-7532:7x16 // ⿲扌旦甲
 
+## 64.11
+
+// glyph han-2d893:15x16 15 16 // 𭢓
+// ⿰ han-624c han-7ae0 // ⿰扌章
+
 ## 64.12
 
 glyph han-2d898:15x16 15 16 // 𭢘
@@ -80,10 +88,20 @@ glyph han-2d898:15x16 15 16 // 𭢘
 // glyph han-2d89c:15x16 15 16 // 𭢜
 // ⿰ han-624c han-9032 // ⿰扌進
 
+## 64.13
+
+// glyph han-2d8ad:15x16 15 16 // 𭢭
+// ⿲ han-624c han-4eb2 han-65a4 // ⿲扌亲斤 <- ⿰扌新
+
 ## 64.14
 
 // glyph han-2d8ba:15x16 15 16 // 𭢺
 // ⿲ han-624c han-7acb han-8011 // ⿲扌立耑 <- ⿰扌端
+
+## 64.16
+
+// glyph han-2d8cb:15x16 15 16 // 𭣋
+// ⿲ han-624c han-4eb2 han-898b // ⿲扌亲見 <- ⿰扌親
 
 # CJK unified ideographs extension F: 斤 (69)
 
@@ -326,6 +344,9 @@ glyph han-2da7d:15x16 15 16 // 𭩽
 // ⿰ han-6728 han-541e // ⿰木吞
 
 ## 75.8
+
+// glyph han-2da9d:15x16 15 16 // 𭪝
+// ⿲ han-6728 han-6728 han-72ac // ⿲木木犬 <- ⿰林犬
 
 glyph han-2daa5:15x16 15 16 // 𭪥
 ⿰ han-679c:7x16 1 han-4eca:7x16 // ⿰果今

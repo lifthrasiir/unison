@@ -45,6 +45,9 @@ glyph han-2e1db:15x16 15 16 // 𮇛
 
 ## 119.7
 
+// glyph han-2e1de:15x16 15 16 // 𮇞
+// ⿰ han-7c73 han-8f9b // ⿰米辛
+
 // glyph han-2e1df:15x16 15 16 // 𮇟
 // ⿰ han-7c73 han-8db3 // ⿰米足
 
@@ -131,6 +134,9 @@ glyph han-2e258-($han-regions):15x16 15 16 // 𮉘
 
 ## 122.4
 
+// glyph han-2e27f:15x16 15 16 // 𮉿
+// ⿰ han-7f52 han-72ac // ⿰罒犬
+
 // glyph han-2e280:15x16 15 16 // 𮊀
 // ⿱ han-4eca han-7f52 // ⿱今罒
 
@@ -160,6 +166,11 @@ glyph han-2e28b:15x16 15 16 // 𮊋
 
 // glyph han-2e2aa:15x16 15 16 // 𮊪
 // ⿰ han-2099d han-7f8a // ⿰𠦝羊
+
+## 123.13
+
+// glyph han-2e2b4:15x16 15 16 // 𮊴
+// ⿲ han-7f8a han-9762 han-6bdb // ⿲羊面毛 <- ⿰羊𣮿
 
 # CJK unified ideographs extension F: 耳 (128)
 
@@ -213,6 +224,11 @@ glyph han-2e2f7:15x16 15 16 // 𮋷
 
 glyph han-2e342:15x16 15 16 // 𮍂
 ⿲ -2 han-53e4:5x16 han-6708:5x16 han-662f:7x16 // ⿲古月是
+
+## 130.16
+
+// glyph han-2e34a:15x16 15 16 // 𮍊
+// ⿲ han-6708 han-4eb2 han-898b // ⿲月亲見 <- ⿰月親
 
 # CJK unified ideographs extension F: 舌 (135)
 

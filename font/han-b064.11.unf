@@ -5,6 +5,9 @@
 // glyph han-22cb6:15x16 15 16 // 𢲶
 // ⿰ han-624c han-7b21 // ⿰扌笡
 
+// glyph han-22cc0:15x16 15 16 // 𢳀
+// ⿰ han-624c han-9ebb // ⿰扌麻
+
 // glyph han-22cc9:15x16 15 16 // 𢳉
 // ⿱ han-7d47 han-624b // ⿱絇手
 
@@ -108,6 +111,12 @@ glyph han-22d96:15x16 15 16 // 𢶖
 // glyph han-22da4:15x16 15 16 // 𢶤
 // ⿰ han-624c han-9774 // ⿰扌靴
 
+// glyph han-22db6:15x16 15 16 // 𢶶
+// ⿰ han-624c han-610f // ⿰扌意
+
+// glyph han-22db9:15x16 15 16 // 𢶹
+// ⿲ han-624c han-65e5 han-97f3 // ⿲扌日音 <- ⿰扌暗
+
 ## 64.14
 
 glyph han-22dcb:15x16 15 16 // 𢷋
@@ -115,6 +124,9 @@ glyph han-22dcb:15x16 15 16 // 𢷋
 
 glyph han-22dd2:15x16 15 16 // 𢷒
 ⿲ han-624c:3x16 han-7acb:5x16 han-66f7:7x16 // ⿲扌立曷
+
+// glyph han-22de2:15x16 15 16 // 𢷢
+// ⿲ han-624c han-7ae0 han-961d // ⿲扌章阝 <- ⿰扌鄣
 
 glyph han-22de6:15x16 15 16 // 𢷦
 ⿲ han-624c:3x16 han-8eca:5x16 han-8eca:7x16 // ⿲扌車車

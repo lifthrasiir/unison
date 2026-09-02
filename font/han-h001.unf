@@ -282,6 +282,9 @@ glyph han-31546:15x16 15 16 // 𱕆
 // glyph han-3154d:15x16 15 16 // 𱕍
 // ⿰ han-53e3 han-7b95 // ⿰口箕
 
+// glyph han-31551:15x16 15 16 // 𱕑
+// ⿲ han-53e3 han-97f3 han-53ec // ⿲口音召 <- ⿰口韶
+
 ## 30.16
 
 glyph han-31563-($han-regions):15x16 15 16 // 𱕣
@@ -299,6 +302,11 @@ glyph han-31566:15x16 15 16 // 𱕦
 
 // glyph han-3156c:15x16 15 16 // 𱕬
 // ⿲ han-53e3 han-8a01 han-83ab // ⿲口訁莫 <- ⿰口謨
+
+## 30.20
+
+// glyph han-31573:15x16 15 16 // 𱕳
+// ⿲ han-53e3 han-7ade han-7ade // ⿲口竞竞 <- ⿰口競
 
 # CJK unified ideographs extension H: 囗 (31)
 

@@ -124,6 +124,9 @@ glyph han-3103a:15x16 15 16 // 𱀺
 // glyph han-310c5:15x16 15 16 // 𱃅
 // ⿺ han-98a8 han-670b // ⿺風朋
 
+// glyph han-310c6:15x16 15 16 // 𱃆
+// ⿰ han-5485 han-98a8 // ⿰咅風
+
 ## 182.9
 
 // glyph han-310c7:15x16 15 16 // 𱃇
@@ -184,6 +187,11 @@ glyph han-310ed:15x16 15 16 // 𱃭
 
 // glyph han-31121:15x16 15 16 // 𱄡
 // ⿲ han-99ac han-4ebb han-4ed8 // ⿲馬亻付 <- ⿰馬𬽵
+
+## 187.9
+
+// glyph han-31127:15x16 15 16 // 𱄧
+// ⿰ han-99ac han-97f3 // ⿰馬音
 
 # CJK unified ideographs extension G: 骨 (188)
 
@@ -286,6 +294,13 @@ glyph han-3123e:15x16 15 16 // 𱈾
 
 // glyph han-31245:15x16 15 16 // 𱉅
 // ⿱ han-28fe3 han-9ce5 // ⿱𨿣鳥
+
+# CJK unified ideographs extension G: 麻 (200)
+
+## 200.7
+
+// glyph han-312ef:15x16 15 16 // 𱋯
+// ⿰ han-9ebb han-544a // ⿰麻告
 
 # CJK unified ideographs extension G: 黾 (205')
 

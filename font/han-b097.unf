@@ -88,8 +88,8 @@ glyph han-24c52:15x16 15 16 // 𤱒
 // glyph han-24c53:15x16 15 16 // 𤱓
 // ⿱ han-7533 han-7533 // ⿱申申
 
-// glyph han-24c57:15x16 15 16 // 𤱗
-// ⿱ han-7530 han-7acb // ⿱田立
+glyph han-24c57:15x16 15 16 // 𤱗
+⿱ han-7530:15x9 han-7acb:15x7 // ⿱田立
 
 glyph han-24c5b:15x16 15 16 // 𤱛
 ⿰ han-7530:7x16-l 1 han-79be:7x16 // ⿰田禾

@@ -374,8 +374,14 @@ glyph han-27e1a:15x16 15 16 // 𧸚
 // glyph han-27f37:15x16 15 16 // 𧼷
 // ⿺ han-8d70 han-6cc9 // ⿺走泉
 
+// glyph han-27f38:15x16 15 16 // 𧼸
+// ⿺ han-8d70 han-9762 // ⿺走面
+
 // glyph han-27f39:15x16 15 16 // 𧼹
 // ⿺ han-8d70 han-662d // ⿺走昭
+
+// glyph han-27f3a:15x16 15 16 // 𧼺
+// ⿺ han-8d70 han-6631 // ⿺走昱
 
 // glyph han-27f3f-($han-regions):15x16 15 16 // 𧼿
 // ⿺ han-8d70 han-7d04-($-1) // ⿺走約
@@ -395,6 +401,9 @@ glyph han-27e1a:15x16 15 16 // 𧸚
 // ⿺ han-8d70 han-99ac // ⿺走馬
 
 ## 156.11
+
+// glyph han-27f63:15x16 15 16 // 𧽣
+// ⿺ han-8d70 han-7ae0 // ⿺走章
 
 // glyph han-27f64:15x16 15 16 // 𧽤
 // ⿺ han-8d70 han-7968 // ⿺走票

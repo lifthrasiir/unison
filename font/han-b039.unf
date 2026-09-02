@@ -148,8 +148,8 @@ glyph han-21a3c:15x16 15 16 // 𡨼
 
 ## 40.9
 
-// glyph han-21a41:15x16 15 16 // 𡩁
-// ⿳ han-5b80 han-7acb han-6728 // ⿳宀立木 <- ⿱宀亲
+glyph han-21a41:15x16 15 16 // 𡩁
+⿳ han-5b80:15x4 han-7acb:15x5 han-6728:15x7 // ⿳宀立木
 
 glyph han-21a48:15x16 15 16 // 𡩈
 ⿳ -1 han-5b80:15x4 -1 han-76ee:15x7 han-6728:15x7 // ⿳宀目木
@@ -166,8 +166,8 @@ glyph han-21a56:15x16 15 16 // 𡩖
 // glyph han-21a57:15x16 15 16 // 𡩗
 // ⿱ han-5b80 han-4fde // ⿱宀俞
 
-// glyph han-21a58:15x16 15 16 // 𡩘
-// ⿳ han-5b80 han-7acb han-65e5 // ⿳宀立日 <- ⿱宀音
+glyph han-21a58:15x16 15 16 // 𡩘
+⿳ han-5b80:15x4 -1 han-7acb:15x7 1 han-65e5:15x5 // ⿳宀立日
 
 ## 40.10
 
@@ -196,6 +196,9 @@ ref han-571f:15x4 0 12
 // glyph han-21a92:15x16 15 16 // 𡪒
 // ⿳ han-5b80 han-303d2 han-7530 // ⿳宀𰏒田
 
+// glyph han-21a94:15x16 15 16 // 𡪔
+// ⿱ han-5b80 han-234c0 // ⿱宀𣓀
+
 // glyph han-21a95:15x16 15 16 // 𡪕
 // ⿳ han-2bcbd han-5405 han-4e00 // ⿳𫲽吅一
 
@@ -223,6 +226,9 @@ ref han-571f:15x4 0 12
 
 // glyph han-21acc:15x16 15 16 // 𡫌
 // ⿳ han-5b80 han-83ab han-529b // ⿳宀莫力 <- ⿱宀募
+
+// glyph han-21acd:15x16 15 16 // 𡫍
+// ⿳ han-5b80 han-5fc3 han-9762 // ⿳宀心面 <- ⿱𫲽面
 
 ## 40.14
 

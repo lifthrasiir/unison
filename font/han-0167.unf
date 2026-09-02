@@ -343,6 +343,9 @@ glyph han-92b7:15x16 15 16 // 銷
 glyph han-92c3:15x16 15 16 // 鋃
 ⿰ han-91d2:7x16 1 han-826f:7x16 // ⿰釒良
 
+// glyph han-92c5:15x16 15 16 // 鋅
+// ⿰ han-91d2 han-8f9b // ⿰釒辛
+
 glyph han-92c7:15x16 15 16 // 鋇
 ⿰ han-91d2:7x16 han-8c9d:8x16 // ⿰釒貝
 
@@ -405,6 +408,9 @@ glyph han-9306-(g|h|t|v):15x16 15 16 // 錆
 ⿰ han-91d2:7x16 1 han-9752-($-1):7x16 // ⿰釒青
 glyph han-9306-(j|k|p):15x16 15 16 // 錆
 ⿰ han-91d2:7x16 1 han-9751-($-1):7x16 // ⿰釒靑
+
+// glyph han-9307:15x16 15 16 // 錇
+// ⿰ han-91d2 han-5485 // ⿰釒咅
 
 glyph han-930a:15x16 15 16 // 錊
 ⿰ han-91d2:7x16 1 han-5352:7x16 // ⿰釒卒
@@ -558,6 +564,9 @@ glyph han-93ba:15x16 15 16 // 鎺
 glyph han-93d0:15x16 15 16 // 鏐
 ⿰ han-91d2:5x16-l 1 han-7fcf:9x16 // ⿰釒翏
 
+// glyph han-93e1:15x16 15 16 // 鏡
+// ⿰ han-91d2 han-7adf // ⿰釒竟
+
 glyph han-93e2:15x16 15 16 // 鏢
 ⿰ han-91d2:7x16 1 han-7968:7x16 // ⿰釒票
 
@@ -566,6 +575,9 @@ glyph han-93e2:15x16 15 16 // 鏢
 
 glyph han-93e9:15x16 15 16 // 鏩
 ⿲ -1 han-91d2:5x16-l han-8eca:5x16 han-65a4:6x16 // ⿲釒車斤
+
+// glyph han-93f1:15x16 15 16 // 鏱
+// ⿰ han-91d2 han-7ae0 // ⿰釒章
 
 // glyph han-93f9:15x16 15 16 // 鏹
 // ⿲ han-91d2 han-5f13 han-867d // ⿲釒弓虽 <- ⿰釒强
@@ -610,8 +622,14 @@ glyph han-93f4:15x16 15 16 // 鏴
 // glyph han-9433:15x16 15 16 // 鐳
 // ⿰ han-91d2 han-96f7 // ⿰釒雷
 
+// glyph han-9434:15x16 15 16 // 鐴
+// ⿲ han-91d2 han-21c2a han-8f9b // ⿲釒𡰪辛 <- ⿰釒辟
+
 // glyph han-9437:15x16 15 16 // 鐷
 // ⿰ han-91d2 han-8449 // ⿰釒葉
+
+// glyph han-943f:15x16 15 16 // 鐿
+// ⿰ han-91d2 han-610f // ⿰釒意
 
 ## 167.14
 
@@ -836,6 +854,9 @@ glyph han-9504:15x16 15 16 // 锄
 glyph han-9506:15x16 15 16 // 锆
 ⿰ han-9485:6x16 1 han-544a:8x16 // ⿰钅告
 
+// glyph han-950c:15x16 15 16 // 锌
+// ⿰ han-9485 han-8f9b // ⿰钅辛
+
 glyph han-9512:15x16 15 16 // 锒
 ⿰ han-9485:6x16 han-826f:9x16 // ⿰钅良
 
@@ -871,6 +892,9 @@ glyph han-9525:15x16 15 16 // 锥
 glyph han-9528:15x16 15 16 // 锨
 ⿲ -3 han-9485:5x16 han-65a4:6x16 han-6b20:7x16 // ⿲钅斤欠
 
+// glyph han-952b:15x16 15 16 // 锫
+// ⿰ han-9485 han-5485 // ⿰钅咅
+
 glyph han-952c:15x16 15 16 // 锬
 ⿰ han-9485:6x16 han-708e:9x16 // ⿰钅炎
 
@@ -904,6 +928,9 @@ glyph han-9550:15x16 15 16 // 镐
 glyph han-9556:15x16 15 16 // 镖
 ⿰ han-9485:6x16 han-7968:9x16 // ⿰钅票
 
+// glyph han-955c:15x16 15 16 // 镜
+// ⿰ han-9485 han-7adf // ⿰钅竟
+
 glyph han-9560:15x16 15 16 // 镠
 ⿰ han-9485:5x16 1 han-7fcf:9x16 // ⿰钅翏
 
@@ -916,6 +943,9 @@ glyph han-9560:15x16 15 16 // 镠
 
 // glyph han-956d:15x16 15 16 // 镭
 // ⿰ han-9485 han-96f7 // ⿰钅雷
+
+// glyph han-9571:15x16 15 16 // 镱
+// ⿰ han-9485 han-610f // ⿰钅意
 
 ## 167'.17
 

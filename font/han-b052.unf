@@ -130,6 +130,9 @@ glyph han-22258:15x16 15 16 // 𢉘
 // glyph han-22267:15x16 15 16 // 𢉧
 // ⿸ han-5e7f han-82dc // ⿸广苜
 
+// glyph han-22269:15x16 15 16 // 𢉩
+// ⿸ han-5e7f han-97f3 // ⿸广音
+
 // glyph han-22274:15x16 15 16 // 𢉴
 // ⿸ han-5e7f han-662f // ⿸广是
 
@@ -164,6 +167,9 @@ glyph han-22258:15x16 15 16 // 𢉘
 
 // glyph han-222d8:15x16 15 16 // 𢋘
 // ⿸ han-5e7f han-7dad // ⿸广維
+
+// glyph han-222d9:15x16 15 16 // 𢋙
+// ⿸ han-9ebb han-866b // ⿸麻虫
 
 // glyph han-222de-($han-regions):15x16 15 16 // 𢋞
 // ⿸ han-5e7f han-9818-($-1) // ⿸广領

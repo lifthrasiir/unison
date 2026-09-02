@@ -44,11 +44,17 @@ glyph han-6e3e:15x16 15 16 // 渾
 glyph han-6e41:15x16 15 16 // 湁
 ⿲ han-6c35:3x16 han-624c:3x16 han-5408:9x16 // ⿲氵扌合
 
+// glyph han-6e46:15x16 15 16 // 湆
+// ⿰ han-6c35 han-97f3 // ⿰氵音
+
 // glyph han-6e49:15x16 15 16 // 湉
 // ⿲ han-6c35 han-5fc4 han-820c // ⿲氵忄舌 <- ⿰氵恬
 
 // glyph han-6e4d:15x16 15 16 // 湍
 // ⿰ han-6c35 han-8011 // ⿰氵耑
+
+// glyph han-6e4e:15x16 15 16 // 湎
+// ⿰ han-6c35 han-9762 // ⿰氵面
 
 glyph han-6e4f:15x16 15 16 // 湏
 ⿰ han-6c35:5x16 1 han-9801:9x16 // ⿰氵頁
@@ -114,6 +120,9 @@ glyph han-6ed1:15x16 15 16 // 滑
 // glyph han-6ed2:15x16 15 16 // 滒
 // ⿰ han-6c35 han-54e5 // ⿰氵哥
 
+// glyph han-6ed3:15x16 15 16 // 滓
+// ⿰ han-6c35 han-5bb0 // ⿰氵宰
+
 // glyph han-6ed7:15x16 15 16 // 滗
 // ⿰ han-6c35 han-7b14 // ⿰氵笔
 
@@ -121,6 +130,9 @@ glyph han-6ed1:15x16 15 16 // 滑
 // ⿰ han-6c35 han-768b // ⿰氵皋
 
 ## 85.11
+
+// glyph han-6ef0:15x16 15 16 // 滰
+// ⿰ han-6c35 han-7adf // ⿰氵竟
 
 glyph han-6f01:15x16 15 16 // 漁
 ⿰ 1 han-6c35:5x16 1 han-9b5a:7x16 // ⿰氵魚
@@ -145,6 +157,9 @@ glyph han-6f02:15x16 15 16 // 漂
 
 // glyph han-6f2a:15x16 15 16 // 漪
 // ⿲ han-6c35 han-72ad han-5947 // ⿲氵犭奇 <- ⿰氵猗
+
+// glyph han-6f33:15x16 15 16 // 漳
+// ⿰ han-6c35 han-7ae0 // ⿰氵章
 
 glyph han-6f38:15x16 15 16 // 漸
 ⿲ han-6c35:3x16 han-8eca:5x16 han-65a4:7x16 // ⿲氵車斤
@@ -195,8 +210,17 @@ glyph han-6f94:15x16 15 16 // 澔
 
 ## 85.13
 
+// glyph han-6fb5:15x16 15 16 // 澵
+// ⿲ han-6c35 han-4eb2 han-65a4 // ⿲氵亲斤 <- ⿰氵新
+
 // glyph han-6fb7:15x16 15 16 // 澷
 // ⿰ han-6c35 han-3b05 // ⿰氵㬅
+
+// glyph han-6fba:15x16 15 16 // 澺
+// ⿰ han-6c35 han-610f // ⿰氵意
+
+// glyph han-6fbc:15x16 15 16 // 澼
+// ⿲ han-6c35 han-21c2a han-8f9b // ⿲氵𡰪辛 <- ⿰氵辟
 
 glyph han-6fc9:15x16 15 16 // 濉
 ⿲ han-6c35:3x16 han-76ee:4x16 1 han-96b9:7x16 // ⿲氵目隹
@@ -210,6 +234,9 @@ glyph han-6ff0:15x16 15 16 // 濰
 ⿲ han-6c35:3x16 han-7cf9:5x16 han-96b9:7x16 // ⿲氵糹隹
 
 ## 85.16
+
+// glyph han-7019:15x16 15 16 // 瀙
+// ⿲ han-6c35 han-4eb2 han-898b // ⿲氵亲見 <- ⿰氵親
 
 glyph han-702d:15x16 15 16 // 瀭
 ⿲ han-6c35:3x16 han-8eca:5x16 han-4fde:7x16 // ⿲氵車俞

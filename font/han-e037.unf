@@ -58,6 +58,9 @@ glyph han-2bc08:15x16 15 16 // 𫰈
 
 ## 38.4
 
+// glyph han-2bc0b:15x16 15 16 // 𫰋
+// ⿰ han-5973 han-72ac // ⿰女犬
+
 // glyph han-2bc0c:15x16 15 16 // 𫰌
 // ⿰ han-5973 han-4e94 // ⿰女五
 
@@ -171,8 +174,8 @@ glyph han-2bcbd:15x16 15 16 // 𫲽
 
 ## 40.5
 
-// glyph han-2bcbf:15x16 15 16 // 𫲿
-// ⿱ han-5b80 han-7acb // ⿱宀立
+glyph han-2bcbf:15x16 15 16 // 𫲿
+⿱ han-5b80:15x5 han-7acb:15x10 // ⿱宀立
 
 ## 40.6
 
@@ -541,6 +544,11 @@ glyph han-2beb6:15x16 15 16 // 𫺶
 
 // glyph han-2bec0:15x16 15 16 // 𫻀
 // ⿰ han-5fc4 han-5bc4 // ⿰忄寄
+
+## 61.13
+
+// glyph han-2becf:15x16 15 16 // 𫻏
+// ⿲ han-5fc4 han-21c2a han-8f9b // ⿲忄𡰪辛 <- ⿰忄辟
 
 ## 61.16
 

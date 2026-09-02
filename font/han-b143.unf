@@ -1,3 +1,57 @@
+# CJK unified ideographs extension B: 血 (143)
+
+## 143.2
+
+// glyph han-275a7:15x16 15 16 // 𧖧
+// ⿱ han-8840 han-4e01 // ⿱血丁
+
+// glyph han-275a9:15x16 15 16 // 𧖩
+// ⿰ han-8840 han-529b // ⿰血力
+
+## 143.4
+
+// glyph han-275ab:15x16 15 16 // 𧖫
+// ⿰ han-8840 han-592c // ⿰血夬
+
+// glyph han-275ac:15x16 15 16 // 𧖬
+// ⿳ han-4e00 han-4e0a han-8840 // ⿳一上血
+
+// glyph han-275ad:15x16 15 16 // 𧖭
+// ⿱ han-6b62 han-8840 // ⿱止血
+
+// glyph han-275ae:15x16 15 16 // 𧖮
+// ⿱ han-8840 han-65e5 // ⿱血日
+
+## 143.5
+
+// glyph han-275b2:15x16 15 16 // 𧖲
+// ⿰ han-8840 han-79be // ⿰血禾
+
+## 143.6
+
+// glyph han-275b3:15x16 15 16 // 𧖳
+// ⿱ han-540c han-8840 // ⿱同血
+
+## 143.8
+
+// glyph han-275bd:15x16 15 16 // 𧖽
+// ⿱ han-660e han-8840 // ⿱明血
+
+## 143.9
+
+// glyph han-275c2:15x16 15 16 // 𧗂
+// ⿰ han-8840 han-601d // ⿰血思
+
+## 143.10
+
+// glyph han-275c9:15x16 15 16 // 𧗉
+// ⿱ han-6d66 han-8840 // ⿱浦血
+
+## 143.12
+
+// glyph han-275ce:15x16 15 16 // 𧗎
+// ⿱ han-83f9 han-8840 // ⿱菹血
+
 # CJK unified ideographs extension B: 衣 (145)
 
 ## 145.2
@@ -223,6 +277,9 @@ glyph han-2777c:15x16 15 16 // 𧝼
 
 glyph han-2777d:15x16 15 16 // 𧝽
 ⿲ -4 han-8864:5x16 han-66f7:7x16 han-6b20:7x16 // ⿲衤曷欠
+
+// glyph han-27783:15x16 15 16 // 𧞃
+// ⿲ han-8864 han-21c2a han-8f9b // ⿲衤𡰪辛 <- ⿰衤辟
 
 glyph han-27786:15x16 15 16 // 𧞆
 ⿲ -2 han-8864:5x16 han-8a01:5x16 han-7f8a:7x16 // ⿲衤訁羊

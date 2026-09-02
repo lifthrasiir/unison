@@ -73,6 +73,9 @@ glyph han-282e2:15x16 15 16 // 𨋢
 
 ## 159.6
 
+// glyph han-282e9:15x16 15 16 // 𨋩
+// ⿲ han-8eca han-4ebb han-72ac // ⿲車亻犬 <- ⿰車伏
+
 glyph han-282eb:15x16 15 16 // 𨋫
 ⿰ han-8eca:7x16 1 han-5146:7x16 // ⿰車兆
 
@@ -95,6 +98,9 @@ glyph han-28300:15x16 15 16 // 𨌀
 
 glyph han-28303:15x16 15 16 // 𨌃
 ⿲ -1 han-8eca:5x16 han-72ad:4x16 han-738b:7x16 // ⿲車犭王
+
+// glyph han-2830d:15x16 15 16 // 𨌍
+// ⿰ han-8eca han-8f9b // ⿰車辛
 
 glyph han-28312:15x16 15 16 // 𨌒
 ⿰ han-8eca:7x16 han-544a:8x16 // ⿰車告
@@ -132,6 +138,9 @@ glyph han-28340:15x16 15 16 // 𨍀
 
 glyph han-2834a:15x16 15 16 // 𨍊
 ⿲ han-8eca:5x16 han-79be:5x16 han-706b:5x16 // ⿲車禾火
+
+// glyph han-28351:15x16 15 16 // 𨍑
+// ⿰ han-8eca han-97f3 // ⿰車音
 
 // glyph han-28355:15x16 15 16 // 𨍕
 // ⿰ han-8eca han-67bc // ⿰車枼
@@ -211,15 +220,73 @@ glyph han-283b2:15x16 15 16 // 𨎲
 
 ## 160.0
 
-// glyph han-2840b:15x16 15 16 // 𨐋
-// ⿱ han-7acb han-5341 // ⿱立十
+glyph han-2840b:15x16 15 16 // 𨐋
+⿱ han-7acb:15x7 han-5341:15x9 // ⿱立十
 
 ## 160.1
 
 // glyph han-2840c:15x16 15 16 // 𨐌
 // ⿱ han-4ea0 han-7f8a // ⿱亠羊
 
+## 160.3
+
+// glyph han-2840e:15x16 15 16 // 𨐎
+// ⿰ han-8f9b han-5973 // ⿰辛女
+
+## 160.5
+
+// glyph han-28412:15x16 15 16 // 𨐒
+// ⿰ han-53e4 han-8f9b // ⿰古辛
+
+// glyph han-28413:15x16 15 16 // 𨐓
+// ⿰ han-53ec han-8f9b // ⿰召辛
+
+## 160.6
+
+// glyph han-28415:15x16 15 16 // 𨐕
+// ⿰ han-22451 han-8f9b // ⿰𢑑辛
+
+// glyph han-28417:15x16 15 16 // 𨐗
+// ⿰ han-8f9b han-540c // ⿰辛同
+
 ## 160.8
+
+// glyph han-2841c:15x16 15 16 // 𨐜
+// ⿰ han-8f9b han-5351 // ⿰辛卑
 
 // glyph han-2841e:15x16 15 16 // 𨐞
 // ⿳ han-59d1 han-7acb han-5341 // ⿳姑立十 <- ⿱姑辛
+
+## 160.9
+
+// glyph han-28421:15x16 15 16 // 𨐡
+// ⿰ han-8f9b han-82e6 // ⿰辛苦
+
+// glyph han-28425:15x16 15 16 // 𨐥
+// ⿰ han-8f9b han-9769 // ⿰辛革
+
+// glyph han-28426:15x16 15 16 // 𨐦
+// ⿰ han-8f9b han-98a8 // ⿰辛風
+
+## 160.10
+
+// glyph han-2842d:15x16 15 16 // 𨐭
+// ⿲ han-8f9b han-5973 han-707e // ⿲辛女灾
+
+## 160.11
+
+// glyph han-28430:15x16 15 16 // 𨐰
+// ⿲ han-8f9b han-5206 han-8f9b // ⿲辛分辛
+
+// glyph han-28431:15x16 15 16 // 𨐱
+// ⿲ han-8f9b han-6708 han-8f9b // ⿲辛月辛
+
+## 160.13
+
+// glyph han-2843c:15x16 15 16 // 𨐼
+// ⿰ han-3596 han-3596 // ⿰㖖㖖
+
+## 160.17
+
+// glyph han-28440:15x16 15 16 // 𨑀
+// ⿰ han-8f9c han-8f9c // ⿰辜辜

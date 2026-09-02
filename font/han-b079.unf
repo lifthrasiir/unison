@@ -174,10 +174,16 @@ glyph han-23b7e:15x16 15 16 // 𣭾
 glyph han-23b94:15x16 15 16 // 𣮔
 ⿰ han-679c:7x16 1 han-6bdb:7x16 // ⿰果毛
 
+// glyph han-23b97:15x16 15 16 // 𣮗
+// ⿺ han-6bdb han-9763 // ⿺毛靣
+
 // glyph han-23b9b-($han-regions):15x16 15 16 // 𣮛
 // ⿺ han-6bdb han-9752-($-1) // ⿺毛青
 
 ## 82.9
+
+// glyph han-23bad:15x16 15 16 // 𣮭
+// ⿰ han-4eb2 han-6bdb // ⿰亲毛
 
 // glyph han-23bb0:15x16 15 16 // 𣮰
 // ⿰ han-23425 han-6bdb // ⿰𣐥毛
@@ -185,8 +191,14 @@ glyph han-23b94:15x16 15 16 // 𣮔
 // glyph han-23bb7:15x16 15 16 // 𣮷
 // ⿺ han-6bdb han-66f7 // ⿺毛曷
 
+// glyph han-23bbb:15x16 15 16 // 𣮻
+// ⿺ han-6bdb han-9762 // ⿺毛面
+
 // glyph han-23bbc:15x16 15 16 // 𣮼
 // ⿺ han-6bdb han-8011 // ⿺毛耑
+
+// glyph han-23bbf:15x16 15 16 // 𣮿
+// ⿰ han-9762 han-6bdb // ⿰面毛
 
 // glyph han-23bc0:15x16 15 16 // 𣯀
 // ⿺ han-6bdb han-5192 // ⿺毛冒
@@ -206,6 +218,9 @@ glyph han-23bde:15x16 15 16 // 𣯞
 ⿲ -2 han-7acb:5x16 han-7acb:5x16 han-6bdb:7x16 // ⿲立立毛
 
 ## 82.11
+
+// glyph han-23bf1:15x16 15 16 // 𣯱
+// ⿲ han-961d han-5485 han-6bdb // ⿲阝咅毛 <- ⿰陪毛
 
 // glyph han-23bf3:15x16 15 16 // 𣯳
 // ⿰ han-83ab han-6bdb // ⿰莫毛
@@ -228,6 +243,9 @@ glyph han-23bf9:15x16 15 16 // 𣯹
 
 // glyph han-23c11:15x16 15 16 // 𣰑
 // ⿺ han-6bdb han-96f7 // ⿺毛雷
+
+// glyph han-23c14:15x16 15 16 // 𣰔
+// ⿲ han-6bdb han-9762 han-6bdb // ⿲毛面毛 <- ⿰毛𣮿
 
 // glyph han-23c17:15x16 15 16 // 𣰗
 // ⿳ han-767d han-6bdb han-3c8e // ⿳白毛㲎 <- ⿱白毳

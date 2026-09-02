@@ -416,6 +416,9 @@ glyph han-9915:15x16 15 16 // 餕
 glyph han-991c:15x16 15 16 // 餜
 ⿰ han-98e0:7x16 1 han-679c:7x16 // ⿰飠果
 
+// glyph han-9922:15x16 15 16 // 餢
+// ⿰ han-98e0 han-5485 // ⿰飠咅
+
 glyph han-9924:15x16 15 16 // 餤
 ⿰ han-98e0:7x16 1 han-708e:7x16 // ⿰飠炎
 
@@ -652,6 +655,9 @@ glyph han-99fa:15x16 15 16 // 駺
 glyph han-99ff:15x16 15 16 // 駿
 ⿰ han-99ac:7x16 1 han-590b:7x16 // ⿰馬夋
 
+// glyph han-9a02:15x16 15 16 // 騂
+// ⿰ han-99ac han-8f9b // ⿰馬辛
+
 ## 187.8
 
 glyph han-9a05:15x16 15 16 // 騅
@@ -698,6 +704,9 @@ glyph han-9a33:15x16 15 16 // 騳
 ⿰ han-99ac:7x16 1 han-99ac:7x16 // ⿰馬馬
 
 ## 187.11
+
+// glyph han-9a3f:15x16 15 16 // 騿
+// ⿰ han-99ac han-7ae0 // ⿰馬章
 
 // glyph han-9a40:15x16 15 16 // 驀
 // ⿱ han-83ab han-99ac // ⿱莫馬

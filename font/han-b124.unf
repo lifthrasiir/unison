@@ -33,6 +33,11 @@ glyph han-264d4:15x16 15 16 // 𦓔
 // glyph han-264de:15x16 15 16 // 𦓞
 // ⿰ han-8011 han-752b // ⿰耑甫
 
+## 126.11
+
+// glyph han-264e1:15x16 15 16 // 𦓡
+// ⿸ han-9ebb han-800c // ⿸麻而
+
 # CJK unified ideographs extension B: 耳 (128)
 
 ## 128.1
@@ -146,6 +151,9 @@ glyph han-265a1-($han-regions):15x16 15 16 // 𦖡
 // glyph han-259e2:15x16 15 16 // 𥧢
 // ⿳ han-5b80 han-516b han-6be6 // ⿳宀八毦 <- ⿱穴毦
 
+// glyph han-265a2:15x16 15 16 // 𦖢
+// ⿰ han-8033 han-97f3 // ⿰耳音
+
 glyph han-265a6:15x16 15 16 // 𦖦
 ⿰ han-8033:7x16 1 han-9801:7x16 // ⿰耳頁
 
@@ -170,6 +178,9 @@ glyph han-265bc:15x16 15 16 // 𦖼
 // ⿰ han-8033 han-6067 // ⿰耳恧
 
 ## 128.11
+
+// glyph han-265d5:15x16 15 16 // 𦗕
+// ⿸ han-9ebb han-8033 // ⿸麻耳
 
 glyph han-265d6:15x16 15 16 // 𦗖
 ⿰ han-8033:6x16-l han-7fcf:9x16 // ⿰耳翏

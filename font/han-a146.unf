@@ -96,6 +96,9 @@ glyph han-46db:15x16 15 16 // 䛛
 // glyph han-46e4:15x16 15 16 // 䛤
 // ⿰ han-8a01 han-8db3 // ⿰訁足
 
+// glyph han-46e8:15x16 15 16 // 䛨
+// ⿰ han-8a01 han-8f9b // ⿰訁辛
+
 ## 149.8
 
 // glyph han-46ef:15x16 15 16 // 䛯
@@ -167,6 +170,11 @@ glyph han-477c-(k|p):15x16 15 16 // 䝼
 // glyph han-4782:15x16 15 16 // 䞂
 // ⿰ han-8c9d han-800e // ⿰貝耎
 
+## 154.16
+
+// glyph han-478b:15x16 15 16 // 䞋
+// ⿲ han-8c9d han-4eb2 han-898b // ⿲貝亲見 <- ⿰貝親
+
 # CJK unified ideographs extension A: 走 (156)
 
 ## 156.3
@@ -213,6 +221,9 @@ glyph han-477c-(k|p):15x16 15 16 // 䝼
 // ⿺ han-8d70 han-590b // ⿺走夋
 
 ## 156.8
+
+// glyph han-47b3:15x16 15 16 // 䞳
+// ⿺ han-8d70 han-5485 // ⿺走咅
 
 // glyph han-47b4:15x16 15 16 // 䞴
 // ⿺ han-8d70 han-5468 // ⿺走周
@@ -261,6 +272,9 @@ glyph han-47e7:15x16 15 16 // 䟧
 ⿰ han-27fb7:5x16 1 han-7530:9x16 // ⿰𧾷田
 
 ## 157.6
+
+// glyph han-47ee:15x16 15 16 // 䟮
+// ⿲ han-27fb7 han-4ebb han-72ac // ⿲𧾷亻犬 <- ⿰𧾷伏
 
 // glyph han-47ef:15x16 15 16 // 䟯
 // ⿰ han-27fb7 han-820c // ⿰𧾷舌
@@ -366,6 +380,11 @@ glyph han-4863:15x16 15 16 // 䡣
 glyph han-4873:15x16 15 16 // 䡳
 ⿲ -2 han-8eca:5x16 han-5176:6x16 han-65a4:6x16 // ⿲車其斤
 
+## 159.13
+
+// glyph han-4876:15x16 15 16 // 䡶
+// ⿲ han-8eca han-21c2a han-8f9b // ⿲車𡰪辛 <- ⿰車辟
+
 # CJK unified ideographs extension A: 辶 (162)
 
 ## 162.4
@@ -457,6 +476,11 @@ glyph han-48e5:15x16 15 16 // 䣥
 glyph han-48e6:15x16 15 16 // 䣦
 ⿰ han-9149:7x16 han-529b:8x16 // ⿰酉力
 
+## 164.4
+
+// glyph han-48ed:15x16 15 16 // 䣭
+// ⿰ han-9149 han-72ac // ⿰酉犬
+
 ## 164.5
 
 glyph han-48ef:15x16 15 16 // 䣯
@@ -479,6 +503,12 @@ glyph han-48f5:15x16 15 16 // 䣵
 // ⿰ han-9149 han-5b9c // ⿰酉宜
 
 ## 164.9
+
+// glyph han-4903:15x16 15 16 // 䤃
+// ⿰ han-9149 han-97f3 // ⿰酉音
+
+// glyph han-4904:15x16 15 16 // 䤄
+// ⿰ han-9149 han-9762 // ⿰酉面
 
 glyph han-4905:15x16 15 16 // 䤅
 ⿰ han-9149:7x16 1 han-4fde:7x16 // ⿰酉俞
@@ -579,6 +609,9 @@ ref han-571f:9x10 3 6
 // glyph han-4996:15x16 15 16 // 䦖
 // ⿵ han-9580 han-5409 // ⿵門吉
 
+// glyph han-4997:15x16 15 16 // 䦗
+// ⿵ han-9580 han-8840 // ⿵門血
+
 // glyph han-499a:15x16 15 16 // 䦚
 // ⿵ han-9580 han-820c // ⿵門舌
 
@@ -588,6 +621,9 @@ ref han-571f:9x10 3 6
 // ⿵ han-9580 han-6c6a // ⿵門汪
 
 ## 169.8
+
+// glyph han-49a3:15x16 15 16 // 䦣
+// ⿵ han-9580 han-5485 // ⿵門咅
 
 // glyph han-49a5:15x16 15 16 // 䦥
 // ⿵ han-9580 han-6797 // ⿵門林

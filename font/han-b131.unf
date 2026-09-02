@@ -126,6 +126,9 @@ glyph han-26a13-($han-regions):15x16 15 16 // 𦨓
 glyph han-26a19:15x16 15 16 // 𦨙
 ⿰ han-821f:7x16 han-65e5:8x16 // ⿰舟日
 
+// glyph han-26a1a:15x16 15 16 // 𦨚
+// ⿰ han-821f han-72ac // ⿰舟犬
+
 glyph han-26a1e:15x16 15 16 // 𦨞
 ⿰ han-821f:7x16 han-5143:8x16 // ⿰舟元
 
@@ -181,6 +184,9 @@ glyph han-26a56:15x16 15 16 // 𦩖
 
 glyph han-26a57:15x16 15 16 // 𦩗
 ⿰ han-821f:7x16 1 han-708e:7x16 // ⿰舟炎
+
+// glyph han-26a5c:15x16 15 16 // 𦩜
+// ⿰ han-821f han-5485 // ⿰舟咅
 
 glyph han-2899e:15x16 15 16 // 𨦞
 ⿰ han-91d2:5x16-l 1 han-821f:9x16 // ⿰釒舟

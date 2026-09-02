@@ -194,6 +194,9 @@ glyph han-31bb7:15x16 15 16 // 𱮷
 // glyph han-31bcd:15x16 15 16 // 𱯍
 // ⿰ han-248e9 han-54e5 // ⿰𤣩哥
 
+// glyph han-31bd9:15x16 15 16 // 𱯙
+// ⿰ han-248e9 han-5bb0 // ⿰𤣩宰
+
 ## 96.13
 
 // glyph han-31be9:15x16 15 16 // 𱯩
@@ -294,6 +297,9 @@ glyph han-31c84:15x16 15 16 // 𱲄
 # CJK unified ideographs extension H: 皿 (108)
 
 ## 108.4
+
+// glyph han-31c8b:15x16 15 16 // 𱲋
+// ⿱ han-72ac han-76bf // ⿱犬皿
 
 // glyph han-31c8c:15x16 15 16 // 𱲌
 // ⿳ han-53e3 han-4e00 han-76bf // ⿳口一皿

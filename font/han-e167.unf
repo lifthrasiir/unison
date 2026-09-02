@@ -38,6 +38,9 @@ glyph han-2cacc:15x16 15 16 // 𬫌
 
 ## 167.11
 
+// glyph han-2cb02:15x16 15 16 // 𬬂
+// ⿰ han-91d2 han-7b20 // ⿰釒笠
+
 // glyph han-2cb04:15x16 15 16 // 𬬄
 // ⿰ han-91d2 han-5bc4 // ⿰釒寄
 
@@ -135,12 +138,20 @@ glyph han-2cb78:15x16 15 16 // 𬭸
 glyph han-2cb7a:15x16 15 16 // 𬭺
 ⿲ -1 han-9485:5x16 han-7968:7x16 1 han-5202:3x16 // ⿲钅票刂
 
+// glyph han-2cb7d:15x16 15 16 // 𬭽
+// ⿲ han-9485 han-21c2a han-8f9b // ⿲钅𡰪辛 <- ⿰钅辟
+
 # CJK unified ideographs extension E: 門 (169)
 
 ## 169.2
 
 glyph han-2cb85:15x16 15 16 // 𬮅
 ⿵ han-9580:15x16.13x11 han-529b:9x11 3 5 // ⿵門力
+
+## 169.4
+
+// glyph han-2cb87:15x16 15 16 // 𬮇
+// ⿵ han-9580 han-72ac // ⿵門犬
 
 # CJK unified ideographs extension E: 阜 (170)
 
@@ -150,6 +161,9 @@ glyph han-2cbbc:15x16 15 16 // 𬮼
 ⿰ han-961d:5x16-l 1 han-6b20:9x16 // ⿰阝欠
 
 ## 170.7
+
+// glyph han-2cbc1:15x16 15 16 // 𬯁
+// ⿰ han-961d han-8f9b // ⿰阝辛
 
 glyph han-2cbc3:15x16 15 16 // 𬯃
 ⿲ han-961d:5x16-l han-6c35:3x16 han-6b20:7x16 // ⿲阝氵欠
@@ -166,6 +180,11 @@ glyph han-2cbc3:15x16 15 16 // 𬯃
 
 // glyph han-2cbcf:15x16 15 16 // 𬯏
 // ⿰ han-961d han-6cc9 // ⿰阝泉
+
+## 170.10
+
+// glyph han-2cbd1:15x16 15 16 // 𬯑
+// ⿲ han-961d han-4ebb han-5485 // ⿲阝亻咅 <- ⿰阝倍
 
 # CJK unified ideographs extension E: 隹 (172)
 
@@ -247,6 +266,16 @@ glyph han-2cbef-($han-regions):15x16 15 16 // 𬯯
 // glyph han-2cc26:15x16 15 16 // 𬰦
 // ⿰ han-9769 han-56fa // ⿰革固
 
+# CJK unified ideographs extension E: 音 (180)
+
+## 180.5
+
+// glyph han-2cc39:15x16 15 16 // 𬰹
+// ⿰ han-97f3 han-7531 // ⿰音由
+
+// glyph han-2cc3b:15x16 15 16 // 𬰻
+// ⿰ han-97f3 han-79be // ⿰音禾
+
 # CJK unified ideographs extension E: 頁 (181)
 
 ## 181.2
@@ -258,6 +287,11 @@ glyph han-2cbef-($han-regions):15x16 15 16 // 𬯯
 
 // glyph han-2cc46:15x16 15 16 // 𬱆
 // ⿰ han-514b han-9801 // ⿰克頁
+
+## 181.12
+
+// glyph han-2cc4e:15x16 15 16 // 𬱎
+// ⿲ han-9802 han-4ebb han-5485 // ⿲頂亻咅 <- ⿰頂倍
 
 # CJK unified ideographs extension E: 食 (184)
 
@@ -431,3 +465,8 @@ glyph han-2cde2:15x16 15 16 // 𬷢
 
 // glyph han-2cdef:15x16 15 16 // 𬷯
 // ⿱ han-6dee han-9ce5 // ⿱淮鳥
+
+## 196.13
+
+// glyph han-2cdf5:15x16 15 16 // 𬷵
+// ⿲ han-4eb2 han-65a4 han-9ce5 // ⿲亲斤鳥 <- ⿰新鳥
