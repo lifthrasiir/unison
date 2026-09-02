@@ -28,21 +28,30 @@ is no ternary enclosure for a nested operand to be folded into.
 An operand that splits along the same axis as the whole is *inlined* rather
 than lost: `⿰⿰XYC` is written as `⿲XYC` and `⿱⿱XYC` as `⿳XYC`. Only one
 operand of a line can be, since four parts have no IDC of their own;
-`--no-inline` turns it off. `--inline-parts` extends it to an operand named by
-a *character* that decomposes the same way (`⿰BC` with `B = ⿰XY`), which is
-off by default because it gives up on drawing that part -- it would write 刊 as
-`⿲干丨亅` rather than as 干 beside a 刂 nobody has drawn yet. Such a line keeps
-the un-inlined one it came from above it, commented out:
+`--no-inline` turns it off. `--inline` extends it to an operand named by a
+*character* that decomposes the same way (`⿰BC` with `B = ⿰XY`), which is off
+by default because it gives up on drawing that part -- it would write 㟯 as
+`⿳山宀各` rather than as 山 over a 客 nobody has drawn yet.
 
-    glyph han-520a:15x16 15 16 // 刊
-    // ⿰ han-5e72 han-5202 // ⿰干刂 -- no-inline
-    ⿲ han-5e72 han-4e28 han-4e85 // ⿲干丨亅
+A character the source draws **in pixels** is never opened up that way, however
+plainly its own IDS decomposes: those pixels are a drawing, and cutting one in
+two so that the halves can be sized apart is a judgement for a hand rather than
+for this script -- 出 stays 出 and does not become 屮 over 凵. Only a character
+with no pixels of its own is inlined, which is why a compound *containing* such
+a drawing still is: 客 is composed rather than drawn, so opening it up says
+nothing about how 宀 or 各 are drawn.
+
+Such a line keeps the un-inlined one it came from above it, commented out:
+
+    glyph han-37ef:15x16 15 16 // 㟯
+    // ⿱ han-5c71 han-5ba2 // ⿱山客 -- no-inline
+    ⿳ han-5c71 han-5b80 han-5404 // ⿳山宀各
 
 Such a block does not parse, deliberately: a comment between a `glyph` header
 and its body ends the block, so `uniform` refuses the source until every one of
 them has been settled by hand -- an inline is a judgement about a part that no
 rule here can make. Undoing one is deleting the last line and commenting the
-first out, and what is left is this script's own shape for a request to draw 刂,
+first out, and what is left is this script's own shape for a request to draw 客,
 carrying the `-- no-inline` mark that makes a later run leave it alone rather
 than inline it again. The mark is written rather than inferred because a block
 a hand undid an inline in is character for character the block an ordinary run
@@ -51,6 +60,12 @@ tell the two apart; dropping the mark by hand is how a block already in the file
 asks to be inlined after all. (A sequence's own nesting, `⿰⿰XYC`, has no such
 line: its operand is not a character, so nothing names it. Those keep the
 `<- ⿰⿰XYC` note instead, and being nobody's judgement they parse and build.)
+
+Passing `--inline` twice writes the inlined line *outright* instead: no
+un-inlined line above it, no mark, and no `<- ⿰⿰XYC` note on either kind of
+inline, so that a line's own comment is the sequence it draws and nothing else.
+Such a block parses and builds, and so has no review gate at all: it is the form
+for a run that means to inline rather than to propose it.
 
 The emitted line leaves its components *undecided* (no `:WxH` suffix), which is
 the initial state `compose.rs` documents for a glyph populated from IDS; run
@@ -369,6 +384,10 @@ class Inventory:
     covered: set[int] = field(default_factory=set)
     # code points that have a full-size (15x16) glyph
     covered_full: set[int] = field(default_factory=set)
+    # code points some glyph block draws *in pixels* -- a body that is neither
+    # an IDC line nor a `ref`. Such a character is a drawing to be placed, not a
+    # box to be reopened, so nothing is inlined into it (see `candidates`).
+    pixel_drawn: set[int] = field(default_factory=set)
     # code points a *commented-out* block declares -- a line an earlier run (or
     # a hand) left as a request to draw the parts. It is not a drawing, so it
     # lends no variant to anything, but it is a declaration, so writing it again
@@ -492,6 +511,8 @@ def load_inventory(font_dir: str, parts: dict[str, list[str]]) -> Inventory:
                 if hn is None:
                     continue
                 inv.covered.add(hn.cp)
+                if handdrawn:
+                    inv.pixel_drawn.add(hn.cp)
                 if (w, h) == (BOX_W, BOX_H):
                     inv.covered_full.add(hn.cp)
                 if hn.label is None:
@@ -785,7 +806,8 @@ class Candidate:
 
 
 def candidates(tree: "Node", inline: bool,
-               splits: dict[int, tuple[str, list[int]]] | None) -> list[Candidate]:
+               splits: dict[int, tuple[str, list[int]]] | None,
+               pixel_drawn: frozenset[int] | set[int] = frozenset()) -> list[Candidate]:
     """Every component list one IDS node can be written as, plainest first.
 
     The plain one is the node itself when every operand is a character; the
@@ -794,8 +816,12 @@ def candidates(tree: "Node", inline: bool,
     there the sequence itself says the box splits three ways. A *character*
     standing for such a split (`⿰BC` where `B` is itself `⿰XY`) is only
     inlined when `splits` is given, because that one is a judgement about the
-    part rather than about this character: 刂 decomposes into 丨 and 亅, but a
-    line that says so has given up on ever drawing 刂.
+    part rather than about this character: 客 decomposes into 宀 and 各, but a
+    line that says so has given up on ever drawing 客.
+
+    A character in `pixel_drawn` is never opened up, whatever its own IDS says:
+    the source draws it, so the line has a part to place and this script has no
+    business cutting that drawing in two for the halves to be sized apart.
     """
     out: list[Candidate] = []
     if all(kid.char is not None for kid in tree.kids):
@@ -816,7 +842,10 @@ def candidates(tree: "Node", inline: bool,
             inner = [ord(normalize_component(c)) for c in split[1]]
             alt = None
         elif kid.char is not None and splits is not None:
-            got = splits.get(ord(normalize_component(kid.char)))
+            inner_cp = ord(normalize_component(kid.char))
+            if inner_cp in pixel_drawn:
+                continue  # drawn in pixels: a part to place, not a box to reopen
+            got = splits.get(inner_cp)
             if got is None or got[0] != tree.op:
                 continue
             inner = list(got[1])
@@ -1442,10 +1471,14 @@ def main() -> int:
                     help="write composite-part glyphs uncommented as well")
     ap.add_argument("--no-inline", action="store_true",
                     help="do not rewrite a same-axis nested operand into ⿲/⿳")
-    ap.add_argument("--inline-parts", action="store_true",
+    ap.add_argument("--inline", action="count", default=0,
                     help="also inline an operand named by a character whose own IDS "
-                         "splits the same way (⿰BC with B = ⿰XY -> ⿲XYC); mark such "
-                         "a line `-- no-inline` to keep a later run off it")
+                         "splits the same way (⿰BC with B = ⿰XY -> ⿲XYC), never one "
+                         "the source draws in pixels; the un-inlined line is kept "
+                         "above it, commented out and marked `-- no-inline`, which is "
+                         "what keeps a later run off it. Twice (`--inline --inline`) "
+                         "writes the inlined line outright instead: no un-inlined "
+                         "line, no mark, and no `<- SEQ` note on any inline")
     ap.add_argument("--ignore-box", action="store_true",
                     help="write a line whose parts cannot tile the 15x16 box uncommented as well")
     ap.add_argument("-v", "--verbose", action="store_true")
@@ -1465,7 +1498,11 @@ def main() -> int:
     ids = load_ids(args.ids)
     rs, prime_chars = load_rs(args.unihan)
     inline = not args.no_inline
-    splits = build_split_index(ids, args.allow_ivi) if inline and args.inline_parts else None
+    # `--inline` once inlines a *character*'s own split behind the review gate
+    # `build_blocks` writes; twice drops the gate and writes the inlined line as
+    # the block's whole body, the sequence it draws being all its comment says.
+    splits = build_split_index(ids, args.allow_ivi) if inline and args.inline else None
+    outright = args.inline >= 2
     rad_chars = {**prime_chars, **load_radical_chars(args.font_dir)}
 
     regional = sum(1 for f in inv.families.values() if f.regional)
@@ -1521,7 +1558,7 @@ def main() -> int:
                 why = min(why, f"not an IDC this source lays out ({tree.op})",
                           key=reason_rank)
                 continue
-            cands = candidates(tree, inline, splits)
+            cands = candidates(tree, inline, splits, inv.pixel_drawn)
             if not cands:
                 why = min(why, "a nested component nothing names", key=reason_rank)
                 continue
@@ -1571,14 +1608,21 @@ def main() -> int:
                 if op in ENCLOSING
                 else "parts do not fit the box"
             )
+        # An `--inline --inline` run writes the inlined line and nothing else:
+        # no un-inlined line above it and no `<- SEQ` note, so neither has a
+        # component to name or a region to bind.
+        if outright:
+            origin, cand_alt = None, None
+        else:
+            cand_alt = cand.alt
         # How each component is named, and so whether this block is a family:
         # the un-inlined line the block may keep beside the drawn one is asked
         # too, since its `($-1)` needs the same header group.
-        line = make_line(inv, op, comps, list(cand.alt[1]) if cand.alt else [])
+        line = make_line(inv, op, comps, list(cand_alt[1]) if cand_alt else [])
         alt = (
-            Line(cand.alt[0], tuple(cand.alt[1]),
-                 tuple(regional_flags(inv, list(cand.alt[1]))), line.patterned)
-            if cand.alt is not None
+            Line(cand_alt[0], tuple(cand_alt[1]),
+                 tuple(regional_flags(inv, list(cand_alt[1]))), line.patterned)
+            if cand_alt is not None
             else None
         )
         block = build_blocks(line, cp, entry.char, bool(holds), origin, alt)
@@ -1604,14 +1648,14 @@ def main() -> int:
             stats["revived (was commented out)"] += 1
         plan[sl.name].append((key, cp, block))
         stats["composite parts" if verdict.kind == "composite" else "hand-drawn parts"] += 1
-        if origin:
+        if cand.inlined:
             stats["inlined a nested operand"] += 1
         for hold in holds:
             stats["commented out: " + hold] += 1
         made += 1
         if args.verbose:
             note = ", ".join([verdict.kind] + (["revived"] if revive else [])
-                             + (["inlined"] if origin else []) + holds)
+                             + (["inlined"] if cand.inlined else []) + holds)
             print(f"  {entry.char} U+{cp:04X} -> {sl.name} {key[0]}{"'" if key[1] else ''}.{key[2]}"
                   f"  {op}{''.join(chr(c) for c in comps)} ({note})", file=sys.stderr)
         if args.limit and made >= args.limit:
