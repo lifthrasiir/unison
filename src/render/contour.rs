@@ -389,14 +389,57 @@ fn trace_closed_paths(
         px_to_segs.entry(k2).or_default().push(k1);
     }
 
+    // Cancel duplicate segments in pairs: in a boolean union, a shared
+    // boundary edge is interior and should vanish.  Keep one copy when the
+    // count is odd (the edge is still a boundary).
     for list in px_to_segs.values_mut() {
         list.sort();
+        let mut deduped = Vec::with_capacity(list.len());
+        let mut i = 0;
+        while i < list.len() {
+            if i + 1 < list.len() && list[i] == list[i + 1] {
+                i += 2;
+            } else {
+                deduped.push(list[i]);
+                i += 1;
+            }
+        }
+        *list = deduped;
+    }
+    px_to_segs.retain(|_, v| !v.is_empty());
+
+    // Prune vertices with odd degree — dangling edges from degenerate
+    // geometry cannot form a closed path.
+    loop {
+        let odd: Vec<(i64, i64)> = px_to_segs
+            .iter()
+            .filter(|(_, v)| v.len() % 2 != 0)
+            .map(|(&k, _)| k)
+            .collect();
+        if odd.is_empty() {
+            break;
+        }
+        for k in odd {
+            if let Some(neighbors) = px_to_segs.remove(&k) {
+                for n in neighbors {
+                    if let Some(list) = px_to_segs.get_mut(&n) {
+                        if let Some(pos) = list.iter().position(|x| *x == k) {
+                            list.remove(pos);
+                        }
+                    }
+                }
+            }
+        }
+        px_to_segs.retain(|_, v| !v.is_empty());
     }
 
     while !px_to_segs.is_empty() {
         let (&start_key, _) = px_to_segs.iter().next().unwrap();
         let v = px_to_segs.get_mut(&start_key).unwrap();
-        assert!(v.len() >= 2);
+        if v.len() < 2 {
+            px_to_segs.remove(&start_key);
+            continue;
+        }
         let next_key = v.pop().unwrap();
         if v.is_empty() {
             px_to_segs.remove(&start_key);
@@ -997,7 +1040,11 @@ fn fix_winding(paths: &mut [Vec<(f32, f32)>]) {
                 }
             }
 
-            assert!(found, "could not find non-overlapping point");
+            // Coincident paths share all edges, so no test point escapes —
+            // treat them as same-level (no enclosure contribution).
+            if !found {
+                continue;
+            }
         }
 
         let a = signed_area(&paths[i]);
@@ -1440,5 +1487,34 @@ mod tests {
                 "vertex {i} is {p:?}, expected {e:?} in {paths:?}",
             );
         }
+    }
+
+    #[test]
+    fn fix_winding_with_coincident_paths() {
+        let square = vec![(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0)];
+        let mut paths = vec![square.clone(), square];
+        fix_winding(&mut paths);
+    }
+
+    #[test]
+    fn composite_with_coincident_layer() {
+        let grid = make_grid(2, 2, &[PX_ALMOSTFULL | PX_FULL; 4]);
+        let paths = track_contour_multi(&[(&grid, 0, 0), (&grid, 0, 0)], PX_SUBPIXEL);
+        assert!(!paths.is_empty());
+    }
+
+    #[test]
+    fn trace_closed_paths_with_dangling_segment() {
+        // A valid square plus a dangling edge that cannot close.
+        let segs = vec![
+            (0.0, 0.0, 1.0, 0.0),
+            (1.0, 0.0, 1.0, 1.0),
+            (1.0, 1.0, 0.0, 1.0),
+            (0.0, 1.0, 0.0, 0.0),
+            (2.0, 0.0, 3.0, 0.0), // dangling
+        ];
+        let mut paths = Vec::new();
+        trace_closed_paths(&segs, 1.0, &mut paths);
+        assert_eq!(paths.len(), 1);
     }
 }
