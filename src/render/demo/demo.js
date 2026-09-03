@@ -179,12 +179,14 @@
 
   /* ---- sequences --------------------------------------------------------- */
 
-  /* What each cell can offer beyond its own character: the code point sequences
-     that start there and draw a glyph the font maps no code point to. The blob
-     writes `gap:tail,tail;…` — a gap being the distance past the previous
-     starting code point, a tail the rest of one sequence — and leaves the
-     starting code point out of every tail, since the cell offering them is it.
-     See `collect_sequences` on the Rust side. */
+  /* What each cell can offer beyond its own character: the variation sequences
+     of that character, and the code point sequences that start there and draw a
+     glyph the font maps no code point to. The blob writes `gap:tail,tail;…` — a
+     gap being the distance past the previous starting code point, a tail the
+     rest of one sequence — and leaves the starting code point out of every
+     tail, since the cell offering them is it. The tails arrive in the order the
+     detail row shows them, selectors first. See `collect_sequences` on the Rust
+     side. */
   var seqs = (function (blob) {
     var out = new Map();
     if (!blob) return out;

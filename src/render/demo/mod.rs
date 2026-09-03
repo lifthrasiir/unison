@@ -38,10 +38,11 @@
 //!    corner triangle on the character's own cell, and one click opens a row of
 //!    everything that character begins. What to type for each is
 //!    [`crate::render::reach`]; the cell it is offered from and the label it
-//!    wears are `demo.js`. Variation sequences still get no cell of their own —
-//!    they reach this page only where a `remap` also produces one.
-//!    (The editor puts both inline instead, which reads only because a click
-//!    there can go to the source.)
+//!    wears are `demo.js`. A variation sequence is offered from the same row,
+//!    ahead of the rest, since it is the one kind of sequence whose cell *is*
+//!    the character it varies. (The editor gives it a cell of its own beside
+//!    the base's instead, which reads only because a click there can go to the
+//!    source.)
 //! 4. A block longer than 0x100 code points is *folded* in the middle. A code
 //!    chart of a whole font is read by scrolling, and the one thing it cannot
 //!    afford is ten thousand identical rows between two blocks; the fold keeps
@@ -85,7 +86,7 @@ use std::collections::BTreeMap;
 use std::io::{self, Write};
 use std::path::Path;
 
-use crate::document::Document;
+use crate::document::{Document, DocumentItem};
 use crate::render::sample::{SampleSource, base64_encode};
 use crate::ucd::{BlockMap, CharProps, format_block_range};
 
@@ -478,18 +479,25 @@ fn collect(
         names,
         name_runs,
         samples: collect_samples(src, data_dir),
-        seqs: collect_sequences(docs, face, expansion),
+        seqs: collect_sequences(docs, face, expansion, bitmap_ttf),
     }
 }
 
-/// What each cell can offer beyond the character it stands for: the code point
-/// sequences that start there and put a glyph on the screen no `map` names.
+/// What each cell can offer beyond the character it stands for: the variation
+/// sequences the character has, and the code point sequences that start there
+/// and put a glyph on the screen no `map` names.
 ///
 /// `<gap>:<tail>[,<tail>]…` per starting code point, separated by `;`, a gap
 /// being the distance past the previous starting code point and a tail the rest
 /// of one sequence in `+`-separated hexadecimal. Written this way it is 12 KB
 /// of a 197 KB blob; the starting code point is left out of every tail because
 /// the cell offering them already is it.
+///
+/// A character's variation sequences come first, in selector order, because
+/// they are the ones the cell's own character *is*: `A +VS1` varies what the
+/// cell already draws, where the rest begin something else. The label a
+/// selector wears (`+VS1` rather than `+FE00`) is `demo.js`'s, on the same rule
+/// as the editor's.
 ///
 /// Only sequences of two code points or more. A one-code-point answer is a
 /// character the font *already* draws that way, so its own cell shows it and
@@ -499,37 +507,101 @@ fn collect_sequences(
     docs: &[&Document],
     face: &crate::faces::Face,
     expansion: &crate::render::ttf_builder::Expansion,
+    ttf: &[u8],
 ) -> String {
     use std::collections::BTreeSet;
 
-    let Some(found) = crate::render::remap_only_sequences_from(docs, face, expansion) else {
-        return String::new();
-    };
-    let mut by_first: BTreeMap<u32, BTreeSet<Vec<u32>>> = BTreeMap::new();
-    for cps in found.solved.into_values() {
-        if cps.len() < 2 {
-            continue;
+    /// One cell's offerings: its own variation selectors, then everything else.
+    #[derive(Default)]
+    struct Offers {
+        selectors: BTreeSet<u32>,
+        seqs: BTreeSet<Vec<u32>>,
+    }
+
+    let mut by_first: BTreeMap<u32, Offers> = BTreeMap::new();
+    for (base, selector) in variation_sequences(expansion, ttf) {
+        by_first.entry(base).or_default().selectors.insert(selector);
+    }
+    if let Some(found) = crate::render::remap_only_sequences_from(docs, face, expansion) {
+        for cps in found.solved.into_values() {
+            if cps.len() < 2 {
+                continue;
+            }
+            by_first.entry(cps[0]).or_default().seqs.insert(cps);
         }
-        by_first.entry(cps[0]).or_default().insert(cps);
     }
 
     let mut out = String::new();
     let mut prev = 0u32;
-    for (first, seqs) in by_first {
+    for (first, offers) in by_first {
         if !out.is_empty() {
             out.push(';');
         }
         out.push_str(&format!("{:x}:", first - prev));
         prev = first;
-        for (i, seq) in seqs.iter().enumerate() {
+        let tails = offers
+            .selectors
+            .iter()
+            .map(std::slice::from_ref)
+            .chain(offers.seqs.iter().map(|seq| &seq[1..]));
+        for (i, tail) in tails.enumerate() {
             if i > 0 {
                 out.push(',');
             }
-            for (j, cp) in seq[1..].iter().enumerate() {
+            for (j, cp) in tail.iter().enumerate() {
                 if j > 0 {
                     out.push('+');
                 }
                 out.push_str(&format!("{cp:x}"));
+            }
+        }
+    }
+    out
+}
+
+/// The `base` + `selector` pairs the built font answers to, in the order the
+/// blob wants them.
+///
+/// The source is asked for the candidates and the *font* decides: a `map BASE
+/// SELECTOR` line whose target never made it into the face — dropped as a
+/// duplicate, an alternative resolved away, a slice this face does not include
+/// — is a pair the browser would draw as the bare base, which is not a sequence
+/// worth offering. Asking the font is also what `zero_advance_codepoints` does,
+/// and for the same reason: the page shows the font it embeds, not the source.
+///
+/// Nothing enumerates a cmap format 14 subtable, so the pairs cannot come from
+/// the font alone; a malformed line (both halves varying, a selector that is
+/// not one) expands to nothing and is left to `issues` to report.
+fn variation_sequences(
+    expansion: &crate::render::ttf_builder::Expansion,
+    ttf: &[u8],
+) -> Vec<(u32, u32)> {
+    let Ok(face) = rustybuzz::ttf_parser::Face::parse(ttf, 0) else {
+        return Vec::new();
+    };
+    let mut out = Vec::new();
+    for item in expansion.items() {
+        let DocumentItem::Map {
+            char_repr,
+            selector: Some(selector),
+            glyphs,
+            ..
+        } = item
+        else {
+            continue;
+        };
+        let glyph = crate::render::ttf_builder::resolved_map_target(glyphs);
+        let Ok(triples) =
+            crate::render::ttf_builder::expand_uvs_map_triples(char_repr, selector, glyph)
+        else {
+            continue;
+        };
+        for (base, sel, _) in triples {
+            let has = char::from_u32(base)
+                .zip(char::from_u32(sel))
+                .is_some_and(|(b, s)| face.glyph_variation_index(b, s).is_some());
+            if has {
+                out.push((base, sel));
             }
         }
     }

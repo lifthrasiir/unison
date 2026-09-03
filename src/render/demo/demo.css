@@ -250,6 +250,10 @@ section.block { width: fit-content; min-width: min(100%, 40rem); margin: 1.75rem
   font-size: var(--em);
   font-family: 'Unison', monospace;
   font-variation-settings: 'BMAP' 0;
+  /* A chart cell holds one character, so nothing in it can ligate or kern in
+     the first place; saying so keeps a cell from ever being drawn as anything
+     but the character it is indexed by. The detail row below turns both back
+     on — its cells hold a whole sequence, and the shaping is the point. */
   font-variant-ligatures: none;
   font-kerning: none;
   white-space: pre;
@@ -350,6 +354,15 @@ section.block { width: fit-content; min-width: min(100%, 40rem); margin: 1.75rem
 .row.detail .cell { background-color: var(--bg-cell-detail); }
 .row.detail .cell.empty { background: transparent; }
 .row.detail .cell:hover { background-color: var(--bg-cell-hover); }
+/* A detail cell holds a sequence, not a character, and what it is there to show
+   is what the font makes of it — the `liga` that draws `->` as one arrow, the
+   `calt` behind the eight-dot braille. The chart's own cells suppress both
+   because a single character cannot use them; here that suppression would hide
+   the answer. */
+.row.detail .cell .g {
+  font-variant-ligatures: normal;
+  font-kerning: normal;
+}
 /* A label here is `+` and one code point per character past the first, which
    outgrows the cell as soon as a sequence is long — the tag flags are six.
    Cut rather than wrapped or spilled: a spilled label would run over the cells
@@ -561,8 +574,6 @@ footer .legend i.missing { background-image: repeating-linear-gradient(135deg, t
   font-size: var(--em);
   line-height: 1.5;
   font-variation-settings: 'BMAP' 0;
-  font-variant-ligatures: none;
-  font-kerning: none;
 }
 .bitmap .s-text { font-variation-settings: 'BMAP' 1; }
 .s-text:focus-visible { outline: 2px solid var(--accent); outline-offset: -1px; }
