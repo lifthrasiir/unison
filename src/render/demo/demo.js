@@ -177,6 +177,50 @@
     return "";
   }
 
+  /* ---- sequences --------------------------------------------------------- */
+
+  /* What each cell can offer beyond its own character: the code point sequences
+     that start there and draw a glyph the font maps no code point to. The blob
+     writes `gap:tail,tail;…` — a gap being the distance past the previous
+     starting code point, a tail the rest of one sequence — and leaves the
+     starting code point out of every tail, since the cell offering them is it.
+     See `collect_sequences` on the Rust side. */
+  var seqs = (function (blob) {
+    var out = new Map();
+    if (!blob) return out;
+    var cp = 0;
+    blob.split(";").forEach(function (group) {
+      var at = group.indexOf(":");
+      cp += parseInt(group.slice(0, at), 16);
+      out.set(cp, group.slice(at + 1).split(",").map(function (tail) {
+        return tail.split("+").map(function (h) { return parseInt(h, 16); });
+      }));
+    });
+    return out;
+  })(data.seqs);
+
+  /* The short name of a variation selector, on the same rule as the editor's
+     (`ucd::variation_selector_label`) so the two pages label one thing alike. */
+  function vsLabel(cp) {
+    if (cp >= 0xfe00 && cp <= 0xfe0f) return "VS" + (cp - 0xfe00 + 1);
+    if (cp >= 0xe0100 && cp <= 0xe01ef) return "VS" + (cp - 0xe0100 + 17);
+    if (cp >= 0x180b && cp <= 0x180d) return "FVS" + (cp - 0x180b + 1);
+    if (cp === 0x180f) return "FVS4";
+    return "";
+  }
+
+  /* What a sequence is called under its glyph: what has to be typed *after* the
+     cell's own character, `+` before each. A selector is named rather than
+     numbered, since `+VS1` says what `+FE00` does not. */
+  function seqLabel(tail) {
+    if (tail.length === 1 && vsLabel(tail[0])) return "+" + vsLabel(tail[0]);
+    return tail.map(function (cp) { return "+" + hex(cp, 4); }).join("");
+  }
+
+  function seqTitle(cps) {
+    return cps.map(function (cp) { return "U+" + hex(cp, 4); }).join(" ");
+  }
+
   function esc(s) {
     return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   }
@@ -201,10 +245,20 @@
        by writing U+25CC, so that a fault in the font being shown cannot take
        the placeholder with it. */
     if (glyph && (flags & ZERO_ADVANCE) !== 0) glyph = '<span class="dc"></span>' + glyph;
+    /* A character that begins a sequence gets a triangle in its top right
+       corner and nothing else: the sequences themselves are a row of their own,
+       one click away, because there may be a hundred and thirty of them. */
+    var list = seqs.get(cp);
+    var mark = list
+      ? '<button type="button" class="mk" data-cp="' + hex(cp, 4) +
+        '" aria-pressed="false" aria-expanded="false" title="' +
+        list.length + (list.length === 1 ? " sequence" : " sequences") +
+        ' start here"></button>'
+      : "";
     return (
       '<div class="cell' + (declared ? "" : " missing") + '" title="' + esc(title) + '">' +
       '<span class="g">' + glyph + "</span>" +
-      '<span class="n">' + hex(cp % 256, 2) + "</span>" +
+      '<span class="n">' + hex(cp % 256, 2) + "</span>" + mark +
       "</div>"
     );
   }
@@ -215,6 +269,40 @@
     var html = '<div class="row' + alt + '"><div class="gut">' + label.slice(0, -1) + "_</div>";
     for (var i = 0; i < 16; i++) html += cellHtml(line.base + i, line.cells[i]);
     return html + "</div>";
+  }
+
+  /* One sequence, as a cell of the detail row. The glyph box holds the whole
+     sequence and lets the browser shape it — which is the only honest way to
+     show it, and is why a sequence whose glyph needs a neighbour (a lone half
+     of a flag) draws that neighbour too. The label is what to type past the
+     cell the row hangs off; the title is the sequence entire. */
+  function seqCellHtml(first, tail) {
+    var cps = [first].concat(tail);
+    var text = cps.map(function (cp) { return String.fromCodePoint(cp); }).join("");
+    return (
+      '<div class="cell" title="' + esc(seqTitle(cps)) + '">' +
+      '<span class="g">' + esc(text) + "</span>" +
+      '<span class="n">' + esc(seqLabel(tail)) + "</span>" +
+      "</div>"
+    );
+  }
+
+  /* Everything one character begins, on the chart's own sixteen columns. More
+     than sixteen of them is more than one line — the Hangul vowels begin a
+     hundred and thirty-nine — and the gutter stays empty, since these cells
+     have no code point of their own to be indexed by. */
+  function detailHtml(first, list) {
+    var html = "";
+    for (var i = 0; i < list.length; i += 16) {
+      html += '<div class="row detail"><div class="gut"></div>';
+      for (var j = 0; j < 16; j++) {
+        html += i + j < list.length
+          ? seqCellHtml(first, list[i + j])
+          : '<div class="cell empty"></div>';
+      }
+      html += "</div>";
+    }
+    return html;
   }
 
   /* ---- the sample panel -------------------------------------------------- */
@@ -431,8 +519,11 @@
     });
   }, { rootMargin: "800px 0px" });
 
-  function chunkHeight(lines, m) {
-    return lines.length * m.rowH;
+  /* A chunk knows its height before it has any content, so anything put inside
+     one has to be counted: `__extra` is the lines an open detail row adds, and
+     is zero for every chunk but at most one. */
+  function sizeChunk(chunk, m) {
+    chunk.style.height = (chunk.__lines.length + chunk.__extra) * m.rowH + "px";
   }
 
   function applyMetrics() {
@@ -441,7 +532,7 @@
     root.setProperty("--em", m.em + "px");
     document.body.classList.toggle("bitmap", state.mode === "bitmap");
     chunks.forEach(function (chunk) {
-      chunk.style.height = chunkHeight(chunk.__lines, m) + "px";
+      sizeChunk(chunk, m);
     });
   }
 
@@ -460,7 +551,8 @@
       var chunk = document.createElement("div");
       chunk.className = "chunk";
       chunk.__lines = slice;
-      chunk.style.height = chunkHeight(slice, m) + "px";
+      chunk.__extra = 0;
+      sizeChunk(chunk, m);
       rows.insertBefore(chunk, before || null);
       chunks.push(chunk);
       observer.observe(chunk);
@@ -487,6 +579,42 @@
       el.remove();
     };
     return el;
+  }
+
+  /* The one open detail row, or null. One at a time and not one per block: two
+     of them would be two answers to "what does this character begin" on screen
+     at once, and the second would be found by scrolling past the first. */
+  var detail = null;
+
+  function closeDetail() {
+    if (!detail) return;
+    detail.el.remove();
+    detail.chunk.__extra = 0;
+    sizeChunk(detail.chunk, metrics());
+    detail.mk.setAttribute("aria-pressed", "false");
+    detail.mk.setAttribute("aria-expanded", "false");
+    detail = null;
+  }
+
+  function toggleDetail(mk) {
+    var cp = parseInt(mk.dataset.cp, 16);
+    var wasOpen = detail !== null && detail.cp === cp;
+    closeDetail();
+    if (wasOpen) return;
+    var list = seqs.get(cp);
+    var row = mk.closest(".row");
+    if (!list || !row) return;
+    /* Straight after the row the character sits on, inside its chunk, so the
+       chunk's own height is the only thing that has to be told. */
+    var chunk = row.parentNode;
+    var el = document.createElement("div");
+    el.innerHTML = detailHtml(cp, list);
+    chunk.insertBefore(el, row.nextSibling);
+    chunk.__extra = Math.ceil(list.length / 16);
+    sizeChunk(chunk, metrics());
+    mk.setAttribute("aria-pressed", "true");
+    mk.setAttribute("aria-expanded", "true");
+    detail = { cp: cp, chunk: chunk, el: el, mk: mk };
   }
 
   function buildBlock(block, index) {
@@ -595,6 +723,12 @@
   document.body.appendChild(header());
   var main = document.createElement("main");
   data.blocks.forEach(function (b, i) { main.appendChild(buildBlock(b, i)); });
+  /* Delegated: cells are rendered lazily, so most corner marks do not exist yet
+     when this runs. */
+  main.addEventListener("click", function (ev) {
+    var mk = ev.target.closest && ev.target.closest(".mk");
+    if (mk) toggleDetail(mk);
+  });
   document.body.appendChild(main);
   document.body.appendChild(footer());
   /* Last in the document, so that `position: sticky; bottom: 0` pins it over

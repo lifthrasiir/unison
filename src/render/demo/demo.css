@@ -11,6 +11,9 @@
   --bg-raised: #161a21;
   --bg-cell: #1b2029;
   --bg-cell-alt: #171c24;
+  /* The detail row a corner rule opens: deeper than either stripe of the chart,
+     so a row that is not part of the code chart cannot be read as one. */
+  --bg-cell-detail: #10141c;
   --fg: #e8ecf3;
   /* The two dimmer text weights and the two graphical ones below all clear
      WCAG 2.2 against every background they are drawn on — the page, the raised
@@ -49,6 +52,7 @@
     --bg-raised: #ffffff;
     --bg-cell: #ffffff;
     --bg-cell-alt: #f4f6fa;
+    --bg-cell-detail: #e4e9f1;
     --fg: #10151d;
     --fg-dim: #4f5a6c;
     --fg-faint: #616b7c;
@@ -298,6 +302,66 @@ section.block { width: fit-content; min-width: min(100%, 40rem); margin: 1.75rem
    through and the hatch does not have to out-specify it. */
 .cell.missing { background-image: repeating-linear-gradient(135deg, transparent 0 4px, var(--hatch) 4px 5px); }
 .cell.empty { background: transparent; background-image: none; border-right-color: transparent; border-bottom-color: transparent; }
+
+/* ---- sequences --------------------------------------------------------- */
+
+/* The corner mark on a cell that begins a sequence the font draws as something
+   else — the flags, the composed jamo: a small filled triangle cutting the
+   cell's top right corner, which is the notation a code chart uses for "there
+   is more here than the character".
+
+   Drawn as a gradient and not as the usual zero-sized border triangle, because
+   a border triangle *is* the element: the mark would be the whole hit area, and
+   a mark small enough to stay quiet is too small to click. The background is
+   sized and pinned to the corner instead, so the button keeps a finger-sized
+   box around a mark that does not need one. At 45deg the stops run
+   perpendicular to the top-right direction, so half the box is filled along its
+   own diagonal — and the box is square, so that half is an isosceles triangle.
+   The half-pixel between the two stops is there to antialias the hypotenuse. */
+.cell .mk {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  border: 0;
+  background: linear-gradient(
+      45deg,
+      transparent calc(50% - 0.4px),
+      var(--fg-dim) calc(50% + 0.4px)
+    )
+    top right / 8px 8px no-repeat;
+  cursor: pointer;
+}
+.cell .mk:hover,
+.cell .mk[aria-pressed="true"] {
+  background-image: linear-gradient(
+    45deg,
+    transparent calc(50% - 0.4px),
+    var(--accent) calc(50% + 0.4px)
+  );
+}
+.cell .mk:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+/* The row a corner mark opens: the same sixteen columns as the chart, so the
+   eye keeps its place, on a deeper ground so it cannot be mistaken for part of
+   it. Only ever one on the page — `demo.js`'s `toggleDetail`. */
+.row.detail .cell { background-color: var(--bg-cell-detail); }
+.row.detail .cell.empty { background: transparent; }
+.row.detail .cell:hover { background-color: var(--bg-cell-hover); }
+/* A label here is `+` and one code point per character past the first, which
+   outgrows the cell as soon as a sequence is long — the tag flags are six.
+   Cut rather than wrapped or spilled: a spilled label would run over the cells
+   beside it, and the whole sequence is on the cell's `title` either way. */
+.row.detail .cell .n {
+  max-width: 100%;
+  padding-left: 1px;
+  padding-right: 1px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 /* The fold: what a long block shows in place of its middle. A button, because
    it is one — the whole band is the click target, and the keyboard gets it for

@@ -43,6 +43,7 @@ cargo run -r -- test -i font/       # run `assert` directives; exit 1 on failure
 cargo run -r -- fix -i font/ --optimize-clearance [--dry-run]   # rewrite the source: see `fix/`
 cargo run -r -- probe -i font/ [-n 2]   # startup timing with no window: see `startup.rs`
 cargo run -r -- probe -i font/ --edit   # what one edit costs the editor, caches warm
+cargo run -r -- sequences -i font/      # what to type for a glyph no `map` names: see `render/reach.rs`
 ```
 
 Output extension picks the format (`.woff2` → WOFF2, anything else → TTF); `--woff2-quality max`
@@ -171,6 +172,10 @@ Core (feature-independent):
   the source's own `prop block` claims over it. Blocks and assignedness are *not* behind the `editor`
   feature — the headless `build` lays out `demo.html` with them — which is why `icu_properties` is a
   plain dependency rather than an optional one.
+- `render/reach.rs` — the code point sequence a reader has to type for a glyph that only a
+  `remap` produces (the flags, the composed jamo). Holds why a per-glyph cost cannot answer that,
+  the cascade it runs instead, and the two alphabets the search falls back through. Tests in
+  `render/reach_tests.rs`. The demo page's corner rules and detail rows are its one consumer.
 - `render/demo/` — `demo.html`: the font's one specimen page, and what the three older sample
   outputs were folded into. It embeds
   the *font* (the primary face as one variable font, `BMAP` switching the two drawings) and one JSON blob instead of pre-rendered SVG, and
@@ -334,6 +339,10 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | A part that is itself split by an IDC line: deriving its line before flattening it, and what still leaves a line unmeasurable | `ref_composite/mod.rs` (`derive_compose_body`), `render/ttf_builder/expand.rs` (`ink_profiles`) |
 | Why a clearance is measured over the declared box, and what ink escaping it costs | `compose.rs` (`InkProfile::of`) |
 | What `demo.html` embeds instead of rendered output, and the four ways its specimen differs from the editor's | `render/demo/mod.rs` |
+| The corner triangle a cell wears when it begins a sequence, and the one detail row it opens | `render/demo/demo.js` (`toggleDetail`), `demo.css` (`.cell .mk`) |
+| What a detail cell's label says, and why a long one is cut rather than spilled | `render/demo/demo.js` (`seqLabel`), `demo.css` (`.row.detail .cell .n`) |
+| What the page is told about sequences, and why no glyph name is among it | `render/demo/mod.rs` (`collect_sequences`) |
+| Why an open detail row is counted into its chunk's height | `render/demo/demo.js` (`sizeChunk`) |
 | What the demo blob is modelled into before it is written: delta-coded cell runs, front-coded names, one entry per naming rule | `render/demo/mod.rs` (`DemoBlock::runs`, `DemoNames`, `widen_runs`) |
 | Which character names the demo page is told and which it spells for itself | `render/demo/mod.rs` (`collect_names`), `render/demo/demo.js` (`nameOf`) |
 | Why the demo's cells are rendered in lazy chunks, and why a chunk knows its height before its content | `render/demo/demo.js` |
@@ -377,6 +386,10 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why every `gvar` delta is written out in full, and what IUP was measured to save | `render/ttf_builder/tables.rs` (`full_deltas`) |
 | What an exemption costs a component shared with an unflagged glyph | `issues/flags.rs` |
 | Why the view synthesizes an on-demand ref instead of waiting for the resolve | `ref_composite/mod.rs` (`resolve_ref_name_for_view`) |
+| Typing a glyph no `map` names, and why the answer is checked rather than derived | `render/reach.rs` |
+| Why a per-glyph cost cannot answer it — neighbouring derivations share the string they are written in | `render/reach.rs` (`Cascade::sweep` vs `shape`) |
+| What the repair search does when a glyph a later group consumes cannot be shown by its own candidate | `render/reach.rs` (`Cascade::repair`, `rule_alphabet`) |
+| Which glyphs are asked for, which groups are handed over, and the feature property that is not checked | `render/ttf_builder/collect.rs` (`remap_only_sequences`) |
 | A `ref` to a coloured glyph: which colours travel up, what a `fill` claims, and why a difference hands up only one | `render/ttf_builder/collect.rs` (`ColorPiece`, `color_pieces_for_body`) |
 | The same colours in the editor's live composite: why a layer stays one layer and the colour is per cell | `ref_composite/composite.rs` (`layer_cell_colors`, `target_draws_color`) |
 | Sub-pixel shape codes, `PX_CUSTOM` | `pixel.rs` |
@@ -529,6 +542,7 @@ past the source it tests, it lives in a sibling file (or directory) declared as 
 | `pixel.rs` | `pixel_tests.rs` |
 | `specimen.rs` | `specimen_tests.rs` |
 | `render/sample.rs` | `render/sample_tests.rs` |
+| `render/reach.rs` | `render/reach_tests.rs` |
 | `editor/pixel_selection.rs` | `editor/pixel_selection_tests.rs` |
 | `editor/glyph_resize.rs` | `editor/glyph_resize_tests.rs` |
 | `meta.rs` | `meta_tests.rs` |

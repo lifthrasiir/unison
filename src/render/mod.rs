@@ -2,6 +2,7 @@ pub mod assert;
 pub mod contour;
 pub mod demo;
 pub(crate) mod glyph_cache;
+pub mod reach;
 pub mod sample;
 pub mod ttf_builder;
 
@@ -14,7 +15,7 @@ pub use ttf_builder::{
 };
 pub use ttf_builder::{
     FontWithGidMap, build_collection, build_face_variable, build_faces_from,
-    build_font_with_gid_map_for,
+    build_font_with_gid_map_for, remap_only_sequences, remap_only_sequences_from,
 };
 
 /// How hard the WOFF2 encoder compresses.

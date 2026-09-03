@@ -1116,3 +1116,28 @@ fn collect_glyph_data(docs: &[&Document], bitmap: bool) -> Option<CollectedFontD
 #[cfg(test)]
 #[path = "../ttf_tests/mod.rs"]
 mod tests;
+
+/// Every glyph a `remap` produces and no `map` names, with the shortest code
+/// point sequence that puts it on the screen.
+pub struct RemapOnly {
+    pub solved: BTreeMap<String, Vec<u32>>,
+    /// Targets no sequence was found for: unreachable, shadowed by an earlier
+    /// rule, or past the repair search's budget. A consumer that draws these
+    /// has to say it cannot show them rather than draw something wrong.
+    pub unsolved: Vec<String>,
+}
+
+/// The above, for one face, expanding for itself.
+pub fn remap_only_sequences(docs: &[&Document], face: &crate::faces::Face) -> Option<RemapOnly> {
+    collect::remap_only_sequences(docs, face, None, &crate::cancel::CancelToken::never())
+}
+
+/// The same over an expansion the caller already has. See
+/// [`collect::remap_only_sequences`].
+pub fn remap_only_sequences_from(
+    docs: &[&Document],
+    face: &crate::faces::Face,
+    expansion: &Expansion,
+) -> Option<RemapOnly> {
+    collect::remap_only_sequences(docs, face, Some(expansion), &crate::cancel::CancelToken::never())
+}

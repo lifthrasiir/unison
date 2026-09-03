@@ -1526,3 +1526,105 @@ pub(super) fn collect_glyph_data_with_shared(
         palette_colors,
     ))
 }
+
+/// The shortest code point sequence that puts each glyph on the screen that a
+/// `remap` produces and no `map` names — the flags, the composed jamo, and
+/// everything else a specimen has no code point to key a cell on.
+///
+/// The expansion this reads is the one the GSUB tables are built from, so the
+/// question costs a walk over data that already exists. What the walk is and
+/// why it checks its answers rather than deriving them is
+/// [`crate::render::reach`].
+pub(super) fn remap_only_sequences(
+    docs: &[&Document],
+    face: &crate::faces::Face,
+    expansion: Option<&super::expand::Expansion>,
+    cancel: &crate::cancel::CancelToken,
+) -> Option<RemapOnly> {
+    use crate::render::reach::{Cascade, RemapLine};
+
+    // Expanding is by far the larger half of this — 731 ms against 146 ms over
+    // `font/` — so a caller that has an expansion lends it rather than paying
+    // for a second one. See `ExpansionSource`.
+    let source = expansion.map_or(ExpansionSource::Compute, ExpansionSource::Lent);
+    let input = compute_face_input(docs, face, cancel, source)?;
+
+    let mut cmap: Vec<(u32, String)> = Vec::new();
+    for item in &input.all_items {
+        let DocumentItem::Map {
+            char_repr,
+            selector,
+            glyphs,
+            ..
+        } = item
+        else {
+            continue;
+        };
+        // A variation sequence claims no code point of its own; it reaches the
+        // cascade as a pair instead, the same way it reaches cmap format 14.
+        if selector.is_some() {
+            continue;
+        }
+        let mut pairs = super::expand_map_pairs(char_repr, super::resolved_map_target(glyphs));
+        input.glyph_aliases.canonicalize_pairs(&mut pairs);
+        cmap.append(&mut pairs);
+    }
+    let uvs: Vec<(u32, u32, String)> =
+        super::gsub::collect_uvs_pairs(&input.all_items, &input.glyph_aliases)
+            .into_iter()
+            .map(|pair| (pair.base, pair.selector, pair.glyph))
+            .collect();
+
+    // Only the groups some `feature` runs, and in lookup order — `remap_sets`
+    // is keyed by name and so says nothing about order. Whether the tag is one
+    // a shaper turns on by default is *not* checked; every `feature` in `font/`
+    // is one (`ccmp`, `liga`, `calt`, `locl`, `ljmo`, `vjmo`, `tjmo`).
+    let run: HashSet<&str> = input
+        .gsub_data
+        .features
+        .iter()
+        .flat_map(|(_, _, names)| names.iter().map(String::as_str))
+        .collect();
+    let groups: Vec<Vec<RemapLine<'_>>> = input
+        .gsub_data
+        .groups
+        .order
+        .iter()
+        .filter(|name| run.contains(name.as_str()))
+        .filter_map(|name| input.gsub_data.remap_sets.get(name))
+        .map(|set| {
+            set.iter()
+                .map(|rule| RemapLine {
+                    lookbehind: &rule.lookbehind,
+                    source: &rule.source,
+                    target: &rule.target,
+                    lookahead: &rule.lookahead,
+                })
+                .collect()
+        })
+        .collect();
+
+    let mapped: HashSet<&str> = cmap.iter().map(|(_, name)| name.as_str()).collect();
+    let targets: std::collections::BTreeSet<&str> = input
+        .gsub_data
+        .remap_sets
+        .values()
+        .flatten()
+        .flat_map(|rule| rule.target.iter().flatten())
+        .map(String::as_str)
+        .filter(|name| !name.is_empty() && !mapped.contains(name))
+        .collect();
+
+    let solved = Cascade::new(&cmap, &uvs, &groups).solve(&targets);
+    Some(RemapOnly {
+        unsolved: targets
+            .iter()
+            .filter(|name| !solved.contains_key(*name))
+            .map(|name| name.to_string())
+            .collect(),
+        solved: solved
+            .into_iter()
+            .map(|(name, cps)| (name.to_string(), cps))
+            .collect(),
+    })
+}

@@ -33,9 +33,15 @@
 //!    points count as characters is the editor's rule exactly
 //!    ([`CharProps::is_assigned`](crate::ucd::CharProps::is_assigned)): the
 //!    UCD outside Private Use, and the source's own `prop` lines inside it.
-//! 3. Variation sequences and remap-only glyphs get no cell yet. They need an
-//!    interface of their own here (the editor puts them inline, which reads
-//!    only because a click can go to the source).
+//! 3. A glyph no `map` names — a flag, a composed jamo — has no code point to
+//!    put it under, so the chart marks the *cell it starts at* instead: a
+//!    corner triangle on the character's own cell, and one click opens a row of
+//!    everything that character begins. What to type for each is
+//!    [`crate::render::reach`]; the cell it is offered from and the label it
+//!    wears are `demo.js`. Variation sequences still get no cell of their own —
+//!    they reach this page only where a `remap` also produces one.
+//!    (The editor puts both inline instead, which reads only because a click
+//!    there can go to the source.)
 //! 4. A block longer than 0x100 code points is *folded* in the middle. A code
 //!    chart of a whole font is read by scrolling, and the one thing it cannot
 //!    afford is ten thousand identical rows between two blocks; the fold keeps
@@ -163,6 +169,9 @@ struct DemoData {
     /// The ready-made texts the sample panel offers; empty when the build was
     /// given no `-d` directory to read them from.
     samples: Vec<DemoSampleGroup>,
+    /// The multi-character sequences each cell can offer; see
+    /// [`collect_sequences`].
+    seqs: String,
 }
 
 /// One heading's worth of ready-made sample texts.
@@ -380,6 +389,7 @@ impl DemoNames {
 fn collect(
     src: &SampleSource,
     docs: &[&Document],
+    expansion: &crate::render::ttf_builder::Expansion,
     bitmap_ttf: &[u8],
     data_dir: Option<&Path>,
 ) -> DemoData {
@@ -468,7 +478,62 @@ fn collect(
         names,
         name_runs,
         samples: collect_samples(src, data_dir),
+        seqs: collect_sequences(docs, face, expansion),
     }
+}
+
+/// What each cell can offer beyond the character it stands for: the code point
+/// sequences that start there and put a glyph on the screen no `map` names.
+///
+/// `<gap>:<tail>[,<tail>]…` per starting code point, separated by `;`, a gap
+/// being the distance past the previous starting code point and a tail the rest
+/// of one sequence in `+`-separated hexadecimal. Written this way it is 12 KB
+/// of a 197 KB blob; the starting code point is left out of every tail because
+/// the cell offering them already is it.
+///
+/// Only sequences of two code points or more. A one-code-point answer is a
+/// character the font *already* draws that way, so its own cell shows it and
+/// there is nothing to offer. Glyph names are not carried at all: what a reader
+/// needs from a cell here is what to type, and the sequence is its own label.
+fn collect_sequences(
+    docs: &[&Document],
+    face: &crate::faces::Face,
+    expansion: &crate::render::ttf_builder::Expansion,
+) -> String {
+    use std::collections::BTreeSet;
+
+    let Some(found) = crate::render::remap_only_sequences_from(docs, face, expansion) else {
+        return String::new();
+    };
+    let mut by_first: BTreeMap<u32, BTreeSet<Vec<u32>>> = BTreeMap::new();
+    for cps in found.solved.into_values() {
+        if cps.len() < 2 {
+            continue;
+        }
+        by_first.entry(cps[0]).or_default().insert(cps);
+    }
+
+    let mut out = String::new();
+    let mut prev = 0u32;
+    for (first, seqs) in by_first {
+        if !out.is_empty() {
+            out.push(';');
+        }
+        out.push_str(&format!("{:x}:", first - prev));
+        prev = first;
+        for (i, seq) in seqs.iter().enumerate() {
+            if i > 0 {
+                out.push(',');
+            }
+            for (j, cp) in seq[1..].iter().enumerate() {
+                if j > 0 {
+                    out.push('+');
+                }
+                out.push_str(&format!("{cp:x}"));
+            }
+        }
+    }
+    out
 }
 
 /// Whether `cp` is a Hangul syllable, whose name the page composes from the
@@ -654,10 +719,11 @@ pub fn write_demo_html(
     w: &mut dyn Write,
     src: &SampleSource,
     docs: &[&Document],
+    expansion: &crate::render::ttf_builder::Expansion,
     fonts: DemoFonts<'_>,
     data_dir: Option<&Path>,
 ) -> io::Result<()> {
-    let data = collect(src, docs, fonts.ttf, data_dir);
+    let data = collect(src, docs, expansion, fonts.ttf, data_dir);
     let title = format!("{} \u{2014} specimen", data.meta.family);
     // `</` inside the blob would end the script element early whatever it sits
     // in; JSON has no other way to spell a slash, so it is escaped here rather

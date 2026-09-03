@@ -867,6 +867,7 @@ fn main() {
                 &mut f,
                 sample_source.as_ref().unwrap(),
                 &refs,
+                &resolution.expansion,
                 fonts,
                 data_dir.as_deref(),
             ) {
@@ -888,6 +889,56 @@ fn main() {
     }
 
     // Test subcommand: uniform test --input DIR
+    if args.get(1).map(|s| s.as_str()) == Some("sequences") {
+        let mut input_dir = None;
+        let mut i = 2;
+        while i < args.len() {
+            match args[i].as_str() {
+                "--input" | "-i" => {
+                    i += 1;
+                    input_dir = args.get(i).map(std::path::PathBuf::from);
+                }
+                _ => {
+                    eprintln!("Unknown sequences option: {}", args[i]);
+                    std::process::exit(1);
+                }
+            }
+            i += 1;
+        }
+
+        let Some(input) = input_dir else {
+            eprintln!("Usage: uniform sequences --input <DIR>");
+            std::process::exit(1);
+        };
+
+        let (docs, _) = load_docs_reporting_errors(&input);
+        if docs.is_empty() {
+            eprintln!("No .unf files found in {}", input.display());
+            std::process::exit(1);
+        }
+        let refs: Vec<&document::Document> = docs.iter().collect();
+        let faces = crate::faces::FaceSet::collect(&refs);
+        let Some(found) = render::remap_only_sequences(&refs, faces.primary()) else {
+            eprintln!("Nothing to report.");
+            std::process::exit(1);
+        };
+
+        for (name, cps) in &found.solved {
+            let spelled: Vec<String> = cps.iter().map(|cp| format!("U+{cp:04X}")).collect();
+            let text: String = cps.iter().filter_map(|cp| char::from_u32(*cp)).collect();
+            println!("{name}\t{}\t{text}", spelled.join(" "));
+        }
+        for name in &found.unsolved {
+            println!("{name}\t-");
+        }
+        eprintln!(
+            "\n{} glyph(s) reached, {} without a sequence.",
+            found.solved.len(),
+            found.unsolved.len(),
+        );
+        return;
+    }
+
     if args.get(1).map(|s| s.as_str()) == Some("test") {
         let mut input_dir = None;
         let mut i = 2;

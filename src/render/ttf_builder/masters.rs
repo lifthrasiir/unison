@@ -119,12 +119,15 @@ fn best_start(p: &[(i16, i16)], q: &[(i16, i16)]) -> (usize, usize) {
     best
 }
 
+/// One contour as the points it is written from.
+type Points = Vec<(i16, i16)>;
+
 /// Pad `p` and `q` to one common length by repeating points, so that index `k`
 /// of each names the same place on the glyph.
 ///
 /// The returned pair always has equal lengths, and each side simplifies back to
 /// what it was: only whole points are repeated, never moved or dropped.
-fn align_pair(p: &[(i16, i16)], q: &[(i16, i16)]) -> (Vec<(i16, i16)>, Vec<(i16, i16)>) {
+fn align_pair(p: &[(i16, i16)], q: &[(i16, i16)]) -> (Points, Points) {
     let (n, m) = (p.len(), q.len());
     if n == 0 || m == 0 {
         // Nothing to align against: the empty side becomes a collapsed copy of
