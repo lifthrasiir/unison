@@ -2006,6 +2006,25 @@ glyph rhotic-hook 8 16
 ................
 ................
 
+map ˠ = sup-gamma-lower
+map ˤ = sup-glottal-stop-reversed
+
+map ˀ = glottal-stop-above-spacing
+map ˁ = glottal-stop-reversed-above-spacing
+map ꜛ = arrow-d2u-above-spacing
+map ꜜ = arrow-u2d-above-spacing
+map ꜝ = excl-above-spacing
+map ꜞ = excl-inverted-above-spacing
+map ꜟ = excl-inverted-below-spacing
+
+map ˈ = primary-stress
+map ˌ = secondary-stress
+map ː = length-mark
+map ˑ = half-length-mark
+map ˞ = rhotic-hook
+
+## tone letters
+
 glyph tone-bar-1-l 8 16
 ................
 ..@@@@@@@@@@@@..
@@ -2350,23 +2369,6 @@ glyph tone-bar-5-r-dotted 8 16
 .........\/.....
 ................
 
-map ˠ = sup-gamma-lower
-map ˤ = sup-glottal-stop-reversed
-
-map ˀ = glottal-stop-above-spacing
-map ˁ = glottal-stop-reversed-above-spacing
-map ꜛ = arrow-d2u-above-spacing
-map ꜜ = arrow-u2d-above-spacing
-map ꜝ = excl-above-spacing
-map ꜞ = excl-inverted-above-spacing
-map ꜟ = excl-inverted-below-spacing
-
-map ˈ = primary-stress
-map ˌ = secondary-stress
-map ː = length-mark
-map ˑ = half-length-mark
-map ˞ = rhotic-hook
-
 map ˥ = tone-bar-1-l
 map ˦ = tone-bar-2-l
 map ˧ = tone-bar-3-l
@@ -2391,3 +2393,322 @@ map ꜏ = tone-bar-3-r-dotted
 map ꜐ = tone-bar-4-r-dotted
 map ꜑ = tone-bar-5-r-dotted
 
+feature ccmp for DFLT : ipa-tone
+feature ccmp for DFLT : ipa-tone-l
+feature ccmp for DFLT : ipa-tone-fin
+
+remap group ipa-tone
+remap group ipa-tone-l reversed after ipa-tone
+remap group ipa-tone-fin after ipa-tone-l
+
+// all segments can be classified in five groups depending on
+// which edges of the starting pixel are fully in those segments:
+//
+// - h(igh):     down and right edges, +1 < slope
+// - p(ositive): left and up edges, 0 < slope < +1
+// - z(ero):     left and right edges, slope = 0
+// - n(egative): left and down edges, -1 < slope < 0
+// - l(ow):      up and right edges, slope < -1
+//
+//     /   /     __--
+//    /   /  __--                 n          l
+// +-/-+ /  +---+__--  +---+--  +---+      +---+
+// |/  |/   |__--      |   |    |~~--      |\  |\
+// +---+    +---+      +---+--  +---+~~--  +-\-+ \
+//   h        p          z       ~~--         \   \
+//                                   ~~--      \   \
+
+// placeholder glyphs for tail letters
+glyph tone-($1..5) 8 16
+//ref tone-bar-($-1)-l // for debugging
+//ref 1x13 1 1
+
+### pass 1: identify all tail letters
+
+remap ipa-tone : tone-bar-($1..5)-l -> tone-($1..5) : tone-bar-($1..5)-l
+
+### pass 2: pair the last two tone letters
+
+glyph tone-bar-l 8 16
+................
+............@@..
+............@@..
+............@@..
+............@@..
+............@@..
+............@@..
+............@@..
+............@@..
+............@@..
+............@@..
+............@@..
+............@@..
+............@@..
+................
+................
+
+glyph tone-bar-1z1-l
+ref tone-bar-1-l
+glyph tone-bar-1n2-l 8 16
+ref tone-bar-l
+ref 5x4-yz3 1 1
+glyph tone-bar-1l3-l 8 16
+ref tone-bar-l
+ref 6x7-xz5 1 1
+glyph tone-bar-1l4-l 8 16
+ref tone-bar-l
+ref 6x10-xz5 1 1
+glyph tone-bar-1l5-l 8 16
+ref tone-bar-l
+ref 6x13-xz5 1 1
+
+glyph tone-bar-2p1-l 8 16
+ref tone-bar-l
+ref 5x4-ys3 1 1
+glyph tone-bar-2z2-l
+ref tone-bar-2-l
+glyph tone-bar-2n3-l 8 16
+ref tone-bar-l
+ref 5x4-yz3 1 4
+glyph tone-bar-2l4-l 8 16
+ref tone-bar-l
+ref 6x7-xz5 1 4
+glyph tone-bar-2l5-l 8 16
+ref tone-bar-l
+ref 6x10-xz5 1 4
+
+glyph tone-bar-3h1-l 8 16
+ref tone-bar-l
+ref 6x7-xs5 1 1
+glyph tone-bar-3p2-l 8 16
+ref tone-bar-l
+ref 5x4-ys3 1 4
+glyph tone-bar-3z3-l
+ref tone-bar-3-l
+glyph tone-bar-3n4-l 8 16
+ref tone-bar-l
+ref 5x4-yz3 1 7
+glyph tone-bar-3l5-l 8 16
+ref tone-bar-l
+ref 6x7-xz5 1 7
+
+glyph tone-bar-4h1-l 8 16
+ref tone-bar-l
+ref 6x10-xs5 1 1
+glyph tone-bar-4h2-l 8 16
+ref tone-bar-l
+ref 6x7-xs5 1 4
+glyph tone-bar-4p3-l 8 16
+ref tone-bar-l
+ref 5x4-ys3 1 7
+glyph tone-bar-4z4-l
+ref tone-bar-4-l
+glyph tone-bar-4n5-l 8 16
+ref tone-bar-l
+ref 5x4-yz3 1 10
+
+glyph tone-bar-5h1-l 8 16
+ref tone-bar-l
+ref 6x13-xs5 1 1
+glyph tone-bar-5h2-l 8 16
+ref tone-bar-l
+ref 6x10-xs5 1 4
+glyph tone-bar-5h3-l 8 16
+ref tone-bar-l
+ref 6x7-xs5 1 7
+glyph tone-bar-5p4-l 8 16
+ref tone-bar-l
+ref 5x4-ys3 1 10
+glyph tone-bar-5z5-l
+ref tone-bar-5-l
+
+remap ipa-tone-l : tone-1 : tone-bar-1-l -> tone-bar-1z1-l
+remap ipa-tone-l : tone-1 : tone-bar-2-l -> tone-bar-1n2-l
+remap ipa-tone-l : tone-1 : tone-bar-3-l -> tone-bar-1l3-l
+remap ipa-tone-l : tone-1 : tone-bar-4-l -> tone-bar-1l4-l
+remap ipa-tone-l : tone-1 : tone-bar-5-l -> tone-bar-1l5-l
+
+remap ipa-tone-l : tone-2 : tone-bar-1-l -> tone-bar-2p1-l
+remap ipa-tone-l : tone-2 : tone-bar-2-l -> tone-bar-2z2-l
+remap ipa-tone-l : tone-2 : tone-bar-3-l -> tone-bar-2n3-l
+remap ipa-tone-l : tone-2 : tone-bar-4-l -> tone-bar-2l4-l
+remap ipa-tone-l : tone-2 : tone-bar-5-l -> tone-bar-2l5-l
+
+remap ipa-tone-l : tone-3 : tone-bar-1-l -> tone-bar-3h1-l
+remap ipa-tone-l : tone-3 : tone-bar-2-l -> tone-bar-3p2-l
+remap ipa-tone-l : tone-3 : tone-bar-3-l -> tone-bar-3z3-l
+remap ipa-tone-l : tone-3 : tone-bar-4-l -> tone-bar-3n4-l
+remap ipa-tone-l : tone-3 : tone-bar-5-l -> tone-bar-3l5-l
+
+remap ipa-tone-l : tone-4 : tone-bar-1-l -> tone-bar-4h1-l
+remap ipa-tone-l : tone-4 : tone-bar-2-l -> tone-bar-4h2-l
+remap ipa-tone-l : tone-4 : tone-bar-3-l -> tone-bar-4p3-l
+remap ipa-tone-l : tone-4 : tone-bar-4-l -> tone-bar-4z4-l
+remap ipa-tone-l : tone-4 : tone-bar-5-l -> tone-bar-4n5-l
+
+remap ipa-tone-l : tone-5 : tone-bar-1-l -> tone-bar-5h1-l
+remap ipa-tone-l : tone-5 : tone-bar-2-l -> tone-bar-5h2-l
+remap ipa-tone-l : tone-5 : tone-bar-3-l -> tone-bar-5h3-l
+remap ipa-tone-l : tone-5 : tone-bar-4-l -> tone-bar-5p4-l
+remap ipa-tone-l : tone-5 : tone-bar-5-l -> tone-bar-5z5-l
+
+sample IPA `Contour tone letters (3-tuple)` : matrix
+|| ﾠ
+|| ˥˦˧˨˩
+|| ˥˦˧˨˩
+|| ˥˦˧˨˩
+
+### pass 3: pair the last tail letter and first combined letter
+
+glyph tone-1z1zn-l 8 16 advance 8
+ref 8x1 1 1
+glyph tone-1z1l-l 8 16 advance 8
+ref 9x1 1 1
+glyph tone-1n2pzn-l 8 16 advance 8
+ref 8x4-yz3 1 1
+glyph tone-1n2l-l 8 16 advance 8
+ref 9x4-yz3 1 1
+glyph tone-1n3hpzn-l 8 16 advance 8
+ref 9x7p6r8-yz6p6r8 1 1
+ref 2x2-dr 8 7 negated
+glyph tone-1n3l-l 8 16 advance 8
+ref 9x7-yz6 1 1
+glyph tone-1l4hpzn-l 8 16 advance 8
+ref 9x10-xz8 1 1
+ref 2x2-dr 8 10 negated
+glyph tone-1l5hpz-l 8 16 advance 8
+ref 9x13-xz8 1 1
+ref 2x2-dr 8 13 negated
+
+glyph tone-2p1znl-l 8 16 advance 8
+ref 9x-4p3r8-ys3p3r8 1 0
+ref 2x2-ur 8 0 negated
+glyph tone-2z2pzn-l 8 16 advance 8
+ref 8x1 1 4
+glyph tone-2z2l-l 8 16 advance 8
+ref 9x1 1 4
+glyph tone-2n3hpzn-l 8 16 advance 8
+ref 8x4-yz3 1 4
+glyph tone-2n3l-l 8 16 advance 8
+ref 9x4-yz3 1 4
+glyph tone-2n4hpzn-l 8 16 advance 8
+ref 9x7p6r8-yz6p6r8 1 4
+ref 2x2-dr 8 10 negated
+glyph tone-2l5hpz-l 8 16 advance 8
+ref 9x10-xz8 1 4
+ref 2x2-dr 8 13 negated
+
+glyph tone-3p1znl-l 8 16 advance 8
+ref 9x-7p6r8-ys6p6r8 1 0
+ref 2x2-ur 8 0 negated
+glyph tone-3p2pznl-l 8 16 advance 8
+ref 9x-4p3r8-ys3p3r8 1 3
+ref 2x2-ur 8 3 negated
+glyph tone-3z3hl-l 8 16 advance 8
+ref 9x1 1 7
+glyph tone-3z3pzn-l 8 16 advance 8
+ref 8x1 1 7
+glyph tone-3n4hpzn-l 8 16 advance 8
+ref 9x4p3r8-yz3p3r8 1 7
+ref 2x2-dr 8 10 negated
+glyph tone-3n5hpz-l 8 16 advance 8
+ref 9x7p6r8-yz6p6r8 1 7
+ref 2x2-dr 8 13 negated
+
+glyph tone-4h1znl-l 8 16 advance 8
+ref 9x10-xs8 1 1
+ref 2x2-ur 8 0 negated
+glyph tone-4p2pznl-l 8 16 advance 8
+ref 9x-7p6r8-ys6p6r8 1 3
+ref 2x2-ur 8 3 negated
+glyph tone-4p3h-l 8 16 advance 8
+ref 9x4-ys3 1 7
+glyph tone-4p3pznl-l 8 16 advance 8
+ref 8x4-ys3 1 7
+glyph tone-4z4h-l 8 16 advance 8
+ref 9x1 1 10
+glyph tone-4z4pzn-l 8 16 advance 8
+ref 8x1 1 10
+glyph tone-4n5hpz-l 8 16 advance 8
+ref 9x4p3r8-yz3p3r8 1 10
+ref 2x2-dr 8 13 negated
+
+glyph tone-5h1znl-l 8 16 advance 8
+ref 9x13-xs8 1 1
+ref 2x2-ur 8 0 negated
+glyph tone-5h2pznl-l 8 16 advance 8
+ref 9x10-xs8 1 4
+ref 2x2-ur 8 3 negated
+glyph tone-5p3h-l 8 16 advance 8
+ref 9x7-ys6 1 7
+glyph tone-5p3pznl-l 8 16 advance 8
+ref 9x-7p6r8-ys6p6r8 1 6
+ref 2x2-ur 8 6 negated
+glyph tone-5p4h-l 8 16 advance 8
+ref 9x4-ys3 1 10
+glyph tone-5p4pzn-l 8 16 advance 8
+ref 8x4-ys3 1 10
+glyph tone-5z5h-l 8 16 advance 8
+ref 9x1 1 13
+glyph tone-5z5pz-l 8 16 advance 8
+ref 8x1 1 13
+
+remap ipa-tone-l : tone-1 : tone-($1..5) -> tone-1z1zn-l : ($tone-1zn-l)
+remap ipa-tone-l : tone-1 : tone-($1..5) -> tone-1z1l-l : ($tone-1l-l)
+remap ipa-tone-l : tone-1 : tone-($1..5) -> tone-1n2pzn-l : ($tone-2pzn-l)
+remap ipa-tone-l : tone-1 : tone-($1..5) -> tone-1n2l-l : ($tone-2l-l)
+remap ipa-tone-l : tone-1 : tone-($1..5) -> tone-1n3hpzn-l : ($tone-3h-l|$tone-3pzn-l)
+remap ipa-tone-l : tone-1 : tone-($1..5) -> tone-1n3l-l : ($tone-3l-l)
+remap ipa-tone-l : tone-1 : tone-($1..5) -> tone-1l4hpzn-l : ($tone-4h-l|$tone-4pzn-l)
+remap ipa-tone-l : tone-1 : tone-($1..5) -> tone-1l5hpz-l : ($tone-5h-l|$tone-5pz-l)
+
+remap ipa-tone-l : tone-2 : tone-($1..5) -> tone-2p1znl-l : ($tone-1zn-l|$tone-1l-l)
+remap ipa-tone-l : tone-2 : tone-($1..5) -> tone-2z2pzn-l : ($tone-2pzn-l)
+remap ipa-tone-l : tone-2 : tone-($1..5) -> tone-2z2l-l : ($tone-2l-l)
+remap ipa-tone-l : tone-2 : tone-($1..5) -> tone-2n3hpzn-l : ($tone-3h-l|$tone-3pzn-l)
+remap ipa-tone-l : tone-2 : tone-($1..5) -> tone-2n3l-l : ($tone-3l-l)
+remap ipa-tone-l : tone-2 : tone-($1..5) -> tone-2n4hpzn-l : ($tone-4h-l|$tone-4pzn-l)
+remap ipa-tone-l : tone-2 : tone-($1..5) -> tone-2l5hpz-l : ($tone-5h-l|$tone-5pz-l)
+
+remap ipa-tone-l : tone-3 : tone-($1..5) -> tone-3p1znl-l : ($tone-1zn-l|$tone-1l-l)
+remap ipa-tone-l : tone-3 : tone-($1..5) -> tone-3p2pznl-l : ($tone-2pzn-l|$tone-2l-l)
+remap ipa-tone-l : tone-3 : tone-($1..5) -> tone-3z3hl-l : ($tone-3h-l|$tone-3l-l)
+remap ipa-tone-l : tone-3 : tone-($1..5) -> tone-3z3pzn-l : ($tone-3pzn-l)
+remap ipa-tone-l : tone-3 : tone-($1..5) -> tone-3n4hpzn-l : ($tone-4h-l|$tone-4pzn-l)
+remap ipa-tone-l : tone-3 : tone-($1..5) -> tone-3n5hpz-l : ($tone-5h-l|$tone-5pz-l)
+
+remap ipa-tone-l : tone-4 : tone-($1..5) -> tone-4h1znl-l : ($tone-1zn-l|$tone-1l-l)
+remap ipa-tone-l : tone-4 : tone-($1..5) -> tone-4p2pznl-l : ($tone-2pzn-l|$tone-2l-l)
+remap ipa-tone-l : tone-4 : tone-($1..5) -> tone-4p3h-l : ($tone-3h-l)
+remap ipa-tone-l : tone-4 : tone-($1..5) -> tone-4p3pznl-l : ($tone-3pzn-l|$tone-3l-l)
+remap ipa-tone-l : tone-4 : tone-($1..5) -> tone-4z4h-l : ($tone-4h-l)
+remap ipa-tone-l : tone-4 : tone-($1..5) -> tone-4z4pzn-l : ($tone-4pzn-l)
+remap ipa-tone-l : tone-4 : tone-($1..5) -> tone-4n5hpz-l : ($tone-5h-l|$tone-5pz-l)
+
+remap ipa-tone-l : tone-5 : tone-($1..5) -> tone-5h1znl-l : ($tone-1zn-l|$tone-1l-l)
+remap ipa-tone-l : tone-5 : tone-($1..5) -> tone-5h2pznl-l : ($tone-2pzn-l|$tone-2l-l)
+remap ipa-tone-l : tone-5 : tone-($1..5) -> tone-5p3h-l : ($tone-3h-l)
+remap ipa-tone-l : tone-5 : tone-($1..5) -> tone-5p3pznl-l : ($tone-3pzn-l|$tone-3l-l)
+remap ipa-tone-l : tone-5 : tone-($1..5) -> tone-5p4h-l : ($tone-4h-l)
+remap ipa-tone-l : tone-5 : tone-($1..5) -> tone-5p4pzn-l : ($tone-4pzn-l)
+remap ipa-tone-l : tone-5 : tone-($1..5) -> tone-5z5h-l : ($tone-5h-l)
+remap ipa-tone-l : tone-5 : tone-($1..5) -> tone-5z5pz-l : ($tone-5pz-l)
+
+name-parts $tone-1zn-l = tone-bar-1(z1|n2)-l tone-1(z1zn|z1l|n2pzn|n2l|n3hpzn|n3l)-l
+name-parts $tone-1l-l = tone-bar-1(l3|l4|l5)-l tone-1(l4hpzn|l5hpz)-l
+name-parts $tone-2pzn-l = tone-bar-2(p1|z2|n3)-l tone-2(p1znl|z2pzn|z2l|n3hpzn|n3l|n4hpzn)-l
+name-parts $tone-2l-l = tone-bar-2(l4|l5)-l tone-2l5hpz-l
+name-parts $tone-3h-l = tone-bar-3h1-l
+name-parts $tone-3pzn-l = tone-bar-3(p2|z3|n4)-l tone-3(p1znl|p2pznl|z3hl|z3pzn|n4hpzn|n5hpz)-l
+name-parts $tone-3l-l = tone-bar-3l5-l
+name-parts $tone-4h-l = tone-bar-4(h1|h2)-l tone-4h1znl-l
+name-parts $tone-4pzn-l = tone-bar-4(p3|z4|n5)-l tone-4(p2pznl|p3h|p3pznl|z4h|z4pzn|n5hpz)-l
+name-parts $tone-5h-l = tone-bar-5(h1|h2|h3)-l tone-5(h1znl|h2pznl)-l
+name-parts $tone-5pz-l = tone-bar-5(p4|z5)-l tone-5(p3h|p3pznl|p4h|p4pzn|z5h|z5pz)-l
+
+sample IPA `Contour tone letters (de Bruijn sequence)`
+|| ˥˥˥˦˦˨˨˦˦˥˦˨˩˧˨˧˩˦˩˦˥˨˦˥˩˩˩˥˥˧˧˥˥˩˥˧˨˦˧˦˨˥˨˥˩˧˥˩˨˨˨˩˩˦˦˩˩˨˩˦˧˥˦˥˧˩˧˩˨˦˩˨˧˧˧˨˨˥˥˨˨˧˨˥˦˩˥˩˦˨˦˨˧˥˨˧˦˦˦˧˧˩˩˧˧˦˧˨˩˥˦˧˩˥˨˩˨˥˧˥˧˦˩˧˦
+
+### pass 4: discard the initial, now stray, tail letter
+
+remap ipa-tone-fin : tone-($1..5) -> 
