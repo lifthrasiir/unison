@@ -227,23 +227,81 @@ fn flush_pixel_change(
     state.clear_document_sync_request();
 }
 
-/// Run the inline command the subglyph menu chose on ref `ref_idx` of the
-/// glyph being edited.
+/// What an inline command would act on: one composed line of one glyph block.
+///
+/// A `ref` line and an IDC line are the two ways a block says it is made of
+/// another glyph, so both answer the same two commands — see
+/// [`inline_target_at_line`] for how the caret names one.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub(crate) enum InlineTarget {
+    Ref { edit_idx: usize, ref_idx: usize },
+    Compose { edit_idx: usize, compose_idx: usize },
+}
+
+/// The composed line the caret sits on, if it sits on one.
+///
+/// The ordinal is *scanned* rather than computed from the line's distance to
+/// the header: a block may write its `ref`, `anchor` and IDC lines in any
+/// order, and only the lines of the same kind before this one decide which
+/// entry of `body.refs`/`body.compose` it parsed into.
+pub(crate) fn inline_target_at_line(
+    doc: &Document,
+    lines: &[DocLine],
+    line: usize,
+) -> Option<InlineTarget> {
+    let edit_idx = line_to_item_idx(&doc.item_line_starts, line)?;
+    let DocumentItem::Glyph { body, .. } = doc.items.get(edit_idx)? else {
+        return None;
+    };
+    let item_start = *doc.item_line_starts.get(edit_idx)?;
+    let body_start = item_start + 1 + usize::from(body.pixels.is_some());
+    if line < body_start {
+        return None;
+    }
+    #[derive(PartialEq)]
+    enum Kind {
+        Ref,
+        Compose,
+    }
+    let kind_of = |idx: usize| match lines.get(idx) {
+        Some(DocLine::Text(t)) => match t.split_whitespace().next() {
+            Some("ref") => Some(Kind::Ref),
+            Some(tok) => crate::compose::IdcOp::from_token(tok).map(|_| Kind::Compose),
+            None => None,
+        },
+        _ => None,
+    };
+    let kind = kind_of(line)?;
+    let ordinal = (body_start..line)
+        .filter(|&i| kind_of(i).is_some_and(|k| k == kind))
+        .count();
+    match kind {
+        Kind::Ref => (ordinal < body.refs.len()).then_some(InlineTarget::Ref {
+            edit_idx,
+            ref_idx: ordinal,
+        }),
+        Kind::Compose => (ordinal < body.compose.len()).then_some(InlineTarget::Compose {
+            edit_idx,
+            compose_idx: ordinal,
+        }),
+    }
+}
+
+/// Run the inline command the subglyph menu chose on `target`.
 #[allow(clippy::too_many_arguments)]
 pub(super) fn apply_inline_action(
     action: crate::editor::inline_tools::InlineAction,
     lines: &mut Vec<DocLine>,
     doc: &Document,
     state: &mut EditorState,
-    edit_idx: usize,
-    ref_idx: usize,
+    target: InlineTarget,
     composite: Option<&ref_composite::GlyphComposite>,
     named_glyphs: &HashMap<String, ResolvedGlyph>,
     name_parts: &NamePartsMap,
 ) -> bool {
     use crate::editor::inline_tools::InlineAction;
-    match action {
-        InlineAction::Once => inline_ref_once(
+    match (target, action) {
+        (InlineTarget::Ref { edit_idx, ref_idx }, InlineAction::Once) => inline_ref_once(
             lines,
             doc,
             state,
@@ -253,12 +311,42 @@ pub(super) fn apply_inline_action(
             named_glyphs,
             name_parts,
         ),
-        InlineAction::ToPixels => inline_ref_to_pixels(
+        (InlineTarget::Ref { edit_idx, ref_idx }, InlineAction::ToPixels) => inline_ref_to_pixels(
             lines,
             doc,
             state,
             edit_idx,
             ref_idx,
+            named_glyphs,
+            name_parts,
+        ),
+        (
+            InlineTarget::Compose {
+                edit_idx,
+                compose_idx,
+            },
+            InlineAction::Once,
+        ) => inline_compose_once(
+            lines,
+            doc,
+            state,
+            edit_idx,
+            compose_idx,
+            named_glyphs,
+            name_parts,
+        ),
+        (
+            InlineTarget::Compose {
+                edit_idx,
+                compose_idx,
+            },
+            InlineAction::ToPixels,
+        ) => inline_compose_to_pixels(
+            lines,
+            doc,
+            state,
+            edit_idx,
+            compose_idx,
             named_glyphs,
             name_parts,
         ),
@@ -384,14 +472,17 @@ pub(super) fn inline_ref_once(
             }
         });
 
+    let item_start = doc.item_line_starts[edit_idx];
+    let target_line = pixel_interaction::layer_doc_line(lines, body, item_start, ref_idx);
     apply_inline(
         lines,
         doc,
         state,
         edit_idx,
-        ref_idx,
-        merge,
+        target_line,
+        merge.into_iter().collect(),
         replacement,
+        &body.refs,
         named_glyphs,
         name_parts,
     )
@@ -430,14 +521,36 @@ pub(super) fn inline_ref_to_pixels(
         return false;
     }
 
-    let gref = &body.refs[ref_idx];
-    let resolved =
-        match ref_composite::resolve_ref_name_for_view(&gref.name, named_glyphs, name_parts) {
-            Some(r) => r,
-            None => return false,
-        };
+    let merge = match merge_for_ref(&body.refs[ref_idx], body.scale, named_glyphs, name_parts) {
+        Some(m) => m,
+        None => return false,
+    };
+    let item_start = doc.item_line_starts[edit_idx];
+    let target_line = pixel_interaction::layer_doc_line(lines, body, item_start, ref_idx);
 
-    let parent_scale = body.scale;
+    apply_inline(
+        lines,
+        doc,
+        state,
+        edit_idx,
+        target_line,
+        vec![merge],
+        Vec::new(),
+        &body.refs,
+        named_glyphs,
+        name_parts,
+    )
+}
+
+/// The ink one `ref` puts into the glyph that writes it, flattened all the way
+/// down and stated in that glyph's own subcells.
+fn merge_for_ref(
+    gref: &crate::document::GlyphRef,
+    parent_scale: u8,
+    named_glyphs: &HashMap<String, ResolvedGlyph>,
+    name_parts: &NamePartsMap,
+) -> Option<MergeGrid> {
+    let resolved = ref_composite::resolve_ref_name_for_view(&gref.name, named_glyphs, name_parts)?;
     let ref_scale = resolved.scale.max(1);
     // Flattening writes the ref's pixels into the file, so its exact regions
     // have to land back on the shape catalog first — `merge_ref_pixels` works
@@ -455,41 +568,162 @@ pub(super) fn inline_ref_to_pixels(
     // [`crate::ref_composite::ref_effective_offset_scaled`], or the pixels land
     // where the ref never drew them.
     let (box_col, box_row) = resolved.declared_origin;
-    let merge = MergeGrid {
+    Some(MergeGrid {
         grid: scaled_ref_grid,
         row: gref.row() as i32 - box_row as i32 * ps + resolved.origin_row * ps / rs,
         col: gref.col() as i32 - box_col as i32 * ps + resolved.origin_col * ps / rs,
         negated: gref.negated,
+    })
+}
+
+/// The `ref`s one IDC line stands for, as the editor derives them — the same
+/// expansion the live composite is drawn from, so what the two commands below
+/// write is what was already on screen.
+///
+/// The line's own comment describes the whole composition; it rides on the
+/// first derived ref, which is where the composition now begins.
+fn compose_refs_of(
+    body: &crate::document::GlyphBody,
+    compose_idx: usize,
+    named_glyphs: &HashMap<String, ResolvedGlyph>,
+    name_parts: &NamePartsMap,
+) -> Option<Vec<crate::document::GlyphRef>> {
+    let compose = body.compose.get(compose_idx)?;
+    let mut refs = ref_composite::compose_refs_for_one(body, compose, named_glyphs, name_parts)?;
+    if refs.is_empty() {
+        return None;
+    }
+    refs[0].comment = compose.comment.clone();
+    Some(refs)
+}
+
+/// Replace an IDC line with the `ref` lines it stood for. The layout an
+/// operator derives is written out once and for all; from here on the parts
+/// are placed by their offsets and no longer move when a part is redrawn.
+pub(super) fn inline_compose_once(
+    lines: &mut Vec<DocLine>,
+    doc: &Document,
+    state: &mut EditorState,
+    edit_idx: usize,
+    compose_idx: usize,
+    named_glyphs: &HashMap<String, ResolvedGlyph>,
+    name_parts: &NamePartsMap,
+) -> bool {
+    let body = match doc.items.get(edit_idx) {
+        Some(DocumentItem::Glyph { body, .. }) => body,
+        _ => return false,
     };
+    let Some(refs) = compose_refs_of(body, compose_idx, named_glyphs, name_parts) else {
+        return false;
+    };
+    let Some(target_line) = compose_doc_line(lines, doc, edit_idx, compose_idx) else {
+        return false;
+    };
+    let replacement: Vec<String> = refs.iter().map(|r| r.format_line(None)).collect();
 
     apply_inline(
         lines,
         doc,
         state,
         edit_idx,
-        ref_idx,
-        Some(merge),
+        target_line,
         Vec::new(),
+        replacement,
+        &refs,
         named_glyphs,
         name_parts,
     )
 }
 
-/// The line surgery both inline commands share: merge `merge` into the glyph's
-/// own grid (creating one when there is ink to put there and no grid yet), then
-/// put `replacement` where the `ref` line was.
+/// Flatten every part an IDC line named into the glyph's own grid, and drop
+/// the line. One step further than [`inline_compose_once`]: the derived refs
+/// are not written down at all, only the ink they resolve to.
+pub(super) fn inline_compose_to_pixels(
+    lines: &mut Vec<DocLine>,
+    doc: &Document,
+    state: &mut EditorState,
+    edit_idx: usize,
+    compose_idx: usize,
+    named_glyphs: &HashMap<String, ResolvedGlyph>,
+    name_parts: &NamePartsMap,
+) -> bool {
+    let body = match doc.items.get(edit_idx) {
+        Some(DocumentItem::Glyph { body, .. }) => body,
+        _ => return false,
+    };
+    let Some(refs) = compose_refs_of(body, compose_idx, named_glyphs, name_parts) else {
+        return false;
+    };
+    let Some(target_line) = compose_doc_line(lines, doc, edit_idx, compose_idx) else {
+        return false;
+    };
+    let merges: Vec<MergeGrid> = refs
+        .iter()
+        .filter_map(|gref| merge_for_ref(gref, body.scale, named_glyphs, name_parts))
+        .collect();
+    if merges.len() != refs.len() {
+        // A part that resolves to nothing would be silently dropped; leave the
+        // line alone instead, exactly as an unresolvable `ref` is left alone.
+        return false;
+    }
+
+    apply_inline(
+        lines,
+        doc,
+        state,
+        edit_idx,
+        target_line,
+        merges,
+        Vec::new(),
+        &refs,
+        named_glyphs,
+        name_parts,
+    )
+}
+
+/// Which buffer line is the `compose_idx`th IDC line of this block. Scanned
+/// for the same reason [`pixel_interaction::layer_doc_line`] scans.
+fn compose_doc_line(
+    lines: &[DocLine],
+    doc: &Document,
+    edit_idx: usize,
+    compose_idx: usize,
+) -> Option<usize> {
+    let DocumentItem::Glyph { body, .. } = doc.items.get(edit_idx)? else {
+        return None;
+    };
+    let item_start = *doc.item_line_starts.get(edit_idx)?;
+    let body_start = item_start + 1 + usize::from(body.pixels.is_some());
+    let end =
+        (body_start + body.compose.len() + body.refs.len() + body.points.len()).min(lines.len());
+    (body_start..end)
+        .filter(|&i| {
+            matches!(lines.get(i), Some(DocLine::Text(t))
+                if t.split_whitespace().next().and_then(crate::compose::IdcOp::from_token).is_some())
+        })
+        .nth(compose_idx)
+}
+
+/// The line surgery both inline commands share: merge `merges` into the
+/// glyph's own grid (creating one when there is ink to put there and no grid
+/// yet), then put `replacement` where the composed line at `target_line` was.
+///
+/// `bounds_refs` is only read when a grid has to be created and the header
+/// states no size: the refs whose ink is about to land, so the new grid is big
+/// enough to hold it.
 ///
 /// Everything from the header down is one undo entry: creating a grid rewrites
-/// the header, and the ref's own line may be anywhere among the layer lines.
+/// the header, and the replaced line may be anywhere among the layer lines.
 #[allow(clippy::too_many_arguments)]
 fn apply_inline(
     lines: &mut Vec<DocLine>,
     doc: &Document,
     state: &mut EditorState,
     edit_idx: usize,
-    ref_idx: usize,
-    merge: Option<MergeGrid>,
+    target_line: usize,
+    merges: Vec<MergeGrid>,
     replacement: Vec<String>,
+    bounds_refs: &[crate::document::GlyphRef],
     named_glyphs: &HashMap<String, ResolvedGlyph>,
     name_parts: &NamePartsMap,
 ) -> bool {
@@ -500,19 +734,23 @@ fn apply_inline(
     let item_start = doc.item_line_starts[edit_idx];
     let grid_line_idx = item_start + 1;
     let has_grid = body.pixels.is_some();
-    let old_len = 1 + usize::from(has_grid) + body.refs.len() + body.points.len();
-    if item_start + old_len > lines.len() {
+    let old_len =
+        1 + usize::from(has_grid) + body.compose.len() + body.refs.len() + body.points.len();
+    if item_start + old_len > lines.len()
+        || !(item_start..item_start + old_len).contains(&target_line)
+    {
         return false;
     }
     let old_lines: Vec<DocLine> = lines[item_start..item_start + old_len].to_vec();
 
-    // Scanned, not computed from `ref_idx`: an `anchor` line may sit between
-    // the ref lines (see `layer_doc_line`). Scanned before a grid is inserted,
-    // while `lines` still matches `body.pixels`.
-    let mut ref_text_line_idx = pixel_interaction::layer_doc_line(lines, body, item_start, ref_idx);
+    // Taken as given, not computed from an ordinal: an `anchor` line may sit
+    // between the ref lines (see `layer_doc_line`), and the callers scan for
+    // the line before a grid is inserted, while `lines` still matches
+    // `body.pixels`.
+    let mut ref_text_line_idx = target_line;
 
     let mut inserted_grid = 0usize;
-    if merge.is_some() && !has_grid {
+    if !merges.is_empty() && !has_grid {
         let header_text = match &lines[item_start] {
             DocLine::Text(s) => s.clone(),
             _ => return false,
@@ -525,7 +763,7 @@ fn apply_inline(
         let (w, h) = dims.unwrap_or_else(|| {
             let (_min_r, _min_c, max_r, max_c) = ref_composite::composite_bounds(
                 None,
-                &body.refs,
+                bounds_refs,
                 named_glyphs,
                 name_parts,
                 body.scale,
@@ -544,10 +782,12 @@ fn apply_inline(
         inserted_grid = 1;
     }
 
-    if let Some(merge) = &merge
+    if !merges.is_empty()
         && let Some(DocLine::Grid(grid)) = lines.get_mut(grid_line_idx)
     {
-        merge_ref_pixels(grid, &merge.grid, merge.row, merge.col, merge.negated);
+        for merge in &merges {
+            merge_ref_pixels(grid, &merge.grid, merge.row, merge.col, merge.negated);
+        }
     }
 
     lines.remove(ref_text_line_idx);

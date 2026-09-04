@@ -905,8 +905,7 @@ pub(super) fn paint_document_area(
                 lines,
                 doc,
                 state,
-                edit_idx,
-                ref_idx,
+                changes::InlineTarget::Ref { edit_idx, ref_idx },
                 composites.get(&edit_idx),
                 named_glyphs,
                 name_parts,
@@ -1250,8 +1249,7 @@ pub(super) fn paint_document_area(
                 lines,
                 doc,
                 state,
-                edit_idx,
-                ref_idx,
+                changes::InlineTarget::Ref { edit_idx, ref_idx },
                 composites.get(&edit_idx),
                 named_glyphs,
                 name_parts,
@@ -1260,8 +1258,17 @@ pub(super) fn paint_document_area(
             }
         }
     } else if ctx_mode_normal {
+        // A caret on a `ref` or an IDC line is on a composed line, and the
+        // same two commands apply to it — above the editing items and cut off
+        // from them, since they act on the line rather than on the selection.
+        let caret_target = changes::inline_target_at_line(doc, lines, state.cursor.line);
+        let mut inline = None;
         let mut acted = false;
         response.context_menu(|ui| {
+            if caret_target.is_some() {
+                inline = inline_tools::subglyph_context_menu(ui);
+                ui.separator();
+            }
             let caps = crate::edit_menu::EditMenuCaps {
                 can_undo: state.undo.can_undo(),
                 can_redo: state.undo.can_redo(),
@@ -1274,6 +1281,32 @@ pub(super) fn paint_document_area(
                 *needs_rederive = true;
             }
         });
+        if let Some((action, target)) = inline.zip(caret_target) {
+            acted = true;
+            let edit_idx = match target {
+                changes::InlineTarget::Ref { edit_idx, .. }
+                | changes::InlineTarget::Compose { edit_idx, .. } => edit_idx,
+            };
+            // The caret drove this, so the caret is where the editor stays:
+            // inlining from the layer palette ends in pixel mode, but here
+            // nothing asked to leave the text.
+            let mode = state.mode.clone();
+            if apply_inline_action(
+                action,
+                lines,
+                doc,
+                state,
+                target,
+                composites.get(&edit_idx),
+                named_glyphs,
+                name_parts,
+            ) {
+                state.mode = mode;
+                state.cursor = crate::editor::caret::clamp(lines, state.cursor);
+                state.selection_anchor = None;
+                *needs_rederive = true;
+            }
+        }
         if acted {
             refocus_after_menu(ui, wid);
         }

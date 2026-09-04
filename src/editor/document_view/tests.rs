@@ -453,6 +453,131 @@ fn inline_once_of_a_pixel_only_target_flattens_it() {
     assert!(grid.get(0, 1).is_bitmap_filled() && grid.get(1, 2).is_bitmap_filled());
 }
 
+/// A source whose `comp` is drawn by one IDC line: an `⿰` split of an 8×8 box
+/// into two declared 4×8 halves, each drawing a single cell at its own corner.
+fn compose_fixture() -> String {
+    let part = |name: &str| {
+        let mut s = format!("glyph {name} 4 8\n@@......\n");
+        for _ in 1..8 {
+            s.push_str("........\n");
+        }
+        s
+    };
+    format!(
+        "{}\n{}\nglyph comp 8 8\n{}\n⿰ left right // both halves\n",
+        part("left"),
+        part("right"),
+        "................\n".repeat(8).trim_end(),
+    )
+}
+
+/// The caret alone says what the inline commands would act on: a `ref` line,
+/// an IDC line, and nothing else in the block.
+#[test]
+fn inline_target_follows_the_caret_line() {
+    let (lines, doc, _env) = inline_fixture(&compose_fixture());
+    let comp = glyph_idx(&doc, "comp");
+    let idc_line = lines
+        .iter()
+        .position(|l| matches!(l, DocLine::Text(t) if t.starts_with('\u{2ff0}')))
+        .unwrap();
+
+    assert!(matches!(
+        changes::inline_target_at_line(&doc, &lines, idc_line),
+        Some(changes::InlineTarget::Compose { edit_idx, compose_idx: 0 }) if edit_idx == comp
+    ));
+    // The header of the same block is not one.
+    assert!(changes::inline_target_at_line(&doc, &lines, idc_line - 2).is_none());
+
+    let (lines, doc, _env) = inline_fixture(
+        "glyph stem 2 2\n\
+         @@..\n\
+         ..@@\n\
+         \n\
+         glyph top\n\
+         ref stem 1 0\n",
+    );
+    let top = glyph_idx(&doc, "top");
+    assert!(matches!(
+        changes::inline_target_at_line(&doc, &lines, 4),
+        Some(changes::InlineTarget::Ref { edit_idx, ref_idx: 0 }) if edit_idx == top
+    ));
+    assert!(changes::inline_target_at_line(&doc, &lines, 3).is_none());
+}
+
+/// "Inline once" on an IDC line writes the `ref`s it stood for, in its place.
+/// Its own comment belongs to the line as a whole, so it moves onto the first
+/// of them rather than being dropped.
+#[test]
+fn inline_once_of_an_idc_line_writes_its_refs() {
+    let (mut lines, doc, env) = inline_fixture(&compose_fixture());
+    let comp = glyph_idx(&doc, "comp");
+    let mut state = EditorState::new();
+
+    assert!(changes::inline_compose_once(
+        &mut lines,
+        &doc,
+        &mut state,
+        comp,
+        0,
+        &env.named,
+        &env.name_parts,
+    ));
+
+    let texts = text_lines(&lines);
+    assert!(
+        !texts.iter().any(|t| t.starts_with('\u{2ff0}')),
+        "the IDC line survived: {texts:?}"
+    );
+    assert_eq!(
+        texts
+            .iter()
+            .filter(|t| t.starts_with("ref "))
+            .collect::<Vec<_>>(),
+        vec![&"ref left 0 0 // both halves", &"ref right 4 0"],
+        "lines: {texts:?}"
+    );
+}
+
+/// "Inline to pixels" on an IDC line flattens every part it named into the
+/// glyph's own grid, where the composite drew them.
+#[test]
+fn inline_to_pixels_of_an_idc_line_flattens_every_part() {
+    let (mut lines, doc, env) = inline_fixture(&compose_fixture());
+    let comp = glyph_idx(&doc, "comp");
+    let mut state = EditorState::new();
+
+    assert!(changes::inline_compose_to_pixels(
+        &mut lines,
+        &doc,
+        &mut state,
+        comp,
+        0,
+        &env.named,
+        &env.name_parts,
+    ));
+
+    let texts = text_lines(&lines);
+    assert!(
+        !texts
+            .iter()
+            .any(|t| t.starts_with('\u{2ff0}') || t.starts_with("ref ")),
+        "nothing composed should be left: {texts:?}"
+    );
+    let grid = lines
+        .iter()
+        .filter_map(|l| match l {
+            DocLine::Grid(g) => Some(g),
+            _ => None,
+        })
+        .next_back()
+        .unwrap();
+    assert!(
+        grid.get(0, 0).is_bitmap_filled() && grid.get(0, 4).is_bitmap_filled(),
+        "both halves should have landed in the parent's grid"
+    );
+}
+
 fn assert_all_doc_lines_covered(input: &str) {
     let lines = parse_doclines(input);
     let (doc, _) = derive_document(&lines, "test.unf".into()).unwrap();

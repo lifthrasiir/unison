@@ -587,3 +587,42 @@ ref combo
         "the right cell keeps its target's blue"
     );
 }
+
+/// The caret alone reaches the two inline commands: right-clicking with it on
+/// an IDC line offers them above the editing items, and choosing the first one
+/// leaves the `ref`s the line stood for — with its comment on the first.
+///
+/// DocLines: 0 header left, 1 grid left, 2 blank, 3 header right, 4 grid right,
+///           5 blank, 6 header comp, 7 grid comp, 8 the IDC line.
+#[test]
+fn caret_on_an_idc_line_offers_the_inline_commands() {
+    let part = |name: &str| {
+        let mut s = format!("glyph {name} 4 4\n@@......\n");
+        for _ in 1..4 {
+            s.push_str("........\n");
+        }
+        s
+    };
+    let source = format!(
+        "{}\n{}\nglyph comp 8 4\n{}\u{2ff0} left right // both halves\n",
+        part("left"),
+        part("right"),
+        "................\n".repeat(4),
+    );
+
+    let mut h = EditorHarness::new(&source);
+    h.click_text(8, 0);
+    h.frame();
+    assert_eq!(h.cursor().line, 8);
+
+    let pos = h.text_pos(8, 0);
+    h.right_click_at(pos);
+    h.frame();
+    let item = pos + egui::vec2(24.0, 14.0);
+    h.move_pointer(item);
+    h.click_at(item);
+    h.frame();
+
+    assert_eq!(h.text(8), "ref left 0 0 // both halves");
+    assert_eq!(h.text(9), "ref right 4 0");
+}

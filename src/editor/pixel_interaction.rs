@@ -244,7 +244,10 @@ pub(crate) fn layer_doc_line(
     header_line: usize,
     layer_idx: usize,
 ) -> usize {
-    let base = header_line + 1 + usize::from(body.pixels.is_some());
+    // The IDC lines a block writes come before its `ref`s (`serialize_glyph`),
+    // and are neither a ref nor a point — so they are skipped over here rather
+    // than counted among the layers.
+    let base = header_line + 1 + usize::from(body.pixels.is_some()) + body.compose.len();
     let total = body.refs.len() + body.points.len();
     let (want_ref, ordinal) = if layer_idx < body.refs.len() {
         (true, layer_idx)

@@ -439,6 +439,45 @@ fn compose_refs_for_view(
         .collect()
 }
 
+/// One IDC line's `ref`s, for a command that is about to *write* them: the
+/// same derivation [`compose_refs_for_view`] draws from, but refused where it
+/// errored — the view can draw a partial layout, a rewrite of the source may
+/// not commit one.
+///
+/// A component with no variant picked is not one of those refusals: it is a
+/// TODO, the view places it, and writing down the placement the editor was
+/// already drawing is exactly what the command promises.
+// Editor-only outright, not `any(…, test)`: its one caller is the editor's
+// inline command, and so is every test of it.
+#[cfg(feature = "editor")]
+pub fn compose_refs_for_one(
+    body: &GlyphBody,
+    compose: &crate::document::GlyphCompose,
+    named_glyphs: &HashMap<String, ResolvedGlyph>,
+    name_parts: &NamePartsMap,
+) -> Option<Vec<GlyphRef>> {
+    let dims = |name: &str| match resolve_ref_name_for_view(name, named_glyphs, name_parts) {
+        None => crate::compose::PartDims::Unknown,
+        Some(resolved) => match resolved.declared_box {
+            Some((w, h)) => crate::compose::PartDims::Size(w, h),
+            None => crate::compose::PartDims::Undeclared,
+        },
+    };
+    let (refs, issues) = crate::compose::expand_compose(
+        "",
+        body.declared_extent(),
+        body.scale,
+        compose,
+        &dims,
+        None,
+        None,
+    );
+    issues
+        .iter()
+        .all(|(severity, _)| *severity != crate::issues::Severity::Error)
+        .then_some(refs)
+}
+
 #[cfg(any(feature = "editor", test))]
 pub fn compute_composite(
     body: &GlyphBody,
