@@ -102,7 +102,7 @@ glyph han-238de:15x16 15 16 // 𣣞
 ⿰ han-8ecd:7x16 1 han-6b20:7x16 // ⿰軍欠
 
 glyph han-238e2:15x16 15 16 // 𣣢
-⿲ -2 han-4ebb:3x16 han-8a00:7x16 han-6b20:7x16 // ⿲亻言欠
+⿲ han-4ebb:3x16 han-8a00:5x16 han-6b20:7x16 // ⿲亻言欠
 
 // glyph han-238ea:15x16 15 16 // 𣣪
 // ⿲ han-65a4 han-767d han-6b20 // ⿲斤白欠
@@ -283,4 +283,9 @@ glyph han-2399c:15x16 15 16 // 𣦜
 
 glyph han-239a5:15x16 15 16 // 𣦥
 ⿰ han-6b63:8x16 han-582f:7x16 // ⿰正堯
+
+## 77.19
+
+// glyph han-239b1:15x16 15 16 // 𣦱
+// ⿱ han-470c han-6b62 // ⿱䜌止
 

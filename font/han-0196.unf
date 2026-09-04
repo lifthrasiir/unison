@@ -77,6 +77,9 @@ $$......................\1@@$$
 
 ## 196.2
 
+// glyph han-9ce7:15x16 15 16 // 鳧
+// ⿱ han-9ce5 han-51e0 // ⿱鳥几
+
 glyph han-9ce8:15x16 15 16 // 鳨
 ⿰ han-9ce5:7x16 han-529b:8x16 // ⿰鳥力
 
@@ -421,6 +424,11 @@ glyph han-9dee:15x16 15 16 // 鷮
 
 glyph han-9e1b:15x16 15 16 // 鸛
 ⿰ han-96da:8x16 han-9ce5:7x16 // ⿰雚鳥
+
+## 196.19
+
+// glyph han-9e1e:15x16 15 16 // 鸞
+// ⿱ han-470c han-9ce5 // ⿱䜌鳥
 
 # CJK unified ideographs: 麻 (200)
 

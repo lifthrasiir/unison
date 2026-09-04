@@ -10,6 +10,9 @@
 // glyph han-28cca:15x16 15 16 // 𨳊
 // ⿵ han-9580 han-4e5d // ⿵門九
 
+// glyph han-28ccb:15x16 15 16 // 𨳋
+// ⿵ han-9580 han-51e0 // ⿵門几
+
 // glyph han-28ccc:15x16 15 16 // 𨳌
 // ⿳ han-4e00 han-4e00 han-9580 // ⿳一一門 <- ⿱𠄟門
 
@@ -269,6 +272,11 @@ glyph han-28d0e:15x16 15 16 // 𨴎
 
 // glyph han-28deb:15x16 15 16 // 𨷫
 // ⿱ han-9310 han-9580 // ⿱錐門
+
+## 169.19
+
+// glyph han-28dfb:15x16 15 16 // 𨷻
+// ⿵ han-9580 han-470c // ⿵門䜌
 
 # CJK unified ideographs extension B: 门 (169')
 

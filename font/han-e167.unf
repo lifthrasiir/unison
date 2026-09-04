@@ -279,8 +279,13 @@ glyph han-2cbc3:15x16 15 16 // 𬯃
 
 ## 170.10
 
-// glyph han-2cbd1:15x16 15 16 // 𬯑
-// ⿲ han-961d han-4ebb han-5485 // ⿲阝亻咅 <- ⿰阝倍
+glyph han-2cbd1:15x16 15 16 // 𬯑
+⿲ -1 han-961d:4x16-l han-4ebb:3x16 han-5485:9x16 // ⿲阝亻咅
+
+## 170.19
+
+// glyph han-2cbe8:15x16 15 16 // 𬯨
+// ⿰ han-961d han-470c // ⿰阝䜌
 
 # CJK unified ideographs extension E: 隹 (172)
 

@@ -1092,6 +1092,9 @@ glyph han-808b:15x12 15 12 // 肋
 glyph han-808b:15x16 15 16 // 肋
 ⿰ han-6708:5x16-l 1 han-529b:9x16 // ⿰月力
 
+glyph han-808c:15x16 15 16 // 肌
+⿰ han-6708:5x16-l 1 han-51e0:9x16 // ⿰月几
+
 glyph han-808d:15x16 15 16 // 肍
 ⿰ han-6708:5x16-l 1 han-4e5d:9x16 // ⿰月九
 
@@ -1448,6 +1451,11 @@ glyph han-81b0:15x16 15 16 // 膰
 glyph han-81d1:15x16 15 16 // 臑
 ⿰ han-6708:5x16-l 1 han-9700:9x16 // ⿰月需
 
+## 130.19
+
+// glyph han-81e0:15x16 15 16 // 臠
+// ⿱ han-470c han-8089 // ⿱䜌肉
+
 # CJK unified ideographs: 臣 (131)
 
 ## 131.0
@@ -1687,6 +1695,9 @@ glyph han-8221:15x16 15 16 // 舡
 
 glyph han-8222:15x16 15 16 // 舢
 ⿰ han-821f:7x16 1 han-5c71:7x16 // ⿰舟山
+
+// glyph han-8224:15x16 15 16 // 舤
+// ⿰ han-821f han-51e1 // ⿰舟凡
 
 ## 137.4
 

@@ -41,6 +41,9 @@ glyph han-23b1c:15x16 15 16 // 𣬜
 glyph han-23b1f:15x16 15 16 // 𣬟
 ⿺ han-6bdb:15x16.10x14 han-5202:5x13 8 0 // ⿺毛刂
 
+// glyph han-23b20:15x16 15 16 // 𣬠
+// ⿺ han-6bdb han-51e0 // ⿺毛几
+
 ## 82.3
 
 // glyph han-23b21:15x16 15 16 // 𣬡
@@ -272,8 +275,8 @@ glyph han-23bde:15x16 15 16 // 𣯞
 // glyph han-23bee-($han-regions):15x16 15 16 // 𣯮
 // ⿰ han-7fd2-($-1) han-6bdb // ⿰習毛
 
-// glyph han-23bf1:15x16 15 16 // 𣯱
-// ⿲ han-961d han-5485 han-6bdb // ⿲阝咅毛 <- ⿰陪毛
+glyph han-23bf1:15x16 15 16 // 𣯱
+⿲ -5 han-961d:4x16-l han-5485:9x16 han-6bdb:7x16 // ⿲阝咅毛
 
 // glyph han-23bf3:15x16 15 16 // 𣯳
 // ⿰ han-83ab han-6bdb // ⿰莫毛

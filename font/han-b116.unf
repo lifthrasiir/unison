@@ -2,6 +2,9 @@
 
 ## 116.2
 
+// glyph han-25924:15x16 15 16 // 𥤤
+// ⿳ han-5b80 han-516b han-51e0 // ⿳宀八几
+
 // glyph han-25925:15x16 15 16 // 𥤥
 // ⿳ han-5b80 han-516b han-4e03 // ⿳宀八七 <- ⿱穴七
 
@@ -209,6 +212,11 @@ glyph han-2599d:15x16 15 16 // 𥦝
 // ⿳ han-5b80 han-516b han-63da // ⿳宀八揚 <- ⿱穴揚
 
 # CJK unified ideographs extension B: 立 (117)
+
+## 117.2
+
+// glyph han-25a55:15x16 15 16 // 𥩕
+// ⿱ han-7acb han-51e0 // ⿱立几
 
 ## 117.3
 

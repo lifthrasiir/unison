@@ -13,11 +13,14 @@ glyph han-250e4:15x16 15 16 // 𥃤
 glyph han-250ea:15x16 15 16 // 𥃪
 ⿱ han-76ee:15x7 han-5341:15x9 // ⿱目十
 
-// glyph han-250ec:15x16 15 16 // 𥃬
-// ⿶ han-51f5 han-76ee // ⿶凵目
+glyph han-250ec:15x16 15 16 // 𥃬
+⿶ han-51f5:15x16.11x14 han-76ee:9x13 3 0 // ⿶凵目
 
 glyph han-250ed:15x16 15 16 // 𥃭
 ⿱ han-5341:15x7 han-76ee:15x9 // ⿱十目
+
+// glyph han-250ef:15x16 15 16 // 𥃯
+// ⿱ han-76ee han-51e0 // ⿱目几
 
 // glyph han-250f0:15x16 15 16 // 𥃰
 // ⿱ han-4ea0 han-76ee // ⿱亠目
@@ -26,6 +29,9 @@ glyph han-250f1:15x16 15 16 // 𥃱
 ⿰ han-76ee:6x16 han-4eba:9x16 // ⿰目人
 
 ## 109.3
+
+// glyph han-250f5:15x16 15 16 // 𥃵
+// ⿰ han-76ee han-51e1 // ⿰目凡
 
 // glyph han-250f7:15x16 15 16 // 𥃷
 // ⿱ han-76ee han-5bf8 // ⿱目寸
@@ -418,7 +424,7 @@ glyph han-252ca:15x16 15 16 // 𥋊
 ⿰ han-76ee:6x16 han-55ac:9x16 // ⿰目喬
 
 glyph han-252d1:15x16 15 16 // 𥋑
-⿲ -6 han-76ee:3x16-l 1 han-53ec:6x16 han-8f9b:11x16 // ⿲目召辛
+⿲ han-76ee:3x16-l 1 han-53ec:6x16 han-8f9b:5x16 // ⿲目召辛
 
 ## 109.13
 
@@ -436,8 +442,8 @@ glyph han-252f5:15x16 15 16 // 𥋵
 // glyph han-25302:15x16 15 16 // 𥌂
 // ⿳ han-4020 han-5b82 han-65b9 // ⿳䀠宂方
 
-// glyph han-2530a:15x16 15 16 // 𥌊
-// ⿲ han-8f9b han-76ee han-8f9b // ⿲辛目辛
+glyph han-2530a:15x16 15 16 // 𥌊
+⿲ han-8f9b:5x16 han-76ee:4x16 1 han-8f9b:5x16 // ⿲辛目辛
 
 glyph han-2530e:15x16 15 16 // 𥌎
 ⿰ han-76ee:7x16 1 han-9700:7x16 // ⿰目需

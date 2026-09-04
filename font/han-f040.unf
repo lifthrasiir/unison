@@ -395,6 +395,11 @@ glyph han-2d643:15x16 15 16 // 𭙃
 
 # CJK unified ideographs extension F: 广 (53)
 
+## 53.2
+
+// glyph han-2d64d:15x16 15 16 // 𭙍
+// ⿸ han-5e7f han-51e0 // ⿸广几
+
 ## 53.3
 
 glyph han-2d652:15x16 15 16 // 𭙒
@@ -596,8 +601,8 @@ glyph han-2d73c:15x16 15 16 // 𭜼
 // glyph han-2d741:15x16 15 16 // 𭝁
 // ⿱ han-5f77 han-5fc3 // ⿱彷心
 
-// glyph han-2d745:15x16 15 16 // 𭝅
-// ⿰ han-5fc4 han-8f9b // ⿰忄辛
+glyph han-2d745:15x16 15 16 // 𭝅
+⿰ han-5fc4:7x16 1 han-8f9b:7x16 // ⿰忄辛
 
 // glyph han-2d746:15x16 15 16 // 𭝆
 // ⿱ han-2bc11 han-5fc3 // ⿱𫰑心

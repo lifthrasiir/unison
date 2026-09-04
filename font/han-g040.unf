@@ -120,6 +120,9 @@ glyph han-30379:15x16 15 16 // 𰍹
 
 ## 46.4
 
+// glyph han-3038a:15x16 15 16 // 𰎊
+// ⿱ han-5207 han-5c71 // ⿱切山
+
 glyph han-3038c:15x16 15 16 // 𰎌
 ⿲ han-5c71:5x16 han-4eba:5x16 han-4eba:5x16 // ⿲山人人
 
@@ -307,10 +310,16 @@ glyph han-3043a:15x16 15 16 // 𰐺
 
 ## 61.2
 
+// glyph han-3043b:15x16 15 16 // 𰐻
+// ⿱ han-51e0 han-5fc3 // ⿱几心
+
 glyph han-3043c:15x16 15 16 // 𰐼
 ⿱ han-4eba:15x10 han-5fc3:15x6 // ⿱人心
 
 ## 61.3
+
+// glyph han-3043d:15x16 15 16 // 𰐽
+// ⿱ han-51e1 han-5fc3 // ⿱凡心
 
 glyph han-3043e:15x16 15 16 // 𰐾
 ⿰ han-5fc4:5x16 1 han-5e7f:9x16 // ⿰忄广
@@ -400,8 +409,8 @@ glyph han-3048f:15x16 15 16 // 𰒏
 
 ## 64.2
 
-// glyph han-304b7:15x16 15 16 // 𰒷
-// ⿰ han-624c han-4e03 // ⿰扌七
+glyph han-304b7:15x16 15 16 // 𰒷
+⿰ han-624c:5x16 1 han-4e03:8x16 // ⿰扌七
 
 ## 64.3
 
@@ -446,6 +455,9 @@ glyph han-304bd:15x16 15 16 // 𰒽
 // ⿰ han-624b han-5f17 // ⿰手弗
 
 ## 64.6
+
+// glyph han-304d8:15x16 15 16 // 𰓘
+// ⿲ han-624c han-5de5 han-51e1 // ⿲扌工凡
 
 glyph han-304de:15x16 15 16 // 𰓞
 ⿰ han-624c:5x16 1 han-821f:9x16 // ⿰扌舟

@@ -174,8 +174,8 @@ glyph han-2e92c:15x16 15 16 // 𮤬
 
 ## 170.4
 
-// glyph han-2e93a:15x16 15 16 // 𮤺
-// ⿲ han-961d han-4e03 han-5200 // ⿲阝七刀 <- ⿰阝切
+glyph han-2e93a:15x16 15 16 // 𮤺
+⿲ -2 han-961d:4x16-l han-4e03:8x16 han-5200:5x16 // ⿲阝七刀
 
 ## 170.5
 
@@ -376,10 +376,15 @@ glyph han-2e9d5:15x16 15 16 // 𮧕
 glyph han-2e9d6:15x16 15 16 // 𮧖
 ⿲ -1 han-9769:7x16 han-4ebb:3x16 han-5bf8:6x16 // ⿲革亻寸
 
+## 177.6
+
+// glyph han-2e9d8:15x16 15 16 // 𮧘
+// ⿲ han-9769 han-5de5 han-51e1 // ⿲革工凡
+
 ## 177.7
 
-// glyph han-2e9dd:15x16 15 16 // 𮧝
-// ⿰ han-9769 han-8f9b // ⿰革辛
+glyph han-2e9dd:15x16 15 16 // 𮧝
+⿰ han-9769:7x16 1 han-8f9b:7x16 // ⿰革辛
 
 ## 177.8
 
@@ -635,6 +640,11 @@ glyph han-2eb04:15x16 15 16 // 𮬄
 // ⿳ han-8279 han-9ad8 han-9b5a // ⿳艹高魚 <- ⿱蒿魚
 
 # CJK unified ideographs extension F: 鳥 (196)
+
+## 196.2
+
+// glyph han-2eb25:15x16 15 16 // 𮬥
+// ⿰ han-9ce5 han-51e0 // ⿰鳥几
 
 ## 196.3
 

@@ -143,6 +143,9 @@ glyph han-866c:15x16 15 16 // 虬
 glyph han-866d:15x16 15 16 // 虭
 ⿰ han-866b:5x16 1 han-5200:9x16 // ⿰虫刀
 
+glyph han-866e:15x16 15 16 // 虮
+⿰ han-866b:5x16 1 han-51e0:9x16 // ⿰虫几
+
 glyph han-8670:15x16 15 16 // 虰
 ⿰ han-866b:5x16 1 han-4e01:9x16 // ⿰虫丁
 
@@ -585,6 +588,11 @@ glyph han-8830:15x16 15 16 // 蠰
 glyph han-8838:15x16 15 16 // 蠸
 ⿰ han-866b:5x16 1 han-96da:9x16 // ⿰虫雚
 
+## 142.19
+
+// glyph han-883b:15x16 15 16 // 蠻
+// ⿱ han-470c han-866b // ⿱䜌虫
+
 # CJK unified ideographs: 血 (143)
 
 ## 143.0
@@ -710,6 +718,9 @@ glyph han-887f:15x16 15 16 // 衿
 
 // glyph han-8882:15x16 15 16 // 袂
 // ⿰ han-8864 han-592c // ⿰衤夬
+
+// glyph han-8883:15x16 15 16 // 袃
+// ⿱ han-5207 han-8863 // ⿱切衣
 
 ## 145.5
 

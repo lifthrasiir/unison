@@ -68,8 +68,8 @@ glyph han-5f77:15x16 15 16 // 彷
 glyph han-5f7a:15x16 15 16 // 彺
 ⿰ han-5f73:5x16 1 han-738b:9x16 // ⿰彳王
 
-// glyph han-5f7b:15x16 15 16 // 彻
-// ⿲ han-5f73 han-4e03 han-5200 // ⿲彳七刀 <- ⿰彳切
+glyph han-5f7b:15x16 15 16 // 彻
+⿲ -1 han-5f73:3x16 han-4e03:8x16 han-5200:5x16 // ⿲彳七刀
 
 // glyph han-9fc9:15x16 15 16 // 鿉
 // ⿰ han-5f73 han-4e94 // ⿰彳五
@@ -315,6 +315,9 @@ glyph han-5fd6:15x16 15 16 // 忖
 
 glyph han-5fd7:15x16 15 16 // 志
 ⿱ han-58eb:15x10 han-5fc3:15x6 // ⿱士心
+
+// glyph han-5fdb:15x16 15 16 // 忛
+// ⿰ han-5fc4 han-51e1 // ⿰忄凡
 
 // glyph han-5fdc:15x16 15 16 // 応
 // ⿸ han-5e7f han-5fc3 // ⿸广心
@@ -819,6 +822,11 @@ glyph han-61f9:15x16 15 16 // 懹
 
 glyph han-61fd:15x16 15 16 // 懽
 ⿰ han-5fc4:5x16 1 han-96da:9x16 // ⿰忄雚
+
+## 61.19
+
+// glyph han-6200:15x16 15 16 // 戀
+// ⿱ han-470c han-5fc3 // ⿱䜌心
 
 # CJK unified ideographs: 戶 (63)
 

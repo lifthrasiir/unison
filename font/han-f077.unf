@@ -1,5 +1,10 @@
 # CJK unified ideographs extension F: 止 (77)
 
+## 77.2
+
+glyph han-2db59:15x16 15 16 // 𭭙
+⿰ han-6b62:6x16 han-51e0:9x16 // ⿰止几
+
 ## 77.4
 
 glyph han-2db5c:15x16 15 16 // 𭭜
@@ -89,6 +94,11 @@ glyph han-2dbd8:15x16 15 16 // 𭯘
 
 // glyph han-2dbde:15x16 15 16 // 𭯞
 // ⿺ han-6bdb han-54c1 // ⿺毛品
+
+## 82.19
+
+// glyph han-2dbee:15x16 15 16 // 𭯮
+// ⿱ han-470c han-6bdb // ⿱䜌毛
 
 # CJK unified ideographs extension F: 氏 (83)
 
@@ -273,6 +283,9 @@ glyph han-2dd00:15x16 15 16 // 𭴀
 
 // glyph han-2dd03:15x16 15 16 // 𭴃
 // ⿱ han-5de5 han-706b // ⿱工火
+
+// glyph han-2dd04:15x16 15 16 // 𭴄
+// ⿱ han-706b han-51e1 // ⿱火凡
 
 // glyph han-2dd07:15x16 15 16 // 𭴇
 // ⿱ han-5973 han-706c // ⿱女灬

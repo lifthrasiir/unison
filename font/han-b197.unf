@@ -1,6 +1,14 @@
 # CJK unified ideographs extension B: 麻 (200)
 
+## 200.2
+
+// glyph han-2a391:15x16 15 16 // 𪎑
+// ⿸ han-9ebb han-51e0 // ⿸麻几
+
 ## 200.3
+
+// glyph han-2a392:15x16 15 16 // 𪎒
+// ⿸ han-9ebb han-51e1 // ⿸麻凡
 
 // glyph han-2a393:15x16 15 16 // 𪎓
 // ⿰ han-5f73 han-9ebb // ⿰彳麻

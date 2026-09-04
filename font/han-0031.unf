@@ -438,6 +438,11 @@ glyph han-570d:15x16 15 16 // 圍
 // glyph han-5710:15x16 15 16 // 圐
 // ⿴ han-56d7 han-2c659 // ⿴囗𬙙
 
+## 31.19
+
+// glyph han-571d:15x16 15 16 // 圝
+// ⿴ han-56d7 han-470c // ⿴囗䜌
+
 # CJK unified ideographs: 土 (32)
 
 ## 32.0
@@ -1108,8 +1113,8 @@ glyph han-57ee:15x16 15 16 // 埮
 // glyph han-57f6-($han-regions):15x16 15 16 // 埶
 // ⿰ han-5774 han-4e38-($-1) // ⿰坴丸
 
-// glyph han-57f9:15x16 15 16 // 培
-// ⿰ han-571f han-5485 // ⿰土咅
+glyph han-57f9:15x16 15 16 // 培
+⿰ han-571f:5x16-l 1 han-5485:9x16 // ⿰土咅
 
 glyph han-57fa:15x16 15 16 // 基
 ⿱ han-5176:15x12 han-571f:15x4 // ⿱其土
@@ -2043,4 +2048,9 @@ glyph han-5963:15x16 15 16 // 奣
 
 // glyph han-596e:15x16 15 16 // 奮
 // ⿳ han-5927 han-96b9 han-7530 // ⿳大隹田 <- ⿱奞田
+
+## 37.19
+
+// glyph han-5971:15x16 15 16 // 奱
+// ⿱ han-470c han-5927 // ⿱䜌大
 

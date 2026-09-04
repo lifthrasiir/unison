@@ -101,6 +101,11 @@ glyph han-313bc:15x16 15 16 // 𱎼
 glyph han-313c3:15x16 15 16 // 𱏃
 ⿲ han-4ebb:3x16 han-826f:7x16 han-6708:5x16 // ⿲亻良月
 
+## 9.11
+
+// glyph han-313c9:15x16 15 16 // 𱏉
+// ⿱ han-4fce han-5207 // ⿱俎切
+
 ## 9.12
 
 glyph han-313d2:15x16 15 16 // 𱏒
@@ -247,6 +252,9 @@ glyph han-31493:15x16 15 16 // 𱒓
 ⿲ han-53e3:4x16-l han-6c35:3x16 -1 han-4e01:9x16 // ⿲口氵丁
 
 ## 30.6
+
+// glyph han-31497:15x16 15 16 // 𱒗
+// ⿲ han-53e3 han-5de5 han-51e1 // ⿲口工凡
 
 glyph han-31498:15x16 15 16 // 𱒘
 ⿲ han-53e3:5x16-l han-248e9:3x16 han-4e01:7x16 // ⿲口𤣩丁

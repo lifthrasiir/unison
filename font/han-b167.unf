@@ -30,8 +30,11 @@ glyph han-2894e:15x16 15 16 // 𨥎
 glyph han-28950:15x16 15 16 // 𨥐
 ⿲ -2 han-91d2:5x16-l han-4ebb:3x16 han-4e5d:9x16 // ⿲釒亻九
 
-// glyph han-28954:15x16 15 16 // 𨥔
-// ⿲ han-91d2 han-4e03 han-5200 // ⿲釒七刀 <- ⿰釒切
+// glyph han-28953:15x16 15 16 // 𨥓
+// ⿱ han-5207 han-91d1 // ⿱切金
+
+glyph han-28954:15x16 15 16 // 𨥔
+⿲ -3 han-91d2:5x16-l han-4e03:8x16 han-5200:5x16 // ⿲釒七刀
 
 // glyph han-28957:15x16 15 16 // 𨥗
 // ⿱ han-6c34 han-91d1 // ⿱水金

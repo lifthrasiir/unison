@@ -11,6 +11,9 @@ glyph han-25f85:15x16 15 16 // 𥾅
 glyph han-25f89:15x16 15 16 // 𥾉
 ⿰ han-7cf9:5x16 1 han-52f9:9x16 // ⿰糹勹
 
+glyph han-25f8a:15x16 15 16 // 𥾊
+⿰ han-7cf9:5x16 1 han-51e0:9x16 // ⿰糹几
+
 ## 120.3
 
 glyph han-25f8d:15x16 15 16 // 𥾍
@@ -27,8 +30,8 @@ glyph han-25f98:15x16 15 16 // 𥾘
 
 ## 120.4
 
-// glyph han-25f9b:15x16 15 16 // 𥾛
-// ⿲ han-7cf9 han-4e03 han-5200 // ⿲糹七刀 <- ⿰糹切
+glyph han-25f9b:15x16 15 16 // 𥾛
+⿲ -3 han-7cf9:5x16 han-4e03:8x16 han-5200:5x16 // ⿲糹七刀
 
 glyph han-25f9e:15x16 15 16 // 𥾞
 ⿲ han-7cf9:5x16 han-5200:5x16 han-5200:5x16 // ⿲糹刀刀
@@ -126,8 +129,8 @@ glyph han-26011:15x16 15 16 // 𦀑
 
 ## 120.7
 
-// glyph han-26013:15x16 15 16 // 𦀓
-// ⿰ han-7cf9 han-8f9b // ⿰糹辛
+glyph han-26013:15x16 15 16 // 𦀓
+⿰ -1 han-7cf9:5x16 han-8f9b:11x16 // ⿰糹辛
 
 // glyph han-26015:15x16 15 16 // 𦀕
 // ⿰ han-7cf9 han-9091 // ⿰糹邑
@@ -339,6 +342,11 @@ glyph han-261ba-($han-regions):15x16 15 16 // 𦆺
 
 glyph han-261eb:15x16 15 16 // 𦇫
 ⿲ -5 han-7cf9:5x16 1 han-9b5a:7x16 han-7f8a:7x16 // ⿲糹魚羊
+
+## 120.18
+
+// glyph han-261f7:15x16 15 16 // 𦇷
+// ⿱ han-470c han-7535 // ⿱䜌电
 
 ## 120.21
 

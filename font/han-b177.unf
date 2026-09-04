@@ -5,6 +5,9 @@
 glyph han-2925b:15x16 15 16 // 𩉛
 ⿰ han-9769:9x16 1 han-5200:5x16 // ⿰革刀
 
+// glyph han-2925c:15x16 15 16 // 𩉜
+// ⿰ han-9769 han-51e0 // ⿰革几
+
 ## 177.3
 
 // glyph han-2925d-($han-regions):15x16 15 16 // 𩉝
@@ -325,6 +328,11 @@ glyph han-293cc:15x16 15 16 // 𩏌
 
 // glyph han-293ed:15x16 15 16 // 𩏭
 // ⿲ han-97cb han-91d2 han-672c // ⿲韋釒本
+
+## 178.19
+
+// glyph han-293f9:15x16 15 16 // 𩏹
+// ⿱ han-470c han-97cb // ⿱䜌韋
 
 # CJK unified ideographs extension B: 韭 (179)
 

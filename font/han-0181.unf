@@ -382,6 +382,9 @@ $$@@H_h/`vV\$$
 
 ## 184.2
 
+// glyph han-98e2:15x16 15 16 // 飢
+// ⿰ han-98e0 han-51e0 // ⿰飠几
+
 glyph han-98e3:15x16 15 16 // 飣
 ⿰ han-98e0:7x16 1 han-4e01:7x16 // ⿰飠丁
 
@@ -719,8 +722,8 @@ glyph han-99fa:15x16 15 16 // 駺
 glyph han-99ff:15x16 15 16 // 駿
 ⿰ han-99ac:7x16 1 han-590b:7x16 // ⿰馬夋
 
-// glyph han-9a02:15x16 15 16 // 騂
-// ⿰ han-99ac han-8f9b // ⿰馬辛
+glyph han-9a02:15x16 15 16 // 騂
+⿰ han-99ac:7x16 1 han-8f9b:7x16 // ⿰馬辛
 
 ## 187.8
 

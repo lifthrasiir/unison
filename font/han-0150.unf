@@ -205,8 +205,8 @@ glyph han-8cd0:15x16 15 16 // 賐
 glyph han-8cd9:15x16 15 16 // 賙
 ⿰ han-8c9d:6x16 1 han-5468:8x16 // ⿰貝周
 
-// glyph han-8ce0:15x16 15 16 // 賠
-// ⿰ han-8c9d han-5485 // ⿰貝咅
+glyph han-8ce0:15x16 15 16 // 賠
+⿰ han-8c9d:6x16 han-5485:9x16 // ⿰貝咅
 
 // glyph han-8ce3:15x16 15 16 // 賣
 // ⿳ han-58eb han-7f52 han-8c9d // ⿳士罒貝 <- ⿱士買
@@ -638,8 +638,8 @@ glyph han-8e1d:15x16 15 16 // 踝
 // glyph han-8e1e:15x16 15 16 // 踞
 // ⿰ han-27fb7 han-5c45 // ⿰𧾷居
 
-// glyph han-8e23:15x16 15 16 // 踣
-// ⿰ han-27fb7 han-5485 // ⿰𧾷咅
+glyph han-8e23:15x16 15 16 // 踣
+⿰ han-27fb7:5x16 1 han-5485:9x16 // ⿰𧾷咅
 
 glyph han-8e24:15x16 15 16 // 踤
 ⿰ han-27fb7:5x16 1 han-5352:9x16 // ⿰𧾷卒

@@ -264,6 +264,9 @@ glyph han-299be:15x16 15 16 // 𩦾
 glyph han-29a11:15x16 15 16 // 𩨑
 ⿰ han-9aa8:7x16 1 han-4e01:7x16 // ⿰骨丁
 
+// glyph han-29a12:15x16 15 16 // 𩨒
+// ⿰ han-9aa8 han-51e0 // ⿰骨几
+
 ## 188.3
 
 // glyph han-29a14:15x16 15 16 // 𩨔
@@ -400,3 +403,8 @@ glyph han-29ab0:15x16 15 16 // 𩪰
 
 glyph han-29abc:15x16 15 16 // 𩪼
 ⿰ han-9aa8:7x16 han-96da:8x16 // ⿰骨雚
+
+## 188.19
+
+// glyph han-29abe:15x16 15 16 // 𩪾
+// ⿱ han-470c han-9aa8 // ⿱䜌骨

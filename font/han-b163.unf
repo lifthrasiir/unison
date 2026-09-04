@@ -16,6 +16,9 @@ glyph han-2866c:15x16 15 16 // 𨙬
 glyph han-2866d:15x16 15 16 // 𨙭
 ⿰ han-571f:11x16 han-961d:4x16-r // ⿰土阝
 
+// glyph han-2866e:15x16 15 16 // 𨙮
+// ⿰ han-51e1 han-961d // ⿰凡阝
+
 glyph han-2866f:15x16 15 16 // 𨙯
 ⿰ han-5bf8:7x16 1 han-961d:7x16-r // ⿰寸阝
 
@@ -262,6 +265,9 @@ glyph han-287da:15x16 15 16 // 𨟚
 
 glyph han-287f0:15x16 15 16 // 𨟰
 ⿰ han-9149:9x16 1 han-961d:4x16-r // ⿰酉阝
+
+// glyph han-287f1:15x16 15 16 // 𨟱
+// ⿰ han-9149 han-51e1 // ⿰酉凡
 
 ## 164.4
 

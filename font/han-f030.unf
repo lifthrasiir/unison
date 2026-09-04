@@ -171,8 +171,8 @@ glyph han-2d250:15x16 15 16 // 𭉐
 // glyph han-2d264:15x16 15 16 // 𭉤
 // ⿰ han-53e3 han-27258 // ⿰口𧉘
 
-// glyph han-2d269:15x16 15 16 // 𭉩
-// ⿲ han-53e3 han-4ebb han-5485 // ⿲口亻咅 <- ⿰口倍
+glyph han-2d269:15x16 15 16 // 𭉩
+⿲ han-53e3:3x16-l han-4ebb:3x16 han-5485:9x16 // ⿲口亻咅
 
 // glyph han-2d26c:15x16 15 16 // 𭉬
 // ⿲ han-53e3 han-79be han-672a // ⿲口禾未
@@ -200,8 +200,8 @@ glyph han-2d27b:15x16 15 16 // 𭉻
 glyph han-2d290:15x16 15 16 // 𭊐
 ⿰ han-5468:8x16 han-5408:7x16 // ⿰周合
 
-// glyph han-2d298:15x16 15 16 // 𭊘
-// ⿲ han-53e3 han-5485 han-961d // ⿲口咅阝 <- ⿰口部
+glyph han-2d298:15x16 15 16 // 𭊘
+⿲ -1 han-53e3:3x16-l han-5485:9x16 han-961d:4x16-r // ⿲口咅阝
 
 ## 30.12
 
@@ -302,6 +302,11 @@ glyph han-2d347:15x16 15 16 // 𭍇
 
 # CJK unified ideographs extension F: 囗 (31)
 
+## 31.2
+
+// glyph han-2d35a:15x16 15 16 // 𭍚
+// ⿴ han-56d7 han-51e0 // ⿴囗几
+
 ## 31.6
 
 // glyph han-2d35f:15x16 15 16 // 𭍟
@@ -351,8 +356,8 @@ glyph han-2d37f:15x16 15 16 // 𭍿
 glyph han-2d382:15x16 15 16 // 𭎂
 ⿲ han-571f:3x16-l han-4eba:5x16 han-4eba:7x16 // ⿲土人人
 
-// glyph han-2d384:15x16 15 16 // 𭎄
-// ⿲ han-571f han-4e03 han-5200 // ⿲土七刀 <- ⿰土切
+glyph han-2d384:15x16 15 16 // 𭎄
+⿲ -1 han-571f:3x16-l han-4e03:8x16 han-5200:5x16 // ⿲土七刀
 
 ## 32.5
 
@@ -577,6 +582,9 @@ glyph han-2d49f:15x16 15 16 // 𭒟
 // ⿰ han-5b50 han-529b // ⿰子力
 
 ## 39.3
+
+// glyph han-2d4ba:15x16 15 16 // 𭒺
+// ⿰ han-5b50 han-51e1 // ⿰子凡
 
 // glyph han-2d4bc:15x16 15 16 // 𭒼
 // ⿰ han-5b50 han-5df1 // ⿰子己
