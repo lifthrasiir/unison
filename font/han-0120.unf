@@ -194,8 +194,8 @@ glyph han-7d50:15x16 15 16 // 結
 glyph han-7d53:15x16 15 16 // 絓
 ⿰ han-7cf9:5x16 1 han-572d:9x16 // ⿰糹圭
 
-// glyph han-7d54:15x16 15 16 // 絔
-// ⿰ han-7cf9 han-767e // ⿰糹百
+glyph han-7d54:15x16 15 16 // 絔
+⿰ han-7cf9:5x16 2 han-767e:8x16 // ⿰糹百
 
 glyph han-7d57:15x16 15 16 // 絗
 ⿰ han-7cf9:5x16 1 han-56de:9x16 // ⿰糹回
@@ -253,20 +253,20 @@ glyph han-7d74:15x16 15 16 // 絴
 glyph han-7d78:15x16 15 16 // 絸
 ⿰ han-7cf9:5x16 han-898b:10x16 // ⿰糹見
 
-// glyph han-7d7d:15x16 15 16 // 絽
-// ⿰ han-7cf9 han-5415 // ⿰糹吕
+glyph han-7d7d:15x16 15 16 // 絽
+⿰ han-7cf9:5x16 1 han-5415:9x16 // ⿰糹吕
 
 glyph han-7d83:15x16 15 16 // 綃
 ⿰ han-7cf9:5x16 1 han-8096:9x16 // ⿰糹肖
 
-// glyph han-7d84:15x16 15 16 // 綄
-// ⿰ han-7cf9 han-5b8c // ⿰糹完
+glyph han-7d84:15x16 15 16 // 綄
+⿰ han-7cf9:5x16 1 han-5b8c:9x16 // ⿰糹完
 
 glyph han-7d87:15x16 15 16 // 綇
 ⿰ han-7cf9:5x16 1 han-9149:9x16 // ⿰糹酉
 
-// glyph han-7d91:15x16 15 16 // 綑
-// ⿰ han-7cf9 han-56f0 // ⿰糹困
+glyph han-7d91:15x16 15 16 // 綑
+⿰ han-7cf9:5x16 1 han-56f0:9x16 // ⿰糹困
 
 // glyph han-7d95:15x16 15 16 // 綕
 // ⿰ han-7cf9 han-5fd7 // ⿰糹志
@@ -435,8 +435,8 @@ glyph han-7e5e:15x16 15 16 // 繞
 
 ## 120.13
 
-// glyph han-7e66:15x16 15 16 // 繦
-// ⿲ han-7cf9 han-5f13 han-867d // ⿲糹弓虽 <- ⿰糹强
+glyph han-7e66:15x16 15 16 // 繦
+⿲ -5 han-7cf9:5x16 han-5f13:4x16 han-867d:11x16 // ⿲糹弓虽
 
 // glyph han-7e70:15x16 15 16 // 繰
 // ⿰ han-7cf9 han-55bf // ⿰糹喿

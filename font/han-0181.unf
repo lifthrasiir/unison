@@ -62,8 +62,8 @@ glyph han-9802:15x16 15 16 // 頂
 glyph han-9803:15x16 15 16 // 頃
 ⿰ han-5315:9x16 1 han-9801:5x16 // ⿰匕頁
 
-// glyph han-9804:15x16 15 16 // 頄
-// ⿰ han-4e5d han-9801 // ⿰九頁
+glyph han-9804:15x16 15 16 // 頄
+⿰ han-4e5d:9x16 1 han-9801:5x16 // ⿰九頁
 
 ## 181.3
 
@@ -287,14 +287,15 @@ ref han-20628:15x16.9x15
 
 ## 182.5
 
-// glyph han-98ad:15x16 15 16 // 颭
-// ⿺ han-98a8 han-5360 // ⿺風占
+glyph han-98ad:15x16 15 16 // 颭
+⿺ han-98a8:15x16.5x15 han-5360:5x14 10 0 // ⿺風占
 
 // glyph han-98ae:15x16 15 16 // 颮
 // ⿺ han-98a8 han-5305 // ⿺風包
 
-// glyph han-98af:15x16 15 16 // 颯
-// ⿰ han-7acb han-98a8 // ⿰立風
+glyph han-98af:15x16 15 16 // 颯
+ref han-7acb:5x16 0 0 // ⿰立風
+ref han-98a8:11x16 4 0
 
 // glyph han-98b1:15x16 15 16 // 颱
 // ⿺ han-98a8 han-53f0 // ⿺風台

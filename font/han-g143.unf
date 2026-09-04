@@ -63,6 +63,11 @@ glyph han-30d10:15x16 15 16 // 𰴐
 glyph han-30d29:15x16 15 16 // 𰴩
 ⿰ han-8a01:5x16 1 han-5200:9x16 // ⿰訁刀
 
+## 149.4
+
+// glyph han-30d2a:15x16 15 16 // 𰴪
+// ⿱ han-4e0d han-8a00 // ⿱不言
+
 ## 149.5
 
 // glyph han-30d2b:15x16 15 16 // 𰴫
@@ -70,8 +75,11 @@ glyph han-30d29:15x16 15 16 // 𰴩
 
 ## 149.6
 
-// glyph han-30d30:15x16 15 16 // 𰴰
-// ⿰ han-8a01 han-5415 // ⿰訁吕
+glyph han-30d30:15x16 15 16 // 𰴰
+⿰ han-8a01:5x16 1 han-5415:9x16 // ⿰訁吕
+
+// glyph han-30d34:15x16 15 16 // 𰴴
+// ⿳ han-5b80 han-5973 han-8a00 // ⿳宀女言
 
 ## 149.7
 
@@ -409,8 +417,8 @@ glyph han-30ee5:15x16 15 16 // 𰻥
 
 ## 163.7
 
-// glyph han-30eec:15x16 15 16 // 𰻬
-// ⿰ han-5b8c han-961d // ⿰完阝
+glyph han-30eec:15x16 15 16 // 𰻬
+⿰ han-5b8c:9x16 1 han-961d:5x16-r // ⿰完阝
 
 ## 163.11
 
@@ -461,8 +469,8 @@ glyph han-30f14:15x16 15 16 // 𰼔
 // glyph han-30f2d:15x16 15 16 // 𰼭
 // ⿰ han-91d2 han-8fc7 // ⿰釒过
 
-// glyph han-30f2e:15x16 15 16 // 𰼮
-// ⿰ han-91d2 han-56f0 // ⿰釒困
+glyph han-30f2e:15x16 15 16 // 𰼮
+⿰ han-91d2:5x16-l 1 han-56f0:9x16 // ⿰釒困
 
 // glyph han-30f31:15x16 15 16 // 𰼱
 // ⿰ han-91d2 han-7681 // ⿰釒皁
@@ -508,8 +516,8 @@ glyph han-30f56:15x16 15 16 // 𰽖
 glyph han-30f59:15x16 15 16 // 𰽙
 ⿰ han-9485:6x16 han-4e0a:9x16 // ⿰钅上
 
-// glyph han-30f5a:15x16 15 16 // 𰽚
-// ⿰ han-9485 han-5e7f // ⿰钅广
+glyph han-30f5a:15x16 15 16 // 𰽚
+⿰ han-9485:6x16 han-5e7f:9x16 // ⿰钅广
 
 ## 167'.4
 
@@ -632,3 +640,59 @@ glyph han-30fc2:15x16 15 16 // 𰿂
 
 // glyph han-30fe3:15x16 15 16 // 𰿣
 // ⿵ han-9580 han-5c01 // ⿵門封
+
+# CJK unified ideographs extension G: 门 (169')
+
+## 169'.1
+
+// glyph han-30fe5:15x16 15 16 // 𰿥
+// ⿵ han-95e8 han-4e28 // ⿵门丨
+
+## 169'.2
+
+// glyph han-30fe6:15x16 15 16 // 𰿦
+// ⿱ han-2011f han-95e8 // ⿱𠄟门
+
+## 169'.3
+
+// glyph han-30fe7:15x16 15 16 // 𰿧
+// ⿵ han-95e8 han-5973 // ⿵门女
+
+## 169'.4
+
+glyph han-30fe8:15x16 15 16 // 𰿨
+⿵ han-95e8:15x16.11x15 han-5143:11x12 2 4 // ⿵门元
+
+// glyph han-30fea:15x16 15 16 // 𰿪
+// ⿵ han-95e8 han-5206 // ⿵门分
+
+## 169'.5
+
+glyph han-30fed:15x16 15 16 // 𰿭
+⿵ han-95e8:15x16.11x15 han-7530:9x11 3 4 // ⿵门田
+
+## 169'.8
+
+// glyph han-30ff1:15x16 15 16 // 𰿱
+// ⿵ han-95e8 han-670b // ⿵门朋
+
+// glyph han-30ff2:15x16 15 16 // 𰿲
+// ⿵ han-95e8 han-6606 // ⿵门昆
+
+## 169'.9
+
+// glyph han-30ff4:15x16 15 16 // 𰿴
+// ⿵ han-95e8 han-66f7 // ⿵门曷
+
+// glyph han-30ff5:15x16 15 16 // 𰿵
+// ⿵ han-95e8 han-4fde // ⿵门俞
+
+## 169'.10
+
+// glyph han-30ff7:15x16 15 16 // 𰿷
+// ⿵ han-95e8 han-7958 // ⿵门祘
+
+## 169'.14
+
+// glyph han-31000:15x16 15 16 // 𱀀
+// ⿵ han-95e8 han-9178 // ⿵门酸

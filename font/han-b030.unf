@@ -17,8 +17,8 @@ glyph han-20b9c:15x16 15 16 // 𠮜
 // glyph han-20b9d:15x16 15 16 // 𠮝
 // ⿰ han-53e3 han-4e28 // ⿰口丨
 
-// glyph han-20b9e:15x16 15 16 // 𠮞
-// ⿺ han-4e59 han-53e3 // ⿺乙口
+glyph han-20b9e:15x16 15 16 // 𠮞
+⿺ han-4e59:15x16.10x14 han-53e3:9x14 6 0 // ⿺乙口
 
 ## 30.2
 
@@ -140,8 +140,8 @@ glyph han-20bfc:15x16 15 16 // 𠯼
 glyph han-20bfd:15x16 15 16 // 𠯽
 ⿰ han-53e3:5x16-l han-6b62:10x16 // ⿰口止
 
-// glyph han-20bfe:15x16 15 16 // 𠯾
-// ⿲ han-53e3 han-4ebb han-4e5d // ⿲口亻九 <- ⿰口仇
+glyph han-20bfe:15x16 15 16 // 𠯾
+⿲ han-53e3:3x16-l han-4ebb:3x16 han-4e5d:9x16 // ⿲口亻九
 
 // glyph han-20bff:15x16 15 16 // 𠯿
 // ⿰ han-53e3 han-516d // ⿰口六
@@ -243,8 +243,8 @@ glyph han-20c4b:15x16 15 16 // 𠱋
 glyph han-20c51:15x16 15 16 // 𠱑
 ⿳ han-53e3:15x4 han-5927:15x5 han-53e3:15x7 // ⿳口大口
 
-// glyph han-20c5a:15x16 15 16 // 𠱚
-// ⿰ han-53e3 han-209d7 // ⿰口𠧗
+glyph han-20c5a:15x16 15 16 // 𠱚
+⿰ han-53e3:8x16 han-209d7:7x16 // ⿰口𠧗
 
 glyph han-20c60:15x16 15 16 // 𠱠
 ⿲ han-53e3:5x16-l 1 han-53e3:4x16 1 han-53e3:4x16 // ⿲口口口
@@ -323,8 +323,8 @@ glyph han-20cb7:15x16 15 16 // 𠲷
 glyph han-20cbd:15x16 15 16 // 𠲽
 ⿲ han-53e3:3x16-l han-4ebb:3x16 han-5f17:9x16 // ⿲口亻弗
 
-// glyph han-20cc1:15x16 15 16 // 𠳁
-// ⿰ han-53e3 han-56f0 // ⿰口困
+glyph han-20cc1:15x16 15 16 // 𠳁
+⿰ han-53e3:3x16-l 1 han-56f0:11x16 // ⿰口困
 
 // glyph han-20cc7:15x16 15 16 // 𠳇
 // ⿱ han-542c han-53e3 // ⿱听口
@@ -374,8 +374,8 @@ glyph han-20cec:15x16 15 16 // 𠳬
 glyph han-20d09:15x16 15 16 // 𠴉
 ⿲ han-53e3:3x16-l 1 han-961d:5x16-c han-5143:6x16 // ⿲口阝元
 
-// glyph han-20d0a:15x16 15 16 // 𠴊
-// ⿰ han-53e3 han-5415 // ⿰口吕
+glyph han-20d0a:15x16 15 16 // 𠴊
+⿰ han-53e3:3x16-l 1 han-5415:11x16 // ⿰口吕
 
 // glyph han-20d0c:15x16 15 16 // 𠴌
 // ⿰ han-53e3 han-7075 // ⿰口灵
@@ -415,8 +415,8 @@ glyph han-20d1d:15x16 15 16 // 𠴝
 glyph han-20d29:15x16 15 16 // 𠴩
 ⿱ han-53e3:15x4 han-5176:15x12 // ⿱口其
 
-// glyph han-20d31:15x16 15 16 // 𠴱
-// ⿰ han-53e3 han-56fa // ⿰口固
+glyph han-20d31:15x16 15 16 // 𠴱
+⿰ han-53e3:3x16-l han-56fa:13x16 // ⿰口固
 
 // glyph han-20d32:15x16 15 16 // 𠴲
 // ⿰ han-53e3 han-6c93 // ⿰口沓

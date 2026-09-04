@@ -27,8 +27,8 @@ glyph han-28949:15x16 15 16 // 𨥉
 glyph han-2894e:15x16 15 16 // 𨥎
 ⿲ han-91d2:5x16-l han-4eba:5x16 han-4eba:5x16 // ⿲釒人人
 
-// glyph han-28950:15x16 15 16 // 𨥐
-// ⿲ han-91d2 han-4ebb han-4e5d // ⿲釒亻九 <- ⿰釒仇
+glyph han-28950:15x16 15 16 // 𨥐
+⿲ -2 han-91d2:5x16-l han-4ebb:3x16 han-4e5d:9x16 // ⿲釒亻九
 
 // glyph han-28954:15x16 15 16 // 𨥔
 // ⿲ han-91d2 han-4e03 han-5200 // ⿲釒七刀 <- ⿰釒切
@@ -108,6 +108,9 @@ glyph han-289ac:15x16 15 16 // 𨦬
 // glyph han-289bb:15x16 15 16 // 𨦻
 // ⿰ han-91d2 han-7537 // ⿰釒男
 
+glyph han-289bc:15x16 15 16 // 𨦼
+⿰ han-91d2:5x16-l 1 han-8a00:9x16 // ⿰釒言
+
 glyph han-289c0:15x16 15 16 // 𨧀
 ⿲ -1 han-91d2:5x16-l han-6728:5x16 -1 han-571f:7x16 // ⿲釒木土
 
@@ -116,6 +119,9 @@ glyph han-289c0:15x16 15 16 // 𨧀
 
 // glyph han-289d0:15x16 15 16 // 𨧐
 // ⿰ han-91d2 han-541e // ⿰釒吞
+
+// glyph han-289d5:15x16 15 16 // 𨧕
+// ⿱ han-91d1 han-8a00 // ⿱金言
 
 // glyph han-289d6:15x16 15 16 // 𨧖
 // ⿰ han-91d2 han-5e8a // ⿰釒床

@@ -126,7 +126,7 @@ glyph han-2d212:15x16 15 16 // 𭈒
 // ⿲ han-53e3 han-6b20 han-4e94 // ⿲口欠五 <- ⿰吹五
 
 glyph han-2d219:15x16 15 16 // 𭈙
-⿲ -1 han-53e3:3x16-l han-6708:5x16 1 han-5df4:7x16 // ⿲口月巴
+⿲ han-53e3:3x16-l han-6708:6x16 1 han-5df4:5x16 // ⿲口月巴
 
 glyph han-2d221:15x16 15 16 // 𭈡
 ⿲ han-53e3:4x16-l han-6c35:3x16 han-4e14:8x16 // ⿲口氵且
@@ -136,6 +136,9 @@ glyph han-2d222:15x16 15 16 // 𭈢
 
 // glyph han-2d223:15x16 15 16 // 𭈣
 // ⿲ han-53e3 han-6c35 han-672a // ⿲口氵未
+
+// glyph han-2d225:15x16 15 16 // 𭈥
+// ⿰ han-53e3 han-95f9 // ⿰口闹
 
 ## 30.9
 

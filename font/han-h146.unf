@@ -62,8 +62,11 @@ glyph han-32086:15x16 15 16 // 𲂆
 
 ## 149'.7
 
-// glyph han-3208b:15x16 15 16 // 𲂋
-// ⿰ han-8ba0 han-56f0 // ⿰讠困
+glyph han-3208b:15x16 15 16 // 𲂋
+⿰ han-8ba0:3x16 han-56f0:13x16 // ⿰讠困
+
+glyph han-3208d:15x16 15 16 // 𲂍
+⿰ han-8ba0:5x16 1 han-8a00:9x16 // ⿰讠言
 
 ## 149'.9
 
@@ -204,8 +207,8 @@ glyph han-3213a:15x16 15 16 // 𲄺
 
 ## 160.1
 
-// glyph han-32144:15x16 15 16 // 𲅄
-// ⿰ han-8f9b han-4e3f // ⿰辛丿
+glyph han-32144:15x16 15 16 // 𲅄
+⿰ han-8f9b:11x16 han-4e3f:4x16 // ⿰辛丿
 
 ## 160.6
 
@@ -219,8 +222,8 @@ glyph han-3213a:15x16 15 16 // 𲄺
 
 ## 162.4
 
-// glyph han-32152-($han-regions):15x16 15 16 // 𲅒
-// ⿺ han-8fb6-($-1) han-5316 // ⿺辶化
+glyph han-32152-($han-regions):15x16 15 16 // 𲅒
+⿺ han-8fb6-($-1):15x16.11x14 han-5316:11x14 4 0 // ⿺辶化
 
 ## 162.5
 
@@ -311,6 +314,11 @@ glyph han-321c7:15x16 15 16 // 𲇇
 
 // glyph han-321cb:15x16 15 16 // 𲇋
 // ⿰ han-91d2 han-800c // ⿰釒而
+
+## 167.7
+
+// glyph han-321cf:15x16 15 16 // 𲇏
+// ⿰ han-91d2 han-95f4 // ⿰釒间
 
 ## 167.9
 
@@ -410,6 +418,33 @@ glyph han-32221:15x16 15 16 // 𲈡
 
 // glyph han-32231:15x16 15 16 // 𲈱
 // ⿵ han-9580 han-9023 // ⿵門連
+
+# CJK unified ideographs extension H: 门 (169')
+
+## 169'.4
+
+// glyph han-32235:15x16 15 16 // 𲈵
+// ⿵ han-95e8 han-6c34 // ⿵门水
+
+## 169'.6
+
+// glyph han-32239:15x16 15 16 // 𲈹
+// ⿵ han-95e8 han-897f // ⿵门西
+
+## 169'.8
+
+// glyph han-32240:15x16 15 16 // 𲉀
+// ⿵ han-95e8 han-521d // ⿵门初
+
+## 169'.9
+
+// glyph han-32242:15x16 15 16 // 𲉂
+// ⿵ han-95e8 han-5c01 // ⿵门封
+
+## 169'.11
+
+// glyph han-32246:15x16 15 16 // 𲉆
+// ⿵ han-95e8 han-83ab // ⿵门莫
 
 # CJK unified ideographs extension H: 阜 (170)
 

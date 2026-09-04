@@ -31,6 +31,9 @@ glyph han-2b82e:15x16 15 16 // 𫠮
 // glyph han-2b838:15x16 15 16 // 𫠸
 // ⿱ han-4e0a han-6d88 // ⿱上消
 
+// glyph han-2b83b:15x16 15 16 // 𫠻
+// ⿱ han-4e0d han-4fe1 // ⿱不信
+
 ## 1.13
 
 // glyph han-2b83d:15x16 15 16 // 𫠽
@@ -62,8 +65,8 @@ glyph han-2b847:15x16 15 16 // 𫡇
 
 ## 5.3
 
-// glyph han-2b862:15x16 15 16 // 𫡢
-// ⿺ han-4e59 han-571f // ⿺乙土
+glyph han-2b862:15x16 15 16 // 𫡢
+⿺ han-4e59:15x16.10x14 han-571f:9x14 5 0 // ⿺乙土
 
 ## 5.6
 
@@ -328,8 +331,8 @@ glyph han-2b97f:15x16 15 16 // 𫥿
 
 ## 18.9
 
-// glyph han-2b986:15x16 15 16 // 𫦆
-// ⿲ han-4ecc han-4e14 han-5202 // ⿲仌且刂 <- ⿰俎刂
+glyph han-2b986:15x16 15 16 // 𫦆
+⿲ -1 han-4ecc:7x16 han-4e14:6x16 han-5202:3x16 // ⿲仌且刂
 
 glyph han-2b98a:15x16 15 16 // 𫦊
 ⿰ han-97f3:9x16 1 han-5202:5x16 // ⿰音刂
@@ -435,8 +438,8 @@ glyph han-2b9c2-($han-regions):15x16 15 16 // 𫧂
 
 ## 27.6
 
-// glyph han-2ba05:15x16 15 16 // 𫨅
-// ⿸ han-5382 han-767e // ⿸厂百
+glyph han-2ba05:15x16 15 16 // 𫨅
+⿸ han-5382:15x16.11x15 han-767e:10x13 5 3 // ⿸厂百
 
 // glyph han-2ba06:15x16 15 16 // 𫨆
 // ⿸ han-5382 han-5939 // ⿸厂夹
@@ -479,8 +482,11 @@ glyph han-2b9c2-($han-regions):15x16 15 16 // 𫧂
 glyph han-2ba52:15x16 15 16 // 𫩒
 ⿰ han-53e3:5x16-l 1 han-5dfe:9x16 // ⿰口巾
 
-// glyph han-2ba55:15x16 15 16 // 𫩕
-// ⿰ han-53e3 han-5e7f // ⿰口广
+glyph han-2ba55:15x16 15 16 // 𫩕
+⿰ han-53e3:5x16-l 1 han-5e7f:9x16 // ⿰口广
+
+// glyph han-2ba56:15x16 15 16 // 𫩖
+// ⿰ han-53e3 han-95e8 // ⿰口门
 
 ## 30.4
 
@@ -725,6 +731,9 @@ glyph han-2bb74:15x16 15 16 // 𫭴
 // glyph han-2bb76-($han-regions):15x16 15 16 // 𫭶
 // ⿱ han-51b7-($-1) han-571f // ⿱冷土
 
+glyph han-2bb77:15x16 15 16 // 𫭷
+⿰ han-571f:5x16-l 1 han-8a00:9x16 // ⿰土言
+
 // glyph han-2bb7b:15x16 15 16 // 𫭻
 // ⿱ han-572e han-5fc3 // ⿱圮心
 
@@ -763,8 +772,8 @@ glyph han-2bba1:15x16 15 16 // 𫮡
 // glyph han-2bba4:15x16 15 16 // 𫮤
 // ⿳ han-8279 han-6cbe han-571f // ⿳艹沾土 <- ⿱𮏝土
 
-// glyph han-2bbac:15x16 15 16 // 𫮬
-// ⿲ han-571f han-5f13 han-867d // ⿲土弓虽 <- ⿰土强
+glyph han-2bbac:15x16 15 16 // 𫮬
+⿲ -3 han-571f:3x16-l han-5f13:4x16 han-867d:11x16 // ⿲土弓虽
 
 ## 32.14
 

@@ -176,8 +176,8 @@ glyph han-2975d:15x16 15 16 // 𩝝
 
 ## 184.11
 
-// glyph han-2977d:15x16 15 16 // 𩝽
-// ⿲ han-98e0 han-5f13 han-867d // ⿲飠弓虽 <- ⿰飠强
+glyph han-2977d:15x16 15 16 // 𩝽
+⿲ -7 han-98e0:7x16 han-5f13:4x16 han-867d:11x16 // ⿲飠弓虽
 
 glyph han-2978f:15x16 15 16 // 𩞏
 ⿲ -3 han-98e0:7x16 han-8eca:5x16 han-65a4:6x16 // ⿲飠車斤

@@ -106,8 +106,8 @@ glyph han-2bc27:15x16 15 16 // 𫰧
 glyph han-2bc2c:15x16 15 16 // 𫰬
 ⿲ han-5973:5x16-l han-6728:5x16 han-5de5:5x16 // ⿲女木工
 
-// glyph han-2bc2f:15x16 15 16 // 𫰯
-// ⿰ han-5973 han-56f0 // ⿰女困
+glyph han-2bc2f:15x16 15 16 // 𫰯
+⿰ han-5973:5x16-l 1 han-56f0:9x16 // ⿰女困
 
 ## 38.8
 
@@ -134,7 +134,7 @@ glyph han-2bc4a:15x16 15 16 // 𫱊
 ## 38.10
 
 glyph han-2bc53:15x16 15 16 // 𫱓
-⿲ -5 han-5973:5x16-l han-9149:7x16 1 han-5df1:7x16 // ⿲女酉己
+⿲ -1 han-5973:5x16-l han-9149:7x16 1 han-5df1:3x16 // ⿲女酉己
 
 // glyph han-2bc56:15x16 15 16 // 𫱖
 // ⿱ han-5982 han-4f55 // ⿱如何
@@ -152,8 +152,8 @@ glyph han-2bc6b:15x16 15 16 // 𫱫
 
 ## 38.12
 
-// glyph han-2bc6f:15x16 15 16 // 𫱯
-// ⿲ han-5973 han-767e han-767e // ⿲女百百 <- ⿰女皕
+glyph han-2bc6f:15x16 15 16 // 𫱯
+⿲ han-5973:5x16-l han-767e:4x16 2 han-767e:4x16 // ⿲女百百
 
 ## 38.13
 
@@ -291,6 +291,11 @@ glyph han-2bcdf:15x16 15 16 // 𫳟
 // glyph han-2bd18:15x16 15 16 // 𫴘
 // ⿳ han-5b80 han-6797 han-2418d // ⿳宀林𤆍 <- ⿱宀𤍾
 
+## 40.21
+
+// glyph han-2bd2a:15x16 15 16 // 𫴪
+// ⿳ han-5b80 han-8a00 han-8aa9 // ⿳宀言誩
+
 # CJK unified ideographs extension E: 寸 (41)
 
 ## 41.9
@@ -384,8 +389,8 @@ glyph han-2bd98:15x16 15 16 // 𫶘
 
 ## 49.8
 
-// glyph han-2bdb7:15x16 15 16 // 𫶷
-// ⿰ han-5415 han-5df4 // ⿰吕巴
+glyph han-2bdb7:15x16 15 16 // 𫶷
+⿰ han-5415:9x16 1 han-5df4:5x16 // ⿰吕巴
 
 # CJK unified ideographs extension E: 巾 (50)
 
@@ -535,6 +540,9 @@ glyph han-2be69:15x16 15 16 // 𫹩
 glyph han-2be6f:15x16 15 16 // 𫹯
 ⿱ han-5e72:15x9 1 han-5fc3:15x6 // ⿱干心
 
+// glyph han-2be70:15x16 15 16 // 𫹰
+// ⿱ han-5fc3 han-95e8 // ⿱心门
+
 // glyph han-2be71:15x16 15 16 // 𫹱
 // ⿱ han-5ddb han-5fc3 // ⿱巛心
 
@@ -581,6 +589,9 @@ glyph han-2be88:15x16 15 16 // 𫺈
 
 // glyph han-2be90:15x16 15 16 // 𫺐
 // ⿳ han-4eca han-53e3 han-5fc3 // ⿳今口心 <- ⿱含心
+
+// glyph han-2be92:15x16 15 16 // 𫺒
+// ⿰ han-5fc4 han-95f4 // ⿰忄间
 
 ## 61.8
 
@@ -692,6 +703,9 @@ glyph han-2bf3b:15x16 15 16 // 𫼻
 
 // glyph han-2bf49:15x16 15 16 // 𫽉
 // ⿰ han-624c han-6b68 // ⿰扌歨
+
+// glyph han-2bf54:15x16 15 16 // 𫽔
+// ⿰ han-624c han-95f9 // ⿰扌闹
 
 glyph han-2bf56:15x16 15 16 // 𫽖
 ⿲ han-624c:3x16 han-961d:4x16-c han-4e14:8x16 // ⿲扌阝且

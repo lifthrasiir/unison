@@ -155,8 +155,8 @@ glyph han-27d88:15x16 15 16 // 𧶈
 glyph han-27dac:15x16 15 16 // 𧶬
 ⿲ han-8c9d:5x16 han-5973:5x16 han-65e6:5x16 // ⿲貝女旦
 
-// glyph han-27dae:15x16 15 16 // 𧶮
-// ⿰ han-8c9d han-56fa // ⿰貝固
+glyph han-27dae:15x16 15 16 // 𧶮
+⿰ han-8c9d:5x16 1 han-56fa:9x16 // ⿰貝固
 
 ## 154.9
 
@@ -415,6 +415,9 @@ glyph han-27e1a:15x16 15 16 // 𧸚
 // ⿺ han-8d70 han-3519 // ⿺走㔙
 
 ## 156.9
+
+// glyph han-27f1f:15x16 15 16 // 𧼟
+// ⿺ han-8d70 han-964c // ⿺走陌
 
 // glyph han-27f28:15x16 15 16 // 𧼨
 // ⿺ han-8d70 han-66f7 // ⿺走曷

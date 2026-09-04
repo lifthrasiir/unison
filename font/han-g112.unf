@@ -13,6 +13,11 @@ glyph han-309b3:15x16 15 16 // 𰦳
 // glyph han-309b8:15x16 15 16 // 𰦸
 // ⿰ han-77f3 han-65e9 // ⿰石早
 
+## 112.7
+
+// glyph han-309c3:15x16 15 16 // 𰧃
+// ⿰ han-77f3 han-95f4 // ⿰石间
+
 ## 112.9
 
 // glyph han-309cc:15x16 15 16 // 𰧌
@@ -81,8 +86,8 @@ glyph han-30a1b:15x16 15 16 // 𰨛
 
 ## 115.3
 
-// glyph han-30a1c:15x16 15 16 // 𰨜
-// ⿰ han-79be han-5e7f // ⿰禾广
+glyph han-30a1c:15x16 15 16 // 𰨜
+⿰ han-79be:5x16 1 han-5e7f:9x16 // ⿰禾广
 
 ## 115.5
 
@@ -248,8 +253,8 @@ glyph han-30a97:15x16 15 16 // 𰪗
 
 ## 119.3
 
-// glyph han-30aa9:15x16 15 16 // 𰪩
-// ⿰ han-7c73 han-5e7f // ⿰米广
+glyph han-30aa9:15x16 15 16 // 𰪩
+⿰ han-7c73:5x16 1 han-5e7f:9x16 // ⿰米广
 
 ## 119.4
 
@@ -315,8 +320,8 @@ glyph han-30ad4:15x16 15 16 // 𰫔
 // glyph han-30ada:15x16 15 16 // 𰫚
 // ⿰ han-7cf8 han-5e00 // ⿰糸帀
 
-// glyph han-30adc:15x16 15 16 // 𰫜
-// ⿲ han-7cf9 han-4ebb han-4e5d // ⿲糹亻九 <- ⿰糹仇
+glyph han-30adc:15x16 15 16 // 𰫜
+⿲ -2 han-7cf9:5x16 han-4ebb:3x16 han-4e5d:9x16 // ⿲糹亻九
 
 ## 120.5
 
@@ -343,8 +348,8 @@ glyph han-30ae1:15x16 15 16 // 𰫡
 
 ## 120.12
 
-// glyph han-30af4:15x16 15 16 // 𰫴
-// ⿲ han-7cf9 han-56f0 han-7acb // ⿲糹困立 <- ⿰綑立
+glyph han-30af4:15x16 15 16 // 𰫴
+⿲ -5 han-7cf9:5x16 1 han-56f0:9x16 han-7acb:5x16 // ⿲糹困立
 
 ## 120.22
 
@@ -585,6 +590,9 @@ glyph han-30c34:15x16 15 16 // 𰰴
 glyph han-30c45:15x16 15 16 // 𰱅
 ⿳ han-8279:15x3 han-53e3:15x4 han-6728:15x9 // ⿳艹口木
 
+// glyph han-30c47:15x16 15 16 // 𰱇
+// ⿱ han-8279 han-2b52e // ⿱艹𫔮
+
 ## 140.8
 
 // glyph han-30c53:15x16 15 16 // 𰱓
@@ -612,6 +620,9 @@ glyph han-30c45:15x16 15 16 // 𰱅
 
 // glyph han-30c68:15x16 15 16 // 𰱨
 // ⿱ han-8279 han-70a1 // ⿱艹炡
+
+// glyph han-30c69:15x16 15 16 // 𰱩
+// ⿱ han-8279 han-95fe // ⿱艹闾
 
 ## 140.10
 
@@ -652,8 +663,8 @@ glyph han-30c45:15x16 15 16 // 𰱅
 
 ## 142.2
 
-// glyph han-30ca9:15x16 15 16 // 𰲩
-// ⿰ han-866b han-4e5d // ⿰虫九
+glyph han-30ca9:15x16 15 16 // 𰲩
+⿰ han-866b:5x16 1 han-4e5d:9x16 // ⿰虫九
 
 ## 142.4
 
@@ -713,8 +724,8 @@ glyph han-30cd5:15x16 15 16 // 𰳕
 
 ## 142.13
 
-// glyph han-30cdf:15x16 15 16 // 𰳟
-// ⿲ han-866b han-4e5d han-9ce5 // ⿲虫九鳥 <- ⿰虫鳩
+glyph han-30cdf:15x16 15 16 // 𰳟
+⿲ -6 han-866b:5x16 han-4e5d:9x16 han-9ce5:7x16 // ⿲虫九鳥
 
 ## 142.15
 

@@ -148,6 +148,28 @@ glyph han-2e8f2:15x16 15 16 // 𮣲
 // glyph han-2e927-($han-regions):15x16 15 16 // 𮤧
 // ⿵ han-9580 han-9234-($-1) // ⿵門鈴
 
+# CJK unified ideographs extension F: 门 (169')
+
+## 169'.2
+
+glyph han-2e92b:15x16 15 16 // 𮤫
+⿵ han-95e8:15x16.11x15 han-4e01:9x14 3 2 // ⿵门丁
+
+## 169'.3
+
+glyph han-2e92c:15x16 15 16 // 𮤬
+⿵ han-95e8:15x16.11x15 han-571f:11x13 2 3 // ⿵门土
+
+## 169'.4
+
+// glyph han-2e92e:15x16 15 16 // 𮤮
+// ⿱ han-5929 han-95e8 // ⿱天门
+
+## 169'.6
+
+// glyph han-2e933:15x16 15 16 // 𮤳
+// ⿵ han-95e8 han-6c5f // ⿵门江
+
 # CJK unified ideographs extension F: 阜 (170)
 
 ## 170.4
@@ -239,13 +261,18 @@ glyph han-2e983:15x16 15 16 // 𮦃
 
 # CJK unified ideographs extension F: 雨 (173)
 
+## 173.3
+
+// glyph han-2e985-($han-regions):15x16 15 16 // 𮦅
+// ⿱ han-96e8-($-1) han-95e8 // ⿱雨门
+
 ## 173.4
 
 glyph han-2e987:15x16 15 16 // 𮦇
 ⿱ han-5929:15x8 han-96e8:15x8 // ⿱天雨
 
 glyph han-2e989:15x16 15 16 // 𮦉
-⿱ han-96e8:15x8 1 han-706b:15x6 // ⿱雨火
+⿱ han-96e8:15x6 han-706b:15x10 // ⿱雨火
 
 ## 173.5
 

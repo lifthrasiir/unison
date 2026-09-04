@@ -80,6 +80,9 @@ glyph han-2195f:15x16 15 16 // 𡥟
 
 ## 39.7
 
+// glyph han-2196a:15x16 15 16 // 𡥪
+// ⿰ han-5b50 han-8a00 // ⿰子言
+
 // glyph han-2196b:15x16 15 16 // 𡥫
 // ⿰ han-5408 han-5b50 // ⿰合子
 
@@ -101,6 +104,9 @@ glyph han-2195f:15x16 15 16 // 𡥟
 // ⿰ han-5b50 han-6606 // ⿰子昆
 
 ## 39.9
+
+// glyph han-21977:15x16 15 16 // 𡥷
+// ⿰ han-378c han-378c // ⿰㞌㞌
 
 // glyph han-2197b:15x16 15 16 // 𡥻
 // ⿱ han-79cb han-5b50 // ⿱秋子
@@ -130,6 +136,9 @@ glyph han-2195f:15x16 15 16 // 𡥟
 
 // glyph han-219a0:15x16 15 16 // 𡦠
 // ⿱ han-7a1a han-5b50 // ⿱稚子
+
+// glyph han-219a3:15x16 15 16 // 𡦣
+// ⿳ han-5c71 han-2cbc1 han-5b50 // ⿳山𬯁子
 
 ## 39.14
 
@@ -377,6 +386,9 @@ ref han-571f:15x4 0 12
 
 // glyph han-21ab3:15x16 15 16 // 𡪳
 // ⿳ han-5b80 han-79be han-898b // ⿳宀禾見
+
+// glyph han-21ab4:15x16 15 16 // 𡪴
+// ⿳ han-5b80 han-4f70 han-516d // ⿳宀佰六
 
 ## 40.13
 

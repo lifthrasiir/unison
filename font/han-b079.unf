@@ -50,13 +50,13 @@ glyph han-23b1f:15x16 15 16 // 𣬟
 // ⿺ han-6bdb han-5dfe // ⿺毛巾
 
 glyph han-23b23:15x16 15 16 // 𣬣
-⿺ han-6bdb:15x16.10x14 han-53e3:8x12 6 1 // ⿺毛口
+⿺ han-6bdb:15x16.10x14 han-53e3:9x14 6 0 // ⿺毛口
 
 // glyph han-23b24:15x16 15 16 // 𣬤
 // ⿺ han-6bdb han-961d // ⿺毛阝
 
-// glyph han-23b25:15x16 15 16 // 𣬥
-// ⿺ han-6bdb han-5b50 // ⿺毛子
+glyph han-23b25:15x16 15 16 // 𣬥
+⿺ han-6bdb:15x16.10x14 han-5b50:9x10 6 2 // ⿺毛子
 
 glyph han-23b26:15x16 15 16 // 𣬦
 ⿱ han-53e3:15x7 1 han-6bdb:15x8 // ⿱口毛
@@ -137,8 +137,8 @@ glyph han-23b4e:15x16 15 16 // 𣭎
 // glyph han-23b50:15x16 15 16 // 𣭐
 // ⿺ han-6bdb han-672a // ⿺毛未
 
-// glyph han-23b51:15x16 15 16 // 𣭑
-// ⿺ han-6bdb han-51fa // ⿺毛出
+glyph han-23b51:15x16 15 16 // 𣭑
+⿺ han-6bdb:15x16.10x14 han-51fa:9x13 6 0 // ⿺毛出
 
 glyph han-23b52:15x16 15 16 // 𣭒
 ⿺ han-6bdb:15x16.10x14 han-76ee:9x13 6 0 // ⿺毛目

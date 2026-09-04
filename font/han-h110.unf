@@ -1,5 +1,10 @@
 # CJK unified ideographs extension H: 石 (112)
 
+## 112.3
+
+// glyph han-31ce8:15x16 15 16 // 𱳨
+// ⿰ han-77f3 han-95e8 // ⿰石门
+
 ## 112.4
 
 // glyph han-31cea:15x16 15 16 // 𱳪
@@ -245,6 +250,9 @@ glyph han-31e1c:15x16 15 16 // 𱸜
 // glyph han-31e25:15x16 15 16 // 𱸥
 // ⿱ han-25ad7 han-446c // ⿱𥫗䑬
 
+// glyph han-31e28:15x16 15 16 // 𱸨
+// ⿱ han-25ad7 han-5f3a // ⿱𥫗强
+
 ## 118.16
 
 // glyph han-31e30-($han-regions):15x16 15 16 // 𱸰
@@ -298,8 +306,8 @@ glyph han-31e5e:15x16 15 16 // 𱹞
 
 ## 120.1
 
-// glyph han-31e6a:15x16 15 16 // 𱹪
-// ⿰ han-7cf9 han-4e3f // ⿰糹丿
+glyph han-31e6a:15x16 15 16 // 𱹪
+⿰ 1 han-7cf9:5x16 4 han-4e3f:4x16 // ⿰糹丿
 
 ## 120.5
 
@@ -446,15 +454,15 @@ glyph han-31f16:15x16 15 16 // 𱼖
 
 ## 130.12
 
-// glyph han-31f1c:15x16 15 16 // 𱼜
-// ⿲ han-6708 han-53ec han-8f9b // ⿲月召辛 <- ⿰月𨐓
+glyph han-31f1c:15x16 15 16 // 𱼜
+⿲ -8 han-6708:5x16-l 1 han-53ec:6x16 han-8f9b:11x16 // ⿲月召辛
 
 # CJK unified ideographs extension H: 臣 (131)
 
 ## 131.1
 
-// glyph han-31f27:15x16 15 16 // 𱼧
-// ⿰ han-4e3f han-81e3 // ⿰丿臣
+glyph han-31f27:15x16 15 16 // 𱼧
+⿰ han-4e3f:4x16 2 han-81e3:9x16 // ⿰丿臣
 
 # CJK unified ideographs extension H: 至 (133)
 
@@ -520,6 +528,9 @@ glyph han-31f37:15x16 15 16 // 𱼷
 // glyph han-31f69:15x16 15 16 // 𱽩
 // ⿱ han-8279 han-628a // ⿱艹把
 
+// glyph han-31f6a:15x16 15 16 // 𱽪
+// ⿱ han-8279 han-56ed // ⿱艹园
+
 // glyph han-31f6b:15x16 15 16 // 𱽫
 // ⿱ han-8279 han-6c9b // ⿱艹沛
 
@@ -576,6 +587,11 @@ glyph han-31fab:15x16 15 16 // 𱾫
 // glyph han-31fae:15x16 15 16 // 𱾮
 // ⿰ han-82e6 han-66f7 // ⿰苦曷
 
+## 140.15
+
+// glyph han-31fb3-($han-regions):15x16 15 16 // 𱾳
+// ⿳ han-8279 han-96e8-($-1) han-8a00 // ⿳艹雨言
+
 ## 140.16
 
 // glyph han-31fbb:15x16 15 16 // 𱾻
@@ -611,8 +627,11 @@ glyph han-31fab:15x16 15 16 // 𱾫
 // glyph han-31fe3:15x16 15 16 // 𱿣
 // ⿰ han-866b han-514b // ⿰虫克
 
-// glyph han-31fe4:15x16 15 16 // 𱿤
-// ⿰ han-866b han-5415 // ⿰虫吕
+glyph han-31fe4:15x16 15 16 // 𱿤
+⿰ han-866b:5x16 han-5415:10x16 // ⿰虫吕
+
+// glyph han-31fe7:15x16 15 16 // 𱿧
+// ⿰ han-866b han-95f4 // ⿰虫间
 
 ## 142.8
 

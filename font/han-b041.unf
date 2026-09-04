@@ -117,8 +117,8 @@ glyph han-21c36:15x16 15 16 // 𡰶
 // glyph han-21c40:15x16 15 16 // 𡱀
 // ⿳ han-4ea0 han-53e3 han-5c38 // ⿳亠口尸
 
-// glyph han-21c47:15x16 15 16 // 𡱇
-// ⿸ han-5c38 han-5360 // ⿸尸占
+glyph han-21c47:15x16 15 16 // 𡱇
+⿸ han-5c38:15x16.11x12 han-5360:9x10 6 6 // ⿸尸占
 
 glyph han-21c48:15x16 15 16 // 𡱈
 ⿸ han-5c38:15x16.11x12 han-53e5:9x12 6 4 // ⿸尸句

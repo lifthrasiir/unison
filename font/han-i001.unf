@@ -45,6 +45,13 @@ glyph han-2ebf6:15x16 15 16 // 𮯶
 glyph han-2ec06:15x16 15 16 // 𮰆
 ⿰ han-51ab:5x16 1 han-5f13:9x16 // ⿰冫弓
 
+# CJK unified ideographs extension I: 口 (30)
+
+## 30.9
+
+// glyph han-2ec16:15x16 15 16 // 𮰖
+// ⿰ han-53e3 han-95fd // ⿰口闽
+
 # CJK unified ideographs extension I: 囗 (31)
 
 ## 31.6
@@ -58,6 +65,11 @@ glyph han-2ec06:15x16 15 16 // 𮰆
 
 // glyph han-2ec1b:15x16 15 16 // 𮰛
 // ⿲ han-571f han-4ebb han-4e8c // ⿲土亻二 <- ⿰土仁
+
+## 32.6
+
+// glyph han-2ec1d:15x16 15 16 // 𮰝
+// ⿱ han-6739 han-571f // ⿱朹土
 
 ## 32.7
 
@@ -113,6 +125,11 @@ glyph han-2ec35:15x16 15 16 // 𮰵
 
 glyph han-2ec43:15x16 15 16 // 𮱃
 ⿰ han-5973:5x16-l 1 han-56de:9x16 // ⿰女回
+
+## 38.7
+
+// glyph han-2ec44:15x16 15 16 // 𮱄
+// ⿰ han-5973 han-56ed // ⿰女园
 
 ## 38.8
 
@@ -243,6 +260,11 @@ glyph han-2ecad:15x16 15 16 // 𮲭
 // glyph han-2ecb2:15x16 15 16 // 𮲲
 // ⿰ han-6728 han-5e86 // ⿰木庆
 
+## 75.9
+
+// glyph han-2ecb7:15x16 15 16 // 𮲷
+// ⿰ han-6728 han-95fb // ⿰木闻
+
 # CJK unified ideographs extension I: 欠 (76)
 
 ## 76.11
@@ -273,6 +295,9 @@ glyph han-2ecca:15x16 15 16 // 𮳊
 ⿲ han-6c35:3x16 han-5fc4:5x16 han-53f0:7x16 // ⿲氵忄台
 
 ## 85.9
+
+// glyph han-2eccb:15x16 15 16 // 𮳋
+// ⿰ han-6c35 han-2d55b // ⿰氵𭕛
 
 glyph han-2eccc:15x16 15 16 // 𮳌
 ⿲ han-6c35:3x16 han-248e9:3x16 1 han-53ef:8x16 // ⿲氵𤣩可
@@ -341,6 +366,9 @@ glyph han-2ed10:15x16 15 16 // 𮴐
 // glyph han-2ed15:15x16 15 16 // 𮴕
 // ⿰ han-248e9 han-5e86 // ⿰𤣩庆
 
+// glyph han-2ed16:15x16 15 16 // 𮴖
+// ⿰ han-248e9 han-95ee // ⿰𤣩问
+
 ## 96.7
 
 // glyph han-2ed18-($han-regions):15x16 15 16 // 𮴘
@@ -370,8 +398,8 @@ glyph han-2ed32:15x16 15 16 // 𮴲
 // glyph han-2ed33:15x16 15 16 // 𮴳
 // ⿰ han-248e9 han-96ec // ⿰𤣩雬
 
-// glyph han-2ed35:15x16 15 16 // 𮴵
-// ⿲ han-248e9 han-5f13 han-867d // ⿲𤣩弓虽 <- ⿰𤣩强
+glyph han-2ed35:15x16 15 16 // 𮴵
+⿲ -3 han-248e9:3x16 han-5f13:4x16 han-867d:11x16 // ⿲𤣩弓虽
 
 ## 96.14
 
@@ -694,6 +722,18 @@ glyph han-2ee11:15x16 15 16 // 𮸑
 
 // glyph han-2ee21:15x16 15 16 // 𮸡
 // ⿰ han-9485 han-7131 // ⿰钅焱
+
+# CJK unified ideographs extension I: 门 (169')
+
+## 169'.6
+
+// glyph han-2ee25:15x16 15 16 // 𮸥
+// ⿵ han-95e8 han-5409 // ⿵门吉
+
+## 169'.8
+
+// glyph han-2ee26:15x16 15 16 // 𮸦
+// ⿵ han-95e8 han-5485 // ⿵门咅
 
 # CJK unified ideographs extension I: 阜 (170)
 

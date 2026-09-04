@@ -11,11 +11,17 @@
 glyph han-26d69:15x16 15 16 // 𦵩
 ⿱ han-8279:15x3 1 han-9152:15x12 // ⿱艹酒
 
+// glyph han-26d6e:15x16 15 16 // 𦵮
+// ⿱ han-8279 han-2cbc1 // ⿱艹𬯁
+
 glyph han-26d78:15x16 15 16 // 𦵸
 ⿱ han-8279:15x3 1 han-803f:15x12 // ⿱艹耿
 
 glyph han-26d79:15x16 15 16 // 𦵹
 ⿱ han-8279:15x3 1 han-5261:15x12 // ⿱艹剡
+
+// glyph han-26d82:15x16 15 16 // 𦶂
+// ⿱ han-8279 han-6339 // ⿱艹挹
 
 // glyph han-26d87:15x16 15 16 // 𦶇
 // ⿱ han-8279 han-6be6 // ⿱艹毦
@@ -46,6 +52,9 @@ glyph han-26d94:15x16 15 16 // 𦶔
 
 // glyph han-26da2:15x16 15 16 // 𦶢
 // ⿱ han-8279 han-822a // ⿱艹航
+
+// glyph han-26da4:15x16 15 16 // 𦶤
+// ⿱ han-8279 han-9662 // ⿱艹院
 
 // glyph han-26da7:15x16 15 16 // 𦶧
 // ⿳ han-8279 han-516d han-8863 // ⿳艹六衣 <- ⿱艹𫋴
@@ -120,6 +129,9 @@ glyph han-26e06:15x16 15 16 // 𦸆
 // glyph han-26e0a:15x16 15 16 // 𦸊
 // ⿳ han-8279 han-4672 han-5df3 // ⿳艹䙲巳
 
+// glyph han-26e0c:15x16 15 16 // 𦸌
+// ⿱ han-8279 han-8118 // ⿱艹脘
+
 // glyph han-26e0f:15x16 15 16 // 𦸏
 // ⿳ han-8279 han-5c71 han-96b9 // ⿳艹山隹 <- ⿱艹崔
 
@@ -181,6 +193,9 @@ glyph han-26e76:15x16 15 16 // 𦹶
 // ⿱ han-8279 han-2d6bd // ⿱艹𭚽
 
 ## 140.12
+
+// glyph han-26e8a:15x16 15 16 // 𦺊
+// ⿱ han-8279 han-7746 // ⿱艹睆
 
 // glyph han-26e8f:15x16 15 16 // 𦺏
 // ⿰ han-8349 han-4ea4 // ⿰草交
@@ -269,6 +284,9 @@ glyph han-26efd:15x16 15 16 // 𦻽
 // glyph han-26f09:15x16 15 16 // 𦼉
 // ⿳ han-8279 han-8279 han-96b9 // ⿳艹艹隹 <- ⿱艹萑
 
+// glyph han-26f0d:15x16 15 16 // 𦼍
+// ⿱ han-8279 han-7696 // ⿱艹皖
+
 glyph han-26f10:15x16 15 16 // 𦼐
 ⿳ han-8279:15x3 han-706b:15x5 han-708f:15x8 // ⿳艹火炏
 
@@ -312,6 +330,9 @@ glyph han-26f38:15x16 15 16 // 𦼸
 
 // glyph han-26f45:15x16 15 16 // 𦽅
 // ⿱ han-8279 han-959c // ⿱艹閜
+
+// glyph han-26f46:15x16 15 16 // 𦽆
+// ⿳ han-8279 han-2cbc1 han-5b50 // ⿳艹𬯁子
 
 glyph han-26f49:15x16 15 16 // 𦽉
 ⿱ han-8279:15x3 1 han-7752:15x12 // ⿱艹睒
@@ -367,3 +388,6 @@ glyph han-26f49:15x16 15 16 // 𦽉
 
 // glyph han-26fa7-($han-regions):15x16 15 16 // 𦾧
 // ⿳ han-8279 han-65e5 han-8005-($-1) // ⿳艹日者 <- ⿱艹暑
+
+// glyph han-26fa8:15x16 15 16 // 𦾨
+// ⿳ han-8279 han-2cbc1 han-5973 // ⿳艹𬯁女

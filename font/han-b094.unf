@@ -170,8 +170,8 @@ glyph han-2479a:15x16 15 16 // 𤞚
 // glyph han-247a5:15x16 15 16 // 𤞥
 // ⿰ han-72ad han-5446 // ⿰犭呆
 
-// glyph han-247a7:15x16 15 16 // 𤞧
-// ⿰ han-72ad han-56f0 // ⿰犭困
+glyph han-247a7:15x16 15 16 // 𤞧
+⿰ han-72ad:4x16 han-56f0:11x16 // ⿰犭困
 
 glyph han-247a8:15x16 15 16 // 𤞨
 ⿰ han-72ad:6x16 han-752b:9x16 // ⿰犭甫
@@ -179,14 +179,14 @@ glyph han-247a8:15x16 15 16 // 𤞨
 glyph han-247a9:15x16 15 16 // 𤞩
 ⿲ han-72ad:4x16 han-4e14:6x16 han-529b:5x16 // ⿲犭且力
 
-// glyph han-247aa:15x16 15 16 // 𤞪
-// ⿰ han-72ad han-5415 // ⿰犭吕
+glyph han-247aa:15x16 15 16 // 𤞪
+⿰ han-72ad:4x16 han-5415:11x16 // ⿰犭吕
 
 glyph han-247ad:15x16 15 16 // 𤞭
 ⿰ han-72ad:6x16 1 han-898b:8x16 // ⿰犭見
 
-// glyph han-247b5:15x16 15 16 // 𤞵
-// ⿰ han-72ad han-5b8c // ⿰犭完
+glyph han-247b5:15x16 15 16 // 𤞵
+⿰ han-72ad:6x16 han-5b8c:9x16 // ⿰犭完
 
 // glyph han-247b7:15x16 15 16 // 𤞷
 // ⿰ han-21263 han-72ac // ⿰𡉣犬
@@ -260,8 +260,8 @@ glyph han-24819:15x16 15 16 // 𤠙
 // glyph han-2482b:15x16 15 16 // 𤠫
 // ⿰ han-72ad han-6817 // ⿰犭栗
 
-// glyph han-24834:15x16 15 16 // 𤠴
-// ⿲ han-72ad han-961d han-5b8c // ⿲犭阝完 <- ⿰犭院
+glyph han-24834:15x16 15 16 // 𤠴
+⿲ -2 han-72ad:4x16 han-961d:4x16-c han-5b8c:9x16 // ⿲犭阝完
 
 ## 94.11
 
@@ -321,6 +321,9 @@ glyph han-24894:15x16 15 16 // 𤢔
 
 // glyph han-248a8:15x16 15 16 // 𤢨
 // ⿰ han-72ad han-84bf // ⿰犭蒿
+
+// glyph han-248b0:15x16 15 16 // 𤢰
+// ⿲ han-72ad han-8a00 han-7537 // ⿲犭言男
 
 ## 94.15
 

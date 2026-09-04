@@ -2,8 +2,8 @@
 
 ## 53.2
 
-// glyph han-201b2:15x16 15 16 // 𠆲
-// ⿰ han-4ebb han-5e7f // ⿰亻广
+glyph han-201b2:15x16 15 16 // 𠆲
+⿰ han-4ebb:5x16 1 han-5e7f:9x16 // ⿰亻广
 
 ## 53.3
 
@@ -50,8 +50,8 @@ glyph han-221f8:15x16 15 16 // 𢇸
 // glyph han-221fe:15x16 15 16 // 𢇾
 // ⿸ han-5e7f han-7518 // ⿸广甘
 
-// glyph han-221ff:15x16 15 16 // 𢇿
-// ⿸ han-5e7f han-51fa // ⿸广出
+glyph han-221ff:15x16 15 16 // 𢇿
+⿸ han-5e7f:15x16.11x13 han-51fa:9x13 6 3 // ⿸广出
 
 // glyph han-22206:15x16 15 16 // 𢈆
 // ⿸ han-5e7f han-53ec // ⿸广召

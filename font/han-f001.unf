@@ -78,6 +78,11 @@ glyph han-2cef8:15x16 15 16 // 𬻸
 
 # CJK unified ideographs extension F: 乙 (5)
 
+## 5.4
+
+// glyph han-2cf1a:15x16 15 16 // 𬼚
+// ⿰ han-5315 han-2a7e8 // ⿰匕𪟨
+
 ## 5.6
 
 // glyph han-2cf24:15x16 15 16 // 𬼤
@@ -229,6 +234,9 @@ glyph han-2cfba-($han-regions):15x16 15 16 // 𬾺
 
 glyph han-2cfe6:15x16 15 16 // 𬿦
 ⿲ han-4ebb:3x16 han-5de5:5x16 han-9801:7x16 // ⿲亻工頁
+
+// glyph han-2cfe8:15x16 15 16 // 𬿨
+// ⿰ han-4ebb han-6b6e // ⿰亻歮
 
 // glyph han-2cfeb:15x16 15 16 // 𬿫
 // ⿰ han-4ebb han-9032 // ⿰亻進

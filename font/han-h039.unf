@@ -317,6 +317,11 @@ glyph han-317ba-($han-regions):15x16 15 16 // 𱞺
 // glyph han-317c5:15x16 15 16 // 𱟅
 // ⿳ han-793c han-53f0 han-5fc3 // ⿳礼台心
 
+## 61.12
+
+// glyph han-317c8:15x16 15 16 // 𱟈
+// ⿰ han-5fc4 han-6b6e // ⿰忄歮
+
 ## 61.13
 
 // glyph han-317d3:15x16 15 16 // 𱟓
@@ -350,6 +355,9 @@ glyph han-317fa:15x16 15 16 // 𱟺
 
 glyph han-31803-($han-regions):15x16 15 16 // 𱠃
 ⿲ han-624c:3x16 han-51ab:3x16 han-4ee4-($-1):9x16 // ⿲扌冫令
+
+// glyph han-31805:15x16 15 16 // 𱠅
+// ⿰ han-624b han-8a00 // ⿰手言
 
 ## 64.8
 
@@ -432,8 +440,8 @@ glyph han-31862:15x16 15 16 // 𱡢
 
 ## 72.6
 
-// glyph han-3187f:15x16 15 16 // 𱡿
-// ⿰ han-65e5 han-767e // ⿰日百
+glyph han-3187f:15x16 15 16 // 𱡿
+⿰ han-65e5:6x16 1 han-767e:8x16 // ⿰日百
 
 glyph han-31882:15x16 15 16 // 𱢂
 ⿰ han-65e5:7x16 1 han-7f8a:7x16 // ⿰日羊
@@ -533,6 +541,12 @@ glyph han-318cd:15x16 15 16 // 𱣍
 
 // glyph han-318dd:15x16 15 16 // 𱣝
 // ⿰ han-6728 han-9091 // ⿰木邑
+
+// glyph han-318e1:15x16 15 16 // 𱣡
+// ⿰ han-6728 han-95f2 // ⿰木闲
+
+// glyph han-318e4:15x16 15 16 // 𱣤
+// ⿰ han-6728 han-95f4 // ⿰木间
 
 ## 75.8
 

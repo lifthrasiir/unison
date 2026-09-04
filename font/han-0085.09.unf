@@ -170,8 +170,8 @@ glyph han-6f02:15x16 15 16 // 漂
 // glyph han-6f0f-($han-regions):15x16 15 16 // 漏
 // ⿰ han-6c35 han-5c5a-($-1) // ⿰氵屚
 
-// glyph han-6f12:15x16 15 16 // 漒
-// ⿲ han-6c35 han-5f13 han-867d // ⿲氵弓虽 <- ⿰氵强
+glyph han-6f12:15x16 15 16 // 漒
+⿲ -3 han-6c35:3x16 han-5f13:4x16 han-867d:11x16 // ⿲氵弓虽
 
 // glyph han-6f1c:15x16 15 16 // 漜
 // ⿰ han-6c35 han-57dc // ⿰氵埜
@@ -231,6 +231,9 @@ glyph han-6f7e:15x16 15 16 // 潾
 
 // glyph han-6f7f:15x16 15 16 // 潿
 // ⿰ han-6c35 han-570d // ⿰氵圍
+
+// glyph han-6f81:15x16 15 16 // 澁
+// ⿰ han-6c35 han-6b6e // ⿰氵歮
 
 glyph han-6f86:15x16 15 16 // 澆
 ⿰ han-6c35:5x16 1 han-582f:9x16 // ⿰氵堯

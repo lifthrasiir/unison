@@ -2,6 +2,9 @@
 
 ## 142.3
 
+// glyph han-2e4f3:15x16 15 16 // 𮓳
+// ⿰ han-866b han-95e8 // ⿰虫门
+
 // glyph han-2e4f4:15x16 15 16 // 𮓴
 // ⿰ han-866b han-5c38 // ⿰虫尸
 
@@ -194,8 +197,8 @@ glyph han-2e5ce:15x16 15 16 // 𮗎
 
 ## 147.7
 
-// glyph han-2e5d4:15x16 15 16 // 𮗔
-// ⿰ han-5415 han-898b // ⿰吕見
+glyph han-2e5d4:15x16 15 16 // 𮗔
+⿰ han-5415:9x16 1 han-898b:5x16 // ⿰吕見
 
 ## 147.8
 
@@ -221,6 +224,9 @@ glyph han-2e5fc:15x16 15 16 // 𮗼
 
 ## 149.5
 
+// glyph han-2e5ff:15x16 15 16 // 𮗿
+// ⿱ han-34db han-8a00 // ⿱㓛言
+
 // glyph han-2e600:15x16 15 16 // 𮘀
 // ⿰ han-8a01 han-672b // ⿰訁末
 
@@ -228,7 +234,7 @@ glyph han-2e5fc:15x16 15 16 // 𮗼
 // ⿰ han-8a01 han-7535 // ⿰訁电
 
 glyph han-2e604:15x16 15 16 // 𮘄
-⿰ han-8a01:7x16 han-7528:8x16 // ⿰訁用
+⿰ han-8a01:5x16 han-7528:10x16 // ⿰訁用
 
 ## 149.6
 
@@ -251,8 +257,14 @@ glyph han-2e613:15x16 15 16 // 𮘓
 glyph han-2e61a:15x16 15 16 // 𮘚
 ⿲ han-8a01:5x16 han-6708:5x16 han-6708:5x16 // ⿲訁月月
 
+// glyph han-2e61d:15x16 15 16 // 𮘝
+// ⿱ han-2abe2 han-8a00 // ⿱𪯢言
+
 // glyph han-2e61f:15x16 15 16 // 𮘟
 // ⿰ han-8a01 han-5485 // ⿰訁咅
+
+// glyph han-2e620:15x16 15 16 // 𮘠
+// ⿱ han-708f han-8a00 // ⿱炏言
 
 ## 149.9
 
@@ -263,6 +275,14 @@ glyph han-2e622:15x16 15 16 // 𮘢
 
 // glyph han-2e62c:15x16 15 16 // 𮘬
 // ⿰ han-8a01 han-262a5 // ⿰訁𦊥
+
+## 149.11
+
+// glyph han-2e631:15x16 15 16 // 𮘱
+// ⿱ han-63a8 han-8a00 // ⿱推言
+
+// glyph han-2e633:15x16 15 16 // 𮘳
+// ⿱ han-30db7 han-8a00 // ⿱𰶷言
 
 # CJK unified ideographs extension F: 讠 (149')
 
@@ -304,8 +324,8 @@ glyph han-2e67c:15x16 15 16 // 𮙼
 
 ## 154.7
 
-// glyph han-2e689:15x16 15 16 // 𮚉
-// ⿰ han-8c9d han-5b8c // ⿰貝完
+glyph han-2e689:15x16 15 16 // 𮚉
+⿰ han-8c9d:5x16 1 han-5b8c:9x16 // ⿰貝完
 
 ## 154.9
 
@@ -341,8 +361,8 @@ glyph han-2e6a4:15x16 15 16 // 𮚤
 
 ## 157.2
 
-// glyph han-2e6c2:15x16 15 16 // 𮛂
-// ⿰ han-27fb7 han-4e5d // ⿰𧾷九
+glyph han-2e6c2:15x16 15 16 // 𮛂
+⿰ han-27fb7:5x16 1 han-4e5d:9x16 // ⿰𧾷九
 
 ## 157.3
 
@@ -434,8 +454,8 @@ glyph han-2e703:15x16 15 16 // 𮜃
 
 ## 157.11
 
-// glyph han-2e713:15x16 15 16 // 𮜓
-// ⿲ han-27fb7 han-5f13 han-867d // ⿲𧾷弓虽 <- ⿰𧾷强
+glyph han-2e713:15x16 15 16 // 𮜓
+⿲ -5 han-27fb7:5x16 han-5f13:4x16 han-867d:11x16 // ⿲𧾷弓虽
 
 ## 157.12
 

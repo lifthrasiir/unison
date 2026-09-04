@@ -223,8 +223,8 @@ glyph han-2266a:15x16 15 16 // 𢙪
 
 ## 61.7
 
-// glyph han-22672:15x16 15 16 // 𢙲
-// ⿰ han-5fc4 han-5415 // ⿰忄吕
+glyph han-22672:15x16 15 16 // 𢙲
+⿰ han-5fc4:5x16 han-5415:10x16 // ⿰忄吕
 
 glyph han-22676:15x16 15 16 // 𢙶
 ⿳ han-65e5:15x5 1 han-5e72:15x5 han-5fc3:15x5 // ⿳日干心
@@ -255,6 +255,9 @@ glyph han-22686:15x16 15 16 // 𢚆
 
 // glyph han-22697:15x16 15 16 // 𢚗
 // ⿰ han-5fc4 han-5b8b // ⿰忄宋
+
+glyph han-22698:15x16 15 16 // 𢚘
+⿰ han-5fc4:5x16 1 han-8a00:9x16 // ⿰忄言
 
 // glyph han-2269b:15x16 15 16 // 𢚛
 // ⿰ han-5fc4 han-514b // ⿰忄克
@@ -288,8 +291,8 @@ glyph han-226b7:15x16 15 16 // 𢚷
 // glyph han-226c4:15x16 15 16 // 𢛄
 // ⿰ han-5fc4 han-5393 // ⿰忄厓
 
-// glyph han-226c5:15x16 15 16 // 𢛅
-// ⿰ han-5fc4 han-56fa // ⿰忄固
+glyph han-226c5:15x16 15 16 // 𢛅
+⿰ han-5fc4:5x16 1 han-56fa:9x16 // ⿰忄固
 
 // glyph han-226c7:15x16 15 16 // 𢛇
 // ⿱ han-5468 han-5fc3 // ⿱周心
@@ -498,8 +501,8 @@ glyph han-227d9:15x16 15 16 // 𢟙
 // glyph han-227fd:15x16 15 16 // 𢟽
 // ⿱ han-83ab han-5fc3 // ⿱莫心
 
-// glyph han-2280c:15x16 15 16 // 𢠌
-// ⿲ han-5fc4 han-5f13 han-867d // ⿲忄弓虽 <- ⿰忄强
+glyph han-2280c:15x16 15 16 // 𢠌
+⿲ -5 han-5fc4:5x16 han-5f13:4x16 han-867d:11x16 // ⿲忄弓虽
 
 // glyph han-2280e:15x16 15 16 // 𢠎
 // ⿰ han-5fc4 han-5d11 // ⿰忄崑
@@ -560,14 +563,14 @@ glyph han-22857:15x16 15 16 // 𢡗
 // glyph han-2286b:15x16 15 16 // 𢡫
 // ⿱ han-690e han-5fc3 // ⿱椎心
 
-// glyph han-2286c:15x16 15 16 // 𢡬
-// ⿳ han-6b62 han-23956 han-5fc3 // ⿳止𣥖心 <- ⿱歮心
+glyph han-2286c:15x16 15 16 // 𢡬
+⿳ -1 han-6b62:15x4 han-23956:15x8 han-5fc3:15x5 // ⿳止𣥖心
 
 // glyph han-2286e:15x16 15 16 // 𢡮
 // ⿱ han-6b3d han-5fc3 // ⿱欽心
 
 glyph han-22870:15x16 15 16 // 𢡰
-⿳ -5 han-5929:15x8 han-660e:15x8 han-5fc3:15x5 // ⿳天明心
+⿳ -4 han-5929:15x8 han-660e:15x7 han-5fc3:15x5 // ⿳天明心
 
 glyph han-22875:15x16 15 16 // 𢡵
 ⿳ han-800c:15x5 han-800c:15x5 han-5fc3:15x6 // ⿳而而心
@@ -599,7 +602,7 @@ glyph han-2289a:15x16 15 16 // 𢢚
 ⿲ -4 han-5fc4:5x16 han-66f7:7x16 han-6b20:7x16 // ⿲忄曷欠
 
 glyph han-228a4:15x16 15 16 // 𢢤
-⿳ -5 han-660e:15x8 han-53e4:15x8 han-5fc3:15x5 // ⿳明古心
+⿳ -4 han-660e:15x7 han-53e4:15x8 han-5fc3:15x5 // ⿳明古心
 
 // glyph han-228ad:15x16 15 16 // 𢢭
 // ⿱ han-745c han-5fc3 // ⿱瑜心

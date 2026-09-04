@@ -5,6 +5,11 @@
 // glyph han-2c705:15x16 15 16 // 𬜅
 // ⿰ han-820c han-5360 // ⿰舌占
 
+## 135.7
+
+// glyph han-2c707:15x16 15 16 // 𬜇
+// ⿰ han-820c han-8a00 // ⿰舌言
+
 ## 135.8
 
 // glyph han-2c708:15x16 15 16 // 𬜈
@@ -56,6 +61,9 @@ glyph han-2c721:15x16 15 16 // 𬜡
 
 // glyph han-2c72b:15x16 15 16 // 𬜫
 // ⿳ han-8279 han-4e5d han-5fc3 // ⿳艹九心 <- ⿱艽心
+
+// glyph han-2c72c:15x16 15 16 // 𬜬
+// ⿱ han-8279 han-95ee // ⿱艹问
 
 ## 140.7
 
@@ -200,7 +208,7 @@ glyph han-2c7f9:15x16 15 16 // 𬟹
 ⿲ han-866b:5x16 han-4ebb:3x16 han-5315:7x16 // ⿲虫亻匕
 
 glyph han-2c7fa:15x16 15 16 // 𬟺
-⿱ 1 han-4ece:15x5 1 han-866b:15x8 // ⿱从虫
+⿱ han-4ece:15x8 han-866b:15x8 // ⿱从虫
 
 // glyph han-2c7fb:15x16 15 16 // 𬟻
 // ⿰ han-866b han-516d // ⿰虫六
@@ -343,10 +351,23 @@ glyph han-2c868:15x16 15 16 // 𬡨
 glyph han-2c89b:15x16 15 16 // 𬢛
 ⿰ han-8a01:5x16 1 han-52f9:9x16 // ⿰訁勹
 
+## 149.3
+
+// glyph han-2c89d:15x16 15 16 // 𬢝
+// ⿳ han-4e00 han-516b han-8a00 // ⿳一八言
+
 ## 149.5
 
 glyph han-2c8a1:15x16 15 16 // 𬢡
-⿰ han-8a01:7x16 1 han-793a:7x16 // ⿰訁示
+⿰ 1 han-8a01:5x16 1 han-793a:7x16 // ⿰訁示
+
+## 149.6
+
+// glyph han-2c8a4:15x16 15 16 // 𬢤
+// ⿱ han-6b21 han-8a00 // ⿱次言
+
+// glyph han-2c8a7:15x16 15 16 // 𬢧
+// ⿱ han-5405 han-8a00 // ⿱吅言
 
 ## 149.8
 
@@ -498,6 +519,11 @@ glyph han-2c958:15x16 15 16 // 𬥘
 
 # CJK unified ideographs extension E: 足 (157)
 
+## 157.3
+
+// glyph han-2c9a2:15x16 15 16 // 𬦢
+// ⿰ han-27fb7 han-95e8 // ⿰𧾷门
+
 ## 157.4
 
 // glyph han-2c9a3:15x16 15 16 // 𬦣
@@ -519,8 +545,8 @@ glyph han-2c9ae:15x16 15 16 // 𬦮
 // glyph han-2c9af:15x16 15 16 // 𬦯
 // ⿰ han-27fb7 han-5939 // ⿰𧾷夹
 
-// glyph han-2c9b0:15x16 15 16 // 𬦰
-// ⿰ han-27fb7 han-767e // ⿰𧾷百
+glyph han-2c9b0:15x16 15 16 // 𬦰
+⿰ han-27fb7:5x16 2 han-767e:8x16 // ⿰𧾷百
 
 ## 157.7
 
@@ -539,6 +565,9 @@ glyph han-2c9b6:15x16 15 16 // 𬦶
 
 // glyph han-2c9bc-($han-regions):15x16 15 16 // 𬦼
 // ⿺ han-2a715-($-1) han-8db3 // ⿺𪜕足
+
+glyph han-2c9bf:15x16 15 16 // 𬦿
+⿲ han-27fb7:5x16 han-4ebb:3x16 han-8a00:7x16 // ⿲𧾷亻言
 
 ## 157.10
 
@@ -697,6 +726,9 @@ glyph han-2ca8c:15x16 15 16 // 𬪌
 
 glyph han-2caaa:15x16 15 16 // 𬪪
 ⿰ han-9149:7x16 1 han-9149:7x16 // ⿰酉酉
+
+// glyph han-2caab:15x16 15 16 // 𬪫
+// ⿰ han-9149 han-95f4 // ⿰酉间
 
 // glyph han-2caac:15x16 15 16 // 𬪬
 // ⿰ han-9149 han-8f9b // ⿰酉辛

@@ -100,8 +100,8 @@ glyph han-298b3-($han-regions):15x16 15 16 // 𩢳
 glyph han-298b4:15x16 15 16 // 𩢴
 ⿰ han-99ac:7x16 1 han-5409:7x16 // ⿰馬吉
 
-// glyph han-298b7:15x16 15 16 // 𩢷
-// ⿰ han-99ac han-767e // ⿰馬百
+glyph han-298b7:15x16 15 16 // 𩢷
+⿰ han-99ac:7x16 2 han-767e:6x16 // ⿰馬百
 
 glyph han-298b8:15x16 15 16 // 𩢸
 ⿰ han-99ac:7x16 1 han-821f:7x16 // ⿰馬舟

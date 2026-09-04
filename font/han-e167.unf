@@ -174,6 +174,73 @@ glyph han-2cb85:15x16 15 16 // 𬮅
 // glyph han-2cb89:15x16 15 16 // 𬮉
 // ⿵ han-9580 han-51fa // ⿵門出
 
+# CJK unified ideographs extension E: 门 (169')
+
+## 169'.2
+
+// glyph han-2cb98:15x16 15 16 // 𬮘
+// ⿰ han-95e8 han-4eba // ⿰门人
+
+## 169'.3
+
+// glyph han-2cb99:15x16 15 16 // 𬮙
+// ⿵ han-95e8 han-4e07 // ⿵门万
+
+glyph han-2cb9a:15x16 15 16 // 𬮚
+⿵ han-95e8:15x16.11x15 han-5de5:11x12 2 4 // ⿵门工
+
+glyph han-2cb9b:15x16 15 16 // 𬮛
+⿵ han-95e8:15x16.11x15 han-4e0a:11x13 2 3 // ⿵门上
+
+## 169'.4
+
+// glyph han-2cb9c:15x16 15 16 // 𬮜
+// ⿵ han-95e8 han-5929 // ⿵门天
+
+// glyph han-2cb9d:15x16 15 16 // 𬮝
+// ⿵ han-95e8 han-72ac // ⿵门犬
+
+// glyph han-2cb9e:15x16 15 16 // 𬮞
+// ⿵ han-95e8 han-4eca // ⿵门今
+
+glyph han-2cb9f:15x16 15 16 // 𬮟
+⿵ han-95e8:15x16.11x15 han-706b:11x14 2 2 // ⿵门火
+
+## 169'.5
+
+glyph han-2cba0:15x16 15 16 // 𬮠
+⿵ han-95e8:15x16.11x15 han-53ef:10x13 2 3 // ⿵门可
+
+## 169'.6
+
+// glyph han-2cba4:15x16 15 16 // 𬮤
+// ⿵ han-95e8 han-5408 // ⿵门合
+
+// glyph han-2cba5:15x16 15 16 // 𬮥
+// ⿵ han-95e8 han-4f17 // ⿵门众
+
+## 169'.8
+
+// glyph han-2cbac-($han-regions):15x16 15 16 // 𬮬
+// ⿵ han-95e8 han-9752-($-1) // ⿵门青
+
+// glyph han-2cbae:15x16 15 16 // 𬮮
+// ⿵ han-95e8 han-5947 // ⿵门奇
+
+// glyph han-2cbb0:15x16 15 16 // 𬮰
+// ⿵ han-95e8 han-963f // ⿵门阿
+
+## 169'.9
+
+// glyph han-2cbb1:15x16 15 16 // 𬮱
+// ⿵ han-95e8 han-5794 // ⿵门垔
+
+// glyph han-2cbb3:15x16 15 16 // 𬮳
+// ⿵ han-95e8 han-54c1 // ⿵门品
+
+// glyph han-2cbb4:15x16 15 16 // 𬮴
+// ⿵ han-95e8 han-97f3 // ⿵门音
+
 # CJK unified ideographs extension E: 阜 (170)
 
 ## 170.4
@@ -188,8 +255,11 @@ glyph han-2cbbc:15x16 15 16 // 𬮼
 
 ## 170.7
 
-// glyph han-2cbc1:15x16 15 16 // 𬯁
-// ⿰ han-961d han-8f9b // ⿰阝辛
+glyph han-2cbc1:15x16 15 16 // 𬯁
+⿰ han-961d:4x16-l han-8f9b:11x16 // ⿰阝辛
+
+glyph han-2cbc2:15x16 15 16 // 𬯂
+⿰ han-961d:5x16-l 1 han-8a00:9x16 // ⿰阝言
 
 glyph han-2cbc3:15x16 15 16 // 𬯃
 ⿲ han-961d:5x16-l han-6c35:3x16 han-6b20:7x16 // ⿲阝氵欠
@@ -328,8 +398,8 @@ glyph han-2cc1b:15x16 15 16 // 𬰛
 
 ## 178.6
 
-// glyph han-2cc2c:15x16 15 16 // 𬰬
-// ⿰ han-97cb han-209d7 // ⿰韋𠧗
+glyph han-2cc2c:15x16 15 16 // 𬰬
+⿰ han-97cb:7x16 1 han-209d7:7x16 // ⿰韋𠧗
 
 ## 178.17
 
