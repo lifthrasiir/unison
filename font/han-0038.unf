@@ -134,6 +134,9 @@ glyph han-5995:15x16 15 16 // 妕
 glyph han-5997:15x16 15 16 // 妗
 ⿰ han-5973:7x16 1 han-4eca:7x16 // ⿰女今
 
+// glyph han-599a:15x16 15 16 // 妚
+// ⿰ han-5973 han-4e0d // ⿰女不
+
 // glyph han-599b:15x16 15 16 // 妛
 // ⿳ han-5c71 han-4e00 han-5973 // ⿳山一女
 
@@ -462,6 +465,9 @@ glyph han-5abd:15x16 15 16 // 媽
 
 // glyph han-5ad0:15x16 15 16 // 嫐
 // ⿲ han-5973 han-7537 han-5973 // ⿲女男女
+
+// glyph han-5ad1:15x16 15 16 // 嫑
+// ⿳ han-4e0d han-8980 han-5973 // ⿳不覀女
 
 ## 38.11
 

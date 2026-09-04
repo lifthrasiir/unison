@@ -126,6 +126,9 @@ glyph han-9cfd:15x16 15 16 // 鳽
 glyph han-9cff:15x16 15 16 // 鳿
 ⿰ han-248e9:7x16 1 han-9ce5:7x16 // ⿰𤣩鳥
 
+// glyph han-9d00:15x16 15 16 // 鴀
+// ⿰ han-4e0d han-9ce5 // ⿰不鳥
+
 // glyph han-9d02:15x16 15 16 // 鴂
 // ⿰ han-592c han-9ce5 // ⿰夬鳥
 

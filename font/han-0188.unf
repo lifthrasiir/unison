@@ -432,6 +432,9 @@ glyph han-9b7b:15x16 15 16 // 魻
 glyph han-9b7d:15x16 15 16 // 魽
 ⿰ han-9b5a:7x16 1 han-7518:7x16 // ⿰魚甘
 
+// glyph han-9b7e:15x16 15 16 // 魾
+// ⿰ han-9b5a han-4e15 // ⿰魚丕
+
 glyph han-9b7f-($han-regions):15x16 15 16 // 魿
 ⿰ han-9b5a:7x16 1 han-4ee4-($-1):7x16 // ⿰魚令
 

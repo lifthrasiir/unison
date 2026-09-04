@@ -519,8 +519,8 @@ ref han-793b:7x16
 
 ## 113.1
 
-// glyph han-793c:15x16 15 16 // 礼
-// ⿰ han-793b han-4e5a // ⿰礻乚
+glyph han-793c:15x16 15 16 // 礼
+⿰ han-793b:5x16 1 han-4e5a:9x16 // ⿰礻乚
 
 ## 113.3
 
@@ -1024,6 +1024,9 @@ glyph han-79df:15x12 15 12 // 租
 ⿰ han-79be:7x12 han-4e14:8x12 // ⿰禾且
 glyph han-79df:15x16 15 16 // 租
 ⿰ han-79be:7x16 han-4e14:8x16 // ⿰禾且
+
+// glyph han-79e0:15x16 15 16 // 秠
+// ⿰ han-79be han-4e15 // ⿰禾丕
 
 glyph han-79e2-($han-regions):15x16 15 16 // 秢
 ⿰ han-79be:7x16 1 han-4ee4-($-1):7x16 // ⿰禾令

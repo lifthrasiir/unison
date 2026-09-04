@@ -88,6 +88,11 @@ glyph han-2cef8:15x16 15 16 // 𬻸
 // glyph han-2cf26:15x16 15 16 // 𬼦
 // ⿱ han-675c han-4e59 // ⿱杜乙
 
+## 5.9
+
+// glyph han-2cf2c:15x16 15 16 // 𬼬
+// ⿺ han-4e59 han-54c1 // ⿺乙品
+
 ## 5.10
 
 // glyph han-2cf31:15x16 15 16 // 𬼱
@@ -315,8 +320,8 @@ glyph han-2d08f:15x16 15 16 // 𭂏
 
 ## 15.9
 
-// glyph han-2d096:15x16 15 16 // 𭂖
-// ⿰ han-51ab han-98a8 // ⿰冫風
+glyph han-2d096:15x16 15 16 // 𭂖
+⿰ han-51ab:3x16 1 han-98a8:11x16 // ⿰冫風
 
 ## 15.12
 

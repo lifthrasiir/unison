@@ -193,8 +193,8 @@ glyph han-2b4e9:15x16 15 16 // 𫓩
 glyph han-2b4ef:15x16 15 16 // 𫓯
 ⿰ han-9485:6x16 han-572d:9x16 // ⿰钅圭
 
-// glyph han-2b4f3:15x16 15 16 // 𫓳
-// ⿲ han-9485 han-793b han-4e5a // ⿲钅礻乚 <- ⿰钅礼
+glyph han-2b4f3:15x16 15 16 // 𫓳
+⿲ -1 han-9485:5x16 han-793b:5x16 han-4e5a:6x16 // ⿲钅礻乚
 
 ## 167'.8
 

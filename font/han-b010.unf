@@ -112,8 +112,8 @@ glyph han-20521:15x16 15 16 // 𠔡
 
 ## 15.1
 
-// glyph han-205ac:15x16 15 16 // 𠖬
-// ⿰ han-51ab han-4e5a // ⿰冫乚
+glyph han-205ac:15x16 15 16 // 𠖬
+⿰ han-51ab:5x16 1 han-4e5a:9x16 // ⿰冫乚
 
 ## 15.3
 

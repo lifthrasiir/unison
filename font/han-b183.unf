@@ -2,8 +2,8 @@
 
 ## 184.1
 
-// glyph han-29682:15x16 15 16 // 𩚂
-// ⿰ han-98e0 han-4e5a // ⿰飠乚
+glyph han-29682:15x16 15 16 // 𩚂
+⿰ han-98e0:7x16 1 han-4e5a:7x16 // ⿰飠乚
 
 ## 184.3
 
@@ -70,6 +70,9 @@ glyph han-296b5:15x16 15 16 // 𩚵
 
 glyph han-296b9-($han-regions):15x16 15 16 // 𩚹
 ⿰ han-98e0:7x16 1 han-4ee4-($-1):7x16 // ⿰飠令
+
+// glyph han-296bc:15x16 15 16 // 𩚼
+// ⿰ han-98e0 han-4e15 // ⿰飠丕
 
 // glyph han-296bd:15x16 15 16 // 𩚽
 // ⿰ han-98e0 han-7389 // ⿰飠玉

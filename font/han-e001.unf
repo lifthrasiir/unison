@@ -5,6 +5,17 @@
 glyph han-2b822:15x16 15 16 // 𫠢
 ⿱ han-4e0a:15x7 1 han-4e01:15x8 // ⿱上丁
 
+## 1.7
+
+// glyph han-2b82b:15x16 15 16 // 𫠫
+// ⿱ han-4e0d han-5143 // ⿱不元
+
+// glyph han-2b82c:15x16 15 16 // 𫠬
+// ⿱ han-4e0d han-4e2d // ⿱不中
+
+// glyph han-2b82d:15x16 15 16 // 𫠭
+// ⿰ han-4e0d han-4e0d // ⿰不不
+
 ## 1.8
 
 glyph han-2b82e:15x16 15 16 // 𫠮
@@ -484,6 +495,12 @@ glyph han-2ba6e:15x16 15 16 // 𫩮
 
 // glyph han-2ba6f:15x16 15 16 // 𫩯
 // ⿰ han-53e3 han-5c82 // ⿰口岂
+
+// glyph han-2ba75:15x16 15 16 // 𫩵
+// ⿱ han-53e3 han-793c // ⿱口礼
+
+// glyph han-2ba76:15x16 15 16 // 𫩶
+// ⿱ han-793c han-53e3 // ⿱礼口
 
 // glyph han-2ba78:15x16 15 16 // 𫩸
 // ⿰ han-53e3 han-8fb9 // ⿰口边

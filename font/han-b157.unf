@@ -27,8 +27,8 @@ ref han-27fb7:5x16
 // glyph han-27fb8:15x16 15 16 // 𧾸
 // ⿱ han-4e00 han-8db3 // ⿱一足
 
-// glyph han-27fb9:15x16 15 16 // 𧾹
-// ⿰ han-27fb7 han-4e5a // ⿰𧾷乚
+glyph han-27fb9:15x16 15 16 // 𧾹
+⿰ han-27fb7:5x16 1 han-4e5a:9x16 // ⿰𧾷乚
 
 ## 157.2
 
@@ -77,6 +77,9 @@ glyph han-27fde:15x16 15 16 // 𧿞
 
 // glyph han-27fe1:15x16 15 16 // 𧿡
 // ⿰ han-27fb7 han-72ac // ⿰𧾷犬
+
+// glyph han-27fe4:15x16 15 16 // 𧿤
+// ⿰ han-27fb7 han-4e0d // ⿰𧾷不
 
 glyph han-27fe5:15x16 15 16 // 𧿥
 ⿲ han-27fb7:5x16 1 han-5315:4x16 1 han-5315:4x16 // ⿲𧾷匕匕

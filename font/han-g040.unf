@@ -10,6 +10,11 @@
 // glyph han-30334:15x16 15 16 // 𰌴
 // ⿱ han-5b80 han-4e09 // ⿱宀三
 
+## 40.4
+
+// glyph han-30336:15x16 15 16 // 𰌶
+// ⿱ han-5b80 han-4e0d // ⿱宀不
+
 ## 40.6
 
 // glyph han-3033c:15x16 15 16 // 𰌼
@@ -355,6 +360,9 @@ glyph han-3047b:15x16 15 16 // 𰑻
 ⿳ han-7acb:15x5 han-4e2d:15x6 han-5fc3:15x5 // ⿳立中心
 
 ## 61.10
+
+// glyph han-3047c:15x16 15 16 // 𰑼
+// ⿳ han-4e0d han-8980 han-5fc3 // ⿳不覀心
 
 glyph han-30480:15x16 15 16 // 𰒀
 ⿰ han-5fc4:5x16 1 han-99ac:9x16 // ⿰忄馬

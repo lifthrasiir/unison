@@ -116,11 +116,17 @@ glyph han-262a5:15x16 15 16 // 𦊥
 glyph han-262bc:15x16 15 16 // 𦊼
 ⿳ han-7f52:15x3 1 han-53e3:15x4 1 han-53e3:15x7 // ⿳罒口口 <- ⿱罒吕
 
+// glyph han-262be:15x16 15 16 // 𦊾
+// ⿳ han-7f52 han-4e0d han-53e3 // ⿳罒不口
+
 glyph han-262c1:15x16 15 16 // 𦋁
 ⿳ han-7f52:15x4 1 han-65e5:15x5 1 han-5e72:15x5 // ⿳罒日干
 
 // glyph han-262c2:15x16 15 16 // 𦋂
 // ⿱ han-7f52 han-65f6 // ⿱罒时
+
+// glyph han-262d1:15x16 15 16 // 𦋑
+// ⿳ han-7f51 han-4e0d han-53e3 // ⿳网不口
 
 ## 122.8
 

@@ -197,8 +197,8 @@ glyph han-22451:15x16 15 16 // 𢑑
 // glyph han-224bc:15x16 15 16 // 𢒼
 // ⿰ han-5f73 han-4e59 // ⿰彳乙
 
-// glyph han-224bd:15x16 15 16 // 𢒽
-// ⿰ han-5f73 han-4e5a // ⿰彳乚
+glyph han-224bd:15x16 15 16 // 𢒽
+⿰ han-5f73:5x16 1 han-4e5a:9x16 // ⿰彳乚
 
 ## 60.3
 
@@ -241,6 +241,9 @@ glyph han-224d4:15x16 15 16 // 𢓔
 
 glyph han-224d5:15x16 15 16 // 𢓕
 ⿰ han-5f73:5x16 1 han-5360:9x16 // ⿰彳占
+
+// glyph han-224d6:15x16 15 16 // 𢓖
+// ⿰ han-5f73 han-4e15 // ⿰彳丕
 
 glyph han-224d7:15x16 15 16 // 𢓗
 ⿲ han-5f73:3x16 han-6b62:6x16 han-5315:6x16 // ⿲彳止匕

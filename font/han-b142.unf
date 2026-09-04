@@ -53,8 +53,14 @@ glyph han-27240:15x16 15 16 // 𧉀
 // glyph han-27246:15x16 15 16 // 𧉆
 // ⿰ han-866b han-9fb0 // ⿰虫龰
 
+// glyph han-27248:15x16 15 16 // 𧉈
+// ⿰ han-866b han-4e0d // ⿰虫不
+
 // glyph han-27251:15x16 15 16 // 𧉑
 // ⿰ han-866b han-592a // ⿰虫太
+
+// glyph han-27252:15x16 15 16 // 𧉒
+// ⿱ han-624e han-866b // ⿱扎虫
 
 glyph han-27253:15x16 15 16 // 𧉓
 ⿱ han-6728:15x8 han-866b:15x8 // ⿱木虫
@@ -106,8 +112,8 @@ glyph han-27274:15x16 15 16 // 𧉴
 glyph han-27278:15x16 15 16 // 𧉸
 ⿰ han-866b:5x16 1 han-5f17:9x16 // ⿰虫弗
 
-// glyph han-27279:15x16 15 16 // 𧉹
-// ⿲ han-866b han-6728 han-4e5a // ⿲虫木乚 <- ⿰虫札
+glyph han-27279:15x16 15 16 // 𧉹
+⿲ -1 han-866b:5x16 han-6728:5x16 han-4e5a:6x16 // ⿲虫木乚
 
 glyph han-2727a:15x16 15 16 // 𧉺
 ⿱ han-4e16:15x6 1 han-866b:15x8 // ⿱世虫
@@ -158,6 +164,9 @@ glyph han-2729a:15x16 15 16 // 𧊚
 
 // glyph han-272a1:15x16 15 16 // 𧊡
 // ⿱ han-909b han-866b // ⿱邛虫
+
+// glyph han-272a2:15x16 15 16 // 𧊢
+// ⿱ han-793c han-866b // ⿱礼虫
 
 // glyph han-272a7:15x16 15 16 // 𧊧
 // ⿱ han-5408 han-866b // ⿱合虫

@@ -40,8 +40,8 @@ $$......$$
 
 ## 120.1
 
-// glyph han-7cfa:15x16 15 16 // 糺
-// ⿰ han-7cf9 han-4e5a // ⿰糹乚
+glyph han-7cfa:15x16 15 16 // 糺
+⿰ han-7cf9:5x16 1 han-4e5a:9x16 // ⿰糹乚
 
 ## 120.2
 
@@ -85,6 +85,9 @@ glyph han-7d0b:15x16 15 16 // 紋
 // glyph han-7d0e:15x16 15 16 // 紎
 // ⿰ han-7cf9 han-72ac // ⿰糹犬
 
+// glyph han-7d11:15x16 15 16 // 紑
+// ⿰ han-7cf9 han-4e0d // ⿰糹不
+
 glyph han-7d15:15x16 15 16 // 紕
 ⿲ han-7cf9:5x16 1 han-5315:4x16 han-5315:5x16 // ⿲糹匕匕
 
@@ -102,6 +105,9 @@ glyph han-7d21:15x16 15 16 // 紡
 
 glyph han-7d24:15x16 15 16 // 紤
 ⿰ han-7cf9:5x16 1 han-65a4:9x16 // ⿰糹斤
+
+// glyph han-7d25:15x16 15 16 // 紥
+// ⿱ han-624e han-7cf8 // ⿱扎糸
 
 glyph han-7d26:15x16 15 16 // 紦
 ⿰ han-7cf9:5x16 1 han-5df4:9x16 // ⿰糹巴
@@ -122,6 +128,9 @@ glyph han-7d2a:15x16 15 16 // 紪
 
 glyph han-7d2c:15x16 15 16 // 紬
 ⿰ han-7cf9:5x16 1 han-7531:9x16 // ⿰糹由
+
+// glyph han-7d2e:15x16 15 16 // 紮
+// ⿱ han-672d han-7cf8 // ⿱札糸
 
 // glyph han-7d2f:15x16 15 16 // 累
 // ⿱ han-7530 han-7cf8 // ⿱田糸
@@ -501,6 +510,11 @@ $$@@@@@@@@@@@@@@@@@@@@@@@@@@$$
 $$@@@@@@@@@@@@@@@@@@@@@@@@@@$$
 glyph han-7f52:15x16 15 16 // 罒
 ref han-7f52:15x4
+
+## 122.4
+
+// glyph han-7f58:15x16 15 16 // 罘
+// ⿱ han-7f52 han-4e0d // ⿱罒不
 
 ## 122.5
 

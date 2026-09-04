@@ -366,6 +366,9 @@ glyph han-5ffc:15x16 15 16 // 忼
 // glyph han-5fff:15x16 15 16 // 忿
 // ⿱ han-5206 han-5fc3 // ⿱分心
 
+// glyph han-6000:15x16 15 16 // 怀
+// ⿰ han-5fc4 han-4e0d // ⿰忄不
+
 // glyph han-6001:15x16 15 16 // 态
 // ⿱ han-592a han-5fc3 // ⿱太心
 
@@ -385,6 +388,9 @@ glyph han-6009:15x16 15 16 // 怉
 
 glyph han-600a:15x16 15 16 // 怊
 ⿰ han-5fc4:7x16 han-53ec:8x16 // ⿰忄召
+
+// glyph han-600c:15x16 15 16 // 怌
+// ⿰ han-5fc4 han-4e15 // ⿰忄丕
 
 // glyph han-600f:15x16 15 16 // 怏
 // ⿰ han-5fc4 han-592e // ⿰忄央

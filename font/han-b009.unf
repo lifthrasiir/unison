@@ -274,8 +274,8 @@ glyph han-2043e:15x16 15 16 // 𠐾
 
 ## 9.18
 
-// glyph han-20452:15x16 15 16 // 𠑒
-// ⿲ han-4ebb han-97cb han-98a8 // ⿲亻韋風
+glyph han-20452:15x16 15 16 // 𠑒
+⿲ -6 han-4ebb:3x16 han-97cb:7x16 han-98a8:11x16 // ⿲亻韋風
 
 ## 9.20
 

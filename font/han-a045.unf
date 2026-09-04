@@ -40,6 +40,9 @@ glyph han-37b2:15x16 15 16 // 㞲
 glyph han-37b6:15x16 15 16 // 㞶
 ⿰ han-5c71:5x16 1 han-6587:9x16 // ⿰山文
 
+// glyph han-37b8:15x16 15 16 // 㞸
+// ⿱ han-5c71 han-4e0d // ⿱山不
+
 ## 46.5
 
 glyph han-37b9:15x16 15 16 // 㞹
@@ -123,8 +126,8 @@ glyph han-37fd:15x16 15 16 // 㟽
 // glyph han-3800:15x16 15 16 // 㠀
 // ⿱ han-9ce5 han-5c71 // ⿱鳥山
 
-glyph han-3804-($han-regions):15x16 15 16 // 㠄
-⿳ han-5c71:15x4 1 han-7fbd-($-1):15x5 han-767d:15x6 // ⿳山羽白
+glyph han-3804:15x16 15 16 // 㠄
+⿳ han-5c71:15x4 1 han-7fbd:15x5 han-767d:15x6 // ⿳山羽白
 
 ## 46.12
 
@@ -716,6 +719,9 @@ glyph han-3ad7:15x16 15 16 // 㫗
 ⿱ han-65e5:15x5 2 han-5b50:15x9 // ⿱日子
 
 ## 72.4
+
+// glyph han-3ad8:15x16 15 16 // 㫘
+// ⿱ han-4e0d han-65e5 // ⿱不日
 
 // glyph han-3ad9:15x16 15 16 // 㫙
 // ⿰ han-65e5 han-592b // ⿰日夫

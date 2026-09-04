@@ -310,8 +310,8 @@ glyph han-2c482:15x16 15 16 // 𬒂
 
 ## 112.8
 
-// glyph han-2c492:15x16 15 16 // 𬒒
-// ⿲ han-77f3 han-8eca han-4e5a // ⿲石車乚 <- ⿰石軋
+glyph han-2c492:15x16 15 16 // 𬒒
+⿲ -3 han-77f3:5x16 1 han-8eca:5x16 1 han-4e5a:6x16 // ⿲石車乚
 
 ## 112.9
 
@@ -470,6 +470,9 @@ glyph han-2c532:15x16 15 16 // 𬔲
 // ⿱ han-25ad7 han-8863 // ⿱𥫗衣
 
 ## 118.7
+
+// glyph han-2c543:15x16 15 16 // 𬕃
+// ⿳ han-25ad7 han-4e0d han-53e3 // ⿳𥫗不口
 
 // glyph han-2c545:15x16 15 16 // 𬕅
 // ⿱ han-25ad7 han-4f4d // ⿱𥫗位

@@ -100,6 +100,9 @@ glyph han-23186:15x16 15 16 // 𣆆
 // glyph han-2318a:15x16 15 16 // 𣆊
 // ⿳ han-4e2d han-4e00 han-65e5 // ⿳中一日 <- ⿱𠀐日
 
+// glyph han-2318f:15x16 15 16 // 𣆏
+// ⿰ han-65e5 han-4e15 // ⿰日丕
+
 ## 72.6
 
 // glyph han-23193:15x16 15 16 // 𣆓
@@ -211,6 +214,9 @@ glyph han-231f3:15x16 15 16 // 𣇳
 // glyph han-23205:15x16 15 16 // 𣈅
 // ⿱ han-6797 han-65e5 // ⿱林日
 
+// glyph han-23207:15x16 15 16 // 𣈇
+// ⿱ han-4e0d han-660e // ⿱不明
+
 glyph han-2320d:15x16 15 16 // 𣈍
 ⿳ han-65e5:15x5 han-5b80:15x4 han-4e14:15x7 // ⿳日宀且
 
@@ -255,8 +261,8 @@ glyph han-23225:15x16 15 16 // 𣈥
 glyph han-23237:15x16 15 16 // 𣈷
 ⿰ han-65e5:4x16-l 2 han-7687:9x16 // ⿰日皇
 
-// glyph han-2323c:15x16 15 16 // 𣈼
-// ⿰ han-65e5 han-98a8 // ⿰日風
+glyph han-2323c:15x16 15 16 // 𣈼
+⿰ han-65e5:4x16-l han-98a8:11x16 // ⿰日風
 
 // glyph han-2323d:15x16 15 16 // 𣈽
 // ⿰ han-65e5 han-67bc // ⿰日枼

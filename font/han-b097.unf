@@ -67,6 +67,9 @@ glyph han-24bd7:15x16 15 16 // 𤯗
 
 ## 100.4
 
+// glyph han-24bda:15x16 15 16 // 𤯚
+// ⿱ han-4e0d han-751f // ⿱不生
+
 // glyph han-24bdd:15x16 15 16 // 𤯝
 // ⿱ han-751f han-6708 // ⿱生月
 
@@ -199,6 +202,9 @@ glyph han-24c37:15x16 15 16 // 𤰷
 
 glyph han-24c39:15x16 15 16 // 𤰹
 ⿰ han-7530:7x16-l 1 han-706b:7x16 // ⿰田火
+
+// glyph han-24c3a:15x16 15 16 // 𤰺
+// ⿱ han-4e0d han-7530 // ⿱不田
 
 glyph han-24c3e:15x16 15 16 // 𤰾
 ⿰ han-7530:7x16-l han-6708:8x16 // ⿰田月

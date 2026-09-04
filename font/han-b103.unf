@@ -91,8 +91,14 @@ glyph han-24d56:15x16 15 16 // 𤵖
 // glyph han-24d59:15x16 15 16 // 𤵙
 // ⿸ han-7592 han-751f // ⿸疒生
 
+// glyph han-24d5b:15x16 15 16 // 𤵛
+// ⿸ han-7592 han-4e15 // ⿸疒丕
+
 glyph han-24d65:15x16 15 16 // 𤵥
 ⿸ han-7592:15x16.11x13 han-79be:9x13 5 3 // ⿸疒禾
+
+// glyph han-24d66:15x16 15 16 // 𤵦
+// ⿸ han-7592 han-672d // ⿸疒札
 
 // glyph han-24d6a:15x16 15 16 // 𤵪
 // ⿸ han-7592 han-53ec // ⿸疒召
@@ -224,6 +230,9 @@ glyph han-24e06:15x16 15 16 // 𤸆
 
 // glyph han-24e0e:15x16 15 16 // 𤸎
 // ⿸ han-7592 han-66f7 // ⿸疒曷
+
+// glyph han-24e14:15x16 15 16 // 𤸔
+// ⿸ han-7592 han-54c1 // ⿸疒品
 
 // glyph han-24e1b:15x16 15 16 // 𤸛
 // ⿸ han-7592 han-601d // ⿸疒思

@@ -69,8 +69,8 @@ glyph han-221f8:15x16 15 16 // 𢇸
 
 ## 53.7
 
-// glyph han-2221a:15x16 15 16 // 𢈚
-// ⿸ han-5e7f han-5415 // ⿸广吕
+glyph han-2221a:15x16 15 16 // 𢈚
+⿸ han-5e7f:15x16.11x13 han-5415:11x9 4 6 // ⿸广吕
 
 // glyph han-2221b:15x16 15 16 // 𢈛
 // ⿸ han-5e7f han-56f0 // ⿸广困

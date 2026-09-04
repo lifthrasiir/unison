@@ -193,6 +193,9 @@ glyph han-30d8c:15x16 15 16 // 𰶌
 // glyph han-30db3:15x16 15 16 // 𰶳
 // ⿱ han-6bd4 han-8c9d // ⿱比貝
 
+// glyph han-30db4:15x16 15 16 // 𰶴
+// ⿰ han-8c9d han-5721 // ⿰貝圡
+
 // glyph han-30db5:15x16 15 16 // 𰶵
 // ⿱ han-6b62 han-8c9d // ⿱止貝
 
@@ -516,6 +519,9 @@ glyph han-30f61:15x16 15 16 // 𰽡
 // ⿰ han-9485 han-592c // ⿰钅夬
 
 ## 167'.5
+
+// glyph han-30f67:15x16 15 16 // 𰽧
+// ⿰ han-9485 han-4e15 // ⿰钅丕
 
 glyph han-30f6b:15x16 15 16 // 𰽫
 ⿰ han-9485:6x16 han-751f:9x16 // ⿰钅生

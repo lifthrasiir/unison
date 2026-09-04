@@ -5,6 +5,9 @@
 // glyph han-3068e:15x16 15 16 // 𰚎
 // ⿺ han-6bdb han-6bd4 // ⿺毛比
 
+// glyph han-3068f:15x16 15 16 // 𰚏
+// ⿰ han-4e0d han-6bdb // ⿰不毛
+
 // glyph han-30691:15x16 15 16 // 𰚑
 // ⿺ han-6bdb han-5206 // ⿺毛分
 
@@ -139,6 +142,9 @@ glyph han-3070c:15x16 15 16 // 𰜌
 
 // glyph han-30715:15x16 15 16 // 𰜕
 // ⿱ han-6c69 han-76bf // ⿱汩皿
+
+// glyph han-30717:15x16 15 16 // 𰜗
+// ⿰ han-6c35 han-54c1 // ⿰氵品
 
 // glyph han-3071a:15x16 15 16 // 𰜚
 // ⿱ han-6dee han-4e00 // ⿱淮一

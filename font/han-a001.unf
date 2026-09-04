@@ -47,8 +47,8 @@ glyph han-3415:15x16 15 16 // 㐕
 
 ## 5.6
 
-// glyph han-3416:15x16 15 16 // 㐖
-// ⿰ han-5409 han-4e5a // ⿰吉乚
+glyph han-3416:15x16 15 16 // 㐖
+⿰ han-5409:5x16 1 han-4e5a:9x16 // ⿰吉乚
 
 // glyph han-3418:15x16 15 16 // 㐘
 // ⿱ han-7c73 han-4e59 // ⿱米乙
@@ -346,6 +346,11 @@ glyph han-352d:15x16 15 16 // 㔭
 glyph han-3539:15x16 15 16 // 㔹
 ⿰ han-5341:7x16 han-529b:8x16 // ⿰十力
 
+## 24.4
+
+// glyph han-353b:15x16 15 16 // 㔻
+// ⿱ han-4e0d han-5341 // ⿱不十
+
 ## 24.11
 
 // glyph han-353c:15x16 15 16 // 㔼
@@ -438,6 +443,9 @@ glyph han-3577:15x16 15 16 // 㕷
 
 glyph han-3578:15x16 15 16 // 㕸
 ⿰ han-53e3:8x16 han-7acb:7x16 // ⿰口立
+
+// glyph han-357b:15x16 15 16 // 㕻
+// ⿳ han-4e36 han-4e0d han-53e3 // ⿳丶不口
 
 // glyph han-357f:15x16 15 16 // 㕿
 // ⿱ han-79be han-53e3 // ⿱禾口
@@ -716,6 +724,9 @@ glyph han-36aa:15x16 15 16 // 㚪
 ⿰ han-5973:5x16-l 1 han-6bdb:9x16 // ⿰女毛
 
 ## 38.5
+
+// glyph han-36b0:15x16 15 16 // 㚰
+// ⿰ han-5973 han-4e15 // ⿰女丕
 
 glyph han-36b2:15x16 15 16 // 㚲
 ⿰ han-5973:7x16 1 han-5360:7x16 // ⿰女占
