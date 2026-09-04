@@ -464,6 +464,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | A header and its grid are one block: Enter, line-wise copy/cut, paste onto it | `editor/editing.rs` (`insert_newline`), `editor/doc_input.rs` (`current_line_range`, `paste_text`) |
 | Why an edit on a header or `ref` line waits before it reparses | `editor/document_view/changes.rs` (`apply_pending_rederive`) |
 | Why a line the grammar cannot read does not fail the derive | `document_io.rs` (`derive_document`) |
+| Why a right-click moves the caret before its menu opens, and what a click inside the selection does instead | `editor/document_view/paint.rs` (`secondary_pos`) |
 | Why a menu action has to hand the keyboard back to the editor | `editor/mod.rs` (`refocus`), `editor/document_view/paint.rs` (`refocus_after_menu`) |
 | A resize preview: uncommitted text, and everything that has to drop it | `editor/glyph_resize.rs` (`cancel`), `app/docs.rs` (`flush_pending_changes`) |
 | A floating pixel selection: what commits it, and who lands it before reading the buffer | `editor/pixel_selection.rs` (`reconcile`), `app/docs.rs` (`commit_floating_selection`) |

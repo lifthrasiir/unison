@@ -239,3 +239,57 @@ fn only_the_command_chord_jumps_to_the_ends_of_the_document_with_arrows() {
     h.key_mod(Key::End, ctrl);
     assert!(h.cursor().line > start.line);
 }
+
+// ---------------------------------------------------------------------------
+// Right-click and the caret
+// ---------------------------------------------------------------------------
+
+/// The context menu acts on the line the caret is on (Inline once and the
+/// flatten beside it read it through `inline_target_at_line`), so a right-click
+/// has to put the caret where it landed before the menu opens.
+#[test]
+fn right_click_moves_the_caret_first() {
+    let mut h = EditorHarness::new(&sample_doc());
+    h.click_text(0, 0);
+
+    let line = 3;
+    assert_eq!(h.text(line), "glyph bar 4 2");
+    let pos = h.text_pos(line, 4);
+    h.right_click_at(pos);
+
+    assert_eq!(h.cursor(), Caret::new(line, 4));
+    assert_eq!(h.state.selection_range(), None);
+}
+
+/// A right-click inside the selection is how a menu acts *on* that selection
+/// (Cut, Copy), so it must leave the selection alone.
+#[test]
+fn right_click_inside_a_selection_keeps_it() {
+    let mut h = EditorHarness::new(&sample_doc());
+    h.click_text(0, 2);
+    for _ in 0..7 {
+        h.key_mod(Key::ArrowRight, Modifiers::SHIFT);
+    }
+    let sel = h.state.selection_range();
+    assert_eq!(sel, Some((Caret::new(0, 2), Caret::new(0, 9))));
+
+    let pos = h.text_pos(0, 5);
+    h.right_click_at(pos);
+
+    assert_eq!(h.state.selection_range(), sel);
+}
+
+/// A right-click on an unfocused editor is what makes it the focused one: the
+/// caret it just moved is only visible — and only typed into — with focus.
+#[test]
+fn right_click_takes_focus_first() {
+    let mut h = EditorHarness::new(&sample_doc());
+    h.blur();
+    assert!(!h.editor_has_focus(), "precondition: focus is elsewhere");
+
+    let pos = h.text_pos(3, 4);
+    h.right_click_at(pos);
+
+    assert!(h.editor_has_focus());
+    assert_eq!(h.cursor(), Caret::new(3, 4));
+}

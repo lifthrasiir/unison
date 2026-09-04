@@ -62,7 +62,14 @@ pub(super) fn paint_document_area(
 
     let wid = response.id;
     state.canvas_id = Some(wid);
-    if response.clicked() || response.drag_started() || std::mem::take(&mut state.pending_focus) {
+    // A right-click takes focus the same way a left one does, and before
+    // anything else this pass: it goes on to move the caret and raise a menu
+    // that acts on it, and both of those are the focused editor's.
+    if response.clicked()
+        || response.secondary_clicked()
+        || response.drag_started()
+        || std::mem::take(&mut state.pending_focus)
+    {
         ui.memory_mut(|m| m.request_focus(wid));
     }
     let has_focus = ui.memory(|m| m.has_focus(wid));
@@ -230,6 +237,29 @@ pub(super) fn paint_document_area(
             p
         }
     });
+
+    // A right-click has to put the caret where it landed before the context
+    // menu opens: the menu's own items read the caret's line (*Inline once*
+    // and the flatten beside it go through `inline_target_at_line`), so a menu
+    // raised over one line but acting on another is a misfire. It is kept
+    // apart from `click_pos` on purpose — none of the things a left-click also
+    // does (following a link, the *Use* button, a fold marker, entering a
+    // pixel mode, the inline panel's own buttons) may happen on a right-click.
+    let secondary_pos = (normal_mode && response.secondary_clicked())
+        .then(|| response.interact_pointer_pos())
+        .flatten()
+        .map(|p| {
+            let last_h = vlines
+                .last()
+                .map_or(row_height, |vl| vl.height(row_height, grid_cell));
+            let floor = rect.min.y + total_height;
+            if p.y >= floor {
+                egui::pos2(p.x, (floor - last_h * 0.5).max(rect.min.y))
+            } else {
+                p
+            }
+        });
+    let mut secondary_caret: Option<Caret> = None;
 
     #[cfg(test)]
     let mut sample_use_rects: Vec<(usize, egui::Rect)> = Vec::new();
@@ -560,6 +590,15 @@ pub(super) fn paint_document_area(
                     click_result = Some(ClickTarget::Text(Caret::new(vl.doc_line, col)));
                 }
 
+                if let Some(sp) = secondary_pos
+                    && sp.y >= origin.y + y
+                    && sp.y < origin.y + y + h
+                {
+                    let rel_x = (sp.x - origin.x - LEFT_PAD).max(0.0);
+                    let col = vl.col_offset + atext.x_to_col(ui, font_id, rel_x);
+                    secondary_caret = Some(Caret::new(vl.doc_line, col));
+                }
+
                 // Cursor drawing for text lines
                 let text_char_count = text.chars().count();
                 if matches!(state.mode, EditMode::Normal)
@@ -719,6 +758,22 @@ pub(super) fn paint_document_area(
                         });
                     } else {
                         click_result = Some(ClickTarget::Text(Caret::new(vl.doc_line, 0)));
+                    }
+                }
+
+                // Beside a grid, a right-click lands on the line the way a
+                // left-click does; over the grid itself it moves nothing —
+                // the menu raised there is the grid's own.
+                if let Some(sp) = secondary_pos
+                    && sp.y >= grid_y
+                    && sp.y < grid_y + grid_cell
+                {
+                    let gc = ((sp.x - grid_x) / grid_cell) as i32 + extent.left as i32;
+                    if !(strip.accepts_pointer(sp)
+                        && gc >= extent.left as i32
+                        && gc < extent.right as i32)
+                    {
+                        secondary_caret = Some(Caret::new(vl.doc_line, 0));
                     }
                 }
 
@@ -1206,6 +1261,22 @@ pub(super) fn paint_document_area(
     ui.ctx().data_mut(|d| {
         d.insert_temp(state.key(Slot::ErrorTooltipData), error_tooltip);
     });
+
+    // The caret a right-click asked for. A click inside the selection leaves
+    // it standing — that is how the menu's Cut/Copy act on it — and anywhere
+    // else it moves the caret and drops the selection, so the menu's
+    // line-based items act on the line under the pointer.
+    if let Some(caret_pos) = secondary_caret {
+        let caret_pos = caret::clamp(lines, caret_pos);
+        let inside = state
+            .selection_range()
+            .is_some_and(|(lo, hi)| caret_pos >= lo && caret_pos <= hi);
+        if !inside {
+            state.autocomplete = None;
+            state.selection_anchor = None;
+            state.cursor = caret_pos;
+        }
+    }
 
     // Right-clicking the grid while a ref layer is selected offers the same
     // subglyph menu as right-clicking that layer's thumbnail in the inline
