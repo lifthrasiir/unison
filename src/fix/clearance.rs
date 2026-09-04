@@ -75,11 +75,17 @@
 //! all written that way would otherwise offer nothing to search at all.
 //!
 //! One set of gaps and labels then has to serve every glyph, which makes the
-//! objective a different one: **the fewest glyphs warning at all**, and only then the
-//! summed score and the same tie-breaks below. The warnings are a work queue
+//! objective a different one: **the fewest glyphs warning at all**, then the
+//! fewest with no layout at all, and only then the summed score and the same
+//! tie-breaks below. The warnings are a work queue
 //! and its length is what the command is there to shorten, so a family in
 //! which one more glyph is finished beats one in which every glyph is a little
-//! less wrong — even when that trade costs the sum. [`optimize_pattern_line`]
+//! less wrong — even when that trade costs the sum. The middle number is what
+//! keeps a TODO from outliving every answer to it: a glyph with no layout
+//! measures nothing, so a family that stays undecided scores zero and would
+//! otherwise beat every decision that leaves a warning behind — and a decided
+//! layout that warns is still more than none, exactly as it is on a plain
+//! line ([`PatternKey::unresolved`]). [`optimize_pattern_line`]
 //! is the whole of it, and [`Member`] is why it stays cheap over a family of
 //! thousands: one glyph costs a handful of additions per set of gaps, whatever
 //! the labels chose.
@@ -1354,8 +1360,13 @@ fn optimize_pattern_line(
         }
     }
     let (key, pick, gaps) = best?;
-    if (key.warnings, key.score, key.mismatched)
-        >= (before.warnings, before.score, before.mismatched)
+    if (key.warnings, key.unresolved, key.score, key.mismatched)
+        >= (
+            before.warnings,
+            before.unresolved,
+            before.score,
+            before.mismatched,
+        )
     {
         return None; // a line nobody can improve keeps its warnings
     }
@@ -1365,10 +1376,11 @@ fn optimize_pattern_line(
     // [`optimize_line`]: a command that quietly writes a layout it was wrong
     // about is worse than one that writes nothing.
     let family = member_layouts(&members, &slots, &pick, axis_extent, horizontal)?;
-    let (mut score_after, mut warnings_after) = (0, 0);
+    let (mut score_after, mut warnings_after, mut unresolved_after) = (0, 0, 0);
     for (m, member) in family.iter().enumerate() {
         let Some(member) = member else {
             warnings_after += 1;
+            unresolved_after += 1;
             continue;
         };
         let parts = parts_at(&slots, &pick, m)?;
@@ -1384,7 +1396,8 @@ fn optimize_pattern_line(
         score_after += s;
         warnings_after += usize::from(s > 0);
     }
-    if (warnings_after, score_after) != (key.warnings, key.score) {
+    if (warnings_after, unresolved_after, score_after) != (key.warnings, key.unresolved, key.score)
+    {
         return None;
     }
     Some(PlannedLine {
@@ -1611,6 +1624,17 @@ fn member_layouts(
 struct PatternKey {
     /// How many of the glyphs the line stands for warn at all. The objective.
     warnings: usize,
+    /// Of those, how many have no layout at all — a slot still waiting on a
+    /// decision, or one the check errors on, that this choice has not answered.
+    /// It sits between the two numbers because such a glyph *scores* nothing:
+    /// there is nothing to measure, so a family every glyph of which is a TODO
+    /// would otherwise beat every decision that leaves a warning behind, and
+    /// the line would keep its TODO forever. A decided layout that warns is
+    /// still more than none — the same rule [`optimize_line`] states by
+    /// leaving a TODO's `before` `None` — while a glyph that *did* lay out is
+    /// protected by `warnings` ahead of this, so no decision is bought by
+    /// breaking one that was already right.
+    unresolved: usize,
     /// How far outside their ranges the family is, summed.
     score: i32,
     /// How many slots hold a label drawn for another slot — one number for the
@@ -1637,6 +1661,7 @@ fn evaluate_gaps(
     let chosen: Vec<&LabelChoice> = slots.iter().zip(pick).map(|(c, &i)| &c[i]).collect();
     let mut key = PatternKey {
         warnings: 0,
+        unresolved: 0,
         score: 0,
         mismatched: chosen.iter().filter(|c| c.rank == 2).count(),
         directed: std::cmp::Reverse(chosen.iter().filter(|c| c.rank == 0).count()),
@@ -1658,6 +1683,7 @@ fn evaluate_gaps(
         // and nothing here has answered: it warns, at every set of gaps alike.
         let Some(member) = member else {
             key.warnings += 1;
+            key.unresolved += 1;
             continue;
         };
         member.clearances_into(gaps, &mut clearances);

@@ -422,10 +422,10 @@ fn trace_closed_paths(
         for k in odd {
             if let Some(neighbors) = px_to_segs.remove(&k) {
                 for n in neighbors {
-                    if let Some(list) = px_to_segs.get_mut(&n) {
-                        if let Some(pos) = list.iter().position(|x| *x == k) {
-                            list.remove(pos);
-                        }
+                    if let Some(list) = px_to_segs.get_mut(&n)
+                        && let Some(pos) = list.iter().position(|x| *x == k)
+                    {
+                        list.remove(pos);
                     }
                 }
             }

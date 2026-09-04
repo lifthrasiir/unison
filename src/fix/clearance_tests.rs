@@ -1336,3 +1336,81 @@ fn an_undecided_component_of_an_exists_aliased_family_is_decided() {
     assert_eq!((fixes[0].before, fixes[0].after), (None, 0));
     assert_eq!(fixes[0].new_line, "\u{2FF0} l:4x4 r-($-1):4x4");
 }
+
+/// Parts that cannot be made to fit however they are chosen: `a`'s narrowest
+/// drawing beside `b` overruns the box by one. Every decision still warns, so
+/// the "must lower the score" rule has nothing to offer — but the line has no
+/// layout at all as written, and a decided layout that warns is still more
+/// than a TODO.
+const TIGHT_PARTS: &str = "\
+audit ideal-clearance test-* 0 1
+
+glyph a:4x4 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph a:3x4 3 4
+@@@@@@
+@@@@@@
+@@@@@@
+@@@@@@
+
+glyph b:4x4 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph test-x 6 4
+\u{2FF0} a b
+";
+
+#[test]
+fn an_undecided_line_no_choice_can_clear_is_still_decided() {
+    let fixes = plan(TIGHT_PARTS);
+    assert_eq!(fixes.len(), 1, "{fixes:?}");
+    assert_eq!(fixes[0].before, None, "nothing was measured to begin with");
+    assert!(fixes[0].after > 0, "no choice clears the warning");
+    assert_eq!(fixes[0].new_line, "\u{2FF0} -1 a:3x4 b:4x4");
+}
+
+/// The same over a family, the shape a Han source writes: a `($-1)` component
+/// that has picked nothing, in a box no choice of labels can clear. The line
+/// used to be left undecided, because staying a TODO scores zero and so beat
+/// every layout that warns.
+const TIGHT_BACKREF_PARTS: &str = "\
+audit ideal-clearance test-* 0 1
+
+glyph l:4x4 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph r-(x|y):5x4 5 4
+@@@@@@@@@@
+@@@@@@@@@@
+@@@@@@@@@@
+@@@@@@@@@@
+
+glyph r-(x|y):4x4 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph test-(x|y) 7 4
+\u{2FF0} l:4x4 r-($-1)
+";
+
+#[test]
+fn an_undecided_pattern_line_no_label_can_clear_is_still_decided() {
+    let fixes = plan(TIGHT_BACKREF_PARTS);
+    assert_eq!(fixes.len(), 1, "{fixes:?}");
+    let fix = &fixes[0];
+    assert_eq!(fix.before, None, "nothing was measured to begin with");
+    assert!(fix.after > 0, "no label clears the warning");
+    assert_eq!(fix.new_line, "\u{2FF0} -1 l:4x4 r-($-1):4x4");
+}
