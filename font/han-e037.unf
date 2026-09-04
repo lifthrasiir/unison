@@ -494,6 +494,11 @@ glyph han-2be50:15x16 15 16 // 𫹐
 glyph han-2be51:15x16 15 16 // 𫹑
 ⿲ han-5f73:3x16 han-5e72:7x16 han-5202:5x16 // ⿲彳干刂
 
+## 60.6
+
+glyph han-2be53-($han-regions):15x16 15 16 // 𫹓
+⿰ han-5f73:3x16 1 han-7fbd-($-1):11x16 // ⿰彳羽
+
 ## 60.9
 
 glyph han-2be5a:15x16 15 16 // 𫹚

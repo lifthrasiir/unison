@@ -82,8 +82,8 @@ glyph han-23177:15x16 15 16 // 𣅷
 glyph han-2317c:15x16 15 16 // 𣅼
 ⿱ han-65e5:15x7 2 han-7532:15x7 // ⿱日甲
 
-// glyph han-2317d:15x16 15 16 // 𣅽
-// ⿱ han-65e5 han-51fa // ⿱日出
+glyph han-2317d:15x16 15 16 // 𣅽
+⿱ han-65e5:15x5 1 han-51fa:15x10 // ⿱日出
 
 glyph han-2317f:15x16 15 16 // 𣅿
 ⿰ han-65e5:7x16 1 han-53f0:7x16 // ⿰日台
@@ -183,6 +183,9 @@ glyph han-231dd-($han-regions):15x16 15 16 // 𣇝
 
 glyph han-231eb:15x16 15 16 // 𣇫
 ⿰ han-65e5:7x16 1 han-679c:7x16 // ⿰日果
+
+glyph han-231ed:15x16 15 16 // 𣇭
+⿲ han-65e5:4x16-l han-5f73:3x16 1 han-751f:7x16 // ⿲日彳生
 
 // glyph han-231f0:15x16 15 16 // 𣇰
 // ⿱ han-65e5 han-6797 // ⿱日林

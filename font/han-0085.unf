@@ -452,6 +452,9 @@ glyph han-6ce3:15x16 15 16 // 泣
 // glyph han-6ce5:15x16 15 16 // 泥
 // ⿰ han-6c35 han-5c3c // ⿰氵尼
 
+glyph han-6ce9:15x16 15 16 // 泩
+⿰ han-6c35:5x16 1 han-751f:9x16 // ⿰氵生
+
 glyph han-6cea:15x16 15 16 // 泪
 ⿰ han-6c35:5x16 1 han-76ee:9x16 // ⿰氵目
 

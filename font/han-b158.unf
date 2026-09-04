@@ -118,6 +118,9 @@ glyph han-282f6:15x16 15 16 // 𨋶
 glyph han-282fd:15x16 15 16 // 𨋽
 ⿰ han-8eca:7x16 1 han-7f8a:7x16 // ⿰車羊
 
+glyph han-282fe-($han-regions):15x16 15 16 // 𨋾
+⿰ han-8eca:5x16 1 han-7fbd-($-1):9x16 // ⿰車羽
+
 glyph han-28300:15x16 15 16 // 𨌀
 ⿰ han-8eca:7x16 1 han-8033:7x16 // ⿰車耳
 

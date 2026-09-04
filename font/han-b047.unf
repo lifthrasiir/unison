@@ -101,6 +101,11 @@ glyph han-22036:15x16 15 16 // 𢀶
 
 # CJK unified ideographs extension B: 巾 (50)
 
+## 50.2
+
+// glyph han-22053:15x16 15 16 // 𢁓
+// ⿸ han-4e06 han-5dfe // ⿸丆巾
+
 ## 50.3
 
 glyph han-22055-($han-regions):15x16 15 16 // 𢁕
@@ -284,6 +289,9 @@ glyph han-22126:15x16 15 16 // 𢄦
 
 glyph han-2212a:15x16 15 16 // 𢄪
 ⿰ han-5dfe:7x16 1 han-7fcf:7x16 // ⿰巾翏
+
+// glyph han-2212d-($han-regions):15x16 15 16 // 𢄭
+// ⿰ han-5dfe han-7fd2-($-1) // ⿰巾習
 
 // glyph han-22131-($han-regions):15x16 15 16 // 𢄱
 // ⿰ han-5dfe han-9023-($-1) // ⿰巾連

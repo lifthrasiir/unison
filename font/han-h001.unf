@@ -295,6 +295,9 @@ glyph han-314d6:15x16 15 16 // 𱓖
 // glyph han-314e0:15x16 15 16 // 𱓠
 // ⿲ han-53e3 han-4ebb han-8db3 // ⿲口亻足 <- ⿰口促
 
+glyph han-314e2:15x16 15 16 // 𱓢
+⿲ han-53e3:3x16-l han-6708:5x16 han-751f:7x16 // ⿲口月生
+
 glyph han-314e6:15x16 15 16 // 𱓦
 ⿲ han-53e3:5x16-l han-6c35:3x16 han-5408:7x16 // ⿲口氵合
 

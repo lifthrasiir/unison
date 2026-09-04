@@ -388,6 +388,9 @@ glyph han-2e6e7:15x16 15 16 // 𮛧
 
 ## 157.9
 
+// glyph han-2e6f2:15x16 15 16 // 𮛲
+// ⿰ han-27fb7 han-661f // ⿰𧾷星
+
 // glyph han-2e6f4:15x16 15 16 // 𮛴
 // ⿰ han-27fb7 han-6637 // ⿰𧾷昷
 
@@ -606,6 +609,9 @@ glyph han-2e825:15x16 15 16 // 𮠥
 
 glyph han-2e829:15x16 15 16 // 𮠩
 ⿰ han-9149:7x16 1 han-7c73:7x16 // ⿰酉米
+
+glyph han-2e82a-($han-regions):15x16 15 16 // 𮠪
+⿰ han-9149:7x16 han-7fbd-($-1):8x16 // ⿰酉羽
 
 ## 164.7
 

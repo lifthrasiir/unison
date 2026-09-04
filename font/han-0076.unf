@@ -857,6 +857,9 @@ glyph han-6be1:15x16 15 16 // 毡
 // glyph han-6be2:15x16 15 16 // 毢
 // ⿺ han-6bdb han-897f // ⿺毛西
 
+glyph han-6be3-($han-regions):15x16 15 16 // 毣
+⿱ han-7fbd-($-1):15x8 han-6bdb:15x8 // ⿱羽毛
+
 glyph han-6be6:15x16 15 16 // 毦
 ⿰ han-8033:6x16-l han-6bdb:9x16 // ⿰耳毛
 
@@ -893,6 +896,11 @@ glyph han-6bf9:15x16 15 16 // 毹
 
 glyph han-6bfc:15x16 15 16 // 毼
 ⿰ han-66f7:8x16 han-6bdb:7x16 // ⿰曷毛
+
+## 82.10
+
+// glyph han-6bfe-($han-regions):15x16 15 16 // 毾
+// ⿰ han-26407-($-1) han-6bdb // ⿰𦐇毛
 
 ## 82.11
 

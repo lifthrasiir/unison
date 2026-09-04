@@ -775,6 +775,9 @@ glyph han-9055-($han-regions):15x16 15 16 // 違
 
 ## 162.10
 
+// glyph han-9062-($han-regions):15x16 15 16 // 遢
+// ⿺ han-8fb6-($-1) han-26407-($-1) // ⿺辶𦐇
+
 // glyph han-9064:15x16 15 16 // 遤
 // ⿺ han-8fb6 han-99ac // ⿺辶馬
 
@@ -1259,6 +1262,9 @@ glyph han-918f-($han-regions):15x16 15 16 // 醏
 
 glyph han-9190:15x16 15 16 // 醐
 ⿲ -3 han-9149:7x16 1 han-53e4:5x16 han-6708:5x16 // ⿲酉古月
+
+// glyph han-9192:15x16 15 16 // 醒
+// ⿰ han-9149 han-661f // ⿰酉星
 
 // glyph han-9194:15x16 15 16 // 醔
 // ⿱ han-79cb han-9149 // ⿱秋酉

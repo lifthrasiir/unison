@@ -203,6 +203,9 @@ glyph han-2cfa2:15x16 15 16 // 𬾢
 // glyph han-2cfaf:15x16 15 16 // 𬾯
 // ⿰ han-4ebb han-82fb // ⿰亻苻
 
+// glyph han-2cfb0:15x16 15 16 // 𬾰
+// ⿰ han-4ebb han-661f // ⿰亻星
+
 glyph han-2cfba-($han-regions):15x16 15 16 // 𬾺
 ⿰ han-5e76:8x16 han-4ee4-($-1):7x16 // ⿰并令
 

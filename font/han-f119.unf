@@ -46,6 +46,9 @@ glyph han-2e1d5:15x16 15 16 // 𮇕
 glyph han-2e1db:15x16 15 16 // 𮇛
 ⿰ han-7c73:5x16 1 han-5e76:9x16 // ⿰米并
 
+glyph han-2e1dd-($han-regions):15x16 15 16 // 𮇝
+⿰ han-7c73:5x16 1 han-7fbd-($-1):9x16 // ⿰米羽
+
 ## 119.7
 
 // glyph han-2e1de:15x16 15 16 // 𮇞
@@ -91,7 +94,7 @@ glyph han-2e202:15x16 15 16 // 𮈂
 ## 120.5
 
 glyph han-2e209:15x16 15 16 // 𮈉
-⿰ han-7cf9:5x16 2 han-7528:7x16 // ⿰糹用
+⿰ han-7cf9:5x16 han-7528:10x16 // ⿰糹用
 
 ## 120.6
 
@@ -163,6 +166,11 @@ glyph han-2e282:15x16 15 16 // 𮊂
 glyph han-2e28b:15x16 15 16 // 𮊋
 ⿱ han-7f52:15x3 1 han-8ecd:15x12 // ⿱罒軍
 
+## 122.11
+
+glyph han-2e299-($han-regions):15x16 15 16 // 𮊙
+⿳ han-7f52:15x3 1 han-7fbd-($-1):15x6 han-767d:15x6 // ⿳罒羽白
+
 ## 122.12
 
 // glyph han-2e29b:15x16 15 16 // 𮊛
@@ -184,6 +192,39 @@ glyph han-2e28b:15x16 15 16 // 𮊋
 
 // glyph han-2e2b4:15x16 15 16 // 𮊴
 // ⿲ han-7f8a han-9762 han-6bdb // ⿲羊面毛 <- ⿰羊𣮿
+
+# CJK unified ideographs extension F: 羽 (124)
+
+## 124.4
+
+glyph han-2e2b9-($han-regions):15x16 15 16 // 𮊹
+⿰ han-4e2d:7x16 han-7fbd-($-1):8x16 // ⿰中羽
+
+glyph han-2e2ba-($han-regions):15x16 15 16 // 𮊺
+⿰ han-5206:7x16 han-7fbd-($-1):8x16 // ⿰分羽
+
+## 124.6
+
+// glyph han-2e2c1-($han-regions):15x16 15 16 // 𮋁
+// ⿱ han-7fbd-($-1) han-5408 // ⿱羽合
+
+// glyph han-2e2c2-($han-regions):15x16 15 16 // 𮋂
+// ⿱ han-7fbd-($-1) han-4ea4 // ⿱羽交
+
+## 124.7
+
+// glyph han-2e2c3-($han-regions):15x16 15 16 // 𮋃
+// ⿺ han-514b han-7fbd-($-1) // ⿺克羽
+
+## 124.8
+
+glyph han-2e2c6-($han-regions):15x16 15 16 // 𮋆
+⿳ -1 han-6728:15x7 han-65e5:15x5 1 han-7fbd-($-1):15x5 // ⿳木日羽
+
+## 124.9
+
+// glyph han-2e2cb-($han-regions):15x16 15 16 // 𮋋
+// ⿰ han-7687 han-7fbd-($-1) // ⿰皇羽
 
 # CJK unified ideographs extension F: 耳 (128)
 
@@ -247,6 +288,13 @@ glyph han-2e342:15x16 15 16 // 𮍂
 
 // glyph han-2e34a:15x16 15 16 // 𮍊
 // ⿲ han-6708 han-4eb2 han-898b // ⿲月亲見 <- ⿰月親
+
+# CJK unified ideographs extension F: 臣 (131)
+
+## 131.10
+
+// glyph han-2e353-($han-regions):15x16 15 16 // 𮍓
+// ⿰ han-81e3 han-26407-($-1) // ⿰臣𦐇
 
 # CJK unified ideographs extension F: 舌 (135)
 

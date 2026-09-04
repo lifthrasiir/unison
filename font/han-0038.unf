@@ -229,6 +229,9 @@ glyph han-59d0:15x16 15 16 // 姐
 glyph han-59d1:15x16 15 16 // 姑
 ⿰ han-5973:5x16-l 1 han-53e4:9x16 // ⿰女古
 
+glyph han-59d3:15x16 15 16 // 姓
+⿰ han-5973:5x16-l 1 han-751f:9x16 // ⿰女生
+
 // glyph han-59d4:15x16 15 16 // 委
 // ⿱ han-79be han-5973 // ⿱禾女
 
@@ -773,6 +776,9 @@ glyph han-5bcd:15x16 15 16 // 寍
 
 // glyph han-5bd4:15x16 15 16 // 寔
 // ⿱ han-5b80 han-662f // ⿱宀是
+
+// glyph han-5bd5:15x16 15 16 // 寕
+// ⿳ han-5b80 han-4e06 han-2626c // ⿳宀丆𦉬
 
 ## 40.10
 

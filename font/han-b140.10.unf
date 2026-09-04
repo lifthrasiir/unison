@@ -26,6 +26,9 @@ glyph han-26d79:15x16 15 16 // 𦵹
 // glyph han-26d8f:15x16 15 16 // 𦶏
 // ⿱ han-8279 han-966e // ⿱艹陮
 
+glyph han-26d91-($han-regions):15x16 15 16 // 𦶑
+⿳ han-8279:15x3 han-65e5:15x5 2 han-7fbd-($-1):15x6 // ⿳艹日羽
+
 glyph han-26d92:15x16 15 16 // 𦶒
 ⿱ han-8279:15x3 1 han-23d63:15x12 // ⿱艹𣵣
 
@@ -119,6 +122,9 @@ glyph han-26e06:15x16 15 16 // 𦸆
 
 // glyph han-26e0f:15x16 15 16 // 𦸏
 // ⿳ han-8279 han-5c71 han-96b9 // ⿳艹山隹 <- ⿱艹崔
+
+glyph han-26e1a-($han-regions):15x16 15 16 // 𦸚
+⿳ han-8279:15x3 han-7fbd-($-1):15x6 1 han-767d:15x6 // ⿳艹羽白
 
 // glyph han-26e1b:15x16 15 16 // 𦸛
 // ⿳ han-8279 han-5ddb han-679c // ⿳艹巛果 <- ⿱艹巢

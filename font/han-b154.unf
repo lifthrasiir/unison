@@ -311,6 +311,9 @@ glyph han-27e1a:15x16 15 16 // 𧸚
 // glyph han-27ec9:15x16 15 16 // 𧻉
 // ⿺ han-8d70 han-7531 // ⿺走由
 
+// glyph han-27eca:15x16 15 16 // 𧻊
+// ⿺ han-8d70 han-751f // ⿺走生
+
 // glyph han-27ecb-($han-regions):15x16 15 16 // 𧻋
 // ⿺ han-8d70 han-4ee4-($-1) // ⿺走令
 

@@ -50,6 +50,60 @@ glyph han-24bc8-($han-regions):15x16 15 16 // 𤯈
 // glyph han-24bcc:15x16 15 16 // 𤯌
 // ⿸ han-9ebb han-7518 // ⿸麻甘
 
+# CJK unified ideographs extension B: 生 (100)
+
+## 100.1
+
+// glyph han-24bd4:15x16 15 16 // 𤯔
+// ⿱ han-4e00 han-751f // ⿱一生
+
+## 100.3
+
+glyph han-24bd5:15x16 15 16 // 𤯕
+⿰ han-751f:7x16 1 han-5973:7x16 // ⿰生女
+
+glyph han-24bd7:15x16 15 16 // 𤯗
+⿱ han-5927:15x7 han-751f:15x9 // ⿱大生
+
+## 100.4
+
+// glyph han-24bdd:15x16 15 16 // 𤯝
+// ⿱ han-751f han-6708 // ⿱生月
+
+## 100.6
+
+// glyph han-24be0:15x16 15 16 // 𤯠
+// ⿰ han-56e0 han-751f // ⿰因生
+
+glyph han-24be4:15x16 15 16 // 𤯤
+⿰ han-5408:7x16 1 han-751f:7x16 // ⿰合生
+
+// glyph han-24be5:15x16 15 16 // 𤯥
+// ⿱ han-5982 han-751f // ⿱如生
+
+## 100.7
+
+// glyph han-24be6:15x16 15 16 // 𤯦
+// ⿱ han-521d han-751f // ⿱初生
+
+## 100.8
+
+// glyph han-24bef:15x16 15 16 // 𤯯
+// ⿱ han-59cb han-751f // ⿱始生
+
+// glyph han-24bf1:15x16 15 16 // 𤯱
+// ⿰ han-5947 han-751f // ⿰奇生
+
+## 100.12
+
+// glyph han-24bf8:15x16 15 16 // 𤯸
+// ⿰ han-751f han-7b4b // ⿰生筋
+
+## 100.17
+
+glyph han-24c02:15x16 15 16 // 𤰂
+⿰ han-751f:7x16 1 han-8944:7x16 // ⿰生襄
+
 # CJK unified ideographs extension B: 用 (101)
 
 ## 101.2

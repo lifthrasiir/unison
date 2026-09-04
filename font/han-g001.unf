@@ -202,6 +202,11 @@ glyph han-30100:15x16 15 16 // 𰄀
 // glyph han-30107-($han-regions):15x16 15 16 // 𰄇
 // ⿱ han-51b7-($-1) han-5c3c // ⿱冷尼
 
+## 15.11
+
+// glyph han-3010a-($han-regions):15x16 15 16 // 𰄊
+// ⿰ han-51ab han-7fd2-($-1) // ⿰冫習
+
 # CJK unified ideographs extension G: 凵 (17)
 
 ## 17.8
@@ -338,6 +343,11 @@ glyph han-30176:15x16 15 16 // 𰅶
 
 // glyph han-30197:15x16 15 16 // 𰆗
 // ⿸ han-5382 han-6587 // ⿸厂文
+
+## 27.5
+
+// glyph han-30198:15x16 15 16 // 𰆘
+// ⿸ han-5382 han-751f // ⿸厂生
 
 ## 27.8
 
@@ -625,6 +635,11 @@ glyph han-302e3:15x16 15 16 // 𰋣
 
 // glyph han-302eb:15x16 15 16 // 𰋫
 // ⿱ han-72ec han-5927 // ⿱独大
+
+## 37.10
+
+glyph han-302ed:15x16 15 16 // 𰋭
+⿳ -6 han-5929:15x8 han-65e5:15x5 han-751f:15x9 // ⿳天日生
 
 # CJK unified ideographs extension G: 女 (38)
 

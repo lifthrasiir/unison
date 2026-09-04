@@ -152,6 +152,9 @@ glyph han-27a6c:15x16 15 16 // 𧩬
 
 ## 149.10
 
+// glyph han-27aa6-($han-regions):15x16 15 16 // 𧪦
+// ⿰ han-8a01 han-26407-($-1) // ⿰訁𦐇
+
 glyph han-27aa8:15x16 15 16 // 𧪨
 ⿰ han-8a01:5x16 1 han-99ac:9x16 // ⿰訁馬
 

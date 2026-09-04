@@ -162,6 +162,9 @@ glyph han-29757:15x16 15 16 // 𩝗
 glyph han-2975d:15x16 15 16 // 𩝝
 ⿰ han-98e0:7x16 1 han-9ad8:7x16 // ⿰飠高
 
+// glyph han-29763-($han-regions):15x16 15 16 // 𩝣
+// ⿰ han-98e0 han-26407-($-1) // ⿰飠𦐇
+
 // glyph han-29764:15x16 15 16 // 𩝤
 // ⿰ han-98e0 han-605a // ⿰飠恚
 

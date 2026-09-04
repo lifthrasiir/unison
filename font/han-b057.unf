@@ -75,6 +75,9 @@ glyph han-223ce:15x16 15 16 // 𢏎
 glyph han-223d5:15x16 15 16 // 𢏕
 ⿰ han-5f13:5x16 1 han-540c:9x16 // ⿰弓同
 
+// glyph han-223d6-($han-regions):15x16 15 16 // 𢏖
+// ⿱ han-7fbd-($-1) han-5f13 // ⿱羽弓
+
 // glyph han-223d7:15x16 15 16 // 𢏗
 // ⿱ han-5e75 han-5f13 // ⿱幵弓
 

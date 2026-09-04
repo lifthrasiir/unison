@@ -21,8 +21,8 @@
 glyph han-31981:15x16 15 16 // 𱦁
 ⿲ han-6c35:3x16 han-4ebb:3x16 han-58eb:9x16 // ⿲氵亻士
 
-// glyph han-31984:15x16 15 16 // 𱦄
-// ⿱ han-51fa han-6c34 // ⿱出水
+glyph han-31984:15x16 15 16 // 𱦄
+⿱ han-51fa:15x10 han-6c34:15x6 // ⿱出水
 
 ## 85.6
 
@@ -154,6 +154,9 @@ glyph han-31ac0:15x16 15 16 // 𱫀
 // glyph han-31adb:15x16 15 16 // 𱫛
 // ⿰ han-706b han-5e97 // ⿰火店
 
+// glyph han-31adf:15x16 15 16 // 𱫟
+// ⿰ han-7075 han-751f // ⿰灵生
+
 ## 86.10
 
 // glyph han-31af8:15x16 15 16 // 𱫸
@@ -272,6 +275,26 @@ glyph han-31bb7:15x16 15 16 // 𱮷
 
 // glyph han-31c16:15x16 15 16 // 𱰖
 // ⿱ han-5408 han-7518 // ⿱合甘
+
+# CJK unified ideographs extension H: 生 (100)
+
+## 100.7
+
+glyph han-31c18:15x16 15 16 // 𱰘
+⿲ -2 han-751f:7x16 han-7530:5x16 han-529b:5x16 // ⿲生田力
+
+## 100.8
+
+// glyph han-31c19:15x16 15 16 // 𱰙
+// ⿱ han-670b han-751f // ⿱朋生
+
+// glyph han-31c1a:15x16 15 16 // 𱰚
+// ⿰ han-751f han-5b5f // ⿰生孟
+
+## 100.14
+
+// glyph han-31c1b:15x16 15 16 // 𱰛
+// ⿲ han-7537 han-751f han-7537 // ⿲男生男
 
 # CJK unified ideographs extension H: 用 (101)
 

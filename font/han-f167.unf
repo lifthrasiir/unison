@@ -130,6 +130,11 @@ glyph han-2e8f2:15x16 15 16 // 𮣲
 // glyph han-2e919:15x16 15 16 // 𮤙
 // ⿵ han-9580 han-82e6 // ⿵門苦
 
+## 169.11
+
+// glyph han-2e921-($han-regions):15x16 15 16 // 𮤡
+// ⿵ han-9580 han-7fd2-($-1) // ⿵門習
+
 ## 169.13
 
 // glyph han-2e927-($han-regions):15x16 15 16 // 𮤧
@@ -485,6 +490,9 @@ glyph han-2ea7f:15x16 15 16 // 𮩿
 // glyph han-2ea83:15x16 15 16 // 𮪃
 // ⿰ han-99ac han-5b57 // ⿰馬字
 
+glyph han-2ea84-($han-regions):15x16 15 16 // 𮪄
+⿰ han-99ac:7x16 han-7fbd-($-1):8x16 // ⿰馬羽
+
 ## 187.8
 
 glyph han-2ea8b:15x16 15 16 // 𮪋
@@ -516,6 +524,9 @@ glyph han-2eaa6:15x16 15 16 // 𮪦
 
 // glyph han-2eaa7:15x16 15 16 // 𮪧
 // ⿰ han-9aa8 han-592e // ⿰骨央
+
+glyph han-2eaa8:15x16 15 16 // 𮪨
+⿰ han-9aa8:7x16 1 han-751f:7x16 // ⿰骨生
 
 ## 188.6
 

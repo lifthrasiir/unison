@@ -238,6 +238,9 @@ glyph han-3c9e:15x16 15 16 // 㲞
 // glyph han-3ca8:15x16 15 16 // 㲨
 // ⿰ han-8338 han-6bdb // ⿰茸毛
 
+// glyph han-3ca9-($han-regions):15x16 15 16 // 㲩
+// ⿺ han-6bdb han-26407-($-1) // ⿺毛𦐇
+
 # CJK unified ideographs extension A: 氏 (83)
 
 ## 83.6

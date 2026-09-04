@@ -118,8 +118,8 @@ glyph han-2342d:15x16 15 16 // 𣐭
 // glyph han-2342e:15x16 15 16 // 𣐮
 // ⿱ han-56da han-6728 // ⿱囚木
 
-// glyph han-2342f:15x16 15 16 // 𣐯
-// ⿱ han-51fa han-6728 // ⿱出木
+glyph han-2342f:15x16 15 16 // 𣐯
+⿱ han-51fa:15x8 han-6728:15x8 // ⿱出木
 
 glyph han-23434:15x16 15 16 // 𣐴
 ⿲ han-6728:5x16 han-4ebb:3x16 han-58eb:7x16 // ⿲木亻士

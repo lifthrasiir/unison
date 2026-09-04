@@ -77,6 +77,9 @@ glyph han-298a8:15x16 15 16 // 𩢨
 glyph han-298aa:15x16 15 16 // 𩢪
 ⿰ han-99ac:7x16 1 han-53e4:7x16 // ⿰馬古
 
+// glyph han-298ab:15x16 15 16 // 𩢫
+// ⿱ han-751f han-99ac // ⿱生馬
+
 glyph han-298ad:15x16 15 16 // 𩢭
 ⿲ -2 han-99ac:7x16 han-6b62:6x16 han-5315:4x16 // ⿲馬止匕
 
@@ -90,6 +93,9 @@ glyph han-298ae:15x16 15 16 // 𩢮
 
 glyph han-298b1:15x16 15 16 // 𩢱
 ⿰ han-99ac:7x16 1 han-56de:7x16 // ⿰馬回
+
+glyph han-298b3-($han-regions):15x16 15 16 // 𩢳
+⿰ han-7fbd-($-1):6x16 2 han-99ac:7x16 // ⿰羽馬
 
 glyph han-298b4:15x16 15 16 // 𩢴
 ⿰ han-99ac:7x16 1 han-5409:7x16 // ⿰馬吉
@@ -175,6 +181,9 @@ glyph han-2992e:15x16 15 16 // 𩤮
 // glyph han-29931:15x16 15 16 // 𩤱
 // ⿰ han-99ac han-82d6 // ⿰馬苖
 
+// glyph han-29935:15x16 15 16 // 𩤵
+// ⿰ han-99ac han-661f // ⿰馬星
+
 // glyph han-29939:15x16 15 16 // 𩤹
 // ⿳ han-99ac han-79be han-65e5 // ⿳馬禾日 <- ⿱馬香
 
@@ -188,6 +197,9 @@ glyph han-2992e:15x16 15 16 // 𩤮
 
 // glyph han-2994b:15x16 15 16 // 𩥋
 // ⿱ han-99ac han-99ac // ⿱馬馬
+
+// glyph han-29951-($han-regions):15x16 15 16 // 𩥑
+// ⿰ han-99ac han-26407-($-1) // ⿰馬𦐇
 
 ## 187.11
 

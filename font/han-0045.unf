@@ -543,6 +543,9 @@ glyph han-5d8b:15x16 15 16 // 嶋
 // glyph han-5d8c:15x16 15 16 // 嶌
 // ⿱ han-5c71 han-9ce5 // ⿱山鳥
 
+// glyph han-5d8d-($han-regions):15x16 15 16 // 嶍
+// ⿰ han-5c71 han-7fd2-($-1) // ⿰山習
+
 ## 46.12
 
 glyph han-5d93:15x16 15 16 // 嶓

@@ -67,6 +67,9 @@ glyph han-201e3:15x16 15 16 // 𠇣
 // glyph han-201f4:15x16 15 16 // 𠇴
 // ⿰ han-4ebb han-592f // ⿰亻夯
 
+glyph han-201f7:15x16 15 16 // 𠇷
+⿰ han-4ebb:5x16 1 han-751f:9x16 // ⿰亻生
+
 glyph han-201fa:15x16 15 16 // 𠇺
 ⿰ han-4ebb:5x16 1 han-7532:9x16 // ⿰亻甲
 
@@ -260,6 +263,9 @@ glyph han-20415:15x16 15 16 // 𠐕
 
 // glyph han-20419:15x16 15 16 // 𠐙
 // ⿱ han-4fde han-6797 // ⿱俞林
+
+// glyph han-20422-($han-regions):15x16 15 16 // 𠐢
+// ⿲ han-4ebb han-7fd2-($-1) han-5143 // ⿲亻習元
 
 ## 9.17
 

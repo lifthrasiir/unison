@@ -140,7 +140,7 @@ glyph han-205bb:15x16 15 16 // 𠖻
 // ⿰ han-51ab han-672b // ⿰冫末
 
 glyph han-205bf:15x16 15 16 // 𠖿
-⿰ han-51ab:5x16 1 han-7528:8x16 // ⿰冫用
+⿰ han-51ab:5x16 han-7528:10x16 // ⿰冫用
 
 ## 15.6
 

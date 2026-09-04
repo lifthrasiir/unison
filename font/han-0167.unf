@@ -255,6 +255,9 @@ glyph han-924b:15x16 15 16 // 鉋
 glyph han-924c:15x16 15 16 // 鉌
 ⿰ han-91d2:7x16 1 han-79be:7x16 // ⿰釒禾
 
+glyph han-924e:15x16 15 16 // 鉎
+⿰ han-91d2:5x16-l 1 han-751f:9x16 // ⿰釒生
+
 glyph han-924f:15x16 15 16 // 鉏
 ⿰ han-91d2:7x16 1 han-4e14:7x16 // ⿰釒且
 
@@ -537,6 +540,9 @@ glyph han-9358:15x16 15 16 // 鍘
 glyph han-935a:15x16 15 16 // 鍚
 ⿰ han-91d2:5x16-l 1 han-661c:9x16 // ⿰釒昜
 
+// glyph han-935f:15x16 15 16 // 鍟
+// ⿰ han-91d2 han-661f // ⿰釒星
+
 glyph han-9360:15x16 15 16 // 鍠
 ⿰ han-91d2:5x16-l 1 han-7687:9x16 // ⿰釒皇
 
@@ -576,6 +582,9 @@ glyph han-9381:15x16 15 16 // 鎁
 ⿲ han-91d2:5x16-l han-8033:6x16 han-961d:4x16-r // ⿲釒耳阝
 
 ## 167.10
+
+// glyph han-9389-($han-regions):15x16 15 16 // 鎉
+// ⿰ han-91d2 han-26407-($-1) // ⿰釒𦐇
 
 // glyph han-93a0:15x16 15 16 // 鎠
 // ⿰ han-91d2 han-7f61 // ⿰釒罡

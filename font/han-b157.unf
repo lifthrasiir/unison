@@ -129,7 +129,7 @@ glyph han-2800b:15x16 15 16 // 𨀋
 // ⿰ han-27fb7 han-53e6 // ⿰𧾷另
 
 glyph han-2800d:15x16 15 16 // 𨀍
-⿰ han-27fb7:5x16 2 han-7528:7x16 // ⿰𧾷用
+⿰ han-27fb7:5x16 han-7528:10x16 // ⿰𧾷用
 
 glyph han-2800e:15x16 15 16 // 𨀎
 ⿰ han-27fb7:5x16 1 han-7acb:9x16 // ⿰𧾷立
@@ -325,6 +325,9 @@ glyph han-280f9:15x16 15 16 // 𨃹
 
 // glyph han-2810b-($han-regions):15x16 15 16 // 𨄋
 // ⿰ han-27fb7 han-5c5a-($-1) // ⿰𧾷屚
+
+// glyph han-2810c-($han-regions):15x16 15 16 // 𨄌
+// ⿰ han-27fb7 han-7fd2-($-1) // ⿰𧾷習
 
 // glyph han-2810e:15x16 15 16 // 𨄎
 // ⿰ han-27fb7 han-57fa // ⿰𧾷基

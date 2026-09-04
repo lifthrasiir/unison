@@ -123,6 +123,9 @@ glyph han-37fd:15x16 15 16 // 㟽
 // glyph han-3800:15x16 15 16 // 㠀
 // ⿱ han-9ce5 han-5c71 // ⿱鳥山
 
+glyph han-3804-($han-regions):15x16 15 16 // 㠄
+⿳ han-5c71:15x4 1 han-7fbd-($-1):15x5 han-767d:15x6 // ⿳山羽白
+
 ## 46.12
 
 // glyph han-3808:15x16 15 16 // 㠈
@@ -796,6 +799,14 @@ glyph han-3b15:15x16 15 16 // 㬕
 
 // glyph han-3b1c:15x16 15 16 // 㬜
 // ⿱ han-81f8 han-65e5 // ⿱臸日
+
+## 72.14
+
+// glyph han-3b25:15x16 15 16 // 㬥
+// ⿳ han-2317d han-5927 han-7c73 // ⿳𣅽大米
+
+// glyph han-3b27:15x16 15 16 // 㬧
+// ⿳ han-2317d han-5927 han-7cf8 // ⿳𣅽大糸
 
 # CJK unified ideographs extension A: 月 (74)
 

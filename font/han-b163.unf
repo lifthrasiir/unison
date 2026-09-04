@@ -71,6 +71,9 @@ glyph han-28696:15x16 15 16 // 𨚖
 glyph han-286a3:15x16 15 16 // 𨚣
 ⿰ han-6b63:10x16 han-961d:5x16-r // ⿰正阝
 
+glyph han-286a5:15x16 15 16 // 𨚥
+⿰ han-751f:7x16 1 han-961d:7x16-r // ⿰生阝
+
 glyph han-286a7:15x16 15 16 // 𨚧
 ⿲ han-529b:5x16 1 han-53e3:4x16 1 han-961d:4x16-r // ⿲力口阝
 
@@ -297,6 +300,9 @@ glyph han-2881c:15x16 15 16 // 𨠜
 
 // glyph han-2881d:15x16 15 16 // 𨠝
 // ⿰ han-9149 han-672a // ⿰酉未
+
+glyph han-28820:15x16 15 16 // 𨠠
+⿰ han-9149:7x16 1 han-751f:7x16 // ⿰酉生
 
 glyph han-28823:15x16 15 16 // 𨠣
 ⿰ han-9149:7x16 han-6b63:8x16 // ⿰酉正

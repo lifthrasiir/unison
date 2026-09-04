@@ -388,6 +388,11 @@ glyph han-2b560-($han-regions):15x16 15 16 // 𫕠
 
 # CJK unified ideographs extension C: 靑 (174)
 
+## 174.5
+
+glyph han-2b579-($han-regions):15x16 15 16 // 𫕹
+⿰ han-9752-($-1):5x16 1 han-751f:9x16 // ⿰青生
+
 ## 174.8
 
 glyph han-2b57b-(t):15x16 15 16 // 𫕻
@@ -423,6 +428,13 @@ glyph han-2b57b-(j):15x16 15 16 // 𫕻
 
 // glyph han-2b581:15x16 15 16 // 𫖁
 // ⿰ han-9762 han-5146 // ⿰面兆
+
+# CJK unified ideographs extension C: 革 (177)
+
+## 177.6
+
+// glyph han-2b588-($han-regions):15x16 15 16 // 𫖈
+// ⿱ han-7fbd-($-1) han-9769 // ⿱羽革
 
 # CJK unified ideographs extension C: 韋 (178)
 

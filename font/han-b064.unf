@@ -159,6 +159,9 @@ glyph han-22b0a:15x16 15 16 // 𢬊
 // glyph han-22b14:15x16 15 16 // 𢬔
 // ⿰ han-624c han-8840 // ⿰扌血
 
+// glyph han-22b19-($han-regions):15x16 15 16 // 𢬙
+// ⿱ han-7fbd-($-1) han-624b // ⿱羽手
+
 // glyph han-22b1b:15x16 15 16 // 𢬛
 // ⿲ han-624b han-4eba han-624b // ⿲手人手
 

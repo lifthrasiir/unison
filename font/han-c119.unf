@@ -174,6 +174,46 @@ glyph han-2b151:15x16 15 16 // 𫅑
 // glyph han-2b158:15x16 15 16 // 𫅘
 // ⿳ han-5409 han-8279 han-52a0 // ⿳吉艹加 <- ⿱吉茄
 
+# CJK unified ideographs extension C: 羽 (124)
+
+## 124.3
+
+glyph han-2b162-($han-regions):15x16 15 16 // 𫅢
+⿱ han-571f:15x5 1 han-7fbd-($-1):15x10 // ⿱土羽
+
+## 124.4
+
+// glyph han-2b163-($han-regions):15x16 15 16 // 𫅣
+// ⿺ han-5143 han-7fbd-($-1) // ⿺元羽
+
+## 124.5
+
+glyph han-2b164-($han-regions):15x16 15 16 // 𫅤
+⿰ han-7fbd-($-1):8x16 han-4ee4-($-1):7x16 // ⿰羽令
+
+## 124.6
+
+// glyph han-2b165-($han-regions):15x16 15 16 // 𫅥
+// ⿰ han-5c82 han-7fbd-($-1) // ⿰岂羽
+
+glyph han-2b167-($han-regions):15x16 15 16 // 𫅧
+⿰ han-7fbd-($-1):8x16 han-7f8a:7x16 // ⿰羽羊
+
+## 124.7
+
+// glyph han-2b168-($han-regions):15x16 15 16 // 𫅨
+// ⿱ han-7fbd-($-1) han-8eca // ⿱羽車
+
+## 124.8
+
+// glyph han-2b16a-($han-regions):15x16 15 16 // 𫅪
+// ⿱ han-7fbd-($-1) han-975e // ⿱羽非
+
+## 124.9
+
+// glyph han-2b16c-($han-regions):15x16 15 16 // 𫅬
+// ⿰ han-97f3 han-7fbd-($-1) // ⿰音羽
+
 # CJK unified ideographs extension C: 耳 (128)
 
 ## 128.4
@@ -408,6 +448,9 @@ glyph han-2b2a5:15x16 15 16 // 𫊥
 
 // glyph han-2b2ba:15x16 15 16 // 𫊺
 // ⿰ han-866b han-7cf8 // ⿰虫糸
+
+glyph han-2b2bc-($han-regions):15x16 15 16 // 𫊼
+⿱ han-7fbd-($-1):15x8 han-866b:15x8 // ⿱羽虫
 
 ## 142.7
 
@@ -646,6 +689,11 @@ glyph han-2b39e:15x16 15 16 // 𫎞
 
 // glyph han-2b3b5:15x16 15 16 // 𫎵
 // ⿺ han-8d70 han-514b // ⿺走克
+
+## 156.9
+
+// glyph han-2b3bb:15x16 15 16 // 𫎻
+// ⿺ han-8d70 han-661f // ⿺走星
 
 # CJK unified ideographs extension C: 足 (157)
 
