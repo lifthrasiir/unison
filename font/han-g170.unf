@@ -98,6 +98,9 @@ glyph han-31058-($han-regions):15x16 15 16 // 𱁘
 
 ## 177.6
 
+// glyph han-31074:15x16 15 16 // 𱁴
+// ⿰ han-9769 han-6bd5 // ⿰革毕
+
 // glyph han-31075:15x16 15 16 // 𱁵
 // ⿰ han-9769 han-8fb9 // ⿰革边
 
@@ -195,8 +198,8 @@ glyph han-310eb:15x16 15 16 // 𱃫
 
 ## 184.10
 
-// glyph han-310ec:15x16 15 16 // 𱃬
-// ⿰ han-98e0 han-54e5 // ⿰飠哥
+glyph han-310ec:15x16 15 16 // 𱃬
+⿰ han-98e0:7x16 1 han-54e5:7x16 // ⿰飠哥
 
 glyph han-310ed:15x16 15 16 // 𱃭
 ⿲ -4 han-98e0:7x16 han-6728:5x16 han-4ea4:7x16 // ⿲飠木交
@@ -229,8 +232,8 @@ glyph han-310ed:15x16 15 16 // 𱃭
 
 ## 187.9
 
-// glyph han-31127:15x16 15 16 // 𱄧
-// ⿰ han-99ac han-97f3 // ⿰馬音
+glyph han-31127:15x16 15 16 // 𱄧
+⿰ han-99ac:7x16 1 han-97f3:7x16 // ⿰馬音
 
 ## 187.10
 
@@ -290,6 +293,11 @@ glyph han-311a4:15x16 15 16 // 𱆤
 
 // glyph han-311a6:15x16 15 16 // 𱆦
 // ⿺ han-5df4 han-9b5a // ⿺巴魚
+
+## 195.6
+
+// glyph han-311ac:15x16 15 16 // 𱆬
+// ⿰ han-9b5a han-6bd5 // ⿰魚毕
 
 ## 195.7
 

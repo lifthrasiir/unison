@@ -55,11 +55,17 @@ glyph han-22d26:15x16 15 16 // 𢴦
 // glyph han-22d33:15x16 15 16 // 𢴳
 // ⿱ han-6e6f han-624b // ⿱湯手
 
+// glyph han-22d35:15x16 15 16 // 𢴵
+// ⿰ han-624c han-7131 // ⿰扌焱
+
 // glyph han-22d3d:15x16 15 16 // 𢴽
 // ⿰ han-624b han-582f // ⿰手堯
 
-// glyph han-22d3f:15x16 15 16 // 𢴿
-// ⿲ han-624c han-2099d han-6708 // ⿲扌𠦝月 <- ⿰扌朝
+glyph han-22d3f:15x16 15 16 // 𢴿
+⿲ han-624c:3x16 han-2099d:5x16 han-6708:7x16 // ⿲扌𠦝月
+
+// glyph han-22d44:15x16 15 16 // 𢵄
+// ⿰ han-624c han-3afa // ⿰扌㫺
 
 glyph han-22d4b-($han-regions):15x16 15 16 // 𢵋
 ⿲ han-624c:3x16 han-8005-($-1):7x16 1 han-961d:4x16-r // ⿲扌者阝
@@ -81,6 +87,9 @@ glyph han-22d5a:15x16 15 16 // 𢵚
 
 glyph han-22d70:15x16 15 16 // 𢵰
 ⿲ han-624c:3x16 han-7cf9:5x16 han-5408:7x16 // ⿲扌糹合
+
+// glyph han-22d73:15x16 15 16 // 𢵳
+// ⿰ han-624c han-68ee // ⿰扌森
 
 glyph han-22d7b-($han-regions):15x16 15 16 // 𢵻
 ⿲ han-624c:3x16 han-6c35:3x16 han-8005-($-1):9x16 // ⿲扌氵者
@@ -114,11 +123,17 @@ glyph han-22d96:15x16 15 16 // 𢶖
 // glyph han-22da4:15x16 15 16 // 𢶤
 // ⿰ han-624c han-9774 // ⿰扌靴
 
+// glyph han-22da5:15x16 15 16 // 𢶥
+// ⿰ han-624c han-6e96 // ⿰扌準
+
+// glyph han-22db2:15x16 15 16 // 𢶲
+// ⿰ han-624c han-6101 // ⿰扌愁
+
 // glyph han-22db6:15x16 15 16 // 𢶶
 // ⿰ han-624c han-610f // ⿰扌意
 
-// glyph han-22db9:15x16 15 16 // 𢶹
-// ⿲ han-624c han-65e5 han-97f3 // ⿲扌日音 <- ⿰扌暗
+glyph han-22db9:15x16 15 16 // 𢶹
+⿲ han-624c:3x16 han-65e5:5x16 han-97f3:7x16 // ⿲扌日音
 
 // glyph han-22dc3:15x16 15 16 // 𢷃
 // ⿰ han-624c han-9599 // ⿰扌閙
@@ -159,6 +174,9 @@ glyph han-22e2b:15x16 15 16 // 𢸫
 // glyph han-22e31:15x16 15 16 // 𢸱
 // ⿲ han-624c han-5774 han-708e // ⿲扌坴炎 <- ⿰扌燅
 
+// glyph han-22e46:15x16 15 16 // 𢹆
+// ⿲ han-624c han-8a01 han-7686 // ⿲扌訁皆
+
 ## 64.17
 
 glyph han-22e5b:15x16 15 16 // 𢹛
@@ -166,8 +184,8 @@ glyph han-22e5b:15x16 15 16 // 𢹛
 
 ## 64.18
 
-// glyph han-22e7b:15x16 15 16 // 𢹻
-// ⿲ han-624c han-7687 han-9801 // ⿲扌皇頁 <- ⿰扌𩔇
+glyph han-22e7b:15x16 15 16 // 𢹻
+⿲ -1 han-624c:3x16 han-7687:7x16 1 han-9801:5x16 // ⿲扌皇頁
 
 // glyph han-22e80:15x16 15 16 // 𢺀
 // ⿲ han-624c han-8a01 han-83ab // ⿲扌訁莫 <- ⿰扌謨

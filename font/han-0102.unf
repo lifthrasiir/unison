@@ -756,8 +756,8 @@ glyph han-75f0:15x16 15 16 // 痰
 // glyph han-75f1:15x16 15 16 // 痱
 // ⿸ han-7592 han-975e // ⿸疒非
 
-// glyph han-75f3:15x16 15 16 // 痳
-// ⿸ han-7592 han-6797 // ⿸疒林
+glyph han-75f3:15x16 15 16 // 痳
+⿸ han-7592:15x16.11x13 han-6797:11x12 4 4 // ⿸疒林
 
 // glyph han-75fa:15x16 15 16 // 痺
 // ⿸ han-7592 han-5351 // ⿸疒卑
@@ -1087,8 +1087,8 @@ glyph han-7684-k:15x16 15 16 // 的
 glyph han-7685:15x16 15 16 // 皅
 ⿰ han-767d:7x16 1 han-5df4:7x16 // ⿰白巴
 
-// glyph han-7686:15x16 15 16 // 皆
-// ⿱ han-6bd4 han-767d // ⿱比白
+glyph han-7686:15x16 15 16 // 皆
+⿱ han-6bd4:15x7 han-767d:15x9 // ⿱比白
 
 glyph han-7687:7x16 7 16 // 皇
 ⿱ han-767d:7x8 1 han-738b:7x7 // ⿱白王
@@ -1481,8 +1481,8 @@ glyph han-76c5:15x16 15 16 // 盅
 
 ## 108.8
 
-// glyph han-76df:15x16 15 16 // 盟
-// ⿱ han-660e han-76bf // ⿱明皿
+glyph han-76df:15x16 15 16 // 盟
+⿱ han-660e:15x10 1 han-76bf:15x5 // ⿱明皿
 
 ## 108.11
 
@@ -2089,6 +2089,12 @@ glyph han-77b5:15x16 15 16 // 瞵
 
 // glyph han-77bf:15x16 15 16 // 瞿
 // ⿱ han-4020 han-96b9 // ⿱䀠隹
+
+// glyph han-77c1:15x16 15 16 // 矁
+// ⿰ han-76ee han-6101 // ⿰目愁
+
+// glyph han-77c2:15x16 15 16 // 矂
+// ⿰ han-76ee han-55bf // ⿰目喿
 
 ## 109.18
 

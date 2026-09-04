@@ -190,6 +190,11 @@ glyph han-300f9:15x16 15 16 // 𰃹
 glyph han-300fa:15x16 15 16 // 𰃺
 ⿰ han-51ab:5x16 1 han-76ae:9x16 // ⿰冫皮
 
+## 15.6
+
+// glyph han-300fb:15x16 15 16 // 𰃻
+// ⿰ han-51ab han-6bd5 // ⿰冫毕
+
 ## 15.7
 
 glyph han-300fe:15x16 15 16 // 𰃾
@@ -281,6 +286,11 @@ glyph han-30139:15x16 15 16 // 𰄹
 
 // glyph han-3013b:15x16 15 16 // 𰄻
 // ⿰ han-9023 han-5202 // ⿰連刂
+
+## 18.12
+
+// glyph han-30140:15x16 15 16 // 𰅀
+// ⿰ han-5200 han-68ee // ⿰刀森
 
 # CJK unified ideographs extension G: 力 (19)
 
@@ -419,11 +429,11 @@ glyph han-301d7:15x16 15 16 // 𰇗
 // glyph han-301e9:15x16 15 16 // 𰇩
 // ⿱ han-8c9d han-53e3 // ⿱貝口
 
-// glyph han-301ea:15x16 15 16 // 𰇪
-// ⿱ han-5405 han-4e2d // ⿱吅中
+glyph han-301ea:15x16 15 16 // 𰇪
+⿱ -1 han-5405:15x5 han-4e2d:15x12 // ⿱吅中
 
-// glyph han-301eb:15x16 15 16 // 𰇫
-// ⿱ han-5405 han-5df4 // ⿱吅巴
+glyph han-301eb:15x16 15 16 // 𰇫
+⿱ -1 han-5405:15x5 han-5df4:15x12 // ⿱吅巴
 
 ## 30.8
 
@@ -552,8 +562,8 @@ glyph han-30262:15x16 15 16 // 𰉢
 
 ## 32.8
 
-// glyph han-3027c:15x16 15 16 // 𰉼
-// ⿱ han-670b han-571f // ⿱朋土
+glyph han-3027c:15x16 15 16 // 𰉼
+⿱ han-670b:15x11 han-571f:15x5 // ⿱朋土
 
 // glyph han-30280:15x16 15 16 // 𰊀
 // ⿱ han-59cb han-571f // ⿱始土
@@ -573,8 +583,8 @@ glyph han-30262:15x16 15 16 // 𰉢
 
 ## 32.11
 
-// glyph han-302a3:15x16 15 16 // 𰊣
-// ⿱ han-6de1 han-571f // ⿱淡土
+glyph han-302a3:15x16 15 16 // 𰊣
+⿱ han-6de1:15x12 han-571f:15x4 // ⿱淡土
 
 // glyph han-302a5:15x16 15 16 // 𰊥
 // ⿰ han-571f han-554f // ⿰土問
@@ -628,8 +638,8 @@ glyph han-302e3:15x16 15 16 // 𰋣
 
 ## 37.8
 
-// glyph han-302e7:15x16 15 16 // 𰋧
-// ⿱ han-708f han-5927 // ⿱炏大
+glyph han-302e7:15x16 15 16 // 𰋧
+⿱ han-708f:15x8 han-5927:15x8 // ⿱炏大
 
 ## 37.9
 
@@ -646,6 +656,9 @@ glyph han-302e3:15x16 15 16 // 𰋣
 
 glyph han-302ed:15x16 15 16 // 𰋭
 ⿳ -6 han-5929:15x8 han-65e5:15x5 han-751f:15x9 // ⿳天日生
+
+// glyph han-302ee:15x16 15 16 // 𰋮
+// ⿱ han-5929 han-4e79 // ⿱天乹
 
 # CJK unified ideographs extension G: 女 (38)
 
@@ -665,6 +678,9 @@ glyph han-302fa:15x16 15 16 // 𰋺
 ⿰ han-5973:5x16-l 1 han-706b:9x16 // ⿰女火
 
 ## 38.6
+
+// glyph han-302fe:15x16 15 16 // 𰋾
+// ⿰ han-5973 han-6bd5 // ⿰女毕
 
 // glyph han-302ff:15x16 15 16 // 𰋿
 // ⿰ han-5973 han-767e // ⿰女百

@@ -219,8 +219,8 @@ glyph han-2496d:15x16 15 16 // 𤥭
 // glyph han-24985:15x16 15 16 // 𤦅
 // ⿱ han-975e han-738b // ⿱非王
 
-// glyph han-24989:15x16 15 16 // 𤦉
-// ⿱ han-660d han-738b // ⿱昍王
+glyph han-24989:15x16 15 16 // 𤦉
+⿱ han-660d:15x10 1 han-738b:15x5 // ⿱昍王
 
 // glyph han-2498a:15x16 15 16 // 𤦊
 // ⿰ han-248e9 han-6c93 // ⿰𤣩沓
@@ -326,6 +326,9 @@ glyph han-24a27:15x16 15 16 // 𤨧
 
 // glyph han-24a3c:15x16 15 16 // 𤨼
 // ⿰ han-7389 han-7ae0 // ⿰玉章
+
+// glyph han-24a3e:15x16 15 16 // 𤨾
+// ⿰ han-248e9 han-5d11 // ⿰𤣩崑
 
 ## 96.12
 

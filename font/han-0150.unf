@@ -388,6 +388,11 @@ ref han-9fb0:15x16
 // glyph han-8dac:15x16 15 16 // 趬
 // ⿺ han-8d70 han-582f // ⿺走堯
 
+## 156.13
+
+// glyph han-8dae:15x16 15 16 // 趮
+// ⿺ han-8d70 han-55bf // ⿺走喿
+
 # CJK unified ideographs: 足 (157)
 
 ## 157.0
@@ -587,6 +592,9 @@ glyph han-8df3:15x16 15 16 // 跳
 // glyph han-8df6-($han-regions):15x16 15 16 // 跶
 // ⿰ han-27fb7 han-8fbe-($-1) // ⿰𧾷达
 
+// glyph han-8df8:15x16 15 16 // 跸
+// ⿰ han-27fb7 han-6bd5 // ⿰𧾷毕
+
 ## 157.7
 
 // glyph han-8dfd:15x16 15 16 // 跽
@@ -692,6 +700,9 @@ glyph han-8e5e:15x16 15 16 // 蹞
 // glyph han-8e65:15x16 15 16 // 蹥
 // ⿰ han-27fb7 han-9023 // ⿰𧾷連
 
+// glyph han-8e66:15x16 15 16 // 蹦
+// ⿰ han-27fb7 han-5d29 // ⿰𧾷崩
+
 ## 157.12
 
 glyph han-8e6f:15x16 15 16 // 蹯
@@ -707,6 +718,9 @@ glyph han-8e7b:15x16 15 16 // 蹻
 ⿰ han-27fb7:5x16 1 han-55ac:9x16 // ⿰𧾷喬
 
 ## 157.13
+
+// glyph han-8e81:15x16 15 16 // 躁
+// ⿰ han-27fb7 han-55bf // ⿰𧾷喿
 
 // glyph han-8e83:15x16 15 16 // 躃
 // ⿲ han-27fb7 han-21c2a han-8f9b // ⿲𧾷𡰪辛 <- ⿰𧾷辟

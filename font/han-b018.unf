@@ -211,7 +211,16 @@ glyph han-207cb:15x16 15 16 // 𠟋
 // glyph han-207cc:15x16 15 16 // 𠟌
 // ⿰ han-83e9 han-5202 // ⿰菩刂
 
+// glyph han-207cf:15x16 15 16 // 𠟏
+// ⿰ han-3afa han-5202 // ⿰㫺刂
+
+// glyph han-207e1:15x16 15 16 // 𠟡
+// ⿰ han-7131 han-5202 // ⿰焱刂
+
 ## 18.13
+
+// glyph han-207ef:15x16 15 16 // 𠟯
+// ⿰ han-55bf han-5200 // ⿰喿刀
 
 glyph han-207f8:15x16 15 16 // 𠟸
 ⿲ han-8a01:5x16 han-5409:7x16 han-5202:3x16 // ⿲訁吉刂

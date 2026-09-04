@@ -138,6 +138,9 @@ glyph han-211cc:15x16 15 16 // 𡇌
 // glyph han-21226:15x16 15 16 // 𡈦
 // ⿴ han-56d7 han-582f // ⿴囗堯
 
+// glyph han-21228:15x16 15 16 // 𡈨
+// ⿴ han-56d7 han-35ca // ⿴囗㗊
+
 # CJK unified ideographs extension B: 土 (32)
 
 ## 32.1
@@ -323,8 +326,8 @@ glyph han-212c0:15x16 15 16 // 𡋀
 // glyph han-212c9:15x16 15 16 // 𡋉
 // ⿰ han-571f han-7a75 // ⿰土穵
 
-// glyph han-212d0:15x16 15 16 // 𡋐
-// ⿱ han-5405 han-571f // ⿱吅土
+glyph han-212d0:15x16 15 16 // 𡋐
+⿱ -1 han-5405:15x5 han-571f:15x12 // ⿱吅土
 
 // glyph han-212d2:15x16 15 16 // 𡋒
 // ⿰ han-571f han-8840 // ⿰土血
@@ -446,8 +449,8 @@ glyph han-2136b:15x16 15 16 // 𡍫
 // glyph han-21375:15x16 15 16 // 𡍵
 // ⿱ han-9656 han-571f // ⿱陖土
 
-// glyph han-21378:15x16 15 16 // 𡍸
-// ⿳ han-53e3 han-5405 han-571f // ⿳口吅土 <- ⿱品土
+glyph han-21378:15x16 15 16 // 𡍸
+⿳ han-53e3:15x4 han-5405:15x7 han-571f:15x5 // ⿳口吅土
 
 glyph han-21381:15x16 15 16 // 𡎁
 ⿲ han-571f:3x16-l han-53e4:7x16 han-6708:5x16 // ⿲土古月
@@ -526,6 +529,9 @@ glyph han-2143e:15x16 15 16 // 𡐾
 
 // glyph han-21451:15x16 15 16 // 𡑑
 // ⿱ han-6e6f han-571f // ⿱湯土
+
+// glyph han-21453:15x16 15 16 // 𡑓
+// ⿰ han-571f han-68ee // ⿰土森
 
 glyph han-2145d:15x16 15 16 // 𡑝
 ⿰ han-571f:5x16-l 1 han-7ca6:9x16 // ⿰土粦

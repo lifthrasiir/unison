@@ -93,8 +93,8 @@ glyph han-2b7bb:15x16 15 16 // 𫞻
 
 ## 118.9
 
-// glyph han-2b7be:15x16 15 16 // 𫞾
-// ⿳ han-25ad7 han-7530 han-6bd4 // ⿳𥫗田比 <- ⿱𥫗毘
+glyph han-2b7be:15x16 15 16 // 𫞾
+⿳ -1 han-25ad7:15x5 han-7530:15x5 han-6bd4:15x7 // ⿳𥫗田比
 
 # CJK unified ideographs extension D: 艸 (140)
 

@@ -180,8 +180,8 @@ glyph han-205dc:15x16 15 16 // 𠗜
 
 ## 15.9
 
-// glyph han-205e5:15x16 15 16 // 𠗥
-// ⿰ han-51ab han-97f3 // ⿰冫音
+glyph han-205e5:15x16 15 16 // 𠗥
+⿰ han-51ab:5x16 1 han-97f3:9x16 // ⿰冫音
 
 glyph han-205e7:15x16 15 16 // 𠗧
 ⿲ han-51ab:3x16 han-8c9d:6x16 1 han-5202:5x16 // ⿲冫貝刂
@@ -199,6 +199,11 @@ glyph han-205fd:15x16 15 16 // 𠗽
 
 // glyph han-20601:15x16 15 16 // 𠘁
 // ⿲ han-51ab han-5485 han-961d // ⿲冫咅阝 <- ⿰冫部
+
+## 15.12
+
+// glyph han-20606:15x16 15 16 // 𠘆
+// ⿰ han-51ab han-68ee // ⿰冫森
 
 ## 15.13
 

@@ -169,6 +169,9 @@ glyph han-2991c-($han-regions):15x16 15 16 // 𩤜
 glyph han-2991f:15x16 15 16 // 𩤟
 ⿰ han-99ac:7x16 1 han-661c:7x16 // ⿰馬昜
 
+// glyph han-29920:15x16 15 16 // 𩤠
+// ⿰ han-99ac han-7686 // ⿰馬皆
+
 // glyph han-29924:15x16 15 16 // 𩤤
 // ⿰ han-9762 han-99ac // ⿰面馬
 
@@ -205,6 +208,9 @@ glyph han-2992e:15x16 15 16 // 𩤮
 
 glyph han-2996d:15x16 15 16 // 𩥭
 ⿰ han-99ac:7x16 1 han-9b5a:7x16 // ⿰馬魚
+
+// glyph han-2997a:15x16 15 16 // 𩥺
+// ⿰ han-99ac han-3f5e // ⿰馬㽞
 
 ## 187.12
 
@@ -344,6 +350,9 @@ glyph han-29a67:15x16 15 16 // 𩩧
 
 ## 188.9
 
+// glyph han-29a70:15x16 15 16 // 𩩰
+// ⿰ han-9aa8 han-7686 // ⿰骨皆
+
 glyph han-29a72:15x16 15 16 // 𩩲
 ⿰ han-9aa8:7x16 han-66f7:8x16 // ⿰骨曷
 
@@ -353,8 +362,8 @@ glyph han-29a78:15x16 15 16 // 𩩸
 // glyph han-29a7a:15x16 15 16 // 𩩺
 // ⿰ han-9aa8 han-6cc9 // ⿰骨泉
 
-// glyph han-29a7f:15x16 15 16 // 𩩿
-// ⿰ han-9aa8 han-97f3 // ⿰骨音
+glyph han-29a7f:15x16 15 16 // 𩩿
+⿰ han-9aa8:7x16 1 han-97f3:7x16 // ⿰骨音
 
 ## 188.10
 
@@ -373,8 +382,8 @@ glyph han-29a8a:15x16 15 16 // 𩪊
 
 ## 188.13
 
-// glyph han-29aa2:15x16 15 16 // 𩪢
-// ⿲ han-9aa8 han-97f3 han-6b20 // ⿲骨音欠 <- ⿰骨歆
+glyph han-29aa2:15x16 15 16 // 𩪢
+⿲ -6 han-9aa8:7x16 han-97f3:7x16 han-6b20:7x16 // ⿲骨音欠
 
 // glyph han-29aa3:15x16 15 16 // 𩪣
 // ⿰ han-9aa8 han-610f // ⿰骨意

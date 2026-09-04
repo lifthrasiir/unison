@@ -387,6 +387,9 @@ glyph han-5a67-(j|k|p):15x16 15 16 // 婧
 // glyph han-5a6a:15x16 15 16 // 婪
 // ⿱ han-6797 han-5973 // ⿱林女
 
+// glyph han-5a6b:15x16 15 16 // 婫
+// ⿰ han-5973 han-6606 // ⿰女昆
+
 // glyph han-5a6e:15x16 15 16 // 婮
 // ⿰ han-5973 han-5c45 // ⿰女居
 
@@ -424,6 +427,9 @@ glyph han-5a93:15x16 15 16 // 媓
 
 // glyph han-5a94:15x16 15 16 // 媔
 // ⿰ han-5973 han-9762 // ⿰女面
+
+// glyph han-5a98:15x16 15 16 // 媘
+// ⿰ han-5973 han-7686 // ⿰女皆
 
 // glyph han-5a9d:15x16 15 16 // 媝
 // ⿱ han-79cb han-5973 // ⿱秋女
@@ -513,6 +519,12 @@ glyph han-5b0f:15x16 15 16 // 嬏
 
 // glyph han-5b11:15x16 15 16 // 嬑
 // ⿰ han-5973 han-610f // ⿰女意
+
+// glyph han-5b1c:15x16 15 16 // 嬜
+// ⿱ han-6b46 han-5973 // ⿱歆女
+
+// glyph han-5b20:15x16 15 16 // 嬠
+// ⿰ han-5973 han-55bf // ⿰女喿
 
 ## 38.14
 

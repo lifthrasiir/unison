@@ -89,10 +89,15 @@ is the whole of the name grammar this reads; it is Unison's own convention and
 nothing outside this script depends on it.
 
 A line the parts cannot lay out yet is emitted commented out (`// glyph …`), so
-that nothing is lost and nothing unbuildable is added either: either because its
-parts are drawn at no size that tiles the box (`--ignore-box` writes it anyway),
-or because the only parts it has are themselves composites
-(`--include-composite-parts`).
+that nothing is lost and nothing unbuildable is added either: its parts are drawn
+at no size that tiles the box (`--ignore-box` writes it anyway).
+
+A part that is itself a composite is *not* such a reason. A composite drawing is
+a drawing: the line has something to place, and an IDC line is routinely the
+thing a hand then `Inline once`s to adjust. What the hand-drawn/composite
+distinction is for here is the *other* question -- whether a part is a box to be
+reopened, which is `Inventory.pixel_drawn` and `candidates`, and is asked
+separately.
 
 An *inlined* line is the exception, and is held only to its own parts: whether
 their smallest drawings add up to the box is not asked, since that total is not
@@ -1467,8 +1472,6 @@ def main() -> int:
     ap.add_argument("--limit", type=int, default=0, help="stop after N new glyphs")
     ap.add_argument("--allow-ivi", action="store_true",
                     help="also use sequences marked 〾 (a component differs in some minor way)")
-    ap.add_argument("--include-composite-parts", action="store_true",
-                    help="write composite-part glyphs uncommented as well")
     ap.add_argument("--no-inline", action="store_true",
                     help="do not rewrite a same-axis nested operand into ⿲/⿳")
     ap.add_argument("--inline", action="count", default=0,
@@ -1597,8 +1600,6 @@ def main() -> int:
             continue
 
         holds = []
-        if verdict.kind == "composite" and not args.include_composite_parts:
-            holds.append("composite parts")
         if not verdict.fits and not args.ignore_box:
             # What the parts fell short of is the operator's to say: a split's
             # parts have to tile the box, an enclosure's have to be a cavity and

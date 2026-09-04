@@ -105,8 +105,8 @@ glyph han-6b3d:15x16 15 16 // 欽
 // glyph han-6b45:15x16 15 16 // 歅
 // ⿰ han-5794 han-6b20 // ⿰垔欠
 
-// glyph han-6b46:15x16 15 16 // 歆
-// ⿰ han-97f3 han-6b20 // ⿰音欠
+glyph han-6b46:15x16 15 16 // 歆
+⿰ han-97f3:7x16 1 han-6b20:7x16 // ⿰音欠
 
 glyph han-6b47:15x16 15 16 // 歇
 ⿰ han-66f7:8x16 han-6b20:7x16 // ⿰曷欠
@@ -119,8 +119,13 @@ glyph han-6b48:15x16 15 16 // 歈
 glyph han-6b4a:15x16 15 16 // 歊
 ⿰ han-9ad8:7x16 1 han-6b20:7x16 // ⿰高欠
 
-// glyph han-6b4c:15x16 15 16 // 歌
-// ⿰ han-54e5 han-6b20 // ⿰哥欠
+glyph han-6b4c:15x16 15 16 // 歌
+⿰ han-54e5:7x16 1 han-6b20:7x16 // ⿰哥欠
+
+## 76.12
+
+// glyph han-6b58:15x16 15 16 // 歘
+// ⿰ han-7131 han-6b20 // ⿰焱欠
 
 ## 76.18
 
@@ -632,10 +637,19 @@ glyph han-6b6b:15x16 15 16 // 歫
 // glyph han-6b6e:15x16 15 16 // 歮
 // ⿱ han-6b62 han-23956 // ⿱止𣥖
 
+## 77.10
+
+// glyph han-6b74:15x16 15 16 // 歴
+// ⿸ han-20a75 han-6b62 // ⿸𠩵止
+
 # CJK unified ideographs: 比 (81)
 
 ## 81.0
 
+glyph han-6bd4:15x7 15 7 // 比
+⿰ han-5315:7x7 1 han-5315:7x7 // ⿰匕匕
+glyph han-6bd4:15x8 15 8 // 比
+⿰ han-5315:7x8 1 han-5315:7x8 // ⿰匕匕
 glyph han-6bd4:15x12 15 12 // 比
 ⿰ han-5315:7x12 1 han-5315:7x12 // ⿰匕匕
 glyph han-6bd4:15x16 15 16 // 比
@@ -643,16 +657,16 @@ glyph han-6bd4:15x16 15 16 // 比
 
 ## 81.2
 
-// glyph han-6bd5:15x16 15 16 // 毕
-// ⿱ han-6bd4 han-5341 // ⿱比十
+glyph han-6bd5:15x16 15 16 // 毕
+⿱ han-6bd4:15x12 1 han-5341:15x3 // ⿱比十
 
 ## 81.5
 
 glyph han-6bd7:15x16 15 16 // 毗
 ⿲ han-7530:5x16-l 1 han-5315:4x16 1 han-5315:4x16 // ⿲田匕匕
 
-// glyph han-6bd8:15x16 15 16 // 毘
-// ⿱ han-7530 han-6bd4 // ⿱田比
+glyph han-6bd8:15x16 15 16 // 毘
+⿱ han-7530:15x9 han-6bd4:15x7 // ⿱田比
 
 # CJK unified ideographs: 毛 (82)
 
@@ -844,8 +858,8 @@ ref 13x2-ys1 1 9
 
 ## 82.4
 
-// glyph han-6bde:15x16 15 16 // 毞
-// ⿱ han-6bd4 han-6bdb // ⿱比毛
+glyph han-6bde:15x16 15 16 // 毞
+⿱ han-6bd4:15x7 han-6bdb:15x9 // ⿱比毛
 
 ## 82.5
 
@@ -909,6 +923,11 @@ glyph han-6bfc:15x16 15 16 // 毼
 
 // glyph han-6c01:15x16 15 16 // 氁
 // ⿺ han-6bdb han-83ab // ⿺毛莫
+
+## 82.13
+
+// glyph han-6c09:15x16 15 16 // 氉
+// ⿰ han-55bf han-6bdb // ⿰喿毛
 
 # CJK unified ideographs: 氏 (83)
 

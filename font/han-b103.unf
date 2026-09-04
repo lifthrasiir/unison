@@ -265,6 +265,12 @@ glyph han-24e06:15x16 15 16 // 𤸆
 // glyph han-24e68:15x16 15 16 // 𤹨
 // ⿸ han-7592 han-9023 // ⿸疒連
 
+// glyph han-24e73:15x16 15 16 // 𤹳
+// ⿸ han-75f3 han-5c71 // ⿸痳山
+
+// glyph han-24e74:15x16 15 16 // 𤹴
+// ⿸ han-75f3 han-5973 // ⿸痳女
+
 // glyph han-24e77:15x16 15 16 // 𤹷
 // ⿸ han-7592 han-9ce5 // ⿸疒鳥
 
@@ -285,8 +291,17 @@ glyph han-24e06:15x16 15 16 // 𤸆
 // glyph han-24e9b:15x16 15 16 // 𤺛
 // ⿸ han-7592 han-9591 // ⿸疒閑
 
+// glyph han-24ea2:15x16 15 16 // 𤺢
+// ⿸ han-7592 han-68ee // ⿸疒森
+
+// glyph han-24ea3:15x16 15 16 // 𤺣
+// ⿸ han-75f3 han-706c // ⿸痳灬
+
 // glyph han-24eb0:15x16 15 16 // 𤺰
 // ⿸ han-7592 han-6b3d // ⿸疒欽
+
+// glyph han-24eb5:15x16 15 16 // 𤺵
+// ⿸ han-7592 han-5591 // ⿸疒喑
 
 // glyph han-24eb9:15x16 15 16 // 𤺹
 // ⿸ han-7592 han-967d // ⿸疒陽
@@ -308,6 +323,9 @@ glyph han-24e06:15x16 15 16 // 𤸆
 // glyph han-24ecd:15x16 15 16 // 𤻍
 // ⿸ han-7592 han-6b48 // ⿸疒歈
 
+// glyph han-24ed0:15x16 15 16 // 𤻐
+// ⿸ han-7592 han-6b46 // ⿸疒歆
+
 // glyph han-24ed2:15x16 15 16 // 𤻒
 // ⿸ han-7592 han-788e // ⿸疒碎
 
@@ -315,6 +333,9 @@ glyph han-24e06:15x16 15 16 // 𤸆
 
 // glyph han-24ed5:15x16 15 16 // 𤻕
 // ⿸ han-7592 han-7dad // ⿸疒維
+
+// glyph han-24eda:15x16 15 16 // 𤻚
+// ⿸ han-75f3 han-8089 // ⿸痳肉
 
 // glyph han-24eea:15x16 15 16 // 𤻪
 // ⿸ han-7592 han-9700 // ⿸疒需
@@ -329,10 +350,16 @@ glyph han-24e06:15x16 15 16 // 𤸆
 // glyph han-24f00:15x16 15 16 // 𤼀
 // ⿸ han-7592 han-7a4c // ⿸疒穌
 
+// glyph han-24f05:15x16 15 16 // 𤼅
+// ⿸ han-7592 han-5668 // ⿸疒器
+
 ## 104.18
 
 // glyph han-24f10:15x16 15 16 // 𤼐
 // ⿸ han-7592 han-96da // ⿸疒雚
+
+// glyph han-24f11:15x16 15 16 // 𤼑
+// ⿸ han-75f3 han-9aa8 // ⿸痳骨
 
 ## 104.22
 

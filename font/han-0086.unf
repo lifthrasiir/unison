@@ -491,8 +491,8 @@ glyph han-70c4:15x16 15 16 // 烄
 glyph han-70ca:15x16 15 16 // 烊
 ⿰ han-706b:7x16 1 han-7f8a:7x16 // ⿰火羊
 
-// glyph han-70cb:15x16 15 16 // 烋
-// ⿱ han-4f11 han-706c // ⿱休灬
+glyph han-70cb:15x16 15 16 // 烋
+⿱ han-4f11:15x12 han-706c:15x4 // ⿱休灬
 
 glyph han-70cc:15x16 15 16 // 烌
 ⿲ han-706b:5x16 han-4ebb:3x16 han-6728:7x16 // ⿲火亻木
@@ -581,6 +581,9 @@ glyph han-711a:15x16 15 16 // 焚
 glyph han-711b:15x16 15 16 // 焛
 ⿵ han-9580:15x16.13x11 han-706b:11x10 2 6 // ⿵門火
 
+// glyph han-711c:15x16 15 16 // 焜
+// ⿰ han-706b han-6606 // ⿰火昆
+
 glyph han-7120:15x16 15 16 // 焠
 ⿰ han-706b:7x16 1 han-5352:7x16 // ⿰火卒
 
@@ -593,8 +596,8 @@ glyph han-7129:15x16 15 16 // 焩
 glyph han-712e:15x16 15 16 // 焮
 ⿲ -3 han-706b:5x16 han-65a4:6x16 han-6b20:7x16 // ⿲火斤欠
 
-// glyph han-7131:15x16 15 16 // 焱
-// ⿱ han-706b han-708f // ⿱火炏
+glyph han-7131:15x16 15 16 // 焱
+⿱ han-706b:15x6 1 han-708f:15x8 // ⿱火炏
 
 glyph han-7133:15x16 15 16 // 焳
 ⿰ han-706b:5x16 1 han-96b9:9x16 // ⿰火隹
@@ -679,6 +682,9 @@ glyph han-7169:15x16 15 16 // 煩
 glyph han-716c:15x16 15 16 // 煬
 ⿰ han-706b:5x16 han-661c:9x16 // ⿰火昜
 
+// glyph han-716f:15x16 15 16 // 煯
+// ⿰ han-706b han-7686 // ⿰火皆
+
 // glyph han-7170:15x16 15 16 // 煰
 // ⿰ han-706b han-54c1 // ⿰火品
 
@@ -719,6 +725,9 @@ glyph han-719b:15x16 15 16 // 熛
 glyph han-71ae:15x16 15 16 // 熮
 ⿰ han-706b:5x16 1 han-7fcf:9x16 // ⿰火翏
 
+// glyph han-71b4:15x16 15 16 // 熴
+// ⿰ han-706b han-5d11 // ⿰火崑
+
 glyph han-9fbd:15x16 15 16 // 龽
 ⿰ han-706b:7x16 1 han-9b5a:7x16 // ⿰火魚
 
@@ -730,8 +739,8 @@ glyph han-9fbd:15x16 15 16 // 龽
 glyph han-71c6:15x16 15 16 // 燆
 ⿰ han-706b:5x16 han-55ac:9x16 // ⿰火喬
 
-// glyph han-71ca:15x16 15 16 // 燊
-// ⿳ han-706b han-708f han-6728 // ⿳火炏木 <- ⿱焱木
+glyph han-71ca:15x16 15 16 // 燊
+⿳ -4 han-706b:15x5 han-708f:15x8 han-6728:15x7 // ⿳火炏木
 
 glyph han-71cd:15x16 15 16 // 燍
 ⿲ -2 han-706b:5x16 han-5176:6x16 han-65a4:6x16 // ⿲火其斤
@@ -755,6 +764,9 @@ glyph han-71da:15x16 15 16 // 燚
 ⿱ han-708f:15x8 han-708f:15x8 // ⿱炏炏
 
 ## 86.13
+
+// glyph han-71e5:15x16 15 16 // 燥
+// ⿰ han-706b han-55bf // ⿰火喿
 
 // glyph han-71f1:15x16 15 16 // 燱
 // ⿰ han-706b han-610f // ⿰火意

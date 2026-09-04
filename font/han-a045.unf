@@ -409,8 +409,8 @@ glyph han-390b:15x16 15 16 // 㤋
 glyph han-390c:15x16 15 16 // 㤌
 ⿰ han-5fc4:5x16 1 han-7518:9x16 // ⿰忄甘
 
-// glyph han-390e:15x16 15 16 // 㤎
-// ⿱ han-52a0 han-5fc3 // ⿱加心
+glyph han-390e:15x16 15 16 // 㤎
+⿱ han-52a0:15x11 han-5fc3:15x5 // ⿱加心
 
 glyph han-3910:15x16 15 16 // 㤐
 ⿱ han-5360:15x9 1 han-5fc3:15x6 // ⿱占心
@@ -767,8 +767,8 @@ glyph han-3af5:15x16 15 16 // 㫵
 glyph han-3af7:15x16 15 16 // 㫷
 ⿱ han-5176:15x10 1 han-65e5:15x5 // ⿱其日
 
-// glyph han-3afa:15x16 15 16 // 㫺
-// ⿳ han-4ece han-4ece han-65e5 // ⿳从从日 <- ⿱𠈌日
+glyph han-3afa:15x16 15 16 // 㫺
+⿳ han-4ece:15x5 han-4ece:15x5 1 han-65e5:15x5 // ⿳从从日
 
 glyph han-3aff:15x16 15 16 // 㫿
 ⿰ han-65e5:6x16 han-96b9:9x16 // ⿰日隹

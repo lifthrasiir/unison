@@ -2,6 +2,9 @@
 
 ## 30.13
 
+// glyph han-20fc8:15x16 15 16 // 𠿈
+// ⿰ han-53e3 han-6101 // ⿰口愁
+
 // glyph han-20fd0:15x16 15 16 // 𠿐
 // ⿰ han-53e3 han-3b05 // ⿰口㬅
 
@@ -28,6 +31,9 @@ glyph han-20fed:15x16 15 16 // 𠿭
 
 glyph han-20fee:15x16 15 16 // 𠿮
 ⿲ -2 han-53e3:3x16-l han-98e0:7x16 han-6b20:7x16 // ⿲口飠欠
+
+// glyph han-20ff6:15x16 15 16 // 𠿶
+// ⿰ han-53e3 han-6e96 // ⿰口準
 
 // glyph han-20ff7:15x16 15 16 // 𠿷
 // ⿰ han-53e3 han-9599 // ⿰口閙
@@ -102,6 +108,9 @@ glyph han-21084:15x16 15 16 // 𡂄
 
 ## 30.15
 
+// glyph han-2109f:15x16 15 16 // 𡂟
+// ⿰ han-55bf han-5305 // ⿰喿包
+
 // glyph han-210a8:15x16 15 16 // 𡂨
 // ⿲ han-5415 han-81e3 han-5415 // ⿲吕臣吕
 
@@ -137,8 +146,8 @@ glyph han-210d8:15x16 15 16 // 𡃘
 
 ## 30.16
 
-// glyph han-210f7:15x16 15 16 // 𡃷
-// ⿳ han-5405 han-96e8 han-7530 // ⿳吅雨田 <- ⿱吅雷
+glyph han-210f7-($han-regions):15x16 15 16 // 𡃷
+⿳ -1 han-5405:15x5 han-96e8-($-1):15x6 1 han-7530:15x5 // ⿳吅雨田
 
 // glyph han-210f8:15x16 15 16 // 𡃸
 // ⿱ han-5472 han-9ce5 // ⿱呲鳥

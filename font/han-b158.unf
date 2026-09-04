@@ -172,8 +172,8 @@ glyph han-28340:15x16 15 16 // 𨍀
 glyph han-2834a:15x16 15 16 // 𨍊
 ⿲ han-8eca:5x16 han-79be:5x16 han-706b:5x16 // ⿲車禾火
 
-// glyph han-28351:15x16 15 16 // 𨍑
-// ⿰ han-8eca han-97f3 // ⿰車音
+glyph han-28351:15x16 15 16 // 𨍑
+⿰ han-8eca:5x16 1 han-97f3:9x16 // ⿰車音
 
 // glyph han-28355:15x16 15 16 // 𨍕
 // ⿰ han-8eca han-67bc // ⿰車枼

@@ -35,8 +35,8 @@ glyph han-2627c:15x16 15 16 // 𦉼
 
 ## 122.4
 
-// glyph han-26281:15x16 15 16 // 𦊁
-// ⿱ han-7f52 han-6bd4 // ⿱罒比
+glyph han-26281:15x16 15 16 // 𦊁
+⿱ han-7f52:15x4 han-6bd4:15x12 // ⿱罒比
 
 // glyph han-26283:15x16 15 16 // 𦊃
 // ⿱ han-7f52 han-4eca // ⿱罒今
@@ -122,8 +122,8 @@ glyph han-262bc:15x16 15 16 // 𦊼
 glyph han-262c1:15x16 15 16 // 𦋁
 ⿳ han-7f52:15x4 1 han-65e5:15x5 1 han-5e72:15x5 // ⿳罒日干
 
-// glyph han-262c2:15x16 15 16 // 𦋂
-// ⿱ han-7f52 han-65f6 // ⿱罒时
+glyph han-262c2:15x16 15 16 // 𦋂
+⿱ han-7f52:15x3 1 han-65f6:15x12 // ⿱罒时
 
 // glyph han-262d1:15x16 15 16 // 𦋑
 // ⿳ han-7f51 han-4e0d han-53e3 // ⿳网不口
@@ -188,8 +188,8 @@ glyph han-262e1:15x16 15 16 // 𦋡
 glyph han-262f3:15x16 15 16 // 𦋳
 ⿳ han-7f52:15x4 1 han-7f52:15x4 1 han-6b63:15x6 // ⿳罒罒正
 
-// glyph han-262fa:15x16 15 16 // 𦋺
-// ⿱ han-7f52 han-5261 // ⿱罒剡
+glyph han-262fa:15x16 15 16 // 𦋺
+⿱ han-7f52:15x4 han-5261:15x12 // ⿱罒剡
 
 // glyph han-262fb:15x16 15 16 // 𦋻
 // ⿱ han-7f51 han-99ac // ⿱网馬
@@ -333,6 +333,9 @@ glyph han-2638e:15x16 15 16 // 𦎎
 // glyph han-263a3:15x16 15 16 // 𦎣
 // ⿰ han-7f8a han-5794 // ⿰羊垔
 
+// glyph han-263a5:15x16 15 16 // 𦎥
+// ⿰ han-7f8a han-7686 // ⿰羊皆
+
 glyph han-263aa:15x16 15 16 // 𦎪
 ⿰ han-7f8a:7x16 1 han-661c:7x16 // ⿰羊昜
 
@@ -362,3 +365,8 @@ glyph han-263b0:15x16 15 16 // 𦎰
 
 // glyph han-263cc:15x16 15 16 // 𦏌
 // ⿰ han-7f8a han-264d4 // ⿰羊𦓔
+
+## 123.13
+
+// glyph han-263db:15x16 15 16 // 𦏛
+// ⿰ han-7f8a han-55bf // ⿰羊喿

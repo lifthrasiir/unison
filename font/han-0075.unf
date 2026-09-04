@@ -476,8 +476,8 @@ glyph han-6786:15x16 15 16 // 枆
 glyph han-6787:15x16 15 16 // 枇
 ⿲ han-6728:5x16 han-5315:5x16 han-5315:5x16 // ⿲木匕匕
 
-// glyph han-6788:15x16 15 16 // 枈
-// ⿱ han-6bd4 han-6728 // ⿱比木
+glyph han-6788:15x16 15 16 // 枈
+⿱ han-6bd4:15x7 han-6728:15x9 // ⿱比木
 
 glyph han-6789:15x16 15 16 // 枉
 ⿰ han-6728:5x16 1 han-738b:9x16 // ⿰木王
@@ -821,6 +821,9 @@ glyph han-688f-(g|t|k|p|v):15x16 15 16 // 梏
 glyph han-688f-(h|j):15x16 15 16 // 梏
 ⿰ han-6728:7x16 han-543f:8x16 // ⿰木吿
 
+// glyph han-6890:15x16 15 16 // 梐
+// ⿰ han-6728 han-5752 // ⿰木坒
+
 glyph han-6891:15x16 15 16 // 梑
 ⿲ han-6728:5x16 han-72ad:4x16 1 han-706b:5x16 // ⿲木犭火
 
@@ -859,8 +862,8 @@ glyph han-68ad:15x16 15 16 // 梭
 glyph han-68b8:15x16 15 16 // 梸
 ⿲ han-6728:5x16 han-79be:5x16 han-5202:5x16 // ⿲木禾刂
 
-// glyph han-68ba:15x16 15 16 // 梺
-// ⿱ han-6797 han-4e0b // ⿱林下
+glyph han-68ba:15x16 15 16 // 梺
+⿱ han-6797:15x11 han-4e0b:15x5 // ⿱林下
 
 glyph han-68bb:15x16 15 16 // 梻
 ⿲ -2 han-6728:5x16 han-4ebb:3x16 han-5f17:9x16 // ⿲木亻弗
@@ -884,6 +887,9 @@ glyph han-68c8-(j|k):15x16 15 16 // 棈
 glyph han-68cb:15x16 15 16 // 棋
 ⿰ han-6728:7x16 han-5176:8x16 // ⿰木其
 
+// glyph han-68cd:15x16 15 16 // 棍
+// ⿰ han-6728 han-6606 // ⿰木昆
+
 // glyph han-68d0:15x16 15 16 // 棐
 // ⿱ han-975e han-6728 // ⿱非木
 
@@ -905,8 +911,8 @@ glyph han-68da:15x16 15 16 // 棚
 glyph han-68ea:15x16 15 16 // 棪
 ⿰ han-6728:7x16 1 han-708e:7x16 // ⿰木炎
 
-// glyph han-68ee:15x16 15 16 // 森
-// ⿱ han-6728 han-6797 // ⿱木林
+glyph han-68ee:15x16 15 16 // 森
+⿱ han-6728:15x8 han-6797:15x8 // ⿱木林
 
 glyph han-68f5:15x16 15 16 // 棵
 ⿰ han-6728:5x16 1 han-679c:9x16 // ⿰木果

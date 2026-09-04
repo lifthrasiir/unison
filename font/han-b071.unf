@@ -53,8 +53,8 @@ glyph han-23157:15x16 15 16 // 𣅗
 // glyph han-2315b:15x16 15 16 // 𣅛
 // ⿸ han-5382 han-2cf6a // ⿸厂𬽪
 
-// glyph han-2315c:15x16 15 16 // 𣅜
-// ⿱ han-6bd4 han-65e5 // ⿱比日
+glyph han-2315c:15x16 15 16 // 𣅜
+⿱ han-6bd4:15x7 2 han-65e5:15x7 // ⿱比日
 
 // glyph han-23161:15x16 15 16 // 𣅡
 // ⿰ han-65e5 han-592c // ⿰日夬
@@ -164,8 +164,8 @@ glyph han-231c6:15x16 15 16 // 𣇆
 glyph han-231d6:15x16 15 16 // 𣇖
 ⿲ han-65e5:4x16-l han-5de5:5x16 han-65e5:6x16 // ⿲日工日
 
-// glyph han-231d8:15x16 15 16 // 𣇘
-// ⿱ han-5229 han-65e5 // ⿱利日
+glyph han-231d8:15x16 15 16 // 𣇘
+⿱ han-5229:15x11 han-65e5:15x5 // ⿱利日
 
 // glyph han-231d9:15x16 15 16 // 𣇙
 // ⿺ han-7683 han-65e5 // ⿺皃日
@@ -190,17 +190,17 @@ glyph han-231eb:15x16 15 16 // 𣇫
 glyph han-231ed:15x16 15 16 // 𣇭
 ⿲ han-65e5:4x16-l han-5f73:3x16 1 han-751f:7x16 // ⿲日彳生
 
-// glyph han-231f0:15x16 15 16 // 𣇰
-// ⿱ han-65e5 han-6797 // ⿱日林
+glyph han-231f0:15x16 15 16 // 𣇰
+⿱ han-65e5:15x5 han-6797:15x11 // ⿱日林
 
 glyph han-231f3:15x16 15 16 // 𣇳
 ⿱ han-65e5:15x5 1 han-5176:15x10 // ⿱日其
 
-// glyph han-231f4:15x16 15 16 // 𣇴
-// ⿱ han-660e han-516d // ⿱明六
+glyph han-231f4:15x16 15 16 // 𣇴
+⿱ han-660e:15x8 1 han-516d:15x7 // ⿱明六
 
-// glyph han-231f5:15x16 15 16 // 𣇵
-// ⿱ han-65e5 han-660e // ⿱日明
+glyph han-231f5:15x16 15 16 // 𣇵
+⿱ han-65e5:15x5 1 han-660e:15x10 // ⿱日明
 
 // glyph han-231f7:15x16 15 16 // 𣇷
 // ⿰ han-65e5 han-82b3 // ⿰日芳
@@ -208,11 +208,14 @@ glyph han-231f3:15x16 15 16 // 𣇳
 // glyph han-231ff:15x16 15 16 // 𣇿
 // ⿰ han-65e5 han-6773 // ⿰日杳
 
+// glyph han-23200:15x16 15 16 // 𣈀
+// ⿰ han-65e5 han-6606 // ⿰日昆
+
 // glyph han-23201:15x16 15 16 // 𣈁
 // ⿰ han-65e5 han-6772 // ⿰日杲
 
-// glyph han-23205:15x16 15 16 // 𣈅
-// ⿱ han-6797 han-65e5 // ⿱林日
+glyph han-23205:15x16 15 16 // 𣈅
+⿱ han-6797:15x11 han-65e5:15x5 // ⿱林日
 
 // glyph han-23207:15x16 15 16 // 𣈇
 // ⿱ han-4e0d han-660e // ⿱不明
@@ -290,8 +293,8 @@ glyph han-23264:15x16 15 16 // 𣉤
 glyph han-2326b:15x16 15 16 // 𣉫
 ⿲ -1 han-65e5:4x16-l han-6728:5x16 han-7f8a:7x16 // ⿲日木羊
 
-// glyph han-2326c:15x16 15 16 // 𣉬
-// ⿳ han-660d han-5b80 han-5b50 // ⿳昍宀子 <- ⿱昍字
+glyph han-2326c:15x16 15 16 // 𣉬
+⿳ -1 han-660d:15x5 han-5b80:15x4 -1 han-5b50:15x9 // ⿳昍宀子
 
 // glyph han-23271:15x16 15 16 // 𣉱
 // ⿳ han-65e5 han-51fa han-5932 // ⿳日出夲 <- ⿱𣅽夲
@@ -313,8 +316,8 @@ glyph han-2328c:15x16 15 16 // 𣊌
 // glyph han-2328d:15x16 15 16 // 𣊍
 // ⿰ han-65e5 han-9ebb // ⿰日麻
 
-// glyph han-23296:15x16 15 16 // 𣊖
-// ⿳ han-65e5 han-660d han-5927 // ⿳日昍大 <- ⿱晶大
+glyph han-23296:15x16 15 16 // 𣊖
+⿳ han-65e5:15x5 1 han-660d:15x5 han-5927:15x5 // ⿳日昍大
 
 glyph han-23298:15x16 15 16 // 𣊘
 ⿰ han-65e5:7x16 1 han-9b5a:7x16 // ⿰日魚
@@ -333,8 +336,8 @@ glyph han-2329e:15x16 15 16 // 𣊞
 // glyph han-232a6:15x16 15 16 // 𣊦
 // ⿳ han-4ece han-4ece han-660c // ⿳从从昌 <- ⿱𠈌昌
 
-// glyph han-232a7:15x16 15 16 // 𣊧
-// ⿱ han-660e han-660e // ⿱明明
+glyph han-232a7:15x16 15 16 // 𣊧
+⿱ -1 han-660e:15x8 1 han-660e:15x8 // ⿱明明
 
 glyph han-232a9:15x16 15 16 // 𣊩
 ⿰ han-65e5:7x16 1 han-756a:7x16 // ⿰日番
@@ -342,8 +345,8 @@ glyph han-232a9:15x16 15 16 // 𣊩
 // glyph han-232ab:15x16 15 16 // 𣊫
 // ⿰ han-660c han-660c // ⿰昌昌
 
-// glyph han-232ad:15x16 15 16 // 𣊭
-// ⿱ han-660d han-660d // ⿱昍昍
+glyph han-232ad:15x16 15 16 // 𣊭
+⿱ han-660d:15x7 1 han-660d:15x8 // ⿱昍昍
 
 // glyph han-232b5:15x16 15 16 // 𣊵
 // ⿰ han-65e5 han-264d4 // ⿰日𦓔
@@ -354,8 +357,11 @@ glyph han-232a9:15x16 15 16 // 𣊩
 // glyph han-232bb:15x16 15 16 // 𣊻
 // ⿳ han-65e5 han-51fa han-3693 // ⿳日出㚓 <- ⿱𣅽㚓
 
-// glyph han-232bf:15x16 15 16 // 𣊿
-// ⿲ han-65e5 han-2099d han-6708 // ⿲日𠦝月 <- ⿰日朝
+glyph han-232bf:15x16 15 16 // 𣊿
+⿲ han-65e5:4x16-l 1 han-2099d:5x16 han-6708:5x16 // ⿲日𠦝月
+
+// glyph han-232c2:15x16 15 16 // 𣋂
+// ⿱ han-65e5 han-671d // ⿱日朝
 
 // glyph han-232c6:15x16 15 16 // 𣋆
 // ⿰ han-65e5 han-958f // ⿰日閏
@@ -379,6 +385,12 @@ glyph han-232a9:15x16 15 16 // 𣊩
 
 glyph han-232d7:15x16 15 16 // 𣋗
 ⿲ -1 han-65e5:4x16-l han-9801:7x16 han-65e5:5x16 // ⿲日頁日
+
+// glyph han-232da:15x16 15 16 // 𣋚
+// ⿱ han-65e5 han-6b46 // ⿱日歆
+
+// glyph han-232dd:15x16 15 16 // 𣋝
+// ⿰ han-65e5 han-55bf // ⿰日喿
 
 ## 72.14
 
@@ -420,8 +432,8 @@ glyph han-23189:15x16 15 16 // 𣆉
 // glyph han-2332d:15x16 15 16 // 𣌭
 // ⿱ han-5408 han-65e5 // ⿱合日
 
-// glyph han-23330:15x16 15 16 // 𣌰
-// ⿱ han-65e5 han-808b // ⿱日肋
+glyph han-23330:15x16 15 16 // 𣌰
+⿱ -1 han-65e5:15x5 1 han-808b:15x11 // ⿱日肋
 
 # CJK unified ideographs extension B: 月 (74)
 
@@ -484,8 +496,8 @@ glyph han-23394:15x16 15 16 // 𣎔
 
 ## 74.12
 
-// glyph han-233a0:15x16 15 16 // 𣎠
-// ⿰ han-2099d han-670b // ⿰𠦝朋
+glyph han-233a0:15x16 15 16 // 𣎠
+⿲ han-2099d:5x16 han-6708:5x16 han-6708:5x16 // ⿲𠦝月月
 
-// glyph han-233a2:15x16 15 16 // 𣎢
-// ⿲ han-6708 han-2099d han-6708 // ⿲月𠦝月 <- ⿰月朝
+glyph han-233a2:15x16 15 16 // 𣎢
+⿲ -1 han-6708:5x16-l 1 han-2099d:5x16 han-6708:5x16 // ⿲月𠦝月

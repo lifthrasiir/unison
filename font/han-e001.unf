@@ -165,6 +165,9 @@ glyph han-2b8d1:15x16 15 16 // 𫣑
 glyph han-2b8f9:15x16 15 16 // 𫣹
 ⿰ han-5408:7x16 1 han-55ac:7x16 // ⿰合喬
 
+// glyph han-2b8fc-($han-regions):15x16 15 16 // 𫣼
+// ⿰ han-4ebb han-9716-($-1) // ⿰亻霖
+
 ## 9.18
 
 // glyph han-2b909:15x16 15 16 // 𫤉
@@ -248,6 +251,9 @@ glyph han-2b958-($han-regions):15x16 15 16 // 𫥘
 
 ## 15.13
 
+// glyph han-2b95b:15x16 15 16 // 𫥛
+// ⿰ han-51ab han-55bf // ⿰冫喿
+
 glyph han-2b95c-($han-regions):15x16 15 16 // 𫥜
 ⿲ -2 han-51ab:3x16 han-4ee4-($-1):7x16 han-5352:7x16 // ⿲冫令卒
 
@@ -325,8 +331,8 @@ glyph han-2b97f:15x16 15 16 // 𫥿
 // glyph han-2b986:15x16 15 16 // 𫦆
 // ⿲ han-4ecc han-4e14 han-5202 // ⿲仌且刂 <- ⿰俎刂
 
-// glyph han-2b98a:15x16 15 16 // 𫦊
-// ⿰ han-97f3 han-5202 // ⿰音刂
+glyph han-2b98a:15x16 15 16 // 𫦊
+⿰ han-97f3:9x16 1 han-5202:5x16 // ⿰音刂
 
 ## 18.12
 
@@ -363,21 +369,26 @@ glyph han-2b9ad:15x16 15 16 // 𫦭
 glyph han-2b9ae:15x16 15 16 // 𫦮
 ⿰ han-5176:8x16 1 han-529b:6x16 // ⿰其力
 
-// glyph han-2b9af:15x16 15 16 // 𫦯
-// ⿱ han-6797 han-529b // ⿱林力
+glyph han-2b9af:15x16 15 16 // 𫦯
+⿱ han-6797:15x8 1 han-529b:15x7 // ⿱林力
 
 // glyph han-2b9b2:15x16 15 16 // 𫦲
 // ⿰ han-31492 han-529b // ⿰𱒒力
 
 ## 19.10
 
-// glyph han-2b9b5:15x16 15 16 // 𫦵
-// ⿳ han-5b80 han-4e01 han-52a9 // ⿳宀丁助 <- ⿱宁助
+glyph han-2b9b5:15x16 15 16 // 𫦵
+⿳ -5 han-5b80:15x4 han-4e01:15x6 han-52a9:15x11 // ⿳宀丁助
 
 ## 19.11
 
 // glyph han-2b9b7:15x16 15 16 // 𫦷
 // ⿱ han-4146 han-529b // ⿱䅆力
+
+## 19.14
+
+// glyph han-2b9bb:15x16 15 16 // 𫦻
+// ⿰ han-7537 han-7686 // ⿰男皆
 
 # CJK unified ideographs extension E: 勹 (20)
 
@@ -404,6 +415,11 @@ glyph han-2b9c2-($han-regions):15x16 15 16 // 𫧂
 
 // glyph han-2b9e9:15x16 15 16 // 𫧩
 // ⿰ han-2099d han-6637 // ⿰𠦝昷
+
+## 24.19
+
+// glyph han-2b9ed:15x16 15 16 // 𫧭
+// ⿰ han-2099d han-55bf // ⿰𠦝喿
 
 # CJK unified ideographs extension E: 厂 (27)
 
@@ -703,8 +719,8 @@ glyph han-2bb60:15x16 15 16 // 𫭠
 // glyph han-2bb70:15x16 15 16 // 𫭰
 // ⿰ han-571f han-5fd7 // ⿰土志
 
-// glyph han-2bb74:15x16 15 16 // 𫭴
-// ⿱ han-5229 han-571f // ⿱利土
+glyph han-2bb74:15x16 15 16 // 𫭴
+⿱ han-5229:15x11 han-571f:15x5 // ⿱利土
 
 // glyph han-2bb76-($han-regions):15x16 15 16 // 𫭶
 // ⿱ han-51b7-($-1) han-571f // ⿱冷土
@@ -735,6 +751,9 @@ glyph han-2bb92:15x16 15 16 // 𫮒
 // ⿰ han-571f han-5017 // ⿰土倗
 
 ## 32.11
+
+// glyph han-2bb9e:15x16 15 16 // 𫮞
+// ⿰ han-571f han-5d11 // ⿰土崑
 
 glyph han-2bba1:15x16 15 16 // 𫮡
 ⿲ han-571f:3x16-l han-6c35:3x16 han-708e:9x16 // ⿲土氵炎

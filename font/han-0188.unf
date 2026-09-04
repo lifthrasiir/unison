@@ -298,6 +298,11 @@ $$@@....................\1@@$$
 glyph han-9ada:15x16 15 16 // 髚
 ⿰ han-9ad8:7x16 1 han-4ea2:7x16 // ⿰高亢
 
+## 189.13
+
+// glyph han-9ade:15x16 15 16 // 髞
+// ⿰ han-9ad8 han-55bf // ⿰高喿
+
 # CJK unified ideographs: 鬥 (191)
 
 ## 191.0
@@ -581,6 +586,9 @@ glyph han-9bdb:15x16 15 16 // 鯛
 glyph han-9be1:15x16 15 16 // 鯡
 ⿰ han-9b5a:7x16 1 han-975e:7x16 // ⿰魚非
 
+// glyph han-9be4:15x16 15 16 // 鯤
+// ⿰ han-9b5a han-6606 // ⿰魚昆
+
 // glyph han-9be5:15x16 15 16 // 鯥
 // ⿰ han-9b5a han-5774 // ⿰魚坴
 
@@ -685,6 +693,9 @@ glyph han-9c59:15x16 15 16 // 鱙
 ⿰ han-9b5a:7x16 1 han-582f:7x16 // ⿰魚堯
 
 ## 195.13
+
+// glyph han-9c62:15x16 15 16 // 鱢
+// ⿰ han-9b5a han-55bf // ⿰魚喿
 
 // glyph han-9c69:15x16 15 16 // 鱩
 // ⿰ han-9b5a han-96f7 // ⿰魚雷

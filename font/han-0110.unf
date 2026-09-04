@@ -359,6 +359,9 @@ glyph han-78c6:15x16 15 16 // 磆
 // glyph han-78db:15x16 15 16 // 磛
 // ⿱ han-65ac han-77f3 // ⿱斬石
 
+// glyph han-78de:15x16 15 16 // 磞
+// ⿰ han-77f3 han-5d29 // ⿰石崩
+
 glyph han-78df:15x16 15 16 // 磟
 ⿰ han-77f3:5x16 1 han-7fcf:9x16 // ⿰石翏
 
@@ -1156,6 +1159,9 @@ glyph han-7a26:15x16 15 16 // 稦
 
 // glyph han-7a2c:15x16 15 16 // 稬
 // ⿰ han-79be han-800e // ⿰禾耎
+
+// glyph han-7a2d:15x16 15 16 // 稭
+// ⿰ han-79be han-7686 // ⿰禾皆
 
 ## 115.10
 

@@ -496,6 +496,9 @@ glyph han-6385-(k|p):15x16 15 16 // 掅
 // glyph han-638a:15x16 15 16 // 掊
 // ⿰ han-624c han-5485 // ⿰扌咅
 
+// glyph han-638d:15x16 15 16 // 掍
+// ⿰ han-624c han-6606 // ⿰扌昆
+
 // glyph han-638e:15x16 15 16 // 掎
 // ⿰ han-624c han-5947 // ⿰扌奇
 
@@ -548,11 +551,14 @@ glyph han-63d8:15x16 15 16 // 揘
 glyph han-63da:15x16 15 16 // 揚
 ⿰ han-624c:5x16 1 han-661c:9x16 // ⿰扌昜
 
-// glyph han-63de:15x16 15 16 // 揞
-// ⿰ han-624c han-97f3 // ⿰扌音
+glyph han-63de:15x16 15 16 // 揞
+⿰ han-624c:5x16 1 han-97f3:9x16 // ⿰扌音
 
 // glyph han-63e3:15x16 15 16 // 揣
 // ⿰ han-624c han-8011 // ⿰扌耑
+
+// glyph han-63e9:15x16 15 16 // 揩
+// ⿰ han-624c han-7686 // ⿰扌皆
 
 glyph han-63ea:15x16 15 16 // 揪
 ⿲ han-624c:3x16 han-79be:5x16 han-706b:7x16 // ⿲扌禾火
@@ -678,11 +684,17 @@ glyph han-64b3:15x16 15 16 // 撳
 // glyph han-64c2:15x16 15 16 // 擂
 // ⿰ han-624c han-96f7 // ⿰扌雷
 
+// glyph han-64cd:15x16 15 16 // 操
+// ⿰ han-624c han-55bf // ⿰扌喿
+
 // glyph han-64d7:15x16 15 16 // 擗
 // ⿲ han-624c han-21c2a han-8f9b // ⿲扌𡰪辛 <- ⿰扌辟
 
 // glyph han-64db:15x16 15 16 // 擛
 // ⿰ han-624c han-8449 // ⿰扌葉
+
+// glyph han-64dd:15x16 15 16 // 擝
+// ⿰ han-624c han-76df // ⿰扌盟
 
 ## 64.14
 
