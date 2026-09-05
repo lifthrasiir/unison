@@ -183,8 +183,8 @@ glyph han-8cc6:15x16 15 16 // 賆
 // glyph han-8cc8:15x16 15 16 // 賈
 // ⿱ han-8980 han-8c9d // ⿱覀貝
 
-// glyph han-8cc9:15x16 15 16 // 賉
-// ⿰ han-8c9d han-8840 // ⿰貝血
+glyph han-8cc9:15x16 15 16 // 賉
+⿰ han-8c9d:6x16 han-8840:9x16 // ⿰貝血
 
 glyph han-8ccb:15x16 15 16 // 賋
 ⿰ han-8c9d:6x16 han-4ea4:9x16 // ⿰貝交
@@ -367,6 +367,9 @@ ref han-9fb0:15x16
 // glyph han-8d99:15x16 15 16 // 趙
 // ⿺ han-8d70 han-8096 // ⿺走肖
 
+// glyph han-8d9a:15x16 15 16 // 趚
+// ⿺ han-8d70 han-675f // ⿺走束
+
 ## 156.8
 
 // glyph han-8d9b:15x16 15 16 // 趛
@@ -515,8 +518,8 @@ glyph han-8dc7:15x16 15 16 // 跇
 glyph han-8dc9-($han-regions):15x16 15 16 // 跉
 ⿰ han-27fb7:5x16 1 han-4ee4-($-1):9x16 // ⿰𧾷令
 
-// glyph han-8dca:15x16 15 16 // 跊
-// ⿰ han-27fb7 han-672a // ⿰𧾷未
+glyph han-8dca:15x16 15 16 // 跊
+⿰ han-27fb7:5x16 1 han-672a:9x16 // ⿰𧾷未
 
 glyph han-8dcc:15x16 15 16 // 跌
 ⿰ han-27fb7:5x16 1 han-5931:9x16 // ⿰𧾷失
@@ -554,8 +557,8 @@ glyph han-8dd9:15x16 15 16 // 跙
 glyph han-8ddb:15x16 15 16 // 跛
 ⿰ han-27fb7:5x16 1 han-76ae:9x16 // ⿰𧾷皮
 
-// glyph han-8ddc:15x16 15 16 // 跜
-// ⿰ han-27fb7 han-5c3c // ⿰𧾷尼
+glyph han-8ddc:15x16 15 16 // 跜
+⿰ han-27fb7:5x16 1 han-5c3c:9x16 // ⿰𧾷尼
 
 glyph han-8ddd:15x16 15 16 // 距
 ⿰ han-27fb7:5x16 1 han-5de8:9x16 // ⿰𧾷巨
@@ -567,6 +570,9 @@ glyph han-8dbc:15x16 15 16 // 趼
 
 glyph han-8de4:15x16 15 16 // 跤
 ⿰ han-27fb7:5x16 1 han-4ea4:9x16 // ⿰𧾷交
+
+// glyph han-8deb:15x16 15 16 // 跫
+// ⿱ han-5de9 han-8db3 // ⿱巩足
 
 glyph han-8dec:15x16 15 16 // 跬
 ⿰ han-27fb7:5x16 1 han-572d:9x16 // ⿰𧾷圭
@@ -586,8 +592,8 @@ glyph han-8df2:15x16 15 16 // 跲
 glyph han-8df3:15x16 15 16 // 跳
 ⿰ han-27fb7:5x16 1 han-5146:9x16 // ⿰𧾷兆
 
-// glyph han-8df4:15x16 15 16 // 跴
-// ⿰ han-27fb7 han-897f // ⿰𧾷西
+glyph han-8df4:15x16 15 16 // 跴
+⿰ -1 han-27fb7:5x16 1 han-897f:10x16 // ⿰𧾷西
 
 // glyph han-8df6-($han-regions):15x16 15 16 // 跶
 // ⿰ han-27fb7 han-8fbe-($-1) // ⿰𧾷达
@@ -615,8 +621,14 @@ glyph han-8e03:15x16 15 16 // 踃
 glyph han-8e06:15x16 15 16 // 踆
 ⿰ 1 han-27fb7:5x16 1 han-590b:7x16 // ⿰𧾷夋
 
+glyph han-8e08:15x16 15 16 // 踈
+⿰ han-27fb7:5x16 1 han-675f:9x16 // ⿰𧾷束
+
 glyph han-8e09:15x16 15 16 // 踉
 ⿰ han-27fb7:5x16 1 han-826f:9x16 // ⿰𧾷良
+
+// glyph han-8e0e:15x16 15 16 // 踎
+// ⿰ han-27fb7 han-5426 // ⿰𧾷否
 
 ## 157.8
 

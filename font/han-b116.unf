@@ -2,8 +2,11 @@
 
 ## 116.2
 
-// glyph han-25924:15x16 15 16 // 𥤤
-// ⿳ han-5b80 han-516b han-51e0 // ⿳宀八几
+// glyph han-25923:15x16 15 16 // 𥤣
+// ⿳ han-5b80 han-513f han-4e86 // ⿳宀儿了
+
+glyph han-25924:15x16 15 16 // 𥤤
+⿳ -2 han-5b80:15x4 -1 han-513f:15x4 han-51e0:15x11 // ⿳宀儿几
 
 // glyph han-25925:15x16 15 16 // 𥤥
 // ⿳ han-5b80 han-516b han-4e03 // ⿳宀八七 <- ⿱穴七
@@ -42,20 +45,26 @@ glyph han-2593b:15x16 15 16 // 𥤻
 glyph han-2593c:15x16 15 16 // 𥤼
 ⿳ han-5b80:15x4 -1 han-513f:15x4 han-6c34:15x9 // ⿳宀儿水 <- ⿱⿱宀儿水
 
+// glyph han-2593e:15x16 15 16 // 𥤾
+// ⿳ han-5b54 han-5b80 han-516b // ⿳孔宀八
+
 // glyph han-25940:15x16 15 16 // 𥥀
 // ⿳ han-5b80 han-516b han-516d // ⿳宀八六 <- ⿱穴六
 
 glyph han-25941:15x16 15 16 // 𥥁
 ⿳ han-5b80:15x5 han-513f:15x5 han-5fc3:15x6 // ⿳宀儿心 <- ⿱⿱宀儿心
 
-// glyph han-25942:15x16 15 16 // 𥥂
-// ⿳ han-5b80 han-513f han-592b // ⿳宀儿夫 <- ⿱⿱宀儿夫
+glyph han-25942:15x16 15 16 // 𥥂
+⿳ -4 han-5b80:15x4 -1 han-513f:15x4 han-592b:15x13 // ⿳宀儿夫
 
 // glyph han-25943:15x16 15 16 // 𥥃
 // ⿳ han-5b80 han-513f han-6708 // ⿳宀儿月 <- ⿱⿱宀儿月
 
 // glyph han-25944:15x16 15 16 // 𥥄
 // ⿳ han-5b80 han-516b han-5206 // ⿳宀八分 <- ⿱穴分
+
+// glyph han-25945:15x16 15 16 // 𥥅
+// ⿳ han-5b80 han-516b han-5b54 // ⿳宀八孔
 
 ## 116.5
 
@@ -141,6 +150,9 @@ glyph han-25980:15x16 15 16 // 𥦀
 // glyph han-25983:15x16 15 16 // 𥦃
 // ⿳ han-5b80 han-516b han-6758 // ⿳宀八杘 <- ⿱穴杘
 
+// glyph han-25988:15x16 15 16 // 𥦈
+// ⿳ han-5b80 han-516b han-675f // ⿳宀八束
+
 // glyph han-25989:15x16 15 16 // 𥦉
 // ⿳ han-5b80 han-516b han-5229 // ⿳宀八利 <- ⿱穴利
 
@@ -166,6 +178,9 @@ glyph han-2599c:15x16 15 16 // 𥦜
 
 glyph han-2599d:15x16 15 16 // 𥦝
 ⿳ han-5b80:15x4 -1 han-513f:15x5 han-6797:15x8 // ⿳宀儿林
+
+// glyph han-259a4:15x16 15 16 // 𥦤
+// ⿳ han-5b80 han-516b han-62ba // ⿳宀八抺
 
 // glyph han-259a7:15x16 15 16 // 𥦧
 // ⿳ han-5b80 han-516b han-26a09 // ⿳宀八𦨉 <- ⿱穴𦨉
@@ -215,8 +230,8 @@ glyph han-2599d:15x16 15 16 // 𥦝
 
 ## 117.2
 
-// glyph han-25a55:15x16 15 16 // 𥩕
-// ⿱ han-7acb han-51e0 // ⿱立几
+glyph han-25a55:15x16 15 16 // 𥩕
+⿱ -1 han-7acb:15x5 1 han-51e0:15x11 // ⿱立几
 
 ## 117.3
 
@@ -248,8 +263,8 @@ glyph han-25a62:15x16 15 16 // 𥩢
 glyph han-25a64:15x16 15 16 // 𥩤
 ⿰ han-7acb:7x16 han-53ef:8x16 // ⿰立可
 
-// glyph han-25a65:15x16 15 16 // 𥩥
-// ⿰ han-7acb han-5c3c // ⿰立尼
+glyph han-25a65:15x16 15 16 // 𥩥
+⿰ han-7acb:5x16 1 han-5c3c:9x16 // ⿰立尼
 
 // glyph han-25a68:15x16 15 16 // 𥩨
 // ⿰ han-7acb han-7389 // ⿰立玉
@@ -277,8 +292,8 @@ glyph han-25a75:15x16 15 16 // 𥩵
 glyph han-25a76:15x16 15 16 // 𥩶
 ⿳ han-7acb:15x5 1 han-53e3:15x4 1 han-53e3:15x5 // ⿳立口口
 
-// glyph han-25a79:15x16 15 16 // 𥩹
-// ⿰ han-7acb han-8840 // ⿰立血
+glyph han-25a79:15x16 15 16 // 𥩹
+⿰ han-7acb:5x16 1 han-8840:9x16 // ⿰立血
 
 // glyph han-25a7a:15x16 15 16 // 𥩺
 // ⿰ han-7acb han-5939 // ⿰立夹
@@ -347,3 +362,8 @@ glyph han-25aaf:15x16 15 16 // 𥪯
 
 // glyph han-25acb:15x16 15 16 // 𥫋
 // ⿱ han-30114 han-7add // ⿱𰄔竝
+
+## 117.20
+
+// glyph han-25ad2:15x16 15 16 // 𥫒
+// ⿰ han-7ae0 han-2270a // ⿰章𢜊

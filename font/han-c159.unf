@@ -17,8 +17,8 @@ glyph han-2b3f4:15x16 15 16 // 𫏴
 
 ## 160.5
 
-// glyph han-2b41a:15x16 15 16 // 𫐚
-// ⿲ han-8f9b han-6728 han-4e59 // ⿲辛木乙 <- ⿰辛𣎷
+glyph han-2b41a:15x16 15 16 // 𫐚
+⿲ -3 han-8f9b:5x16 han-6728:5x16 han-4e59:8x16 // ⿲辛木乙
 
 # CJK unified ideographs extension C: 辶 (162)
 
@@ -117,8 +117,8 @@ glyph han-2b489:15x16 15 16 // 𫒉
 
 ## 167.5
 
-// glyph han-2b48f:15x16 15 16 // 𫒏
-// ⿰ han-91d2 han-76bf // ⿰釒皿
+glyph han-2b48f:15x16 15 16 // 𫒏
+⿰ han-91d2:5x16-l 1 han-76bf:9x16 // ⿰釒皿
 
 // glyph han-2b490:15x16 15 16 // 𫒐
 // ⿱ han-91d1 han-2b738 // ⿱金𫜸
@@ -178,8 +178,8 @@ glyph han-2b4d9:15x16 15 16 // 𫓙
 
 ## 167'.3
 
-// glyph han-2b4e6:15x16 15 16 // 𫓦
-// ⿰ han-9485 han-5b50 // ⿰钅子
+glyph han-2b4e6:15x16 15 16 // 𫓦
+⿰ han-9485:6x16 han-5b50:9x16 // ⿰钅子
 
 ## 167'.4
 
@@ -457,8 +457,8 @@ glyph han-2b57b-(j):15x16 15 16 // 𫕻
 
 ## 176.6
 
-// glyph han-2b581:15x16 15 16 // 𫖁
-// ⿰ han-9762 han-5146 // ⿰面兆
+glyph han-2b581:15x16 15 16 // 𫖁
+⿰ han-9762:7x16 1 han-5146:7x16 // ⿰面兆
 
 # CJK unified ideographs extension C: 革 (177)
 
@@ -495,8 +495,8 @@ glyph han-2b5d3:15x16 15 16 // 𫗓
 
 ## 184.9
 
-// glyph han-2b5d6:15x16 15 16 // 𫗖
-// ⿰ han-98e0 han-9762 // ⿰飠面
+glyph han-2b5d6:15x16 15 16 // 𫗖
+⿰ han-98e0:7x16 1 han-9762:7x16 // ⿰飠面
 
 ## 184.14
 
@@ -525,8 +525,8 @@ glyph han-2b60b-($han-regions):15x16 15 16 // 𫘋
 
 ## 187.9
 
-// glyph han-2b60f:15x16 15 16 // 𫘏
-// ⿰ han-99ac han-9762 // ⿰馬面
+glyph han-2b60f:15x16 15 16 // 𫘏
+⿰ han-99ac:7x16 1 han-9762:7x16 // ⿰馬面
 
 ## 187.13
 
@@ -534,6 +534,11 @@ glyph han-2b60b-($han-regions):15x16 15 16 // 𫘋
 // ⿱ han-8def han-99ac // ⿱路馬
 
 # CJK unified ideographs extension C: 高 (189)
+
+## 189.2
+
+// glyph han-2b635:15x16 15 16 // 𫘵
+// ⿰ han-9ad8 han-4e86 // ⿰高了
 
 ## 189.6
 
@@ -584,8 +589,8 @@ glyph han-2b676:15x16 15 16 // 𫙶
 
 ## 196.1
 
-// glyph han-2b6ae:15x16 15 16 // 𫚮
-// ⿰ han-4e59 han-9ce5 // ⿰乙鳥
+glyph han-2b6ae:15x16 15 16 // 𫚮
+⿰ han-4e59:8x16 han-9ce5:7x16 // ⿰乙鳥
 
 ## 196.4
 
@@ -602,8 +607,8 @@ glyph han-2b6b4:15x16 15 16 // 𫚴
 
 ## 196.6
 
-// glyph han-2b6bb:15x16 15 16 // 𫚻
-// ⿲ han-5973 han-5b50 han-9ce5 // ⿲女子鳥 <- ⿰好鳥
+glyph han-2b6bb:15x16 15 16 // 𫚻
+⿲ -2 han-5973:5x16-l han-5b50:5x16 han-9ce5:7x16 // ⿲女子鳥
 
 ## 196.7
 

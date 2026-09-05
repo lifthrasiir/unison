@@ -94,8 +94,8 @@ glyph han-23f65:15x16 15 16 // 𣽥
 // glyph han-23f70:15x16 15 16 // 𣽰
 // ⿲ han-6c35 han-821f han-820c // ⿲氵舟舌 <- ⿰洀舌
 
-// glyph han-23f7f:15x16 15 16 // 𣽿
-// ⿲ han-6c35 han-79be han-5448 // ⿲氵禾呈 <- ⿰氵程
+glyph han-23f7f:15x16 15 16 // 𣽿
+⿲ -4 han-6c35:3x16 han-79be:5x16 han-5448:11x16 // ⿲氵禾呈
 
 // glyph han-23f81:15x16 15 16 // 𣾁
 // ⿰ han-6c35 han-8401 // ⿰氵萁
@@ -172,6 +172,9 @@ glyph han-2402b:15x16 15 16 // 𤀫
 
 // glyph han-2403d:15x16 15 16 // 𤀽
 // ⿲ han-6c35 han-7cf9 han-5947 // ⿲氵糹奇 <- ⿰氵綺
+
+glyph han-24055:15x16 15 16 // 𤁕
+⿲ -2 han-6c35:3x16 han-8f9b:5x16 han-675f:9x16 // ⿲氵辛束
 
 glyph han-24056:15x16 15 16 // 𤁖
 ⿲ han-6c35:3x16 han-8864:5x16 han-679c:7x16 // ⿲氵衤果

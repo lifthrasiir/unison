@@ -138,6 +138,9 @@ glyph han-3f9e:15x16 15 16 // 㾞
 // glyph han-3fa3:15x16 15 16 // 㾣
 // ⿸ han-7592 han-91d1 // ⿸疒金
 
+// glyph han-3fa4:15x16 15 16 // 㾤
+// ⿸ han-7592 han-7a7a // ⿸疒空
+
 // glyph han-3fa6:15x16 15 16 // 㾦
 // ⿸ han-7592 han-5485 // ⿸疒咅
 
@@ -366,6 +369,9 @@ glyph han-402b:15x16 15 16 // 䀫
 glyph han-402f:15x16 15 16 // 䀯
 ⿰ han-76ee:7x16 1 han-752b:7x16 // ⿰目甫
 
+glyph han-4033:15x16 15 16 // 䀳
+⿰ han-76ee:6x16 han-675f:9x16 // ⿰目束
+
 glyph han-4036:15x16 15 16 // 䀶
 ⿰ han-76ee:6x16 han-826f:9x16 // ⿰目良
 
@@ -396,8 +402,8 @@ glyph han-4051:15x16 15 16 // 䁑
 
 ## 109.10
 
-// glyph han-4061:15x16 15 16 // 䁡
-// ⿰ han-76ee han-9583 // ⿰目閃
+glyph han-4061:15x16 15 16 // 䁡
+⿰ han-76ee:3x16-l 1 han-9583:11x16 // ⿰目閃
 
 ## 109.11
 
@@ -460,6 +466,9 @@ glyph han-40a4:15x16 15 16 // 䂤
 
 glyph han-40aa:15x16 15 16 // 䂪
 ⿰ han-77f3:7x16 1 han-5146:7x16 // ⿰石兆
+
+// glyph han-40ac:15x16 15 16 // 䂬
+// ⿱ han-5de9 han-77f3 // ⿱巩石
 
 glyph han-40ad:15x16 15 16 // 䂭
 ⿰ han-77f3:5x16 1 han-4ea4:9x16 // ⿰石交
@@ -525,7 +534,7 @@ glyph han-40e2:15x16 15 16 // 䃢
 ⿲ -4 han-77f3:5x16 han-91d2:7x16 han-6b20:7x16 // ⿲石釒欠
 
 glyph han-40e8:15x16 15 16 // 䃨
-⿲ -6 han-77f3:5x16 1 han-5f13:4x16 han-867d:11x16 // ⿲石弓虽
+⿲ -2 han-77f3:5x16 1 han-5f13:4x16 han-867d:7x16 // ⿲石弓虽
 
 ## 112.16
 
@@ -594,6 +603,11 @@ glyph han-4116-k:15x16 15 16 // 䄖
 
 # CJK unified ideographs extension A: 禾 (115)
 
+## 115.2
+
+glyph han-4126:15x16 15 16 // 䄦
+⿰ han-79be:5x16 1 han-4e86:9x16 // ⿰禾了
+
 ## 115.3
 
 glyph han-412a-($han-regions):15x16 15 16 // 䄪
@@ -632,14 +646,17 @@ glyph han-4138:15x16 15 16 // 䄸
 glyph han-413b:15x16 15 16 // 䄻
 ⿰ han-79be:7x16 1 han-5146:7x16 // ⿰禾兆
 
-// glyph han-413d:15x16 15 16 // 䄽
-// ⿰ han-79be han-897f // ⿰禾西
+glyph han-413d:15x16 15 16 // 䄽
+⿰ han-79be:5x16 han-897f:10x16 // ⿰禾西
 
 // glyph han-4141:15x16 15 16 // 䅁
 // ⿳ han-5b80 han-5973 han-79be // ⿳宀女禾 <- ⿱安禾
 
 glyph han-4142:15x16 15 16 // 䅂
 ⿰ han-79be:7x16 1 han-5404:7x16 // ⿰禾各
+
+// glyph han-4143:15x16 15 16 // 䅃
+// ⿱ han-5de9 han-79be // ⿱巩禾
 
 glyph han-4145:15x16 15 16 // 䅅
 ⿰ han-79be:7x16 1 han-572d:7x16 // ⿰禾圭
@@ -665,6 +682,9 @@ glyph han-4150:15x16 15 16 // 䅐
 
 // glyph han-415b:15x16 15 16 // 䅛
 // ⿰ han-79be han-660c // ⿰禾昌
+
+// glyph han-415d:15x16 15 16 // 䅝
+// ⿰ han-79be han-7a7a // ⿰禾空
 
 ## 115.9
 
@@ -878,6 +898,9 @@ glyph han-41f8:15x16 15 16 // 䇸
 // glyph han-41fe:15x16 15 16 // 䇾
 // ⿱ han-25ad7 han-8a00 // ⿱𥫗言
 
+// glyph han-41ff:15x16 15 16 // 䇿
+// ⿱ han-25ad7 han-675f // ⿱𥫗束
+
 ## 118.8
 
 // glyph han-4202:15x16 15 16 // 䈂
@@ -1018,6 +1041,11 @@ glyph han-427c:15x16 15 16 // 䉼
 
 glyph han-4280:15x16 15 16 // 䊀
 ⿰ han-7c73:5x16 1 han-53e4:9x16 // ⿰米古
+
+## 119.6
+
+// glyph han-4284:15x16 15 16 // 䊄
+// ⿱ han-5de9 han-7c73 // ⿱巩米
 
 ## 119.7
 

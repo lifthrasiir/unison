@@ -13,8 +13,8 @@ glyph han-263f7-($han-regions):15x16 15 16 // 𦏷
 glyph han-263f9-($han-regions):15x16 15 16 // 𦏹
 ⿰ han-7fbd-($-1):9x16 1 han-5e72:5x16 // ⿰羽干
 
-// glyph han-263fa-($han-regions):15x16 15 16 // 𦏺
-// ⿱ han-5de5 han-7fbd-($-1) // ⿱工羽
+glyph han-263fa-($han-regions):15x16 15 16 // 𦏺
+⿱ han-5de5:15x8 2 han-7fbd-($-1):15x6 // ⿱工羽
 
 glyph han-263fc-($han-regions):15x16 15 16 // 𦏼
 ⿰ han-5de5:5x16 1 han-7fbd-($-1):9x16 // ⿰工羽
@@ -102,6 +102,9 @@ glyph han-26435-($han-regions):15x16 15 16 // 𦐵
 
 ## 124.7
 
+// glyph han-26438-($han-regions):15x16 15 16 // 𦐸
+// ⿰ han-5426 han-7fbd-($-1) // ⿰否羽
+
 glyph han-26439-($han-regions):15x16 15 16 // 𦐹
 ⿰ han-7fbd-($-1):8x16 han-8f9b:7x16 // ⿰羽辛
 
@@ -110,6 +113,9 @@ glyph han-2643a-($han-regions):15x16 15 16 // 𦐺
 
 // glyph han-2643c-($han-regions):15x16 15 16 // 𦐼
 // ⿰ han-5fd7 han-7fbd-($-1) // ⿰志羽
+
+glyph han-2643e-($han-regions):15x16 15 16 // 𦐾
+⿰ han-675f:9x16 han-7fbd-($-1):6x16 // ⿰束羽
 
 // glyph han-26440-($han-regions):15x16 15 16 // 𦑀
 // ⿰ han-7fbd-($-1) han-7683 // ⿰羽皃
@@ -298,8 +304,8 @@ glyph han-26559:15x16 15 16 // 𦕙
 glyph han-2655a:15x16 15 16 // 𦕚
 ⿰ han-8033:6x16-l han-5f17:9x16 // ⿰耳弗
 
-// glyph han-2655c:15x16 15 16 // 𦕜
-// ⿰ han-8033 han-672a // ⿰耳未
+glyph han-2655c:15x16 15 16 // 𦕜
+⿰ han-8033:6x16-l han-672a:9x16 // ⿰耳未
 
 glyph han-2655d:15x16 15 16 // 𦕝
 ⿰ han-8033:7x16 1 han-793a:7x16 // ⿰耳示
@@ -319,6 +325,9 @@ glyph han-26572:15x16 15 16 // 𦕲
 
 glyph han-26576:15x16 15 16 // 𦕶
 ⿲ han-8033:6x16-l han-624c:3x16 han-65a4:6x16 // ⿲耳扌斤
+
+// glyph han-26577:15x16 15 16 // 𦕷
+// ⿰ han-8033 han-6c5e // ⿰耳汞
 
 glyph han-2657d:15x16 15 16 // 𦕽
 ⿲ -1 han-8033:6x16-l han-4ebb:3x16 han-7533:7x16 // ⿲耳亻申
@@ -368,6 +377,9 @@ glyph han-265a2:15x16 15 16 // 𦖢
 
 glyph han-265a6:15x16 15 16 // 𦖦
 ⿰ han-8033:7x16 1 han-9801:7x16 // ⿰耳頁
+
+// glyph han-265a8:15x16 15 16 // 𦖨
+// ⿱ han-524c han-8033 // ⿱剌耳
 
 // glyph han-265a9:15x16 15 16 // 𦖩
 // ⿰ han-800e han-8033 // ⿰耎耳
@@ -430,3 +442,6 @@ glyph han-265f2:15x16 15 16 // 𦗲
 
 // glyph han-265f5:15x16 15 16 // 𦗵
 // ⿰ han-8033 han-55bf // ⿰耳喿
+
+// glyph han-265fb-($han-regions):15x16 15 16 // 𦗻
+// ⿰ han-8033 han-2e7ac-($-1) // ⿰耳𮞬

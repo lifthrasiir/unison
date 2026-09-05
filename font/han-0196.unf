@@ -72,8 +72,8 @@ $$......................\1@@$$
 
 ## 196.1
 
-// glyph han-9ce6:15x16 15 16 // 鳦
-// ⿰ han-9ce5 han-4e59 // ⿰鳥乙
+glyph han-9ce6:15x16 15 16 // 鳦
+⿰ -1 han-9ce5:7x16 1 han-4e59:8x16 // ⿰鳥乙
 
 ## 196.2
 
@@ -278,6 +278,9 @@ glyph han-9d60-(g|t|k|p|v):15x16 15 16 // 鵠
 glyph han-9d60-(h|j):15x16 15 16 // 鵠
 ⿰ han-543f:8x16 han-9ce5:7x16 // ⿰吿鳥
 
+// glyph han-9d63:15x16 15 16 // 鵣
+// ⿰ han-675f han-9ce5 // ⿰束鳥
+
 ## 196.8
 
 glyph han-9d67:15x16 15 16 // 鵧
@@ -304,6 +307,9 @@ glyph han-9d70:15x16 15 16 // 鵰
 glyph han-9d7b:15x16 15 16 // 鵻
 ⿰ han-9ce5:7x16 1 han-96b9:7x16 // ⿰鳥隹
 
+// glyph han-9d7c:15x16 15 16 // 鵼
+// ⿰ han-7a7a han-9ce5 // ⿰空鳥
+
 // glyph han-9d7e:15x16 15 16 // 鵾
 // ⿰ han-6606 han-9ce5 // ⿰昆鳥
 
@@ -322,6 +328,9 @@ glyph han-9d84-(j|k):15x16 15 16 // 鶄
 // ⿱ han-708f han-9ce5 // ⿱炏鳥
 
 ## 196.9
+
+glyph han-9d92:15x16 15 16 // 鶒
+⿲ -7 han-675f:9x16 han-529b:5x16 1 han-9ce5:7x16 // ⿲束力鳥
 
 // glyph han-9d93:15x16 15 16 // 鶓
 // ⿰ han-82d7 han-9ce5 // ⿰苗鳥

@@ -53,8 +53,8 @@ glyph han-2c36f:15x16 15 16 // 𬍯
 
 ## 96.9
 
-// glyph han-2c375:15x16 15 16 // 𬍵
-// ⿰ han-248e9 han-9762 // ⿰𤣩面
+glyph han-2c375:15x16 15 16 // 𬍵
+⿰ han-248e9:5x16 han-9762:10x16 // ⿰𤣩面
 
 // glyph han-2c376:15x16 15 16 // 𬍶
 // ⿰ han-248e9 han-6631 // ⿰𤣩昱
@@ -268,8 +268,8 @@ glyph han-2c423:15x16 15 16 // 𬐣
 
 ## 109.5
 
-// glyph han-2c449:15x16 15 16 // 𬑉
-// ⿰ han-672b han-76ee // ⿰末目
+glyph han-2c449:15x16 15 16 // 𬑉
+⿰ han-672b:9x16 han-76ee:6x16 // ⿰末目
 
 // glyph han-2c44a:15x16 15 16 // 𬑊
 // ⿰ han-76ee han-672c // ⿰目本
@@ -370,6 +370,12 @@ glyph han-2c4b3:15x16 15 16 // 𬒳
 ⿰ han-793b:5x16 1 han-76ae:9x16 // ⿰礻皮
 
 ## 113.7
+
+glyph han-2c4b6:15x16 15 16 // 𬒶
+⿰ han-793b:5x16 1 han-675f:9x16 // ⿰礻束
+
+// glyph han-2c4b7:15x16 15 16 // 𬒷
+// ⿰ han-793b han-5426 // ⿰礻否
 
 glyph han-2c4b9:15x16 15 16 // 𬒹
 ⿰ han-793b:7x16 han-8c9d:8x16 // ⿰礻貝
@@ -499,8 +505,8 @@ glyph han-2c532:15x16 15 16 // 𬔲
 
 ## 118.7
 
-// glyph han-2c543:15x16 15 16 // 𬕃
-// ⿳ han-25ad7 han-4e0d han-53e3 // ⿳𥫗不口
+glyph han-2c543:15x16 15 16 // 𬕃
+⿳ -1 han-25ad7:15x5 han-4e0d:15x8 han-53e3:15x4 // ⿳𥫗不口
 
 // glyph han-2c545:15x16 15 16 // 𬕅
 // ⿱ han-25ad7 han-4f4d // ⿱𥫗位
@@ -567,8 +573,8 @@ glyph han-2c554:15x16 15 16 // 𬕔
 
 ## 119.1
 
-// glyph han-2c58b:15x16 15 16 // 𬖋
-// ⿰ han-7c73 han-4e59 // ⿰米乙
+glyph han-2c58b:15x16 15 16 // 𬖋
+⿰ han-7c73:7x16 han-4e59:8x16 // ⿰米乙
 
 ## 119.2
 
@@ -655,13 +661,13 @@ glyph han-2c5be:15x16 15 16 // 𬖾
 
 ## 120.3
 
-// glyph han-2c5c4:15x16 15 16 // 𬗄
-// ⿰ han-7cf9 han-51e1 // ⿰糹凡
+glyph han-2c5c4:15x16 15 16 // 𬗄
+⿰ han-7cf9:5x16 han-51e1:10x16 // ⿰糹凡
 
 ## 120.4
 
-// glyph han-2c5c6:15x16 15 16 // 𬗆
-// ⿲ han-7cf9 han-5b50 han-4e5a // ⿲糹子乚 <- ⿰糹孔
+glyph han-2c5c6:15x16 15 16 // 𬗆
+⿲ han-7cf9:5x16 han-5b50:5x16 han-4e5a:5x16 // ⿲糹子乚
 
 ## 120.5
 
@@ -711,8 +717,8 @@ glyph han-2c5ec:15x16 15 16 // 𬗬
 
 ## 120.10
 
-// glyph han-2c5f1:15x16 15 16 // 𬗱
-// ⿲ han-7cf9 han-7530 han-672b // ⿲糹田末
+glyph han-2c5f1:15x16 15 16 // 𬗱
+⿲ -5 han-7cf9:5x16 1 han-7530:5x16 han-672b:9x16 // ⿲糹田末
 
 ## 120.11
 

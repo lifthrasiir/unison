@@ -13,6 +13,9 @@
 // glyph han-24f3f:15x16 15 16 // 𤼿
 // ⿱ han-767d han-4e04 // ⿱白丄
 
+glyph han-24f40:15x16 15 16 // 𤽀
+⿰ han-767d:6x16 han-4e86:9x16 // ⿰白了
+
 glyph han-24f41:15x16 15 16 // 𤽁
 ⿰ han-767d:6x16 han-5341:9x16 // ⿰白十
 
@@ -55,8 +58,8 @@ glyph han-24f58:15x16 15 16 // 𤽘
 glyph han-24f59:15x16 15 16 // 𤽙
 ⿱ han-767d:15x9 1 han-7531:15x6 // ⿱白由
 
-// glyph han-24f5c:15x16 15 16 // 𤽜
-// ⿰ han-767d han-672a // ⿰白未
+glyph han-24f5c:15x16 15 16 // 𤽜
+⿰ han-767d:6x16 han-672a:9x16 // ⿰白未
 
 glyph han-24f62:15x16 15 16 // 𤽢
 ⿱ han-767d:15x9 2 han-6b63:15x5 // ⿱白正
@@ -318,8 +321,8 @@ glyph han-25036:15x16 15 16 // 𥀶
 
 ## 108.3
 
-// glyph han-25041:15x16 15 16 // 𥁁
-// ⿱ han-5de5 han-76bf // ⿱工皿
+glyph han-25041:15x16 15 16 // 𥁁
+⿱ han-5de5:15x8 1 han-76bf:15x7 // ⿱工皿
 
 // glyph han-25045:15x16 15 16 // 𥁅
 // ⿱ han-5973 han-76bf // ⿱女皿
@@ -349,6 +352,9 @@ glyph han-25036:15x16 15 16 // 𥀶
 // glyph han-25055:15x16 15 16 // 𥁕
 // ⿱ han-56da han-76bf // ⿱囚皿
 
+// glyph han-25059:15x16 15 16 // 𥁙
+// ⿱ han-4ed4 han-76bf // ⿱仔皿
+
 ## 108.6
 
 // glyph han-25060:15x16 15 16 // 𥁠
@@ -356,6 +362,9 @@ glyph han-25036:15x16 15 16 // 𥀶
 
 // glyph han-25063:15x16 15 16 // 𥁣
 // ⿱ han-205b2 han-76bf // ⿱𠖲皿
+
+// glyph han-25068:15x16 15 16 // 𥁨
+// ⿱ han-597d han-76bf // ⿱好皿
 
 ## 108.7
 

@@ -119,8 +119,8 @@ glyph han-262a5:15x16 15 16 // 𦊥
 glyph han-262bc:15x16 15 16 // 𦊼
 ⿳ han-7f52:15x3 1 han-53e3:15x4 1 han-53e3:15x7 // ⿳罒口口 <- ⿱罒吕
 
-// glyph han-262be:15x16 15 16 // 𦊾
-// ⿳ han-7f52 han-4e0d han-53e3 // ⿳罒不口
+glyph han-262be:15x16 15 16 // 𦊾
+⿳ han-7f52:15x3 1 han-4e0d:15x8 han-53e3:15x4 // ⿳罒不口
 
 glyph han-262c1:15x16 15 16 // 𦋁
 ⿳ han-7f52:15x4 1 han-65e5:15x5 1 han-5e72:15x5 // ⿳罒日干
@@ -317,6 +317,9 @@ glyph han-26381:15x16 15 16 // 𦎁
 glyph han-2638e:15x16 15 16 // 𦎎
 ⿰ han-7f8a:7x16 1 han-752b:7x16 // ⿰羊甫
 
+// glyph han-2638f:15x16 15 16 // 𦎏
+// ⿰ han-7f8a han-675f // ⿰羊束
+
 // glyph han-26391:15x16 15 16 // 𦎑
 // ⿰ han-7f8a han-5415 // ⿰羊吕
 
@@ -338,6 +341,9 @@ glyph han-2638e:15x16 15 16 // 𦎎
 
 // glyph han-263a5:15x16 15 16 // 𦎥
 // ⿰ han-7f8a han-7686 // ⿰羊皆
+
+// glyph han-263a9:15x16 15 16 // 𦎩
+// ⿰ han-7f8a han-219f1 // ⿰羊𡧱
 
 glyph han-263aa:15x16 15 16 // 𦎪
 ⿰ han-7f8a:7x16 1 han-661c:7x16 // ⿰羊昜

@@ -181,6 +181,8 @@ glyph han-23950:15x16 15 16 // 𣥐
 glyph han-23955:15x16 15 16 // 𣥕
 ⿱ han-6b62:15x8 han-6b62:15x8 // ⿱止止
 
+glyph han-23956:11x8 11 8 // 𣥖
+⿰ han-6b62:5x8 1 han-6b62:5x8 // ⿰止止
 glyph han-23956:15x8 15 8 // 𣥖
 ⿰ han-6b62:7x8 1 han-6b62:7x8 // ⿰止止
 glyph han-23956:15x16 15 16 // 𣥖

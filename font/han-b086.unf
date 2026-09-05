@@ -38,8 +38,8 @@ glyph han-24194:15x16 15 16 // 𤆔
 glyph han-24197:15x16 15 16 // 𤆗
 ⿱ han-53e3:15x11 1 han-706c:15x4 // ⿱口灬
 
-// glyph han-24198:15x16 15 16 // 𤆘
-// ⿰ han-706b han-51e1 // ⿰火凡
+glyph han-24198:15x16 15 16 // 𤆘
+⿰ han-706b:5x16-l han-51e1:10x16 // ⿰火凡
 
 // glyph han-2419c:15x16 15 16 // 𤆜
 // ⿱ han-706b han-4e09 // ⿱火三
@@ -85,8 +85,8 @@ glyph han-241b7:15x16 15 16 // 𤆷
 // glyph han-241b8:15x16 15 16 // 𤆸
 // ⿰ han-706b han-5fc3 // ⿰火心
 
-// glyph han-241ba:15x16 15 16 // 𤆺
-// ⿲ han-706b han-5b50 han-4e5a // ⿲火子乚 <- ⿰火孔
+glyph han-241ba:15x16 15 16 // 𤆺
+⿲ han-706b:5x16-l han-5b50:5x16 han-4e5a:5x16 // ⿲火子乚
 
 glyph han-241bb:15x16 15 16 // 𤆻
 ⿲ -3 han-706b:5x16-l han-4e03:8x16 han-5200:5x16 // ⿲火七刀
@@ -179,8 +179,8 @@ glyph han-24204:15x16 15 16 // 𤈄
 // glyph han-24205:15x16 15 16 // 𤈅
 // ⿳ han-738b han-4ea0 han-706c // ⿳王亠灬
 
-// glyph han-24207:15x16 15 16 // 𤈇
-// ⿰ han-706b han-897f // ⿰火西
+glyph han-24207:15x16 15 16 // 𤈇
+⿰ -1 han-706b:5x16-l 1 han-897f:10x16 // ⿰火西
 
 // glyph han-2420c:15x16 15 16 // 𤈌
 // ⿱ han-65eb han-706c // ⿱旫灬
@@ -240,6 +240,9 @@ glyph han-2423c:15x16 15 16 // 𤈼
 
 glyph han-24249:15x16 15 16 // 𤉉
 ⿱ han-5229:15x13 han-706c:15x3 // ⿱利灬
+
+// glyph han-2424a:15x16 15 16 // 𤉊
+// ⿰ han-706b han-2d950 // ⿰火𭥐
 
 glyph han-2424c:15x16 15 16 // 𤉌
 ⿱ han-5229:15x11 han-706b:15x5 // ⿱利火
@@ -334,6 +337,9 @@ glyph han-242ac:15x16 15 16 // 𤊬
 ⿰ han-706b:5x16-l 1 han-975e:9x16 // ⿰火非
 
 ## 86.9
+
+glyph han-242b6:15x16 15 16 // 𤊶
+⿲ -2 han-706b:5x16-l han-675f:9x16 han-5202:3x16 // ⿲火束刂
 
 // glyph han-242bb:15x16 15 16 // 𤊻
 // ⿰ han-706b han-5192 // ⿰火冒
@@ -495,6 +501,9 @@ glyph han-24371-($han-regions):15x16 15 16 // 𤍱
 glyph han-2437e:15x16 15 16 // 𤍾
 ⿳ han-6797:15x7 han-5927:15x5 -1 han-706b:15x5 // ⿳林大火
 
+// glyph han-2438a:15x16 15 16 // 𤎊
+// ⿱ han-708f han-675f // ⿱炏束
+
 // glyph han-2438e:15x16 15 16 // 𤎎
 // ⿰ han-706b han-9ebb // ⿰火麻
 
@@ -590,6 +599,9 @@ glyph han-2441a:15x16 15 16 // 𤐚
 
 // glyph han-24444:15x16 15 16 // 𤑄
 // ⿱ han-8ccf han-706c // ⿱賏灬
+
+// glyph han-2444c:15x16 15 16 // 𤑌
+// ⿳ han-2aa63 han-670b han-706c // ⿳𪩣朋灬
 
 ## 86.15
 

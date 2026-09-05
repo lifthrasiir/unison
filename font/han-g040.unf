@@ -12,8 +12,8 @@
 
 ## 40.4
 
-// glyph han-30336:15x16 15 16 // 𰌶
-// ⿱ han-5b80 han-4e0d // ⿱宀不
+glyph han-30336:15x16 15 16 // 𰌶
+⿱ han-5b80:15x4 han-4e0d:15x12 // ⿱宀不
 
 ## 40.6
 
@@ -310,16 +310,16 @@ glyph han-3043a:15x16 15 16 // 𰐺
 
 ## 61.2
 
-// glyph han-3043b:15x16 15 16 // 𰐻
-// ⿱ han-51e0 han-5fc3 // ⿱几心
+glyph han-3043b:15x16 15 16 // 𰐻
+⿱ han-51e0:15x11 han-5fc3:15x5 // ⿱几心
 
 glyph han-3043c:15x16 15 16 // 𰐼
 ⿱ han-4eba:15x10 han-5fc3:15x6 // ⿱人心
 
 ## 61.3
 
-// glyph han-3043d:15x16 15 16 // 𰐽
-// ⿱ han-51e1 han-5fc3 // ⿱凡心
+glyph han-3043d:15x16 15 16 // 𰐽
+⿱ han-51e1:15x11 han-5fc3:15x5 // ⿱凡心
 
 glyph han-3043e:15x16 15 16 // 𰐾
 ⿰ han-5fc4:5x16 1 han-5e7f:9x16 // ⿰忄广
@@ -386,8 +386,8 @@ glyph han-3047b:15x16 15 16 // 𰑻
 
 ## 61.10
 
-// glyph han-3047c:15x16 15 16 // 𰑼
-// ⿳ han-4e0d han-8980 han-5fc3 // ⿳不覀心
+glyph han-3047c:15x16 15 16 // 𰑼
+⿳ -2 han-4e0d:15x8 han-8980:15x5 han-5fc3:15x5 // ⿳不覀心
 
 glyph han-30480:15x16 15 16 // 𰒀
 ⿰ han-5fc4:5x16 1 han-99ac:9x16 // ⿰忄馬
@@ -412,6 +412,9 @@ glyph han-3048f:15x16 15 16 // 𰒏
 glyph han-304b7:15x16 15 16 // 𰒷
 ⿰ han-624c:5x16 1 han-4e03:8x16 // ⿰扌七
 
+// glyph han-304bb:15x16 15 16 // 𰒻
+// ⿰ han-624b han-4e86 // ⿰手了
+
 ## 64.3
 
 // glyph han-304bc:15x16 15 16 // 𰒼
@@ -425,8 +428,8 @@ glyph han-304bd:15x16 15 16 // 𰒽
 // glyph han-304be:15x16 15 16 // 𰒾
 // ⿱ han-6253 han-4e01 // ⿱打丁
 
-// glyph han-304c1:15x16 15 16 // 𰓁
-// ⿲ han-624b han-5315 han-5315 // ⿲手匕匕 <- ⿰手比
+glyph han-304c1:15x16 15 16 // 𰓁
+⿲ -4 han-624b:11x16 han-5315:4x16 han-5315:4x16 // ⿲手匕匕
 
 // glyph han-304c9:15x16 15 16 // 𰓉
 // ⿱ han-6587 han-624b // ⿱文手
@@ -456,8 +459,8 @@ glyph han-304bd:15x16 15 16 // 𰒽
 
 ## 64.6
 
-// glyph han-304d8:15x16 15 16 // 𰓘
-// ⿲ han-624c han-5de5 han-51e1 // ⿲扌工凡
+glyph han-304d8:15x16 15 16 // 𰓘
+⿲ -2 han-624c:3x16 han-5de5:5x16 han-51e1:9x16 // ⿲扌工凡
 
 glyph han-304de:15x16 15 16 // 𰓞
 ⿰ han-624c:5x16 1 han-821f:9x16 // ⿰扌舟
@@ -472,6 +475,9 @@ glyph han-304de:15x16 15 16 // 𰓞
 
 // glyph han-304ee:15x16 15 16 // 𰓮
 // ⿱ han-6253 han-672b // ⿱打末
+
+// glyph han-304ef:15x16 15 16 // 𰓯
+// ⿰ han-624b han-675f // ⿰手束
 
 // glyph han-304f6:15x16 15 16 // 𰓶
 // ⿱ han-5229 han-624b // ⿱利手
@@ -489,8 +495,8 @@ glyph han-304fa:15x16 15 16 // 𰓺
 
 ## 64.9
 
-// glyph han-30506:15x16 15 16 // 𰔆
-// ⿰ han-624c han-9762 // ⿰扌面
+glyph han-30506:15x16 15 16 // 𰔆
+⿰ han-624c:5x16 han-9762:10x16 // ⿰扌面
 
 // glyph han-3050a:15x16 15 16 // 𰔊
 // ⿰ han-624b han-67bc // ⿰手枼
@@ -532,8 +538,8 @@ glyph han-3055a:15x16 15 16 // 𰕚
 
 ## 70.5
 
-// glyph han-30567:15x16 15 16 // 𰕧
-// ⿰ han-65b9 han-5f17 // ⿰方弗
+glyph han-30567:15x16 15 16 // 𰕧
+⿰ han-65b9:7x16 1 han-5f17:7x16 // ⿰方弗
 
 ## 70.6
 
@@ -714,6 +720,11 @@ glyph han-30632:15x16 15 16 // 𰘲
 
 // glyph han-30641:15x16 15 16 // 𰙁
 // ⿰ han-679c han-83ab // ⿰果莫
+
+## 75.17
+
+// glyph han-30647:15x16 15 16 // 𰙇
+// ⿲ han-675f han-514b han-675f // ⿲束克束
 
 # CJK unified ideographs extension G: 欠 (76)
 

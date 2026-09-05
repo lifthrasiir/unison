@@ -91,8 +91,8 @@ glyph han-24d56:15x16 15 16 // 𤵖
 
 ## 104.5
 
-// glyph han-24d59:15x16 15 16 // 𤵙
-// ⿸ han-7592 han-751f // ⿸疒生
+glyph han-24d59:15x16 15 16 // 𤵙
+⿸ han-7592:15x16.11x13 han-751f:11x9 4 5 // ⿸疒生
 
 // glyph han-24d5b:15x16 15 16 // 𤵛
 // ⿸ han-7592 han-4e15 // ⿸疒丕
@@ -164,6 +164,9 @@ glyph han-24d6b:15x16 15 16 // 𤵫
 // glyph han-24da1:15x16 15 16 // 𤶡
 // ⿸ han-7592 han-8098 // ⿸疒肘
 
+// glyph han-24dac:15x16 15 16 // 𤶬
+// ⿸ han-7592 han-675f // ⿸疒束
+
 // glyph han-24dad:15x16 15 16 // 𤶭
 // ⿸ han-7592 han-5446 // ⿸疒呆
 
@@ -184,6 +187,9 @@ glyph han-24d6b:15x16 15 16 // 𤵫
 
 // glyph han-24dbf:15x16 15 16 // 𤶿
 // ⿸ han-7592 han-3ad7 // ⿸疒㫗
+
+// glyph han-24dc1:15x16 15 16 // 𤷁
+// ⿸ han-7592 han-21264 // ⿸疒𡉤
 
 ## 104.8
 
@@ -237,8 +243,8 @@ glyph han-24e06:15x16 15 16 // 𤸆
 // glyph han-24e0e:15x16 15 16 // 𤸎
 // ⿸ han-7592 han-66f7 // ⿸疒曷
 
-// glyph han-24e14:15x16 15 16 // 𤸔
-// ⿸ han-7592 han-54c1 // ⿸疒品
+glyph han-24e14:15x16 15 16 // 𤸔
+⿸ han-7592:15x16.11x13 han-54c1:11x10 4 6 // ⿸疒品
 
 // glyph han-24e1b:15x16 15 16 // 𤸛
 // ⿸ han-7592 han-601d // ⿸疒思
@@ -348,6 +354,9 @@ glyph han-24e06:15x16 15 16 // 𤸆
 
 // glyph han-24eea:15x16 15 16 // 𤻪
 // ⿸ han-7592 han-9700 // ⿸疒需
+
+// glyph han-24eec:15x16 15 16 // 𤻬
+// ⿸ han-7592 han-8fa3 // ⿸疒辣
 
 ## 104.15
 

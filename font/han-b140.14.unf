@@ -59,6 +59,9 @@ glyph han-26fd7:15x16 15 16 // 𦿗
 // glyph han-27004:15x16 15 16 // 𧀄
 // ⿱ han-8279 han-757c // ⿱艹畼
 
+// glyph han-2700c:15x16 15 16 // 𧀌
+// ⿱ han-8279 han-6f31 // ⿱艹漱
+
 // glyph han-2700e:15x16 15 16 // 𧀎
 // ⿳ han-8279 han-9ad8 han-6708 // ⿳艹高月 <- ⿱艹膏
 
@@ -148,6 +151,9 @@ glyph han-27054:15x16 15 16 // 𧁔
 
 // glyph han-270d9:15x16 15 16 // 𧃙
 // ⿱ han-8279 han-97d3 // ⿱艹韓
+
+// glyph han-270e8:15x16 15 16 // 𧃨
+// ⿱ han-8279 han-5b7a // ⿱艹孺
 
 // glyph han-270ee:15x16 15 16 // 𧃮
 // ⿱ han-8279 han-71d0 // ⿱艹燐

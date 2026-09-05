@@ -83,14 +83,14 @@ glyph han-2848a-($han-regions):15x16 15 16 // 𨒊
 glyph han-2848c-($han-regions):15x16 15 16 // 𨒌
 ⿺ han-8fb6-($-1):15x16.11x14 han-6b63:10x12 4 1 // ⿺辶正
 
-// glyph han-28491-($han-regions):15x16 15 16 // 𨒑
-// ⿺ han-8fb6-($-1) han-5de8 // ⿺辶巨
+glyph han-28491-($han-regions):15x16 15 16 // 𨒑
+⿺ han-8fb6-($-1):15x16.11x14 han-5de8:11x13 4 0 // ⿺辶巨
 
 // glyph han-28495:15x16 15 16 // 𨒕
-// ⿺ han-8fb6 han-4ed8 // ⿺辶付
+// ⿺ han-8fb6 han-4ed82 // ⿺辶付
 
-// glyph han-28497-($han-regions):15x16 15 16 // 𨒗
-// ⿺ han-8fb6-($-1) han-7528 // ⿺辶用
+glyph han-28497-($han-regions):15x16 15 16 // 𨒗
+⿺ han-8fb6-($-1):15x16.11x14 han-7528:10x13 4 0 // ⿺辶用
 
 // glyph han-28499:15x16 15 16 // 𨒙
 // ⿺ han-8fb6 han-77f3 // ⿺辶石

@@ -2,8 +2,8 @@
 
 ## 85.3
 
-// glyph han-31971:15x16 15 16 // 𱥱
-// ⿰ han-6c35 han-5c38 // ⿰氵尸
+glyph han-31971:15x16 15 16 // 𱥱
+⿰ han-6c35:5x16 1 han-5c38:9x16.6x12 // ⿰氵尸
 
 ## 85.4
 
@@ -63,8 +63,8 @@ glyph han-319a7:15x16 15 16 // 𱦧
 glyph han-319b7:15x16 15 16 // 𱦷
 ⿲ -1 han-6c35:3x16 han-65a4:6x16 han-6b20:7x16 // ⿲氵斤欠
 
-// glyph han-319c1:15x16 15 16 // 𱧁
-// ⿲ han-6c35 han-5973 han-672a // ⿲氵女未
+glyph han-319c1:15x16 15 16 // 𱧁
+⿲ -2 han-6c35:3x16 han-5973:5x16 han-672a:9x16 // ⿲氵女未
 
 ## 85.9
 
@@ -207,8 +207,8 @@ glyph han-31b1e:15x16 15 16 // 𱬞
 
 ## 94.7
 
-// glyph han-31b7c:15x16 15 16 // 𱭼
-// ⿰ han-72ad han-5448 // ⿰犭呈
+glyph han-31b7c:15x16 15 16 // 𱭼
+⿰ han-72ad:4x16 han-5448:11x16 // ⿰犭呈
 
 ## 94.8
 
@@ -432,6 +432,9 @@ glyph han-31c84:15x16 15 16 // 𱲄
 
 // glyph han-31c8c:15x16 15 16 // 𱲌
 // ⿳ han-53e3 han-4e00 han-76bf // ⿳口一皿
+
+// glyph han-31c8d:15x16 15 16 // 𱲍
+// ⿱ han-5b54 han-76bf // ⿱孔皿
 
 # CJK unified ideographs extension H: 目 (109)
 

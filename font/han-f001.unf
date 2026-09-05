@@ -93,6 +93,9 @@ glyph han-2cef8:15x16 15 16 // 𬻸
 
 ## 5.7
 
+// glyph han-2cf25:15x16 15 16 // 𬼥
+// ⿱ han-675f han-4e59 // ⿱束乙
+
 // glyph han-2cf26:15x16 15 16 // 𬼦
 // ⿱ han-675c han-4e59 // ⿱杜乙
 
@@ -118,6 +121,9 @@ glyph han-2cef8:15x16 15 16 // 𬻸
 // glyph han-2cf36:15x16 15 16 // 𬼶
 // ⿳ han-4e5b han-4e85 han-4e00 // ⿳乛亅一 <- ⿱了一
 
+// glyph han-2cf37:15x16 15 16 // 𬼷
+// ⿰ han-4e86 han-4e36 // ⿰了丶
+
 ## 6.5
 
 // glyph han-2cf39:15x16 15 16 // 𬼹
@@ -141,6 +147,11 @@ glyph han-2cef8:15x16 15 16 // 𬻸
 
 // glyph han-2cf45:15x16 15 16 // 𬽅
 // ⿳ han-4e36 han-4e0b han-53e3 // ⿳丶下口 <- ⿱卞口
+
+## 8.6
+
+// glyph han-2cf49:15x16 15 16 // 𬽉
+// ⿳ han-4ea0 han-65e5 han-4e86 // ⿳亠日了
 
 ## 8.7
 
@@ -219,16 +230,16 @@ glyph han-2cfa2:15x16 15 16 // 𬾢
 // glyph han-2cfaf:15x16 15 16 // 𬾯
 // ⿰ han-4ebb han-82fb // ⿰亻苻
 
-// glyph han-2cfb0:15x16 15 16 // 𬾰
-// ⿰ han-4ebb han-661f // ⿰亻星
+glyph han-2cfb0:15x16 15 16 // 𬾰
+⿰ han-4ebb:3x16 1 han-661f:11x16 // ⿰亻星
 
 glyph han-2cfba-($han-regions):15x16 15 16 // 𬾺
 ⿰ han-5e76:8x16 han-4ee4-($-1):7x16 // ⿰并令
 
 ## 9.10
 
-// glyph han-2cfc2:15x16 15 16 // 𬿂
-// ⿰ han-4ebb han-9583 // ⿰亻閃
+glyph han-2cfc2:15x16 15 16 // 𬿂
+⿰ han-4ebb:3x16 1 han-9583:11x16 // ⿰亻閃
 
 // glyph han-2cfc3:15x16 15 16 // 𬿃
 // ⿲ han-4ebb han-4e28 han-67bc // ⿲亻丨枼
@@ -238,8 +249,8 @@ glyph han-2cfba-($han-regions):15x16 15 16 // 𬾺
 glyph han-2cfe6:15x16 15 16 // 𬿦
 ⿲ han-4ebb:3x16 han-5de5:5x16 han-9801:7x16 // ⿲亻工頁
 
-// glyph han-2cfe8:15x16 15 16 // 𬿨
-// ⿰ han-4ebb han-6b6e // ⿰亻歮
+glyph han-2cfe8:15x16 15 16 // 𬿨
+⿰ han-4ebb:3x16 1 han-6b6e:11x16 // ⿰亻歮
 
 // glyph han-2cfeb:15x16 15 16 // 𬿫
 // ⿰ han-4ebb han-9032 // ⿰亻進
@@ -310,8 +321,8 @@ glyph han-2d088:15x16 15 16 // 𭂈
 
 ## 15.5
 
-// glyph han-2d08a:15x16 15 16 // 𭂊
-// ⿰ han-51ab han-5c3c // ⿰冫尼
+glyph han-2d08a:15x16 15 16 // 𭂊
+⿰ han-51ab:5x16 1 han-5c3c:9x16 // ⿰冫尼
 
 ## 15.6
 
@@ -453,8 +464,8 @@ glyph han-2d11d:15x16 15 16 // 𭄝
 
 ## 19.3
 
-// glyph han-2d11f:15x16 15 16 // 𭄟
-// ⿱ han-5de5 han-529b // ⿱工力
+glyph han-2d11f:15x16 15 16 // 𭄟
+⿱ han-5de5:15x8 1 han-529b:15x7 // ⿱工力
 
 ## 19.6
 
@@ -468,6 +479,9 @@ glyph han-2d12d:15x16 15 16 // 𭄭
 
 glyph han-2d130:15x16 15 16 // 𭄰
 ⿰ han-679c:7x16 han-529b:8x16 // ⿰果力
+
+// glyph han-2d132:15x16 15 16 // 𭄲
+// ⿰ han-7a7a han-529b // ⿰空力
 
 ## 19.9
 
@@ -513,8 +527,8 @@ glyph han-2d153:15x16 15 16 // 𭅓
 
 ## 24.2
 
-// glyph han-2d160:15x16 15 16 // 𭅠
-// ⿱ han-5341 han-51e0 // ⿱十几
+glyph han-2d160:15x16 15 16 // 𭅠
+⿱ han-5341:15x3 1 han-51e0:15x12 // ⿱十几
 
 ## 24.8
 

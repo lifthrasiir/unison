@@ -101,24 +101,24 @@ glyph han-4a1c-($han-regions):15x16 15 16 // 䨜
 
 ## 176.4
 
-// glyph han-4a42:15x16 15 16 // 䩂
-// ⿰ han-9762 han-4eca // ⿰面今
+glyph han-4a42:15x16 15 16 // 䩂
+⿰ han-9762:7x16 1 han-4eca:7x16 // ⿰面今
 
-// glyph han-4a43:15x16 15 16 // 䩃
-// ⿲ han-9762 han-5315 han-5315 // ⿲面匕匕 <- ⿰面比
+glyph han-4a43:15x16 15 16 // 䩃
+⿲ -1 han-9762:7x16 1 han-5315:4x16 han-5315:4x16 // ⿲面匕匕
 
 ## 176.5
 
-// glyph han-4a45:15x16 15 16 // 䩅
-// ⿰ han-9762 han-76ae // ⿰面皮
+glyph han-4a45:15x16 15 16 // 䩅
+⿰ han-9762:7x16 han-76ae:8x16 // ⿰面皮
 
-// glyph han-4a47:15x16 15 16 // 䩇
-// ⿰ han-9762 han-5360 // ⿰面占
+glyph han-4a47:15x16 15 16 // 䩇
+⿰ han-9762:7x16 1 han-5360:7x16 // ⿰面占
 
 ## 176.7
 
-// glyph han-4a49:15x16 15 16 // 䩉
-// ⿰ han-9762 han-752b // ⿰面甫
+glyph han-4a49:15x16 15 16 // 䩉
+⿰ han-9762:7x16 1 han-752b:7x16 // ⿰面甫
 
 ## 176.11
 
@@ -283,6 +283,9 @@ glyph han-4abc:15x16 15 16 // 䪼
 
 // glyph han-4ac5:15x16 15 16 // 䫅
 // ⿰ han-5b8b han-9801 // ⿰宋頁
+
+// glyph han-4aca:15x16 15 16 // 䫊
+// ⿰ han-5426 han-9801 // ⿰否頁
 
 ## 181.8
 
@@ -504,6 +507,9 @@ glyph han-4b80:15x16 15 16 // 䮀
 
 ## 187.6
 
+// glyph han-4b86:15x16 15 16 // 䮆
+// ⿰ han-99ac han-353b // ⿰馬㔻
+
 glyph han-4b8c:15x16 15 16 // 䮌
 ⿲ han-99ac:7x16 han-4ebb:3x16 han-6728:5x16 // ⿲馬亻木
 
@@ -661,8 +667,8 @@ glyph han-4c33:15x16 15 16 // 䰳
 
 ## 195.3
 
-// glyph han-4c35:15x16 15 16 // 䰵
-// ⿰ han-9b5a han-5b50 // ⿰魚子
+glyph han-4c35:15x16 15 16 // 䰵
+⿰ han-9b5a:7x16 1 han-5b50:7x16 // ⿰魚子
 
 ## 195.4
 
@@ -727,6 +733,11 @@ glyph han-4c63:15x16 15 16 // 䱣
 
 glyph han-4c66:15x16 15 16 // 䱦
 ⿰ han-9b5a:7x16 1 han-96b9:7x16 // ⿰魚隹
+
+## 195.9
+
+// glyph han-4c6b:15x16 15 16 // 䱫
+// ⿱ han-524c han-9b5a // ⿱剌魚
 
 ## 195.10
 

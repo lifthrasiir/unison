@@ -118,6 +118,9 @@ glyph han-30a3c:15x16 15 16 // 𰨼
 
 ## 116.7
 
+// glyph han-30a4d:15x16 15 16 // 𰩍
+// ⿱ han-7a7a han-5fc3 // ⿱空心
+
 // glyph han-30a4e:15x16 15 16 // 𰩎
 // ⿳ han-5b80 han-513f han-9091 // ⿳宀儿邑 <- ⿱⿱宀儿邑
 
@@ -312,8 +315,8 @@ glyph han-30ad4:15x16 15 16 // 𰫔
 
 ## 120.3
 
-// glyph han-30ad9:15x16 15 16 // 𰫙
-// ⿰ han-7cf9 han-5b50 // ⿰糹子
+glyph han-30ad9:15x16 15 16 // 𰫙
+⿰ han-7cf9:5x16 1 han-5b50:9x16 // ⿰糹子
 
 ## 120.4
 
@@ -736,6 +739,11 @@ glyph han-30cd5:15x16 15 16 // 𰳕
 
 glyph han-30cdf:15x16 15 16 // 𰳟
 ⿲ -6 han-866b:5x16 han-4e5d:9x16 han-9ce5:7x16 // ⿲虫九鳥
+
+## 142.14
+
+glyph han-30ce1:15x16 15 16 // 𰳡
+⿲ -4 han-866b:5x16 han-8f9b:5x16 han-675f:9x16 // ⿲虫辛束
 
 ## 142.15
 

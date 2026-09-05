@@ -161,7 +161,7 @@ glyph han-210fd:15x16 15 16 // 𡃽
 // ⿱ han-9cf4 han-800c // ⿱鳴而
 
 glyph han-2112a:15x16 15 16 // 𡄪
-⿲ -6 han-53e3:3x16-l han-867d:11x16 han-96b9:7x16 // ⿲口虽隹
+⿲ -3 han-53e3:3x16-l 1 han-867d:7x16 han-96b9:7x16 // ⿲口虽隹
 
 // glyph han-2112f:15x16 15 16 // 𡄯
 // ⿲ han-53e3 han-6708 han-610f // ⿲口月意 <- ⿰口臆
