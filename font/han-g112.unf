@@ -165,6 +165,9 @@ glyph han-30a3c:15x16 15 16 // 𰨼
 glyph han-30a60:15x16 15 16 // 𰩠
 ⿱ han-6b62:15x6 han-7acb:15x10 // ⿱止立
 
+// glyph han-30a61:15x16 15 16 // 𰩡
+// ⿱ han-7acb han-4ec1 // ⿱立仁
+
 ## 117.6
 
 glyph han-30a63:15x16 15 16 // 𰩣
@@ -302,6 +305,9 @@ glyph han-30ab5:15x16 15 16 // 𰪵
 
 // glyph han-30ab9:15x16 15 16 // 𰪹
 // ⿰ han-7c73 han-5e74 // ⿰米年
+
+// glyph han-30aba:15x16 15 16 // 𰪺
+// ⿲ han-7c73 han-5f73 han-4e8d // ⿲米彳亍
 
 ## 119.7
 
@@ -475,8 +481,8 @@ glyph han-30b6c:15x16 15 16 // 𰭬
 
 ## 128.4
 
-// glyph han-30b77:15x16 15 16 // 𰭷
-// ⿰ han-8033 han-5348 // ⿰耳午
+glyph han-30b77:15x16 15 16 // 𰭷
+⿰ han-8033:6x16-l han-5348:9x16 // ⿰耳午
 
 ## 128.12
 
@@ -510,6 +516,9 @@ glyph han-30b81:15x16 15 16 // 𰮁
 // ⿰ han-8089 han-5df3 // ⿰肉巳
 
 ## 130.4
+
+// glyph han-30b88:15x16 15 16 // 𰮈
+// ⿰ han-8089 han-5dff // ⿰肉巿
 
 // glyph han-30b89:15x16 15 16 // 𰮉
 // ⿰ han-8089 han-4e0d // ⿰肉不

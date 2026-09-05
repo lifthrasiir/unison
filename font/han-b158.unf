@@ -31,6 +31,9 @@ glyph han-282a7:15x16 15 16 // 𨊧
 // glyph han-282a9:15x16 15 16 // 𨊩
 // ⿰ han-8eca han-5ddb // ⿰車巛
 
+// glyph han-282ab:15x16 15 16 // 𨊫
+// ⿰ han-8eca han-4e8d // ⿰車亍
+
 glyph han-282ad:15x16 15 16 // 𨊭
 ⿰ han-8eca:5x16 1 han-5bf8:9x16 // ⿰車寸
 
@@ -94,6 +97,9 @@ glyph han-282dd:15x16 15 16 // 𨋝
 
 glyph han-282e2:15x16 15 16 // 𨋢
 ⿰ han-8eca:7x16 1 han-7acb:7x16 // ⿰車立
+
+// glyph han-282e3:15x16 15 16 // 𨋣
+// ⿰ han-8eca han-4e19 // ⿰車丙
 
 glyph han-282e5:15x16 15 16 // 𨋥
 ⿰ han-8eca:5x16 1 han-5f17:9x16 // ⿰車弗
@@ -266,6 +272,9 @@ glyph han-283b2:15x16 15 16 // 𨎲
 // glyph han-283c9:15x16 15 16 // 𨏉
 // ⿳ han-25b25 han-5927 han-8eca // ⿳𥬥大車 <- ⿱𥬥⿱大車
 
+// glyph han-283ce:15x16 15 16 // 𨏎
+// ⿲ han-8eca han-9b5a han-4e8d // ⿲車魚亍
+
 ## 159.17
 
 // glyph han-283ef:15x16 15 16 // 𨏯
@@ -329,6 +338,9 @@ glyph han-2841c:15x16 15 16 // 𨐜
 
 // glyph han-28421:15x16 15 16 // 𨐡
 // ⿰ han-8f9b han-82e6 // ⿰辛苦
+
+// glyph han-28423:15x16 15 16 // 𨐣
+// ⿰ han-8f9b han-2da62 // ⿰辛𭩢
 
 glyph han-28425:15x16 15 16 // 𨐥
 ⿰ han-8f9b:7x16 1 han-9769:7x16 // ⿰辛革

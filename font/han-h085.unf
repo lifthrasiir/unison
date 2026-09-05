@@ -10,6 +10,9 @@ glyph han-31971:15x16 15 16 // 𱥱
 // glyph han-31977:15x16 15 16 // 𱥷
 // ⿱ han-5206 han-6c34 // ⿱分水
 
+// glyph han-3197b:15x16 15 16 // 𱥻
+// ⿲ han-6c35 han-5203 han-4e36 // ⿲氵刃丶
+
 ## 85.5
 
 // glyph han-3197c:15x16 15 16 // 𱥼
@@ -117,6 +120,9 @@ glyph han-31a4c:15x16 15 16 // 𱩌
 // glyph han-31a7b:15x16 15 16 // 𱩻
 // ⿲ han-6e56 han-72ad han-738b // ⿲湖犭王 <- ⿰湖狂
 
+// glyph han-31a7d:15x16 15 16 // 𱩽
+// ⿰ han-6c35 han-5669 // ⿰氵噩
+
 # CJK unified ideographs extension H: 火 (86)
 
 ## 86.2
@@ -126,8 +132,8 @@ glyph han-31aa2:15x16 15 16 // 𱪢
 
 ## 86.3
 
-// glyph han-31aa4:15x16 15 16 // 𱪤
-// ⿰ han-706b han-5140 // ⿰火兀
+glyph han-31aa4:15x16 15 16 // 𱪤
+⿰ han-706b:5x16-l han-5140:10x16 // ⿰火兀
 
 glyph han-31aa5:15x16 15 16 // 𱪥
 ⿱ han-4e0b:15x12 han-706c:15x4 // ⿱下灬
@@ -137,8 +143,8 @@ glyph han-31aa5:15x16 15 16 // 𱪥
 // glyph han-31aaa:15x16 15 16 // 𱪪
 // ⿰ han-706b han-5386 // ⿰火历
 
-// glyph han-31aac:15x16 15 16 // 𱪬
-// ⿱ han-72ac han-706c // ⿱犬灬
+glyph han-31aac:15x16 15 16 // 𱪬
+⿱ han-72ac:15x12 han-706c:15x4 // ⿱犬灬
 
 // glyph han-31ab0:15x16 15 16 // 𱪰
 // ⿳ han-5200 han-5200 han-706c // ⿳刀刀灬
@@ -255,8 +261,8 @@ glyph han-31b86:15x16 15 16 // 𱮆
 
 ## 94.9
 
-// glyph han-31b8b:15x16 15 16 // 𱮋
-// ⿰ han-72ad han-6637 // ⿰犭昷
+glyph han-31b8b:15x16 15 16 // 𱮋
+⿰ han-72ad:6x16 han-6637:9x16 // ⿰犭昷
 
 // glyph han-31b8c:15x16 15 16 // 𱮌
 // ⿰ han-72ad han-7aff // ⿰犭竿
@@ -383,8 +389,8 @@ glyph han-31c33:15x16 15 16 // 𱰳
 
 ## 102.10
 
-// glyph han-31c3e:15x16 15 16 // 𱰾
-// ⿰ han-7537 han-5351 // ⿰男卑
+glyph han-31c3e:15x16 15 16 // 𱰾
+⿰ -1 han-7537:9x16 1 han-5351:6x16 // ⿰男卑
 
 ## 102.12
 
@@ -420,6 +426,14 @@ glyph han-31c50:15x16 15 16 // 𱱐
 
 // glyph han-31c57:15x16 15 16 // 𱱗
 // ⿸ han-7592 han-5f81 // ⿸疒征
+
+## 104.9
+
+// glyph han-31c58:15x16 15 16 // 𱱘
+// ⿸ han-7592 han-8010 // ⿸疒耐
+
+// glyph han-31c5b:15x16 15 16 // 𱱛
+// ⿸ han-7592 han-5ba6 // ⿸疒宦
 
 ## 104.12
 
@@ -462,8 +476,8 @@ glyph han-31c84:15x16 15 16 // 𱲄
 
 ## 108.4
 
-// glyph han-31c8b:15x16 15 16 // 𱲋
-// ⿱ han-72ac han-76bf // ⿱犬皿
+glyph han-31c8b:15x16 15 16 // 𱲋
+⿱ han-72ac:15x10 1 han-76bf:15x5 // ⿱犬皿
 
 // glyph han-31c8c:15x16 15 16 // 𱲌
 // ⿳ han-53e3 han-4e00 han-76bf // ⿳口一皿
@@ -502,8 +516,8 @@ glyph han-31cb3:15x16 15 16 // 𱲳
 // glyph han-31cb9:15x16 15 16 // 𱲹
 // ⿰ han-76ee han-8db3 // ⿰目足
 
-// glyph han-31cba:15x16 15 16 // 𱲺
-// ⿲ han-76ee han-4ebb han-672c // ⿲目亻本
+glyph han-31cba:15x16 15 16 // 𱲺
+⿲ han-76ee:3x16-l han-4ebb:3x16 han-672c:9x16 // ⿲目亻本
 
 ## 109.8
 

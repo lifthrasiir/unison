@@ -51,6 +51,9 @@ glyph han-24730:15x16 15 16 // 𤜰
 glyph han-24731:15x16 15 16 // 𤜱
 ⿰ han-72ad:6x16 han-5df4:9x16 // ⿰犭巴
 
+// glyph han-24732:15x16 15 16 // 𤜲
+// ⿰ han-5dff han-72ac // ⿰巿犬
+
 // glyph han-24733:15x16 15 16 // 𤜳
 // ⿰ han-72ad han-5e00 // ⿰犭帀
 
@@ -60,8 +63,8 @@ glyph han-24731:15x16 15 16 // 𤜱
 glyph han-2473b:15x16 15 16 // 𤜻
 ⿲ han-72ad:4x16 han-5315:4x16 han-5315:7x16 // ⿲犭匕匕
 
-// glyph han-2473d:15x16 15 16 // 𤜽
-// ⿰ han-72ad han-5185 // ⿰犭内
+glyph han-2473d:15x16 15 16 // 𤜽
+⿰ han-72ad:4x16 han-5185:11x16 // ⿰犭内
 
 // glyph han-24740:15x16 15 16 // 𤝀
 // ⿰ han-6b20 han-72ac // ⿰欠犬
@@ -113,8 +116,8 @@ glyph han-2475a:15x16 15 16 // 𤝚
 // glyph han-2475f:15x16 15 16 // 𤝟
 // ⿰ han-5f17 han-72ac // ⿰弗犬
 
-// glyph han-24760:15x16 15 16 // 𤝠
-// ⿰ han-72ad han-5f14 // ⿰犭弔
+glyph han-24760:15x16 15 16 // 𤝠
+⿰ han-72ad:6x16 han-5f14:9x16 // ⿰犭弔
 
 // glyph han-24761:15x16 15 16 // 𤝡
 // ⿰ han-767d han-72ac // ⿰白犬
@@ -308,8 +311,8 @@ glyph han-24834:15x16 15 16 // 𤠴
 glyph han-24843:15x16 15 16 // 𤡃
 ⿲ -5 han-72ad:4x16 han-675f:9x16 han-6b20:7x16 // ⿲犭束欠
 
-// glyph han-24848:15x16 15 16 // 𤡈
-// ⿲ han-72ad han-8a01 han-5348 // ⿲犭訁午
+glyph han-24848:15x16 15 16 // 𤡈
+⿲ -3 han-72ad:4x16 han-8a01:5x16 han-5348:9x16 // ⿲犭訁午
 
 glyph han-2484b:15x16 15 16 // 𤡋
 ⿲ -1 han-72ad:4x16 han-8eca:5x16 han-6b20:7x16 // ⿲犭車欠

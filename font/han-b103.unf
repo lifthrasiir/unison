@@ -59,6 +59,9 @@ glyph han-24d36:15x16 15 16 // 𤴶
 glyph han-24d37:15x16 15 16 // 𤴷
 ⿸ han-7592:15x16.11x13 han-6728:11x12 4 4 // ⿸疒木
 
+// glyph han-24d39:15x16 15 16 // 𤴹
+// ⿸ han-7592 han-5dff // ⿸疒巿
+
 // glyph han-24d3b:15x16 15 16 // 𤴻
 // ⿸ han-7592 han-72ac // ⿸疒犬
 
@@ -286,6 +289,9 @@ glyph han-24e14:15x16 15 16 // 𤸔
 
 // glyph han-24e47:15x16 15 16 // 𤹇
 // ⿸ han-7592 han-79ee // ⿸疒秮
+
+// glyph han-24e48:15x16 15 16 // 𤹈
+// ⿸ han-7592 han-2347d // ⿸疒𣑽
 
 // glyph han-24e56:15x16 15 16 // 𤹖
 // ⿸ han-7592 han-8ed2 // ⿸疒軒

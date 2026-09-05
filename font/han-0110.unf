@@ -90,8 +90,8 @@ glyph han-77f7:15x16 15 16 // 矷
 glyph han-77f8:15x16 15 16 // 矸
 ⿰ han-77f3:7x16 1 han-5e72:7x16 // ⿰石干
 
-// glyph han-77f9:15x16 15 16 // 矹
-// ⿰ han-77f3 han-5140 // ⿰石兀
+glyph han-77f9:15x16 15 16 // 矹
+⿰ han-77f3:5x16 han-5140:10x16 // ⿰石兀
 
 glyph han-77fc:15x16 15 16 // 矼
 ⿰ han-77f3:8x16 han-5de5:7x16 // ⿰石工
@@ -113,8 +113,8 @@ glyph han-77ff:15x16 15 16 // 矿
 // glyph han-7805:15x16 15 16 // 砅
 // ⿰ han-77f3 han-6c34 // ⿰石水
 
-// glyph han-7806:15x16 15 16 // 砆
-// ⿰ han-77f3 han-592b // ⿰石夫
+glyph han-7806:15x16 15 16 // 砆
+⿰ han-77f3:5x16 1 han-592b:9x16 // ⿰石夫
 
 glyph han-7807:15x16 15 16 // 砇
 ⿰ han-77f3:5x16 1 han-6587:9x16 // ⿰石文
@@ -187,8 +187,8 @@ glyph han-7833:15x16 15 16 // 砳
 glyph han-7834:15x16 15 16 // 破
 ⿰ han-77f3:5x16 1 han-76ae:9x16 // ⿰石皮
 
-// glyph han-7835:15x16 15 16 // 砵
-// ⿰ han-77f3 han-672c // ⿰石本
+glyph han-7835:15x16 15 16 // 砵
+⿰ han-77f3:5x16 1 han-672c:9x16 // ⿰石本
 
 glyph han-7836:15x16 15 16 // 砶
 ⿰ han-77f3:8x16 1 han-767d:6x16 // ⿰石白
@@ -229,7 +229,7 @@ glyph han-7851:15x16 15 16 // 硑
 ⿰ han-77f3:5x16 1 han-5e76:9x16 // ⿰石并
 
 glyph han-7852:15x16 15 16 // 硒
-⿰ -1 han-77f3:5x16 1 han-897f:10x16 // ⿰石西
+⿰ han-77f3:7x16 1 han-897f:7x16 // ⿰石西
 
 // glyph han-7856:15x16 15 16 // 硖
 // ⿰ han-77f3 han-5939 // ⿰石夹
@@ -1149,8 +1149,8 @@ glyph han-7a0d:15x16 15 16 // 稍
 
 ## 115.8
 
-// glyph han-7a0f:15x16 15 16 // 稏
-// ⿰ han-79be han-4e9e // ⿰禾亞
+glyph han-7a0f:15x16 15 16 // 稏
+⿰ han-79be:5x16 han-4e9e:10x16 // ⿰禾亞
 
 // glyph han-7a11:15x16 15 16 // 稑
 // ⿰ han-79be han-5774 // ⿰禾坴

@@ -251,7 +251,7 @@ glyph han-4aa9:15x16 15 16 // 䪩
 ## 180.5
 
 glyph han-4aaa:15x16 15 16 // 䪪
-⿳ -6 han-52a0:15x11 han-7acb:15x5 1 han-65e5:15x5 // ⿳加立日
+⿳ -3 han-52a0:15x8 han-7acb:15x5 1 han-65e5:15x5 // ⿳加立日
 
 ## 180.9
 
@@ -270,8 +270,8 @@ glyph han-4aad:15x16 15 16 // 䪭
 glyph han-4ab1:15x16 15 16 // 䪱
 ⿰ han-5df1:9x16 1 han-9801:5x16 // ⿰己頁
 
-// glyph han-4ab2:15x16 15 16 // 䪲
-// ⿰ han-5140 han-9801 // ⿰兀頁
+glyph han-4ab2:15x16 15 16 // 䪲
+⿰ han-5140:10x16 han-9801:5x16 // ⿰兀頁
 
 ## 181.5
 
@@ -335,6 +335,11 @@ glyph han-4af0:15x16 15 16 // 䫰
 
 // glyph han-4af1:15x16 15 16 // 䫱
 // ⿰ han-264d4 han-9801 // ⿰𦓔頁
+
+## 181.16
+
+// glyph han-4af7:15x16 15 16 // 䫷
+// ⿰ han-5669 han-9801 // ⿰噩頁
 
 # CJK unified ideographs extension A: 風 (182)
 
@@ -409,8 +414,8 @@ glyph han-4b03:15x16 15 16 // 䬃
 glyph han-4b22:15x16 15 16 // 䬢
 ⿰ han-98e0:7x16 1 han-5200:7x16 // ⿰飠刀
 
-// glyph han-4dbf:15x16 15 16 // 䶿
-// ⿰ han-98e0 han-513f // ⿰飠儿
+glyph han-4dbf:15x16 15 16 // 䶿
+⿰ han-98e0:7x16 han-513f:8x16 // ⿰飠儿
 
 ## 184.4
 
@@ -610,6 +615,9 @@ glyph han-4bcd-($han-regions):15x16 15 16 // 䯍
 // glyph han-4bd0:15x16 15 16 // 䯐
 // ⿰ han-9aa8 han-8089 // ⿰骨肉
 
+// glyph han-4bd2:15x16 15 16 // 䯒
+// ⿲ han-9aa8 han-5f73 han-4e8d // ⿲骨彳亍
+
 glyph han-4bd3:15x16 15 16 // 䯓
 ⿰ han-9aa8:7x16 1 han-572d:7x16 // ⿰骨圭
 
@@ -688,6 +696,9 @@ glyph han-4c3a:15x16 15 16 // 䰺
 
 glyph han-4c3c:15x16 15 16 // 䰼
 ⿰ han-9b5a:7x16 1 han-4eca:7x16 // ⿰魚今
+
+// glyph han-4c3d:15x16 15 16 // 䰽
+// ⿰ han-9b5a han-5dff // ⿰魚巿
 
 glyph han-4c3e:15x16 15 16 // 䰾
 ⿰ han-9b5a:7x16 1 han-5df4:7x16 // ⿰魚巴
@@ -772,8 +783,8 @@ glyph han-4c7f:15x16 15 16 // 䱿
 // glyph han-4c81:15x16 15 16 // 䲁
 // ⿲ han-9b5a han-2bd56 han-5bf8 // ⿲魚𫵖寸 <- ⿰魚尉
 
-// glyph han-4c85:15x16 15 16 // 䲅
-// ⿲ han-9b5a han-592b han-898b // ⿲魚夫見 <- ⿰魚規
+glyph han-4c85:15x16 15 16 // 䲅
+⿲ -6 han-9b5a:7x16 han-592b:9x16 han-898b:5x16 // ⿲魚夫見
 
 glyph han-4c86:15x16 15 16 // 䲆
 ⿰ han-9b5a:7x16 1 han-9b5a:7x16 // ⿰魚魚
@@ -892,7 +903,7 @@ glyph han-4ccf:15x16 15 16 // 䳏
 // ⿰ han-5485 han-9ce5 // ⿰咅鳥
 
 glyph han-4cdf:15x16 15 16 // 䳟
-⿲ -2 han-65e5:4x16-l han-6708:5x16 1 han-9ce5:7x16 // ⿲日月鳥
+⿲ -1 han-65e5:3x16 han-6708:5x16 1 han-9ce5:7x16 // ⿲日月鳥
 
 glyph han-4ce1:15x16 15 16 // 䳡
 ⿰ han-96b9:7x16 1 han-9ce5:7x16 // ⿰隹鳥
@@ -913,6 +924,11 @@ glyph han-4cec:15x16 15 16 // 䳬
 
 // glyph han-4cf0:15x16 15 16 // 䳰
 // ⿲ han-4ebb han-5446 han-9ce5 // ⿲亻呆鳥 <- ⿰保鳥
+
+## 196.10
+
+// glyph han-4cf5:15x16 15 16 // 䳵
+// ⿲ han-4f86 han-529b han-9ce5 // ⿲來力鳥
 
 ## 196.11
 

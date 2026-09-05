@@ -307,8 +307,8 @@ glyph han-2df99:15x16 15 16 // 𭾙
 
 ## 109.3
 
-// glyph han-2df9a:15x16 15 16 // 𭾚
-// ⿰ han-76ee han-5927 // ⿰目大
+glyph han-2df9a:15x16 15 16 // 𭾚
+⿰ han-76ee:6x16 han-5927:9x16 // ⿰目大
 
 // glyph han-2df9b:15x16 15 16 // 𭾛
 // ㇯貞丶
@@ -371,8 +371,8 @@ glyph han-2dfd2:15x16 15 16 // 𭿒
 
 ## 112.3
 
-// glyph han-2e00b:15x16 15 16 // 𮀋
-// ⿰ han-77f3 han-5927 // ⿰石大
+glyph han-2e00b:15x16 15 16 // 𮀋
+⿰ han-77f3:5x16 1 han-5927:9x16 // ⿰石大
 
 ## 112.4
 
@@ -392,6 +392,11 @@ glyph han-2e00d:15x16 15 16 // 𮀍
 
 glyph han-2e014:15x16 15 16 // 𮀔
 ⿰ han-77f3:8x16 han-793a:7x16 // ⿰石示
+
+## 112.6
+
+// glyph han-2e016:15x16 15 16 // 𮀖
+// ⿲ han-77f3 han-5f73 han-4e8d // ⿲石彳亍
 
 ## 112.7
 
@@ -423,8 +428,8 @@ glyph han-2e02b:15x16 15 16 // 𮀫
 // glyph han-2e02c:15x16 15 16 // 𮀬
 // ⿰ han-77f3 han-6b6a // ⿰石歪
 
-// glyph han-2e02d:15x16 15 16 // 𮀭
-// ⿰ han-77f3 han-54c1 // ⿰石品
+glyph han-2e02d:15x16 15 16 // 𮀭
+⿰ han-77f3:5x16 1 han-54c1:9x16 // ⿰石品
 
 // glyph han-2e02e:15x16 15 16 // 𮀮
 // ⿲ han-77f3 han-4ebb han-5446 // ⿲石亻呆 <- ⿰石保
@@ -487,11 +492,14 @@ glyph han-2e06c:15x16 15 16 // 𮁬
 // glyph han-2e06d:15x16 15 16 // 𮁭
 // ⿰ han-793a han-4e98 // ⿰示亘
 
-// glyph han-2e06e:15x16 15 16 // 𮁮
-// ⿰ han-793a han-800c // ⿰示而
+glyph han-2e06e:15x16 15 16 // 𮁮
+⿰ han-793a:5x16 1 han-800c:9x16 // ⿰示而
 
 // glyph han-2e072:15x16 15 16 // 𮁲
 // ⿰ han-793a han-65e9 // ⿰示早
+
+// glyph han-2e074:15x16 15 16 // 𮁴
+// ⿲ han-793b han-5f73 han-4e8d // ⿲礻彳亍
 
 ## 113.9
 
@@ -709,6 +717,11 @@ glyph han-2e141:15x16 15 16 // 𮅁
 // glyph han-2e143:15x16 15 16 // 𮅃
 // ⿱ han-25ad7 han-592c // ⿱𥫗夬
 
+## 118.5
+
+// glyph han-2e144:15x16 15 16 // 𮅄
+// ⿱ han-25ad7 han-4ede // ⿱𥫗仞
+
 ## 118.6
 
 // glyph han-2e14a:15x16 15 16 // 𮅊
@@ -764,11 +777,11 @@ glyph han-2e15e:15x16 15 16 // 𮅞
 // glyph han-2e169:15x16 15 16 // 𮅩
 // ⿱ han-25ad7 han-73c0 // ⿱𥫗珀
 
-// glyph han-2e16c:15x16 15 16 // 𮅬
-// ⿳ han-25ad7 han-5b80 han-81e3 // ⿳𥫗宀臣 <- ⿱𥫗宦
+glyph han-2e16c:15x16 15 16 // 𮅬
+⿳ han-25ad7:15x5 -1 han-5b80:15x5 han-81e3:15x7 // ⿳𥫗宀臣
 
 glyph han-2e16d:15x16 15 16 // 𮅭
-⿳ -7 han-25ad7:15x5 han-52a0:15x11 han-6728:15x7 // ⿳𥫗加木
+⿳ -4 han-25ad7:15x5 han-52a0:15x8 han-6728:15x7 // ⿳𥫗加木
 
 ## 118.10
 

@@ -24,8 +24,8 @@ glyph han-2bfee:15x16 15 16 // 𫿮
 
 ## 70.6
 
-// glyph han-2c001:15x16 15 16 // 𬀁
-// ⿲ han-592b han-65b9 han-4eba // ⿲夫方人 <- ⿰夫㫃
+glyph han-2c001:15x16 15 16 // 𬀁
+⿲ -6 han-592b:9x16 han-65b9:7x16 han-4eba:5x16 // ⿲夫方人
 
 ## 70.10
 
@@ -175,8 +175,8 @@ glyph han-2c0ac:15x16 15 16 // 𬂬
 
 ## 75.7
 
-// glyph han-2c0b2:15x16 15 16 // 𬂲
-// ⿰ han-6728 han-4e9c // ⿰木亜
+glyph han-2c0b2:15x16 15 16 // 𬂲
+⿰ han-6728:5x16 han-4e9c:10x16 // ⿰木亜
 
 glyph han-2c0b6:15x16 15 16 // 𬂶
 ⿲ -1 han-6728:5x16 han-4e14:6x16 han-529b:5x16 // ⿲木且力
@@ -455,6 +455,9 @@ glyph han-2c1d7:15x16 15 16 // 𬇗
 // glyph han-2c1dc:15x16 15 16 // 𬇜
 // ⿳ han-6c34 han-5927 han-51ab // ⿳水大冫 <- ⿱水冭
 
+glyph han-2c1de:15x16 15 16 // 𬇞
+⿰ han-6c35:3x16 1 han-4e19:11x16 // ⿰氵丙
+
 // glyph han-2c1df:15x16 15 16 // 𬇟
 // ⿰ han-6c35 han-6c37 // ⿰氵氷
 
@@ -474,6 +477,9 @@ glyph han-2c1e7:15x16 15 16 // 𬇧
 glyph han-2c1e9:15x16 15 16 // 𬇩
 ⿲ han-6c35:3x16 han-6728:5x16 han-571f:7x16 // ⿲氵木土
 
+// glyph han-2c1ea:15x16 15 16 // 𬇪
+// ⿲ han-6c35 han-6728 han-4e8d // ⿲氵木亍
+
 glyph han-2c1eb:15x16 15 16 // 𬇫
 ⿲ han-6c35:3x16 han-624c:3x16 han-5df4:9x16 // ⿲氵扌巴
 
@@ -488,6 +494,9 @@ glyph han-2c1eb:15x16 15 16 // 𬇫
 glyph han-2c1f9:15x16 15 16 // 𬇹
 ⿰ han-6c35:5x16 1 han-56fd:9x16 // ⿰氵国
 
+// glyph han-2c1fa:15x16 15 16 // 𬇺
+// ⿰ han-6c35 han-51ee // ⿰氵凮
+
 // glyph han-2c202:15x16 15 16 // 𬈂
 // ⿰ han-6c35 han-5b5f // ⿰氵孟
 
@@ -497,7 +506,7 @@ glyph han-2c206:15x16 15 16 // 𬈆
 ⿲ -2 han-6c35:3x16 han-675f:9x16 han-529b:5x16 // ⿲氵束力
 
 glyph han-2c208:15x16 15 16 // 𬈈
-⿲ -3 han-6c35:3x16 han-4e95:9x16 han-6b63:6x16 // ⿲氵井正
+⿲ -1 han-6c35:3x16 han-4e95:7x16 han-6b63:6x16 // ⿲氵井正
 
 // glyph han-2c214:15x16 15 16 // 𬈔
 // ⿰ han-6c35 han-7553 // ⿰氵畓
@@ -614,6 +623,9 @@ glyph han-2c29a:15x16 15 16 // 𬊚
 
 // glyph han-2c2a2:15x16 15 16 // 𬊢
 // ⿰ han-706b han-95f9 // ⿰火闹
+
+// glyph han-2c2a5:15x16 15 16 // 𬊥
+// ⿰ han-706b han-342d // ⿰火㐭
 
 ## 86.9
 
@@ -735,3 +747,8 @@ glyph han-2c33a:15x16 15 16 // 𬌺
 
 glyph han-2c346-($han-regions):15x16 15 16 // 𬍆
 ⿲ -1 han-72ad:4x16 han-8005-($-1):5x16 han-6587:7x16 // ⿲犭者文
+
+## 94.15
+
+// glyph han-2c34c:15x16 15 16 // 𬍌
+// ⿰ han-72d7 han-54ed // ⿰狗哭

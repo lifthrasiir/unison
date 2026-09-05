@@ -92,8 +92,8 @@ glyph han-2628a:15x16 15 16 // 𦊊
 // glyph han-2628e:15x16 15 16 // 𦊎
 // ⿱ han-7f52 han-793a // ⿱罒示
 
-// glyph han-26290:15x16 15 16 // 𦊐
-// ⿱ han-7f52 han-5de8 // ⿱罒巨
+glyph han-26290:15x16 15 16 // 𦊐
+⿱ han-7f52:15x7 2 han-5de8:15x7 // ⿱罒巨
 
 // glyph han-26292:15x16 15 16 // 𦊒
 // ⿱ han-7f52 han-53e5 // ⿱罒句

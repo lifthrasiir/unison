@@ -109,6 +109,11 @@ glyph han-30379:15x16 15 16 // 𰍹
 // glyph han-3037b:15x16 15 16 // 𰍻
 // ⿸ han-5c38 han-5754 // ⿸尸坔
 
+## 44.8
+
+// glyph han-3037d:15x16 15 16 // 𰍽
+// ⿸ han-5c38 han-62a6 // ⿸尸抦
+
 ## 44.10
 
 // glyph han-30381:15x16 15 16 // 𰎁
@@ -343,8 +348,8 @@ glyph han-30448:15x16 15 16 // 𰑈
 
 ## 61.5
 
-// glyph han-3044b:15x16 15 16 // 𰑋
-// ⿱ han-5de8 han-5fc3 // ⿱巨心
+glyph han-3044b:15x16 15 16 // 𰑋
+⿱ han-5de8:15x10 han-5fc3:15x6 // ⿱巨心
 
 // glyph han-3044d:15x16 15 16 // 𰑍
 // ⿰ han-5fc4 han-53e6 // ⿰忄另
@@ -400,6 +405,11 @@ glyph han-3047c:15x16 15 16 // 𰑼
 
 glyph han-30480:15x16 15 16 // 𰒀
 ⿰ han-5fc4:5x16 1 han-99ac:9x16 // ⿰忄馬
+
+## 61.11
+
+// glyph han-3048a:15x16 15 16 // 𰒊
+// ⿱ han-8a31 han-5fc3 // ⿱許心
 
 ## 61.12
 
@@ -474,8 +484,8 @@ glyph han-304d8:15x16 15 16 // 𰓘
 glyph han-304de:15x16 15 16 // 𰓞
 ⿰ han-624c:5x16 1 han-821f:9x16 // ⿰扌舟
 
-// glyph han-304e4:15x16 15 16 // 𰓤
-// ⿲ han-624c han-8ba0 han-5348 // ⿲扌讠午
+glyph han-304e4:15x16 15 16 // 𰓤
+⿲ han-624c:3x16 han-8ba0:3x16 han-5348:9x16 // ⿲扌讠午
 
 // glyph han-304e6:15x16 15 16 // 𰓦
 // ⿰ han-624b han-7a75 // ⿰手穵
@@ -553,8 +563,8 @@ glyph han-3055a:15x16 15 16 // 𰕚
 
 ## 69.4
 
-// glyph han-3055d:15x16 15 16 // 𰕝
-// ⿰ han-5348 han-65a4 // ⿰午斤
+glyph han-3055d:15x16 15 16 // 𰕝
+⿰ han-5348:9x16 han-65a4:6x16 // ⿰午斤
 
 # CJK unified ideographs extension G: 方 (70)
 
@@ -620,8 +630,8 @@ glyph han-3058c:15x16 15 16 // 𰖌
 
 ## 72.8
 
-// glyph han-30590:15x16 15 16 // 𰖐
-// ⿰ han-65e5 han-4e9e // ⿰日亞
+glyph han-30590:15x16 15 16 // 𰖐
+⿰ han-65e5:4x16-l 1 han-4e9e:10x16 // ⿰日亞
 
 // glyph han-30592:15x16 15 16 // 𰖒
 // ⿰ han-65e5 han-660b // ⿰日昋
@@ -686,7 +696,7 @@ glyph han-305d3:15x16 15 16 // 𰗓
 ## 75.7
 
 glyph han-305e8:15x16 15 16 // 𰗨
-⿲ -1 han-6728:5x16 han-65e5:5x16 han-5bf8:6x16 // ⿲木日寸
+⿲ han-6728:5x16 han-65e5:3x16 han-5bf8:7x16 // ⿲木日寸
 
 // glyph han-305ee:15x16 15 16 // 𰗮
 // ⿰ han-6728 han-5b8b // ⿰木宋
@@ -725,8 +735,8 @@ glyph han-30614:15x16 15 16 // 𰘔
 
 ## 75.12
 
-// glyph han-30626:15x16 15 16 // 𰘦
-// ⿲ han-672a han-8a01 han-5348 // ⿲未訁午
+glyph han-30626:15x16 15 16 // 𰘦
+⿲ -8 han-672a:9x16 han-8a01:5x16 han-5348:9x16 // ⿲未訁午
 
 // glyph han-30628:15x16 15 16 // 𰘨
 // ⿺ han-582f han-6728 // ⿺堯木
@@ -784,6 +794,9 @@ glyph han-3065a:15x16 15 16 // 𰙚
 glyph han-3065b:15x16 15 16 // 𰙛
 ⿰ han-6b63:8x16 han-4e01:7x16 // ⿰正丁
 
+// glyph han-3065c:15x16 15 16 // 𰙜
+// ⿱ han-5203 han-6b62 // ⿱刃止
+
 ## 77.4
 
 glyph han-3065d:15x16 15 16 // 𰙝
@@ -809,6 +822,9 @@ glyph han-30667:15x16 15 16 // 𰙧
 ⿱ -1 han-5405:15x5 han-6b62:15x12 // ⿱吅止
 
 ## 77.8
+
+// glyph han-3066c:15x16 15 16 // 𰙬
+// ⿱ han-4f86 han-6b62 // ⿱來止
 
 // glyph han-3066d:15x16 15 16 // 𰙭
 // ⿱ han-6b62 han-96b9 // ⿱止隹

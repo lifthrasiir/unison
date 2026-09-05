@@ -216,8 +216,8 @@ glyph han-6c4c:15x16 15 16 // 汌
 glyph han-6c4e:15x16 15 16 // 汎
 ⿰ han-6c35:5x16 han-51e1:10x16 // ⿰氵凡
 
-// glyph han-6c4f:15x16 15 16 // 汏
-// ⿰ han-6c35 han-5927 // ⿰氵大
+glyph han-6c4f:15x16 15 16 // 汏
+⿰ han-6c35:5x16 1 han-5927:9x16 // ⿰氵大
 
 glyph han-6c52-($han-regions):15x16 15 16 // 汒
 ⿰ han-6c35:5x16 1 han-4ea1-($-1):9x16 // ⿰氵亡
@@ -273,8 +273,8 @@ glyph han-6c6b:15x16 15 16 // 汫
 // glyph han-6c6c:15x16 15 16 // 汬
 // ⿱ han-4e95 han-6c34 // ⿱井水
 
-// glyph han-6c6d:15x16 15 16 // 汭
-// ⿰ han-6c35 han-5185 // ⿰氵内
+glyph han-6c6d:15x16 15 16 // 汭
+⿰ han-6c35:3x16 1 han-5185:11x16 // ⿰氵内
 
 // glyph han-6c70:15x16 15 16 // 汰
 // ⿰ han-6c35 han-592a // ⿰氵太
@@ -294,8 +294,8 @@ glyph han-6c78:15x16 15 16 // 汸
 // glyph han-6c7a:15x16 15 16 // 決
 // ⿰ han-6c35 han-592c // ⿰氵夬
 
-// glyph han-6c7b:15x16 15 16 // 汻
-// ⿰ han-6c35 han-5348 // ⿰氵午
+glyph han-6c7b:15x16 15 16 // 汻
+⿰ han-6c35:5x16 1 han-5348:9x16 // ⿰氵午
 
 glyph han-6c7e:15x16 15 16 // 汾
 ⿰ han-6c35:5x16 1 han-5206:9x16 // ⿰氵分
@@ -434,8 +434,8 @@ glyph han-6cca:15x13 15 13 // 泊
 glyph han-6cca:15x16 15 16 // 泊
 ⿰ han-6c35:5x16 han-767d:10x16 // ⿰氵白
 
-// glyph han-6ccd:15x16 15 16 // 泍
-// ⿰ han-6c35 han-672c // ⿰氵本
+glyph han-6ccd:15x16 15 16 // 泍
+⿰ han-6c35:5x16 1 han-672c:9x16 // ⿰氵本
 
 glyph han-6ccf:15x16 15 16 // 泏
 ⿰ han-6c35:5x16 1 han-51fa:9x16 // ⿰氵出
@@ -517,8 +517,11 @@ glyph han-6d07:15x16 15 16 // 洇
 glyph han-6d0b:15x16 15 16 // 洋
 ⿰ han-6c35:5x16 1 han-7f8a:9x16 // ⿰氵羊
 
-// glyph han-6d0f:15x16 15 16 // 洏
-// ⿰ han-6c35 han-800c // ⿰氵而
+glyph han-6d0f:15x16 15 16 // 洏
+⿰ han-6c35:5x16 1 han-800c:9x16 // ⿰氵而
+
+// glyph han-6d10:15x16 15 16 // 洐
+// ⿲ han-6c35 han-5f73 han-4e8d // ⿲氵彳亍
 
 // glyph han-6d11:15x16 15 16 // 洑
 // ⿲ han-6c35 han-4ebb han-72ac // ⿲氵亻犬 <- ⿰氵伏
@@ -539,7 +542,7 @@ glyph han-6d23:15x16 15 16 // 洣
 ⿰ han-6c35:5x16 1 han-7c73:9x16 // ⿰氵米
 
 glyph han-6d26:15x16 15 16 // 洦
-⿰ han-6c35:5x16 1 han-767e:8x16 // ⿰氵百
+⿰ han-6c35:5x16 1 han-767e:9x16 // ⿰氵百
 
 glyph han-6d28:15x16 15 16 // 洨
 ⿰ han-6c35:5x16 1 han-4ea4:9x16 // ⿰氵交
@@ -586,8 +589,8 @@ glyph han-6d4a:15x16 15 16 // 浊
 glyph han-6d4f:15x16 15 16 // 浏
 ⿲ han-6c35:3x16 han-6587:9x16 han-5202:3x16 // ⿲氵文刂
 
-// glyph han-6d52:15x16 15 16 // 浒
-// ⿲ han-6c35 han-8ba0 han-5348 // ⿲氵讠午
+glyph han-6d52:15x16 15 16 // 浒
+⿲ han-6c35:3x16 han-8ba0:3x16 han-5348:9x16 // ⿲氵讠午
 
 ## 85.7
 
@@ -651,6 +654,9 @@ glyph han-6d86:15x16 15 16 // 涆
 
 glyph han-6d88:15x16 15 16 // 消
 ⿰ han-6c35:5x16 1 han-8096:9x16 // ⿰氵肖
+
+// glyph han-6d8b:15x16 15 16 // 涋
+// ⿰ han-6c35 han-5b8a // ⿰氵宊
 
 glyph han-6d91:15x16 15 16 // 涑
 ⿰ han-6c35:5x16 1 han-675f:9x16 // ⿰氵束
@@ -732,6 +738,9 @@ glyph han-6dee:15x13 15 13 // 淮
 ⿰ han-6c35:5x13 1 han-96b9:9x13 // ⿰氵隹
 glyph han-6dee:15x16 15 16 // 淮
 ⿰ han-6c35:5x16 1 han-96b9:9x16 // ⿰氵隹
+
+// glyph han-6df6:15x16 15 16 // 淶
+// ⿰ han-6c35 han-4f86 // ⿰氵來
 
 // glyph han-6df7:15x16 15 16 // 混
 // ⿰ han-6c35 han-6606 // ⿰氵昆

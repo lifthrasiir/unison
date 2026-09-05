@@ -177,6 +177,9 @@ glyph han-2198f:15x16 15 16 // 𡦏
 
 ## 39.11
 
+// glyph han-21991:15x16 15 16 // 𡦑
+// ⿱ han-898f han-5b50 // ⿱規子
+
 // glyph han-21992:15x16 15 16 // 𡦒
 // ⿰ han-5b50 han-5d11 // ⿰子崑
 
@@ -221,7 +224,7 @@ glyph han-219bc:15x16 15 16 // 𡦼
 ## 40.3
 
 glyph han-219bd-($han-regions):15x16 15 16 // 𡦽
-⿱ 1 han-5b80:15x5 1 han-4ea1-($-1):15x8 // ⿱宀亡
+⿱ han-5b80:15x5 -1 han-4ea1-($-1):15x12 // ⿱宀亡
 
 // glyph han-219c2:15x16 15 16 // 𡧂
 // ⿳ han-5b80 han-4e00 han-52f9 // ⿳宀一勹
@@ -290,7 +293,7 @@ glyph han-219e9:15x16 15 16 // 𡧩
 // ⿳ han-5b80 han-5348 han-51f5 // ⿳宀午凵
 
 glyph han-219f1:15x16 15 16 // 𡧱
-⿳ -1 han-5b80:15x4 han-5de5:15x8 1 han-53e3:15x4 // ⿳宀工口
+⿳ han-5b80:15x4 han-5de5:15x8 1 han-53e3:15x3 // ⿳宀工口
 
 // glyph han-219f2:15x16 15 16 // 𡧲
 // ⿰ han-5b81 han-4e2d // ⿰宁中

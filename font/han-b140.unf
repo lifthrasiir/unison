@@ -27,6 +27,9 @@ ref han-4e8c:15x10 0 6
 glyph han-26b02:15x16 15 16 // 𦬂
 ⿱ han-8279:15x3 1 han-5140:15x12 // ⿱艹兀
 
+// glyph han-26b04:15x16 15 16 // 𦬄
+// ⿱ han-8279 han-5203 // ⿱艹刃
+
 glyph han-26b05:15x16 15 16 // 𦬅
 ⿱ han-8279:15x3 1 han-53e3:15x12 // ⿱艹口
 
@@ -59,8 +62,8 @@ glyph han-26b1e:15x16 15 16 // 𦬞
 glyph han-26b29:15x16 15 16 // 𦬩
 ⿱ han-8279:15x3 han-516d:15x13 // ⿱艹六
 
-// glyph han-26b2b:15x16 15 16 // 𦬫
-// ⿱ han-8279 han-72ac // ⿱艹犬
+glyph han-26b2b:15x16 15 16 // 𦬫
+⿱ han-8279:15x3 1 han-72ac:15x12 // ⿱艹犬
 
 glyph han-26b2c:15x16 15 16 // 𦬬
 ⿱ han-8279:15x3 1 han-738b:15x12 // ⿱艹王
@@ -184,6 +187,9 @@ glyph han-26bbc:15x16 15 16 // 𦮼
 
 // glyph han-26bbd:15x16 15 16 // 𦮽
 // ⿱ han-8279 han-544a // ⿱艹告
+
+// glyph han-26bbe:15x16 15 16 // 𦮾
+// ⿱ han-8279 han-6290 // ⿱艹抐
 
 // glyph han-26bbf:15x16 15 16 // 𦮿
 // ⿱ han-8279 han-52ac // ⿱艹劬

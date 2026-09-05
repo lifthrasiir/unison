@@ -897,8 +897,8 @@ glyph han-6bde:15x16 15 16 // 毞
 
 ## 82.5
 
-// glyph han-6be0:15x16 15 16 // 毠
-// ⿱ han-52a0 han-6bdb // ⿱加毛
+glyph han-6be0:15x16 15 16 // 毠
+⿱ han-52a0:15x8 han-6bdb:15x8 // ⿱加毛
 
 glyph han-6be1:15x16 15 16 // 毡
 ⿺ han-6bdb:15x16.10x14 han-5360:9x13 6 0 // ⿺毛占

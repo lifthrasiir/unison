@@ -164,6 +164,9 @@ glyph han-983c:15x16 15 16 // 頼
 glyph han-9840:15x16 15 16 // 顀
 ⿰ han-96b9:7x16 1 han-9801:7x16 // ⿰隹頁
 
+// glyph han-9842:15x16 15 16 // 顂
+// ⿰ han-4f86 han-9801 // ⿰來頁
+
 glyph han-9843:15x16 15 16 // 顃
 ⿰ han-708e:7x16 1 han-9801:7x16 // ⿰炎頁
 
@@ -645,6 +648,9 @@ glyph han-99b4:15x16 15 16 // 馴
 
 ## 187.4
 
+// glyph han-99b7:15x16 15 16 // 馷
+// ⿰ han-99ac han-5dff // ⿰馬巿
+
 glyph han-99b8:15x16 15 16 // 馸
 ⿰ han-99ac:7x16 1 han-65a4:7x16 // ⿰馬斤
 
@@ -766,6 +772,9 @@ glyph han-9a06:15x16 15 16 // 騆
 
 // glyph han-9a09:15x16 15 16 // 騉
 // ⿰ han-99ac han-6606 // ⿰馬昆
+
+// glyph han-9a0b:15x16 15 16 // 騋
+// ⿰ han-99ac han-4f86 // ⿰馬來
 
 glyph han-9a0d:15x16 15 16 // 騍
 ⿰ han-99ac:7x16 1 han-679c:7x16 // ⿰馬果

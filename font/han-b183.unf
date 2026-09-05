@@ -22,6 +22,9 @@ glyph han-2968d:15x16 15 16 // 𩚍
 // glyph han-29691:15x16 15 16 // 𩚑
 // ⿰ han-98e0 han-51e1 // ⿰飠凡
 
+// glyph han-29692:15x16 15 16 // 𩚒
+// ⿰ han-98e0 han-5203 // ⿰飠刃
+
 glyph han-29694:15x16 15 16 // 𩚔
 ⿰ han-98e0:7x16 1 han-5973:7x16 // ⿰飠女
 
@@ -85,6 +88,9 @@ glyph han-296b9-($han-regions):15x16 15 16 // 𩚹
 
 // glyph han-296bd:15x16 15 16 // 𩚽
 // ⿰ han-98e0 han-7389 // ⿰飠玉
+
+// glyph han-296c4:15x16 15 16 // 𩛄
+// ⿰ han-98e0 han-4e19 // ⿰飠丙
 
 glyph han-296c7:15x16 15 16 // 𩛇
 ⿰ han-98e0:7x16 han-767d:8x16 // ⿰飠白

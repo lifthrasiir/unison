@@ -65,8 +65,8 @@ glyph han-32086:15x16 15 16 // 𲂆
 
 ## 149'.6
 
-// glyph han-32088:15x16 15 16 // 𲂈
-// ⿰ han-8ba0 han-800c // ⿰讠而
+glyph han-32088:15x16 15 16 // 𲂈
+⿰ han-8ba0:5x16 1 han-800c:9x16 // ⿰讠而
 
 ## 149'.7
 
@@ -78,8 +78,8 @@ glyph han-3208d:15x16 15 16 // 𲂍
 
 ## 149'.9
 
-// glyph han-32091:15x16 15 16 // 𲂑
-// ⿰ han-8ba0 han-6637 // ⿰讠昷
+glyph han-32091:15x16 15 16 // 𲂑
+⿰ han-8ba0:5x16 1 han-6637:9x16 // ⿰讠昷
 
 # CJK unified ideographs extension H: 貝 (154)
 
@@ -90,8 +90,8 @@ glyph han-320a8:15x16 15 16 // 𲂨
 
 ## 154.5
 
-// glyph han-320aa:15x16 15 16 // 𲂪
-// ⿰ han-8c9d han-672c // ⿰貝本
+glyph han-320aa:15x16 15 16 // 𲂪
+⿰ han-8c9d:6x16 han-672c:9x16 // ⿰貝本
 
 ## 154.6
 
@@ -165,8 +165,8 @@ glyph han-320ea:15x16 15 16 // 𲃪
 // glyph han-320f1:15x16 15 16 // 𲃱
 // ⿰ han-27fb7 han-7686 // ⿰𧾷皆
 
-// glyph han-320f3:15x16 15 16 // 𲃳
-// ⿰ han-27fb7 han-54c1 // ⿰𧾷品
+glyph han-320f3:15x16 15 16 // 𲃳
+⿰ han-27fb7:5x16 1 han-54c1:9x16 // ⿰𧾷品
 
 glyph han-320f6:15x16 15 16 // 𲃶
 ⿲ -2 han-27fb7:5x16 han-9485:5x16 han-6b20:7x16 // ⿲𧾷钅欠
@@ -347,10 +347,10 @@ glyph han-321c7:15x16 15 16 // 𲇇
 ## 167.6
 
 glyph han-321ca:15x16 15 16 // 𲇊
-⿰ -1 han-91d2:5x16-l 1 han-897f:10x16 // ⿰釒西
+⿰ han-91d2:7x16 1 han-897f:7x16 // ⿰釒西
 
-// glyph han-321cb:15x16 15 16 // 𲇋
-// ⿰ han-91d2 han-800c // ⿰釒而
+glyph han-321cb:15x16 15 16 // 𲇋
+⿰ han-91d2:5x16-l 1 han-800c:9x16 // ⿰釒而
 
 ## 167.7
 
@@ -369,8 +369,8 @@ glyph han-321d2:15x16 15 16 // 𲇒
 
 ## 167.11
 
-// glyph han-321e0:15x16 15 16 // 𲇠
-// ⿲ han-91d2 han-8a01 han-5348 // ⿲釒訁午
+glyph han-321e0:15x16 15 16 // 𲇠
+⿲ -5 han-91d2:5x16-l 1 han-8a01:5x16 han-5348:9x16 // ⿲釒訁午
 
 # CJK unified ideographs extension H: 钅 (167')
 
@@ -382,6 +382,9 @@ glyph han-321d2:15x16 15 16 // 𲇒
 glyph han-321ef:15x16 15 16 // 𲇯
 ⿰ han-9485:5x16 1 han-5c71:9x16 // ⿰钅山
 
+// glyph han-321f0:15x16 15 16 // 𲇰
+// ⿰ han-9485 han-5203 // ⿰钅刃
+
 ## 167'.4
 
 // glyph han-321f4:15x16 15 16 // 𲇴
@@ -389,8 +392,8 @@ glyph han-321ef:15x16 15 16 // 𲇯
 
 ## 167'.6
 
-// glyph han-321fc:15x16 15 16 // 𲇼
-// ⿰ han-9485 han-800c // ⿰钅而
+glyph han-321fc:15x16 15 16 // 𲇼
+⿰ han-9485:6x16 han-800c:9x16 // ⿰钅而
 
 ## 167'.7
 
@@ -444,7 +447,7 @@ glyph han-32221:15x16 15 16 // 𲈡
 ## 169.5
 
 glyph han-32228:15x16 15 16 // 𲈨
-⿵ han-9580:15x16.13x11 han-76bf:9x11 3 5 // ⿵門皿
+⿵ han-9580:15x16.13x11 han-76bf:9x8 3 8 // ⿵門皿
 
 ## 169.6
 
