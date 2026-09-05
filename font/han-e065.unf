@@ -133,6 +133,12 @@ glyph han-2c076:15x16 15 16 // 𬁶
 
 # CJK unified ideographs extension E: 木 (75)
 
+## 75.-2
+
+// glyph han-2c09b:15x16 15 16 // 𬂛
+// ref han-4e00 // ⿻一丨
+// ref han-4e28
+
 ## 75.1
 
 // glyph han-2c09c:15x16 15 16 // 𬂜
@@ -188,6 +194,9 @@ glyph han-2c0bf:15x16 15 16 // 𬂿
 
 glyph han-2c0c2:15x16 15 16 // 𬃂
 ⿲ -4 han-6728:5x16 han-6728:5x16 han-4e94:9x16 // ⿲木木五
+
+// glyph han-2c0c5:15x16 15 16 // 𬃅
+// ⿻束⿱口𠆢
 
 glyph han-2c0cc:15x16 15 16 // 𬃌
 ⿲ -2 han-6728:5x16 han-826f:7x16 han-529b:5x16 // ⿲木良力

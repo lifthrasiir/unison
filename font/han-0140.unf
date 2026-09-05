@@ -85,6 +85,10 @@ glyph han-8283:15x16 15 16 // 芃
 // glyph han-8287:15x16 15 16 // 芇
 // ⿱ han-8279 han-5dfe // ⿱艹巾
 
+// glyph han-8288:15x16 15 16 // 芈
+// ref han-535d // ⿻卝𰀁
+// ref han-30001
+
 glyph han-8289:15x16 15 16 // 芉
 ⿱ han-8279:15x3 1 han-5e72:15x12 // ⿱艹干
 

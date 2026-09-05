@@ -143,6 +143,11 @@ glyph han-432f:15x16 15 16 // 䌯
 
 # CJK unified ideographs extension A: 网 (122)
 
+## 122.0
+
+// glyph han-434f:15x16 15 16 // 䍏
+// ⿻⿵冂⿰丨丨一
+
 ## 122.3
 
 glyph han-4350:15x16 15 16 // 䍐
@@ -328,6 +333,13 @@ glyph han-43c7:15x16 15 16 // 䏇
 
 // glyph han-43c8:15x16 15 16 // 䏈
 // ⿲ han-8033 han-7cf9 han-7cf8 // ⿲耳糹糸 <- ⿰耳絲
+
+# CJK unified ideographs extension A: 聿 (129)
+
+## 129.7
+
+// glyph han-43cb:15x16 15 16 // 䏋
+// ⿻肀⿱𠆢⿰心巳
 
 # CJK unified ideographs extension A: 肉 (130)
 

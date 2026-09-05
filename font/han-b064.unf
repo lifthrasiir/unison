@@ -65,6 +65,9 @@ glyph han-22a8e:15x16 15 16 // 𢪎
 glyph han-22a8f:15x16 15 16 // 𢪏
 ⿰ han-624c:5x16 1 han-65e5:9x16 // ⿰扌日
 
+// glyph han-22a90:15x16 15 16 // 𢪐
+// ⿻⿱㇒𰀁从
+
 // glyph han-22a92:15x16 15 16 // 𢪒
 // ⿰ han-624b han-624b // ⿰手手
 
@@ -232,6 +235,9 @@ glyph han-22b57:15x16 15 16 // 𢭗
 
 glyph han-22b5f:15x16 15 16 // 𢭟
 ⿲ han-624c:3x16 han-4e14:7x16 han-529b:5x16 // ⿲扌且力
+
+// glyph han-22b61:15x16 15 16 // 𢭡
+// ㇯挿丨
 
 // glyph han-22b69:15x16 15 16 // 𢭩
 // ⿰ han-624c han-5e8a // ⿰扌床

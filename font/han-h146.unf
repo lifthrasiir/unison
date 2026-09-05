@@ -176,6 +176,10 @@ glyph han-320f7:15x16 15 16 // 𲃷
 
 ## 157.10
 
+// glyph han-320fb:15x16 15 16 // 𲃻
+// ref han-4e01 // ⿻丁𰸙
+// ref han-30e19
+
 // glyph han-320fc-($han-regions):15x16 15 16 // 𲃼
 // ⿱ han-2a715-($-1) han-8db3 // ⿱𪜕足
 
@@ -729,6 +733,14 @@ glyph han-3235e:15x16 15 16 // 𲍞
 
 // glyph han-32361:15x16 15 16 // 𲍡
 // ⿰ han-9ce5 han-8fc7 // ⿰鳥过
+
+# CJK unified ideographs extension H: 麥 (199)
+
+## 199.0
+
+// glyph han-3238f:15x16 15 16 // 𲎏
+// ref han-652f // ⿻支𠈌
+// ref han-2020c
 
 # CJK unified ideographs extension H: 麻 (200)
 

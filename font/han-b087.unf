@@ -1,6 +1,38 @@
+# CJK unified ideographs extension B: 爪 (87)
+
+## 87.0
+
+// glyph han-244ef:15x16 15 16 // 𤓯
+// ref han-4e05 // ⿻丅八
+// ref han-516b
+
+// glyph han-244f0:15x16 15 16 // 𤓰
+// ㇯瓜丶
+
+# CJK unified ideographs extension B: 爻 (89)
+
+## 89.6
+
+// glyph han-24561:15x16 15 16 // 𤕡
+// ⿻大⿰夕爻
+
+## 89.8
+
+// glyph han-24563:15x16 15 16 // 𤕣
+// ⿻⿴囗㸚乚
+
 # CJK unified ideographs extension B: 爿 (90)
 
+## 90.0
+
+// glyph han-2456a:15x16 15 16 // 𤕪
+// ⿾㠯
+
 ## 90.1
+
+// glyph han-2456b:15x16 15 16 // 𤕫
+// ref han-723f // ⿻爿一
+// ref han-4e00
 
 // glyph han-2456c:15x16 15 16 // 𤕬
 // ⿰ han-723f han-4e00 // ⿰爿一

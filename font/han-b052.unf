@@ -1,3 +1,11 @@
+# CJK unified ideographs extension B: 幺 (52)
+
+## 52.8
+
+// glyph han-221c8:15x16 15 16 // 𢇈
+// ref han-221b6 // ⿻𢆶𡗜
+// ref han-215dc
+
 # CJK unified ideographs extension B: 广 (53)
 
 ## 53.2
@@ -234,6 +242,20 @@ glyph han-22258:15x16 15 16 // 𢉘
 
 // glyph han-22301:15x16 15 16 // 𢌁
 // ⿸ han-9ebb han-97ed // ⿸麻韭
+
+# CJK unified ideographs extension B: 廾 (55)
+
+## 55.0
+
+// glyph han-2232c:15x16 15 16 // 𢌬
+// ref han-516b // ⿻八一
+// ref han-4e00
+
+## 55.1
+
+// glyph han-2232d:15x16 15 16 // 𢌭
+// ref han-5efe // ⿻廾丶
+// ref han-4e36
 
 # CJK unified ideographs extension B: 弋 (56)
 

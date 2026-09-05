@@ -1547,3 +1547,17 @@ glyph han-91b9:15x16 15 16 // 醹
 
 glyph han-91c0:15x16 15 16 // 釀
 ⿰ han-9149:7x16 1 han-8944:7x16 // ⿰酉襄
+
+# CJK unified ideographs: 里 (166)
+
+## 166.0
+
+// glyph han-91cc:15x16 15 16 // 里
+// ref han-65e5 // ⿻日土
+// ref han-571f
+
+## 166.2
+
+// glyph han-91cd:15x16 15 16 // 重
+// ref han-2218d // ⿻𢆍二
+// ref han-4e8c

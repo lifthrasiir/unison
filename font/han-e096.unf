@@ -102,6 +102,14 @@ glyph han-2c3b9:15x16 15 16 // 𬎹
 // glyph han-2c3ba:15x16 15 16 // 𬎺
 // ⿰ han-751f han-6cc9 // ⿰生泉
 
+# CJK unified ideographs extension E: 用 (101)
+
+## 101.3
+
+// glyph han-2c3be:15x16 15 16 // 𬎾
+// ref han-8080 // ⿻肀月
+// ref han-6708
+
 # CJK unified ideographs extension E: 田 (102)
 
 ## 102.3

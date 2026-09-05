@@ -1,5 +1,11 @@
 # CJK unified ideographs extension A: 屮 (45)
 
+## 45.0
+
+// glyph han-4db9:15x16 15 16 // 䶹
+// ref han-51f5 // ⿻凵丿
+// ref han-4e3f
+
 ## 45.4
 
 glyph han-37b7:15x16 15 16 // 㞷
@@ -86,6 +92,9 @@ glyph han-37cd:15x16 15 16 // 㟍
 // ⿳ han-5c71 han-4eca han-53e3 // ⿳山今口 <- ⿱山含
 
 ## 46.8
+
+// glyph han-37d7:15x16 15 16 // 㟗
+// ⿻山⿰分分
 
 glyph han-37d8:15x16 15 16 // 㟘
 ⿰ han-5c71:5x16 han-5468:10x16 // ⿰山周
@@ -261,6 +270,14 @@ glyph han-3853:15x16 15 16 // 㡓
 
 // glyph han-3869:15x16 15 16 // 㡩
 // ⿱ han-470c han-5dfe // ⿱䜌巾
+
+# CJK unified ideographs extension A: 幺 (52)
+
+## 52.9
+
+// glyph han-386c:15x16 15 16 // 㡬
+// ref han-221b6 // ⿻𢆶成
+// ref han-6210
 
 # CJK unified ideographs extension A: 广 (53)
 
@@ -598,6 +615,14 @@ glyph han-3969-j:15x16 15 16 // 㥩
 // glyph han-399a:15x16 15 16 // 㦚
 // ⿲ han-8f9b han-5fc3 han-8f9b // ⿲辛心辛
 
+# CJK unified ideographs extension A: 戈 (62)
+
+## 62.3
+
+// glyph han-39ae:15x16 15 16 // 㦮
+// ref han-620b // ⿻戋一
+// ref han-4e00
+
 # CJK unified ideographs extension A: 手 (64)
 
 ## 64.2
@@ -912,6 +937,14 @@ glyph han-3b15:15x16 15 16 // 㬕
 
 // glyph han-3b27:15x16 15 16 // 㬧
 // ⿳ han-2317d han-5927 han-7cf8 // ⿳𣅽大糸
+
+# CJK unified ideographs extension A: 曰 (73)
+
+## 73.2
+
+// glyph han-3b30:15x16 15 16 // 㬰
+// ref han-65e5 // ⿻日人
+// ref han-4eba
 
 # CJK unified ideographs extension A: 月 (74)
 

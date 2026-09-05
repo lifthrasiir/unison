@@ -211,6 +211,9 @@ glyph han-256b6:15x16 15 16 // 𥚶
 // glyph han-256bb:15x16 15 16 // 𥚻
 // ⿰ han-793b han-8011 // ⿰礻耑
 
+// glyph han-256c4:15x16 15 16 // 𥛄
+// ㇯禛丶
+
 ## 113.10
 
 glyph han-256d4:15x16 15 16 // 𥛔
@@ -265,6 +268,14 @@ glyph han-25717-k:15x16 15 16 // 𥜗
 
 glyph han-2571d:15x16 15 16 // 𥜝
 ⿲ han-793b:5x16 han-5409:5x16 han-9801:5x16 // ⿲礻吉頁
+
+# CJK unified ideographs extension B: 禸 (114)
+
+## 114.11
+
+// glyph han-25746:15x16 15 16 // 𥝆
+// ref han-79ba // ⿻禺臼
+// ref han-81fc
 
 # CJK unified ideographs extension B: 禾 (115)
 
@@ -396,6 +407,10 @@ glyph han-257aa:15x16 15 16 // 𥞪
 
 // glyph han-257b1:15x16 15 16 // 𥞱
 // ⿱ han-909b han-79be // ⿱邛禾
+
+// glyph han-257c5:15x16 15 16 // 𥟅
+// ref han-79be // ⿻禾臼
+// ref han-81fc
 
 ## 115.7
 

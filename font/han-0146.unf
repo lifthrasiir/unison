@@ -927,6 +927,10 @@ glyph han-9fbb:15x16 15 16 // 龻
 // glyph han-8b69:15x16 15 16 // 譩
 // ⿰ han-8a01 han-610f // ⿰訁意
 
+// glyph han-8b71:15x16 15 16 // 譱
+// ref han-7f8a // ⿻羊誩
+// ref han-8aa9
+
 ## 149.14
 
 glyph han-8b73:15x16 15 16 // 譳

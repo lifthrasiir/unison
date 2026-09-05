@@ -259,6 +259,12 @@ glyph han-20809:15x16 15 16 // 𠠉
 
 # CJK unified ideographs extension B: 力 (19)
 
+## 19.1
+
+// glyph han-20832:15x16 15 16 // 𠠲
+// ref han-52f9 // ⿻勹丿
+// ref han-4e3f
+
 ## 19.2
 
 glyph han-20834:15x16 15 16 // 𠠴
@@ -336,6 +342,9 @@ glyph han-20857:15x16 15 16 // 𠡗
 
 // glyph han-2085e:15x16 15 16 // 𠡞
 // ⿰ han-7683 han-529b // ⿰皃力
+
+// glyph han-20866:15x16 15 16 // 𠡦
+// ⿻⿻千𠄟𠠴
 
 // glyph han-20869:15x16 15 16 // 𠡩
 // ⿱ han-5229 han-529b // ⿱利力
@@ -439,6 +448,12 @@ glyph han-208eb:15x16 15 16 // 𠣫
 // ⿹ han-52f9 han-96da // ⿹勹雚
 
 # CJK unified ideographs extension B: 匕 (21)
+
+## 21.0
+
+// glyph han-2090e:15x16 15 16 // 𠤎
+// ref han-4e5a // ⿻乚㇒
+// ref han-31d2
 
 ## 21.2
 

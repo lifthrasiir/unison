@@ -1,3 +1,14 @@
+# CJK unified ideographs extension B: 辰 (161)
+
+## 161.0
+
+// glyph han-28443:15x16 15 16 // 𨑃
+// ㇯𨑄㇒
+
+// glyph han-28444:15x16 15 16 // 𨑄
+// ref han-28443 // ⿻𨑃㇒
+// ref han-31d2
+
 # CJK unified ideographs extension B: 辶 (162)
 
 ## 162.2

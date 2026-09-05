@@ -820,6 +820,24 @@ glyph han-79b3-(g|h|t):15x16 15 16 // 禳
 glyph han-79b3-(j|k|p):15x16 15 16 // 禳
 ⿰ han-793a:5x16 1 han-8944:9x16 // ⿰示襄
 
+# CJK unified ideographs: 禸 (114)
+
+## 114.0
+
+// glyph han-79b8:15x16 15 16 // 禸
+// ref han-5182 // ⿻冂厶
+// ref han-53b6
+
+## 114.4
+
+// glyph han-79b9:15x16 15 16 // 禹
+// ref han-459d // ⿻䖝冂
+// ref han-5182
+
+// glyph han-79ba:15x16 15 16 // 禺
+// ref han-65e5 // ⿻日禸
+// ref han-79b8
+
 # CJK unified ideographs: 禾 (115)
 
 ## 115.0

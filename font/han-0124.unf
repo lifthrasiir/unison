@@ -471,6 +471,12 @@ glyph han-7ffb-($han-regions):15x16 15 16 // 翻
 
 # CJK unified ideographs: 老 (125)
 
+## 125.-2
+
+// glyph han-8002:15x16 15 16 // 耂
+// ref han-571f // ⿻土㇒
+// ref han-31d2
+
 ## 125.4
 
 glyph han-8005.0:5x16 5 16 // 者
@@ -776,6 +782,14 @@ glyph han-800e:15x16 15 16 // 耎
 glyph han-8011:15x16 15 16 // 耑
 ⿱ han-5c71:15x4 1 han-800c:15x11 // ⿱山而
 
+# CJK unified ideographs: 耒 (127)
+
+## 127.0
+
+// glyph han-8012:15x16 15 16 // 耒
+// ref han-31d2 // ⿻㇒未
+// ref han-672a
+
 # CJK unified ideographs: 耳 (128)
 
 ## 128.0
@@ -1076,6 +1090,25 @@ glyph han-9fe2:15x16 15 16 // 鿢
 
 // glyph han-807b:15x16 15 16 // 聻
 // ⿱ han-6f38 han-8033 // ⿱漸耳
+
+# CJK unified ideographs: 聿 (129)
+
+## 129.0
+
+// glyph han-807f:15x16 15 16 // 聿
+// ref han-8080 // ⿻肀二
+// ref han-4e8c
+
+## 129.4
+
+// glyph han-8083:15x16 15 16 // 肃
+// ⿻肀⿲丿八丨
+
+## 129.7
+
+// glyph han-8085:15x16 15 16 // 肅
+// ref han-8080 // ⿻肀𣶒
+// ref han-23d92
 
 # CJK unified ideographs: 肉 (130)
 
@@ -1650,6 +1683,14 @@ glyph han-81f5:15x16 15 16 // 臵
 
 glyph han-81f8:15x16 15 16 // 臸
 ⿰ han-81f3:7x16 1 han-81f3:7x16 // ⿰至至
+
+# CJK unified ideographs: 臼 (134)
+
+## 134.2
+
+// glyph han-81fe:15x16 15 16 // 臾
+// ref han-81fc // ⿻臼人
+// ref han-4eba
 
 # CJK unified ideographs: 舌 (135)
 

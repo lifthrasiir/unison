@@ -301,6 +301,10 @@ glyph han-251c3:15x16 15 16 // 𥇃
 // glyph han-251da:15x16 15 16 // 𥇚
 // ⿰ han-76ee han-5947 // ⿰目奇
 
+// glyph han-251db:15x16 15 16 // 𥇛
+// ref han-5927 // ⿻大䀠
+// ref han-4020
+
 glyph han-251df:15x16 15 16 // 𥇟
 ⿲ han-76ee:3x16-l han-4ea4:7x16 han-529b:5x16 // ⿲目交力
 
@@ -363,11 +367,19 @@ glyph han-25219:15x16 15 16 // 𥈙
 // glyph han-2521b:15x16 15 16 // 𥈛
 // ⿰ han-76ee han-25108 // ⿰目𥄈
 
+// glyph han-2521c:15x16 15 16 // 𥈜
+// ref han-592b // ⿻夫䀠
+// ref han-4020
+
 // glyph han-2522e:15x16 15 16 // 𥈮
 // ⿰ han-76ee han-2c659 // ⿰目𬙙
 
 // glyph han-25233:15x16 15 16 // 𥈳
 // ⿰ han-76ee han-7a81 // ⿰目突
+
+// glyph han-25238:15x16 15 16 // 𥈸
+// ref han-6728 // ⿻木䀠
+// ref han-4020
 
 ## 109.10
 

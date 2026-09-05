@@ -5,6 +5,12 @@
 // glyph han-31352:15x16 15 16 // 𱍒
 // ⿰ han-4e01 han-592e // ⿰丁央
 
+## 1.7
+
+// glyph han-31355:15x16 15 16 // 𱍕
+// ref han-233b4 // ⿻𣎴从
+// ref han-4ece
+
 ## 1.9
 
 // glyph han-3135b:15x16 15 16 // 𱍛
@@ -61,6 +67,12 @@ glyph han-31369:15x16 15 16 // 𱍩
 // ⿱ han-4e8c han-5806 // ⿱二堆
 
 # CJK unified ideographs extension H: 人 (9)
+
+## 9.2
+
+// glyph han-3139a:15x16 15 16 // 𱎚
+// ref han-4eba // ⿻人𰀪
+// ref han-3002a
 
 ## 9.3
 
@@ -126,6 +138,19 @@ glyph han-313d2:15x16 15 16 // 𱏒
 
 // glyph han-313d8:15x16 15 16 // 𱏘
 // ⿲ han-4ebb han-5446 han-8eca // ⿲亻呆車 <- ⿰保車
+
+# CJK unified ideographs extension H: 冂 (13)
+
+## 13.3
+
+// glyph han-313f9:15x16 15 16 // 𱏹
+// ref han-5183 // ⿻冃丨
+// ref han-4e28
+
+## 13.4
+
+// glyph han-313fa:15x16 15 16 // 𱏺
+// ⿻冂⿱卄一
 
 # CJK unified ideographs extension H: 冫 (15)
 

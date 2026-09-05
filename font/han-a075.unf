@@ -197,6 +197,12 @@ glyph han-3c35:15x16 15 16 // 㰵
 // glyph han-3c4f:15x16 15 16 // 㱏
 // ⿱ han-4e00 han-6b63 // ⿱一正
 
+## 77.3
+
+// glyph han-3c50:15x16 15 16 // 㱐
+// ref han-3c4f // ⿻㱏丶
+// ref han-4e36
+
 ## 77.5
 
 glyph han-3c52:15x16 15 16 // 㱒
@@ -594,6 +600,13 @@ glyph han-3e1b:15x16 15 16 // 㸛
 // glyph han-3e1c:15x16 15 16 // 㸜
 // ⿰ han-723f han-7a7a // ⿰爿空
 
+# CJK unified ideographs extension A: 牙 (92)
+
+## 92.0
+
+// glyph han-3e26:15x16 15 16 // 㸦
+// ⿻丁⿱𠃋乀
+
 # CJK unified ideographs extension A: 犬 (94)
 
 ## 94.4
@@ -718,6 +731,10 @@ glyph han-3ecb:15x16 15 16 // 㻋
 
 // glyph han-3ecd:15x16 15 16 // 㻍
 // ⿰ han-248e9 han-5434 // ⿰𤣩吴
+
+// glyph han-3ece:15x16 15 16 // 㻎
+// ref han-5927 // ⿻大玨
+// ref han-73a8
 
 // glyph han-3ecf:15x16 15 16 // 㻏
 // ⿰ han-248e9 han-7075 // ⿰𤣩灵

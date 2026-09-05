@@ -88,6 +88,26 @@ for it is commented out like any other whose parts are missing. `HAN_NAME_RE`
 is the whole of the name grammar this reads; it is Unison's own convention and
 nothing outside this script depends on it.
 
+An IDS built on an operator `compose.rs` implements *none* of -- `⿻`, `㇯`,
+`⿾`, `⿿` -- has no line to write at all, and used to be dropped with a line in
+the summary. It is now written too, as a block commented out in full, so that
+the character is declared where a reader will meet it rather than counted where
+nobody looks:
+
+    // glyph han-4e5a:15x16 15 16 // 乚
+    // ⿾han-XXXX
+
+`⿻` is the one of the four with two whole drawings to place, so it gets them,
+as the `ref` lines the character *is* once a hand has offset them:
+
+    // glyph han-5188:15x16 15 16 // 冈
+    // ref han-5182 // ⿻冂㐅
+    // ref han-3405
+
+Uncommenting those two lines and giving them offsets is the whole of drawing it.
+A character the source already has a glyph or a declaration for is untouched, as
+everywhere else here.
+
 A line the parts cannot lay out yet is emitted commented out (`// glyph …`), so
 that nothing is lost and nothing unbuildable is added either: its parts are drawn
 at no size that tiles the box (`--ignore-box` writes it anyway).
@@ -1402,6 +1422,107 @@ def build_blocks(line: Line, cp: int, char: str, commented: bool,
     return [head, idc_line(line) + (f" <- {origin}" if origin else "") + mark]
 
 
+# `⿻` says two drawings share the box and says nothing about where; `⿾`/`⿿`
+# transform one drawing rather than composing two, and `㇯` subtracts. None of
+# them is a layout, so `compose.rs` implements none and there is no IDC line to
+# write for a character whose IDS is one of them. There is still something to
+# *say*, though, and saying nothing is what let such a character go by unnoticed
+# -- so the block is written anyway, commented out in full: a request carrying
+# the sequence a hand has to read, in the file and under the heading the
+# character belongs to, rather than a line in a summary nobody keeps.
+#
+# `⿻` gets more than the sequence, because it is the one of the four that has
+# two whole drawings to place: the parts are written as two `ref` lines, which
+# is what the character *is* once a hand has given them offsets. Uncommenting
+# them and moving them is then the whole of drawing it. The other three name no
+# such pair -- a transform and a subtraction are one drawing and an operation on
+# it -- so those carry the sequence and nothing else.
+OVERLAY = "⿻"
+
+
+def unsupported_line(inv: "Inventory", tree: "Node") -> "Line":
+    """How the block below names the parts of an IDS nothing here lays out.
+
+    Only `⿻` with two single-character operands has parts to name at all; every
+    other sequence (an operand that is itself a sequence included) is carried as
+    text, and its line holds the operator alone.
+    """
+    if tree.op == OVERLAY and all(kid.char is not None for kid in tree.kids):
+        comps = [ord(normalize_component(kid.char)) for kid in tree.kids]
+        return make_line(inv, tree.op, comps)
+    return Line(tree.op, (), (), False)
+
+
+def build_unsupported(line: "Line", cp: int, char: str, seq: str) -> list[str]:
+    """The wholly commented-out block an unsupported IDS is written as."""
+    head = f"// {glyph_head(cp, char, line.patterned)}"
+    if line.op == OVERLAY and line.comps:
+        # the sequence rides on the first `ref`, where an IDC line's own comment
+        # would be, so that the two forms read the same way down the file
+        return [head] + [
+            f"// ref {name}" + (f" // {seq}" if i == 0 else "")
+            for i, name in enumerate(line.part_names())
+        ]
+    return [head, f"// {seq}"]
+
+
+def script_unsupported_idc(block: list[str]) -> tuple["Line", str] | None:
+    """The `(line, sequence)` such a block states, read out of its own text.
+
+    The counterpart of `script_block_idc` for the form above, and read back the
+    same way and for the same reason: `is_script_block` regenerates the block
+    from this, so nothing here may consult today's inventory.
+    """
+    if len(block) < 2:
+        return None
+    head_toks = block[0].lstrip("/ ").split()
+    if len(head_toks) < 2 or head_toks[0] != "glyph":
+        return None
+    header = parse_han_name(head_toks[1])
+    if header is None:
+        return None
+    patterned = header.region == REGION_GROUP
+    if not block[1].lstrip("/ ").startswith("ref "):
+        if len(block) != 2:
+            return None
+        seq = block[1].lstrip("/ ").strip()
+        tree, used = parse_ids(seq)
+        if tree is None or used != len(seq) or tree.op is None or tree.op in IDC_ARITY:
+            return None
+        return Line(tree.op, (), (), patterned), seq
+    comps: list[int] = []
+    regional: list[bool] = []
+    seq = None
+    for i, raw in enumerate(block[1:]):
+        head, _, rest = raw.lstrip("/ ").partition("//")
+        toks = head.split()
+        if len(toks) != 2 or toks[0] != "ref":
+            return None
+        hn = parse_han_name(toks[1])
+        if hn is None or hn.label is not None or hn.shape is not None:
+            return None
+        if hn.region is not None and hn.region != BACKREF:
+            return None
+        comps.append(hn.cp)
+        regional.append(hn.region == BACKREF)
+        if i == 0:
+            seq = rest.strip()
+    if not seq:
+        return None
+    # The sequence has to be the one those `ref`s spell, and nothing else: a
+    # hand's own note beside it is what tells this script the block is no longer
+    # its own, and rebuilding the line from a `rest` taken whole would carry the
+    # note along and hide that.
+    tree, used = parse_ids(seq)
+    if tree is None or used != len(seq) or tree.op != OVERLAY:
+        return None
+    if any(kid.char is None for kid in tree.kids):
+        return None
+    if [ord(normalize_component(kid.char)) for kid in tree.kids] != comps:
+        return None
+    return Line(OVERLAY, tuple(comps), tuple(regional), patterned), seq
+
+
 def is_script_block(cp: int, char: str, block: list[str]) -> bool:
     """Whether a commented-out block is this script's own output.
 
@@ -1413,10 +1534,18 @@ def is_script_block(cp: int, char: str, block: list[str]) -> bool:
     something this script does not know.
     """
     got = script_block_idc(block)
+    if got is not None:
+        line, origin, no_inline = got
+        if block == build_blocks(line, cp, char, True, origin, no_inline=no_inline):
+            return True
+    # the same question of a block written for an IDS nothing here lays out: one
+    # of those is this script's own output too, and a part drawn since may well
+    # have made another of the character's sequences writable.
+    got = script_unsupported_idc(block)
     if got is None:
         return False
-    line, origin, no_inline = got
-    return block == build_blocks(line, cp, char, True, origin, no_inline=no_inline)
+    line, seq = got
+    return block == build_unsupported(line, cp, char, seq)
 
 
 def script_block_idc(block: list[str]) -> tuple[Line, str | None, bool] | None:
@@ -1540,6 +1669,11 @@ def main() -> int:
 
         best: tuple[tuple[bool, bool, bool], Candidate, Verdict] | None = None
         best_origin: str | None = None
+        # The best-attested sequence whose operator this source lays out none
+        # of, kept so that a character no line can be written for is still
+        # *declared* rather than dropped into the summary -- see
+        # `build_unsupported`.
+        unsupported: Node | None = None
         why = "no decomposition at all"
         for seq, tags in sorted(entry.seqs, key=lambda s: -tag_score(s[1])):
             if "？" in seq or "{" in seq:
@@ -1560,6 +1694,8 @@ def main() -> int:
             if tree.op not in IDC_ARITY:
                 why = min(why, f"not an IDC this source lays out ({tree.op})",
                           key=reason_rank)
+                if unsupported is None:
+                    unsupported = tree
                 continue
             cands = candidates(tree, inline, splits, inv.pixel_drawn)
             if not cands:
@@ -1584,11 +1720,16 @@ def main() -> int:
                     best_origin = render_ids(tree) if cand.inlined else None
             if best is not None and best[0] == (True, True, True):
                 break
+        # A character already declared is not declared again, whichever of the
+        # two forms the block below it would take: what is in the file is the
+        # request, and an unsupported sequence has nothing to revive it with.
         if best is None:
-            stats["skipped: " + why] += 1
-            continue
-        _, cand, verdict = best
-        op, comps, origin = cand.op, cand.comps, best_origin
+            if unsupported is None:
+                stats["skipped: " + why] += 1
+                continue
+            if revive:
+                stats["already declared (commented out)"] += 1
+                continue
 
         key = rs.get(cp)
         if key is None:
@@ -1598,6 +1739,26 @@ def main() -> int:
         if sl is None:
             stats["no slice"] += 1
             continue
+
+        if best is None:
+            seq = render_ids(unsupported)
+            block = build_unsupported(
+                unsupported_line(inv, unsupported), cp, entry.char, seq
+            )
+            plan[sl.name].append((key, cp, block))
+            stats[f"commented out: not an IDC this source lays out "
+                  f"({unsupported.op})"] += 1
+            made += 1
+            if args.verbose:
+                print(f"  {entry.char} U+{cp:04X} -> {sl.name} "
+                      f"{key[0]}{"'" if key[1] else ''}.{key[2]}"
+                      f"  {seq} (unsupported)", file=sys.stderr)
+            if args.limit and made >= args.limit:
+                break
+            continue
+
+        _, cand, verdict = best
+        op, comps, origin = cand.op, cand.comps, best_origin
 
         holds = []
         if not verdict.fits and not args.ignore_box:

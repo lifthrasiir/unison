@@ -2,6 +2,10 @@
 
 ## 94.1
 
+// glyph han-215dc:15x16 15 16 // 𡗜
+// ref han-5927 // ⿻大丷
+// ref han-4e37
+
 // glyph han-2471a:15x16 15 16 // 𤜚
 // ⿱ han-72ad han-4e00 // ⿱犭一
 
@@ -374,3 +378,10 @@ glyph han-24894:15x16 15 16 // 𤢔
 
 glyph han-248ba:15x16 15 16 // 𤢺
 ⿲ han-72ad:4x16 han-5409:5x16 1 han-9801:5x16 // ⿲犭吉頁
+
+# CJK unified ideographs extension B: 玄 (95)
+
+## 95.-1
+
+// glyph han-248e5:15x16 15 16 // 𤣥
+// ㇯玄丶

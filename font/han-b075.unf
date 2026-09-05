@@ -1,6 +1,19 @@
 # CJK unified ideographs extension B: 木 (75)
 
+## 75.0
+
+// glyph han-233b3:15x16 15 16 // 𣎳
+// ⿻十⿰丿㇄
+
+// glyph han-233b4:15x16 15 16 // 𣎴
+// ref han-4e05 // ⿻丅𠆢
+// ref han-201a2
+
 ## 75.1
+
+// glyph han-233b5:15x16 15 16 // 𣎵
+// ref han-5c6e // ⿻屮𠆢
+// ref han-201a2
 
 // glyph han-233b6:15x16 15 16 // 𣎶
 // ⿱ han-6728 han-4e00 // ⿱木一
@@ -12,6 +25,9 @@ glyph han-233b7:15x16 15 16 // 𣎷
 
 glyph han-233b8:15x16 15 16 // 𣎸
 ⿰ han-6728:5x16 1 han-4e86:9x16 // ⿰木了
+
+// glyph han-233ba:15x16 15 16 // 𣎺
+// ⿻木⿱乛㇉
 
 // glyph han-233bb:15x16 15 16 // 𣎻
 // ⿱ han-5182 han-6728 // ⿱冂木
@@ -144,6 +160,9 @@ glyph han-23434:15x16 15 16 // 𣐴
 
 ## 75.6
 
+// glyph han-2343a:15x16 15 16 // 𣐺
+// ⿻木⿱尸尸
+
 // glyph han-2343c:15x16 15 16 // 𣐼
 // ⿰ han-6728 han-221db // ⿰木𢇛
 
@@ -238,6 +257,9 @@ glyph han-23492:15x16 15 16 // 𣒒
 
 // glyph han-23499:15x16 15 16 // 𣒙
 // ⿰ han-6728 han-674f // ⿰木杏
+
+// glyph han-2349a:15x16 15 16 // 𣒚
+// ⿻⿳𠮛𠮛𠆢丨
 
 // glyph han-2349b:15x16 15 16 // 𣒛
 // ⿱ han-675f han-6728 // ⿱束木

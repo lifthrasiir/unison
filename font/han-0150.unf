@@ -1,3 +1,23 @@
+# CJK unified ideographs: 豕 (152)
+
+## 152.1
+
+// glyph han-8c56:15x16 15 16 // 豖
+// ref han-8c55 // ⿻豕丶
+// ref han-4e36
+
+## 152.5
+
+// glyph han-8c61:15x16 15 16 // 象
+// ref han-20ba5 // ⿻𠮥𧰨
+// ref han-27c28
+
+## 152.10
+
+// glyph han-8c73:15x16 15 16 // 豳
+// ref han-5c71 // ⿻山豩
+// ref han-8c69
+
 # CJK unified ideographs: 貝 (154)
 
 ## 154.0
@@ -747,3 +767,11 @@ glyph han-8e7b:15x16 15 16 // 蹻
 
 glyph han-8e9f:15x16 15 16 // 躟
 ⿰ han-27fb7:5x16 1 han-8944:9x16 // ⿰𧾷襄
+
+# CJK unified ideographs: 身 (158)
+
+## 158.0
+
+// glyph han-8eab:15x16 15 16 // 身
+// ref han-28211 // ⿻𨈑㇒
+// ref han-31d2

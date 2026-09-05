@@ -43,6 +43,14 @@ glyph han-21547:15x16 15 16 // 𡕇
 // glyph han-21155:15x16 15 16 // 𡅕
 // ⿰ han-20dae han-20dae // ⿰𠶮𠶮
 
+# CJK unified ideographs extension B: 夂 (34)
+
+## 34.0
+
+// glyph han-21552:15x16 15 16 // 𡕒
+// ref han-4e05 // ⿻丅𠃋
+// ref han-200cb
+
 # CJK unified ideographs extension B: 夊 (35)
 
 ## 35.8
@@ -65,11 +73,23 @@ glyph han-2156c:15x16 15 16 // 𡕬
 
 ## 37.2
 
+// glyph han-215d5:15x16 15 16 // 𡗕
+// ref han-5927 // ⿻大八
+// ref han-516b
+
 // glyph han-215d6:15x16 15 16 // 𡗖
 // ⿱ han-51f5 han-5927 // ⿱凵大
 
+// glyph han-215d7:15x16 15 16 // 𡗗
+// ref han-4e09 // ⿻三人
+// ref han-4eba
+
 // glyph han-215d8:15x16 15 16 // 𡗘
 // ⿳ han-4e00 han-5927 han-4e28 // ⿳一大丨 <- ⿱天丨
+
+// glyph han-215da:15x16 15 16 // 𡗚
+// ref han-4e00 // ⿻一内
+// ref han-5185
 
 // glyph han-215db:15x16 15 16 // 𡗛
 // ⿱ han-52f9 han-5927 // ⿱勹大
@@ -113,6 +133,10 @@ glyph han-215f6:15x16 15 16 // 𡗶
 // glyph han-215fc:15x16 15 16 // 𡗼
 // ⿱ han-5927 han-6b64 // ⿱大此
 
+// glyph han-215fe:15x16 15 16 // 𡗾
+// ref han-51f5 // ⿻凵夰
+// ref han-5930
+
 glyph han-21600:15x16 15 16 // 𡘀
 ⿱ han-53ef:15x6 han-5927:15x10 // ⿱可大
 
@@ -124,6 +148,10 @@ glyph han-21603:15x16 15 16 // 𡘃
 
 // glyph han-21607:15x16 15 16 // 𡘇
 // ⿱ han-5927 han-7389 // ⿱大玉
+
+// glyph han-21608:15x16 15 16 // 𡘈
+// ref han-3565 // ⿻㕥大
+// ref han-5927
 
 // glyph han-21609:15x16 15 16 // 𡘉
 // ⿱ han-5f17 han-5927 // ⿱弗大
@@ -151,22 +179,38 @@ glyph han-2160a:15x16 15 16 // 𡘊
 // glyph han-21617:15x16 15 16 // 𡘗
 // ⿺ han-5927 han-866b // ⿺大虫
 
+// glyph han-21618:15x16 15 16 // 𡘘
+// ref han-5927 // ⿻大奻
+// ref han-597b
+
 // glyph han-2161a:15x16 15 16 // 𡘚
 // ⿱ han-5927 han-8863 // ⿱大衣
 
 // glyph han-2161b:15x16 15 16 // 𡘛
 // ⿱ han-5927 han-597b // ⿱大奻
 
+// glyph han-2161c:15x16 15 16 // 𡘜
+// ref han-5405 // ⿻吅大
+// ref han-5927
+
 ## 37.7
 
 // glyph han-2161d:15x16 15 16 // 𡘝
 // ⿱ han-5927 han-675f // ⿱大束
+
+// glyph han-21629:15x16 15 16 // 𡘩
+// ref han-81fc // ⿻臼大
+// ref han-5927
 
 // glyph han-2162d:15x16 15 16 // 𡘭
 // ⿱ han-6298 han-5927 // ⿱折大
 
 // glyph han-2162e:15x16 15 16 // 𡘮
 // ⿰ han-672b han-5931 // ⿰末失
+
+// glyph han-21632:15x16 15 16 // 𡘲
+// ref han-5927 // ⿻大𠦜
+// ref han-2099c
 
 // glyph han-21633:15x16 15 16 // 𡘳
 // ⿱ han-5927 han-826f // ⿱大良
@@ -178,6 +222,10 @@ glyph han-2160a:15x16 15 16 // 𡘊
 
 glyph han-2163d:15x16 15 16 // 𡘽
 ⿱ han-6797:15x11 han-5927:15x5 // ⿱林大
+
+// glyph han-21641:15x16 15 16 // 𡙁
+// ref han-5927 // ⿻大𠈌
+// ref han-2020c
 
 // glyph han-21642:15x16 15 16 // 𡙂
 // ⿳ han-5927 han-5ddb han-7530 // ⿳大巛田 <- ⿱大甾
@@ -228,6 +276,9 @@ glyph han-21672:15x16 15 16 // 𡙲
 // glyph han-2167b:15x16 15 16 // 𡙻
 // ⿳ han-5927 han-4e16 han-6797 // ⿳大世林
 
+// glyph han-21685:15x16 15 16 // 𡚅
+// ⿻⿳从从从大
+
 ## 37.13
 
 // glyph han-2168a:15x16 15 16 // 𡚊
@@ -240,6 +291,10 @@ glyph han-21672:15x16 15 16 // 𡙲
 // ⿳ han-5927 han-54c1 han-6b62 // ⿳大品止
 
 ## 37.14
+
+// glyph han-21690:15x16 15 16 // 𡚐
+// ref han-5927 // ⿻大𬛭
+// ref han-2c6ed
 
 // glyph han-21694:15x16 15 16 // 𡚔
 // ⿳ han-5927 han-4020 han-706c // ⿳大䀠灬

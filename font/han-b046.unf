@@ -271,6 +271,10 @@ glyph han-21e09:15x16 15 16 // 𡸉
 
 ## 46.8
 
+// glyph han-21e13:15x16 15 16 // 𡸓
+// ref han-5c6e // ⿻屮𠈌
+// ref han-2020c
+
 glyph han-21e16:15x16 15 16 // 𡸖
 ⿰ han-5c71:7x16 1 han-679c:7x16 // ⿰山果
 
@@ -421,6 +425,9 @@ glyph han-21ea8:15x16 15 16 // 𡺨
 
 // glyph han-21eb2:15x16 15 16 // 𡺲
 // ⿱ han-5c71 han-9656 // ⿱山陖
+
+// glyph han-21eb3:15x16 15 16 // 𡺳
+// ⿻山⿰𬺻𬺻
 
 // glyph han-21eb4:15x16 15 16 // 𡺴
 // ⿰ han-5c71 han-7a8b // ⿰山窋

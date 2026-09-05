@@ -5,6 +5,10 @@
 // glyph han-2239a:15x16 15 16 // 𢎚
 // ⿹ han-5f13 han-4e36 // ⿹弓丶
 
+// glyph han-2239b:15x16 15 16 // 𢎛
+// ref han-5f13 // ⿻弓丶
+// ref han-4e36
+
 // glyph han-2239f:15x16 15 16 // 𢎟
 // ⿼ han-5f13 han-4e28 // ⿼弓丨
 
@@ -18,6 +22,9 @@
 
 glyph han-223a2:15x16 15 16 // 𢎢
 ⿰ han-5f13:7x16 1 han-4eba:7x16 // ⿰弓人
+
+// glyph han-223a3:15x16 15 16 // 𢎣
+// ⿻⿱㇒丨弓
 
 // glyph han-223a5:15x16 15 16 // 𢎥
 // ⿹ han-5f13 han-4e8c // ⿹弓二
@@ -36,11 +43,19 @@ glyph han-223aa:15x16 15 16 // 𢎪
 glyph han-223ad:15x16 15 16 // 𢎭
 ⿰ han-5f13:7x16 1 han-5dfe:7x16 // ⿰弓巾
 
+// glyph han-223af:15x16 15 16 // 𢎯
+// ref han-2d80d // ⿻𭠍弓
+// ref han-5f13
+
 glyph han-223b3:15x16 15 16 // 𢎳
 ⿰ han-5f13:7x16 1 han-571f:7x16 // ⿰弓土
 
 // glyph han-223b4:15x16 15 16 // 𢎴
 // ⿱ han-5f13 han-5927 // ⿱弓大
+
+// glyph han-223b5:15x16 15 16 // 𢎵
+// ref han-5f17 // ⿻弗丨
+// ref han-4e28
 
 ## 57.4
 
@@ -89,6 +104,9 @@ glyph han-223d8:15x16 15 16 // 𢏘
 
 glyph han-223d9:15x16 15 16 // 𢏙
 ⿰ han-5f13:7x16 1 han-7f8a:7x16 // ⿰弓羊
+
+// glyph han-223da:15x16 15 16 // 𢏚
+// ⿻弓⿱工工
 
 // glyph han-223db:15x16 15 16 // 𢏛
 // ⿰ han-5f13 han-7cf8 // ⿰弓糸

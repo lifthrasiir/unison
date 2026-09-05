@@ -829,6 +829,19 @@ glyph han-7219:15x16 15 16 // 爙
 glyph han-721f:15x16 15 16 // 爟
 ⿰ han-706b:5x16 han-96da:9x16 // ⿰火雚
 
+# CJK unified ideographs: 爻 (89)
+
+## 89.7
+
+// glyph han-723d:15x16 15 16 // 爽
+// ref han-5927 // ⿻大㸚
+// ref han-3e1a
+
+## 89.10
+
+// glyph han-723e:15x16 15 16 // 爾
+// ⿻丅⿱八⿵冂㸚
+
 # CJK unified ideographs: 爿 (90)
 
 ## 90.0

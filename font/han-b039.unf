@@ -50,6 +50,10 @@ ref han-5b50:15x13 0 1
 glyph han-2193f:15x16 15 16 // 𡤿
 ⿰ han-5b50:7x16 1 han-4eba:7x16 // ⿰子人
 
+// glyph han-21940:15x16 15 16 // 𡥀
+// ref han-5b50 // ⿻子八
+// ref han-516b
+
 glyph han-21941:15x16 15 16 // 𡥁
 ⿰ han-5b50:9x16 1 han-5202:5x16 // ⿰子刂
 

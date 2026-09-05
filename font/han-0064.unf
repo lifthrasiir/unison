@@ -220,6 +220,10 @@ glyph han-6279:15x16 15 16 // 批
 glyph han-627b:15x16 15 16 // 扻
 ⿰ han-624c:5x16 1 han-6b20:9x16 // ⿰扌欠
 
+// glyph han-627f:15x16 15 16 // 承
+// ref han-6c36 // ⿻氶三
+// ref han-4e09
+
 glyph han-6282:15x16 15 16 // 抂
 ⿰ han-624c:5x16 1 han-738b:9x16 // ⿰扌王
 

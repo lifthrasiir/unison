@@ -12,8 +12,18 @@ glyph han-20980:15x16 15 16 // 𠦀
 
 ## 24.4
 
+// glyph han-20982:15x16 15 16 // 𠦂
+// ⿻⿰二二十
+
+// glyph han-20983:15x16 15 16 // 𠦃
+// ⿻十⿰十十
+
 // glyph han-20984:15x16 15 16 // 𠦄
 // ⿱ han-5341 han-5344 // ⿱十卄
+
+// glyph han-20986:15x16 15 16 // 𠦆
+// ref han-65e6 // ⿻旦丨
+// ref han-4e28
 
 // glyph han-20988:15x16 15 16 // 𠦈
 // ⿱ han-4e95 han-5341 // ⿱井十
@@ -30,6 +40,14 @@ glyph han-2098d:15x16 15 16 // 𠦍
 // glyph han-2098e:15x16 15 16 // 𠦎
 // ⿳ han-516b han-516b han-5341 // ⿳八八十 <- ⿱𠔁十
 
+// glyph han-2098f:15x16 15 16 // 𠦏
+// ref han-4ece // ⿻从十
+// ref han-5341
+
+// glyph han-20990:15x16 15 16 // 𠦐
+// ref han-5341 // ⿻十𠘬
+// ref han-2062c
+
 ## 24.5
 
 // glyph han-20993:15x16 15 16 // 𠦓
@@ -40,12 +58,19 @@ glyph han-2098d:15x16 15 16 // 𠦍
 // glyph han-20998:15x16 15 16 // 𠦘
 // ⿱ han-5de9 han-5341 // ⿱巩十
 
+// glyph han-2099a:15x16 15 16 // 𠦚
+// ⿻⿱㇒𰀁𠠴
+
 glyph han-2099d:5x16 5 16 // 𠦝
 ⿳ han-5341:5x5 han-65e5:5x5 han-5341:5x6 // ⿳十日十
 glyph han-2099d:7x16 7 16 // 𠦝
 ⿳ han-5341:7x5 han-65e5:7x5 han-5341:7x6 // ⿳十日十
 glyph han-2099d:15x16 15 16 // 𠦝
 ⿳ han-5341:15x5 han-65e5:15x5 han-5341:15x6 // ⿳十日十
+
+// glyph han-2099f:15x16 15 16 // 𠦟
+// ref han-2313c // ⿻𣄼山
+// ref han-5c71
 
 ## 24.8
 
@@ -64,6 +89,11 @@ glyph han-2099d:15x16 15 16 // 𠦝
 
 glyph han-209b0:15x16 15 16 // 𠦰
 ⿲ -5 han-5341:7x16 han-8033:6x16 han-6b20:7x16 // ⿲十耳欠
+
+## 24.11
+
+// glyph han-209b4:15x16 15 16 // 𠦴
+// ⿻𰀁⿰世世
 
 ## 24.12
 
@@ -87,6 +117,9 @@ glyph han-2001d:15x16 15 16 // 𠀝
 
 // glyph han-209d5:15x16 15 16 // 𠧕
 // ⿱ han-4e0a han-5c38 // ⿱上尸
+
+// glyph han-209d6:15x16 15 16 // 𠧖
+// ⿻⿱⺊冂人
 
 glyph han-209d7:7x16 7 16 // 𠧗
 ⿱ han-4e0a:7x7 1 han-4e0b:7x8 // ⿱上下
@@ -226,7 +259,25 @@ glyph han-20a75:15x16 15 16 // 𠩵
 
 # CJK unified ideographs extension B: 厶 (28)
 
+## 28.1
+
+// glyph han-20ad3:15x16 15 16 // 𠫓
+// ref han-4e00 // ⿻一厶
+// ref han-53b6
+
+## 28.2
+
+// glyph han-20ad7:15x16 15 16 // 𠫗
+// ⿻⿻丿㇈厶
+
 ## 28.11
 
 glyph han-20b0c:15x16 15 16 // 𠬌
 ⿰ han-5e76:8x16 han-590b:7x16 // ⿰并夋
+
+# CJK unified ideographs extension B: 又 (29)
+
+## 29.6
+
+// glyph han-20b3b:15x16 15 16 // 𠬻
+// ⿻⿱三𠬞丨

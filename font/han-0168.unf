@@ -928,6 +928,10 @@ $$$$@@@@@@@@@@@@@@@@@@
 
 ## 172.2
 
+// glyph han-96ba:15x16 15 16 // 隺
+// ref han-5196 // ⿻冖隹
+// ref han-96b9
+
 // glyph han-96bc:15x16 15 16 // 隼
 // ⿱ han-96b9 han-5341 // ⿱隹十
 
@@ -2344,6 +2348,13 @@ glyph han-97da:15x16 15 16 // 韚
 
 // glyph han-97df:15x16 15 16 // 韟
 // ⿰ han-97cb han-768b // ⿰韋皋
+
+# CJK unified ideographs: 韦 (178')
+
+## 178'.0
+
+// glyph han-97e6:15x16 15 16 // 韦
+// ⿻⿳一一𠃌丨
 
 # CJK unified ideographs: 韭 (179)
 

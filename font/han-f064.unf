@@ -1,5 +1,11 @@
 # CJK unified ideographs extension F: 手 (64)
 
+## 64.0
+
+// glyph han-2d80d:15x16 15 16 // 𭠍
+// ref han-2b820 // ⿻𫠠㇒
+// ref han-31d2
+
 ## 64.3
 
 // glyph han-2d80f:15x16 15 16 // 𭠏
@@ -135,6 +141,13 @@ glyph han-2d898:15x16 15 16 // 𭢘
 // glyph han-2d8cb:15x16 15 16 // 𭣋
 // ⿲ han-624c han-4eb2 han-898b // ⿲扌亲見 <- ⿰扌親
 
+# CJK unified ideographs extension F: 攴 (66)
+
+## 66.14
+
+// glyph han-2d90f:15x16 15 16 // 𭤏
+// ⿻⿰⿰丨丨人⿸广敢
+
 # CJK unified ideographs extension F: 文 (67)
 
 ## 67.3
@@ -169,6 +182,12 @@ glyph han-2d922:15x16 15 16 // 𭤢
 ⿰ han-65a4:6x16 han-5931:9x16 // ⿰斤失
 
 # CJK unified ideographs extension F: 方 (70)
+
+## 70.0
+
+// glyph han-2d927:15x16 15 16 // 𭤧
+// ref han-4e00 // ⿻一力
+// ref han-529b
 
 ## 70.4
 
@@ -464,6 +483,10 @@ glyph han-2da7c:15x16 15 16 // 𭩼
 glyph han-2da7d:15x16 15 16 // 𭩽
 ⿰ han-6728:5x16 1 han-7c73:9x16 // ⿰木米
 
+// glyph han-2da80:15x16 15 16 // 𭪀
+// ref han-6765 // ⿻来䒑
+// ref han-4491
+
 ## 75.7
 
 // glyph han-2da83:15x16 15 16 // 𭪃
@@ -524,6 +547,10 @@ glyph han-2dab9:15x16 15 16 // 𭪹
 glyph han-2dac6:15x16 15 16 // 𭫆
 ⿲ han-6728:5x16 han-72ad:4x16 1 han-866b:5x16 // ⿲木犭虫
 
+// glyph han-2dac8:15x16 15 16 // 𭫈
+// ref han-672a // ⿻未𠈌
+// ref han-2020c
+
 // glyph han-2dacb:15x16 15 16 // 𭫋
 // ⿳ han-4ea0 han-9091 han-6728 // ⿳亠邑木 <- ⿱𠅔木
 
@@ -531,6 +558,10 @@ glyph han-2dac6:15x16 15 16 // 𭫆
 
 // glyph han-2dad1:15x16 15 16 // 𭫑
 // ⿱ han-2546d han-6728 // ⿱𥑭木
+
+// glyph han-2dad8:15x16 15 16 // 𭫘
+// ref han-8012 // ⿻耒𠈌
+// ref han-2020c
 
 glyph han-2dada:15x16 15 16 // 𭫚
 ⿲ han-6728:5x16 han-4ebb:3x16 han-5352:7x16 // ⿲木亻卒

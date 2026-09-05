@@ -755,6 +755,10 @@ glyph han-5721:15x16 15 16 // 圡
 ..............................
 ref han-571f:15x16
 
+// glyph han-9fb6:15x16 15 16 // 龶
+// ref han-571f // ⿻土一
+// ref han-4e00
+
 ## 32.2
 
 glyph han-5722:15x16 15 16 // 圢
@@ -954,6 +958,10 @@ glyph han-574e:15x16 15 16 // 坎
 glyph han-574f:15x16 15 16 // 坏
 ⿰ han-571f:5x16-l 1 han-4e0d:9x16 // ⿰土不
 
+// glyph han-5750:15x16 15 16 // 坐
+// ref han-4ece // ⿻从土
+// ref han-571f
+
 glyph han-5751:15x16 15 16 // 坑
 ⿰ han-571f:7x16 1 han-4ea2:7x16 // ⿰土亢
 
@@ -1045,6 +1053,9 @@ glyph han-577d-($han-regions):15x16 15 16 // 坽
 
 glyph han-577f:15x16 15 16 // 坿
 ⿲ han-571f:3x16-l han-4ebb:3x16 han-5bf8:9x16 // ⿲土亻寸
+
+// glyph han-5782:15x16 15 16 // 垂
+// ⿻⿻千⿰十十二
 
 glyph han-5783:15x16 15 16 // 垃
 ⿰ han-571f:7x16 1 han-7acb:7x16 // ⿰土立
@@ -2088,10 +2099,18 @@ glyph han-5932:15x16 15 16 // 夲
 glyph han-5933:15x16 15 16 // 夳
 ⿱ han-5927:15x5 1 han-4e8c:15x10 // ⿱大二
 
+// glyph han-5934:15x16 15 16 // 头
+// ref han-2e80 // ⿻⺀大
+// ref han-5927
+
 ## 37.3
 
 // glyph han-5936:15x16 15 16 // 夶
 // ⿰ han-5927 han-5927 // ⿰大大
+
+// glyph han-5937:15x16 15 16 // 夷
+// ref han-5927 // ⿻大弓
+// ref han-5f13
 
 glyph han-5939:15x16 15 16 // 夹
 $$............@@............$$
@@ -2121,6 +2140,10 @@ glyph han-593b:15x16 15 16 // 夻
 // ⿱ han-5927 han-5ddd // ⿱大川
 
 ## 37.4
+
+// glyph han-593e:15x16 15 16 // 夾
+// ref han-5927 // ⿻大从
+// ref han-4ece
 
 glyph han-593f:15x16 15 16 // 夿
 ⿱ han-5927:15x8 han-5df4:15x8 // ⿱大巴
@@ -2193,6 +2216,12 @@ glyph han-5963:15x16 15 16 // 奣
 
 // glyph han-596a:15x16 15 16 // 奪
 // ⿳ han-5927 han-96b9 han-5bf8 // ⿳大隹寸 <- ⿱奞寸
+
+## 37.12
+
+// glyph han-596d:15x16 15 16 // 奭
+// ref han-5927 // ⿻大皕
+// ref han-7695
 
 ## 37.13
 

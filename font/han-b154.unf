@@ -138,6 +138,10 @@ glyph han-27d88:15x16 15 16 // 𧶈
 // glyph han-27d8f:15x16 15 16 // 𧶏
 // ⿳ han-4e0d han-53e3 han-8c9d // ⿳不口貝
 
+// glyph han-27d92:15x16 15 16 // 𧶒
+// ref han-54e1 // ⿻員戈
+// ref han-6208
+
 // glyph han-27d94:15x16 15 16 // 𧶔
 // ⿰ han-8c9d han-5448 // ⿰貝呈
 
@@ -187,6 +191,10 @@ glyph han-27dc2:15x16 15 16 // 𧷂
 // ⿳ han-51fa han-7f52 han-8c9d // ⿳出罒貝 <- ⿱出買
 
 ## 154.11
+
+// glyph han-27de9:15x16 15 16 // 𧷩
+// ref han-5e75 // ⿻幵貴
+// ref han-8cb4
 
 // glyph han-27df5:15x16 15 16 // 𧷵
 // ⿳ han-51fa han-7f51 han-8c9d // ⿳出网貝 <- ⿱出𧵽

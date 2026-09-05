@@ -1,3 +1,38 @@
+# CJK unified ideographs extension B: 戈 (62)
+
+## 62.1
+
+// glyph han-2298d:15x16 15 16 // 𢦍
+// ref han-5f0b // ⿻弋𰀪
+// ref han-3002a
+
+## 62.2
+
+// glyph han-22991:15x16 15 16 // 𢦑
+// ref han-5f0b // ⿻弋彡
+// ref han-5f61
+
+## 62.3
+
+// glyph han-22998:15x16 15 16 // 𢦘
+// ㇯或丨
+
+## 62.4
+
+// glyph han-229a3:15x16 15 16 // 𢦣
+// ref han-6208 // ⿻戈日
+// ref han-65e5
+
+## 62.5
+
+// glyph han-229b0:15x16 15 16 // 𢦰
+// ref han-6b66 // ⿻武㇒
+// ref han-31d2
+
+// glyph han-229b1:15x16 15 16 // 𢦱
+// ref han-2313c // ⿻𣄼戈
+// ref han-6208
+
 # CJK unified ideographs extension B: 戶 (63)
 
 ## 63.1

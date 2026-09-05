@@ -493,6 +493,14 @@ glyph han-2d412:15x16 15 16 // 𭐒
 // glyph han-2d416:15x16 15 16 // 𭐖
 // ⿳ han-5409 han-4e00 han-540b // ⿳吉一吋
 
+# CJK unified ideographs extension F: 夂 (34)
+
+## 34.2
+
+// glyph han-2d41d:15x16 15 16 // 𭐝
+// ref han-5902 // ⿻夂𰀪
+// ref han-3002a
+
 # CJK unified ideographs extension F: 夊 (35)
 
 ## 35.6
@@ -532,6 +540,10 @@ glyph han-2d44d:15x16 15 16 // 𭑍
 
 glyph han-2d457:15x16 15 16 // 𭑗
 ⿳ han-5927:15x5 han-8980:15x5 han-571f:15x6 // ⿳大覀土
+
+// glyph han-2d458:15x16 15 16 // 𭑘
+// ref han-592b // ⿻夫叕
+// ref han-53d5
 
 // glyph han-2d459:15x16 15 16 // 𭑙
 // ⿱ han-5929 han-9580 // ⿱天門
