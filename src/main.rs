@@ -843,15 +843,19 @@ fn main() {
             // The demo page embeds the font rather than pictures of it, and
             // it embeds the primary face as one *variable* font: the bitmap
             // drawing for the small sizes and the vector one for the large,
-            // switched by the `BMAP` axis. It is not one of the `--output`
+            // switched by the `BMAP` axis, with every other declared face
+            // folded in as a stylistic-set switch. It is not one of the `--output`
             // files — those are the shipping faces, and whether *they* carry
             // the axis is `meta bitmap-axis`'s to say — so it is built here
             // rather than borrowed from the outputs above.
-            let Some(ttf) = render::build_face_variable(&refs, faces.primary()) else {
+            let Some(demo_font) = render::build_face_variable(&refs, faces.primary()) else {
                 eprintln!("Failed to build the demo page: no glyph data");
                 std::process::exit(1);
             };
-            let woff2 = render::ttf_to_woff2(&ttf, woff2_quality).unwrap_or_else(|e| {
+            for w in &demo_font.warnings {
+                eprintln!("warning: {w}");
+            }
+            let woff2 = render::ttf_to_woff2(&demo_font.ttf, woff2_quality).unwrap_or_else(|e| {
                 eprintln!("Failed to write the demo page: {e}");
                 std::process::exit(1);
             });
@@ -861,7 +865,8 @@ fn main() {
             });
             let fonts = render::demo::DemoFonts {
                 woff2: &woff2,
-                ttf: &ttf,
+                ttf: &demo_font.ttf,
+                folded: &demo_font.folded,
             };
             if let Err(e) = render::demo::write_demo_html(
                 &mut f,

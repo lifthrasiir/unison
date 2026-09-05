@@ -16,6 +16,23 @@
 //! fewer thing for the page to keep in step: the two drawings share glyph ids
 //! and metrics because they are one glyph set.
 //!
+//! # The other faces
+//!
+//! The same argument again, one level up. A source's faces differ in their
+//! *cmap* and nothing else, so a second face embedded beside the first would be
+//! a second copy of the same glyph store — for Unison, 464 KB to say that some
+//! seven hundred characters take a narrower glyph. The build folds them in
+//! instead ([`crate::render::ttf_builder::fold`]): one stylistic-set
+//! substitution per character the faces disagree about, which the page turns on
+//! with a `font-feature-settings` rule written by [`face_rules`]. Switching
+//! face is a class on `body`; nothing is fetched and nothing is re-rendered.
+//!
+//! What a feature cannot do is *take away* a cmap entry, and a face's
+//! repertoire is generally smaller than the primary's — 806 characters of
+//! Unison Regular are not in Unison Term. So the page is told which those are
+//! ([`DemoFace::unmapped`]) and hatches them itself, the way it hatches a
+//! character no face has.
+//!
 //! # What the specimen shows
 //!
 //! The grid follows the editor's specimen panel (`crate::specimen`) — one
@@ -106,6 +123,9 @@ pub struct DemoFonts<'a> {
     /// a mark. Advances do not vary along the axis, so one reading serves both
     /// drawings.
     pub ttf: &'a [u8],
+    /// The other faces the embedded font can be switched to, and what each
+    /// switch cannot say. See `ttf_builder::fold`.
+    pub folded: &'a [crate::render::ttf_builder::fold::FoldedFace],
 }
 
 /// A cell the source maps to a glyph, as opposed to one only listed because the
@@ -156,9 +176,35 @@ struct DemoBlock {
     runs: String,
 }
 
+/// One face the embedded font can be shown as.
+///
+/// The primary face is first and switches nothing on; every other face is one
+/// the font carries as a stylistic-set substitution, which the page turns on
+/// with a rule of its own — see [`crate::render::ttf_builder::fold`] for what
+/// the switch can and cannot say.
+#[derive(serde::Serialize)]
+struct DemoFace {
+    id: String,
+    /// The face's own `meta family`, which is what the button says.
+    family: String,
+    /// The stylistic-set tag that switches to it; empty for the primary face.
+    feature: String,
+    /// How many characters this face maps.
+    mapped: usize,
+    /// The code points the primary face maps and this one does not, as
+    /// `gap,len` pairs in lowercase hexadecimal separated by `;`, a gap being
+    /// the distance past the end of the pair before it. A cmap entry is not
+    /// something a feature can take away, so the page hatches these cells
+    /// itself rather than the font going quiet on them.
+    unmapped: String,
+}
+
 #[derive(serde::Serialize)]
 struct DemoData {
     meta: DemoMeta,
+    /// The faces the page offers, primary first. One entry when the source
+    /// declares one face, and the page draws no switch at all.
+    faces: Vec<DemoFace>,
     blocks: Vec<DemoBlock>,
     /// The character names that have to be written out; see [`DemoNames`].
     names: DemoNames,
@@ -392,6 +438,7 @@ fn collect(
     docs: &[&Document],
     expansion: &crate::render::ttf_builder::Expansion,
     bitmap_ttf: &[u8],
+    folded: &[crate::render::ttf_builder::fold::FoldedFace],
     data_dir: Option<&Path>,
 ) -> DemoData {
     let meta = crate::meta::FontMeta::collect(docs);
@@ -475,12 +522,76 @@ fn collect(
             features: src.features().to_vec(),
             mapped: declared.len(),
         },
+        faces: demo_faces(&face_meta, declared.len(), folded),
         blocks: out_blocks,
         names,
         name_runs,
         samples: collect_samples(src, data_dir),
         seqs: collect_sequences(docs, face, expansion, bitmap_ttf),
     }
+}
+
+/// The face list the page switches between.
+///
+/// One entry when there is nothing to switch to, so the page can ask the list
+/// how many faces there are rather than being told twice.
+fn demo_faces(
+    primary_meta: &crate::meta::FontMeta,
+    mapped: usize,
+    folded: &[crate::render::ttf_builder::fold::FoldedFace],
+) -> Vec<DemoFace> {
+    let mut out = vec![DemoFace {
+        id: String::new(),
+        family: primary_meta.family().to_string(),
+        feature: String::new(),
+        mapped,
+        unmapped: String::new(),
+    }];
+    for f in folded {
+        out.push(DemoFace {
+            id: f.id.clone(),
+            family: f.family.clone(),
+            feature: f.feature.clone(),
+            // A face that maps a code point the primary does not cannot be
+            // shown at all, and the build says so; the count here is the one
+            // the page can actually draw.
+            mapped: mapped.saturating_sub(f.unmapped.len()),
+            unmapped: gap_len_runs(&f.unmapped),
+        });
+    }
+    out
+}
+
+/// Ascending code points as `gap,len` pairs; see [`DemoFace::unmapped`].
+///
+/// The flagless twin of [`runs_of`]: these code points are one thing rather
+/// than cells with state, and eight hundred of them written out in full would
+/// be six times the size.
+fn gap_len_runs(cps: &[u32]) -> String {
+    let mut out = String::new();
+    let mut prev_end = 0u32;
+    let mut cur: Option<(u32, u32)> = None;
+    let mut flush = |out: &mut String, (start, len): (u32, u32)| {
+        if !out.is_empty() {
+            out.push(';');
+        }
+        out.push_str(&format!("{:x},{len:x}", start - prev_end));
+        prev_end = start + len;
+    };
+    for &cp in cps {
+        match cur {
+            Some((start, len)) if start + len == cp => cur = Some((start, len + 1)),
+            Some(run) => {
+                flush(&mut out, run);
+                cur = Some((cp, 1));
+            }
+            None => cur = Some((cp, 1)),
+        }
+    }
+    if let Some(run) = cur {
+        flush(&mut out, run);
+    }
+    out
 }
 
 /// What each cell can offer beyond the character it stands for: the variation
@@ -795,7 +906,7 @@ pub fn write_demo_html(
     fonts: DemoFonts<'_>,
     data_dir: Option<&Path>,
 ) -> io::Result<()> {
-    let data = collect(src, docs, expansion, fonts.ttf, data_dir);
+    let data = collect(src, docs, expansion, fonts.ttf, fonts.folded, data_dir);
     let title = format!("{} \u{2014} specimen", data.meta.family);
     // `</` inside the blob would end the script element early whatever it sits
     // in; JSON has no other way to spell a slash, so it is escaped here rather
@@ -803,16 +914,18 @@ pub fn write_demo_html(
     let json = serde_json::to_string(&data)
         .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?
         .replace("</", "<\\/");
-    let feature_css = if data.meta.features.is_empty() {
+    let base_features: Vec<String> = data
+        .meta
+        .features
+        .iter()
+        .map(|f| format!("\"{f}\""))
+        .collect();
+    let feature_css = if base_features.is_empty() {
         "normal".to_string()
     } else {
-        data.meta
-            .features
-            .iter()
-            .map(|f| format!("\"{f}\""))
-            .collect::<Vec<_>>()
-            .join(",")
+        base_features.join(",")
     };
+    let face_css = face_rules(&data.faces, &base_features);
 
     write!(
         w,
@@ -820,14 +933,45 @@ pub fn write_demo_html(
          <meta name=viewport content=\"width=device-width,initial-scale=1\">\n\
          <title>{title}</title>\n<style>\n\
          @font-face{{font-family:'Unison';src:url(data:font/woff2;base64,{font}) format('woff2');font-feature-settings:{feature_css}}}\n\
-         {css}</style>\n</head><body>\n\
+         {css}\n{face_css}</style>\n</head><body>\n\
          <script type=\"application/json\" id=\"demo-data\">{json}</script>\n\
          <script>\n{js}</script>\n</body></html>\n",
         title = html_escape(&title),
         font = base64_encode(fonts.woff2),
         css = include_str!("demo.css"),
+        face_css = face_css,
         js = include_str!("demo.js"),
     )
+}
+
+/// The CSS that switches the embedded font to one of the folded faces.
+///
+/// Written out per face at build time, the way the `BMAP` rules are and for the
+/// same reason: a value pulled from a custom property does not reach
+/// `font-feature-settings` and `font-variation-settings` everywhere, and a face
+/// list is known here anyway. The base features come along in the same
+/// declaration rather than being left to the `@font-face` descriptor, because
+/// whether a property at element level extends that descriptor or replaces it
+/// is exactly the kind of thing that differs between engines.
+///
+/// The property is set on `body` and inherited, which is what puts it on the
+/// chart cells, the detail rows and the sample panel's `<textarea>` alike.
+///
+/// A face is addressed by its index and not by its id: an id may contain a `.`,
+/// which is a class selector's own punctuation.
+fn face_rules(faces: &[DemoFace], base_features: &[String]) -> String {
+    let mut out = String::new();
+    for (i, face) in faces.iter().enumerate().skip(1) {
+        let mut list = base_features.to_vec();
+        list.push(format!("\"{}\" 1", face.feature));
+        out.push_str(&format!(
+            "body.f{i}{{font-feature-settings:{}}}\n\
+             body.f{i} .cell.m{i}{{background-image:var(--hatch-img)}}\n\
+             body.f{i} .cell.m{i} .g{{visibility:hidden}}\n",
+            list.join(","),
+        ));
+    }
+    out
 }
 
 fn html_escape(s: &str) -> String {

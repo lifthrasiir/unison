@@ -16,6 +16,7 @@ mod bitmap_axis;
 mod color;
 mod composite;
 mod desync;
+mod fold;
 mod gpos;
 mod gsub;
 mod map_alts;

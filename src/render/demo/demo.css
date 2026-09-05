@@ -303,8 +303,13 @@ section.block { width: fit-content; min-width: min(100%, 40rem); margin: 1.75rem
   padding-top: 3px;
 }
 /* An image rather than a background color, so the row's stripe still shows
-   through and the hatch does not have to out-specify it. */
-.cell.missing { background-image: repeating-linear-gradient(135deg, transparent 0 4px, var(--hatch) 4px 5px); }
+   through and the hatch does not have to out-specify it.
+
+   Named as a custom property because the generated per-face rules use it too:
+   a character the *shown* face does not map is hatched the same way, and those
+   rules are written by `render::demo::face_rules` rather than living here. */
+:root { --hatch-img: repeating-linear-gradient(135deg, transparent 0 4px, var(--hatch) 4px 5px); }
+.cell.missing { background-image: var(--hatch-img); }
 .cell.empty { background: transparent; background-image: none; border-right-color: transparent; border-bottom-color: transparent; }
 
 /* ---- sequences --------------------------------------------------------- */
@@ -574,6 +579,13 @@ footer .legend i.missing { background-image: repeating-linear-gradient(135deg, t
   font-size: var(--em);
   line-height: 1.5;
   font-variation-settings: 'BMAP' 0;
+  /* A form control's UA rule sets `font`, and the shorthand resets
+     `font-feature-settings` to `normal` — a declaration, which beats the
+     inherited value the face switch puts on `body`. So the panel was the one
+     place on the page the switch did not reach. Asked for explicitly, it does.
+     `font-variation-settings` is stated above rather than inherited for the
+     same reason. */
+  font-feature-settings: inherit;
 }
 .bitmap .s-text { font-variation-settings: 'BMAP' 1; }
 .s-text:focus-visible { outline: 2px solid var(--accent); outline-offset: -1px; }

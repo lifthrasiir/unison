@@ -159,6 +159,7 @@ mod collection;
 mod color;
 mod contours;
 mod expand;
+pub mod fold;
 mod gpos;
 mod gsub;
 mod masters;
@@ -962,13 +963,28 @@ pub fn build_font_with_gid_map_for(
     )?)
 }
 
+/// What the demo page is built from: one font, and what it can be switched to.
+pub struct DemoFont {
+    /// The primary face as one variable font carrying both drawings.
+    pub ttf: Vec<u8>,
+    /// Every other declared face, folded in as a stylistic-set switch.
+    pub folded: Vec<fold::FoldedFace>,
+    /// What the fold could not express, for the caller to print. A build with
+    /// warnings still produces a page; it just shows less than the source says.
+    pub warnings: Vec<String>,
+}
+
 /// One face as a *single* variable font carrying both drawings, whether or not
-/// the source asked for one with `meta bitmap-axis`.
+/// the source asked for one with `meta bitmap-axis`, with every *other* face
+/// folded into it as a GSUB switch.
 ///
 /// The demo page's builder. `meta bitmap-axis` is a decision about what the
 /// *shipping* files are, and the demo is not one of them: it embeds a font to
 /// let a reader switch between the two drawings, which is exactly what the axis
-/// is, so it asks for the axis outright.
+/// is, so it asks for the axis outright. The same reasoning is why the other
+/// faces are folded in rather than embedded beside it — two faces of one source
+/// differ in their cmap alone, so a second font would be a second copy of the
+/// same glyph store. See [`fold`].
 ///
 /// [`build_font_pair_cached_for`] is the editor's unrelated pair: its preview
 /// hands bytes to a platform rasterizer and picks a flavor by size, which two
@@ -978,31 +994,78 @@ pub fn build_font_with_gid_map_for(
 /// They have to be — `gvar` is a per-point move within one coordinate system,
 /// so a second scale would make every delta a lie — and this is the same choice
 /// [`build_faces`] makes for the shipping variable font.
-pub fn build_face_variable(docs: &[&Document], face: &crate::faces::Face) -> Option<Vec<u8>> {
+pub fn build_face_variable(docs: &[&Document], face: &crate::faces::Face) -> Option<DemoFont> {
     let never = crate::cancel::CancelToken::never();
-    let shared = collect::compute_shared_font_input_for(docs, face, &never)?;
+    // Expanded here rather than inside the shared input, because three things
+    // need the same one: the union glyph store, the primary face's cmap, and
+    // the fold's reading of every other face's. It is face-independent (see
+    // `crate::faces::FaceSet::union`) and is the larger half of what this costs.
+    let name_parts = crate::document::collect_name_parts(docs);
+    let faces = crate::faces::FaceSet::collect(docs);
+    let expansion = expand::expand_for(docs, &name_parts, &faces.union());
+
+    // The *union* face, exactly as `build_faces_from` traces it, and for a
+    // second reason on top of that one: a glyph only a secondary face's `map`
+    // reaches is not in the primary face's collection at all, and the fold
+    // substitutes to it. Tracing the primary face here left the demo font
+    // without 711 of the 724 glyphs Term needs, and a rule whose target has no
+    // glyph id is dropped where it is built — silently, since a `remap` naming
+    // a glyph the font does not have is an ordinary thing for a source to do.
+    let union_face = faces.union();
+    let shared = collect::compute_shared_font_input_from(docs, &union_face, &expansion, &never)?;
     let (bitmap_data, vector_data) = std::thread::scope(|s| {
         let bh = s.spawn(|| collect::collect_glyph_data_with_shared(&shared, true, None, &never));
         let vector_data = collect::collect_glyph_data_with_shared(&shared, false, None, &never);
         (bh.join().unwrap(), vector_data)
     });
     let (_, _, b_glyphs, _, _) = bitmap_data?;
-    let (meta, scale, glyphs, gsub_data, palette) = vector_data?;
+    let (_, _, union_glyphs, _, palette) = vector_data?;
+    if let Some(name) = masters::assert_composites_agree(&union_glyphs, &b_glyphs) {
+        debug_assert!(
+            false,
+            "the two builds disagree about composite '{name}'; its `gvar` entry would be empty and wrong",
+        );
+    }
+
+    // Only the *codepoints* are the face's; the glyphs, and so every glyph id,
+    // come from the union store — the same split `build_faces_from` makes.
+    let collect::FaceCmap {
+        meta,
+        scale,
+        per_name,
+        mut gsub_data,
+    } = collect::collect_face_cmap(docs, face, &expansion, &never)?;
+    let glyphs: Vec<CollectedGlyph> = union_glyphs
+        .iter()
+        .map(|g| {
+            let mut g = g.clone();
+            g.codepoints = per_name.get(g.name.as_str()).cloned().unwrap_or_default();
+            g
+        })
+        .collect();
+
+    let others: Vec<&crate::faces::Face> = faces.faces.iter().filter(|f| f.id != face.id).collect();
+    let (folded, warnings) =
+        fold::fold_secondary_faces(docs, face, &others, &expansion, &mut gsub_data, &never);
 
     let mut meta = meta;
     meta.bitmap_axis = true;
     let ascender = (meta.ascent() as f32 * scale).round() as i16;
     let descender = -((meta.descent() as f32 * scale).round() as i16);
-    Some(build_ttf(
-        ascender,
-        descender,
-        &glyphs,
-        Some(&b_glyphs),
-        &gsub_data,
-        &palette,
-        scale,
-        &meta,
-    ))
+    Some(DemoFont {
+        ttf: build_ttf(
+            ascender,
+            descender,
+            &glyphs,
+            Some(&b_glyphs),
+            &gsub_data,
+            &palette,
+            scale,
+            &meta,
+        ),
+        folded,
+        warnings,
+    })
 }
 
 /// The same again, tracing contours through the editor's shared cache.

@@ -176,6 +176,10 @@ Core (feature-independent):
   `remap` produces (the flags, the composed jamo). Holds why a per-glyph cost cannot answer that,
   the cascade it runs instead, and the two alphabets the search falls back through. Tests in
   `render/reach_tests.rs`. The demo page's corner rules and detail rows are its one consumer.
+- `render/ttf_builder/fold.rs` — folding a secondary `face` into the demo page's font: the two faces
+  differ in their cmap alone, so the switch is one GSUB single substitution rather than a second
+  font. Holds why it is a feature and not a PUA cmap, why the lookup runs last, and what the switch
+  cannot carry. Tests in `render/ttf_tests/fold.rs`.
 - `render/demo/` — `demo.html`: the font's one specimen page, and what the three older sample
   outputs were folded into. It embeds
   the *font* (the primary face as one variable font, `BMAP` switching the two drawings) and one JSON blob instead of pre-rendered SVG, and
@@ -340,6 +344,13 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | A part that is itself split by an IDC line: deriving its line before flattening it, and what still leaves a line unmeasurable | `ref_composite/mod.rs` (`derive_compose_body`), `render/ttf_builder/expand.rs` (`ink_profiles`) |
 | Why a clearance is measured over the declared box, and what ink escaping it costs | `compose.rs` (`InkProfile::of`) |
 | What `demo.html` embeds instead of rendered output, and the four ways its specimen differs from the editor's | `render/demo/mod.rs` |
+| Why the demo font traces the *union* face where it shows the primary one's cmap | `render/ttf_builder/mod.rs` (`build_face_variable`) |
+| Why the sample panel asks for the face switch explicitly instead of inheriting it | `render/demo/demo.css` (`.s-text`) |
+| Showing a second `face` without embedding a second font, and why the switch is a stylistic set rather than an axis or a PUA cmap | `render/ttf_builder/fold.rs` |
+| Why the fold's lookup is appended after every group the source declared | `render/ttf_builder/fold.rs` (`fold_secondary_faces`) |
+| Which stylistic-set tag a fold takes, and why from the top of the range down | `render/ttf_builder/fold.rs` (`allocate_feature_tags`) |
+| What a face switch cannot say — a glyph replaced two ways, a character only the other face maps, a cmap entry a feature cannot remove | `render/ttf_builder/fold.rs` (`FoldDelta`), `render/demo/mod.rs` (`DemoFace::unmapped`) |
+| Switching face on the page: the rules the build writes, and why nothing is re-rendered | `render/demo/mod.rs` (`face_rules`), `render/demo/demo.js` (`setFace`, `faceMissing`) |
 | The corner triangle a cell wears when it begins a sequence, and the one detail row it opens | `render/demo/demo.js` (`toggleDetail`), `demo.css` (`.cell .mk`) |
 | What a detail cell's label says, and why a long one is cut rather than spilled | `render/demo/demo.js` (`seqLabel`), `demo.css` (`.row.detail .cell .n`) |
 | What the page is told about sequences, and why no glyph name is among it | `render/demo/mod.rs` (`collect_sequences`) |
@@ -538,7 +549,7 @@ past the source it tests, it lives in a sibling file (or directory) declared as 
 
 | Module | Tests |
 | --- | --- |
-| `render/ttf_builder/` | `render/ttf_tests/` — `misc`, `gsub`, `gpos`, `color`, `composite`, `collection`, `masters`, `bitmap_axis`, `vectoronly`, with shared canonicalization helpers in its `mod.rs` |
+| `render/ttf_builder/` | `render/ttf_tests/` — `misc`, `gsub`, `gpos`, `color`, `composite`, `collection`, `masters`, `bitmap_axis`, `vectoronly`, `fold`, with shared canonicalization helpers in its `mod.rs` |
 | `document_io.rs` | `document_io_tests/` — `roundtrip`, `doclines`, `derive`, `lenient`, `tokenizer`, `maps`, `colors`, `asserts`, `comments`, `misc`, `at_names`, `samples` |
 | `document/` | `document/document_tests.rs` |
 | `issues/` | `issues/issues_tests.rs` |

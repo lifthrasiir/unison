@@ -52,8 +52,35 @@
      stays true for a font whose pixel grid is not this one's. */
   var state = {
     mode: "bitmap",
-    em: meta.height * INITIAL_ZOOM
+    em: meta.height * INITIAL_ZOOM,
+    /* Which of `data.faces` is being shown, as an index. Every face after the
+       first is one the embedded font carries as a stylistic-set substitution
+       (`render::ttf_builder::fold`), turned on by a `body.f<i>` rule the build
+       wrote. */
+    face: 0
   };
+
+  /* The code points each face does not map, one Set per face and empty for the
+     primary one. `gap,len` pairs in hex, a gap being the distance past the end
+     of the pair before it — the flagless twin of the cell runs above.
+
+     Held as sets and not consulted per cell at switch time because the classes
+     they produce are written into the markup once: a face switch is then a
+     class on `body` and nothing is re-rendered, which is what lets an open
+     sequence row survive one. */
+  var faceMissing = data.faces.map(function (face) {
+    var set = new Set();
+    if (!face.unmapped) return set;
+    var cp = 0;
+    face.unmapped.split(";").forEach(function (tok) {
+      var f = tok.split(",");
+      var start = cp + parseInt(f[0], 16);
+      var len = parseInt(f[1], 16);
+      for (var i = 0; i < len; i++) set.add(start + i);
+      cp = start + len;
+    });
+    return set;
+  });
 
   function em() {
     return state.em;
@@ -239,7 +266,21 @@
     if (flags < 0) return '<div class="cell empty"></div>';
     var declared = (flags & DECLARED) !== 0;
     var name = nameOf(cp);
-    var title = "U+" + hex(cp, 4) + (name ? " " + name : "") + (declared ? "" : " \u2014 not in the font");
+    /* Which faces do not map this character. The classes go in whatever face is
+       showing — only the `body.f<i>` rule the build wrote acts on one — so a
+       switch needs no second pass over the cells. The note names the faces
+       rather than the current one, and so stays true in every face. */
+    var missing = [];
+    var missClass = "";
+    for (var fi = 1; fi < data.faces.length; fi++) {
+      if (declared && faceMissing[fi].has(cp)) {
+        missClass += " m" + fi;
+        missing.push(data.faces[fi].family);
+      }
+    }
+    var title = "U+" + hex(cp, 4) + (name ? " " + name : "") +
+      (declared ? "" : " \u2014 not in the font") +
+      (missing.length ? " \u2014 not in " + missing.join(", ") : "");
     var glyph = declared && !isControl(cp) ? esc(String.fromCodePoint(cp)) : "";
     /* A character the font gives no advance draws on nothing and its cell reads
        as empty. The circle in front of it is the same one the editor puts there
@@ -258,7 +299,7 @@
         ' start here"></button>'
       : "";
     return (
-      '<div class="cell' + (declared ? "" : " missing") + '" title="' + esc(title) + '">' +
+      '<div class="cell' + (declared ? "" : " missing") + missClass + '" title="' + esc(title) + '">' +
       '<span class="g">' + glyph + "</span>" +
       '<span class="n">' + hex(cp % 256, 2) + "</span>" + mark +
       "</div>"
@@ -663,7 +704,7 @@
       '<div class="brand"><h1>' + esc(meta.family + " " + meta.subfamily) + "</h1>" +
       '<span class="ver">' + esc(meta.version) + "</span></div>" +
       '<div class="stats">' +
-      '<span class="chip"><b>' + meta.mapped + "</b> characters</span>" +
+      '<span class="chip"><b id="n-mapped">' + meta.mapped + "</b> characters</span>" +
       '<span class="chip"><b>' + data.blocks.length + "</b> blocks</span>" +
       '<span class="chip"><b>' + meta.height + "</b> px em</span>" +
       (total ? '<span class="chip">covers <b>' + Math.round((declared / total) * 100) + "%</b> of them</span>" : "") +
@@ -673,11 +714,36 @@
       '<button id="m-bitmap" aria-pressed="true">Bitmap</button>' +
       '<button id="m-vector" aria-pressed="false">Vector</button>' +
       "</div>" +
+      faceControl() +
       '<label class="size">Size<input id="size" type="range" min="1" max="6" step="1" value="2">' +
       '<span class="val" id="size-val"></span></label>' +
       '<select class="jump" id="jump"><option value="">Jump to block…</option>' + options + "</select>" +
       "</div>";
     return el;
+  }
+
+  /* The face switch, or nothing at all when the source declares one face. The
+     other faces are in the same font — see `render::ttf_builder::fold` — so
+     this changes one class on `body` and no bytes are loaded. */
+  function faceControl() {
+    if (data.faces.length < 2) return "";
+    return '<div class="segmented" role="group" aria-label="face">' +
+      data.faces.map(function (f, i) {
+        return '<button id="f-' + i + '" aria-pressed="' + (i === 0) + '">' +
+          esc(f.family) + "</button>";
+      }).join("") +
+      "</div>";
+  }
+
+  function setFace(i) {
+    state.face = i;
+    for (var j = 1; j < data.faces.length; j++) {
+      document.body.classList.toggle("f" + j, j === i);
+    }
+    data.faces.forEach(function (_, j) {
+      document.getElementById("f-" + j).setAttribute("aria-pressed", String(j === i));
+    });
+    document.getElementById("n-mapped").textContent = data.faces[i].mapped;
   }
 
   function sizeControl() {
@@ -716,7 +782,8 @@
     el.innerHTML =
       '<div class="legend">' +
       "<span><i class=\"declared\"></i>drawn by the font</span>" +
-      "<span><i class=\"missing\"></i>a character the font does not have</span>" +
+      "<span><i class=\"missing\"></i>a character the " +
+      (data.faces.length > 1 ? "shown face" : "font") + " does not have</span>" +
       "<span>an empty slot is a code point Unicode assigns to nothing</span>" +
       "</div>";
     return el;
@@ -738,6 +805,10 @@
      end — no fixed panel, and so no height for the page to be told about. */
   document.body.appendChild(samplePanel());
 
+  data.faces.forEach(function (_, i) {
+    var b = document.getElementById("f-" + i);
+    if (b) b.onclick = function () { setFace(i); };
+  });
   document.getElementById("m-bitmap").onclick = function () { setMode("bitmap"); };
   document.getElementById("m-vector").onclick = function () { setMode("vector"); };
   document.getElementById("size").oninput = function () {
