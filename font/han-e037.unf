@@ -111,6 +111,9 @@ glyph han-2bc27:15x16 15 16 // 𫰧
 
 ## 38.7
 
+// glyph han-2bc2b:15x16 15 16 // 𫰫
+// ⿰ han-5973 han-4e9c // ⿰女亜
+
 glyph han-2bc2c:15x16 15 16 // 𫰬
 ⿲ han-5973:5x16-l han-6728:5x16 han-5de5:5x16 // ⿲女木工
 
@@ -289,6 +292,9 @@ glyph han-2bcdf:15x16 15 16 // 𫳟
 // glyph han-2bcf2:15x16 15 16 // 𫳲
 // ⿳ han-5b80 han-4e14 han-7cf8 // ⿳宀且糸 <- ⿱宜糸
 
+// glyph han-2bcfc:15x16 15 16 // 𫳼
+// ⿱ han-5b80 han-287fb // ⿱宀𨟻
+
 ## 40.12
 
 // glyph han-2bcfd:15x16 15 16 // 𫳽
@@ -317,6 +323,11 @@ glyph han-2bd2f:15x16 15 16 // 𫴯
 ⿲ han-8c9d:5x16 1 han-5202:3x16 han-5bf8:6x16 // ⿲貝刂寸
 
 # CJK unified ideographs extension E: 尸 (44)
+
+## 44.4
+
+// glyph han-2bd53:15x16 15 16 // 𫵓
+// ⿸ han-5c38 han-5185 // ⿸尸内
 
 ## 44.5
 
@@ -712,6 +723,9 @@ glyph han-2bf30:15x16 15 16 // 𫼰
 ⿲ han-624c:3x16 han-5973:5x16 han-53e3:7x16 // ⿲扌女口
 
 ## 64.7
+
+// glyph han-2bf33-($han-regions):15x16 15 16 // 𫼳
+// ⿰ han-624c han-8292-($-1) // ⿰扌芒
 
 // glyph han-2bf34:15x16 15 16 // 𫼴
 // ⿰ han-624b han-5415 // ⿰手吕

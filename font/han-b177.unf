@@ -300,6 +300,9 @@ glyph han-293a6:15x16 15 16 // 𩎦
 // glyph han-293a7:15x16 15 16 // 𩎧
 // ⿲ han-97cb han-4ebb han-72ac // ⿲韋亻犬
 
+// glyph han-293a8:15x16 15 16 // 𩎨
+// ⿰ han-97cb han-4e98 // ⿰韋亘
+
 // glyph han-293aa:15x16 15 16 // 𩎪
 // ⿰ han-97cb han-56e0 // ⿰韋因
 
@@ -409,6 +412,11 @@ glyph han-29425:15x16 15 16 // 𩐥
 
 // glyph han-2942b:15x16 15 16 // 𩐫
 // ⿰ han-97f3 han-675f // ⿰音束
+
+## 180.8
+
+// glyph han-2942f:15x16 15 16 // 𩐯
+// ⿰ han-97f3 han-5190 // ⿰音冐
 
 ## 180.9
 

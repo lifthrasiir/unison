@@ -302,6 +302,11 @@ glyph han-2ecca:15x16 15 16 // 𮳊
 glyph han-2eccc:15x16 15 16 // 𮳌
 ⿲ han-6c35:3x16 han-248e9:3x16 1 han-53ef:8x16 // ⿲氵𤣩可
 
+## 85.13
+
+glyph han-2ecd7:15x16 15 16 // 𮳗
+⿲ han-6c35:3x16 han-8f66:4x16-l 1 han-4fde:7x16 // ⿲氵车俞
+
 # CJK unified ideographs extension I: 火 (86)
 
 ## 86.4
@@ -608,6 +613,11 @@ glyph han-2edbc:15x16 15 16 // 𮶼
 
 # CJK unified ideographs extension I: 衣 (145)
 
+## 145.4
+
+// glyph han-2edbf:15x16 15 16 // 𮶿
+// ⿱ han-8863 han-5185 // ⿱衣内
+
 ## 145.5
 
 // glyph han-2edc0:15x16 15 16 // 𮷀
@@ -629,6 +639,18 @@ glyph han-2edc6:15x16 15 16 // 𮷆
 
 glyph han-2edca:15x16 15 16 // 𮷊
 ⿰ han-8ba0:5x16 1 han-756a:9x16 // ⿰讠番
+
+# CJK unified ideographs extension I: 车 (159')
+
+## 159'.2
+
+glyph han-2edd6:15x16 15 16 // 𮷖
+⿰ han-8f66:4x16-l 1 han-51e0:10x16 // ⿰车几
+
+## 159'.4
+
+// glyph han-2edd7:15x16 15 16 // 𮷗
+// ⿰ han-8f66 han-592a // ⿰车太
 
 # CJK unified ideographs extension I: 辶 (162)
 

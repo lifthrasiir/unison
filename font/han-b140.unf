@@ -71,6 +71,12 @@ glyph han-26b2d:15x16 15 16 // 𦬭
 // glyph han-26b2f:15x16 15 16 // 𦬯
 // ⿱ han-8279 han-4ec0 // ⿱艹什
 
+// glyph han-26b35:15x16 15 16 // 𦬵
+// ⿳ han-8279 han-5344 han-4e00 // ⿳艹卄一
+
+// glyph han-26b36:15x16 15 16 // 𦬶
+// ⿱ han-8279 han-5348 // ⿱艹午
+
 ## 140.5
 
 // glyph han-26b38:15x16 15 16 // 𦬸
@@ -134,6 +140,12 @@ glyph han-26b73-($han-regions):15x16 15 16 // 𦭳
 
 // glyph han-26b87:15x16 15 16 // 𦮇
 // ⿳ han-8279 han-4e03 han-6728 // ⿳艹七木 <- ⿱艹𣎽
+
+// glyph han-26b8b-($han-regions):15x16 15 16 // 𦮋
+// ⿳ han-8279 han-4ea1-($-1) han-5ddb // ⿳艹亡巛
+
+// glyph han-26b9d-($han-regions):15x16 15 16 // 𦮝
+// ⿱ han-8279 han-5fd9-($-1) // ⿱艹忙
 
 // glyph han-26ba4:15x16 15 16 // 𦮤
 // ⿳ han-8279 han-5315 han-5fc3 // ⿳艹匕心
@@ -301,6 +313,12 @@ glyph han-26c17:15x16 15 16 // 𦰗
 // glyph han-26c47:15x16 15 16 // 𦱇
 // ⿱ han-8279 han-7a7a // ⿱艹空
 
+glyph han-26c4b-($han-regions):15x16 15 16 // 𦱋
+⿳ -1 han-8279:15x3 han-4ea1-($-1):15x8 1 han-76ee:15x7 // ⿳艹亡目
+
+// glyph han-26c50-($han-regions):15x16 15 16 // 𦱐
+// ⿱ han-8279 han-25755-($-1) // ⿱艹𥝕
+
 glyph han-26c51:15x16 15 16 // 𦱑
 ⿱ han-8279:15x3 1 han-79c8:15x12 // ⿱艹秈
 
@@ -315,6 +333,9 @@ glyph han-26c55:15x16 15 16 // 𦱕
 
 // glyph han-26c5c-($han-regions):15x16 15 16 // 𦱜
 // ⿱ han-8279 han-412a-($-1) // ⿱艹䄪
+
+glyph han-26c63-($han-regions):15x16 15 16 // 𦱣
+⿳ han-8279:15x3 han-4ea1-($-1):15x8 2 han-76bf:15x3 // ⿳艹亡皿
 
 glyph han-26c77:15x16 15 16 // 𦱷
 ⿳ han-8279:15x3 han-4e0d:15x8 1 han-706c:15x4 // ⿳艹不灬
@@ -348,6 +369,9 @@ glyph han-26c8c:15x16 15 16 // 𦲌
 
 glyph han-26c93:15x16 15 16 // 𦲓
 ⿳ han-8279:15x3 han-6728:15x9 han-706c:15x4 // ⿳艹木灬
+
+// glyph han-26c95:15x16 15 16 // 𦲕
+// ⿱ han-8279 han-4e9e // ⿱艹亞
 
 // glyph han-26c96:15x16 15 16 // 𦲖
 // ⿱ han-8279 han-73aa // ⿱艹玪
@@ -437,6 +461,9 @@ glyph han-26cf1:15x16 15 16 // 𦳱
 
 // glyph han-26cf5:15x16 15 16 // 𦳵
 // ⿱ han-8279 han-65ab // ⿱艹斫
+
+glyph han-26cf6-($han-regions):15x16 15 16 // 𦳶
+⿳ -1 han-8279:15x3 han-4ea1-($-1):15x8 han-866b:15x8 // ⿳艹亡虫
 
 // glyph han-26cfb:15x16 15 16 // 𦳻
 // ⿳ han-8279 han-571f han-28670 // ⿳艹土𨙰 <- ⿱芏𨙰

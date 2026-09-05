@@ -129,6 +129,9 @@ glyph han-28300:15x16 15 16 // 𨌀
 glyph han-28303:15x16 15 16 // 𨌃
 ⿲ -1 han-8eca:5x16 han-72ad:4x16 han-738b:7x16 // ⿲車犭王
 
+// glyph han-28304:15x16 15 16 // 𨌄
+// ⿱ han-58ef han-8eca // ⿱壯車
+
 glyph han-2830d:15x16 15 16 // 𨌍
 ⿰ han-8eca:7x16 1 han-8f9b:7x16 // ⿰車辛
 
@@ -161,14 +164,17 @@ glyph han-28334:15x16 15 16 // 𨌴
 // glyph han-28335:15x16 15 16 // 𨌵
 // ⿰ han-8eca han-5b9c // ⿰車宜
 
+// glyph han-28336-($han-regions):15x16 15 16 // 𨌶
+// ⿰ han-8eca han-76f2-($-1) // ⿰車盲
+
 glyph han-28339:15x16 15 16 // 𨌹
 ⿰ han-8eca:7x16 1 han-708e:7x16 // ⿰車炎
 
 glyph han-28340:15x16 15 16 // 𨍀
 ⿲ han-8eca:5x16 han-81f3:7x16 han-5202:3x16 // ⿲車至刂
 
-// glyph han-28346:15x16 15 16 // 𨍆
-// ⿰ han-8eca han-660c // ⿰車昌
+glyph han-28346:15x16 15 16 // 𨍆
+⿰ han-8eca:5x16 1 han-660c:9x16 // ⿰車昌
 
 ## 159.9
 

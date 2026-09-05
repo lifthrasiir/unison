@@ -99,6 +99,9 @@ glyph han-2693e:15x16 15 16 // 𦤾
 // glyph han-269ce:15x16 15 16 // 𦧎
 // ⿰ han-4eca han-820c // ⿰今舌
 
+// glyph han-269cf:15x16 15 16 // 𦧏
+// ⿰ han-820c han-4e95 // ⿰舌井
+
 ## 135.5
 
 // glyph han-269d2:15x16 15 16 // 𦧒
@@ -249,6 +252,9 @@ glyph han-26a4d:15x16 15 16 // 𦩍
 
 glyph han-26a4f:15x16 15 16 // 𦩏
 ⿰ han-821f:7x16 1 han-96b9:7x16 // ⿰舟隹
+
+// glyph han-26a52:15x16 15 16 // 𦩒
+// ⿰ han-821f han-4e9e // ⿰舟亞
 
 glyph han-26a56:15x16 15 16 // 𦩖
 ⿰ han-821f:7x16 han-5351:8x16 // ⿰舟卑

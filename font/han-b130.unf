@@ -19,6 +19,9 @@ glyph han-26639:15x16 15 16 // 𦘹
 glyph han-2663a:15x16 15 16 // 𦘺
 ⿰ han-6708:5x16-l 1 han-5df3:9x16 // ⿰月巳
 
+// glyph han-2663b-($han-regions):15x16 15 16 // 𦘻
+// ⿱ han-4ea1-($-1) han-8089 // ⿱亡肉
+
 // glyph han-2663d:15x16 15 16 // 𦘽
 // ⿰ han-8089 han-5973 // ⿰肉女
 
@@ -29,6 +32,9 @@ glyph han-2663a:15x16 15 16 // 𦘺
 
 // glyph han-26642:15x16 15 16 // 𦙂
 // ⿱ han-4e0d han-8089 // ⿱不肉
+
+// glyph han-26647:15x16 15 16 // 𦙇
+// ⿰ han-6708 han-5184 // ⿰月冄
 
 // glyph han-2664f:15x16 15 16 // 𦙏
 // ⿰ han-6708 han-21d2f // ⿰月𡴯
@@ -127,6 +133,9 @@ glyph han-266ad:15x16 15 16 // 𦚭
 // glyph han-266b7:15x16 15 16 // 𦚷
 // ⿱ han-5408 han-8089 // ⿱合肉
 
+// glyph han-266b8:15x16 15 16 // 𦚸
+// ⿰ han-6708 han-4e98 // ⿰月亘
+
 // glyph han-266c3:15x16 15 16 // 𦛃
 // ⿰ han-8089 han-5404 // ⿰肉各
 
@@ -168,6 +177,9 @@ glyph han-266fb:15x16 15 16 // 𦛻
 glyph han-266fd:15x16 15 16 // 𦛽
 ⿲ -2 han-6708:5x16-l 1 han-53e3:4x16 han-4eca:7x16 // ⿲月口今
 
+// glyph han-266ff-($han-regions):15x16 15 16 // 𦛿
+// ⿰ han-6708 han-8292-($-1) // ⿰月芒
+
 // glyph han-26700:15x16 15 16 // 𦜀
 // ⿲ han-6708 han-53e3 han-72ac // ⿲月口犬 <- ⿰月吠
 
@@ -179,6 +191,9 @@ glyph han-266fd:15x16 15 16 // 𦛽
 glyph han-26713:15x16 15 16 // 𦜓
 ⿲ -3 han-6708:5x16-l han-65a4:6x16 han-6b20:7x16 // ⿲月斤欠
 
+// glyph han-26716:15x16 15 16 // 𦜖
+// ⿰ han-6708 han-4e9e // ⿰月亞
+
 glyph han-26741:15x16 15 16 // 𦝁
 ⿰ han-6708:5x16-l 1 han-5176:9x16 // ⿰月其
 
@@ -188,11 +203,17 @@ glyph han-26742-($han-regions):15x16 15 16 // 𦝂
 glyph han-26743:15x16 15 16 // 𦝃
 ⿲ han-6708:5x16-l han-6728:5x16 han-6728:5x16 // ⿲月木木
 
+glyph han-26746:15x16 15 16 // 𦝆
+⿲ -1 han-6708:5x16-l han-723f:6x16 han-6728:5x16 // ⿲月爿木
+
 glyph han-26747:15x16 15 16 // 𦝇
 ⿲ han-6708:5x16-l han-5fc4:5x16 han-65e6:5x16 // ⿲月忄旦
 
 glyph han-2674b:15x16 15 16 // 𦝋
 ⿰ han-6708:5x16-l 1 han-9580:9x16 // ⿰月門
+
+// glyph han-2674d:15x16 15 16 // 𦝍
+// ⿱ han-7240 han-8089 // ⿱牀肉
 
 // glyph han-26757:15x16 15 16 // 𦝗
 // ⿲ han-6708 han-961d han-4ed8 // ⿲月阝付 <- ⿰月附
@@ -201,6 +222,9 @@ glyph han-2674b:15x16 15 16 // 𦝋
 
 glyph han-2675b:15x16 15 16 // 𦝛
 ⿰ han-6708:5x16-l 1 han-97cb:9x16 // ⿰月韋
+
+// glyph han-26760-($han-regions):15x16 15 16 // 𦝠
+// ⿳ han-4ea1-($-1) han-53e3 han-43ce // ⿳亡口䏎
 
 // glyph han-26768:15x16 15 16 // 𦝨
 // ⿰ han-6708 han-7686 // ⿰月皆
@@ -216,6 +240,9 @@ glyph han-26772:15x16 15 16 // 𦝲
 
 // glyph han-26789:15x16 15 16 // 𦞉
 // ⿰ han-8089 han-7686 // ⿰肉皆
+
+// glyph han-2678c:15x16 15 16 // 𦞌
+// ⿲ han-6708 han-5fc4 han-4e98 // ⿲月忄亘
 
 // glyph han-2678d:15x16 15 16 // 𦞍
 // ⿱ han-8a08 han-8089 // ⿱計肉
@@ -236,6 +263,9 @@ glyph han-26772:15x16 15 16 // 𦝲
 
 glyph han-267bd:15x16 15 16 // 𦞽
 ⿰ han-6708:5x16-l 1 han-9aa8:9x16 // ⿰月骨
+
+glyph han-267c3:15x16 15 16 // 𦟃
+⿲ -3 han-6708:5x16-l han-723f:6x16 han-7f8a:7x16 // ⿲月爿羊
 
 glyph han-267ca:15x16 15 16 // 𦟊
 ⿲ -2 han-6708:5x16-l 1 han-9149:7x16 1 han-5df1:3x16 // ⿲月酉己
@@ -288,6 +318,9 @@ glyph han-267ff:15x16 15 16 // 𦟿
 
 // glyph han-2680c:15x16 15 16 // 𦠌
 // ⿰ han-6708 han-264d4 // ⿰月𦓔
+
+// glyph han-26821:15x16 15 16 // 𦠡
+// ⿱ han-2020c han-5190 // ⿱𠈌冐
 
 // glyph han-26825:15x16 15 16 // 𦠥
 // ⿰ han-6708 han-9592 // ⿰月閒

@@ -11,6 +11,9 @@
 glyph han-23883:15x16 15 16 // 𣢃
 ⿰ han-6b62:8x16 han-6b20:7x16 // ⿰止欠
 
+glyph han-23885-($han-regions):15x16 15 16 // 𣢅
+⿰ han-4ea1-($-1):7x16 1 han-6b20:7x16 // ⿰亡欠
+
 glyph han-23887:15x16 15 16 // 𣢇
 ⿰ han-5df1:7x16 1 han-6b20:7x16 // ⿰己欠
 
@@ -164,6 +167,9 @@ ref han-3193b:15x16
 // glyph han-23948:15x16 15 16 // 𣥈
 // ⿱ han-6b62 han-5dfe // ⿱止巾
 
+glyph han-2394a-($han-regions):15x16 15 16 // 𣥊
+⿰ han-4ea1-($-1):7x16 han-6b62:8x16 // ⿰亡止
+
 glyph han-2394c:15x16 15 16 // 𣥌
 ⿱ han-6b62:15x7 han-4e0a:15x9 // ⿱止上
 
@@ -194,11 +200,20 @@ glyph han-23956:15x16 15 16 // 𣥖
 glyph han-23958:15x16 15 16 // 𣥘
 ⿰ han-6b62:6x16 han-5df4:9x16 // ⿰止巴
 
+// glyph han-23959:15x16 15 16 // 𣥙
+// ⿱ han-2053f han-6b62 // ⿱𠔿止
+
 glyph han-2395c:15x16 15 16 // 𣥜
 ⿱ han-6b62:15x8 1 han-65e5:15x7 // ⿱止日
 
 // glyph han-2395d:15x16 15 16 // 𣥝
 // ⿱ han-5206 han-6b62 // ⿱分止
+
+glyph han-2395e:15x16 15 16 // 𣥞
+⿰ han-6b62:6x16 han-4e95:9x16 // ⿰止井
+
+// glyph han-2395f:15x16 15 16 // 𣥟
+// ⿱ han-6b62 han-4e95 // ⿱止井
 
 glyph han-23960:15x16 15 16 // 𣥠
 ⿰ han-3193b:7x16 1 han-6b62:7x16 // ⿰𱤻止

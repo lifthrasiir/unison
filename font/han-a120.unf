@@ -293,6 +293,9 @@ glyph han-43b2:15x16 15 16 // 䎲
 glyph han-43b3:15x16 15 16 // 䎳
 ⿰ han-8033:7x16 1 han-6708:7x16 // ⿰耳月
 
+glyph han-43b4:15x16 15 16 // 䎴
+⿰ han-8033:6x16-l han-4e95:9x16 // ⿰耳井
+
 ## 128.5
 
 glyph han-43b6:15x16 15 16 // 䎶
@@ -428,8 +431,8 @@ glyph han-4410:15x16 15 16 // 䐐
 glyph han-4413:15x16 15 16 // 䐓
 ⿰ han-6708:7x16 1 han-9801:7x16 // ⿰月頁
 
-// glyph han-4415:15x16 15 16 // 䐕
-// ⿰ han-6708 han-54a0 // ⿰月咠
+glyph han-4415:15x16 15 16 // 䐕
+⿰ han-6708:5x16-l han-54a0:10x16 // ⿰月咠
 
 glyph han-4417-(g|k|v):15x16 15 16 // 䐗
 ⿰ han-6708:7x16 1 han-8005-($-1):7x16 // ⿰月者
@@ -478,6 +481,9 @@ glyph han-444f:15x16 15 16 // 䑏
 # CJK unified ideographs extension A: 舌 (135)
 
 ## 135.4
+
+// glyph han-4459:15x16 15 16 // 䑙
+// ⿰ han-820c han-5184 // ⿰舌冄
 
 // glyph han-445a:15x16 15 16 // 䑚
 // ⿰ han-820c han-6708 // ⿰舌月
@@ -539,6 +545,9 @@ glyph han-446d:15x16 15 16 // 䑭
 glyph han-4474:15x16 15 16 // 䑴
 ⿰ han-821f:7x16 han-5176:8x16 // ⿰舟其
 
+// glyph han-4475:15x16 15 16 // 䑵
+// ⿰ han-821f han-5190 // ⿰舟冐
+
 glyph han-4476-($han-regions):15x16 15 16 // 䑶
 ⿰ han-821f:7x16 1 han-9752-($-1):7x16 // ⿰舟青
 
@@ -573,6 +582,9 @@ glyph han-4499:15x16 15 16 // 䒙
 ⿱ han-8279:15x3 han-4e0a:15x13 // ⿱艹上
 
 ## 140.4
+
+// glyph han-44a3:15x16 15 16 // 䒣
+// ⿱ han-8279 han-5184 // ⿱艹冄
 
 glyph han-44a4:15x16 15 16 // 䒤
 ⿱ han-8279:15x3 1 han-65e5:15x12 // ⿱艹日
@@ -767,6 +779,9 @@ glyph han-4527:15x16 15 16 // 䔧
 // glyph han-452f:15x16 15 16 // 䔯
 // ⿱ han-8279 han-9164 // ⿱艹酤
 
+// glyph han-4531:15x16 15 16 // 䔱
+// ⿱ han-8279 han-63d6 // ⿱艹揖
+
 // glyph han-4535:15x16 15 16 // 䔵
 // ⿱ han-8279 han-9591 // ⿱艹閑
 
@@ -839,6 +854,9 @@ glyph han-4527:15x16 15 16 // 䔧
 glyph han-459e:15x16 15 16 // 䖞
 ⿰ han-866b:5x16 1 han-5bf8:9x16 // ⿰虫寸
 
+glyph han-459f-($han-regions):15x16 15 16 // 䖟
+⿱ han-4ea1-($-1):15x8 han-866b:15x8 // ⿱亡虫
+
 glyph han-45a0:15x16 15 16 // 䖠
 ⿰ han-866b:5x16 han-51e1:10x16 // ⿰虫凡
 
@@ -883,8 +901,11 @@ glyph han-45be:15x16 15 16 // 䖾
 // glyph han-45c1:15x16 15 16 // 䗁
 // ⿰ han-866b han-5947 // ⿰虫奇
 
-// glyph han-45c9:15x16 15 16 // 䗉
-// ⿰ han-866b han-660c // ⿰虫昌
+// glyph han-45c8-($han-regions):15x16 15 16 // 䗈
+// ⿰ han-866b han-76f2-($-1) // ⿰虫盲
+
+glyph han-45c9:15x16 15 16 // 䗉
+⿰ han-866b:5x16 1 han-660c:9x16 // ⿰虫昌
 
 glyph han-45ca:15x16 15 16 // 䗊
 ⿰ han-866b:7x16 1 han-708e:7x16 // ⿰虫炎

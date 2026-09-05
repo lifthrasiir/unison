@@ -135,6 +135,9 @@ glyph han-2a796:15x16 15 16 // 𪞖
 
 ## 15.4
 
+// glyph han-2a797:15x16 15 16 // 𪞗
+// ⿰ han-51ab han-5185 // ⿰冫内
+
 glyph han-2a798:15x16 15 16 // 𪞘
 ⿰ han-51ab:5x16 1 han-4eca:9x16 // ⿰冫今
 
@@ -255,7 +258,8 @@ glyph han-2a7e0:15x16 15 16 // 𪟠
 ## 21.1
 
 glyph han-2a7e8:15x16 15 16 // 𪟨
-⿺ han-4e5a:15x16.13x14 han-5315:10x13 3 0 // ⿺乚匕
+ref han-4e5a:15x16.13x14 0 0 // ⿺乚匕
+ref han-5315:10x13 3 0
 
 ## 21.4
 
@@ -315,6 +319,11 @@ glyph han-2a7fa:15x16 15 16 // 𪟺
 
 glyph han-2b738:15x16 15 16 // 𫜸
 ⿰ han-53e3:5x16-l 1 han-5315:9x16 // ⿰口匕
+
+## 30.4
+
+glyph han-2a833:15x16 15 16 // 𪠳
+⿰ han-53e3:5x16-l 1 han-8f66:9x16 // ⿰口车
 
 ## 30.5
 
@@ -467,6 +476,9 @@ glyph han-2a8b4:15x16 15 16 // 𪢴
 glyph han-2a8b5:15x16 15 16 // 𪢵
 ⿰ han-571f:5x16-l han-51e1:10x16 // ⿰土凡
 
+glyph han-2a8b7-($han-regions):15x16 15 16 // 𪢷
+⿰ han-571f:5x16-l 1 han-4ea1-($-1):9x16 // ⿰土亡
+
 ## 32.4
 
 glyph han-2a8bb:15x16 15 16 // 𪢻
@@ -617,6 +629,9 @@ glyph han-2a944:15x16 15 16 // 𪥄
 
 ## 37.5
 
+// glyph han-2a947:15x16 15 16 // 𪥇
+// ⿳ han-4e00 han-5185 han-5927 // ⿳一内大
+
 glyph han-2a949:15x16 15 16 // 𪥉
 ⿱ han-5929:15x8 han-5df4:15x8 // ⿱天巴
 
@@ -756,6 +771,9 @@ glyph han-2a9bc-($han-regions):15x16 15 16 // 𪦼
 
 // glyph han-2a9c5:15x16 15 16 // 𪧅
 // ⿳ han-5b80 han-4e00 han-5c71 // ⿳宀一山 <- ⿱㝉山
+
+// glyph han-2a9c7:15x16 15 16 // 𪧇
+// ⿱ han-5b80 han-723f // ⿱宀爿
 
 ## 40.5
 

@@ -71,6 +71,9 @@ glyph han-24d37:15x16 15 16 // 𤴷
 // glyph han-24d3e:15x16 15 16 // 𤴾
 // ⿸ han-7592 han-65a4 // ⿸疒斤
 
+// glyph han-24d3f:15x16 15 16 // 𤴿
+// ⿸ han-7592 han-5184 // ⿸疒冄
+
 glyph han-24d41:15x16 15 16 // 𤵁
 ⿸ han-7592:15x16.11x13 han-6b62:10x12 5 4 // ⿸疒止
 
@@ -82,6 +85,9 @@ glyph han-24d41:15x16 15 16 // 𤵁
 
 // glyph han-24d49:15x16 15 16 // 𤵉
 // ⿸ han-7592 han-592a // ⿸疒太
+
+// glyph han-24d4d:15x16 15 16 // 𤵍
+// ⿸ han-7592 han-5348 // ⿸疒午
 
 // glyph han-24d52:15x16 15 16 // 𤵒
 // ⿸ han-7592 han-6587 // ⿸疒文
@@ -152,14 +158,17 @@ glyph han-24d6b:15x16 15 16 // 𤵫
 // glyph han-24d95:15x16 15 16 // 𤶕
 // ⿸ han-7592 han-541e // ⿸疒吞
 
-// glyph han-24d98:15x16 15 16 // 𤶘
-// ⿸ han-7592 han-8a00 // ⿸疒言
+glyph han-24d98:15x16 15 16 // 𤶘
+⿸ han-7592:15x16.11x13 han-8a00:11x10 4 5 // ⿸疒言
 
 // glyph han-24d9a:15x16 15 16 // 𤶚
 // ⿸ han-7592 han-573c // ⿸疒圼
 
 // glyph han-24d9b:15x16 15 16 // 𤶛
 // ⿸ han-7592 han-9091 // ⿸疒邑
+
+// glyph han-24d9c:15x16 15 16 // 𤶜
+// ⿸ han-7592 han-58ef // ⿸疒壯
 
 // glyph han-24da1:15x16 15 16 // 𤶡
 // ⿸ han-7592 han-8098 // ⿸疒肘
@@ -169,6 +178,9 @@ glyph han-24d6b:15x16 15 16 // 𤵫
 
 // glyph han-24dad:15x16 15 16 // 𤶭
 // ⿸ han-7592 han-5446 // ⿸疒呆
+
+// glyph han-24db1:15x16 15 16 // 𤶱
+// ⿸ han-7592 han-4e32 // ⿸疒串
 
 // glyph han-24db2:15x16 15 16 // 𤶲
 // ⿸ han-7592 han-5448 // ⿸疒呈
@@ -184,6 +196,9 @@ glyph han-24d6b:15x16 15 16 // 𤵫
 
 // glyph han-24dbb:15x16 15 16 // 𤶻
 // ⿸ han-7592 han-898b // ⿸疒見
+
+// glyph han-24dbc-($han-regions):15x16 15 16 // 𤶼
+// ⿸ han-7592 han-8292-($-1) // ⿸疒芒
 
 // glyph han-24dbf:15x16 15 16 // 𤶿
 // ⿸ han-7592 han-3ad7 // ⿸疒㫗
@@ -202,6 +217,9 @@ glyph han-24d6b:15x16 15 16 // 𤵫
 // glyph han-24dce:15x16 15 16 // 𤷎
 // ⿸ han-7592 han-961c // ⿸疒阜
 
+// glyph han-24dd0-($han-regions):15x16 15 16 // 𤷐
+// ⿸ han-7592 han-76f2-($-1) // ⿸疒盲
+
 // glyph han-24dd3:15x16 15 16 // 𤷓
 // ⿸ han-7592 han-6b23 // ⿸疒欣
 
@@ -219,6 +237,9 @@ glyph han-24d6b:15x16 15 16 // 𤵫
 
 glyph han-24df1:15x16 15 16 // 𤷱
 ⿸ han-7592:15x16.11x13 han-9580:9x12 5 4 // ⿸疒門
+
+// glyph han-24df2:15x16 15 16 // 𤷲
+// ⿸ han-7592 han-7240 // ⿸疒牀
 
 // glyph han-24df5:15x16 15 16 // 𤷵
 // ⿸ han-7592 han-5761 // ⿸疒坡

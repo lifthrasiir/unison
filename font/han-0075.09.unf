@@ -53,8 +53,8 @@ glyph han-695c:15x16 15 16 // 楜
 // glyph han-696a:15x16 15 16 // 楪
 // ⿰ han-6728 han-67bc // ⿰木枼
 
-// glyph han-696b:15x16 15 16 // 楫
-// ⿰ han-6728 han-54a0 // ⿰木咠
+glyph han-696b:15x16 15 16 // 楫
+⿰ han-6728:5x16 han-54a0:10x16 // ⿰木咠
 
 glyph han-696c:15x16 15 16 // 楬
 ⿰ han-6728:5x16 1 han-66f7:9x16 // ⿰木曷

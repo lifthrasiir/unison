@@ -30,6 +30,12 @@ glyph han-28670:15x16 15 16 // 𨙰
 
 ## 163.4
 
+glyph han-28677:15x16 15 16 // 𨙷
+⿰ han-4e95:9x16 1 han-961d:5x16-r // ⿰井阝
+
+// glyph han-2867b:15x16 15 16 // 𨙻
+// ⿰ han-5184 han-961d // ⿰冄阝
+
 glyph han-2867d:15x16 15 16 // 𨙽
 ⿰ han-4eca:9x16 1 han-961d:5x16-r // ⿰今阝
 
@@ -41,6 +47,9 @@ glyph han-28686:15x16 15 16 // 𨚆
 
 // glyph han-28687:15x16 15 16 // 𨚇
 // ⿰ han-5206 han-9091 // ⿰分邑
+
+// glyph han-28689:15x16 15 16 // 𨚉
+// ⿰ han-5184 han-9091 // ⿰冄邑
 
 // glyph han-2868a:15x16 15 16 // 𨚊
 // ⿰ han-706b han-9091 // ⿰火邑
@@ -73,6 +82,9 @@ glyph han-28698:15x16 15 16 // 𨚘
 
 // glyph han-286a1:15x16 15 16 // 𨚡
 // ⿳ han-4e5b han-6c34 han-9091 // ⿳乛水邑 <- ⿱氶邑
+
+// glyph han-286a2:15x16 15 16 // 𨚢
+// ⿰ han-4e3c han-961d // ⿰丼阝
 
 glyph han-286a3:15x16 15 16 // 𨚣
 ⿰ han-6b63:10x16 han-961d:5x16-r // ⿰正阝
@@ -128,6 +140,9 @@ glyph han-286c1:15x16 15 16 // 𨛁
 // ⿲ han-72ad han-5927 han-961d // ⿲犭大阝
 
 ## 163.7
+
+// glyph han-286cc-($han-regions):15x16 15 16 // 𨛌
+// ⿰ han-6757-($-1) han-961d // ⿰杗阝
 
 glyph han-286cd:15x16 15 16 // 𨛍
 ⿰ han-8096:9x16 1 han-961d:5x16-r // ⿰肖阝
@@ -286,6 +301,9 @@ glyph han-287f5:15x16 15 16 // 𨟵
 glyph han-287f9:15x16 15 16 // 𨟹
 ⿰ han-9149:7x16 1 han-4eca:7x16 // ⿰酉今
 
+glyph han-287fb:15x16 15 16 // 𨟻
+⿰ han-723f:6x16 1 han-9149:7x16 // ⿰爿酉
+
 glyph han-287fc:15x16 15 16 // 𨟼
 ⿰ han-9149:7x16 1 han-4ea2:7x16 // ⿰酉亢
 
@@ -379,6 +397,9 @@ glyph han-28841:15x16 15 16 // 𨡁
 glyph han-28844:15x16 15 16 // 𨡄
 ⿰ han-9149:7x16 1 han-8a00:7x16 // ⿰酉言
 
+glyph han-28848:15x16 15 16 // 𨡈
+⿲ -5 han-9149:7x16 han-723f:6x16 han-58eb:7x16 // ⿲酉爿士
+
 // glyph han-2884a:15x16 15 16 // 𨡊
 // ⿲ han-9149 han-53e6 han-5202 // ⿲酉另刂
 
@@ -405,6 +426,9 @@ glyph han-28855:15x16 15 16 // 𨡕
 // glyph han-28863:15x16 15 16 // 𨡣
 // ⿳ han-4eca han-5fc3 han-9149 // ⿳今心酉 <- ⿱念酉
 
+// glyph han-28867:15x16 15 16 // 𨡧
+// ⿲ han-9149 han-723f han-72ac // ⿲酉爿犬
+
 glyph han-28868:15x16 15 16 // 𨡨
 ⿰ han-9149:7x16 han-5176:8x16 // ⿰酉其
 
@@ -415,6 +439,9 @@ glyph han-2886b:15x16 15 16 // 𨡫
 
 // glyph han-2886c:15x16 15 16 // 𨡬
 // ⿰ han-9149 han-6cf4 // ⿰酉泴
+
+// glyph han-28870:15x16 15 16 // 𨡰
+// ⿱ han-287fb han-76bf // ⿱𨟻皿
 
 // glyph han-28871:15x16 15 16 // 𨡱
 // ⿰ han-9149 han-82e6 // ⿰酉苦

@@ -8,6 +8,8 @@ glyph han-206a5:15x16 15 16 // 𠚥
 // glyph han-206a7:15x16 15 16 // 𠚧
 // ⿰ han-4e8c han-5202 // ⿰二刂
 
+glyph han-206aa:11x13 11 13 // 𠚪
+⿰ han-5200:5x13 1 han-5200:5x13 // ⿰刀刀
 glyph han-206aa:15x16 15 16 // 𠚪
 ⿰ han-5200:7x16 1 han-5200:7x16 // ⿰刀刀
 
@@ -49,6 +51,9 @@ glyph han-206ce:15x16 15 16 // 𠛎
 
 glyph han-206d0:15x16 15 16 // 𠛐
 ⿰ han-672a:9x16 1 han-5202:5x16 // ⿰未刂
+
+// glyph han-206dc:15x16 15 16 // 𠛜
+// ⿰ han-4e3c han-5202 // ⿰丼刂
 
 glyph han-206e3:15x16 15 16 // 𠛣
 ⿰ han-65e6:9x16 1 han-5202:5x16 // ⿰旦刂
@@ -118,6 +123,9 @@ glyph han-2072f:15x16 15 16 // 𠜯
 
 glyph han-20731:15x16 15 16 // 𠜱
 ⿰ han-5351:10x16 han-5202:5x16 // ⿰卑刂
+
+// glyph han-20732:15x16 15 16 // 𠜲
+// ⿰ han-4e9e han-5202 // ⿰亞刂
 
 glyph han-20733:15x16 15 16 // 𠜳
 ⿲ han-6708:5x16-l han-6708:5x16 1 han-5202:4x16 // ⿲月月刂
@@ -298,6 +306,9 @@ glyph han-20848:15x16 15 16 // 𠡈
 glyph han-20849:15x16 15 16 // 𠡉
 ⿰ han-53e4:7x16 han-529b:8x16 // ⿰古力
 
+// glyph han-2084b:15x16 15 16 // 𠡋
+// ⿱ han-518b han-529b // ⿱冋力
+
 glyph han-2084e:15x16 15 16 // 𠡎
 ⿰ han-65e6:9x16 han-529b:6x16 // ⿰旦力
 
@@ -314,6 +325,9 @@ glyph han-2084f:15x16 15 16 // 𠡏
 
 glyph han-20857:15x16 15 16 // 𠡗
 ⿰ han-81e3:8x16 han-529b:7x16 // ⿰臣力
+
+// glyph han-2085a:15x16 15 16 // 𠡚
+// ⿰ han-4e98 han-529b // ⿰亘力
 
 // glyph han-2085b:15x16 15 16 // 𠡛
 // ⿰ han-56e0 han-529b // ⿰因力
@@ -382,6 +396,9 @@ glyph han-20883:15x16 15 16 // 𠢃
 
 // glyph han-208d8:15x16 15 16 // 𠣘
 // ⿹ han-52f9 han-821f // ⿹勹舟
+
+// glyph han-208d9:15x16 15 16 // 𠣙
+// ⿹ han-52f9 han-4e98 // ⿹勹亘
 
 // glyph han-208dc:15x16 15 16 // 𠣜
 // ⿹ han-52f9 han-866b // ⿹勹虫

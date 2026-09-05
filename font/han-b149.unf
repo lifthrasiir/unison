@@ -2,6 +2,9 @@
 
 ## 149.-1
 
+// glyph han-2795b:15x16 15 16 // 𧥛
+// ⿳ han-4ea0 han-20120 han-5182 // ⿳亠𠄠冂
+
 // glyph han-2795c:15x16 15 16 // 𧥜
 // ⿳ han-4ea0 han-20120 han-51f5 // ⿳亠𠄠凵
 
@@ -156,6 +159,9 @@ glyph han-27a02:15x16 15 16 // 𧨂
 
 glyph han-27a0e:15x16 15 16 // 𧨎
 ⿰ han-8a01:5x16 1 han-5b8c:9x16 // ⿰訁完
+
+// glyph han-27a14-($han-regions):15x16 15 16 // 𧨔
+// ⿰ han-8a01 han-8292-($-1) // ⿰訁芒
 
 // glyph han-27a17:15x16 15 16 // 𧨗
 // ⿰ han-8a01 han-3da3 // ⿰訁㶣

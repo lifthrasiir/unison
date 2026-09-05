@@ -169,6 +169,9 @@ glyph han-8cbe:15x16 15 16 // 貾
 // glyph han-8cc0:15x16 15 16 // 賀
 // ⿱ han-52a0 han-8c9d // ⿱加貝
 
+// glyph han-8cc1:15x16 15 16 // 賁
+// ⿳ han-5341 han-5344 han-8c9d // ⿳十卄貝
+
 ## 154.6
 
 glyph han-8cc2:15x16 15 16 // 賂
@@ -199,6 +202,9 @@ glyph han-8ccf:15x16 15 16 // 賏
 
 glyph han-8cd0:15x16 15 16 // 賐
 ⿰ han-8c9d:8x16 han-590b:7x16 // ⿰貝夋
+
+// glyph han-8cd7:15x16 15 16 // 賗
+// ⿰ han-8c9d han-4e32 // ⿰貝串
 
 ## 154.8
 

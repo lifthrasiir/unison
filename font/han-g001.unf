@@ -1,5 +1,10 @@
 # CJK unified ideographs extension G: 一 (1)
 
+## 1.2
+
+// glyph han-30003:15x16 15 16 // 𰀃
+// ⿱ han-4e00 han-5182 // ⿱一冂
+
 ## 1.3
 
 // glyph han-30005-($han-regions):15x16 15 16 // 𰀅
@@ -87,6 +92,18 @@ glyph han-30041:15x16 15 16 // 𰁁
 
 // glyph han-30055:15x16 15 16 // 𰁕
 // ⿱ han-4e03 han-4e8c // ⿱七二
+
+# CJK unified ideographs extension G: 亠 (8)
+
+## 8.9
+
+glyph han-3005d-($han-regions):15x16 15 16 // 𰁝
+⿱ -1 han-4ea1-($-1):15x8 1 han-670b:15x8 // ⿱亡朋
+
+## 8.10
+
+glyph han-3005f-($han-regions):15x16 15 16 // 𰁟
+⿲ -1 han-4ea1-($-1):7x16 han-6c35:3x16 han-5404:7x16 // ⿲亡氵各
 
 # CJK unified ideographs extension G: 人 (9)
 
@@ -241,7 +258,7 @@ glyph han-30100:15x16 15 16 // 𰄀
 ## 17.8
 
 glyph han-30114:15x16 15 16 // 𰄔
-⿰ han-51fa:5x16 1 han-51fa:9x16 // ⿰出出
+⿰ han-51fa:7x16 1 han-51fa:7x16 // ⿰出出
 
 ## 17.12
 
@@ -274,7 +291,7 @@ glyph han-30122:15x16 15 16 // 𰄢
 ## 18.5
 
 glyph han-30124:15x16 15 16 // 𰄤
-⿰ han-5200:5x16 1 han-5305:9x16 // ⿰刀包
+⿰ han-5200:7x16 1 han-5305:7x16 // ⿰刀包
 
 // glyph han-30126:15x16 15 16 // 𰄦
 // ⿱ han-7acb han-5200 // ⿱立刀
@@ -315,10 +332,15 @@ glyph han-30139:15x16 15 16 // 𰄹
 
 # CJK unified ideographs extension G: 力 (19)
 
+## 19.4
+
+glyph han-30149:15x16 15 16 // 𰅉
+⿰ han-4e95:9x16 han-529b:6x16 // ⿰井力
+
 ## 19.5
 
 glyph han-3014a:15x16 15 16 // 𰅊
-⿱ han-65e6:15x7 1 han-529b:15x7 // ⿱旦力
+⿱ han-65e6:15x7 han-529b:15x9 // ⿱旦力
 
 ## 19.6
 
@@ -369,7 +391,7 @@ glyph han-3014a:15x16 15 16 // 𰅊
 ## 24.5
 
 glyph han-30172:15x16 15 16 // 𰅲
-⿱ han-4e16:15x11 han-5341:15x5 // ⿱世十
+⿱ han-4e16:15x9 han-5341:15x7 // ⿱世十
 
 ## 24.7
 
@@ -381,7 +403,7 @@ glyph han-30176:15x16 15 16 // 𰅶
 ## 27.4
 
 glyph han-30196:15x16 15 16 // 𰆖
-⿸ han-5382:15x16.11x15 han-5143:11x12 4 4 // ⿸厂元
+⿸ han-5382:15x16.11x15 han-5143:11x12 4 3 // ⿸厂元
 
 // glyph han-30197:15x16 15 16 // 𰆗
 // ⿸ han-5382 han-6587 // ⿸厂文
@@ -389,7 +411,7 @@ glyph han-30196:15x16 15 16 // 𰆖
 ## 27.5
 
 glyph han-30198:15x16 15 16 // 𰆘
-⿸ han-5382:15x16.11x15 han-751f:11x9 4 5 // ⿸厂生
+⿸ han-5382:15x16.11x15 han-751f:9x14 5 2 // ⿸厂生
 
 ## 27.8
 
@@ -459,12 +481,15 @@ glyph han-301ea:15x16 15 16 // 𰇪
 ⿱ -1 han-5405:15x5 han-4e2d:15x12 // ⿱吅中
 
 glyph han-301eb:15x16 15 16 // 𰇫
-⿱ -1 han-5405:15x5 han-5df4:15x12 // ⿱吅巴
+⿱ -1 han-5405:15x6 han-5df4:15x11 // ⿱吅巴
 
 ## 30.8
 
 glyph han-301f4:15x16 15 16 // 𰇴
 ⿰ han-5408:7x16 1 han-7acb:7x16 // ⿰合立
+
+// glyph han-301f8-($han-regions):15x16 15 16 // 𰇸
+// ⿰ han-53e3 han-76f2-($-1) // ⿰口盲
 
 ## 30.9
 
@@ -498,7 +523,7 @@ glyph han-3020b:15x16 15 16 // 𰈋
 // ⿱ han-975e han-2b738 // ⿱非𫜸
 
 glyph han-30219:15x16 15 16 // 𰈙
-⿲ -2 han-53e3:3x16-l han-821f:7x16 han-4ea2:7x16 // ⿲口舟亢
+⿲ han-53e3:3x16-l han-821f:7x16 han-4ea2:5x16 // ⿲口舟亢
 
 glyph han-3021d:15x16 15 16 // 𰈝
 ⿲ han-53e3:3x16-l han-5b50:7x16 han-8c9d:5x16 // ⿲口子貝
@@ -550,10 +575,13 @@ glyph han-30249:15x16 15 16 // 𰉉
 // glyph han-3024d:15x16 15 16 // 𰉍
 // ⿴ han-56d7 han-4eca // ⿴囗今
 
+// glyph han-3024e:15x16 15 16 // 𰉎
+// ⿴ han-56d7 han-723f // ⿴囗爿
+
 ## 31.5
 
 glyph han-3024f:15x16 15 16 // 𰉏
-⿴ han-56d7:15x16.11x12 han-5360:9x10 3 2 // ⿴囗占
+⿴ han-56d7:15x16.11x12 han-5360:9x10 3 3 // ⿴囗占
 
 // glyph han-30250:15x16 15 16 // 𰉐
 // ⿱ han-56db han-4e09 // ⿱四三
@@ -579,7 +607,7 @@ glyph han-3025d:15x16 15 16 // 𰉝
 ## 32.5
 
 glyph han-30262:15x16 15 16 // 𰉢
-⿱ han-7acb:15x10 han-571f:15x6 // ⿱立土
+⿱ han-7acb:15x8 han-571f:15x8 // ⿱立土
 
 // glyph han-30264:15x16 15 16 // 𰉤
 // ⿱ han-76ae han-571f // ⿱皮土
@@ -600,7 +628,7 @@ glyph han-3026e:15x16 15 16 // 𰉮
 ## 32.8
 
 glyph han-3027c:15x16 15 16 // 𰉼
-⿱ han-670b:15x11 han-571f:15x5 // ⿱朋土
+⿱ han-670b:15x8 han-571f:15x8 // ⿱朋土
 
 // glyph han-30280:15x16 15 16 // 𰊀
 // ⿱ han-59cb han-571f // ⿱始土
@@ -619,6 +647,9 @@ glyph han-3027c:15x16 15 16 // 𰉼
 // ⿰ han-707b han-540c // ⿰灻同
 
 ## 32.11
+
+// glyph han-302a2:15x16 15 16 // 𰊢
+// ⿱ han-6e10 han-571f // ⿱渐土
 
 glyph han-302a3:15x16 15 16 // 𰊣
 ⿱ han-6de1:15x12 han-571f:15x4 // ⿱淡土
@@ -731,6 +762,9 @@ glyph han-302ff:15x16 15 16 // 𰋿
 // ⿱ han-628a han-5973 // ⿱把女
 
 ## 38.8
+
+// glyph han-30306:15x16 15 16 // 𰌆
+// ⿱ han-65a9 han-5973 // ⿱斩女
 
 glyph han-3030b:15x16 15 16 // 𰌋
 ⿰ han-5973:5x16-l 1 han-9580:9x16 // ⿰女門

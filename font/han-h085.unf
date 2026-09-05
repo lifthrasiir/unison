@@ -29,6 +29,9 @@ glyph han-31984:15x16 15 16 // 𱦄
 // glyph han-31986:15x16 15 16 // 𱦆
 // ⿴ han-897f han-6c34 // ⿴西水
 
+glyph han-31988:15x16 15 16 // 𱦈
+⿲ -1 han-6c35:3x16 han-8f66:4x16-l han-4e5d:9x16 // ⿲氵车九
+
 // glyph han-31989:15x16 15 16 // 𱦉
 // ⿰ han-6c35 han-3193d // ⿰氵𱤽
 
@@ -49,6 +52,12 @@ glyph han-31984:15x16 15 16 // 𱦄
 // glyph han-3199c:15x16 15 16 // 𱦜
 // ⿰ han-6c35 han-56ed // ⿰氵园
 
+// glyph han-3199d:15x16 15 16 // 𱦝
+// ⿰ han-6c35 han-4e32 // ⿰氵串
+
+// glyph han-319a1-($han-regions):15x16 15 16 // 𱦡
+// ⿰ han-6c35 han-8292-($-1) // ⿰氵芒
+
 glyph han-319a7:15x16 15 16 // 𱦧
 ⿲ han-6c35:3x16 han-4ebb:3x16 han-76ae:9x16 // ⿲氵亻皮
 
@@ -62,6 +71,9 @@ glyph han-319a7:15x16 15 16 // 𱦧
 
 glyph han-319b7:15x16 15 16 // 𱦷
 ⿲ -1 han-6c35:3x16 han-65a4:6x16 han-6b20:7x16 // ⿲氵斤欠
+
+// glyph han-319bc-($han-regions):15x16 15 16 // 𱦼
+// ⿰ han-6c35 han-76f2-($-1) // ⿰氵盲
 
 glyph han-319c1:15x16 15 16 // 𱧁
 ⿲ -2 han-6c35:3x16 han-5973:5x16 han-672a:9x16 // ⿲氵女未
@@ -202,6 +214,26 @@ glyph han-31b1e:15x16 15 16 // 𱬞
 
 // glyph han-31b25:15x16 15 16 // 𱬥
 // ⿲ han-91d2 han-70b9 han-5341 // ⿲釒点十
+
+# CJK unified ideographs extension H: 爿 (90)
+
+## 90.4
+
+glyph han-31b4d:15x16 15 16 // 𱭍
+⿰ han-723f:6x16 han-6b62:8x16 // ⿰爿止
+
+// glyph han-31b4e:15x16 15 16 // 𱭎
+// ⿰ han-723f han-5fc3 // ⿰爿心
+
+## 90.5
+
+glyph han-31b4f:15x16 15 16 // 𱭏
+⿰ han-723f:6x16 han-672a:9x16 // ⿰爿未
+
+## 90.8
+
+// glyph han-31b51-($han-regions):15x16 15 16 // 𱭑
+// ⿰ han-723f han-28472-($-1) // ⿰爿𨑲
 
 # CJK unified ideographs extension H: 犬 (94)
 

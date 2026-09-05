@@ -13,6 +13,9 @@
 // glyph han-2d814:15x16 15 16 // 𭠔
 // ⿰ han-624b han-4eca // ⿰手今
 
+// glyph han-2d815:15x16 15 16 // 𭠕
+// ⿰ han-624b han-5348 // ⿰手午
+
 ## 64.6
 
 // glyph han-2d828:15x16 15 16 // 𭠨
@@ -99,6 +102,9 @@ glyph han-2d879:15x16 15 16 // 𭡹
 ⿲ -1 han-624c:3x16 han-65e6:5x16 1 han-7532:7x16 // ⿲扌旦甲
 
 ## 64.11
+
+// glyph han-2d892:15x16 15 16 // 𭢒
+// ⿲ han-624c han-8a01 han-5348 // ⿲扌訁午
 
 // glyph han-2d893:15x16 15 16 // 𭢓
 // ⿰ han-624c han-7ae0 // ⿰扌章
@@ -225,6 +231,9 @@ glyph han-2d95b:15x16 15 16 // 𭥛
 
 ## 72.5
 
+// glyph han-2d964:15x16 15 16 // 𭥤
+// ⿰ han-65e5 han-518b // ⿰日冋
+
 glyph han-2d969:15x16 15 16 // 𭥩
 ⿰ han-65e5:8x16 han-7acb:7x16 // ⿰日立
 
@@ -261,6 +270,9 @@ glyph han-2d97b:15x16 15 16 // 𭥻
 
 // glyph han-2d986-($han-regions):15x16 15 16 // 𭦆
 // ⿰ han-65e5 han-8fbe-($-1) // ⿰日达
+
+// glyph han-2d987-($han-regions):15x16 15 16 // 𭦇
+// ⿰ han-65e5 han-8292-($-1) // ⿰日芒
 
 // glyph han-2d989:15x16 15 16 // 𭦉
 // ⿰ han-65e5 han-7537 // ⿰日男
@@ -299,14 +311,20 @@ glyph han-2d9aa:15x16 15 16 // 𭦪
 // glyph han-2d9ad:15x16 15 16 // 𭦭
 // ⿰ han-65e5 han-594e // ⿰日奎
 
-// glyph han-2d9b1:15x16 15 16 // 𭦱
-// ⿰ han-65e5 han-54a0 // ⿰日咠
+glyph han-2d9b1:15x16 15 16 // 𭦱
+⿰ han-65e5:4x16-l 1 han-54a0:10x16 // ⿰日咠
 
 // glyph han-2d9b3:15x16 15 16 // 𭦳
 // ⿱ han-2e4f7 han-65e5 // ⿱𮓷日
 
+// glyph han-2d9b7:15x16 15 16 // 𭦷
+// ⿰ han-661f han-5185 // ⿰星内
+
 glyph han-2d9b8:15x16 15 16 // 𭦸
 ⿲ -1 han-65e5:4x16-l 1 han-767d:4x16 han-6587:7x16 // ⿲日白文
+
+// glyph han-2d9c0:15x16 15 16 // 𭧀
+// ⿳ han-2053f han-7f52 han-65e5 // ⿳𠔿罒日
 
 ## 72.10
 
@@ -460,6 +478,9 @@ glyph han-2da7d:15x16 15 16 // 𭩽
 glyph han-2da90:15x16 15 16 // 𭪐
 ⿰ han-6728:5x16 1 han-8a00:9x16 // ⿰木言
 
+glyph han-2da91-($han-regions):15x16 15 16 // 𭪑
+⿱ han-4ea1-($-1):15x8 han-6797:15x8 // ⿱亡林
+
 ## 75.8
 
 // glyph han-2da9d:15x16 15 16 // 𭪝
@@ -470,6 +491,9 @@ glyph han-2da90:15x16 15 16 // 𭪐
 
 glyph han-2daa5:15x16 15 16 // 𭪥
 ⿰ han-679c:7x16 1 han-4eca:7x16 // ⿰果今
+
+glyph han-2daad-($han-regions):15x16 15 16 // 𭪭
+⿳ -1 han-4ea1-($-1):15x8 han-4e16:15x6 han-6728:15x7 // ⿳亡世木
 
 // glyph han-2dab0:15x16 15 16 // 𭪰
 // ⿱ han-6ce2 han-6728 // ⿱波木

@@ -1,0 +1,47 @@
+# CJK unified ideographs extension B: 爿 (90)
+
+## 90.1
+
+// glyph han-2456c:15x16 15 16 // 𤕬
+// ⿰ han-723f han-4e00 // ⿰爿一
+
+## 90.4
+
+// glyph han-2456f:15x16 15 16 // 𤕯
+// ⿰ han-723f han-6c34 // ⿰爿水
+
+## 90.5
+
+glyph han-24572:15x16 15 16 // 𤕲
+⿰ han-723f:6x16 han-4e14:8x16 // ⿰爿且
+
+glyph han-24575-($han-regions):15x16 15 16 // 𤕵
+⿰ han-723f:6x16 han-4ee4-($-1):9x16 // ⿰爿令
+
+## 90.6
+
+glyph han-24577:15x16 15 16 // 𤕷
+⿰ han-723f:6x16 han-5146:9x16 // ⿰爿兆
+
+// glyph han-24578:15x16 15 16 // 𤕸
+// ⿰ han-723f han-5e84 // ⿰爿庄
+
+## 90.7
+
+glyph han-24582:15x16 15 16 // 𤖂
+⿰ han-723f:6x16 han-675f:9x16 // ⿰爿束
+
+## 90.8
+
+glyph han-24587:15x16 15 16 // 𤖇
+⿰ han-723f:6x16 han-679c:9x16 // ⿰爿果
+
+## 90.10
+
+// glyph han-24591:15x16 15 16 // 𤖑
+// ⿰ han-723f han-5eaf // ⿰爿庯
+
+## 90.13
+
+// glyph han-2459f:15x16 15 16 // 𤖟
+// ⿲ han-723f han-21c2a han-8f9b // ⿲爿𡰪辛

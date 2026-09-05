@@ -16,6 +16,9 @@ glyph han-221d7:15x16 15 16 // 𢇗
 glyph han-221db:15x16 15 16 // 𢇛
 ⿸ han-5e7f:15x16.11x13 han-5e72:9x12 5 4 // ⿸广干
 
+// glyph han-221dc-($han-regions):15x16 15 16 // 𢇜
+// ⿸ han-5e7f han-4ea1-($-1) // ⿸广亡
+
 glyph han-221de:15x16 15 16 // 𢇞
 ⿸ han-5e7f:15x16.11x13 han-53e3:9x11 6 4 // ⿸广口
 
@@ -47,6 +50,9 @@ glyph han-221f6:15x16 15 16 // 𢇶
 glyph han-221f8:15x16 15 16 // 𢇸
 ⿸ han-5e7f:15x16.11x13 han-4e16:9x12 5 4 // ⿸广世
 
+// glyph han-221fa:15x16 15 16 // 𢇺
+// ⿸ han-5e7f han-518b // ⿸广冋
+
 // glyph han-221fe:15x16 15 16 // 𢇾
 // ⿸ han-5e7f han-7518 // ⿸广甘
 
@@ -75,11 +81,17 @@ glyph han-2221a:15x16 15 16 // 𢈚
 glyph han-2221b:15x16 15 16 // 𢈛
 ⿸ han-5e7f:15x16.11x13 han-56f0:9x12 5 4 // ⿸广困
 
+// glyph han-2221c:15x16 15 16 // 𢈜
+// ⿸ han-5e7f han-58ef // ⿸广壯
+
 // glyph han-22220:15x16 15 16 // 𢈠
 // ⿸ han-5e7f han-675f // ⿸广束
 
 // glyph han-22221:15x16 15 16 // 𢈡
 // ⿸ han-5e7f han-590b // ⿸广夋
+
+// glyph han-22222:15x16 15 16 // 𢈢
+// ⿸ han-5e7f han-4e32 // ⿸广串
 
 // glyph han-22225:15x16 15 16 // 𢈥
 // ⿸ han-5e7f han-898b // ⿸广見

@@ -10,8 +10,8 @@
 glyph han-2d1ba:15x16 15 16 // 𭆺
 ⿰ han-53e3:8x16 han-5e72:7x16 // ⿰口干
 
-// glyph han-2d1bb:15x16 15 16 // 𭆻
-// ⿰ han-53e3 han-4e09 // ⿰口三
+glyph han-2d1bb:15x16 15 16 // 𭆻
+⿰ han-53e3:5x16-l han-4e09:10x16 // ⿰口三
 
 glyph han-2d1bc:15x16 15 16 // 𭆼
 ⿱ han-53e3:15x9 1 han-4e0b:15x6 // ⿱口下
@@ -131,6 +131,9 @@ glyph han-2d214:15x16 15 16 // 𭈔
 glyph han-2d219:15x16 15 16 // 𭈙
 ⿲ han-53e3:3x16-l han-6708:6x16 1 han-5df4:5x16 // ⿲口月巴
 
+// glyph han-2d21a:15x16 15 16 // 𭈚
+// ⿲ han-53e3 han-4ebb han-4e98 // ⿲口亻亘
+
 glyph han-2d221:15x16 15 16 // 𭈡
 ⿲ han-53e3:4x16-l han-6c35:3x16 han-4e14:8x16 // ⿲口氵且
 
@@ -143,7 +146,13 @@ glyph han-2d223:15x16 15 16 // 𭈣
 // glyph han-2d225:15x16 15 16 // 𭈥
 // ⿰ han-53e3 han-95f9 // ⿰口闹
 
+// glyph han-2d22d:15x16 15 16 // 𭈭
+// ⿰ han-53e3 han-5190 // ⿰口冐
+
 ## 30.9
+
+// glyph han-2d232:15x16 15 16 // 𭈲
+// ⿲ han-53e3 han-571f han-4e98 // ⿲口土亘
 
 glyph han-2d233:15x16 15 16 // 𭈳
 ⿲ han-53e3:3x16-l han-8033:7x16 han-5df3:5x16 // ⿲口耳巳
@@ -240,6 +249,9 @@ glyph han-2d2bd:15x16 15 16 // 𭊽
 
 glyph han-2d2be:15x16 15 16 // 𭊾
 ⿲ han-53e3:3x16-l han-7cf9:5x16 han-81f3:7x16 // ⿲口糹至
+
+// glyph han-2d2bf:15x16 15 16 // 𭊿
+// ⿲ han-53e3 han-7cf8 han-4e98 // ⿲口糸亘
 
 ## 30.13
 
@@ -436,6 +448,9 @@ glyph han-2d3a6:15x16 15 16 // 𭎦
 glyph han-2d3ae:15x16 15 16 // 𭎮
 ⿱ han-660e:15x10 han-571f:15x6 // ⿱明土
 
+// glyph han-2d3af:15x16 15 16 // 𭎯
+// ⿰ han-571f han-5190 // ⿰土冐
+
 // glyph han-2d3b5:15x16 15 16 // 𭎵
 // ⿱ han-62b3 han-571f // ⿱抳土
 
@@ -455,6 +470,11 @@ glyph han-2d3b9:15x16 15 16 // 𭎹
 
 // glyph han-2d3c9:15x16 15 16 // 𭏉
 // ⿰ han-571f han-7553 // ⿰土畓
+
+## 32.14
+
+// glyph han-2d3fe:15x16 15 16 // 𭏾
+// ⿰ han-571f han-805e // ⿰土聞
 
 ## 32.16
 
@@ -528,6 +548,9 @@ glyph han-2d46a:15x16 15 16 // 𭑪
 
 ## 38.3
 
+glyph han-2d46c-($han-regions):15x16 15 16 // 𭑬
+⿰ han-5973:5x16-l 1 han-4ea1-($-1):9x16 // ⿰女亡
+
 // glyph han-2d46d:15x16 15 16 // 𭑭
 // ⿱ han-5df3 han-5973 // ⿱巳女
 
@@ -541,6 +564,9 @@ glyph han-2d471:15x16 15 16 // 𭑱
 
 // glyph han-2d472:15x16 15 16 // 𭑲
 // ⿳ han-4e2d han-4e00 han-5973 // ⿳中一女 <- ⿱𠀐女
+
+// glyph han-2d473:15x16 15 16 // 𭑳
+// ⿰ han-5973 han-518b // ⿰女冋
 
 ## 38.6
 

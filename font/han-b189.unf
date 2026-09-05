@@ -30,6 +30,9 @@ glyph han-29ac1:15x16 15 16 // 𩫁
 glyph han-29acb:15x16 15 16 // 𩫋
 ⿰ han-9ad8:7x16 han-76ae:8x16 // ⿰高皮
 
+// glyph han-29acc:15x16 15 16 // 𩫌
+// ⿱ han-9ad8 han-518b // ⿱高冋
+
 // glyph han-29acd:15x16 15 16 // 𩫍
 // ⿱ han-9ad8 han-751f // ⿱高生
 
@@ -53,6 +56,11 @@ glyph han-29adb:15x16 15 16 // 𩫛
 
 glyph han-29add:15x16 15 16 // 𩫝
 ⿰ han-9ad8:7x16 han-5351:8x16 // ⿰高卑
+
+## 189.10
+
+// glyph han-29ae1:15x16 15 16 // 𩫡
+// ⿰ han-69c0 han-4e98 // ⿰槀亘
 
 ## 189.18
 

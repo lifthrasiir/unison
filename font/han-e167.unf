@@ -222,10 +222,13 @@ glyph han-2cba0:15x16 15 16 // 𬮠
 // glyph han-2cba5:15x16 15 16 // 𬮥
 // ⿵ han-95e8 han-4f17 // ⿵门众
 
+// glyph han-2cba7-($han-regions):15x16 15 16 // 𬮧
+// ⿵ han-95e8 han-6c52-($-1) // ⿵门汒
+
 ## 169'.8
 
-// glyph han-2cbac-($han-regions):15x16 15 16 // 𬮬
-// ⿵ han-95e8 han-9752-($-1) // ⿵门青
+glyph han-2cbac-($han-regions):15x16 15 16 // 𬮬
+⿵ han-95e8:15x16.11x15 han-9752-($-1):11x14 2 2 // ⿵门青
 
 // glyph han-2cbae:15x16 15 16 // 𬮮
 // ⿵ han-95e8 han-5947 // ⿵门奇
@@ -348,6 +351,11 @@ glyph han-2cbff-($han-regions):15x16 15 16 // 𬯿
 // glyph han-2cc05:15x16 15 16 // 𬰅
 // ⿱ han-96e8 han-4fde // ⿱雨俞
 
+## 173.11
+
+// glyph han-2cc0a-($han-regions):15x16 15 16 // 𬰊
+// ⿱ han-96e8-($-1) han-9019-($-1) // ⿱雨這
+
 ## 173.12
 
 // glyph han-2cc0b:15x16 15 16 // 𬰋
@@ -392,6 +400,11 @@ glyph han-2cc1b:15x16 15 16 // 𬰛
 
 // glyph han-2cc20:15x16 15 16 // 𬰠
 // ⿱ han-672b han-9762 // ⿱末面
+
+## 176.11
+
+// glyph han-2cc23:15x16 15 16 // 𬰣
+// ⿱ han-6e10 han-9762 // ⿱渐面
 
 # CJK unified ideographs extension E: 革 (177)
 
@@ -538,6 +551,9 @@ glyph han-2cd1d:15x16 15 16 // 𬴝
 
 glyph han-2cd52:15x16 15 16 // 𬵒
 ⿰ han-9b5a:7x16 1 han-8eca:7x16 // ⿰魚車
+
+// glyph han-2cd53:15x16 15 16 // 𬵓
+// ⿰ han-9b5a han-4e32 // ⿰魚串
 
 // glyph han-2cd54:15x16 15 16 // 𬵔
 // ⿰ han-9b5a han-8db3 // ⿰魚足

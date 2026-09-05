@@ -23,6 +23,9 @@ glyph han-22ccf:15x16 15 16 // 𢳏
 // glyph han-22cd4:15x16 15 16 // 𢳔
 // ⿳ han-5b80 han-4f70 han-624b // ⿳宀佰手
 
+// glyph han-22cd8-($han-regions):15x16 15 16 // 𢳘
+// ⿰ han-624c han-9019-($-1) // ⿰扌這
+
 // glyph han-22cdc:15x16 15 16 // 𢳜
 // ⿲ han-624c han-5f73 han-6b68 // ⿲扌彳歨 <- ⿰扌徙
 

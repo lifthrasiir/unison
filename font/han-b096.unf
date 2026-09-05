@@ -95,6 +95,9 @@ glyph han-248f0:15x16 15 16 // 𤣰
 glyph han-248f1:15x16 15 16 // 𤣱
 ⿰ han-248e9:5x16 1 han-5df2:9x16 // ⿰𤣩已
 
+glyph han-248f4-($han-regions):15x16 15 16 // 𤣴
+⿱ han-4ea1-($-1):15x8 1 han-738b:15x7 // ⿱亡王
+
 // glyph han-248f6:15x16 15 16 // 𤣶
 // ⿱ han-7389 han-5c71 // ⿱玉山
 
@@ -102,6 +105,12 @@ glyph han-248f7:15x16 15 16 // 𤣷
 ⿰ han-248e9:7x16 1 han-5973:7x16 // ⿰𤣩女
 
 ## 96.4
+
+// glyph han-248fc:15x16 15 16 // 𤣼
+// ⿱ han-5185 han-7389 // ⿱内玉
+
+// glyph han-248fd:15x16 15 16 // 𤣽
+// ⿰ han-248e9 han-5183 // ⿰𤣩冃
 
 glyph han-24901:15x16 15 16 // 𤤁
 ⿰ han-248e9:5x16 1 han-65b9:9x16 // ⿰𤣩方
@@ -246,6 +255,9 @@ glyph han-24989:15x16 15 16 // 𤦉
 // glyph han-24997:15x16 15 16 // 𤦗
 // ⿱ han-73a8 han-6c34 // ⿱玨水
 
+// glyph han-2499b:15x16 15 16 // 𤦛
+// ⿰ han-248e9 han-5190 // ⿰𤣩冐
+
 // glyph han-2499e:15x16 15 16 // 𤦞
 // ⿰ han-248e9 han-961c // ⿰𤣩阜
 
@@ -254,6 +266,9 @@ glyph han-249a2:15x16 15 16 // 𤦢
 
 glyph han-249a6:15x16 15 16 // 𤦦
 ⿲ -2 han-248e9:3x16 han-5206:7x16 han-738b:7x16 // ⿲𤣩分王
+
+// glyph han-249a9:15x16 15 16 // 𤦩
+// ⿰ han-248e9 han-4e9e // ⿰𤣩亞
 
 glyph han-249ad-($han-regions):15x16 15 16 // 𤦭
 ⿰ han-248e9:5x16 1 han-9752-($-1):9x16 // ⿰𤣩青

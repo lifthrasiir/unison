@@ -24,8 +24,8 @@
 // glyph han-2a396:15x16 15 16 // 𪎖
 // ⿸ han-9ebb han-706b // ⿸麻火
 
-// glyph han-2a397:15x16 15 16 // 𪎗
-// ⿸ han-9ebb han-65e5 // ⿸麻日
+glyph han-2a397:15x16 15 16 // 𪎗
+⿸ han-9ebb:15x16.11x7 han-65e5:11x6 4 10 // ⿸麻日
 
 // glyph han-2a399:15x16 15 16 // 𪎙
 // ⿸ han-9ebb han-5e75 // ⿸麻幵
@@ -54,8 +54,8 @@
 
 ## 200.8
 
-// glyph han-2a3a6:15x16 15 16 // 𪎦
-// ⿸ han-9ebb han-6797 // ⿸麻林
+glyph han-2a3a6:15x16 15 16 // 𪎦
+⿸ han-9ebb:15x16.11x7 han-6797:11x6 4 10 // ⿸麻林
 
 ## 200.9
 

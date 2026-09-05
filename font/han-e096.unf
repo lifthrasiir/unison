@@ -309,11 +309,22 @@ glyph han-2c47a:15x16 15 16 // 𬑺
 
 ## 112.4
 
+// glyph han-2c47d:15x16 15 16 // 𬑽
+// ⿴ han-4e95 han-77f3 // ⿴井石
+
 // glyph han-2c47e:15x16 15 16 // 𬑾
 // ⿰ han-77f3 han-5929 // ⿰石天
 
 glyph han-2c482:15x16 15 16 // 𬒂
 ⿰ han-77f3:8x16 han-65b9:7x16 // ⿰石方
+
+## 112.5
+
+glyph han-2c484:15x16 15 16 // 𬒄
+⿲ han-77f3:5x16 1 han-8f66:4x16-l han-4e5a:5x16 // ⿲石车乚
+
+// glyph han-2c485:15x16 15 16 // 𬒅
+// ⿰ han-77f3 han-56d8 // ⿰石囘
 
 ## 112.6
 
@@ -530,6 +541,9 @@ glyph han-2c554:15x16 15 16 // 𬕔
 
 ## 118.9
 
+// glyph han-2c55b:15x16 15 16 // 𬕛
+// ⿱ han-25ad7 han-8f71 // ⿱𥫗轱
+
 // glyph han-2c55c:15x16 15 16 // 𬕜
 // ⿱ han-25ad7 han-98a8 // ⿱𥫗風
 
@@ -698,8 +712,8 @@ glyph han-2c5d7:15x16 15 16 // 𬗗
 // glyph han-2c5df:15x16 15 16 // 𬗟
 // ⿰ han-7cf9 han-9763 // ⿰糹靣
 
-// glyph han-2c5e1:15x16 15 16 // 𬗡
-// ⿰ han-7cf9 han-660c // ⿰糹昌
+glyph han-2c5e1:15x16 15 16 // 𬗡
+⿰ han-7cf9:5x16 1 han-660c:9x16 // ⿰糹昌
 
 glyph han-2c5e5:15x16 15 16 // 𬗥
 ⿲ han-7cf9:5x16 han-5fc4:5x16 han-65e6:5x16 // ⿲糹忄旦
@@ -735,6 +749,11 @@ glyph han-2c5f1:15x16 15 16 // 𬗱
 
 // glyph han-2c5fd:15x16 15 16 // 𬗽
 // ⿱ han-7d30 han-6751 // ⿱細村
+
+## 120.14
+
+// glyph han-2c603:15x16 15 16 // 𬘃
+// ⿲ han-7cf9 han-4e9e han-7cf9 // ⿲糹亞糹
 
 ## 120.16
 
