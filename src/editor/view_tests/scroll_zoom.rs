@@ -196,3 +196,48 @@ fn a_remembered_offset_puts_the_line_back_where_it_was_seen() {
         view_offset_of(&h, line)
     );
 }
+
+/// Typing on the document's *last* line, with the view already scrolled to the
+/// bottom, must not move the page. `scroll_cursor_into_view` asks for a
+/// half-row margin below the caret, and below the last line there is none — so
+/// the target it queues sits past the end of the scroll range. `egui` clamps
+/// such an offset, but only after laying the frame out, so an unclamped target
+/// painted one frame a half row too high and snapped back on the next.
+#[test]
+fn typing_on_the_last_line_does_not_jog_the_page() {
+    let mut src = String::new();
+    for i in 0..80 {
+        use std::fmt::Write;
+        writeln!(src, "// line {i}").unwrap();
+    }
+    let mut h = EditorHarness::new(&src);
+    h.viewport_height = Some(300.0);
+    h.frame();
+    h.focus();
+
+    let last = h.lines.len() - 1;
+    h.state.goto_line(last);
+    h.frame();
+    h.frame();
+    h.state.cursor = Caret::new(last, h.text(last).chars().count());
+    h.frame();
+    h.frame();
+
+    let last_line_y = |h: &EditorHarness| h.snap().vlines.last().unwrap().y;
+    let settled = (h.scroll_y(), last_line_y(&h));
+
+    for _ in 0..3 {
+        h.type_text("x");
+        assert_eq!(
+            (h.scroll_y(), last_line_y(&h)),
+            settled,
+            "typing on the last line moved the page"
+        );
+        h.frame();
+        assert_eq!(
+            (h.scroll_y(), last_line_y(&h)),
+            settled,
+            "the page did not come back the frame after"
+        );
+    }
+}

@@ -399,12 +399,21 @@ pub(super) fn resolve_scroll_target(
     } else {
         None
     };
+    // Every target is clamped to what the scroll area can actually reach.
+    // `egui` clamps an out-of-range offset too, but only *after* the frame it
+    // was handed to has been laid out, so a target past the end paints one
+    // frame at the impossible offset and snaps back on the next — a visible
+    // flicker. `scroll_cursor_into_view` produces exactly such a target for
+    // the last line: it asks for a half-row margin below the caret, and below
+    // the last line there is none.
+    let max_offset = (total_height.max(row_height) - viewport_h).max(0.0);
     minimap_scroll_target
         .or(fold_scroll)
         .or(goto_scroll)
         .or(cursor_scroll)
         .or(zoom_scroll)
         .or(restore_scroll)
+        .map(|y| y.clamp(0.0, max_offset))
 }
 
 /// Queues a scroll so a cursor that moved this frame stays inside the
