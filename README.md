@@ -69,11 +69,12 @@ The major differences (and possible advantages) are as follows:
 
 ## Coverage
 
-As of 2026-09-02:
+As of 2026-09-05:
 
 | Script | Status |
 |--------|--------|
 | Latin | Latin-1, Ext.A and Extended complete, Ext.B 50% |
+| IPA | Complete for characters in the modern use |
 | Greek | Main block 50% (enough for modern Greek), Extended >90% |
 | Cyrillic | Main block 70% (enough for many Slavic languages) |
 | Armenian | Complete |
@@ -82,10 +83,11 @@ As of 2026-09-02:
 | Ogham | Complete |
 | Runic | Complete |
 | Kana | Placeholder glyphs only (100%) |
-| Han | Semi-automatically composed (~10%), verification needed |
+| Han | Semi-automatically composed (URO ~20%, total 10+%), verification needed |
 | Hangul | Modern complete, archaic 80% |
 | General symbols | ~30% |
 | Mathematical symbols | ~20% |
+| APL symbols | 100% |
 | Emoji | ~160 flags supported, otherwise PoC |
 | Sitelen Pona ([UCSUR](https://www.kreativekorp.com/ucsur/)) | Complete |
 
