@@ -60,6 +60,10 @@ pub(super) struct MenuActions {
     /// Fold or unfold the group the caret is in. The shortcut itself is the
     /// editor's own (`document_view::keys`), so this carries only the menu.
     pub(super) toggle_fold: bool,
+    /// Comment the selected lines out, or take the comment back off. Like
+    /// `toggle_fold`, the chord belongs to the editor and this is the menu
+    /// half alone.
+    pub(super) toggle_comment: bool,
 }
 
 /// The subset of [`MenuActions`] dispatched after the central panel.
@@ -157,6 +161,7 @@ impl UniformApp {
         let pane_action = &mut menu.pane_action;
         let nav_action = &mut menu.nav_action;
         let toggle_fold = &mut menu.toggle_fold;
+        let toggle_comment = &mut menu.toggle_comment;
 
         use crate::edit_menu::EditMenuCaps;
 
@@ -318,6 +323,17 @@ impl UniformApp {
                         .clicked()
                     {
                         *toggle_fold = true;
+                        ui.close_menu();
+                    }
+                    if ui
+                        .add_enabled(
+                            editor_focused,
+                            egui::Button::new("Toggle line comment")
+                                .shortcut_text(format!("{mod_name}/")),
+                        )
+                        .clicked()
+                    {
+                        *toggle_comment = true;
                         ui.close_menu();
                     }
                     ui.separator();

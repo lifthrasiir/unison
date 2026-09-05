@@ -63,6 +63,30 @@ pub(super) fn handle_document_keys(
                     crate::editor::folding::toggle_at(lines, state, state.cursor.line);
             }
 
+            // Ctrl/Cmd+/ comments the selected lines out, or takes the
+            // comment back off. Normal mode only: in a pixel mode the grid is
+            // what the user is working on, and the chord would rewrite the
+            // block under it as text. Shift is not tested — on the layouts
+            // where `/` is a shifted key it arrives with the modifier set.
+            if matches!(state.mode, EditMode::Normal)
+                && matches!(state.popup, PopupState::None)
+                && ui.input(|i| {
+                    i.modifiers.command && !i.modifiers.alt && i.key_pressed(egui::Key::Slash)
+                })
+                && crate::editor::comment::toggle(
+                    lines,
+                    &mut state.undo,
+                    &mut state.cursor,
+                    &mut state.selection_anchor,
+                )
+            {
+                // The toggle already left the grids settled; reconciling would
+                // answer a half-uncommented glyph by inserting an empty grid
+                // over the rows still commented under its header.
+                state.skip_reconcile = true;
+                *needs_rederive = true;
+            }
+
             *needs_rederive |= handle_resize_keys(
                 ui,
                 doc,

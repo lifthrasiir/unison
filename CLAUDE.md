@@ -213,6 +213,10 @@ Editor (feature `editor`):
   loop behind it (most churn in the editor). `mod.rs` is the loop and the view cache; `layout.rs`
   (grid extents/strips, the visual-line model, `GlyphMetrics`), `paint.rs`, `scroll.rs`, `keys.rs`,
   `popups.rs`, `changes.rs`.
+- `editor/comment.rs` — Ctrl/Cmd+`/`: whole-line comments. Holds what counts as one, why
+  uncommenting is greedy about the indentation, which lines one toggle takes, and why a grid is
+  demoted to pixel rows on the way out and promoted back the way `parse_doclines` would on the way
+  in. Tests in `editor/view_tests/comment.rs`.
 - `editor/folding.rs` — collapsing a run of lines to its first one: what a group is, why the
   group list rides on `Document::edit_gen`, and why a fold is re-found by its header's text.
 - `editor/glyph_resize.rs` — F2 over a grid: dragging a glyph's boundary, and the two directions a
@@ -474,6 +478,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | How tall a preview row is, and why its chrome is measured from the face rather than the font size | `preview/metrics.rs` (`VMetrics`) |
 | Why the editor's preedit box cannot crop a glyph but the preview's could | `editor/document_view/paint.rs`, `preview/metrics.rs` |
 | A header and its grid are one block: Enter, line-wise copy/cut, paste onto it | `editor/editing.rs` (`insert_newline`), `editor/doc_input.rs` (`current_line_range`, `paste_text`) |
+| Ctrl/Cmd+`/`: which lines a toggle takes, what counts as a comment, and the grid it demotes and promotes on the way | `editor/comment.rs` |
 | Why an edit on a header or `ref` line waits before it reparses | `editor/document_view/changes.rs` (`apply_pending_rederive`) |
 | Why a line the grammar cannot read does not fail the derive | `document_io.rs` (`derive_document`) |
 | Why a right-click moves the caret before its menu opens, and what a click inside the selection does instead | `editor/document_view/paint.rs` (`secondary_pos`) |

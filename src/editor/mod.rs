@@ -29,6 +29,7 @@ pub mod backref_shadow;
 pub mod caret;
 pub mod codepoint_popup;
 pub mod colors;
+pub(crate) mod comment;
 pub mod doc_input;
 pub mod doc_links;
 pub mod document_view;

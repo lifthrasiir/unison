@@ -10,6 +10,7 @@ mod annotations;
 mod autocomplete;
 mod backref_shadow;
 mod clipboard;
+mod comment;
 mod editing;
 mod empty_band;
 mod folding;

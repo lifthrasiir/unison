@@ -1550,6 +1550,28 @@ pub fn serialize_document(doc: &Document, writer: &mut dyn Write) -> Result<()> 
     Ok(())
 }
 
+/// Decode one line of text as a pixel row of `width` columns, or `None` if it
+/// is not one — the inverse of [`encode_grid_row`], and the same test
+/// [`is_pixel_row_next`] applies while parsing a file. Both the promotion a
+/// comment toggle does (`editor::comment`) and the parser have to agree on
+/// what counts as a row, or a block would stop being a grid the moment it was
+/// commented and uncommented again.
+#[cfg(any(feature = "editor", test))]
+pub fn decode_grid_row(line: &str, width: u16) -> Option<Vec<crate::pixel::PixelShape>> {
+    // Zero width encodes to the empty string, which every blank line would
+    // match; see [`is_pixel_row_next`] for why that row is never read.
+    if width == 0 {
+        return None;
+    }
+    let chars: Vec<char> = line.chars().collect();
+    if chars.len() != width as usize * 2 {
+        return None;
+    }
+    (0..width as usize)
+        .map(|col| chars_to_shape(chars[col * 2], chars[col * 2 + 1]))
+        .collect()
+}
+
 /// Encode a single pixel row of `grid` as a string of 2-char pixel codes.
 #[cfg(any(feature = "editor", test))]
 pub fn encode_grid_row(grid: &PixelGrid, row: u16) -> String {

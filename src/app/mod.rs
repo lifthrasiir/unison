@@ -830,6 +830,22 @@ impl eframe::App for UniformApp {
             });
         }
 
+        // Likewise the editor's own Ctrl/Cmd+/, reached through the menu.
+        if menu.toggle_comment {
+            self.with_active_doc_flush(|doc| {
+                let state = &mut doc.editor_state;
+                let changed = crate::editor::comment::toggle(
+                    &mut doc.lines,
+                    &mut state.undo,
+                    &mut state.cursor,
+                    &mut state.selection_anchor,
+                );
+                // The toggle settles the grids itself; see `editor::comment`.
+                state.skip_reconcile |= changed;
+                changed
+            });
+        }
+
         if let Some((path, line)) = bottom.issue_click {
             self.open_file(path.clone());
             if let Some(idx) = self
