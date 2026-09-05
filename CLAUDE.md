@@ -312,7 +312,8 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why an enclosure's clearance total is per axis, and where the split's own total is unchanged by that | `compose.rs` (`Clearance::horizontal`, `report_clearances`) |
 | `:WxH.NxM`: the cavity a name promises, why it is a lower bound where the size is an equality, and what rides on it | `compose.rs` (`VariantSpec::inner`, `cavity_fits`, `enclosure_rank`) |
 | Where an enclosure's cavity may sit — flush with the open sides, free along a walled axis | `compose.rs` (`cavity_fits`) |
-| Why the fixer searches an enclosure's placements where it solves a split's gaps, and why a pattern enclosure is not planned | `fix/clearance.rs` (`optimize_enclosure_line`) |
+| Why the fixer searches an enclosure's placements where it solves a split's gaps | `fix/clearance.rs` (`optimize_enclosure_line`) |
+| An enclosure line written as a pattern: the offsets and labels its family shares, and why one placement is scored against every member | `fix/clearance.rs` (`optimize_pattern_enclosure_line`) |
 | The `:WxH-l` variant name rule, and the position tie-break between same-sized variants | `compose.rs` (`VariantSpec`, `direction_rank`) |
 | An IDC line written as a pattern, and why its layout is still solved per glyph | `compose.rs`, `document/name_parts.rs` (`expand_glyph_block`) |
 | What a pattern glyph block shares with every name it declares (the grid, the box, the flags) | `document/name_parts.rs` (`expand_glyph_block`) |

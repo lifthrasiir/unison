@@ -1186,37 +1186,109 @@ glyph test-x 6 6
     assert_eq!(fixes[0].after, 0);
 }
 
-/// A pattern block that encloses is not planned: what a family shares on a
-/// split is its gaps, and an offset is only meaningful against one glyph's own
-/// walls.
-#[test]
-fn a_pattern_enclosure_line_is_left_to_its_author() {
-    let src = "\
-audit ideal-clearance test-* 0 1 1 2
+/// A `⿺` written over a family: the two offsets are the one thing every glyph
+/// of it shares, so they are chosen for the family the way a split's gaps are.
+/// Both outers here draw the same walls, so the answer is the one a plain line
+/// would reach — the seed pushed into the corner the operator opens on.
+const PATTERN_ENCLOSURE: &str = "\
+audit ideal-clearance test-* 0 1 0 2
 
-glyph ring:6x6.4x4 6 6
-@@@@@@@@@@@@
-@@........@@
-@@........@@
-@@........@@
-@@........@@
+glyph w1:6x6.5x5 6 6
+@@..........
+@@..........
+@@..........
+@@..........
+@@..........
 @@@@@@@@@@@@
 
-glyph seed:2x2 2 2
-@@@@
-@@@@
+glyph w2:6x6.5x5 6 6
+@@..........
+@@..........
+@@..........
+@@..........
+@@..........
+@@@@@@@@@@@@
+
+glyph seed:3x3 3 3
+@@@@@@
+@@@@@@
+@@@@@@
 
 glyph test-(x|y) 6 6
-\u{2FF4} ring:6x6.4x4 seed:2x2 1 1
+\u{2FFA} (w1|w2):6x6.5x5 seed:3x3 0 0
 ";
-    assert!(plan(src).is_empty());
+
+#[test]
+fn a_pattern_enclosure_line_is_optimized_by_the_offsets_its_glyphs_share() {
+    let fixes = plan(PATTERN_ENCLOSURE);
+    assert_eq!(fixes.len(), 1, "{fixes:?}");
+    let fix = &fixes[0];
+    assert_eq!(fix.glyph, "test-(x|y)", "the block, not one of its glyphs");
+    assert_eq!(fix.old_line, "\u{2FFA} (w1|w2):6x6.5x5 seed:3x3 0 0");
+    // At (0, 0) the seed sits on the left stroke and on the bottom bar: both
+    // glyphs warn, and the placement that clears them is the one against the
+    // sides `⿺` opens on.
+    assert_eq!(fix.glyphs_warning, Some((2, 0)));
+    assert_eq!(fix.after, 0);
+    assert_eq!(fix.new_line, "\u{2FFA} (w1|w2):6x6.5x5 seed:3x3 3 0");
+}
+
+/// A slot of a pattern enclosure line is searched the way a split's is: the
+/// label is the family's answer wherever the block's own pattern does not
+/// reach it, and here the inner part as written fills the cavity edge to edge
+/// so no placement can clear it.
+#[test]
+fn a_pattern_enclosure_label_is_searched() {
+    let src = PATTERN_ENCLOSURE
+        .replace("test-* 0 1 0 2", "test-* 0 1 1 2")
+        .replace(
+            "\u{2FFA} (w1|w2):6x6.5x5 seed:3x3 0 0",
+            "\u{2FFA} (w1|w2):6x6.5x5 seed:5x5 1 0",
+        )
+        + "\nglyph seed:5x5 5 5\n@@@@@@@@@@\n@@@@@@@@@@\n@@@@@@@@@@\n@@@@@@@@@@\n@@@@@@@@@@\n";
+    let fixes = plan(&src);
+    assert_eq!(fixes.len(), 1, "{fixes:?}");
+    assert_eq!(
+        fixes[0].new_line, "\u{2FFA} (w1|w2):6x6.5x5 seed:3x3 2 1",
+        "the label every glyph of the family draws, and the placement it leaves room for",
+    );
+    assert_eq!(fixes[0].glyphs_warning, Some((2, 0)));
+    assert_eq!(fixes[0].after, 0);
+}
+
+/// A pattern enclosure line one of whose glyphs the check errors on: it has no
+/// layout at all, so it warns at every placement alike, and the label the slot
+/// shares is what puts it right — the same act, and the same objective, as on
+/// a split.
+#[test]
+fn a_shared_label_answers_a_glyph_an_enclosure_errors_on() {
+    let src = PATTERN_ENCLOSURE
+        .replace("test-* 0 1 0 2", "test-* 0 1 0 3")
+        .replace(
+            "\u{2FFA} (w1|w2):6x6.5x5 seed:3x3 0 0",
+            "\u{2FFA} (w1|w2):6x6.5x5 (s1|s2):3x3 3 0",
+        )
+        .replace("glyph seed:3x3 3 3", "glyph s1:3x3 3 3")
+        + "\nglyph s1:2x2 2 2\n@@@@\n@@@@\n\nglyph s2:2x2 2 2\n@@@@\n@@@@\n";
+    let fixes = plan(&src);
+    assert_eq!(fixes.len(), 1, "{fixes:?}");
+    assert!(fixes[0].faulty, "`s2:3x3` is a name nothing draws");
+    assert_eq!(
+        fixes[0].new_line, "\u{2FFA} (w1|w2):6x6.5x5 (s1|s2):2x2 4 0",
+        "the one label both glyphs of the family draw",
+    );
+    assert_eq!(fixes[0].glyphs_warning, Some((1, 0)));
 }
 
 /// The same, for an enclosure: the four numbers the placement search scores are
 /// the four the check warns about, and applying the plan clears them.
 #[test]
 fn applying_an_enclosure_plan_removes_the_warnings_it_was_scored_on() {
-    for src in [RING.to_string(), GUANG.to_string()] {
+    for src in [
+        RING.to_string(),
+        GUANG.to_string(),
+        PATTERN_ENCLOSURE.to_string(),
+    ] {
         let before = clearance_warnings(&src);
         assert!(!before.is_empty(), "{before:?}");
         let after = clearance_warnings(&fixed(&src));
