@@ -896,6 +896,7 @@ fn expand_decomposed_maps(
                     // forwarding the components' surviving anchors is the right
                     // default — a hand-written replacement decides per ref.
                     inherit: true,
+                    goto: false,
                     fill: None,
                     visibility: None,
                 })
@@ -1984,6 +1985,7 @@ fn inject_on_demand_glyph_items(
                             offset,
                             negated: r.negated,
                             inherit: r.inherit,
+                            goto: r.goto,
                             fill: r.fill.clone(),
                             visibility: Some(LayerVisibility::MonoOnly),
                         });
@@ -2003,6 +2005,7 @@ fn inject_on_demand_glyph_items(
                             offset,
                             negated: r.negated,
                             inherit: r.inherit,
+                            goto: r.goto,
                             fill: r.fill.clone(),
                             visibility: Some(LayerVisibility::ColorOnly),
                         });

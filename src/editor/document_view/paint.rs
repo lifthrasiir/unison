@@ -1136,7 +1136,13 @@ pub(super) fn paint_document_area(
             // Centred on the next frame like any other jump to a definition;
             // `resolve_scroll_target` has already run for this one.
             state.request_scroll(crate::editor::ScrollIntent::Center);
-            NavTarget::Local { line: line_idx }
+            NavTarget::Local {
+                line: line_idx,
+                // Only a glyph name reached by its own spelling can be
+                // redirected; a capture jump landed on a group, not a glyph.
+                glyph: (kind == LinkTargetKind::Glyph && capture.is_none())
+                    .then(|| target_name.clone()),
+            }
         } else {
             let goto = GotoGlyph {
                 name: target_name.clone(),

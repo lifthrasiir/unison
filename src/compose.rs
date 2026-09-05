@@ -1628,6 +1628,8 @@ pub fn expand_compose(
             offset: Some((clamp_offset(col), clamp_offset(row))),
             negated: false,
             inherit: false,
+            // A jump-through is a `ref` keyword; a derived one carries none.
+            goto: false,
             // The derived ref is not conditional: the line already answered
             // that question for the whole of itself above.
             fill: None,
@@ -1906,6 +1908,7 @@ fn expand_enclosure(
             offset: Some((clamp_offset(col), clamp_offset(row))),
             negated: false,
             inherit: false,
+            goto: false,
             fill: None,
             visibility: None,
             comment: None,

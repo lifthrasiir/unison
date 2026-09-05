@@ -113,3 +113,40 @@ pub(super) fn check_vectoronly_reach(
         }
     }
 }
+
+/// `goto` names the one `ref` a jump to the enclosing glyph is carried on to,
+/// so a block that writes it twice has asked for two destinations at once. The
+/// navigation takes the first written and this says which glyphs are in that
+/// state; nothing about the font changes either way.
+///
+/// Read off the *source* items rather than the expansion: the flag's whole
+/// reason for existing is the wrapper written as one pattern over thousands of
+/// names, and a finding per expanded name would be thousands of copies of one
+/// mistake.
+pub(super) fn check_goto_refs(cx: &Cx<'_>, issues: &mut Vec<Issue>) {
+    for (doc_idx, doc) in cx.docs.iter().enumerate() {
+        for (item_idx, item) in cx.source_items(doc_idx) {
+            let DocumentItem::Glyph {
+                name: GlyphName(n),
+                body,
+            } = item
+            else {
+                continue;
+            };
+            let mut flagged = body.refs.iter().filter(|r| r.goto);
+            let (Some(first), Some(second)) = (flagged.next(), flagged.next()) else {
+                continue;
+            };
+            issues.push(issue_at(
+                doc,
+                item_idx,
+                Severity::Warning,
+                format!(
+                    "glyph '{n}' writes `goto` on more than one ref ('{}' and '{}'); a jump to it \
+                     goes to the first",
+                    first.name, second.name
+                ),
+            ));
+        }
+    }
+}

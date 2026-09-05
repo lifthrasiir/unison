@@ -391,6 +391,7 @@ mod tests {
             offset: Some((1, 0)),
             negated: false,
             inherit: false,
+            goto: false,
             fill: None,
             visibility: None,
         };

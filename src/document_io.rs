@@ -351,7 +351,7 @@
 //!   `keep` says one thing more: that each name it declares is a glyph of its
 //!   own, where expansions that describe the same glyph are otherwise merged
 //!   into one — see [`crate::merge`].
-//! - `ref OTHER [COL ROW] [negated] [inherit] [coloronly|monoonly]
+//! - `ref OTHER [COL ROW] [negated] [inherit] [goto] [coloronly|monoonly]
 //!   [fill COLOR]`
 //!   — a composite reference. Omitting the offset auto-resolves it from
 //!   `anchor`s; `fill` takes a `#RRGGBB[AA]` literal or a `color` name. Refs
@@ -360,6 +360,9 @@
 //!   is itself coloured keeps that glyph's colours; a `fill` is a claim over
 //!   everything the ref reaches, however deep, and draws all of it in that one
 //!   colour — see `ColorPiece` in [`crate::render::ttf_builder`]'s `collect`.
+//!   `goto` is the one flag no build stage reads: it says that "go to
+//!   definition" on the *enclosing* glyph belongs on this target instead, for
+//!   a wrapper whose own line is one pattern covering thousands of names.
 //! - `anchor POS COL ROW` — an anchor for auto-ref alignment; supports `+`/`-`
 //!   prefixes and cell ranges. A range does two jobs: its size says which
 //!   drawing of a mark a base wants (`GlyphPoint::size_matches`), and it
@@ -775,7 +778,7 @@ fn parse_visibility(s: &str) -> Option<LayerVisibility> {
 /// - `ref NAME`
 /// - `ref NAME negated`
 /// - `ref NAME COL ROW [negated]`
-/// - Any of the above followed by `inherit`, `fill COLOR` and/or
+/// - Any of the above followed by `inherit`, `goto`, `fill COLOR` and/or
 ///   `coloronly`/`monoonly`, in any order (each is independent of the others)
 ///
 /// `base` is the `@` base in force — the last glyph name declared without one.
@@ -793,6 +796,7 @@ fn parse_ref_line(
     let mut offset: Option<(i16, i16)> = None;
     let mut negated = false;
     let mut inherit = false;
+    let mut goto = false;
     let mut fill: Option<RefFill> = None;
     let mut visibility: Option<LayerVisibility> = None;
 
@@ -809,6 +813,7 @@ fn parse_ref_line(
         match parts[idx].as_str() {
             "negated" => negated = true,
             "inherit" => inherit = true,
+            "goto" => goto = true,
             "fill" => {
                 idx += 1;
                 if idx >= parts.len() {
@@ -835,6 +840,7 @@ fn parse_ref_line(
         offset,
         negated,
         inherit,
+        goto,
         fill,
         visibility,
         comment,

@@ -531,6 +531,11 @@ impl UniformApp {
 
     /// Carries out a link the editor followed and records it in the navigation
     /// history, so Go Back can undo the jump.
+    ///
+    /// A jump is *one* gesture but may be several steps, because a `goto` ref
+    /// carries it on past its first landing (see [`Self::follow_goto_chain`]).
+    /// Every step is recorded, so Go Back walks the way in backwards rather
+    /// than stepping over the glyphs the jump passed through.
     fn follow_nav_request(
         &mut self,
         ctx: &egui::Context,
@@ -539,29 +544,142 @@ impl UniformApp {
     ) {
         use crate::editor::document_view::NavTarget;
         let from = NavLoc::new(from_doc, nav.from.line, nav.from.col).seen_at(nav.from_offset);
-        let to = match nav.target {
-            // The editor already moved its own caret; only the record is left.
-            NavTarget::Local { line } => Some(NavLoc::new(from_doc, line, 0)),
+        let landed = match nav.target {
+            // The editor already moved its own caret; only the record — and
+            // any redirect, which the editor cannot resolve — is left.
+            NavTarget::Local { line, glyph } => {
+                let mut hops = vec![NavLoc::new(from_doc, line, 0)];
+                if let Some(name) = glyph {
+                    hops.extend(self.follow_goto_chain(ctx, &name));
+                }
+                hops
+            }
             NavTarget::CrossFile(goto) => {
                 match self.goto_glyph(ctx, &goto.name, &goto.kind) {
-                    Some((doc_idx, line)) => Some(NavLoc::new(doc_idx, line, 0)),
+                    Some((doc_idx, line)) => {
+                        let mut hops = vec![NavLoc::new(doc_idx, line, 0)];
+                        if goto.kind == LinkTargetKind::Glyph {
+                            hops.extend(self.follow_goto_chain(ctx, &goto.name));
+                        }
+                        hops
+                    }
                     // Nothing declares the name, so there is no jump to make
                     // or to record — list who writes it instead.
                     None => {
                         self.search_name(ctx, &goto.name, goto.kind);
-                        None
+                        Vec::new()
                     }
                 }
             }
             // The token clicked is the declaration itself.
             NavTarget::Search(goto) => {
                 self.search_name(ctx, &goto.name, goto.kind);
-                None
+                Vec::new()
             }
         };
-        if let Some(to) = to {
-            self.nav_history.push(NavEntry { from, to });
+        self.record_nav_chain(Some(from), landed);
+    }
+
+    /// Carries out a click on a specimen cell.
+    ///
+    /// Unlike a link, it starts nowhere a Go Back could return to, so the first
+    /// landing records nothing. A `goto` ref changes that: the glyph the jump
+    /// passes through *is* a position in a document, and the reader who wanted
+    /// the wrapper rather than the drawing gets there with one Go Back.
+    fn follow_specimen_click(&mut self, ctx: &egui::Context, click: crate::specimen::SpecimenClick) {
+        let Some((doc_idx, line)) = self.goto_glyph(ctx, &click.name, &click.kind) else {
+            return;
+        };
+        let mut hops = vec![NavLoc::new(doc_idx, line, 0)];
+        if click.kind == LinkTargetKind::Glyph {
+            hops.extend(self.follow_goto_chain(ctx, &click.name));
         }
+        self.record_nav_chain(None, hops);
+    }
+
+    /// Records one gesture's landings as one history entry per step: the link
+    /// leads to the first, each landing leads to the next.
+    ///
+    /// Only the link itself carries a `view_offset` — it is the one position
+    /// somebody was looking at. A glyph the jump merely passed through was
+    /// never on screen, so coming back to it centres, exactly as arriving at
+    /// it would have.
+    ///
+    /// `from` is `None` where the gesture did not start in a document at all:
+    /// a specimen click has no position to return to, so its first landing
+    /// begins nothing and the entries start at the first redirect.
+    fn record_nav_chain(&mut self, from: Option<NavLoc>, landed: Vec<NavLoc>) {
+        let mut prev = from;
+        for to in landed {
+            if let Some(from) = prev {
+                self.nav_history.push(NavEntry { from, to });
+            }
+            prev = Some(to);
+        }
+    }
+
+    /// Where a jump that has landed on `name` really belongs: the target of
+    /// `name`'s `goto` ref, and then of *that* glyph's, for as long as the
+    /// chain runs. Reports each further landing, in order, having already
+    /// carried them out.
+    ///
+    /// The redirect is read off the **resolved** glyph rather than off the
+    /// source line, and that is the whole trick. The wrapper this exists for is
+    /// written `glyph han-($1)` over `ref ($0)` under an `exists`: the ref's
+    /// written name says nothing about where a jump to `han-4e00` should go,
+    /// and re-deriving the binding from the header would be re-implementing the
+    /// expansion. `named_glyphs` already holds the expansion's answer — the
+    /// *effective* refs, with `($0)` resolved to `han-4e00:15x16` — so this
+    /// only has to look it up.
+    ///
+    /// The price is that a redirect needs a current resolve. There is none
+    /// while a rebuild is in flight, and none for a glyph the resolve dropped;
+    /// both simply leave the jump where it landed, which is where it went
+    /// before this flag existed.
+    fn follow_goto_chain(&mut self, ctx: &egui::Context, name: &str) -> Vec<NavLoc> {
+        /// Bounds a chain that is merely long, so that one gesture cannot
+        /// fill the history.
+        const MAX_HOPS: usize = 8;
+
+        let mut landed = Vec::new();
+        let mut seen: Vec<String> = vec![name.to_string()];
+        while landed.len() < MAX_HOPS {
+            let Some(next) = self.goto_redirect(seen.last().expect("seeded above")) else {
+                break;
+            };
+            // Defensive, not a case a source can write today: `goto` rides on
+            // a `ref`, a ref cycle never resolves, and this reads the resolve.
+            // Stopping at the second visit leaves the jump on the last new
+            // glyph rather than looping.
+            if seen.contains(&next) {
+                break;
+            }
+            // A target nothing declares stops the chain rather than opening
+            // the Search pane: the reader asked for the glyph they clicked,
+            // and it is the *source* that is inconsistent, which the issue
+            // report is the place to say.
+            let Some((doc_idx, line)) = self.goto_glyph(ctx, &next, &LinkTargetKind::Glyph) else {
+                break;
+            };
+            landed.push(NavLoc::new(doc_idx, line, 0));
+            seen.push(next);
+        }
+        landed
+    }
+
+    /// The name `name`'s `goto` ref points at, if it has one. See
+    /// [`Self::follow_goto_chain`] for why this reads the resolve.
+    fn goto_redirect(&self, name: &str) -> Option<String> {
+        // The resolve behind `named_glyphs` is one build behind while a
+        // rebuild is in flight, and a stale answer would send the reader to
+        // the glyph a since-edited ref used to name.
+        if self.named_glyphs_gen != self.font_build_gen {
+            return None;
+        }
+        let refs = &self.named_glyphs.get(name)?.inline_source.as_ref()?.refs;
+        // The first, where a source wrote more than one; `issues::flags`
+        // reports that so the two agree on which one wins.
+        refs.iter().find(|r| r.goto).map(|r| r.name.clone())
     }
 
     /// Walks the navigation history one step and moves the caret there.
@@ -801,9 +919,11 @@ impl eframe::App for UniformApp {
         }
 
         // A specimen click is not a link in a document, so there is no position
-        // to come back to and nothing to record.
+        // to come back to. Where a `goto` ref carries the jump on, the glyph it
+        // passed through *is* one, and is recorded — a Go Back from the drawing
+        // reaches the wrapper the character actually maps to.
         if let Some(click) = bottom.specimen_click {
-            self.goto_glyph(ctx, &click.name, &click.kind);
+            self.follow_specimen_click(ctx, click);
         }
 
         // A search hit *is* a jump between two places in the source, so it is

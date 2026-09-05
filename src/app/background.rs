@@ -1031,15 +1031,18 @@ mod font_build_tests {
 }
 
 #[cfg(test)]
-mod startup_tests {
+pub(crate) mod startup_tests {
     use super::*;
 
     /// Its own directory per test, removed when the test ends. Written inline:
     /// `font/` is downstream data and no test may read it.
-    struct TempDir(PathBuf);
+    ///
+    /// Shared with [`crate::app::history`]'s tests, which drive the same
+    /// pipeline for a different question.
+    pub(crate) struct TempDir(pub(crate) PathBuf);
 
     impl TempDir {
-        fn new(tag: &str) -> Self {
+        pub(crate) fn new(tag: &str) -> Self {
             let dir = std::env::temp_dir().join(format!(
                 "uniform-{tag}-{}-{:?}",
                 std::process::id(),

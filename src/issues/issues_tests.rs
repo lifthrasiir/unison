@@ -2126,3 +2126,23 @@ fn an_orphan_continuation_names_itself() {
         msgs[0]
     );
 }
+
+/// `goto` says which one `ref` a jump to the enclosing glyph carries on to,
+/// so a second one is not a refinement but a question with no answer. The
+/// navigation takes the first and says so here.
+#[test]
+fn two_goto_refs_on_one_glyph_are_a_warning() {
+    let issues = issues_for(
+        "glyph a 1 1\n@@\n\nglyph b 1 1\n@@\n\nglyph c\nref a 0 0 goto\nref b 0 0 goto\n\nmap C = c\n",
+    );
+    assert!(has(&issues, Severity::Warning, "`goto`"), "{issues:?}");
+}
+
+#[test]
+fn a_single_goto_ref_is_quiet() {
+    let issues = issues_for("glyph a 1 1\n@@\n\nglyph c\nref a 0 0 goto\n\nmap C = c\n");
+    assert!(
+        !issues.iter().any(|i| i.message.contains("goto")),
+        "{issues:?}"
+    );
+}

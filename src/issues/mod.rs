@@ -258,6 +258,7 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
     let graph = unused::collect_graph(&cx);
     let mapped_glyphs = maps::check_maps(&cx, &graph, &mut issues);
     flags::check_vectoronly_reach(&cx, &mapped_glyphs, &mut issues);
+    flags::check_goto_refs(&cx, &mut issues);
     unused::check_unused_glyphs(&cx, &graph, mapped_glyphs, &mut issues);
     anchors::check_ambiguous_anchors(&cx, &mut issues);
     anchors::check_centred_anchor_parity(&cx, &mut issues);

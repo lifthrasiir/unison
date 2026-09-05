@@ -78,7 +78,7 @@ audit max-contact-run han-* 2
 // <region> = G(china) Hongkong Taiwan Japan roK dPrk Vietnam
 exists han-([0-9a-f]{4,5}(?:-[ghtjkpv])?):15x16
 glyph han-($1) 16 16 advance 16
-ref ($0) 1 0
+ref ($0) 1 0 goto // skip this glyph when jumped
 
 // map han-XXXX[-<region>] -> U+XXXX
 // explicit han-XXXX (without a region) is preferred if exists
@@ -130,7 +130,7 @@ map U+($1) U+E01E5 = han-($1)-v
 // han-XXXX.YY:15x16 -> U+XXXX U+E01YY
 exists han-([0-9a-f]{4,5})\.([0-1]?[0-9a-f]):15x16
 glyph han-($1).($2) 16 16 advance 16
-ref ($0) 1 0
+ref ($0) 1 0 goto
 exists han-([0-9a-f]{4,5})\.([0-1]?[0-9a-f]):15x16
 map U+($1) U+E0100+($2) = han-($1).($2)
 

@@ -237,3 +237,190 @@ mod tests {
         assert!(!h.can_go_forward());
     }
 }
+
+/// The two entries one jump through a `goto` ref leaves behind.
+///
+/// Driven through the whole app rather than through [`NavHistory`] alone: the
+/// redirect is read off the *resolved* glyph (`goto_redirect`), so the question
+/// this asks — does a jump to a wrapper end up at the drawing, with the wrapper
+/// one Go Back away — cannot be asked of anything smaller than a running
+/// pipeline.
+#[cfg(test)]
+mod goto_tests {
+    use crate::app::UniformApp;
+    use crate::app::background::startup_tests::TempDir;
+    use crate::app::settings::Settings;
+    use crate::editor::doc_links::LinkTargetKind;
+    use crate::editor::document_view::{GotoGlyph, NavRequest, NavTarget};
+
+    /// Runs the background pipeline until the resolve behind `named_glyphs` has
+    /// landed, which is what a redirect is read out of.
+    fn settle(app: &mut UniformApp, ctx: &egui::Context) {
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(20);
+        loop {
+            app.pump_background_pipeline(ctx);
+            if app.named_glyphs_gen == app.font_build_gen && app.font_build_gen != u64::MAX {
+                return;
+            }
+            assert!(
+                std::time::Instant::now() < deadline,
+                "the pipeline never delivered a resolve"
+            );
+            std::thread::sleep(std::time::Duration::from_millis(10));
+        }
+    }
+
+    #[test]
+    fn a_jump_through_a_goto_ref_lands_on_the_target_and_records_both_steps() {
+        let dir = TempDir::new("goto-nav");
+        // The wrapper and the drawing are in different files, which is the
+        // shape the flag exists for: `han.unf`'s one pattern block over the
+        // per-block `han-XXXX.unf` files.
+        std::fs::write(
+            dir.0.join("a.unf"),
+            "meta height 4\nmeta ascent 3\nmeta descent 1\n\n\
+             glyph wrapper\nref drawing 0 0 goto\n\nmap A = wrapper\n",
+        )
+        .unwrap();
+        std::fs::write(dir.0.join("b.unf"), "glyph drawing 2 2\n@@\n.@\n").unwrap();
+
+        let ctx = egui::Context::default();
+        let mut app = UniformApp::with_settings(&ctx, Settings::default(), Some(dir.0.clone()));
+        settle(&mut app, &ctx);
+
+        // A link written somewhere else in `a.unf`, followed.
+        app.open_file(dir.0.join("a.unf"));
+        let from_doc = app
+            .open_documents
+            .iter()
+            .position(|d| d.document.path.ends_with("a.unf"))
+            .unwrap();
+        app.follow_nav_request(
+            &ctx,
+            from_doc,
+            NavRequest {
+                from: crate::editor::caret::Caret::new(6, 8),
+                from_offset: 0.0,
+                target: NavTarget::CrossFile(GotoGlyph {
+                    name: "wrapper".into(),
+                    kind: LinkTargetKind::Glyph,
+                }),
+            },
+        );
+
+        let landed = app.panes.active_doc_idx().unwrap();
+        let landed_path = app.open_documents[landed].document.path.clone();
+        assert!(
+            landed_path.ends_with("b.unf"),
+            "the jump goes through the wrapper to the drawing, not to the wrapper's own line"
+        );
+        assert_eq!(
+            app.open_documents[landed].editor_state.cursor_line(),
+            0,
+            "and lands on `glyph drawing`"
+        );
+
+        // Back once for the wrapper the jump passed through...
+        app.navigate_history(&ctx, false);
+        let at = app.panes.active_doc_idx().unwrap();
+        assert!(app.open_documents[at].document.path.ends_with("a.unf"));
+        assert_eq!(
+            app.open_documents[at].editor_state.cursor_line(),
+            4,
+            "`glyph wrapper` is the first Go Back"
+        );
+
+        // ...and once more for the link itself.
+        app.navigate_history(&ctx, false);
+        let at = app.panes.active_doc_idx().unwrap();
+        assert_eq!(app.open_documents[at].editor_state.cursor_line(), 6);
+        assert!(!app.nav_history.can_go_back(), "two entries, both walked");
+    }
+
+    /// A specimen click starts nowhere, so the drawing it lands on is one Go
+    /// Back from the wrapper and no further — the click itself is not a
+    /// position anything can return to.
+    #[test]
+    fn a_specimen_click_records_only_what_the_redirect_passed_through() {
+        let dir = TempDir::new("goto-specimen");
+        std::fs::write(
+            dir.0.join("a.unf"),
+            "meta height 4\nmeta ascent 3\nmeta descent 1\n\n\
+             glyph wrapper\nref drawing 0 0 goto\n\nmap A = wrapper\n",
+        )
+        .unwrap();
+        std::fs::write(dir.0.join("b.unf"), "glyph drawing 2 2\n@@\n.@\n").unwrap();
+
+        let ctx = egui::Context::default();
+        let mut app = UniformApp::with_settings(&ctx, Settings::default(), Some(dir.0.clone()));
+        settle(&mut app, &ctx);
+
+        app.follow_specimen_click(
+            &ctx,
+            crate::specimen::SpecimenClick {
+                name: "wrapper".into(),
+                kind: LinkTargetKind::Glyph,
+            },
+        );
+
+        let at = app.panes.active_doc_idx().unwrap();
+        assert!(app.open_documents[at].document.path.ends_with("b.unf"));
+
+        app.navigate_history(&ctx, false);
+        let at = app.panes.active_doc_idx().unwrap();
+        assert!(app.open_documents[at].document.path.ends_with("a.unf"));
+        assert_eq!(app.open_documents[at].editor_state.cursor_line(), 4);
+        assert!(
+            !app.nav_history.can_go_back(),
+            "the click itself is not a place to go back to"
+        );
+    }
+
+    /// A wrapper whose target is itself a wrapper is followed again, and each
+    /// step is its own Go Back.
+    ///
+    /// (A `goto` *cycle* cannot arise: `goto` rides on a `ref`, and a ref cycle
+    /// never resolves, so `goto_redirect` — which reads the resolve — has
+    /// nothing to hand back. `follow_goto_chain`'s visited set is a guard
+    /// against that stopping being true, not a case anyone can write today.)
+    #[test]
+    fn a_chain_of_goto_refs_is_followed_to_its_end() {
+        let dir = TempDir::new("goto-chain");
+        std::fs::write(
+            dir.0.join("a.unf"),
+            "meta height 4\nmeta ascent 3\nmeta descent 1\n\n\
+             glyph one\nref two 0 0 goto\n\nmap A = one\n",
+        )
+        .unwrap();
+        std::fs::write(dir.0.join("b.unf"), "glyph two\nref three 0 0 goto\n").unwrap();
+        std::fs::write(dir.0.join("c.unf"), "glyph three 2 2\n@@\n.@\n").unwrap();
+
+        let ctx = egui::Context::default();
+        let mut app = UniformApp::with_settings(&ctx, Settings::default(), Some(dir.0.clone()));
+        settle(&mut app, &ctx);
+
+        app.follow_specimen_click(
+            &ctx,
+            crate::specimen::SpecimenClick {
+                name: "one".into(),
+                kind: LinkTargetKind::Glyph,
+            },
+        );
+
+        let at = app.panes.active_doc_idx().unwrap();
+        assert!(
+            app.open_documents[at].document.path.ends_with("c.unf"),
+            "both hops are followed"
+        );
+
+        for expected in ["b.unf", "a.unf"] {
+            app.navigate_history(&ctx, false);
+            let at = app.panes.active_doc_idx().unwrap();
+            assert!(
+                app.open_documents[at].document.path.ends_with(expected),
+                "expected {expected}"
+            );
+        }
+        assert!(!app.nav_history.can_go_back());
+    }
+}

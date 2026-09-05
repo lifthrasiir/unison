@@ -105,7 +105,16 @@ pub struct RenameAction {
 pub enum NavTarget {
     /// The target is in this document and the editor has already moved the
     /// caret to `line`.
-    Local { line: usize },
+    ///
+    /// `glyph` is the name that was followed, when it was a glyph name written
+    /// as itself: a `goto` ref redirects a jump *after* it has landed, and only
+    /// the host can carry that out, so a same-file jump has to say what it
+    /// landed on. `None` for every other kind of link and for a `$-N` capture,
+    /// neither of which a redirect applies to.
+    Local {
+        line: usize,
+        glyph: Option<String>,
+    },
     /// The target is not in this document; only the host can find and open it.
     /// If it is not in any other file either, the host searches instead.
     CrossFile(GotoGlyph),

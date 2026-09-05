@@ -444,6 +444,8 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Split panes, their invariants and key chords | `app/panes.rs` |
 | Go back / go forward | `app/history.rs` |
 | Where a jump leaves its target, and why going *back* restores a page rather than a line | `editor/mod.rs` (`ScrollIntent`), `app/history.rs` (`NavLoc::view_offset`) |
+| `ref … goto`: a jump to a wrapper glyph carried on to the drawing, and why one gesture leaves two history entries | `app/mod.rs` (`follow_goto_chain`, `record_nav_chain`), `document/glyph.rs` (`GlyphRef::goto`) |
+| Why the redirect is read off the resolve rather than off the `ref` line | `app/mod.rs` (`goto_redirect`), `ref_composite/mod.rs` (`InlineSource`) |
 | The Search pane, and where a click goes with no definition | `app/search.rs` |
 | Why a search lists a name written as a pattern, and what makes that cheap | `app/search.rs` (`pattern_denotes`, `may_write_a_pattern`), `pattern.rs` (`NamePattern::matches`) |
 | Why a Ctrl/Cmd+click reads no files at all | `app/docs.rs` (`FontSource`), `app/search.rs` |

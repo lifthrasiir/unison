@@ -36,6 +36,14 @@ pub struct GlyphRef {
     pub inherit: bool,
     pub fill: Option<RefFill>,
     pub visibility: Option<LayerVisibility>,
+    /// Written `goto`: "go to definition" on the *enclosing* glyph lands on
+    /// this target instead. Navigation only — nothing the font is built from
+    /// reads it. A wrapper glyph declared as a pattern (`glyph han-($1)` over
+    /// `ref ($0)`) is one line for a whole block, so a jump to any of the
+    /// thousands of names it declares would otherwise always arrive at that
+    /// same line; this says which ref to carry the jump on to. See
+    /// [`crate::app`]'s `goto_redirect`.
+    pub goto: bool,
     /// Trailing `// …` comment of the `ref` line, without its marker.
     pub comment: Option<String>,
 }
@@ -78,6 +86,9 @@ impl GlyphRef {
         }
         if self.inherit {
             parts.push("inherit".into());
+        }
+        if self.goto {
+            parts.push("goto".into());
         }
         if let Some(ref fill) = self.fill {
             parts.push(format!("fill {}", quote_token(&fill.color)));

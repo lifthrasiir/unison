@@ -67,7 +67,7 @@ fn following_a_link_reports_the_link_position_not_the_caret() {
     let nav = h.last_nav.as_ref().expect("no navigation reported");
     assert_eq!(nav.from, Caret::new(ref_line, 4));
     match nav.target {
-        NavTarget::Local { line } => assert_eq!(line, def_line),
+        NavTarget::Local { line, .. } => assert_eq!(line, def_line),
         NavTarget::CrossFile(_) | NavTarget::Search(_) => {
             panic!("`a` is defined in this document")
         }
@@ -187,14 +187,14 @@ fn clicking_a_slice_qualifier_goes_to_the_slice() {
     h.last_nav = None;
     h.click_at_mod(h.text_pos(map_line, 6), Modifiers::COMMAND);
     match &h.last_nav.as_ref().expect("no navigation reported").target {
-        NavTarget::Local { line } => assert_eq!(*line, slice_line),
+        NavTarget::Local { line, .. } => assert_eq!(*line, slice_line),
         _ => panic!("expected the slice declaration"),
     }
 
     h.last_nav = None;
     h.click_at_mod(h.text_pos(map_line, 17), Modifiers::COMMAND);
     match &h.last_nav.as_ref().expect("no navigation reported").target {
-        NavTarget::Local { line } => assert_eq!(*line, glyph_line),
+        NavTarget::Local { line, .. } => assert_eq!(*line, glyph_line),
         _ => panic!("expected the glyph"),
     }
 }
@@ -325,7 +325,7 @@ fn clicking_a_back_reference_goes_to_the_group_it_names() {
 
     let nav = h.last_nav.as_ref().expect("no navigation reported");
     match nav.target {
-        NavTarget::Local { line } => assert_eq!(line, header_line),
+        NavTarget::Local { line, .. } => assert_eq!(line, header_line),
         NavTarget::CrossFile(_) | NavTarget::Search(_) => {
             panic!("the group `$-1` names is on the header above it")
         }
@@ -356,7 +356,7 @@ fn clicking_a_search_capture_goes_to_the_search() {
     h.last_nav = None;
     h.click_at_mod(h.text_pos(header_line, 12), Modifiers::COMMAND);
     match h.last_nav.as_ref().expect("no navigation reported").target {
-        NavTarget::Local { line } => assert_eq!(line, exists_line),
+        NavTarget::Local { line, .. } => assert_eq!(line, exists_line),
         NavTarget::CrossFile(_) | NavTarget::Search(_) => {
             panic!("the group `$1` names is on the `exists` line above")
         }
@@ -367,7 +367,7 @@ fn clicking_a_search_capture_goes_to_the_search() {
     h.last_nav = None;
     h.click_at_mod(h.text_pos(ref_line, 6), Modifiers::COMMAND);
     match h.last_nav.as_ref().expect("no navigation reported").target {
-        NavTarget::Local { line } => assert_eq!(line, exists_line),
+        NavTarget::Local { line, .. } => assert_eq!(line, exists_line),
         NavTarget::CrossFile(_) | NavTarget::Search(_) => {
             panic!("`$0` is the whole search")
         }
@@ -395,7 +395,7 @@ fn a_comment_word_that_names_a_glyph_is_a_link() {
     h.last_nav = None;
     h.click_at_mod(h.text_pos(ref_line, a_col), Modifiers::COMMAND);
     match h.last_nav.as_ref().expect("no navigation reported").target {
-        NavTarget::Local { line } => assert_eq!(line, def_line),
+        NavTarget::Local { line, .. } => assert_eq!(line, def_line),
         NavTarget::CrossFile(_) | NavTarget::Search(_) => {
             panic!("`a` is defined in this document")
         }
@@ -427,7 +427,7 @@ fn the_goto_key_follows_the_link_under_the_caret() {
     let nav = h.last_nav.as_ref().expect("no navigation reported");
     assert_eq!(nav.from, Caret::new(ref_line, 4));
     match nav.target {
-        NavTarget::Local { line } => assert_eq!(line, def_line),
+        NavTarget::Local { line, .. } => assert_eq!(line, def_line),
         NavTarget::CrossFile(_) | NavTarget::Search(_) => {
             panic!("`a` is defined in this document")
         }
@@ -443,7 +443,7 @@ fn the_goto_key_follows_the_link_under_the_caret() {
         .expect("no navigation reported for the comment word")
         .target
     {
-        NavTarget::Local { line } => assert_eq!(line, def_line),
+        NavTarget::Local { line, .. } => assert_eq!(line, def_line),
         NavTarget::CrossFile(_) | NavTarget::Search(_) => {
             panic!("`a` is defined in this document")
         }
@@ -482,7 +482,7 @@ fn the_menu_request_follows_the_link_under_the_caret() {
     let nav = h.last_nav.as_ref().expect("no navigation reported");
     assert_eq!(nav.from, Caret::new(ref_line, 4));
     match nav.target {
-        NavTarget::Local { line } => assert_eq!(line, def_line),
+        NavTarget::Local { line, .. } => assert_eq!(line, def_line),
         NavTarget::CrossFile(_) | NavTarget::Search(_) => {
             panic!("`a` is defined in this document")
         }

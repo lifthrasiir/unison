@@ -476,3 +476,27 @@ fn malformed_ref_is_not_reinterpreted_as_auto_ref() {
 // -----------------------------------------------------------------------
 // DocLine round-trip tests
 // -----------------------------------------------------------------------
+
+#[test]
+fn ref_goto_roundtrip() {
+    let input = "\
+glyph wrapper
+ref plain
+ref target 1 0 goto
+ref full 1 2 negated inherit goto fill #00ff00 coloronly
+";
+    let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+    let DocumentItem::Glyph { body, .. } = &doc.items[0] else {
+        panic!("expected glyph");
+    };
+    assert_eq!(body.refs.len(), 3);
+    assert!(!body.refs[0].goto);
+    assert!(body.refs[1].goto);
+    assert_eq!(body.refs[1].offset, Some((1, 0)));
+    assert!(body.refs[2].goto);
+
+    let mut output = Vec::new();
+    serialize_document(&doc, &mut output).unwrap();
+    // Canonical order: negated, inherit, goto, fill, visibility.
+    assert_eq!(String::from_utf8(output).unwrap(), input);
+}
