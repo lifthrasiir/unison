@@ -244,6 +244,9 @@ glyph han-2cf65:15x16 15 16 // 𬽥
 glyph han-2cf6a:15x16 15 16 // 𬽪
 ⿰ han-4ebb:5x16 1 han-65e5:9x16 // ⿰亻日
 
+// glyph han-2cf6c:15x16 15 16 // 𬽬
+// ⿰ han-4ebb han-6237 // ⿰亻户
+
 // glyph han-2cf6d:15x16 15 16 // 𬽭
 // ⿰ han-4ebb han-592c // ⿰亻夬
 
@@ -283,6 +286,9 @@ glyph han-2cf82-($han-regions):15x16 15 16 // 𬾂
 // glyph han-2cf8b:15x16 15 16 // 𬾋
 // ⿲ han-4ebb han-53e6 han-5202 // ⿲亻另刂
 
+// glyph han-2cf8f:15x16 15 16 // 𬾏
+// ⿲ han-4ebb han-4e30 han-961d // ⿲亻丰阝
+
 // glyph han-2cf90:15x16 15 16 // 𬾐
 // ⿰ han-4ebb han-7683 // ⿰亻皃
 
@@ -290,6 +296,9 @@ glyph han-2cf82-($han-regions):15x16 15 16 // 𬾂
 
 // glyph han-2cf9b:15x16 15 16 // 𬾛
 // ⿰ han-4ebb han-6772 // ⿰亻杲
+
+// glyph han-2cf9f:15x16 15 16 // 𬾟
+// ⿲ han-4ebb han-6236 han-65a4 // ⿲亻戶斤
 
 glyph han-2cfa2:15x16 15 16 // 𬾢
 ⿲ han-4ebb:3x16 han-6c35:3x16 han-76ae:9x16 // ⿲亻氵皮
@@ -513,6 +522,13 @@ glyph han-2d0a9:15x16 15 16 // 𭂩
 
 // glyph han-2d0b7:15x16 15 16 // 𭂷
 // ⿱ han-4020 han-51e0 // ⿱䀠几
+
+# CJK unified ideographs extension F: 凵 (17)
+
+## 17.15
+
+// glyph han-2d0c1:15x16 15 16 // 𭃁
+// ⿰ han-51fa han-60e1 // ⿰出惡
 
 # CJK unified ideographs extension F: 刀 (18)
 

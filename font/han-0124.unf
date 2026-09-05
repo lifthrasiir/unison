@@ -1264,6 +1264,9 @@ glyph han-80a6:15x16 15 16 // 肦
 glyph han-80a7:15x16 15 16 // 肧
 ⿰ han-6708:5x16-l 1 han-4e0d:9x16 // ⿰月不
 
+// glyph han-80a8:15x16 15 16 // 肨
+// ⿰ han-6708 han-4e30 // ⿰月丰
+
 glyph han-80aa:15x16 15 16 // 肪
 ⿰ han-6708:5x16-l 1 han-65b9:9x16 // ⿰月方
 
@@ -1865,6 +1868,9 @@ glyph han-822b:15x16 15 16 // 舫
 
 glyph han-822d:15x16 15 16 // 舭
 ⿲ han-821f:7x16 han-5315:4x16 han-5315:4x16 // ⿲舟匕匕
+
+// glyph han-822e:15x16 15 16 // 舮
+// ⿰ han-821f han-6237 // ⿰舟户
 
 glyph han-822f:15x16 15 16 // 舯
 ⿰ han-821f:7x16 1 han-4e2d:7x16 // ⿰舟中

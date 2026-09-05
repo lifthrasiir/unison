@@ -744,6 +744,12 @@ glyph han-2d795:15x16 15 16 // 𭞕
 
 ## 61.12
 
+// glyph han-2d7aa:15x16 15 16 // 𭞪
+// ⿰ han-5fc4 han-60e1 // ⿰忄惡
+
+// glyph han-2d7ac:15x16 15 16 // 𭞬
+// ⿰ han-5fc4 han-24ca2 // ⿰忄𤲢
+
 glyph han-2d7af:15x16 15 16 // 𭞯
 ⿲ han-5fc4:5x16 han-27fb7:5x16 han-5de8:5x16 // ⿲忄𧾷巨
 
@@ -765,3 +771,23 @@ glyph han-2d7c5:15x16 15 16 // 𭟅
 
 // glyph han-2d7cf:15x16 15 16 // 𭟏
 // ⿱ han-9823 han-5fc3 // ⿱頣心
+
+# CJK unified ideographs extension F: 戶 (63)
+
+## 63.3
+
+// glyph han-2d800:15x16 15 16 // 𭠀
+// ⿸ han-6236 han-5de5 // ⿸戶工
+
+## 63.4
+
+// glyph han-2d801:15x16 15 16 // 𭠁
+// ⿸ han-6237 han-516d // ⿸户六
+
+## 63.5
+
+glyph han-2d804:15x16 15 16 // 𭠄
+⿸ han-6236:15x16.11x8 han-53e4:9x8 6 8 // ⿸戶古
+
+// glyph han-2d806:15x16 15 16 // 𭠆
+// ⿸ han-6237 han-5305 // ⿸户包

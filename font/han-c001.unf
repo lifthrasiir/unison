@@ -495,6 +495,9 @@ glyph han-2a8bb:15x16 15 16 // 𪢻
 glyph han-2a8bc:15x16 15 16 // 𪢼
 ⿲ han-571f:3x16-l han-4ebb:3x16 han-5315:9x16 // ⿲土亻匕
 
+// glyph han-2a8bd:15x16 15 16 // 𪢽
+// ⿰ han-571f han-4e30 // ⿰土丰
+
 glyph han-2a8be:15x16 15 16 // 𪢾
 ⿱ han-706b:15x6 han-571f:15x10 // ⿱火土
 
@@ -713,6 +716,9 @@ glyph han-2a975-($han-regions):15x16 15 16 // 𪥵
 ⿰ han-5973:5x16-l 1 han-7fbd-($-1):9x16 // ⿰女羽
 
 ## 38.7
+
+// glyph han-2a976:15x16 15 16 // 𪥶
+// ⿲ han-5973 han-4e30 han-961d // ⿲女丰阝
 
 // glyph han-2a977:15x16 15 16 // 𪥷
 // ⿱ han-4f2f han-5973 // ⿱伯女

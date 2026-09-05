@@ -277,8 +277,8 @@ glyph han-25b85:15x16 15 16 // 𥮅
 glyph han-25baf:15x16 15 16 // 𥮯
 ⿳ -5 han-25ad7:15x5 han-4ed8:15x11 han-5927:15x5 // ⿳𥫗付大
 
-// glyph han-25bb3:15x16 15 16 // 𥮳
-// ⿱ han-25ad7 han-4e9e // ⿱𥫗亞
+glyph han-25bb3:15x16 15 16 // 𥮳
+⿱ han-25ad7:15x5 1 han-4e9e:15x10 // ⿱𥫗亞
 
 // glyph han-25bb5:15x16 15 16 // 𥮵
 // ⿳ han-25ad7 han-5b80 han-793a // ⿳𥫗宀示 <- ⿱𥫗宗

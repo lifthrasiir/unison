@@ -470,12 +470,24 @@ glyph han-31841:15x16 15 16 // 𱡁
 glyph han-31862:15x16 15 16 // 𱡢
 ⿰ han-6587:9x16 1 han-5dfe:5x16 // ⿰文巾
 
+## 67.8
+
+// glyph han-31865:15x16 15 16 // 𱡥
+// ⿲ han-6587 han-6236 han-65a4 // ⿲文戶斤
+
 # CJK unified ideographs extension H: 斤 (69)
 
 ## 69.7
 
 // glyph han-31869:15x16 15 16 // 𱡩
 // ⿰ han-5448 han-65a4 // ⿰呈斤
+
+# CJK unified ideographs extension H: 方 (70)
+
+## 70.6
+
+// glyph han-31872:15x16 15 16 // 𱡲
+// ⿰ han-65b9 han-7f36 // ⿰方缶
 
 # CJK unified ideographs extension H: 日 (72)
 

@@ -211,8 +211,8 @@ glyph han-231dd-($han-regions):15x16 15 16 // 𣇝
 
 ## 72.8
 
-// glyph han-231e9:15x16 15 16 // 𣇩
-// ⿱ han-4e9e han-65e5 // ⿱亞日
+glyph han-231e9:15x16 15 16 // 𣇩
+⿱ han-4e9e:15x10 1 han-65e5:15x5 // ⿱亞日
 
 glyph han-231eb:15x16 15 16 // 𣇫
 ⿰ han-65e5:7x16 1 han-679c:7x16 // ⿰日果
@@ -311,6 +311,9 @@ glyph han-2323c:15x16 15 16 // 𣈼
 
 // glyph han-2323d:15x16 15 16 // 𣈽
 // ⿰ han-65e5 han-67bc // ⿰日枼
+
+// glyph han-23244:15x16 15 16 // 𣉄
+// ⿰ han-4e30 han-662f // ⿰丰是
 
 glyph han-23246:15x16 15 16 // 𣉆
 ⿰ han-65e5:6x16 han-662f:9x16 // ⿰日是

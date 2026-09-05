@@ -51,6 +51,9 @@ glyph han-2987d:15x16 15 16 // 𩡽
 glyph han-29884:15x16 15 16 // 𩢄
 ⿰ han-99ac:7x16 han-5143:8x16 // ⿰馬元
 
+// glyph han-29889:15x16 15 16 // 𩢉
+// ⿰ han-6236 han-99ac // ⿰戶馬
+
 glyph han-2988b:15x16 15 16 // 𩢋
 ⿰ han-99ac:7x16 1 han-6708:7x16 // ⿰馬月
 
@@ -120,6 +123,9 @@ glyph han-298b8:15x16 15 16 // 𩢸
 
 // glyph han-298bd:15x16 15 16 // 𩢽
 // ⿱ han-5de9 han-99ac // ⿱巩馬
+
+// glyph han-298bf:15x16 15 16 // 𩢿
+// ⿰ han-99ac han-7f36 // ⿰馬缶
 
 // glyph han-298c0:15x16 15 16 // 𩣀
 // ⿰ han-99ac han-8089 // ⿰馬肉

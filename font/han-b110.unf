@@ -138,6 +138,9 @@ glyph han-25484:15x16 15 16 // 𥒄
 glyph han-25489-($han-regions):15x16 15 16 // 𥒉
 ⿰ han-77f3:5x16 1 han-7fbd-($-1):9x16 // ⿰石羽
 
+// glyph han-2548b:15x16 15 16 // 𥒋
+// ⿰ han-77f3 han-7f36 // ⿰石缶
+
 glyph han-2548c:15x16 15 16 // 𥒌
 ⿰ han-77f3:5x16 1 han-8840:9x16 // ⿰石血
 
@@ -172,6 +175,9 @@ glyph han-254b0:15x16 15 16 // 𥒰
 
 glyph han-254b5:15x16 15 16 // 𥒵
 ⿰ -1 han-77f3:5x16 1 han-9091:10x16 // ⿰石邑
+
+// glyph han-254b7:15x16 15 16 // 𥒷
+// ⿲ han-77f3 han-4e30 han-961d // ⿲石丰阝
 
 // glyph han-254ba:15x16 15 16 // 𥒺
 // ⿰ han-77f3 han-5fd7 // ⿰石志

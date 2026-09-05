@@ -24,18 +24,18 @@ glyph han-7a75:15x16 15 16 // 穵
 // ⿳ han-5b80 han-513f han-5f13 // ⿳宀儿弓 <- ⿱⿱宀儿弓
 
 glyph han-7a7a:15x16 15 16 // 空
-⿳ han-5b80:15x4 -1 han-513f:15x4 1 han-5de5:15x8 // ⿳宀儿工
+⿳ han-5b80:15x4 -1 han-513f:15x5 1 han-5de5:15x7 // ⿳宀儿工
 
 ## 116.4
 
 glyph han-7a7c:15x16 15 16 // 穼
-⿳ han-5b80:15x4 -1 han-513f:15x4 han-6728:15x9 // ⿳宀儿木 <- ⿱⿱宀儿木
+⿳ han-5b80:15x4 -1 han-513f:15x5 -1 han-6728:15x9 // ⿳宀儿木 <- ⿱⿱宀儿木
 
 // glyph han-7a7d:15x16 15 16 // 穽
 // ⿳ han-5b80 han-513f han-4e95 // ⿳宀儿井
 
 glyph han-7a81:15x16 15 16 // 突
-⿳ han-5b80:15x5 -1 han-513f:15x7 han-5927:15x5 // ⿳宀儿大
+⿳ han-5b80:15x5 -1 han-513f:15x5 -1 han-5927:15x8 // ⿳宀儿大
 
 // glyph han-7a83:15x16 15 16 // 窃
 // ⿳ han-5b80 han-513f han-5207 // ⿳宀儿切
@@ -58,6 +58,9 @@ glyph han-7a8b:15x16 15 16 // 窋
 
 // glyph han-7a90:15x16 15 16 // 窐
 // ⿳ han-5b80 han-513f han-572d // ⿳宀儿圭 <- ⿱⿱宀儿圭
+
+glyph han-7a91:15x16 15 16 // 窑
+⿳ -3 han-5b80:15x4 -1 han-513f:15x3 han-7f36:15x13 // ⿳宀儿缶
 
 // glyph han-7a92:15x16 15 16 // 窒
 // ⿳ han-5b80 han-513f han-81f3 // ⿳宀儿至 <- ⿱⿱宀儿至
@@ -1061,6 +1064,9 @@ glyph han-7c8d:15x16 15 16 // 粍
 
 // glyph han-7c8f:15x16 15 16 // 粏
 // ⿰ han-7c73 han-592a // ⿰米太
+
+// glyph han-7c90:15x16 15 16 // 粐
+// ⿰ han-7c73 han-6237 // ⿰米户
 
 glyph han-7c91:15x16 15 16 // 粑
 ⿰ han-7c73:5x16 1 han-5df4:9x16 // ⿰米巴

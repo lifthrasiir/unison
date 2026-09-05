@@ -471,6 +471,11 @@ glyph han-2b9c2-($han-regions):15x16 15 16 // 𫧂
 
 # CJK unified ideographs extension E: 十 (24)
 
+## 24.7
+
+// glyph han-2b9e1:15x16 15 16 // 𫧡
+// ⿰ han-53e4 han-4e30 // ⿰古丰
+
 ## 24.15
 
 glyph han-2b9e9:15x16 15 16 // 𫧩
@@ -662,6 +667,9 @@ glyph han-2babd:15x16 15 16 // 𫪽
 
 // glyph han-2bac5:15x16 15 16 // 𫫅
 // ⿰ han-53e3 han-9b25 // ⿰口鬥
+
+// glyph han-2bac9:15x16 15 16 // 𫫉
+// ⿲ han-53e3 han-7f36 han-6b20 // ⿲口缶欠
 
 glyph han-2bacc:15x16 15 16 // 𫫌
 ⿰ han-5485:9x16 han-53ec:6x16 // ⿰咅召

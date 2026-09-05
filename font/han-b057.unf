@@ -359,6 +359,9 @@ glyph han-22522:15x16 15 16 // 𢔢
 glyph han-2252a-($han-regions):15x16 15 16 // 𢔪
 ⿰ han-5f73:5x16 1 han-8005-($-1):9x16 // ⿰彳者
 
+// glyph han-2252b:15x16 15 16 // 𢔫
+// ⿲ han-5f73 han-7f36 han-51e1 // ⿲彳缶凡
+
 glyph han-2252f:15x16 15 16 // 𢔯
 ⿲ han-5f73:3x16 han-675f:9x16 han-5202:3x16 // ⿲彳束刂
 

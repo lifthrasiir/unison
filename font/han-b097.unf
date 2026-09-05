@@ -339,8 +339,8 @@ glyph han-24c9f-($han-regions):15x16 15 16 // 𤲟
 glyph han-24ca0:15x16 15 16 // 𤲠
 ⿰ han-7530:7x16-l 1 han-5352:7x16 // ⿰田卒
 
-// glyph han-24ca2:15x16 15 16 // 𤲢
-// ⿱ han-4e9e han-7530 // ⿱亞田
+glyph han-24ca2:15x16 15 16 // 𤲢
+⿱ han-4e9e:15x10 1 han-7530:15x5 // ⿱亞田
 
 // glyph han-24ca5:15x16 15 16 // 𤲥
 // ⿻⿳日⿱冖冂⺝丨

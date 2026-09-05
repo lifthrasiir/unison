@@ -179,6 +179,9 @@ glyph han-46e9:15x16 15 16 // 䛩
 glyph han-470c:15x16 15 16 // 䜌
 ⿲ han-7cf9:5x16 han-8a00:5x16 han-7cf9:5x16 // ⿲糹言糹
 
+// glyph han-4711:15x16 15 16 // 䜑
+// ⿰ han-8a01 han-60e1 // ⿰訁惡
+
 ## 149.13
 
 // glyph han-4713:15x16 15 16 // 䜓
@@ -424,6 +427,9 @@ glyph han-4849:15x16 15 16 // 䡉
 
 glyph han-484d:15x16 15 16 // 䡍
 ⿰ han-8eca:5x16 1 han-592b:9x16 // ⿰車夫
+
+// glyph han-484e:15x16 15 16 // 䡎
+// ⿰ han-8eca han-6237 // ⿰車户
 
 ## 159.5
 
@@ -759,6 +765,11 @@ glyph han-4975:15x16 15 16 // 䥵
 
 glyph han-4980-($han-regions):15x16 15 16 // 䦀
 ⿰ han-9485:6x16 han-7fbd-($-1):9x16 // ⿰钅羽
+
+## 167'.7
+
+// glyph han-4981:15x16 15 16 // 䦁
+// ⿲ han-9485 han-4e30 han-961d // ⿲钅丰阝
 
 # CJK unified ideographs extension A: 門 (169)
 

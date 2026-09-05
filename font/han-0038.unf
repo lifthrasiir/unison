@@ -131,6 +131,9 @@ glyph han-598f:15x16 15 16 // 妏
 glyph han-5991:15x16 15 16 // 妑
 ⿰ han-5973:5x16-l 1 han-5df4:9x16 // ⿰女巴
 
+// glyph han-5992:15x16 15 16 // 妒
+// ⿰ han-5973 han-6237 // ⿰女户
+
 glyph han-5994:15x16 15 16 // 妔
 ⿰ han-5973:5x16-l 1 han-4ea2:9x16 // ⿰女亢
 
@@ -166,6 +169,9 @@ glyph han-59a2:15x16 15 16 // 妢
 
 glyph han-59a3:15x16 15 16 // 妣
 ⿲ han-5973:5x16-l han-5315:5x16 han-5315:5x16 // ⿲女匕匕
+
+// glyph han-59a6:15x16 15 16 // 妦
+// ⿰ han-5973 han-4e30 // ⿰女丰
 
 glyph han-59a7:15x16 15 16 // 妧
 ⿰ han-5973:7x16 han-5143:8x16 // ⿰女元
@@ -961,6 +967,9 @@ glyph han-5bb0:15x16 15 16 // 宰
 glyph han-5bb2:15x16 15 16 // 宲
 ⿳ han-5b80:15x4 han-53e3:15x4 han-6728:15x8 // ⿳宀口木
 
+// glyph han-5bb3:15x16 15 16 // 害
+// ⿳ han-5b80 han-4e30 han-53e3 // ⿳宀丰口
+
 // glyph han-5bb4:15x16 15 16 // 宴
 // ⿳ han-5b80 han-65e5 han-5973 // ⿳宀日女 <- ⿱宀妟
 
@@ -996,6 +1005,9 @@ glyph han-5bcd:15x16 15 16 // 寍
 // ⿳ han-5b80 han-4e06 han-2626c // ⿳宀丆𦉬
 
 ## 40.10
+
+// glyph han-5bda:15x16 15 16 // 寚
+// ⿳ han-5b80 han-738b han-7f36 // ⿳宀王缶
 
 glyph han-5bdb:15x16 15 16 // 寛
 ⿳ han-5b80:15x4 han-8279:15x3 han-898b:15x9 // ⿳宀艹見
@@ -1160,6 +1172,9 @@ $$................\1@@......$$
 
 glyph han-5bfe:15x16 15 16 // 対
 ⿰ han-6587:9x16 han-5bf8:6x16 // ⿰文寸
+
+// glyph han-5bff:15x16 15 16 // 寿
+// ⿸ han-4e30 han-5bf8 // ⿸丰寸
 
 ## 41.6
 

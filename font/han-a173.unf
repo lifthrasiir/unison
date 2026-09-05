@@ -691,6 +691,9 @@ glyph han-4c36-($han-regions):15x16 15 16 // 䰶
 
 ## 195.4
 
+// glyph han-4c37:15x16 15 16 // 䰷
+// ⿰ han-9b5a han-4e30 // ⿰魚丰
+
 glyph han-4c3a:15x16 15 16 // 䰺
 ⿰ han-9b5a:7x16 1 han-65a4:7x16 // ⿰魚斤
 

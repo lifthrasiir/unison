@@ -376,8 +376,8 @@ glyph han-26c8c:15x16 15 16 // 𦲌
 glyph han-26c93:15x16 15 16 // 𦲓
 ⿳ han-8279:15x3 han-6728:15x9 han-706c:15x4 // ⿳艹木灬
 
-// glyph han-26c95:15x16 15 16 // 𦲕
-// ⿱ han-8279 han-4e9e // ⿱艹亞
+glyph han-26c95:15x16 15 16 // 𦲕
+⿱ 1 han-8279:15x3 1 han-4e9e:15x10 // ⿱艹亞
 
 // glyph han-26c96:15x16 15 16 // 𦲖
 // ⿱ han-8279 han-73aa // ⿱艹玪

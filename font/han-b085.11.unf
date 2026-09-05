@@ -82,6 +82,9 @@ glyph han-23f3d:15x16 15 16 // 𣼽
 glyph han-23f4b:15x16 15 16 // 𣽋
 ⿲ han-6c35:3x16 han-76ee:4x16 han-544a:8x16 // ⿲氵目告 <- ⿰氵⿰目告
 
+// glyph han-23f4f:15x16 15 16 // 𣽏
+// ⿰ han-6c35 han-60e1 // ⿰氵惡
+
 glyph han-23f5d:15x16 15 16 // 𣽝
 ⿲ -4 han-6c35:3x16 han-5de5:5x16 han-98a8:11x16 // ⿲氵工風
 

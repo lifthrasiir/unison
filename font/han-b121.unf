@@ -1,22 +1,80 @@
 # CJK unified ideographs extension B: 缶 (121)
 
+## 121.3
+
+// glyph han-26225:15x16 15 16 // 𦈥
+// ⿰ han-7f36 han-4e8d // ⿰缶亍
+
+## 121.4
+
+// glyph han-26226:15x16 15 16 // 𦈦
+// ⿰ han-7f36 han-706b // ⿰缶火
+
+// glyph han-26227:15x16 15 16 // 𦈧
+// ⿰ han-7f36 han-4e0d // ⿰缶不
+
+// glyph han-26228:15x16 15 16 // 𦈨
+// ⿲ han-7f36 han-5e72 han-5e72 // ⿲缶干干
+
 ## 121.5
 
 // glyph han-2622c:15x16 15 16 // 𦈬
 // ⿳ han-6b64 han-5348 han-51f5 // ⿳此午凵
+
+// glyph han-2622d:15x16 15 16 // 𦈭
+// ⿰ han-7f36 han-672f // ⿰缶术
 
 ## 121.6
 
 // glyph han-2622f:15x16 15 16 // 𦈯
 // ⿳ han-5405 han-5348 han-51f5 // ⿳吅午凵
 
+// glyph han-26230:15x16 15 16 // 𦈰
+// ⿰ han-7f36 han-572d // ⿰缶圭
+
 // glyph han-26231:15x16 15 16 // 𦈱
 // ⿳ han-6b21 han-5348 han-51f5 // ⿳次午凵
+
+## 121.7
+
+// glyph han-26236:15x16 15 16 // 𦈶
+// ⿰ han-7f36 han-5426 // ⿰缶否
+
+## 121.8
+
+// glyph han-2623a:15x16 15 16 // 𦈺
+// ⿰ han-7f36 han-5468 // ⿰缶周
+
+## 121.9
+
+// glyph han-26241:15x16 15 16 // 𦉁
+// ⿰ han-7f36 han-662f // ⿰缶是
+
+// glyph han-26243:15x16 15 16 // 𦉃
+// ⿰ han-7f36 han-67bc // ⿰缶枼
+
+// glyph han-26246:15x16 15 16 // 𦉆
+// ⿰ han-7f36 han-67e5 // ⿰缶查
 
 ## 121.10
 
 // glyph han-2624d:15x16 15 16 // 𦉍
 // ⿳ han-4020 han-5348 han-51f5 // ⿳䀠午凵
+
+## 121.11
+
+// glyph han-26253:15x16 15 16 // 𦉓
+// ⿰ han-7f36 han-9ce5 // ⿰缶鳥
+
+## 121.12
+
+// glyph han-26257:15x16 15 16 // 𦉗
+// ⿰ han-7f36 han-582f // ⿰缶堯
+
+## 121.17
+
+// glyph han-26263-($han-regions):15x16 15 16 // 𦉣
+// ⿳ han-96e8-($-1) han-20c60 han-7f36 // ⿳雨𠱠缶
 
 # CJK unified ideographs extension B: 网 (122)
 

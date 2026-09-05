@@ -349,8 +349,14 @@ glyph han-6c9b:15x16 15 16 // 沛
 // glyph han-6c9e:15x16 15 16 // 沞
 // ⿰ han-6c35 han-5e00 // ⿰氵帀
 
+// glyph han-6ca3:15x16 15 16 // 沣
+// ⿰ han-6c35 han-4e30 // ⿰氵丰
+
 // glyph han-6ca5:15x16 15 16 // 沥
 // ⿰ han-6c35 han-5386 // ⿰氵历
+
+// glyph han-6caa:15x16 15 16 // 沪
+// ⿰ han-6c35 han-6237 // ⿰氵户
 
 ## 85.5
 
@@ -733,6 +739,9 @@ glyph han-6de1:15x16 15 16 // 淡
 
 glyph han-6dec:15x16 15 16 // 淬
 ⿰ han-6c35:5x16 1 han-5352:9x16 // ⿰氵卒
+
+// glyph han-6ded:15x16 15 16 // 淭
+// ⿰ han-6c35 han-39bf // ⿰氵㦿
 
 glyph han-6dee:15x13 15 13 // 淮
 ⿰ han-6c35:5x13 1 han-96b9:9x13 // ⿰氵隹

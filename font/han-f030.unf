@@ -27,6 +27,9 @@ glyph han-2d1c2:15x16 15 16 // 𭇂
 glyph han-2d1c4:15x16 15 16 // 𭇄
 ⿰ han-53ef:8x16 han-4e01:7x16 // ⿰可丁
 
+// glyph han-2d1c8:15x16 15 16 // 𭇈
+// ⿱ han-4e2f han-53e3 // ⿱丯口
+
 glyph han-2d1ca:15x16 15 16 // 𭇊
 ⿱ han-53e3:15x9 han-516d:15x7 // ⿱口六
 
@@ -410,6 +413,9 @@ glyph han-2d38f:15x16 15 16 // 𭎏
 
 glyph han-2d394:15x16 15 16 // 𭎔
 ⿲ han-571f:3x16-l han-6b62:6x16 han-5315:6x16 // ⿲土止匕
+
+// glyph han-2d398:15x16 15 16 // 𭎘
+// ⿰ han-571f han-7f36 // ⿰土缶
 
 glyph han-2d39a:15x16 15 16 // 𭎚
 ⿲ han-571f:3x16-l han-6c35:3x16 han-5e72:9x16 // ⿲土氵干

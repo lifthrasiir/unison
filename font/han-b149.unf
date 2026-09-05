@@ -43,11 +43,17 @@ glyph han-27975:15x16 15 16 // 𧥵
 glyph han-27976:15x16 15 16 // 𧥶
 ⿰ han-8a01:5x16 1 han-738b:9x16 // ⿰訁王
 
+// glyph han-27979:15x16 15 16 // 𧥹
+// ⿰ han-8a01 han-4e30 // ⿰訁丰
+
 // glyph han-2797d:15x16 15 16 // 𧥽
 // ⿳ han-4e8c han-516b han-8a00 // ⿳二八言
 
 // glyph han-2797f:15x16 15 16 // 𧥿
 // ⿱ han-6c34 han-8a00 // ⿱水言
+
+// glyph han-27988:15x16 15 16 // 𧦈
+// ⿰ han-8a01 han-6236 // ⿰訁戶
 
 // glyph han-2798a:15x16 15 16 // 𧦊
 // ⿱ han-65e5 han-8a00 // ⿱日言

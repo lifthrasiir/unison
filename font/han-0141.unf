@@ -213,6 +213,9 @@ glyph han-868a:15x16 15 16 // 蚊
 // glyph han-868b:15x16 15 16 // 蚋
 // ⿰ han-866b han-5185 // ⿰虫内
 
+// glyph han-868c:15x16 15 16 // 蚌
+// ⿰ han-866b han-4e30 // ⿰虫丰
+
 glyph han-868d:15x16 15 16 // 蚍
 ⿲ han-866b:5x16 1 han-5315:4x16 1 han-5315:4x16 // ⿲虫匕匕
 

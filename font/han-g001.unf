@@ -184,6 +184,9 @@ glyph han-30087:15x16 15 16 // 𰂇
 // glyph han-3008b:15x16 15 16 // 𰂋
 // ⿰ han-4ebb han-95f4 // ⿰亻间
 
+// glyph han-3008c:15x16 15 16 // 𰂌
+// ⿰ han-4ebb han-542f // ⿰亻启
+
 // glyph han-3008e:15x16 15 16 // 𰂎
 // ⿰ han-4ebb han-2b52e // ⿰亻𫔮
 
@@ -246,6 +249,11 @@ glyph han-300a9:15x16 15 16 // 𰂩
 
 glyph han-300f5:15x16 15 16 // 𰃵
 ⿰ han-51ab:5x16 1 han-5341:9x16 // ⿰冫十
+
+## 15.4
+
+// glyph han-300f8:15x16 15 16 // 𰃸
+// ⿰ han-51ab han-6237 // ⿰冫户
 
 ## 15.5
 
@@ -520,6 +528,9 @@ glyph han-301eb:15x16 15 16 // 𰇫
 
 glyph han-301f4:15x16 15 16 // 𰇴
 ⿰ han-5408:7x16 1 han-7acb:7x16 // ⿰合立
+
+// glyph han-301f5:15x16 15 16 // 𰇵
+// ⿲ han-53e3 han-6236 han-65a4 // ⿲口戶斤
 
 // glyph han-301f8-($han-regions):15x16 15 16 // 𰇸
 // ⿰ han-53e3 han-76f2-($-1) // ⿰口盲

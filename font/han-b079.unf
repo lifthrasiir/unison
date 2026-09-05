@@ -98,8 +98,8 @@ glyph han-23b31:15x16 15 16 // 𣬱
 glyph han-23b35:15x16 15 16 // 𣬵
 ⿰ han-65b9:7x16 1 han-6bdb:7x16 // ⿰方毛
 
-// glyph han-23b36:15x16 15 16 // 𣬶
-// ⿺ han-6bdb han-5df4 // ⿺毛巴
+glyph han-23b36:15x16 15 16 // 𣬶
+⿺ han-6bdb:15x16.10x14 han-5df4:9x11 6 1 // ⿺毛巴
 
 glyph han-23b37:15x16 15 16 // 𣬷
 ⿱ han-5df4:15x7 han-6bdb:15x9 // ⿱巴毛

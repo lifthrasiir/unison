@@ -209,6 +209,9 @@ glyph han-2bcb5:15x16 15 16 // 𫲵
 // glyph han-2bcb7:15x16 15 16 // 𫲷
 // ⿱ han-5b80 han-592b // ⿱宀夫
 
+// glyph han-2bcb8:15x16 15 16 // 𫲸
+// ⿱ han-5b80 han-4e30 // ⿱宀丰
+
 glyph han-2bcb9:15x16 15 16 // 𫲹
 ⿱ han-5b80:15x4 -1 han-4e2d:15x13 // ⿱宀中
 
@@ -651,6 +654,9 @@ glyph han-2be88:15x16 15 16 // 𫺈
 // glyph han-2be8d:15x16 15 16 // 𫺍
 // ⿳ han-65e5 han-5973 han-5fc3 // ⿳日女心 <- ⿱妟心
 
+// glyph han-2be8e:15x16 15 16 // 𫺎
+// ⿲ han-5fc4 han-4e30 han-961d // ⿲忄丰阝
+
 // glyph han-2be90:15x16 15 16 // 𫺐
 // ⿳ han-4eca han-53e3 han-5fc3 // ⿳今口心 <- ⿱含心
 
@@ -716,6 +722,28 @@ glyph han-2beb6:15x16 15 16 // 𫺶
 
 // glyph han-2bee5:15x16 15 16 // 𫻥
 // ⿳ han-7f52 han-4a7b han-5fc3 // ⿳罒䩻心 <- ⿱羈心
+
+# CJK unified ideographs extension E: 戶 (63)
+
+## 63.5
+
+// glyph han-2bf0a:15x16 15 16 // 𫼊
+// ⿸ han-6236 han-7535 // ⿸戶电
+
+## 63.6
+
+// glyph han-2bf0b:15x16 15 16 // 𫼋
+// ⿸ han-6236 han-572d // ⿸戶圭
+
+## 63.7
+
+// glyph han-2bf0e:15x16 15 16 // 𫼎
+// ⿸ han-6237 han-5fe4 // ⿸户忤
+
+## 63.8
+
+// glyph han-2bf0f-($han-regions):15x16 15 16 // 𫼏
+// ⿸ han-6237 han-8005-($-1) // ⿸户者
 
 # CJK unified ideographs extension E: 手 (64)
 

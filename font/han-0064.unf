@@ -266,6 +266,9 @@ glyph han-6298:15x16 15 16 // 折
 glyph han-6299:15x16 15 16 // 抙
 ⿰ han-624c:3x16 1 han-624b:11x16 // ⿰扌手
 
+// glyph han-62a4:15x16 15 16 // 护
+// ⿰ han-624c han-6237 // ⿰扌户
+
 ## 64.5
 
 glyph han-62a6:15x16 15 16 // 抦
@@ -459,6 +462,9 @@ glyph han-6327-($han-regions):15x16 15 16 // 挧
 
 glyph han-6330:15x16 15 16 // 挰
 ⿰ han-624c:3x16 1 han-5448:11x16 // ⿰扌呈
+
+// glyph han-6337:15x16 15 16 // 挷
+// ⿲ han-624c han-4e30 han-961d // ⿲扌丰阝
 
 glyph han-6338:15x16 15 16 // 挸
 ⿰ han-624c:5x16 han-898b:10x16 // ⿰扌見
