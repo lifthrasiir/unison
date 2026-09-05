@@ -34,6 +34,15 @@ pub(crate) struct AutocompleteState {
     all_candidates: Vec<CompletionCandidate>,
     kind: CompletionKind,
     slot: Option<IdcSlot>,
+    /// What the listing was last narrowed by — the text between
+    /// `replace_start` and the caret. Kept so that a frame which only moved
+    /// the caret leaves the selection where it is: only a *changed* prefix
+    /// re-places it.
+    prefix: String,
+    /// Whether the selection was last moved by a key rather than by what is
+    /// written. The next character typed then continues the *selected*
+    /// candidate instead of the line (see [`continue_from_selection`]).
+    navigated: bool,
 }
 
 struct CompletionContext {
@@ -88,10 +97,8 @@ pub(crate) fn trigger(
         return;
     }
 
-    state.cursor.col = col;
-    state.selection_anchor = None;
-    state.autocomplete = Some(AutocompleteState {
-        selected: 0,
+    let mut ac = AutocompleteState {
+        selected: select_for_text(&candidates, &ctx.prefix),
         scroll_offset: 0,
         replace_start: ctx.replace_start,
         line: state.cursor.line,
@@ -99,7 +106,69 @@ pub(crate) fn trigger(
         all_candidates,
         kind: ctx.kind,
         slot: ctx.slot,
-    });
+        prefix: ctx.prefix,
+        navigated: false,
+    };
+    scroll_to_selected(&mut ac);
+
+    state.cursor.col = col;
+    state.selection_anchor = None;
+    state.autocomplete = Some(ac);
+}
+
+/// Which candidate a written prefix lands on.
+///
+/// What is written wins over where it sorts: a candidate the text is a prefix
+/// of is the one being spelled, and the first such one *as offered* is taken —
+/// so a slot's own ranking ([`IdcSlot::rank`]) still picks among the ones that
+/// match. Writing a name out in full therefore opens the listing on it, which
+/// is the point of offering the whole family a `:` belongs to
+/// ([`effective_prefix`]).
+///
+/// With no candidate to start, the selection falls to where the text sorts:
+/// the last one that does not sort after it — `a <= text < b` picks `a` — and
+/// the first of all when every candidate does. That comparison runs over a
+/// lexicographically sorted view rather than over the list as displayed, since
+/// a variant listing for a slot is not in that order ([`filter_candidates`]);
+/// the last fallback stays the first *displayed* candidate, the best-ranked one
+/// there and the smallest one everywhere else.
+fn select_for_text(candidates: &[CompletionCandidate], text: &str) -> usize {
+    if let Some(i) = candidates.iter().position(|c| c.label.starts_with(text)) {
+        return i;
+    }
+    let landed = if candidates.is_sorted_by(|a, b| a.label <= b.label) {
+        candidates.iter().rposition(|c| c.label.as_str() <= text)
+    } else {
+        let mut order: Vec<usize> = (0..candidates.len()).collect();
+        order.sort_by(|&a, &b| candidates[a].label.cmp(&candidates[b].label));
+        order
+            .iter()
+            .rev()
+            .find(|&&i| candidates[i].label.as_str() <= text)
+            .copied()
+    };
+    landed.unwrap_or(0)
+}
+
+/// Bring the selected item into the visible window, and never scroll past the
+/// end of a list that fits in it.
+fn scroll_to_selected(ac: &mut AutocompleteState) {
+    if ac.selected < ac.scroll_offset {
+        ac.scroll_offset = ac.selected;
+    } else if ac.selected >= ac.scroll_offset + MAX_VISIBLE {
+        ac.scroll_offset = ac.selected + 1 - MAX_VISIBLE;
+    }
+    ac.scroll_offset = ac
+        .scroll_offset
+        .min(ac.candidates.len().saturating_sub(MAX_VISIBLE));
+}
+
+/// Move the selection by a key. What a key picks is a choice of *name*, so the
+/// next character typed continues that name rather than the line.
+fn move_selection(ac: &mut AutocompleteState, to: usize) {
+    ac.selected = to.min(ac.candidates.len().saturating_sub(1));
+    ac.navigated = true;
+    scroll_to_selected(ac);
 }
 
 pub(crate) fn update_after_edit(lines: &[DocLine], state: &mut super::EditorState) {
@@ -141,17 +210,26 @@ pub(crate) fn update_after_edit(lines: &[DocLine], state: &mut super::EditorStat
 
     let ac = state.autocomplete.as_mut().unwrap();
     ac.candidates = candidates;
-    ac.selected = ac.selected.min(ac.candidates.len().saturating_sub(1));
-    if ac.scroll_offset > ac.selected {
-        ac.scroll_offset = ac.selected;
+    if ac.prefix == prefix {
+        // Nothing was written; a caret that merely moved must not undo a walk
+        // of the list.
+        ac.selected = ac.selected.min(ac.candidates.len().saturating_sub(1));
+    } else {
+        // What is written picks the selection again, and it is the line — not
+        // the item a key had walked to — that the next character continues.
+        ac.selected = select_for_text(&ac.candidates, &prefix);
+        ac.prefix = prefix;
+        ac.navigated = false;
     }
-    if ac.selected >= ac.scroll_offset + MAX_VISIBLE {
-        ac.scroll_offset = ac.selected + 1 - MAX_VISIBLE;
-    }
+    scroll_to_selected(ac);
 }
 
 pub(crate) enum HandleResult {
     NotConsumed,
+    /// The popup rewrote the line to continue the selected candidate, but the
+    /// keystroke that prompted it is the editor's to insert: the caller has to
+    /// take the change *and* go on handling the key.
+    RewroteAndContinued,
     Consumed,
     TextChanged,
 }
@@ -193,30 +271,60 @@ pub(crate) fn handle_keys(
             || ctrl_letter(i, egui::Key::J)
     });
     let accept = ui.input(|i| i.key_pressed(egui::Key::Enter) || i.key_pressed(egui::Key::Tab));
+    // Left and Right are swallowed rather than obeyed: the listing is narrowed
+    // by the word the caret sits at the end of, so a step off it would only
+    // dismiss the popup or re-filter against half a name.
+    let sideways = ui.input(|i| {
+        plain(i) && (i.key_pressed(egui::Key::ArrowLeft) || i.key_pressed(egui::Key::ArrowRight))
+    });
 
     if escape {
+        // The line keeps whatever stands on it, including a name a walk of the
+        // list already wrote there: dismissing the popup is giving up on the
+        // *listing*, not on the typing.
         state.autocomplete = None;
         return HandleResult::Consumed;
     }
 
+    if sideways {
+        return HandleResult::Consumed;
+    }
+
+    // Home/End/PageUp/PageDown walk the listing while it is open. Nothing else
+    // reaches an item a long list keeps off-screen, and moving the caret
+    // instead would only dismiss the popup.
+    let ac = state.autocomplete.as_ref().unwrap();
+    let (selected, last) = (ac.selected, ac.candidates.len().saturating_sub(1));
+    let jump = ui.input(|i| {
+        if !plain(i) {
+            None
+        } else if i.key_pressed(egui::Key::Home) {
+            Some(0)
+        } else if i.key_pressed(egui::Key::End) {
+            Some(last)
+        } else if i.key_pressed(egui::Key::PageUp) {
+            Some(selected.saturating_sub(MAX_VISIBLE))
+        } else if i.key_pressed(egui::Key::PageDown) {
+            Some((selected + MAX_VISIBLE).min(last))
+        } else {
+            None
+        }
+    });
+    if let Some(to) = jump {
+        move_selection(state.autocomplete.as_mut().unwrap(), to);
+        return HandleResult::Consumed;
+    }
+
     if up {
-        let ac = state.autocomplete.as_mut().unwrap();
-        if ac.selected > 0 {
-            ac.selected -= 1;
-            if ac.selected < ac.scroll_offset {
-                ac.scroll_offset = ac.selected;
-            }
+        if selected > 0 {
+            move_selection(state.autocomplete.as_mut().unwrap(), selected - 1);
         }
         return HandleResult::Consumed;
     }
 
     if down {
-        let ac = state.autocomplete.as_mut().unwrap();
-        if ac.selected + 1 < ac.candidates.len() {
-            ac.selected += 1;
-            if ac.selected >= ac.scroll_offset + MAX_VISIBLE {
-                ac.scroll_offset = ac.selected + 1 - MAX_VISIBLE;
-            }
+        if selected < last {
+            move_selection(state.autocomplete.as_mut().unwrap(), selected + 1);
         }
         return HandleResult::Consumed;
     }
@@ -226,7 +334,77 @@ pub(crate) fn handle_keys(
         return HandleResult::TextChanged;
     }
 
+    // A character typed after a key walked the list continues the *selected*
+    // name rather than what still stands on the line: walking the list is
+    // choosing a name, and typing on from it is how a longer one is reached
+    // (`graph` picked over the written `glyph`, then `ic`, is `graphic`). Only
+    // the line is rewritten here — the keystroke itself is still the editor's
+    // to insert, and the selection follows the text again from there.
+    let typing = ui.input(|i| {
+        i.events
+            .iter()
+            .any(|e| matches!(e, egui::Event::Text(t) if !t.is_empty()))
+    });
+    if typing
+        && state.autocomplete.as_ref().is_some_and(|ac| ac.navigated)
+        && continue_from_selection(lines, state)
+    {
+        return HandleResult::RewroteAndContinued;
+    }
+
     HandleResult::NotConsumed
+}
+
+/// A bare key press: no modifier that would make it mean something else.
+fn plain(i: &egui::InputState) -> bool {
+    !i.modifiers.shift && !i.modifiers.command && !i.modifiers.alt
+}
+
+/// Rewrite the text the popup is narrowed by to the selected candidate,
+/// keeping the popup open. Returns whether the line changed.
+fn continue_from_selection(lines: &mut [DocLine], state: &mut super::EditorState) -> bool {
+    let Some(ac) = &state.autocomplete else {
+        return false;
+    };
+    if state.cursor.line != ac.line || state.cursor.col < ac.replace_start {
+        return false;
+    }
+    let (line_idx, replace_start) = (ac.line, ac.replace_start);
+    let Some(candidate) = ac.candidates.get(ac.selected).map(|c| c.label.clone()) else {
+        return false;
+    };
+    let Some(DocLine::Text(text)) = lines.get(line_idx) else {
+        return false;
+    };
+
+    let old_line = text.clone();
+    let start = char_to_byte(&old_line, replace_start);
+    let end = char_to_byte(&old_line, state.cursor.col);
+    if old_line[start..end] == *candidate {
+        // Already what the line says; there is nothing to rewrite, and the
+        // keystroke goes on writing it.
+        state.autocomplete.as_mut().unwrap().navigated = false;
+        return false;
+    }
+
+    let new_line = format!("{}{}{}", &old_line[..start], candidate, &old_line[end..]);
+    let new_cursor = Caret::new(line_idx, replace_start + candidate.chars().count());
+    state.undo.break_coalesce();
+    state.undo.push_lines(
+        line_idx,
+        vec![DocLine::Text(old_line)],
+        vec![DocLine::Text(new_line.clone())],
+        state.cursor,
+        new_cursor,
+    );
+    lines[line_idx] = DocLine::Text(new_line);
+    state.cursor = new_cursor;
+    state.selection_anchor = None;
+
+    let ac = state.autocomplete.as_mut().unwrap();
+    ac.prefix = candidate;
+    ac.navigated = false;
+    true
 }
 
 pub(crate) fn apply_completion(lines: &mut [DocLine], state: &mut super::EditorState) {
@@ -310,15 +488,17 @@ fn rewrite_as_at_names(
         .collect()
 }
 
-/// End of the whitespace-delimited word the caret sits *inside*, in chars.
+/// End of the whitespace-delimited word the caret is *on*, in chars.
 ///
 /// The same word `detect_context` reads the prefix from, so a trigger from the
-/// middle of one ends up completing all of it. A caret that is not inside a
-/// word — in whitespace, at a line's start, right before a word — stays where
-/// it is: the word ahead is not one the author is in the middle of writing.
+/// middle of one ends up completing all of it. A caret resting immediately
+/// before a word is on it too: that word is the name being written, and
+/// stopping at the caret would narrow the listing by nothing and then splice a
+/// candidate in front of what is already spelled out. Only a caret in
+/// whitespace (or at the end of the line) is on no word and stays put.
 fn word_end(line: &str, col: usize) -> usize {
     let chars: Vec<char> = line.chars().collect();
-    if col > chars.len() || col == 0 || chars[col - 1].is_whitespace() {
+    if col > chars.len() {
         return col;
     }
     let mut end = col;
@@ -771,21 +951,23 @@ fn collect_candidates(
 
     match ctx.kind {
         CompletionKind::Keyword => {
+            // Lexicographic, like every other listing: what is written picks
+            // the selection by where it sorts (`select_for_text`).
             let keywords = [
-                "glyph",
-                "ref",
                 "anchor",
-                "map",
-                "name-parts",
-                "remap",
-                "feature",
-                "meta",
+                "assume",
                 "audit",
+                "color",
                 "exists",
                 "face",
+                "feature",
+                "glyph",
+                "map",
+                "meta",
+                "name-parts",
+                "ref",
+                "remap",
                 "slice",
-                "assume",
-                "color",
             ];
             for kw in &keywords {
                 candidates.push(CompletionCandidate {
@@ -884,6 +1066,7 @@ fn collect_candidates(
                     kind: CompletionKind::GlyphFlag,
                 });
             }
+            candidates.sort_by(|a, b| a.label.cmp(&b.label));
         }
         CompletionKind::RemapGroup => {
             // Doc-local, like the color names below: a group could in principle
@@ -1072,6 +1255,8 @@ mod tests {
             all_candidates: Vec::new(),
             kind: CompletionKind::Glyph,
             slot: None,
+            prefix: String::new(),
+            navigated: false,
         };
 
         // Caret moved back before the prefix being completed.

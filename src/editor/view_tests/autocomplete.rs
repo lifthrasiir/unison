@@ -21,6 +21,18 @@ fn ctrl_k(h: &mut EditorHarness) {
     h.key_mod(Key::K, Modifiers::CTRL);
 }
 
+/// Three variants of one part plus the glyph they compose; `last` is doc line
+/// 8, since every declared header carries an empty grid line of its own.
+fn family_doc(last: &str) -> String {
+    format!(
+        "glyph part:4x16 4 16\n\
+         glyph part:5x16-l 5 16\n\
+         glyph part:5x16-r 5 16\n\
+         glyph whole 15 16\n\
+         {last}"
+    )
+}
+
 #[test]
 fn autocomplete_trigger_and_dismiss() {
     let mut h = EditorHarness::new(&ac_doc());
@@ -145,8 +157,10 @@ fn autocomplete_lists_and_orders_a_variant_family() {
         .collect();
     assert_eq!(labels, vec!["part:5x16-l", "part:4x16", "part:5x16-r"]);
 
+    // The order is the slot's, but the selection is what is *written*: `part:4x`
+    // starts only the 4x16 one, so that is what accepting takes.
     h.key(Key::Enter);
-    assert_eq!(h.text(8), "⿰ part:5x16-l");
+    assert_eq!(h.text(8), "⿰ part:4x16");
 }
 
 /// A component fills its slot across the whole of the parent, so a variant of
@@ -219,6 +233,205 @@ fn autocomplete_ctrl_j_k_navigate() {
     assert_eq!(h.state.autocomplete.as_ref().unwrap().selected, 1);
     h.key(Key::ArrowUp);
     assert_eq!(h.state.autocomplete.as_ref().unwrap().selected, 0);
+}
+
+/// A family listing opens on the variant that is *already written*: the
+/// selection is placed by where the text sorts (`a <= text < b` picks `a`), and
+/// an exactly written name is that `a`.
+#[test]
+fn autocomplete_opens_on_the_variant_already_written() {
+    let mut h = EditorHarness::new(&family_doc("⿰ part:5x16-r"));
+    h.click_text(8, 13);
+    ctrl_j(&mut h);
+
+    let ac = h.state.autocomplete.as_ref().unwrap();
+    assert_eq!(ac.candidates.len(), 3);
+    assert_eq!(ac.candidates[ac.selected].label, "part:5x16-r");
+}
+
+/// Typing on with no key having walked the list keeps re-placing the selection
+/// by what is written, however the listing itself is ordered.
+#[test]
+fn autocomplete_selection_follows_what_is_typed() {
+    let mut h = EditorHarness::new(&family_doc("ref part:"));
+    h.click_text(8, 9);
+    ctrl_j(&mut h);
+    assert_eq!(
+        h.state.autocomplete.as_ref().unwrap().candidates[0].label,
+        "part:4x16"
+    );
+
+    h.type_text("5x16-r");
+    let ac = h.state.autocomplete.as_ref().unwrap();
+    // The whole family stays listed — that is the choice being made — and the
+    // selection moved to what has been written.
+    assert_eq!(ac.candidates.len(), 3);
+    assert_eq!(ac.candidates[ac.selected].label, "part:5x16-r");
+}
+
+/// Walking the list is choosing a name, so the next character typed continues
+/// the *selected* one rather than what the line still says.
+#[test]
+fn autocomplete_typing_after_walking_the_list_continues_the_selection() {
+    let mut h = EditorHarness::new(
+        "glyph glide 2 2\n\
+         glyph graph 2 2\n\
+         glyph graphic 2 2\n\
+         ref g",
+    );
+    h.click_text(6, 5);
+    ctrl_j(&mut h);
+    assert_eq!(
+        h.state.autocomplete.as_ref().unwrap().candidates[0].label,
+        "glide"
+    );
+
+    h.key(Key::ArrowDown);
+    assert_eq!(
+        h.state.autocomplete.as_ref().unwrap().candidates
+            [h.state.autocomplete.as_ref().unwrap().selected]
+            .label,
+        "graph"
+    );
+
+    h.type_text("ic");
+    assert_eq!(h.text(6), "ref graphic");
+    let ac = h.state.autocomplete.as_ref().unwrap();
+    assert_eq!(ac.candidates[ac.selected].label, "graphic");
+
+    // And the selection follows the text again from there.
+    h.key(Key::Backspace);
+    assert_eq!(h.text(6), "ref graphi");
+}
+
+/// Escape leaves whatever has been typed on the line, including the name a
+/// walk of the list rewrote it to.
+#[test]
+fn autocomplete_escape_keeps_what_was_typed() {
+    let mut h = EditorHarness::new(&ac_doc());
+    h.click_text(5, 4);
+    ctrl_j(&mut h);
+    h.type_text("al");
+    h.key(Key::Escape);
+    assert!(h.state.autocomplete.is_none());
+    assert_eq!(h.text(5), "ref al");
+
+    // A walk that nothing was typed after leaves the line as it stood.
+    ctrl_j(&mut h);
+    h.key(Key::ArrowDown);
+    h.key(Key::Escape);
+    assert_eq!(h.text(5), "ref al");
+}
+
+/// Home/End/PageUp/PageDown walk the *listing* while it is open: nothing else
+/// reaches an item a long list keeps off-screen, and moving the caret instead
+/// would only dismiss the popup.
+#[test]
+fn autocomplete_page_home_and_end_walk_the_listing() {
+    use crate::editor::autocomplete::MAX_VISIBLE;
+
+    let mut doc = String::new();
+    for i in 0..12 {
+        doc.push_str(&format!("glyph a{i:02} 2 2\n"));
+    }
+    doc.push_str("ref a");
+    let mut h = EditorHarness::new(&doc);
+    h.click_text(24, 5);
+    ctrl_j(&mut h);
+
+    let selected = |h: &EditorHarness| h.state.autocomplete.as_ref().unwrap().selected;
+    assert_eq!(h.state.autocomplete.as_ref().unwrap().candidates.len(), 12);
+    assert_eq!(selected(&h), 0);
+
+    h.key(Key::PageDown);
+    assert_eq!(selected(&h), MAX_VISIBLE);
+    h.key(Key::End);
+    assert_eq!(selected(&h), 11);
+    assert_eq!(h.state.autocomplete.as_ref().unwrap().scroll_offset, 2);
+    h.key(Key::PageUp);
+    assert_eq!(selected(&h), 11 - MAX_VISIBLE);
+    h.key(Key::Home);
+    assert_eq!(selected(&h), 0);
+    assert_eq!(h.state.autocomplete.as_ref().unwrap().scroll_offset, 0);
+    // The caret never left the word being completed.
+    assert_eq!(h.state.cursor.col, 5);
+}
+
+/// Left and Right are the popup's to swallow: the listing is narrowed by the
+/// word the caret sits at the end of, and a step off it would only dismiss the
+/// popup or re-filter against half a name.
+#[test]
+fn autocomplete_ignores_left_and_right() {
+    let mut h = EditorHarness::new(&ac_doc());
+    h.click_text(5, 4);
+    ctrl_j(&mut h);
+    h.type_text("al");
+    let col = h.state.cursor.col;
+
+    h.key(Key::ArrowLeft);
+    assert_eq!(h.state.cursor.col, col);
+    assert!(h.state.autocomplete.is_some());
+    h.key(Key::ArrowRight);
+    assert_eq!(h.state.cursor.col, col);
+    assert!(h.state.autocomplete.is_some());
+}
+
+/// A caret resting immediately *before* a name is writing that name: the whole
+/// of it is what completes, rather than the popup falling back to the empty
+/// prefix and offering everything.
+#[test]
+fn autocomplete_before_a_name_completes_that_name() {
+    let mut h = EditorHarness::new(
+        "glyph alpha 2 2\n@@@@\n@@..\n\
+         glyph beta 2 2\n..@@\n@@@@\n\
+         \n\
+         ref alpha",
+    );
+    h.click_text(5, 4);
+    ctrl_j(&mut h);
+    assert_eq!(h.state.cursor.col, 9);
+    let ac = h.state.autocomplete.as_ref().unwrap();
+    assert_eq!(ac.replace_start, 4);
+    let labels: Vec<&str> = ac.candidates.iter().map(|c| c.label.as_str()).collect();
+    assert_eq!(labels, vec!["alpha"]);
+
+    // The same at the head of the line, where the first word is the keyword.
+    h.key(Key::Escape);
+    h.click_text(5, 0);
+    ctrl_j(&mut h);
+    assert_eq!(h.state.cursor.col, 3);
+    let ac = h.state.autocomplete.as_ref().unwrap();
+    let labels: Vec<&str> = ac.candidates.iter().map(|c| c.label.as_str()).collect();
+    assert_eq!(labels, vec!["ref"]);
+}
+
+/// What is written wins over where it sorts: a candidate the text is a prefix
+/// of is the one meant, and only when there is none does the selection fall
+/// back to where the text sorts.
+#[test]
+fn autocomplete_prefers_a_candidate_the_text_starts() {
+    let mut h = EditorHarness::new(&family_doc("ref part:5x"));
+    h.click_text(8, 11);
+    ctrl_j(&mut h);
+
+    let ac = h.state.autocomplete.as_ref().unwrap();
+    assert_eq!(ac.candidates.len(), 3);
+    assert_eq!(ac.candidates[ac.selected].label, "part:5x16-l");
+}
+
+/// Walking the list and accepting writes one undo entry, not one per step: the
+/// line is only rewritten when a *character* is typed on from the selection.
+#[test]
+fn autocomplete_walking_the_list_costs_one_undo_entry() {
+    let mut h = EditorHarness::new(&ac_doc());
+    h.click_text(5, 4);
+    ctrl_j(&mut h);
+    h.key(Key::ArrowDown);
+    h.key(Key::Enter);
+    assert_eq!(h.text(5), "ref beta");
+
+    h.key_mod(Key::Z, Modifiers::COMMAND);
+    assert_eq!(h.text(5), "ref ");
 }
 
 /// Ctrl+K with no popup open still starts code-point entry.

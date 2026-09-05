@@ -24,17 +24,21 @@ pub(super) fn handle_document_keys(
 ) {
     if state.active {
         // Autocomplete key handling takes priority
+        use crate::editor::autocomplete::HandleResult;
         let ac_result = crate::editor::autocomplete::handle_keys(ui, lines, state);
         if matches!(
             ac_result,
-            crate::editor::autocomplete::HandleResult::TextChanged
+            HandleResult::TextChanged | HandleResult::RewroteAndContinued
         ) {
             *needs_rederive = true;
         }
 
+        // A rewrite that continues the selected candidate is not a key the
+        // popup claimed: the character that prompted it still has to be
+        // inserted below.
         if matches!(
             ac_result,
-            crate::editor::autocomplete::HandleResult::NotConsumed
+            HandleResult::NotConsumed | HandleResult::RewroteAndContinued
         ) {
             if ui.input(|i| i.key_pressed(egui::Key::Escape)) {
                 if !matches!(state.popup, PopupState::None) {

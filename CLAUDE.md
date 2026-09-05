@@ -451,6 +451,9 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Typing a character by code point (Ctrl+K), and why not Alt | `editor/codepoint_popup.rs` |
 | Why a click on a caret-anchored popup's own chrome does not dismiss it, and what its commit button does instead | `editor/codepoint_popup.rs` (`resolve_field`) |
 | Why completing a glyph name stops filtering at its last `:`, and the order an IDC slot puts that listing in | `editor/autocomplete.rs` (`effective_prefix`, `filter_candidates`), `compose.rs` (`direction_rank`) |
+| Which item an open listing starts on, and what re-places it as a name is typed | `editor/autocomplete.rs` (`select_for_text`, `update_after_edit`) |
+| Typing on from an item the list was walked to, and why that keystroke is still the editor's to insert | `editor/autocomplete.rs` (`continue_from_selection`, `HandleResult::RewroteAndContinued`) |
+| Which keys an open listing claims, and why a caret resting before a name is writing it | `editor/autocomplete.rs` (`handle_keys`, `word_end`) |
 | Why an on-demand shape is never offered for completion, where a color/mono name is | `editor/autocomplete.rs` (`collect_candidates`), `on_demand.rs` (`parse_on_demand_glyph`) |
 | Why an IDC slot's listing drops a variant of the wrong size outright, where a wrong direction is only ordered last | `editor/autocomplete.rs` (`CrossExtent`) |
 | The `{gc=… ccc=… eaw=…}` group after a character name, and the pinned UCD version | `ucd.rs` |
