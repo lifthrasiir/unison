@@ -1116,8 +1116,12 @@ impl ShapedPreviewState {
                     && i.key_pressed(egui::Key::K)
             })
         {
-            let seed = self.codepoint_prediction.predicted();
-            self.codepoint = Some((CodepointPopup::seeded(seed), caret_screen));
+            let selected = self
+                .selection_range_sorted()
+                .map(|(lo, hi)| caret::extract_text(&self.lines, lo, hi));
+            let popup =
+                CodepointPopup::for_selection(selected.as_deref(), &self.codepoint_prediction);
+            self.codepoint = Some((popup, caret_screen));
             return;
         }
 

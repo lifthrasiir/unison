@@ -138,7 +138,7 @@ pub(super) fn handle_document_keys(
                         && i.key_pressed(egui::Key::K)
                 })
             {
-                state.start_codepoint_entry();
+                state.start_codepoint_entry(lines);
             }
 
             // Undo/redo in GlyphEdit/LayerMove modes (Normal mode handles it via doc_input::handle_keys).

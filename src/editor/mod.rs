@@ -549,15 +549,22 @@ impl EditorState {
 
     /// Opens the Ctrl+K code point popup at the caret. Like a rename, it only
     /// makes sense over document text, and only one popup is open at a time.
-    pub fn start_codepoint_entry(&mut self) {
+    ///
+    /// `lines` is read for the selection alone: one selected character is what
+    /// the popup opens on, ahead of the prediction. See
+    /// [`codepoint_popup::CodepointPopup::for_selection`].
+    pub fn start_codepoint_entry(&mut self, lines: &[DocLine]) {
         if !matches!(self.mode, EditMode::Normal) {
             return;
         }
         if !matches!(self.popup, PopupState::None) {
             return;
         }
-        self.popup = PopupState::Codepoint(codepoint_popup::CodepointPopup::seeded(
-            self.codepoint_prediction.predicted(),
+        let selected = caret::selection_range(self.cursor, self.selection_anchor)
+            .map(|(lo, hi)| caret::extract_text(lines, lo, hi));
+        self.popup = PopupState::Codepoint(codepoint_popup::CodepointPopup::for_selection(
+            selected.as_deref(),
+            &self.codepoint_prediction,
         ));
     }
 

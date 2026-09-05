@@ -426,6 +426,71 @@ fn codepoint_popup_drops_a_prediction_off_the_end() {
     );
 }
 
+/// One selected character is what the popup is *for*: it opens on that
+/// character's code point, so Ctrl+K over it reads out what it is and Enter
+/// puts it back unchanged. The guess a previous commit left is overridden.
+#[test]
+fn codepoint_popup_seeds_from_one_selected_character() {
+    let mut h = EditorHarness::new("meta name Test\n");
+    h.click_text(0, 14);
+    h.key_mod(Key::K, Modifiers::CTRL);
+    h.frame();
+    h.type_text("2600");
+    h.key(Key::Enter);
+    h.frame();
+
+    // Select the `t` alone: the selection, not the U+2601 the last commit
+    // predicts, is what the popup opens on.
+    h.click_text(0, 13);
+    h.key_mod(Key::ArrowRight, Modifiers::SHIFT);
+    h.key_mod(Key::K, Modifiers::CTRL);
+    h.frame();
+    assert_eq!(
+        h.state
+            .codepoint_status(&crate::ucd::CharProps::default())
+            .as_deref(),
+        Some("U+0074  LATIN SMALL LETTER T {gc=Ll eaw=Na}")
+    );
+}
+
+/// Two selected characters name no one code point, and a bare caret selects
+/// nothing at all: both keep the prediction the popup always had.
+#[test]
+fn codepoint_popup_ignores_a_selection_that_is_not_one_character() {
+    let mut h = EditorHarness::new("meta name Test\n");
+
+    // Two characters selected: still the empty first guess.
+    h.click_text(0, 12);
+    h.key_mod(Key::ArrowRight, Modifiers::SHIFT);
+    h.key_mod(Key::ArrowRight, Modifiers::SHIFT);
+    h.key_mod(Key::K, Modifiers::CTRL);
+    h.frame();
+    assert_eq!(
+        h.state
+            .codepoint_status(&crate::ucd::CharProps::default())
+            .as_deref(),
+        Some("U+")
+    );
+    h.key(Key::Escape);
+    h.frame();
+
+    // A commit, and then a caret with nothing selected: the prediction.
+    h.click_text(0, 14);
+    h.key_mod(Key::K, Modifiers::CTRL);
+    h.frame();
+    h.type_text("2600");
+    h.key(Key::Enter);
+    h.frame();
+    h.key_mod(Key::K, Modifiers::CTRL);
+    h.frame();
+    assert_eq!(
+        h.state
+            .codepoint_status(&crate::ucd::CharProps::default())
+            .as_deref(),
+        Some("U+2601  CLOUD {gc=So eaw=N}")
+    );
+}
+
 /// Clicking elsewhere in the document also cancels the rename popup, and the
 /// click keeps its usual effect: the caret moves to where it landed and the
 /// editor has focus again.

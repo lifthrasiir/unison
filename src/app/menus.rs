@@ -1062,7 +1062,7 @@ impl UniformApp {
         if menu.type_codepoint
             && let Some(doc) = self.active_doc_mut()
         {
-            doc.editor_state.start_codepoint_entry();
+            doc.editor_state.start_codepoint_entry(&doc.lines);
         }
 
         if menu.escape_toggled {

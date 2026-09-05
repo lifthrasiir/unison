@@ -20,7 +20,12 @@
 //! The field does not open empty once anything has been typed through it:
 //! [`CodepointPrediction`] offers the code point after the last one committed,
 //! and the popup opens on that guess with it selected, so Enter takes it and
-//! any digit replaces it.
+//! any digit replaces it. A selection of exactly one character outranks that
+//! guess ([`CodepointPopup::for_selection`]): the one thing Ctrl+K can be
+//! asked over a character is what it is, and a commit replaces the selection
+//! anyway, so opening on it costs nothing and answers that question. Any
+//! wider selection names no single code point and a bare caret names none at
+//! all, so both keep the prediction.
 //!
 //! The predecessor was Alt (Option on macOS) held down over hex keys. It could
 //! not survive macOS: with an IME allowed, `Option+E` is a dead key, so AppKit
@@ -187,6 +192,21 @@ impl CodepointPopup {
                 .unwrap_or_default(),
             focus_set: false,
         }
+    }
+
+    /// The popup a host opens over `selected` — the text its selection covers,
+    /// which is `None` or empty when nothing is selected. Exactly one
+    /// character seeds the field with that character; anything else falls back
+    /// to `prediction`.
+    pub(crate) fn for_selection(selected: Option<&str>, prediction: &CodepointPrediction) -> Self {
+        let one = selected.and_then(|text| {
+            let mut chars = text.chars();
+            match (chars.next(), chars.next()) {
+                (Some(ch), None) => Some(ch),
+                _ => None,
+            }
+        });
+        Self::seeded(one.or_else(|| prediction.predicted()))
     }
 
     /// The character the digits currently name, if they name one.
