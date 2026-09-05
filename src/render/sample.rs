@@ -190,7 +190,13 @@ fn collect_sample_data_with(
             |pg: &crate::render::glyph_cache::PendingGlyph,
              effective_refs: &[GlyphRef],
              cache: &_| {
-                composite_glyph(pg.pixels.as_ref(), pg.desync, effective_refs, cache, pg.scale)
+                composite_glyph(
+                    pg.pixels.as_ref(),
+                    pg.desync,
+                    effective_refs,
+                    cache,
+                    pg.scale,
+                )
                 .unwrap_or_else(|| {
                     if let Some(grid) = &pg.pixels {
                         CachedGlyph::from_grid(grid, pg.desync)

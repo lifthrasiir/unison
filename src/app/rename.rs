@@ -967,12 +967,10 @@ impl UniformApp {
                     .push_compound(ops, cursor_before, doc.editor_state.cursor);
                 match crate::document_io::derive_document(&doc.lines, doc.document.path.clone()) {
                     Ok((new_doc, _)) => {
-                        let items_changed = !doc
-                            .document
-                            .items
-                            .iter()
-                            .filter(|i| i.affects_font())
-                            .eq(new_doc.items.iter().filter(|i| i.affects_font()));
+                        let items_changed = crate::document::items_changed_for_rebuild(
+                            &doc.document.items,
+                            &new_doc.items,
+                        );
                         let next_gen = doc.document.edit_gen + 1;
                         let pixel_gen = doc.document.pixel_gen;
                         let content_gen = if items_changed {

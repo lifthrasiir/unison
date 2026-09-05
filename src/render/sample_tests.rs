@@ -103,9 +103,10 @@ fn the_udhr_selection_drops_what_the_font_cannot_draw() {
     )
     .unwrap();
 
-    let cmap: BTreeMap<u32, String> = [('A' as u32, "a".to_string()), ('B' as u32, "b".to_string())]
-        .into_iter()
-        .collect();
+    let cmap: BTreeMap<u32, String> =
+        [('A' as u32, "a".to_string()), ('B' as u32, "b".to_string())]
+            .into_iter()
+            .collect();
     let selected = udhr_selection(&dir, &cmap).unwrap();
     let langs: Vec<&str> = selected.iter().map(|e| e.lang.as_str()).collect();
     assert_eq!(

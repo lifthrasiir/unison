@@ -293,3 +293,45 @@ fn right_click_takes_focus_first() {
     assert!(h.editor_has_focus());
     assert_eq!(h.cursor(), Caret::new(3, 4));
 }
+
+/// Commenting a line back out has to reach the rebuild. The gate compares the
+/// items the *rebuild* reads, and a line on its way to `//` passes through an
+/// unrecognized directive — an item the font ignores but `issues` reports. When
+/// the gate asked only whether the font would change, the last keystroke turned
+/// that directive into a comment with neither one affecting the font, no
+/// `content_gen` bump, and so an issue list still faulting the half-typed line.
+#[test]
+fn commenting_a_line_back_out_advances_content_gen() {
+    let mut h = EditorHarness::new("map A = foo\n");
+    h.click_text(0, 0);
+
+    let before = h.doc.content_gen;
+    h.type_text("/");
+    assert_eq!(h.text(0), "/map A = foo");
+    let half_typed = h.doc.content_gen;
+    assert!(
+        half_typed > before,
+        "a `map` line becoming an unrecognized directive is a change"
+    );
+
+    h.type_text("/");
+    assert_eq!(h.text(0), "//map A = foo");
+    assert!(
+        h.doc.content_gen > half_typed,
+        "an unrecognized directive becoming a comment is a change too"
+    );
+}
+
+/// The other half of the same gate: typing *inside* a comment rebuilds nothing.
+/// A comment's text is read by nothing the rebuild produces, and a font source
+/// is largely comments.
+#[test]
+fn typing_inside_a_comment_does_not_advance_content_gen() {
+    let mut h = EditorHarness::new("// note\nmap A = foo\n");
+    h.click_text(0, 7);
+
+    let before = h.doc.content_gen;
+    h.type_text("s");
+    assert_eq!(h.text(0), "// notes");
+    assert_eq!(h.doc.content_gen, before);
+}

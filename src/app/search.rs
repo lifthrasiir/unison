@@ -75,14 +75,7 @@ pub(super) fn may_write_an_at_name(text: &str) -> bool {
 /// The keywords whose line can name a glyph — the ones `classify_line` reads a
 /// `GlyphDef`/`GlyphRef` off. Nothing else can hold a name pattern, which is
 /// what makes the filter below cheap.
-const GLYPH_NAME_KEYWORDS: [&str; 6] = [
-    "glyph",
-    "ref",
-    "map",
-    "remap",
-    "assert",
-    "assume",
-];
+const GLYPH_NAME_KEYWORDS: [&str; 6] = ["glyph", "ref", "map", "remap", "assert", "assume"];
 
 /// Whether `text` — one line, or a whole file — could write a glyph name as a
 /// *pattern* rather than in full.

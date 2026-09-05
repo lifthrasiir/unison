@@ -222,13 +222,18 @@ fn headings_parse_at_three_levels_and_round_trip() {
     assert_eq!(String::from_utf8(output).unwrap(), input);
 }
 
-/// A heading builds nothing: the font is what it would be with the line gone.
-/// `affects_font` is what the editor rebuilds on, hence the gate.
+/// A heading's *text* builds nothing: the font, the derived data and the
+/// diagnostics are all what they would be with the words changed. Its level is
+/// another matter — `issues` reports one past `MAX_HEADING_LEVEL` — and
+/// `same_for_rebuild` is what the editor rebuilds on, hence the gate.
 #[cfg(feature = "editor")]
 #[test]
-fn a_heading_does_not_affect_the_font() {
+fn only_a_headings_level_reaches_a_rebuild() {
     let doc = parse_document_from_str("# title\n", "test.unf".into()).unwrap();
-    assert!(!doc.items[0].affects_font());
+    let other = parse_document_from_str("## retitled\n", "test.unf".into()).unwrap();
+    let same_level = parse_document_from_str("# retitled\n", "test.unf".into()).unwrap();
+    assert!(doc.items[0].same_for_rebuild(&same_level.items[0]));
+    assert!(!doc.items[0].same_for_rebuild(&other.items[0]));
 }
 
 /// A zero-width glyph has no pixel row to read: every row would be the empty

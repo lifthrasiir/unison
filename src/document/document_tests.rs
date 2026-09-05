@@ -49,6 +49,37 @@ fn classify_directive_recognizes_exactly_the_untyped_directives() {
     assert_eq!(classify_directive("whatever"), Directive::Unrecognized);
 }
 
+/// The rebuild gate compares items, not lines. A comment's own text is inert,
+/// but its *presence* is not: every [`crate::resolve::ItemRef`] a diagnostic
+/// carries is an item index, so an added or removed line moves the findings
+/// below it even when neither line builds anything.
+#[cfg(feature = "editor")]
+#[test]
+fn the_rebuild_gate_sees_a_comment_appear_but_not_change() {
+    use super::items_changed_for_rebuild;
+    let items = |text: &str| {
+        crate::document_io::parse_document_from_str(text, "test.unf".into())
+            .unwrap()
+            .items
+    };
+
+    let base = items("// note\nmap A = foo\n");
+    assert!(!items_changed_for_rebuild(
+        &base,
+        &items("// noted\nmap A = foo\n")
+    ));
+    assert!(items_changed_for_rebuild(
+        &base,
+        &items("// note\n// more\nmap A = foo\n")
+    ));
+    // The bug this gate had: both of these are items the *font* ignores, so
+    // filtering by that alone made the last keystroke of a `//` invisible.
+    assert!(items_changed_for_rebuild(
+        &items("/map A = foo\n"),
+        &items("//map A = foo\n")
+    ));
+}
+
 /// The group name is the only thing allowed before a rule's first colon.
 /// Anything else used to be dropped on the floor: `remap a b : c -> d`
 /// parsed as group `a` with source `c`, and `b` simply vanished.

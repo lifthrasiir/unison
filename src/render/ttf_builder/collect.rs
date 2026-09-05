@@ -608,10 +608,7 @@ const COLOR_PIECE_DEPTH: u32 = 32;
 /// The body a `ref` name stands for, with the same pattern fallback
 /// [`resolve_cached`](crate::render::glyph_cache::resolve_cached) gives the
 /// contour cache.
-fn body_for_ref<'a>(
-    name: &str,
-    bodies: &HashMap<&'a str, &'a GlyphBody>,
-) -> Option<&'a GlyphBody> {
+fn body_for_ref<'a>(name: &str, bodies: &HashMap<&'a str, &'a GlyphBody>) -> Option<&'a GlyphBody> {
     if let Some(body) = bodies.get(name) {
         return Some(body);
     }
@@ -777,7 +774,11 @@ fn color_pieces_for_body(
                     // A `visibility` written on the ref is the ref's word for
                     // everything under it; a colour is not overridden the same
                     // way, because the ref wrote none.
-                    vis: if orig.visibility.is_some() { vis } else { p.vis },
+                    vis: if orig.visibility.is_some() {
+                        vis
+                    } else {
+                        p.vis
+                    },
                     negated: false,
                     path: std::iter::once(ri as u16)
                         .chain(p.path.iter().copied())
@@ -1308,7 +1309,12 @@ pub(super) fn collect_glyph_data_with_shared(
         let Some(body) = glyph_bodies_map.get(name.as_str()).copied() else {
             continue;
         };
-        if !glyph_is_colored(&name, &glyph_bodies_map, &color_alt_index, &mut colored_memo) {
+        if !glyph_is_colored(
+            &name,
+            &glyph_bodies_map,
+            &color_alt_index,
+            &mut colored_memo,
+        ) {
             continue;
         }
 
@@ -1332,14 +1338,8 @@ pub(super) fn collect_glyph_data_with_shared(
             bitmap,
             exempt: &exempt,
         };
-        let pieces = color_pieces_for_body(
-            &name,
-            body,
-            &ctx,
-            &mut colored_memo,
-            &mut pieces_memo,
-            0,
-        );
+        let pieces =
+            color_pieces_for_body(&name, body, &ctx, &mut colored_memo, &mut pieces_memo, 0);
 
         // A `negated` piece draws nothing of its own — it only removes area
         // from the pieces above it.  This path splits a composite into

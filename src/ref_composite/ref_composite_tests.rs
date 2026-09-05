@@ -2145,9 +2145,7 @@ ref outer fill green
                     name: glyph_name,
                     body,
                     ..
-                } if glyph_name.0 == name => {
-                    Some(body.clone())
-                }
+                } if glyph_name.0 == name => Some(body.clone()),
                 _ => None,
             })
             .expect("glyph is declared")
@@ -2171,7 +2169,10 @@ ref outer fill green
     let outer = composite_of("outer");
     assert_eq!(outer.layers.len(), 1, "one ref is still one layer");
     let layer = &outer.layers[0];
-    assert_eq!(layer.fill_color, None, "the ref writes no colour of its own");
+    assert_eq!(
+        layer.fill_color, None,
+        "the ref writes no colour of its own"
+    );
     let colors = layer.cell_colors.as_ref().expect("colours travel up");
     let at = |r: u16, c: u16| colors[r as usize * layer.grid.width as usize + c as usize];
     assert_eq!(at(0, 0), Some(red), "the left half is its target's red");

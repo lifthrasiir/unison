@@ -175,11 +175,8 @@ pub(crate) fn flush_document_changes(
 pub(super) fn rederive(lines: &[DocLine], doc: &mut Document, is_at_saved: bool) {
     match crate::document_io::derive_document(lines, doc.path.clone()) {
         Ok((new_doc, _)) => {
-            let items_changed = !doc
-                .items
-                .iter()
-                .filter(|i| i.affects_font())
-                .eq(new_doc.items.iter().filter(|i| i.affects_font()));
+            let items_changed =
+                crate::document::items_changed_for_rebuild(&doc.items, &new_doc.items);
             let next_gen = doc.edit_gen + 1;
             let pixel_gen = doc.pixel_gen;
             let content_gen = if items_changed {

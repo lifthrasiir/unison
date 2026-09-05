@@ -434,7 +434,11 @@ fn first_match<'a>(
             if source.is_empty() || source.len() > run.len() - at {
                 continue;
             }
-            if !source.iter().zip(&run[at..]).all(|(name, glyph)| name == glyph) {
+            if !source
+                .iter()
+                .zip(&run[at..])
+                .all(|(name, glyph)| name == glyph)
+            {
                 continue;
             }
             if !covers(line.lookahead, &run[at + source.len()..]) {
@@ -522,7 +526,10 @@ fn words(alphabet: &[Vec<u32>], len: usize) -> impl Iterator<Item = Vec<u32>> + 
         if done {
             return None;
         }
-        let word: Vec<u32> = odometer.iter().flat_map(|&i| alphabet[i].iter().copied()).collect();
+        let word: Vec<u32> = odometer
+            .iter()
+            .flat_map(|&i| alphabet[i].iter().copied())
+            .collect();
         let mut pos = len;
         loop {
             if pos == 0 {

@@ -486,6 +486,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | What the status line says a refresh is doing, and the two frontends that ask for one | `app/watch.rs` (`request_filesystem_refresh`) |
 | Why a polled directory is enumerated rather than `stat`ed, and how its interval sets itself | `app/watch.rs` (`poll_snapshot`, `next_poll_delay`) |
 | Rebuild debouncing, generations and cache keying | `app/background.rs`, `specimen.rs` |
+| Which edits skip a rebuild, and why the gate is not "does the font read it" | `document/mod.rs` (`same_for_rebuild`) |
 | Where the seconds before the first frame go (and what `before main()` does and does not prove) | `startup.rs` |
 | What one edit costs the editor once its caches are warm, and why that is not the startup question | `main.rs` (`run_edit_probe`) |
 | Where an edit's wait actually goes in the running editor — the UI half included — and why a headless probe cannot answer it | `app/timing.rs` |

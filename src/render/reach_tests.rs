@@ -114,7 +114,9 @@ fn an_unreachable_glyph_gets_no_sequence() {
 fn jamo_source() -> Vec<Vec<Line>> {
     vec![vec![
         // The longer rule comes first, or the shorter one eats its prefix.
-        Line::new("init", "init-with-final").after("med").after("fin"),
+        Line::new("init", "init-with-final")
+            .after("med")
+            .after("fin"),
         Line::new("init", "init-bare").after("med"),
     ]]
 }
@@ -221,7 +223,10 @@ fn the_per_glyph_sweep_alone_would_answer_the_flag_wrongly() {
     // adding the two derivations up writes it twice.
     let candidate = cascade.sweep();
     let guess = candidate.get("flag-ab").expect("the sweep does reach it");
-    assert!(guess.len() > 2, "the sweep is expected to overcount: {guess:?}");
+    assert!(
+        guess.len() > 2,
+        "the sweep is expected to overcount: {guess:?}"
+    );
 
     // And it is not merely long: five indicators pair up as two other flags and
     // a leftover, so the sequence renders no `flag-ab` at all.
@@ -240,7 +245,10 @@ fn a_self_referential_lookbehind_terminates() {
     let gs = groups(&src);
     let cascade = Cascade::new(&cm, NO_UVS, &gs);
 
-    assert_eq!(solved(&cascade, &["cont"]).get("cont"), Some(&vec![START, X]));
+    assert_eq!(
+        solved(&cascade, &["cont"]).get("cont"),
+        Some(&vec![START, X])
+    );
 }
 
 #[test]

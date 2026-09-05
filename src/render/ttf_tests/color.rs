@@ -725,11 +725,25 @@ map A = outer
     let indices: Vec<u16> = outer.color_layers.iter().map(|l| l.palette_index).collect();
     let blue = palette
         .iter()
-        .position(|c| *c == Rgba { r: 0, g: 0, b: 255, a: 255 })
+        .position(|c| {
+            *c == Rgba {
+                r: 0,
+                g: 0,
+                b: 255,
+                a: 255,
+            }
+        })
         .expect("blue in palette") as u16;
     let red = palette
         .iter()
-        .position(|c| *c == Rgba { r: 255, g: 0, b: 0, a: 255 })
+        .position(|c| {
+            *c == Rgba {
+                r: 255,
+                g: 0,
+                b: 0,
+                a: 255,
+            }
+        })
         .expect("red in palette") as u16;
     assert_eq!(indices, vec![red, blue], "outer should keep both colors");
 }
@@ -772,13 +786,17 @@ map A = forced
     let forced = glyph_data.iter().find(|g| g.name == "forced").unwrap();
     let green = palette
         .iter()
-        .position(|c| *c == Rgba { r: 0, g: 255, b: 0, a: 255 })
+        .position(|c| {
+            *c == Rgba {
+                r: 0,
+                g: 255,
+                b: 0,
+                a: 255,
+            }
+        })
         .expect("green in palette") as u16;
     assert!(
-        forced
-            .color_layers
-            .iter()
-            .all(|l| l.palette_index == green),
+        forced.color_layers.iter().all(|l| l.palette_index == green),
         "every layer should be green: {:?}",
         forced
             .color_layers
@@ -825,7 +843,14 @@ map A = outer
     let outer = glyph_data.iter().find(|g| g.name == "outer").unwrap();
     let red = palette
         .iter()
-        .position(|c| *c == Rgba { r: 255, g: 0, b: 0, a: 255 })
+        .position(|c| {
+            *c == Rgba {
+                r: 255,
+                g: 0,
+                b: 0,
+                a: 255,
+            }
+        })
         .expect("red in palette") as u16;
     assert_eq!(
         outer

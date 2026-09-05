@@ -354,22 +354,44 @@ impl DocumentItem {
         lists.into_iter().flatten()
     }
 
+    /// Whether this item and `other` are the same as far as a *rebuild* is
+    /// concerned — the font, the derived data and the diagnostics, which the
+    /// editor produces on one generation ([`Document::content_gen`]).
+    ///
+    /// This is deliberately not the question "does the font build read it".
+    /// It used to be, and the answer was wrong for every item the font ignores
+    /// but [`crate::issues`] reports: an unrecognized [`Directive`], a
+    /// [`Heading`](Self::Heading) past [`MAX_HEADING_LEVEL`], a malformed
+    /// `sample`, an `assert`. Commenting a line back out walks through exactly
+    /// such an item — `/map …` is an unrecognized directive on its way to
+    /// `//map …` — so the last keystroke turned one font-irrelevant item into
+    /// another, the rebuild was skipped, and the issue list was left faulting
+    /// the half-typed line.
+    ///
+    /// What stays inert is text nothing downstream reads: a comment's, and a
+    /// heading's (its *level* is read, and reported on). Their presence is not
+    /// inert — an item added or removed shifts every [`ItemRef`] and line
+    /// number a diagnostic carries — so only a like-for-like pair compares
+    /// equal here.
+    ///
+    /// [`ItemRef`]: crate::resolve::ItemRef
     #[cfg(feature = "editor")]
-    pub fn affects_font(&self) -> bool {
-        !matches!(
-            self,
-            DocumentItem::Comment(_)
-                | DocumentItem::BlankLine
-                | DocumentItem::Heading { .. }
-                | DocumentItem::Directive(_)
-                | DocumentItem::AssertShape { .. }
-                | DocumentItem::AssertSame { .. }
-                | DocumentItem::AssertDistinct { .. }
-                // A sample is read by the demo page and by the preview; no
-                // stage of the font build ever sees one.
-                | DocumentItem::Sample { .. }
-        )
+    pub fn same_for_rebuild(&self, other: &DocumentItem) -> bool {
+        match (self, other) {
+            (DocumentItem::Comment(_), DocumentItem::Comment(_)) => true,
+            (DocumentItem::Heading { level: a, .. }, DocumentItem::Heading { level: b, .. }) => {
+                a == b
+            }
+            _ => self == other,
+        }
     }
+}
+
+/// Whether an edit changed anything a rebuild would read. See
+/// [`DocumentItem::same_for_rebuild`].
+#[cfg(feature = "editor")]
+pub fn items_changed_for_rebuild(before: &[DocumentItem], after: &[DocumentItem]) -> bool {
+    before.len() != after.len() || !before.iter().zip(after).all(|(a, b)| a.same_for_rebuild(b))
 }
 
 #[derive(Clone, Debug, PartialEq)]

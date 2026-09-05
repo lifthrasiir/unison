@@ -248,9 +248,8 @@ fn target_draws_color(
     };
     src.refs.iter().any(|r| {
         r.fill.is_some()
-            || lookup_ref_name(&r.name, named_glyphs, name_parts, true).is_some_and(|child| {
-                target_draws_color(child, named_glyphs, name_parts, depth - 1)
-            })
+            || lookup_ref_name(&r.name, named_glyphs, name_parts, true)
+                .is_some_and(|child| target_draws_color(child, named_glyphs, name_parts, depth - 1))
     })
 }
 
@@ -346,7 +345,10 @@ impl ColorWalk<'_> {
         inherited: Option<egui::Color32>,
         depth: u32,
     ) {
-        let src = match (depth > 0).then_some(resolved.inline_source.as_ref()).flatten() {
+        let src = match (depth > 0)
+            .then_some(resolved.inline_source.as_ref())
+            .flatten()
+        {
             Some(src) => src,
             None => {
                 if let Some(color) = inherited {
@@ -556,16 +558,20 @@ pub fn compute_composite(
         // A `fill` is the layer's one colour whatever the target draws; only a
         // ref that writes none lets its target's colours through.
         #[cfg(feature = "editor")]
-        let cell_colors = orig_ref.fill.is_none().then(|| {
-            layer_cell_colors(
-                layer.resolved,
-                &scaled_grid,
-                body.scale,
-                named_glyphs,
-                name_parts,
-                color_aliases,
-            )
-        }).flatten();
+        let cell_colors = orig_ref
+            .fill
+            .is_none()
+            .then(|| {
+                layer_cell_colors(
+                    layer.resolved,
+                    &scaled_grid,
+                    body.scale,
+                    named_glyphs,
+                    name_parts,
+                    color_aliases,
+                )
+            })
+            .flatten();
         #[cfg(not(feature = "editor"))]
         {
             let _ = color_aliases;

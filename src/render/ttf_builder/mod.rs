@@ -175,13 +175,13 @@ pub use contours::ContourCache;
 pub use contours::{SharedContourCache, new_contour_cache};
 #[cfg(feature = "editor")]
 pub(crate) use expand::expand_map_pairs_per_alternative;
+#[cfg(test)]
+pub(crate) use expand::parse_map_char;
 pub(crate) use expand::{
     ExpandedItem, Expansion, MapAlternativeIndex, UvsExpandError, decomposed_map_pairs,
     expand_documents, expand_documents_for, expand_map_codepoints, expand_map_pairs,
     expand_uvs_map_triples, for_each_map_alternative_name, map_char_captures, resolved_map_target,
 };
-#[cfg(test)]
-pub(crate) use expand::parse_map_char;
 pub(crate) use gsub::{remap_rule_kind, shadowed_single_subst_rules};
 
 #[cfg(any(feature = "editor", test))]
@@ -1139,5 +1139,10 @@ pub fn remap_only_sequences_from(
     face: &crate::faces::Face,
     expansion: &Expansion,
 ) -> Option<RemapOnly> {
-    collect::remap_only_sequences(docs, face, Some(expansion), &crate::cancel::CancelToken::never())
+    collect::remap_only_sequences(
+        docs,
+        face,
+        Some(expansion),
+        &crate::cancel::CancelToken::never(),
+    )
 }
