@@ -2188,3 +2188,44 @@ ref outer fill green
         layer.cell_colors
     );
 }
+
+/// A hardblank a `ref` lays exact geometry over must not swallow it: a
+/// `PX_CUSTOM` cell is only half a cell — its region lives in the
+/// grid's detail table — so handing back the shape code alone left the
+/// flattened grid a cell that is not clear and yet draws nothing. The glyph's
+/// own view paints its layers and so still showed the ink; every glyph that
+/// referred to it saw the hole.
+#[test]
+fn a_hardblank_keeps_the_exact_geometry_a_ref_lays_over_it() {
+    use crate::document_io;
+
+    // `9x2-ys1` is an on-demand shear, so its top row is sub-pixel geometry.
+    let hb = "$$".repeat(9);
+    let input = format!(
+        "glyph host 9 2\n{hb}\n{hb}\nref 9x2-ys1\n\nglyph parent 9 2\n{}\n{}\nref host\n",
+        "..".repeat(9),
+        "..".repeat(9),
+    );
+    let doc = document_io::parse_document_from_str(&input, "test.unf".into()).unwrap();
+    let name_parts = NamePartsMap::new();
+    let (resolved, _) = resolve_named_glyphs_with_parts(&[&doc], &name_parts);
+
+    for name in ["host", "parent"] {
+        let grid = &resolved[name].grid;
+        let mut drew = false;
+        for r in 0..grid.height {
+            for c in 0..grid.width {
+                if grid.get(r, c).is_contour_empty() {
+                    continue;
+                }
+                assert!(
+                    !grid.region_at(r, c).is_empty(),
+                    "{name} ({r},{c}) is {:?} with no geometry behind it",
+                    grid.get(r, c)
+                );
+                drew = true;
+            }
+        }
+        assert!(drew, "{name} draws the shear at all");
+    }
+}

@@ -567,7 +567,18 @@ impl PixelGrid {
                 // involving one is settled before the region layer, which can
                 // only see the nothing it draws. See [`pixel::blank_op`].
                 if let Some(blank) = crate::pixel::blank_op(current, shape, negated) {
-                    if blank.0 != current.0 {
+                    if blank.shape_id() == PX_CUSTOM && current.shape_id() != PX_CUSTOM {
+                        // The claim gave way to `src`'s cell, and a custom
+                        // cell is only half a cell: its geometry is a region
+                        // in the *source* grid's detail table. Setting the
+                        // shape code alone would leave a cell that is not
+                        // clear and yet draws nothing, which is how a claim
+                        // used to swallow the exact geometry a ref laid over
+                        // it — visible one level up, where the flattened grid
+                        // is all a parent has.
+                        let region = src.region_at(r as u16, c as u16);
+                        self.set_detail(dr as u16, dc as u16, &region, blank.is_bitmap_filled());
+                    } else if blank.0 != current.0 {
                         self.set(dr as u16, dc as u16, blank);
                     }
                     continue;
