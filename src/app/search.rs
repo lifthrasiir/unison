@@ -1,6 +1,19 @@
-//! The Search pane: every place a name appears.
+//! The Search pane: every place a name — or a piece of text — appears.
 //!
-//! This is what a Ctrl/Cmd+click does when "go to definition" has nowhere to
+//! Two ways in. The pane's own header row runs whatever is typed into it under
+//! the kind its dropdown names ([`SearchKind`]), and a Ctrl/Cmd+click in the
+//! editor runs a name search without going through the box. Both end in the
+//! same [`SearchResults`], and the rest of this module knows only the kind.
+//!
+//! **Adding a kind** is [`SearchKind`]'s variant, its arm in [`LineCarry::step`]
+//! (what one line matches), its arm in [`SearchKind::label`], and an entry in
+//! [`SearchKind::CHOICES`] if the dropdown is to offer it. Everything else —
+//! the walk over files, the ordinals, the navigation — is kind-agnostic. A kind
+//! reachable only from a Ctrl/Cmd+click stays out of `CHOICES`; the pane still
+//! displays it, and the Ctrl/Cmd+F cycle steps out of it into the list.
+//!
+//! [`SearchKind::Name`] is what a Ctrl/Cmd+click does when "go to definition"
+//! has nowhere to
 //! go — either because the token clicked *is* the declaration, or because the
 //! name it refers to is not declared anywhere. Both routes end here, so a typo
 //! in a `ref` lists the lines that share the typo rather than doing nothing.
@@ -50,8 +63,17 @@
 //! click is on the UI thread, and the font directory is routinely a network
 //! volume where one `stat` per file is already a stall. That also makes the
 //! search agree with navigation, which has always read the same snapshot.
+//!
+//! Either way the two ends have to divide a file into lines identically, and
+//! they do not divide it the same way the filesystem does: a glyph's pixel rows
+//! are one grid line to the caret, and no search reaches inside one. That split
+//! is [`crate::document_io::walk_source_lines`], which both ends go through —
+//! for a name search it changes nothing (a pixel row can hold no name), but a
+//! verbatim text search would otherwise match `@@.@` in a closed file and lose
+//! the row the moment the file opened, throwing every later ordinal off.
 
 use super::*;
+use crate::document_io::SourceLine;
 use crate::editor::doc_links::{LinkSpan, pattern_denotes, scan_dollar_refs};
 use crate::editor::line_fields::{FieldRole, LineField, classify_line};
 
@@ -107,6 +129,63 @@ pub(super) fn may_write_a_pattern(text: &str) -> bool {
         GLYPH_NAME_KEYWORDS.contains(&keyword)
             && line[keyword.len()..].contains(['(', '|', '$', '*'])
     })
+}
+
+/// What a search looks for — the pane's kind dropdown, and the one thing every
+/// other part of the search is parameterized by.
+///
+/// See the module note for what adding a variant costs. The two the dropdown
+/// offers are the two a reader asks for by typing; the rest of
+/// [`LinkTargetKind`] arrives only through a Ctrl/Cmd+click on a token that
+/// already says which role it is in, so offering them in a box that cannot say
+/// so would be offering a search nobody can spell.
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
+pub(super) enum SearchKind {
+    /// A verbatim substring of the source text: no case folding, no whitespace
+    /// collapsing, no tokenizing. What is typed is what is looked for, which is
+    /// the only behaviour that needs no explaining when it finds nothing.
+    #[default]
+    Text,
+    /// Every appearance of a name in the role the [`LinkTargetKind`] names,
+    /// matched by what a token *denotes* rather than by how it is written; see
+    /// [`match_spans`].
+    Name(LinkTargetKind),
+}
+
+impl SearchKind {
+    /// What the dropdown offers, in the order Ctrl/Cmd+F steps through it.
+    pub(super) const CHOICES: [SearchKind; 2] =
+        [SearchKind::Text, SearchKind::Name(LinkTargetKind::Glyph)];
+
+    /// The dropdown's text, and the noun the results header opens with.
+    pub(super) fn label(self) -> &'static str {
+        match self {
+            SearchKind::Text => "Text",
+            SearchKind::Name(LinkTargetKind::Glyph) => "Glyph",
+            SearchKind::Name(LinkTargetKind::NameParts) => "Name parts",
+            SearchKind::Name(LinkTargetKind::Color) => "Color",
+            SearchKind::Name(LinkTargetKind::Remap) => "Remap group",
+            SearchKind::Name(LinkTargetKind::Feature) => "Feature",
+            SearchKind::Name(LinkTargetKind::Anchor) => "Anchor",
+            SearchKind::Name(LinkTargetKind::Face) => "Face",
+            SearchKind::Name(LinkTargetKind::Slice) => "Slice",
+        }
+    }
+
+    /// One step through [`CHOICES`](Self::CHOICES), wrapping at both ends.
+    ///
+    /// A kind a Ctrl/Cmd+click left behind is not in the list at all, and steps
+    /// *into* it from whichever end the direction comes from — the alternative
+    /// is a chord that appears to do nothing.
+    pub(super) fn cycled(self, forward: bool) -> SearchKind {
+        let n = Self::CHOICES.len();
+        let step = if forward { 1 } else { n - 1 };
+        match Self::CHOICES.iter().position(|&k| k == self) {
+            Some(i) => Self::CHOICES[(i + step) % n],
+            None if forward => Self::CHOICES[0],
+            None => Self::CHOICES[n - 1],
+        }
+    }
 }
 
 /// One matched token on a line: where it is written, and whether the role it
@@ -262,44 +341,102 @@ pub(super) fn match_spans(
     cols
 }
 
+/// Char-column spans at which `needle` occurs verbatim on `line`.
+///
+/// Occurrences do not overlap — the scan resumes past the one it just took —
+/// which is what makes "the 3rd hit in this file" the same thing to a reader
+/// counting rows and to [`hits_in_doclines`] re-deriving them after the file
+/// opens. An empty needle matches nothing rather than everywhere.
+fn text_spans(line: &str, needle: &str) -> Vec<MatchSpan> {
+    if needle.is_empty() {
+        return Vec::new();
+    }
+    let width = needle.chars().count();
+    let mut spans = Vec::new();
+    let mut from = 0usize;
+    while let Some(off) = line[from..].find(needle) {
+        let at = from + off;
+        let col_start = line[..at].chars().count();
+        spans.push(MatchSpan {
+            col_start,
+            col_end: col_start + width,
+            // Nothing about a substring says it declares anything, so a text
+            // search's rows are one group and the pane rules no line.
+            is_decl: false,
+        });
+        from = at + needle.len();
+    }
+    spans
+}
+
+/// What a walk over one file carries from line to line: everything a name match
+/// needs that the line itself does not state. A text search carries none of it,
+/// and pays for none of it.
+#[derive(Default)]
+struct LineCarry {
+    at_base: Option<String>,
+    exists: crate::exists::Carry,
+    captures: Vec<Vec<String>>,
+}
+
+impl LineCarry {
+    /// Matches one text line under `kind`, then steps the carry over it.
+    fn step(
+        &mut self,
+        text: &str,
+        query: &str,
+        kind: SearchKind,
+        name_parts: &NamePartsMap,
+    ) -> Vec<MatchSpan> {
+        let SearchKind::Name(kind) = kind else {
+            return text_spans(text, query);
+        };
+        self.exists.enter(text);
+        let spans = match_spans(
+            text,
+            query,
+            kind,
+            self.at_base.as_deref(),
+            self.exists.pattern(),
+            &self.captures,
+            name_parts,
+        );
+        // After matching, never before: a header's own `@` stands for the base
+        // that was already in force, exactly as the parser reads it.
+        advance_at_base(&mut self.at_base, text);
+        advance_block_captures(
+            &mut self.captures,
+            text,
+            self.at_base.as_deref(),
+            name_parts,
+        );
+        spans
+    }
+}
+
 /// Every appearance in a line list, as `(line index, match)` in **source**
 /// order — the order the ordinal counts in, which is not the order the pane
 /// lists them in (see [`collect_hits`]).
 fn hits_in_doclines(
     lines: &[DocLine],
-    name: &str,
-    kind: LinkTargetKind,
+    query: &str,
+    kind: SearchKind,
     name_parts: &NamePartsMap,
 ) -> Vec<(usize, MatchSpan)> {
     let mut hits = Vec::new();
-    let mut at_base: Option<String> = None;
-    let mut exists = crate::exists::Carry::default();
-    let mut captures: Vec<Vec<String>> = Vec::new();
+    let mut carry = LineCarry::default();
     for (i, line) in lines.iter().enumerate() {
-        // A pixel row carries no name but is still inside the block an `exists`
-        // governs, so the carry has to see it — otherwise a `ref ($0)` written
-        // under a grid would read as ungoverned.
-        // A pixel row is inside the block and changes nothing, so it is not
-        // stepped — see `Carry::enter`.
+        // A grid is not a line anything can match or the caret can land in, and
+        // it is not stepped either: it is inside the block an `exists` governs
+        // and changes nothing about it — see `Carry::enter`. The source walk
+        // skips exactly the same rows, which is what keeps the ordinals equal.
         let DocLine::Text(text) = line else { continue };
-        exists.enter(text);
         hits.extend(
-            match_spans(
-                text,
-                name,
-                kind,
-                at_base.as_deref(),
-                exists.pattern(),
-                &captures,
-                name_parts,
-            )
-            .into_iter()
-            .map(|s| (i, s)),
+            carry
+                .step(text, query, kind, name_parts)
+                .into_iter()
+                .map(|s| (i, s)),
         );
-        // After matching, never before: a header's own `@` stands for the base
-        // that was already in force, exactly as the parser reads it.
-        advance_at_base(&mut at_base, text);
-        advance_block_captures(&mut captures, text, at_base.as_deref(), name_parts);
     }
     hits
 }
@@ -431,37 +568,79 @@ fn hit(
     }
 }
 
+/// One completed search: what was asked for, and everything it found.
 pub(super) struct SearchResults {
-    pub name: String,
-    pub kind: LinkTargetKind,
+    /// The name or the text, exactly as it was searched for.
+    pub query: String,
+    pub kind: SearchKind,
     pub hits: Vec<SearchHit>,
     pub file_count: usize,
 }
 
-impl SearchResults {
-    /// What the pane's header says: the kind and name searched for.
-    pub(super) fn title(&self) -> String {
-        let kind = match self.kind {
-            LinkTargetKind::Glyph => "glyph",
-            LinkTargetKind::NameParts => "name-parts",
-            LinkTargetKind::Color => "color",
-            LinkTargetKind::Remap => "remap group",
-            LinkTargetKind::Feature => "feature",
-            LinkTargetKind::Anchor => "anchor",
-            LinkTargetKind::Face => "face",
-            LinkTargetKind::Slice => "slice",
-        };
-        let n = self.hits.len();
-        if n == 0 {
-            return format!("{kind} '{}' — no appearances", self.name);
+/// The Search pane's whole state: what the box holds, what the last run found,
+/// and where in it the reader has got to.
+///
+/// One struct rather than fields on [`UniformApp`] because the header row, the
+/// Ctrl/Cmd+F chords and the Ctrl/Cmd+G steps all read and write the same few
+/// things, and every one of them is meaningless without the others.
+#[derive(Default)]
+pub(super) struct SearchState {
+    /// What the kind dropdown shows. Not necessarily `results`' kind: changing
+    /// it does not re-run anything, so what is listed is what was last *run*.
+    pub kind: SearchKind,
+    /// The text in the box.
+    pub query: String,
+    /// The last run's results; `None` before anything has been searched for.
+    pub results: Option<SearchResults>,
+    /// Which hit the caret was last put on, and so what Ctrl/Cmd+G steps from.
+    /// `None` for a run nothing has been navigated to yet.
+    pub current: Option<usize>,
+    /// The line at the right of the header row — why the last thing asked for
+    /// produced no jump. Cleared by the next run.
+    pub message: Option<String>,
+    /// The box is to take the keyboard focus on the next frame it is drawn.
+    /// Set by the chord, cleared by the row that acts on it.
+    pub focus_query: bool,
+    /// …and with everything in it selected, so the first keystroke replaces the
+    /// query rather than appending to it. Only when the focus is *arriving*:
+    /// the chord that steps the kind of a box already focused must not throw
+    /// away the caret the reader put there.
+    pub select_query: bool,
+    /// Whether the box held the focus on the last frame it was drawn — false
+    /// while the tab is hidden. What tells a Ctrl/Cmd+F that opens the pane
+    /// from one that steps the kind; the chord is read before the panel of the
+    /// same frame is laid out, so this is the only answer available.
+    pub query_focused: bool,
+}
+
+impl SearchState {
+    pub(super) fn hits(&self) -> &[SearchHit] {
+        self.results.as_ref().map_or(&[], |r| &r.hits[..])
+    }
+
+    /// The header row's `n/m`: which hit the caret is on, out of how many.
+    pub(super) fn counter(&self) -> String {
+        let total = self.hits().len();
+        match self.current {
+            Some(i) => format!("{}/{total}", i + 1),
+            None => format!("–/{total}"),
         }
-        format!(
-            "{kind} '{}' — {n} appearance{} in {} file{}",
-            self.name,
-            if n == 1 { "" } else { "s" },
-            self.file_count,
-            if self.file_count == 1 { "" } else { "s" },
-        )
+    }
+
+    /// The rest of what the last run found, beside the counter on the header
+    /// row: how many files those hits are spread over. The count itself is
+    /// [`counter`](Self::counter)'s already, and the query is in the box, so
+    /// this is the whole of what neither already says.
+    pub(super) fn summary(&self) -> Option<String> {
+        let results = self.results.as_ref()?;
+        if results.hits.is_empty() {
+            return None;
+        }
+        Some(format!(
+            "in {} file{}",
+            results.file_count,
+            if results.file_count == 1 { "" } else { "s" },
+        ))
     }
 }
 
@@ -474,7 +653,18 @@ pub(super) enum SearchText<'a> {
     Source(&'a str),
 }
 
-/// Every appearance of `name`, over files already in memory.
+/// Whether `content` — a whole file — could hold a hit at all.
+///
+/// The cheap rejection that keeps a search over a font directory a click and
+/// not a wait: a file the literal query does not occur in is skipped without a
+/// line of it being tokenized. `match_spans` leans on the same tests per line.
+fn may_match(content: &str, query: &str, kind: SearchKind) -> bool {
+    content.contains(query)
+        || (kind == SearchKind::Name(LinkTargetKind::Glyph)
+            && (may_write_an_at_name(content) || may_write_a_pattern(content)))
+}
+
+/// Every appearance of `query`, over files already in memory.
 ///
 /// Kept free of the application and of the filesystem both, which is the point:
 /// a search runs on a click, and the click must not wait on a network volume.
@@ -491,8 +681,8 @@ pub(super) enum SearchText<'a> {
 /// it in once the file is opened.
 pub(super) fn collect_hits(
     files: &[(PathBuf, SearchText<'_>)],
-    name: &str,
-    kind: LinkTargetKind,
+    query: &str,
+    kind: SearchKind,
     name_parts: &NamePartsMap,
 ) -> (Vec<SearchHit>, usize) {
     let mut hits: Vec<SearchHit> = Vec::new();
@@ -501,7 +691,7 @@ pub(super) fn collect_hits(
         let before = hits.len();
         match text {
             SearchText::Buffer(lines, doc) => {
-                for (ordinal, (line_idx, span)) in hits_in_doclines(lines, name, kind, name_parts)
+                for (ordinal, (line_idx, span)) in hits_in_doclines(lines, query, kind, name_parts)
                     .into_iter()
                     .enumerate()
                 {
@@ -514,38 +704,25 @@ pub(super) fn collect_hits(
                     ));
                 }
             }
-            SearchText::Source(content)
-                if content.contains(name)
-                    || (kind == LinkTargetKind::Glyph
-                        && (may_write_an_at_name(content) || may_write_a_pattern(content))) =>
-            {
+            SearchText::Source(content) if may_match(content, query, kind) => {
                 // Enumerated over occurrences, not over lines: a line naming
                 // the same glyph twice is two rows, and the ordinal has to
-                // agree with `hits_in_doclines` once the file opens.
-                let mut at_base: Option<String> = None;
-                let mut exists = crate::exists::Carry::default();
-                let mut captures: Vec<Vec<String>> = Vec::new();
+                // agree with `hits_in_doclines` once the file opens. The walk
+                // skips the same pixel rows that walk does, for the same
+                // reason — see the module note.
+                let mut carry = LineCarry::default();
                 let mut found: Vec<(usize, &str, MatchSpan)> = Vec::new();
-                for (i, text) in content.lines().enumerate() {
-                    exists.enter(text);
+                crate::document_io::walk_source_lines(content, |file_line, unit| {
+                    let SourceLine::Text(text) = unit else { return };
                     found.extend(
-                        match_spans(
-                            text,
-                            name,
-                            kind,
-                            at_base.as_deref(),
-                            exists.pattern(),
-                            &captures,
-                            name_parts,
-                        )
-                        .into_iter()
-                        .map(|s| (i, text, s)),
+                        carry
+                            .step(text, query, kind, name_parts)
+                            .into_iter()
+                            .map(|s| (file_line, text, s)),
                     );
-                    advance_at_base(&mut at_base, text);
-                    advance_block_captures(&mut captures, text, at_base.as_deref(), name_parts);
-                }
-                for (ordinal, (line_idx, text, span)) in found.into_iter().enumerate() {
-                    hits.push(hit(path, ordinal, line_idx + 1, text, span));
+                });
+                for (ordinal, (file_line, text, span)) in found.into_iter().enumerate() {
+                    hits.push(hit(path, ordinal, file_line, text, span));
                 }
             }
             SearchText::Source(_) => {}
@@ -567,6 +744,20 @@ impl UniformApp {
     /// volume is what made it a stall rather than a search. Both pre-filter on
     /// the literal name before tokenizing anything, per file and again per line.
     pub(super) fn search_name(&mut self, ctx: &egui::Context, name: &str, kind: LinkTargetKind) {
+        // The box follows the click, so a Ctrl/Cmd+F straight afterwards edits
+        // what was just searched for rather than something stale.
+        self.search.kind = SearchKind::Name(kind);
+        self.search.query = name.to_string();
+        self.run_search(ctx);
+    }
+
+    /// Runs whatever the pane's box and dropdown now hold, and reveals the pane.
+    ///
+    /// It navigates nowhere: the two callers want different things afterwards —
+    /// a Ctrl/Cmd+click stays where it is, the box's Enter jumps to the first
+    /// hit — and both are spelled out at their own call site.
+    pub(super) fn run_search(&mut self, ctx: &egui::Context) {
+        let (query, kind) = (self.search.query.clone(), self.search.kind);
         let paths: Vec<PathBuf> = self
             .collect_all_docs()
             .iter()
@@ -586,15 +777,130 @@ impl UniformApp {
                 Some((path, text))
             })
             .collect();
-        let (hits, file_count) = collect_hits(&files, name, kind, &self.name_parts);
+        let (hits, file_count) = collect_hits(&files, &query, kind, &self.name_parts);
         drop(files);
 
-        self.search = Some(SearchResults {
-            name: name.to_string(),
+        self.search.results = Some(SearchResults {
+            query,
             kind,
             hits,
             file_count,
         });
+        self.search.current = None;
+        self.search.message = None;
+        let screen_h = ctx.input(|i| i.screen_rect.height());
+        self.open_bottom_panel(super::panels::SEARCH_TAB, screen_h);
+    }
+
+    /// Runs the box's search and goes to its first hit, which is what Enter in
+    /// the box and the Search button both do.
+    ///
+    /// A run that finds nothing leaves the focus where it is — in the box, with
+    /// the query still there to correct — and says so on the header row. Moving
+    /// the caret to the editor on a failed search would take the reader away
+    /// from the one control they still have to use.
+    pub(super) fn run_search_from_box(&mut self, ctx: &egui::Context) {
+        self.run_search(ctx);
+        if !self.search.hits().is_empty() {
+            self.goto_search_hit(ctx, 0);
+            return;
+        }
+        self.search.message = Some(if self.search.query.is_empty() {
+            "Nothing to search for".to_string()
+        } else {
+            format!("No match for '{}'", self.search.query)
+        });
+        self.search.focus_query = true;
+    }
+
+    /// Ctrl/Cmd+G and Ctrl/Cmd+Shift+G: the next or previous hit of the last
+    /// run, in the order the pane lists them, wrapping at both ends.
+    ///
+    /// Wrapping rather than stopping: the list is finite and on screen, so an
+    /// end that swallows the chord says less than one that comes round again.
+    pub(super) fn step_search_hit(&mut self, ctx: &egui::Context, forward: bool) {
+        let n = self.search.hits().len();
+        if n == 0 {
+            self.search.message = Some(match &self.search.results {
+                Some(r) => format!("No match for '{}'", r.query),
+                None => "Nothing has been searched for yet".to_string(),
+            });
+            return;
+        }
+        let next = match self.search.current {
+            Some(i) if forward => (i + 1) % n,
+            Some(i) => (i + n - 1) % n,
+            // Nothing has been jumped to yet, so a step lands on whichever end
+            // it is heading away from.
+            None if forward => 0,
+            None => n - 1,
+        };
+        self.goto_search_hit(ctx, next);
+    }
+
+    /// The search chords, read off the event queue before this frame's panels
+    /// are laid out.
+    ///
+    /// Read here and *consumed* rather than left for the editor: the box is a
+    /// `TextEdit`, and Escape would otherwise be its own surrender-focus and
+    /// Ctrl/Cmd+F the grid's `f` shape shortcut. Taking them here is also what
+    /// lets Ctrl/Cmd+F open the pane on the frame it is pressed rather than the
+    /// next one — the panel that owns the box has not run yet.
+    ///
+    /// The Ctrl/Cmd+G step is returned rather than made, because making it
+    /// opens a file and moves a caret; that belongs after this frame's editors
+    /// have run, beside the click on a listed row which does the same thing.
+    pub(super) fn handle_search_keys(&mut self, ctx: &egui::Context) -> Option<bool> {
+        use egui::{Key, Modifiers};
+        // Most specific first: `consume_key` ignores an extra Shift, so a
+        // Cmd+Shift+F left to the Cmd+F arm would read as the plain chord.
+        let cmd = Modifiers::COMMAND;
+        let cmd_shift = Modifiers::COMMAND | Modifiers::SHIFT;
+        let (find_glyph, find, step_back, step, escape) = ctx.input_mut(|i| {
+            (
+                i.consume_key(cmd_shift, Key::F),
+                i.consume_key(cmd, Key::F),
+                i.consume_key(cmd_shift, Key::G),
+                i.consume_key(cmd, Key::G),
+                self.search.query_focused && i.consume_key(Modifiers::NONE, Key::Escape),
+            )
+        });
+
+        if find || find_glyph {
+            self.focus_search_box(ctx, find_glyph);
+        }
+        if escape {
+            // Focus only. The pane keeps its query, its results and its place
+            // in them, so a Ctrl/Cmd+G from the editor carries straight on.
+            self.focus_pane_editor(ctx);
+            self.search.query_focused = false;
+        }
+        match (step, step_back) {
+            (true, _) => Some(true),
+            (_, true) => Some(false),
+            _ => None,
+        }
+    }
+
+    /// Ctrl/Cmd+F and Ctrl/Cmd+Shift+F: reveal the pane with the box focused.
+    ///
+    /// The first press picks the kind the chord names; a press while the box
+    /// *already* has the focus steps the dropdown instead, forward or back.
+    /// That is the whole difference between the two, and it is why the box's
+    /// focus as of the last frame is recorded — the chord is read before this
+    /// frame's panel is laid out.
+    pub(super) fn focus_search_box(&mut self, ctx: &egui::Context, shift: bool) {
+        self.search.kind = if self.search.query_focused {
+            self.search.kind.cycled(!shift)
+        } else if shift {
+            SearchKind::Name(LinkTargetKind::Glyph)
+        } else {
+            SearchKind::Text
+        };
+        // A box the focus is arriving at hands the reader a selected query, so
+        // typing replaces it; one that already had the focus is left alone.
+        self.search.select_query = !self.search.query_focused;
+        self.search.focus_query = true;
         let screen_h = ctx.input(|i| i.screen_rect.height());
         self.open_bottom_panel(super::panels::SEARCH_TAB, screen_h);
     }
@@ -605,12 +911,16 @@ impl UniformApp {
     /// position to come back to; "go back" returns to wherever the caret was
     /// left, which is the only position the user actually departed from.
     pub(super) fn goto_search_hit(&mut self, ctx: &egui::Context, hit_idx: usize) {
-        let Some(search) = &self.search else { return };
+        let Some(search) = &self.search.results else {
+            return;
+        };
         let Some(hit) = search.hits.get(hit_idx) else {
             return;
         };
         let (path, ordinal) = (hit.path.clone(), hit.ordinal);
-        let (name, kind) = (search.name.clone(), search.kind);
+        let (name, kind) = (search.query.clone(), search.kind);
+        self.search.current = Some(hit_idx);
+        self.search.message = None;
 
         let from = self.active_doc_idx().and_then(|idx| {
             let doc = self.open_documents.get(idx)?;
@@ -661,587 +971,5 @@ impl UniformApp {
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-
-    /// The point of the snapshot sources: a file no pane is editing is searched
-    /// without the filesystem being consulted at all. The path here exists
-    /// nowhere on disk, so any hit can only have come from memory.
-    #[test]
-    fn an_unopened_file_is_searched_from_the_snapshot_source() {
-        let path = PathBuf::from("/nonexistent/never-read.unf");
-        let source = "glyph foo 8 16\nref bar 0 0\n";
-        let files = vec![(path.clone(), SearchText::Source(source))];
-        let (hits, file_count) =
-            collect_hits(&files, "bar", LinkTargetKind::Glyph, &NamePartsMap::new());
-        assert_eq!(file_count, 1);
-        assert_eq!(hits.len(), 1);
-        assert_eq!(hits[0].path, path);
-        assert_eq!(hits[0].file_line, 2);
-        assert_eq!(hits[0].text, "ref bar 0 0");
-    }
-
-    /// Declarations are listed before uses, and each group keeps the order the
-    /// files and their lines were walked in.
-    #[test]
-    fn declarations_are_listed_before_uses() {
-        let one = "ref foo 0 0\nglyph foo 8 16\nmap A = foo\nglyph bar = foo\n";
-        let two = "glyph foo = baz\n";
-        let files = vec![
-            (PathBuf::from("one.unf"), SearchText::Source(one)),
-            (PathBuf::from("two.unf"), SearchText::Source(two)),
-        ];
-        let (hits, file_count) =
-            collect_hits(&files, "foo", LinkTargetKind::Glyph, &NamePartsMap::new());
-        assert_eq!(file_count, 2);
-        assert_eq!(
-            hits.iter().map(|h| h.text.as_str()).collect::<Vec<_>>(),
-            vec![
-                "glyph foo 8 16",
-                "glyph foo = baz",
-                "ref foo 0 0",
-                "map A = foo",
-                "glyph bar = foo",
-            ],
-        );
-        assert_eq!(
-            hits.iter().map(|h| h.is_decl).collect::<Vec<_>>(),
-            vec![true, true, false, false, false],
-        );
-    }
-
-    /// A name an `exists` block declares is found at the block that declares
-    /// it, though the name occurs nowhere in the file. This is the whole reason
-    /// `match_spans` carries the search along: `glyph han-($1)` says nothing
-    /// about `han-4e00` on its own line.
-    #[test]
-    fn a_name_an_exists_block_declares_is_found_at_the_block() {
-        let src = "glyph han-4e00:15x16 15 16\n\
-                   exists han-([0-9a-f]{4,5}):15x16\n\
-                   glyph han-($1) 16 16 advance 16\n\
-                   ref ($0) 1 0\n";
-        let files = vec![(PathBuf::from("han.unf"), SearchText::Source(src))];
-        let (hits, _) = collect_hits(
-            &files,
-            "han-4e00",
-            LinkTargetKind::Glyph,
-            &NamePartsMap::new(),
-        );
-        assert_eq!(
-            hits.iter().map(|h| h.text.as_str()).collect::<Vec<_>>(),
-            vec!["glyph han-($1) 16 16 advance 16"],
-        );
-        assert!(hits[0].is_decl);
-    }
-
-    /// And the `ref` inside that block is a *use* of what the search matched,
-    /// which is why the carry outlives the header line.
-    #[test]
-    fn a_capture_ref_is_a_use_of_the_name_the_search_matched() {
-        let src = "glyph han-4e00:15x16 15 16\n\
-                   exists han-([0-9a-f]{4,5}):15x16\n\
-                   glyph han-($1) 16 16 advance 16\n\
-                   ref ($0) 1 0\n";
-        let files = vec![(PathBuf::from("han.unf"), SearchText::Source(src))];
-        let (hits, _) = collect_hits(
-            &files,
-            "han-4e00:15x16",
-            LinkTargetKind::Glyph,
-            &NamePartsMap::new(),
-        );
-        assert_eq!(
-            hits.iter()
-                .map(|h| (h.text.as_str(), h.is_decl))
-                .collect::<Vec<_>>(),
-            vec![
-                ("glyph han-4e00:15x16 15 16", true),
-                ("ref ($0) 1 0", false)
-            ],
-        );
-    }
-
-    /// The carry ends where the block does: a `$1` under the *next* block is
-    /// not the previous search's.
-    #[test]
-    fn the_search_does_not_reach_past_the_block_it_governs() {
-        let src = "exists han-([0-9a-f]{4,5}):15x16\n\
-                   glyph han-($1) 16 16\n\
-                   ref ($0) 1 0\n\
-                   glyph other-($1) 8 16\n";
-        let files = vec![(PathBuf::from("han.unf"), SearchText::Source(src))];
-        let (hits, _) = collect_hits(
-            &files,
-            "other-4e00",
-            LinkTargetKind::Glyph,
-            &NamePartsMap::new(),
-        );
-        assert!(
-            hits.is_empty(),
-            "{:?}",
-            hits.iter().map(|h| h.text.as_str()).collect::<Vec<_>>(),
-        );
-    }
-
-    /// A path the snapshot has no source for contributes nothing rather than
-    /// sending the search back to disk for it.
-    #[test]
-    fn a_file_with_no_source_contributes_no_hits() {
-        let files: Vec<(PathBuf, SearchText)> = Vec::new();
-        let (hits, file_count) =
-            collect_hits(&files, "bar", LinkTargetKind::Glyph, &NamePartsMap::new());
-        assert!(hits.is_empty());
-        assert_eq!(file_count, 0);
-    }
-
-    /// Start columns only; the spans' ends are pinned separately, by the
-    /// highlight tests.
-    fn cols(line: &str, name: &str, kind: LinkTargetKind) -> Vec<usize> {
-        cols_with(line, name, kind, &NamePartsMap::new())
-    }
-
-    fn cols_with(line: &str, name: &str, kind: LinkTargetKind, parts: &NamePartsMap) -> Vec<usize> {
-        match_spans(line, name, kind, None, None, &[], parts)
-            .into_iter()
-            .map(|s| s.col_start)
-            .collect()
-    }
-
-    #[test]
-    fn glyph_name_is_found_where_it_is_defined_and_used() {
-        assert_eq!(
-            cols("glyph foo 8 16", "foo", LinkTargetKind::Glyph),
-            vec![6]
-        );
-        assert_eq!(cols("ref foo 0 0", "foo", LinkTargetKind::Glyph), vec![4]);
-        assert_eq!(cols("map A = foo", "foo", LinkTargetKind::Glyph), vec![8]);
-        assert_eq!(
-            cols("glyph bar = foo", "foo", LinkTargetKind::Glyph),
-            vec![12]
-        );
-        assert_eq!(
-            cols("remap liga : foo -> bar", "foo", LinkTargetKind::Glyph),
-            vec![13],
-        );
-        assert_eq!(
-            cols("assert same foo bar", "foo", LinkTargetKind::Glyph),
-            vec![12],
-        );
-    }
-
-    /// A name written as a pattern is an appearance of every name it denotes,
-    /// wherever the pattern stands — the definition, a `ref`, an operand.
-    #[test]
-    fn a_pattern_token_that_denotes_the_name_is_an_appearance() {
-        for (line, col) in [
-            ("glyph fo(o|q) 8 16", 6),
-            ("ref fo(o|q) 0 0", 4),
-            ("remap liga : fo(o|q) -> bar", 13),
-            ("glyph foo|bar 8 16", 6),
-        ] {
-            assert_eq!(
-                cols(line, "foo", LinkTargetKind::Glyph),
-                vec![col],
-                "{line}"
-            );
-        }
-        assert_eq!(
-            cols(
-                "glyph uni($#0041..0043) 8 16",
-                "uni0042",
-                LinkTargetKind::Glyph
-            ),
-            vec![6],
-        );
-    }
-
-    /// The cyclic expansion is what decides it: `(a|b)-(1|2)` is `a-1` and
-    /// `b-2`, so `a-2` is not one of its names and its line is not a hit.
-    #[test]
-    fn a_pattern_that_does_not_denote_the_name_is_not_an_appearance() {
-        assert!(cols("glyph fo(p|q) 8 16", "foo", LinkTargetKind::Glyph).is_empty());
-        assert!(cols("glyph (a|b)-(1|2) 2 2", "a-2", LinkTargetKind::Glyph).is_empty());
-        assert_eq!(
-            cols("glyph (a|b)-(1|2) 2 2", "b-2", LinkTargetKind::Glyph),
-            vec![6]
-        );
-    }
-
-    /// A pattern spelled with a `$var` denotes what the name parts say it
-    /// does, so the search has to substitute them exactly as the pipeline does.
-    #[test]
-    fn a_name_part_is_substituted_before_the_pattern_is_matched() {
-        let mut parts = NamePartsMap::new();
-        parts.insert("$init".to_string(), vec!["g".to_string(), "n".to_string()]);
-        assert_eq!(
-            cols_with(
-                "glyph hangul-($init) 8 16",
-                "hangul-n",
-                LinkTargetKind::Glyph,
-                &parts
-            ),
-            vec![6],
-        );
-        assert!(
-            cols_with(
-                "glyph hangul-($init) 8 16",
-                "hangul-d",
-                LinkTargetKind::Glyph,
-                &parts
-            )
-            .is_empty()
-        );
-        // With no parts in force the reference expands to nothing, and a
-        // pattern that denotes no name is no appearance.
-        assert!(
-            cols(
-                "glyph hangul-($init) 8 16",
-                "hangul-n",
-                LinkTargetKind::Glyph
-            )
-            .is_empty()
-        );
-    }
-
-    /// A `$-N` names a group of the header above it, so the `ref` line has to
-    /// be walked with that header in force — on its own it denotes nothing.
-    #[test]
-    fn a_back_reference_is_read_against_the_header_above_it() {
-        let name_parts = NamePartsMap::new();
-        let mut captures: Vec<Vec<String>> = Vec::new();
-        advance_block_captures(&mut captures, "glyph out-(a|b|c) 8 16", None, &name_parts);
-
-        let hit = |name: &str| {
-            match_spans(
-                "  ref dep-($-1) 0 0",
-                name,
-                LinkTargetKind::Glyph,
-                None,
-                None,
-                &captures,
-                &name_parts,
-            )
-            .len()
-        };
-        assert_eq!(hit("dep-b"), 1);
-        assert_eq!(hit("dep-z"), 0);
-        // With no header in force there is nothing for it to name.
-        assert_eq!(
-            cols("  ref dep-($-1) 0 0", "dep-b", LinkTargetKind::Glyph),
-            Vec::<usize>::new(),
-        );
-    }
-
-    /// An alias and a `map` write their pattern and name it again on the same
-    /// line, so they bind their own groups rather than the block's.
-    #[test]
-    fn a_line_that_writes_its_own_pattern_binds_its_own_groups() {
-        assert_eq!(
-            cols(
-                "glyph out-(a|b) = dep-($-1)",
-                "dep-b",
-                LinkTargetKind::Glyph
-            ),
-            vec![18],
-        );
-        assert_eq!(
-            cols("map (A|B) = dep-($-1)", "dep-B", LinkTargetKind::Glyph),
-            vec![12],
-        );
-    }
-
-    /// The whole pattern token is the span, so the pane highlights what the
-    /// line actually says rather than the name that was searched for.
-    #[test]
-    fn a_pattern_hit_highlights_the_whole_pattern_token() {
-        let line = "    ref fo(o|q) 0 0";
-        let span = match_spans(
-            line,
-            "foo",
-            LinkTargetKind::Glyph,
-            None,
-            None,
-            &[],
-            &NamePartsMap::new(),
-        )[0];
-        let h = hit(std::path::Path::new("a.unf"), 0, 1, line, span);
-        assert_eq!(&h.text[h.highlight.0..h.highlight.1], "fo(o|q)");
-    }
-
-    /// The cheap filters in front decide whether a line is tokenized at all,
-    /// and a pixel row must still be rejected — `(`, `|` and `*` are shape
-    /// codes as much as they are pattern syntax.
-    #[test]
-    fn only_a_keyword_line_can_be_carrying_a_pattern() {
-        assert!(may_write_a_pattern("glyph fo(o|q) 8 16"));
-        assert!(may_write_a_pattern("  ref hangul-($init) 0 0"));
-        assert!(may_write_a_pattern("assume unused foo*3"));
-        assert!(!may_write_a_pattern("(((|.@@bb"));
-        assert!(!may_write_a_pattern("glyph foo 8 16"));
-        assert!(!may_write_a_pattern("color red = #ff0000"));
-    }
-
-    #[test]
-    fn glyph_search_does_not_match_partial_names_or_comments() {
-        assert!(cols("glyph foobar 8 16", "foo", LinkTargetKind::Glyph).is_empty());
-        assert!(cols("ref foo-ext 0 0", "foo", LinkTargetKind::Glyph).is_empty());
-        assert!(cols("ref bar 0 0 // foo", "foo", LinkTargetKind::Glyph).is_empty());
-    }
-
-    /// A remap group and a glyph can share a name; they are different things,
-    /// and a glyph search must not list the group.
-    #[test]
-    fn a_remap_group_is_not_a_glyph_name() {
-        assert!(cols("remap foo : a -> b", "foo", LinkTargetKind::Glyph).is_empty());
-        assert_eq!(
-            cols("remap foo : a -> b", "foo", LinkTargetKind::Remap),
-            vec![6]
-        );
-        assert_eq!(
-            cols("feature liga for latn : foo", "foo", LinkTargetKind::Remap),
-            vec![24],
-        );
-    }
-
-    #[test]
-    fn a_feature_tag_is_found_on_every_declaration() {
-        assert_eq!(
-            cols("feature ccmp for latn : g", "ccmp", LinkTargetKind::Feature),
-            vec![8],
-        );
-        assert_eq!(
-            cols(
-                "feature ccmp for cyrl/SRB : g",
-                "ccmp",
-                LinkTargetKind::Feature
-            ),
-            vec![8],
-        );
-        // The group it points at is not the tag.
-        assert!(
-            cols(
-                "feature liga for latn : ccmp",
-                "ccmp",
-                LinkTargetKind::Feature
-            )
-            .is_empty()
-        );
-    }
-
-    /// Both signs of an anchor are the same anchor, and the anchor-driven
-    /// `feature` variant names one too.
-    #[test]
-    fn an_anchor_is_found_through_both_signs() {
-        assert_eq!(
-            cols("anchor +above 4 1", "above", LinkTargetKind::Anchor),
-            vec![7]
-        );
-        assert_eq!(
-            cols("anchor -above 2 1", "above", LinkTargetKind::Anchor),
-            vec![7]
-        );
-        assert_eq!(
-            cols(
-                "feature abvm for hang : anchor above",
-                "above",
-                LinkTargetKind::Anchor
-            ),
-            vec![31],
-        );
-    }
-
-    #[test]
-    fn a_name_parts_variable_is_found_inside_the_names_it_builds() {
-        assert_eq!(
-            cols(
-                "name-parts $init = a b c",
-                "$init",
-                LinkTargetKind::NameParts
-            ),
-            vec![11],
-        );
-        assert_eq!(
-            cols(
-                "name-parts $combo = $init $final",
-                "$init",
-                LinkTargetKind::NameParts
-            ),
-            vec![20],
-        );
-        assert_eq!(
-            cols(
-                "glyph hangul-($init)-l 8 16",
-                "$init",
-                LinkTargetKind::NameParts
-            ),
-            vec![14],
-        );
-        assert_eq!(
-            cols("ref hangul-$init 0 0", "$init", LinkTargetKind::NameParts),
-            vec![11],
-        );
-        // No partial matches: `$initial` is a different variable.
-        assert!(
-            cols(
-                "ref hangul-$initial 0 0",
-                "$init",
-                LinkTargetKind::NameParts
-            )
-            .is_empty()
-        );
-    }
-
-    #[test]
-    fn a_color_is_found_at_its_definition_and_its_uses() {
-        assert_eq!(
-            cols("color red = #ff0000", "red", LinkTargetKind::Color),
-            vec![6]
-        );
-        assert_eq!(
-            cols("color light-red = red", "red", LinkTargetKind::Color),
-            vec![18],
-        );
-        assert_eq!(
-            cols("ref foo 0 0 fill red", "red", LinkTargetKind::Color),
-            vec![17],
-        );
-    }
-
-    #[test]
-    fn several_appearances_on_one_line_are_all_reported() {
-        assert_eq!(
-            cols("glyph foo = foo", "foo", LinkTargetKind::Glyph),
-            vec![6, 12],
-        );
-    }
-
-    /// The pane shows the line trimmed, so the highlight has to move with it.
-    #[test]
-    fn the_highlight_follows_the_trimmed_text() {
-        let line = "    ref foo 0 0";
-        let span = match_spans(
-            line,
-            "foo",
-            LinkTargetKind::Glyph,
-            None,
-            None,
-            &[],
-            &NamePartsMap::new(),
-        )[0];
-        let h = hit(std::path::Path::new("a.unf"), 0, 3, line, span);
-        assert_eq!(h.text, "ref foo 0 0");
-        assert_eq!(&h.text[h.highlight.0..h.highlight.1], "foo");
-    }
-
-    /// The span is the *written* token, so an anchor's sign and a quoted
-    /// token's backticks are highlighted with it — what is picked out is what
-    /// the line actually says, not a reconstruction of the bare name.
-    #[test]
-    fn the_highlight_covers_the_token_as_written() {
-        for (line, name, kind, expected) in [
-            (
-                "anchor +above 4 1",
-                "above",
-                LinkTargetKind::Anchor,
-                "+above",
-            ),
-            (
-                "ref `foo bar` 0 0",
-                "foo bar",
-                LinkTargetKind::Glyph,
-                "`foo bar`",
-            ),
-            (
-                "glyph x-$init 2 2",
-                "$init",
-                LinkTargetKind::NameParts,
-                "$init",
-            ),
-        ] {
-            let span = *match_spans(line, name, kind, None, None, &[], &NamePartsMap::new())
-                .first()
-                .unwrap_or_else(|| panic!("no match in {line:?}"));
-            let h = hit(std::path::Path::new("a.unf"), 0, 1, line, span);
-            assert_eq!(&h.text[h.highlight.0..h.highlight.1], expected, "{line:?}");
-        }
-    }
-
-    /// Two occurrences on one line are two rows, each highlighting its own.
-    #[test]
-    fn each_row_highlights_its_own_occurrence() {
-        let line = "glyph foo = foo";
-        let spans = match_spans(
-            line,
-            "foo",
-            LinkTargetKind::Glyph,
-            None,
-            None,
-            &[],
-            &NamePartsMap::new(),
-        );
-        assert_eq!(spans.len(), 2);
-        let hits: Vec<_> = spans
-            .into_iter()
-            .enumerate()
-            .map(|(i, s)| hit(std::path::Path::new("a.unf"), i, 1, line, s))
-            .collect();
-        assert_eq!(hits[0].highlight, (6, 9));
-        assert_eq!(hits[1].highlight, (12, 15));
-    }
-
-    #[test]
-    fn hits_run_over_a_document_in_order_and_skip_pixel_grids() {
-        use crate::document::PixelGrid;
-        let lines = vec![
-            DocLine::Text("glyph foo 2 2".to_string()),
-            DocLine::Grid(PixelGrid::new(2, 2)),
-            DocLine::Text("ref foo 0 0".to_string()),
-            DocLine::Text("map A = foo".to_string()),
-        ];
-        assert_eq!(
-            hits_in_doclines(&lines, "foo", LinkTargetKind::Glyph, &NamePartsMap::new())
-                .into_iter()
-                .map(|(i, s)| (i, s.col_start, s.col_end, s.is_decl))
-                .collect::<Vec<_>>(),
-            vec![(0, 6, 9, true), (2, 4, 7, false), (3, 8, 11, false)],
-        );
-    }
-
-    /// A glyph written with `@` is an appearance of the name it expands to, so
-    /// the Search pane lists it beside the full-name ones. The literal filters
-    /// in front cannot hide it: `may_write_an_at_name` is what lets an `@` line
-    /// through, and a pixel row — where `@@` is the full-ink code — still does
-    /// not pay for a tokenizing pass.
-    #[test]
-    fn an_at_name_is_an_appearance_of_what_it_expands_to() {
-        let path = PathBuf::from("/nonexistent/never-read.unf");
-        let source = "glyph foo\nref @-bar\nglyph @-bar\nmap A = foo-bar\n";
-        let files = vec![(path, SearchText::Source(source))];
-        let (hits, _) = collect_hits(
-            &files,
-            "foo-bar",
-            LinkTargetKind::Glyph,
-            &NamePartsMap::new(),
-        );
-        assert_eq!(
-            hits.iter().map(|h| h.text.as_str()).collect::<Vec<_>>(),
-            // The `glyph` line is a declaration and so is listed first.
-            vec!["glyph @-bar", "ref @-bar", "map A = foo-bar"],
-        );
-        // And the base itself is not one of its own family's appearances.
-        let files = vec![(PathBuf::from("x.unf"), SearchText::Source(source))];
-        let (hits, _) = collect_hits(&files, "foo", LinkTargetKind::Glyph, &NamePartsMap::new());
-        assert_eq!(
-            hits.iter().map(|h| h.text.as_str()).collect::<Vec<_>>(),
-            vec!["glyph foo"],
-        );
-    }
-
-    #[test]
-    fn only_a_token_start_counts_as_an_at_name() {
-        assert!(may_write_an_at_name("ref @-bar"));
-        assert!(may_write_an_at_name("glyph `@ odd`"));
-        // A pixel row is all shape codes, and `@@` is one of them.
-        assert!(!may_write_an_at_name("@@..@@.."));
-        assert!(!may_write_an_at_name("glyph foo"));
-    }
-}
+#[path = "search_tests.rs"]
+mod search_tests;

@@ -196,6 +196,8 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Go back / go forward; where a jump leaves its target and why going back restores a page | `app/history.rs` (`NavLoc::view_offset`), `editor/mod.rs` (`ScrollIntent`) |
 | `ref … goto`: a jump carried on to the drawing, why one gesture leaves two history entries, and why the redirect is read off the resolve | `app/mod.rs` (`follow_goto_chain`, `record_nav_chain`, `goto_redirect`), `document/glyph.rs` (`GlyphRef::goto`) |
 | The Search pane; why a search lists a name written as a pattern; why a click reads no files | `app/search.rs` (`pattern_denotes`, `may_write_a_pattern`), `app/docs.rs` (`FontSource`) |
+| What a search kind is and what adding one costs; the Ctrl/Cmd+F cycle and why the box's focus is recorded | `app/search.rs` (`SearchKind`, `SearchState`, `focus_search_box`) |
+| Why both ends of a search divide a file the same way, and what goes wrong when they do not | `app/search.rs` (module note, `LineCarry`), `document_io.rs` (`walk_source_lines`) |
 | Why opening a file from the snapshot keeps its generations | `app/docs.rs` (`open_document_from_text`) |
 | Which tokens on a line name what | `editor/line_fields.rs` |
 | Where a Ctrl/Cmd+click on a `$-N`/`($N)` goes; a glyph name in a `//` comment; Ctrl/Cmd+`]` | `editor/doc_links.rs` (`find_capture_target`, `extract_comment_links`), `editor/document_view/paint.rs` (`link_at_caret`) |

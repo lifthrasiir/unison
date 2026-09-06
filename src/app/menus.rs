@@ -64,6 +64,11 @@ pub(super) struct MenuActions {
     /// `toggle_fold`, the chord belongs to the editor and this is the menu
     /// half alone.
     pub(super) toggle_comment: bool,
+    /// Edit ▸ Find: reveal the search pane with its box focused, on the kind
+    /// the entry names (`true` for glyph names). The menu half of Ctrl/Cmd+F.
+    pub(super) find: Option<bool>,
+    /// Edit ▸ Find next/previous: the menu half of Ctrl/Cmd+G, `true` forward.
+    pub(super) find_step: Option<bool>,
 }
 
 /// The subset of [`MenuActions`] dispatched after the central panel.
@@ -162,6 +167,8 @@ impl UniformApp {
         let nav_action = &mut menu.nav_action;
         let toggle_fold = &mut menu.toggle_fold;
         let toggle_comment = &mut menu.toggle_comment;
+        let find = &mut menu.find;
+        let find_step = &mut menu.find_step;
 
         use crate::edit_menu::EditMenuCaps;
 
@@ -334,6 +341,50 @@ impl UniformApp {
                         .clicked()
                     {
                         *toggle_comment = true;
+                        ui.close_menu();
+                    }
+                    ui.separator();
+                    // Always enabled: the box is where the reader types, and it
+                    // is reachable whether or not an editor holds the keyboard.
+                    if ui
+                        .add(
+                            egui::Button::new("Find text...").shortcut_text(format!("{mod_name}F")),
+                        )
+                        .clicked()
+                    {
+                        *find = Some(false);
+                        ui.close_menu();
+                    }
+                    if ui
+                        .add(
+                            egui::Button::new("Find glyph...")
+                                .shortcut_text(format!("{mod_name}{shift_name}F")),
+                        )
+                        .clicked()
+                    {
+                        *find = Some(true);
+                        ui.close_menu();
+                    }
+                    let has_hits = !self.search.hits().is_empty();
+                    if ui
+                        .add_enabled(
+                            has_hits,
+                            egui::Button::new("Find next").shortcut_text(format!("{mod_name}G")),
+                        )
+                        .clicked()
+                    {
+                        *find_step = Some(true);
+                        ui.close_menu();
+                    }
+                    if ui
+                        .add_enabled(
+                            has_hits,
+                            egui::Button::new("Find previous")
+                                .shortcut_text(format!("{mod_name}{shift_name}G")),
+                        )
+                        .clicked()
+                    {
+                        *find_step = Some(false);
                         ui.close_menu();
                     }
                     ui.separator();
@@ -981,7 +1032,7 @@ impl UniformApp {
             self.panes = Panes::new_with_zoom(self.panes.focused().zoom_level);
             self.nav_history.clear();
             // Its hits name files that are no longer the ones on screen.
-            self.search = None;
+            self.search = SearchState::default();
             self.sidebar.set_directory(&dir);
             self.watch.set_directory(&dir, ctx);
             // Through the watch's (just cleared) cache, so the first refresh

@@ -40,7 +40,7 @@ use docs::OpenDocument;
 use history::{NavEntry, NavHistory, NavLoc};
 use menus::{EditTarget, MenuActions, NavAction};
 use panes::Panes;
-use search::SearchResults;
+use search::SearchState;
 use settings::Settings;
 
 type FontPair = (Vec<u8>, Vec<u8>);
@@ -116,10 +116,14 @@ pub struct UniformApp {
     /// Followed links, so they can be walked back and forward again. It spans
     /// files, which is why it lives here and not in an `EditorState`.
     nav_history: NavHistory,
-    /// The Search pane's contents: the last name a Ctrl/Cmd+click had nothing
-    /// to navigate to, and every place it appears. Spans files for the same
-    /// reason the history does.
-    search: Option<SearchResults>,
+    /// The Search pane: what its box holds, and what the last run over the
+    /// whole directory found. Spans files for the same reason the history does.
+    search: SearchState,
+    /// Edit ▸ Find, waiting for the next frame. The entry is clicked after the
+    /// bottom panel has already been laid out, and focusing the box has to
+    /// happen before it — so the click is held over one frame rather than
+    /// focusing a box that will not be drawn again until then.
+    menu_find: Option<bool>,
     sidebar: Sidebar,
     /// The sidebar panel's rect as of the last frame. The file watcher holds a
     /// listing refresh back while the pointer is over it, so that rows never
@@ -455,7 +459,8 @@ impl UniformApp {
             open_documents: Vec::new(),
             panes: Panes::new_with_zoom(zoom_level),
             nav_history: NavHistory::new(),
-            search: None,
+            search: SearchState::default(),
+            menu_find: None,
             sidebar: Sidebar::new(),
             sidebar_rect: egui::Rect::NOTHING,
             watch: watch::WatchState::with_cache(dir_cache),
@@ -864,6 +869,15 @@ impl eframe::App for UniformApp {
             self.request_filesystem_refresh(ctx);
         }
 
+        // Before the panels: the chord opens the pane and focuses its box on
+        // the frame it is pressed, and the box has not been laid out yet. The
+        // menu's own Find entries are one frame behind it for the same reason
+        // — the menu bar is drawn further down — which is what `menu_find`
+        // below carries.
+        let mut search_step = self.handle_search_keys(ctx);
+        if let Some(shift) = std::mem::take(&mut self.menu_find) {
+            self.focus_search_box(ctx, shift);
+        }
         self.intercept_swap_panes_chord(ctx, &mut menu);
         self.handle_zoom_scroll(ctx);
         self.handle_zoom_keys(ctx);
@@ -947,6 +961,14 @@ impl eframe::App for UniformApp {
         // recorded — from wherever the caret was, since the pane is not a link.
         if let Some(hit_idx) = bottom.search_click {
             self.goto_search_hit(ctx, hit_idx);
+        }
+        if bottom.search_run {
+            self.run_search_from_box(ctx);
+        }
+        self.menu_find = menu.find;
+        search_step = search_step.or(menu.find_step);
+        if let Some(forward) = search_step {
+            self.step_search_hit(ctx, forward);
         }
 
         // After the jump above, so a Go Back in the same frame as a click would

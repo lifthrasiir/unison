@@ -2,7 +2,7 @@
 //! panel and the issues tab.
 
 use super::background::BackgroundTaskPhase;
-use super::search::{SearchHit, SearchResults};
+use super::search::{SearchHit, SearchKind, SearchState};
 use super::*;
 use crate::issues::Severity;
 
@@ -43,6 +43,11 @@ pub(super) struct BottomPanelResult {
     pub issue_click: Option<(PathBuf, usize)>,
     /// Index into the current search results.
     pub search_click: Option<usize>,
+    /// Enter in the search box, or its Search button: run what the box holds.
+    /// The row cannot do it itself — the search reads every open document, and
+    /// the jump it ends in moves a caret in an editor this frame has not laid
+    /// out yet.
+    pub search_run: bool,
 }
 
 /// One result row's source line, with the token that matched picked out.
@@ -78,25 +83,112 @@ fn hit_text(ui: &egui::Ui, hit: &SearchHit) -> egui::text::LayoutJob {
     job
 }
 
+/// The pane's header row: what is being searched for, where in the results the
+/// reader is, and how to run it again.
+///
+/// `[kind] [query] n/m [Search] message`, in that order and always present —
+/// the row says what a search *would* do before one has been run, which is what
+/// makes Ctrl/Cmd+F land somewhere that explains itself.
+fn show_search_header(ui: &mut egui::Ui, state: &mut SearchState, run: &mut bool) {
+    ui.horizontal(|ui| {
+        egui::ComboBox::from_id_salt("search_kind")
+            .selected_text(state.kind.label())
+            // Wide enough for the longest label, so the box beside it does not
+            // shift when the kind is cycled.
+            .width(110.0)
+            .show_ui(ui, |ui| {
+                // A kind a Ctrl/Cmd+click left behind is not one of the
+                // choices; it is shown as selected and simply not offered.
+                for kind in SearchKind::CHOICES {
+                    ui.selectable_value(&mut state.kind, kind, kind.label());
+                }
+            });
+
+        let query = ui.add(
+            egui::TextEdit::singleline(&mut state.query)
+                .desired_width(240.0)
+                .hint_text("Search"),
+        );
+        if std::mem::take(&mut state.focus_query) {
+            query.request_focus();
+            // `has_focus` below is computed from the state this frame *began*
+            // in, so the request has to be recorded here or the next chord
+            // would read the box as unfocused and reopen instead of cycling.
+            state.query_focused = true;
+        } else {
+            state.query_focused = query.has_focus();
+        }
+        // Selecting the whole query is the widget's *stored* cursor, not
+        // anything the response carries, so it has to be written back under the
+        // box's own id — and after `request_focus`, since a box arriving at the
+        // focus is the only one this is asked for.
+        if std::mem::take(&mut state.select_query)
+            && let Some(mut edit) = egui::TextEdit::load_state(ui.ctx(), query.id)
+        {
+            let all = egui::text::CCursorRange::two(
+                egui::text::CCursor::new(0),
+                egui::text::CCursor::new(state.query.chars().count()),
+            );
+            edit.cursor.set_char_range(Some(all));
+            edit.store(ui.ctx(), query.id);
+        }
+        // Escape is taken by the host before the panel runs (see
+        // `UniformApp::update`), so what reaches here is Enter alone.
+        if query.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter)) {
+            *run = true;
+        }
+
+        ui.label(
+            egui::RichText::new(state.counter())
+                .size(16.0)
+                .color(ui.visuals().weak_text_color()),
+        );
+        if ui.button("Search").clicked() {
+            *run = true;
+        }
+        // What the last run found, and why it produced no jump — the two things
+        // the row cannot say for itself. Both live here rather than over the
+        // list: the counter beside them already says how many hits there are,
+        // and the box says what was searched for, so a heading repeating either
+        // was a line spent on nothing.
+        if let Some(summary) = state.summary() {
+            ui.label(
+                egui::RichText::new(summary)
+                    .size(16.0)
+                    .color(ui.visuals().weak_text_color()),
+            );
+        }
+        if let Some(message) = &state.message {
+            ui.label(
+                egui::RichText::new(message)
+                    .size(16.0)
+                    .color(ui.visuals().warn_fg_color),
+            );
+        }
+    });
+}
+
 /// Rows of "where this name is written", in the diagnostics list's format: the
 /// source line on the left, the place it came from on the right.
-fn show_search_tab(ui: &mut egui::Ui, search: Option<&SearchResults>, click: &mut Option<usize>) {
-    let Some(search) = search else {
+fn show_search_tab(
+    ui: &mut egui::Ui,
+    state: &mut SearchState,
+    click: &mut Option<usize>,
+    run: &mut bool,
+) {
+    show_search_header(ui, state, run);
+    ui.separator();
+
+    let current = state.current;
+    let Some(search) = &state.results else {
         ui.centered_and_justified(|ui| {
-            ui.label("Ctrl/Cmd+click a name to list every place it is written");
+            ui.label("Type above, or Ctrl/Cmd+click a name to list every place it is written");
         });
         return;
     };
-
-    ui.label(
-        egui::RichText::new(search.title())
-            .size(16.0)
-            .color(ui.visuals().weak_text_color()),
-    );
     if search.hits.is_empty() {
         return;
     }
-    ui.separator();
 
     // The list is declarations first (`collect_hits` sorts it), so the one
     // place the two groups meet gets a rule between them. Nothing is drawn
@@ -123,14 +215,25 @@ fn show_search_tab(ui: &mut egui::Ui, search: Option<&SearchResults>, click: &mu
             let location = format!("{file_name}:{}", hit.file_line);
 
             let row_id = ui.id().with(("search_row", hit_idx));
-            let resp = ui.horizontal(|ui| {
-                ui.label(hit_text(ui, hit));
-                ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                    ui.label(
-                        egui::RichText::new(&location)
-                            .size(16.0)
-                            .color(ui.visuals().weak_text_color()),
-                    );
+            // The row the `n/m` counter is pointing at is tinted, so a
+            // Ctrl/Cmd+G walking the list is visible in the list too. A frame
+            // rather than a painted rect: the row's height is only known once
+            // its contents have been laid out, and by then a rect would paint
+            // over them.
+            let mut frame = egui::Frame::NONE;
+            if current == Some(hit_idx) {
+                frame = frame.fill(ui.visuals().selection.bg_fill.gamma_multiply(0.25));
+            }
+            let resp = frame.show(ui, |ui| {
+                ui.horizontal(|ui| {
+                    ui.label(hit_text(ui, hit));
+                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                        ui.label(
+                            egui::RichText::new(&location)
+                                .size(16.0)
+                                .color(ui.visuals().weak_text_color()),
+                        );
+                    });
                 });
             });
 
@@ -612,11 +715,9 @@ impl UniformApp {
                         self.open_bottom_panel(2, screen_h);
                     }
                 }
-                let search_label = match &self.search {
-                    Some(s) if !s.hits.is_empty() => {
-                        format!("Search ({})", s.hits.len())
-                    }
-                    _ => "Search".to_string(),
+                let search_label = match self.search.hits().len() {
+                    0 => "Search".to_string(),
+                    n => format!("Search ({n})"),
                 };
                 let search_selected = self.bottom_panel_tab == Some(SEARCH_TAB);
                 if ui.selectable_label(search_selected, search_label).clicked() {
@@ -629,6 +730,12 @@ impl UniformApp {
             });
             if self.bottom_panel_tab != Some(1) {
                 self.specimen.hover_status = None;
+            }
+            // A box that is not on screen holds nothing, and a Ctrl/Cmd+F has
+            // to reopen the pane rather than cycle the kind of a box the reader
+            // cannot see.
+            if self.bottom_panel_tab != Some(SEARCH_TAB) {
+                self.search.query_focused = false;
             }
             if self.bottom_panel_tab.is_none() {
                 return;
@@ -726,7 +833,12 @@ impl UniformApp {
                     );
                 }
                 Some(SEARCH_TAB) => {
-                    show_search_tab(ui, self.search.as_ref(), &mut result.search_click);
+                    show_search_tab(
+                        ui,
+                        &mut self.search,
+                        &mut result.search_click,
+                        &mut result.search_run,
+                    );
                 }
                 _ => {}
             }

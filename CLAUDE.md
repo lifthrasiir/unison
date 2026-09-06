@@ -115,7 +115,7 @@ module; the suites that outgrew one:
 | `issues/` | `issues/issues_tests.rs` |
 | `ref_composite/` | `ref_composite/ref_composite_tests.rs` |
 | `editor/document_view/` | `document_view/tests.rs` (helpers) and `editor/view_tests/` (harness scenarios) |
-| `exists.rs`, `pixel.rs`, `specimen.rs`, `meta.rs`, `faces.rs`, `on_demand.rs`, `compose.rs`, `fix/clearance.rs`, `render/sample.rs`, `render/reach.rs`, `editor/pixel_selection.rs`, `editor/ref_images.rs`, `editor/glyph_resize.rs` | `<name>_tests.rs` beside the module |
+| `exists.rs`, `pixel.rs`, `specimen.rs`, `meta.rs`, `faces.rs`, `on_demand.rs`, `compose.rs`, `fix/clearance.rs`, `render/sample.rs`, `render/reach.rs`, `editor/pixel_selection.rs`, `editor/ref_images.rs`, `editor/glyph_resize.rs`, `app/search.rs` | `<name>_tests.rs` beside the module |
 
 ## Where the bugs come from
 

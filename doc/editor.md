@@ -47,6 +47,22 @@ lists the lines that share it. Unopened files are searched from the directory sn
 disk. A `ref … goto` line redirects a jump to its wrapper glyph onward to the target, leaving two
 history entries.
 
+**Search.** The pane's header row is `[kind] [what to look for] n/m [Search]`, then how many files
+the hits are spread over, and a message when the last thing asked for found nothing. Two kinds: **Text**, a verbatim substring — no
+case folding and no collapsing of spaces, what is typed is what is looked for — and **Glyph**, every
+appearance of a glyph name, matched by what a token denotes rather than by how it is written. Both
+run over every file in the directory, open buffers as they stand and the rest from the snapshot, and
+results come file by file in name order.
+
+**Ctrl+F** and **Ctrl+Shift+F** reveal the pane with the box focused and its contents selected, so
+typing replaces the last query; they pick the Text and Glyph kind respectively. Pressing either again — the box now holding the keyboard — steps the kind dropdown
+forward or back instead, wrapping at both ends. Enter or the Search button runs it and puts the caret
+on the first result; a glyph search lists the declaration first, so Ctrl+Shift+F, a name and Enter is
+"go to that glyph". A search that finds nothing moves nothing and says so. **Ctrl+G / Ctrl+Shift+G**
+step to the next and previous result, wrapping; **Esc** in the box hands the keyboard back to the
+editor and does nothing else, so a Ctrl+G afterwards carries straight on. A search does not reach
+inside a glyph's pixel rows: they are one grid line to the caret, not text.
+
 **Ctrl+T / Ctrl+Shift+T** go back and forward through jumps. Going back restores the page that was
 on screen, not merely the line.
 
