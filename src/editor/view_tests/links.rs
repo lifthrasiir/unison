@@ -234,7 +234,7 @@ fn a_link_split_by_a_soft_wrap_still_names_the_whole_symbol() {
         .filter(|vl| vl.doc_line == ref_line)
         .filter_map(|vl| match &vl.kind {
             SnapKind::Text { col_offset, .. } => Some(*col_offset),
-            SnapKind::GridRow { .. } => None,
+            SnapKind::GridRow { .. } | SnapKind::RefImage { .. } => None,
         })
         .find(|c| *c > 0)
         .expect("the line must wrap for this test to mean anything");

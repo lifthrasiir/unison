@@ -44,6 +44,12 @@ slice wide // EAW=Ambiguous is wide (typical in CJK)
 name-parts wide : $-half = ``
 name-parts narrow : $-half = -half
 
+## drawing references
+
+// run `scripts/extract_ref_charts.py` to see reference glyph images
+// above relevant `glyph` commands (takes about 1.1 GB of disk space).
+audit ref-image-path ../data/ref
+
 ## mandatory glyphs
 
 // the *actual* tofu, as there are too many rectangular glyphs

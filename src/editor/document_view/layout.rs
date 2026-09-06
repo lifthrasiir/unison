@@ -375,7 +375,7 @@ impl VisualLine {
     pub(crate) fn annotated_text(&self) -> Option<AnnotatedText<'_>> {
         match &self.kind {
             VLineKind::Text(text) => Some(AnnotatedText::new(text, &self.annotations)),
-            VLineKind::GridRow { .. } => None,
+            VLineKind::GridRow { .. } | VLineKind::RefImage { .. } => None,
         }
     }
 }
@@ -383,6 +383,14 @@ impl VisualLine {
 #[derive(Clone)]
 pub(crate) enum VLineKind {
     Text(String),
+    /// A reference chart strip, drawn *above* the `glyph` line whose name
+    /// carries this code point. It belongs to no source line of its own —
+    /// `doc_line` is the line it introduces, so a fold that hides that line
+    /// hides the strip with it — and carries no text, no caret and no number
+    /// in the gutter. See [`crate::editor::ref_images`].
+    RefImage {
+        codepoint: u32,
+    },
     GridRow {
         item_idx: usize,
         row: i16,
@@ -437,6 +445,10 @@ pub(super) struct ViewCacheKey {
     pub(super) font_id: egui::FontId,
     pub(super) dark_mode: bool,
     pub(super) ppp_bits: u32,
+    /// [`crate::editor::ref_images::RefImages::generation`]: which code points
+    /// have a reference chart strip, and so which strip rows the view holds.
+    /// It changes once, when the one directory scan lands.
+    pub(super) ref_image_gen: u64,
 }
 
 pub(crate) struct ViewCache {
@@ -456,6 +468,11 @@ impl VisualLine {
         match &self.kind {
             VLineKind::Text(_) => self.heading.map_or(row_h, |h| h.row_height),
             VLineKind::GridRow { .. } => grid_cell,
+            // One fixed height, whatever the zoom: the strip is a photograph
+            // of a chart rather than part of the drawing, and it is what the
+            // row is reserved for before the file has even been read. See
+            // [`crate::editor::ref_images`].
+            VLineKind::RefImage { .. } => crate::editor::ref_images::REF_IMAGE_ROW,
         }
     }
 
@@ -702,7 +719,7 @@ pub(crate) fn gutter_line_number(
         VLineKind::Text(_) if vl.col_offset == 0 => {
             source_offsets.get(vl.doc_line).map(|&off| off + 1)
         }
-        VLineKind::Text(_) => None,
+        VLineKind::Text(_) | VLineKind::RefImage { .. } => None,
         VLineKind::GridRow {
             row,
             own_height,

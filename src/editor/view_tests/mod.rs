@@ -24,6 +24,7 @@ mod number_nudge;
 mod palette;
 mod pixel_select;
 mod popups;
+mod ref_images;
 mod resize;
 mod samples;
 mod scroll_zoom;
@@ -80,6 +81,9 @@ fn assert_view_consistent(h: &EditorHarness) {
             (SnapKind::Text { .. }, DocLine::Grid(_)) => {
                 panic!("text visual line rendered on grid DocLine {}", vl.doc_line);
             }
+            // A strip row belongs to the `glyph` line it introduces and
+            // carries none of its text; see [`crate::editor::ref_images`].
+            (SnapKind::RefImage { .. }, _) => {}
             (SnapKind::GridRow { .. }, DocLine::Grid(_)) => {}
             (SnapKind::GridRow { .. }, DocLine::Text(s)) => {
                 // Ref-only composites render their virtual grid on the

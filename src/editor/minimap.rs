@@ -167,6 +167,9 @@ pub(crate) fn draw_minimap(
                     }
                 }
             }
+            // A chart strip is not the document, so the minimap leaves its
+            // band blank rather than inventing a mark for it.
+            VLineKind::RefImage { .. } => {}
             VLineKind::GridRow {
                 item_idx,
                 row,

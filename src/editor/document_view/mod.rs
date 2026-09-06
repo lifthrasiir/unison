@@ -111,10 +111,7 @@ pub enum NavTarget {
     /// the host can carry that out, so a same-file jump has to say what it
     /// landed on. `None` for every other kind of link and for a `$-N` capture,
     /// neither of which a redirect applies to.
-    Local {
-        line: usize,
-        glyph: Option<String>,
-    },
+    Local { line: usize, glyph: Option<String> },
     /// The target is not in this document; only the host can find and open it.
     /// If it is not in any other file either, the host searches instead.
     CrossFile(GotoGlyph),
@@ -186,6 +183,11 @@ pub struct EditorEnv<'a> {
     pub font_gen: u64,
     pub zoom_level: u32,
     pub font_id: &'a egui::FontId,
+    /// The reference chart strips of the source directory, when the source
+    /// names one (`audit ref-image-path`). Shared by every pane, since the
+    /// directory is one directory; `None` when the source names none or the
+    /// host does not offer them. See [`crate::editor::ref_images`].
+    pub ref_images: Option<&'a crate::editor::ref_images::RefImages>,
 }
 
 /// One editor instance, as a widget.
@@ -318,6 +320,13 @@ fn resolve_view(
         show_metrics,
         shadow.as_ref(),
     );
+    // The strips are spliced into the finished list for the same reason
+    // folding is applied to it: a strip belongs *above* a line, whichever kind
+    // of line the builder happened to push for it, and doing it here needs no
+    // arm of its own in the builder.
+    if let Some(store) = env.ref_images {
+        splice_ref_image_rows(&mut vlines, store.rows_for(lines), pal);
+    }
     // Folding is applied to the finished list rather than threaded through the
     // builder: every line kind a group may come to hold is then hidden by the
     // same rule, and a grid — one `DocLine` but many visual lines — needs no
@@ -335,6 +344,43 @@ fn resolve_view(
         data: std::sync::Arc::clone(&data),
     });
     data
+}
+
+/// Puts one strip row above the first visual line of each `glyph` line that
+/// asked for one.
+///
+/// `rows` is in line order (it is a walk over the document's lines), and so is
+/// `vlines`, so this is one pass. A row whose line the view holds no visual
+/// line for — everything a fold has already dropped, in the one path that
+/// splices after a retain — is skipped rather than appended at the end.
+fn splice_ref_image_rows(vlines: &mut Vec<VisualLine>, rows: Vec<(usize, u32)>, pal: &Palette) {
+    if rows.is_empty() {
+        return;
+    }
+    let mut out = Vec::with_capacity(vlines.len() + rows.len());
+    let mut rows = rows.into_iter().peekable();
+    for vl in vlines.drain(..) {
+        while rows.peek().is_some_and(|&(line, _)| line < vl.doc_line) {
+            rows.next();
+        }
+        if let Some(&(line, codepoint)) = rows.peek()
+            && line == vl.doc_line
+        {
+            rows.next();
+            out.push(VisualLine {
+                doc_line: line,
+                kind: VLineKind::RefImage { codepoint },
+                color: pal.text_default,
+                error_spans: Vec::new(),
+                col_offset: 0,
+                annotations: Vec::new(),
+                comment_col: None,
+                heading: None,
+            });
+        }
+        out.push(vl);
+    }
+    *vlines = out;
 }
 
 /// The `(item, point index)` of the anchor layer the subglyph palette has
@@ -596,6 +642,7 @@ fn show_document(
         font_id: font_id.clone(),
         dark_mode: ui.ctx().theme() == egui::Theme::Dark,
         ppp_bits: ui.ctx().pixels_per_point().to_bits(),
+        ref_image_gen: env.ref_images.map_or(0, |s| s.generation()),
     };
     let view = resolve_view(
         ui.ctx(),

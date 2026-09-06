@@ -448,6 +448,40 @@ impl UniformApp {
         self.font_sources = font_sources_from(sources);
     }
 
+    /// Opens the reference chart strips the source names, once.
+    ///
+    /// Asked of the snapshot's *files* rather than of the parsed documents,
+    /// because `audit ref-image-path` is relative to the file it is written in
+    /// and a `Document` does not carry its path (see
+    /// [`crate::audit::ref_image_root`]). Nothing here touches the filesystem
+    /// — the scan is the store's own thread — and the store is opened at most
+    /// once per run: the directory it names is generated output that the
+    /// editor is entitled to read one time.
+    pub(super) fn ensure_ref_images(&mut self, ctx: &egui::Context) {
+        if let Some(store) = &self.ref_images {
+            // Nothing to do but let go of the textures nothing is drawing.
+            store.end_frame();
+            return;
+        }
+        // The search below reads every file the snapshot holds, so it runs
+        // once — as soon as there is a snapshot to search at all.
+        if self.ref_images_asked || self.font_sources.is_empty() {
+            return;
+        }
+        self.ref_images_asked = true;
+        let root = crate::audit::ref_image_root(
+            self.font_sources
+                .iter()
+                .map(|(path, source)| (path.as_path(), source.text.as_str())),
+        );
+        if let Some(root) = root {
+            self.ref_images = Some(crate::editor::ref_images::RefImages::spawn(
+                root,
+                ctx.clone(),
+            ));
+        }
+    }
+
     pub(super) fn collect_all_docs(&self) -> Vec<&Document> {
         collect_effective_docs(&self.open_documents, &self.font_base_docs)
     }

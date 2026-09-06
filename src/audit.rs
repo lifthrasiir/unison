@@ -29,7 +29,21 @@
 //! audit ideal-clearance han-* 0 1        // one band for every IDC line
 //! audit ideal-clearance han-* 0 1 1 2    // …or a second one for enclosures
 //! audit max-contact-run han-* 2
+//! audit ref-image-path ../data/ref       // what the drawings are held against
 //! ```
+//!
+//! # A key whose value is a path
+//!
+//! `ref-image-path` is the odd one out twice over: it states no number, and it
+//! is the only key whose value is read *relative to the file the line is
+//! written in* rather than as a name in the one global namespace every other
+//! directive lives in. Both follow from what it is — the published code charts
+//! the han drawings are held against, sitting beside the source rather than in
+//! it — and a path only means something next to the file that wrote it. It is
+//! an `audit` key for the same reason a clearance band is: nothing in the font
+//! carries it, and it exists so that a drawing can be compared with what it is
+//! supposed to be. Nothing outside the editor reads it; see
+//! [`crate::editor::ref_images`].
 //!
 //! Everything here is single-assignment, exactly as `meta` is: setting one slot
 //! twice is an error even when the two values agree, reported by
@@ -56,6 +70,12 @@ pub enum AuditEntry {
     /// parts of an IDC line may touch along before the layout owes them a cell
     /// of clearance. See [`MaxContactRuns`] and [`crate::compose::contact_run`].
     MaxContactRun { prefix: String, max: u16 },
+    /// `ref-image-path PATH` — the directory holding one reference strip per
+    /// code point, as a path relative to the file this line is written in. The
+    /// editor draws the strip of a code point a glyph name carries above that
+    /// glyph; see [`crate::editor::ref_images`], which also owns the
+    /// `PATH/<prefix>/<codepoint>.png` rule.
+    RefImagePath { path: String },
 }
 
 impl AuditEntry {
@@ -67,6 +87,9 @@ impl AuditEntry {
             // is a duplicate.
             Self::IdealClearance { prefix, .. } => format!("ideal-clearance {prefix}"),
             Self::MaxContactRun { prefix, .. } => format!("max-contact-run {prefix}"),
+            // One directory for the whole source: a second line naming another
+            // one is a source that cannot say which strip it means.
+            Self::RefImagePath { .. } => "ref-image-path".to_string(),
         }
     }
 
@@ -78,7 +101,7 @@ impl AuditEntry {
 
 /// Every key, for the unknown-key message.
 fn known_keys() -> String {
-    "ideal-clearance, max-contact-run".to_string()
+    "ideal-clearance, max-contact-run, ref-image-path".to_string()
 }
 
 /// The `PREFIX*` every key is scoped by: a glyph name's front, so a `*` that is
@@ -171,6 +194,12 @@ pub fn parse_audit_entry(text: &str) -> Result<AuditEntry, String> {
                 max,
             })
         }
+        "ref-image-path" => {
+            let [path] = rest else {
+                return Err(format!("`audit {key}` takes one path, got {}", rest.len()));
+            };
+            Ok(AuditEntry::RefImagePath { path: path.clone() })
+        }
         _ => Err(format!(
             "unknown `audit` key `{key}` (known keys: {})",
             known_keys()
@@ -206,6 +235,11 @@ impl AuditRules {
                     Ok(AuditEntry::MaxContactRun { prefix, max }) => {
                         rules.max_contact_run.rules.insert(prefix, max);
                     }
+                    // The path is meaningless without the file it was
+                    // written in, which a `Document` does not carry; the one
+                    // consumer asks for it by file instead
+                    // ([`ref_image_root`]).
+                    Ok(AuditEntry::RefImagePath { .. }) => continue,
                     Err(_) => continue,
                 }
             }
@@ -328,6 +362,38 @@ impl MaxContactRuns {
     pub fn for_glyph(&self, glyph: &str) -> Option<(&str, u16)> {
         self.get(glyph).map(|(p, &max)| (p, max))
     }
+}
+
+/// The directory `audit ref-image-path` names, resolved against the file the
+/// line was written in.
+///
+/// Asked of the *files* rather than of the parsed documents because that is
+/// the one thing this key needs and a [`Document`] does not carry: a relative
+/// path is only a path next to the file that wrote it. The caller hands over
+/// whatever it has read of the source directory — for the editor that is its
+/// snapshot, which is also what keeps this off the filesystem.
+///
+/// The first line found wins; a source stating two is already reported as a
+/// duplicate slot by [`crate::issues`], and picking one of them arbitrarily is
+/// what every other single-assignment key does with its duplicates too.
+pub fn ref_image_root<'a>(
+    files: impl IntoIterator<Item = (&'a std::path::Path, &'a str)>,
+) -> Option<std::path::PathBuf> {
+    for (path, text) in files {
+        for line in text.lines() {
+            // A top-level directive, so an indented line is inside a glyph
+            // block and a `//` one is a comment about the key rather than the
+            // key. Both are cheaper to exclude here than to parse.
+            let Some(rest) = line.strip_prefix("audit ") else {
+                continue;
+            };
+            if let Ok(AuditEntry::RefImagePath { path: rel }) = parse_audit_entry(rest) {
+                let dir = path.parent().unwrap_or(std::path::Path::new("."));
+                return Some(dir.join(rel));
+            }
+        }
+    }
+    None
 }
 
 #[cfg(test)]
@@ -478,6 +544,37 @@ mod tests {
             rules_of("audit ideal-clearance han-* one two\n")
                 .ideal_clearance
                 .is_empty()
+        );
+    }
+
+    /// The path is relative to the file it is written in, which is why this is
+    /// asked of files rather than of documents.
+    #[test]
+    fn a_ref_image_path_is_resolved_against_its_own_file() {
+        let root = ref_image_root([(
+            std::path::Path::new("/font/Unison.unf"),
+            "meta ascent 13\naudit ref-image-path ../data/ref\n",
+        )]);
+        assert_eq!(root, Some(std::path::PathBuf::from("/font/../data/ref")));
+        // Not a directive: indented (so it is inside a block) or commented out.
+        assert_eq!(
+            ref_image_root([(
+                std::path::Path::new("/font/Unison.unf"),
+                "// audit ref-image-path ../data/ref\n  audit ref-image-path x\n",
+            )]),
+            None
+        );
+    }
+
+    #[test]
+    fn a_ref_image_path_takes_exactly_one_path() {
+        assert!(parse_audit_entry("ref-image-path ../data/ref").is_ok());
+        assert!(parse_audit_entry("ref-image-path").is_err());
+        assert!(parse_audit_entry("ref-image-path a b").is_err());
+        // One directory for the whole source, so two lines are one slot.
+        assert_eq!(
+            parse_audit_entry("ref-image-path a").unwrap().slot(),
+            parse_audit_entry("ref-image-path b").unwrap().slot(),
         );
     }
 }

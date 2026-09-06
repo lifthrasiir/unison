@@ -48,6 +48,7 @@ pub mod minimap;
 pub mod pixel_interaction;
 pub mod pixel_selection;
 pub mod reconcile;
+pub(crate) mod ref_images;
 pub mod shadow;
 pub(crate) use crate::ref_composite;
 pub mod undo;
@@ -267,6 +268,15 @@ pub struct EditorState {
     /// `ref`s it has to move along may live in any file. See
     /// [`glyph_resize`].
     pub(crate) pending_resize: Option<glyph_resize::ResizeAction>,
+    /// How far each reference chart strip on screen has been dragged
+    /// sideways, by code point. Per pane rather than per store: two panes on
+    /// one file scroll their own copy of a strip, exactly as they scroll their
+    /// own copy of the text. See [`ref_images`].
+    pub(crate) ref_image_scroll: std::collections::HashMap<u32, f32>,
+    /// The strip a drag is currently scrolling, if any. Held across frames
+    /// because it is what keeps the drag from also being a text selection
+    /// once the pointer wanders off the strip's own row.
+    pub(crate) ref_image_drag: Option<u32>,
     /// The text of a `sample` line whose *Use* button was pressed this frame,
     /// handed to the host at the end of it: the preview panel is the host's,
     /// not the editor's. See [`crate::samples`].
@@ -286,6 +296,8 @@ impl EditorState {
         Self {
             id,
             mode: EditMode::Normal,
+            ref_image_scroll: std::collections::HashMap::new(),
+            ref_image_drag: None,
             folds: Default::default(),
             fold_scroll: None,
             cursor: caret::Caret::zero(),

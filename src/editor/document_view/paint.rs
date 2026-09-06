@@ -212,7 +212,16 @@ pub(super) fn paint_document_area(
     // frame too: a layer dragged past the edge of its glyph's own columns
     // (which is the whole point of dragging it) puts the pointer outside
     // the grid on the very frame the drag starts.
-    let normal_mode = matches!(state.mode, EditMode::Normal);
+    // A strip drag is a gesture of its own: it scrolls the chart sideways and
+    // must not also drag a text selection when the pointer wanders off the
+    // strip's row. It is latched here, from the previous frame, for the same
+    // reason the grid's scrollbar drag is — the strip is painted far below,
+    // and by then the caret hit test has already run.
+    if !ui.input(|i| i.pointer.primary_down()) {
+        state.ref_image_drag = None;
+    }
+    let strip_drag = state.ref_image_drag.is_some();
+    let normal_mode = matches!(state.mode, EditMode::Normal) && !strip_drag;
     let click_pos =
         if response.clicked() || is_double || is_triple || (response.drag_started() && normal_mode)
         {
@@ -396,6 +405,26 @@ pub(super) fn paint_document_area(
         }
 
         match &vl.kind {
+            // A reference chart strip: the whole grid band, at its own fixed
+            // height. It carries no caret, no selection and no link, so it is
+            // painted and interacted with in one go and nothing below reads
+            // it. See [`crate::editor::ref_images`].
+            VLineKind::RefImage { codepoint } => {
+                if let Some(store) = env.ref_images {
+                    let row = egui::Rect::from_min_max(
+                        egui::pos2(strip.x, origin.y + y),
+                        egui::pos2(strip.right(), origin.y + y + h),
+                    );
+                    let id = state.keyed(Slot::RefImageDrag, codepoint);
+                    let scroll = state.ref_image_scroll.entry(*codepoint).or_default();
+                    let dragging = crate::editor::ref_images::paint_strip(
+                        ui, &painter, row, store, *codepoint, scroll, id,
+                    );
+                    if dragging {
+                        state.ref_image_drag = Some(*codepoint);
+                    }
+                }
+            }
             VLineKind::Text(text) => {
                 // A `#`/`##` line draws larger than the rest of the document,
                 // so every measurement on this line — the caret's column, a
@@ -1549,6 +1578,9 @@ fn draw_selection(
                 sel_color,
             );
         }
+        // Nothing of the strip is selectable: it is not text, and the line it
+        // introduces paints its own selection one row down.
+        VLineKind::RefImage { .. } => {}
         VLineKind::GridRow { extent, .. } => {
             let content_w = extent.display_width(grid_cell);
             let gx = strip.grid_x(content_w);

@@ -168,6 +168,11 @@ pub(crate) enum Slot {
     /// Sub-cell remainder of an in-progress glyph-resize drag.
     ResizeDragAccum,
 
+    // -- reference chart strips --------------------------------------------
+    /// Interaction id of one strip's drag-to-scroll band, keyed by code point.
+    /// See [`crate::editor::ref_images`].
+    RefImageDrag,
+
     // -- sub-panels --------------------------------------------------------
     /// Id of the minimap side panel.
     MinimapPanel,

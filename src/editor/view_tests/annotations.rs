@@ -71,7 +71,7 @@ fn a_long_annotation_wraps_across_visual_lines() {
                 display,
                 ..
             } => Some((text.clone(), *col_offset, display.clone())),
-            SnapKind::GridRow { .. } => None,
+            SnapKind::GridRow { .. } | SnapKind::RefImage { .. } => None,
         })
         .collect();
     assert!(

@@ -139,6 +139,16 @@ pub struct UniformApp {
     /// about what the directory holds. This is what keeps a Ctrl/Cmd+click off
     /// the filesystem; see [`docs::FontSource`].
     font_sources: HashMap<PathBuf, docs::FontSource>,
+    /// The reference chart strips the source names with
+    /// `audit ref-image-path`, opened the first frame a snapshot carrying that
+    /// line is on hand and never re-opened: the directory is generated output
+    /// that does not change while the editor runs. `None` for a source that
+    /// names none. See [`crate::editor::ref_images`].
+    ref_images: Option<crate::editor::ref_images::RefImages>,
+    /// Whether a snapshot has been searched for that line yet. The search
+    /// reads every file's text, so it is done once and not once a frame; a
+    /// source that names no directory is the case this exists for.
+    ref_images_asked: bool,
     font_data: Option<FontPair>,
     font_name_to_gid: HashMap<String, u16>,
     font_applied: Option<bool>,
@@ -454,6 +464,8 @@ impl UniformApp {
             status_message: None,
             font_base_docs,
             font_sources,
+            ref_images: None,
+            ref_images_asked: false,
             font_data: None,
             font_name_to_gid: HashMap::new(),
             font_applied: None,
@@ -586,7 +598,11 @@ impl UniformApp {
     /// landing records nothing. A `goto` ref changes that: the glyph the jump
     /// passes through *is* a position in a document, and the reader who wanted
     /// the wrapper rather than the drawing gets there with one Go Back.
-    fn follow_specimen_click(&mut self, ctx: &egui::Context, click: crate::specimen::SpecimenClick) {
+    fn follow_specimen_click(
+        &mut self,
+        ctx: &egui::Context,
+        click: crate::specimen::SpecimenClick,
+    ) {
         let Some((doc_idx, line)) = self.goto_glyph(ctx, &click.name, &click.kind) else {
             return;
         };
@@ -808,6 +824,7 @@ impl eframe::App for UniformApp {
         let frame_started = std::time::Instant::now();
 
         self.sync_window_title(ctx);
+        self.ensure_ref_images(ctx);
 
         let mut menu = MenuActions::default();
         // Collected here and acted on below: switching a face rebuilds the

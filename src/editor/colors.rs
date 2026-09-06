@@ -42,6 +42,14 @@ pub struct Palette {
     pub shape_palette_selected_bg: Color32,
     pub shape_palette_selected_stroke: Color32,
 
+    /// Behind a reference-chart strip, and so also the whole of one that has
+    /// not been read off disk yet. The strips are near-white artwork, so this
+    /// is the sheet they sit on rather than a highlight — see
+    /// [`crate::editor::ref_images`].
+    pub ref_image_bg: Color32,
+    /// The `U+XXXX` a strip's placeholder carries while it loads.
+    pub ref_image_pending: Color32,
+
     // Horizontal grid scrollbar
     pub hscroll_track: Color32,
     pub hscroll_thumb: Color32,
@@ -98,6 +106,8 @@ impl Palette {
             shape_palette_selected_bg: Color32::from_rgb(60, 80, 120),
             shape_palette_selected_stroke: Color32::from_rgb(100, 160, 240),
 
+            ref_image_bg: Color32::from_rgb(28, 30, 36),
+            ref_image_pending: Color32::from_rgb(110, 115, 130),
             hscroll_track: Color32::from_rgba_unmultiplied(60, 63, 75, 140),
             hscroll_thumb: Color32::from_rgba_unmultiplied(130, 138, 160, 200),
             hscroll_thumb_active: Color32::from_rgb(150, 190, 240),
@@ -149,6 +159,8 @@ impl Palette {
             shape_palette_selected_bg: grid.shape_palette_selected_bg,
             shape_palette_selected_stroke: grid.shape_palette_selected_stroke,
 
+            ref_image_bg: Color32::from_rgb(246, 246, 244),
+            ref_image_pending: Color32::from_rgb(150, 155, 170),
             hscroll_track: Color32::from_rgba_unmultiplied(150, 155, 170, 120),
             hscroll_thumb: Color32::from_rgba_unmultiplied(90, 95, 115, 200),
             hscroll_thumb_active: Color32::from_rgb(40, 100, 190),

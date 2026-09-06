@@ -784,6 +784,7 @@ impl UniformApp {
             font_gen: self.font_data_gen,
             zoom_level,
             font_id: &editor_font_id,
+            ref_images: self.ref_images.as_ref(),
         };
         let result = crate::editor::document_view::DocumentEditor::new(
             &mut doc.document,

@@ -57,6 +57,8 @@ pub(crate) enum SnapKind {
         /// comment color regardless of the line's own color.
         comment_col: Option<usize>,
     },
+    /// A reference chart strip row; see [`crate::editor::ref_images`].
+    RefImage { codepoint: u32 },
     GridRow {
         #[allow(dead_code)]
         item_idx: usize,
@@ -312,6 +314,9 @@ pub(crate) fn capture_snapshot(
                 annotations: vl.annotations.clone(),
                 comment_col: vl.comment_col,
             },
+            VLineKind::RefImage { codepoint } => SnapKind::RefImage {
+                codepoint: *codepoint,
+            },
             VLineKind::GridRow {
                 item_idx,
                 row,
@@ -394,6 +399,10 @@ pub(crate) struct EditorHarness {
     /// While set, a menu-like `egui::Area` is drawn above the editor over this
     /// rect, so a test can send a click that lands on a popup covering the
     /// grid instead of on the grid itself.
+    /// The reference chart strips the editor is drawn with, when a test asks
+    /// for them ([`EditorHarness::with_ref_images`]). Off by default: a strip
+    /// row would shift every layout assertion written without one.
+    pub ref_images: Option<crate::editor::ref_images::RefImages>,
     pub menu_overlay: Option<egui::Rect>,
     /// While set, the single-pane editor is drawn into a band this tall at the
     /// top of the screen instead of the whole of it, so a test can put the
@@ -463,6 +472,7 @@ impl EditorHarness {
             doc,
             lines,
             state: EditorState::new(),
+            ref_images: None,
             named_glyphs: HashMap::new(),
             alt_index: AlternativesIndex::default(),
             name_parts: NamePartsMap::new(),
@@ -573,6 +583,7 @@ impl EditorHarness {
                                 menu_open: self.menu_open,
                                 derived_gen: 0,
                                 font_gen: 0,
+                                ref_images: self.ref_images.as_ref(),
                                 zoom_level: self.zoom,
                                 font_id: &self.font_id,
                             },
@@ -616,6 +627,7 @@ impl EditorHarness {
                                 menu_open: self.menu_open,
                                 derived_gen: 0,
                                 font_gen: 0,
+                                ref_images: self.ref_images.as_ref(),
                                 zoom_level: self.zoom,
                                 font_id: &self.font_id,
                             },
@@ -642,6 +654,7 @@ impl EditorHarness {
                                 menu_open: self.menu_open,
                                 derived_gen: 0,
                                 font_gen: 0,
+                                ref_images: self.ref_images.as_ref(),
                                 zoom_level: self.zoom,
                                 font_id: &self.font_id,
                             },
@@ -1104,6 +1117,36 @@ impl EditorHarness {
                     stroke: r.stroke,
                     clip,
                 }),
+                egui::Shape::Vec(v) => {
+                    for s in v {
+                        walk(s, clip, out);
+                    }
+                }
+                _ => {}
+            }
+        }
+        let mut out = Vec::new();
+        for cs in &self.last_shapes {
+            walk(&cs.shape, cs.clip_rect, &mut out);
+        }
+        out
+    }
+
+    /// Every textured mesh the last frame painted — an image, and in this
+    /// editor that means a reference chart strip — as its bounding box and the
+    /// clip rect it was painted under. The clip is half the answer for a strip:
+    /// it is what keeps one wider than the band inside it.
+    pub fn painted_images(&self) -> Vec<(egui::Rect, egui::Rect)> {
+        fn walk(shape: &egui::Shape, clip: egui::Rect, out: &mut Vec<(egui::Rect, egui::Rect)>) {
+            match shape {
+                // Textured: everything else the editor draws — a sub-pixel
+                // shape, a selection — is painted with the font atlas's own
+                // white pixel, which is `TextureId::default()`.
+                egui::Shape::Mesh(m)
+                    if !m.indices.is_empty() && m.texture_id != egui::TextureId::default() =>
+                {
+                    out.push((m.calc_bounds(), clip));
+                }
                 egui::Shape::Vec(v) => {
                     for s in v {
                         walk(s, clip, out);

@@ -224,6 +224,11 @@ Editor (feature `editor`):
   `glyph_resize_tests.rs`; the cross-file half is `app/resize.rs`.
 - `editor/item_bindings.rs` — the `$-N`/`$N` a block's own lines name, bound for the view: what the
   grid overlay draws where the build would expand.
+- `editor/ref_images.rs` — the reference chart strip `scripts/extract_ref_charts.py` cuts per code
+  point, drawn above the first `glyph` line naming that code point. Holds where the strips are
+  (`audit ref-image-path`, relative to the file that writes it), how a name is read for a code
+  point, why the directory is indexed once and the strips read off the UI thread, and the one fixed
+  row height. Tests in `ref_images_tests.rs` and `view_tests/ref_images.rs`.
 - `editor/` others — `shadow` (`anchor_shadow`/`backref_shadow`), `caret`, `codepoint_popup`, `visual_lines`, `line_fields` (**the single place that
   knows where names live** on a line), `doc_links`, `doc_input`, `editing`, `reconcile`, `undo`,
   `autocomplete`, `annotations`, `colors`, `minimap`, `inline_tools`, `glyph_widget`, `grid_render`
@@ -247,7 +252,8 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 untracked drawing reference — per-code-point strips of what every IRG source and every IVD
 collection draws, cut out of the published chart PDFs by `scripts/extract_ref_charts.py`, whose
 docstring is the reference for it (including how to move to a new Unicode or IVD release). Nothing
-in the build reads it.
+in the *build* reads it; the editor draws a strip above the `glyph` line that names its code point,
+which is what `audit ref-image-path` points at (`editor/ref_images.rs`).
 
 ### Where a given design is written down
 
@@ -312,6 +318,8 @@ in the build reads it.
 | Which glyph a `remap` stops from merging, and why only the ones it matches on | `merge.rs` (`remap_inputs`) |
 | Saying that each expansion of a pattern block is a glyph of its own | `document_io.rs` (`keep`), `merge.rs` |
 | A `remap` rule that the lookup silently drops, and where that is reported | `render/ttf_builder/gsub.rs` (`shadowed_single_subst_rules`, `build_single_subst_from_pairs`) |
+| The reference chart strip above a `glyph` line: where the directory is named, and why a `ref` or a comment naming the same glyph gets none | `editor/ref_images.rs`, `audit.rs` (`ref_image_root`) |
+| Why a strip row is one fixed height, read once and dropped again when it scrolls away | `editor/ref_images.rs` (`REF_IMAGE_ROW`, `RefImages::end_frame`) |
 | Anchor exposure and bearings | `ref_composite/mod.rs` |
 | An anchor's range: the drawing it selects and the point it reduces to, and why only the class states `align` | `document/glyph.rs` (`AnchorAlign`), `render/ttf_builder/gpos.rs` (`anchor_font_units`) |
 | Why a centred anchor class needs its two sizes to share a parity | `issues/anchors.rs` (`check_centred_anchor_parity`) |
@@ -347,6 +355,7 @@ in the build reads it.
 | Why the bytes a write is putting on disk are recorded before it starts | `app/save.rs` (`enqueue_save`), `app/docs.rs` (`knows_disk_bytes`), `app/watch.rs` |
 | Why quitting is the one save that waits | `app/save.rs` (`finish_pending_saves`), `app/docs.rs` (`confirm_close_and_maybe_save`) |
 | Why a rule about the source is `audit` and not `meta` | `audit.rs` |
+| The one `audit` key whose value is a path, and why it is read relative to its own file | `audit.rs` (`AuditEntry::RefImagePath`, `ref_image_root`) |
 | Which parts a clearance check can measure, and what it costs a source with no rule | `render/ttf_builder/expand.rs` (`ink_profiles`) |
 | Measuring a part that is itself a composite, and the walk the check and the fixer share so they measure the same set | `ref_composite/mod.rs` (`resolve_reachable`), `render/ttf_builder/expand.rs` (`ink_profiles`), `fix/clearance.rs` (`Inventory::flatten_composites`) |
 | A part that is itself split by an IDC line: deriving its line before flattening it, and what still leaves a line unmeasurable | `ref_composite/mod.rs` (`derive_compose_body`), `render/ttf_builder/expand.rs` (`ink_profiles`) |
@@ -573,6 +582,7 @@ past the source it tests, it lives in a sibling file (or directory) declared as 
 | `render/sample.rs` | `render/sample_tests.rs` |
 | `render/reach.rs` | `render/reach_tests.rs` |
 | `editor/pixel_selection.rs` | `editor/pixel_selection_tests.rs` |
+| `editor/ref_images.rs` | `editor/ref_images_tests.rs` (and `editor/view_tests/ref_images.rs`) |
 | `editor/glyph_resize.rs` | `editor/glyph_resize_tests.rs` |
 | `meta.rs` | `meta_tests.rs` |
 | `faces.rs` | `faces_tests.rs` |

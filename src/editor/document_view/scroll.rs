@@ -230,6 +230,11 @@ pub(super) fn handle_page_scroll(
             let mut result = 0usize;
             let mut in_target = false;
             for (i, vl) in vlines.iter().enumerate() {
+                // A strip row sits above the line it introduces and carries no
+                // caret, so it is not where a page scroll leaves one.
+                if matches!(vl.kind, VLineKind::RefImage { .. }) {
+                    continue;
+                }
                 if vl.doc_line != state.cursor.line {
                     if in_target {
                         break;
