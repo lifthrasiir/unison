@@ -1221,6 +1221,8 @@ glyph han-5405:11x7 11 7 // 吅
 ⿰ han-53e3:5x7 1 han-53e3:5x7 // ⿰口口
 glyph han-5405:11x8 11 8 // 吅
 ⿰ han-53e3:5x8 1 han-53e3:5x8 // ⿰口口
+glyph han-5405:11x9 11 9 // 吅
+⿰ han-53e3:5x9 1 han-53e3:5x9 // ⿰口口
 glyph han-5405:15x5 15 5 // 吅
 ⿰ han-53e3:7x5 1 han-53e3:7x5 // ⿰口口
 glyph han-5405:15x6 15 6 // 吅
@@ -1886,7 +1888,7 @@ glyph han-5484:15x16 15 16 // 咄
 
 glyph han-5485:9x16 9 16 // 咅
 ref han-7acb:9x8 0 0 // ⿱立口
-ref han-53e3:7x7 1 9
+ref han-53e3:7x8 1 8
 glyph han-5485:15x16 15 16 // 咅
 ⿱ han-7acb:15x8 1 han-53e3:15x7 // ⿱立口
 
@@ -1990,12 +1992,15 @@ ref han-5405:9x9 0 7
 glyph han-54c1:11x10 11 10 // 品
 ref han-53e3:7x6 2 -1 // ⿱口吅
 ref han-5405:11x6 0 4
-glyph han-54c1:11x13 11 13 // 品
-ref han-53e3:7x7 2 -1 // ⿱口吅
-ref han-5405:11x8 0 5
 glyph han-54c1:11x12 11 12 // 品
 ref han-53e3:7x7 2 -1 // ⿱口吅
 ref han-5405:11x7 0 5
+glyph han-54c1:11x13 11 13 // 品
+ref han-53e3:7x7 2 -1 // ⿱口吅
+ref han-5405:11x8 0 5
+glyph han-54c1:11x16 11 16 // 品
+ref han-53e3:7x9 2 -1 // ⿱口吅
+ref han-5405:11x9 0 7
 glyph han-54c1:15x16 15 16 // 品
 ⿱ han-53e3:15x7 han-5405:15x9 // ⿱口吅
 
