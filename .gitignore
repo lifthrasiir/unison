@@ -8,3 +8,8 @@ unison.woff2
 unison-*.woff2
 *.log
 __pycache__
+
+# reference charts: the copyrighted PDFs `scripts/extract_ref_charts.py` downloads
+# into data/ref, and every image it cuts out of them
+data/*.pdf
+data/ref

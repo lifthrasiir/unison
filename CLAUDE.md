@@ -243,7 +243,11 @@ Editor (feature `editor`):
 `font/*.unf` are the font sources (one file per category). `testdata/` holds test-only `.unf` files
 plus goldens. `data/` holds sample-generation inputs (confusables, UDHR text) read at build time
 through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compiled *into* the binary
-(`include_str!` from `ucd.rs`) because the editor needs it with no `-d` in sight.
+(`include_str!` from `ucd.rs`) because the editor needs it with no `-d` in sight. `data/ref/` is
+untracked drawing reference — per-code-point strips of what every IRG source and every IVD
+collection draws, cut out of the published chart PDFs by `scripts/extract_ref_charts.py`, whose
+docstring is the reference for it (including how to move to a new Unicode or IVD release). Nothing
+in the build reads it.
 
 ### Where a given design is written down
 
