@@ -53,6 +53,9 @@ glyph han-2d1cf:15x16 15 16 // 𭇏
 glyph han-2d1d0:15x16 15 16 // 𭇐
 ⿱ han-53e3:15x4 han-7518:15x12 // ⿱口甘
 
+// glyph han-2d1d2:15x16 15 16 // 𭇒
+// ⿰ han-53e3 han-518a // ⿰口冊
+
 glyph han-2d1d5-($han-regions):15x16 15 16 // 𭇕
 ⿰ han-53e5:7x16 1 han-52fa-($-1):7x16 // ⿰句勺
 

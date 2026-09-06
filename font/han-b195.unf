@@ -264,7 +264,7 @@ glyph han-29e25:15x16 15 16 // 𩸥
 ⿰ han-9b5a:7x16 1 han-708e:7x16 // ⿰魚炎
 
 glyph han-29e26:15x16 15 16 // 𩸦
-⿲ -4 han-9b5a:7x16 han-6c35:3x16 han-5c3c:9x16 // ⿲魚氵尼
+⿲ -3 han-9b5a:7x16 han-6c35:3x16 -1 han-5c3c:9x16 // ⿲魚氵尼
 
 // glyph han-29e27:15x16 15 16 // 𩸧
 // ⿱ han-6ce5 han-9b5a // ⿱泥魚

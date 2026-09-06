@@ -48,6 +48,9 @@ glyph han-21d40-($han-regions):15x16 15 16 // 𡵀
 glyph han-21d43:15x16 15 16 // 𡵃
 ⿱ han-5c71:15x4 1 han-5e72:15x11 // ⿱山干
 
+// glyph han-21d44:15x16 15 16 // 𡵄
+// ⿱ han-5c71 han-30001 // ⿱山𰀁
+
 // glyph han-21d45:15x16 15 16 // 𡵅
 // ⿱ han-5c71 han-5ddd // ⿱山川
 

@@ -225,7 +225,7 @@ glyph han-2265e:15x16 15 16 // 𢙞
 // ⿱ han-20bc4 han-5fc3 // ⿱𠯄心
 
 glyph han-22663:15x16 15 16 // 𢙣
-⿱ han-8980:15x7 1 han-5fc3:15x7 // ⿱覀心
+⿱ han-8980:15x7 han-5fc3:15x9 // ⿱覀心
 
 // glyph han-22667:15x16 15 16 // 𢙧
 // ⿲ han-5fc4 han-4e28 han-5725 // ⿲忄丨圥

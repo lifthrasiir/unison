@@ -44,8 +44,8 @@ glyph han-2a397:15x16 15 16 // 𪎗
 // glyph han-2a39e:15x16 15 16 // 𪎞
 // ⿸ han-9ebb han-592e // ⿸麻央
 
-// glyph han-2a39f:15x16 15 16 // 𪎟
-// ⿸ han-9ebb han-7530 // ⿸麻田
+glyph han-2a39f:15x16 15 16 // 𪎟
+⿸ han-9ebb:15x16.11x7 han-7530:9x7 5 9 // ⿸麻田
 
 ## 200.6
 

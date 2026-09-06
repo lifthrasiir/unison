@@ -754,8 +754,8 @@ ref han-5927:15x5 0 11
 // glyph han-2e157:15x16 15 16 // 𮅗
 // ⿰ han-7b52 han-4e03 // ⿰筒七
 
-// glyph han-2e158:15x16 15 16 // 𮅘
-// ⿱ han-25ad7 han-9580 // ⿱𥫗門
+glyph han-2e158:15x16 15 16 // 𮅘
+⿱ han-25ad7:15x5 han-9580:15x11 // ⿱𥫗門
 
 // glyph han-2e15a-($han-regions):15x16 15 16 // 𮅚
 // ⿱ han-25ad7 han-28472-($-1) // ⿱𥫗𨑲

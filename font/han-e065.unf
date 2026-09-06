@@ -523,7 +523,7 @@ glyph han-2c21a-($han-regions):15x16 15 16 // 𬈚
 // ⿰ han-6c35 han-7ade // ⿰氵竞
 
 glyph han-2c224:15x16 15 16 // 𬈤
-⿲ -4 han-6c35:3x16 han-5c3c:9x16 han-751f:7x16 // ⿲氵尼生
+⿲ -3 han-6c35:3x16 -1 han-5c3c:9x16 han-751f:7x16 // ⿲氵尼生
 
 ## 85.12
 
@@ -553,7 +553,7 @@ glyph han-2c252:15x16 15 16 // 𬉒
 // ⿲ han-6c35 han-7acb han-82d7 // ⿲氵立苗 <- ⿰泣苗
 
 glyph han-2c25a:15x16 15 16 // 𬉚
-⿲ -8 han-6c35:3x16 han-5c3c:9x16 han-661f:11x16 // ⿲氵尼星
+⿲ -7 han-6c35:3x16 -1 han-5c3c:9x16 han-661f:11x16 // ⿲氵尼星
 
 ## 85.17
 

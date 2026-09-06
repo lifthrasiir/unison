@@ -596,6 +596,9 @@ glyph han-7b21:15x16 15 16 // 笡
 glyph han-7b26:15x16 15 16 // 符
 ⿱ han-25ad7:15x5 han-4ed8:15x11 // ⿱𥫗付
 
+// glyph han-7b27:15x16 15 16 // 笧
+// ⿱ han-25ad7 han-518a // ⿱𥫗冊
+
 // glyph han-7b28:15x16 15 16 // 笨
 // ⿱ han-25ad7 han-672c // ⿱𥫗本
 
@@ -1102,6 +1105,9 @@ glyph han-7c99:15x16 15 16 // 粙
 
 // glyph han-7c9c:15x16 15 16 // 粜
 // ⿱ han-51fa han-7c73 // ⿱出米
+
+// glyph han-7ca3:15x16 15 16 // 粣
+// ⿰ han-7c73 han-518a // ⿰米冊
 
 ## 119.6
 

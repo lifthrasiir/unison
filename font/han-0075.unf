@@ -792,7 +792,7 @@ glyph han-67c3-($han-regions):15x16 15 16 // 柃
 // ⿰ han-6728 han-4e19 // ⿰木丙
 
 glyph han-67c5:15x16 15 16 // 柅
-⿰ han-6728:5x16 1 han-5c3c:9x16 // ⿰木尼
+⿰ han-6728:5x16 han-5c3c:10x16 // ⿰木尼
 
 glyph han-67c6:15x16 15 16 // 柆
 ⿰ han-6728:7x16 1 han-7acb:7x16 // ⿰木立
@@ -876,6 +876,9 @@ glyph han-67ef:15x16 15 16 // 柯
 
 // glyph han-67f4:15x16 15 16 // 柴
 // ⿱ han-6b64 han-6728 // ⿱此木
+
+// glyph han-67f5:15x16 15 16 // 柵
+// ⿰ han-6728 han-518a // ⿰木冊
 
 glyph han-67f6:15x16 15 16 // 柶
 ⿰ han-6728:7x16 han-56db:8x16 // ⿰木四

@@ -690,11 +690,14 @@ glyph han-2e7ac-($han-regions):15x16 15 16 // 𮞬
 
 ## 163.5
 
+// glyph han-2e7f0:15x16 15 16 // 𮟰
+// ⿰ han-518a han-961d // ⿰冊阝
+
 // glyph han-2e7f1:15x16 15 16 // 𮟱
 // ⿰ han-518b han-961d // ⿰冋阝
 
 glyph han-2e7f3:15x16 15 16 // 𮟳
-⿰ han-7528:7x16 1 han-961d:7x16-r // ⿰用阝
+⿰ han-7528:10x16 1 han-961d:4x16-r // ⿰用阝
 
 // glyph han-2e7f6:15x16 15 16 // 𮟶
 // ⿱ han-52a0 han-9091 // ⿱加邑
