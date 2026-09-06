@@ -1,5 +1,7 @@
 //! IDC composition: the `⿰⿱⿲⿳` splits and the `⿴⿵⿶⿷⿸⿹⿺⿼⿽` enclosures inside a
-//! glyph block, and the variant name rule they read.
+//! glyph block, and the variant name rule they read. The syntax and what an
+//! author is held to are in `doc/reference.md` (*IDC composition*); this is
+//! why it is built so.
 //!
 //! # Why the line is a first-class item
 //!
@@ -9,8 +11,14 @@
 //! offsets there is no place for that to live — two parts that crowd each other
 //! look exactly like two that do not, and at 20k glyphs "quietly off by one" is
 //! undetectable. So the offsets are *derived* from the parts' declared sizes,
-//! and what the parts leave each other is measured against a declared range
-//! (see [Clearance](#clearance) below).
+//! and what the parts leave each other is measured against a declared range.
+//!
+//! Sizes are read from the components' `glyph` headers, never from the composed
+//! result: a part's width is a property the part *declares*, which is what makes
+//! the layout a lookup rather than a search. The expansion of a pattern line
+//! happens before this module runs (`ttf_builder::expand::expand_compose_lines`),
+//! because each expansion's parts declare their own boxes and so land at their
+//! own offsets; what reaches here is always one concrete glyph's line.
 //!
 //! # Two kinds of line, one measurement
 //!
@@ -25,58 +33,19 @@
 //! What makes that possible is [`GapSide`]. Every gap either layout measures is
 //! between two *boundaries*, and the only things that vary are which of a
 //! line's four boundaries faces the gap and how far along the cross axis the
-//! two parts sit. A split reads the two ends everyone can see and both parts
-//! span the parent, so it passes [`GapSide::linear`] and reads exactly the
-//! numbers it always did. An enclosure reads the inner face of a wall, against
+//! two parts sit. A split passes [`GapSide::linear`] and reads exactly the
+//! numbers it always did; an enclosure reads the inner face of a wall, against
 //! an inner part sitting somewhere inside the box.
 //!
-//! `⿻` (overlaid), `⿾` (mirrored) and `⿿` (rotated) are deliberately absent.
-//! The first says two drawings share a box and nothing about where; the other
-//! two transform one drawing rather than composing two, which is a different
-//! mechanism. This is not a general IDS layout engine.
+//! An enclosure's numbers are **offsets**, not gaps, because an enclosure has
+//! two gaps on each axis and fixing all four still leaves the layout ambiguous
+//! wherever a wall's inner face is ragged. Both are written or neither: a line
+//! with neither has decided nothing and is a [`Severity::Todo`], exactly as an
+//! unpicked variant is, and is *not* read as `0 0` ([`expand_enclosure`]).
 //!
-//! ```text
-//! glyph han-6cb3 15 16
-//! ⿰ han-6c35:4x16 han-53ef:11x16
-//! ⿰ han-6c35:4x16 -1 han-53ef:12x16    // a negative gap: the boxes overlap
-//! ```
-//!
-//! # The line
-//!
-//! `IDC TOKEN…`, where each token is a **number** if it parses as one and a
-//! **component name** otherwise. What a number means is the operator's to say,
-//! and it is the one thing the two kinds of line do not share.
-//!
-//! On a **split** a number is a **gap**. ⿰/⿱ take two components, ⿲/⿳ three;
-//! gaps may appear anywhere among them, including before the first and after
-//! the last (which is how a bearing inside the box is written), and default to
-//! none. Placement walks the axis in written order: a gap advances the cursor,
-//! a component is placed at the cursor and advances it by its own extent. Each
-//! component's extent *across* the axis must equal the parent's — a ⿰ part is
-//! as tall as the glyph — and that is an error.
-//!
-//! On an **enclosure** the line is `IDC OUTER INNER P Q`, and `P Q` are the
-//! inner part's **top-left offsets** inside the box — not gaps. A gap would be
-//! the natural spelling and it does not work: an enclosure has two gaps on each
-//! axis, and fixing all four still leaves the layout ambiguous wherever a
-//! wall's inner face is ragged, since "one cell from the left wall" is a
-//! different column on every row. An offset is one answer to where the part is,
-//! and the clearances are then measured rather than declared. Both offsets are
-//! written or neither: a line with neither has decided nothing and is a
-//! [`Severity::Todo`], exactly as an unpicked variant is, and is *not* read as
-//! `0 0`. [`expand_enclosure`] is the whole of it.
-//!
-//! # A pattern line, and a line that may name nothing
-//!
-//! A component is a glyph name like a `ref` target, and takes the same two
-//! things a `ref` target takes. A [name pattern](crate::pattern) expands in
-//! lock-step with the enclosing block's name, so one line writes the split of
-//! every glyph the block declares; unlike a `ref`, though, what the line
-//! *derives* is not shared between them, because each expansion's parts declare
-//! their own boxes and so land at their own offsets. That is why the expansion
-//! happens before this module runs at all
-//! (`ttf_builder::expand::expand_compose_lines`): what reaches here is always
-//! one concrete glyph's line.
+//! `⿻`, `⿾` and `⿿` are deliberately absent: the first says two drawings
+//! share a box and nothing about where; the other two transform one drawing
+//! rather than composing two. This is not a general IDS layout engine.
 //!
 //! # An undecided line is not a wrong one
 //!
@@ -85,115 +54,66 @@
 //! mistake, so it is a [`Severity::Todo`] and not an error: one per unpicked
 //! component, and the clearance check — which is about a layout that has not
 //! been chosen — stands down for the whole line, as do the unpicked component's
-//! own size and cross-axis checks. What is left is the line's *decided* half,
-//! still fully checked. The glyph is no more built than an erroring one is; the
-//! difference is that a build, a `uniform test` run and CI do not fail over it.
-//!
-//! Sizes are read from the components' `glyph` headers, never from the
-//! composed result: a part's width is a property the part *declares*, which is
-//! what makes the layout a lookup rather than a search.
-//! A component that names no glyph, or one whose header declares no `W H`, is
-//! an error for the same reason.
+//! own size and cross-axis checks. The glyph is no more built than an erroring
+//! one is; the difference is that a build, a `uniform test` run and CI do not
+//! fail over it.
 //!
 //! # Clearance
 //!
-//! A box says nothing about where the ink inside it stops: two parts whose
-//! boxes tile the parent perfectly can still collide, or leave a canyon down
-//! the middle. So the check reads the drawing itself rather than the boxes.
+//! A box says nothing about where the ink inside it stops, so the check reads
+//! the drawing rather than the boxes: a part's **frontier** per line across the
+//! split axis (a hardblank counts), and the **clearance** between two facing
+//! frontiers in cells, with the parent's edges taking part as an n+1-th
+//! clearance. Two facing hardblank runs share their depth, and an edge is the
+//! limit of that rule — hardblank as far out as anyone could ask — so a facing
+//! run collapses into it.
 //!
-//! A glyph's **frontier** is, for each line across the split axis, the first
-//! and last cell of that line holding anything — a hardblank counts, since it
-//! is a cell the source deliberately keeps clear of a neighbour. The
-//! **clearance** between two adjacent parts is the smallest per-line distance
-//! between the two frontiers that face each other, counted in cells between
-//! them: 0 means they touch, negative means they overlap. Two hardblanks that
-//! face each other are one space and not two, though, so as far as both sides'
-//! hardblank runs reach the clearance counts the shared depth as well — a part
-//! keeping two cells clear beside a neighbour keeping one shares one of them,
-//! and the pair may sit that much closer for the same clearance. The parent's own
-//! edges take part too, as the distance from the edge inward (negative when the
-//! ink crosses it), so an n-part line has n+1 clearances. An edge is the limit
-//! of that same rule: it is hardblank as far out as anyone could ask, since
-//! there is nothing outside the box to keep clear of, so the whole of a line's
-//! facing hardblank run collapses into it and the edge measures to the ink
-//! behind it.
+//! [`IdealClearances`](crate::audit::IdealClearances) holds each clearance
+//! *and* their total to one range; a violation is a warning
+//! ([`check_clearances`]). Both halves are needed, and the reason is
+//! arithmetic: the total telescopes down to the parent's extent less the parts'
+//! ink extents, so it does not depend on the gaps at all. A source that only had
+//! to satisfy the total could never fix a failing line by moving anything — the
+//! per-part bound is what an author can act on, and the total is what catches
+//! parts that are simply too fat for the box together.
 //!
-//! [`IdealClearances`](crate::audit::IdealClearances) — `audit ideal-clearance
-//! PREFIX* MIN MAX [MIN MAX]` — holds each of them, *and* their total, to one
-//! range; a violation is a warning ([`check_clearances`]). Both halves are
-//! needed, and the reason is arithmetic: the total telescopes down to the
-//! parent's extent less the parts' ink extents, so it does not depend on the
-//! gaps at all. A source that only had to satisfy the total could never fix a
-//! failing line by moving anything — the per-part bound is what makes the check
-//! something an author can act on, and the total is what catches parts that are
-//! simply too fat for the box together, however they are shuffled.
+//! The total is held **per axis** ([`Clearance::horizontal`]): a split has one
+//! axis, an enclosure two that telescope separately, and adding them would be a
+//! number that is neither. The optional second `MIN MAX` of the audit rule is
+//! the band an enclosure is held to.
 //!
-//! The total is held **per axis** ([`Clearance::horizontal`]). A split has one
-//! axis and this says exactly what it always did; an enclosure has two, and
-//! they telescope separately — adding them together would be a number that is
-//! neither. The optional second `MIN MAX` is the band an *enclosure* is held
-//! to, since seating a whole drawing inside another spends room for a different
-//! reason than standing two side by side; a source that writes one pair holds
-//! both kinds of line to it.
-//!
-//! A part is measured over its declared box, but not *bounded* by it along the
-//! split axis: what it draws outside is read where it is drawn. That is how a
-//! part writes a side bearing — the box is the cells it fills and a hardblank
-//! beyond it is the space it wants its neighbour to leave — and two parts that
-//! each claim a column and are placed box to box overlap by exactly what they
-//! claim ([`InkProfile::of`]).
-//!
-//! Everything here reads what a part *draws*. A part drawn with its own pixels
-//! is read off them; one that is a composite is flattened first and read off
-//! that, since a radical written as a `ref` to a shared drawing draws exactly
-//! as much as one written out. A part that is itself **split by an IDC line**
-//! is the same case one step further out — `⿱艹林` names 林, which is
-//! `⿰木木` — so its line is derived and then flattened. What has no frontier
-//! at all is a part that draws nothing yet, and one whose own line has an
-//! undecided component in it: a line with one of those in it is not measured
-//! rather than measured wrong. `ttf_builder::expand::ink_profiles` is where the
-//! cases are told apart.
+//! A part is measured over its declared box but not *bounded* by it along the
+//! split axis: what it draws outside is read where it is drawn, which is how a
+//! part writes a side bearing ([`InkProfile::of`]). A part that is a composite
+//! is flattened first, and one that is itself split by an IDC line has its line
+//! derived and then flattened — `⿱艹林` names 林, which is `⿰木木`. What has no
+//! frontier is a part that draws nothing yet, or one whose own line has an
+//! undecided component: a line with one of those is not measured rather than
+//! measured wrong. `ttf_builder::expand::ink_profiles` tells the cases apart.
 //!
 //! # The variant name rule (D1)
 //!
 //! Everything after a name's first `:` is split on `-`; the first `WxH` token
-//! is the variant's **size** and the first `l`/`r`/`u`/`d`/`c` token is its
-//! **position** (left, right, up, down, centre — `c` is the centre of either
-//! axis). Neither is required, and a name carrying neither is not an error.
+//! is the variant's **size** and the first `l`/`r`/`u`/`d`/`c` token its
+//! **position**. Neither is required. A size may be `WxH.NxM`, which promises
+//! a **cavity** flush against the sides the enclosure it is written for opens
+//! on ([`cavity_fits`]); only an outer part states one, stating one is what
+//! marks a drawing as an outer part, and [`enclosure_rank`] reads it the way
+//! [`direction_rank`] reads a position. The cavity is a *lower bound* where the
+//! size is an equality: a size is the box a glyph declares and there is one
+//! right answer, a cavity is room a drawing happens to leave.
 //!
-//! A size token may be written `WxH.NxM`, which additionally promises a
-//! **cavity**: an `NxM` rectangle the drawing leaves clear, flush against
-//! whichever sides the enclosure it is written for opens on ([`cavity_fits`]).
-//! Only an enclosure's outer part states one, and stating one is what marks a
-//! drawing as an outer part at all — it is the enclosure's answer to the
-//! `l`/`r` a split's name carries, and [`enclosure_rank`] reads it the way
-//! [`direction_rank`] reads those. Two things ride on it:
-//!
-//! - the promise makes variant selection a **lookup** rather than a search. An
-//!   ink profile exists only where an `audit ideal-clearance` rule is in force,
-//!   so a name that did not say what it could hold would leave the editor's
-//!   completion and `uniform fix` with nothing to go on — which is exactly what
-//!   `WxH` does for a split's cross axis;
-//! - unlike `WxH`, it is a **lower bound**. A size is the box a glyph declares
-//!   and there is one right answer; a cavity is room a drawing happens to
-//!   leave, and a drawing more generous than its name is not a fault.
-//!
-//! What they buy, when they are there:
-//!
-//! - a declared size must equal the glyph's actual size, checked where the name
-//!   is *used* as a component — a name is a claim about the glyph, so an
-//!   unused `:4x16` that lies is nothing until someone believes it;
-//! - a declared position is matched against the slot the component sits in, and
-//!   a mismatch is a warning rather than an error: 阝 really is two different
-//!   characters left and right, but a part drawn for the right that happens to
-//!   fit on the left is a design decision, not a broken source.
-//!
-//! The position is also the tie-break when several variants of a part have the
-//! same size ([`direction_rank`]): the slot's own direction first, an unmarked
-//! name second, the wrong direction last. Nothing selects variants
-//! automatically yet — an IDC component names the variant it wants outright —
-//! but the ranking is the rule that the editor's variant picker and the
-//! most-common-choice default will both use, so it lives here with the parse.
+//! Why a name says these things at all: an ink profile exists only where an
+//! `audit ideal-clearance` rule is in force, so a name that did not say what it
+//! could hold would leave the editor's completion and `uniform fix` with
+//! nothing to go on. What they buy: a declared size must equal the glyph's
+//! actual size, checked where the name is *used* (a claim is nothing until
+//! someone believes it); a declared position is matched against the slot, and
+//! a mismatch is a warning, since a part drawn for one side that fits the other
+//! is a design decision. The position is also the tie-break among same-sized
+//! variants ([`direction_rank`]): the slot's own direction first, unmarked
+//! second, the wrong direction last — the order the editor's listing and the
+//! fixer both use, so it lives here with the parse.
 
 use crate::detail::DetailRegion;
 use crate::document::{ComposeItem, GlyphCompose, GlyphRef, PixelGrid};
@@ -1175,7 +1095,7 @@ impl<'a> GapSide<'a> {
     }
 
     /// The covers of the boundary this side presents to the gap, per line,
-    /// indexed the way [`Self::paired_lines`] walks them.
+    /// indexed the way `Self::paired_lines` walks them.
     fn facing_cover(
         self,
         horizontal: bool,
@@ -1209,7 +1129,7 @@ impl<'a> GapSide<'a> {
 /// clearance and want opposite answers.
 ///
 /// Hardblanks need no term here. A hardblank holds a part's *ink* frontier back
-/// (see [`InkLine::ink`]), so a claim that has already parted two parts leaves
+/// (see [`Face::ink`]), so a claim that has already parted two parts leaves
 /// nothing touching for this to count, and the two mechanisms never both fire
 /// on one line. A line either part draws nothing on breaks the run: there is no
 /// contact where one side is not there.

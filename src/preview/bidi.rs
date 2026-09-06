@@ -29,10 +29,8 @@
 //! # What this does not do
 //!
 //! Rule L3 (combining marks) and rule L4 (mirroring) are left to the shaper, as
-//! UAX #9 intends. rustybuzz mirrors on its own — for a backward run it swaps
-//! in the `Bidi_Mirroring_Glyph` code point when the face has a glyph for it,
-//! and otherwise sets the `rtlm` mask so the font's own feature can do it. So a
-//! run reaching the shaper with `Direction::RightToLeft` already gets L4.
+//! UAX #9 intends; see [`crate::preview::rustybuzz`] for how that backend
+//! mirrors on its own.
 
 use std::ops::Range;
 

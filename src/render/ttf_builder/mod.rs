@@ -26,7 +26,7 @@
 //! - [`masters`] pads the two outlines until they are point-compatible,
 //!   changing neither. That is what a `gvar` delta needs and the only reason
 //!   the padding exists.
-//! - [`tables::build_gvar`] writes the move from one to the other, under a
+//! - `tables::build_gvar` writes the move from one to the other, under a
 //!   tuple whose intermediate region is narrow enough that the axis behaves as
 //!   a switch — see [`tables::BITMAP_AXIS_TENT_START`] for why a step is not
 //!   directly expressible and what the narrow ramp costs.
@@ -58,7 +58,7 @@
 //! Because [`contours::CachedContours::from_grid`] squares a grid off *into
 //! the cache*, exempting the glyph alone would still compose it out of
 //! squared-off components. So the exemption is a **closure over the `ref`
-//! graph** ([`collect::vectoronly_closure`]), and everything keyed by flavor —
+//! graph** (`collect::vectoronly_closure`), and everything keyed by flavor —
 //! the grid hash, the composite key, the seed — takes the *effective* flavor of
 //! the glyph in hand rather than the pass's, which is what keeps a cached entry
 //! from crossing between the two. The price is that a component the closure
@@ -95,11 +95,9 @@
 //! reason: its small glyphs are the bitmap face and its scaled ones the vector
 //! face.
 //!
-//! This module and [`crate::render::contour`] are where most of the fixes land,
-//! and the theme is always the same: sub-pixel and on-demand shapes seen through
-//! a *composite* rather than on their own (fractional on-demand glyphs, triangle
-//! subglyphs, an `xMax` underestimated when `coloronly`/`monoonly` layers mix,
-//! panics from multi-part shapes). Check contour output at composite level.
+//! This module and [`crate::render::contour`] are where most of the fixes land:
+//! sub-pixel and on-demand shapes seen through a *composite* rather than on
+//! their own. Check contour output at composite level.
 
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::hash::{Hash, Hasher};
@@ -798,7 +796,7 @@ pub fn build_faces(docs: &[&Document]) -> Option<Vec<(String, Vec<u8>)>> {
     build_faces_from(docs, &expansion)
 }
 
-/// [`build_faces`] over an expansion the caller already has.
+/// `build_faces` over an expansion the caller already has.
 ///
 /// Which is every caller that also validates or samples: the expansion is
 /// face-independent (see [`crate::faces::FaceSet::union`]) and is the larger
@@ -950,7 +948,7 @@ pub fn build_font_with_gid_map(docs: &[&Document]) -> Option<FontWithGidMap> {
 }
 
 /// The same, for one named face rather than the primary one. The glyph order is
-/// that face's own — unlike [`build_faces`], nothing here is shared between
+/// that face's own — unlike `build_faces`, nothing here is shared between
 /// faces, so the returned GID→name map is only valid for these bytes.
 pub fn build_font_with_gid_map_for(
     docs: &[&Document],
@@ -993,7 +991,7 @@ pub struct DemoFont {
 /// Both masters are built at the vector flavor's scale and vertical metrics.
 /// They have to be — `gvar` is a per-point move within one coordinate system,
 /// so a second scale would make every delta a lie — and this is the same choice
-/// [`build_faces`] makes for the shipping variable font.
+/// `build_faces` makes for the shipping variable font.
 pub fn build_face_variable(docs: &[&Document], face: &crate::faces::Face) -> Option<DemoFont> {
     let never = crate::cancel::CancelToken::never();
     // Expanded here rather than inside the shared input, because three things

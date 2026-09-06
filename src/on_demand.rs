@@ -1,85 +1,47 @@
 //! On-demand glyph synthesis: names nothing defines but that describe a shape.
 //!
-//! A name that no `glyph` block defines but that matches a synthesizable shape
-//! is generated on the spot, and such a glyph is implicitly `inline`:
-//!
-//! - `[-|_]W[pArR]x[-|_]H[pBrR]` — the **declared box**: a filled rectangle,
-//!   each dimension either a whole number of cells or `A + B/R`; e.g. `1p2r3x4`
-//!   is 1⅔ × 4. See [`parse_on_demand_glyph`] for the exact constraints and
-//!   [`BoxAlign`] for what a leading `-` or `_` aligns.
-//! - the box with a `-ul`/`-ur`/`-dl`/`-dr` suffix — a right triangle.
-//! - the box with `-circle` — the ellipse inscribed in it.
-//! - the box with `-polyN[.MMM|rK][-cwR|-ccwR]` — a regular N-gon or a star
-//!   inscribed in that ellipse.
-//! - the box with `-xsN`/`-xzN`/`-ysN`/`-yzN` — the parallelogram whose two
-//!   sheared edges sit `N` apart. See [`ShearSpec`].
-//! - any of those with a trailing `:ceil`/`:floor`/`:zero` — the
-//!   [`BitmapFill`] rule.
-//! - `X` where `X` is undefined but both `X:mono` and `X:color` exist — picks
-//!   by rendering mode ([`detect_color_mono_glyph`]).
-//!
-//! The grammar is parsed strictly left to right and must be matched in full:
-//! there is exactly one shape suffix and at most one fill suffix, in that
-//! order. Any leftover — a second shape word, an unknown `:`-suffix — makes the
-//! name a non-match, so ordinary glyph names containing `-` or `:` fall
-//! through to normal lookup untouched.
+//! The grammar an author writes is in `doc/reference.md` (*On-demand Glyphs*);
+//! [`parse_on_demand_glyph`] is the
+//! parser and reads strictly left to right, matched in full — exactly one shape
+//! suffix, at most one `:` fill suffix, and any leftover makes the name a
+//! non-match so ordinary names with `-` or `:` fall through to normal lookup.
+//! Such a glyph is implicitly `inline`. `X` where only `X:mono` and `X:color`
+//! exist is the one non-geometric case ([`detect_color_mono_glyph`]).
 //!
 //! # The declared box is the glyph's size
 //!
 //! Whatever the shape, the synthesized grid is `ceil(W) × ceil(H)` logical
 //! pixels: the box fixes the glyph's extent, and the shape only decides which
 //! part of it is inked. A fractional dimension does not fill its last cell, and
-//! the sign on that dimension is what says where the leftover gap falls — at
-//! the far end (no sign), at the near end (`-`) or split between the two (`_`).
-//! The box is anchored to integer coordinates the same way for every shape.
+//! the sign on that dimension says where the leftover gap falls ([`BoxAlign`]).
 //!
-//! A shear leans the same way: the box stays `ceil(W) × ceil(H)` and the
-//! parallelogram is inscribed in it, so `WxH-xsN` is a rectangle of
-//! `(W - N) × H` with its two horizontal edges slid `N` apart, rather than a
-//! `W × H` one sheared until it overhangs. `N` is therefore a *length* on the
-//! same lattice as the box — the offset between the two edges, which is what
-//! one looks at when drawing a stroke — and not the slope, which would put
-//! every useful value below 1. The box a name states is what every reader of
-//! it — the `:WxH-l` variant rule, the autocompletion of an IDC slot,
-//! `declared_box`, the clearance an `InkProfile` measures — takes for the
-//! glyph's size, and a shape that grew past its own name would be wrong for
-//! all of them. A shear that eats the whole dimension (`N >= W`) encloses
-//! nothing and is not a name at all, like a zero-width box.
+//! A shear leans the same way: the parallelogram is inscribed in the box, so
+//! `WxH-xsN` is a `(W - N) × H` rectangle with its edges slid `N` apart rather
+//! than a `W × H` one sheared until it overhangs. `N` is a *length* on the box's
+//! lattice and not a slope, which would put every useful value below 1. The box
+//! a name states is what every reader of it — the `:WxH-l` variant rule, the
+//! autocompletion of an IDC slot, `declared_box`, an `InkProfile` — takes for
+//! the glyph's size, and a shape that grew past its own name would be wrong for
+//! all of them.
 //!
 //! # Circles and polygons live in a square box first
 //!
 //! `-circle` and `-polyN` are defined in an auxiliary *square* box of side
 //! `min(|W|, |H|)` sharing the real box's center, and the finished shape is
 //! then mapped onto the real box by the affine transform that takes the
-//! auxiliary box to it. So `2x1-circle` is the ellipse filling 2 × 1, and a
-//! rotated polygon is rotated in the square and *then* stretched — the
-//! rotation is not applied to the stretched shape, which is why `-cw`/`-ccw`
-//! sit before the stretch in the pipeline and not after.
-//!
-//! A polygon's outer points sit on that inscribed circle. `.MMM` pulls the
-//! inner points towards the center as a fraction of the way in from the edge
-//! midpoints: `.000` (the default) leaves them *on* the edges, so the shape is
-//! the plain regular N-gon — note that even then the inner points are nearer
-//! the center than the outer ones, by `cos(pi/N)`. `rK` instead picks the inner
-//! radius of the `{N/K}` star polygon. `-cwR`/`-ccwR` turn the shape by R
-//! degrees about the shared center, from a default angle that puts an outer
-//! point at the top of the box.
+//! auxiliary box to it. A rotated polygon is rotated in the square and *then*
+//! stretched, which is why `-cw`/`-ccw` sit before the stretch in the pipeline.
 //!
 //! # Names are normalized, so equal shapes share one cached grid
 //!
-//! Several spellings mean the same polygon — `poly6`, `poly6.000`, `poly6r1`,
-//! `poly6-cw60`, `poly6-ccw0` are all one shape. [`PolySpec`] is therefore a
+//! Several spellings mean the same polygon. [`PolySpec`] is therefore a
 //! *normalized* form, not a transcript of the name: a zero inset and `r1`
-//! collapse to [`PolyInset::None`], and the rotation is folded into the
-//! shape's own N-fold symmetry and turned into a clockwise fraction of a full
-//! turn. That fraction is kept as an exact reduced rational because the folded
-//! angle is not a whole number of degrees unless N divides 360 — `poly7-cw100`
-//! normalizes to 100/360 mod 1/7 of a turn, which no decimal degree spells.
-//! `rK` does *not* normalize into `.MMM`: its inner radius is irrational, so
-//! `poly5r2` and `poly5.528` are near-identical but genuinely distinct shapes.
-//! A shear normalizes the other way round: `-xs0` and its three siblings all
-//! mean the plain rectangle, and parse to [`OnDemandShape::Rect`] so that the
-//! rectangle keeps one spelling in the cache and in every match on the shape.
+//! collapse to [`PolyInset::None`], and the rotation is folded into the shape's
+//! own N-fold symmetry and kept as an exact reduced rational — the folded angle
+//! is not a whole number of degrees unless N divides 360. `rK` does *not*
+//! normalize into `.MMM`: its inner radius is irrational, so `poly5r2` and
+//! `poly5.528` are near-identical but distinct shapes. A shear of 0 parses to
+//! [`OnDemandShape::Rect`], so the rectangle keeps one spelling in the cache.
 //!
 //! Equal specs are the cache key for [`make_on_demand_grid`], which memoizes
 //! the curved shapes — they cost a per-cell exact clip, unlike a rectangle.
@@ -90,33 +52,29 @@
 //! lattice, so a circle enters the grid as a polygon fine enough that the
 //! difference is below that lattice ([`POLY_Q`]).
 //!
-//! Cutting it into cells is where the care goes. The outline is first split at
-//! every cell border, so no edge interior ever leaves the cell its endpoints
-//! are in; each cell then clips that ring against its own box. Because of the
-//! split, a clip can only ever land on a vertex that is already there, so the
-//! whole thing runs in plain integers and — the point of the exercise — two
-//! cells sharing a border cut the same edge at the same point instead of each
-//! rounding its own. Disagree there and the contour tracer sees a heap of
-//! fragments rather than one outline.
-//!
-//! Note that the exact-rational machinery in [`crate::detail`] is *not* what
-//! does this; see [`REGION_DEN`] for why a curve cannot be handed to it.
+//! The outline is first split at every cell border, so no edge interior ever
+//! leaves the cell its endpoints are in; each cell then clips that ring against
+//! its own box. Because of the split, a clip can only ever land on a vertex that
+//! is already there, so the whole thing runs in plain integers and — the point
+//! — two cells sharing a border cut the same edge at the same point instead of
+//! each rounding its own. Disagree there and the contour tracer sees a heap of
+//! fragments rather than one outline. The exact-rational machinery in
+//! [`crate::detail`] is *not* what does this; see [`REGION_DEN`] for why a
+//! curve cannot be handed to it.
 //!
 //! # The bitmap build has to be told what to light
 //!
 //! The font is built twice — a vector build reading the geometry, and a bitmap
-//! build that keeps only the [`crate::pixel::PX_FULL`] ink flag and squares
-//! every lit cell off — so a synthesized shape has to decide which cells that
-//! second build lights. [`BitmapFill`] is that decision, made **per logical
-//! pixel** from the exact covered area. Two invariants hold it together and are
-//! easy to break: the rule applies uniformly across a logical pixel's subcells
-//! (see [`apply_bitmap_fill`]), and it moves no outline (see
-//! [`make_on_demand_grid`]). The ½ tie is real — it is every 45° triangle edge
-//! cell — so the area comparison stays exact through
+//! build that keeps only the [`crate::pixel::PX_FULL`] ink flag — so a
+//! synthesized shape has to decide which cells that second build lights.
+//! [`BitmapFill`] is that decision, made **per logical pixel** from the exact
+//! covered area. Two invariants hold it together: the rule applies uniformly
+//! across a logical pixel's subcells ([`apply_bitmap_fill`]), and it moves no
+//! outline ([`make_on_demand_grid`]). The ½ tie is real — it is every 45°
+//! triangle edge cell — so the comparison stays exact through
 //! [`crate::detail::DetailRegion::area_units_on`], which measures every subcell
-//! of a logical pixel on one shared lattice so the total is an integer sum
-//! rather than a running fraction. `area2` is the f64 test helper, not the
-//! production path.
+//! on one shared lattice so the total is an integer sum. `area2` is the f64
+//! test helper, not the production path.
 
 use std::collections::HashMap;
 use std::f64::consts::{FRAC_PI_2, PI, TAU};

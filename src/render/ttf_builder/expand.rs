@@ -663,7 +663,7 @@ fn expand_compose_lines(
 ///
 /// A part drawn by its own pixels is read straight off them. A part that is a
 /// **composite** draws no pixels of its own, so it is flattened first, by the
-/// same resolution the font is built from ([`resolve_glyph_bodies`]) over the
+/// same resolution the font is built from ([`crate::ref_composite::resolve_glyph_bodies`]) over the
 /// parts alone — a radical written as `ref` to a shared drawing (`han-6b63` is
 /// `ref han-6b62`) is a component like any other, and measuring it by a second,
 /// simpler flattener would measure it differently from what the font draws. The

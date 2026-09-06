@@ -1,10 +1,8 @@
 //! Golden snapshots over the `testdata/` project: the diagnostics validation
 //! reports, and a digest of what resolution produces.
 //!
-//! The resolution/validation code was consolidated (issues.rs, ttf_builder and
-//! ref_composite each grew their own copy of name expansion and reference
-//! collection). Behaviour-preserving changes there are verified by these
-//! snapshots; changes that *intentionally* surface previously-swallowed
+//! Behaviour-preserving changes to resolution and validation are verified by
+//! these snapshots; changes that *intentionally* surface previously-swallowed
 //! problems update them, so the diff is reviewable.
 //!
 //! `font/` is deliberately not a test target — cases it turned up are

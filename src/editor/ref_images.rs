@@ -2,16 +2,13 @@
 //! `glyph` line of the file that names it.
 //!
 //! `scripts/extract_ref_charts.py` cuts one wide, short PNG per han code point
-//! out of the published code charts and the IVD charts — every source's
-//! drawing of that character, side by side and labelled. This module is what
-//! puts that strip in front of the person drawing the glyph, so that what the
-//! sources show is on screen beside what the source file says.
+//! out of the published code charts and the IVD charts; this module puts that
+//! strip in front of the person drawing the glyph.
 //!
 //! # Where the strips are
 //!
 //! `audit ref-image-path DIR` names the directory, relative to the file the
-//! line is written in (see [`crate::audit`]); for Unison that is one line in
-//! `Unison.unf`. Inside it a code point's strip is at
+//! line is written in ([`crate::audit`]). Inside it a code point's strip is at
 //! `DIR/<name minus its last three digits>/<name>.png`, where the name is the
 //! code point in lowercase hexadecimal, at least four digits: U+4E00 is
 //! `4/4e00.png` and U+2A6D6 is `2a/2a6d6.png`. That is the layout the script
@@ -105,7 +102,7 @@ enum Entry {
     /// Queued for the worker, or in its hands, for the theme it carries.
     Requested(bool),
     /// Read and decoded, waiting for a frame to upload it. Carries the theme
-    /// it was decoded for; see [`decode`].
+    /// it was decoded for; see [`load`].
     Decoded(egui::ColorImage, bool),
     Ready {
         texture: egui::TextureHandle,

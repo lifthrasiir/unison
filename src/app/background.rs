@@ -584,7 +584,7 @@ impl UniformApp {
     }
 
     /// Move the selection `delta` faces along the declared order, wrapping.
-    /// F11 and F10 in [`crate::app::UniformApp::update`].
+    /// F11 and F10 in `crate::app::UniformApp::update`.
     pub(super) fn step_face(&mut self, delta: isize, ctx: &egui::Context) {
         let current = self.selected_face().to_string();
         if let Some(next) = step_face_id(&self.face_ids, &current, delta) {
@@ -595,7 +595,7 @@ impl UniformApp {
     /// The face the built font actually reflects: the selection, or the
     /// primary face when nothing is selected or the selection names a face the
     /// source no longer declares. Mirrors the fallback in
-    /// [`crate::render::build_font_pair_cached_for`], so the picker cannot show
+    /// [`crate::render::ttf_builder::build_font_pair_cached_for`], so the picker cannot show
     /// a face the preview is not drawn with.
     pub(super) fn selected_face(&self) -> &str {
         if self.face_ids.contains(&self.selected_face) {

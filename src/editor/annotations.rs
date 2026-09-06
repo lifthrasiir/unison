@@ -473,7 +473,7 @@ impl<'a> AnnotatedText<'a> {
         text_width(ui, font_id, &self.display_prefix(col))
     }
 
-    /// Inverse of [`x_pos`]: the document column whose left edge is nearest to
+    /// Inverse of [`Self::x_pos`]: the document column whose left edge is nearest to
     /// (but not past) `x`. Positions inside an annotation resolve to the
     /// column after it, so the caret never lands in the middle.
     pub(crate) fn x_to_col(&self, ui: &egui::Ui, font_id: &egui::FontId, x: f32) -> usize {

@@ -69,7 +69,7 @@ pub(crate) use ids::Slot;
 /// definition is a request to read what is there, so the target is centred and
 /// carries its context with it, while going *back* is a request for the page
 /// the reader had — which only the position that page put the line at can
-/// describe. See [`crate::app::history`].
+/// describe. See `crate::app::history`.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum ScrollIntent {
     /// Put the line in the middle of the viewport.
@@ -178,7 +178,7 @@ pub struct EditorState {
     /// persisted; see [`folding`].
     pub(crate) folds: folding::FoldState,
     /// What the fold toggled this frame asks of the next frame's scroll
-    /// offset. See [`document_view::scroll::resolve_scroll_target`].
+    /// offset. See `document_view::scroll::resolve_scroll_target`.
     pub(crate) fold_scroll: Option<folding::FoldScroll>,
     pub(crate) cursor: caret::Caret,
     pub(crate) selection_anchor: Option<caret::Caret>,

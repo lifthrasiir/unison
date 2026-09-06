@@ -1,214 +1,140 @@
 //! `uniform fix --optimize-clearance`: put an IDC line's clearances back inside
 //! the range `audit ideal-clearance` states, by choosing among the variants the
-//! source already draws and the gaps the line may write.
+//! source already draws and the gaps the line may write. What it does as a user
+//! sees it is in `doc/reference.md` (*Rewriting the Source*); this is how and
+//! why.
 //!
 //! # What it touches
 //!
-//! **Only a line the source already reports.** A line whose measurements sit in
-//! the range is a line whose author has decided something, and rewriting it to
-//! a layout this file happens to prefer is churn nobody asked for. The same
-//! rule cuts the other way at the end — a rewrite is emitted only when it
-//! *lowers* the score, so a line that cannot be improved keeps the warning
-//! rather than being shuffled about.
+//! **Only a line the source already reports**, and a rewrite is emitted only
+//! when it *lowers* the score — a line that cannot be improved keeps the
+//! warning rather than being shuffled about. Four kinds of report, and they are
+//! not the same act:
 //!
-//! There are four kinds of report it acts on, and they are not the same act:
-//!
-//! - a **clearance warning**, where the line has a layout and the layout is
-//!   outside the range. The search moves it inside, and the rewrite has to
-//!   lower the score or it is not made;
-//! - a **wrong-slot warning**, where a component is drawn for one side of the
-//!   glyph and sits on another (`compose`'s "drawn for `-l` but sits in the
-//!   `-r` slot"). Nothing about the *clearances* is wrong there, so a score is
-//!   silent about it and the count of such components is an objective of its
-//!   own — the second one, behind the score, so that no name is ever put right
-//!   by making the layout worse;
-//! - a **TODO**, where a component has not picked its variant
-//!   ([`crate::compose::is_undecided`]). There is no layout at all then, so
-//!   there is no score to lower — but the family the component names is on hand
-//!   and choosing from it is exactly what the TODO asks for. Such a line is
-//!   planned whatever it scores, since any decided layout is more than none,
-//!   and its [`ClearanceFix::before`] is `None` to say so;
-//! - an **error**, where a component is wrong about the glyph it names: nothing
-//!   is drawn under that name, or the drawing does not fill the slot across the
-//!   axis, or the name states a size the glyph does not have
-//!   ([`SlotState::Faulty`] lists them against the messages `compose` writes).
-//!   That is the TODO's case again and it is planned the same way — a component
-//!   naming a drawing that does not exist has picked no variant any more than
-//!   an undecided one has — so the line has no layout that came out wrong, its
-//!   `before` is `None`, and the family is searched *without* the name that
-//!   errors. [`ClearanceFix::faulty`] is what tells the two apart in the
-//!   report.
+//! - a **clearance warning**: the line has a layout and it is outside the
+//!   range. The search moves it inside;
+//! - a **wrong-slot warning**: a component drawn for one side sits on another.
+//!   Nothing about the clearances is wrong, so the count of such components is
+//!   an objective of its own — the second one, behind the score, so no name is
+//!   ever put right by making the layout worse;
+//! - a **TODO**: a component has not picked its variant
+//!   ([`crate::compose::is_undecided`]). There is no layout and so no score to
+//!   lower, but choosing from the family is exactly what the TODO asks for, so
+//!   the line is planned whatever it scores, with [`ClearanceFix::before`]
+//!   `None` to say so;
+//! - an **error**: a component is wrong about the glyph it names
+//!   ([`SlotState::Faulty`] lists the cases against `compose`'s messages). The
+//!   TODO's case again — a name that draws nothing has picked no variant — so
+//!   the family is searched *without* the erroring name, and
+//!   [`ClearanceFix::faulty`] tells the two apart in the report.
 //!
 //! What is skipped is what cannot be measured *after* a choice either: a part
-//! with no ink of its own, a part that is a composite this pass cannot flatten,
-//! a component — undecided or erroring — whose family draws nothing that could
-//! fill the slot.
+//! with no ink of its own, a composite this pass cannot flatten, a component
+//! whose family draws nothing that could fill the slot.
 //!
 //! # A line that stands for a family
 //!
-//! A glyph block whose name is a pattern writes one line for every glyph it
-//! declares, and each of those glyphs is composed of its own parts, sized on
-//! their own. So what a rewrite may move there is what the family *shares*:
-//! the gaps, and a component's variant **label** whenever the block's own
-//! pattern does not reach it. A component written `han-4ee4-($han-regions):9x16`
-//! says the same `9x16` for every glyph the block declares, so that label is
-//! the family's answer and not one glyph's, and each glyph's own family is
-//! asked for the same label in turn ([`slot_choices`]); a component written
-//! `han-4ee4-g:(7|9)x16` says something different per glyph and is left alone.
-//! The *base* is never searched — a name is one glyph's answer and cannot be
-//! the family's.
+//! A pattern block writes one line for every glyph it declares, each composed
+//! of its own parts. What a rewrite may move there is what the family
+//! *shares*: the gaps, and a component's variant **label** whenever the block's
+//! own pattern does not reach it — `han-4ee4-($han-regions):9x16` says the same
+//! `9x16` for every glyph, so that label is the family's answer
+//! ([`slot_choices`]); `han-4ee4-g:(7|9)x16` says something different per glyph
+//! and is left alone. The *base* is never searched. A component with no label
+//! at all keeps what the line writes before the `:` verbatim — a `($-1)` and
+//! all — and the label found for the family is appended
+//! ([`write_pattern_line`]). Which family a label is looked for in is each
+//! member's own, under the name the *member* carries, since a name reached only
+//! through an `exists`-scoped alias is a family like any other.
 //!
-//! A family's line is held to the same four reports a plain one is, the **TODO**
-//! and the **error** included. A component that has picked no label at all is
-//! the label case with nothing to replace: the base is whatever the line writes
-//! before the `:` and is put back verbatim — a `($-1)` and all, since only the
-//! label was ever this pass's to choose — and the label found for the family is
-//! appended to it. Such a glyph has no layout as written, so it is counted
-//! among the ones that warn and left out of every sum, exactly as one whose
-//! component errors is; what tells the two apart is only which of the two the
-//! report names ([`MemberNames::errored`]).
-//!
-//! Which family a component's label is looked for in is each member's own, and
-//! it is asked for under the name the *member* carries rather than the one the
-//! line writes — a name reached only through an `exists`-scoped alias
-//! ([`crate::exists`]) is a family like any other, and a source whose parts are
-//! all written that way would otherwise offer nothing to search at all.
-//!
-//! One set of gaps and labels then has to serve every glyph, which makes the
-//! objective a different one: **the fewest glyphs warning at all**, then the
-//! fewest with no layout at all, and only then the summed score and the same
-//! tie-breaks below. The warnings are a work queue
-//! and its length is what the command is there to shorten, so a family in
+//! One set of gaps and labels then has to serve every glyph, so the objective
+//! is **the fewest glyphs warning at all**, then the fewest with no layout,
+//! then the summed score and the tie-breaks below. The warnings are a work
+//! queue and its length is what the command is there to shorten, so a family in
 //! which one more glyph is finished beats one in which every glyph is a little
-//! less wrong — even when that trade costs the sum. The middle number is what
-//! keeps a TODO from outliving every answer to it: a glyph with no layout
-//! measures nothing, so a family that stays undecided scores zero and would
-//! otherwise beat every decision that leaves a warning behind — and a decided
-//! layout that warns is still more than none, exactly as it is on a plain
-//! line ([`PatternKey::unresolved`]). [`optimize_pattern_line`]
-//! is the whole of it, and [`Member`] is why it stays cheap over a family of
-//! thousands: one glyph costs a handful of additions per set of gaps, whatever
-//! the labels chose.
+//! less wrong. The middle number keeps a TODO from outliving every answer to
+//! it: a glyph with no layout measures nothing and would otherwise beat every
+//! decision that leaves a warning ([`PatternKey::unresolved`]).
+//! [`optimize_pattern_line`] is the whole of it, and [`Member`] is why it stays
+//! cheap over thousands: one glyph costs a handful of additions per set of
+//! gaps, whatever the labels chose.
 //!
 //! # The search
 //!
-//! For each slot, the candidates are the variants of the component's base name
-//! — `A:4x16`, `A:5x16`, … for a component written `A:x`, and for an undecided
-//! `A` the base is the whole name — filtered to those
-//! that could go there at all: the box must fit the slot across the axis, a
-//! `:WxH` in the name must be true, **a drawing as long as the glyph's own
-//! axis is not a candidate** — it fills the glyph on its own, so nothing else
-//! on the line has anywhere to stand ([`fits_beside`]) — and **a name drawn for
-//! another direction is not a candidate**
-//! (`compose::direction_rank` = 2, i.e. a `-r` variant for the
-//! left slot of a `⿰`). The component as currently written is always a
-//! candidate, whatever it says, since it is the source's own choice and not an
-//! alternative being proposed — unless it names no drawing that could fill
-//! anything, which is an undecided component and an erroring one alike.
+//! Per slot, the candidates are the variants of the component's base name,
+//! filtered to those that could go there: the box must fit across the axis, a
+//! `:WxH` in the name must be true, a drawing as long as the glyph's own axis is
+//! out ([`fits_beside`]), and a name drawn for another direction is out
+//! (`compose::direction_rank` = 2). The component as written is always a
+//! candidate — it is the source's choice, not a proposal — unless it names no
+//! drawing that could fill anything.
 //!
 //! The score of a layout is how far its clearances fall outside the range,
-//! summed — each of the n+1 clearances, plus their total, exactly the set of
-//! numbers the check warns about. Zero is "no clearance warning at all", which
-//! is not the same as no warning: a wrong-slot component warns at any score,
-//! and is counted beside it.
+//! summed over the n+1 clearances plus their total — exactly the numbers the
+//! check warns about. Zero is "no clearance warning", not "no warning": a
+//! wrong-slot component warns at any score and is counted beside it.
 //!
 //! # Why the gaps need no search
 //!
 //! Because the clearances *are* the free variables, and their sum is not one.
-//! Write the layout as its clearances `c₀ … c_k` (k = n, the parts' count):
-//! placing the parts is the same as choosing `c₀ … c_{k-1}` freely, because
-//! moving a part along the axis moves exactly the two clearances beside it in
-//! opposite directions. And their sum telescopes to
+//! Placing the parts is the same as choosing `c₀ … c_{k-1}` freely, since
+//! moving a part moves exactly the two clearances beside it in opposite
+//! directions, and their sum telescopes to
 //!
 //! ```text
 //! T = near(first) + Σ facing(a, b) + (extent - 1 - far(last))
 //! ```
 //!
-//! which mentions no position at all — it is a property of the *variants*, so
-//! the last clearance is whatever the others leave. So the search over gaps is
-//! the question "which integers summing to a fixed T are least far outside
-//! `min..max`", which is arithmetic: if T fits in `(k+1) · min ..= (k+1) · max`
-//! the answer is zero and every clearance can be in range; otherwise the least
-//! possible is the shortfall itself, and it is reached exactly when every
-//! clearance is on the range's near side. [`arrange`] is those three cases.
+//! which mentions no position — a property of the *variants*. So the question
+//! is "which integers summing to a fixed T are least far outside `min..max`",
+//! which is arithmetic: if T fits in `(k+1)·min ..= (k+1)·max` the answer is
+//! zero; otherwise the least possible is the shortfall itself, reached when
+//! every clearance is on the range's near side. [`arrange`] is those three
+//! cases, and only the variants are searched.
 //!
-//! Only the variants are searched, and the search is the product of the slots'
-//! candidate lists, which is a handful.
-//!
-//! `audit max-contact-run` does not disturb any of that, because it is not a
-//! second kind of number: what a junction owes it is a property of the pair and
-//! not of where the line puts them, so it lands inside the facing measurement
-//! ([`crate::compose::effective_facing`]) exactly where a hardblank would have.
-//! Every sum, arrangement and score below reads it without knowing it is
-//! there.
+//! `audit max-contact-run` does not disturb any of that: what a junction owes it
+//! is a property of the pair, not of where the line puts them, so it lands
+//! inside the facing measurement ([`crate::compose::effective_facing`]) exactly
+//! where a hardblank would have, and every sum below reads it unknowingly.
 //!
 //! # Which of the equally good answers
 //!
-//! The score alone leaves many. In order:
+//! 1. fewer components in a slot they are not drawn for (the warning above);
+//!    then more variants stating their slot's own direction. Two numbers and not
+//!    one sum of ranks, because a sum cannot tell `[-l, -r]` reversed from two
+//!    unmarked names, and only the first warns;
+//! 2. the smallest sum of the two edge clearances — parts pushed out against
+//!    the box, room grown between them. This decides `⿰` between "0 1 0" and
+//!    "0 0 1", and is the whole of what makes a result look composed;
+//! 3. the most even inner clearances, when there are two (`⿲`/`⿳`);
+//! 4. lexicographically smallest, left first;
+//! 5. the line as written, then the names in order — so a run over an unchanged
+//!    source is a no-op.
 //!
-//! 1. **fewer components in a slot they are not drawn for** — this is the
-//!    warning above, so it comes before every tie-break; then **more variants
-//!    that state their slot's own direction** — a `-l` name in the left slot
-//!    says the drawing was made for that slot, and a source that says so is
-//!    worth more than one that leaves it to be inferred. They are two numbers
-//!    and not one sum of ranks, because a sum cannot tell a `⿰` whose slots
-//!    hold `[-l, -r]` reversed — one perfect name and one wrong one — from one
-//!    holding two unmarked names, and only the first of those warns;
-//! 2. **the smallest sum of the two edge clearances** — the parts are pushed
-//!    out against the glyph's box and the room they leave each other is what
-//!    grows. This is the one that decides `⿰` between "0 1 0" and "0 0 1", and
-//!    it is the whole of what makes the result look composed rather than
-//!    shoved to one side;
-//! 3. **the most even inner clearances**, when there are two of them (`⿲`/`⿳`);
-//! 4. **lexicographically smallest**, left clearance first, so that what is
-//!    left over lands at the near edge rather than anywhere;
-//! 5. **the line as written**, then the names in order — so a run over an
-//!    unchanged source is a no-op and the output is reproducible.
-//!
-//! Steps 2–4 are the same order [`arrange`] builds one layout in; they appear
-//! again as a comparison because two *different* variant choices also have to
-//! be ordered against each other.
+//! Steps 2–4 are the order [`arrange`] builds one layout in; they appear again
+//! because two *different* variant choices also have to be ordered.
 //!
 //! # An enclosure
 //!
-//! Everything above is about a **split**. An enclosure is planned by
-//! [`optimize_enclosure_line`] and differs in three ways, each of which follows
-//! from what the layout is rather than from a preference:
+//! Planned by [`optimize_enclosure_line`], differing in three ways that follow
+//! from what the layout is:
 //!
-//! - **the placements are searched, not solved.** A split's clearances sum to a
-//!   number that mentions no position, which is what lets [`arrange`] solve the
-//!   gaps. An enclosure's do too, *per axis* — but the two axes are not
-//!   independent: how much room the left wall leaves depends on which **rows**
-//!   the inner part covers, and that is the other axis's answer. A `⿴` 囗 does
-//!   not care and a `⿺` 辶 cares a great deal, and there is no arithmetic right
-//!   for both. Trying them is affordable exactly because they are *offsets*: a
-//!   gap is any integer, while an inner part has to sit inside the glyph, so
-//!   the search is over a box a few cells on a side;
-//! - **`edge_sum` is over the sides the operator opens on**, which is one
-//!   clearance per open side and none at all on a `⿴`. Minimizing it is the
-//!   same statement it is on a split — push the parts out against the box —
-//!   read where there is a box to push against;
-//! - **`inner_spread` is over the axes walled on both sides.** That is what
-//!   centres the inner part of a `⿴`; without it the lexicographic rule would
-//!   wedge it into a corner of the ring and call that an answer.
+//! - **the placements are searched, not solved.** The two axes are not
+//!   independent: how much room the left wall leaves depends on which *rows*
+//!   the inner part covers, which is the other axis's answer — a `⿴` 囗 does
+//!   not care and a `⿺` 辶 cares a great deal. Trying them is affordable because
+//!   they are *offsets* inside the glyph, a box a few cells on a side;
+//! - **`edge_sum` is over the sides the operator opens on** — one clearance per
+//!   open side, none on a `⿴`;
+//! - **`inner_spread` is over the axes walled on both sides**, which centres
+//!   the inner part of a `⿴` where the lexicographic rule would wedge it into
+//!   a corner.
 //!
-//! A pattern block that encloses is planned by
-//! [`optimize_pattern_enclosure_line`], which is those three rules read over a
-//! family the way [`optimize_pattern_line`] reads a split's over one. What a
-//! family shares here is not gaps but the **two offsets** and the same variant
-//! **labels** a split shares, and they are chosen for the family as a whole:
-//! one placement has to suit every glyph the block declares, so the placement
-//! is scored against all of them at once and the objective is the family's —
-//! the fewest glyphs warning, then the fewest with no layout at all, then the
-//! summed score. That the walls differ from member to member is exactly why the
-//! choice is collective rather than a reason not to make one: an offset that is
-//! right for the member an author happened to look at is not right for the
-//! rest of the family, and the search is what weighs them against each other.
-//!
-//! The box the placements are searched over is then the smallest of the
-//! members' — one placement has to keep every glyph's inner part inside its
-//! own box — and a placement at which some glyph of the family cannot be
-//! measured is no answer for the family, exactly as it is for a plain line.
+//! [`optimize_pattern_enclosure_line`] reads those rules over a family the way
+//! [`optimize_pattern_line`] reads a split's: the two offsets and the labels
+//! are chosen for the family as a whole, scored against every member at once,
+//! over the smallest of the members' boxes. That the walls differ from member
+//! to member is exactly why the choice is collective.
 
 use std::collections::HashMap;
 use std::path::PathBuf;

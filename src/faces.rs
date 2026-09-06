@@ -1,60 +1,46 @@
 //! Faces and slices: which typefaces the source describes, and what each one
-//! contains.
+//! contains. The model as an author sees it is `doc/reference.md`
+//! (*Typefaces and Slices*, *Output Files*).
 //!
-//! # The model
-//!
-//! A **face** is one typeface in the output — a standalone font file, or one
-//! font inside a collection. A **slice** is a named group of cmap, feature and
-//! assertion data that a face may include. Slices deliberately do *not* contain
-//! glyphs: every face draws from the same glyph set, and what differs between
-//! two faces is which character maps to which glyph.
-//!
-//! An unnameable **base slice** is in every face. Everything written without a
-//! qualifier belongs to it, which is why a source with no `face` line at all
-//! still builds exactly as it did before faces existed.
+//! A **face** is one typeface in the output; a **slice** is a named group of
+//! cmap, feature and assertion data a face may include. Slices deliberately do
+//! *not* contain glyphs: every face draws from the same glyph set, and what
+//! differs between two faces is which character maps to which glyph. An
+//! unnameable **base slice** is in every face and everything unqualified
+//! belongs to it, which is why a source with no `face` line builds exactly as
+//! it did before faces existed.
 //!
 //! # Single assignment, again
 //!
 //! Every conflict is an error and there is no override rule — the same
-//! principle [`crate::meta`] rests on. Concretely: no face may include two
-//! slices that map the same character, and no slice may re-state a mapping the
-//! base already has.
+//! principle [`crate::meta`] rests on: no face may include two slices that map
+//! the same character, and no slice may re-state a mapping the base already
+//! has. So **a character whose mapping differs between faces must not be in
+//! the base slice at all**: which characters vary is then visible in the
+//! source instead of being the emergent result of a precedence rule.
+//! `slice A = B C` is transitive inclusion, not precedence.
 //!
-//! That last rule has a consequence worth stating plainly, because it shapes
-//! how a font is written:
+//! Two slices that map the same characters to differently *named* glyphs would
+//! otherwise be written twice, line for line; `map wide|narrow : ⁂ =
+//! triple-star($half)` with a slice-scoped `name-parts` states it once, and
+//! the naming scheme lives in the source rather than in Uniform
+//! ([`crate::document::SliceNameParts`]). Not an override either: a part is
+//! bound unqualified or per slice, never both.
 //!
-//! > **A character whose mapping differs between faces must not be in the base
-//! > slice at all.**
+//! # The union face
 //!
-//! So splitting a font by, say, East Asian ambiguous width means moving those
-//! characters out of the base into two slices, one per face — not adding an
-//! override on top of the base. That is more work up front and much less
-//! guessing later: which characters vary is visible in the source instead of
-//! being the emergent result of a precedence rule.
-//!
-//! `slice A = B C` is shorthand for "A also includes B and C", transitively.
-//! It is not a precedence mechanism either; a conflict reached through it is
-//! the same error as any other.
-//!
-//! # Saying it once for several slices
-//!
-//! Two slices that map the same characters to differently *named* glyphs
-//! (`triple-star` and `triple-star-half`) would otherwise be written twice,
-//! line for line. `map wide|narrow : ⁂ = triple-star($half)` states the line
-//! once per slice instead, with `$half` bound per slice by a slice-scoped
-//! `name-parts` — so the naming scheme lives in the source that uses it rather
-//! than anywhere in Uniform. See [`crate::document::SliceNameParts`].
-//!
-//! This is not an override either: a name part is bound unqualified or per
-//! slice, never both, and an exception is written by leaving that slice off the
-//! qualifier and stating it on its own line.
+//! Every *expansion* is computed for [`FaceSet::union`], the synthetic face
+//! holding every slice, so that a diagnostic exists for a line only some other
+//! face includes and the glyph order is face-independent; a real face is
+//! applied afterwards, in `render/ttf_builder/collect.rs` (`face_items`,
+//! `collect_face_cmap`). [`plan_output`] is the table of what each `--output`
+//! path means for one face or several.
 //!
 //! # Face ids are file names
 //!
 //! `--output unison-%.ttf` puts a face id in a path, so ids are bounded more
-//! tightly than other names: [`is_valid_face_id`]. Uniqueness is checked
-//! case-insensitively because the development platform's file system is, and
-//! `unison-A.ttf` and `unison-a.ttf` would otherwise overwrite each other.
+//! tightly than other names ([`is_valid_face_id`]), and uniqueness is checked
+//! case-insensitively because the development platform's file system is.
 
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -149,7 +135,7 @@ impl FaceSet {
     /// means a line only some other face includes could not be faulted at all:
     /// nothing expanded it, so nothing had anything to say about it. The glyph
     /// store has always been the union's for a different reason (glyph ids must
-    /// not vary by face, see [`crate::render::ttf_builder::build_faces`]), so
+    /// not vary by face, see `crate::render::ttf_builder::build_faces`), so
     /// this is also the one expansion every consumer can share.
     ///
     /// What a face still decides is which *character* reaches which glyph, and

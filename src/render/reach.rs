@@ -25,7 +25,7 @@
 //! cascade instead ([`Cascade::shape`]): cmap, then one left-to-right pass per
 //! remap group, first matching rule wins, lookbehind against what the pass has
 //! already rewritten and lookahead against what it has not. That is the same
-//! model [`crate::render::ttf_builder::gsub`] builds the lookups under, and it
+//! model `crate::render::ttf_builder::gsub` builds the lookups under, and it
 //! makes every sequence this module reports one that has been *checked* rather
 //! than derived. There is nothing left for a shaper to confirm, which is why no
 //! font is built here.
@@ -34,8 +34,8 @@
 //!
 //! The per-glyph sweep survives as [`Cascade::sweep`], demoted to a *candidate*
 //! generator, because it is exact whenever a rule's context is typed rather than
-//! derived — which is most rules, `62` of the `107` in `font/` having no context
-//! at all, and the Hangul jamo rules taking theirs straight from the cmap.
+//! derived — which is most rules: over half of `font/`'s have no context at
+//! all, and the Hangul jamo rules take theirs straight from the cmap.
 //! [`Cascade::solve`] then:
 //!
 //! 1. shapes each candidate and keeps it if the target actually appears — one
@@ -50,7 +50,7 @@
 //! The search is bounded by [`REPAIR_BUDGET`] shapings and gives up rather than
 //! guess, so a target with no answer is simply absent from the result.
 //!
-//! Over `font/` that answers all `1531` of them: the flags as their two regional
+//! Over `font/` that answers every target: the flags as their two regional
 //! indicators, `flag-gbeng` as a black flag and six tags, and every composed
 //! jamo as the two or three it is written with.
 //!
@@ -62,8 +62,8 @@
 //! multiplicative. Shaping is `O(|sequence| × rules in a group)`, run once per
 //! target plus whatever the repair search costs. Both read the expansion
 //! `collect_gsub_data` has already produced for the GSUB tables, so no name is
-//! expanded twice — over `font/` the expansion is 731 ms and everything here is
-//! 146 ms of it, nearly all in the searches the 53 stubborn targets need.
+//! expanded twice; over `font/` this is about a fifth of the expansion's own
+//! time, nearly all of it in the searches the few dozen stubborn targets need.
 //!
 //! # What is not modelled
 //!

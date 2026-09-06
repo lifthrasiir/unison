@@ -164,7 +164,7 @@ pub(crate) struct DeriveOutcome {
 /// An anchor is a point on the drawing, written where the drawing is — in grid
 /// cells — so the whole derivation runs in grid coordinates. Everything
 /// downstream, though, reads an offset as naming the child's box corner
-/// ([`ref_effective_offset_scaled`], which will subtract that origin again), so
+/// (`ref_effective_offset_scaled`, which will subtract that origin again), so
 /// it has to be added back here or a ref lands twice-shifted on any target that
 /// declares a box.
 ///

@@ -10,7 +10,7 @@
 //! that reach outside the document they were invoked in.
 //!
 //! **One undo entry per file.** Every line a file changes — the glyph's own
-//! block included — goes into a single [`UndoOp::Compound`], so one undo takes
+//! block included — goes into a single [`crate::editor::undo::UndoOp::Compound`], so one undo takes
 //! the resize back whole. A resize split across entries would leave a header
 //! describing a grid that no longer matches it, which is exactly the state the
 //! parser cannot read.

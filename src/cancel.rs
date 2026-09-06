@@ -1,13 +1,10 @@
 //! [`CancelToken`]: the one way a background stage is told its result is no
 //! longer wanted.
 //!
-//! The editor rebuilds the font and re-resolves the sources off the UI thread,
-//! and an edit arriving mid-build makes whatever is running obsolete: nobody
-//! will ever read its result, because every consumer keys on the generation the
-//! result carries and that generation is already stale. Clicking pixels
-//! produces a burst of such edits, and without a way to say "stop", each build
-//! still ran to completion while the next waited behind it on the shared
-//! contour cache — the last edit's font then appeared several full builds later.
+//! An edit arriving mid-build makes whatever is running obsolete — nobody will
+//! read a result whose generation is already stale — and without a way to say
+//! "stop" the next build waited behind it; `crate::app::background` has the
+//! scheduling rule this serves.
 //!
 //! A token is a single flag, so a check costs one relaxed atomic load and can
 //! sit inside the per-glyph loops that dominate a build. What a cancelled stage
@@ -23,7 +20,7 @@
 //!
 //! Cancellation is one-way: a token is never un-cancelled. The scheduler
 //! *replaces* the token when it starts the next stage
-//! ([`crate::app::background`]), so a stage cannot inherit the previous one's
+//! (`crate::app::background`), so a stage cannot inherit the previous one's
 //! cancellation.
 
 use std::sync::Arc;

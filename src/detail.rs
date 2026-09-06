@@ -1354,7 +1354,7 @@ impl DetailRegion {
 /// `u8` lattice denominator or a scale ratio, is bounded by the input.
 /// Union of transformed pieces with mutually disjoint interiors, clipped to
 /// the unit pixel, in one sweep. Each piece is `region` mapped exactly like
-/// [`DetailRegion::transform_into`] with origin `(x0, y0)` and scale
+/// `DetailRegion::transform_into` with origin `(x0, y0)` and scale
 /// `(w, h)`. All pieces share one even-odd parity, so their interiors MUST
 /// be disjoint (true for images of distinct source cells in a rescale);
 /// shared boundaries cancel exactly. Replaces a chain of per-piece

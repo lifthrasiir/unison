@@ -83,7 +83,7 @@ pub struct UndoStack {
 /// *current* position saved when the write lands would call edits made during
 /// the write saved as well, and they are not on disk. So the position is taken
 /// when the bytes are serialized and handed back at the end; see
-/// [`crate::app::save`].
+/// `crate::app::save`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct SavePoint {
     position: usize,

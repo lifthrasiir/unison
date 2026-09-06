@@ -4,7 +4,8 @@ Uniform makes use of `.unf` source files to generate bitmap and outline typeface
 The `.unf` file format is a structured text format that
 allows for the definition of glyphs, metrics, and other font properties in a human-readable way.
 
-TODO: This document is subject to change according to the development of the Unison font.
+This is the reference for authors of `.unf` sources; `editor.md` covers the editor, and
+`internals.md` is the index for anyone changing Uniform itself.
 
 ## Concepts
 
@@ -17,10 +18,30 @@ author, not a scoping mechanism. Files whose name begins with a dot are skipped,
 without the `.unf` extension.
 
 ```sh
-uniform build -i font/ -o unison.ttc     # build the typefaces
-uniform test -i font/                    # run the `assert` directives
-uniform font/                            # open the editor
+uniform [DIR]                                       # the editor, optionally on a font directory
+uniform build -i DIR -o OUT [-o OUT…] [--demo-html demo.html] [-d DATA] [--woff2-quality fast|max]
+uniform test -i DIR                                 # run every `assert`; exit 1 on a failure
+uniform fix -i DIR --optimize-clearance [--dry-run] # rewrite the source, see below
+uniform probe -i DIR [--repeat N] [--edit]          # timing, no window
+uniform sequences -i DIR                            # what to type for a glyph no `map` names
 ```
+
+`-o` picks the format by extension and one-vs-many by a `%` in the path — see
+[Output Files](#output-files). `--demo-html` writes the specimen page (see
+[The Demo Page](#the-demo-page)) and needs `-d`, the directory holding the sample-generation inputs
+(the UDHR texts, the CLDR subdivision data) that the generated `sample` modes read.
+`--woff2-quality max` is what the published files are compressed with; it costs about a second and
+a half per face and is not the default.
+
+`probe` reports where the time before the editor's first frame goes — the executable loading, the
+directory read (one row per file), the initial font build — and `--repeat` re-runs the directory
+read, which tells a cold cache from a warm one. `--edit` measures instead what one edit costs once
+the caches are warm. Setting `UNIFORM_PERF` prints the same per-stage timings on stderr in every
+mode, the editor included.
+
+`sequences` prints, for every glyph only a `remap` produces (the flags, the composed jamo), the
+shortest code point sequence a reader can type to get it. The answers are checked by running the
+substitutions, not derived from a cost, so a glyph no sequence reaches is simply absent.
 
 Order matters in only two places: `color`, where a later definition wins over an earlier one, and
 `face`, whose declaration order is the order the typefaces appear in the output. Everything else is
@@ -328,7 +349,8 @@ accumulated in declaration order. The same tag under a different target stays se
 
 A `.unf` file is a sequence of lines. Each line is one directive, one glyph header, one `ref` or
 `anchor` line belonging to the glyph header above it, one row of pixels, a comment, or blank.
-Indentation is not significant, and no line continues onto the next.
+Indentation is not significant. The one line that continues another is the `||`
+[continuation line](#continuation-lines) a `sample` takes.
 
 ### Identifier
 
@@ -438,6 +460,18 @@ lines fold the file into sections, draw larger, and mark the minimap.
 A fourth level (`####`) is an error rather than more of the same, because three levels plus the glyph
 block are the four the editor nests.
 
+### Continuation lines
+
+`|| TEXT` continues the command above it with one more line of text. It is how a command that takes
+*prose* takes more than one line of it, and the only command that takes one is
+[`sample`](#sample-specimen-texts). Only whitespace may come before the marker, and everything after
+it is taken raw — no tokens, no quoting, no `// …` comment of its own — so a `||` with nothing above
+it to continue is an error rather than a line of text nobody reads.
+
+The whitespace *every* continuation of one command shares is removed, so `|| text` costs the text no
+leading space while a line indented past its neighbours keeps the difference. A text whose every
+line is indented is read, and written back, dedented.
+
 ### Name Pattern
 
 A name pattern is a compact way to write a list of glyph names. It appears in glyph headers, `ref`
@@ -450,6 +484,7 @@ targets, `map` and `remap` operands, `assume unused`, and the character name of 
 | `(...**N)` | at the very end of a group, each alternative repeated N times |
 | `$var` | the values of a `name-parts` definition |
 | `$0..9`, `$#a0..af` | an inline numeric range, decimal or hexadecimal, zero-padded to the written width |
+| `$-1`, `$-2`, … | a [back-reference](#back-references) to the item's own groups |
 
 `$`-references are substituted textually before the pattern itself is parsed, so a reference is just
 one alternative among the others and the forms mix freely:
@@ -484,6 +519,24 @@ it. A full cross product is written with the `**N` group multiplier (`(a|b|c**2)
 what it was always for.
 
 Expansion is capped at 65536 names.
+
+#### Back-references
+
+The parenthesized groups of the pattern an item is *named by* can be used again further along the
+same item, as `$-1`, `$-2`, … in written order. A `glyph` header binds them for its `ref` and IDC
+lines; a `map` and an alias bind their own for the target beside them:
+
+```
+glyph han-xxxx-(g|h|t|j|p|v):15x16 15 16
+ref han-yyyy-($-1):15x16 0 0
+
+map U+($#4e00..4e05) = han-($-1)
+```
+
+Only a written `(...)` captures: `glyph a|b` and `map a|b|c = …` list names without marking a group
+and bind nothing. Otherwise a back-reference is a `$name-part` in every respect — it takes `*N` and
+mixes with literal alternatives — and expands in lock-step with the pattern it names, which is the
+point. Nothing carries a `$-N` from one item to the next.
 
 ### Pixel Grid
 
@@ -821,6 +874,14 @@ mapped to the language ID such a record is keyed by, and a tag with no mapping i
 than a silently dropped record. A name asked for in a language that has none falls back to en-US, so
 everything derived from the family has one definition even in a localized font.
 
+#### Both drawings in one font
+
+`meta bitmap-axis` (a flag, no value) ships the bitmap and the vector drawings as one file and one
+glyph set instead of two files, switched by a private variation axis `BMAP` (0 = vector,
+1 = bitmap) whose tent is narrow enough that the axis behaves as a switch rather than a slider.
+`meta bitmap-axis-name TEXT` sets the name record the axis is labelled with. The demo page always
+asks for the axis whatever `meta` says; the editor's preview keeps two static faces.
+
 #### Derived and computed
 
 Name IDs 3 (unique ID), 4 (full name), 5 (version string) and 6 (PostScript name) are built from
@@ -888,6 +949,36 @@ None of this reaches the font. The built TTF is byte-identical with or without `
 directive describes characters for the person reading the editor's status bar and the `demo.html`
 tooltips, which is where a stated name and the `{gc=… ccc=… eaw=…}` group beside it come from.
 
+### `sample`: Specimen texts
+
+```
+sample LABEL [SUBLABEL] [: MODE]
+|| TEXT
+|| TEXT
+```
+
+A ready-made text to read the font in. It builds nothing: the demo page lists it in its sample
+panel and the editor's preview offers it through the *Use* button beside the line, and the font is
+byte-for-byte what it would be with the line deleted. That is also why it is not a `meta` key —
+`meta` declares what the font file carries, and a sample is carried by the page beside it.
+
+`LABEL` is the heading a text is listed under and `SUBLABEL` the entry beneath it, so a family of
+texts is several lines sharing a label. A line with no `SUBLABEL` gives the *heading* a text of its
+own; a label may have one such line, and no two lines of one label may share a sublabel. Both are
+prose, so a label with a space in it is backtick-quoted. The text is written on
+[continuation lines](#continuation-lines).
+
+`: MODE` says how the lines are read:
+
+| Mode | Meaning |
+| --- | --- |
+| *(none)* | The text itself. |
+| `matrix` | Each line is an axis of characters, and what is offered is their product: every character of the last line runs along a line, the one before it down the lines, and every earlier one is a block of its own. `\|\| ab` over `\|\| xy` is `axay` / `bxby`. A blank line is no axis. |
+| `udhr-article1` | Takes no `\|\|` lines: one text per translation of Article 1 of the Universal Declaration of Human Rights that the font can draw whole, read from `-d`. Only on a line with no sublabel, since the sublabels are the translations. |
+| `subdivision-flags` | Takes no `\|\|` lines: the emoji tag sequence of every CLDR subdivision, read from `-d`. |
+
+The editor has no `-d`, so a generated sample shows as empty there and has no *Use* button.
+
 ## Non-Glyph Definition Commands
 
 ### `color`: Color definition
@@ -926,7 +1017,70 @@ name-parts $a-z = a b c d e f g h i j k l m n o p q r s t u v w x y z
 
 The `$` is part of the name. Names may contain letters, digits, `-` and `_`. An undefined reference
 is left in place verbatim rather than expanding to nothing, so a typo shows up as a missing glyph
-whose name still contains a `$`.
+whose name still contains a `$`. Each token is itself a name pattern, so `$foo = bar($1..3)` binds
+what `$foo = bar1 bar2 bar3` binds.
+
+A binding may be scoped to a slice — `name-parts SLICE[|SLICE...] : $NAME = TOKEN` — and then takes
+exactly one value and applies only to lines stated for that slice. That is how two slices that map
+the same characters to differently *named* glyphs are written once instead of line for line:
+
+```
+name-parts wide : $half = ``
+name-parts narrow : $half = -half
+map wide|narrow : ⁂ = triple-star($half)
+```
+
+A part is bound unqualified or per slice, never both, so this is not an override either.
+
+### `exists`: Searching the declared names
+
+```
+exists PATTERN
+```
+
+The inverse of a name pattern: a search over the glyph names the source declares, which repeats the
+item on the **very next line** once per match. `$0` stands for the whole matched name and `$1`…
+for the pattern's capture groups, and both may be used wherever that item takes a name pattern:
+
+```
+exists han-([0-9a-f]{4,5}):15x16
+glyph han-($1) 16 16 advance 16
+ref ($0) 1 0
+```
+
+`PATTERN` is a regular expression, anchored at both ends, restricted to what can only ever match a
+glyph name: literals, character classes, repetition, groups and alternation, every literal and
+class inside the glyph-name character set. A bare `.` is therefore rejected — write `\.` for a
+literal dot — and anchors and word boundaries are not accepted, since the match is always the whole
+name.
+
+The scoped item is one `glyph` block (its `ref`, IDC and pixel lines included), one
+`glyph … = …` alias, or one `map`. A blank line, a comment or anything else on the next line is an
+error; `exists` governs exactly one item and does not stack, so a `$N` is never ambiguous about
+which search it came from.
+
+The item runs **once per match**, with each `$N` bound to one string. A group written beside a
+capture therefore expands the way it does anywhere else: `glyph han-($1)-(g|h|t)` over three
+matches writes nine names. A `($1)` is a group like any other, so in `glyph out-($1)-(a|b)` the
+`(a|b)` is `$-2`.
+
+What is searched is every name a `glyph` header declares — aliases included, since a `ref` may
+name one — and nothing else. On-demand names never match: they are an infinite set, and a search
+that answered "yes" for names nobody wrote would declare glyphs out of thin air. Two matched names
+that turn out to be one glyph (two aliases of one drawing) are not an error; what is an error is two
+matches the captures cannot tell apart, which is reported as the duplicate declaration it produces.
+
+A search may match names another `exists` declared, so the searches are run to a fixpoint. A set of
+searches that feeds itself — `exists a-(…)` declaring `b-…` while `exists b-(…)` declares `a-…` —
+never settles, and is reported as a cycle rather than truncated.
+
+A scoped `map` computes its code point from the match with `U+[BASE+]($N)`, hexadecimal on both
+sides, and both halves of a variation sequence take that spelling:
+
+```
+exists han-([0-9a-f]{4,5})-ivs([0-9a-f]{2}):15x16
+map U+($1) U+E0100+($2) = ($0)
+```
 
 ### `feature`: OpenType feature definition
 
@@ -952,7 +1106,7 @@ The group name is arbitrary and links the two directives; it has no meaning in t
 ### `feature ... anchor`: Anchor definition for OpenType feature
 
 ```
-feature [SLICE :] NAME for SCRIPT[/LANGSYS]... : anchor ANCHOR_NAME
+feature [SLICE :] NAME for SCRIPT[/LANGSYS]... : anchor ANCHOR_NAME [align XX]
 ```
 
 The `SLICE :` qualifier works exactly as it does on the substitution form.
@@ -971,6 +1125,17 @@ for composition inside the sources; they just do not reach the font as attachmen
 
 Alternative glyphs needed to make an attachment work — a dotless `i`, a narrower diaeresis — are
 pulled into the font here, along with the `ccmp` substitutions that select them.
+
+`align` says how a *ranged* anchor of this class reduces to the one point GPOS attaches by: `[u|c|d]`
+for the row axis and `[l|c|r]` for the column axis, a lone `c` for both, defaulting to `ul` — the low
+end of each. Only the class may say so, because the same reduction has to apply to the `+` side and
+the `-` side for their difference to mean anything. A centred class needs its two sizes to share a
+parity, or the centre falls between cells.
+
+An anchor's range also selects the drawing: a base offering several slot sizes through `:variant`s
+is substituted for the *first* alternative, in the order they are named, whose `+` range is big
+enough to hold the following mark's `-` range. A slot at least as big as the mark on both axes holds
+it; inside a composite an exact size is preferred over one that merely fits.
 
 ## Glyph Definition Commands
 
@@ -1000,6 +1165,11 @@ Flags may appear in any order, before or after the dimensions:
 * `desync` — the pixel grid is bitmap ink and nothing else: the outline build ignores its geometry
   and draws the glyph from its `ref` lines alone, while the bitmap build reads the grid as always.
   See [Grid-Only-For-Bitmap Glyphs](#grid-only-for-bitmap-glyphs).
+* `vectoronly` — the mirror of `desync`: the glyph is not meant to be rendered as pixels at all, so
+  the **bitmap** build draws it exactly as the outline build does instead of squaring it off. Flag
+  artwork is the case it exists for. The exemption reaches everything the glyph pulls in through
+  `ref`; a component shared with an unflagged glyph is drawn as vector artwork for that glyph too,
+  which the report says. Writing it beside `desync` is an error.
 * `origin C R`, `advance W`, `extent W H` — the declared box; see [Glyph Metrics](#glyph-metrics) and
   [Declared Box and Canvas](#declared-box-and-canvas). `advance` and `extent` on one glyph is an
   error.
@@ -1025,8 +1195,8 @@ This is a placeholder: something for other glyphs to attach to, or a name to hol
 `remap`, without any drawing of its own.
 
 A glyph whose name is a pattern is expanded into one glyph per name, in lock-step with the patterns
-in its `ref` lines. Such a glyph cannot carry a pixel grid — a grid cannot be shared across
-expansions — so it must be built from refs.
+in its `ref` lines. The grid, the box, the flags and the anchors are shared by every name it
+declares; see [Implicit merges](#implicit-merges-and-keep) for what that makes of them.
 
 `NAME` may start with `@`, which stands for the last glyph declared without one — see
 [Auxiliary Glyph Name](#auxiliary-glyph-name).
@@ -1066,16 +1236,43 @@ glyph with a bitmap and no outline.
 ### `glyph`: Glyph alias
 
 ```
-glyph NAME [FLAGS...] = TARGET
+glyph NAME = TARGET
 ```
 
-Shorthand for a glyph consisting of one ref at offset (0, 0) with no flags of its own. Since the ref
-carries no `inherit`, an alias exposes none of its target's anchors; write the block form with
-`ref TARGET inherit` when it should.
+An alias is a second **name** for one glyph, not a second glyph. Everything that names `NAME` — a
+`map`, a `ref`, a `remap` operand, an assertion — is treated as if it had named `TARGET`, and the
+font carries one glyph id. Chains resolve (`A = B`, `B = C` makes `A` the glyph `C`), and a cycle or
+a name aliased twice is an error.
+
+An alias takes no flags and has no body. A glyph that needs either — including one that must
+forward its target's anchors — is written in block form with `ref TARGET [inherit]`.
 
 Both `NAME` and `TARGET` may start with `@` (see
 [Auxiliary Glyph Name](#auxiliary-glyph-name)); as with any header, an alias whose own name carries
 one does not become the base.
+
+The name a component of an [IDC line](#idc-composition) was *written* with is kept beside the
+canonical one, because that name is also a claim about which slot the drawing fills:
+`glyph 阝:4x16-c = 阝:4x16-r` is how a source says the right-hand drawing serves a `⿲`'s middle
+slot, and the `-c` is what makes it reachable for that slot at all.
+
+#### Implicit merges and `keep`
+
+A `glyph` block whose name is a pattern declares several names for one drawing, and the expansions
+that provably describe the same glyph are folded into **one glyph with several names**, exactly as
+if the source had written aliases: `glyph han-6cb3-(g|j|k):15x16` over one grid is one glyph named
+three ways. Two expansions are the same glyph when every name slot the pattern rewrites — the `ref`
+targets and the IDC components — names the same glyph in both; the grid, the box, the flags and the
+gaps are shared by construction. The relation is closed over the `ref` graph, so `glyph b-(g|j|k)`
+with `ref a-(g|j|k)` is one glyph exactly when the three `a-*` are. The first expansion is the name
+the font keeps.
+
+Only the expansions of one block are ever candidates; two blocks that happen to draw the same shape
+stay two glyphs. A name any `remap` matches on — a source, a lookbehind or a lookahead — is never
+merged, since a lookup keyed on that glyph would start matching its twin; a name a rule only
+*produces* may be.
+
+`keep` on a pattern block is the opt-out: it declares a glyph per name.
 
 ### `ref`: Subglyph use
 
@@ -1097,20 +1294,14 @@ Flags:
   for punching a hole through a shape rather than drawing around it.
 * `inherit` — expose this ref's surviving anchors as the composite's own. See
   [Anchor Inheritance](#anchor-inheritance).
-* `ifexists` — the ref is a *condition*. A ref naming a glyph nothing defines already leaves its own
-  glyph unbuilt, and so unmapped; the flag says that outcome was meant, so nothing is reported and
-  the editor underlines nothing. It is for the one case a diagnostic cannot help with — a whole
-  family written in one block, where which of the expanded names has a target varies:
-
-  ```
-  glyph private-($#e000..efff)
-  ref foo-($#e000..efff) ifexists
-  ```
-
-  `map` takes the same flag from the other side; see [`map`](#map-map-characters-to-glyphs).
+* `goto` — the one flag no build stage reads. It says that *go to definition* on the enclosing
+  glyph should land on this target instead — for a wrapper whose own line is one pattern covering
+  thousands of names, where the drawing the reader wants is the component.
 * `fill COLOR`, `fill fg` — draw this layer in a color, for the `COLR`/`CPAL` build. `COLOR` is a
   `#RRGGBB[AA]` literal or a name from a `color` directive; `fg` means the text color, whatever the
-  client is painting with.
+  client is painting with. A ref to a glyph that is itself coloured keeps that glyph's colours; a
+  `fill` is a claim over everything the ref reaches, however deep, and draws all of it in that one
+  colour.
 * `coloronly`, `monoonly` — restrict the layer to the color build or to the monochrome one. A `fill`
   by color name inherits the visibility of that color, so the keyword is only needed to override it.
 
@@ -1142,6 +1333,7 @@ Anchors declared on a glyph are always its own; anchors arriving through a ref a
 ⿱ TOKEN...
 ⿲ TOKEN...
 ⿳ TOKEN...
+⿴ OUTER INNER P Q         // and the other enclosures, see below
 ```
 
 Splits the glyph's box along one axis and fills the shares with other glyphs. The line is a sibling
@@ -1175,10 +1367,46 @@ is a property the part [declares](#declared-box-and-canvas), which is what makes
 rather than a search. A component that names no glyph, or one whose header declares no `W H`, is an
 error for the same reason.
 
-Only the four one-dimensional operators exist. ⿰ and ⿱ alone cover 91% of the URO, and the four cover
-99% of what decomposes along one axis; ⿴⿵⿸⿺ and the rest do not lay out along an axis at all, so
-they stay ordinary `ref` + offset. This is not a general IDS layout engine and is not meant to become
-one.
+`⿻`, `⿾` and `⿿` are deliberately absent: the first says nothing about placement, and the other
+two transform one drawing rather than composing two. This is not a general IDS layout engine.
+
+#### Enclosures: `⿴⿵⿶⿷⿸⿹⿺⿼⿽`
+
+```
+⿴ OUTER INNER P Q
+```
+
+The nine enclosing operators are IDC lines like the four splits, with one difference in what the
+numbers mean. The first component fills the glyph's box and the second sits in the cavity it
+leaves; `P Q` are the inner component's **top-left offsets** inside the box, not gaps. A gap would
+be ambiguous wherever a wall's inner face is ragged ("one cell from the left wall" is a different
+column on every row), so the placement is stated and the clearances are measured from it. Both
+offsets are written or neither; a line with neither has decided nothing and is a todo, exactly like
+an [unpicked variant](#undecided-components).
+
+Which sides the outer part fills is the whole of what tells the operators apart:
+
+| Operator | Walls |
+| --- | --- |
+| ⿴ | all four |
+| ⿵ | left, right, top |
+| ⿶ | left, right, bottom |
+| ⿷ | left, top, bottom |
+| ⿼ | right, top, bottom |
+| ⿸ | left, top |
+| ⿹ | right, top |
+| ⿺ | left, bottom |
+| ⿽ | right, bottom |
+
+On a side that is not a wall the inner part is measured against the parent's own edge. An
+enclosure's clearances are held to the same `audit ideal-clearance` band as a split's, or to the
+second `MIN MAX` pair when the rule writes one; the total is per axis.
+
+An enclosure's outer part names the cavity it offers as `:WxH.NxM`: an `N×M` rectangle the drawing
+leaves clear, flush against whichever sides the operator opens on. Stating one is what marks a
+drawing as an outer part at all; it is the enclosure's answer to the `-l`/`-r` a split's name
+carries, and it is what lets completion and `uniform fix` choose an outer part. Unlike the size, it
+is a **lower bound**: a drawing more generous than its name is not a fault.
 
 #### Variant names (`:WxH-l`)
 
@@ -1227,9 +1455,11 @@ outside is read where it is drawn. That is how a part writes a side bearing — 
 fills, and a hardblank beyond it is space it wants left — and how two parts that each claim a column
 and are placed box to box overlap by exactly what they claim.
 
-Everything here reads the parts' *own* pixels. A part that has not been drawn yet, or that is itself
-a composite with no pixels of its own, has no frontier, and a line containing one is not measured
-rather than measured wrong.
+Everything here reads what a part *draws*. A part drawn with its own pixels is read off them; one
+that is a composite is flattened first, and one that is itself split by an IDC line has its line
+derived and then flattened. What has no frontier at all is a part that draws nothing yet, or one
+whose own line has an undecided component in it; a line containing one is not measured rather than
+measured wrong.
 
 What the numbers are held to is [`audit ideal-clearance`](#audit-rules-the-source-is-held-to), which
 binds each of them *and* their total to one range; a violation is a warning. Both halves are needed,
@@ -1286,18 +1516,27 @@ map U+1F1E6..1F1FF = regional-indicator-($a-z)
 
 Mapping the same codepoint twice is reported, as is mapping to a glyph that does not exist.
 
-A trailing `ifexists` maps only the codepoints whose target glyph turns out to exist, and says
-nothing about the rest:
+A qualifier may list slices: `map wide|narrow : ⁂ = triple-star($half)` states the line once per
+slice, with `$half` bound per slice by a slice-scoped
+[`name-parts`](#name-parts-name-parts-definition).
+
+#### Ordered alternatives
 
 ```
-map U+E000..EFFF = private-($#e000..efff) ifexists
+map CHAR = GLYPH GLYPH...
 ```
 
-The build always dropped a mapping whose glyph never resolved; the flag declares that intended, so it
-is neither reported nor counted as claiming the codepoint. Two such lines over one range are
-therefore not duplicates, and the name that exists wins. It is the same flag [`ref`](#ref-subglyph-use)
-takes, from the other side. `map generate` takes no `ifexists`, since it synthesizes its target
-instead of naming one.
+More than one target means alternatives, tried in order: the first that names a glyph the font has
+is the one the character gets. Since a target is a pattern expanded in lock-step with `CHAR`, the
+choice is made per character, not per line:
+
+```
+map U+($#4e00..9fff) = han-($-1) han-old-($-1)
+```
+
+A character that matches none of them falls back to `.notdef` and is reported — unless the last
+alternative is the empty token `` `` ``, which says that a character nothing covered is not an
+error: the mapping is dropped without a word. It has to be last, since it always matches.
 
 A variation selector cannot be mapped on its own. It reaches the font only as the second half of the
 form below, whose glyph the build owns.
@@ -1320,8 +1559,7 @@ There are two spellings and each round-trips as it was written. `U+0030 U+FE0F` 
 same pair pasted out of a character picker is *one* token holding two characters. Only that exact
 shape — two characters, the second a selector and the first not — is read as a pair, so a pipe list
 keeps its last alternative and a longer paste stays whole. The halves carry their spellings
-independently, so `map 0 U+FE0F = x` is accepted too, and comes back as written. A trailing
-`ifexists` means here what it means on the plain form.
+independently, so `map 0 U+FE0F = x` is accepted too, and comes back as written.
 
 Since a selector is invisible, the editor spells out the codepoints of a literally written sequence
 beside it, on `map` lines and on `assert shape` alike.
@@ -1552,7 +1790,9 @@ error even when the two values agree.
 
 | Key | Meaning |
 | --- | --- |
-| `ideal-clearance PREFIX* MIN MAX` | The inclusive range each of an [IDC line](#clearance)'s clearances, *and* their total, must fall in. Violations are warnings. |
+| `ideal-clearance PREFIX* MIN MAX [MIN MAX]` | The inclusive range each of an [IDC line](#clearance)'s clearances, *and* their total, must fall in. Violations are warnings. The optional second pair is the band an [enclosure](#enclosures-) is held to; with one pair both kinds of line share it. |
+| `max-contact-run PREFIX* N` | How many consecutive lines two neighbouring parts may touch along before the layout owes them a cell of clearance. See below. |
+| `ref-image-path DIR` | The directory of reference chart strips the editor draws above a `glyph` line, relative to the file the line is written in. See `editor.md`. |
 
 `PREFIX*` matches a glyph name by its front, so the `*` may only be the last character and there may
 only be one. A bare name with no `*` matches that one glyph. A source may state as many rules as it
@@ -1560,6 +1800,13 @@ likes — a band for `han-*` and a tighter one for a subset of it is the intende
 which is why the slot is one *per prefix*. When more than one rule matches a name the **longest**
 prefix wins, and an exact name beats every prefix; that is what makes a rule for one troublesome
 glyph an exception rather than a second answer.
+
+`max-contact-run` reads the *pattern* of two facing edges rather than the distance between them —
+two flat faces meeting over sixteen lines and two tips grazing over one are the same clearance and
+want opposite answers — and it speaks as a clearance: a junction over the limit reports a cell
+less. It is therefore in force only where an `ideal-clearance` rule reaches the same glyph. A
+hardblank that has already parted two parts leaves nothing touching, so the two mechanisms never
+both fire on one line.
 
 ### Diagnostics and Exit Status
 
@@ -1697,9 +1944,18 @@ are not the same act:
   choosing from it is exactly what the todo asks for. Such a line is planned whatever it scores,
   since any decided layout is more than none.
 
-What cannot be measured after a choice either is skipped: a component that names nothing, a part with
-no ink of its own, an undecided component whose family is empty, and a glyph whose name is a pattern
-(one line then stands for a family whose members are sized differently).
+It also plans two more kinds of line:
+
+* a line the check **errors** on — a component naming a drawing that does not exist, or one whose
+  size does not fill the slot. It is treated like a todo: the family is searched without the
+  erroring name, and the line is planned whatever it scores;
+* a **wrong-slot warning**, where a component drawn for one side sits on another. The count of such
+  components is an objective of its own, behind the score, so a name is never put right by making
+  the layout worse.
+
+What cannot be measured after a choice either is skipped: a part with no ink of its own, a
+composite the pass cannot flatten, and a component — undecided or erroring — whose family draws
+nothing that could fill the slot.
 
 For each slot the candidates are the variants of the component's base name — `A:4x16`, `A:5x16`, …
 for a component written `A:x` — filtered to those that could go there at all: the box must fit the
@@ -1733,6 +1989,16 @@ Many layouts score the same, and they are ordered:
 5. **the line as written**, then the names in order — so a run over an unchanged source is a no-op
    and the output is reproducible.
 
+An [enclosure](#enclosures-) is planned differently in one respect: the inner part's placements are
+searched over the box rather than solved, since the two axes are not independent — how much room
+the left wall leaves depends on which rows the inner part covers. The rules then push the inner
+part out on the open sides and centre it along the walled axes.
+
+A line written as a pattern stands for a whole family, and what a rewrite may move there is what
+the family shares — the gaps (or, for an enclosure, the two offsets) and a component's variant
+label wherever the block's own pattern does not reach it. The objective becomes the fewest glyphs
+warning at all, then the fewest with no layout, and only then the summed score.
+
 ## On-demand Glyphs
 
 Some shapes are not worth a `glyph` block. A `ref` (or a `map`, or a `remap` operand) may name a
@@ -1743,7 +2009,7 @@ Every such name has the same skeleton — a **declared box**, an optional shape 
 bitmap rule:
 
 ```
-[-]W[pArR]x[-]H[pBrR] [ -ul | -ur | -dl | -dr | -circle | -polyN… ] [ :ceil | :floor | :zero ]
+[-]W[pArR]x[-]H[pBrR] [ -ul | -ur | -dl | -dr | -circle | -polyN… | -xsN | -xzN | -ysN | -yzN ] [ :ceil | :floor | :zero ]
 ```
 
 It is read strictly left to right and has to match in full: exactly one shape word, at most one
@@ -1834,6 +2100,15 @@ Several spellings mean the same shape, and they are treated as such: `poly6`, `p
 folded into the shape's own N-fold symmetry. (They remain distinct glyph *names*; it is the shape
 that is shared.)
 
+### `-xsN`/`-xzN`/`-ysN`/`-yzN`: Sheared rectangle
+
+The parallelogram whose two sheared edges sit `N` cells apart, leaning like `s` or `z` along the
+named axis. The box stays `ceil(W) × ceil(H)` and the parallelogram is inscribed in it, so
+`WxH-xsN` is a `(W − N) × H` rectangle with its horizontal edges slid `N` apart rather than a
+`W × H` one sheared until it overhangs. `N` is a length on the same lattice as the box, not a
+slope. `-xs0` and its siblings are the plain rectangle, and a shear that eats the whole dimension
+names nothing, like a zero-width box.
+
 #### Bitmap Control
 
 The font is built twice, and a synthesized shape has to decide which cells the bitmap build lights.
@@ -1877,3 +2152,19 @@ ref sm-g-upper 5 2 negated
 
 Note that `:mono` and `:color` are alternatives in the ordinary sense as well, so both remain
 addressable on their own.
+
+## The Demo Page
+
+`--demo-html` writes one self-contained page: the primary face embedded once as a variable font
+carrying both drawings, and a code chart built by the page's own script from a JSON blob saying
+which characters exist, which the font maps, and what block each falls in. Every other `face` is
+folded into that font as a stylistic set, one substitution per character the faces disagree about,
+and switched with a class on the page; a character the primary face maps and a secondary does not
+is hatched for that face.
+
+The chart is sixteen columns, aligned to `cp & !0xF`, and always shows undeclared characters. A
+block longer than 0x100 code points is folded in the middle, its two ends kept and the rest one
+click away. A glyph no `map` names — a flag, a composed jamo — is offered from the cell of the
+character that begins its sequence, marked with a corner triangle; the click opens a row of
+everything that character begins, with what to type for each. A sample panel pinned to the bottom
+lists the source's `sample` texts, editable, at the chart's own size and drawing.

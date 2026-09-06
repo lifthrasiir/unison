@@ -1,107 +1,70 @@
-//! Name pattern parsing and expansion.
+//! Name pattern parsing and expansion — the single expansion engine.
 //!
-//! A *name pattern* is a compact notation for a list of glyph names:
+//! The notation (`(a|b|c)`, `a*N`, `(...**N)`, `$var`, `$0..9`, `$#a0..af`,
+//! `$-N`) is described for authors in `doc/reference.md` (*Name Pattern*).
+//! `$`-references are substituted
+//! textually by [`substitute_name_parts`] *before* pattern parsing, so a
+//! reference is one alternative among the others and every operator works on it
+//! unchanged. [`NamePattern`] is the parsed form: it knows its
+//! [`len`](NamePattern::len) without materializing anything and yields names
+//! via [`get`](NamePattern::get), so consumers that combine several patterns
+//! can defer or skip full expansion. Expansion is capped at [`MAX_EXPANSION`]
+//! names — for a `name-parts` binding too.
 //!
-//! - `(a|b|c)` — an alternation group spliced into the surrounding literal
-//!   text (`foo-(a|b)` → `foo-a`, `foo-b`);
-//! - `a*N` — inside a group, repeats one alternative N times;
-//! - `(...**N)` — at the end of a group only, repeats each of its
-//!   alternatives N times; a `**N` anywhere else is a syntax error;
-//! - `$var` / `$0..9` / `$#a0..af` — name-part references and inline numeric
-//!   ranges, substituted textually by [`substitute_name_parts`] *before*
-//!   pattern parsing.  A reference is just one alternative among the others,
-//!   so `(foo|$bar|baz*5|$#00..ff*3**2)` mixes all the forms freely; a `*N`
-//!   on a reference repeats each of its values.
-//! - `$-1`, `$-2`, … — *back-references*: the item's own groups, named again
-//!   further along it.  A `glyph` block header, a `glyph … = …` alias and a
-//!   `map` each write one leading pattern, and the parenthesized groups of
-//!   that pattern are numbered in written order for every other name on the
-//!   item — a `ref`, an IDC component, an alias target, a `map` target:
+//! # Back-references
 //!
-//!   ```text
-//!   glyph han-xxxx-(g|h|t|j|p|v):15x16 15 16
-//!   ref han-yyyy-($-1):15x16 0 0
-//!   ```
+//! A `$-N` names the n-th parenthesized group of the pattern the *item* is
+//! named by. Only a written `(...)` captures, which is what tells `map (ㅠ|ㅡ) =
+//! …` from `map ㅠ|ㅡ = …`: the parentheses are the mark, and the two entry
+//! points that *synthesize* a group nobody wrote (below) must not bind one.
+//! [`capture_groups`] is that rule. [`substitute_captures`] splices the group's
+//! alternatives in as a group of its own, so a back-reference is indexed in
+//! lock-step with the pattern it names. It is declared by the item and gone
+//! with it; which item binds and how far it reaches is each consumer's
+//! (`expand_glyph_block`, `alias::expand_alias`, `expand::map_char_pattern`).
+//! A `$N` from an [`exists`](crate::exists) search shares the parentheses but
+//! answers a different question; `glyph out-($1)-(a|b)` has two groups, and
+//! the `(a|b)` is `$-2`.
 //!
-//!   Only a written `(...)` captures, which is what tells `map (ㅠ|ㅡ) = …`
-//!   from the `map ㅠ|ㅡ = …` beside it: the parentheses are the mark, and the
-//!   two entry points that *synthesize* a group nobody wrote (see below) must
-//!   not bind one.  [`capture_groups`] is that rule.
+//! # Largest, not LCM
 //!
-//!   A back-reference is substituted like any other reference —
-//!   [`substitute_captures`] splices the group's alternatives in as a group of
-//!   its own — so it is indexed in lock-step with the pattern it names (that
-//!   is the point) and every operator above works on it unchanged.  It is
-//!   declared by the item and gone with it: nothing carries a `$-N` from one
-//!   line to the next except the block header's reach over its own `ref`
-//!   lines.
-//!
-//!   A `$N` from an [`exists`](crate::exists) search and a `$-N` answer
-//!   different questions — what the search matched, and the n-th group this
-//!   item writes — but they share the parentheses: `glyph out-($1)-(a|b)` has
-//!   two groups, and the `(a|b)` beside the capture is `$-2`.
-//!
-//! Multiple groups in one pattern combine cyclically: the total length is the
-//! size of the *largest* group and group `k` contributes its `i % len(k)`-th
-//! alternative to the `i`-th name.  This cyclic indexing is what lets remap
-//! operands and `ref` targets expand in lock-step with a glyph-name pattern.
+//! Multiple groups combine cyclically: the length is the size of the *largest*
+//! group, and group `k` contributes its `i % len(k)`-th alternative to the
+//! `i`-th name. This is what lets remap operands and `ref` targets expand in
+//! lock-step with a glyph-name pattern.
 //!
 //! The length used to be the LCM of the group sizes, which made more patterns
 //! come out "right" but made a wrong one unreadable: `(a|b|c)-(x|y)` quietly
 //! became six names, and the same pattern with an even first group became
-//! *three*, dropping half the combinations with nothing to see.  The rule is
-//! now the largest group, and a group whose size does not divide it —
-//! [`NamePattern::ragged_group_lens`] — is a warning from `issues.rs` rather
-//! than a silent reinterpretation.  A full cross product is written with the
-//! `**N` group multiplier (`(a|b|c**2)-(x|y)`), which is what it was always
-//! for.
+//! *three*, dropping half the combinations with nothing to see. A group whose
+//! size does not divide the largest — [`NamePattern::ragged_group_lens`] — is
+//! a warning from `issues/patterns.rs` rather than a silent reinterpretation;
+//! a full cross product is written with `**N`, which is what it was always for.
 //!
 //! A slice qualifier listing several slices (`map wide|narrow : ...`) is *not*
-//! part of this.  The slices are an outer loop — the line is stated once per
-//! slice, with that slice's [name parts](crate::document::SliceNameParts) in
-//! force, and each statement then expands on its own.  Folding them in as one
-//! more group would zip them against the codepoint list instead: two slices
-//! against ten codepoints would produce ten names alternating between the two,
-//! which is not what the line says.
+//! a group. The slices are an outer loop — the line is stated once per slice,
+//! with that slice's [name parts](crate::document::SliceNameParts) in force —
+//! because folding them in would zip them against the codepoint list instead.
 //!
-//! [`NamePattern`] is the parsed form.  It knows its [`len`](NamePattern::len)
-//! without materializing anything and yields individual names via
-//! [`get`](NamePattern::get), so consumers that combine several patterns
-//! (the GSUB builder, `expand_glyph_block`) can defer or skip full expansion;
-//! set operations such as a distinct-count could be added on it later without
-//! touching call sites.  Iterating (or [`into_vec`](NamePattern::into_vec))
-//! materializes names on demand.
+//! # Three contexts, one syntax
 //!
-//! The same surface syntax is read in two contexts with different top-level
-//! rules, matching how the `.unf` grammar evolved:
+//! The same surface syntax is read with different top-level rules, matching how
+//! the `.unf` grammar evolved:
 //!
 //! - [`NamePattern::parse_element`] — a *single name element* (a `map` or
 //!   `remap` operand, an `assume unused` argument, a ref target looked up at
-//!   runtime).  A top-level `|` or `*` outside parentheses treats the whole
+//!   runtime). A top-level `|` or `*` outside parentheses treats the whole
 //!   string as one alternation group, so a `$var` substitution that produced
 //!   `v1|v2**2` behaves like `(v1|v2**2)`.
-//! - [`NamePattern::parse`] — a *glyph block name* (`glyph NAME ...`).  This
-//!   additionally accepts a top-level `name1|name2` list whose branches are
-//!   taken verbatim (trimmed, not recursively expanded), and a bare `foo*N`
-//!   repeat.
+//! - [`NamePattern::parse`] — a *glyph block name*. Additionally accepts a
+//!   top-level `name1|name2` list whose branches are taken verbatim (trimmed,
+//!   not recursively expanded), and a bare `foo*N` repeat.
 //! - [`NamePattern::parse_segments`] — a `ref` target inside a pattern glyph
 //!   block: groups only, no range or top-level list.
 //!
 //! The difference is visible on one string: `a*2|b` is `a`, `a`, `b` to
-//! [`parse_element`](NamePattern::parse_element) and the two verbatim names
-//! `a*2`, `b` to [`parse`](NamePattern::parse). Both readings are relied on, so
-//! the tests below pin each one.
-//!
-//! A `name-parts` right-hand side is expanded the same way, one token at a
-//! time, so a value may be written as a pattern
-//! (`crate::document::resolve_name_part_values`).
-//!
-//! Expansion is capped at [`MAX_EXPANSION`] names — for a `name-parts` binding
-//! too, which is an error when its own values go over it.
-//!
-//! (This is the single expansion engine. It was consolidated out of two separate
-//! ones that had grown in `document.rs`, which still re-exports the API for the
-//! import paths predating the split.)
+//! `parse_element` and the two verbatim names `a*2`, `b` to `parse`. Both
+//! readings are relied on, so the tests below pin each one.
 
 use std::collections::HashMap;
 use std::fmt;

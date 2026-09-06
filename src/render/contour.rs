@@ -11,10 +11,9 @@
 //! a negative `ref` offset is a bearing that has to survive tracing, see
 //! [`crate::ref_composite`].
 //!
-//! This is, with `ttf_builder`, where the bugs are: sub-pixel and on-demand
-//! shapes inside composites. Check contour output at *composite* level whenever
-//! shape codes, [`crate::detail::DetailRegion`] or on-demand synthesis change,
-//! and test the degenerate inputs (empty, 1×1, zero-extent) explicitly.
+//! Check contour output at *composite* level whenever shape codes,
+//! [`crate::detail::DetailRegion`] or on-demand synthesis change, and test the
+//! degenerate inputs (empty, 1×1, zero-extent) explicitly.
 
 use std::collections::{BTreeMap, HashMap, HashSet};
 

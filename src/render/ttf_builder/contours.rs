@@ -140,7 +140,7 @@ impl CachedContours {
     /// Where this glyph's raster grid sits when referenced from a parent at
     /// `(ref_row, ref_col)`, rescaled to the parent's resolution.
     /// Where a ref to this glyph lands in the parent's raster. The same three
-    /// terms as [`crate::ref_composite::ref_effective_offset_scaled`], which
+    /// terms as `crate::ref_composite::ref_effective_offset_scaled`, which
     /// this has to agree with cell for cell: the offset runs box origin to box
     /// origin, so both origins come in, and the target's own resolved raster
     /// origin is added on top.

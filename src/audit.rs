@@ -1,56 +1,35 @@
 //! The `audit` directive: rules the *source* is held to, stated once for a
-//! whole family of glyphs.
+//! whole family of glyphs. The keys are described in `doc/reference.md`.
 //!
 //! # Why this is not `meta`
 //!
-//! [`crate::meta`] states what goes *into the font file* — a name record, a
-//! metric, a PANOSE vector. An `audit` line states nothing that a consumer of
-//! the font could ever read: it says what the source is supposed to look like,
-//! so that a drawing which drifts from it is reported rather than shipped.
-//! Keeping the two apart matters because their failure modes are opposite. A
-//! `meta` key that goes missing changes the font; an `audit` rule that goes
-//! missing changes nothing except that nobody is told any more.
+//! [`crate::meta`] states what goes *into the font file*. An `audit` line
+//! states nothing a consumer of the font could ever read: it says what the
+//! source is supposed to look like, so that a drawing which drifts from it is
+//! reported rather than shipped. Their failure modes are opposite — a `meta`
+//! key that goes missing changes the font; an `audit` rule that goes missing
+//! changes nothing except that nobody is told any more.
 //!
 //! It is a *global* rule and not a per-glyph flag for the same reason a
-//! stylesheet is not an inline style: the whole point is that 20k glyphs are
-//! held to one standard, and a rule restated per glyph is a rule that drifts.
-//! The prefix is how a source says which family of glyphs it means.
+//! stylesheet is not an inline style: 20k glyphs are held to one standard, and
+//! a rule restated per glyph is a rule that drifts. The prefix says which
+//! family; there is no face scope, since a face selects which characters map to
+//! which glyph and never how a glyph is drawn.
 //!
-//! # The line
+//! # Slots
 //!
-//! `audit KEY ARGUMENT…`, one key per line — the same shape as `meta`, and for
-//! the same reason (keys are variadic, so two on one line could not be told
-//! apart). There is no face scope: a face selects which characters map to which
-//! glyph, never how a glyph is drawn, and every face draws from one glyph set.
-//!
-//! The keys:
-//!
-//! ```text
-//! audit ideal-clearance han-* 0 1        // one band for every IDC line
-//! audit ideal-clearance han-* 0 1 1 2    // …or a second one for enclosures
-//! audit max-contact-run han-* 2
-//! audit ref-image-path ../data/ref       // what the drawings are held against
-//! ```
-//!
-//! # A key whose value is a path
+//! One key per line, single-assignment, exactly as `meta`, and reported by
+//! [`crate::issues`]. Which slot a line assigns to is [`AuditEntry::slot`] —
+//! for `ideal-clearance` and `max-contact-run` that is one slot *per prefix*,
+//! since a band for `han-*` and a tighter one for a subset of it is the
+//! intended use rather than a conflict; [`PrefixRules`] picks the longest
+//! matching prefix.
 //!
 //! `ref-image-path` is the odd one out twice over: it states no number, and it
 //! is the only key whose value is read *relative to the file the line is
-//! written in* rather than as a name in the one global namespace every other
-//! directive lives in. Both follow from what it is — the published code charts
-//! the han drawings are held against, sitting beside the source rather than in
-//! it — and a path only means something next to the file that wrote it. It is
-//! an `audit` key for the same reason a clearance band is: nothing in the font
-//! carries it, and it exists so that a drawing can be compared with what it is
-//! supposed to be. Nothing outside the editor reads it; see
-//! [`crate::editor::ref_images`].
-//!
-//! Everything here is single-assignment, exactly as `meta` is: setting one slot
-//! twice is an error even when the two values agree, reported by
-//! [`crate::issues`]. Which slot a line assigns to is [`AuditEntry::slot`] —
-//! for `ideal-clearance` that is one slot *per prefix*, since stating a band
-//! for `han-*` and a tighter one for a subset of it is the intended use rather
-//! than a conflict.
+//! written in* rather than as a name in the global namespace — a path only
+//! means something next to the file that wrote it ([`ref_image_root`]).
+//! Nothing outside the editor reads it; see [`crate::editor::ref_images`].
 
 use std::collections::BTreeMap;
 

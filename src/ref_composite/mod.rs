@@ -41,7 +41,7 @@
 //!
 //! The flag governs *exposure only*. It must not decide which form of a glyph
 //! a sibling attaches to: that is a question about the alternative itself, and
-//! [`try_lookahead_alt`] answers it from declared anchors and the alternative
+//! `try_lookahead_alt` answers it from declared anchors and the alternative
 //! index, exactly as `render/ttf_builder/gpos.rs` does. Reading the primary's
 //! exposed set there instead once made every generated `ï í ì ī ǐ î ĭ ĩ`
 //! compose over dotted `i-lower`, while shaping the decomposed input still
@@ -77,10 +77,8 @@
 //!
 //! # On-demand glyphs
 //!
-//! A name that nothing defines but that matches a synthesizable shape is
-//! generated on demand, and such a glyph is implicitly `inline`. The grammar,
-//! the geometry and the bitmap-fill rule all live in [`crate::on_demand`];
-//! resolution only has to ask it whether a name is one.
+//! Resolution only asks [`crate::on_demand`] whether a name is one; the
+//! grammar, the geometry and the bitmap-fill rule live there.
 
 mod anchors;
 mod composite;

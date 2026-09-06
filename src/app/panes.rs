@@ -19,16 +19,12 @@
 //!   document would have to be kept in sync line by line; instead, opening a
 //!   file that is already on screen moves the focus to the pane showing it.
 //!
-//! Splitting is what could produce a second placeholder, so it is offered only
-//! from a single pane that has a document (`can_split`) — never from a
-//! placeholder, and never into a third pane.
-//!
 //! The focus follows whichever editor egui reports as focused
 //! (`UniformApp::sync_pane_focus`, run right after the panes are laid out), and
-//! the pane commands are dispatched after that so they act on the pane the focus
-//! is actually in this frame: Cmd/Ctrl+Alt+←/→ split, Cmd/Ctrl+Alt+H/L move the
-//! focus one pane left/right (vim-keyed, since the arrows are taken and j/k stay
-//! free for a future horizontal split), Cmd/Ctrl+Alt+X swap, Cmd/Ctrl+W close.
+//! the pane commands (`can_split` gates the split) are dispatched after that so
+//! they act on the pane the focus is actually in this frame. The focus-move
+//! chords are H/L rather than arrows because the arrows are taken and j/k stay
+//! free for a future horizontal split.
 //!
 //! The swap chord is the one exception to how accelerators are read:
 //! `egui-winit`'s `is_cut_command` ignores alt and *returns* after pushing

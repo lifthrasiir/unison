@@ -1,639 +1,132 @@
 # Uniform
 
 Bitmap font editor with sub-pixel shape support and a TTF builder, plus the `font/` sources of the
-Unison font itself. egui/eframe GUI, Rust 2024 edition. Single binary `uniform` with four modes:
-GUI (default), `build`, `test`, and `fix` (the one that rewrites the source).
+Unison font itself. egui/eframe GUI, Rust 2024 edition. One binary `uniform`: the GUI by default,
+and the headless `build`, `test`, `fix`, `probe` and `sequences` subcommands.
 
-**This file is an index.** The reasoning behind each design — the `.unf` format, composition rules,
-the editor's structure — lives in the module-level `//!` docs of the code that
-implements it; this file says which module that is. Keep it that way: when a new invariant is worth
-recording, put it next to the code and add at most a line here.
+**This file is an index, and it is loaded into every session — keep it short.** The reasoning behind
+each design lives in the module-level `//!` docs of the code that implements it; when a new
+invariant is worth recording, put it next to the code. `doc/internals.md` is the topic → module
+index for those docs; add a row there, not here. User-facing documentation is under `doc/`.
 
 ## Build & Run
 
 ```sh
 cargo build -r    # normal build
 cargo test        # unit + golden + GUI-harness tests
-make              # build unison.ttf/.woff2 + demo.html
-make test         # the above, the headless test suite, then the `assert` directives in font/
+make              # build unison.ttc / unison-%.woff2 + demo.html
+make test         # the above, `cargo test --no-default-features`, then the `assert` directives in font/
 ```
 
-Cross-compiling for Windows — use these instead of the plain commands when the current environment
-is *not* Windows:
+The GUI takes an optional font directory: `cargo run -r -- font/`. The subcommands and their flags
+are in `doc/reference.md` (*Font Project*); the ones used most:
 
 ```sh
-cargo xb -r       # cargo xwin build --target x86_64-pc-windows-msvc
-cargo xrr         # run the compiled release executable (only to be used by users)
-cargo xr          # ditto, debug
+cargo run -r -- build -i font/ -o unison.ttc [-o unison-%.woff2] [--demo-html demo.html -d data]
+cargo run -r -- test -i font/
+cargo run -r -- fix -i font/ --optimize-clearance [--dry-run]
 ```
 
-Both run aliases go through `run-local.cmd`, which copies `uniform.exe` + `uniform.pdb` to
-`%LOCALAPPDATA%\uniform\<profile>\` and runs *that* copy (working directory unchanged, so relative
-arguments still resolve). **Never run the binary from the repo path** — the repo is an SMB mount and a
-PE image is demand-paged from its file for the life of the process, so a cold code page that the
-share cannot serve kills the process; `run-local.cmd`'s comments have the whole story.
+`build` and `test` print parse errors, then the `issues/` report (`error:`/`warning:` with
+`file:line:`). Warnings still build; a single `error:` exits 1 — `build` after writing every
+output, which is what CI relies on (`.github/workflows/pages.yml`). Read the report.
 
-The `build`/`test`/`fix` subcommands require native execution:
+Cross-compiling for Windows when the current environment is not Windows: `cargo xb -r` builds,
+`cargo xrr` / `cargo xr` run through `run-local.cmd`, which copies the executable off the SMB mount
+first. **Never run the binary from the repo path** — its comments say why.
 
-```sh
-cargo run -r -- build -i font/ -o unison.ttf [-o unison.woff2] [-o unison-%.ttf] [-o unison.ttc] \
-    [--demo-html F] [-d data] \
-    [--woff2-quality fast|max]
-cargo run -r -- test -i font/       # run `assert` directives; exit 1 on failure
-cargo run -r -- fix -i font/ --optimize-clearance [--dry-run]   # rewrite the source: see `fix/`
-cargo run -r -- probe -i font/ [-n 2]   # startup timing with no window: see `startup.rs`
-cargo run -r -- probe -i font/ --edit   # what one edit costs the editor, caches warm
-cargo run -r -- sequences -i font/      # what to type for a glyph no `map` names: see `render/reach.rs`
-```
+`UNIFORM_PERF` prints `[perf]` per-stage timings in every mode; `UNIFORM_UPDATE_GOLDEN=1` rewrites
+`testdata/*.golden`; `UNIFORM_WATCH_POLL_MS` and `UNIFORM_PROFILE_RUNS` are documented where they are
+read (`app/watch.rs`, `ref_composite/`).
 
-Output extension picks the format (`.woff2` → WOFF2, anything else → TTF); `--woff2-quality max`
-is for the files that are actually published, and costs about 1.5 s per face (`render::Woff2Quality`).
-Both subcommands print parse errors per file and then the full `issues/` validation report (`error:`/`warning:` with
-`file:line:`); the font still builds when only warnings/refs-to-nothing exist, so read the report.
-A single `error:` (from either the parse or the validation pass) makes both subcommands **exit 1** —
-`build` still writes every output file first, so a CI run can publish them and fail afterwards, which
-is what `.github/workflows/pages.yml` does with its `report` job.
+## Rules that are not visible from any one file
 
-The GUI takes an optional font-directory argument: `cargo run -r -- font/`.
+- **`font/` is a consumer, not a fixture.** No automated test may read it: it changes for
+  font-design reasons and is far too large to be meaningful. When `font/` turns up a bug, add a
+  minimal `.unf` to `testdata/` or build the case inline. Manual runs against it (`make test`,
+  `cargo run -r -- build -i font/`) are expected. The one `#[ignore]`d profiling harness in
+  `ref_composite/` is the exception; keep any such case `#[ignore]`d.
+- **GUI behaviour is tested through `EditorHarness`** (`editor/harness.rs`), never left to manual
+  testing. Scenarios go in `editor/view_tests/`, one module per theme.
+- **Regression tests first**: write the test, observe the failure, fix, observe the pass. Prefer an
+  `assert same/distinct/shape` in `font/*.unf` for a glyph-level bug.
+- **Goldens** (`golden.rs`, over `testdata/`) pin the diagnostics report and a digest of resolution.
+  Behaviour-preserving refactors must not move them; intentional changes update them so the diff
+  is reviewable.
+- **The headless build rots silently.** Most of the crate is under `#[cfg(feature = "editor")]`
+  and `cargo test` never builds without it, so `make test` runs `cargo test --no-default-features`.
+  An item only the headless *binary* does not need stays `#[cfg(feature = "editor")]`, and so does
+  a test that reaches for it. An item live in the headless test build but dead in the headless
+  binary takes `#[cfg_attr(all(not(feature = "editor"), not(test)), expect(dead_code))]` — `expect`,
+  so that it fails once the item does get used there.
+- **Performance regressions are bugs.** The build's expensive stages run on every core
+  (`parallel.rs`), so shared mutable state added to one of them is the bug to avoid: a memo a
+  stage carries sits on the serial side of the split. The editor is routinely run against a
+  network share where one file round trip is ~185 ms, so **nothing on the UI thread reads a
+  directory file by file or builds a font** (`startup.rs` measures it, `app/background.rs` is
+  where the work goes). Keep the geometry caches keyed correctly when changing geometry.
+- **Files stay around 2000 lines.** Split by stage (as `ttf_builder/` and `document_view/` are).
+  A test suite that outgrows its module lives in a sibling file or directory declared as a *child*
+  module through `#[path]`, so it still reaches private items; the table below says which.
+- **The release profile is tuned for binary size**, and `Cargo.toml`'s own comments are the
+  reference. The rule it is held to: a warm rebuild of this crate must not get slower.
 
-### Environment variables
-
-| Var | Effect |
-| --- | --- |
-| `UNIFORM_PERF` | `[perf]` per-stage timing logs: font/derived-data rebuilds (`app/background.rs`), the build pipeline's own stages in every mode including `build` (`startup.rs`, `PerfStage`), plus the startup report on stderr after the first frame |
-| `UNIFORM_UPDATE_GOLDEN=1` | Rewrite `testdata/*.golden` instead of comparing (`cargo test golden`) |
-| `UNIFORM_WATCH_POLL_MS` | Shortest interval between two re-scans of a font directory on a network volume (default 2000; the interval itself follows what a scan costs — `app/watch.rs`) |
-| `UNIFORM_PROFILE_RUNS` | Iteration count for the `ref_composite` profiling test |
-
-Cargo features: `editor` (default) pulls in eframe/egui/tiny-skia/notify/rfd/arboard. `--no-default-features`
-builds the headless CLI only — **it breaks easily**, since most code is under `#[cfg(feature = "editor")]`,
-and `cargo test` never builds it. It has rotted twice, so `make test` now runs `cargo test
---no-default-features` (the `check-headless` target) rather than trusting anyone to remember.
-
-The release profile is also tuned for binary size, and **`Cargo.toml`'s own comments are the
-reference** for it: which dependencies are compiled for size rather than speed and why, why the
-renderer is eframe's `glow` and not `wgpu`, and why the `regex` and `arboard` feature sets are cut
-down. The rule the tuning is held to is that a warm rebuild of *this* crate must not get slower —
-every knob that costs incremental time (crate-wide LTO, `codegen-units = 1` for `uniform` itself)
-was measured and rejected for that reason.
-
-Which side of the boundary a fix belongs on: an item the headless *binary* genuinely does not need stays
-`#[cfg(feature = "editor")]`, and a test that reaches for it is gated the same way — `detail.rs` gates its
-own rotation/snapping tests exactly so. Widening a gate to `any(feature = "editor", test)` pulls the item's
-whole dependency chain along with it, so it is for items whose callers are already core. An item that is
-live in the headless *test* build but dead in the headless *binary* takes
-`#[cfg_attr(all(not(feature = "editor"), not(test)), expect(dead_code))]`, which is `expect` and not `allow`
-on purpose: it fails once the item does get used there.
-
-## Source Layout
+## Source layout
 
 Core (feature-independent):
 
-- `document/` / `document_io.rs` — the `.unf` data model, parser and serializer. **`document_io.rs`
-  is the format reference**: tokens, comments, every directive, glyph blocks and their flags.
-  `document/mod.rs` holds `Document`/`DocumentItem`/`DocLine`; what hangs off them is split by what
-  it models — `pixel_grid.rs`, `glyph.rs` (refs, anchors, IDC, `GlyphBody`), `names.rs` (`GlyphName`
-  and `@`), `name_parts.rs`, `remap.rs`, and `serialize.rs` for the way back to text.
-- `alias.rs` — `glyph NAME = TARGET`: a second *name* for a glyph, sharing its glyph id. Holds the
-  chain/cycle rules and the list of which pipeline stages canonicalize where.
-- `merge.rs` — implicit merging: the names one `glyph` *pattern* block declares that describe the
-  same glyph, folded into one glyph id by producing `alias.rs`'s input. Holds why the candidates are
-  one block's expansions and never two blocks, the σ fixpoint over the `ref`/IDC graph, why
-  why a `remap`'s *inputs* are excluded where its outputs are not, and `keep` as the opt-out.
-- `exists.rs` — `exists PATTERN`: the inverse of a name pattern — a search over the names the
-  source declares, repeating the next line once per match with `$0`/`$N` bound. Holds what is
-  searched (and why on-demand names are not), the one-line scope rule, why the scoped item is
-  *unrolled* per match rather than bound to the whole list, the fixpoint and its cycle
-  budget, and the regex subset. Tests in `exists_tests.rs`.
-- `pattern.rs` — `NamePattern`, the single name-expansion engine. The same syntax parses differently
-  per context on purpose; its module docs spell the three contexts out, and the `$-N`
-  back-reference rule with them.
-- `pixel.rs` — `PixelShape`/`PixelGrid`, the shape-code catalog (`PX_*`), boolean ops, `rescale`.
-- `detail.rs` — `DetailRegion`: exact per-pixel sub-pixel geometry on a `1/den` lattice, combined by
-  an exact trapezoid sweep. This is what makes composition exact instead of code-approximate. The
-  sweep's arithmetic is bounded by construction (`MAX_SWEEP_COORD` carries the width budget); read
-  `Frac` before adding arithmetic to it.
-- `ref_composite/` — composite (`ref`) resolution. `mod.rs`'s docs hold two things nothing else
-  records: **anchor exposure is opt-in** and a **negative `ref` offset is a bearing**. `anchors.rs`
-  is the offset/anchor derivation those two rules govern, `composite.rs` the layout and flattening.
-- `compose.rs` — the `⿰⿱⿲⿳` line: a glyph's box split along one axis, with the offsets *derived*
-  from what the parts declare, and the ink the parts leave each other (*clearance*) measured against
-  `audit ideal-clearance`. Also the `:WxH-l` variant name rule (size + position) every han part is
-  named by. Tests in `compose_tests.rs`.
-- `on_demand.rs` — the names nothing defines but that describe a shape (`WxH`, triangles, `-circle`,
-  `-polyN`) and the geometry each stands for. Holds the grammar, the `BitmapFill` rule, why polygon
-  names are *normalized*, and the two lattices a curve is cut on (`POLY_Q`, `REGION_DEN`) — the
-  latter is not freely choosable. Tests in `on_demand_tests.rs`.
-- `resolve.rs` — shared vocabulary for the resolution pipeline (`ItemRef` provenance, `Diagnostic`),
-  so build/editor/validation cannot drift apart. Resolution emits issues directly.
-- `faces.rs` — `face`/`slice`: which typefaces the source describes and what each contains. Holds the
-  base-slice invariant (a character whose mapping varies must not be in the base), the face-id rules,
-  `union` — the synthetic face every *expansion* is computed for, so that a diagnostic exists for a
-  line only some other face includes — and `plan_output`, the table of which `--output` path means one
-  file, one per face, or a collection. Tests in `faces_tests.rs`.
-- `audit.rs` — the `audit` directive: rules the *source* is held to (`audit ideal-clearance han-* 0
-  1`, `audit max-contact-run han-* 2`), as opposed to the values the font file carries. Holds why that is not a `meta` key, the
-  single-assignment rule and the prefix match. Tests at the bottom of the file.
-- `fix/` — `uniform fix`: the commands that rewrite the *source*, and the rules they share (plan
-  first, whole lines in place, only what already warns). `clearance.rs` is
-  `--optimize-clearance`: the variant search, the score, and why the gaps are solved arithmetically
-  rather than searched. Tests in `fix/clearance_tests.rs`.
-- `samples.rs` — the `sample` directive: the ready-made specimen texts a source
-  carries, grouped the way they are offered. Holds why a label may carry a text of
-  its own, and why this is not a `meta` key. The demo page's sample panel and the
-  editor's preview are the consumers; nothing in the font is built from one.
-- `meta.rs` — the `meta` directive: the key set, the `@LANG` language slot, and which font fields are
-  *declared*, *derived* and *computed*. Tests in `meta_tests.rs`. Values on the pixel grid are
-  declared in pixels and scaled by the builder, like everything else in `.unf`.
-- `math.rs` — the one gcd/lcm of the geometry code (binary GCD). A helper more than one module
-  wants lives here rather than being re-derived per module.
-- `parallel.rs` — `map_indexed`: the one work-stealing loop the build's pure stages (composite
-  tracing, composite flattening) run on. Why the work is stolen rather than sliced, and where the
-  cancellation check goes, live there.
-- `cancel.rs` — `CancelToken`: how a background stage is told its result is no longer wanted, and
-  what a cancelled stage is allowed to return. Only the editor cancels; every other caller passes
-  `CancelToken::never()`.
-- `glyph_flags.rs` — which glyphs the diagnostics report faults, as one tri-state flag per glyph
-  (none / warning / error), propagated backwards along the `ref` graph. Holds why attribution is per
-  a *line* rather than per expanded glyph, the two paths that can narrow a finding to one expansion
-  of a pattern, why `Todo`/`Note` flag nothing, and why a flag carries the glyph it *started* at
-  besides the ones it reached. The specimen's cell backgrounds and clicks are the consumer.
-- `issues/` — cross-document validation (missing refs, duplicate maps, unused glyphs, remap sanity).
-  `mod.rs` is `Severity`, `Issue` and the driver that runs every check over one shared `Cx`; each
-  check is a module of its own (`slices`, `glyph_names`, `remap`, `directives`, `flags`, `maps`,
-  `unused`, `anchors`, `colors`, `patterns`).
-- `script_run.rs` — script segmentation for shaping, mirroring browser behavior.
-- `startup.rs` — the timeline of everything before the first painted frame (loader, directory read,
-  initial font build), and the three ways to read it out. Written for the slow-launch-over-SMB
-  question; the `probe` subcommand is its headless form.
-- `ucd.rs` — the character properties shown beside a character name, and the `prop` directives a
-  source states them with (`CharProps`). Nothing in the font depends on them; the status bars, the
-  the demo page's grid and tooltips do. Also `BlockMap`: the bundled `Blocks.txt` with
-  the source's own `prop block` claims over it. Blocks and assignedness are *not* behind the `editor`
-  feature — the headless `build` lays out `demo.html` with them — which is why `icu_properties` is a
-  plain dependency rather than an optional one.
-- `render/reach.rs` — the code point sequence a reader has to type for a glyph that only a
-  `remap` produces (the flags, the composed jamo). Holds why a per-glyph cost cannot answer that,
-  the cascade it runs instead, and the two alphabets the search falls back through. Tests in
-  `render/reach_tests.rs`. The demo page's corner rules and detail rows are its one consumer.
-- `render/ttf_builder/fold.rs` — folding a secondary `face` into the demo page's font: the two faces
-  differ in their cmap alone, so the switch is one GSUB single substitution rather than a second
-  font. Holds why it is a feature and not a PUA cmap, why the lookup runs last, and what the switch
-  cannot carry. Tests in `render/ttf_tests/fold.rs`.
-- `render/demo/` — `demo.html`: the font's one specimen page, and what the three older sample
-  outputs were folded into. It embeds
-  the *font* (the primary face as one variable font, `BMAP` switching the two drawings) and one JSON blob instead of pre-rendered SVG, and
-  `demo.js`/`demo.css` build every cell from them. Holds what the specimen there does differently
-  from the editor's and why.
-- `render/` — `contour.rs` (pixel shapes → contours; note the normalized vs `_at` coordinate spaces),
-  `glyph_cache.rs` (the composite-resolution driver `ttf_builder` and `sample` share),
-  `sample.rs` (what a specimen page is told about a source: the cmap, the features, the samples),
-  `assert.rs` (`assert` directives).
-- `render/ttf_builder/` — contours → TrueType, GSUB, cmap. `mod.rs` lists the stage submodules;
-  `masters.rs` is the pair of point-compatible outlines the variable output will carry;
-  `gsub.rs` documents feature targets and OpenType scope fallback. Tests in `render/ttf_tests/`.
-- `golden.rs` — `cfg(test)` golden snapshots over `testdata/`.
+| Module | What it holds |
+| --- | --- |
+| `document/`, `document_io.rs` | The `.unf` data model, parser and serializer. `document_io.rs` is where the syntax the parser reads is spelled out; `doc/reference.md` is the user-facing reference. |
+| `pattern.rs`, `exists.rs`, `alias.rs`, `merge.rs` | Name expansion, the `exists` search, `glyph A = B`, and implicit merges of one pattern block. |
+| `pixel.rs`, `detail.rs`, `on_demand.rs`, `math.rs` | Shape codes, exact sub-pixel geometry, synthesized shapes, gcd. |
+| `ref_composite/`, `compose.rs` | Composite (`ref`) resolution and the IDC lines. |
+| `faces.rs`, `meta.rs`, `audit.rs`, `samples.rs`, `ucd.rs` | The non-glyph directives: faces/slices, `meta`, `audit`, `sample`, `prop`. |
+| `resolve.rs`, `glyph_flags.rs`, `issues/` | Diagnostics: shared vocabulary, per-glyph flags, and the cross-document checks (one module per check). |
+| `fix/` | `uniform fix`: the commands that rewrite the source. |
+| `parallel.rs`, `cancel.rs`, `startup.rs` | The work-stealing loop, cancellation, and the startup timeline. |
+| `render/` | `contour.rs` (shapes → contours), `glyph_cache.rs` (the resolution driver the build and the specimen share), `ttf_builder/` (contours → TrueType/GSUB/GPOS/cmap, one submodule per stage), `assert.rs`, `sample.rs`, `reach.rs`, `demo/` (`demo.html`). |
+| `script_run.rs`, `golden.rs` | UAX #24 itemization; golden snapshots. |
 
 Editor (feature `editor`):
 
-- `app/` — `UniformApp` eframe entry point. `mod.rs` (the struct and the `eframe::App` loop),
-  `background.rs` (the debounced rebuild and assert threads and the generation rules their consumers
-  must respect), `docs.rs`, `history.rs` (go back/forward), `menus.rs`, `panels.rs`, `panes.rs` (the
-  split-editor model and its two invariants), `search.rs` (the Search pane),
-  `rename.rs`, `resize.rs` (carrying a glyph resize across every file that refers to the glyph),
-  `fix.rs` (applying a `crate::fix` plan to the open documents, undoably),
-  `save.rs` (the write queue, and the revision a finished write is credited to),
-  `settings.rs` (what survives between runs, and what egui persists instead),
-  `timing.rs` (what one rebuild cost, on both threads — *View → Rebuild timing…*),
-  `watch.rs` (the OS watch on the font directory and what an external change may do), `toast.rs`,
-  `zoom.rs`.
-- `editor/mod.rs` — `EditorState`, `EditMode`, and **the editor-is-a-widget model**; `editor/ids.rs`
-  is the per-instance `egui` id namespace it rests on.
-- `editor/document_view/` — the editor widget: `DocumentEditor::show` and the `show_document` frame
-  loop behind it (most churn in the editor). `mod.rs` is the loop and the view cache; `layout.rs`
-  (grid extents/strips, the visual-line model, `GlyphMetrics`), `paint.rs`, `scroll.rs`, `keys.rs`,
-  `popups.rs`, `changes.rs`.
-- `editor/comment.rs` — Ctrl/Cmd+`/`: whole-line comments. Holds what counts as one, why
-  uncommenting is greedy about the indentation, which lines one toggle takes, and why a grid is
-  demoted to pixel rows on the way out and promoted back the way `parse_doclines` would on the way
-  in. Tests in `editor/view_tests/comment.rs`.
-- `editor/folding.rs` — collapsing a run of lines to its first one: what a group is, why the
-  group list rides on `Document::edit_gen`, and why a fold is re-found by its header's text.
-- `editor/glyph_resize.rs` — F2 over a grid: dragging a glyph's boundary, and the two directions a
-  resize propagates in (its own anchors/refs one way, every `ref` naming it the other). Tests in
-  `glyph_resize_tests.rs`; the cross-file half is `app/resize.rs`.
-- `editor/item_bindings.rs` — the `$-N`/`$N` a block's own lines name, bound for the view: what the
-  grid overlay draws where the build would expand.
-- `editor/ref_images.rs` — the reference chart strip `scripts/extract_ref_charts.py` cuts per code
-  point, drawn above the first `glyph` line naming that code point. Holds where the strips are
-  (`audit ref-image-path`, relative to the file that writes it), how a name is read for a code
-  point, why the directory is indexed once and the strips read off the UI thread, and the one fixed
-  row height. Tests in `ref_images_tests.rs` and `view_tests/ref_images.rs`.
-- `editor/` others — `shadow` (`anchor_shadow`/`backref_shadow`), `caret`, `codepoint_popup`, `visual_lines`, `line_fields` (**the single place that
-  knows where names live** on a line), `doc_links`, `doc_input`, `editing`, `reconcile`, `undo`,
-  `autocomplete`, `annotations`, `colors`, `minimap`, `inline_tools`, `glyph_widget`, `grid_render`
-  (grid painting and the metrics overlay), `pixel_interaction`, `pixel_selection`, `harness`,
-  `view_tests`.
-- `sidebar.rs` — `.unf` file list (open, rename, create). `specimen.rs` — specimen rendering; its
-  three cache keys (documents, `SpecimenOptions`, column count) are documented there and are easy to
-  get wrong.
-- `edit_menu.rs`, `preview/` — bottom live-preview panel: rustybuzz shaping + platform rasterizer
-  (`coretext.rs` on macOS, `directwrite.rs` on Windows). `preview/widget.rs` is a multi-line text
-  field that runs on the *editor's* text model and key handler; only its layout is its own, and
-  `preview/metrics.rs` is the vertical half of that layout — read from the face, not assumed.
-  `preview/bidi.rs` is UAX #9, and `preview/mod.rs` says why the resolution is each *backend's* own
-  rather than the shared path's; `preview/cluster.rs` is where visual order meets logical indices,
-  and holds the caret model (`CaretPos`) that `widget.rs` drives.
-
-`font/*.unf` are the font sources (one file per category). `testdata/` holds test-only `.unf` files
-plus goldens. `data/` holds sample-generation inputs (confusables, UDHR text) read at build time
-through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compiled *into* the binary
-(`include_str!` from `ucd.rs`) because the editor needs it with no `-d` in sight. `data/ref/` is
-untracked drawing reference — per-code-point strips of what every IRG source and every IVD
-collection draws, cut out of the published chart PDFs by `scripts/extract_ref_charts.py`, whose
-docstring is the reference for it (including how to move to a new Unicode or IVD release). Nothing
-in the *build* reads it; the editor draws a strip above the `glyph` line that names its code point,
-which is what `audit ref-image-path` points at (`editor/ref_images.rs`).
-
-### Where a given design is written down
-
-| Topic | Read |
+| Module | What it holds |
 | --- | --- |
-| `.unf` syntax: tokens, comments, directives, glyph blocks | `document_io.rs` |
-| What characters a name may contain | `document_io.rs` (`# Names`), `pattern.rs` |
-| `@` as a glyph/`ref` name prefix: what it stands for and where the written form is kept | `document/names.rs` (`expand_at_name`), `document_io.rs` (`# Names`) |
-| `map BASE SELECTOR`: a variation sequence, its two written forms and why length stops at 2 | `document_io.rs`, `document/mod.rs` (`Map::selector`) |
-| `map CHAR = A B C`: ordered alternatives, why the choice is per codepoint, and `.notdef` as the implicit last one | `render/ttf_builder/expand.rs` (`resolve_map_alternatives`) |
-| The empty target `` `` ``: dropping a mapping instead of faulting it, and why it has to be last | `render/ttf_builder/expand.rs` (`resolve_map_alternatives`), `issues/maps.rs` |
-| Expanding a `map` line's alternatives together, and the memo that parses a wide character spec once | `render/ttf_builder/expand.rs` (`WideMapRows`, `AltTarget`, `map_char_pattern`) |
-| Why a wide `map` line's alternatives are settled on every core | `render/ttf_builder/expand.rs` (`resolve_map_alternatives`), `parallel.rs` |
-| Why the lines that write one character spec are settled together, and the per-row memo that makes them one | `render/ttf_builder/expand.rs` (`settle_wide_groups`, `SettledAlt`) |
-| Why a `map` target nothing declares is never remembered as a reachability root, and why the wide lines are asked from the declared side | `issues/unused.rs` (`GlyphGraph::knows`), `render/ttf_builder/expand.rs` (`MapAlternativeIndex`) |
-| Why the duplicate-codepoint table holds two integers per codepoint rather than a slice name and a path | `issues/maps.rs` (`MapSite`, `SliceTable`) |
-| Why a name that is nothing but one `($-N)` is never ragged | `issues/patterns.rs` (`whole_back_reference`) |
-| Why a character the font cannot draw is tinted by the specimen and not by a glyph flag | `specimen.rs` (`CharEntry::unresolved`, `flag_for`) |
-| Which half of a variation sequence may be a range, and why not both | `render/ttf_builder/expand.rs` (`expand_uvs_map_triples`) |
-| cmap format 14, the Default/Non-default split, and the GSUB fallback lookup behind it | `render/ttf_builder/tables.rs` (`add_uvs_subtable`), `gsub.rs` (`build_uvs_fallback_lookup`) |
-| Why a selector needs a plain cmap entry, and why its synthesized glyph's name is unwritable rather than reserved | `render/ttf_builder/collect.rs`, `mod.rs` (`vs_glyph_name`) |
-| Where cmap 14 and the fallback lookup can disagree (glyph-keyed vs codepoint-keyed) | `issues/maps.rs` (`uvs_collision_diagnostics`) |
-| The declared box (`origin C R` / `extent W H`): the rectangle a glyph claims, and why ink may leave it | `document_io.rs` (`# Glyph blocks`), `document/glyph.rs` (`declared_origin`, `declared_extent`) |
-| `advance W` vs `extent W H`: why the width is a flag of its own, and why writing both is an error | `document/glyph.rs` (`GlyphBody::declared_extent`), `document_io.rs` (`parse_glyph_flag_parts_impl`) |
-| Why an unstated advance follows the raster and not the grid, and the one accessor that keeps the editor and `hmtx` agreeing | `document/glyph.rs` (`GlyphBody::stated_advance`) |
-| Why an unstated box dimension is the raster's *far edge* — so an origin is a bearing rather than a shift of the whole box | `document/glyph.rs` (`declared_extent`), `render/ttf_builder/collect.rs` (`resolve_glyph_metrics`) |
-| The origin in the grid vs the side bearings it exports as, and why only one of them is written | `document/glyph.rs` (`GlyphBody::declared_origin`), `render/ttf_builder/collect.rs` (`resolve_glyph_metrics`) |
-| Grid coordinates vs box coordinates: which of the two an offset, an anchor and a ref placement are in, and the one conversion between them | `ref_composite/anchors.rs` (`rebase_offsets_to_box`), `ref_composite/composite.rs` (`ref_effective_offset_scaled`) |
-| Everyone who places a `ref` and so owes that conversion: the build, the backreference shadow, flattening | `render/ttf_builder/contours.rs` (`placed_at`), `editor/backref_shadow.rs`, `editor/document_view/changes.rs` (`inline_ref_to_pixels`) |
-| Why the anchor shadow is the one placement with no box term in it | `editor/anchor_shadow.rs`, `ref_composite/anchors.rs` (`derive_ref_offsets_detailed`) |
-| `meta` keys, name-record derivation, single-assignment rule | `meta.rs` |
-| Faces, slices, the base slice, and why there is no override | `faces.rs` |
-| `--output` path rules (`%`, `.ttc`, `.woff2`) | `faces.rs` (`plan_output`) |
-| Writing a TTC, and what the faces of one share | `render/ttf_builder/collection.rs` |
-| Why the glyph order is face-independent | `render/ttf_builder/collect.rs`, `build_faces` in `mod.rs` |
-| Why a glyph's GID is its index, and how `.notdef` gets to GID 0 | `render/ttf_builder/mod.rs` (`NOTDEF`), `collect.rs` |
-| A component glyph nothing maps: why the build synthesizes one, and why it carries the same declared box every other glyph gets | `render/ttf_builder/collect.rs` (the component-extras loop, `resolve_glyph_metrics`) |
-| `ulUnicodeRange`/`ulCodePageRange` derivation from the cmap | `render/ttf_builder/os2_ranges.rs` |
-| Name pattern grammar and its per-context parses | `pattern.rs` |
-| `$-N` back-references: naming a pattern's own groups again, and why only a written `(...)` captures | `pattern.rs` (`capture_groups`, `substitute_captures`) |
-| Which item binds a back-reference, and how far it reaches (a header over its `ref` lines, an alias or `map` over its own line) | `document/name_parts.rs` (`expand_glyph_block`), `alias.rs` (`expand_alias`), `render/ttf_builder/expand.rs` (`map_char_pattern`) |
-| `exists PATTERN`: searching the declared names instead of listing candidates, and what `$0`/`$N` bind | `exists.rs`, `document_io.rs` (`# Directives`) |
-| Why an `exists` governs exactly one line, and why it does not stack | `exists.rs` (`# Scope`) |
-| Why a scoped item runs once per match with each `$N` a single string, rather than once with the whole list | `exists.rs` (`# One run per match`), `render/ttf_builder/expand.rs` (`expand_glyph_item`) |
-| A `glyph … = …` under an `exists`: a second name for every drawing a search found | `exists.rs` (`resolve_scopes`), `alias.rs` (`collect_inner`) |
-| What a `$-N` or a `($N)` draws on the grid, and why it is the first expansion | `editor/item_bindings.rs`, `exists.rs` (`FirstMatches`) |
-| Where a Ctrl/Cmd+click on a `$-N`/`($N)` goes, and why no `name-parts` lookup answers it | `editor/doc_links.rs` (`find_capture_target`) |
-| A glyph name mentioned in a `// …` comment: what counts as a word there, and why existence is the whole test | `editor/doc_links.rs` (`extract_comment_links`) |
-| Ctrl/Cmd+`]` as the keyboard form of a Ctrl/Cmd+click, and why the key is consumed where the link becomes a navigation | `editor/document_view/paint.rs` (`link_at_caret`) |
-| Why a scoped block's matches are still *one* merge candidate set | `merge.rs` (`collect_blocks`) |
-| Why searches are a fixpoint, and the round budget that stands in for cycle detection | `exists.rs` (`# Recursion`), `resolve_scopes` |
-| Which names a search may find — aliases yes, on-demand names no | `exists.rs` (`# What is searched`) |
-| Why two matched names of one glyph are not an error, and where a pattern that cannot tell two matches apart is caught instead | `exists.rs` (`# What is searched`), `issues/remap.rs` (the duplicate scan) |
-| A code point computed from a match (`U+[BASE+]($N)`), and why it is hexadecimal on both sides | `exists.rs` (`eval_codepoint`) |
-| Where a scoped item is expanded, and why a source-side check reads a scoped `map`'s output but a scoped block's own line | `render/ttf_builder/expand.rs` (`expand_inner`), `issues/mod.rs` (`Cx::source_items`) |
-| Why several groups combine by the largest (not the LCM), and what a ragged group warns | `pattern.rs`, `issues/patterns.rs` (`check_ragged_patterns`) |
-| Stating one line for several slices (`map wide\|narrow :`) and per-slice `name-parts` | `document/name_parts.rs` (`SliceNameParts`), `pattern.rs` |
-| `glyph A = B`: one glyph id, two names; where each stage canonicalizes | `alias.rs` |
-| Why an IDC component keeps its written name past canonicalization, and the slot claim that rests on it | `alias.rs`, `compose.rs` (`expand_compose`) |
-| Several names of one pattern block turning out to be one glyph, and why two blocks never merge | `merge.rs` |
-| Why a merge is decided on names and not on outlines, and what makes that sound | `merge.rs` (`implicit_merges`), `document/name_parts.rs` (`expand_glyph_block_slots`) |
-| Which glyph a `remap` stops from merging, and why only the ones it matches on | `merge.rs` (`remap_inputs`) |
-| Saying that each expansion of a pattern block is a glyph of its own | `document_io.rs` (`keep`), `merge.rs` |
-| A `remap` rule that the lookup silently drops, and where that is reported | `render/ttf_builder/gsub.rs` (`shadowed_single_subst_rules`, `build_single_subst_from_pairs`) |
-| The reference chart strip above a `glyph` line: where the directory is named, and why a `ref` or a comment naming the same glyph gets none | `editor/ref_images.rs`, `audit.rs` (`ref_image_root`) |
-| Why a strip row is one fixed height, read once and dropped again when it scrolls away | `editor/ref_images.rs` (`REF_IMAGE_ROW`, `RefImages::end_frame`) |
-| Anchor exposure and bearings | `ref_composite/mod.rs` |
-| An anchor's range: the drawing it selects and the point it reduces to, and why only the class states `align` | `document/glyph.rs` (`AnchorAlign`), `render/ttf_builder/gpos.rs` (`anchor_font_units`) |
-| Why a centred anchor class needs its two sizes to share a parity | `issues/anchors.rs` (`check_centred_anchor_parity`) |
-| A base offering several slot sizes, and the first-fit that picks the one a following mark is put in | `render/ttf_builder/gpos.rs` (`slot_holds`, `CcmpKey`), `collect.rs` (the base-alt reachability loop) |
-| Why a precomposed mark and a shaped one attach by the same rule, and the exact-before-holds tier only the composite has | `ref_composite/anchors.rs` (`Fit`, `aligned_delta`), `render/ttf_builder/gpos.rs` (`slot_holds`) |
-| `⿰⿱⿲⿳`: the split, the gap term, and why the offsets are derived rather than written | `compose.rs` |
-| `⿴⿵⿶⿷⿸⿹⿺⿼⿽`: which sides an enclosure fills, and why its two numbers are offsets rather than gaps | `compose.rs` (`Walls`, `expand_enclosure`) |
-| The four boundaries of one line, and the one type every gap on either kind of line is measured between | `compose.rs` (`InkLine`, `Face`, `GapSide`) |
-| Which run of a line is the wall a cavity sees, and why it is not the first one | `compose.rs` (`WallFace`) |
-| Why an enclosure's clearance total is per axis, and where the split's own total is unchanged by that | `compose.rs` (`Clearance::horizontal`, `report_clearances`) |
-| `:WxH.NxM`: the cavity a name promises, why it is a lower bound where the size is an equality, and what rides on it | `compose.rs` (`VariantSpec::inner`, `cavity_fits`, `enclosure_rank`) |
-| Where an enclosure's cavity may sit — flush with the open sides, free along a walled axis | `compose.rs` (`cavity_fits`) |
-| Why the fixer searches an enclosure's placements where it solves a split's gaps | `fix/clearance.rs` (`optimize_enclosure_line`) |
-| An enclosure line written as a pattern: the offsets and labels its family shares, and why one placement is scored against every member | `fix/clearance.rs` (`optimize_pattern_enclosure_line`) |
-| The `:WxH-l` variant name rule, and the position tie-break between same-sized variants | `compose.rs` (`VariantSpec`, `direction_rank`) |
-| An IDC line written as a pattern, and why its layout is still solved per glyph | `compose.rs`, `document/name_parts.rs` (`expand_glyph_block`) |
-| What a pattern glyph block shares with every name it declares (the grid, the box, the flags) | `document/name_parts.rs` (`expand_glyph_block`) |
-| Clearance: the ink a split leaves between its parts and the box, and why the per-part range and the total are both needed | `compose.rs` (`InkProfile`, `measure_clearances`) |
-| `audit ideal-clearance PREFIX* MIN MAX [MIN MAX]`: the prefix match, which rule wins, and why an enclosure may have a band of its own | `audit.rs` (`IdealClearances`, `ClearanceBand`) |
-| `audit max-contact-run PREFIX* N`: how far two parts may run together, and why that is a clearance rather than a complaint of its own | `audit.rs` (`MaxContactRuns`), `compose.rs` (`contact_run`) |
-| Why a contact needs no hardblank term, and why the two never both fire on one junction | `compose.rs` (`contact_run`, `Face::ink`) |
-| Why a contact is measured between two contours and not two cells, and the covers a profile keeps for it | `compose.rs` (`contact_run`, `EdgeCover`), `detail.rs` (`DetailRegion::edge_coverage`) |
-| What a `uniform fix` command may rewrite, and the two frontends that apply one | `fix/mod.rs` |
-| Optimizing clearance: the variant search, the score, and why the gaps are arithmetic and not a search | `fix/clearance.rs` (`optimize_clearance`, `arrange`) |
-| Which of several equally good layouts is chosen, and why the edges are minimized first | `fix/clearance.rs` (`Key`) |
-| Optimizing a line the check *errors* on, why it is planned like a TODO, and the extent an erroring name is still trusted for | `fix/clearance.rs` (`SlotState`, `Key::asked`) |
-| Optimizing an IDC line written as a pattern: the gaps its glyphs share, and why the count of warning glyphs comes before the score | `fix/clearance.rs` (`optimize_pattern_line`) |
-| Why a component's `:label` is the family's to choose where its base is not, and why one label must serve every glyph | `fix/clearance.rs` (`slot_choices`) |
-| A family line whose component has picked nothing: appending a label to what the line writes, back-reference and all | `fix/clearance.rs` (`slot_choices`, `write_pattern_line`) |
-| Which parts the variant search knows about, pattern-declared blocks included, and why the searches are resolved for it | `fix/clearance.rs` (`Inventory::collect`, `block_names`), `alias.rs` (`collect_with_merges`) |
-| A fix in the editor: one undo entry per file, and why nothing is written to disk | `app/fix.rs` |
-| Saving off the UI thread, and why a finished write is credited to the revision it wrote rather than to the buffer | `app/save.rs`, `editor/undo.rs` (`SavePoint`) |
-| Why the bytes a write is putting on disk are recorded before it starts | `app/save.rs` (`enqueue_save`), `app/docs.rs` (`knows_disk_bytes`), `app/watch.rs` |
-| Why quitting is the one save that waits | `app/save.rs` (`finish_pending_saves`), `app/docs.rs` (`confirm_close_and_maybe_save`) |
-| Why a rule about the source is `audit` and not `meta` | `audit.rs` |
-| The one `audit` key whose value is a path, and why it is read relative to its own file | `audit.rs` (`AuditEntry::RefImagePath`, `ref_image_root`) |
-| Which parts a clearance check can measure, and what it costs a source with no rule | `render/ttf_builder/expand.rs` (`ink_profiles`) |
-| Measuring a part that is itself a composite, and the walk the check and the fixer share so they measure the same set | `ref_composite/mod.rs` (`resolve_reachable`), `render/ttf_builder/expand.rs` (`ink_profiles`), `fix/clearance.rs` (`Inventory::flatten_composites`) |
-| A part that is itself split by an IDC line: deriving its line before flattening it, and what still leaves a line unmeasurable | `ref_composite/mod.rs` (`derive_compose_body`), `render/ttf_builder/expand.rs` (`ink_profiles`) |
-| Why a clearance is measured over the declared box, and what ink escaping it costs | `compose.rs` (`InkProfile::of`) |
-| What `demo.html` embeds instead of rendered output, and the four ways its specimen differs from the editor's | `render/demo/mod.rs` |
-| Why the demo font traces the *union* face where it shows the primary one's cmap | `render/ttf_builder/mod.rs` (`build_face_variable`) |
-| Why the sample panel asks for the face switch explicitly instead of inheriting it | `render/demo/demo.css` (`.s-text`) |
-| Showing a second `face` without embedding a second font, and why the switch is a stylistic set rather than an axis or a PUA cmap | `render/ttf_builder/fold.rs` |
-| Why the fold's lookup is appended after every group the source declared | `render/ttf_builder/fold.rs` (`fold_secondary_faces`) |
-| Which stylistic-set tag a fold takes, and why from the top of the range down | `render/ttf_builder/fold.rs` (`allocate_feature_tags`) |
-| What a face switch cannot say — a glyph replaced two ways, a character only the other face maps, a cmap entry a feature cannot remove | `render/ttf_builder/fold.rs` (`FoldDelta`), `render/demo/mod.rs` (`DemoFace::unmapped`) |
-| Switching face on the page: the rules the build writes, and why nothing is re-rendered | `render/demo/mod.rs` (`face_rules`), `render/demo/demo.js` (`setFace`, `faceMissing`) |
-| The corner triangle a cell wears when it begins a sequence, and the one detail row it opens | `render/demo/demo.js` (`toggleDetail`), `demo.css` (`.cell .mk`) |
-| What a detail cell's label says, and why a long one is cut rather than spilled | `render/demo/demo.js` (`seqLabel`), `demo.css` (`.row.detail .cell .n`) |
-| What the page is told about sequences, and why no glyph name is among it | `render/demo/mod.rs` (`collect_sequences`) |
-| Why an open detail row is counted into its chunk's height | `render/demo/demo.js` (`sizeChunk`) |
-| What the demo blob is modelled into before it is written: delta-coded cell runs, front-coded names, one entry per naming rule | `render/demo/mod.rs` (`DemoBlock::runs`, `DemoNames`, `widen_runs`) |
-| Which character names the demo page is told and which it spells for itself | `render/demo/mod.rs` (`collect_names`), `render/demo/demo.js` (`nameOf`) |
-| Why the demo's cells are rendered in lazy chunks, and why a chunk knows its height before its content | `render/demo/demo.js` |
-| Folding a block longer than 0x100 code points in the middle, and why the source has no say in which blocks fold | `render/demo/demo.js` (`FOLD_OVER`, `foldMarker`), `render/demo/mod.rs` |
-| The same fold in the editor's specimen: which mode folds, and where an opened one is remembered | `specimen.rs` (`FOLD_EDGE_ROWS`, `Row::Fold`, `SpecimenState::unfolded`) |
-| The dotted circle in a demo cell, why the built font's `hmtx` decides which cells get one, and why it rides on the cell flags | `render/demo/mod.rs` (`CELL_ZERO_ADVANCE`, `zero_advance_codepoints`), `render/demo/demo.css` (`.dc`) |
-| Why a demo cell is bidi-isolated | `render/demo/demo.css` (`.cell`) |
-| The demo's sample panel: running text beside the chart, and why it has no size control of its own | `render/demo/mod.rs` (`# The sample panel`) |
-| Which translations of UDHR Article 1 the demo page offers | `render/sample.rs` (`udhr_selection`) |
-| Where the text a reader types into the sample panel is kept, and why it is per sample | `render/demo/demo.js` (`selectSample`, `ssSet`) |
-| Turning the UDHR's own key for a translation into a language name: the browser first, the data's own name as the fallback | `render/demo/demo.js` (`langName`), `render/sample.rs` (`UdhrEntry`) |
-| The demo's one size for both drawings, and the rounding a switch to bitmap does | `render/demo/demo.js` (`state.em`, `snapZoom`) |
-| Which contrast the demo's tokens are held to, and why the cell hover is a token of its own | `render/demo/demo.css` (`:root`) |
-| The demo's font: one variable face carrying both drawings, and why it asks for the axis whatever `meta` says | `render/ttf_builder/mod.rs` (`build_face_variable`), `render/demo/mod.rs` |
-| Why the editor's preview keeps two static faces where the demo took the axis | `render/ttf_builder/mod.rs` (`build_face_variable`), `app/background.rs` |
-| Why an IDC line becomes `ref`s at expansion time, and why the parts are sized by what they *declare* | `render/ttf_builder/expand.rs` (`expand_compose_lines`), `ref_composite/mod.rs` (`declared_box`) |
-| Why an anchor error drops the glyph (and so its cmap entry), like a missing ref | `render/glyph_cache.rs` (`resolve_pending`) |
-| What each severity means, and which of them a build, `uniform test` and CI may ignore | `issues/mod.rs` (`Severity`) |
-| Which glyph a finding is about, and why a composite carries its components' findings | `glyph_flags.rs` |
-| When a finding faults one expansion of a pattern rather than the whole line, and the only two paths that can | `resolve.rs` (`Diagnostic::glyph`), `glyph_flags.rs` |
-| The specimen's warning/error cell tints, and why the hovered cell inverts instead of hiding one | `specimen.rs` (`flag_bg`) |
-| Why a click on a tinted cell lands on the component rather than on the character's own glyph | `specimen.rs` (`goto_target`), `glyph_flags.rs` (`GlyphFlags::source`) |
-| Why an IDC line with an unpicked variant is a TODO and not an error, and what else it silences | `compose.rs` (`expand_compose`, `is_undecided`) |
-| Why the ref an unpicked component derives is left unresolved *and* unreported | `render/ttf_builder/expand.rs` (`expand_compose_lines`) |
-| The Issues tab's per-severity filter, why notes start hidden and why right-click is solo | `app/panels.rs` (`IssueFilter`) |
-| The two rectangles a resize drags — the box (F2) and the canvas (under the backreference shadow) — and why only the box's drag moves a `ref` to the glyph | `editor/glyph_resize.rs`, `app/resize.rs` |
-| Why growing the canvas writes an `origin`, and what else it pins | `editor/glyph_resize.rs` (`canvas_box`) |
-| Why a canvas drag only switches modes once it has a pixel to show | `editor/glyph_resize.rs` (`CanvasStart`) |
-| Which flags a box drag writes, and why a vertical one states the height | `editor/glyph_resize.rs` (`boxed_for`), `document_io.rs` (`replace_glyph_box_flags`) |
-| Which `ref` a resize may rewrite: named outright, and not anchor-placed | `editor/glyph_resize.rs`, `ref_composite/anchors.rs` (`DeriveOutcome::anchor_placed`) |
-| Inlining a `ref` one level (`Inline once`) vs. flattening it to pixels | `editor/document_view/changes.rs` (`inline_ref_once`), `ref_composite/mod.rs` (`InlineSource`) |
-| Reaching those two commands from the caret, and what each means on an IDC line | `editor/document_view/changes.rs` (`inline_target_at_line`, `inline_compose_once`) |
-| On-demand glyph names, `BitmapFill`, circles, polygons and shears | `on_demand.rs` |
-| Which on-demand grids are remembered between builds, and why the line is not drawn at the shape | `on_demand.rs` (`make_on_demand_grid`) |
-| `glyph … desync`: a grid the bitmap face draws and the vector face ignores | `render/ttf_builder/mod.rs`, `ref_composite/mod.rs` (`ResolvedGlyph`) |
-| `glyph … vectoronly`: a drawing the bitmap face must not square off, and why the exemption is a closure over the `ref` graph | `render/ttf_builder/mod.rs`, `collect.rs` (`vectoronly_closure`) |
-| Why a `vectoronly` half of a color/mono pair exempts only its own layers, and the scope the closure walks by | `document/glyph.rs` (`vectoronly_layers`, `vectoronly_covers`), `render/ttf_builder/expand.rs` |
-| Making the two builds' outlines point-compatible: the two shape-preserving padding moves, why the alignment is a monotone walk and not arc length, and what it costs | `render/ttf_builder/masters.rs` |
-| `meta bitmap-axis`: both drawings in one font, and the three tables that carry them | `render/ttf_builder/mod.rs`, `meta.rs` (`MetaEntry::BitmapAxis`) |
-| How a colour glyph varies: per COLR layer, paired by source rather than by position, and what a layer only one build draws does | `render/ttf_builder/masters.rs` (`variations_for`, `Variations`), `mod.rs` (`CollectedColorLayer::source`) |
-| Why the `BMAP` axis is a switch rather than a slider, and why a `gvar` tent is what makes it one | `render/ttf_builder/tables.rs` (`BITMAP_AXIS_TENT_START`) |
-| Why every `gvar` delta is written out in full, and what IUP was measured to save | `render/ttf_builder/tables.rs` (`full_deltas`) |
-| What an exemption costs a component shared with an unflagged glyph | `issues/flags.rs` |
-| Why the view synthesizes an on-demand ref instead of waiting for the resolve | `ref_composite/mod.rs` (`resolve_ref_name_for_view`) |
-| Typing a glyph no `map` names, and why the answer is checked rather than derived | `render/reach.rs` |
-| Why a per-glyph cost cannot answer it — neighbouring derivations share the string they are written in | `render/reach.rs` (`Cascade::sweep` vs `shape`) |
-| What the repair search does when a glyph a later group consumes cannot be shown by its own candidate | `render/reach.rs` (`Cascade::repair`, `rule_alphabet`) |
-| Which glyphs are asked for, which groups are handed over, and the feature property that is not checked | `render/ttf_builder/collect.rs` (`remap_only_sequences`) |
-| A `ref` to a coloured glyph: which colours travel up, what a `fill` claims, and why a difference hands up only one | `render/ttf_builder/collect.rs` (`ColorPiece`, `color_pieces_for_body`) |
-| The same colours in the editor's live composite: why a layer stays one layer and the colour is per cell | `ref_composite/composite.rs` (`layer_cell_colors`, `target_draws_color`) |
-| Sub-pixel shape codes, `PX_CUSTOM` | `pixel.rs` |
-| `$$`, the blank that is not `..`, and why it is an id rather than a spare bit combination | `pixel.rs` (`PX_HARDBLANK`) |
-| A hardblank is a *claim*, not geometry: how claims and ink combine, and why only a claim cancels a claim | `pixel.rs` (`blank_op`) |
-| Why a rescale carries a claim (and a bare ink flag) by hand, beside the geometry sweep | `document/pixel_grid.rs` (`PixelGrid::rescale`) |
-| The three questions asked of a cell (bitmap ink / vector contour / nothing at all) and the `CLEAR`-`HARDBLANK`-`INK` ladder | `pixel.rs` (module docs), `compose.rs` (`InkProfile::of`) |
-| Snapping an exact region back onto the catalog (a grid on its way into a file) | `detail.rs` (`nearest_shape`), `document/pixel_grid.rs` (`snap_details_to_catalog`) |
-| Why the exact sweep carries no rational arithmetic, and the width budget that bounds it | `detail.rs` (`Frac`, `MAX_SWEEP_COORD`) |
-| The shape palette: rotation orbits, and rotation as separate state | `editor/glyph_widget.rs` |
-| Feature targets, `DFLT`/LangSys fallback | `render/ttf_builder/gsub.rs` |
-| Why one LangSys names a feature tag only once, and what the record it does not name costs | `render/ttf_builder/gpos.rs` (`merge_anchor_feature_lookups`) |
-| A remap group is one lookup: rule order is match priority | `render/ttf_builder/gsub.rs` |
-| Lookup order, `remap group` and its stable toposort | `document/remap.rs` (`remap_group_order`) |
-| `assert shape` and why `@lang` is BCP 47 | `render/assert.rs` |
-| What a test run builds (lazily, once per face), and how the editor's stays fast | `render/assert.rs` (`run_assertions_inner`), `app/background.rs` (`run_shape_assertions`) |
-| Contour coordinate spaces | `render/contour.rs` |
-| The editor as a widget; what is per-instance vs per-pane | `editor/mod.rs`, `editor/ids.rs` |
-| Folding a glyph block: what a group is, and when the group list is recomputed | `editor/folding.rs` |
-| `#`/`##`/`###` headings: the syntax, and why they are a comment to every build stage | `document_io.rs` (`# Headings`), `document/mod.rs` (`DocumentItem::Heading`) |
-| `|| TEXT` continuation lines: why they are a line's keyword rather than a mid-line escape, and what "the shared whitespace" removes | `document_io.rs` (`# Continuation lines`, `dedent_continuations`) |
-| Why a continuation is never tokenized, and the round trip that rests on one dedented line starting at column 0 | `document_io.rs` (`tokenize_strict`), `document/serialize.rs` (`sample_lines`) |
-| `sample LABEL [SUBLABEL] [: MODE]`: the two levels, why a label may carry a text itself, and what a mode says | `samples.rs`, `document_io.rs` (`# Directives`) |
-| `sample … : matrix`: the lines read as axes, which axis runs where, and why the product is expanded by each consumer rather than by the collection | `samples.rs` (`SampleMode`, `SampleText::expanded`), `render/demo/demo.js` (`sampleText`) |
-| `sample … : udhr-article1` / `subdivision-flags`: a text the build assembles from `-d` rather than one the source writes, why one of them is a whole group, and why the page shows it only when a line asks | `samples.rs` (`SampleMode::is_generated`, `is_group`), `render/demo/mod.rs` (`collect_samples`), `render/sample.rs` (`udhr_selection`, `subdivision_flags_text`) |
-| Where a `sample` reaches the reader: the demo's panel and the editor's *Use* button | `render/demo/mod.rs` (`collect_samples`), `editor/document_view/paint.rs` (`sample_use_rect`), `app/mod.rs` |
-| What a heading section holds, and why one lone `#` folds nothing | `editor/folding.rs` (`fold_groups`) |
-| Why a heading draws in zoom *steps*, and what marks the minimap | `document_view/layout.rs` (`heading_font_size`), `editor/minimap.rs` |
-| Why an enlarged heading re-picks the *face* and not just the size | `document_view/layout.rs` (`heading_font`), `app/mod.rs` (`uniform_family_at_size`) |
-| Where a caret goes when a fold swallows the line it was on, and what a fold does to a selection | `editor/folding.rs` (`toggle_at`, `snap_caret`) |
-| Which glyph blocks start folded, and the font height that decides it | `editor/folding.rs` (`apply_initial`) |
-| Why closing a fold may scroll and opening one may not | `editor/folding.rs` (`FoldScroll`), `document_view/scroll.rs` |
-| The gutter's marker columns: one per nesting level, outermost by the numbers, and why the count is the document's rather than the page's | `document_view/layout.rs` (`GutterLayout`, `page_has_fold_marker`), `editor/folding.rs` (`nesting_depth`) |
-| Why wrapping is measured against the widest gutter, not the reserved one | `document_view/mod.rs` (`wrap_width`) |
-| Split panes, their invariants and key chords | `app/panes.rs` |
-| Go back / go forward | `app/history.rs` |
-| Where a jump leaves its target, and why going *back* restores a page rather than a line | `editor/mod.rs` (`ScrollIntent`), `app/history.rs` (`NavLoc::view_offset`) |
-| `ref … goto`: a jump to a wrapper glyph carried on to the drawing, and why one gesture leaves two history entries | `app/mod.rs` (`follow_goto_chain`, `record_nav_chain`), `document/glyph.rs` (`GlyphRef::goto`) |
-| Why the redirect is read off the resolve rather than off the `ref` line | `app/mod.rs` (`goto_redirect`), `ref_composite/mod.rs` (`InlineSource`) |
-| The Search pane, and where a click goes with no definition | `app/search.rs` |
-| Why a search lists a name written as a pattern, and what makes that cheap | `app/search.rs` (`pattern_denotes`, `may_write_a_pattern`), `pattern.rs` (`NamePattern::matches`) |
-| Why a Ctrl/Cmd+click reads no files at all | `app/docs.rs` (`FontSource`), `app/search.rs` |
-| Why opening a file from the snapshot keeps its generations (and so rebuilds nothing) | `app/docs.rs` (`open_document_from_text`) |
-| Typing a character by code point (Ctrl+K), and why not Alt | `editor/codepoint_popup.rs` |
-| Why a click on a caret-anchored popup's own chrome does not dismiss it, and what its commit button does instead | `editor/codepoint_popup.rs` (`resolve_field`) |
-| Why completing a glyph name stops filtering at its last `:`, and the order an IDC slot puts that listing in | `editor/autocomplete.rs` (`effective_prefix`, `filter_candidates`), `compose.rs` (`direction_rank`) |
-| Which item an open listing starts on, and what re-places it as a name is typed | `editor/autocomplete.rs` (`select_for_text`, `update_after_edit`) |
-| Typing on from an item the list was walked to, and why that keystroke is still the editor's to insert | `editor/autocomplete.rs` (`continue_from_selection`, `HandleResult::RewroteAndContinued`) |
-| Which keys an open listing claims, and why a caret resting before a name is writing it | `editor/autocomplete.rs` (`handle_keys`, `word_end`) |
-| Why an on-demand shape is never offered for completion, where a color/mono name is | `editor/autocomplete.rs` (`collect_candidates`), `on_demand.rs` (`parse_on_demand_glyph`) |
-| Why an IDC slot's listing drops a variant of the wrong size outright, where a wrong direction is only ordered last | `editor/autocomplete.rs` (`CrossExtent`) |
-| The `{gc=… ccc=… eaw=…}` group after a character name, and the pinned UCD version | `ucd.rs` |
-| `prop`: naming Private Use characters the UCD says nothing about, and what reads it | `ucd.rs` (`CharProps`) |
-| Which block a code point is in, and how `prop block` overrides the UCD | `ucd.rs` (`BlockMap`) |
-| Which Private Use characters exist (`prop` replaces the UCD there), and the block coverage counting them | `ucd.rs` (`CharProps::is_assigned`), `specimen.rs` |
-| Why what the specimen reads out of the documents is collected in the background, and what asks for it | `specimen.rs` (`SpecimenData`), `app/background.rs` |
-| Which mapped glyph names the specimen bothers to remember, and why only those | `specimen.rs` (`remap_targets`) |
-| Why the specimen is handed the searches and aliases rather than deriving its own | `specimen.rs` (`SpecimenData::collect`), `ref_composite/mod.rs` (`resolve_expanded_items`) |
-| The specimen's three options, and filling a block out to its whole range | `specimen.rs` (`SpecimenOptions`) |
-| Where a variation sequence sits on the specimen, the `+VS17` label it carries, and the undrawn border joining it to its base | `specimen.rs` (`UvsEntry`, `uvs_label`, `uvs_boundary`) |
-| Why the specimen resolves the `exists` searches itself, and the one clone per line that pays for it | `specimen.rs` (`rebuild_if_needed`), `exists.rs` (`Scope::rebind`) |
-| The text-editing keys, and the state both the editor and the preview edit through | `editor/doc_input.rs` (`TextEdit`) |
-| Bidi in the preview: why each backend resolves its own levels, and what the shared path still hands it | `preview/mod.rs` (`Paragraph`), `preview/bidi.rs` |
-| Where the Bidi_Class table comes from, and why `unicode-bidi` carries none of its own | `preview/bidi.rs`, `Cargo.toml` |
-| Mirroring an RTL run: the code point swap, and `rtlm` as the fallback when the font has no counterpart | `preview/rustybuzz.rs`, `preview/bidi.rs` |
-| Why a backward run's glyph order is normalized rather than trusted to the shaper, and what a cluster's own glyphs keep | `preview/mod.rs` (`to_visual_order`), `preview/directwrite.rs` |
-| Visual order against logical char indices, and where one run ends | `preview/cluster.rs` |
-| The caret's affinity: why a logical position alone cannot say where the caret is, and why it is the widget's state and not `Caret`'s | `preview/cluster.rs` (`CaretPos`), `preview/widget.rs` (`caret_affinity`) |
-| Why an arrow key moves the caret visually but Shift+arrow extends logically, and which chords are claimed | `preview/widget.rs` (`take_visual_step`), `preview/cluster.rs` (`step`) |
-| The caret's shape saying which way its run reads, and why only the level's parity shows | `preview/widget.rs` (`caret_shape`) |
-| Forcing the preview's paragraph direction, and what a change to it invalidates | `preview/widget.rs` (`show_direction_combo`), `preview/bidi.rs` (`ParagraphDirection`) |
-| Forcing a paragraph direction on Core Text, and why that is an attribute rather than an argument | `preview/coretext.rs` (`paragraph_style_for`) |
-| Why a character the built font lacks must not keep the glyph id Core Text hands back, and why an empty cascade list does not stop it | `preview/coretext.rs` (`run_is_font`) |
-| How tall a preview row is, and why its chrome is measured from the face rather than the font size | `preview/metrics.rs` (`VMetrics`) |
-| Why the editor's preedit box cannot crop a glyph but the preview's could | `editor/document_view/paint.rs`, `preview/metrics.rs` |
-| A header and its grid are one block: Enter, line-wise copy/cut, paste onto it | `editor/editing.rs` (`insert_newline`), `editor/doc_input.rs` (`current_line_range`, `paste_text`) |
-| Ctrl/Cmd+`/`: which lines a toggle takes, what counts as a comment, and the grid it demotes and promotes on the way | `editor/comment.rs` |
-| Why an edit on a header or `ref` line waits before it reparses | `editor/document_view/changes.rs` (`apply_pending_rederive`) |
-| Why a line the grammar cannot read does not fail the derive | `document_io.rs` (`derive_document`) |
-| Why a right-click moves the caret before its menu opens, and what a click inside the selection does instead | `editor/document_view/paint.rs` (`secondary_pos`) |
-| Why a menu action has to hand the keyboard back to the editor | `editor/mod.rs` (`refocus`), `editor/document_view/paint.rs` (`refocus_after_menu`) |
-| A resize preview: uncommitted text, and everything that has to drop it | `editor/glyph_resize.rs` (`cancel`), `app/docs.rs` (`flush_pending_changes`) |
-| A floating pixel selection: what commits it, and who lands it before reading the buffer | `editor/pixel_selection.rs` (`reconcile`), `app/docs.rs` (`commit_floating_selection`) |
-| Copy/Cut/Delete with nothing framed, and the corner a shift-click extends from | `editor/pixel_selection.rs` (`effective_selection`, `select_all`), `editor/mod.rs` (`pixel_select_anchor`) |
-| The empty band below the last line: why the canvas fills the viewport, and where a click there lands | `editor/document_view/paint.rs` (`paint_document_area`) |
-| Who owns a key while an IME is composing (Korean vs Japanese) | `editor/doc_input.rs` (`ImeKeyGuard`) |
-| Which tokens on a line name what | `editor/line_fields.rs` |
-| Inline annotations: one caret step, but ordinary text to the line breaker | `editor/annotations.rs`, `editor/visual_lines.rs` (`compute_wrap_segments`) |
-| The dotted circle before a zero-advance character: why the rule is the advance and not the character, and why the circle is drawn rather than typed | `editor/annotations.rs` (`zero_advance_placeholders`, `paint_dotted_circle`) |
-| Why a placeholder is not part of its own character's prefix, where a text annotation is | `editor/annotations.rs` (`display_prefix`) |
-| The metrics overlay | `editor/grid_render.rs`, `editor/document_view/layout.rs` |
-| The anchor shadow | `editor/anchor_shadow.rs` |
-| The backreference shadow, and why it is a toggle inside pixel selection rather than always on | `editor/backref_shadow.rs`, `editor/mod.rs` (`EditMode::PixelSelect`) |
-| What the two shadows share: the union rule, the placement bound, the one live shadow | `editor/shadow.rs` |
-| Files changed outside the editor: reload, keep-and-warn, overwrite guards | `app/watch.rs` |
-| Asking for a filesystem check now (F5), and the two things being asked changes | `app/watch.rs` (`request_refresh`, `run_scan`) |
-| What a refresh re-reads, the stamp it trusts, and why the open files are still hashed | `render/ttf_builder/mod.rs` (`DirCache`), `app/watch.rs` (`run_scan`) |
-| Why a refresh that found nothing rebuilds nothing | `app/watch.rs` (`apply_directory_snapshot`) |
-| What the status line says a refresh is doing, and the two frontends that ask for one | `app/watch.rs` (`request_filesystem_refresh`) |
-| Why a polled directory is enumerated rather than `stat`ed, and how its interval sets itself | `app/watch.rs` (`poll_snapshot`, `next_poll_delay`) |
-| Rebuild debouncing, generations and cache keying | `app/background.rs`, `specimen.rs` |
-| Which edits skip a rebuild, and why the gate is not "does the font read it" | `document/mod.rs` (`same_for_rebuild`) |
-| Where the seconds before the first frame go (and what `before main()` does and does not prove) | `startup.rs` |
-| What one edit costs the editor once its caches are warm, and why that is not the startup question | `main.rs` (`run_edit_probe`) |
-| Where an edit's wait actually goes in the running editor — the UI half included — and why a headless probe cannot answer it | `app/timing.rs` |
-| Why Windows gets a different allocator, and the measurement that says so | `main.rs` (`GLOBAL_ALLOC`) |
-| Why startup and Open Folder build no font of their own | `app/background.rs` (`arm_initial_font_build`) |
-| Why the directory load reads its files on many threads | `render/ttf_builder/mod.rs` (`load_docs_from_directory_with_sources`) |
-| One build at a time, and cancelling the one that a new edit superseded | `app/background.rs`, `cancel.rs` |
-| Why the font result is sent before the rebuild that produced it has finished, and what frees the slot instead | `app/background.rs` (`take_current_font_build`, `UniformApp::rebuild`) |
-| The font and the derived data as one rebuild, and the expansion it lends to both | `app/background.rs` (`UniformApp::rebuild`), `render/ttf_builder/collect.rs` (`ExpansionSource`) |
-| Why a resolution round is a *wave*, and what a wave member may not depend on | `render/glyph_cache.rs` (`resolve_pending`), `ref_composite/mod.rs` (`resolve_expansion_cached`) |
-| Splitting a memo off its tracer so the tracer can leave the thread | `render/glyph_cache.rs` (`CompositeBuilder`), `render/ttf_builder/contours.rs` (`ContourBuilder`) |
-| The flattened grid a composite hands its parent, why it is unioned rather than overwritten, and the union's own fast paths | `render/ttf_builder/contours.rs` (`from_components_inner`), `document/pixel_grid.rs` (`PixelGrid::blit`) |
-| Which build stages run at once, and what they must not share to | `render/ttf_builder/mod.rs` (`build_faces`, `build_font_pair_cached_for`), `contours.rs` (`ContourCaches`) |
-| Why only the union face is traced, and what a secondary face costs instead | `render/ttf_builder/mod.rs` (`build_faces_from`), `collect.rs` (`collect_face_cmap`) |
-| Why an expansion is face-independent, and where a face is applied to it instead | `faces.rs` (`FaceSet::union`), `render/ttf_builder/collect.rs` (`face_items`) |
-| Why validation reads the union and not the primary face | `faces.rs` (`FaceSet::union`), `issues/mod.rs` |
-| The one check that is still per face, and why | `issues/maps.rs` (`uvs_collision_diagnostics`) |
-| Which of a `build`'s outputs are produced at once | `main.rs` (`OutputWork`) |
-| Who shares the one expansion — the build, validation and the demo page — and why it is computed ahead of all three | `main.rs` (the `build` thread scope), `resolve.rs` (`Resolution`), `render/ttf_builder/mod.rs` (`build_faces_from`), `render/sample.rs` (`collect_sample_data_with`) |
-| Why a glyph the build drops silently is still accounted for, and the test that pins it | `issues/anchors.rs` (`check_anchor_derivation`), `issues/issues_tests.rs` (`a_faulted_anchor_derivation_is_a_glyph_the_build_drops`) |
-| Dropping a composite that can never resolve before the expensive loop sees it | `render/glyph_cache.rs` (`drop_unresolvable`) |
-| Why a resolve recomposes only what an edit reached (and why it used to trail the build) | `ref_composite/mod.rs` (`CompositeGridCache`) |
-| Which face the editor builds, and switching it | `app/background.rs` (`set_selected_face`) |
-| Why the remembered face is applied before the first build, not after the first resolve | `app/mod.rs` (`with_settings`) |
-| What survives between runs, what egui persists on its own, and why there is no session restore | `app/settings.rs` |
-| Where the settings file lives, and the app id that decides it | `app/settings.rs`, `main.rs` (`with_app_id`) |
-| Why the release build compiles some dependencies for size, and which renderer backend it links | `Cargo.toml` (`[profile.release.package]`) |
+| `app/` | `UniformApp`: the frame loop, background rebuilds, documents, panes, history, search, rename, resize, save, watch, settings, timing. |
+| `editor/mod.rs`, `editor/ids.rs` | `EditorState`, `EditMode`, and the editor-is-a-widget model. |
+| `editor/document_view/` | The editor widget's frame loop, split by concern (`layout`, `paint`, `scroll`, `keys`, `popups`, `changes`). Most churn is here. |
+| `editor/` others | One file per feature: shadows, caret, popups, folding, comment toggle, resize, annotations, autocomplete, links, `line_fields` (the one place that knows where names live on a line), `harness`, `view_tests/`. |
+| `sidebar.rs`, `specimen.rs`, `edit_menu.rs`, `preview/` | File list, the specimen panel, the bottom live preview with its three shaping backends. |
 
-## Testing
+`font/*.unf` are the font sources. `testdata/` is test-only `.unf` plus goldens. `data/` holds the
+sample-generation inputs read through `-d data`, and `Blocks-17.0.0.txt`, the one file compiled in
+(`ucd.rs`). `data/ref/` is untracked drawing reference cut by `scripts/extract_ref_charts.py`.
 
-- `cargo test` — ~1500 unit tests. Heaviest suites: `document_io_tests/` (parser round-trips),
-  `editor/view_tests/` (GUI scenarios), `render/ttf_tests/`, `editor/doc_links.rs`, `pattern.rs`.
-- **GUI behavior must be tested through `EditorHarness` (`src/editor/harness.rs`)**, not left to
-  manual testing; scenarios go in `src/editor/view_tests/`, one module per theme. The harness docs say what it drives and
-  what it papers over.
-- Golden snapshots (`src/golden.rs`) cover the diagnostics report and a digest of what resolution
-  produces over `testdata/`. Behaviour-preserving refactors must not move them; intentional changes
-  update them so the diff is reviewable. Regenerate with `UNIFORM_UPDATE_GOLDEN=1 cargo test golden`.
-- `assert` directives in `font/*.unf` are the font-level regression suite; run with `make test`.
-  Prefer adding an `assert same/distinct` or `assert shape` when fixing a glyph-level bug.
-- Per project policy: write the regression test first, observe the failure, then fix.
+## Tests
 
-### Where the tests live
-
-Small `#[cfg(test)] mod tests` blocks stay at the bottom of the module they test. Where the suite grew
-past the source it tests, it lives in a sibling file (or directory) declared as a *child* module through
-`#[path]`, so it still reaches the module's private items:
+`cargo test` is ~1500 tests. Small `#[cfg(test)] mod tests` blocks stay at the bottom of their
+module; the suites that outgrew one:
 
 | Module | Tests |
 | --- | --- |
-| `render/ttf_builder/` | `render/ttf_tests/` — `misc`, `gsub`, `gpos`, `color`, `composite`, `collection`, `masters`, `bitmap_axis`, `vectoronly`, `fold`, with shared canonicalization helpers in its `mod.rs` |
-| `document_io.rs` | `document_io_tests/` — `roundtrip`, `doclines`, `derive`, `lenient`, `tokenizer`, `maps`, `colors`, `asserts`, `comments`, `misc`, `at_names`, `samples` |
+| `render/ttf_builder/` | `render/ttf_tests/` (shared helpers in its `mod.rs`) |
+| `document_io.rs` | `document_io_tests/` |
 | `document/` | `document/document_tests.rs` |
 | `issues/` | `issues/issues_tests.rs` |
-| `exists.rs` | `exists_tests.rs` |
-| `pixel.rs` | `pixel_tests.rs` |
-| `specimen.rs` | `specimen_tests.rs` |
-| `render/sample.rs` | `render/sample_tests.rs` |
-| `render/reach.rs` | `render/reach_tests.rs` |
-| `editor/pixel_selection.rs` | `editor/pixel_selection_tests.rs` |
-| `editor/ref_images.rs` | `editor/ref_images_tests.rs` (and `editor/view_tests/ref_images.rs`) |
-| `editor/glyph_resize.rs` | `editor/glyph_resize_tests.rs` |
-| `meta.rs` | `meta_tests.rs` |
-| `faces.rs` | `faces_tests.rs` |
 | `ref_composite/` | `ref_composite/ref_composite_tests.rs` |
-| `on_demand.rs` | `on_demand_tests.rs` |
-| `compose.rs` | `compose_tests.rs` |
-| `fix/clearance.rs` | `fix/clearance_tests.rs` |
-| `editor/document_view/` | `document_view/tests.rs` (helpers) and `editor/view_tests/` (harness scenarios, with the shared fixtures in its `mod.rs`) |
-
-Keep a source file at roughly 2000 lines or under; split by stage (as `ttf_builder/` and
-`document_view/` are) rather than growing one file further. A test suite that outgrows its sibling
-file becomes a directory of its own, grouped by what it tests (`document_io_tests/`,
-`editor/view_tests/`).
-
-### `font/` is a consumer, not a part of Uniform
-
-**Never let an automated test read `font/`.** It is downstream data that happens to live in the same
-repo; it changes for font-design reasons, so a test bound to it fails for reasons unrelated to the
-code under test, and it is far too large to be a meaningful fixture.
-
-When `font/` turns up a bug, **extract or inline the case**: add a minimal `.unf` to `testdata/`, or
-build the grid/document inline in the test. Reproduce the shape of the problem, not the real glyph.
-Ad-hoc *manual* runs against `font/` (`cargo run -r -- build -i font/`, `make test`) are fine and
-expected — the prohibition is on `cargo test` depending on it. The one in-tree exception is the
-`#[ignore]`d manual profiling harness `ref_composite::tests::profile_resolve_name_expansion`, which
-needs realistic scale and never runs in a default `cargo test`; keep any such case `#[ignore]`d.
+| `editor/document_view/` | `document_view/tests.rs` (helpers) and `editor/view_tests/` (harness scenarios) |
+| `exists.rs`, `pixel.rs`, `specimen.rs`, `meta.rs`, `faces.rs`, `on_demand.rs`, `compose.rs`, `fix/clearance.rs`, `render/sample.rs`, `render/reach.rs`, `editor/pixel_selection.rs`, `editor/ref_images.rs`, `editor/glyph_resize.rs` | `<name>_tests.rs` beside the module |
 
 ## Where the bugs come from
 
-Ranked by how often recent commits touched them for a *fix* rather than a feature. Each module's own
-docs carry the detail; this is the ranking.
+Ranked by how often a commit touched them for a fix rather than a feature:
 
-1. **`render/ttf_builder/` + `render/contour.rs`** — by far the most churn. Contour tracing over
-   sub-pixel and on-demand shapes, seen through a composite rather than alone.
-2. **`detail.rs` / `pixel.rs` geometry** — degenerate cases when merging two shapes, extremely tiny
-   glyphs, zero-width pixel grids. Exact-rational sweeps make these correct-by-construction only if
-   the degenerate inputs are actually handled; test empty/1×1/zero-extent inputs explicitly.
-3. **`specimen.rs` + `render/demo/`** — usually "the font is right, the specimen is wrong". When
-   fixing a rendering bug, check both the TTF and what the specimen shows.
-4. **`editor/document_view/` and the interaction layer** — focus capture, wheel scroll over the
-   pixel grid, delete-key behavior, lost glyph flags after dragging a layer. These are exactly the
-   regressions `EditorHarness` exists for.
-5. **Name expansion and remap** (`pattern.rs`, `ttf_builder/gsub.rs`) — empty remap targets,
-   missing remap warnings, Hangul composition rules. The context-dependent parse rules are the trap.
-6. **Performance regressions count as bugs here** — a slow `resolve` used to snowball into dozens of
-   concurrent rebuild threads. The build's expensive stages now run on every core (`parallel.rs`),
-   which makes *shared mutable state added to one of them* the new version of that bug: a memo a
-   stage carries has to sit on the serial side of the split, the way `ContourBuilder` holds its
-   `ContourCache`. `UNIFORM_PERF`, the rebuild guard in `app/background.rs`, memoized exact
-   subtraction and the `PixelGrid::rescale` caches all exist because of that. Keep the caches keyed
-   correctly when changing geometry. The same rule covers the filesystem: this editor is routinely
-   run against a network share, where a per-file round trip costs ~185 ms, so **nothing on the UI
-   thread may read a directory file by file or build the font** — `startup.rs` is how that is
-   measured and `arm_initial_font_build` is where the work goes instead.
+1. `render/ttf_builder/` + `render/contour.rs` — contour tracing over sub-pixel and on-demand
+   shapes, seen through a composite rather than alone. Check contour output at composite level.
+2. `detail.rs` / `pixel.rs` — degenerate inputs (empty, 1×1, zero extent). Test them explicitly.
+3. `specimen.rs` + `render/demo/` — "the font is right, the specimen is wrong". Check both.
+4. `editor/document_view/` and the interaction layer — focus, wheel routing, delete, lost flags
+   after a drag: exactly what `EditorHarness` exists for.
+5. Name expansion and remap (`pattern.rs`, `ttf_builder/gsub.rs`) — the context-dependent parse
+   rules are the trap.
+6. Performance (see the rule above).

@@ -1,7 +1,7 @@
 //! Applying a [`crate::fix`] plan to the open documents.
 //!
 //! The plan is made in the background against a *copy* of the whole font
-//! ([`super::background::UniformApp::run_clearance_optimizer`]); this is the
+//! ([`crate::app::UniformApp::run_clearance_optimizer`]); this is the
 //! half that needs the editor, and it is [`super::resize`]'s shape for the same
 //! reason: the lines to rewrite may be in any `.unf` of the directory, open or
 //! not, so the files are opened first and every rewrite goes through the

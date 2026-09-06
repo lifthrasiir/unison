@@ -1,41 +1,32 @@
-//! `glyph NAME = TARGET` — glyph aliases.
+//! `glyph NAME = TARGET` — glyph aliases: a **second name for one glyph**, not
+//! a second glyph. Everything that names `A` is treated as if it had named
+//! `B`, and the font ends up with one glyph id.
 //!
-//! An alias is a **second name for one glyph**, not a second glyph. `glyph A =
-//! B` says that `A` and `B` are the same thing, so everything that names `A` —
-//! a `map`, a `ref`, a `remap` operand, an assertion — is treated as if it had
-//! named `B`, and the font ends up with one glyph carrying one glyph id.
-//!
-//! It used to mean `glyph A` + `ref B`: a distinct glyph whose only content was
-//! a full-size reference to another. That is a different font — two glyph ids
-//! with identical outlines — and in every remaining use in `font/` it was the
-//! alias that was meant. The old form also accepted the glyph flags (`keep`,
-//! `advance N`, …), which only made sense for a real glyph; they are a parse
-//! error now, and a glyph that needs any of them is written in block form with
-//! `ref TARGET` instead.
+//! It used to mean `glyph A` + `ref B` — a distinct glyph whose only content
+//! was a full-size reference — and in every remaining use in `font/` it was
+//! the alias that was meant. The old form's flags are a parse error now, and a
+//! glyph that needs any of them is written in block form with `ref TARGET`.
 //!
 //! An alias is written by hand, but it is not the only thing in the map: the
 //! expansions of one `glyph` pattern block that describe the same glyph are
 //! folded in as **implicit** merges, which is [`crate::merge`]'s whole output.
 //! They differ from a declared alias in exactly one way — the name is also a
 //! `glyph` block, whose item the expansion drops in favour of the survivor's
-//! ([`AliasMap::is_implicit`]) — and they never join [`AliasMap::decls`],
-//! since nothing wrote them. [`AliasMap::collect_with_merges`] is the
-//! constructor that includes them, and what reads glyph names as the font will
-//! carry them uses it.
+//! ([`AliasMap::is_implicit`]) — and they never join [`AliasMap::decls`].
+//! [`AliasMap::collect_with_merges`] is the constructor that includes them, and
+//! what reads glyph names as the font will carry them uses it.
 //!
 //! # How the rest of the pipeline sees it
 //!
 //! [`AliasMap::collect`] is the only place that reads
-//! [`DocumentItem::GlyphAlias`]. It resolves chains (`A = B`, `B = C` means `A`
-//! is `C`) once, up front, so every consumer needs a single `canonicalize`
-//! call and never a loop. From there, expansion
-//! ([`crate::render::ttf_builder::expand_for`]) rewrites every glyph-name
-//! reference to its canonical name and drops the alias items, so the glyph
-//! cache, the cmap, GSUB and the sample never learn that aliases exist.
-//!
-//! The two consumers that do not go through expansion — GSUB, which expands
-//! `remap` patterns straight from the documents, and `assert shape`, which
-//! compares against the built font's glyph names — canonicalize with the same
+//! [`DocumentItem::GlyphAlias`]. It resolves chains once, up front, so every
+//! consumer needs a single `canonicalize` call and never a loop. From there,
+//! expansion (`crate::render::ttf_builder::expand_for`) rewrites every
+//! glyph-name reference to its canonical name and drops the alias items, so
+//! the glyph cache, the cmap, GSUB and the sample never learn that aliases
+//! exist. The two consumers that do not go through expansion — GSUB, which
+//! expands `remap` patterns straight from the documents, and `assert shape`,
+//! which compares against the built font's names — canonicalize with the same
 //! map.
 //!
 //! One reference keeps both names: an IDC line's component
@@ -44,23 +35,22 @@
 //! name is also a claim about which slot of the split it fills
 //! ([`crate::compose`]'s variant name rule). `阝:4x16-c = 阝:4x16-r` is a
 //! source saying the right-hand drawing is what a `⿲`'s middle slot uses, and
-//! it is the `-c` that says so; that is also the one thing that makes such a
-//! drawing reachable for the middle slot at all, in the check and in
-//! [`crate::fix::clearance`]'s variant search alike.
+//! that `-c` is the one thing that makes such a drawing reachable for the
+//! middle slot at all, in the check and in [`crate::fix::clearance`]'s search.
 //!
 //! One deliberate exception: [`crate::ref_composite::resolve_expansion`] adds
 //! the alias names back into the resolved-glyph map after resolution finishes.
 //! The editor validates the names it finds *in the text* against that map, and
-//! a `ref A` the build resolves perfectly well must not be underlined as
-//! undefined. They are added after the alternatives index is built, so an alias
-//! never becomes an `x:alt` alternative of anything.
+//! a `ref A` the build resolves must not be underlined as undefined. They are
+//! added after the alternatives index is built, so an alias never becomes an
+//! `x:alt` alternative of anything.
 //!
 //! # What is an error
 //!
 //! Declaring one alias name twice, and an alias cycle, are reported here. That
 //! the target exists, that the name is not also a `glyph` block, and that the
-//! alias is used at all are reported by [`crate::issues`], which is where the
-//! full glyph set is known.
+//! alias is used at all are reported by [`crate::issues`], where the full glyph
+//! set is known.
 
 use std::collections::{HashMap, HashSet};
 

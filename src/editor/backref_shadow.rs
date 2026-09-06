@@ -33,13 +33,11 @@
 //!
 //! **It is also where the canvas is resized.** The glyph's own boundary is
 //! grabbable while the shadow is up — marked with a handle on each edge, since
-//! an unmarked edge says only that the glyph ends there — and it is the one
-//! place where the question the shadow answers and the answer are the same
+//! an unmarked edge says only that the glyph ends there — because it is the
+//! one place where the question the shadow answers and the answer are the same
 //! gesture: the parents are drawn around the grid being dragged, so growing it
-//! to fit is previewed against what has to keep fitting. The shadow therefore
-//! *stays up* for the drag it started, or the drawn area would shrink out from
-//! under the pointer at the mode switch. See [`crate::editor::glyph_resize`],
-//! whose `F2` drags the declared box instead.
+//! to fit is previewed against what has to keep fitting. The rest of the
+//! resize is [`crate::editor::glyph_resize`]'s.
 
 use std::collections::HashMap;
 

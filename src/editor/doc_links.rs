@@ -28,7 +28,7 @@ use crate::pattern::NamePattern;
 /// `captures` is the other: a `$-N` on a `ref` line names a group of the
 /// *block header* above it, which the line likewise does not say. The caller
 /// carries the groups in force down the file, the way it carries the `@` base
-/// — see [`crate::app::search::block_captures`].
+/// — see `crate::app::search::block_captures`.
 ///
 /// `exists` is the one context where a token's meaning comes from a *different*
 /// line: `glyph han-($1)` under `exists han-([0-9a-f]{4,5}):15x16` denotes
@@ -509,7 +509,7 @@ fn regex_group_offsets(pattern: &str) -> Vec<usize> {
 /// The tokens of the leading pattern a line writes, as `(column, raw text)` in
 /// written order, and whether the groups it binds are named *below* it.
 ///
-/// The two shapes are the ones [`crate::app::search`] tells apart for the same
+/// The two shapes are the ones `crate::app::search` tells apart for the same
 /// reason: a `glyph` block header's groups are named on the `ref` lines under
 /// it, where an alias's and a `map`'s are named further along their own line.
 /// `None` is a line that writes no leading pattern at all — a `ref`, an anchor,

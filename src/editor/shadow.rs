@@ -20,7 +20,7 @@
 //! A shadow is read off *ink*, never off a cell merely being written: a
 //! hardblank (`$$`) and the ink-less subcell `BitmapFill` writes both draw
 //! nothing, so they contribute nothing here either
-//! ([`PixelShape::is_blank`](crate::pixel::PixelShape::is_blank)). Counting
+//! (`PixelShape::is_blank`). Counting
 //! them would dim a cell no candidate actually inks, and — because the grid
 //! painter skips its own background wherever the shadow has ink — leave that
 //! cell without one.

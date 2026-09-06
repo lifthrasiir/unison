@@ -180,7 +180,7 @@ pub enum DocumentItem {
         /// always matches.
         ///
         /// Resolved once, in
-        /// [`crate::render::ttf_builder::expand`], because the choice is *per
+        /// `crate::render::ttf_builder::expand`, because the choice is *per
         /// codepoint*: a target is a pattern expanded in lock-step with
         /// `char_repr`, so two characters of one line may well pick different
         /// alternatives. Everything downstream sees the resolved single-target
@@ -278,7 +278,7 @@ pub enum DocumentItem {
         visibility: Option<LayerVisibility>,
         comment: Option<String>,
     },
-    /// `assert shape \`text\` [@lang] [+feat] [-feat] [for SLICE...] : glyph1 [advance N] [offset X Y] : glyph2 ...`
+    /// `assert shape \`text\` \[@lang\] [+feat] [-feat] [for SLICE...] : glyph1 [advance N] [offset X Y] : glyph2 ...`
     AssertShape {
         /// Slices a face must include for this assertion to apply to it. Empty
         /// means every face. A combination no face satisfies is an error, not a

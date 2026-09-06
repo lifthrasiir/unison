@@ -17,7 +17,7 @@
 //!
 //! Content dedup only pays off because the glyph store is built once, for the
 //! union of every slice, in an order no single face's cmap decided — see
-//! [`super::build_faces`]. With a per-face glyph order the two `glyf` tables
+//! `super::build_faces`. With a per-face glyph order the two `glyf` tables
 //! would differ from the first differing glyph onward and nothing would be
 //! shared. With it, two faces of the ambiguous-width split share everything
 //! except `cmap` and `name`: measured over `font/` with a two-face overlay,

@@ -5,7 +5,7 @@
 //! what the `exists` search above the block matched ([`crate::exists`]). The
 //! build substitutes both while expanding the block —
 //! [`crate::document::expand_glyph_block`] and
-//! [`crate::render::ttf_builder::expand`] — but the editor expands nothing: it
+//! `crate::render::ttf_builder::expand` — but the editor expands nothing: it
 //! draws the block as written, so the lookup behind the grid overlay is handed
 //! `part-($-1)` and resolves nothing at all.
 //!

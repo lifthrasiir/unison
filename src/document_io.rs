@@ -1,5 +1,7 @@
-//! Parser and serializer for the `.unf` font source format — and the reference
-//! for the format itself.
+//! Parser and serializer for the `.unf` font source format.
+//!
+//! The user-facing reference for the format is `doc/reference.md`; this doc
+//! records only what the *parser* and *serializer* commit to, and where each directive's meaning is implemented.
 //!
 //! Parsing is incremental at the line level: [`crate::document::DocLine`] is
 //! what the editor edits, and a pixel-only edit does not reparse the file. The
@@ -9,51 +11,27 @@
 //!
 //! # Names
 //!
-//! A glyph name is letters, digits, `-`, `.`, `_` and `:` — the last for a
-//! variant suffix (`a-lower:compressed`). Every character the pattern syntax
-//! uses (`(`, `)`, `|`, `$`, `*`, `#`) is excluded, so a pattern that failed to
-//! expand cannot reach the font as a name that merely looks odd. The rule is
-//! checked against *expanded* names by [`crate::issues`]; see
-//! [`crate::document::is_valid_glyph_name`].
+//! A glyph name is letters, digits, `-`, `.`, `_` and `:`. Every character the
+//! pattern syntax uses (`(`, `)`, `|`, `$`, `*`, `#`) is excluded, so a pattern
+//! that failed to expand cannot reach the font as a name that merely looks odd.
+//! The rule is checked against *expanded* names by [`crate::issues`]; see
+//! [`crate::document::is_valid_glyph_name`]. Face and slice ids are narrower
+//! still — see [`crate::faces`].
 //!
-//! A pattern's parenthesized groups may be named again further along the same
-//! item, as `$-1`, `$-2`, … in written order: a `glyph` block's header binds
-//! them for its `ref` and IDC lines, and an alias or a `map` binds its own for
-//! the target beside it.
-//!
-//! ```text
-//! glyph han-xxxx-(g|h|t|j|p|v):15x16 15 16
-//! ref han-yyyy-($-1):15x16 0 0
-//! ```
-//!
-//! Only a written `(...)` captures — `glyph a|b` and `map a|b|c = …` list
-//! names without marking a group, so they bind nothing. Otherwise a
-//! back-reference is a `$name-part` in every respect, including `*N`/`**N` and
-//! mixing with literal alternatives; it is just declared by the item instead of
-//! by a `name-parts` line. See [`crate::pattern`].
-//!
-//! A `glyph` header and a `ref` target may also start with `@`, which stands
-//! for the last glyph name declared *without* one — see
-//! [`crate::document::expand_at_name`] for the rule and what it is for. `@` is
-//! a name character in first position only, and only in those two places: a
-//! `map`, `remap` or `assert` names a glyph in full. The substitution is
-//! textual and happens before anything else reads the name, so what the rest of
-//! the pipeline sees is an ordinary name; the written form is kept beside it
-//! (`GlyphBody::raw_name`, `GlyphAlias::raw_name`/`raw_target`,
+//! A `glyph` header and a `ref` target may start with `@`, the last glyph name
+//! declared *without* one ([`crate::document::expand_at_name`]). The
+//! substitution is textual and happens before anything else reads the name, so
+//! the rest of the pipeline sees an ordinary name; the written form is kept
+//! beside it (`GlyphBody::raw_name`, `GlyphAlias::raw_name`/`raw_target`,
 //! `GlyphRef::raw_name`) so [`serialize_document`] puts back what was written.
 //!
-//! Face and slice ids are narrower still — no `:`, and a face id additionally
-//! becomes a file name, so it may not start with `.`; see [`crate::faces`].
+//! `$-N` back-references and `exists` captures are substituted by the item's
+//! own expansion, not here; see [`crate::pattern`] and [`crate::exists`].
 //!
-//! There is no `U+XXXX` glyph-name form. A range of hex-named glyphs is
-//! `uni($#XXXX..YYYY)`, which is what `($#…)` was added for; `U+XXXX` remains a
-//! *character* spelling on the left of a `map`, which is a different context.
+//! # Tokens and comments
 //!
-//! # Tokens
-//!
-//! Whitespace-separated, with backtick quoting for tokens containing spaces:
-//! `` `foo bar` ``. A literal backtick is four backticks — two to escape, two
-//! to quote.
+//! Whitespace-separated, with backtick quoting: `` `foo bar` ``, two backticks
+//! for a literal one inside a quote, so a lone literal backtick is four.
 //!
 //! `//` starts a comment on every line *except* pixel rows, where `//` is a
 //! legal pixel pair; see [`split_comment`] for the exact rule and why a pixel
@@ -68,359 +46,93 @@
 //!
 //! # Headings
 //!
-//! `# TEXT`, `## TEXT`, `### TEXT` — a section heading
-//! ([`DocumentItem::Heading`]). The `#` run must be a token of its own, so
-//! `###foo` is not one and neither is anything with `#` further along the line;
-//! the text after it is prose, taken to the end of the line the way a comment
-//! is (a backtick in a title is a backtick).
-//!
-//! A heading is a *second kind of comment*: no build stage reads one, and the
-//! font is exactly what it would be with the line deleted. It is not spelled
-//! `//` because the editor does read it — heading lines fold the file into
-//! sections, draw larger, and mark the minimap (see
-//! [`crate::editor::folding`]). Which is also why a fourth level is an error
-//! from [`crate::issues`] rather than more of the same: the three levels plus
-//! the glyph block are the four the editor nests.
-//!
-//! # Directives
-//!
-//! - `meta KEY [@LANG] VALUE...` — font metadata, **one key per line**. Keys are
-//!   variadic (a metric takes one number, `panose` takes ten, a flag takes
-//!   none), which is why they do not share a line: with no separator, two keys
-//!   on one line could not be told apart. Declaring the same slot twice is an
-//!   error even when the two values agree, and `family` and `name 1` are one
-//!   slot — see [`crate::meta`] for the key set, the `@LANG` language slot and
-//!   the name IDs derived from what is declared, and [`crate::issues`] for the
-//!   checks.
-//!
-//!   `meta FACE : KEY VALUE...` scopes a key to one face, and `meta * : ...`
-//!   spells out the default of every face. The design metrics are every-face
-//!   only. A bare key and a face-scoped one for the same slot conflict, since
-//!   the bare one already reaches that face.
-//! - `audit KEY ARGUMENT...` — a rule the *source* is held to, not a value the
-//!   font carries: `audit ideal-clearance han-* 0 1` says how much room the
-//!   parts of a `han-*` glyph are meant to leave each other, and `audit
-//!   max-contact-run han-* 2` how far two of them may run together. Same
-//!   one-key-per-line shape as `meta`, single-assignment the same way, and no
-//!   face scope at all. See [`crate::audit`].
-//! - `face FACE [: SLICE...]` — one typeface in the output. `slice SLICE
-//!   [= SLICE...]` declares a slice, the `= ...` form being shorthand for
-//!   including those too, transitively. See [`crate::faces`] for the model, and
-//!   for the one rule that shapes how a split font is written: a character
-//!   whose mapping differs between faces must not be in the base slice at all,
-//!   because there is no override — every conflict is an error.
-//! - `exists PATTERN` — the inverse of a name pattern: a *search* over the
-//!   glyph names the source declares, repeating the item on the **very next
-//!   line** — one `glyph` block, one `glyph … = …` alias or one `map`, nothing
-//!   else — once per match. `$0` stands for the matched name and `$1`… for the
-//!   pattern's capture groups, usable wherever that item takes a name pattern.
-//!   Each of them is one string on each run, so a group written beside a slot
-//!   expands the way it does anywhere else — `glyph han-($1)-(g|h|t)` over
-//!   three matches writes nine names:
-//!
-//!   ```text
-//!   exists han-([0-9a-f]{4,5}):15x16
-//!   glyph han-($1) 16 16 advance 16
-//!   ref ($0) 1 0
-//!   ```
-//!
-//!   `PATTERN` is a regular expression, implicitly anchored, restricted to what
-//!   can only ever match a glyph name — a bare `.` is rejected in favour of an
-//!   explicit class, so write `\.` for a literal dot. A scoped `map` computes
-//!   its code point from the match with `U+[BASE+]($N)`, hexadecimal on both
-//!   sides, and both halves of a variation sequence take that spelling
-//!   (`map U+($1) U+E0100+($2) = …`). See [`crate::exists`] for what is
-//!   searched, why `exists` does not stack, and the cycle rule.
-//! - `map CHAR = GLYPH...` — cmap mapping. `CHAR` is one character, a
-//!   `U+XXXX..YYYY` range or a `|` list; parenthesized, it is a name pattern
-//!   like any other (`map (ㅠ|ㅡ) = …`, `map U+($#4e00..4e05) = …`), which is
-//!   the spelling that captures — see back-references below.
-//!
-//!   More than one target means *ordered alternatives*: the first one that
-//!   names a glyph the font has is the one the character gets, and the rest are
-//!   fallbacks. Since a target is a pattern expanded in lock-step with `CHAR`,
-//!   the choice is made per character, not per line — `map U+($#4e00..9fff) =
-//!   han-($-1) han-old-($-1)` asks it once per character of the block. A
-//!   character that matches none of them falls back to `.notdef`, and is
-//!   reported — unless the last alternative is the *empty token* (`` `` ``),
-//!   which says that a character nothing covered is not an error: the mapping
-//!   is dropped without a word. It has to be last, since it always matches. See
-//!   `resolve_map_alternatives` in `render/ttf_builder/expand.rs`.
-//! - `map BASE SELECTOR = GLYPH...` — cmap mapping of a Unicode *variation
-//!   sequence*. Two spellings, and each round-trips as written: `U+0030 U+FE0F`
-//!   is two tokens, while the same pair pasted from a character picker is one
-//!   token holding two characters; each half carries its own spelling, so the
-//!   two may be mixed. Only a two-character
-//!   token whose second character is a selector splits — a longer paste like
-//!   `0️⃣` stays whole and is rejected by name, because cmap format 14 holds a
-//!   base and one selector and nothing longer; the rest of such a sequence
-//!   belongs in a `remap`. Either half may be a range or a pipe list but not
-//!   both (see `expand_uvs_map_triples`).
-//!   `generate` never takes this form: a variation sequence is its own
-//!   canonical decomposition.
-//! - `map generate CHAR [= GLYPH]` — cmap mapping to a glyph synthesized from
-//!   the character's Unicode canonical decomposition, named `uniXXXX` unless
-//!   `GLYPH` names it. `GLYPH` is a pattern expanded in lock-step with `CHAR`,
-//!   exactly as a plain `map`'s target is. The `generate` keyword is mandatory:
-//!   the older bare `map CHAR` was too easily misread as the plain form. The
-//!   synthesized refs carry `inherit` implicitly, since the composite stands in
-//!   for its decomposition (see [`crate::ref_composite`] on anchor exposure) —
-//!   so hand-rewriting one as a plain `glyph` + `map` means deciding per ref
-//!   whether to keep `inherit`.
-//!
-//!   `map`, `feature`, `name-parts` and `assert shape` may be scoped to a
-//!   slice. The first three take a `SLICE :` qualifier in front of what they
-//!   already said (`map wide : ° = degree-wide`); `assert shape` takes
-//!   `for SLICE...` before its first `:`, since it already uses `:` as a
-//!   separator. Unqualified means the base slice, which every face includes —
-//!   so every file written before faces existed keeps its meaning exactly.
-//!
-//!   The qualifier is told from the body by the *second* token being a bare
-//!   `:`, which no name or value can be. That is what keeps `map : = colon` — a
-//!   perfectly good mapping of U+003A — from reading as a qualifier, while
-//!   `map wide : : = colon` still qualifies one.
-//!
-//!   A qualifier may list slices — `map wide|narrow : ⁂ = triple-star($half)` —
-//!   which states the line once *per* slice. `for SLICE...` on an assertion
-//!   means the opposite (a face including *all* of them), because the two
-//!   answer different questions.
-//! - `name-parts [SLICE[|SLICE...] :] $NAME = token1 token2 ...` — see
-//!   [`crate::pattern`]. Each token is itself a name pattern, so
-//!   `$foo = bar($1..3)` binds what `$foo = bar1 bar2 bar3` binds
-//!   (`resolve_name_part_values` in [`crate::document`]).
-//!   A slice-scoped binding takes exactly one value and
-//!   applies only to lines stated for that slice, which is how a name that
-//!   differs between slices by a suffix is written once instead of once per
-//!   slice; see [`crate::document::SliceNameParts`].
-//! - `color NAME = #RRGGBB[AA] [coloronly|monoonly]` — named palette entry.
-//! - `prop CHAR [= NAME] [gc GC] [ccc N] [eaw EAW]` — Unicode character
-//!   properties the source states itself, for the Private Use characters the
-//!   UCD has nothing to say about. `CHAR` is the same character spelling a
-//!   `map` takes (one character, a `U+XXXX..YYYY` range or a `|` list) and
-//!   `NAME` is a pattern expanded against it in lock-step, so one line names a
-//!   whole range. Each property is independent and optional: what a line does
-//!   not state, it does not change. See [`crate::ucd`].
-//! - `prop block NAME = U+XXXX[..YYYY]` — records that an area of the code
-//!   space is claimed, and for what. Nothing derives anything from it yet.
-//! - `remap FEATURE : [LOOKBEHIND... :] SOURCE... -> TARGET... [: LOOKAHEAD...]`
-//!   — GSUB substitution. Source and target are *lists* of glyph names in all
-//!   cases, and an empty target means removal. The list lengths pick the lookup
-//!   type: 1→1 single, 1→N (including 1→0) multiple, N→1 ligature. N→M and N→0
-//!   have no OpenType lookup type and are an error [`crate::issues`] reports,
-//!   rather than something the builder emits close-but-wrong. Rules of one
-//!   group are subtables of one lookup, so their order is match priority; see
-//!   `render/ttf_builder/gsub.rs`.
-//! - `remap group NAME [reversed] [after GROUP]...` — declares a remap group,
-//!   carrying what belongs to the lookup rather than to a rule. Optional: an
-//!   undeclared group is unreversed and unconstrained, ordered where its first
-//!   rule appears. It is told from a rule by the absence of a colon, so a group
-//!   named `group` still writes its rules as `remap group : a -> b`.
-//! - `feature NAME for TARGET... : REMAP_GROUP` — OpenType feature. A target is
-//!   a script tag (`latn`, `DFLT`) or a script narrowed to one language system,
-//!   `script/LANG` (`latn/ROM`); see `render/ttf_builder/gsub.rs` for why the
-//!   two are written explicitly and how scope fallback works.
-//! - `feature NAME for TARGET... : anchor ANCHOR_NAME [align XX]` — the
-//!   anchor-driven (mark attachment) variant. `align` says how a *ranged*
-//!   anchor of this class becomes the one point GPOS attaches by: `[u|c|d]`
-//!   for the row axis and `[l|c|r]` for the column axis, a lone `c` for both,
-//!   defaulting to `ul` — the low end of each, which is what a range meant
-//!   before there was anything to state. The class is the only thing that may
-//!   say, because the same reduction has to apply to the `+` side and the `-`
-//!   side for their difference to mean anything; see
-//!   [`crate::document::AnchorAlign`], and `issues::anchors` for the parity a
-//!   centred class is held to.
-//! - `assert shape TEXT [@lang] [+feat|-feat...] [for SLICE...] : GLYPH [advance N] [offset X Y] : GLYPH ...`
-//!   — shaping assertion; `@lang` is a BCP 47 tag, see [`crate::render::assert`].
-//!   `for SLICE...` restricts it to faces including all of them; a combination
-//!   no face satisfies is an error, not an assertion that quietly never runs.
-//! - `assert same NAME...` / `assert distinct NAME...` — resolved-glyph
-//!   equality assertions.
-//! - `sample LABEL [SUBLABEL] [: MODE...]` — a ready-made specimen text,
-//!   written on the `||` continuation lines that must follow it. It builds
-//!   nothing: `demo.html` lists it in its sample panel and the editor's
-//!   preview offers it, and the font is byte-for-byte what it would be with
-//!   the line deleted.
-//!
-//!   ```text
-//!   sample Latin `English pangram`
-//!   || The quick brown fox jumps over the lazy dog.
-//!   || Mr Jock, TV quiz PhD, bags few lynx.
-//!   ```
-//!
-//!   `LABEL` is the heading the text is listed under and `SUBLABEL` the entry
-//!   beneath it, so several texts of one family are written as several lines
-//!   sharing a label. A line with no `SUBLABEL` gives the *heading* a text of
-//!   its own, which is how a label that stands for one text avoids inventing a
-//!   second level for it; a label may have one such line and no more. Both are
-//!   prose rather than names — they are what a reader picks a text by — and
-//!   both are ordinary tokens, so a label with a space in it is backtick
-//!   quoted.
-//!
-//!   `: MODE...` says how the `||` lines are read. With no tail they are the
-//!   text itself. `matrix` reads each line as an axis of characters and offers
-//!   their *product* — every character of the last line along a line, of the
-//!   one before it down the lines, and every earlier one a block of its own —
-//!   so `|| ab` over `|| xy` is `axay` / `bxby`. A word that names no mode is
-//!   an error [`crate::issues`] reports; see [`crate::samples`] for the axes
-//!   and for why the product is expanded where it is shown rather than where
-//!   it is collected.
-//! - `assume unused NAME...` — suppresses the unused-glyph warning (patterns
-//!   accepted).
+//! `# TEXT`, `## TEXT`, `### TEXT` ([`DocumentItem::Heading`]): the `#` run must
+//! be a token of its own, and the text after it is prose taken to the end of the
+//! line the way a comment is. A heading is a second kind of comment — no build
+//! stage reads one — spelled differently because the editor does read it
+//! ([`crate::editor::folding`]). A fourth level is an error from
+//! [`crate::issues`] rather than more of the same: the three levels plus the
+//! glyph block are the four the editor nests.
 //!
 //! # Continuation lines
 //!
-//! `|| TEXT` continues the command above it with one more line of text. It is
-//! not a directive of its own — it is how a command that takes *prose* takes
-//! more than one line of it — and the only command that takes one so far is
-//! `sample`.
+//! `|| TEXT` continues the command above it (only `sample` takes one). It is a
+//! line's keyword and not a mid-line escape: only whitespace may precede the
+//! marker, everything after it is taken raw — no tokens, no quoting, no comment
+//! — and a `||` with nothing above it to continue is an error. The whitespace
+//! *every* continuation of one command shares is removed on the way in
+//! ([`dedent_continuations`]), so a text whose every line is indented is read,
+//! and written back, dedented; [`tokenize_strict`] never sees one, and
+//! `serialize.rs`'s `sample_lines` relies on a dedented line starting at column
+//! 0 for the round trip.
 //!
-//! A continuation is a line's keyword and not a mid-line escape, which is where
-//! it differs from `//`: only whitespace may come in front of the marker, and
-//! everything after it is taken raw. So a continuation has no tokens, no
-//! backtick quoting and no `// …` comment of its own, and a `||` with nothing
-//! above it to continue is an error rather than a line of text nobody reads.
+//! # Directives
 //!
-//! The whitespace *every* continuation of one command shares is removed on the
-//! way in ([`dedent_continuations`]), so `|| text` costs the text no leading
-//! space while a line indented past its neighbours keeps the difference. The
-//! rule has one consequence worth stating: a text whose every line is indented
-//! is read, and written back, dedented.
+//! One keyword per line, and the `SLICE :` qualifier a `map`, `feature` or
+//! `name-parts` may carry (or `meta`'s `FACE :` scope) is told from the body by
+//! the *second* token being a bare `:`, which no name or value can be — so
+//! `map : = colon` still maps U+003A. `assert shape` takes `for SLICE...`
+//! instead, since it already uses `:` as a separator, and the two mean opposite
+//! things (a line stated once per slice, versus a face including all of them).
+//! `editor/line_fields.rs`'s `split_qualifier` takes the qualifier off the same
+//! way.
+//!
+//! Where each directive's meaning lives:
+//!
+//! - `meta` — [`crate::meta`]; `audit` — [`crate::audit`]; `face`/`slice` —
+//!   [`crate::faces`]; `sample` — [`crate::samples`]; `prop` — [`crate::ucd`];
+//!   `color` — `render/ttf_builder/color.rs`.
+//! - `exists` — [`crate::exists`]; `name-parts` — [`crate::pattern`] and
+//!   [`crate::document::SliceNameParts`] (each token of the right-hand side is
+//!   itself a pattern, `resolve_name_part_values`).
+//! - `map` — `render/ttf_builder/expand.rs` (`resolve_map_alternatives` for the
+//!   ordered targets and the empty last one, `expand_uvs_map_triples` for a
+//!   variation sequence, and `generate`); `Map::selector` in
+//!   [`crate::document`] for the two spellings of a selector and why length
+//!   stops at two.
+//! - `remap`/`remap group` — `render/ttf_builder/gsub.rs` and
+//!   `document/remap.rs`; `feature … : anchor … [align]` —
+//!   [`crate::document::AnchorAlign`] and `render/ttf_builder/gpos.rs`.
+//! - `assert` — [`crate::render::assert`]; `assume unused` — `issues/unused.rs`.
+//!
+//! `meta` and `audit` are single-assignment, one key per line, because their
+//! keys are variadic; both say why in their own docs.
 //!
 //! # Glyph blocks
 //!
-//! `glyph NAME [W H] [flags...]`, with flags `keep`, `inline`, `mark`,
-//! `desync`, `vectoronly`, `origin C R`, `advance W`, `extent W H` and
-//! `scale N` (the
-//! per-glyph sub-pixel detail resolution: the grid is N× finer, and
-//! `document_io` multiplies the declared dimensions by it but not the other
-//! flags).
-//!
-//! Those three state the **declared box** — the rectangle the glyph claims to
-//! draw in, which is what it exports as a bearing and an advance, what `:WxH`
-//! names and what a clearance measures. Ink may leave it; a renderer owes that
-//! nothing.
-//!
-//! - `origin C R` places its top-left corner in the grid, which is what the
-//!   exported side bearings are the negation of. It moves that corner and
-//!   nothing else: an unstated width or height still ends at the grid's own far
-//!   edge, so `glyph foo 6 16 origin 1 0` claims — and advances by — five
-//!   cells, its first column given away as a left bearing.
-//! - `advance W` states its **width only**, leaving the height to the grid.
-//!   This is the common case by far — a combining mark writes `advance 0`, and
-//!   nothing about its height is unusual — and it is why the width did not
-//!   become half of a two-valued flag.
-//! - `extent W H` states **both**, for a glyph whose height is not the grid's
-//!   either: a gridless composite that must not be measured by what it happens
-//!   to place. Writing it beside `advance` is an error, the two saying the same
-//!   thing.
-//!
-//! Every spelling meets in [`crate::document::GlyphBody::declared_origin`] and
+//! `glyph NAME [W H] [flags...]`, with flags `keep`, `inline`, `mark`, `desync`,
+//! `vectoronly`, `origin C R`, `advance W`, `extent W H` and `scale N`. `scale`
+//! is the per-glyph sub-pixel resolution: the grid is stored N× finer, and this
+//! module multiplies the declared dimensions by it but not the other flags.
+//! `origin`/`advance`/`extent` state the declared box and meet in
+//! [`crate::document::GlyphBody::declared_origin`] and
 //! [`declared_extent`](crate::document::GlyphBody::declared_extent), which is
-//! all anything downstream reads.
+//! all anything downstream reads; `advance` beside `extent` is a parse error
+//! (`parse_glyph_flag_parts_impl`). `desync`/`vectoronly` are the build's —
+//! [`crate::render::ttf_builder`] — and `keep` on a pattern block is
+//! [`crate::merge`]'s opt-out.
 //!
-//! - With `W H`, pixel rows follow immediately, two characters per pixel (`@@`
-//!   filled, `..` empty, `$$` a *hardblank* — the same nothing as `..`, kept
-//!   apart so a source can mark a blank as deliberate ([`crate::pixel::PX_HARDBLANK`])
-//!   — plus the sub-pixel shape codes in [`crate::pixel`]).
-//! - `desync` makes that grid **bitmap ink only**: the vector build of the
-//!   font ignores its geometry and draws the glyph from its `ref`s alone, while
-//!   the bitmap build reads the grid as always. The grid still declares the
-//!   glyph's dimensions in both. With refs to on-demand `:zero` shapes — which
-//!   are the mirror case, geometry that lights no pixel — the two faces become
-//!   fully independent drawings. See [`crate::render::ttf_builder`].
-//! - `vectoronly` is `desync`'s mirror: the glyph is not meant to be rendered
-//!   as pixels at all, so the **bitmap** build draws it exactly as the vector
-//!   build does instead of squaring it off. Flag artwork is the case it exists
-//!   for — the blocky form carries no information and costs a second drawing to
-//!   say so. The exemption reaches everything the glyph pulls in through `ref`,
-//!   because the bitmap flavor squares a grid off into the shared cache and a
-//!   composite exempted alone would still be assembled out of blocks; a
-//!   component that reach shares with an unflagged glyph is drawn as vector
-//!   artwork for that glyph too, which [`crate::issues`] reports rather than
-//!   leaves silent. Writing it beside `desync` is an error, the two asking for
-//!   opposite things.
-//! - `keep` puts the glyph in the font whether or not anything reaches it. A
-//!   glyph normally survives only by being mapped, named in a `remap`, or used
-//!   as a composite component, and one nothing reaches is dropped and warned
-//!   about as unused; `keep` says the glyph is wanted anyway, and silences that
-//!   warning. It is also the one way to write a glyph with **no body at all**
-//!   (no grid, no `ref`): such a glyph is built as an empty outline carrying
-//!   only its `anchor`s, where a contentless glyph without `keep` is not built
-//!   and every use of it is an error. `.notdef` is kept without saying so —
-//!   see [`crate::render::ttf_builder`]. On a block whose *name* is a pattern
-//!   `keep` says one thing more: that each name it declares is a glyph of its
-//!   own, where expansions that describe the same glyph are otherwise merged
-//!   into one — see [`crate::merge`].
-//! - `ref OTHER [COL ROW] [negated] [inherit] [goto] [coloronly|monoonly]
-//!   [fill COLOR]`
-//!   — a composite reference. Omitting the offset auto-resolves it from
-//!   `anchor`s; `fill` takes a `#RRGGBB[AA]` literal or a `color` name. Refs
-//!   stack in source order and `negated` subtracts from what is already there,
-//!   so a later ref draws back over an earlier negation. A ref to a glyph that
-//!   is itself coloured keeps that glyph's colours; a `fill` is a claim over
-//!   everything the ref reaches, however deep, and draws all of it in that one
-//!   colour — see `ColorPiece` in [`crate::render::ttf_builder`]'s `collect`.
-//!   `goto` is the one flag no build stage reads: it says that "go to
-//!   definition" on the *enclosing* glyph belongs on this target instead, for
-//!   a wrapper whose own line is one pattern covering thousands of names.
-//! - `anchor POS COL ROW` — an anchor for auto-ref alignment; supports `+`/`-`
-//!   prefixes and cell ranges. A range does two jobs: its size says which
-//!   drawing of a mark a base wants (`GlyphPoint::size_matches`), and it
-//!   reduces to a point under its class's `align`. Both sides may state
-//!   several sizes through `:variant`s. A base is substituted for the *first*
-//!   alternative, in the order they are named, whose `+` range is big enough
-//!   to hold the following mark's `-` range — first-fit, and not the tightest
-//!   fit, because a name order is not a size order and the equal sizes already
-//!   go by the first one named. A mark is substituted for the alternative
-//!   whose `-` size the preceding base's `+` size matches exactly. A base with
-//!   a single alternative is reached by every mark of the class, since one
-//!   slot is all it has to offer. A `+` range is *the cells
-//!   the base hands over*, not the cells it happens to have — a base states
-//!   where it wants marks by moving or narrowing its range, which is why only
-//!   the class carries an `align` and no `anchor` line does.
-//! - `⿰`/`⿱`/`⿲`/`⿳ COMPONENT…` — an IDC line: the glyph's box split
-//!   along one axis, the offsets *derived* from what the components declare.
-//!   Each token is a gap if it reads as a number and a component name
-//!   otherwise. It is a sibling of `ref`, not sugar for one — the point is that
-//!   what the parts leave each other inside the box is checked rather than
-//!   merely drawn. See [`crate::compose`] for the arity, the clearance check
-//!   and the `:WxH-l` variant name rule it reads.
-//! - `⿴`/`⿵`/`⿶`/`⿷`/`⿸`/`⿹`/`⿺`/`⿼`/`⿽ OUTER INNER P Q` — an *enclosure*
-//!   line: the first component fills the glyph's box and the second sits in the
-//!   cavity it leaves. `P Q` are the inner component's top-left offsets inside
-//!   the box and **not gaps**, which is the one place an IDC line's numbers
-//!   read differently; both are written or neither, and a line with neither has
-//!   picked no placement yet. The outer component names the cavity it offers as
-//!   `:WxH.NxM`. See [`crate::compose`] for which sides each operator fills and
-//!   how the four clearances are measured.
+//! With `W H`, exactly `H` pixel rows follow, two characters per pixel
+//! ([`crate::pixel`]'s catalog; `$$` is [`crate::pixel::PX_HARDBLANK`]). A
+//! first row that does not parse reads as "no rows"; a later one of the wrong
+//! length or with an unknown pair is an error at that line.
 //!
-//!   A component name takes the patterns of [`crate::pattern`] and expands in
-//!   lock-step with the block's name, as a `ref` target does — but the layout
-//!   is solved per expanded glyph, since that is the whole point of it: the
-//!   parts of one expansion are sized differently from the next one's, so the
-//!   same line writes different offsets for each.
-//! - `glyph NAME = TARGET` — an alias: a second *name* for `TARGET`, sharing
-//!   its glyph id rather than declaring a glyph of its own. It takes no flags
-//!   and has no body; a glyph that needs either — including one that must
-//!   forward its target's anchors — is written in block form with a
-//!   `ref TARGET [inherit]` line. See [`crate::alias`].
-//! - `glyph NAME [flags...]` with no dimensions — a ref-only composite,
-//!   followed by `ref`/`anchor` lines.
-//! - NAME accepts the patterns of [`crate::pattern`]; a block expands in
-//!   lock-step with its `ref` patterns.
-//! - NAME and a `ref` target may start with `@`, the enclosing base glyph's
-//!   name, which is how a glyph's helpers are named after it without repeating
-//!   it: `glyph foo` / `ref @-bar` / `glyph @-bar` builds `foo` out of
-//!   `foo-bar`. See [`crate::document::expand_at_name`].
+//! The lines under a header: `ref` ([`crate::ref_composite`]; `goto` is the one
+//! flag no build stage reads, see `GlyphRef::goto`), `anchor`
+//! ([`crate::ref_composite`] and `gpos.rs`), and the IDC lines
+//! ([`crate::compose`] — each token a gap if it reads as a number, else a
+//! component name, except on an enclosure where the two numbers are offsets).
+//! `glyph NAME = TARGET` is an alias ([`crate::alias`]), takes no flags and no
+//! body. NAME accepts the patterns of [`crate::pattern`], and a block expands
+//! in lock-step with its `ref` and IDC patterns.
 //!
-//! A glyph needs a pixel grid or at least one `ref` to exist at all.
-//! `origin`/`advance`/`extent`/`anchor` do not make one buildable, and a contentless
-//! glyph never enters the resolution cache — so it is absent from cmap, from
-//! composites and from GSUB coverage, and referring to it from a `map`, `ref`
-//! or `remap` is an error (leaving it unused is only the usual warning).
-//! Pattern glyphs are stricter still and need `ref` lines, since a pixel grid
-//! cannot be shared across expansions. For a deliberately blank glyph, use
-//! `ref sp`.
+//! A glyph needs a pixel grid, at least one `ref` or an IDC line to exist at
+//! all. `origin`/`advance`/`extent`/`anchor` do not make one buildable, and a
+//! contentless glyph never enters the resolution cache — so it is absent from
+//! cmap, composites and GSUB coverage, and referring to it is an error; `keep`
+//! is the one way to write a bodiless glyph (an empty outline carrying its
+//! anchors). For a deliberately blank glyph, use `ref sp` or a grid with no
+//! rows.
 
 use std::fmt;
 #[cfg(any(feature = "editor", test))]

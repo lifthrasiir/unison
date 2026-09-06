@@ -1,31 +1,19 @@
-//! Typing a character by its code point.
+//! Typing a character by its code point (Ctrl+K).
 //!
-//! Ctrl+K opens a small caret-anchored popup — the rename popup's shape — with
-//! a `U+` field that takes hex digits. What the digits decode to is shown as
-//! the host's *preedit*, not as document text: Enter commits it and Escape
-//! rolls it back, so the interaction is the one every IME already teaches.
-//! That is also why this module produces a string rather than editing
-//! anything itself; both hosts (the document editor and the shaped-preview
-//! field) already render a preedit and already know how to commit one, so
-//! they need no new insertion path.
+//! What the digits decode to is shown as the host's *preedit*, not as document
+//! text, so the interaction is the one every IME already teaches. That is also
+//! why this module produces a string rather than editing anything itself; both
+//! hosts (the document editor and the shaped-preview field) already render a
+//! preedit and know how to commit one, so they need no new insertion path.
 //!
-//! Two rules exist to stop a mistyped code point from being committed
-//! unnoticed, which is what the previous Alt+hex chord made easy:
-//!
-//! - the field accepts hex digits only, so a stray keystroke cannot land in
-//!   the middle of a number and change it silently;
-//! - [`CodepointPopup::status_label`] names the code point, and the status bar
-//!   shows that name while the digits are being typed.
-//!
-//! The field does not open empty once anything has been typed through it:
-//! [`CodepointPrediction`] offers the code point after the last one committed,
-//! and the popup opens on that guess with it selected, so Enter takes it and
-//! any digit replaces it. A selection of exactly one character outranks that
-//! guess ([`CodepointPopup::for_selection`]): the one thing Ctrl+K can be
-//! asked over a character is what it is, and a commit replaces the selection
-//! anyway, so opening on it costs nothing and answers that question. Any
-//! wider selection names no single code point and a bare caret names none at
-//! all, so both keep the prediction.
+//! Two rules stop a mistyped code point from being committed unnoticed, which
+//! is what the previous Alt+hex chord made easy: the field accepts hex digits
+//! only, and [`CodepointPopup::status_label`] names the code point while it is
+//! typed. [`CodepointPrediction`] opens the field on the code point after the
+//! last one committed, selected; a selection of exactly one character outranks
+//! that guess ([`CodepointPopup::for_selection`]), since the one thing Ctrl+K
+//! can be asked over a character is what it is, and a commit replaces the
+//! selection anyway.
 //!
 //! The predecessor was Alt (Option on macOS) held down over hex keys. It could
 //! not survive macOS: with an IME allowed, `Option+E` is a dead key, so AppKit

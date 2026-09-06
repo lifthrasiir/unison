@@ -43,7 +43,7 @@ impl GlyphName {
 /// through (`glyph a($1..3)` + `ref @-b` → `a($1..3)-b`).
 ///
 /// With no base in scope the written form is returned unchanged, `@` and all:
-/// [`is_valid_glyph_name`] rejects it and [`crate::issues`] reports what the
+/// [`crate::pattern::is_valid_glyph_name`] rejects it and [`crate::issues`] reports what the
 /// author actually wrote.
 pub fn expand_at_name(raw: &str, base: Option<&str>) -> String {
     match (raw.strip_prefix('@'), base) {

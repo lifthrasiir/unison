@@ -1,4 +1,4 @@
-//! [`PixelGrid`]: the rectangle of [`PixelShape`](crate::pixel::PixelShape)
+//! [`PixelGrid`]: the rectangle of [`PixelShape`]
 //! cells a glyph draws, and everything that reshapes one — cropping, resizing,
 //! rescaling and the exact sub-pixel geometry that rides along in `details`.
 

@@ -1,23 +1,14 @@
 //! `exists PATTERN` — the inverse of a name pattern: a *search* over the glyph
 //! names the source already declares, which then states what to build for each
-//! one it finds.
+//! one it finds. The directive as an author sees it is in `doc/reference.md`;
+//! this is why it is shaped so.
 //!
 //! [`crate::pattern`] goes forwards: a block states the list of names it
-//! declares, and every one of them is declared. That is the wrong way round
-//! when the list is not the point but a *condition* on an existing name is —
-//! *"wherever a `han-XXXX:15x16` was drawn, make the `han-XXXX` that uses it"*.
-//! Written forwards that means enumerating twenty thousand code points twice
-//! over and discarding all but the few hundred that were drawn. Written as a
-//! search it is what it says:
-//!
-//! ```text
-//! exists han-([0-9a-f]{4,5}):15x16
-//! glyph han-($1) 16 16 advance 16
-//! ref ($0)
-//! ```
-//!
-//! `$0` is the whole matched name and `$1`… its capture groups, usable anywhere
-//! the scoped item takes a name pattern.
+//! declares. That is the wrong way round when the list is not the point but a
+//! *condition* on an existing name is — *"wherever a `han-XXXX:15x16` was
+//! drawn, make the `han-XXXX` that uses it"*. Written forwards that means
+//! enumerating twenty thousand code points twice over and discarding all but
+//! the few hundred that were drawn.
 //!
 //! # One run per match
 //!
@@ -26,82 +17,55 @@
 //! matches: that made a slot an ordinary [`crate::pattern`] group, combining
 //! with the other groups on the line by the largest-cycles rule, so
 //! `glyph han-($1)-(g|h|t)` over three matches wrote three names rather than
-//! nine and the nine needed a `**N` multiplier on a group that has nothing to
-//! do with the search. Since a slot's value is whatever a name happened to
-//! match, correlating it with an unrelated alternation is very nearly always a
-//! mistake rather than something a source meant, so the search unrolls and the
-//! groups beside it mean what they mean everywhere else.
-//!
-//! A `$N` and a [`$-N` back-reference](crate::pattern#back-references) are
-//! unrelated — one is what the search matched, the other the n-th group the
-//! item's own pattern writes — but they share the parentheses a group is
-//! marked with, since a `($1)` is written parentheses like any other. So in
-//! `glyph out-($1)-(a|b)` the capture is group 1 and the `(a|b)` is `$-2`.
+//! nine. Since a slot's value is whatever a name happened to match, correlating
+//! it with an unrelated alternation is very nearly always a mistake, so the
+//! search unrolls and the groups beside it mean what they mean everywhere else.
+//! [`Scope::rebind`] is the one-slot-one-string shape the build and the
+//! specimen both consume.
 //!
 //! # What is searched
 //!
-//! Only names a `glyph` **header** declares. Two exclusions follow from that
-//! and both are deliberate:
-//!
-//! - **On-demand names** ([`crate::on_demand`]) never match. They are an
-//!   infinite set — every `WxH`, every `-polyN` — so a search cannot enumerate
-//!   them, and a rule that answered "yes" for names nobody wrote would make an
-//!   `exists` declare glyphs out of thin air.
-//! - **Aliases** ([`crate::alias`]) *are* searched, because an alias is a name
-//!   a `ref` may use like any other — `glyph han-4ee4:15x16 = han-4ee4-k:15x16`
-//!   is how a source gives one regional variant the plain name, and the glyph
-//!   built from it has to be built.
+//! Only names a `glyph` **header** declares — aliases ([`crate::alias`])
+//! included, because an alias is a name a `ref` may use like any other, and the
+//! glyph built from it has to be built. On-demand names ([`crate::on_demand`])
+//! never match: they are an infinite set, and a rule that answered "yes" for
+//! names nobody wrote would make an `exists` declare glyphs out of thin air.
 //!
 //! Two matched names that turn out to be **one glyph** are not a case of their
-//! own. A search matches *names*, and the line below names its output by the
-//! captures, so `han-4ee4.0:15x16` and `han-4ee4.1:15x16` aliasing one shape
-//! build two glyphs that share it — which is what the source said by writing
-//! the two aliases. This once was an error, on the reasoning that the block
-//! below would then declare one glyph twice; that reasoning measured the wrong
-//! thing on both sides. Two matches collide when the *captures* fail to tell
-//! them apart, whether or not they alias — `part-(a)(\.0)?` over `part-a` and
-//! `part-a.0` binds `$1` to `a` twice — and that is a duplicate declaration
-//! like any other, reported where it happens instead of here.
+//! own. This once was an error, on the reasoning that the block below would
+//! then declare one glyph twice; that measured the wrong thing on both sides.
+//! Two matches collide when the *captures* fail to tell them apart, whether or
+//! not they alias — `part-(a)(\.0)?` over `part-a` and `part-a.0` binds `$1` to
+//! `a` twice — and that is a duplicate declaration like any other, reported
+//! where it happens (`issues/remap.rs`) instead of here.
 //!
 //! # Scope
 //!
-//! An `exists` binds **the item on the very next line** — one `glyph` block
-//! (its `ref`/IDC/grid lines included), one `glyph … = …` alias or one `map`.
-//! A blank line, a comment or anything else there is an error rather than a
-//! wider or narrower reach. The alternative, letting it govern a run of items,
-//! would have to answer where the run ends, which is exactly the question
-//! `editor::folding` and `app::rename` already answer for a glyph block;
-//! giving `exists` a second answer to it is how those two drift apart.
-//!
-//! One consequence worth stating: `exists` does not stack, so `$N` is never
-//! ambiguous about which pattern it came from.
+//! An `exists` binds **the item on the very next line**, and anything else
+//! there is an error rather than a wider or narrower reach. Letting it govern a
+//! run of items would have to answer where the run ends, which is exactly the
+//! question `editor::folding` and `app::rename` already answer for a glyph
+//! block; a second answer is how those drift apart. One consequence: `exists`
+//! does not stack, so `$N` is never ambiguous about which pattern it came from.
 //!
 //! # Recursion
 //!
-//! An `exists` may match names another `exists` declared — that is what makes
-//! it composable — so the bindings are a fixpoint, not one round. What it may
-//! *not* do is feed itself, directly or through others: `exists a-(…)`
-//! declaring `b-…` while `exists b-(…)` declares `a-…` has no least fixpoint,
-//! it just grows.
-//!
-//! Forbidding self-match would catch only the direct case, so instead the
-//! iteration is bounded: a set of `n` `exists` directives forms a DAG of depth
-//! at most `n`, so a fixpoint that has not settled after `n` rounds is a cycle.
-//! That is [`ExistsCycle`], and it fails the build rather than truncating —
-//! a truncated fixpoint is a font whose contents depend on a round count.
+//! An `exists` may match names another `exists` declared, so the bindings are a
+//! fixpoint. What it may *not* do is feed itself, directly or through others:
+//! that has no least fixpoint, it just grows. Forbidding self-match would catch
+//! only the direct case, so the iteration is bounded instead: `n` directives
+//! form a DAG of depth at most `n`, so a fixpoint that has not settled after
+//! `n` rounds is a cycle. That is [`ExistsCycle`], and it fails the build rather
+//! than truncating — a truncated fixpoint is a font whose contents depend on a
+//! round count.
 //!
 //! # The pattern
 //!
-//! A regular expression, implicitly anchored at both ends, restricted to a
-//! subset by [`check_subset`]: literals, character classes, repetition, groups
-//! and alternation. Every literal and every class must be within the glyph-name
-//! character set ([`crate::pattern::is_valid_glyph_name`]'s), which is what
-//! rejects a bare `.` — `.` matches `(` and `|` and would let a match carry
-//! pattern syntax into a name. A literal dot is `\.`, and `.` stays available
-//! as the ordinary name character it is everywhere else in a `.unf`.
-//!
-//! Anchors and word boundaries are rejected for the same reason a name pattern
-//! has none: the match is the whole name, always.
+//! A regular expression, implicitly anchored, restricted by [`check_subset`] to
+//! literals, classes, repetition, groups and alternation, every literal and
+//! class within the glyph-name character set. That is what rejects a bare `.`
+//! — it matches `(` and `|` and would let a match carry pattern syntax into a
+//! name — and anchors and word boundaries, since the match is the whole name.
 
 use regex::Regex;
 use regex_syntax::hir::{Hir, HirKind, Look};

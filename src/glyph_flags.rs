@@ -31,7 +31,7 @@
 //! one line, and both fill it in: the expansions of a pattern share a body and
 //! differ only in the names substituted into it, so what varies is whether a
 //! substituted `ref` target **exists**
-//! ([`crate::render::ttf_builder::expand`]) and, through that, whether an
+//! (`crate::render::ttf_builder::expand`) and, through that, whether an
 //! **anchor** derives against it ([`crate::issues`]). An IDC line is the third:
 //! its components expand with the block too, and the split is then solved from
 //! the boxes *that* glyph's parts declare, so every finding it makes names the
@@ -61,7 +61,7 @@
 //! composite's, since that is the one a character maps to. So the flags are
 //! pushed backwards along the `ref` edges of the *expanded* items, which is
 //! where an `⿰⿱⿲⿳` line has already become the refs it stands for
-//! ([`crate::render::ttf_builder::expand`]). A cycle terminates because a flag
+//! (`crate::render::ttf_builder::expand`). A cycle terminates because a flag
 //! is only ever pushed on when it *raises* the target, and there are two
 //! levels to raise through.
 

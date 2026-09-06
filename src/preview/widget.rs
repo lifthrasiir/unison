@@ -17,24 +17,16 @@
 //! # The caret in bidirectional text
 //!
 //! Two things the shared key handler cannot do, because the grid editor it is
-//! also written for has no directions in it:
-//!
-//! * A plain Left/Right arrow moves the caret one step *on screen*, so it is
-//!   intercepted here and answered from [`cluster::step`]. Every other motion —
-//!   word left/right, Home/End, Up/Down, and Shift+arrow extending a selection
-//!   — stays logical and goes to the shared handler untouched. That split is
-//!   Firefox's default (`bidi.edit.caret_movement_style = 2`); a selection is
-//!   one `(anchor, cursor)` pair in the model, and a visually contiguous
-//!   selection across a direction boundary is not a contiguous logical range,
-//!   so it could not be stored even if it were extended that way.
-//! * The caret carries an *affinity* — [`ShapedPreviewState::caret_affinity`],
-//!   the embedding level of the run it belongs to — because at a direction
-//!   boundary one logical position has two screen positions. It is this
-//!   widget's state rather than the shared [`Caret`]'s for the same reason the
-//!   stepping is: the grid editor has no use for it. See [`cluster`] for the
-//!   prior art it follows. The affinity is also what the caret is *shaped* by:
-//!   it is a triangle leaning the way its run reads, not a bar. See
-//!   [`caret_shape`].
+//! also written for has no directions in it, and both are this widget's state
+//! rather than the shared [`Caret`]'s for that reason: a plain Left/Right
+//! arrow moves the caret one step *on screen* and is answered from
+//! [`cluster::step`] (every other motion, Shift+arrow included, stays logical
+//! and goes to the shared handler untouched), and the caret carries an
+//! *affinity* — [`ShapedPreviewState::caret_affinity`] — because at a
+//! direction boundary one logical position has two screen positions. The
+//! reasoning and the prior art are [`cluster`]'s. The affinity is also what
+//! the caret is *shaped* by: a triangle leaning the way its run reads, not a
+//! bar ([`caret_shape`]).
 
 use crate::document::DocLine;
 use crate::edit_menu::{EditAction, EditMenuCaps};

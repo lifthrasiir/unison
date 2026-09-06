@@ -1,20 +1,15 @@
-//! `demo.html`: the font's one self-contained demonstration page.
+//! `demo.html`: the font's one self-contained demonstration page. What it
+//! shows is described in `doc/reference.md` (*The Demo Page*).
 //!
-//! It is what the three sample pages it replaced grew into. Those each wrote
-//! *rendered output* — an SVG path per glyph per size, a PNG of the whole
-//! repertoire — which is why the glyph-chart page reached 6.6 MB for a font
-//! whose WOFF2 is 250 KB. This page embeds the **font** instead and lets
-//! the browser draw: one `@font-face` rule — the primary face as a variable
-//! font carrying both drawings, switched by the `BMAP` axis — plus one JSON
-//! blob saying which characters exist, which of them the font maps, and what
-//! block each falls in. Everything that used to be markup is now built by
-//! `demo.js` from that blob.
-//!
-//! The font used to be two files and two `@font-face` rules, one per flavor.
-//! One variable font is a little *smaller* than the pair (the two static faces
-//! each carried a whole `glyf`; this carries one plus `gvar`), and it is one
-//! fewer thing for the page to keep in step: the two drawings share glyph ids
-//! and metrics because they are one glyph set.
+//! It replaced sample pages that wrote *rendered output* — an SVG path per
+//! glyph per size — and reached 6.6 MB for a font whose WOFF2 is 250 KB. This
+//! page embeds the **font** and lets the browser draw: one `@font-face` rule —
+//! the primary face as a variable font carrying both drawings, switched by the
+//! `BMAP` axis — plus one JSON blob saying which characters exist, which the
+//! font maps, and what block each falls in; `demo.js` builds every cell from
+//! that. One variable font is a little *smaller* than the two static faces it
+//! replaced (one `glyf` plus `gvar` against two `glyf`s), and one fewer thing
+//! for the page to keep in step.
 //!
 //! # The other faces
 //!

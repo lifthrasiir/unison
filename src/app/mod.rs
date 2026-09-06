@@ -282,7 +282,7 @@ pub fn uniform_font_id(ctx: &egui::Context, size: f32) -> egui::FontId {
 /// The family a piece of text drawn at `size` belongs in, given the family the
 /// text around it uses. A size is not carried on the family, so a caller that
 /// derives one size from another — a heading off the body text
-/// ([`crate::editor::document_view::layout::heading_font_size`]) — has to
+/// (`crate::editor::document_view::layout::heading_font_size`) — has to
 /// re-pick the face as well, or a 48 px `#` line draws as a scaled-up bitmap.
 /// Only the upgrade is made: a caller already on the vector face asked for it.
 pub fn uniform_family_at_size(base: &egui::FontFamily, size: f32) -> egui::FontFamily {

@@ -12,22 +12,13 @@
 //! frame — the same loader runs on every later rebuild, and a growing list of
 //! rows would be a leak for no gain.
 //!
-//! Three ways to read it out:
-//!
-//! - `UNIFORM_PERF` set: the report goes to stderr once, after the first frame.
-//! - In the GUI: *View → Startup timing…*, which is the only route when the
-//!   binary was started from a shell that is gone or a shortcut that has no
-//!   console.
-//! - `uniform probe -i DIR`: the same measurements with no window at all, so a
-//!   share can be timed without the GUI in the way. It also re-runs the
-//!   directory load, which is what tells a cold cache from a warm one.
-//!
-//! What one *edit* costs once the caches are warm is a different question with
-//! reports of its own — `uniform probe -i DIR --edit` in `main.rs` for the
-//! headless half, and *View → Rebuild timing…* (`app::timing`) for the running
-//! editor, where the UI thread's share of the wait is visible too. Nothing here
-//! is involved: this timeline stops at the first frame, and an edit is
-//! everything after it.
+//! It is read out three ways — `UNIFORM_PERF` on stderr after the first frame,
+//! *View → Startup timing…* in the GUI (the only route when there is no
+//! console), and `uniform probe`, which takes the same measurements with no
+//! window and re-runs the directory load to tell a cold cache from a warm one.
+//! What one *edit* costs once the caches are warm is a different question
+//! (`main.rs`'s `run_edit_probe`, `app::timing`): this timeline stops at the
+//! first frame, and an edit is everything after it.
 //!
 //! `before_main` — process creation to the first line of `main` — is the one
 //! number that answers "is it the executable itself?". It is not the whole

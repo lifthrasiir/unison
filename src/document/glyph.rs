@@ -23,7 +23,7 @@ pub struct GlyphRef {
     /// serializing puts back.
     pub name: String,
     /// The name as written when that differs from `name`: an `@…` form, whose
-    /// `@` stands for the enclosing base glyph. See [`expand_at_name`].
+    /// `@` stands for the enclosing base glyph. See [`crate::document::names::expand_at_name`].
     pub raw_name: Option<String>,
     /// `(col, row)` offset. `None` = auto-resolve from points (adjoin), defaulting to (0, 0).
     pub offset: Option<(i16, i16)>,
@@ -446,9 +446,9 @@ pub struct GlyphBody {
     pub extent: Option<(u16, u16)>,
     pub scale: u8,
     /// The header's name as written when that differs from the
-    /// [`GlyphName`] the item carries: an `@…` form. Like `comment`, this is
+    /// [`crate::document::names::GlyphName`] the item carries: an `@…` form. Like `comment`, this is
     /// header data the body holds so serializing the block puts the line back
-    /// as it was. See [`expand_at_name`].
+    /// as it was. See [`crate::document::names::expand_at_name`].
     pub raw_name: Option<String>,
     /// Trailing `// …` comment of the `glyph` header line, without its marker.
     pub comment: Option<String>,

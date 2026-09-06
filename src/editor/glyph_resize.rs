@@ -17,13 +17,11 @@
 //!   something the user sees happen *because* of a change they made — see
 //!   [`CanvasStart`]. Growing the canvas never moves what is already drawn.
 //!
-//! Arrow keys move an edge in either mode (a key moves the boundary *towards*
-//! the direction it names, so `Shift+Up` pulls the bottom edge up and shrinks
-//! the rectangle); Enter applies, Escape or losing the focus cancels. Nothing
-//! is committed while the mode is live: the document is previewed by rewriting
-//! the glyph's block from a pristine snapshot on every step, so what is on
-//! screen is exactly what applying would produce, and cancelling is a single
-//! splice back.
+//! Nothing is committed while the mode is live: the document is previewed by
+//! rewriting the glyph's block from a pristine snapshot on every step, so what
+//! is on screen is exactly what applying would produce, and cancelling is a
+//! single splice back. A key moves the boundary *towards* the direction it
+//! names, so `Shift+Up` pulls the bottom edge up and shrinks the rectangle.
 //!
 //! # What each one costs
 //!
@@ -134,7 +132,7 @@ pub(crate) enum ResizeSide {
 /// The resize the editor wants carried out, once the user applies it. The
 /// editor cannot do it itself: a `ref` to this glyph may live in any file of
 /// the font, open or not, so only the host can complete it — the same split
-/// as [`crate::app::rename`].
+/// as `crate::app::rename`.
 #[derive(Clone, Debug)]
 pub struct ResizeAction {
     /// The document that defines the glyph.

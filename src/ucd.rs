@@ -1,72 +1,45 @@
-//! The Unicode character properties the status bar shows next to a character
-//! name — and the `prop` directives a source may use to state them for
-//! characters the UCD says nothing useful about.
+//! The Unicode character properties shown beside a character name, and the
+//! `prop` directives a source states them with for characters the UCD says
+//! nothing useful about. `prop` as an author writes it is in
+//! `doc/reference.md`.
 //!
-//! Two places in the UI name a code point — the Ctrl+K popup
+//! Two places name a code point — the Ctrl+K popup
 //! ([`crate::editor::codepoint_popup`]) and the specimen's hover status
-//! ([`crate::specimen`]) — and both append the same brace group, so a character
-//! reads the same way whichever one produced it:
+//! ([`crate::specimen`]) — and both append the same `{gc=Ll ccc=230 eaw=Na}`
+//! group, so a character reads the same way whichever one produced it. The
+//! three properties are the ones that decide what a glyph in this font has to
+//! be: `gc` says whether it is a mark (and so should carry no advance), `ccc`
+//! how a mark stacks, and `eaw` what the term face's advance must agree with.
+//! `ccc` is omitted when 0.
 //!
-//! ```text
-//! LATIN SMALL LETTER A {gc=Ll eaw=Na}
-//! COMBINING ACUTE ACCENT {gc=Mn ccc=230 eaw=A}
-//! ```
+//! The values come from `icu_properties`, pinned to an exact version in
+//! `Cargo.toml` so the UCD version is a deliberate choice;
+//! `tests::data_is_unicode_17` fails if it stops being Unicode 17.0. Blocks
+//! and assignedness are *not* behind the `editor` feature — the headless
+//! `build` lays `demo.html` out with them — which is why `icu_properties` is a
+//! plain dependency, and why `Blocks.txt` is compiled in.
 //!
-//! The three properties are the ones that decide what a glyph in this font has
-//! to be: `gc` says whether it is a mark (and so should carry no advance),
-//! `ccc` says how a mark stacks, and `eaw` is what the term face's advance must
-//! agree with (see `faces.rs`). `ccc` is omitted when it is 0, which is nearly
-//! every character; the other two always appear.
+//! # `prop`: three rules
 //!
-//! The property values come from `icu_properties`, pinned to an exact version
-//! in `Cargo.toml` so the UCD version behind them is a deliberate choice rather
-//! than whatever a `cargo update` resolves to. [`tests::data_is_unicode_17`]
-//! fails if that version ever stops being Unicode 17.0.
-//!
-//! # `prop`: what the UCD cannot say
-//!
-//! A Private Use character has a name and properties only because a font
-//! decided so — the UCD reports no name at all and `{gc=Co eaw=A}` for the
-//! whole area. [`CharProps`] is the source's answer: the `prop` directives of
-//! every document, collected into one lookup that the two status lines and the
-//! `demo.html` tooltips ask instead of asking `unicode_names2`/`icu` alone.
-//!
-//! ```text
-//! prop block `Unison Symbols` = U+F0000..F00FF
-//! prop U+F0000 = `UNISON LOGO` gc So eaw W
-//! prop U+F0010..F001F = `UNISON BOX DRAWING-($#F0010..F001F)` gc So eaw W  // …-F0010, …
-//! prop U+F0020|U+F0021 = `UNISON (ALPHA|BETA)`
-//! ```
-//!
-//! Three rules shape the model:
+//! [`CharProps`] collects the `prop` directives of every document into one
+//! lookup that the two status lines and the `demo.html` tooltips ask.
 //!
 //! - **A character line is a `map` line with properties instead of a glyph.**
-//!   The left side is the same character spelling `map` takes — one character,
-//!   a `U+XXXX..YYYY` range or a `|` list — and the name on the right is a
-//!   [`crate::pattern`] expanded against it in lock-step, exactly as a `map`'s
-//!   glyph name is. That is what states several characters at once: `($#…)`
-//!   over the same range names each of them, and a list gives one name each.
-//!   Nothing else in the format has to grow a second way to spell a range. The
-//!   expanded name is upper-cased (ASCII only), since a character name is upper
-//!   case and `($#…)` expands to the lower-case hex a glyph name wants.
-//! - **An unstated property is not a property.** A line states only what it
-//!   overrides; `gc`, `ccc` and `eaw` are each independent, and a code point
-//!   covered by several lines takes each field from the *last* line that states
-//!   it. So a block-wide `prop U+F0000..F0FFF gc So eaw W` followed by one
-//!   `prop U+F0000 = \`UNISON LOGO\`` names one character without restating its
-//!   properties.
-//! - **`prop block` is a label, not a rule.** It records which area of the
-//!   Private Use planes a source has claimed and for what, so the claim is
-//!   written down beside the characters. [`BlockMap`] is what reads it: a stated
-//!   block is one more block of the code space, overriding whatever UCD block
-//!   its area falls in. What it does not do is populate that area — which
-//!   Private Use characters exist is what the per-character lines say, one at a
-//!   time ([`CharProps::is_assigned`]).
+//!   The left side is the character spelling `map` takes, and the name is a
+//!   [`crate::pattern`] expanded against it in lock-step, so nothing else in
+//!   the format has to grow a second way to spell a range. The expanded name
+//!   is upper-cased (ASCII only), since `($#…)` expands to the lower-case hex a
+//!   glyph name wants.
+//! - **An unstated property is not a property.** Each field is independent, and
+//!   a code point covered by several lines takes each field from the *last*
+//!   line that states it.
+//! - **`prop block` is a label, not a rule.** [`BlockMap`] reads it as one more
+//!   block of the code space, overriding the UCD block its area falls in. It
+//!   does not populate the area: which Private Use characters exist is what
+//!   the per-character lines say ([`CharProps::is_assigned`]).
 //!
-//! Nothing in the built font depends on any of this: `prop` describes
-//! characters for the human reading the editor and the sample, and the TTF is
-//! byte-identical with or without it. Validation of the values lives in
-//! [`crate::issues`]; this module only records what was written.
+//! Nothing in the built font depends on any of this; validation of the values
+//! lives in [`crate::issues`].
 
 use std::collections::BTreeMap;
 use std::sync::OnceLock;
@@ -273,7 +246,7 @@ pub fn format_block_range(start: u32, end: u32) -> String {
 /// worse than 11 KB in the binary. The headless build wants it too — `demo.html`
 /// is grouped the same way — which is why nothing here is behind the `editor`
 /// feature. Keep the version in step with the
-/// `icu_properties` pin ([`tests::data_is_unicode_17`]).
+/// `icu_properties` pin (`tests::data_is_unicode_17`).
 const BLOCKS_TXT: &str = include_str!("../data/Blocks-17.0.0.txt");
 
 /// One block of the code space: an inclusive range with a name.

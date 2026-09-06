@@ -1,56 +1,39 @@
-//! The `meta` directive: font metadata, and the OpenType fields it feeds.
+//! The `meta` directive: font metadata, and the OpenType fields it feeds. The
+//! key set is documented for authors in `doc/reference.md`.
 //!
-//! # One key per line
+//! # One key per line, single-assignment, no override
 //!
-//! `meta [FACE :] KEY VALUE...` carries exactly one key. Keys are variadic — a
-//! metric takes one number, `panose` takes ten, a flag takes none — so two keys
-//! on one line could not be told apart without a separator.
+//! Keys are variadic — a metric takes one number, `panose` ten, a flag none —
+//! so two on one line could not be told apart without a separator. Setting a
+//! key twice is an error even when the two values agree, and so is setting one
+//! slot through two spellings (`family` and `name 1`): a silent override is
+//! exactly how a font ends up shipping a value nobody meant to set.
+//! [`crate::issues`] reports the conflicts; this module only decides what a
+//! line *means*.
 //!
-//! The optional scope is told from the key by the second token being a bare
-//! `:`, exactly as a slice qualifier is (see [`crate::faces`]). A bare key
-//! applies to every face; `* : KEY` is an explicit spelling of the same thing.
-//! The design metrics — `height`, `ascent`, `descent` — may only be stated for
-//! every face: they fix how the pixel grid maps onto the em, and every face
-//! draws from one glyph set.
-//!
-//! # Everything is single-assignment
-//!
-//! Setting a key twice is an error even when the two values agree, and so is
-//! setting the same slot through two spellings (`family` and `name 1` are one
-//! slot). There is deliberately no precedence rule to appeal to: `meta` has no
-//! override mechanism, because a silent override is exactly how a font ends up
-//! shipping a value nobody meant to set. [`crate::issues`] reports the
-//! conflicts; this module only decides what a line *means*.
-//!
-//! Scopes do not soften that. A bare key reaches every face, so stating a key
-//! bare *and* for a face gives that face two values and is a conflict — the
-//! same shape as a face including two slices that map one character. A value
-//! that varies per face is stated once per face, never as a base plus an
-//! exception.
+//! The optional `FACE :` scope is told from the key by the second token being a
+//! bare `:`, exactly as a slice qualifier is ([`crate::faces`]), and does not
+//! soften the rule: a bare key reaches every face, so stating a key bare *and*
+//! for a face is a conflict. The design metrics (`height`, `ascent`, `descent`)
+//! may only be stated for every face, since they fix how the pixel grid maps
+//! onto the em and every face draws from one glyph set.
 //!
 //! # Declared, derived, and computed
 //!
-//! Three different things, kept apart on purpose:
-//!
-//! - **Declared** — what a `meta` line states. Absent means absent, which is
-//!   why every field is an `Option`: validation has to tell "not stated" from
-//!   "stated as the default".
-//! - **Derived** — name IDs 3, 4, 5 and 6, which convention builds out of
-//!   family, subfamily and revision. Declaring them explicitly (`name 6 ...`)
-//!   wins; otherwise [`FontMeta::name_records`] fills them in. They are emitted
-//!   for en-US only: name ID 6 in particular is required to be English, and a
-//!   localized PostScript name is not a thing.
+//! - **Declared** — what a `meta` line states. Every field is an `Option`,
+//!   because validation has to tell "not stated" from "stated as the default".
+//! - **Derived** — name IDs 3, 4, 5 and 6, built by [`FontMeta::name_records`]
+//!   from family, subfamily and revision unless declared. Emitted for en-US
+//!   only: name ID 6 is required to be English.
 //! - **Computed** — what only the built font knows (`ulUnicodeRange` from the
 //!   cmap, `xAvgCharWidth` from the metrics). Those never come from `meta`.
 //!
 //! # Language slot
 //!
-//! Every string key takes an optional `@LANG` BCP 47 tag before its value, so
-//! `meta family @ko-KR ...` is a localized name record. Tags are mapped to the
-//! Windows language IDs that platform 3 name records are keyed by, through
-//! [`WINDOWS_LANGUAGES`]; a tag with no mapping is an error rather than a
-//! silently dropped record. Only platform 3 records are emitted, so `@LANG` is
-//! the only way to localize at all — platform 0 records have no language slot.
+//! `@LANG` is a BCP 47 tag mapped to the Windows language IDs that platform 3
+//! name records are keyed by, through [`WINDOWS_LANGUAGES`]; a tag with no
+//! mapping is an error rather than a silently dropped record. Only platform 3
+//! records are emitted, so `@LANG` is the only way to localize at all.
 
 use std::collections::BTreeMap;
 

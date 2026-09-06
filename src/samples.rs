@@ -1,5 +1,5 @@
 //! `sample`: the ready-made specimen texts a source carries, grouped the way
-//! they are offered.
+//! they are offered. The directive is described in `doc/reference.md`.
 //!
 //! A `sample` line builds nothing. It is the one thing a source can say about
 //! its own font that no font file has a field for — *this* is the text to read
@@ -12,65 +12,36 @@
 //!
 //! `sample LABEL SUBLABEL` puts a text under a heading, so a family of texts —
 //! a hundred and nineteen translations of one paragraph — is one entry on a
-//! list rather than a hundred and nineteen. A label that stands for a single
-//! text would then have to invent a sublabel for it, which is a second level
-//! that says nothing; `sample LABEL` with no sublabel gives the *heading* the
-//! text instead, and the page makes the heading itself the thing to click.
+//! list. A label that stands for a single text would then have to invent a
+//! sublabel for it, which is a second level that says nothing; `sample LABEL`
+//! with no sublabel gives the *heading* the text instead. A label may have one
+//! such line and no two lines of one label may share a sublabel;
+//! [`crate::issues`] reports both, and this collection keeps the first.
 //!
-//! A label may have one such line and no more, and no two lines of one label
-//! may share a sublabel: the reader picks a text by its name, so two texts of
-//! one name would be one entry the second of which is unreachable.
-//! [`crate::issues`] reports both, and this collection keeps the first — a
-//! source with a duplicate still shows what it can.
+//! # Modes, and why one is expanded by the consumer
 //!
-//! # Modes, and why one is written rather than expanded
+//! `matrix` reads each `||` line as an axis of characters and offers their
+//! product, which is the specimen a font's author actually wants for a pair of
+//! interacting characters and which nobody wants to type out. The mode is kept
+//! beside the text and expanded by whoever shows it ([`SampleText::expanded`])
+//! rather than at collection time, because *not writing the product out* is
+//! the whole point: four lines of eight characters are 32 written and 4096
+//! shown, and the demo page carries the four. Its `demo.js` expands the same
+//! way, which is the one duplication the mode costs. The axes: the last line
+//! runs *along* a line, the one before it down the lines, every earlier one a
+//! block separated by one more blank line than the axis inside it. A line with
+//! nothing on it is no axis — a blank continuation is far more likely spacing
+//! than a claim that there is nothing to show.
 //!
-//! The `: MODE` tail says how the `||` lines are *read*. Plain — no tail — is
-//! the text itself, one line per line. `matrix` reads each line as an axis of
-//! characters and offers their product: every character of the first line
-//! against every character of the second, and so on, which is the specimen a
-//! font's author actually wants for a pair of interacting characters (every
-//! base against every mark, every jamo against every vowel) and which nobody
-//! wants to type out by hand.
-//!
-//! The mode is kept beside the text and expanded by whoever shows it
-//! ([`SampleText::expanded`]) rather than folded into the source's text at
-//! collection time, because *not writing the product out* is the whole point:
-//! four lines of eight characters are 32 characters written and 4096 shown,
-//! and the demo page carries the four. Its `demo.js` expands the same way this
-//! does, which is the one duplication the mode costs.
-//!
-//! # The modes that write their own text
-//!
-//! `udhr-article1` and `subdivision-flags` are the other kind: they take no
-//! `||` lines at all, and stand for a body of text the *build* assembles from
-//! its `-d` data directory — the translations of Article 1 a font can draw
-//! whole, and the emoji tag sequence of every CLDR subdivision. Writing them
-//! as a mode is what lets a source say whether it wants them, since a page
-//! shows one because the font is about those characters and not because the
-//! data file happens to be there.
-//!
-//! `udhr-article1` stands for a hundred-odd texts and not one, so it is only
-//! ever written on a line with *no* sublabel: the sublabels are the
-//! generator's — one per translation — and a line that named one would be
-//! naming the group. `subdivision-flags` is a single text and takes either
-//! form.
-//!
-//! Whoever holds the data directory fills these in
-//! ([`crate::render::demo`]). Everyone else — the editor, which has no `-d` —
-//! sees the empty text they are written as, which is why a generated sample
-//! has no *Use* button in the editor.
-//!
-//! # What the axes are
-//!
-//! The last line is the innermost axis and runs *along* a line; the one before
-//! it runs down the lines; every earlier one is a block separated by one more
-//! blank line than the axis inside it. So two lines are a table (rows from the
-//! first, columns from the second), three are a page of such tables, and a
-//! fourth is a run of pages — the rule stated once and read outwards. A line
-//! with nothing on it is no axis: an empty axis has an empty product, and a
-//! blank continuation is much more likely to be spacing than a claim that
-//! there is nothing to show.
+//! `udhr-article1` and `subdivision-flags` take no `||` lines and stand for a
+//! body of text the *build* assembles from its `-d` directory. Writing them as
+//! a mode is what lets a source say whether it wants them: a page shows one
+//! because the font is about those characters, not because the data file
+//! happens to be there. `udhr-article1` stands for a hundred-odd texts, so it
+//! is only ever written on a line with no sublabel — the sublabels are the
+//! generator's, one per translation ([`SampleMode::is_group`]). Whoever holds
+//! the data directory fills them in; the editor has no `-d`, sees the empty
+//! text they are written as, and so offers no *Use* button for them.
 
 use crate::document::DocumentItem;
 
