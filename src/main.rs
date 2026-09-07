@@ -996,11 +996,8 @@ fn main() {
         let refs: Vec<&document::Document> = docs.iter().collect();
         // Same rule as `build`: a validation error fails the run even when
         // every assertion passes.
-        let error_count = parse_errors + report_issues(
-            &refs,
-            &resolve::Resolution::compute(&refs),
-            show_chores,
-        );
+        let error_count =
+            parse_errors + report_issues(&refs, &resolve::Resolution::compute(&refs), show_chores);
 
         let name_parts = document::collect_name_parts(&refs);
         let (resolved, _) = ref_composite::resolve_named_glyphs_with_parts(&refs, &name_parts);

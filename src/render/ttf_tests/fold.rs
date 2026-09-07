@@ -53,9 +53,12 @@ fn shaped_gids(ttf: &[u8], text: &str, features: &[&[u8; 4]]) -> Vec<u16> {
 /// The advance `gid` carries, in font units.
 fn advance_of(ttf: &[u8], gid: u16) -> u32 {
     let font = read_fonts::FontRef::new(ttf).unwrap();
-    font.glyph_metrics(skrifa::instance::Size::unscaled(), skrifa::instance::LocationRef::default())
-        .advance_width(skrifa::GlyphId::new(gid as u32))
-        .expect("glyph should have an advance") as u32
+    font.glyph_metrics(
+        skrifa::instance::Size::unscaled(),
+        skrifa::instance::LocationRef::default(),
+    )
+    .advance_width(skrifa::GlyphId::new(gid as u32))
+    .expect("glyph should have an advance") as u32
 }
 
 /// The gid the font's cmap gives `cp`.
@@ -250,7 +253,10 @@ map wide|narrow : U+0042 = b($-half)
     let wide = shaped_gids(&built.ttf, "B", &[]);
     let narrow = shaped_gids(&built.ttf, "B", &[b"ss20"]);
     assert_eq!(wide.len(), 1);
-    assert_ne!(narrow, wide, "the switch has to reach a glyph nothing else maps");
+    assert_ne!(
+        narrow, wide,
+        "the switch has to reach a glyph nothing else maps"
+    );
     assert_ne!(narrow[0], 0, "and not `.notdef`");
     assert_eq!(
         advance_of(&built.ttf, narrow[0]) * 2,

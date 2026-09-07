@@ -138,7 +138,11 @@ pub(super) fn fold_delta(primary: &BTreeMap<u32, &str>, other: &BTreeMap<u32, &s
             }
         }
     }
-    out.only_other = other.keys().filter(|cp| !primary.contains_key(cp)).copied().collect();
+    out.only_other = other
+        .keys()
+        .filter(|cp| !primary.contains_key(cp))
+        .copied()
+        .collect();
 
     out.pairs = by_source
         .into_iter()
@@ -195,7 +199,11 @@ pub(super) fn fold_secondary_faces(
     };
     let primary_by_cp = by_codepoint(&primary_cmap.per_name);
 
-    let used: HashSet<String> = gsub_data.features.iter().map(|(tag, ..)| tag.clone()).collect();
+    let used: HashSet<String> = gsub_data
+        .features
+        .iter()
+        .map(|(tag, ..)| tag.clone())
+        .collect();
     let Some(tags) = allocate_feature_tags(&used, others.len()) else {
         warnings.push(format!(
             "the demo page can carry at most {LAST_STYLISTIC_SET} folded faces minus the stylistic sets the source uses; {} faces is too many",
@@ -321,8 +329,14 @@ mod tests {
 
     #[test]
     fn a_tag_the_source_already_uses_is_skipped() {
-        let used: HashSet<String> = ["ss20", "ss18", "ccmp"].iter().map(|s| s.to_string()).collect();
-        assert_eq!(allocate_feature_tags(&used, 3).unwrap(), ["ss19", "ss17", "ss16"]);
+        let used: HashSet<String> = ["ss20", "ss18", "ccmp"]
+            .iter()
+            .map(|s| s.to_string())
+            .collect();
+        assert_eq!(
+            allocate_feature_tags(&used, 3).unwrap(),
+            ["ss19", "ss17", "ss16"]
+        );
     }
 
     #[test]
