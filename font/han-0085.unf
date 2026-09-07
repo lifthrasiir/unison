@@ -782,7 +782,7 @@ glyph han-6e06:15x16 15 16 // 渆
 // ⿰ han-6c35 han-5947 // ⿰氵奇
 
 glyph han-6e10:15x16 15 16 // 渐
-⿲ han-6c35:5x16 han-8f66:4x16-l han-65a4:6x16 // ⿲氵车斤
+⿲ han-6c35:5x16 han-8f66:4x16-c han-65a4:6x16 // ⿲氵车斤
 
 glyph han-6e12:15x16 15 16 // 渒
 ⿰ han-6c35:5x16 han-5351:10x16 // ⿰氵卑

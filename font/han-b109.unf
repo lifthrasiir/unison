@@ -318,7 +318,7 @@ glyph han-251df:15x16 15 16 // 𥇟
 ⿲ han-76ee:3x16-l han-4ea4:7x16 han-529b:5x16 // ⿲目交力
 
 glyph han-251e2:15x16 15 16 // 𥇢
-⿲ han-76ee:3x16-l 1 han-8f66:4x16-l han-65a4:7x16 // ⿲目车斤
+⿲ han-76ee:3x16-l 1 han-8f66:4x16-c han-65a4:7x16 // ⿲目车斤
 
 // glyph han-251e4:15x16 15 16 // 𥇤
 // ⿰ han-76ee han-5c4a // ⿰目届
