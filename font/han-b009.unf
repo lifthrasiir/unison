@@ -297,6 +297,9 @@ glyph han-203bc:15x16 15 16 // 𠎼
 glyph han-203e0:15x16 15 16 // 𠏠
 ⿲ han-4ebb:3x16 han-27fb7:5x16 han-572d:7x16 // ⿲亻𧾷圭
 
+glyph han-203e3:15x16 15 16 // 𠏣
+⿲ -3 han-4ebb:3x16 han-9b5a:7x16 1 han-5369:7x16 // ⿲亻魚卩
+
 ## 9.14
 
 // glyph han-20405:15x16 15 16 // 𠐅

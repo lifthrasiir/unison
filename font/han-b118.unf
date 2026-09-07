@@ -449,6 +449,9 @@ glyph han-25c47:15x16 15 16 // 𥱇
 // glyph han-25c63:15x16 15 16 // 𥱣
 // ⿳ han-25ad7 han-5408 han-4ece // ⿳𥫗合从
 
+// glyph han-25c68:15x16 15 16 // 𥱨
+// ⿳ han-25ad7 han-9fb6 han-7cf8 // ⿳𥫗龶糸
+
 glyph han-25c6a:15x16 15 16 // 𥱪
 ref han-25ad7:15x5 0 0 // ⿱𥫗骨
 ref han-9aa8:15x12 0 4

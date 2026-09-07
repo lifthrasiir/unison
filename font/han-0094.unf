@@ -170,6 +170,9 @@ glyph han-72d3:15x16 15 16 // 狓
 glyph han-72d4:15x16 15 16 // 狔
 ⿰ han-72ad:6x16 han-5c3c:9x16 // ⿰犭尼
 
+// glyph han-72d6-($han-regions):15x16 15 16 // 狖
+// ⿰ han-72ad han-7a74-($-1) // ⿰犭穴
+
 glyph han-72d7:15x16 15 16 // 狗
 ⿰ han-72ad:6x16 han-53e5:9x16 // ⿰犭句
 

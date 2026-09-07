@@ -154,6 +154,12 @@ glyph han-31d9e:15x16 15 16 // 𱶞
 // glyph han-31db8:15x16 15 16 // 𱶸
 // ⿳ han-5b80 han-513f han-6b64 // ⿳宀儿此 <- ⿱⿱宀儿此
 
+// glyph han-31db9-($han-regions):15x16 15 16 // 𱶹
+// ⿳ han-7a74-($-1) han-76bf han-4e85 // ⿳穴皿亅
+
+// glyph han-31dba-($han-regions):15x16 15 16 // 𱶺
+// ⿳ han-7a74-($-1) han-65e5 han-516b-($-1) // ⿳穴日八
+
 ## 116.7
 
 // glyph han-31dc0:15x16 15 16 // 𱷀

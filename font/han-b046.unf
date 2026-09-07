@@ -25,6 +25,12 @@ glyph han-21d35:15x16 15 16 // 𡴵
 glyph han-21d38:15x16 15 16 // 𡴸
 ⿱ han-513f:15x4 han-5c71:15x12 // ⿱儿山
 
+glyph han-21d39:15x16 15 16 // 𡴹
+⿰ han-5c71:7x16 1 han-5369:7x16 // ⿰山卩
+
+// glyph han-21d3a:15x16 15 16 // 𡴺
+// ⿱ han-5369 han-5c71 // ⿱卩山
+
 // glyph han-21d3b:15x16 15 16 // 𡴻
 // ⿱ han-5200 han-5c71 // ⿱刀山
 
@@ -168,6 +174,9 @@ glyph han-21d9a:15x16 15 16 // 𡶚
 
 // glyph han-21d9d:15x16 15 16 // 𡶝
 // ⿱ han-5c71 han-518b // ⿱山冋
+
+// glyph han-21da1-($han-regions):15x16 15 16 // 𡶡
+// ⿰ han-5c71 han-534a-($-1) // ⿰山半
 
 glyph han-21da2:15x16 15 16 // 𡶢
 ⿳ han-5c71:15x4 1 han-53e3:15x7 han-513f:15x4 // ⿳山口儿
@@ -362,6 +371,9 @@ glyph han-21e54:15x16 15 16 // 𡹔
 glyph han-21e56:15x16 15 16 // 𡹖
 ⿱ han-5c71:15x4 han-708f:15x12 // ⿱山炏
 
+// glyph han-21e57-($han-regions):15x16 15 16 // 𡹗
+// ⿳ han-5c71 han-7a74-($-1) han-5f13 // ⿳山穴弓
+
 glyph han-21e5a:15x16 15 16 // 𡹚
 ⿱ han-6797:15x11 han-5c71:15x5 // ⿱林山
 
@@ -496,6 +508,9 @@ glyph han-21ee4:15x16 15 16 // 𡻤
 
 // glyph han-21f03:15x16 15 16 // 𡼃
 // ⿳ han-5c71 han-6ce2 han-5973 // ⿳山波女 <- ⿱山婆
+
+// glyph han-21f04-($han-regions):15x16 15 16 // 𡼄
+// ⿳ han-5c71 han-7a74-($-1) han-81f3 // ⿳山穴至
 
 ## 46.12
 

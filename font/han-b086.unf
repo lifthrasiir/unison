@@ -215,8 +215,8 @@ glyph han-2421c:15x16 15 16 // 𤈜
 glyph han-24222:15x16 15 16 // 𤈢
 ⿱ han-4f11:15x9 1 han-706b:15x6 // ⿱休火
 
-// glyph han-24223:15x16 15 16 // 𤈣
-// ⿳ han-5348 han-51f5 han-706b // ⿳午凵火
+glyph han-24223:15x16 15 16 // 𤈣
+⿱ han-7f36:15x9 1 han-706b:15x6 // ⿱缶火
 
 ## 86.7
 
@@ -552,7 +552,7 @@ glyph han-2439c:15x16 15 16 // 𤎜
 ## 86.12
 
 glyph han-24369:15x16 15 16 // 𤍩
-⿳ -1 han-708f:15x8 han-5b80:15x4 han-7acb:15x5 // ⿳炏宀立
+⿳ han-708f:15x8 han-5b80:15x3 han-7acb:15x5 // ⿳炏宀立
 
 // glyph han-243a0:15x16 15 16 // 𤎠
 // ⿰ han-706b han-6b6e // ⿰火歮

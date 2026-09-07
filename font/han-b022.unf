@@ -126,12 +126,37 @@ glyph han-209d7:7x16 7 16 // 𠧗
 glyph han-209d7:15x16 15 16 // 𠧗
 ⿱ han-4e0a:15x7 1 han-4e0b:15x8 // ⿱上下
 
+# CJK unified ideographs extension B: 卩 (26)
+
+## 26.2
+
+glyph han-20a10:15x16 15 16 // 𠨐
+⿰ han-5315:8x16 han-5369:7x16 // ⿰匕卩
+
+## 26.3
+
+glyph han-20a11-($han-regions):15x16 15 16 // 𠨑
+⿰ han-4ea1-($-1):7x16 1 han-5369:7x16 // ⿰亡卩
+
+## 26.4
+
+glyph han-20a12:15x16 15 16 // 𠨒
+⿲ han-5315:4x16 han-5315:4x16 han-5369:7x16 // ⿲匕匕卩
+
+glyph han-20a16:15x16 15 16 // 𠨖
+⿰ han-536a:7x16 1 han-536a:7x16 // ⿰卪卪
+
+## 26.7
+
+// glyph han-20a1b-($han-regions):15x16 15 16 // 𠨛
+// ⿰ han-5fd8-($-1) han-5369 // ⿰忘卩
+
 # CJK unified ideographs extension B: 厂 (27)
 
 ## 27.2
 
 glyph han-20a2c:15x16 15 16 // 𠨬
-⿸ han-5382:15x16.11x15 han-5315:10x13 5 3 // ⿸厂匕
+⿸ han-5382:15x16.11x15 han-5315:10x13 5 2 // ⿸厂匕
 
 ## 27.3
 
@@ -140,6 +165,9 @@ glyph han-20a2c:15x16 15 16 // 𠨬
 
 glyph han-20a2f:15x16 15 16 // 𠨯
 ⿸ han-5382:15x16.11x15 han-5b50:11x14 4 2 // ⿸厂子
+
+// glyph han-20a33:15x16 15 16 // 𠨳
+// ⿸ han-5382 han-536a // ⿸厂卪
 
 ## 27.4
 
@@ -150,13 +178,13 @@ glyph han-20a2f:15x16 15 16 // 𠨯
 // ⿸ han-5382 han-592b // ⿸厂夫
 
 glyph han-20a3a:15x16 15 16 // 𠨺
-⿸ han-5382:15x16.11x15 han-5348:9x12 6 3 // ⿸厂午
+⿸ han-5382:15x16.11x15 han-5348:9x12 5 2 // ⿸厂午
 
 // glyph han-20a3d:15x16 15 16 // 𠨽
 // ⿸ han-5382 han-6bd4 // ⿸厂比
 
 glyph han-20a3e:15x16 15 16 // 𠨾
-⿸ han-5382:15x16.11x15 han-624b:11x13 4 3 // ⿸厂手
+⿸ han-5382:15x16.11x15 han-624b:11x13 4 2 // ⿸厂手
 
 ## 27.5
 
@@ -167,7 +195,7 @@ glyph han-20a3e:15x16 15 16 // 𠨾
 // ⿸ han-5382 han-6b64 // ⿸厂此
 
 glyph han-20a49:15x16 15 16 // 𠩉
-⿸ han-5382:15x16.11x15 han-51fa:9x13 6 3 // ⿸厂出
+⿸ han-5382:15x16.11x15 han-51fa:9x13 5 2 // ⿸厂出
 
 ## 27.6
 

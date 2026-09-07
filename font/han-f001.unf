@@ -397,7 +397,15 @@ glyph han-2d022:15x16 15 16 // 𭀢
 // glyph han-2d04b:15x16 15 16 // 𭁋
 // ⿱ han-5206 han-5185 // ⿱分内
 
+## 12.7
+
+// glyph han-2d04c-($han-regions):15x16 15 16 // 𭁌
+// ⿰ han-534a-($-1) han-65b9 // ⿰半方
+
 ## 12.9
+
+// glyph han-2d051-($han-regions):15x16 15 16 // 𭁑
+// ⿲ han-534a-($-1) han-6c35 han-5de5 // ⿲半氵工
 
 // glyph han-2d052:15x16 15 16 // 𭁒
 // ⿱ han-5247 han-516b // ⿱則八
@@ -560,6 +568,9 @@ glyph han-2d0c9:15x16 15 16 // 𭃉
 glyph han-2d0cb:15x16 15 16 // 𭃋
 ⿰ han-5200:5x16 1 han-5df4:9x16 // ⿰刀巴
 
+// glyph han-2d0cc:15x16 15 16 // 𭃌
+// ⿰ han-9fb6 han-5200 // ⿰龶刀
+
 ## 18.5
 
 // glyph han-2d0cd:15x16 15 16 // 𭃍
@@ -711,6 +722,11 @@ glyph han-2d153:15x16 15 16 // 𭅓
 glyph han-2d160:15x16 15 16 // 𭅠
 ⿱ han-5341:15x3 1 han-51e0:15x12 // ⿱十几
 
+## 24.7
+
+// glyph han-2d162-($han-regions):15x16 15 16 // 𭅢
+// ⿰ han-534a-($-1) han-4e2d // ⿰半中
+
 ## 24.8
 
 // glyph han-2d163:15x16 15 16 // 𭅣
@@ -721,6 +737,13 @@ glyph han-2d160:15x16 15 16 // 𭅠
 // glyph han-2d16b:15x16 15 16 // 𭅫
 // ref han-5350 // ⿻卐㗊
 // ref han-35ca
+
+# CJK unified ideographs extension F: 卩 (26)
+
+## 26.6
+
+glyph han-2d176:15x16 15 16 // 𭅶
+⿰ han-572d:7x16 1 han-5369:7x16 // ⿰圭卩
 
 # CJK unified ideographs extension F: 厂 (27)
 

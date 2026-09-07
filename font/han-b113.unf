@@ -96,6 +96,9 @@ glyph han-2563a-k:15x16 15 16 // 𥘺
 // glyph han-2563b:15x16 15 16 // 𥘻
 // ⿰ han-793b han-4e15 // ⿰礻丕
 
+// glyph han-2563d-($han-regions):15x16 15 16 // 𥘽
+// ⿰ han-793a han-534a-($-1) // ⿰示半
+
 glyph han-25643:15x16 15 16 // 𥙃
 ⿰ han-793b:7x16 han-767d:8x16 // ⿰礻白
 
@@ -132,6 +135,9 @@ glyph han-2565f:15x16 15 16 // 𥙟
 
 // glyph han-25668:15x16 15 16 // 𥙨
 // ⿰ han-793b han-6735 // ⿰礻朵
+
+// glyph han-2566a-($han-regions):15x16 15 16 // 𥙪
+// ⿺ han-793c han-534a-($-1) // ⿺礼半
 
 ## 113.7
 

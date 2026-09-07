@@ -185,6 +185,11 @@ glyph han-2b7d1:15x16 15 16 // 𫟑
 glyph han-2b7de:15x16 15 16 // 𫟞
 ⿰ han-8ba0:5x16 han-6b62:10x16 // ⿰讠止
 
+## 149'.5
+
+// glyph han-2b7df-($han-regions):15x16 15 16 // 𫟟
+// ⿰ han-8ba0 han-534a-($-1) // ⿰讠半
+
 # CJK unified ideographs extension D: 辶 (162)
 
 ## 162.2

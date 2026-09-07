@@ -144,6 +144,9 @@ glyph han-289c0:15x16 15 16 // 𨧀
 // glyph han-289d6:15x16 15 16 // 𨧖
 // ⿰ han-91d2 han-5e8a // ⿰釒床
 
+// glyph han-289d8-($han-regions):15x16 15 16 // 𨧘
+// ⿲ han-91d2 han-534a-($-1) han-5202 // ⿲釒半刂
+
 // glyph han-289dc:15x16 15 16 // 𨧜
 // ⿲ han-91d2 han-4e30 han-961d // ⿲釒丰阝
 

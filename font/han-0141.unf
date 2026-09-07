@@ -689,6 +689,11 @@ ref han-76bf:15x11 0 4
 // glyph han-8843:15x16 15 16 // 衃
 // ⿰ han-8840 han-4e0d // ⿰血不
 
+## 143.5
+
+// glyph han-8845-($han-regions):15x16 15 16 // 衅
+// ⿰ han-8840 han-534a-($-1) // ⿰血半
+
 ## 143.6
 
 glyph han-8848:15x16 15 16 // 衈
@@ -869,6 +874,9 @@ glyph han-8893:15x16 15 16 // 袓
 glyph han-8894:15x16 15 16 // 袔
 ⿰ han-8864:5x16 han-53ef:10x16 // ⿰衤可
 
+// glyph han-8895-($han-regions):15x16 15 16 // 袕
+// ⿰ han-8864 han-7a74-($-1) // ⿰衤穴
+
 glyph han-8896:15x16 15 16 // 袖
 ⿰ han-8864:5x16 1 han-7531:9x16 // ⿰衤由
 
@@ -886,6 +894,9 @@ glyph han-889d:15x16 15 16 // 袝
 
 glyph han-889f:15x16 15 16 // 袟
 ⿰ han-8864:5x16 1 han-5931:9x16 // ⿰衤失
+
+// glyph han-88a2-($han-regions):15x16 15 16 // 袢
+// ⿰ han-8864 han-534a-($-1) // ⿰衤半
 
 glyph han-88a3:15x16 15 16 // 袣
 ⿰ han-8864:5x16 1 han-4e16:9x16 // ⿰衤世

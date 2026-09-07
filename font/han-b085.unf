@@ -267,6 +267,12 @@ glyph han-23d6a:15x16 15 16 // 𣵪
 glyph han-23d71:15x16 15 16 // 𣵱
 ⿲ han-6c35:3x16 han-624c:3x16 han-738b:9x16 // ⿲氵扌王
 
+// glyph han-23d72-($han-regions):15x16 15 16 // 𣵲
+// ⿲ han-6c35 han-4ebb han-534a-($-1) // ⿲氵亻半
+
+// glyph han-23d73:15x16 15 16 // 𣵳
+// ⿳ han-9fb4 han-7528 han-6c34 // ⿳龴用水
+
 glyph han-23d74:15x16 15 16 // 𣵴
 ⿲ han-6c35:3x16 han-53e3:4x16 1 han-4eca:7x16 // ⿲氵口今
 

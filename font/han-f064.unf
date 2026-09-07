@@ -202,6 +202,9 @@ glyph han-2d92d:15x16 15 16 // 𭤭
 glyph han-2d92f:15x16 15 16 // 𭤯
 ⿰ han-65b9:7x16 1 han-751f:7x16 // ⿰方生
 
+// glyph han-2d932-($han-regions):15x16 15 16 // 𭤲
+// ⿰ han-65b9 han-534a-($-1) // ⿰方半
+
 glyph han-2d933:15x16 15 16 // 𭤳
 ⿰ han-65b9:7x16 1 han-7acb:7x16 // ⿰方立
 
@@ -399,6 +402,9 @@ glyph han-2da07-($han-regions):15x16 15 16 // 𭨇
 # CJK unified ideographs extension F: 月 (74)
 
 ## 74.2
+
+glyph han-2da24:15x16 15 16 // 𭨤
+⿰ han-6708:7x16 1 han-5369:7x16 // ⿰月卩
 
 glyph han-2da25:15x16 15 16 // 𭨥
 ⿰ han-6708:5x16-l 1 han-4e86:9x16 // ⿰月了

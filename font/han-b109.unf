@@ -136,6 +136,9 @@ glyph han-25132:15x16 15 16 // 𥄲
 glyph han-25133:15x16 15 16 // 𥄳
 ⿱ han-7f52:15x7 han-6c34:15x9 // ⿱罒水
 
+// glyph han-25134-($han-regions):15x16 15 16 // 𥄴
+// ⿰ han-76ee han-7a74-($-1) // ⿰目穴
+
 // glyph han-25135:15x16 15 16 // 𥄵
 // ⿰ han-76ee han-672f // ⿰目术
 

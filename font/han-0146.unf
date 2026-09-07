@@ -648,6 +648,9 @@ glyph han-8a46:15x16 15 16 // 詆
 // glyph han-8a48:15x16 15 16 // 詈
 // ⿱ han-7f52 han-8a00 // ⿱罒言
 
+// glyph han-8a4a-($han-regions):15x16 15 16 // 詊
+// ⿰ han-8a01 han-534a-($-1) // ⿰訁半
+
 // glyph han-8a4b:15x16 15 16 // 詋
 // ⿰ han-8a01 han-5144 // ⿰訁兄
 

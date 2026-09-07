@@ -1,5 +1,10 @@
 # CJK unified ideographs extension G: 石 (112)
 
+## 112.3
+
+glyph han-309a4:15x16 15 16 // 𰦤
+⿰ han-77f3:7x16 1 han-536a:7x16 // ⿰石卪
+
 ## 112.4
 
 // glyph han-309a6:15x16 15 16 // 𰦦
@@ -499,6 +504,11 @@ glyph han-30b6c:15x16 15 16 // 𰭬
 glyph han-30b77:15x16 15 16 // 𰭷
 ⿰ han-8033:6x16-l han-5348:9x16 // ⿰耳午
 
+## 128.5
+
+// glyph han-30b78:15x16 15 16 // 𰭸
+// ⿱ han-536d han-8033 // ⿱卭耳
+
 ## 128.12
 
 // glyph han-30b7b:15x16 15 16 // 𰭻
@@ -581,6 +591,9 @@ glyph han-30b92:15x16 15 16 // 𰮒
 glyph han-30bb8:15x16 15 16 // 𰮸
 ⿲ han-6708:5x16-l 1 han-8c9d:5x16 1 han-5202:3x16 // ⿲月貝刂
 
+// glyph han-30bb9-($han-regions):15x16 15 16 // 𰮹
+// ⿱ han-80bf han-534a-($-1) // ⿱肿半
+
 // glyph han-30bbf:15x16 15 16 // 𰮿
 // ⿱ han-80a5 han-76ae // ⿱肥皮
 
@@ -659,6 +672,9 @@ glyph han-30c1c:15x16 15 16 // 𰰜
 // ⿳ han-5344 han-4e00 han-8278 // ⿳卄一艸
 
 ## 140.5
+
+// glyph han-30c2b:15x16 15 16 // 𰰫
+// ⿳ han-8279 han-30001 han-9fb4 // ⿳艹𰀁龴
 
 // glyph han-30c2c:15x16 15 16 // 𰰬
 // ⿱ han-8279 han-706d // ⿱艹灭

@@ -315,6 +315,9 @@ glyph han-925d:15x16 15 16 // 鉝
 // glyph han-9260:15x16 15 16 // 鉠
 // ⿰ han-91d2 han-592e // ⿰釒央
 
+// glyph han-9261-($han-regions):15x16 15 16 // 鉡
+// ⿰ han-91d2 han-534a-($-1) // ⿰釒半
+
 glyph han-9262:15x16 15 16 // 鉢
 ⿰ han-91d2:5x16-l 1 han-672c:9x16 // ⿰釒本
 

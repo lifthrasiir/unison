@@ -681,6 +681,9 @@ glyph han-30f6d:15x16 15 16 // 𰽭
 glyph han-30f6e:15x16 15 16 // 𰽮
 ⿲ han-9485:5x16 han-4ebb:3x16 han-5bf8:7x16 // ⿲钅亻寸
 
+// glyph han-30f70-($han-regions):15x16 15 16 // 𰽰
+// ⿰ han-9485 han-534a-($-1) // ⿰钅半
+
 glyph han-30f71:15x16 15 16 // 𰽱
 ⿰ han-9485:6x16 han-5f17:9x16 // ⿰钅弗
 

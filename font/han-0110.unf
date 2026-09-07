@@ -1048,6 +1048,9 @@ glyph han-79d5:15x16 15 16 // 秕
 glyph han-79d9:15x16 15 16 // 秙
 ⿰ han-79be:5x16 1 han-53e4:9x16 // ⿰禾古
 
+// glyph han-79da-($han-regions):15x16 15 16 // 秚
+// ⿰ han-79be han-534a-($-1) // ⿰禾半
+
 glyph han-79db:15x16 15 16 // 秛
 ⿰ han-79be:5x16 1 han-76ae:9x16 // ⿰禾皮
 

@@ -491,6 +491,28 @@ glyph han-30172:15x16 15 16 // 𰅲
 glyph han-30176:15x16 15 16 // 𰅶
 ⿱ han-53e4:15x8 1 han-5df4:15x7 // ⿱古巴
 
+## 24.11
+
+// glyph han-3017c-($han-regions):15x16 15 16 // 𰅼
+// ⿰ han-534a-($-1) han-6770 // ⿰半杰
+
+# CJK unified ideographs extension G: 卩 (26)
+
+## 26.2
+
+glyph han-3018b:15x16 15 16 // 𰆋
+⿰ han-5369:7x16 1 han-5369:7x16 // ⿰卩卩
+
+## 26.4
+
+// glyph han-3018d:15x16 15 16 // 𰆍
+// ⿰ han-5348 han-5369 // ⿰午卩
+
+## 26.5
+
+glyph han-3018e:15x16 15 16 // 𰆎
+⿰ han-6708:7x16 1 han-536a:7x16 // ⿰月卪
+
 # CJK unified ideographs extension G: 厂 (27)
 
 ## 27.4

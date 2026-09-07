@@ -345,6 +345,9 @@ glyph han-27e1a:15x16 15 16 // 𧸚
 // glyph han-27ebc:15x16 15 16 // 𧺼
 // ⿺ han-8d70 han-6b64 // ⿺走此
 
+// glyph han-27ebe-($han-regions):15x16 15 16 // 𧺾
+// ⿺ han-8d70 han-534a-($-1) // ⿺走半
+
 // glyph han-27ebf:15x16 15 16 // 𧺿
 // ⿺ han-8d70 han-4e16 // ⿺走世
 

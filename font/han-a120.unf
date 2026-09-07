@@ -41,6 +41,9 @@ glyph han-42c3:15x16 15 16 // 䋃
 
 ## 120.5
 
+// glyph han-42c9-($han-regions):15x16 15 16 // 䋉
+// ⿰ han-7cf9 han-7a74-($-1) // ⿰糹穴
+
 glyph han-42ca:15x16 15 16 // 䋊
 ⿰ han-7cf9:5x16 han-6b63:10x16 // ⿰糹正
 
@@ -725,6 +728,9 @@ glyph han-44cf:15x16 15 16 // 䓏
 
 // glyph han-44d1:15x16 15 16 // 䓑
 // ⿱ han-8279 han-6c67 // ⿱艹汧
+
+// glyph han-44d6-($han-regions):15x16 15 16 // 䓖
+// ⿳ han-8279 han-7a74-($-1) han-529b // ⿳艹穴力
 
 ## 140.8
 

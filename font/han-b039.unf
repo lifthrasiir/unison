@@ -258,7 +258,7 @@ glyph han-219c9:15x16 15 16 // 𡧉
 ## 40.5
 
 glyph han-219da:15x16 15 16 // 𡧚
-⿳ han-5b80:15x4 -1 han-5c71:15x7 han-529b:15x6 // ⿳宀山力
+⿳ han-5b80:15x4 -1 han-5c71:15x5 1 han-529b:15x7 // ⿳宀山力
 
 glyph han-219db:15x16 15 16 // 𡧛
 ⿱ han-5b80:15x4 han-4ed8:15x12 // ⿱宀付
@@ -281,7 +281,7 @@ glyph han-219e8:15x16 15 16 // 𡧨
 ## 40.6
 
 glyph han-219e9:15x16 15 16 // 𡧩
-⿳ han-5b80:15x5 han-571f:15x5 han-571f:15x6 // ⿳宀土土
+⿳ han-5b80:15x5 -1 han-571f:15x6 han-571f:15x6 // ⿳宀土土
 
 // glyph han-219eb:15x16 15 16 // 𡧫
 // ⿳ han-5b80 han-4e5d han-5fc3 // ⿳宀九心 <- ⿱宄心
@@ -289,11 +289,11 @@ glyph han-219e9:15x16 15 16 // 𡧩
 // glyph han-219ee:15x16 15 16 // 𡧮
 // ⿳ han-5b80 han-65e5 han-5315 // ⿳宀日匕 <- ⿱宀㫐
 
-// glyph han-219f0:15x16 15 16 // 𡧰
-// ⿳ han-5b80 han-5348 han-51f5 // ⿳宀午凵
+glyph han-219f0:15x16 15 16 // 𡧰
+⿱ han-5b80:15x3 han-7f36:15x13 // ⿱宀缶
 
 glyph han-219f1:15x16 15 16 // 𡧱
-⿳ han-5b80:15x4 han-5de5:15x8 1 han-53e3:15x3 // ⿳宀工口
+⿳ han-5b80:15x4 han-5de5:15x5 1 han-53e3:15x6 // ⿳宀工口
 
 // glyph han-219f2:15x16 15 16 // 𡧲
 // ⿰ han-5b81 han-4e2d // ⿰宁中
@@ -378,7 +378,7 @@ glyph han-21a36:15x16 15 16 // 𡨶
 // ⿰ han-5b81 han-5b57 // ⿰宁字
 
 glyph han-21a3c:15x16 15 16 // 𡨼
-⿳ han-5b80:15x5 han-706b:15x5 han-706b:15x6 // ⿳宀火火
+⿳ han-5b80:15x5 -1 han-706b:15x6 han-706b:15x6 // ⿳宀火火
 
 ## 40.9
 
@@ -394,6 +394,9 @@ glyph han-21a48:15x16 15 16 // 𡩈
 glyph han-21a49:15x16 15 16 // 𡩉
 ⿳ han-5b80:15x4 -1 han-5fc3:15x5 1 han-65e6:15x7 // ⿳宀心旦
 
+// glyph han-21a50:15x16 15 16 // 𡩐
+// ⿳ han-5b80 han-9fb6 han-7530 // ⿳宀龶田
+
 // glyph han-21a55:15x16 15 16 // 𡩕
 // ⿳ han-5b80 han-4e36 han-6772 // ⿳宀丶杲
 
@@ -405,6 +408,9 @@ glyph han-21a56:15x16 15 16 // 𡩖
 
 glyph han-21a58:15x16 15 16 // 𡩘
 ⿳ han-5b80:15x4 -1 han-7acb:15x7 1 han-65e5:15x5 // ⿳宀立日
+
+// glyph han-21a5c:15x16 15 16 // 𡩜
+// ⿳ han-5b80 han-9fb6 han-7f52 // ⿳宀龶罒
 
 ## 40.10
 
@@ -426,7 +432,7 @@ glyph han-21a58:15x16 15 16 // 𡩘
 // ⿰ han-5b81 han-8005-($-1) // ⿰宁者
 
 glyph han-21a88:15x16 15 16 // 𡪈
-ref han-5b80:15x4 0 0 // ⿳宀其土
+ref han-5b80:15x3 0 0 // ⿳宀其土
 ref han-5176:15x10 0 3
 ref han-571f:15x4 0 12
 

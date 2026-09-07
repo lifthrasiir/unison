@@ -85,6 +85,9 @@ glyph han-216dc:15x16 15 16 // 𡛜
 glyph han-216e1:15x16 15 16 // 𡛡
 ⿰ han-5973:5x16-l 1 han-76ae:9x16 // ⿰女皮
 
+// glyph han-216e4-($han-regions):15x16 15 16 // 𡛤
+// ⿰ han-534a-($-1) han-5973 // ⿰半女
+
 // glyph han-216e6:15x16 15 16 // 𡛦
 // ⿰ han-5973 han-4e19 // ⿰女丙
 

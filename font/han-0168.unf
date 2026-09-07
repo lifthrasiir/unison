@@ -2104,6 +2104,9 @@ glyph han-977b:15x16 15 16 // 靻
 glyph han-977c:15x16 15 16 // 靼
 ⿰ han-9769:7x16 1 han-65e6:7x16 // ⿰革旦
 
+// glyph han-977d-($han-regions):15x16 15 16 // 靽
+// ⿰ han-9769 han-534a-($-1) // ⿰革半
+
 glyph han-977e:15x16 15 16 // 靾
 ⿰ han-9769:7x16 1 han-4e16:7x16 // ⿰革世
 

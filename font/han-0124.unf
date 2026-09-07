@@ -1341,6 +1341,9 @@ glyph han-80d2:15x16 15 16 // 胒
 glyph han-80d5:15x16 15 16 // 胕
 ⿲ han-6708:5x16-l han-4ebb:3x16 han-5bf8:7x16 // ⿲月亻寸
 
+// glyph han-80d6-($han-regions):15x16 15 16 // 胖
+// ⿰ han-6708 han-534a-($-1) // ⿰月半
+
 // glyph han-80da:15x16 15 16 // 胚
 // ⿰ han-6708 han-4e15 // ⿰月丕
 

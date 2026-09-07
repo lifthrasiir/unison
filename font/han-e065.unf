@@ -109,6 +109,11 @@ glyph han-2c045:15x16 15 16 // 𬁅
 // glyph han-2c05f:15x16 15 16 // 𬁟
 // ⿱ han-65e5 han-5bf8 // ⿱日寸
 
+## 73.7
+
+// glyph han-2c064:15x16 15 16 // 𬁤
+// ⿱ han-5372 han-65e5 // ⿱卲日
+
 # CJK unified ideographs extension E: 月 (74)
 
 ## 74.2
@@ -485,6 +490,9 @@ glyph han-2c1e9:15x16 15 16 // 𬇩
 
 glyph han-2c1eb:15x16 15 16 // 𬇫
 ⿲ han-6c35:3x16 han-624c:3x16 han-5df4:9x16 // ⿲氵扌巴
+
+// glyph han-2c1ef-($han-regions):15x16 15 16 // 𬇯
+// ⿲ han-6c35 han-534a-($-1) han-5202 // ⿲氵半刂
 
 // glyph han-2c1f1:15x16 15 16 // 𬇱
 // ⿰ han-6c35 han-5447 // ⿰氵呇

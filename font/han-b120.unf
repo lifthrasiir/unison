@@ -213,6 +213,9 @@ glyph han-2603d:15x16 15 16 // 𦀽
 glyph han-26040:15x16 15 16 // 𦁀
 ⿰ han-7cf9:5x16 1 han-8c9d:9x16 // ⿰糹貝
 
+// glyph han-26042-($han-regions):15x16 15 16 // 𦁂
+// ⿲ han-7cf9 han-4ebb han-534a-($-1) // ⿲糹亻半
+
 glyph han-26045:15x16 15 16 // 𦁅
 ⿲ han-7cf9:5x16 han-8864:5x16 han-5200:5x16 // ⿲糹衤刀
 

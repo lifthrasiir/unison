@@ -74,6 +74,9 @@ glyph han-26668:15x16 15 16 // 𦙨
 glyph han-2666b:15x16 15 16 // 𦙫
 ⿰ han-6708:5x16-l han-6b63:10x16 // ⿰月正
 
+// glyph han-2666e-($han-regions):15x16 15 16 // 𦙮
+// ⿰ han-6708 han-7a74-($-1) // ⿰月穴
+
 glyph han-26670:15x16 15 16 // 𦙰
 ⿲ han-6708:5x16-l han-4ebb:3x16 han-58eb:7x16 // ⿲月亻士
 
@@ -109,6 +112,9 @@ glyph han-26688:15x16 15 16 // 𦚈
 
 glyph han-2668e:15x16 15 16 // 𦚎
 ⿰ han-7acb:7x16 han-6708:8x16 // ⿰立月
+
+// glyph han-26693-($han-regions):15x16 15 16 // 𦚓
+// ⿰ han-8089 han-534a-($-1) // ⿰肉半
 
 glyph han-26694:15x16 15 16 // 𦚔
 ⿰ han-6708:5x16-l han-53ec:10x16 // ⿰月召

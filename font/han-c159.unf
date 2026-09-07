@@ -506,6 +506,9 @@ glyph han-2b560-($han-regions):15x16 15 16 // 𫕠
 glyph han-2b579-($han-regions):15x16 15 16 // 𫕹
 ⿰ han-9752-($-1):5x16 1 han-751f:9x16 // ⿰青生
 
+// glyph han-2b57a-($han-regions):15x16 15 16 // 𫕺
+// ⿰ han-9752-($-1) han-534a-($-1) // ⿰青半
+
 ## 174.8
 
 glyph han-2b57b-(t):15x16 15 16 // 𫕻
@@ -645,6 +648,9 @@ glyph han-2b64f:15x16 15 16 // 𫙏
 // ⿲ han-9b5a han-5f13 han-4e28 // ⿲魚弓丨 <- ⿰魚引
 
 ## 195.5
+
+// glyph han-2b655-($han-regions):15x16 15 16 // 𫙕
+// ⿰ han-9b5a han-7a74-($-1) // ⿰魚穴
 
 // glyph han-2b656:15x16 15 16 // 𫙖
 // ⿰ han-9b5a han-5c3c // ⿰魚尼

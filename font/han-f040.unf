@@ -697,6 +697,9 @@ glyph han-2d74a:15x16 15 16 // 𭝊
 // glyph han-2d75b:15x16 15 16 // 𭝛
 // ⿳ han-5b80 han-793a han-5fc3 // ⿳宀示心 <- ⿱宗心
 
+// glyph han-2d75c-($han-regions):15x16 15 16 // 𭝜
+// ⿳ han-5b80 han-534a-($-1) han-5fc3 // ⿳宀半心
+
 // glyph han-2d75f:15x16 15 16 // 𭝟
 // ⿰ han-5fc4 han-5c45 // ⿰忄居
 

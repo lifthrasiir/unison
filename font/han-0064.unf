@@ -348,6 +348,9 @@ glyph han-62c9:15x16 15 16 // 拉
 glyph han-62ca:15x16 15 16 // 拊
 ⿲ han-624c:3x16 han-4ebb:3x16 han-5bf8:9x16 // ⿲扌亻寸
 
+// glyph han-62cc-($han-regions):15x16 15 16 // 拌
+// ⿰ han-624c han-534a-($-1) // ⿰扌半
+
 glyph han-62cd:15x16 15 16 // 拍
 ⿰ han-624c:5x16 han-767d:10x16 // ⿰扌白
 

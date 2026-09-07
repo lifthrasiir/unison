@@ -445,6 +445,9 @@ glyph han-4b30:15x16 15 16 // 䬰
 glyph han-4b32:15x16 15 16 // 䬲
 ⿰ han-98e0:7x16 1 han-53e5:7x16 // ⿰飠句
 
+// glyph han-4b33-($han-regions):15x16 15 16 // 䬳
+// ⿰ han-98e0 han-534a-($-1) // ⿰飠半
+
 // glyph han-4b34:15x16 15 16 // 䬴
 // ⿰ han-98e0 han-672b // ⿰飠末
 

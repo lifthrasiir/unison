@@ -71,11 +71,20 @@ glyph han-2988e:15x16 15 16 // 𩢎
 glyph han-29891:15x16 15 16 // 𩢑
 ⿲ -2 han-6b62:6x16 han-5315:4x16 han-99ac:7x16 // ⿲止匕馬
 
+// glyph han-29894-($han-regions):15x16 15 16 // 𩢔
+// ⿰ han-99ac han-534a-($-1) // ⿰馬半
+
 // glyph han-29895:15x16 15 16 // 𩢕
 // ⿰ han-99ac han-672c // ⿰馬本
 
 // glyph han-29896:15x16 15 16 // 𩢖
 // ⿰ han-99ac han-672b // ⿰馬末
+
+// glyph han-29897:15x16 15 16 // 𩢗
+// ⿱ han-536d han-99ac // ⿱卭馬
+
+glyph han-2989e:15x16 15 16 // 𩢞
+⿲ -4 han-99ac:7x16 han-5de5:5x16 han-5369:7x16 // ⿲馬工卩
 
 glyph han-298a0:15x16 15 16 // 𩢠
 ⿰ han-53f0:7x16 1 han-99ac:7x16 // ⿰台馬

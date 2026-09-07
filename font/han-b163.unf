@@ -82,6 +82,9 @@ glyph han-28696:15x16 15 16 // 𨚖
 glyph han-28698:15x16 15 16 // 𨚘
 ⿰ han-672a:9x16 1 han-961d:5x16-r // ⿰未阝
 
+// glyph han-2869a-($han-regions):15x16 15 16 // 𨚚
+// ⿰ han-534a-($-1) han-9091 // ⿰半邑
+
 // glyph han-2869d:15x16 15 16 // 𨚝
 // ⿰ han-7389 han-961d // ⿰玉阝
 

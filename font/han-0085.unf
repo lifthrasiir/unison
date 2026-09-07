@@ -488,8 +488,14 @@ glyph han-6ce9:15x16 15 16 // 泩
 glyph han-6cea:15x16 15 16 // 泪
 ⿰ han-6c35:5x16 1 han-76ee:9x16 // ⿰氵目
 
+// glyph han-6cec-($han-regions):15x16 15 16 // 泬
+// ⿰ han-6c35 han-7a74-($-1) // ⿰氵穴
+
 glyph han-6ced:15x16 15 16 // 泭
 ⿲ han-6c35:3x16 han-4ebb:3x16 han-5bf8:9x16 // ⿲氵亻寸
+
+// glyph han-6cee-($han-regions):15x16 15 16 // 泮
+// ⿰ han-6c35 han-534a-($-1) // ⿰氵半
 
 // glyph han-6cf1:15x16 15 16 // 泱
 // ⿰ han-6c35 han-592e // ⿰氵央
