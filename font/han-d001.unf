@@ -154,7 +154,7 @@ glyph han-2b7bb:15x16 15 16 // 𫞻
 ## 118.9
 
 glyph han-2b7be:15x16 15 16 // 𫞾
-⿳ han-25ad7:15x5 han-7530:15x7 han-6bd4:15x4 // ⿳𥫗田比
+⿳ han-25ad7:15x5 han-7530:15x7 han-6bd4-j:15x4 // ⿳𥫗田比
 
 # CJK unified ideographs extension D: 羊 (123)
 
@@ -236,4 +236,4 @@ glyph han-2b7f7:15x16 15 16 // 𫟷
 ## 195.10
 
 glyph han-2b80d:15x16 15 16 // 𫠍
-⿲ -6 han-9b5a:7x16 han-91d2:7x16 han-5341:7x16 // ⿲魚釒十
+⿲ -4 han-9b5a:7x16 han-91d2:5x16-c han-5341:7x16 // ⿲魚釒十

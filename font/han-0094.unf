@@ -167,8 +167,8 @@ glyph han-72d2:15x16 15 16 // 狒
 glyph han-72d3:15x16 15 16 // 狓
 ⿰ han-72ad:6x16 han-76ae:9x16 // ⿰犭皮
 
-glyph han-72d4:15x16 15 16 // 狔
-⿰ han-72ad:6x16 han-5c3c:9x16 // ⿰犭尼
+glyph han-72d4-($han-regions):15x16 15 16 // 狔
+⿰ han-72ad:6x16 han-5c3c-($-1):9x16 // ⿰犭尼
 
 // glyph han-72d6-($han-regions):15x16 15 16 // 狖
 // ⿰ han-72ad han-7a74-($-1) // ⿰犭穴
@@ -745,8 +745,8 @@ glyph han-73a9:15x16 15 16 // 玩
 glyph han-73aa:15x16 15 16 // 玪
 ⿰ han-248e9:7x16 1 han-4eca:7x16 // ⿰𤣩今
 
-glyph han-73ad:15x16 15 16 // 玭
-⿲ han-248e9:3x16 han-5315:6x16 han-5315:6x16 // ⿲𤣩匕匕
+glyph han-73ad-($han-regions):15x16 15 16 // 玭
+⿰ han-248e9:3x16 han-6bd4-($-1):12x16 // ⿰𤣩比
 
 glyph han-73af:15x16 15 16 // 环
 ⿰ han-248e9:5x16 1 han-4e0d:9x16 // ⿰𤣩不
@@ -774,8 +774,8 @@ glyph han-73b8:15x16 15 16 // 玸
 glyph han-73bb:15x16 15 16 // 玻
 ⿰ han-248e9:5x16 1 han-76ae:9x16 // ⿰𤣩皮
 
-glyph han-73bc:15x16 15 16 // 玼
-⿲ han-248e9:3x16 han-6b62:6x16 han-5315:6x16 // ⿲𤣩止匕
+glyph han-73bc-($han-regions):15x16 15 16 // 玼
+⿲ han-248e9:3x16 han-6b62:6x16 han-5315-($-1):6x16 // ⿲𤣩止匕
 
 glyph han-73bd:15x16 15 16 // 玽
 ⿰ han-248e9:5x16 1 han-53e5:9x16 // ⿰𤣩句

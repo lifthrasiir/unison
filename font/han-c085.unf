@@ -597,8 +597,8 @@ glyph han-2afd1:15x16 15 16 // 𪿑
 glyph han-2afd5:15x16 15 16 // 𪿕
 ⿰ han-77f3:7x16 1 han-53e5:7x16 // ⿰石句
 
-glyph han-2afd7:15x16 15 16 // 𪿗
-⿰ han-77f3:5x16 1 han-5c3c:9x16 // ⿰石尼
+glyph han-2afd7-($han-regions):15x16 15 16 // 𪿗
+⿰ han-77f3:5x16 1 han-5c3c-($-1):9x16 // ⿰石尼
 
 glyph han-2afd8:15x16 15 16 // 𪿘
 ⿰ han-77f3:7x16 1 han-53f0:7x16 // ⿰石台

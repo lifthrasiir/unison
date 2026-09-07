@@ -74,8 +74,8 @@ glyph han-2510b:15x16 15 16 // 𥄋
 glyph han-25111:15x16 15 16 // 𥄑
 ⿰ han-76ee:6x16 han-592b:9x16 // ⿰目夫
 
-glyph han-25112:15x16 15 16 // 𥄒
-⿲ han-76ee:3x16-l han-4ebb:3x16 han-5315:9x16 // ⿲目亻匕
+glyph han-25112-($han-regions):15x16 15 16 // 𥄒
+⿰ han-76ee:3x16-l han-5316-($-1):12x16 // ⿰目化
 
 glyph han-25113:15x16 15 16 // 𥄓
 ⿱ han-4e0d:15x8 1 han-76ee:15x7 // ⿱不目

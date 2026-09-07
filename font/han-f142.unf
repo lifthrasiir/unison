@@ -114,8 +114,8 @@ glyph han-2e568:15x16 15 16 // 𮕨
 // glyph han-2e56a:15x16 15 16 // 𮕪
 // ⿱ han-4e2d han-8863 // ⿱中衣
 
-glyph han-2e56c:15x16 15 16 // 𮕬
-⿲ han-8864:5x16 han-4ebb:3x16 han-5315:7x16 // ⿲衤亻匕
+glyph han-2e56c-($han-regions):15x16 15 16 // 𮕬
+⿰ han-8864:5x16 han-5316-($-1):10x16 // ⿰衤化
 
 // glyph han-2e56e:15x16 15 16 // 𮕮
 // ⿱ han-5206 han-8863 // ⿱分衣
@@ -330,8 +330,8 @@ glyph han-2e622:15x16 15 16 // 𮘢
 
 ## 149'.7
 
-// glyph han-2e649:15x16 15 16 // 𮙉
-// ⿲ han-8ba8 han-4ebb han-5315 // ⿲讨亻匕 <- ⿰讨化
+// glyph han-2e649-($han-regions):15x16 15 16 // 𮙉
+// ⿰ han-8ba8 han-5316-($-1) // ⿰讨化 -- no-inline
 
 # CJK unified ideographs extension F: 貝 (154)
 

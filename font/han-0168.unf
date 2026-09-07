@@ -706,7 +706,7 @@ glyph han-962f:15x16 15 16 // 阯
 ⿰ han-961d:5x16-l han-6b62:10x16 // ⿰阝止
 
 glyph han-9630:15x16 15 16 // 阰
-⿲ han-961d:4x16-l han-5315:4x16 han-5315:7x16 // ⿲阝匕匕
+⿰ han-961d:4x16-l han-6bd4:11x16 // ⿰阝比
 
 glyph han-9631:15x16 15 16 // 阱
 ⿰ han-961d:5x16-l 1 han-4e95:9x16 // ⿰阝井
@@ -982,7 +982,7 @@ glyph han-96ca:15x16 15 16 // 雊
 ⿰ han-53e5:7x16 1 han-96b9:7x16 // ⿰句隹
 
 glyph han-96cc:15x16 15 16 // 雌
-⿲ -2 han-6b62:6x16 han-5315:4x16 han-96b9:7x16 // ⿲止匕隹
+⿲ -2 han-6b62:6x16 han-5315:4x16-c han-96b9:7x16 // ⿲止匕隹
 
 glyph han-96ce:15x16 15 16 // 雎
 ⿰ han-4e14:8x16 han-96b9:7x16 // ⿰且隹
@@ -2081,8 +2081,8 @@ glyph han-9772:15x16 15 16 // 靲
 glyph han-9773:15x16 15 16 // 靳
 ⿰ han-9769:9x16 han-65a4:6x16 // ⿰革斤
 
-glyph han-9774:15x16 15 16 // 靴
-⿲ han-9769:7x16 han-4ebb:3x16 1 han-5315:4x16 // ⿲革亻匕
+glyph han-9774-($han-regions):15x16 15 16 // 靴
+⿰ han-9769:7x16 han-5316-($-1):8x16 // ⿰革化
 
 glyph han-9776:15x16 15 16 // 靶
 ⿰ han-9769:7x16 1 han-5df4:7x16 // ⿰革巴

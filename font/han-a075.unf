@@ -161,7 +161,7 @@ glyph han-3c20:15x16 15 16 // 㰠
 ## 76.5
 
 glyph han-3c23:15x16 15 16 // 㰣
-⿲ -2 han-6b62:6x16 han-5315:4x16 han-6b20:7x16 // ⿲止匕欠
+⿲ -2 han-6b62:6x16 han-5315:4x16-c han-6b20:7x16 // ⿲止匕欠
 
 glyph han-3c24:15x16 15 16 // 㰤
 ⿰ han-53ef:8x16 han-6b20:7x16 // ⿰可欠
@@ -294,8 +294,14 @@ glyph han-3cb8:15x16 15 16 // 㲸
 glyph han-3cb9:15x16 15 16 // 㲹
 ⿰ han-6c35:5x16 1 han-51e0:9x16 // ⿰氵几
 
-glyph han-3cba:15x16 15 16 // 㲺
-⿰ han-6c35:5x16 1 han-5315:9x16 // ⿰氵匕
+glyph han-3cba.0:15x16 15 16 // 㲺
+⿰ han-6c35:5x16 1 han-4e03:8x16 // ⿰氵七
+glyph han-3cba.1:15x16 15 16 // 㲺
+⿰ han-6c35:5x16 1 han-5315.0:9x16 // ⿰氵匕
+exists han-3cba\.0:([0-9]+x[0-9]+)
+glyph han-3cba-(g|t|j):($1) = ($0)
+exists han-3cba\.1:([0-9]+x[0-9]+)
+glyph han-3cba-p:($1) = ($0)
 
 // glyph han-3cbb:15x16 15 16 // 㲻
 // ⿰ han-4ebb han-6c34 // ⿰亻水

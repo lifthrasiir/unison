@@ -66,8 +66,8 @@ glyph han-37b9:15x16 15 16 // 㞹
 // glyph han-37bc:15x16 15 16 // 㞼
 // ⿳ han-4e5b han-6c34 han-5c71 // ⿳乛水山 <- ⿱氶山
 
-glyph han-37be:15x16 15 16 // 㞾
-⿰ han-5c71:5x16 1 han-5c3c:9x16 // ⿰山尼
+glyph han-37be-($han-regions):15x16 15 16 // 㞾
+⿰ han-5c71:5x16 1 han-5c3c-($-1):9x16 // ⿰山尼
 
 // glyph han-37c0:15x16 15 16 // 㟀
 // ⿱ han-79be han-5c71 // ⿱禾山
@@ -221,8 +221,8 @@ glyph han-3830:15x16 15 16 // 㠰
 
 ## 50.2
 
-glyph han-3832:15x16 15 16 // 㠲
-⿰ han-5dfe:5x16 1 han-5315:9x16 // ⿰巾匕
+glyph han-3832-($han-regions):15x16 15 16 // 㠲
+⿰ han-5dfe:7x16 1 han-5315-($-1):7x16 // ⿰巾匕
 
 ## 50.3
 
@@ -687,8 +687,8 @@ glyph han-39cd:15x16 15 16 // 㧍
 // glyph han-39d2-($han-regions):15x16 15 16 // 㧒
 // ⿰ han-624c han-7a74-($-1) // ⿰扌穴
 
-glyph han-39d7:15x16 15 16 // 㧗
-⿲ han-624c:3x16 han-6b62:6x16 han-5315:6x16 // ⿲扌止匕
+glyph han-39d7-($han-regions):15x16 15 16 // 㧗
+⿲ han-624c:3x16 han-6b62:6x16 han-5315-($-1):6x16 // ⿲扌止匕
 
 // glyph han-39d8:15x16 15 16 // 㧘
 // ⿱ han-6b64 han-624b // ⿱此手

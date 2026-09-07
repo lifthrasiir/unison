@@ -125,8 +125,8 @@ glyph han-26695:15x16 15 16 // 𦚕
 // glyph han-26698:15x16 15 16 // 𦚘
 // ⿱ han-4ed5 han-8089 // ⿱仕肉
 
-glyph han-2669a:15x16 15 16 // 𦚚
-⿲ han-6708:5x16-l han-6b62:6x16 han-5315:4x16 // ⿲月止匕
+glyph han-2669a-($han-regions):15x16 15 16 // 𦚚
+⿲ han-6708:5x16-l han-6b62:6x16 han-5315-($-1):4x16 // ⿲月止匕
 
 ## 130.6
 

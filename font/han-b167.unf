@@ -3,7 +3,7 @@
 ## 167.2
 
 glyph han-2893d:15x16 15 16 // 𨤽
-⿰ han-91d2:5x16-l 1 han-5315:9x16 // ⿰釒匕
+⿰ han-91d2:5x16-l 1 han-5315.0:9x16 // ⿰釒匕
 
 glyph han-2893f:15x16 15 16 // 𨤿
 ⿰ han-91d2:5x16-l 1 han-4eba:9x16 // ⿰釒人
@@ -297,7 +297,7 @@ glyph han-28ad6:15x16 15 16 // 𨫖
 // ⿰ han-91d2 han-7fd2-($-1) // ⿰釒習
 
 glyph han-28aeb:15x16 15 16 // 𨫫
-⿲ han-91d2:5x16-l 1 han-5315:4x16 han-9801:5x16 // ⿲釒匕頁
+⿲ han-91d2:5x16-l 1 han-5315:4x16-c han-9801:5x16 // ⿲釒匕頁
 
 glyph han-28af7:15x16 15 16 // 𨫷
 ⿰ han-91d2:7x16 1 han-9b5a:7x16 // ⿰釒魚
@@ -402,8 +402,8 @@ glyph han-28bb6:15x16 15 16 // 𨮶
 
 ## 167'.4
 
-glyph han-28c42:15x16 15 16 // 𨱂
-⿲ han-9485:5x16 han-4ebb:3x16 han-5315:7x16 // ⿲钅亻匕
+glyph han-28c42-($han-regions):15x16 15 16 // 𨱂
+⿰ han-9485:5x16 han-5316-($-1):10x16 // ⿰钅化
 
 ## 167'.5
 

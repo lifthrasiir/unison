@@ -343,7 +343,7 @@ glyph han-4019:15x16 15 16 // 䀙
 ⿲ -1 han-76ee:3x16-l han-4e03:8x16 han-5200:5x16 // ⿲目七刀
 
 glyph han-401d:15x16 15 16 // 䀝
-⿲ han-76ee:3x16-l 1 han-5315:4x16 han-5315:7x16 // ⿲目匕匕
+⿰ han-76ee:3x16-l 1 han-6bd4:11x16 // ⿰目比
 
 ## 109.5
 
@@ -444,8 +444,8 @@ glyph han-4071:15x16 15 16 // 䁱
 
 ## 112.2
 
-glyph han-4097:15x16 15 16 // 䂗
-⿰ han-77f3:5x16 1 han-5315:9x16 // ⿰石匕
+glyph han-4097-($han-regions):15x16 15 16 // 䂗
+⿰ han-77f3:7x16 1 han-5315-($-1):7x16 // ⿰石匕
 
 ## 112.3
 
@@ -465,8 +465,8 @@ glyph han-4099:15x16 15 16 // 䂙
 // glyph han-409f:15x16 15 16 // 䂟
 // ⿱ han-52a0 han-77f3 // ⿱加石
 
-glyph han-40a3:15x16 15 16 // 䂣
-⿲ han-77f3:5x16 han-6b62:6x16 han-5315:4x16 // ⿲石止匕
+glyph han-40a3-($han-regions):15x16 15 16 // 䂣
+⿲ han-77f3:5x16 han-6b62:6x16 han-5315-($-1):4x16 // ⿲石止匕
 
 glyph han-40a4:15x16 15 16 // 䂤
 ⿲ han-77f3:5x16 han-4ebb:3x16 han-5bf8:7x16 // ⿲石亻寸
@@ -549,7 +549,7 @@ glyph han-40cb:15x16 15 16 // 䃋
 ## 112.12
 
 glyph han-40e2:15x16 15 16 // 䃢
-⿲ -4 han-77f3:5x16 han-91d2:7x16 han-6b20:7x16 // ⿲石釒欠
+⿲ -2 han-77f3:5x16 han-91d2:5x16-c han-6b20:7x16 // ⿲石釒欠
 
 glyph han-40e8:15x16 15 16 // 䃨
 ⿲ -2 han-77f3:5x16 1 han-5f13:4x16 han-867d:7x16 // ⿲石弓虽
@@ -563,8 +563,8 @@ glyph han-40f4-($han-regions):15x16 15 16 // 䃴
 
 ## 113.4
 
-glyph han-40fe:15x16 15 16 // 䃾
-⿲ han-793a:7x16 han-5315:4x16 han-5315:4x16 // ⿲示匕匕
+glyph han-40fe-($han-regions):15x16 15 16 // 䃾
+⿰ han-793a:7x16 han-6bd4-($-1):8x16 // ⿰示比
 
 glyph han-40ff:15x16 15 16 // 䃿
 ⿰ han-793b:5x16 1 han-592b:9x16 // ⿰礻夫

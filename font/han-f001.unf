@@ -463,7 +463,7 @@ glyph han-2d088:15x16 15 16 // 𭂈
 ## 15.5
 
 glyph han-2d08a:15x16 15 16 // 𭂊
-⿰ han-51ab:5x16 1 han-5c3c:9x16 // ⿰冫尼
+⿰ han-51ab:5x16 1 han-5c3c-g:9x16 // ⿰冫尼
 
 ## 15.6
 
@@ -474,7 +474,7 @@ glyph han-2d08c:15x16 15 16 // 𭂌
 ⿰ han-51ab:5x16 1 han-866b:9x16 // ⿰冫虫
 
 glyph han-2d08d:15x16 15 16 // 𭂍
-⿲ han-51ab:3x16 han-6b62:6x16 han-5315:6x16 // ⿲冫止匕
+⿲ han-51ab:3x16 han-6b62:6x16 han-5315-k:6x16 // ⿲冫止匕
 
 glyph han-2d08e:15x16 15 16 // 𭂎
 ⿰ han-51ab:5x16 1 han-7f8a:9x16 // ⿰冫羊
@@ -713,7 +713,7 @@ glyph han-2d14e:15x16 15 16 // 𭅎
 ## 21.8
 
 glyph han-2d153:15x16 15 16 // 𭅓
-⿰ han-2099d:5x16 1 han-5315:9x16 // ⿰𠦝匕
+⿰ han-2099d:5x16 1 han-5315.0:9x16 // ⿰𠦝匕
 
 # CJK unified ideographs extension F: 十 (24)
 

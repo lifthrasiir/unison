@@ -130,8 +130,8 @@ glyph han-2627e-($han-regions):15x16 15 16 // 𦉾
 
 ## 122.4
 
-glyph han-26281:15x16 15 16 // 𦊁
-⿱ han-7f52:15x4 han-6bd4:15x12 // ⿱罒比
+glyph han-26281-($han-regions):15x16 15 16 // 𦊁
+⿱ han-7f52:15x4 han-6bd4-($-1):15x12 // ⿱罒比
 
 // glyph han-26283:15x16 15 16 // 𦊃
 // ⿱ han-7f52 han-4eca // ⿱罒今

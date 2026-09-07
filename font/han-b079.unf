@@ -2,8 +2,8 @@
 
 ## 81.3
 
-glyph han-23b02:15x16 15 16 // 𣬂
-⿱ han-6bd4:15x7 1 han-5e72:15x8 // ⿱比干
+glyph han-23b02-($han-regions):15x16 15 16 // 𣬂
+⿱ han-6bd4-($-1):15x7 1 han-5e72:15x8 // ⿱比干
 
 ## 81.4
 
@@ -21,7 +21,7 @@ glyph han-23b05:15x16 15 16 // 𣬅
 ## 81.9
 
 // glyph han-23b0d:15x16 15 16 // 𣬍
-// ⿲ han-82d7 han-5315 han-5315 // ⿲苗匕匕 <- ⿰苗比
+// ⿰ han-82d7 han-6bd4 // ⿰苗比 -- no-inline
 
 ## 81.10
 

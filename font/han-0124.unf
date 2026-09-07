@@ -1282,8 +1282,8 @@ glyph han-80ae:15x16 15 16 // 肮
 glyph han-80b5:15x16 15 16 // 肵
 ⿰ han-6708:7x16 1 han-65a4:7x16 // ⿰月斤
 
-glyph han-80b6:15x16 15 16 // 肶
-⿲ han-6708:5x16-l 1 han-5315:4x16 1 han-5315:4x16 // ⿲月匕匕
+glyph han-80b6-($han-regions):15x16 15 16 // 肶
+⿰ han-6708:5x16-l 1 han-6bd4-($-1):9x16 // ⿰月比
 
 glyph han-80b7:15x16 15 16 // 肷
 ⿰ han-6708:5x16-l 1 han-6b20:9x16 // ⿰月欠
@@ -1332,8 +1332,8 @@ glyph han-80ce:15x16 15 16 // 胎
 glyph han-80d0:15x16 15 16 // 胐
 ⿰ han-6708:5x16-l 1 han-51fa:9x16 // ⿰月出
 
-glyph han-80d2:15x16 15 16 // 胒
-⿰ han-6708:5x16-l 1 han-5c3c:9x16 // ⿰月尼
+glyph han-80d2-($han-regions):15x16 15 16 // 胒
+⿰ han-6708:5x16-l 1 han-5c3c-($-1):9x16 // ⿰月尼
 
 // glyph han-80d4:15x16 15 16 // 胔
 // ⿱ han-6b64 han-8089 // ⿱此肉
@@ -1869,8 +1869,8 @@ glyph han-822a:15x16 15 16 // 航
 glyph han-822b:15x16 15 16 // 舫
 ⿰ han-821f:7x16 1 han-65b9:7x16 // ⿰舟方
 
-glyph han-822d:15x16 15 16 // 舭
-⿲ han-821f:7x16 han-5315:4x16 han-5315:4x16 // ⿲舟匕匕
+glyph han-822d-($han-regions):15x16 15 16 // 舭
+⿰ han-821f:7x16 han-6bd4-($-1):8x16 // ⿰舟比
 
 // glyph han-822e:15x16 15 16 // 舮
 // ⿰ han-821f han-6237 // ⿰舟户

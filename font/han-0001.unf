@@ -3858,9 +3858,8 @@ glyph han-4ef2:15x16 15 16 // 仲
 glyph han-4ef2.0:15x16 = han-4ef2:15x16
 
 glyph han-4ef3:15x16 15 16 // 仳
-ref han-4ebb:3x16 0 0 // ⿲亻匕匕
-ref han-5315:5x16 4 0
-ref han-5315:5x16 10 0
+ref han-4ebb:3x16 0 0 // ⿰亻比
+ref han-6bd4:11x16 4 0
 
 glyph han-4ef4:15x16 15 16 // 仴
 ⿰ han-4ebb:5x16 1 han-6708:9x16 // ⿰亻月
@@ -3942,8 +3941,8 @@ glyph han-4f30:15x16 15 16 // 估
 ⿰ han-4ebb:5x16 1 han-53e4:9x16 // ⿰亻古
 glyph han-4f30.0:15x16 = han-4f30:15x16
 
-glyph han-4f32:15x16 15 16 // 伲
-⿰ han-4ebb:5x16 han-5c3c:10x16 // ⿰亻尼
+glyph han-4f32-($han-regions):15x16 15 16 // 伲
+⿰ han-4ebb:5x16 han-5c3c-($-1):10x16 // ⿰亻尼
 
 glyph han-4f33:15x16 15 16 // 伳
 ⿰ han-4ebb:5x16 1 han-4e16:9x16 // ⿰亻世
@@ -4021,8 +4020,9 @@ glyph han-4f4a:15x16 15 16 // 佊
 glyph han-4f4b:15x16 15 16 // 佋
 ⿰ han-4ebb:5x16 han-53ec:10x16 // ⿰亻召
 
-glyph han-4f4c:15x16 15 16 // 佌
-⿲ han-4ebb:3x16 han-6b62:6x16 han-5315:6x16 // ⿲亻止匕
+glyph han-4f4c-($han-regions):15x16 15 16 // 佌
+⿲ han-4ebb:3x16 han-6b62:6x16 han-5315-($-1):6x16 // ⿲亻止匕
+glyph han-4f4c.0:15x16 = han-4f4c-j:15x16
 
 glyph han-4f4d:15x16 15 16 // 位
 ⿰ han-4ebb:5x16 1 han-7acb:9x16 // ⿰亻立
@@ -4488,7 +4488,7 @@ glyph han-50a8-($han-regions):15x16 15 16 // 储
 // ⿰ han-4ebb han-7ae0 // ⿰亻章
 
 glyph han-50be:15x16 15 16 // 傾
-⿲ han-4ebb:3x16 1 han-5315:6x16 han-9801:5x16 // ⿲亻匕頁
+⿲ han-4ebb:3x16 1 han-5315:4x16-c han-9801:7x16 // ⿲亻匕頁
 
 glyph han-50c4:15x16 15 16 // 僄
 ⿰ han-4ebb:5x16 1 han-7968:9x16 // ⿰亻票

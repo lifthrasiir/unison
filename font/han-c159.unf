@@ -335,8 +335,8 @@ glyph han-2b519:15x16 15 16 // 𫔙
 glyph han-2b51a:15x16 15 16 // 𫔚
 ⿵ han-9580:15x16.13x11 han-4e2d:9x11 3 5 // ⿵門中
 
-glyph han-2b51b:15x16 15 16 // 𫔛
-⿵ han-9580:15x16.13x11 han-5316:9x10 3 6 // ⿵門化
+glyph han-2b51b-($han-regions):15x16 15 16 // 𫔛
+⿵ han-9580:15x16.13x11 han-5316-($-1):9x10 3 6 // ⿵門化
 
 ## 169.5
 
@@ -569,7 +569,7 @@ glyph han-2b581:15x16 15 16 // 𫖁
 ## 181.4
 
 glyph han-2b59d:15x16 15 16 // 𫖝
-⿲ han-5315:4x16 han-5315:4x16 han-9801:7x16 // ⿲匕匕頁
+⿰ han-6bd4-j:8x16 han-9801:7x16 // ⿰比頁
 
 # CJK unified ideographs extension C: 食 (184)
 
@@ -690,8 +690,8 @@ glyph han-2b6ae:15x16 15 16 // 𫚮
 
 ## 196.4
 
-glyph han-2b6b0:15x16 15 16 // 𫚰
-⿲ han-5315:4x16 han-5315:4x16 han-9ce5:7x16 // ⿲匕匕鳥
+glyph han-2b6b0-($han-regions):15x16 15 16 // 𫚰
+⿰ han-6bd4-($-1):8x16 han-9ce5:7x16 // ⿰比鳥
 
 ## 196.5
 

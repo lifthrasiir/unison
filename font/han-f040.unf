@@ -234,7 +234,7 @@ glyph han-2d5b3:15x16 15 16 // 𭖳
 // ⿰ han-5c71 han-2c659 // ⿰山𬙙
 
 glyph han-2d5b5:15x16 15 16 // 𭖵
-⿳ han-5c71:15x4 1 han-7530:15x7 han-6bd4:15x4 // ⿳山田比
+⿳ han-5c71:15x4 1 han-7530:15x7 han-6bd4-k:15x4 // ⿳山田比
 
 glyph han-2d5bd:15x16 15 16 // 𭖽
 ⿱ han-79cb:15x11 han-5c71:15x5 // ⿱秋山
@@ -418,7 +418,7 @@ glyph han-2d640:15x16 15 16 // 𭙀
 ## 51.7
 
 // glyph han-2d642:15x16 15 16 // 𭙂
-// ⿲ han-5e74 han-5315 han-5315 // ⿲年匕匕
+// ⿰ han-5e74 han-6bd4 // ⿰年比 -- no-inline
 
 glyph han-2d643:15x16 15 16 // 𭙃
 ⿰ han-5e72:7x16 1 han-826f:7x16 // ⿰干良

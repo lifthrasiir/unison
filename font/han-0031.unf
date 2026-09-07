@@ -426,8 +426,8 @@ glyph han-56ed:15x16 15 16 // 园
 ⿴ han-56d7:15x16.11x12 han-5143:9x10 3 3 // ⿴囗元
 glyph han-56ed.0:15x16 = han-56ed:15x16
 
-glyph han-56ee:15x16 15 16 // 囮
-⿴ han-56d7:15x16.11x12 han-5316:9x10 3 3 // ⿴囗化
+glyph han-56ee-($han-regions):15x16 15 16 // 囮
+⿴ han-56d7:15x16.11x12 han-5316-($-1):9x10 3 3 // ⿴囗化
 
 glyph han-56ef:15x16 15 16 // 囯
 ⿴ han-56d7:15x16.11x12 han-738b:9x10 3 3 // ⿴囗王
@@ -1068,8 +1068,8 @@ glyph han-574f:15x16 15 16 // 坏
 glyph han-5751:15x16 15 16 // 坑
 ⿰ han-571f:7x16 1 han-4ea2:7x16 // ⿰土亢
 
-glyph han-5752:15x16 15 16 // 坒
-⿱ han-6bd4:15x12 han-571f:15x4 // ⿱比土
+glyph han-5752-($han-regions):15x16 15 16 // 坒
+⿱ han-6bd4-($-1):15x7 1 han-571f:15x8 // ⿱比土
 
 // glyph han-5753:15x16 15 16 // 坓
 // ⿱ han-4e95 han-571f // ⿱井土
@@ -1121,8 +1121,8 @@ glyph han-5769:15x16 15 16 // 坩
 glyph han-576b:15x16 15 16 // 坫
 ⿰ han-571f:7x16 1 han-5360:7x16 // ⿰土占
 
-glyph han-576d:15x16 15 16 // 坭
-⿰ han-571f:5x16-l 1 han-5c3c:9x16 // ⿰土尼
+glyph han-576d-($han-regions):15x16 15 16 // 坭
+⿰ han-571f:5x16-l 1 han-5c3c-($-1):9x16 // ⿰土尼
 
 glyph han-576e:15x16 15 16 // 坮
 ⿰ han-571f:7x16 1 han-53f0:7x16 // ⿰土台

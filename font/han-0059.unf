@@ -512,8 +512,8 @@ glyph han-6024:15x16 15 16 // 怤
 glyph han-6027:15x16 15 16 // 性
 ⿰ han-5fc4:5x16 1 han-751f:9x16 // ⿰忄生
 
-glyph han-6029:15x16 15 16 // 怩
-⿰ han-5fc4:5x16 1 han-5c3c:9x16 // ⿰忄尼
+glyph han-6029-($han-regions):15x16 15 16 // 怩
+⿰ han-5fc4:5x16 1 han-5c3c-($-1):9x16 // ⿰忄尼
 
 glyph han-602b:15x16 15 16 // 怫
 ⿰ han-5fc4:5x16 1 han-5f17:9x16 // ⿰忄弗

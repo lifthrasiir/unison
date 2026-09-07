@@ -413,7 +413,7 @@ glyph han-3520:15x16 15 16 // 㔠
 ## 21.9
 
 glyph han-352d:15x16 15 16 // 㔭
-⿰ han-5315:6x16 han-662f:9x16 // ⿰匕是
+⿰ han-5315:6x16-l han-662f:9x16 // ⿰匕是
 
 # CJK unified ideographs extension A: 十 (24)
 
@@ -659,8 +659,8 @@ glyph han-35f5:15x16 15 16 // 㗵
 
 ## 30.13
 
-// glyph han-35fe:15x16 15 16 // 㗾
-// ⿰ han-53e3 han-9774 // ⿰口靴
+glyph han-35fe-($han-regions):15x16 15 16 // 㗾
+⿲ -3 han-53e3:3x16-l han-9769:7x16 han-5316-($-1):8x16 // ⿲口革化
 
 // glyph han-35ff:15x16 15 16 // 㗿
 // ⿰ han-53e3 han-959c // ⿰口閜
@@ -697,8 +697,8 @@ glyph han-3626:15x16 15 16 // 㘦
 glyph han-3628:15x16 15 16 // 㘨
 ⿰ han-571f:3x16-l 1 han-5185:11x16 // ⿰土内
 
-glyph han-3629:15x16 15 16 // 㘩
-⿲ han-571f:3x16-l han-5315:6x16 han-5315:6x16 // ⿲土匕匕
+glyph han-3629-($han-regions):15x16 15 16 // 㘩
+⿰ han-571f:3x16-l han-6bd4-($-1):12x16 // ⿰土比
 
 glyph han-362a:15x16 15 16 // 㘪
 ⿰ han-571f:5x16-l 1 han-6bdb:9x16 // ⿰土毛

@@ -241,8 +241,8 @@ glyph han-2c7f4:15x16 15 16 // 𬟴
 glyph han-2c7f7:15x16 15 16 // 𬟷
 ⿰ han-866b:5x16 1 han-4e95:9x16 // ⿰虫井
 
-glyph han-2c7f9:15x16 15 16 // 𬟹
-⿲ han-866b:5x16 han-4ebb:3x16 han-5315:7x16 // ⿲虫亻匕
+glyph han-2c7f9-($han-regions):15x16 15 16 // 𬟹
+⿰ han-866b:5x16 han-5316-($-1):10x16 // ⿰虫化
 
 glyph han-2c7fa:15x16 15 16 // 𬟺
 ⿱ han-4ece:15x8 han-866b:15x8 // ⿱从虫
@@ -670,7 +670,7 @@ glyph han-2c9d0:15x16 15 16 // 𬧐
 ## 159.4
 
 glyph han-2c9f1:15x16 15 16 // 𬧱
-⿲ han-8eca:7x16 han-5315:4x16 han-5315:4x16 // ⿲車匕匕
+⿰ han-8eca:7x16 han-6bd4-g:8x16 // ⿰車比
 
 ## 159.5
 

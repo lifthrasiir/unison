@@ -16,7 +16,7 @@ glyph han-225aa:15x16 15 16 // 𢖪
 // ⿱ han-5200 han-5fc3 // ⿱刀心
 
 glyph han-225ac:15x16 15 16 // 𢖬
-⿰ han-5fc4:5x16 1 han-5315:9x16 // ⿰忄匕
+⿰ han-5fc4:5x16 1 han-5315.0:9x16 // ⿰忄匕
 
 glyph han-225af:15x16 15 16 // 𢖯
 ⿰ han-5fc4:5x16 1 han-51e0:9x16 // ⿰忄几
@@ -113,7 +113,7 @@ glyph han-225fb:15x16 15 16 // 𢗻
 // ⿰ han-5fc4 han-6237 // ⿰忄户
 
 glyph han-225fd:15x16 15 16 // 𢗽
-⿲ han-5fc4:5x16 han-5315:5x16 han-5315:5x16 // ⿲忄匕匕
+⿰ han-5fc4:5x16 han-6bd4-v:10x16 // ⿰忄比
 
 ## 61.5
 
@@ -539,7 +539,7 @@ glyph han-227d7:15x16 15 16 // 𢟗
 ⿲ -4 han-5fc4:5x16 han-6c35:3x16 han-573c:11x16 // ⿲忄氵圼
 
 glyph han-227d9:15x16 15 16 // 𢟙
-⿲ -4 han-5fc4:5x16 han-91d2:7x16 han-5341:7x16 // ⿲忄釒十
+⿲ -2 han-5fc4:5x16 han-91d2:5x16-c han-5341:7x16 // ⿲忄釒十
 
 ## 61.11
 

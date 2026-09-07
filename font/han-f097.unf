@@ -130,7 +130,7 @@ glyph han-2df06:15x16 15 16 // 𭼆
 ⿸ han-7592:15x16.11x13 han-738b:9x10 6 6 // ⿸疒王
 
 glyph han-2df07:15x16 15 16 // 𭼇
-⿸ han-7592:15x16.11x13 han-5316:9x10 6 5 // ⿸疒化
+⿸ han-7592:15x16.11x13 han-5316-g:9x10 6 5 // ⿸疒化
 
 ## 104.5
 
@@ -368,7 +368,7 @@ glyph han-2dfba:15x16 15 16 // 𭾺
 ## 109.10
 
 glyph han-2dfd2:15x16 15 16 // 𭿒
-⿲ -2 han-76ee:3x16-l han-91d2:7x16 han-5341:7x16 // ⿲目釒十
+⿲ han-76ee:3x16-l han-91d2:5x16-c han-5341:7x16 // ⿲目釒十
 
 # CJK unified ideographs extension F: 石 (112)
 

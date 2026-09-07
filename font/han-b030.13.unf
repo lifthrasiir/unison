@@ -54,7 +54,7 @@ glyph han-21014:15x16 15 16 // 𡀔
 ⿲ -1 han-53e3:3x16-l 1 han-27fb7:5x16 han-5404:7x16 // ⿲口𧾷各
 
 glyph han-21016:15x16 15 16 // 𡀖
-⿲ -4 han-53e3:3x16-l han-91d2:7x16 han-672c:9x16 // ⿲口釒本
+⿲ -2 han-53e3:3x16-l han-91d2:5x16-c han-672c:9x16 // ⿲口釒本
 
 // glyph han-2101a:15x16 15 16 // 𡀚
 // ⿰ han-5506 han-7cf8 // ⿰唆糸

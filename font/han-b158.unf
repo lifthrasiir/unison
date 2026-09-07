@@ -77,8 +77,8 @@ glyph han-282d3:15x16 15 16 // 𨋓
 // glyph han-282d4:15x16 15 16 // 𨋔
 // ⿰ han-8eca han-7389 // ⿰車玉
 
-glyph han-282d7:15x16 15 16 // 𨋗
-⿰ han-8eca:5x16 1 han-5c3c:9x16 // ⿰車尼
+glyph han-282d7-($han-regions):15x16 15 16 // 𨋗
+⿰ han-8eca:5x16 1 han-5c3c-($-1):9x16 // ⿰車尼
 
 glyph han-282d9:15x16 15 16 // 𨋙
 ⿰ han-8eca:5x16 1 han-7533:9x16 // ⿰車申

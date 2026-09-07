@@ -46,12 +46,12 @@ glyph han-2db74:15x16 15 16 // 𭭴
 ## 81.5
 
 glyph han-2dbca:15x16 15 16 // 𭯊
-⿳ han-6bd4:15x7 1 han-53e3:15x4 han-513f:15x4 // ⿳比口儿
+⿳ han-6bd4-g:15x7 1 han-53e3:15x4 han-513f:15x4 // ⿳比口儿
 
 ## 81.6
 
 // glyph han-2dbcc:15x16 15 16 // 𭯌
-// ⿲ han-5315 han-5315 han-5e74 // ⿲匕匕年
+// ⿰ han-6bd4 han-5e74 // ⿰比年 -- no-inline
 
 // glyph han-2dbce:15x16 15 16 // 𭯎
 // ⿱ han-6b21 han-6bd4 // ⿱次比
@@ -181,7 +181,7 @@ glyph han-2dc2a:15x16 15 16 // 𭰪
 // ⿰ han-6c35 han-9763 // ⿰氵靣
 
 glyph han-2dc2c:15x16 15 16 // 𭰬
-⿲ han-6c35:3x16 han-624c:3x16 han-5c3c:9x16 // ⿲氵扌尼
+⿲ han-6c35:3x16 han-624c:3x16 han-5c3c-j:9x16 // ⿲氵扌尼
 
 // glyph han-2dc33:15x16 15 16 // 𭰳
 // ⿰ han-6c35 han-82ab // ⿰氵芫

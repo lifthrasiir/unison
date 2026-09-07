@@ -110,8 +110,8 @@ glyph han-25fd6:15x16 15 16 // 𥿖
 glyph han-25fd8:15x16 15 16 // 𥿘
 ⿰ han-7cf9:5x16 1 han-79be:9x16 // ⿰糹禾
 
-glyph han-25fe1:15x16 15 16 // 𥿡
-⿰ han-7cf9:5x16 1 han-5c3c:9x16 // ⿰糹尼
+glyph han-25fe1-($han-regions):15x16 15 16 // 𥿡
+⿰ han-7cf9:5x16 1 han-5c3c-($-1):9x16 // ⿰糹尼
 
 glyph han-25fe5:15x16 15 16 // 𥿥
 ⿲ han-7cf9:5x16 han-4ebb:3x16 han-58eb:7x16 // ⿲糹亻士

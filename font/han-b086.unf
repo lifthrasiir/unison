@@ -8,7 +8,7 @@
 ## 86.2
 
 glyph han-24187:15x16 15 16 // 𤆇
-⿰ han-706b:5x16-l 1 han-5315:9x16 // ⿰火匕
+⿰ han-706b:5x16-l 1 han-5315-g:9x16 // ⿰火匕
 
 glyph han-24189:15x16 15 16 // 𤆉
 ⿰ han-4e01:7x16 1 han-706b:7x16 // ⿰丁火
@@ -85,8 +85,8 @@ glyph han-241b5:15x16 15 16 // 𤆵
 glyph han-241b6:15x16 15 16 // 𤆶
 ⿰ han-706b:7x16 1 han-5206:7x16 // ⿰火分
 
-glyph han-241b7:15x16 15 16 // 𤆷
-⿲ han-706b:5x16-l han-4ebb:3x16 han-5315:7x16 // ⿲火亻匕
+glyph han-241b7-($han-regions):15x16 15 16 // 𤆷
+⿰ han-706b:5x16-l han-5316-($-1):10x16 // ⿰火化
 
 // glyph han-241b8:15x16 15 16 // 𤆸
 // ⿰ han-706b han-5fc3 // ⿰火心

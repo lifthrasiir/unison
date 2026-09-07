@@ -61,7 +61,7 @@ glyph han-24731:15x16 15 16 // 𤜱
 // ⿰ han-72ac han-6b20 // ⿰犬欠
 
 glyph han-2473b:15x16 15 16 // 𤜻
-⿲ han-72ad:4x16 han-5315:4x16 han-5315:7x16 // ⿲犭匕匕
+⿰ han-72ad:4x16 han-6bd4:11x16 // ⿰犭比
 
 glyph han-2473d:15x16 15 16 // 𤜽
 ⿰ han-72ad:4x16 han-5185:11x16 // ⿰犭内
@@ -135,7 +135,7 @@ glyph han-2476c:15x16 15 16 // 𤝬
 ⿰ han-72ad:6x16 1 han-6c10:8x16 // ⿰犭氐
 
 glyph han-2476d:15x16 15 16 // 𤝭
-⿲ han-72ad:4x16 han-6b62:7x16 han-5315:4x16 // ⿲犭止匕
+⿲ han-72ad:4x16 han-6b62:7x16 han-5315.0:4x16 // ⿲犭止匕
 
 ## 94.6
 

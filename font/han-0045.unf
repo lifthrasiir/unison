@@ -469,8 +469,8 @@ glyph han-5d0a:15x16 15 16 // 崊
 // glyph han-5d10:15x16 15 16 // 崐
 // ⿰ han-5c71 han-6606 // ⿰山昆
 
-glyph han-5d11:15x16 15 16 // 崑
-⿳ han-5c71:15x4 1 han-65e5:15x7 han-6bd4:15x4 // ⿳山日比
+glyph han-5d11-($han-regions):15x16 15 16 // 崑
+⿳ han-5c71:15x4 1 han-65e5:15x7 han-6bd4-($-1):15x4 // ⿳山日比
 
 // glyph han-5d12:15x16 15 16 // 崒
 // ⿱ han-5c71 han-5352 // ⿱山卒
@@ -2284,8 +2284,8 @@ glyph han-5e7f:15x16 = han-5e7f:15x16.11x13
 
 ## 53.2
 
-glyph han-5e80:15x16 15 16 // 庀
-⿸ han-5e7f:15x16.11x13 han-5315:10x13 5 3 // ⿸广匕
+glyph han-5e80-($han-regions):15x16 15 16 // 庀
+⿸ han-5e7f:15x16.11x13 han-5315-($-1):10x13 5 3 // ⿸广匕
 
 glyph han-5e81:15x16 15 16 // 庁
 ⿸ han-5e7f:15x16.11x13 han-4e01:9x12 5 4 // ⿸广丁

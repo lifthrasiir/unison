@@ -627,8 +627,8 @@ glyph han-308b5:15x16 15 16 // 𰢵
 
 ## 102.4
 
-glyph han-308ba:15x16 15 16 // 𰢺
-⿲ han-7530:5x16-l han-4ebb:3x16 han-5315:7x16 // ⿲田亻匕
+glyph han-308ba-($han-regions):15x16 15 16 // 𰢺
+⿰ han-7530:5x16-l han-5316-($-1):10x16 // ⿰田化
 
 // glyph han-308be:15x16 15 16 // 𰢾
 // ⿱ han-4ea0 han-3f57 // ⿱亠㽗

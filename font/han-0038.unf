@@ -167,8 +167,8 @@ glyph han-59a1:15x16 15 16 // 妡
 glyph han-59a2:15x16 15 16 // 妢
 ⿰ han-5973:7x16 1 han-5206:7x16 // ⿰女分
 
-glyph han-59a3:15x16 15 16 // 妣
-⿲ han-5973:5x16-l han-5315:5x16 han-5315:5x16 // ⿲女匕匕
+glyph han-59a3-($han-regions):15x16 15 16 // 妣
+⿰ han-5973:5x16-l han-6bd4-($-1):10x16 // ⿰女比
 
 // glyph han-59a6:15x16 15 16 // 妦
 // ⿰ han-5973 han-4e30 // ⿰女丰
@@ -184,8 +184,8 @@ glyph han-59a8:15x16 15 16 // 妨
 glyph han-59ac:15x16 15 16 // 妬
 ⿰ han-5973:7x16 han-77f3:8x16 // ⿰女石
 
-glyph han-59ae:15x16 15 16 // 妮
-⿰ han-5973:5x16-l 1 han-5c3c:9x16 // ⿰女尼
+glyph han-59ae-($han-regions):15x16 15 16 // 妮
+⿰ han-5973:5x16-l 1 han-5c3c-($-1):9x16 // ⿰女尼
 
 glyph han-59af:15x16 15 16 // 妯
 ⿰ han-5973:5x16-l 1 han-7531:9x16 // ⿰女由
@@ -1301,14 +1301,15 @@ glyph han-5c38.0:15x16 = han-5c38:15x16
 glyph han-5c3b:15x16 15 16 // 尻
 ⿸ han-5c38:15x16.11x12 han-4e5d:10x12 5 4 // ⿸尸九
 
-glyph han-5c3c:9x16 9 16 // 尼
-⿸ han-5c38:9x16.6x12 han-5315:5x11 4 5 // ⿸尸匕
-glyph han-5c3c:10x16 10 16 // 尼
-⿸ han-5c38:10x16.7x12 han-5315:6x11 4 5 // ⿸尸匕
-glyph han-5c3c:11x14 11 14 // 尼
-⿸ han-5c38:11x14.8x10 han-5315:7x9 4 5 // ⿸尸匕
-glyph han-5c3c:15x16 15 16 // 尼
-⿸ han-5c38:15x16.11x12 han-5315:9x11 6 5 // ⿸尸匕
+glyph han-5c3c-($han-regions):9x16 9 16 // 尼
+⿸ han-5c38:9x16.6x12 han-5315-($-1):5x11 4 5 // ⿸尸匕
+glyph han-5c3c-($han-regions):10x16 10 16 // 尼
+⿸ han-5c38:10x16.7x12 han-5315-($-1):6x11 4 5 // ⿸尸匕
+glyph han-5c3c-($han-regions):11x14 11 14 // 尼
+⿸ han-5c38:11x14.8x10 han-5315-($-1):7x9 4 5 // ⿸尸匕
+glyph han-5c3c-($han-regions):15x16 15 16 // 尼
+⿸ han-5c38:15x16.11x12 han-5315-($-1):9x11 6 5 // ⿸尸匕
+glyph han-5c3c.0:15x16 = han-5c3c-j:15x16
 
 ## 44.4
 
