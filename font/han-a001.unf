@@ -537,6 +537,9 @@ glyph han-3578:15x16 15 16 // 㕸
 
 ## 30.6
 
+// glyph han-3584:15x16 15 16 // 㖄
+// ⿰ han-53e3 han-5dde // ⿰口州
+
 glyph han-3587:15x16 15 16 // 㖇
 ⿰ han-53e3:5x16-l 1 han-800c:9x16 // ⿰口而
 
@@ -895,8 +898,10 @@ glyph han-36c9:15x16 15 16 // 㛉
 
 ## 38.7
 
-glyph han-36ce:15x16 15 16 // 㛎
+glyph han-36ce-g:15x16 15 16 // 㛎
 ⿰ han-5973:5x16-l han-5415:10x16 // ⿰女吕
+glyph han-36ce-(t|j|v):15x16 15 16 // 㛎
+⿰ han-5973:5x16-l han-5415.x:10x16 // ⿰女吕
 
 glyph han-36d5:15x16 15 16 // 㛕
 ⿰ han-5973:5x16-l han-9091:10x16 // ⿰女邑

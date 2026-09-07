@@ -173,6 +173,9 @@ glyph han-231ba:15x16 15 16 // 𣆺
 // glyph han-231bf:15x16 15 16 // 𣆿
 // ⿰ han-65e5 han-7683 // ⿰日皃
 
+glyph han-231c1:15x16 15 16 // 𣇁
+⿰ han-65e5:6x16 han-5de0:9x16 // ⿰日巠
+
 // glyph han-231c4:15x16 15 16 // 𣇄
 // ⿱ han-65e5 han-6298 // ⿱日折
 
@@ -502,6 +505,9 @@ glyph han-23189:15x16 15 16 // 𣆉
 
 // glyph han-2332d:15x16 15 16 // 𣌭
 // ⿱ han-5408 han-65e5 // ⿱合日
+
+// glyph han-2332e:15x16 15 16 // 𣌮
+// ⿱ han-65e5 han-5dde // ⿱日州
 
 // glyph han-2332f:15x16 15 16 // 𣌯
 // ⿱ han-65e5 han-673a // ⿱日机

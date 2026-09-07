@@ -608,6 +608,9 @@ glyph han-48c1-($han-regions):15x16 15 16 // 䣁
 
 ## 163.7
 
+glyph han-48c6:15x16 15 16 // 䣆
+⿰ han-5de0:9x16 1 han-961d:5x16-r // ⿰巠阝
+
 // glyph han-48c8:15x16 15 16 // 䣈
 // ⿰ han-9091 han-9091 // ⿰邑邑
 

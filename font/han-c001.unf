@@ -419,6 +419,9 @@ glyph han-2a87c:15x16 15 16 // 𪡼
 // glyph han-2a87e:15x16 15 16 // 𪡾
 // ⿰ han-53e3 han-7b19 // ⿰口笙
 
+glyph han-2a87f:15x16 15 16 // 𪡿
+⿲ -2 han-53e3:3x16-l han-6708:5x16 han-5de0:9x16 // ⿲口月巠
+
 // glyph han-2a884-($han-regions):15x16 15 16 // 𪢄
 // ⿰ han-53e3 han-7fcc-($-1) // ⿰口翌
 
@@ -535,6 +538,9 @@ glyph han-2a8c5:15x16 15 16 // 𪣅
 
 glyph han-2a8cc:15x16 15 16 // 𪣌
 ⿰ han-571f:5x16-l 1 han-8033:9x16 // ⿰土耳
+
+// glyph han-2a8cf:15x16 15 16 // 𪣏
+// ⿰ han-571f han-5dde // ⿰土州
 
 // glyph han-2a8d0:15x16 15 16 // 𪣐
 // ⿰ han-571f han-5e84 // ⿰土庄

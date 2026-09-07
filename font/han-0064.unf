@@ -486,6 +486,9 @@ glyph han-6327-($han-regions):15x16 15 16 // 挧
 glyph han-6330:15x16 15 16 // 挰
 ⿰ han-624c:3x16 1 han-5448:11x16 // ⿰扌呈
 
+glyph han-6333:15x16 15 16 // 挳
+⿰ han-624c:5x16 1 han-5de0:9x16 // ⿰扌巠
+
 // glyph han-6337:15x16 15 16 // 挷
 // ⿲ han-624c han-4e30 han-961d // ⿲扌丰阝
 
@@ -536,8 +539,14 @@ glyph han-6358:15x16 15 16 // 捘
 glyph han-6359:15x16 15 16 // 捙
 ⿰ han-624c:5x16 1 han-8eca:9x16 // ⿰扌車
 
-glyph han-635b:15x16 15 16 // 捛
+glyph han-635b.0:15x16 15 16 // 捛
+⿰ han-624c:3x16 1 han-5415.x:11x16 // ⿰扌吕
+glyph han-635b.x:15x16 15 16 // 捛
 ⿰ han-624c:3x16 1 han-5415:11x16 // ⿰扌吕
+exists han-635b\.0:([0-9]+x[0-9]+)
+glyph han-635b-(t|j|v):($1) = ($0)
+exists han-635b\.x:([0-9]+x[0-9]+)
+glyph han-635b-g:($1) = ($0)
 
 ## 64.8
 

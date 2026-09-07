@@ -165,8 +165,10 @@ glyph han-266cb:15x16 15 16 // 𦛋
 
 ## 130.7
 
-glyph han-266d7:15x16 15 16 // 𦛗
+glyph han-266d7-g:15x16 15 16 // 𦛗
 ⿰ han-6708:5x16-l 1 han-5415:9x16 // ⿰月吕
+glyph han-266d7-(t|j|p|v):15x16 15 16 // 𦛗
+⿰ han-6708:5x16-l 1 han-5415.x:9x16 // ⿰月吕
 
 glyph han-266db:15x16 15 16 // 𦛛
 ⿰ han-6708:8x16 han-8f9b:7x16 // ⿰月辛

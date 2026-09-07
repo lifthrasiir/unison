@@ -67,6 +67,9 @@ glyph han-2d1d5-($han-regions):15x16 15 16 // 𭇕
 
 ## 30.6
 
+// glyph han-2d1eb:15x16 15 16 // 𭇫
+// ⿱ han-53e3 han-5dde // ⿱口州
+
 // glyph han-2d1ec:15x16 15 16 // 𭇬
 // ⿰ han-53e3 han-5b57 // ⿰口字
 
@@ -249,6 +252,9 @@ glyph han-2d2ab:15x16 15 16 // 𭊫
 
 glyph han-2d2b1:15x16 15 16 // 𭊱
 ⿲ -2 han-53e3:3x16-l 1 han-27fb7:5x16 han-76ae:8x16 // ⿲口𧾷皮
+
+// glyph han-2d2b2:15x16 15 16 // 𭊲
+// ⿱ han-20c60 han-5dde // ⿱𠱠州
 
 glyph han-2d2bd:15x16 15 16 // 𭊽
 ⿲ han-53e3:3x16-l han-7cf9:5x16 han-5404:7x16 // ⿲口糹各
@@ -552,7 +558,7 @@ glyph han-2d44c:15x16 15 16 // 𭑌
 ⿰ han-592b:9x16 1 han-5de8:5x16 // ⿰夫巨
 
 glyph han-2d44d:15x16 15 16 // 𭑍
-⿳ han-53e3:15x4 1 han-53e3:15x4 han-5927:15x7 // ⿳口口大
+⿱ han-5415:15x9 han-5927:15x7 // ⿱吕大
 
 ## 37.9
 

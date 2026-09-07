@@ -914,7 +914,7 @@ glyph han-3ad9:15x16 15 16 // 㫙
 // ⿰ han-65e5 han-5144 // ⿰日兄
 
 glyph han-3adc:15x16 15 16 // 㫜
-⿰ han-65e5:4x16-l 2 han-65e6:9x16 // ⿰日旦
+⿰ han-65e5:4x16-l 1 han-65e6:10x16 // ⿰日旦
 
 glyph han-3add:15x16 15 16 // 㫝
 ⿰ han-65e5:7x16 han-6c10:8x16 // ⿰日氐

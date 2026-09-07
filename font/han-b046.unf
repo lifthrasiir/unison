@@ -263,6 +263,9 @@ glyph han-21de2-($han-regions):15x16 15 16 // 𡷢
 // glyph han-21de7:15x16 15 16 // 𡷧
 // ⿱ han-5c71 han-541f // ⿱山吟
 
+glyph han-21de8:15x16 15 16 // 𡷨
+⿰ han-5c71:5x16 1 han-5de0:9x16 // ⿰山巠
+
 // glyph han-21dea:15x16 15 16 // 𡷪
 // ⿳ han-5c7e han-4e00 han-5927 // ⿳屾一大 <- ⿱屾天
 

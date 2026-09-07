@@ -748,6 +748,9 @@ glyph han-8a70:15x16 15 16 // 詰
 glyph han-8a73:15x16 15 16 // 詳
 ⿰ han-8a01:5x16 1 han-7f8a:9x16 // ⿰訁羊
 
+// glyph han-8a76:15x16 15 16 // 詶
+// ⿰ han-8a01 han-5dde // ⿰訁州
+
 glyph han-8a77:15x16 15 16 // 詷
 ⿰ han-8a01:5x16 1 han-540c:9x16 // ⿰訁同
 
@@ -800,6 +803,9 @@ glyph han-8a91:15x16 15 16 // 誑
 
 glyph han-8a97:15x16 15 16 // 誗
 ⿲ han-8a01:5x16 han-79be:5x16 han-5202:5x16 // ⿲訁禾刂
+
+glyph han-8a99:15x16 15 16 // 誙
+⿰ han-8a01:5x16 1 han-5de0:9x16 // ⿰訁巠
 
 glyph han-8a9a:15x16 15 16 // 誚
 ⿰ han-8a01:5x16 1 han-8096:9x16 // ⿰訁肖

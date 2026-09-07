@@ -665,6 +665,9 @@ glyph han-3e6f:15x16 15 16 // 㹯
 // glyph han-3e71:15x16 15 16 // 㹱
 // ⿰ han-72ad han-8db3 // ⿰犭足
 
+glyph han-3e75:15x16 15 16 // 㹵
+⿰ han-72ad:6x16 han-5de0:9x16 // ⿰犭巠
+
 // glyph han-3e78:15x16 15 16 // 㹸
 // ⿰ han-72ad han-7683 // ⿰犭皃
 

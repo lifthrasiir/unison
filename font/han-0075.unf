@@ -953,6 +953,9 @@ glyph han-6822:15x16 15 16 // 栢
 // glyph han-6825:15x16 15 16 // 栥
 // ⿱ han-6b21 han-6728 // ⿱次木
 
+// glyph han-6826:15x16 15 16 // 栦
+// ⿰ han-6728 han-5dde // ⿰木州
+
 glyph han-6828:15x16 15 16 // 栨
 ⿲ han-6728:5x16 han-51ab:3x16 han-6b20:7x16 // ⿲木冫欠
 
@@ -1038,6 +1041,9 @@ glyph han-685b:15x16 15 16 // 桛
 // glyph han-686f:15x16 15 16 // 桯
 // ⿰ han-6728 han-5448 // ⿰木呈
 
+glyph han-6871:15x16 15 16 // 桱
+⿰ han-6728:5x16 1 han-5de0:9x16 // ⿰木巠
+
 glyph han-6879:15x16 15 16 // 桹
 ⿰ han-6728:7x16 1 han-826f:7x16 // ⿰木良
 
@@ -1087,8 +1093,14 @@ glyph han-6898:15x16 15 16 // 梘
 // glyph han-689e:15x16 15 16 // 梞
 // ⿰ han-6728 han-5fcc // ⿰木忌
 
-glyph han-68a0:15x16 15 16 // 梠
+glyph han-68a0.0:15x16 15 16 // 梠
+⿰ han-6728:5x16 1 han-5415.x:9x16 // ⿰木吕
+glyph han-68a0.x:15x16 15 16 // 梠
 ⿰ han-6728:5x16 1 han-5415:9x16 // ⿰木吕
+exists han-68a0\.0:([0-9]+x[0-9]+)
+glyph han-68a0-(h|t|j|k|p):($1) = ($0)
+exists han-68a0\.x:([0-9]+x[0-9]+)
+glyph han-68a0-g:($1) = ($0)
 
 glyph han-68a1:15x16 15 16 // 梡
 ⿰ han-6728:5x16 1 han-5b8c:9x16 // ⿰木完

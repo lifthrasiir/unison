@@ -467,6 +467,9 @@ glyph han-2c8e7:15x16 15 16 // 𬣧
 glyph han-2c8ec:15x16 15 16 // 𬣬
 ⿰ han-8ba0:5x16 1 han-56de:9x16 // ⿰讠回
 
+// glyph han-2c8f1:15x16 15 16 // 𬣱
+// ⿰ han-8ba0 han-5dde // ⿰讠州
+
 glyph han-2c8f2:15x16 15 16 // 𬣲
 ⿰ han-8ba0:5x16 1 han-5e76:9x16 // ⿰讠并
 

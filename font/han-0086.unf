@@ -579,6 +579,9 @@ glyph han-70e5:15x16 15 16 // 烥
 glyph han-70f3:15x16 15 16 // 烳
 ⿰ han-706b:7x16 1 han-752b:7x16 // ⿰火甫
 
+glyph han-70f4:15x16 15 16 // 烴
+⿰ han-706b:5x16-l 1 han-5de0:9x16 // ⿰火巠
+
 glyph han-70f7:15x16 15 16 // 烷
 ⿰ han-706b:5x16-l 1 han-5b8c:9x16 // ⿰火完
 
@@ -614,8 +617,10 @@ glyph han-710c:15x16 15 16 // 焌
 glyph han-7111:15x16 15 16 // 焑
 ⿰ han-706b:5x16-l 1 han-56f0:9x16 // ⿰火困
 
-glyph han-7112:15x16 15 16 // 焒
+glyph han-7112-g:15x16 15 16 // 焒
 ⿰ han-706b:5x16-l han-5415:10x16 // ⿰火吕
+glyph han-7112-(t|v):15x16 15 16 // 焒
+⿰ han-706b:5x16-l han-5415.x:10x16 // ⿰火吕
 
 ## 86.8
 

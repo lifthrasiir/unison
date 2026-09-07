@@ -236,10 +236,18 @@ glyph han-27e13-($han-regions):15x16 15 16 // 𧸓
 glyph han-27e1a:15x16 15 16 // 𧸚
 ⿲ -3 han-8c9d:5x16 1 han-27fb7:5x16 han-5404:7x16 // ⿲貝𧾷各
 
+## 154.14
+
+glyph han-27e30:15x16 15 16 // 𧸰
+⿲ -5 han-8c9d:5x16 1 han-8eca:5x16 han-5de0:9x16 // ⿲貝車巠
+
 ## 154.15
 
 // glyph han-27e35:15x16 15 16 // 𧸵
 // ⿱ han-8ccf han-7a7a // ⿱賏空
+
+// glyph han-27e36:15x16 15 16 // 𧸶
+// ⿱ han-92de han-8c9d // ⿱鋞貝
 
 ## 154.17
 

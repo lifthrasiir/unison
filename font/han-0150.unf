@@ -656,6 +656,9 @@ glyph han-8df4:15x16 15 16 // 跴
 // glyph han-8e00:15x16 15 16 // 踀
 // ⿰ han-27fb7 han-8db3 // ⿰𧾷足
 
+glyph han-8e01:15x16 15 16 // 踁
+⿰ han-27fb7:5x16 1 han-5de0:9x16 // ⿰𧾷巠
+
 glyph han-8e03:15x16 15 16 // 踃
 ⿰ han-27fb7:5x16 1 han-8096:9x16 // ⿰𧾷肖
 

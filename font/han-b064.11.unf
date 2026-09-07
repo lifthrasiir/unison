@@ -170,6 +170,9 @@ glyph han-22de6:15x16 15 16 // 𢷦
 glyph han-22de7:15x16 15 16 // 𢷧
 ⿲ -1 han-624c:3x16 han-76ae:8x16 han-9801:5x16 // ⿲扌皮頁
 
+glyph han-22df0:15x16 15 16 // 𢷰
+⿲ -2 han-624c:3x16 han-8eca:5x16 han-5de0:9x16 // ⿲扌車巠
+
 ## 64.15
 
 glyph han-22e1b:15x16 15 16 // 𢸛

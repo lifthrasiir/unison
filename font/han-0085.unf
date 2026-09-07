@@ -574,6 +574,9 @@ glyph han-6d30:15x16 15 16 // 洰
 glyph han-6d31:15x16 15 16 // 洱
 ⿰ han-6c35:5x16 1 han-8033:9x16 // ⿰氵耳
 
+// glyph han-6d32:15x16 15 16 // 洲
+// ⿰ han-6c35 han-5dde // ⿰氵州
+
 glyph han-6d33:15x16 15 16 // 洳
 ⿲ han-6c35:3x16 han-5973:5x16 han-53e3:7x16 // ⿲氵女口
 
@@ -669,6 +672,9 @@ glyph han-6d85:15x16 15 16 // 涅
 
 glyph han-6d86:15x16 15 16 // 涆
 ⿲ han-6c35:3x16 han-65e5:5x16 han-5e72:7x16 // ⿲氵日干
+
+glyph han-6d87:15x16 15 16 // 涇
+⿰ han-6c35:5x16 1 han-5de0:9x16 // ⿰氵巠
 
 glyph han-6d88:15x16 15 16 // 消
 ⿰ han-6c35:5x16 1 han-8096:9x16 // ⿰氵肖

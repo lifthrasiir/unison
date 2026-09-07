@@ -377,6 +377,9 @@ glyph han-28b88:15x16 15 16 // 𨮈
 // glyph han-28b9c:15x16 15 16 // 𨮜
 // ⿱ han-6f38 han-91d1 // ⿱漸金
 
+glyph han-28bab:15x16 15 16 // 𨮫
+⿲ -4 han-91d2:5x16-l han-8eca:5x16 han-5de0:9x16 // ⿲釒車巠
+
 glyph han-28bac:15x16 15 16 // 𨮬
 ⿲ -3 han-91d2:5x16-l han-7968:7x16 han-5bf8:6x16 // ⿲釒票寸
 
