@@ -118,7 +118,8 @@ pub(super) fn paint_document_area(
     // panel takes *while a glyph is being edited* — outside editing there
     // is no panel, so reserving for one only narrows the band and scrolls
     // grids that would otherwise fit. Grids wider than the band scroll
-    // inside it.
+    // inside it. Only grids: everything else on a line, a reference chart
+    // strip included, keeps the pane's full width.
     let blocks = collect_grid_blocks(vlines, row_height, grid_cell);
     let mut strip = {
         let x = origin.x + LEFT_PAD;
@@ -434,9 +435,15 @@ pub(super) fn paint_document_area(
             // it. See [`crate::editor::ref_images`].
             VLineKind::RefImage { codepoint } => {
                 if let Some(store) = env.ref_images {
+                    // The pane's full width, not the grid band's: the band
+                    // gives up its right edge to the inline tool panel while a
+                    // glyph is being edited, and the panel sits beside *that*
+                    // glyph's grid, never over a strip. A strip is pinned above
+                    // a text line and is as wide as the text beside it, so it
+                    // must not narrow when editing starts somewhere else.
                     let row = egui::Rect::from_min_max(
                         egui::pos2(strip.x, origin.y + y),
-                        egui::pos2(strip.right(), origin.y + y + h),
+                        egui::pos2(rect.max.x, origin.y + y + h),
                     );
                     let id = state.keyed(Slot::RefImageDrag, codepoint);
                     let scroll = state.ref_image_scroll.entry(*codepoint).or_default();

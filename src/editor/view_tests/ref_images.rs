@@ -117,7 +117,7 @@ fn a_collapsed_glyph_keeps_the_strip_over_its_header() {
 }
 
 /// A strip that has been read draws at one image pixel to the point, whatever
-/// the editor's zoom, and is clipped to the band rather than spilling past it.
+/// the editor's zoom, and is clipped to its row rather than spilling past it.
 #[test]
 fn a_strip_draws_at_its_own_size_whatever_the_zoom() {
     let mut h = harness_with_strips(&[0x4e00]);
@@ -130,7 +130,7 @@ fn a_strip_draws_at_its_own_size_whatever_the_zoom() {
     assert_eq!(drawn.width(), 2000.0);
     assert!(
         clip.width() < drawn.width(),
-        "a strip wider than the band has to be clipped to it"
+        "a strip wider than its row has to be clipped to it"
     );
 
     // Zooming the editor magnifies the drawing, not the chart photograph.
@@ -190,4 +190,35 @@ fn dragging_a_strip_scrolls_it_within_its_overflow() {
     h.frame();
     // The caret never moved: the drag was the strip's, not a text selection.
     assert_eq!(h.state.cursor, Caret::new(0, 0));
+}
+
+/// The band a grid is drawn in gives up room to the inline tool panel while a
+/// glyph is being edited; a chart strip is not part of that band. It is a
+/// photograph pinned above a text line, as wide as the pane like the text
+/// around it, and entering grid editing must not narrow it.
+#[test]
+fn a_strip_keeps_its_full_width_while_a_glyph_is_edited() {
+    let mut h = harness_with_strips(&[0x4e00]);
+    let dark = h.ctx.style().visuals.dark_mode;
+    h.ref_images
+        .clone()
+        .expect("a store")
+        .preload_for_test(0x4e00, [2000, 90], dark);
+    h.frame();
+    let row_right = |h: &EditorHarness| h.painted_images().first().expect("the strip").1.right();
+    let idle = row_right(&h);
+
+    h.click_grid_cell(2, 0, 0);
+    h.frame();
+    assert!(
+        matches!(h.state.mode, crate::editor::EditMode::GlyphEdit { .. }),
+        "the click has to enter grid editing"
+    );
+    let reserved = crate::editor::document_view::inline_panel_reserved_width(1.0);
+    assert!(reserved > 0.0);
+    assert!(
+        h.snap().strip.right() < idle,
+        "the grid band does give up room to the panel"
+    );
+    assert_eq!(row_right(&h), idle, "the strip row does not");
 }
