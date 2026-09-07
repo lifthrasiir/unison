@@ -837,7 +837,9 @@ fn with_clearance(
     };
     let (_, issues) = expand_compose("test", Some(parent), 1, compose, dims, None, Some(&rule));
     assert!(errors(&issues).is_empty(), "{issues:?}");
-    of_severity(&issues, Severity::Warning)
+    // A clearance finding is a `Severity::Chore`, not a warning: it says the
+    // same thing, and it is only a build's *log* that is spared it.
+    of_severity(&issues, Severity::Chore)
         .into_iter()
         .map(str::to_string)
         .collect()
@@ -1251,7 +1253,7 @@ fn with_contact_run(
     };
     let (_, issues) = expand_compose("test", Some(parent), 1, compose, dims, None, Some(&rule));
     assert!(errors(&issues).is_empty(), "{issues:?}");
-    of_severity(&issues, Severity::Warning)
+    of_severity(&issues, Severity::Chore)
         .into_iter()
         .map(str::to_string)
         .collect()
@@ -1361,14 +1363,14 @@ fn an_undecided_line_is_not_measured() {
 // ------------------------------------------ a part that is itself an IDC line
 
 /// The whole pipeline over an inline source, for the two tests below: the
-/// clearance warnings a build would print, in order.
+/// clearance findings, in order.
 fn clearance_warnings(src: &str) -> Vec<String> {
     let doc = crate::document_io::parse_document_from_str(src, "test.unf".into()).unwrap();
     let r = crate::resolve::Resolution::compute(&[&doc]);
     r.expansion
         .diagnostics
         .iter()
-        .filter(|d| d.severity == Severity::Warning && d.message.contains("outside the ideal"))
+        .filter(|d| d.severity == Severity::Chore && d.message.contains("outside the ideal"))
         .map(|d| d.message.clone())
         .collect()
 }

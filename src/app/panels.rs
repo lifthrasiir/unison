@@ -250,7 +250,7 @@ fn show_search_tab(
 
 /// Which severities the issue list shows.
 ///
-/// Per severity rather than a single "minimum severity": the four are not one
+/// Per severity rather than a single "minimum severity": the five are not one
 /// scale. A [`Severity::Todo`] queue tens of thousands long and a handful of
 /// errors are two different lists that happen to share a panel, and reading
 /// either one means hiding the other — which is also why a right-click on a
@@ -258,12 +258,16 @@ fn show_search_tab(
 ///
 /// Notes are the one thing off to begin with: they ask for no action, so they
 /// are what someone opting in goes looking for rather than what the panel opens
-/// on.
+/// on. Chores *are* on, unlike in a build: what a chore gives up is being
+/// printed into a log that scrolls past, and this list is filtered live —
+/// hiding the whole clearance queue is one click away, and it is a click the
+/// reader makes rather than one made for them.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 pub(super) struct IssueFilter {
     pub errors: bool,
     pub warnings: bool,
+    pub chores: bool,
     pub todos: bool,
     pub notes: bool,
 }
@@ -273,6 +277,7 @@ impl Default for IssueFilter {
         Self {
             errors: true,
             warnings: true,
+            chores: true,
             todos: true,
             notes: false,
         }
@@ -284,6 +289,7 @@ impl IssueFilter {
         match severity {
             Severity::Error => &mut self.errors,
             Severity::Warning => &mut self.warnings,
+            Severity::Chore => &mut self.chores,
             Severity::Todo => &mut self.todos,
             Severity::Note => &mut self.notes,
         }
@@ -293,6 +299,7 @@ impl IssueFilter {
         match severity {
             Severity::Error => self.errors,
             Severity::Warning => self.warnings,
+            Severity::Chore => self.chores,
             Severity::Todo => self.todos,
             Severity::Note => self.notes,
         }
@@ -308,6 +315,7 @@ impl IssueFilter {
         *self = Self {
             errors: false,
             warnings: false,
+            chores: false,
             todos: false,
             notes: false,
         };
@@ -318,13 +326,16 @@ impl IssueFilter {
 /// The mark that stands for a severity wherever one is drawn: the filter
 /// buttons, the tab label and every row.
 ///
-/// `✖`/`⚠` come from the fallback font, `□`/`○` from the font being edited —
-/// which is on purpose only in that the four have to stay apart at 16px in
-/// whichever font answers for them.
+/// `✖`/`⚠` come from the fallback font, `△`/`□`/`○` from the font being edited —
+/// which is on purpose only in that the five have to stay apart at 16px in
+/// whichever font answers for them. A chore is a warning that does not ask to
+/// be told again, so it takes the warning's shape hollowed out and the
+/// warning's colour dulled, rather than a mark of its own.
 fn severity_icon(severity: Severity) -> &'static str {
     match severity {
         Severity::Error => "\u{2716}",
         Severity::Warning => "\u{26A0}",
+        Severity::Chore => "\u{25B3}",
         Severity::Todo => "\u{25A1}",
         Severity::Note => "\u{25CB}",
     }
@@ -334,6 +345,7 @@ fn severity_color(ui: &egui::Ui, severity: Severity) -> egui::Color32 {
     match severity {
         Severity::Error => egui::Color32::from_rgb(220, 60, 60),
         Severity::Warning => egui::Color32::from_rgb(200, 180, 50),
+        Severity::Chore => egui::Color32::from_rgb(150, 130, 80),
         Severity::Todo => egui::Color32::from_rgb(90, 160, 230),
         Severity::Note => ui.visuals().weak_text_color(),
     }
@@ -378,7 +390,11 @@ pub(super) fn issues_tab_label(counts: [usize; Severity::ALL.len()]) -> String {
 
 /// The row of severity buttons above the list: left-click toggles one,
 /// right-click keeps only that one.
-fn show_issue_filter(ui: &mut egui::Ui, filter: &mut IssueFilter, counts: [usize; 4]) {
+fn show_issue_filter(
+    ui: &mut egui::Ui,
+    filter: &mut IssueFilter,
+    counts: [usize; Severity::ALL.len()],
+) {
     ui.horizontal_wrapped(|ui| {
         for (sev, count) in Severity::ALL.iter().zip(counts) {
             let sev = *sev;
@@ -1154,6 +1170,7 @@ mod issue_filter_tests {
         let f = IssueFilter::default();
         assert!(f.shows(Severity::Error));
         assert!(f.shows(Severity::Warning));
+        assert!(f.shows(Severity::Chore));
         assert!(f.shows(Severity::Todo));
         assert!(!f.shows(Severity::Note));
     }
@@ -1172,7 +1189,12 @@ mod issue_filter_tests {
 
         f.only(Severity::Todo);
         assert!(f.shows(Severity::Todo));
-        for other in [Severity::Error, Severity::Warning, Severity::Note] {
+        for other in [
+            Severity::Error,
+            Severity::Warning,
+            Severity::Chore,
+            Severity::Note,
+        ] {
             assert!(!f.shows(other), "{other:?}");
         }
         // Including a severity that starts out hidden.
@@ -1188,18 +1210,19 @@ mod issue_filter_tests {
             issue(Severity::Todo),
             issue(Severity::Error),
             issue(Severity::Todo),
+            issue(Severity::Chore),
         ];
         let refs: Vec<&Issue> = issues.iter().collect();
-        assert_eq!(severity_counts(&refs), [1, 1, 2, 0]);
+        assert_eq!(severity_counts(&refs), [1, 1, 1, 2, 0]);
     }
 
     /// The tab has the rest of the tab strip to sit beside, so a count there is
     /// three digits at most and a severity nobody has is not mentioned at all.
     #[test]
     fn the_tab_label_is_icons_and_short_counts() {
-        assert_eq!(issues_tab_label([0, 0, 0, 0]), "Issues");
+        assert_eq!(issues_tab_label([0, 0, 0, 0, 0]), "Issues");
         assert_eq!(
-            issues_tab_label([2, 0, 20_000, 0]),
+            issues_tab_label([2, 0, 0, 20_000, 0]),
             format!(
                 "Issues {}2 {}20k",
                 severity_icon(Severity::Error),

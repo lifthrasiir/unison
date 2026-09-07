@@ -1520,6 +1520,10 @@ impl SpecimenState {
         if let Some(name) = self.glyph_of(item)
             && let Some(flag) = self.glyph_flags.get(name)
         {
+            // Two words for two flags: a `Severity::Chore` is painted and named
+            // as the warning it is, and the Issues tab is where the severity
+            // that a build would not have printed is told apart from one it
+            // would (see `glyph_flags`).
             let what = match flag {
                 GlyphFlag::Warning => "warning",
                 GlyphFlag::Error => "error",

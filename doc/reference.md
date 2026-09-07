@@ -20,7 +20,8 @@ without the `.unf` extension.
 ```sh
 uniform [DIR]                                       # the editor, optionally on a font directory
 uniform build -i DIR -o OUT [-o OUT…] [--demo-html demo.html] [-d DATA] [--woff2-quality fast|max]
-uniform test -i DIR                                 # run every `assert`; exit 1 on a failure
+                                    [--chores]
+uniform test -i DIR [--chores]                      # run every `assert`; exit 1 on a failure
 uniform fix -i DIR --optimize-clearance [--dry-run] # rewrite the source, see below
 uniform probe -i DIR [--repeat N] [--edit]          # timing, no window
 uniform sequences -i DIR                            # what to type for a glyph no `map` names
@@ -52,7 +53,8 @@ the report says so along with where the first one is.
 
 Both `build` and `test` print every parse error, then a validation report with `file:line:`
 locations. Only errors set the exit status, so a font that builds is not necessarily a font without
-complaints — see [Diagnostics and Exit Status](#diagnostics-and-exit-status).
+complaints, and two severities are counted rather than printed unless `--chores` asks for one of
+them — see [Diagnostics and Exit Status](#diagnostics-and-exit-status).
 
 A glyph only reaches the output font if something asks for it: a `map`, a `ref` from a glyph that
 is itself reachable, a `remap` operand, or the `keep` flag. Unreachable glyphs are dropped and
@@ -1462,7 +1464,9 @@ whose own line has an undecided component in it; a line containing one is not me
 measured wrong.
 
 What the numbers are held to is [`audit ideal-clearance`](#audit-rules-the-source-is-held-to), which
-binds each of them *and* their total to one range; a violation is a warning. Both halves are needed,
+binds each of them *and* their total to one range; a violation is a
+[chore](#diagnostics-and-exit-status) — a warning that a build counts rather than prints, since this
+one check speaks for every composed glyph in the font. Both halves are needed,
 and the reason is arithmetic. The total telescopes down to the parent's extent less the parts' ink
 extents, so it does not depend on the gaps at all: a source that only had to satisfy the total could
 never fix a failing line by moving anything. The per-part bound is what an author can act on, and the
@@ -1790,7 +1794,7 @@ error even when the two values agree.
 
 | Key | Meaning |
 | --- | --- |
-| `ideal-clearance PREFIX* MIN MAX [MIN MAX]` | The inclusive range each of an [IDC line](#clearance)'s clearances, *and* their total, must fall in. Violations are warnings. The optional second pair is the band an [enclosure](#enclosures-) is held to; with one pair both kinds of line share it. |
+| `ideal-clearance PREFIX* MIN MAX [MIN MAX]` | The inclusive range each of an [IDC line](#clearance)'s clearances, *and* their total, must fall in. Violations are [chores](#diagnostics-and-exit-status). The optional second pair is the band an [enclosure](#enclosures-) is held to; with one pair both kinds of line share it. |
 | `max-contact-run PREFIX* N` | How many consecutive lines two neighbouring parts may touch along before the layout owes them a cell of clearance. See below. |
 | `ref-image-path DIR` | The directory of reference chart strips the editor draws above a `glyph` line, relative to the file the line is written in. See `editor.md`. |
 
@@ -1811,13 +1815,14 @@ both fire on one line.
 ### Diagnostics and Exit Status
 
 Every mode prints the same report — the parse errors first, then the cross-document validation, each
-line prefixed with its severity and located as `file:line:`. There are four severities, and they are
+line prefixed with its severity and located as `file:line:`. There are five severities, and they are
 not degrees of the same thing:
 
 | Severity | Means |
 | --- | --- |
 | `error` | The source is wrong in a way nobody chose. The affected glyph is dropped, and so is any `map` that named it. |
 | `warning` | The source is wrong in a way nobody chose, but the font is still built from it. |
+| `chore` | The same as a `warning`, from a check that makes the same finding thousands of times. Counted, not printed, unless `--chores` is given. |
 | `todo` | Work that has not been done yet — a normal state of the source rather than a defect in it. |
 | `note` | Something worth saying that asks for no action. |
 
@@ -1827,7 +1832,16 @@ picked their variants](#undecided-components) is on a queue, not broken, and the
 start in the tens of thousands and come down. So a `todo` never fails a build or a `uniform test`
 run, and it is *counted* rather than printed — the editor's issue list, which has a filter over it,
 is where a work queue that size is read, and a build log that scrolls it past is a build log nobody
-reads. Every other severity prints its line.
+reads.
+
+A `chore` is quiet for the opposite reason: it *is* a defect, and one worth fixing, but it comes
+from a check that holds every glyph in the font to a standard rather than from anything anyone just
+wrote. [`ideal-clearance`](#audit-directives) is the case the severity exists for — a few thousand
+findings that are all real, all somebody's eventual work, and none of them today's, printed over the
+twenty findings that are. So a build counts them and prints the count; `build --chores` and
+`test --chores` print the lines. Everything a chore is otherwise a warning: it is the same message,
+it tints the same cell in the editor's [specimen](editor.md#the-specimen), and it does not fail a
+build. Every severity other than `todo` and `chore` always prints its line.
 
 Only errors set the exit status. `build` and `test` exit 1 if there was at least one, and `build`
 still writes every output file before doing so, so a CI run can publish the files and fail
@@ -1936,9 +1950,9 @@ Puts an [IDC line](#idc-composition)'s [clearances](#clearance) back inside the 
 the source already draws and the gaps the line may write. It acts on two kinds of report, and they
 are not the same act:
 
-* a **clearance warning**, where the line has a layout and the layout is outside the range. The
+* a **clearance chore**, where the line has a layout and the layout is outside the range. The
   search moves it inside, and the rewrite is emitted only if it *lowers* the score — a line that
-  cannot be improved keeps its warning rather than being shuffled about;
+  cannot be improved keeps its finding rather than being shuffled about;
 * a **todo**, where a component has not [picked its variant](#undecided-components). There is no
   layout at all then and so no score to lower, but the family the component names is on hand and
   choosing from it is exactly what the todo asks for. Such a line is planned whatever it scores,
@@ -1965,8 +1979,8 @@ always a candidate, whatever it says, since it is the source's own choice rather
 being proposed.
 
 The **score** of a layout is how far its clearances fall outside the range, summed — each of the
-*n + 1* clearances plus their total, exactly the set of numbers the check warns about. Zero is "no
-warning at all".
+*n + 1* clearances plus their total, exactly the set of numbers the check reports on. Zero is "no
+finding at all".
 
 The gaps themselves are not searched, because they are arithmetic. Placing the parts is the same as
 choosing all but one of the clearances freely, since moving a part along the axis moves exactly the

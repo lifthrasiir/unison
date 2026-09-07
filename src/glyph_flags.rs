@@ -9,9 +9,12 @@
 //!
 //! # Two states, not four
 //!
-//! Only [`Severity::Error`] and [`Severity::Warning`] flag anything, and an
-//! error on a glyph hides a warning on the same glyph — a cell has one
-//! background, and the worse finding is the one worth painting.
+//! Only [`Severity::Error`], [`Severity::Warning`] and [`Severity::Chore`] flag
+//! anything, and an error on a glyph hides a warning on the same glyph — a cell
+//! has one background, and the worse finding is the one worth painting. A chore
+//! paints as a warning, because it *is* one: what a chore gives up is the build
+//! log, not the glyph it is about, and the specimen grid is exactly where a
+//! finding nobody wants told again is still worth seeing.
 //! [`Severity::Todo`] and [`Severity::Note`] are deliberately not flags: a Todo
 //! is a normal state of the source (a Han glyph on the work queue, tens of
 //! thousands of them at once), so painting it would tint
@@ -81,7 +84,7 @@ pub enum GlyphFlag {
     Error,
 }
 
-/// The glyphs [`Severity::Warning`] or worse was said about, directly or
+/// The glyphs [`Severity::Chore`] or worse was said about, directly or
 /// through something they are built out of. A glyph nothing was said about is
 /// simply absent — the map is expected to be small next to the glyph set.
 #[derive(Clone, Debug, Default)]
@@ -164,7 +167,7 @@ pub fn collect(docs: &[&Document], issues: &[Issue], expansion: &Expansion) -> G
     for issue in issues {
         let flag = match issue.severity {
             Severity::Error => GlyphFlag::Error,
-            Severity::Warning => GlyphFlag::Warning,
+            Severity::Warning | Severity::Chore => GlyphFlag::Warning,
             Severity::Todo | Severity::Note => continue,
         };
         // A finding that names its glyph is about that glyph alone, whatever
@@ -287,6 +290,28 @@ mod tests {
         ));
         assert_eq!(flags.get("b"), Some(GlyphFlag::Error));
         assert_eq!(flags.get("a"), Some(GlyphFlag::Error));
+    }
+
+    /// A clearance finding is a [`Severity::Chore`] — a build does not print it
+    /// — but it is still a finding about a glyph, and the specimen is the one
+    /// place a queue that size is read cell by cell rather than line by line.
+    /// So it tints exactly as a warning does.
+    #[test]
+    fn a_chore_tints_the_glyph_it_is_about() {
+        let flags = flags_of(&format!(
+            "{HEAD}\
+             audit ideal-clearance p-* 0 0\n\
+             glyph p-a:2x2 2 2\n\
+             @@..\n\
+             @@..\n\
+             glyph p-b:2x2 2 2\n\
+             ..@@\n\
+             ..@@\n\
+             glyph p-x 4 2\n\
+             \u{2FF0} p-a:2x2 p-b:2x2\n\
+             map U+0062 = p-x\n"
+        ));
+        assert_eq!(flags.get("p-x"), Some(GlyphFlag::Warning));
     }
 
     #[test]

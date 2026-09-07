@@ -2227,12 +2227,17 @@ fn report_clearances(
         ),
         _ => String::new(),
     };
+    // A clearance finding is a [`Severity::Chore`]: the same defect a warning
+    // reports, held to the same band and flagging the same glyph, but one every
+    // IDC line in the font is measured against — so it is counted rather than
+    // printed by a build, and the twenty findings that are somebody's next task
+    // stay visible. See [`Severity`].
     let mut out: Vec<(Severity, String)> = clearances
         .iter()
         .filter(|c| !(min..=max).contains(&c.value))
         .map(|c| {
             (
-                Severity::Warning,
+                Severity::Chore,
                 format!(
                     "leaves {} between {}, outside {range}{}",
                     c.value,
@@ -2257,7 +2262,7 @@ fn report_clearances(
             .collect::<Vec<_>>()
             .join(", ");
         out.push((
-            Severity::Warning,
+            Severity::Chore,
             format!("leaves {total}{axis} in total, outside {range} — {breakdown}"),
         ));
     }

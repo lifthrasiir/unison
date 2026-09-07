@@ -1,0 +1,56 @@
+// The clearance band, which is the one check that reports a `chore` rather
+// than a `warning`: it holds every IDC line in a font to an ideal spacing, so
+// it speaks tens of thousands of times in the real font and a build counts it
+// instead of printing it. See `Severity` in src/issues/mod.rs.
+//
+// See src/golden.rs.
+//
+// testdata/ is one font project, so `meta` stays in latin.unf.
+
+audit ideal-clearance clr-* 0 0
+
+glyph clr-left:8x16 8 16
+@@@@@@@@........
+@@@@@@@@........
+@@@@@@@@........
+@@@@@@@@........
+@@@@@@@@........
+@@@@@@@@........
+@@@@@@@@........
+@@@@@@@@........
+@@@@@@@@........
+@@@@@@@@........
+@@@@@@@@........
+@@@@@@@@........
+@@@@@@@@........
+@@@@@@@@........
+@@@@@@@@........
+@@@@@@@@........
+
+glyph clr-right:8x16 8 16
+........@@@@@@@@
+........@@@@@@@@
+........@@@@@@@@
+........@@@@@@@@
+........@@@@@@@@
+........@@@@@@@@
+........@@@@@@@@
+........@@@@@@@@
+........@@@@@@@@
+........@@@@@@@@
+........@@@@@@@@
+........@@@@@@@@
+........@@@@@@@@
+........@@@@@@@@
+........@@@@@@@@
+........@@@@@@@@
+
+// 8 columns of white between the two halves: outside the ideal 0..0 both as
+// the one gap and as the axis total.
+glyph clr-split 16 16
+⿰ clr-left:8x16 clr-right:8x16
+
+map U+E000 = clr-split
+
+assume unused clr-left:8x16
+assume unused clr-right:8x16

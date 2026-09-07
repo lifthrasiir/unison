@@ -686,12 +686,12 @@ fn a_rewritten_line_keeps_its_comment() {
     assert_eq!(fixes[0].new_line, "\u{2FF0} 1 a:4x4 -2 b:4x4 // as drawn");
 }
 
-/// The clearance warnings the real check reports for a source.
+/// The clearance findings the real check reports for a source.
 fn clearance_warnings(src: &str) -> Vec<String> {
     let doc = parse_document_from_str(src, "test.unf".into()).unwrap();
     crate::issues::collect_issues(&[&doc])
         .into_iter()
-        .filter(|i| i.severity == crate::issues::Severity::Warning && i.message.contains("leaves"))
+        .filter(|i| i.severity == crate::issues::Severity::Chore && i.message.contains("leaves"))
         .map(|i| i.message)
         .collect()
 }

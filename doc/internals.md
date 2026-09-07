@@ -127,6 +127,7 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Topic | Read |
 | --- | --- |
 | What each severity means, and which of them a build, `uniform test` and CI may ignore | `issues/mod.rs` (`Severity`) |
+| Why a `chore` is a warning a build counts rather than prints, and what `--chores` does | `issues/mod.rs` (`Severity`), `main.rs` (`report_issues`) |
 | Which glyph a finding is about, why a composite carries its components' findings, and why a flag carries the glyph it started at | `glyph_flags.rs` |
 | When a finding faults one expansion of a pattern rather than the whole line | `resolve.rs` (`Diagnostic::glyph`), `glyph_flags.rs` |
 | A `remap` rule the lookup silently drops, and where that is reported | `render/ttf_builder/gsub.rs` (`shadowed_single_subst_rules`, `build_single_subst_from_pairs`) |

@@ -272,6 +272,7 @@ mod tests {
             issue_filter: IssueFilter {
                 errors: false,
                 warnings: true,
+                chores: false,
                 todos: false,
                 notes: true,
             },

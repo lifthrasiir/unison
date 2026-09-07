@@ -158,7 +158,9 @@ click on a tinted cell goes to the component the fault started at rather than to
 own glyph. Hovering a cell names the character with its `{gc=… ccc=… eaw=…}` properties.
 
 **Issues** is the validation report with a filter per severity. Notes start hidden; right-click a
-severity to show it alone.
+severity to show it alone. Chores — the clearance findings a build counts rather than prints — do
+*not* start hidden: the filter here is live, so hiding a few thousand of them is one click, and it
+is a click you make rather than one made for you.
 
 F6 runs the `assert` directives of the current file, Ctrl+F6 those of every file. F10/F11 step
 through the faces the source declares; the chosen face is remembered. *Font ▸ Optimize clearance*

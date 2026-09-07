@@ -1275,6 +1275,7 @@ pub fn serialize_document(doc: &Document, writer: &mut dyn Write) -> Result<()> 
 /// what counts as a row, or a block would stop being a grid the moment it was
 /// commented and uncommented again.
 #[cfg(any(feature = "editor", test))]
+#[cfg_attr(all(not(feature = "editor"), test), expect(dead_code))]
 pub fn decode_grid_row(line: &str, width: u16) -> Option<Vec<crate::pixel::PixelShape>> {
     // Zero width encodes to the empty string, which every blank line would
     // match; see [`is_pixel_row_next`] for why that row is never read.

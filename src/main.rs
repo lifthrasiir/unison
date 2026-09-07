@@ -77,8 +77,16 @@ fn load_docs_reporting_errors(dir: &std::path::Path) -> (Vec<document::Document>
 /// Which is also why a `todo` is *counted* here rather than printed: the
 /// editor's issue list is where a work queue that size is read, with a filter
 /// over it, and a build log that scrolls it past is a build log nobody reads.
-/// Every other severity prints its line.
-fn report_issues(docs: &[&document::Document], resolution: &resolve::Resolution) -> usize {
+/// A `chore` is quiet for the same reason and not the same one — it is a real
+/// defect rather than unstarted work, but one a whole-font check makes tens of
+/// thousands of times, and it drowns the report it shares (see
+/// [`issues::Severity`]). `--chores` prints those lines; the count is there
+/// either way. Every other severity always prints its line.
+fn report_issues(
+    docs: &[&document::Document],
+    resolution: &resolve::Resolution,
+    show_chores: bool,
+) -> usize {
     let issues = issues::collect_issues_with(docs, resolution);
     if issues.is_empty() {
         return 0;
@@ -86,10 +94,13 @@ fn report_issues(docs: &[&document::Document], resolution: &resolve::Resolution)
     let count = |sev: issues::Severity| issues.iter().filter(|i| i.severity == sev).count();
     let errors = count(issues::Severity::Error);
     let todos = count(issues::Severity::Todo);
-    for issue in issues
-        .iter()
-        .filter(|i| i.severity != issues::Severity::Todo)
-    {
+    let chores = count(issues::Severity::Chore);
+    let printed = |sev: issues::Severity| match sev {
+        issues::Severity::Todo => false,
+        issues::Severity::Chore => show_chores,
+        _ => true,
+    };
+    for issue in issues.iter().filter(|i| printed(i.severity)) {
         let file = issue
             .file
             .file_name()
@@ -102,12 +113,19 @@ fn report_issues(docs: &[&document::Document], resolution: &resolve::Resolution)
             issue.message
         );
     }
-    let todos = if todos > 0 {
-        format!(", {todos} todo(s)")
-    } else {
-        String::new()
+    // The counts of what was *not* printed, so that a report which is only a
+    // summary line still says how much it is a summary of.
+    let quiet = |n: usize, what: &str| match n {
+        0 => String::new(),
+        n => format!(", {n} {what}(s)"),
     };
-    eprintln!("{} problem(s), {} error(s){todos}", issues.len(), errors);
+    let chores = quiet(if show_chores { 0 } else { chores }, "chore");
+    let todos = quiet(todos, "todo");
+    eprintln!(
+        "{} problem(s), {} error(s){chores}{todos}",
+        issues.len(),
+        errors
+    );
     errors
 }
 
@@ -615,6 +633,7 @@ fn main() {
         let mut demo_html = None;
         let mut data_dir = None;
         let mut woff2_quality = render::Woff2Quality::default();
+        let mut show_chores = false;
         let mut i = 2;
         while i < args.len() {
             match args[i].as_str() {
@@ -644,6 +663,7 @@ fn main() {
                     i += 1;
                     data_dir = args.get(i).map(std::path::PathBuf::from);
                 }
+                "--chores" => show_chores = true,
                 _ => {
                     eprintln!("Unknown build option: {}", args[i]);
                     std::process::exit(1);
@@ -655,14 +675,14 @@ fn main() {
         let Some(input) = input_dir else {
             eprintln!(
                 "Usage: uniform build --input <DIR> --output <FILE.ttf|.woff2> [--output ...] \
-                 [--woff2-quality fast|max]"
+                 [--woff2-quality fast|max] [--chores]"
             );
             std::process::exit(1);
         };
         if output_files.is_empty() {
             eprintln!(
                 "Usage: uniform build --input <DIR> --output <FILE.ttf|.woff2> [--output ...] \
-                 [--woff2-quality fast|max]"
+                 [--woff2-quality fast|max] [--chores]"
             );
             std::process::exit(1);
         }
@@ -707,7 +727,7 @@ fn main() {
             });
             let errors = {
                 let _t = startup::PerfStage::new("validate");
-                report_issues(&refs, &resolution)
+                report_issues(&refs, &resolution, show_chores)
             };
             (
                 errors,
@@ -946,6 +966,7 @@ fn main() {
 
     if args.get(1).map(|s| s.as_str()) == Some("test") {
         let mut input_dir = None;
+        let mut show_chores = false;
         let mut i = 2;
         while i < args.len() {
             match args[i].as_str() {
@@ -953,6 +974,7 @@ fn main() {
                     i += 1;
                     input_dir = args.get(i).map(std::path::PathBuf::from);
                 }
+                "--chores" => show_chores = true,
                 _ => {
                     eprintln!("Unknown test option: {}", args[i]);
                     std::process::exit(1);
@@ -962,7 +984,7 @@ fn main() {
         }
 
         let Some(input) = input_dir else {
-            eprintln!("Usage: uniform test --input <DIR>");
+            eprintln!("Usage: uniform test --input <DIR> [--chores]");
             std::process::exit(1);
         };
 
@@ -974,7 +996,11 @@ fn main() {
         let refs: Vec<&document::Document> = docs.iter().collect();
         // Same rule as `build`: a validation error fails the run even when
         // every assertion passes.
-        let error_count = parse_errors + report_issues(&refs, &resolve::Resolution::compute(&refs));
+        let error_count = parse_errors + report_issues(
+            &refs,
+            &resolve::Resolution::compute(&refs),
+            show_chores,
+        );
 
         let name_parts = document::collect_name_parts(&refs);
         let (resolved, _) = ref_composite::resolve_named_glyphs_with_parts(&refs, &name_parts);

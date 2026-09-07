@@ -7,7 +7,8 @@
 //! and the editor print the same report, `error:`/`warning:` prefixed and
 //! `file:line:` located, and a font with only warnings still builds — so the
 //! report is meant to be read, not just exit-coded. [`Severity`] says how each
-//! prefix is meant to be read, and which of them a build may ignore.
+//! prefix is meant to be read, which of them a build may ignore, and which of
+//! them it does not print unless asked.
 //!
 //! A few rules are worth knowing about because they are refusals rather than
 //! best-effort output:
@@ -42,9 +43,20 @@ use crate::resolve::{DocSet, Resolution};
 
 /// How a finding is meant to be read.
 ///
-/// The first two are about the *source*: something is wrong with what is
+/// The first three are about the *source*: something is wrong with what is
 /// written, and a font built from it is wrong in a way nobody chose. The last
 /// two are not.
+///
+/// [`Severity::Chore`] says exactly what a [`Severity::Warning`] says — it is
+/// the same kind of defect, in the same source, and it flags the same glyph —
+/// and differs only in whether it wants to be *told* again. Some checks are
+/// right to keep running and wrong to keep printing: the clearance band holds
+/// every IDC line in the font to an ideal spacing, so it speaks tens of
+/// thousands of times about work that is real but is nobody's next task, and a
+/// report that long is a report in which the twenty findings that *are* someone's
+/// next task cannot be seen. So a chore is counted rather than printed by a
+/// build (`--chores` prints them), while the editor, where the list has a live
+/// filter over it, shows it like any other finding.
 ///
 /// [`Severity::Todo`] is work that has not been done yet. It reads exactly like
 /// an error in the font — the glyph is not built and the character is not
@@ -59,6 +71,7 @@ use crate::resolve::{DocSet, Resolution};
 pub enum Severity {
     Error,
     Warning,
+    Chore,
     Todo,
     Note,
 }
@@ -66,9 +79,10 @@ pub enum Severity {
 impl Severity {
     /// Every severity, worst first — the order the filter buttons are drawn in
     /// and the order [`Ord`] sorts by.
-    pub const ALL: [Severity; 4] = [
+    pub const ALL: [Severity; 5] = [
         Severity::Error,
         Severity::Warning,
+        Severity::Chore,
         Severity::Todo,
         Severity::Note,
     ];
@@ -78,6 +92,7 @@ impl Severity {
         match self {
             Severity::Error => "error",
             Severity::Warning => "warning",
+            Severity::Chore => "chore",
             Severity::Todo => "todo",
             Severity::Note => "note",
         }
@@ -89,6 +104,7 @@ impl Severity {
         match self {
             Severity::Error => "errors",
             Severity::Warning => "warnings",
+            Severity::Chore => "chores",
             Severity::Todo => "todos",
             Severity::Note => "notes",
         }

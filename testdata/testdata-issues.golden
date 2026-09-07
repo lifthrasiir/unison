@@ -1,3 +1,5 @@
+chore	issues-clearance.unf	50	glyph 'clr-split': `⿰` leaves 8 between 'clr-left:8x16' and 'clr-right:8x16', outside the ideal 0..0 (`audit ideal-clearance clr-*`)
+chore	issues-clearance.unf	50	glyph 'clr-split': `⿰` leaves 8 in total, outside the ideal 0..0 (`audit ideal-clearance clr-*`) — 0 between the left edge and 'clr-left:8x16', 8 between 'clr-left:8x16' and 'clr-right:8x16', 0 between 'clr-right:8x16' and the right edge
 error	issues-base.unf	22	unresolved ref 'no-such-glyph'
 error	issues-base.unf	36	map 'C' targets undefined glyph 'never-defined'
 error	issues-base.unf	37	map 'U+FFFFFFFF' is not a valid Unicode scalar value

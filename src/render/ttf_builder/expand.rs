@@ -2655,10 +2655,11 @@ glyph p-x 4 2
 ";
 
     #[test]
-    fn a_clearance_outside_the_ideal_range_is_a_warning() {
+    fn a_clearance_outside_the_ideal_range_is_a_chore() {
         let expansion = expand(&format!("audit ideal-clearance p-* 0 1\n{CANYON}"));
         assert!(of(&expansion, Severity::Error).is_empty());
-        let warnings = of(&expansion, Severity::Warning);
+        assert!(of(&expansion, Severity::Warning).is_empty());
+        let warnings = of(&expansion, Severity::Chore);
         assert_eq!(warnings.len(), 2, "{warnings:?}");
         assert!(
             warnings[0].contains("leaves 2 between 'p-a:2x2' and 'p-b:2x2'"),
@@ -2671,10 +2672,10 @@ glyph p-x 4 2
     fn a_glyph_no_rule_reaches_is_not_measured() {
         // The same source, held only by a prefix that does not name it.
         let expansion = expand(&format!("audit ideal-clearance q-* 0 1\n{CANYON}"));
-        assert!(of(&expansion, Severity::Warning).is_empty());
+        assert!(of(&expansion, Severity::Chore).is_empty());
         // …and with no rule at all.
         let expansion = expand(CANYON);
-        assert!(of(&expansion, Severity::Warning).is_empty());
+        assert!(of(&expansion, Severity::Chore).is_empty());
     }
 
     /// The parts of two glyphs written by one line, as a Han source writes a
@@ -2763,7 +2764,7 @@ glyph p-x 4 2
         );
         // 0 at each edge and 1 down the middle, where the ink alone would have
         // read 2 and failed.
-        assert!(of(&expansion, Severity::Warning).is_empty());
+        assert!(of(&expansion, Severity::Chore).is_empty());
     }
 }
 

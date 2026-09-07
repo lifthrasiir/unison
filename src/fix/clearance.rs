@@ -11,8 +11,12 @@
 //! warning rather than being shuffled about. Four kinds of report, and they are
 //! not the same act:
 //!
-//! - a **clearance warning**: the line has a layout and it is outside the
-//!   range. The search moves it inside;
+//! - a **clearance finding**: the line has a layout and it is outside the
+//!   range. The search moves it inside. This one is a `Severity::Chore`
+//!   rather than a warning — a build counts it instead of printing it, because
+//!   the check speaks for every composed glyph in the font — but nothing here
+//!   turns on which of the two it is, and the vocabulary below still calls the
+//!   glyphs it is about *warning* glyphs;
 //! - a **wrong-slot warning**: a component drawn for one side sits on another.
 //!   Nothing about the clearances is wrong, so the count of such components is
 //!   an objective of its own — the second one, behind the score, so no name is
@@ -71,7 +75,7 @@
 //!
 //! The score of a layout is how far its clearances fall outside the range,
 //! summed over the n+1 clearances plus their total — exactly the numbers the
-//! check warns about. Zero is "no clearance warning", not "no warning": a
+//! check reports on. Zero is "no clearance finding", not "no warning": a
 //! wrong-slot component warns at any score and is counted beside it.
 //!
 //! # Why the gaps need no search

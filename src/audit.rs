@@ -355,6 +355,7 @@ impl MaxContactRuns {
 /// The first line found wins; a source stating two is already reported as a
 /// duplicate slot by [`crate::issues`], and picking one of them arbitrarily is
 /// what every other single-assignment key does with its duplicates too.
+#[cfg_attr(all(not(feature = "editor"), not(test)), expect(dead_code))]
 pub fn ref_image_root<'a>(
     files: impl IntoIterator<Item = (&'a std::path::Path, &'a str)>,
 ) -> Option<std::path::PathBuf> {
