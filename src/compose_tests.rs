@@ -172,7 +172,10 @@ fn slot_directions_follow_the_operator() {
     assert_eq!(LeftRight.slot_direction(0), Some(Direction::Left));
     assert_eq!(LeftRight.slot_direction(1), Some(Direction::Right));
     assert_eq!(LeftRight.slot_direction(2), None);
-    assert_eq!(LeftMiddleRight.slot_direction(1), Some(Direction::Center));
+    // The middle of a three-part split claims nothing: no Han character has a
+    // form that only appears there, so a name written for either side is right.
+    assert_eq!(LeftMiddleRight.slot_direction(1), None);
+    assert_eq!(AboveMiddleBelow.slot_direction(1), None);
     assert_eq!(AboveBelow.slot_direction(0), Some(Direction::Up));
     assert_eq!(AboveMiddleBelow.slot_direction(2), Some(Direction::Down));
     assert_eq!(IdcOp::from_token("\u{2FF0}"), Some(LeftRight));
@@ -534,6 +537,59 @@ fn a_part_drawn_for_the_other_side_is_only_a_warning() {
             .any(|(s, m)| *s == Severity::Warning && m.contains("sits in the `-l` slot")),
         "{issues:?}"
     );
+}
+
+/// A middle slot takes a part drawn for either side without a word, because the
+/// side it borrows from is a fact about the character and not about the slot:
+/// 阝 in the middle of a ⿲ is the right-hand 邑 when that is what it descends
+/// from, and 匕 there is the left-hand form.
+#[test]
+fn the_middle_slot_accepts_a_part_drawn_for_either_side() {
+    let dims = table(&[
+        ("a:4x16-l", (4, 16)),
+        ("b:4x16-r", (4, 16)),
+        ("c:4x16-l", (4, 16)),
+    ]);
+    for middle in ["b:4x16-r", "c:4x16-l"] {
+        let (refs, issues) = expand(
+            Some((12, 16)),
+            &line(
+                IdcOp::LeftMiddleRight,
+                vec![part("a:4x16-l"), part(middle), part("b:4x16-r")],
+            ),
+            &dims,
+        );
+        assert_eq!(refs.len(), 3, "{middle}: {issues:?}");
+        assert!(
+            !issues.iter().any(|(_, m)| m.contains("sits in the")),
+            "{middle}: {issues:?}"
+        );
+    }
+    // The ends of the same line are checked as strictly as ever.
+    let (_, issues) = expand(
+        Some((12, 16)),
+        &line(
+            IdcOp::LeftMiddleRight,
+            vec![part("b:4x16-r"), part("a:4x16-l"), part("a:4x16-l")],
+        ),
+        &dims,
+    );
+    let placed: Vec<&str> = issues
+        .iter()
+        .filter(|(s, m)| *s == Severity::Warning && m.contains("sits in the"))
+        .map(|(_, m)| m.as_str())
+        .collect();
+    assert_eq!(placed.len(), 2, "{issues:?}");
+}
+
+/// Nothing ranks a middle slot's candidates by side, since neither side is the
+/// wrong one there — and `fix::clearance` refuses only a last-ranked candidate.
+#[test]
+fn a_middle_slot_ranks_both_sides_alike() {
+    let slot = IdcOp::LeftMiddleRight.slot_direction(1);
+    assert_eq!(direction_rank("a:4x16-l", slot), 1);
+    assert_eq!(direction_rank("a:4x16-r", slot), 1);
+    assert_eq!(direction_rank("a:4x16", slot), 1);
 }
 
 // ---------------------------------------------------------------------------

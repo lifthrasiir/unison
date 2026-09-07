@@ -94,7 +94,7 @@
 //! # The variant name rule (D1)
 //!
 //! Everything after a name's first `:` is split on `-`; the first `WxH` token
-//! is the variant's **size** and the first `l`/`r`/`u`/`d`/`c` token its
+//! is the variant's **size** and the first `l`/`r`/`u`/`d` token its
 //! **position**. Neither is required. A size may be `WxH.NxM`, which promises
 //! a **cavity** flush against the sides the enclosure it is written for opens
 //! on ([`cavity_fits`]); only an outer part states one, stating one is what
@@ -114,6 +114,18 @@
 //! variants ([`direction_rank`]): the slot's own direction first, unmarked
 //! second, the wrong direction last — the order the editor's listing and the
 //! fixer both use, so it lives here with the parse.
+//!
+//! A three-part split's middle slot claims no direction at all, and the reason
+//! is about Han characters rather than about this code. The rules that give a
+//! part a positional form all read the *other* side of it — a part with
+//! something to its right pulls its last stroke in, one with something below it
+//! flattens — and none of them read what is to a part's left. So the middle of
+//! a ⿲ fires exactly the rules the left slot fires, and no character has a
+//! shape that only appears there: the middle borrows a form that already exists
+//! for one side or the other, and which one it borrows is a fact about the
+//! character (阝 in the middle is whichever of 阜 and 邑 it descends from) and
+//! not about the slot. A middle slot therefore accepts `-l` and `-r` alike, and
+//! the component names the side whose drawing it actually wants.
 
 use crate::detail::DetailRegion;
 use crate::document::{ComposeItem, GlyphCompose, GlyphRef, PixelGrid};
@@ -295,10 +307,14 @@ impl IdcOp {
 
     /// Which position a component sits in, for the name check and the
     /// tie-break. Slots past the arity have no direction, and so does every
-    /// slot of an enclosure: `l`/`r`/`u`/`d`/`c` describe a share of an axis,
+    /// slot of an enclosure: `l`/`r`/`u`/`d` describe an *end* of an axis,
     /// which is not what an outer and an inner part are to each other. What
     /// says which slot an enclosure's name was drawn for is the cavity in it
     /// — see [`VariantSpec::inner`] and [`enclosure_rank`].
+    ///
+    /// A three-part split's middle slot has no direction either: there is no
+    /// such thing as a drawing made for the middle, only one made for a side
+    /// and used there. See the module docs.
     pub fn slot_direction(self, slot: usize) -> Option<Direction> {
         if self.enclosing() {
             return None;
@@ -313,21 +329,20 @@ impl IdcOp {
             (true, _, true) => Direction::Right,
             (false, true, _) => Direction::Up,
             (false, _, true) => Direction::Down,
-            _ => Direction::Center,
+            _ => return None,
         })
     }
 }
 
-/// The position a variant name claims: `l`, `r`, `u`, `d`, `c`.
+/// The position a variant name claims: `l`, `r`, `u`, `d`.
+///
+/// An end of an axis, never its middle — see [`IdcOp::slot_direction`].
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Direction {
     Left,
     Right,
     Up,
     Down,
-    /// The middle, of either axis — one letter covers both, since a part is
-    /// never centred horizontally and vertically at once in a 1-D split.
-    Center,
 }
 
 impl Direction {
@@ -337,7 +352,6 @@ impl Direction {
             "r" => Some(Self::Right),
             "u" => Some(Self::Up),
             "d" => Some(Self::Down),
-            "c" => Some(Self::Center),
             _ => None,
         }
     }
@@ -348,7 +362,6 @@ impl Direction {
             Self::Right => "r",
             Self::Up => "u",
             Self::Down => "d",
-            Self::Center => "c",
         }
     }
 }

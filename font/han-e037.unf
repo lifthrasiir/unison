@@ -688,7 +688,7 @@ glyph han-2bea2:15x16 15 16 // 𫺢
 ## 61.10
 
 glyph han-2beb6:15x16 15 16 // 𫺶
-⿲ han-5fc4:5x16 han-961d:5x16-c han-8eca:5x16 // ⿲忄阝車
+⿲ han-5fc4:5x16 han-961d:5x16-r han-8eca:5x16 // ⿲忄阝車
 
 ## 61.11
 
@@ -814,7 +814,7 @@ glyph han-2bf3b:15x16 15 16 // 𫼻
 // ⿰ han-624c han-95f9 // ⿰扌闹
 
 glyph han-2bf56:15x16 15 16 // 𫽖
-⿲ han-624c:3x16 han-961d:4x16-c han-4e14:8x16 // ⿲扌阝且
+⿲ han-624c:3x16 han-961d:4x16-r han-4e14:8x16 // ⿲扌阝且
 
 ## 64.9
 

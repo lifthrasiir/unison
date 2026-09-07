@@ -350,7 +350,7 @@ glyph han-21835:15x16 15 16 // 𡠵
 ⿰ han-5973:7x16 1 han-9b5a:7x16 // ⿰女魚
 
 glyph han-21836-($han-regions):15x16 15 16 // 𡠶
-⿲ han-5973:5x16-l han-91d2:5x16-c han-52fa-($-1):5x16 // ⿲女釒勺
+⿲ han-5973:5x16-l han-91d2:5x16-l han-52fa-($-1):5x16 // ⿲女釒勺
 
 // glyph han-2183a:15x16 15 16 // 𡠺
 // ⿳ han-708f han-5b80 han-5973 // ⿳炏宀女 <- ⿱炏安

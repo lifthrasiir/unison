@@ -342,7 +342,7 @@ glyph han-25595:15x16 15 16 // 𥖕
 // ⿰ han-77f3 han-8449 // ⿰石葉
 
 glyph han-255a7:15x16 15 16 // 𥖧
-⿲ -2 han-77f3:5x16 1 han-5315:4x16-c han-9ce5:7x16 // ⿲石匕鳥
+⿲ -2 han-77f3:5x16 1 han-5315:4x16-l han-9ce5:7x16 // ⿲石匕鳥
 
 // glyph han-255a8:15x16 15 16 // 𥖨
 // ⿰ han-77f3 han-55bf // ⿰石喿

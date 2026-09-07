@@ -655,7 +655,7 @@ glyph han-2ba8d:15x16 15 16 // 𫪍
 // ⿰ han-53e3 han-9763 // ⿰口靣
 
 glyph han-2ba9a:15x16 15 16 // 𫪚
-⿲ han-53e3:3x16-l 1 han-8f66:4x16-c han-65a4:7x16 // ⿲口车斤
+⿲ han-53e3:3x16-l 1 han-8f66:4x16-l han-65a4:7x16 // ⿲口车斤
 
 glyph han-2baac-($han-regions):15x16 15 16 // 𫪬
 ⿲ han-53e3:3x16-l han-6c35:3x16 han-4ee4-($-1):9x16 // ⿲口氵令
@@ -731,7 +731,7 @@ glyph han-2bae2:15x16 15 16 // 𫫢
 // ⿱ han-9774 han-53e3 // ⿱靴口
 
 glyph han-2baff-($han-regions):15x16 15 16 // 𫫿
-⿲ han-53e3:3x16-l han-91d2:5x16-c han-4ee4-($-1):7x16 // ⿲口釒令
+⿲ han-53e3:3x16-l han-91d2:5x16-l han-4ee4-($-1):7x16 // ⿲口釒令
 
 // glyph han-2bb03:15x16 15 16 // 𫬃
 // ⿲ han-53e3 han-8a01 han-820c // ⿲口訁舌 <- ⿰口話

@@ -8,7 +8,7 @@ glyph han-2aa22:15x16 15 16 // 𪨢
 ## 46.5
 
 glyph han-2aa29:15x16 15 16 // 𪨩
-⿲ han-5c71:5x16 1 han-8f66:4x16-c han-4e5a:5x16 // ⿲山车乚
+⿲ han-5c71:5x16 1 han-8f66:4x16-l han-4e5a:5x16 // ⿲山车乚
 
 ## 46.6
 
@@ -35,7 +35,7 @@ glyph han-2aa3b:15x16 15 16 // 𪨻
 ⿳ han-5c71:15x4 han-5927:15x5 han-76bf:15x7 // ⿳山大皿
 
 glyph han-2aa41:15x16 15 16 // 𪩁
-⿲ -1 han-5c71:5x16 1 han-961d:4x16-c han-4e14:6x16 // ⿲山阝且
+⿲ -1 han-5c71:5x16 1 han-961d:4x16-r han-4e14:6x16 // ⿲山阝且
 
 ## 46.9
 
@@ -372,7 +372,7 @@ glyph han-2ab7f:15x16 15 16 // 𪭿
 ⿲ -1 han-624c:3x16 han-723f:6x16 han-58eb:7x16 // ⿲扌爿士
 
 glyph han-2ab80:15x16 15 16 // 𪮀
-⿲ -6 han-624b:11x16 han-961d:4x16-c han-5143:6x16 // ⿲手阝元
+⿲ -6 han-624b:11x16 han-961d:4x16-r han-5143:6x16 // ⿲手阝元
 
 ## 64.8
 

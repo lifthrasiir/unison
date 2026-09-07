@@ -1653,27 +1653,21 @@ feature ccmp for DFLT : ctx
 
 /// A component named through a `glyph A = B` alias: the name the check sees has
 /// been canonicalized to the drawing's own (`-r`), but the slot the author
-/// picked is the one the *written* name states (`-c`). Ranking the canonical
+/// picked is the one the *written* name states (`-l`). Ranking the canonical
 /// name warns that every aliased component sits in the wrong slot, which is the
 /// one thing the alias was written to say is fine.
 #[test]
 fn an_aliased_component_is_ranked_on_the_name_as_written() {
-    let source = |middle: &str| {
+    let source = |left: &str| {
         format!(
             "\
-glyph a:4x4 4 4
-@@@@@@@@
-@@@@@@@@
-@@@@@@@@
-@@@@@@@@
-
 glyph r:4x4-r 4 4
 @@@@@@@@
 @@@@@@@@
 @@@@@@@@
 @@@@@@@@
 
-glyph r:4x4-c = r:4x4-r
+glyph r:4x4-l = r:4x4-r
 
 glyph b:4x4 4 4
 @@@@@@@@
@@ -1681,8 +1675,8 @@ glyph b:4x4 4 4
 @@@@@@@@
 @@@@@@@@
 
-glyph test-x 12 4
-\u{2FF2} a:4x4 {middle} b:4x4
+glyph test-x 8 4
+\u{2FF0} {left} b:4x4
 "
         )
     };
@@ -1694,11 +1688,11 @@ glyph test-x 12 4
             .map(|i| i.message)
             .collect()
     };
-    // The alias names the middle slot, which is the slot it sits in.
+    // The alias names the left slot, which is the slot it sits in.
     assert!(
-        slots(&source("r:4x4-c")).is_empty(),
+        slots(&source("r:4x4-l")).is_empty(),
         "{:?}",
-        slots(&source("r:4x4-c"))
+        slots(&source("r:4x4-l"))
     );
     // The drawing's own name still says `-r`, and that one does warn.
     assert_eq!(slots(&source("r:4x4-r")).len(), 1);

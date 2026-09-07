@@ -447,7 +447,7 @@ glyph han-6ccf:15x16 15 16 // 泏
 ⿰ han-6c35:5x16 1 han-51fa:9x16 // ⿰氵出
 
 glyph han-6cd0:15x16 15 16 // 泐
-⿲ han-6c35:3x16 han-961d:4x16-c han-529b:8x16 // ⿲氵阝力
+⿲ han-6c35:3x16 han-961d:4x16-r han-529b:8x16 // ⿲氵阝力
 
 glyph han-6cd4:15x16 15 16 // 泔
 ⿰ han-6c35:5x16 1 han-7518:9x16 // ⿰氵甘
@@ -782,7 +782,7 @@ glyph han-6e06:15x16 15 16 // 渆
 // ⿰ han-6c35 han-5947 // ⿰氵奇
 
 glyph han-6e10:15x16 15 16 // 渐
-⿲ han-6c35:5x16 han-8f66:4x16-c han-65a4:6x16 // ⿲氵车斤
+⿲ han-6c35:5x16 han-8f66:4x16-l han-65a4:6x16 // ⿲氵车斤
 
 glyph han-6e12:15x16 15 16 // 渒
 ⿰ han-6c35:5x16 han-5351:10x16 // ⿰氵卑

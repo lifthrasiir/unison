@@ -1407,7 +1407,7 @@ mod tests {
     /// lexicographic.
     #[test]
     fn an_idc_slot_orders_its_variant_listing_by_direction() {
-        let all: Vec<CompletionCandidate> = ["p:4x16", "p:4x16-l", "p:5x16-c", "p:5x16-r"]
+        let all: Vec<CompletionCandidate> = ["p:4x16", "p:4x16-l", "p:5x16-d", "p:5x16-r"]
             .iter()
             .map(|n| CompletionCandidate {
                 label: (*n).to_string(),
@@ -1427,25 +1427,32 @@ mod tests {
         // ⿰'s first slot is the left one, its last the right one.
         assert_eq!(
             order("⿰ p:4 q:8x16", 5),
-            vec!["p:4x16-l", "p:4x16", "p:5x16-c", "p:5x16-r"],
+            vec!["p:4x16-l", "p:4x16", "p:5x16-d", "p:5x16-r"],
         );
         assert_eq!(
             order("⿰ q:8x16 p:4", 12),
-            vec!["p:5x16-r", "p:4x16", "p:4x16-l", "p:5x16-c"],
+            vec!["p:5x16-r", "p:4x16", "p:4x16-l", "p:5x16-d"],
         );
         // A gap is not a slot: the component after it is still the right one.
         assert_eq!(order("⿰ q:8x16 -1 p:4", 15)[0], "p:5x16-r".to_string());
-        // ⿱ names its slots up and down, so no `l`/`r`/`c` name suits it and
-        // only the unmarked one is promoted.
+        // A three-part split's middle slot claims no direction, so it promotes
+        // nothing and the listing stays lexicographic — a part drawn for either
+        // side is equally right there.
+        assert_eq!(
+            order("⿲ q:8x16 p:4 q:8x16", 12),
+            vec!["p:4x16", "p:4x16-l", "p:5x16-d", "p:5x16-r"],
+        );
+        // ⿱ names its slots up and down, so no `l`/`r`/`d` name suits its first
+        // slot and only the unmarked one is promoted.
         assert_eq!(
             order("⿱ p:4 q:8x16", 5),
-            vec!["p:4x16", "p:4x16-l", "p:5x16-c", "p:5x16-r"],
+            vec!["p:4x16", "p:4x16-l", "p:5x16-d", "p:5x16-r"],
         );
 
         // Off an IDC line the same listing is lexicographic.
         assert_eq!(
             order("ref p:4", 7),
-            vec!["p:4x16", "p:4x16-l", "p:5x16-c", "p:5x16-r"],
+            vec!["p:4x16", "p:4x16-l", "p:5x16-d", "p:5x16-r"],
         );
         // …as is a listing that is not a variant listing at all.
         let ctx = detect_context("⿰ p q:8x16", 3).unwrap();
@@ -1454,7 +1461,7 @@ mod tests {
                 .into_iter()
                 .map(|c| c.label)
                 .collect::<Vec<_>>(),
-            vec!["p:4x16", "p:4x16-l", "p:5x16-c", "p:5x16-r"],
+            vec!["p:4x16", "p:4x16-l", "p:5x16-d", "p:5x16-r"],
         );
     }
 

@@ -1414,10 +1414,10 @@ is a **lower bound**: a drawing more generous than its name is not a fault.
 
 A part is usually drawn several times over, at the sizes and in the positions it is needed in, and
 the name says which one this is. Everything after a name's first `:` is split on `-`; the first
-`WxH` token is the variant's **size** and the first `l`, `r`, `u`, `d` or `c` token is its
-**position** — left, right, up, down, or the centre of either axis. Neither is required, and a name
-carrying neither is not an error. This is the ordinary [alternative form](#alternative-glyphs) syntax;
-what follows is what these two particular spellings buy.
+`WxH` token is the variant's **size** and the first `l`, `r`, `u` or `d` token is its **position** —
+left, right, up or down. Neither is required, and a name carrying neither is not an error. This is
+the ordinary [alternative form](#alternative-glyphs) syntax; what follows is what these two
+particular spellings buy.
 
 * A declared size must equal the glyph's actual size, and it is checked where the name is *used* as a
   component. A name is a claim about a glyph, so an unused `:4x16` that lies is nothing until
@@ -1431,6 +1431,16 @@ The position is also the tie-break among variants of the same size: the slot's o
 an unmarked name second, the wrong direction last. Nothing picks a variant automatically — a
 component names the one it wants outright — but that ranking is what the editor's variant listing and
 the optimizer both order by.
+
+A position is an **end** of an axis and never its middle, so the middle slot of ⿲ and ⿳ claims no
+direction: it neither warns nor ranks, and a part drawn for either side is equally right there. That
+is a fact about Han characters rather than a shortcut. The rules that give a part a positional form
+all read the *other* side of it — a part with something to its right pulls its last stroke in, one
+with something below it flattens — and none of them read what is to a part's left, so the middle of
+a ⿲ fires exactly the rules the left slot fires. No character has a shape that appears only in the
+middle; the middle borrows a form that already exists for one side, and which side it borrows is a
+property of the character (阝 in the middle is whichever of 阜 and 邑 it descends from) and not of
+the slot. So a middle component names the side whose drawing it actually wants.
 
 #### Clearance
 

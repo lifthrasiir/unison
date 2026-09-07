@@ -668,9 +668,6 @@ glyph han-961d:7x16-r 7 16 // 阝
 @@..........$$
 @@..........$$
 @@..........$$
-glyph han-961d:4x16-c = han-961d:4x16-r
-glyph han-961d:5x16-c = han-961d:5x16-r
-glyph han-961d:7x16-c = han-961d:7x16-r
 
 ## 170.2
 
@@ -982,7 +979,7 @@ glyph han-96ca:15x16 15 16 // 雊
 ⿰ han-53e5:7x16 1 han-96b9:7x16 // ⿰句隹
 
 glyph han-96cc:15x16 15 16 // 雌
-⿲ -2 han-6b62:6x16 han-5315:4x16-c han-96b9:7x16 // ⿲止匕隹
+⿲ -2 han-6b62:6x16 han-5315:4x16-l han-96b9:7x16 // ⿲止匕隹
 
 glyph han-96ce:15x16 15 16 // 雎
 ⿰ han-4e14:8x16 han-96b9:7x16 // ⿰且隹

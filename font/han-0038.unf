@@ -386,7 +386,7 @@ glyph han-5a3c:15x16 15 16 // 娼
 // ⿱ han-963f han-5973 // ⿱阿女
 
 glyph han-5a40:15x16 15 16 // 婀
-⿲ han-5973:5x16-l han-961d:4x16-c han-53ef:6x16 // ⿲女阝可
+⿲ han-5973:5x16-l han-961d:4x16-r han-53ef:6x16 // ⿲女阝可
 
 glyph han-5a44:15x16 15 16 // 婄
 ⿰ han-5973:5x16-l 1 han-5485:9x16 // ⿰女咅

@@ -757,7 +757,7 @@ glyph han-64ad:15x16 15 16 // 播
 ⿰ han-624c:5x16 1 han-756a:9x16 // ⿰扌番
 
 glyph han-64b3:15x16 15 16 // 撳
-⿲ han-624c:3x16 han-91d2:5x16-c han-6b20:7x16 // ⿲扌釒欠
+⿲ han-624c:3x16 han-91d2:5x16-l han-6b20:7x16 // ⿲扌釒欠
 
 ## 64.13
 

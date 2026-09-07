@@ -267,7 +267,7 @@ glyph han-28079:15x16 15 16 // 𨁹
 // ⿰ han-27fb7 han-6b68 // ⿰𧾷歨
 
 glyph han-28080:15x16 15 16 // 𨂀
-⿲ -1 han-27fb7:5x16 1 han-961d:4x16-c han-4e14:6x16 // ⿲𧾷阝且
+⿲ -1 han-27fb7:5x16 1 han-961d:4x16-r han-4e14:6x16 // ⿲𧾷阝且
 
 glyph han-28083:15x16 15 16 // 𨂃
 ⿲ han-27fb7:5x16 han-6708:5x16 han-6708:5x16 // ⿲𧾷月月
@@ -325,7 +325,7 @@ glyph han-280d1:15x16 15 16 // 𨃑
 // ⿰ han-27fb7 han-6817 // ⿰𧾷栗
 
 glyph han-280db:15x16 15 16 // 𨃛
-⿲ han-27fb7:5x16 1 han-961d:4x16-c han-8f9b:5x16 // ⿲𧾷阝辛
+⿲ han-27fb7:5x16 1 han-961d:4x16-r han-8f9b:5x16 // ⿲𧾷阝辛
 
 // glyph han-280dd:15x16 15 16 // 𨃝
 // ⿲ han-27fb7 han-5f73 han-8d70 // ⿲𧾷彳走 <- ⿰𧾷徒

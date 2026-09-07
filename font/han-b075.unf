@@ -522,10 +522,10 @@ glyph han-235d0:15x16 15 16 // 𣗐
 ⿲ -6 han-6728:5x16 han-5448:11x16 1 han-961d:4x16-r // ⿲木呈阝
 
 glyph han-235d1:15x16 15 16 // 𣗑
-⿲ han-6728:5x16 han-961d:5x16-c han-8eca:5x16 // ⿲木阝車
+⿲ han-6728:5x16 han-961d:5x16-r han-8eca:5x16 // ⿲木阝車
 
 glyph han-235d2:15x16 15 16 // 𣗒
-⿲ -2 han-6728:5x16 han-91d2:5x16-c han-5341:7x16 // ⿲木釒十
+⿲ -2 han-6728:5x16 han-91d2:5x16-l han-5341:7x16 // ⿲木釒十
 
 glyph han-235d3-($han-regions):15x16 15 16 // 𣗓
 ⿰ han-672a:9x16 1 han-8005-($-1):5x16 // ⿰未者

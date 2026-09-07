@@ -879,7 +879,7 @@ glyph han-4cc2:15x16 15 16 // 䳂
 ⿰ han-53ec:6x16 1 han-9ce5:7x16 // ⿰召鳥
 
 glyph han-4cc4:15x16 15 16 // 䳄
-⿲ -2 han-6b62:6x16 han-5315:4x16-c han-9ce5:7x16 // ⿲止匕鳥
+⿲ -2 han-6b62:6x16 han-5315:4x16-l han-9ce5:7x16 // ⿲止匕鳥
 
 glyph han-4cc6:15x16 15 16 // 䳆
 ⿰ han-767d:6x16 1 han-9ce5:7x16 // ⿰白鳥

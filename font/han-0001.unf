@@ -4488,7 +4488,7 @@ glyph han-50a8-($han-regions):15x16 15 16 // 储
 // ⿰ han-4ebb han-7ae0 // ⿰亻章
 
 glyph han-50be:15x16 15 16 // 傾
-⿲ han-4ebb:3x16 1 han-5315:4x16-c han-9801:7x16 // ⿲亻匕頁
+⿲ han-4ebb:3x16 1 han-5315:4x16-l han-9801:7x16 // ⿲亻匕頁
 
 glyph han-50c4:15x16 15 16 // 僄
 ⿰ han-4ebb:5x16 1 han-7968:9x16 // ⿰亻票

@@ -92,7 +92,7 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Which run of a line is the wall a cavity sees | `compose.rs` (`WallFace`) |
 | Why an enclosure's clearance total is per axis | `compose.rs` (`Clearance::horizontal`, `report_clearances`) |
 | `:WxH.NxM`: the cavity a name promises, why it is a lower bound, and where it may sit | `compose.rs` (`VariantSpec::inner`, `cavity_fits`, `enclosure_rank`) |
-| The `:WxH-l` variant name rule, and the position tie-break | `compose.rs` (`VariantSpec`, `direction_rank`) |
+| The `:WxH-l` variant name rule, the position tie-break, and why a three-part split's middle slot claims no position | `compose.rs` (`VariantSpec`, `direction_rank`, `IdcOp::slot_direction`) |
 | An IDC line written as a pattern, and why its layout is still solved per glyph | `compose.rs`, `document/name_parts.rs` (`expand_glyph_block`) |
 | Clearance: the ink a split leaves between its parts and the box, and why the per-part range and the total are both needed | `compose.rs` (`InkProfile`, `measure_clearances`) |
 | `audit ideal-clearance`: the prefix match, which rule wins, why an enclosure may have a band of its own | `audit.rs` (`IdealClearances`, `ClearanceBand`) |

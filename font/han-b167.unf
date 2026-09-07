@@ -297,7 +297,7 @@ glyph han-28ad6:15x16 15 16 // 𨫖
 // ⿰ han-91d2 han-7fd2-($-1) // ⿰釒習
 
 glyph han-28aeb:15x16 15 16 // 𨫫
-⿲ han-91d2:5x16-l 1 han-5315:4x16-c han-9801:5x16 // ⿲釒匕頁
+⿲ han-91d2:5x16-l 1 han-5315:4x16-l han-9801:5x16 // ⿲釒匕頁
 
 glyph han-28af7:15x16 15 16 // 𨫷
 ⿰ han-91d2:7x16 1 han-9b5a:7x16 // ⿰釒魚

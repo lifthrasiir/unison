@@ -99,7 +99,7 @@ glyph han-42e8:15x16 15 16 // 䋨
 ⿰ han-7cf9:5x16 1 han-5485:9x16 // ⿰糹咅
 
 glyph han-42ea:15x16 15 16 // 䋪
-⿲ -1 han-7cf9:5x16 1 han-961d:4x16-c han-53ef:6x16 // ⿲糹阝可
+⿲ -1 han-7cf9:5x16 1 han-961d:4x16-r han-53ef:6x16 // ⿲糹阝可
 
 // glyph han-42ee:15x16 15 16 // 䋮
 // ⿰ han-7cf9 han-91d1 // ⿰糹金
