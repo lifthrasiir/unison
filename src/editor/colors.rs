@@ -1,5 +1,7 @@
 use egui::Color32;
 
+use crate::issues::Severity;
+
 #[derive(Clone)]
 pub struct Palette {
     // Grid
@@ -25,6 +27,20 @@ pub struct Palette {
     // Errors & links
     pub error: Color32,
     pub link: Color32,
+
+    /// Behind a line an issue was reported on, and the color its message is
+    /// drawn in after the text — one pair per severity, in [`Severity::ALL`]
+    /// order. Read through [`Palette::issue_colors`]; see
+    /// [`crate::editor::issue_marks`].
+    ///
+    /// The tint is translucent so that everything a line already says — a
+    /// selection, a color-token background, the edit border — still reads
+    /// through it, and the message color is the tint's own hue taken far
+    /// enough from the ground to be text: a warning is a yellow line with a
+    /// brown message on it, and each severity is that same pairing in its own
+    /// color.
+    pub issue_bg: [Color32; Severity::ALL.len()],
+    pub issue_text: [Color32; Severity::ALL.len()],
 
     /// The dotted circle standing in front of a character the font gives no
     /// advance. Deliberately not a text color — it is not text — and a sky blue
@@ -96,6 +112,20 @@ impl Palette {
 
             error: Color32::from_rgb(220, 60, 60),
             link: Color32::from_rgb(80, 150, 255),
+            issue_bg: [
+                Color32::from_rgba_unmultiplied(150, 40, 40, 46),
+                Color32::from_rgba_unmultiplied(150, 125, 30, 44),
+                Color32::from_rgba_unmultiplied(120, 105, 55, 32),
+                Color32::from_rgba_unmultiplied(45, 90, 150, 40),
+                Color32::from_rgba_unmultiplied(110, 115, 130, 28),
+            ],
+            issue_text: [
+                Color32::from_rgb(228, 122, 122),
+                Color32::from_rgb(212, 178, 88),
+                Color32::from_rgb(166, 148, 104),
+                Color32::from_rgb(126, 172, 224),
+                Color32::from_rgb(146, 151, 166),
+            ],
             zero_advance: Color32::from_rgb(90, 175, 235),
 
             selection: Color32::from_rgba_unmultiplied(60, 100, 180, 100),
@@ -149,6 +179,20 @@ impl Palette {
 
             error: Color32::from_rgb(200, 35, 35),
             link: Color32::from_rgb(25, 90, 210),
+            issue_bg: [
+                Color32::from_rgba_unmultiplied(230, 90, 90, 52),
+                Color32::from_rgba_unmultiplied(235, 195, 45, 70),
+                Color32::from_rgba_unmultiplied(195, 175, 110, 52),
+                Color32::from_rgba_unmultiplied(85, 150, 230, 44),
+                Color32::from_rgba_unmultiplied(140, 145, 160, 36),
+            ],
+            issue_text: [
+                Color32::from_rgb(170, 35, 35),
+                Color32::from_rgb(140, 100, 20),
+                Color32::from_rgb(125, 110, 65),
+                Color32::from_rgb(40, 95, 165),
+                Color32::from_rgb(105, 110, 125),
+            ],
             zero_advance: Color32::from_rgb(35, 130, 200),
 
             selection: Color32::from_rgba_unmultiplied(100, 150, 220, 80),
@@ -178,6 +222,16 @@ impl Palette {
             ref_hsv_s: grid.ref_hsv_s,
             ref_hsv_v: grid.ref_hsv_v,
         }
+    }
+
+    /// The tint behind a line of this severity and the color its message is
+    /// drawn in.
+    pub fn issue_colors(&self, severity: Severity) -> (Color32, Color32) {
+        let i = Severity::ALL
+            .iter()
+            .position(|s| *s == severity)
+            .expect("`Severity::ALL` is every severity");
+        (self.issue_bg[i], self.issue_text[i])
     }
 
     /// The syntax colors, in a fixed order, so one palette's can be matched

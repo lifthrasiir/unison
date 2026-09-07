@@ -180,6 +180,30 @@ pub(crate) fn capture_color_spans(
     });
 }
 
+fn issue_lines_id(editor: EditorId) -> egui::Id {
+    editor.key(Slot::TestIssueLines)
+}
+
+/// Called from the document paint loop (test builds only) to publish the
+/// issue message it drew after a line, with the severity the line was tinted
+/// in. One entry per document line, since the message is drawn once however
+/// many visual segments a soft wrap made of it.
+pub(crate) fn capture_issue_line(
+    ctx: &egui::Context,
+    editor: EditorId,
+    doc_line: usize,
+    severity: crate::issues::Severity,
+    message: &str,
+) {
+    ctx.data_mut(|d| {
+        let mut all = d
+            .get_temp::<Vec<(usize, crate::issues::Severity, String)>>(issue_lines_id(editor))
+            .unwrap_or_default();
+        all.push((doc_line, severity, message.to_string()));
+        d.insert_temp(issue_lines_id(editor), all);
+    });
+}
+
 fn edit_border_id(editor: EditorId) -> egui::Id {
     editor.key(Slot::TestEditBorder)
 }
@@ -352,6 +376,12 @@ pub(crate) fn capture_snapshot(
     ctx.data_mut(|d| d.insert_temp(snapshot_id(editor), Arc::new(snapshot)));
     // The paint loop appends to this as it goes, so the frame starts clean.
     ctx.data_mut(|d| d.insert_temp(color_spans_id(editor), Vec::<(usize, usize, usize)>::new()));
+    ctx.data_mut(|d| {
+        d.insert_temp(
+            issue_lines_id(editor),
+            Vec::<(usize, crate::issues::Severity, String)>::new(),
+        )
+    });
     ctx.data_mut(|d| d.insert_temp(edit_border_id(editor), None::<egui::Rect>));
 }
 
@@ -374,6 +404,9 @@ pub(crate) struct EditorHarness {
     /// Off by default: the metric box widens the drawn grid, and every layout
     /// assertion written before it existed expects the un-widened extents.
     pub show_metrics: bool,
+    /// What the app's issue list says about this document's lines. Empty
+    /// unless a test sets it; see [`EditorHarness::set_line_issues`].
+    pub line_issues: crate::editor::issue_marks::LineIssues,
     /// Stands in for a menu-bar menu being open over the editor, which is the
     /// one kind of focus loss a pixel selection survives.
     pub menu_open: bool,
@@ -479,6 +512,7 @@ impl EditorHarness {
             exists_matches: Default::default(),
             meta: Default::default(),
             show_metrics: false,
+            line_issues: Default::default(),
             menu_open: false,
             zoom: 1,
             font_id: egui::FontId::monospace(16.0),
@@ -518,6 +552,28 @@ impl EditorHarness {
         self.named_glyphs = named_glyphs;
         self.alt_index = alt_index;
         self.name_parts = name_parts;
+    }
+
+    /// What the issue list says about this document, as `(doc_line, severity,
+    /// message)` — reduced the way [`crate::editor::issue_marks`] reduces it,
+    /// so a line named twice here is the caller's own business.
+    pub fn set_line_issues(
+        &mut self,
+        issues: impl IntoIterator<Item = (usize, crate::issues::Severity, &'static str)>,
+    ) {
+        self.line_issues = issues
+            .into_iter()
+            .map(|(line, severity, message)| {
+                (
+                    line,
+                    crate::editor::issue_marks::LineIssue {
+                        severity,
+                        message: message.to_string(),
+                        extra: 0,
+                    },
+                )
+            })
+            .collect();
     }
 
     /// Advance the harness clock without running a frame. Successive wheel
@@ -578,6 +634,7 @@ impl EditorHarness {
                                 alt_index: &self.alt_index,
                                 color_aliases: &colors,
                                 anchor_aligns: &aligns,
+                                line_issues: &self.line_issues,
                                 meta: self.meta,
                                 show_metrics: self.show_metrics,
                                 menu_open: self.menu_open,
@@ -622,6 +679,7 @@ impl EditorHarness {
                                 alt_index: &self.alt_index,
                                 color_aliases: &colors,
                                 anchor_aligns: &aligns,
+                                line_issues: &self.line_issues,
                                 meta: self.meta,
                                 show_metrics: self.show_metrics,
                                 menu_open: self.menu_open,
@@ -649,6 +707,7 @@ impl EditorHarness {
                                 alt_index: &second.alt_index,
                                 color_aliases: &colors,
                                 anchor_aligns: &aligns,
+                                line_issues: &self.line_issues,
                                 meta: second.meta,
                                 show_metrics: self.show_metrics,
                                 menu_open: self.menu_open,
@@ -1071,6 +1130,18 @@ impl EditorHarness {
     pub fn color_backgrounds(&self) -> Vec<(usize, usize, usize)> {
         self.ctx
             .data(|d| d.get_temp::<Vec<(usize, usize, usize)>>(color_spans_id(self.state.id())))
+            .unwrap_or_default()
+    }
+
+    /// The issue messages the last frame painted, as `(doc_line, severity,
+    /// message)` — the message including its `[+N]` where there was one.
+    pub fn issue_lines(&self) -> Vec<(usize, crate::issues::Severity, String)> {
+        self.ctx
+            .data(|d| {
+                d.get_temp::<Vec<(usize, crate::issues::Severity, String)>>(issue_lines_id(
+                    self.state.id(),
+                ))
+            })
             .unwrap_or_default()
     }
 

@@ -250,8 +250,19 @@ pub struct UniformApp {
     glyph_flags: crate::glyph_flags::GlyphFlags,
     /// Which severities the Issues tab lists; see [`panels::IssueFilter`].
     issue_filter: panels::IssueFilter,
+    /// The same findings seen from the editor: which line of which file each
+    /// one is on, so a pane can tint it. Derived from `issues`,
+    /// `assert_issues` and `issue_filter` together and rebuilt by
+    /// [`UniformApp::refresh_issue_marks`] whenever `issue_marks_key` moves —
+    /// which is why the three inputs each carry a generation.
+    issue_marks: crate::editor::issue_marks::IssueMarks,
+    issue_marks_key: Option<(u64, u64, panels::IssueFilter)>,
     file_parse_errors: Vec<(PathBuf, String)>,
     assert_issues: Vec<Issue>,
+    /// Bumped whenever `assert_issues` is replaced. `assert` results arrive on
+    /// their own thread and out of step with a build, so they have no build
+    /// generation to be keyed on.
+    assert_gen: u64,
     assert_rx: mpsc::Receiver<AssertResultMessage>,
     assert_tx: mpsc::Sender<AssertResultMessage>,
     assert_running: bool,
@@ -515,10 +526,13 @@ impl UniformApp {
             specimen,
             issues: Vec::new(),
             issues_gen: u64::MAX,
+            issue_marks: Default::default(),
+            issue_marks_key: None,
             glyph_flags: crate::glyph_flags::GlyphFlags::default(),
             issue_filter,
             file_parse_errors,
             assert_issues: Vec::new(),
+            assert_gen: 0,
             assert_rx,
             assert_tx,
             assert_running: false,

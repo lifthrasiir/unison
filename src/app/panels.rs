@@ -864,6 +864,24 @@ impl UniformApp {
         result
     }
 
+    /// Rebuilds the editors' line highlights when what they are derived from
+    /// has moved — a new build's issues, a new `assert` run's, or the reader
+    /// toggling a severity off. All three are rare next to a frame, and the
+    /// reduction is O(issues), so this is a comparison per frame and a rebuild
+    /// almost never. See [`crate::editor::issue_marks`].
+    fn refresh_issue_marks(&mut self) {
+        let key = (self.issues_gen, self.assert_gen, self.issue_filter);
+        if self.issue_marks_key == Some(key) {
+            return;
+        }
+        let filter = self.issue_filter;
+        self.issue_marks = crate::editor::issue_marks::IssueMarks::collect(
+            self.issues.iter().chain(self.assert_issues.iter()),
+            |severity| filter.shows(severity),
+        );
+        self.issue_marks_key = Some(key);
+    }
+
     /// One pane's contents: the editor for its document, or the placeholder.
     /// Returns the pane's screen rect for zoom routing, which stays `None` for
     /// the placeholder — that is not an editor, so hovering it must not make
@@ -877,6 +895,7 @@ impl UniformApp {
         resize_request: &mut Option<crate::editor::glyph_resize::ResizeAction>,
         use_sample: &mut Option<String>,
     ) -> Option<egui::Rect> {
+        self.refresh_issue_marks();
         let pane = self.panes.get(pane_idx)?;
         let zoom_level = pane.zoom_level;
         let Some(doc_idx) = pane.doc_idx else {
@@ -905,6 +924,7 @@ impl UniformApp {
             alt_index: &self.alt_index,
             color_aliases: &self.color_aliases,
             anchor_aligns: &self.anchor_aligns,
+            line_issues: self.issue_marks.for_file(&doc.document.path),
             meta: self.font_meta,
             show_metrics: self.show_metrics,
             menu_open: self.menu_open,

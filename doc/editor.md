@@ -162,6 +162,12 @@ severity to show it alone. Chores — the clearance findings a build counts rath
 *not* start hidden: the filter here is live, so hiding a few thousand of them is one click, and it
 is a click you make rather than one made for you.
 
+The same findings also show up on the lines themselves: a line something was reported about is
+tinted in that severity's color across the pane, and the message follows the text in the same
+color, darker — a warning is a yellow line with a brown message on it. A line with more than one
+finding shows the worst of them and counts the rest as `[+3]`. The filter above the list governs
+this too, so hiding a severity there takes its tint off the text as well.
+
 F6 runs the `assert` directives of the current file, Ctrl+F6 those of every file. F10/F11 step
 through the faces the source declares; the chosen face is remembered. *Font ▸ Optimize clearance*
 runs `uniform fix --optimize-clearance` against the open documents: the rewrites land in the

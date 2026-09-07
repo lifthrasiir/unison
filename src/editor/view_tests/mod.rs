@@ -16,6 +16,7 @@ mod empty_band;
 mod folding;
 mod grid_band;
 mod grid_clipboard;
+mod issue_marks;
 mod layers;
 mod layout;
 mod links;

@@ -13,6 +13,7 @@ use crate::editor::doc_input;
 use crate::editor::doc_links::{self, LinkSpan, LinkTargetKind, RenameKind};
 use crate::editor::grid_render;
 use crate::editor::inline_tools;
+use crate::editor::issue_marks::LineIssues;
 use crate::editor::minimap;
 use crate::editor::pixel_interaction;
 use crate::editor::pixel_selection;
@@ -168,6 +169,10 @@ pub struct EditorEnv<'a> {
     /// The reduction each anchor class states, for placing a ref by its
     /// anchors exactly as the build places it.
     pub anchor_aligns: &'a crate::document::AnchorAligns,
+    /// What was reported about each line of *this* document, already reduced
+    /// to one entry per line and filtered to the severities the reader is
+    /// showing. See [`crate::editor::issue_marks`].
+    pub line_issues: &'a LineIssues,
     /// `meta`, for the baseline and the height of the metric box.
     pub meta: crate::meta::FontMetrics,
     /// Whether the metric-box overlay is switched on (View menu).

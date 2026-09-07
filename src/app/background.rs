@@ -848,6 +848,7 @@ impl UniformApp {
         if let Ok(assert_issues) = self.assert_rx.try_recv() {
             let count = assert_issues.len();
             self.assert_issues = assert_issues;
+            self.assert_gen = self.assert_gen.wrapping_add(1);
             self.assert_running = false;
             finish(&mut self.bg_tasks.test);
             let total_msg = if count == 0 {

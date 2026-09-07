@@ -134,7 +134,7 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | What a `vectoronly` exemption costs a component shared with an unflagged glyph | `issues/flags.rs` |
 | Why validation reads the union face and not the primary; the one check that is still per face | `faces.rs` (`FaceSet::union`), `issues/mod.rs`, `issues/maps.rs` (`uvs_collision_diagnostics`) |
 | Who shares the one expansion — the build, validation, the demo page | `main.rs` (the `build` thread scope), `resolve.rs` (`Resolution`), `render/ttf_builder/mod.rs` (`build_faces_from`), `render/sample.rs` (`collect_sample_data_with`) |
-| The Issues tab's per-severity filter | `app/panels.rs` (`IssueFilter`) |
+| The Issues tab's per-severity filter, and why the editor's line highlights obey it | `app/panels.rs` (`IssueFilter`, `refresh_issue_marks`), `editor/issue_marks.rs` |
 
 ## The font build
 
@@ -216,6 +216,7 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | A floating pixel selection: what commits it, and who lands it before reading the buffer | `editor/pixel_selection.rs` (`reconcile`, `effective_selection`, `select_all`), `app/docs.rs` (`commit_floating_selection`), `editor/mod.rs` (`pixel_select_anchor`) |
 | The empty band below the last line | `editor/document_view/paint.rs` (`paint_document_area`) |
 | Who owns a key while an IME is composing | `editor/doc_input.rs` (`ImeKeyGuard`) |
+| A reported line's tint and the message drawn after it; why the message is painted rather than annotated | `editor/issue_marks.rs`, `editor/document_view/paint.rs` (`paint_document_area`), `editor/colors.rs` (`issue_colors`) |
 | Inline annotations, and the dotted circle before a zero-advance character | `editor/annotations.rs` (`zero_advance_placeholders`, `paint_dotted_circle`, `display_prefix`), `editor/visual_lines.rs` (`compute_wrap_segments`) |
 | Alt + wheel / Alt + Up/Down over a number | `editor/document_view/number_scroll.rs` |
 | The metrics overlay | `editor/grid_render.rs`, `editor/document_view/layout.rs` (`GlyphMetrics`) |

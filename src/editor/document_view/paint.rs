@@ -336,7 +336,7 @@ pub(super) fn paint_document_area(
     let mut resize_rect: Option<egui::Rect> = None;
 
     let mut y = 0.0f32;
-    for vl in vlines {
+    for (vi, vl) in vlines.iter().enumerate() {
         let h = vl.height(row_height, grid_cell);
 
         if y + h < vis_top || y > vis_bottom {
@@ -368,6 +368,29 @@ pub(super) fn paint_document_area(
             }
             y += h;
             continue;
+        }
+
+        // A line something was reported about is tinted across the pane in the
+        // color of the worst thing said about it. Only the text rows: a
+        // glyph's grid rows carry the `glyph` line's `doc_line`, and tinting
+        // the whole bitmap would say the pixels are what is wrong. Painted
+        // before everything else on the row, so the selection, the color
+        // backgrounds and the caret all still read over it. See
+        // [`crate::editor::issue_marks`].
+        let line_issue = match vl.kind {
+            VLineKind::Text(_) => env.line_issues.get(&vl.doc_line),
+            VLineKind::GridRow { .. } | VLineKind::RefImage { .. } => None,
+        };
+        if let Some(issue) = line_issue {
+            let (bg, _) = pal.issue_colors(issue.severity);
+            painter.rect_filled(
+                egui::Rect::from_min_max(
+                    egui::pos2(rect.min.x, origin.y + y),
+                    egui::pos2(rect.max.x, origin.y + y + h),
+                ),
+                0.0,
+                bg,
+            );
         }
 
         let src_line = gutter_line_number(vl, lines, source_offsets);
@@ -496,6 +519,41 @@ pub(super) fn paint_document_area(
                             egui::Stroke::new(1.0, error_color),
                         );
                     }
+                }
+
+                // The message, after the text it is about. Only on the last
+                // visual segment of the line: a soft wrap splits one document
+                // line into several rows, and the finding is the line's, said
+                // once. It is painted rather than spliced in as an
+                // `InlineAnnotation` because it is not part of the line — the
+                // caret must not step through it, `End` must not land past it,
+                // and it must not drag the line into another wrap.
+                let last_segment = vlines.get(vi + 1).is_none_or(|next| {
+                    next.doc_line != vl.doc_line || !matches!(next.kind, VLineKind::Text(_))
+                });
+                if let Some(issue) = line_issue
+                    && last_segment
+                {
+                    let (_, fg) = pal.issue_colors(issue.severity);
+                    let gap = ui.fonts(|f| f.glyph_width(font_id, ' ')) * 2.0;
+                    let msg_x =
+                        origin.x + LEFT_PAD + atext.x_pos(ui, font_id, text.chars().count()) + gap;
+                    let message = issue.display();
+                    painter.text(
+                        egui::pos2(msg_x, origin.y + y),
+                        egui::Align2::LEFT_TOP,
+                        &message,
+                        font_id.clone(),
+                        fg,
+                    );
+                    #[cfg(test)]
+                    crate::editor::harness::capture_issue_line(
+                        ui.ctx(),
+                        state.id(),
+                        vl.doc_line,
+                        issue.severity,
+                        &message,
+                    );
                 }
 
                 if cmd_held {
