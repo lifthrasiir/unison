@@ -556,6 +556,9 @@ glyph han-2ed7c:15x16 15 16 // 𮵼
 // glyph han-2ed89-($han-regions):15x16 15 16 // 𮶉
 // ⿰ han-7fbd-($-1) han-534a-($-1) // ⿰羽半
 
+// glyph han-2ed8a-($han-regions):15x16 15 16 // 𮶊
+// ⿱ han-7fbd-($-1) han-5fc5 // ⿱羽必
+
 ## 124.6
 
 glyph han-2ed8b-($han-regions):15x16 15 16 // 𮶋

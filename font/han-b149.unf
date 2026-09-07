@@ -117,7 +117,7 @@ glyph han-279cd:15x16 15 16 // 𧧍
 ⿰ han-8a01:5x16 2 han-897f:7x16 // ⿰訁西
 
 glyph han-279ce:15x16 15 16 // 𧧎
-⿰ 1 han-8a01:5x16 1 han-209d7:7x16 // ⿰訁𠧗
+⿰ han-8a01:5x16 1 han-209d7:9x16 // ⿰訁𠧗
 
 // glyph han-279cf:15x16 15 16 // 𧧏
 // ⿱ han-5982 han-8a00 // ⿱如言

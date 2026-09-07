@@ -84,7 +84,7 @@ glyph han-29891:15x16 15 16 // 𩢑
 // ⿱ han-536d han-99ac // ⿱卭馬
 
 glyph han-2989e:15x16 15 16 // 𩢞
-⿲ -4 han-99ac:7x16 han-5de5:5x16 han-5369:7x16 // ⿲馬工卩
+⿲ -2 han-99ac:7x16 han-5de5:5x16 han-5369:5x16 // ⿲馬工卩
 
 glyph han-298a0:15x16 15 16 // 𩢠
 ⿰ han-53f0:7x16 1 han-99ac:7x16 // ⿰台馬
@@ -344,6 +344,9 @@ glyph han-29a30:15x16 15 16 // 𩨰
 
 // glyph han-29a31:15x16 15 16 // 𩨱
 // ⿱ han-6b64 han-9aa8 // ⿱此骨
+
+// glyph han-29a32:15x16 15 16 // 𩨲
+// ⿰ han-9aa8 han-5fc5 // ⿰骨必
 
 glyph han-29a33:15x16 15 16 // 𩨳
 ⿰ han-51fa:5x16 1 han-9aa8:9x16 // ⿰出骨

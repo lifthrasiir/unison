@@ -16,6 +16,9 @@ glyph han-29688-($han-regions):15x16 15 16 // 𩚈
 glyph han-2968d:15x16 15 16 // 𩚍
 ⿰ han-98e0:7x16 1 han-5dfe:7x16 // ⿰飠巾
 
+// glyph han-2968e:15x16 15 16 // 𩚎
+// ⿰ han-98e0 han-5f61 // ⿰飠彡
+
 // glyph han-29690-($han-regions):15x16 15 16 // 𩚐
 // ⿰ han-98e0 han-4e38-($-1) // ⿰飠丸
 

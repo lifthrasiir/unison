@@ -183,6 +183,9 @@ glyph han-2d58d:15x16 15 16 // 𭖍
 // glyph han-2d590:15x16 15 16 // 𭖐
 // ⿳ han-5c71 han-4ea0 han-5dfe // ⿳山亠巾 <- ⿱山市
 
+// glyph han-2d591:15x16 15 16 // 𭖑
+// ⿱ han-5c71 han-5fc5 // ⿱山必
+
 // glyph han-2d592:15x16 15 16 // 𭖒
 // ⿳ han-5c71 han-4e36 han-738b // ⿳山丶王 <- ⿱山主
 
@@ -540,6 +543,13 @@ glyph han-2d6bd:15x16 15 16 // 𭚽
 
 // glyph han-2d6d2:15x16 15 16 // 𭛒
 // ⿱ han-2b739 han-8ecd // ⿱𫜹軍
+
+# CJK unified ideographs extension F: 彡 (59)
+
+## 59.5
+
+// glyph han-2d6d3:15x16 15 16 // 𭛓
+// ⿰ han-7528 han-5f61 // ⿰用彡
 
 # CJK unified ideographs extension F: 彳 (60)
 

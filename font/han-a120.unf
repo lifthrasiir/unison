@@ -346,6 +346,9 @@ glyph han-43b4:15x16 15 16 // 䎴
 
 ## 128.5
 
+// glyph han-43b5:15x16 15 16 // 䎵
+// ⿰ han-8033 han-5fc5 // ⿰耳必
+
 glyph han-43b6:15x16 15 16 // 䎶
 ⿰ han-8033:6x16-l han-7533:9x16 // ⿰耳申
 
@@ -409,6 +412,9 @@ glyph han-43d5:15x16 15 16 // 䏕
 
 glyph han-43de:15x16 15 16 // 䏞
 ⿰ han-6708:5x16-l 1 han-672b:9x16 // ⿰月末
+
+// glyph han-43df:15x16 15 16 // 䏟
+// ⿰ han-6708 han-5fc5 // ⿰月必
 
 glyph han-43e0:15x16 15 16 // 䏠
 ⿰ han-6708:8x16 han-7acb:7x16 // ⿰月立
@@ -571,6 +577,9 @@ glyph han-444f:15x16 15 16 // 䑏
 
 // glyph han-4462:15x16 15 16 // 䑢
 // ⿰ han-821f han-5140 // ⿰舟兀
+
+// glyph han-4463:15x16 15 16 // 䑣
+// ⿰ han-821f han-5f61 // ⿰舟彡
 
 ## 137.4
 
@@ -944,6 +953,9 @@ glyph han-45a7:15x16 15 16 // 䖧
 
 glyph han-45a8:15x16 15 16 // 䖨
 ⿰ han-866b:7x16 han-77f3:8x16 // ⿰虫石
+
+// glyph han-45a9:15x16 15 16 // 䖩
+// ⿰ han-866b han-5fc5 // ⿰虫必
 
 // glyph han-45aa:15x16 15 16 // 䖪
 // ⿱ han-6b64 han-866b // ⿱此虫

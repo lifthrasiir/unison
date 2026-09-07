@@ -31,7 +31,7 @@ glyph han-31cee:15x16 15 16 // 𱳮
 // ⿰ han-77f3 han-4e19 // ⿰石丙
 
 glyph han-31cf5:15x16 15 16 // 𱳵
-⿲ -2 han-77f3:5x16 1 han-53e3:4x16 han-5341:7x16 // ⿲石口十
+⿲ -1 han-77f3:5x16 1 han-53e3:3x16-l han-5341:7x16 // ⿲石口十
 
 ## 112.6
 
@@ -384,7 +384,7 @@ glyph han-31e70:15x16 15 16 // 𱹰
 ## 120.8
 
 glyph han-31e76:15x16 15 16 // 𱹶
-⿲ -2 han-7cf9:5x16 han-571f:7x16 han-65e6:5x16 // ⿲糹土旦
+⿲ han-7cf9:5x16 han-571f:3x16-l han-65e6:7x16 // ⿲糹土旦
 
 ## 120.10
 
@@ -729,7 +729,7 @@ glyph han-31fe8:15x16 15 16 // 𱿨
 ⿱ han-6797:15x8 han-866b:15x8 // ⿱林虫
 
 glyph han-31fea:15x16 15 16 // 𱿪
-⿲ -3 han-866b:5x16 han-571f:7x16 han-53ec:6x16 // ⿲虫土召
+⿲ han-866b:5x16 han-571f:3x16-l 1 han-53ec:6x16 // ⿲虫土召
 
 glyph han-31fed:15x16 15 16 // 𱿭
 ⿲ han-866b:5x16 han-5f73:3x16 han-4e14:7x16 // ⿲虫彳且

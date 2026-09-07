@@ -121,6 +121,9 @@ glyph han-28497-($han-regions):15x16 15 16 // 𨒗
 glyph han-2849a-($han-regions):15x16 15 16 // 𨒚
 ⿺ han-8fb6-($-1):15x16.11x14 han-76ee:9x13 5 0 // ⿺辶目
 
+// glyph han-2849c-($han-regions):15x16 15 16 // 𨒜
+// ⿺ han-8fb6-($-1) han-5fc5 // ⿺辶必
+
 glyph han-2849e-($han-regions):15x16 15 16 // 𨒞
 ⿺ han-8fb6-($-1):15x16.11x14 han-51fa:9x13 5 0 // ⿺辶出
 

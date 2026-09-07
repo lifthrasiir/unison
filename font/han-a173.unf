@@ -145,6 +145,9 @@ glyph han-4a57:15x16 15 16 // 䩗
 glyph han-4a5a:15x16 15 16 // 䩚
 ⿰ han-9769:7x16 han-6c10:8x16 // ⿰革氐
 
+// glyph han-4a5b:15x16 15 16 // 䩛
+// ⿰ han-9769 han-5fc5 // ⿰革必
+
 glyph han-4a5c:15x16 15 16 // 䩜
 ⿰ han-9769:7x16 1 han-7531:7x16 // ⿰革由
 
@@ -197,6 +200,9 @@ glyph han-4a7b:15x16 15 16 // 䩻
 // ⿰ han-97cb han-5185 // ⿰韋内
 
 ## 178.5
+
+// glyph han-4a90:15x16 15 16 // 䪐
+// ⿰ han-97cb han-5fc5 // ⿰韋必
 
 glyph han-4a93:15x16 15 16 // 䪓
 ⿰ han-97cb:9x16 1 han-5360:5x16 // ⿰韋占
@@ -365,6 +371,9 @@ glyph han-4afd:15x16 15 16 // 䫽
 ⿺ han-98a8:15x16.5x15 han-6bdb:4x14 11 0 // ⿺風毛
 
 ## 182.5
+
+// glyph han-4afe:15x16 15 16 // 䫾
+// ⿺ han-98a8 han-5fc5 // ⿺風必
 
 // glyph han-4aff:15x16 15 16 // 䫿
 // ⿺ han-98a8 han-53ec // ⿺風召

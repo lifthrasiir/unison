@@ -24,6 +24,9 @@ glyph han-2560c:15x16 15 16 // 𥘌
 
 ## 113.3
 
+// glyph han-2560e:15x16 15 16 // 𥘎
+// ⿰ han-793b han-5f61 // ⿰礻彡
+
 glyph han-2560f-g:15x16 15 16 // 𥘏
 ⿰ han-793b:5x16 1 han-5e72:9x16 // ⿰礻干
 glyph han-2560f-k:15x16 15 16 // 𥘏
@@ -326,6 +329,9 @@ glyph han-2575b:15x16 15 16 // 𥝛
 
 // glyph han-2575d:15x16 15 16 // 𥝝
 // ⿱ han-79be han-5e72 // ⿱禾干
+
+// glyph han-2575e:15x16 15 16 // 𥝞
+// ⿰ han-79be han-5f61 // ⿰禾彡
 
 glyph han-2575f:15x16 15 16 // 𥝟
 ⿰ han-79be:7x16 1 han-571f:7x16 // ⿰禾土

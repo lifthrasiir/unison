@@ -85,7 +85,7 @@ glyph han-2d1f4:15x16 15 16 // 𭇴
 ## 30.7
 
 glyph han-2d1f5:15x16 15 16 // 𭇵
-⿲ -1 han-53e3:3x16-l han-571f:7x16 han-65a4:6x16 // ⿲口土斤
+⿲ han-53e3:3x16-l han-571f:3x16-l han-65a4:9x16 // ⿲口土斤
 
 // glyph han-2d1f6:15x16 15 16 // 𭇶
 // ⿰ han-53e3 han-674e // ⿰口李
@@ -476,6 +476,9 @@ glyph han-2d3b8:15x16 15 16 // 𭎸
 
 glyph han-2d3b9:15x16 15 16 // 𭎹
 ⿰ han-571f:5x16-l han-9762:10x16 // ⿰土面
+
+// glyph han-2d3bf:15x16 15 16 // 𭎿
+// ⿲ han-571f han-821f han-5f61 // ⿲土舟彡
 
 // glyph han-2d3c4:15x16 15 16 // 𭏄
 // ⿱ han-6d3d han-571f // ⿱洽土

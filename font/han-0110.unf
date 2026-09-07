@@ -610,6 +610,9 @@ glyph han-7954-(g|h|t):15x16 15 16 // 祔
 glyph han-7954-(j|k|p):15x16 15 16 // 祔
 ⿲ han-793a:5x16 han-4ebb:3x16 han-5bf8:7x16 // ⿲示亻寸
 
+// glyph han-7955:15x16 15 16 // 祕
+// ⿰ han-793b han-5fc5 // ⿰礻必
+
 glyph han-7956-(g|h|t|j|v):15x16 15 16 // 祖
 ⿰ han-793b:7x16 han-4e14:8x16 // ⿰礻且
 glyph han-7956-(k|p):15x16 15 16 // 祖
@@ -1044,6 +1047,9 @@ glyph han-79d5-($han-regions):15x16 15 16 // 秕
 ⿰ han-79be:5x16 han-6bd4-($-1):10x16 // ⿰禾比
 
 ## 115.5
+
+// glyph han-79d8:15x16 15 16 // 秘
+// ⿰ han-79be han-5fc5 // ⿰禾必
 
 glyph han-79d9:15x16 15 16 // 秙
 ⿰ han-79be:5x16 1 han-53e4:9x16 // ⿰禾古

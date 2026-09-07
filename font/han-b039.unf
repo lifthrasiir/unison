@@ -330,6 +330,9 @@ glyph han-219f6:15x16 15 16 // 𡧶
 glyph han-21a10:15x16 15 16 // 𡨐
 ⿳ han-5b80:15x4 -1 han-706b:15x6 han-53e3:15x7 // ⿳宀火口
 
+// glyph han-21a11:15x16 15 16 // 𡨑
+// ⿳ han-5b80 han-5fc5 han-51f5 // ⿳宀必凵
+
 glyph han-21a12:15x16 15 16 // 𡨒
 ⿳ han-5b80:15x5 han-738b:15x5 1 han-5927:15x5 // ⿳宀王大
 
@@ -394,6 +397,9 @@ glyph han-21a48:15x16 15 16 // 𡩈
 glyph han-21a49:15x16 15 16 // 𡩉
 ⿳ han-5b80:15x4 -1 han-5fc3:15x5 1 han-65e6:15x7 // ⿳宀心旦
 
+// glyph han-21a4e:15x16 15 16 // 𡩎
+// ⿳ han-5b80 han-5fc5 han-6728 // ⿳宀必木
+
 // glyph han-21a50:15x16 15 16 // 𡩐
 // ⿳ han-5b80 han-9fb6 han-7530 // ⿳宀龶田
 
@@ -450,6 +456,9 @@ ref han-571f:15x4 0 12
 
 // glyph han-21a95:15x16 15 16 // 𡪕
 // ⿳ han-2bcbd han-5405 han-4e00 // ⿳𫲽吅一
+
+// glyph han-21a96:15x16 15 16 // 𡪖
+// ⿳ han-5b80 han-5fc5 han-8840 // ⿳宀必血
 
 // glyph han-21a99:15x16 15 16 // 𡪙
 // ⿳ han-5b80 han-5973 han-660e // ⿳宀女明 <- ⿱安明

@@ -335,6 +335,9 @@ glyph han-314a5:15x16 15 16 // 𱒥
 
 ## 30.7
 
+// glyph han-314a9:15x16 15 16 // 𱒩
+// ⿲ han-53e3 han-6728 han-5f61 // ⿲口木彡
+
 // glyph han-314ab:15x16 15 16 // 𱒫
 // ⿲ han-53e3 han-624c han-592c // ⿲口扌夬 <- ⿰口抉
 
@@ -415,6 +418,9 @@ glyph han-314eb:15x16 15 16 // 𱓫
 
 // glyph han-314f5:15x16 15 16 // 𱓵
 // ⿲ han-53e3 han-91d1 han-5369 // ⿲口金卩
+
+// glyph han-314f7:15x16 15 16 // 𱓷
+// ⿲ han-53e3 han-79be han-5fc5 // ⿲口禾必
 
 glyph han-314f8:15x16 15 16 // 𱓸
 ⿲ han-53e3:3x16-l han-91d2:7x16 han-4e01:5x16 // ⿲口釒丁
@@ -621,6 +627,9 @@ glyph han-315de:15x16 15 16 // 𱗞
 
 // glyph han-315ea:15x16 15 16 // 𱗪
 // ⿱ han-898f han-571f // ⿱規土
+
+// glyph han-315f1:15x16 15 16 // 𱗱
+// ⿲ han-571f han-5468 han-5f61 // ⿲土周彡
 
 // glyph han-315f2:15x16 15 16 // 𱗲
 // ⿰ han-571f han-7b18 // ⿰土笘

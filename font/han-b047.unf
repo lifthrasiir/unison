@@ -140,6 +140,9 @@ glyph han-22056:15x16 15 16 // 𢁖
 glyph han-22057:15x16 15 16 // 𢁗
 ⿰ han-5dfe:7x16 1 han-5e72:7x16 // ⿰巾干
 
+// glyph han-22058:15x16 15 16 // 𢁘
+// ⿰ han-5dfe han-5f61 // ⿰巾彡
+
 glyph han-2205a:15x16 15 16 // 𢁚
 ⿰ han-5dfe:5x16 han-4e09:10x16 // ⿰巾三
 
@@ -185,6 +188,9 @@ glyph han-22078:15x16 15 16 // 𢁸
 
 // glyph han-2207c:15x16 15 16 // 𢁼
 // ⿰ han-5dfe han-5b81 // ⿰巾宁
+
+// glyph han-2207d:15x16 15 16 // 𢁽
+// ⿰ han-5dfe han-5fc5 // ⿰巾必
 
 glyph han-2207e:15x16 15 16 // 𢁾
 ⿰ han-5dfe:7x16 han-53ec:8x16 // ⿰巾召

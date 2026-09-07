@@ -97,7 +97,7 @@ glyph han-2aa66:15x16 15 16 // 𪩦
 ## 50.8
 
 glyph han-2aa74:15x16 15 16 // 𪩴
-⿰ han-5dfe:7x16 1 han-9580:7x16 // ⿰巾門
+⿰ han-5dfe:5x16 1 han-9580:9x16 // ⿰巾門
 
 // glyph han-2aa76-($han-regions):15x16 15 16 // 𪩶
 // ⿳ han-7a74-($-1) han-5927 han-5dfe // ⿳穴大巾
@@ -513,6 +513,9 @@ glyph han-2ac12:15x16 15 16 // 𪰒
 // glyph han-2ac14:15x16 15 16 // 𪰔
 // ⿱ han-65e5 han-592e // ⿱日央
 
+// glyph han-2ac17:15x16 15 16 // 𪰗
+// ⿰ han-65e5 han-5fc5 // ⿰日必
+
 glyph han-2ac18:15x16 15 16 // 𪰘
 ⿱ han-65e5:15x5 han-52a0:15x11 // ⿱日加
 
@@ -774,6 +777,11 @@ glyph han-2ad29:15x16 15 16 // 𪴩
 
 // glyph han-2ad36:15x16 15 16 // 𪴶
 // ⿳ han-6b62 han-4e00 han-65e6 // ⿳止一旦 <- ⿱止亘
+
+## 77.8
+
+// glyph han-2ad38:15x16 15 16 // 𪴸
+// ⿰ han-2bb60 han-5fc5 // ⿰𫭠必
 
 ## 77.9
 

@@ -30,7 +30,7 @@ glyph han-2e1c9:15x16 15 16 // 𮇉
 // ⿰ han-7c73 han-592e // ⿰米央
 
 glyph han-2e1cd:15x16 15 16 // 𮇍
-⿲ -2 han-7c73:5x16 han-53e3:4x16 1 han-5369:7x16 // ⿲米口卩
+⿲ han-7c73:5x16 han-53e3:4x16 1 han-5369:5x16 // ⿲米口卩
 
 // glyph han-2e1ce:15x16 15 16 // 𮇎
 // ⿱ han-7c73 han-2b738 // ⿱米𫜸
@@ -106,6 +106,9 @@ glyph han-2e203:15x16 15 16 // 𮈃
 
 glyph han-2e209:15x16 15 16 // 𮈉
 ⿰ han-7cf9:5x16 han-7528:10x16 // ⿰糹用
+
+// glyph han-2e20a:15x16 15 16 // 𮈊
+// ⿰ han-7cf8 han-5fc5 // ⿰糸必
 
 ## 120.6
 
@@ -528,6 +531,9 @@ glyph han-2e3f2:15x16 15 16 // 𮏲
 
 // glyph han-2e419:15x16 15 16 // 𮐙
 // ⿱ han-8279 han-7a85 // ⿱艹窅
+
+// glyph han-2e41c:15x16 15 16 // 𮐜
+// ⿳ han-8279 han-5fc5 han-5fc5 // ⿳艹必必
 
 // glyph han-2e41e:15x16 15 16 // 𮐞
 // ⿳ han-8279 han-5ddb han-9091 // ⿳艹巛邑 <- ⿱艹邕

@@ -96,6 +96,9 @@ glyph han-320a8-($han-regions):15x16 15 16 // 𲂨
 glyph han-320aa:15x16 15 16 // 𲂪
 ⿰ han-8c9d:6x16 han-672c:9x16 // ⿰貝本
 
+// glyph han-320ac:15x16 15 16 // 𲂬
+// ⿰ han-8c9d han-5fc5 // ⿰貝必
+
 ## 154.6
 
 // glyph han-320ad:15x16 15 16 // 𲂭
@@ -567,6 +570,9 @@ glyph han-3226e:15x16 15 16 // 𲉮
 
 // glyph han-32273:15x16 15 16 // 𲉳
 // ⿱ han-96e8 han-706d // ⿱雨灭
+
+// glyph han-32274-($han-regions):15x16 15 16 // 𲉴
+// ⿱ han-96e8-($-1) han-5fc5 // ⿱雨必
 
 ## 173.8
 

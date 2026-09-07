@@ -350,6 +350,9 @@ glyph han-8992:15x16 15 16 // 覒
 
 ## 147.5
 
+// glyph han-8995:15x16 15 16 // 覕
+// ⿰ han-5fc5 han-898b // ⿰必見
+
 glyph han-8998:15x16 15 16 // 覘
 ⿰ han-5360:7x16 1 han-898b:7x16 // ⿰占見
 
@@ -1088,7 +1091,7 @@ glyph han-8ba6:15x16 15 16 // 讦
 ⿰ han-8ba0:5x16 1 han-5e72:9x16 // ⿰讠干
 
 glyph han-8ba7:15x16 15 16 // 讧
-⿰ han-8ba0:5x16 1 han-5de5:9x16 // ⿰讠工
+⿰ han-8ba0:5x16 -1 han-5de5:11x16 // ⿰讠工
 
 glyph han-8ba8:15x16 15 16 // 讨
 ⿰ han-8ba0:5x16 1 han-5bf8:9x16 // ⿰讠寸

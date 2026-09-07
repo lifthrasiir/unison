@@ -123,6 +123,8 @@ glyph han-2001d:15x16 15 16 // 𠀝
 
 glyph han-209d7:7x16 7 16 // 𠧗
 ⿱ han-4e0a:7x7 1 han-4e0b:7x8 // ⿱上下
+glyph han-209d7:9x16 9 16 // 𠧗
+⿱ han-4e0a:9x7 1 han-4e0b:9x8 // ⿱上下
 glyph han-209d7:15x16 15 16 // 𠧗
 ⿱ han-4e0a:15x7 1 han-4e0b:15x8 // ⿱上下
 
@@ -145,6 +147,11 @@ glyph han-20a12-($han-regions):15x16 15 16 // 𠨒
 
 glyph han-20a16:15x16 15 16 // 𠨖
 ⿰ han-536a:7x16 1 han-536a:7x16 // ⿰卪卪
+
+## 26.5
+
+// glyph han-20a18:15x16 15 16 // 𠨘
+// ⿰ han-5fc5 han-5369 // ⿰必卩
 
 ## 26.7
 

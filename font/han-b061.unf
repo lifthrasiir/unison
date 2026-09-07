@@ -18,6 +18,9 @@ glyph han-225aa:15x16 15 16 // 𢖪
 glyph han-225ac:15x16 15 16 // 𢖬
 ⿰ han-5fc4:5x16 1 han-5315.0:9x16 // ⿰忄匕
 
+// glyph han-225ae:15x16 15 16 // 𢖮
+// ⿺ han-4e59 han-5fc5 // ⿺乙必
+
 glyph han-225af:15x16 15 16 // 𢖯
 ⿰ han-5fc4:5x16 1 han-51e0:9x16 // ⿰忄几
 
@@ -46,6 +49,9 @@ glyph han-225c0:15x16 15 16 // 𢗀
 
 glyph han-225c4:15x16 15 16 // 𢗄
 ⿰ han-5fc4:5x16 1 han-4e0b:9x16 // ⿰忄下
+
+// glyph han-225c8:15x16 15 16 // 𢗈
+// ⿰ han-5fc5 han-4e01 // ⿰必丁
 
 ## 61.4
 
@@ -105,6 +111,9 @@ glyph han-225f5:15x16 15 16 // 𢗵
 
 // glyph han-225f9:15x16 15 16 // 𢗹
 // ⿱ han-65a4 han-5fc3 // ⿱斤心
+
+// glyph han-225fa-($han-regions):15x16 15 16 // 𢗺
+// ⿱ han-5fc5 han-4ea1-($-1) // ⿱必亡
 
 glyph han-225fb:15x16 15 16 // 𢗻
 ⿱ han-516d:15x9 1 han-5fc3:15x6 // ⿱六心
@@ -368,6 +377,9 @@ glyph han-226df:15x16 15 16 // 𢛟
 
 // glyph han-226eb:15x16 15 16 // 𢛫
 // ⿳ han-4ea0 han-8980 han-5fc3 // ⿳亠覀心
+
+// glyph han-226ec:15x16 15 16 // 𢛬
+// ⿳ han-5b80 han-5fc5 han-5fc3 // ⿳宀必心
 
 // glyph han-226f4:15x16 15 16 // 𢛴
 // ⿰ han-5fc4 han-5b5f // ⿰忄孟

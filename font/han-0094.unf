@@ -810,6 +810,9 @@ glyph han-73c8:15x16 15 16 // 珈
 // glyph han-73ca:15x16 15 16 // 珊
 // ⿰ han-248e9 han-518a // ⿰𤣩冊
 
+// glyph han-73cc:15x16 15 16 // 珌
+// ⿰ han-248e9 han-5fc5 // ⿰𤣩必
+
 // glyph han-73cf:15x16 15 16 // 珏
 // ⿰ han-248e9 han-7389 // ⿰𤣩玉
 
@@ -998,6 +1001,9 @@ glyph han-745d:15x16 15 16 // 瑝
 
 // glyph han-745e:15x16 15 16 // 瑞
 // ⿰ han-248e9 han-8011 // ⿰𤣩耑
+
+// glyph han-745f:15x16 15 16 // 瑟
+// ⿱ han-73a8 han-5fc5 // ⿱玨必
 
 ## 96.10
 

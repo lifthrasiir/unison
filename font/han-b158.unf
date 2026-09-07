@@ -28,6 +28,9 @@ glyph han-282a4:15x16 15 16 // 𨊤
 glyph han-282a7:15x16 15 16 // 𨊧
 ⿰ han-8eca:5x16 1 han-5de5:9x16 // ⿰車工
 
+// glyph han-282a8:15x16 15 16 // 𨊨
+// ⿰ han-8eca han-5f61 // ⿰車彡
+
 // glyph han-282a9:15x16 15 16 // 𨊩
 // ⿰ han-8eca han-5ddb // ⿰車巛
 
@@ -310,6 +313,9 @@ glyph han-2840b:15x16 15 16 // 𨐋
 
 ## 160.3
 
+// glyph han-2840d:15x16 15 16 // 𨐍
+// ⿰ han-5f61 han-8f9b // ⿰彡辛
+
 glyph han-2840e:15x16 15 16 // 𨐎
 ⿰ han-8f9b:7x16 1 han-5973:7x16 // ⿰辛女
 
@@ -368,6 +374,11 @@ glyph han-28425:15x16 15 16 // 𨐥
 
 glyph han-28431:15x16 15 16 // 𨐱
 ⿲ han-8f9b:5x16 han-6708:5x16 han-8f9b:5x16 // ⿲辛月辛
+
+## 160.12
+
+// glyph han-28435:15x16 15 16 // 𨐵
+// ⿲ han-8f9b han-5fc5 han-8f9b // ⿲辛必辛
 
 ## 160.13
 

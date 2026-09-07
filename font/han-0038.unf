@@ -208,6 +208,9 @@ glyph han-59b9:15x16 15 16 // 妹
 glyph han-59ba:15x16 15 16 // 妺
 ⿰ han-5973:5x16-l 1 han-672b:9x16 // ⿰女末
 
+// glyph han-59bc:15x16 15 16 // 妼
+// ⿰ han-5973 han-5fc5 // ⿰女必
+
 glyph han-59bd:15x16 15 16 // 妽
 ⿰ han-5973:5x16-l 1 han-7533:9x16 // ⿰女申
 
@@ -922,6 +925,9 @@ glyph han-5b92:15x16 15 16 // 宒
 
 ## 40.5
 
+// glyph han-5b93:15x16 15 16 // 宓
+// ⿱ han-5b80 han-5fc5 // ⿱宀必
+
 // glyph han-5b94:15x16 15 16 // 宔
 // ⿳ han-5b80 han-4e36 han-738b // ⿳宀丶王 <- ⿱宀主
 
@@ -993,6 +999,9 @@ glyph han-5bb2:15x16 15 16 // 宲
 
 glyph han-5bc4:15x16 15 16 // 寄
 ⿳ han-5b80:15x5 han-5927:15x5 han-53ef:15x6 // ⿳宀大可
+
+// glyph han-5bc6:15x16 15 16 // 密
+// ⿳ han-5b80 han-5fc5 han-5c71 // ⿳宀必山
 
 // glyph han-5bc8-($han-regions):15x16 15 16 // 寈
 // ⿱ han-5b80 han-9752-($-1) // ⿱宀青
