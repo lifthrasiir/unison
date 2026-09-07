@@ -1718,7 +1718,10 @@ fn expand_enclosure(
     let mut sizes: [Option<(u16, u16)>; 2] = [None, None];
     for (slot, &(name, raw_name)) in names.iter().enumerate() {
         let outer = slot == 0;
-        let spec = VariantSpec::parse(raw_name.unwrap_or(name));
+        // What the name claims is what the *author* wrote, so both the size and
+        // the cavity are read off the written name; see the split's own note.
+        let written = raw_name.unwrap_or(name);
+        let spec = VariantSpec::parse(written);
         let role = if outer { "outer" } else { "inner" };
         if is_undecided(name) {
             unresolved = true;
@@ -1749,8 +1752,11 @@ fn expand_enclosure(
         // A cavity is what marks a drawing as one made to enclose, which is
         // the enclosure's version of the `-l`/`-r` claim a split's name makes
         // — and, like it, a mismatch is a warning: a drawing that promises a
-        // cavity may still be the thing the author wanted inside another.
-        if enclosure_rank(name, outer) == 2 {
+        // cavity may still be the thing the author wanted inside another. Like
+        // that claim, it is read off the name *as written*: a name reached
+        // through an alias promises whatever the alias says and nothing more,
+        // and resolving it would report a claim the author never made.
+        if enclosure_rank(written, outer) == 2 {
             issues.push((
                 Severity::Warning,
                 match outer {

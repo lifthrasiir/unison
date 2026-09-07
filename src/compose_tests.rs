@@ -44,6 +44,14 @@ fn part(name: &str) -> ComposeItem {
     }
 }
 
+/// A part written as `raw` whose name resolves, through an alias, to `name`.
+fn aliased(raw: &str, name: &str) -> ComposeItem {
+    ComposeItem::Part {
+        name: name.to_string(),
+        raw_name: Some(raw.to_string()),
+    }
+}
+
 fn line(op: IdcOp, items: Vec<ComposeItem>) -> GlyphCompose {
     GlyphCompose {
         op,
@@ -1643,6 +1651,34 @@ fn an_enclosure_warns_when_a_part_is_drawn_for_the_other_slot() {
     let warnings = of_severity(&issues, Severity::Warning);
     assert!(
         warnings.iter().any(|w| w.contains("i:6x6.2x2")),
+        "{issues:?}"
+    );
+}
+
+#[test]
+fn an_enclosure_reads_the_cavity_promise_off_the_name_as_written() {
+    // `i:6x6` is an alias of a drawing made to enclose, and the line names the
+    // alias: the author asked for a part that promises nothing, and what the
+    // alias happens to point at is not a claim they made. Exactly as with the
+    // `-l`/`-r` position on a split's name, the promise is read off the name as
+    // written, so there is nothing here to warn about.
+    let dims = table(&[("o:6x6.4x4", (6, 6)), ("i:6x6.2x2", (6, 6))]);
+    let issues = expand(
+        Some((6, 6)),
+        &line(
+            IdcOp::Surround,
+            vec![
+                part("o:6x6.4x4"),
+                aliased("i:6x6", "i:6x6.2x2"),
+                at(0),
+                at(0),
+            ],
+        ),
+        &dims,
+    )
+    .1;
+    assert!(
+        of_severity(&issues, Severity::Warning).is_empty(),
         "{issues:?}"
     );
 }
