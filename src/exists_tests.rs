@@ -571,6 +571,27 @@ fn a_template_denotes_the_names_its_search_could_produce() {
     );
 }
 
+/// The header around the slot is still a *name pattern*, and `font/` writes
+/// one there: `glyph han-5b50-($han-regions):($1)` declares seven glyphs per
+/// size. Reading that run as a literal left every one of them declared nowhere,
+/// so a click on one had no definition to reach.
+#[test]
+fn a_template_expands_the_pattern_around_its_slot() {
+    let p = "han-5b50:([0-9]+x[0-9]+(?:-[a-z])?)";
+    let t = "han-5b50-(g|h|t|j|k|p|v):($1)";
+    assert_eq!(template_denotes(p, t, "han-5b50-g:9x16"), Some(true));
+    assert_eq!(template_denotes(p, t, "han-5b50-v:5x16-l"), Some(true));
+    // A region the header does not list, and a size the search cannot match.
+    assert_eq!(template_denotes(p, t, "han-5b50-z:9x16"), Some(false));
+    assert_eq!(template_denotes(p, t, "han-5b50-g:huge"), Some(false));
+    // The parentheses and bars are the pattern's own, not characters a name
+    // can contain.
+    assert_eq!(
+        template_denotes(p, t, "han-5b50-(g|h|t|j|k|p|v):9x16"),
+        Some(false)
+    );
+}
+
 #[test]
 fn capture_zero_denotes_the_whole_matched_name() {
     let p = "han-([0-9a-f]{4,5}):15x16";

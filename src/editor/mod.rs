@@ -37,6 +37,7 @@ pub mod editing;
 pub mod folding;
 pub mod glyph_resize;
 pub mod glyph_widget;
+pub(crate) mod goto_popup;
 pub mod grid_render;
 #[cfg(test)]
 pub(crate) mod harness;
@@ -45,6 +46,7 @@ pub mod inline_tools;
 pub(crate) mod issue_marks;
 pub mod item_bindings;
 pub mod line_fields;
+pub(crate) mod list_popup;
 pub mod minimap;
 pub mod pixel_interaction;
 pub mod pixel_selection;
@@ -217,6 +219,16 @@ pub struct EditorState {
     /// takes it, which is how a menu-driven rename reaches the caret too.
     pub(crate) goto_symbol_requested: bool,
     pub(crate) autocomplete: Option<autocomplete::AutocompleteState>,
+    /// The open "which of these does the pattern mean?" popup, if any. Put
+    /// there by the host — only it can expand a pattern against every file —
+    /// and read back out as a [`document_view::NavRequest`]. See
+    /// [`goto_popup`].
+    pub(crate) goto_choice: Option<goto_popup::GotoChoicePopup>,
+    /// Where on screen the link followed by the last Ctrl/Cmd+click (or
+    /// Ctrl/Cmd+`]`) was drawn. The host answers a pattern link one frame
+    /// later, by which time the click is gone, so this is what the popup it
+    /// opens is anchored to.
+    pub(crate) goto_anchor: egui::Pos2,
     scroll_intent: Option<ScrollIntent>,
     pub(crate) saved_scroll_frac: f32,
     /// How far below the viewport's top the caret's line was drawn, as of the
@@ -320,6 +332,8 @@ impl EditorState {
             pending_focus: false,
             goto_symbol_requested: false,
             autocomplete: None,
+            goto_choice: None,
+            goto_anchor: egui::Pos2::ZERO,
             scroll_intent: None,
             saved_scroll_frac: 0.0,
             caret_view_offset: 0.0,

@@ -451,7 +451,7 @@ fn hits_in_doclines(
 /// and name it again on the same line, so the binding never outlives them. A
 /// `glyph` block header is the other shape: what it writes is named on the
 /// `ref` lines *below* it, which is [`advance_block_captures`]'s job.
-fn line_captures(
+pub(super) fn line_captures(
     line: &str,
     at_base: Option<&str>,
     name_parts: &NamePartsMap,

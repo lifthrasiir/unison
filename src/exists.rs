@@ -772,16 +772,50 @@ pub fn template_denotes(pattern: &str, template: &str, name: &str) -> Option<boo
                 continue;
             }
         };
-        out.push_str(&regex::escape(&literal));
+        out.push_str(&literal_regex(&literal));
         literal.clear();
         out.push_str("(?:");
         out.push_str(groups.get(slot)?);
         out.push(')');
         i += width;
     }
-    out.push_str(&regex::escape(&literal));
+    out.push_str(&literal_regex(&literal));
     out.push_str(r"\z");
     Some(Regex::new(&out).ok()?.is_match(name))
+}
+
+/// What the written text *between* two capture slots accepts.
+///
+/// Not a literal, because the rest of the header is still a name pattern: the
+/// `font/` shape is `glyph han-5b50-($han-regions):($1) = ($0)`, where `($1)`
+/// is the search's slot and `($han-regions)` — already substituted to
+/// `(g|h|t|…)` by the caller — is an ordinary alternation the header expands
+/// itself. Escaping the whole run would make that group match the parenthesis
+/// and the bars, so a name it declares would be found nowhere; expanding it
+/// here is what lets a click on one of those glyphs reach the line that
+/// declares it.
+///
+/// A run that is not a pattern expands to itself, and one too wide to be worth
+/// enumerating (or that does not parse at all) falls back to the literal —
+/// which is what this did for every run before.
+fn literal_regex(literal: &str) -> String {
+    /// Enough for a region list or a variant set. Past it the alternation
+    /// costs more than the answer is worth, and the literal — an
+    /// under-approximation now rather than an over-approximation — is what is
+    /// left.
+    const MAX_ALTERNATIVES: usize = 256;
+
+    if !crate::pattern::is_name_pattern(literal) {
+        return regex::escape(literal);
+    }
+    let Ok(pattern) = crate::pattern::NamePattern::parse_segments(literal) else {
+        return regex::escape(literal);
+    };
+    if pattern.is_empty() || pattern.len() > MAX_ALTERNATIVES {
+        return regex::escape(literal);
+    }
+    let alternatives: Vec<String> = pattern.iter().map(|name| regex::escape(&name)).collect();
+    format!("(?:{})", alternatives.join("|"))
 }
 
 /// Every capture group's own sub-pattern, with the index the parser gave it.

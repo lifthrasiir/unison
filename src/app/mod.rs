@@ -21,6 +21,7 @@ use crate::specimen::SpecimenState;
 mod background;
 mod docs;
 mod fix;
+mod goto_pattern;
 mod history;
 mod menus;
 mod panels;
@@ -598,6 +599,43 @@ impl UniformApp {
                     // or to record — list who writes it instead.
                     None => {
                         self.search_name(ctx, &goto.name, goto.kind);
+                        Vec::new()
+                    }
+                }
+            }
+            // A pattern names many glyphs, which need not be declared in one
+            // place. Where they all agree the jump is made without asking;
+            // where they do not, the choice goes back to the editor as a popup
+            // and this gesture ends — the jump it leads to is the *next* one,
+            // recorded from the same link (see `goto_popup::GotoChoicePopup`).
+            NavTarget::Pattern { token, line } => {
+                match self.resolve_pattern_link(from_doc, &token, line) {
+                    goto_pattern::PatternLink::One(name) => {
+                        match self.goto_glyph(ctx, &name, &LinkTargetKind::Glyph) {
+                            Some((doc_idx, line)) => {
+                                let mut hops = vec![NavLoc::new(doc_idx, line, 0)];
+                                hops.extend(self.follow_goto_chain(ctx, &name));
+                                hops
+                            }
+                            None => {
+                                self.search_name(ctx, &token, LinkTargetKind::Glyph);
+                                Vec::new()
+                            }
+                        }
+                    }
+                    goto_pattern::PatternLink::Many(groups) => {
+                        self.open_goto_choice(from_doc, groups, nav.from, nav.from_offset);
+                        // The editor has already run this frame, so the popup
+                        // is drawn by the next one — which has to happen even
+                        // if nothing else asks for it.
+                        ctx.request_repaint();
+                        Vec::new()
+                    }
+                    // Nothing the pattern denotes is declared anywhere, so
+                    // there is no target — the same place a plain unknown name
+                    // ends up.
+                    goto_pattern::PatternLink::Nowhere => {
+                        self.search_name(ctx, &token, LinkTargetKind::Glyph);
                         Vec::new()
                     }
                 }

@@ -68,7 +68,7 @@ fn following_a_link_reports_the_link_position_not_the_caret() {
     assert_eq!(nav.from, Caret::new(ref_line, 4));
     match nav.target {
         NavTarget::Local { line, .. } => assert_eq!(line, def_line),
-        NavTarget::CrossFile(_) | NavTarget::Search(_) => {
+        NavTarget::CrossFile(_) | NavTarget::Search(_) | NavTarget::Pattern { .. } => {
             panic!("`a` is defined in this document")
         }
     }
@@ -92,7 +92,7 @@ fn a_link_to_another_file_is_handed_to_the_host() {
     assert_eq!(nav.from, Caret::new(ref_line, 4));
     match &nav.target {
         NavTarget::CrossFile(goto) => assert_eq!(goto.name, "elsewhere"),
-        NavTarget::Local { .. } | NavTarget::Search(_) => {
+        NavTarget::Local { .. } | NavTarget::Search(_) | NavTarget::Pattern { .. } => {
             panic!("a reference is not a definition, and `elsewhere` is not in this document")
         }
     }
@@ -139,7 +139,7 @@ fn clicking_a_definition_asks_for_a_search() {
     let nav = h.last_nav.as_ref().expect("no navigation reported");
     match &nav.target {
         NavTarget::Search(goto) => assert_eq!(goto.name, "a"),
-        NavTarget::Local { .. } | NavTarget::CrossFile(_) => {
+        NavTarget::Local { .. } | NavTarget::CrossFile(_) | NavTarget::Pattern { .. } => {
             panic!("a definition has nowhere to go")
         }
     }
@@ -166,7 +166,7 @@ fn clicking_an_anchor_searches_for_it_without_its_sign() {
             assert_eq!(goto.name, "above");
             assert_eq!(goto.kind, LinkTargetKind::Anchor);
         }
-        NavTarget::Local { .. } | NavTarget::CrossFile(_) => {
+        NavTarget::Local { .. } | NavTarget::CrossFile(_) | NavTarget::Pattern { .. } => {
             panic!("an anchor has no definition to go to")
         }
     }
@@ -255,7 +255,7 @@ fn a_link_split_by_a_soft_wrap_still_names_the_whole_symbol() {
             .unwrap_or_else(|| panic!("no navigation reported for a click at col {col}"));
         match &nav.target {
             NavTarget::CrossFile(goto) => assert_eq!(goto.name, long, "at col {col}"),
-            NavTarget::Local { .. } | NavTarget::Search(_) => {
+            NavTarget::Local { .. } | NavTarget::Search(_) | NavTarget::Pattern { .. } => {
                 panic!("`{long}` is not in this document")
             }
         }
@@ -326,7 +326,7 @@ fn clicking_a_back_reference_goes_to_the_group_it_names() {
     let nav = h.last_nav.as_ref().expect("no navigation reported");
     match nav.target {
         NavTarget::Local { line, .. } => assert_eq!(line, header_line),
-        NavTarget::CrossFile(_) | NavTarget::Search(_) => {
+        NavTarget::CrossFile(_) | NavTarget::Search(_) | NavTarget::Pattern { .. } => {
             panic!("the group `$-1` names is on the header above it")
         }
     }
@@ -357,7 +357,7 @@ fn clicking_a_search_capture_goes_to_the_search() {
     h.click_at_mod(h.text_pos(header_line, 12), Modifiers::COMMAND);
     match h.last_nav.as_ref().expect("no navigation reported").target {
         NavTarget::Local { line, .. } => assert_eq!(line, exists_line),
-        NavTarget::CrossFile(_) | NavTarget::Search(_) => {
+        NavTarget::CrossFile(_) | NavTarget::Search(_) | NavTarget::Pattern { .. } => {
             panic!("the group `$1` names is on the `exists` line above")
         }
     }
@@ -368,7 +368,7 @@ fn clicking_a_search_capture_goes_to_the_search() {
     h.click_at_mod(h.text_pos(ref_line, 6), Modifiers::COMMAND);
     match h.last_nav.as_ref().expect("no navigation reported").target {
         NavTarget::Local { line, .. } => assert_eq!(line, exists_line),
-        NavTarget::CrossFile(_) | NavTarget::Search(_) => {
+        NavTarget::CrossFile(_) | NavTarget::Search(_) | NavTarget::Pattern { .. } => {
             panic!("`$0` is the whole search")
         }
     }
@@ -396,7 +396,7 @@ fn a_comment_word_that_names_a_glyph_is_a_link() {
     h.click_at_mod(h.text_pos(ref_line, a_col), Modifiers::COMMAND);
     match h.last_nav.as_ref().expect("no navigation reported").target {
         NavTarget::Local { line, .. } => assert_eq!(line, def_line),
-        NavTarget::CrossFile(_) | NavTarget::Search(_) => {
+        NavTarget::CrossFile(_) | NavTarget::Search(_) | NavTarget::Pattern { .. } => {
             panic!("`a` is defined in this document")
         }
     }
@@ -428,7 +428,7 @@ fn the_goto_key_follows_the_link_under_the_caret() {
     assert_eq!(nav.from, Caret::new(ref_line, 4));
     match nav.target {
         NavTarget::Local { line, .. } => assert_eq!(line, def_line),
-        NavTarget::CrossFile(_) | NavTarget::Search(_) => {
+        NavTarget::CrossFile(_) | NavTarget::Search(_) | NavTarget::Pattern { .. } => {
             panic!("`a` is defined in this document")
         }
     }
@@ -444,7 +444,7 @@ fn the_goto_key_follows_the_link_under_the_caret() {
         .target
     {
         NavTarget::Local { line, .. } => assert_eq!(line, def_line),
-        NavTarget::CrossFile(_) | NavTarget::Search(_) => {
+        NavTarget::CrossFile(_) | NavTarget::Search(_) | NavTarget::Pattern { .. } => {
             panic!("`a` is defined in this document")
         }
     }
@@ -483,8 +483,157 @@ fn the_menu_request_follows_the_link_under_the_caret() {
     assert_eq!(nav.from, Caret::new(ref_line, 4));
     match nav.target {
         NavTarget::Local { line, .. } => assert_eq!(line, def_line),
-        NavTarget::CrossFile(_) | NavTarget::Search(_) => {
+        NavTarget::CrossFile(_) | NavTarget::Search(_) | NavTarget::Pattern { .. } => {
             panic!("`a` is defined in this document")
         }
     }
+}
+
+// --- Pattern references and the choice they may need ----------------------
+
+/// A reference written as a pattern names many glyphs at once, so where it goes
+/// is not a question one document can answer: it goes to the host, which is the
+/// only thing that can expand it against every file. See
+/// [`crate::app::goto_pattern`].
+#[test]
+fn a_pattern_reference_is_handed_to_the_host_as_a_pattern() {
+    use crate::editor::document_view::NavTarget;
+
+    let mut h = EditorHarness::new(&link_doc("ref foo-($-1):9x16 0 0"));
+    let ref_line = text_line_at(&h, "ref foo-");
+
+    h.last_nav = None;
+    h.click_at_mod(h.text_pos(ref_line, 6), Modifiers::COMMAND);
+
+    let nav = h.last_nav.as_ref().expect("no navigation reported");
+    assert_eq!(nav.from, Caret::new(ref_line, 4));
+    match &nav.target {
+        NavTarget::Pattern { token, line } => {
+            assert_eq!(token, "foo-($-1):9x16");
+            // The line is what says which capture groups the `$-1` names.
+            assert_eq!(*line, ref_line);
+        }
+        other => panic!(
+            "a pattern is not a plain name: {:?}",
+            std::mem::discriminant(other)
+        ),
+    }
+    // Nothing moved: the answer is a frame away.
+    assert_eq!(h.state.cursor.line, 0);
+}
+
+fn choice_popup(names: &[&str]) -> crate::editor::goto_popup::GotoChoicePopup {
+    use crate::editor::goto_popup::{GotoChoice, GotoChoicePopup};
+
+    let choices = names
+        .iter()
+        .enumerate()
+        .map(|(i, name)| GotoChoice {
+            name: (*name).to_string(),
+            extra: i,
+            location: format!("han-0038.unf:{}", i + 1),
+        })
+        .collect();
+    GotoChoicePopup::new(choices, egui::pos2(10.0, 10.0), Caret::new(4, 4), 12.0)
+}
+
+fn selected(h: &EditorHarness) -> usize {
+    h.state
+        .goto_choice
+        .as_ref()
+        .expect("the popup should still be open")
+        .nav
+        .selected
+}
+
+/// The listing is walked exactly as autocompletion's is — the two share the
+/// walk (`crate::editor::list_popup`) — and Left and Right mean nothing in one
+/// column, so they are swallowed rather than moving the caret out from under
+/// the popup.
+#[test]
+fn the_goto_choice_is_walked_with_the_arrows_and_the_jump_keys() {
+    let names: Vec<String> = (0..15).map(|i| format!("foo-{i}")).collect();
+    let refs: Vec<&str> = names.iter().map(String::as_str).collect();
+
+    let mut h = EditorHarness::new(&link_doc("ref foo-($-1) 0 0"));
+    // The keys only reach the editor while it is the active widget.
+    h.click_text(0, 0);
+    h.state.goto_choice = Some(choice_popup(&refs));
+
+    h.key(egui::Key::ArrowDown);
+    assert_eq!(selected(&h), 1);
+    h.key(egui::Key::ArrowUp);
+    assert_eq!(selected(&h), 0);
+    // Never off the top.
+    h.key(egui::Key::ArrowUp);
+    assert_eq!(selected(&h), 0);
+
+    h.key(egui::Key::End);
+    assert_eq!(selected(&h), 14);
+    h.key(egui::Key::PageUp);
+    assert_eq!(selected(&h), 4);
+    h.key(egui::Key::PageDown);
+    assert_eq!(selected(&h), 14);
+    h.key(egui::Key::Home);
+    assert_eq!(selected(&h), 0);
+
+    let caret = h.state.cursor;
+    h.key(egui::Key::ArrowRight);
+    assert_eq!(selected(&h), 0);
+    assert_eq!(h.state.cursor, caret, "a sideways key is swallowed");
+}
+
+/// Accepting a row is a jump, made with the name that stands for the group and
+/// recorded from where the *link* was — a Go Back has to return to the
+/// reference, not to the row.
+#[test]
+fn accepting_a_goto_choice_jumps_from_where_the_link_was() {
+    use crate::editor::document_view::NavTarget;
+
+    let mut h = EditorHarness::new(&link_doc("ref foo-($-1) 0 0"));
+    h.click_text(0, 0);
+    h.state.goto_choice = Some(choice_popup(&["foo-g", "foo-j"]));
+    h.last_nav = None;
+
+    h.key(egui::Key::ArrowDown);
+    h.key(egui::Key::Enter);
+
+    let nav = h.last_nav.as_ref().expect("no navigation reported");
+    assert_eq!(nav.from, Caret::new(4, 4));
+    assert_eq!(nav.from_offset, 12.0);
+    match &nav.target {
+        NavTarget::CrossFile(goto) => assert_eq!(goto.name, "foo-j"),
+        other => panic!(
+            "a picked row is a jump: {:?}",
+            std::mem::discriminant(other)
+        ),
+    }
+    assert!(
+        h.state.goto_choice.is_none(),
+        "the popup closes on the jump"
+    );
+}
+
+/// The popup narrows nothing, so there is no typing that could refine it:
+/// anything but its own keys is an answer of "no", and the key still belongs to
+/// the editor.
+#[test]
+fn any_other_key_dismisses_the_goto_choice() {
+    let mut h = EditorHarness::new(&link_doc("ref foo-($-1) 0 0"));
+    h.click_text(0, 0);
+
+    h.state.goto_choice = Some(choice_popup(&["foo-g", "foo-j"]));
+    h.key(egui::Key::Escape);
+    assert!(h.state.goto_choice.is_none());
+    assert!(h.last_nav.is_none());
+
+    h.state.goto_choice = Some(choice_popup(&["foo-g", "foo-j"]));
+    h.type_text("x");
+    assert!(h.state.goto_choice.is_none());
+    assert!(h.last_nav.is_none());
+    // Not swallowed: the character is written.
+    assert!(
+        h.lines[0].as_text().is_some_and(|t| t.contains('x')),
+        "the dismissing key is still the editor's"
+    );
 }

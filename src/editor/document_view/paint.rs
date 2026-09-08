@@ -301,6 +301,9 @@ pub(super) fn paint_document_area(
         goto_is_def = link.is_def;
         goto_link_pos = Some(Caret::new(state.cursor.line, link.col_start));
         goto_glyph_name = Some(link.target);
+        // The keyboard form starts at the caret, so that is where a popup the
+        // jump turns out to need belongs. The click below has a better answer.
+        state.goto_anchor = super::popups::caret_anchor_pos(ui.ctx(), state);
     }
 
     // The gutter's markers are resolved before the lines, because a click that
@@ -641,6 +644,10 @@ pub(super) fn paint_document_area(
                                 goto_glyph_kind = Some(link.kind);
                                 goto_is_def = link.is_def;
                                 goto_link_pos = Some(Caret::new(vl.doc_line, link.col_start));
+                                // Just under the link, so a popup the jump
+                                // turns out to need opens where the reader is
+                                // looking rather than at the untouched caret.
+                                state.goto_anchor = egui::pos2(lx0, name_y1 + 2.0);
                             }
                         }
                     }
@@ -1213,14 +1220,29 @@ pub(super) fn paint_document_area(
         let capture = (kind == LinkTargetKind::NameParts)
             .then(|| doc_links::find_capture_target(lines, from.line, target_name))
             .flatten();
+        // A pattern denotes many names at once, and they need not be declared
+        // together, so where it goes is not a question this document can
+        // answer — see [`NavTarget::Pattern`]. Only a *reference* gets here: a
+        // pattern glyph name is not a name anything refers to, so it is never
+        // given a definition link in the first place.
+        let is_pattern = kind == LinkTargetKind::Glyph
+            && !goto_is_def
+            && capture.is_none()
+            && target_name.contains(['(', '|', '$', '*']);
         // A declaration would "navigate" to the line the click was already
         // on, so it never looks for one — it asks for the search instead.
         let local = capture.map(|(line, _)| line).or_else(|| {
-            (!goto_is_def)
+            (!goto_is_def && !is_pattern)
                 .then(|| doc_links::find_link_target_in_doc(lines, target_name, &kind, name_parts))
                 .flatten()
         });
-        let target = if let Some(line_idx) = local {
+
+        let target = if is_pattern {
+            NavTarget::Pattern {
+                token: target_name.clone(),
+                line: from.line,
+            }
+        } else if let Some(line_idx) = local {
             state.mode = EditMode::Normal;
             state.selection_anchor = None;
             // On the group itself where there is one: the line alone would
@@ -1271,6 +1293,9 @@ pub(super) fn paint_document_area(
         && let Some(target) = click_result
     {
         state.autocomplete = None;
+        // A click anywhere but on one of its own rows is an answer to the
+        // offer: the reader went somewhere else.
+        state.goto_choice = None;
         let shift = ui.input(|i| i.modifiers.shift);
         match target {
             ClickTarget::Text(caret_pos) => {

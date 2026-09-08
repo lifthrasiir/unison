@@ -46,7 +46,8 @@ use number_scroll::{
 };
 use paint::paint_document_area;
 use popups::{
-    show_autocomplete_popup, show_codepoint_popup, show_error_tooltip, show_rename_popup,
+    show_autocomplete_popup, show_codepoint_popup, show_error_tooltip, show_goto_choice_popup,
+    show_rename_popup,
 };
 use scroll::{
     handle_page_scroll, lock_scroll_gesture_zone, resolve_scroll_target, scroll_cursor_into_view,
@@ -116,6 +117,16 @@ pub enum NavTarget {
     /// The target is not in this document; only the host can find and open it.
     /// If it is not in any other file either, the host searches instead.
     CrossFile(GotoGlyph),
+    /// The token clicked is a *pattern*, so it denotes many names and they need
+    /// not share a declaration. Only the host can expand it and say where each
+    /// one goes (`crate::app::goto_pattern`): the answer is one jump, or a
+    /// choice put back into [`crate::editor::EditorState::goto_choice`], or —
+    /// when nothing the pattern denotes is declared — the same search fallback
+    /// a plain unknown name gets.
+    ///
+    /// `line` is the line the token sits on, which is what says which capture
+    /// groups a `$-N` in it names.
+    Pattern { token: String, line: usize },
     /// The token clicked declares the name rather than referring to it, so
     /// there is nothing to go to and the host lists its appearances. This is
     /// where the "go to definition" gesture ends up whenever no definition can
@@ -794,6 +805,7 @@ fn show_document(
     let rename_result = show_rename_popup(ui, state);
     needs_rederive |= show_codepoint_popup(ui, lines, state);
     show_autocomplete_popup(ui, lines, state, &mut needs_rederive);
+    show_goto_choice_popup(ui, state);
     show_error_tooltip(ui, state, &pal);
     scroll_cursor_into_view(
         ui,

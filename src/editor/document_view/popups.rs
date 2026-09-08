@@ -1,4 +1,5 @@
-//! Popups anchored to the caret: rename, autocomplete and the error tooltip.
+//! Popups anchored to the caret: rename, autocomplete, the goto choice and
+//! the error tooltip.
 
 use super::*;
 
@@ -203,14 +204,11 @@ pub(super) fn show_autocomplete_popup(
             caret_anchored_area(ui.ctx(), state, Slot::AutocompletePopup).show(ui.ctx(), |ui| {
                 egui::Frame::popup(ui.style()).show(ui, |ui| {
                     let ac = state.autocomplete.as_ref().unwrap();
-                    let end = ac
-                        .candidates
-                        .len()
-                        .min(ac.scroll_offset + crate::editor::autocomplete::MAX_VISIBLE);
+                    let visible = ac.nav.visible(ac.candidates.len());
                     ui.set_min_width(180.0);
                     let mut clicked_idx: Option<usize> = None;
-                    for i in ac.scroll_offset..end {
-                        let selected = i == ac.selected;
+                    for i in visible {
+                        let selected = i == ac.nav.selected;
                         let candidate = &ac.candidates[i];
                         let kind_char = match candidate.kind {
                             crate::editor::autocomplete::CompletionKind::Glyph => "G",
@@ -227,18 +225,60 @@ pub(super) fn show_autocomplete_popup(
                         }
                     }
                     if ac.candidates.len() > crate::editor::autocomplete::MAX_VISIBLE {
-                        ui.label(format!("{}/{}", ac.selected + 1, ac.candidates.len()));
+                        ui.label(format!("{}/{}", ac.nav.selected + 1, ac.candidates.len()));
                     }
                     clicked_idx
                 })
             });
         if let Some(clicked) = ac_area.inner.inner {
             if let Some(ac) = &mut state.autocomplete {
-                ac.selected = clicked;
+                ac.nav.selected = clicked;
             }
             crate::editor::autocomplete::apply_completion(lines, state);
             *needs_rederive = true;
         }
+    }
+}
+
+/// The "which of these does the pattern mean?" listing, anchored under the
+/// link that was followed rather than under the caret — a Ctrl/Cmd+click leaves
+/// the caret where it was, so that is not where the reader is looking. See
+/// [`crate::editor::goto_popup`].
+pub(super) fn show_goto_choice_popup(ui: &egui::Ui, state: &mut EditorState) {
+    let Some(popup) = &state.goto_choice else {
+        return;
+    };
+    let rows = popup.rows();
+    let (selected, visible) = (popup.nav.selected, popup.nav.visible(rows.len()));
+    let total = rows.len();
+    let area = egui::Area::new(state.key(Slot::GotoChoicePopup))
+        .order(egui::Order::Foreground)
+        .fixed_pos(popup.anchor);
+    let clicked = area
+        .show(ui.ctx(), |ui| {
+            egui::Frame::popup(ui.style())
+                .show(ui, |ui| {
+                    let mut clicked: Option<usize> = None;
+                    for i in visible {
+                        let (label, location) = &rows[i];
+                        // Monospaced and padded, so the locations line up as a
+                        // column: what the reader is comparing between rows is
+                        // where each one goes.
+                        let text = egui::RichText::new(format!("{label}   {location}")).monospace();
+                        if ui.selectable_label(i == selected, text).clicked() {
+                            clicked = Some(i);
+                        }
+                    }
+                    if total > crate::editor::list_popup::MAX_VISIBLE {
+                        ui.label(format!("{}/{total}", selected + 1));
+                    }
+                    clicked
+                })
+                .inner
+        })
+        .inner;
+    if let Some(i) = clicked {
+        crate::editor::goto_popup::choose(state, i);
     }
 }
 

@@ -6,7 +6,8 @@ use crate::document_io::{TokenSpan, tokenize_with_spans};
 use crate::editor::caret::{Caret, char_to_byte};
 use crate::ref_composite::ResolvedGlyph;
 
-pub(crate) const MAX_VISIBLE: usize = 10;
+pub(crate) use crate::editor::list_popup::MAX_VISIBLE;
+use crate::editor::list_popup::{ListMove, ListNav, read_move};
 
 #[derive(Clone, Debug, PartialEq)]
 pub(crate) enum CompletionKind {
@@ -27,8 +28,9 @@ pub(crate) struct CompletionCandidate {
 
 pub(crate) struct AutocompleteState {
     pub candidates: Vec<CompletionCandidate>,
-    pub selected: usize,
-    pub scroll_offset: usize,
+    /// Which candidate is selected and how the listing is scrolled; the walk
+    /// itself is [`crate::editor::list_popup`]'s.
+    pub nav: ListNav,
     pub replace_start: usize,
     pub line: usize,
     all_candidates: Vec<CompletionCandidate>,
@@ -97,9 +99,8 @@ pub(crate) fn trigger(
         return;
     }
 
-    let mut ac = AutocompleteState {
-        selected: select_for_text(&candidates, &ctx.prefix),
-        scroll_offset: 0,
+    let ac = AutocompleteState {
+        nav: ListNav::new(select_for_text(&candidates, &ctx.prefix), candidates.len()),
         replace_start: ctx.replace_start,
         line: state.cursor.line,
         candidates,
@@ -109,7 +110,6 @@ pub(crate) fn trigger(
         prefix: ctx.prefix,
         navigated: false,
     };
-    scroll_to_selected(&mut ac);
 
     state.cursor.col = col;
     state.selection_anchor = None;
@@ -150,25 +150,11 @@ fn select_for_text(candidates: &[CompletionCandidate], text: &str) -> usize {
     landed.unwrap_or(0)
 }
 
-/// Bring the selected item into the visible window, and never scroll past the
-/// end of a list that fits in it.
-fn scroll_to_selected(ac: &mut AutocompleteState) {
-    if ac.selected < ac.scroll_offset {
-        ac.scroll_offset = ac.selected;
-    } else if ac.selected >= ac.scroll_offset + MAX_VISIBLE {
-        ac.scroll_offset = ac.selected + 1 - MAX_VISIBLE;
-    }
-    ac.scroll_offset = ac
-        .scroll_offset
-        .min(ac.candidates.len().saturating_sub(MAX_VISIBLE));
-}
-
 /// Move the selection by a key. What a key picks is a choice of *name*, so the
 /// next character typed continues that name rather than the line.
 fn move_selection(ac: &mut AutocompleteState, to: usize) {
-    ac.selected = to.min(ac.candidates.len().saturating_sub(1));
+    ac.nav.move_to(to, ac.candidates.len());
     ac.navigated = true;
-    scroll_to_selected(ac);
 }
 
 pub(crate) fn update_after_edit(lines: &[DocLine], state: &mut super::EditorState) {
@@ -213,15 +199,15 @@ pub(crate) fn update_after_edit(lines: &[DocLine], state: &mut super::EditorStat
     if ac.prefix == prefix {
         // Nothing was written; a caret that merely moved must not undo a walk
         // of the list.
-        ac.selected = ac.selected.min(ac.candidates.len().saturating_sub(1));
+        ac.nav.selected = ac.nav.selected.min(ac.candidates.len().saturating_sub(1));
     } else {
         // What is written picks the selection again, and it is the line — not
         // the item a key had walked to — that the next character continues.
-        ac.selected = select_for_text(&ac.candidates, &prefix);
+        ac.nav.selected = select_for_text(&ac.candidates, &prefix);
         ac.prefix = prefix;
         ac.navigated = false;
     }
-    scroll_to_selected(ac);
+    ac.nav.reveal(ac.candidates.len());
 }
 
 pub(crate) enum HandleResult {
@@ -271,12 +257,6 @@ pub(crate) fn handle_keys(
             || ctrl_letter(i, egui::Key::J)
     });
     let accept = ui.input(|i| i.key_pressed(egui::Key::Enter) || i.key_pressed(egui::Key::Tab));
-    // Left and Right are swallowed rather than obeyed: the listing is narrowed
-    // by the word the caret sits at the end of, so a step off it would only
-    // dismiss the popup or re-filter against half a name.
-    let sideways = ui.input(|i| {
-        plain(i) && (i.key_pressed(egui::Key::ArrowLeft) || i.key_pressed(egui::Key::ArrowRight))
-    });
 
     if escape {
         // The line keeps whatever stands on it, including a name a walk of the
@@ -286,33 +266,24 @@ pub(crate) fn handle_keys(
         return HandleResult::Consumed;
     }
 
-    if sideways {
-        return HandleResult::Consumed;
-    }
-
-    // Home/End/PageUp/PageDown walk the listing while it is open. Nothing else
-    // reaches an item a long list keeps off-screen, and moving the caret
-    // instead would only dismiss the popup.
+    // The arrows and the four jump keys walk the listing while it is open;
+    // nothing else reaches an item a long list keeps off-screen, and moving the
+    // caret instead would only dismiss the popup. Left and Right are swallowed
+    // rather than obeyed: the listing is narrowed by the word the caret sits at
+    // the end of, so a step off it would only dismiss the popup or re-filter
+    // against half a name.
     let ac = state.autocomplete.as_ref().unwrap();
-    let (selected, last) = (ac.selected, ac.candidates.len().saturating_sub(1));
-    let jump = ui.input(|i| {
-        if !plain(i) {
-            None
-        } else if i.key_pressed(egui::Key::Home) {
-            Some(0)
-        } else if i.key_pressed(egui::Key::End) {
-            Some(last)
-        } else if i.key_pressed(egui::Key::PageUp) {
-            Some(selected.saturating_sub(MAX_VISIBLE))
-        } else if i.key_pressed(egui::Key::PageDown) {
-            Some((selected + MAX_VISIBLE).min(last))
-        } else {
-            None
+    let (selected, last) = (ac.nav.selected, ac.candidates.len().saturating_sub(1));
+    let step = ui.input(|i| read_move(i, selected, ac.candidates.len()));
+    match step {
+        Some(ListMove::Sideways) => return HandleResult::Consumed,
+        Some(ListMove::To(to)) => {
+            move_selection(state.autocomplete.as_mut().unwrap(), to);
+            return HandleResult::Consumed;
         }
-    });
-    if let Some(to) = jump {
-        move_selection(state.autocomplete.as_mut().unwrap(), to);
-        return HandleResult::Consumed;
+        // The arrows arrive here as well as through `up`/`down` above, which
+        // also read the Ctrl+J/K aliases; both end in the same move.
+        Some(ListMove::Prev) | Some(ListMove::Next) | None => {}
     }
 
     if up {
@@ -355,11 +326,6 @@ pub(crate) fn handle_keys(
     HandleResult::NotConsumed
 }
 
-/// A bare key press: no modifier that would make it mean something else.
-fn plain(i: &egui::InputState) -> bool {
-    !i.modifiers.shift && !i.modifiers.command && !i.modifiers.alt
-}
-
 /// Rewrite the text the popup is narrowed by to the selected candidate,
 /// keeping the popup open. Returns whether the line changed.
 fn continue_from_selection(lines: &mut [DocLine], state: &mut super::EditorState) -> bool {
@@ -370,7 +336,7 @@ fn continue_from_selection(lines: &mut [DocLine], state: &mut super::EditorState
         return false;
     }
     let (line_idx, replace_start) = (ac.line, ac.replace_start);
-    let Some(candidate) = ac.candidates.get(ac.selected).map(|c| c.label.clone()) else {
+    let Some(candidate) = ac.candidates.get(ac.nav.selected).map(|c| c.label.clone()) else {
         return false;
     };
     let Some(DocLine::Text(text)) = lines.get(line_idx) else {
@@ -424,7 +390,7 @@ pub(crate) fn apply_completion(lines: &mut [DocLine], state: &mut super::EditorS
         return;
     }
 
-    let candidate = &ac.candidates[ac.selected].label;
+    let candidate = &ac.candidates[ac.nav.selected].label;
     let line_idx = state.cursor.line;
     let DocLine::Text(text) = &lines[line_idx] else {
         return;
@@ -1248,8 +1214,7 @@ mod tests {
                 label: "latin-a".into(),
                 kind: CompletionKind::Glyph,
             }],
-            selected: 0,
-            scroll_offset: 0,
+            nav: ListNav::default(),
             replace_start,
             line,
             all_candidates: Vec::new(),

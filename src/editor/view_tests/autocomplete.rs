@@ -215,24 +215,24 @@ fn autocomplete_ctrl_j_k_navigate() {
 
     ctrl_j(&mut h);
     assert!(h.state.autocomplete.as_ref().unwrap().candidates.len() >= 2);
-    assert_eq!(h.state.autocomplete.as_ref().unwrap().selected, 0);
+    assert_eq!(h.state.autocomplete.as_ref().unwrap().nav.selected, 0);
 
     // Nothing above item 0, and the popup survives.
     ctrl_k(&mut h);
     assert!(h.state.autocomplete.is_some());
-    assert_eq!(h.state.autocomplete.as_ref().unwrap().selected, 0);
+    assert_eq!(h.state.autocomplete.as_ref().unwrap().nav.selected, 0);
     assert!(matches!(h.state.popup, crate::editor::PopupState::None));
 
     ctrl_j(&mut h);
-    assert_eq!(h.state.autocomplete.as_ref().unwrap().selected, 1);
+    assert_eq!(h.state.autocomplete.as_ref().unwrap().nav.selected, 1);
     ctrl_k(&mut h);
-    assert_eq!(h.state.autocomplete.as_ref().unwrap().selected, 0);
+    assert_eq!(h.state.autocomplete.as_ref().unwrap().nav.selected, 0);
 
     // Arrow keys keep working alongside them.
     h.key(Key::ArrowDown);
-    assert_eq!(h.state.autocomplete.as_ref().unwrap().selected, 1);
+    assert_eq!(h.state.autocomplete.as_ref().unwrap().nav.selected, 1);
     h.key(Key::ArrowUp);
-    assert_eq!(h.state.autocomplete.as_ref().unwrap().selected, 0);
+    assert_eq!(h.state.autocomplete.as_ref().unwrap().nav.selected, 0);
 }
 
 /// A family listing opens on the variant that is *already written*: the
@@ -246,7 +246,7 @@ fn autocomplete_opens_on_the_variant_already_written() {
 
     let ac = h.state.autocomplete.as_ref().unwrap();
     assert_eq!(ac.candidates.len(), 3);
-    assert_eq!(ac.candidates[ac.selected].label, "part:5x16-r");
+    assert_eq!(ac.candidates[ac.nav.selected].label, "part:5x16-r");
 }
 
 /// Typing on with no key having walked the list keeps re-placing the selection
@@ -266,7 +266,7 @@ fn autocomplete_selection_follows_what_is_typed() {
     // The whole family stays listed — that is the choice being made — and the
     // selection moved to what has been written.
     assert_eq!(ac.candidates.len(), 3);
-    assert_eq!(ac.candidates[ac.selected].label, "part:5x16-r");
+    assert_eq!(ac.candidates[ac.nav.selected].label, "part:5x16-r");
 }
 
 /// Walking the list is choosing a name, so the next character typed continues
@@ -289,7 +289,7 @@ fn autocomplete_typing_after_walking_the_list_continues_the_selection() {
     h.key(Key::ArrowDown);
     assert_eq!(
         h.state.autocomplete.as_ref().unwrap().candidates
-            [h.state.autocomplete.as_ref().unwrap().selected]
+            [h.state.autocomplete.as_ref().unwrap().nav.selected]
             .label,
         "graph"
     );
@@ -297,7 +297,7 @@ fn autocomplete_typing_after_walking_the_list_continues_the_selection() {
     h.type_text("ic");
     assert_eq!(h.text(6), "ref graphic");
     let ac = h.state.autocomplete.as_ref().unwrap();
-    assert_eq!(ac.candidates[ac.selected].label, "graphic");
+    assert_eq!(ac.candidates[ac.nav.selected].label, "graphic");
 
     // And the selection follows the text again from there.
     h.key(Key::Backspace);
@@ -339,7 +339,7 @@ fn autocomplete_page_home_and_end_walk_the_listing() {
     h.click_text(24, 5);
     ctrl_j(&mut h);
 
-    let selected = |h: &EditorHarness| h.state.autocomplete.as_ref().unwrap().selected;
+    let selected = |h: &EditorHarness| h.state.autocomplete.as_ref().unwrap().nav.selected;
     assert_eq!(h.state.autocomplete.as_ref().unwrap().candidates.len(), 12);
     assert_eq!(selected(&h), 0);
 
@@ -347,12 +347,12 @@ fn autocomplete_page_home_and_end_walk_the_listing() {
     assert_eq!(selected(&h), MAX_VISIBLE);
     h.key(Key::End);
     assert_eq!(selected(&h), 11);
-    assert_eq!(h.state.autocomplete.as_ref().unwrap().scroll_offset, 2);
+    assert_eq!(h.state.autocomplete.as_ref().unwrap().nav.scroll_offset, 2);
     h.key(Key::PageUp);
     assert_eq!(selected(&h), 11 - MAX_VISIBLE);
     h.key(Key::Home);
     assert_eq!(selected(&h), 0);
-    assert_eq!(h.state.autocomplete.as_ref().unwrap().scroll_offset, 0);
+    assert_eq!(h.state.autocomplete.as_ref().unwrap().nav.scroll_offset, 0);
     // The caret never left the word being completed.
     assert_eq!(h.state.cursor.col, 5);
 }
@@ -416,7 +416,7 @@ fn autocomplete_prefers_a_candidate_the_text_starts() {
 
     let ac = h.state.autocomplete.as_ref().unwrap();
     assert_eq!(ac.candidates.len(), 3);
-    assert_eq!(ac.candidates[ac.selected].label, "part:5x16-l");
+    assert_eq!(ac.candidates[ac.nav.selected].label, "part:5x16-l");
 }
 
 /// Walking the list and accepting writes one undo entry, not one per step: the

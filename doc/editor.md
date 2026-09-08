@@ -47,6 +47,14 @@ lists the lines that share it. Unopened files are searched from the directory sn
 disk. A `ref … goto` line redirects a jump to its wrapper glyph onward to the target, leaving two
 history entries.
 
+A *reference* written as a pattern names many glyphs at once, so the click expands it and looks each
+name up. Where they are all declared in the same place — `ref han-5b50-($-1):9x16` against a
+`glyph han-5b50-($han-regions):($1)` block — it simply jumps. Where they split, a small list offers
+one row per place, each naming the glyph the jump would go to, how many further names land there and
+the file and line, e.g. `han-52fa-g:7x16  [+5]   han-0010.unf:2862`. The list is walked with ↑/↓,
+PgUp/PgDn, Home/End, taken with Enter, and dismissed by Escape or by carrying on with anything else.
+If none of the names is declared anywhere, the click falls back to the Search pane as any other.
+
 **Search.** The pane's header row is `[kind] [what to look for] n/m [Search]`, then how many files
 the hits are spread over, and a message when the last thing asked for found nothing. Two kinds: **Text**, a verbatim substring — no
 case folding and no collapsing of spaces, what is typed is what is looked for — and **Glyph**, every

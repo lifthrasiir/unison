@@ -47,7 +47,13 @@ pub fn pattern_denotes(
         return false;
     }
     if let Some(pattern) = exists.filter(|_| crate::exists::mentions_capture(token)) {
-        return crate::exists::template_denotes(pattern, token, name).unwrap_or(false);
+        // Name parts and back-references first: a scoped header writes both
+        // kinds of `$` — `glyph han-5b50-($han-regions):($1)` — and only the
+        // slot is the search's. What is left around it is still a pattern,
+        // which [`crate::exists::template_denotes`] expands for itself.
+        let substituted =
+            crate::pattern::substitute_name_parts_and_captures(token, parts, captures);
+        return crate::exists::template_denotes(pattern, &substituted, name).unwrap_or(false);
     }
     let substituted = crate::pattern::substitute_name_parts_and_captures(token, parts, captures);
     if substituted == name {

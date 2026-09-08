@@ -23,6 +23,16 @@ pub(super) fn handle_document_keys(
     needs_rederive: &mut bool,
 ) {
     if state.active {
+        // The goto choice comes first: while it is up it owns the arrows and
+        // the accept keys, and anything else closes it before that key is
+        // handled as usual. It never coexists with autocompletion — one is
+        // opened by typing a name, the other by following one.
+        use crate::editor::goto_popup::GotoKeys;
+        match crate::editor::goto_popup::handle_keys(ui, state) {
+            GotoKeys::Consumed | GotoKeys::Chosen => return,
+            GotoKeys::Idle | GotoKeys::Dismissed => {}
+        }
+
         // Autocomplete key handling takes priority
         use crate::editor::autocomplete::HandleResult;
         let ac_result = crate::editor::autocomplete::handle_keys(ui, lines, state);
