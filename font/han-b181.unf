@@ -38,6 +38,9 @@ glyph han-29462:15x16 15 16 // 𩑢
 glyph han-29464:15x16 15 16 // 𩑤
 ⿰ han-5348:9x16 1 han-9801:5x16 // ⿰午頁
 
+// glyph han-2946a:15x16 15 16 // 𩑪
+// ⿰ han-5eff han-9801 // ⿰廿頁
+
 glyph han-2946d-($han-regions):15x16 15 16 // 𩑭
 ⿰ han-5316-($-1):10x16 han-9801:5x16 // ⿰化頁
 
@@ -45,6 +48,9 @@ glyph han-2946d-($han-regions):15x16 15 16 // 𩑭
 
 glyph han-29470:15x16 15 16 // 𩑰
 ⿰ han-65e6:9x16 1 han-9801:5x16 // ⿰旦頁
+
+// glyph han-29473-($han-regions):15x16 15 16 // 𩑳
+// ⿰ han-5e73-($-1) han-9801 // ⿰平頁
 
 glyph han-29475:15x16 15 16 // 𩑵
 ⿰ han-672a:9x16 1 han-9801:5x16 // ⿰未頁

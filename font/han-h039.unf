@@ -3,7 +3,7 @@
 ## 39.3
 
 glyph han-31675:15x16 15 16 // 𱙵
-⿰ han-5b50:7x16 1 han-5c71:7x16 // ⿰子山
+⿰ han-5b50.0:7x16-l 1 han-5c71:7x16 // ⿰子山
 
 ## 39.4
 
@@ -16,7 +16,7 @@ glyph han-31675:15x16 15 16 // 𱙵
 ## 39.5
 
 glyph han-31679:15x16 15 16 // 𱙹
-⿰ han-5b50:7x16 1 han-51fa:7x16 // ⿰子出
+⿰ han-5b50-v:7x16 1 han-51fa:7x16 // ⿰子出
 
 ## 39.13
 
@@ -86,16 +86,16 @@ glyph han-31685:15x16 15 16 // 𱚅
 
 ## 41.5
 
-// glyph han-3169e:15x16 15 16 // 𱚞
-// ⿱ han-767d han-5bf8 // ⿱白寸
+glyph han-3169e:15x16 15 16 // 𱚞
+⿱ han-767d:15x6 1 han-5bf8:15x9 // ⿱白寸
 
 glyph han-3169f:15x16 15 16 // 𱚟
 ⿰ han-76ae:8x16 han-5bf8:7x16 // ⿰皮寸
 
 ## 41.6
 
-// glyph han-316a0:15x16 15 16 // 𱚠
-// ⿱ han-800c han-5bf8 // ⿱而寸
+glyph han-316a0:15x16 15 16 // 𱚠
+⿱ han-800c:15x7 han-5bf8:15x9 // ⿱而寸
 
 # CJK unified ideographs extension H: 尸 (44)
 
@@ -254,6 +254,13 @@ glyph han-31725:15x16 15 16 // 𱜥
 // glyph han-31743:15x16 15 16 // 𱝃
 // ⿸ han-5e7f han-897f // ⿸广西
 
+# CJK unified ideographs extension H: 廾 (55)
+
+## 55.12
+
+// glyph han-31755:15x16 15 16 // 𱝕
+// ⿱ han-99ae han-5efe // ⿱馮廾
+
 # CJK unified ideographs extension H: 弓 (57)
 
 ## 57.4
@@ -299,6 +306,9 @@ glyph han-31774:15x16 15 16 // 𱝴
 glyph han-31775:15x16 15 16 // 𱝵
 ⿰ han-5f73:5x16 1 han-54c1:9x16 // ⿰彳品
 
+// glyph han-31776:15x16 15 16 // 𱝶
+// ⿲ han-5f73 han-5c71 han-5bfa // ⿲彳山寺
+
 ## 60.18
 
 // glyph han-3177b:15x16 15 16 // 𱝻
@@ -309,7 +319,7 @@ glyph han-31775:15x16 15 16 // 𱝵
 ## 61.3
 
 glyph han-31780:15x16 15 16 // 𱞀
-⿰ han-5fc4:5x16 1 han-5b50:9x16 // ⿰忄子
+⿰ han-5fc4:5x16 1 han-5b50.0:9x16 // ⿰忄子
 
 glyph han-31781:15x16 15 16 // 𱞁
 ⿰ han-5fc4:5x16 1 han-5df2:9x16 // ⿰忄已
@@ -337,6 +347,9 @@ glyph han-3178f:15x16 15 16 // 𱞏
 ⿲ han-5fc4:5x16 han-529b:5x16 1 han-53e3:4x16 // ⿲忄力口
 
 ## 61.6
+
+// glyph han-31795:15x16 15 16 // 𱞕
+// ⿰ han-5fc4 han-5bfb // ⿰忄寻
 
 // glyph han-31796:15x16 15 16 // 𱞖
 // ⿱ han-5978 han-5fc3 // ⿱奸心
@@ -695,6 +708,11 @@ glyph han-31913:15x16 15 16 // 𱤓
 
 // glyph han-31919:15x16 15 16 // 𱤙
 // ⿰ han-6728 han-7131 // ⿰木焱
+
+## 75.13
+
+// glyph han-31921:15x16 15 16 // 𱤡
+// ⿲ han-6728 han-27fb7 han-5bfa // ⿲木𧾷寺
 
 ## 75.15
 

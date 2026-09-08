@@ -58,10 +58,16 @@ glyph han-21b3d:15x16 15 16 // 𡬽
 glyph han-21b41:15x16 15 16 // 𡭁
 ⿰ han-7fcf:7x16 1 han-5bf8:7x16 // ⿰翏寸
 
+// glyph han-21b42:15x16 15 16 // 𡭂
+// ⿰ han-675f han-3775 // ⿰束㝵
+
 ## 41.12
 
 // glyph han-21b44:15x16 15 16 // 𡭄
 // ⿺ han-582f han-5bf8 // ⿺堯寸
+
+// glyph han-23292:15x16 15 16 // 𣊒
+// ⿺ han-662f han-5bfa // ⿺是寺
 
 # CJK unified ideographs extension B: 小 (42)
 

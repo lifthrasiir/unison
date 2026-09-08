@@ -627,6 +627,9 @@ glyph han-8def:15x16 15 16 // 路
 glyph han-8df0:15x16 15 16 // 跰
 ⿰ han-27fb7:5x16 1 han-5e76:9x16 // ⿰𧾷并
 
+// glyph han-8df1:15x16 15 16 // 跱
+// ⿰ han-27fb7 han-5bfa // ⿰𧾷寺
+
 glyph han-8df2:15x16 15 16 // 跲
 ⿰ han-27fb7:5x16 1 han-5408:9x16 // ⿰𧾷合
 

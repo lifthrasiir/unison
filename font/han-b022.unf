@@ -61,6 +61,9 @@ glyph han-2098d:15x16 15 16 // 𠦍
 // glyph han-2099a:15x16 15 16 // 𠦚
 // ⿻⿱㇒𰀁𠠴
 
+// glyph han-2099c:15x16 15 16 // 𠦜
+// ⿰ han-5eff han-5eff // ⿰廿廿
+
 glyph han-2099d:5x16 5 16 // 𠦝
 ⿳ han-5341:5x5 han-65e5:5x5 han-5341:5x6 // ⿳十日十
 glyph han-2099d:7x16 7 16 // 𠦝
@@ -171,7 +174,7 @@ glyph han-20a2c:15x16 15 16 // 𠨬
 // ⿸ han-5382 han-30001 // ⿸厂𰀁
 
 glyph han-20a2f:15x16 15 16 // 𠨯
-⿸ han-5382:15x16.11x15 han-5b50:11x14 4 2 // ⿸厂子
+⿸ han-5382:15x16.11x15 han-5b50.0:11x14 4 2 // ⿸厂子
 
 // glyph han-20a33:15x16 15 16 // 𠨳
 // ⿸ han-5382 han-536a // ⿸厂卪

@@ -76,6 +76,11 @@ glyph han-2e516:15x16 15 16 // 𮔖
 // glyph han-2e52f:15x16 15 16 // 𮔯
 // ⿱ han-9ad8 han-866b // ⿱高虫
 
+## 142.11
+
+// glyph han-2e539:15x16 15 16 // 𮔹
+// ⿲ han-866b han-5f73 han-3775 // ⿲虫彳㝵
+
 # CJK unified ideographs extension F: 血 (143)
 
 ## 143.1
@@ -187,6 +192,9 @@ glyph han-2e5ae:15x16 15 16 // 𮖮
 // glyph han-2e5b2:15x16 15 16 // 𮖲
 // ⿰ han-8864 han-264d4 // ⿰衤𦓔
 
+// glyph han-2e5b4:15x16 15 16 // 𮖴
+// ⿰ han-8864 han-7b49 // ⿰衤等
+
 # CJK unified ideographs extension F: 襾 (146)
 
 ## 146.5
@@ -282,6 +290,9 @@ glyph han-2e604:15x16 15 16 // 𮘄
 ⿰ han-8a01:5x16 han-7528:10x16 // ⿰訁用
 
 ## 149.6
+
+glyph han-2e609:15x16 15 16 // 𮘉
+⿲ han-8a01:5x16 han-5f00:7x16 han-5202:3x16 // ⿲訁开刂
 
 glyph han-2e60b:15x16 15 16 // 𮘋
 ⿲ han-8a01:5x16 han-72ad:4x16 1 han-5df3:5x16 // ⿲訁犭巳

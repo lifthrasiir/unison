@@ -36,6 +36,9 @@
 // ref han-53e3 // ⿻口𠀁
 // ref han-20001
 
+// glyph han-2cebd:15x16 15 16 // 𬺽
+// ⿱ han-4e03 han-5efe // ⿱七廾
+
 ## 1.5
 
 glyph han-2cec1:15x16 15 16 // 𬻁
@@ -316,6 +319,9 @@ glyph han-2cfb0:15x16 15 16 // 𬾰
 
 // glyph han-2cfb5:15x16 15 16 // 𬾵
 // ⿻𠈌⿻一𠀁
+
+// glyph han-2cfb8:15x16 15 16 // 𬾸
+// ⿲ han-4ebb han-5fc4 han-5bfa // ⿲亻忄寺
 
 glyph han-2cfba-($han-regions):15x16 15 16 // 𬾺
 ⿰ han-5e76:8x16 han-4ee4-($-1):7x16 // ⿰并令

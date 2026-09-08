@@ -40,7 +40,7 @@ glyph han-28cd3:15x16 15 16 // 𨳓
 // ⿱ han-4e09 han-9580 // ⿱三門
 
 glyph han-28cd5:15x16 15 16 // 𨳕
-⿵ han-9580:15x16.13x11 han-5b50:9x10 3 6 // ⿵門子
+⿵ han-9580:15x16.13x11 han-5b50.0:9x10 3 6 // ⿵門子
 
 // glyph han-28cd6:15x16 15 16 // 𨳖
 // ⿵ han-9580 han-5ddb // ⿵門巛
@@ -193,6 +193,9 @@ glyph han-28d0e:15x16 15 16 // 𨴎
 // glyph han-28d4d:15x16 15 16 // 𨵍
 // ⿵ han-9580 han-6cbe // ⿵門沾
 
+// glyph han-28d4f:15x16 15 16 // 𨵏
+// ⿵ han-9580 han-3775 // ⿵門㝵
+
 // glyph han-28d54:15x16 15 16 // 𨵔
 // ⿵ han-9580 han-6cbb // ⿵門治
 
@@ -325,7 +328,7 @@ glyph han-28d0e:15x16 15 16 // 𨴎
 ## 169'.3
 
 glyph han-28e00:15x16 15 16 // 𨸀
-⿵ han-95e8:15x16.11x15 han-5b50:11x14 2 2 // ⿵门子
+⿵ han-95e8:15x16.11x15 han-5b50.0:11x14 2 2 // ⿵门子
 
 // glyph han-28e01-($han-regions):15x16 15 16 // 𨸁
 // ⿵ han-95e8 han-4ea1-($-1) // ⿵门亡

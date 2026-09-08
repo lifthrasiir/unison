@@ -24,7 +24,7 @@ glyph han-37a6:15x16 15 16 // 㞦
 ## 46.3
 
 glyph han-37a8:15x16 15 16 // 㞨
-⿰ han-5c71:5x16 1 han-5b50:9x16 // ⿰山子
+⿰ han-5c71:5x16 1 han-5b50.0:9x16 // ⿰山子
 
 glyph han-37a9:15x16 15 16 // 㞩
 ⿱ han-5c71:15x4 1 han-51e1:15x11 // ⿱山凡
@@ -90,6 +90,9 @@ glyph han-37cd:15x16 15 16 // 㟍
 
 // glyph han-37d4:15x16 15 16 // 㟔
 // ⿳ han-5c71 han-4eca han-53e3 // ⿳山今口 <- ⿱山含
+
+// glyph han-37d6:15x16 15 16 // 㟖
+// ⿳ han-5c71 han-738b han-5efe // ⿳山王廾
 
 ## 46.8
 
@@ -465,6 +468,9 @@ glyph han-38da:15x16 15 16 // 㣚
 glyph han-38db:15x16 15 16 // 㣛
 ⿰ han-5f73:5x16 1 han-5408:9x16 // ⿰彳合
 
+glyph han-38dc:15x16 15 16 // 㣜
+⿲ han-5f73:3x16 han-5f00:9x16 han-5202:3x16 // ⿲彳开刂
+
 glyph han-38df:15x16 15 16 // 㣟
 ⿰ han-5f73:5x16 1 han-5409:9x16 // ⿰彳吉
 
@@ -472,6 +478,9 @@ glyph han-38e1:15x16 15 16 // 㣡
 ⿲ han-5f73:3x16 han-4ebb:3x16 han-4e2d:9x16 // ⿲彳亻中
 
 ## 60.8
+
+// glyph han-38e5:15x16 15 16 // 㣥
+// ⿲ han-5f73 han-4ebb han-5bfa // ⿲彳亻寺
 
 glyph han-38e8:15x16 15 16 // 㣨
 ⿲ han-5f73:3x16 han-5973:5x16 han-53e4:7x16 // ⿲彳女古
@@ -586,6 +595,9 @@ glyph han-392c:15x16 15 16 // 㤬
 // ⿰ han-5fc4 han-5426 // ⿰忄否
 
 ## 61.8
+
+// glyph han-3942:15x16 15 16 // 㥂
+// ⿰ han-5fc4 han-3775 // ⿰忄㝵
 
 glyph han-3943:15x16 15 16 // 㥃
 ⿰ han-5fc4:5x16 1 han-9580:9x16 // ⿰忄門
@@ -755,6 +767,9 @@ glyph han-39eb:15x16 15 16 // 㧫
 
 ## 64.8
 
+// glyph han-39f9:15x16 15 16 // 㧹
+// ⿰ han-624c han-3775 // ⿰扌㝵
+
 // glyph han-39fa:15x16 15 16 // 㧺
 // ⿰ han-624c han-6c93 // ⿰扌沓
 
@@ -822,6 +837,9 @@ glyph han-3a36:15x16 15 16 // 㨶
 // glyph han-3a4e:15x16 15 16 // 㩎
 // ⿲ han-624c han-5190 han-72ac // ⿲扌冐犬
 
+// glyph han-3a50:15x16 15 16 // 㩐
+// ⿰ han-624c han-7b49 // ⿰扌等
+
 ## 64.15
 
 glyph han-3a6a:15x16 15 16 // 㩪
@@ -888,6 +906,9 @@ glyph han-3ad1:15x16 15 16 // 㫑
 
 ## 72.3
 
+// glyph han-3ad2:15x16 15 16 // 㫒
+// ⿱ han-65e5 han-5efe // ⿱日廾
+
 glyph han-3ad4:15x16 15 16 // 㫔
 ⿱ han-65e5:15x7 han-4e0a:15x9 // ⿱日上
 
@@ -898,7 +919,7 @@ glyph han-3ad6:15x16 15 16 // 㫖
 ⿱ han-4e0a:15x7 2 han-65e5:15x7 // ⿱上日
 
 glyph han-3ad7:15x16 15 16 // 㫗
-⿱ han-65e5:15x5 2 han-5b50:15x9 // ⿱日子
+⿱ han-65e5:15x5 2 han-5b50.0:15x9 // ⿱日子
 
 ## 72.4
 
@@ -933,8 +954,8 @@ glyph han-3add:15x16 15 16 // 㫝
 // glyph han-3ae9:15x16 15 16 // 㫩
 // ⿳ han-5341 han-5344 han-65e5 // ⿳十卄日
 
-// glyph han-3aed:15x16 15 16 // 㫭
-// ⿳ han-65e5 han-571f han-5bf8 // ⿳日土寸 <- ⿱日寺
+glyph han-3aed:15x16 15 16 // 㫭
+⿳ -2 han-65e5:15x5 han-571f:15x4 han-5bf8:15x9 // ⿳日土寸
 
 // glyph han-3aee:15x16 15 16 // 㫮
 // ⿱ han-6b64 han-65e5 // ⿱此日

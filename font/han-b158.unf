@@ -302,6 +302,13 @@ glyph han-283c4:15x16 15 16 // 𨏄
 // glyph han-283ff:15x16 15 16 // 𨏿
 // ⿱ han-485b han-485b // ⿱䡛䡛
 
+# CJK unified ideographs extension B: 车 (159')
+
+## 159'.4
+
+glyph han-28406:15x16 15 16 // 𨐆
+⿰ han-8f66:6x16-l han-5f00:9x16 // ⿰车开
+
 # CJK unified ideographs extension B: 辛 (160)
 
 ## 160.0

@@ -334,6 +334,9 @@ glyph han-7075:15x16 15 16 // 灵
 glyph han-7076:15x16 15 16 // 灶
 ⿰ han-706b:5x16 1 han-571f:9x16 // ⿰火土
 
+// glyph han-7077:15x16 15 16 // 灷
+// ⿱ han-706b han-5efe // ⿱火廾
+
 glyph han-707b:15x16 15 16 // 灻
 ⿱ han-571f:15x6 han-706b:15x10 // ⿱土火
 
@@ -537,6 +540,9 @@ glyph han-70cb:15x16 15 16 // 烋
 
 glyph han-70cc:15x16 15 16 // 烌
 ⿲ han-706b:5x16 han-4ebb:3x16 han-6728:7x16 // ⿲火亻木
+
+// glyph han-70ce:15x16 15 16 // 烎
+// ⿳ han-4e00 han-5efe han-706b // ⿳一廾火
 
 glyph han-70d0:15x16 15 16 // 烐
 ⿰ han-706b:5x16-l 1 han-821f:9x16 // ⿰火舟

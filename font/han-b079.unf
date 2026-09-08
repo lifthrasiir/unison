@@ -28,6 +28,11 @@ glyph han-23b05:15x16 15 16 // 𣬅
 // glyph han-23b11:15x16 15 16 // 𣬑
 // ⿰ han-540c han-6606 // ⿰同昆
 
+## 81.12
+
+// glyph han-23b13-($han-regions):15x16 15 16 // 𣬓
+// ⿳ han-6bd4-($-1) han-2020c han-5efe // ⿳比𠈌廾
+
 # CJK unified ideographs extension B: 毛 (82)
 
 ## 82.0
@@ -67,7 +72,7 @@ glyph han-23b23:15x16 15 16 // 𣬣
 // ⿺ han-6bdb han-961d // ⿺毛阝
 
 glyph han-23b25:15x16 15 16 // 𣬥
-⿺ han-6bdb:15x16.10x14 han-5b50:9x10 6 2 // ⿺毛子
+⿺ han-6bdb:15x16.10x14 han-5b50.0:9x10 6 2 // ⿺毛子
 
 glyph han-23b26:15x16 15 16 // 𣬦
 ⿱ han-53e3:15x7 1 han-6bdb:15x8 // ⿱口毛
@@ -234,6 +239,9 @@ glyph han-23b7e:15x16 15 16 // 𣭾
 
 // glyph han-23b89:15x16 15 16 // 𣮉
 // ⿰ han-4f86 han-6bdb // ⿰來毛
+
+// glyph han-23b8a:15x16 15 16 // 𣮊
+// ⿰ han-3775 han-6bdb // ⿰㝵毛
 
 // glyph han-23b8e:15x16 15 16 // 𣮎
 // ⿺ han-6bdb han-6606 // ⿺毛昆

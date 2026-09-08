@@ -628,6 +628,9 @@ glyph han-8a2a:15x16 15 16 // 訪
 // glyph han-8a2b:15x16 15 16 // 訫
 // ⿰ han-8a01 han-5fc3 // ⿰訁心
 
+glyph han-8a2e:15x16 15 16 // 訮
+⿰ han-8a01:5x16 1 han-5f00:9x16 // ⿰訁开
+
 glyph han-8a31:15x16 15 16 // 許
 ⿰ han-8a01:5x16 1 han-5348:9x16 // ⿰訁午
 
@@ -710,6 +713,9 @@ glyph han-8a52:15x16 15 16 // 詒
 glyph han-8a54:15x16 15 16 // 詔
 ⿰ han-8a01:5x16 han-53ec:10x16 // ⿰訁召
 
+// glyph han-8a55-($han-regions):15x16 15 16 // 評
+// ⿰ han-8a01 han-5e73-($-1) // ⿰訁平
+
 glyph han-8a56:15x16 15 16 // 詖
 ⿰ han-8a01:5x16 1 han-76ae:9x16 // ⿰訁皮
 
@@ -738,6 +744,9 @@ glyph han-8a65:15x16 15 16 // 詥
 
 glyph han-8a68:15x16 15 16 // 詨
 ⿰ han-8a01:5x16 1 han-4ea4:9x16 // ⿰訁交
+
+// glyph han-8a69:15x16 15 16 // 詩
+// ⿰ han-8a01 han-5bfa // ⿰訁寺
 
 glyph han-8a70:15x16 15 16 // 詰
 ⿰ han-8a01:5x16 1 han-5409:9x16 // ⿰訁吉
@@ -1151,6 +1160,9 @@ glyph han-8bc2:15x16 15 16 // 诂
 glyph han-8bc3:15x16 15 16 // 诃
 ⿰ han-8ba0:5x16 han-53ef:10x16 // ⿰讠可
 
+// glyph han-8bc4-($han-regions):15x16 15 16 // 评
+// ⿰ han-8ba0 han-5e73-($-1) // ⿰讠平
+
 glyph han-8bc5:15x16 15 16 // 诅
 ⿰ han-8ba0:5x16 1 han-4e14:9x16 // ⿰讠且
 
@@ -1176,6 +1188,9 @@ glyph han-8bd2:15x16 15 16 // 诒
 
 glyph han-8bd6:15x16 15 16 // 诖
 ⿰ han-8ba0:5x16 1 han-572d:9x16 // ⿰讠圭
+
+// glyph han-8bd7:15x16 15 16 // 诗
+// ⿰ han-8ba0 han-5bfa // ⿰讠寺
 
 glyph han-8bd8:15x16 15 16 // 诘
 ⿰ han-8ba0:5x16 1 han-5409:9x16 // ⿰讠吉

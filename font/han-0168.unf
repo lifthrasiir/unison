@@ -194,6 +194,9 @@ glyph han-958a:15x16 15 16 // 閊
 
 ## 169.4
 
+// glyph han-958b:15x16 15 16 // 開
+// ⿵ han-9580 han-5f00 // ⿵門开
+
 // glyph han-958c:15x16 15 16 // 閌
 // ⿵ han-9580 han-4ea2 // ⿵門亢
 
@@ -241,6 +244,9 @@ glyph han-9599:15x16 15 16 // 閙
 glyph han-959a:15x16 15 16 // 閚
 ref han-9580:15x16.13x11 // ⿵門立
 ref han-7acb:9x10 3 6
+
+// glyph han-959b-($han-regions):15x16 15 16 // 閛
+// ⿵ han-9580 han-5e73-($-1) // ⿵門平
 
 glyph han-959c:15x16 15 16 // 閜
 ⿵ han-9580:15x16.13x11 han-53ef:11x10 2 6 // ⿵門可

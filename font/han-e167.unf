@@ -25,7 +25,7 @@ glyph han-2cacc:15x16 15 16 // 𬫌
 // ⿲ han-91d2 han-5f73 han-4e8d // ⿲釒彳亍
 
 glyph han-2cad3:15x16 15 16 // 𬫓
-⿲ han-91d2:5x16-l han-5973:5x16 han-5b50:5x16 // ⿲釒女子
+⿲ han-91d2:5x16-l han-5973:5x16 han-5b50.0:5x16 // ⿲釒女子
 
 ## 167.7
 
@@ -591,6 +591,11 @@ glyph han-2cd52:15x16 15 16 // 𬵒
 // glyph han-2cd5d:15x16 15 16 // 𬵝
 // ⿰ han-9b5a han-6bd8 // ⿰魚毘
 
+## 195.10
+
+// glyph han-2cd63:15x16 15 16 // 𬵣
+// ⿰ han-9b5a han-44c1 // ⿰魚䓁
+
 ## 195.11
 
 // glyph han-2cd65:15x16 15 16 // 𬵥
@@ -620,6 +625,9 @@ glyph han-2cd70:15x16 15 16 // 𬵰
 // ⿰ han-4e86 han-9ce5 // ⿰了鳥
 
 ## 196.3
+
+// glyph han-2cdbd:15x16 15 16 // 𬶽
+// ⿱ han-9ce5 han-5efe // ⿱鳥廾
 
 glyph han-2cdbe:15x16 15 16 // 𬶾
 ⿰ han-9ce5:7x16 1 han-5bf8:7x16 // ⿰鳥寸

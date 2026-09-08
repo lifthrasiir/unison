@@ -160,6 +160,13 @@ glyph han-2aa8e:15x16 15 16 // 𪪎
 // glyph han-2aaa4:15x16 15 16 // 𪪤
 // ⿸ han-9ebb han-65e6 // ⿸麻旦
 
+# CJK unified ideographs extension C: 廾 (55)
+
+## 55.10
+
+// glyph han-2aab7:15x16 15 16 // 𪪷
+// ⿱ han-7c89 han-5efe // ⿱粉廾
+
 # CJK unified ideographs extension C: 弓 (57)
 
 ## 57.3
@@ -376,6 +383,9 @@ glyph han-2ab80:15x16 15 16 // 𪮀
 
 ## 64.8
 
+// glyph han-2ab82-($han-regions):15x16 15 16 // 𪮂
+// ⿲ han-624c han-5e73-($-1) han-961d // ⿲扌平阝
+
 // glyph han-2ab83:15x16 15 16 // 𪮃
 // ⿱ han-65a9 han-624b // ⿱斩手
 
@@ -395,6 +405,9 @@ glyph han-2ab94:15x16 15 16 // 𪮔
 
 ## 64.10
 
+// glyph han-2ab9b:15x16 15 16 // 𪮛
+// ⿲ han-624c han-65e5 han-5bfa // ⿲扌日寺
+
 glyph han-2ab9e:15x16 15 16 // 𪮞
 ⿲ han-624c:3x16 han-79be:5x16 han-5931:7x16 // ⿲扌禾失
 
@@ -405,6 +418,9 @@ glyph han-2aba1:15x16 15 16 // 𪮡
 
 // glyph han-2aba4:15x16 15 16 // 𪮤
 // ⿰ han-624c han-5d29 // ⿰扌崩
+
+// glyph han-2aba6:15x16 15 16 // 𪮦
+// ⿲ han-624c han-5f73 han-3775 // ⿲扌彳㝵
 
 glyph han-2aba9:15x16 15 16 // 𪮩
 ⿲ -7 han-624b:11x16 han-7c73:5x16 han-4e14:6x16 // ⿲手米且
@@ -504,11 +520,14 @@ glyph han-2ac0f:15x16 15 16 // 𪰏
 glyph han-2ac10:15x16 15 16 // 𪰐
 ⿰ han-65e5:6x16 han-672c:9x16 // ⿰日本
 
-// glyph han-2ac11:15x16 15 16 // 𪰑
-// ⿱ han-65e5 han-7389 // ⿱日玉
+glyph han-2ac11:15x16 15 16 // 𪰑
+⿱ -1 han-65e5:15x5 1 han-7389:15x11 // ⿱日玉
 
 glyph han-2ac12:15x16 15 16 // 𪰒
 ⿰ han-65e5:7x16 1 han-77f3:7x16 // ⿰日石
+
+// glyph han-2ac13-($han-regions):15x16 15 16 // 𪰓
+// ⿰ han-65e5 han-5e73-($-1) // ⿰日平
 
 // glyph han-2ac14:15x16 15 16 // 𪰔
 // ⿱ han-65e5 han-592e // ⿱日央
@@ -523,6 +542,9 @@ glyph han-2ac18:15x16 15 16 // 𪰘
 
 glyph han-2ac19:15x16 15 16 // 𪰙
 ⿰ han-65e5:7x16 1 han-5409:7x16 // ⿰日吉
+
+// glyph han-2ac1b:15x16 15 16 // 𪰛
+// ⿰ han-5bfa han-65e5 // ⿰寺日
 
 // glyph han-2ac1f:15x16 15 16 // 𪰟
 // ⿰ han-65e5 han-5e74 // ⿰日年
@@ -647,6 +669,9 @@ glyph han-2ac7d:15x16 15 16 // 𪱽
 
 // glyph han-2ac84:15x16 15 16 // 𪲄
 // ⿰ han-6728 han-7070 // ⿰木灰
+
+// glyph han-2ac85-($han-regions):15x16 15 16 // 𪲅
+// ⿰ han-672a han-5e73-($-1) // ⿰未平
 
 // glyph han-2ac88:15x16 15 16 // 𪲈
 // ⿲ han-6728 han-4e28 han-76ee // ⿲木丨目

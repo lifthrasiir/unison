@@ -701,7 +701,7 @@ glyph han-4c33:15x16 15 16 // 䰳
 ## 195.3
 
 glyph han-4c35:15x16 15 16 // 䰵
-⿰ han-9b5a:7x16 1 han-5b50:7x16 // ⿰魚子
+⿰ han-9b5a:7x16 1 han-5b50.0:7x16 // ⿰魚子
 
 glyph han-4c36-($han-regions):15x16 15 16 // 䰶
 ⿰ han-9b5a:7x16 1 han-4ea1-($-1):7x16 // ⿰魚亡

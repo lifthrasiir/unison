@@ -200,6 +200,9 @@ glyph han-2b48f:15x16 15 16 // 𫒏
 // glyph han-2b498:15x16 15 16 // 𫒘
 // ⿰ han-91d2 han-7f36 // ⿰釒缶
 
+// glyph han-2b499:15x16 15 16 // 𫒙
+// ⿰ han-91d2 han-5b88 // ⿰釒守
+
 // glyph han-2b49b:15x16 15 16 // 𫒛
 // ⿰ han-91d2 han-5b57 // ⿰釒字
 
@@ -218,6 +221,9 @@ glyph han-2b4a8:15x16 15 16 // 𫒨
 
 glyph han-2b4ab-($han-regions):15x16 15 16 // 𫒫
 ⿲ han-91d2:5x16-l 1 han-767d:4x16 han-52fa-($-1):5x16 // ⿲釒白勺
+
+// glyph han-2b4ad:15x16 15 16 // 𫒭
+// ⿰ han-91d2 han-5b9d // ⿰釒宝
 
 ## 167.10
 
@@ -258,7 +264,7 @@ glyph han-2b4d9:15x16 15 16 // 𫓙
 ## 167'.3
 
 glyph han-2b4e6:15x16 15 16 // 𫓦
-⿰ han-9485:6x16 han-5b50:9x16 // ⿰钅子
+⿰ han-9485:6x16 han-5b50.0:9x16 // ⿰钅子
 
 ## 167'.4
 
@@ -383,6 +389,9 @@ glyph han-2b51e:15x16 15 16 // 𫔞
 // ⿱ han-4e07 han-95e8 // ⿱万门
 
 ## 169'.4
+
+// glyph han-2b52d:15x16 15 16 // 𫔭
+// ⿵ han-95e8 han-5f00 // ⿵门开
 
 glyph han-2b52e:15x16 15 16 // 𫔮
 ⿵ han-95e8:15x16.11x15 han-6708:9x13 3 3 // ⿵门月
@@ -642,6 +651,11 @@ glyph han-2b60f:15x16 15 16 // 𫘏
 glyph han-2b64f:15x16 15 16 // 𫙏
 ⿰ han-9b5a:7x16 1 han-5341:7x16 // ⿰魚十
 
+## 195.3
+
+// glyph han-2b650:15x16 15 16 // 𫙐
+// ⿱ han-9b5a han-5efe // ⿱魚廾
+
 ## 195.4
 
 // glyph han-2b652:15x16 15 16 // 𫙒
@@ -704,7 +718,7 @@ glyph han-2b6b4:15x16 15 16 // 𫚴
 ## 196.6
 
 glyph han-2b6bb:15x16 15 16 // 𫚻
-⿲ -2 han-5973:5x16-l han-5b50:5x16 han-9ce5:7x16 // ⿲女子鳥
+⿲ -2 han-5973:5x16-l han-5b50.0:5x16 han-9ce5:7x16 // ⿲女子鳥
 
 ## 196.7
 

@@ -140,6 +140,9 @@ glyph han-31aa5:15x16 15 16 // 𱪥
 
 ## 86.4
 
+glyph han-31aa9:15x16 15 16 // 𱪩
+⿰ han-706b:5x16-l 1 han-5f00:9x16 // ⿰火开
+
 // glyph han-31aaa:15x16 15 16 // 𱪪
 // ⿰ han-706b han-5386 // ⿰火历
 
@@ -307,6 +310,11 @@ glyph han-31bb7:15x16 15 16 // 𱮷
 
 // glyph han-31bbf:15x16 15 16 // 𱮿
 // ⿲ han-248e9 han-4e30 han-961d // ⿲𤣩丰阝
+
+## 96.8
+
+// glyph han-31bc4:15x16 15 16 // 𱯄
+// ⿰ han-248e9 han-5b9d // ⿰𤣩宝
 
 ## 96.10
 

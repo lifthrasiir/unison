@@ -38,6 +38,12 @@ glyph han-31cf5:15x16 15 16 // 𱳵
 // glyph han-31cfb:15x16 15 16 // 𱳻
 // ⿳ han-53e3 han-5dfe han-77f3 // ⿳口巾石 <- ⿱吊石
 
+// glyph han-31cfe:15x16 15 16 // 𱳾
+// ⿰ han-77f3 han-5bfb // ⿰石寻
+
+// glyph han-31d00:15x16 15 16 // 𱴀
+// ⿰ han-77f3 han-5bfc // ⿰石导
+
 ## 112.7
 
 // glyph han-31d01:15x16 15 16 // 𱴁
@@ -229,8 +235,8 @@ glyph han-31df3:15x16 15 16 // 𱷳
 // glyph han-31dfc:15x16 15 16 // 𱷼
 // ⿳ han-25ad7 han-2b739 han-5dfe // ⿳𥫗𫜹巾 <- ⿱𥫗𭘒
 
-// glyph han-31dfd:15x16 15 16 // 𱷽
-// ⿳ han-25ad7 han-2b739 han-5bf8 // ⿳𥫗𫜹寸 <- ⿱𥫗寻
+glyph han-31dfd:15x16 15 16 // 𱷽
+⿳ -3 han-25ad7:15x5 han-5f50-g:15x5 han-5bf8:15x9 // ⿳𥫗𫜹寸
 
 ## 118.8
 
@@ -250,7 +256,7 @@ glyph han-31df3:15x16 15 16 // 𱷳
 // ⿱ han-25ad7 han-6cb9 // ⿱𥫗油
 
 glyph han-31e0b:15x16 15 16 // 𱸋
-⿳ -1 han-25ad7:15x5 han-5b50:15x9 han-76bf:15x3 // ⿳𥫗子皿
+⿳ -1 han-25ad7:15x5 han-5b50.0:15x9 han-76bf:15x3 // ⿳𥫗子皿
 
 // glyph han-31e0c:15x16 15 16 // 𱸌
 // ⿱ han-25ad7 han-9644 // ⿱𥫗附
@@ -295,6 +301,11 @@ glyph han-31e1c:15x16 15 16 // 𱸜
 
 // glyph han-31e28:15x16 15 16 // 𱸨
 // ⿱ han-25ad7 han-5f3a // ⿱𥫗强
+
+## 118.15
+
+// glyph han-31e2f:15x16 15 16 // 𱸯
+// ⿲ han-7b49 han-5f73 han-5bfa // ⿲等彳寺
 
 ## 118.16
 
@@ -354,6 +365,9 @@ glyph han-31e44:15x16 15 16 // 𱹄
 // glyph han-31e50:15x16 15 16 // 𱹐
 // ⿰ han-7c73 han-8304 // ⿰米茄
 
+// glyph han-31e51:15x16 15 16 // 𱹑
+// ⿲ han-7c73 han-5f73 han-5bfa // ⿲米彳寺
+
 ## 119.12
 
 glyph han-31e5e:15x16 15 16 // 𱹞
@@ -380,6 +394,9 @@ glyph han-31e6f:15x16 15 16 // 𱹯
 
 glyph han-31e70:15x16 15 16 // 𱹰
 ⿲ han-7cf9:5x16 han-624c:3x16 han-53e3:7x16 // ⿲糹扌口
+
+// glyph han-31e73:15x16 15 16 // 𱹳
+// ⿰ han-7cf9 han-5bfb // ⿰糹寻
 
 ## 120.8
 
@@ -580,8 +597,8 @@ glyph han-31f37:15x16 15 16 // 𱼷
 
 ## 140.5
 
-// glyph han-31f51:15x16 15 16 // 𱽑
-// ⿱ han-8279 han-7389 // ⿱艹玉
+glyph han-31f51:15x16 15 16 // 𱽑
+⿱ han-8279:15x3 1 han-7389:15x11 // ⿱艹玉
 
 // glyph han-31f55:15x16 15 16 // 𱽕
 // ⿱ han-8279 han-53e8 // ⿱艹叨
@@ -610,8 +627,8 @@ glyph han-31f37:15x16 15 16 // 𱼷
 // glyph han-31f65:15x16 15 16 // 𱽥
 // ⿱ han-8279 han-7c73 // ⿱艹米
 
-// glyph han-31f66:15x16 15 16 // 𱽦
-// ⿳ han-8279 han-5b80 han-5bf8 // ⿳艹宀寸 <- ⿱艹守
+glyph han-31f66:15x16 15 16 // 𱽦
+⿳ han-8279:15x3 han-5b80:15x4 han-5bf8:15x9 // ⿳艹宀寸
 
 ## 140.7
 
@@ -641,6 +658,9 @@ glyph han-31f75:15x16 15 16 // 𱽵
 // ⿱ han-8279 han-54c8 // ⿱艹哈
 
 ## 140.10
+
+// glyph han-31f81:15x16 15 16 // 𱾁
+// ⿳ han-8279 han-5eff han-7c73 // ⿳艹廿米
 
 // glyph han-31f84:15x16 15 16 // 𱾄
 // ⿳ han-8279 han-592e han-76bf // ⿳艹央皿 <- ⿱艹盎

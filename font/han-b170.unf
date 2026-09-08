@@ -53,6 +53,9 @@ glyph han-28e2c:15x16 15 16 // 𨸬
 glyph han-28e32:15x16 15 16 // 𨸲
 ⿰ han-961d:5x16-l 1 han-5e02:9x16 // ⿰阝市
 
+// glyph han-28e36-($han-regions):15x16 15 16 // 𨸶
+// ⿰ han-961d han-5e73-($-1) // ⿰阝平
+
 // glyph han-28e39:15x16 15 16 // 𨸹
 // ⿰ han-961d han-4e15 // ⿰阝丕
 

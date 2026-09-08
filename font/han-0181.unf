@@ -661,6 +661,9 @@ glyph han-99b0-j:15x16 15 16 // 馰
 glyph han-99b4:15x16 15 16 // 馴
 ⿰ han-99ac:9x16 han-5ddd:6x16 // ⿰馬川
 
+// glyph han-99b5:15x16 15 16 // 馵
+// ⿱ han-99ac han-5efe // ⿱馬廾
+
 ## 187.4
 
 // glyph han-99b7:15x16 15 16 // 馷
@@ -697,6 +700,9 @@ glyph han-99ca:15x16 15 16 // 駊
 
 glyph han-99cb:15x16 15 16 // 駋
 ⿰ han-99ac:7x16 han-53ec:8x16 // ⿰馬召
+
+// glyph han-99cd-($han-regions):15x16 15 16 // 駍
+// ⿰ han-99ac han-5e73-($-1) // ⿰馬平
 
 glyph han-99ce:15x16 15 16 // 駎
 ⿰ han-99ac:7x16 1 han-7531:7x16 // ⿰馬由

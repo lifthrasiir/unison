@@ -216,6 +216,9 @@ glyph han-24fce-($han-regions):15x16 15 16 // 𤿎
 // glyph han-24fcf:15x16 15 16 // 𤿏
 // ⿰ han-5185 han-76ae // ⿰内皮
 
+glyph han-24fd0:15x16 15 16 // 𤿐
+⿰ han-5f00:7x16 han-76ae:8x16 // ⿰开皮
+
 // glyph han-24fd2:15x16 15 16 // 𤿒
 // ⿰ han-76ae han-5185 // ⿰皮内
 
@@ -350,6 +353,9 @@ glyph han-25036:15x16 15 16 // 𥀶
 
 glyph han-25041:15x16 15 16 // 𥁁
 ⿱ han-5de5:15x8 1 han-76bf:15x7 // ⿱工皿
+
+// glyph han-25042:15x16 15 16 // 𥁂
+// ⿱ han-5b51 han-76bf // ⿱孑皿
 
 glyph han-25043-($han-regions):15x16 15 16 // 𥁃
 ⿱ han-4ea1-($-1):15x8 1 han-76bf:15x7 // ⿱亡皿

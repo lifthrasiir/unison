@@ -33,6 +33,9 @@ glyph han-201af:15x16 15 16 // 𠆯
 // glyph han-201b4:15x16 15 16 // 𠆴
 // ⿳ han-4ea0 han-5dfe han-4eba // ⿳亠巾人 <- ⿱市人
 
+glyph han-201bb:15x16 15 16 // 𠆻
+⿰ han-4ebb:5x16 1 han-5f00:9x16 // ⿰亻开
+
 // glyph han-201be:15x16 15 16 // 𠆾
 // ⿰ han-4ebb han-516d // ⿰亻六
 
@@ -173,6 +176,12 @@ glyph han-20294:15x16 15 16 // 𠊔
 // glyph han-20299:15x16 15 16 // 𠊙
 // ⿰ han-4ebb han-5b9c // ⿰亻宜
 
+// glyph han-2029a:15x16 15 16 // 𠊚
+// ⿰ han-4ebb han-3775 // ⿰亻㝵
+
+// glyph han-2029b:15x16 15 16 // 𠊛
+// ⿰ han-3775 han-4eba // ⿰㝵人
+
 glyph han-2029c:15x16 15 16 // 𠊜
 ⿲ han-4ebb:3x16 han-5973:5x16 han-77f3:7x16 // ⿲亻女石
 
@@ -253,6 +262,9 @@ glyph han-20363:15x16 15 16 // 𠍣
 
 ## 9.12
 
+// glyph han-20370:15x16 15 16 // 𠍰
+// ⿲ han-4ebb han-27fb7 han-5bfa // ⿲亻𧾷寺
+
 // glyph han-2038a:15x16 15 16 // 𠎊
 // ⿰ han-4ebb han-68ee // ⿰亻森
 
@@ -282,6 +294,9 @@ glyph han-203a8:15x16 15 16 // 𠎨
 
 glyph han-203ab:15x16 15 16 // 𠎫
 ⿲ han-4ebb:3x16 han-2099d:5x16 han-6708:7x16 // ⿲亻𠦝月
+
+// glyph han-203ac:15x16 15 16 // 𠎬
+// ⿰ han-4ebb han-7b49 // ⿰亻等
 
 glyph han-203af:15x16 15 16 // 𠎯
 ⿲ han-4ebb:3x16 han-6c35:3x16 han-661c:9x16 // ⿲亻氵昜

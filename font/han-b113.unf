@@ -79,6 +79,9 @@ glyph han-2562e:15x16 15 16 // 𥘮
 glyph han-2562f:15x16 15 16 // 𥘯
 ⿰ han-793b:5x16 1 han-672b:9x16 // ⿰礻末
 
+// glyph han-25634-($han-regions):15x16 15 16 // 𥘴
+// ⿰ han-793b han-5e73-($-1) // ⿰礻平
+
 glyph han-25635:15x16 15 16 // 𥘵
 ⿰ han-793b:5x16 1 han-65e6:9x16 // ⿰礻旦
 
@@ -312,6 +315,9 @@ glyph han-25753-($han-regions):15x16 15 16 // 𥝓
 
 ## 115.3
 
+// glyph han-25754:15x16 15 16 // 𥝔
+// ⿰ han-79be han-5b51 // ⿰禾孑
+
 glyph han-25755-($han-regions):15x16 15 16 // 𥝕
 ⿰ han-79be:5x16 1 han-4ea1-($-1):9x16 // ⿰禾亡
 
@@ -346,6 +352,9 @@ glyph han-25767:15x16 15 16 // 𥝧
 
 // glyph han-2576d:15x16 15 16 // 𥝭
 // ⿰ han-79be han-592c // ⿰禾夬
+
+// glyph han-2576f:15x16 15 16 // 𥝯
+// ⿳ han-79be han-4e00 han-5efe // ⿳禾一廾
 
 glyph han-25770:15x16 15 16 // 𥝰
 ⿰ han-79be:7x16 1 han-6728:7x16 // ⿰禾木
@@ -579,6 +588,9 @@ glyph han-2588c:15x16 15 16 // 𥢌
 
 // glyph han-2588d:15x16 15 16 // 𥢍
 // ⿰ han-79be han-8f9c // ⿰禾辜
+
+// glyph han-2589c:15x16 15 16 // 𥢜
+// ⿰ han-79be han-7b49 // ⿰禾等
 
 // glyph han-2589e:15x16 15 16 // 𥢞
 // ⿳ han-82dc han-5927 han-79be // ⿳苜大禾

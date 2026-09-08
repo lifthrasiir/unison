@@ -114,6 +114,9 @@ glyph han-290af:15x16 15 16 // 𩂯
 // glyph han-290bb-($han-regions):15x16 15 16 // 𩂻
 // ⿱ han-96e8-($-1) han-8034 // ⿱雨耴
 
+// glyph han-290bd-($han-regions):15x16 15 16 // 𩂽
+// ⿳ han-96e8-($-1) han-738b han-5efe // ⿳雨王廾
+
 glyph han-290c8:15x16 15 16 // 𩃈
 ⿳ han-96e8:15x6 1 han-53e3:15x3 han-9fb0:15x6 // ⿳雨口龰
 

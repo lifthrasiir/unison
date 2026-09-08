@@ -104,6 +104,9 @@ glyph han-2e203:15x16 15 16 // 𮈃
 
 ## 120.5
 
+// glyph han-2e208-($han-regions):15x16 15 16 // 𮈈
+// ⿰ han-7cf8 han-5e73-($-1) // ⿰糸平
+
 glyph han-2e209:15x16 15 16 // 𮈉
 ⿰ han-7cf9:5x16 han-7528:10x16 // ⿰糹用
 
@@ -425,6 +428,11 @@ glyph han-2e38b:15x16 15 16 // 𮎋
 
 // glyph han-2e38f:15x16 15 16 // 𮎏
 // ⿰ han-821f han-5448 // ⿰舟呈
+
+## 137.8
+
+// glyph han-2e393:15x16 15 16 // 𮎓
+// ⿰ han-821f han-5b9d // ⿰舟宝
 
 # CJK unified ideographs extension F: 色 (139)
 

@@ -287,6 +287,9 @@ glyph han-6299.0:15x16 = han-6299:15x16
 glyph han-62a6:15x16 15 16 // 抦
 ⿰ han-624c:3x16 1 han-4e19:11x16 // ⿰扌丙
 
+// glyph han-62a8-($han-regions):15x16 15 16 // 抨
+// ⿰ han-624c han-5e73-($-1) // ⿰扌平
+
 glyph han-62ab:15x16 15 16 // 披
 ⿰ han-624c:5x16 1 han-76ae:9x16 // ⿰扌皮
 
@@ -309,7 +312,7 @@ glyph han-62b2:15x16 15 16 // 抲
 ⿰ han-624c:5x16 han-53ef:10x16 // ⿰扌可
 
 glyph han-62b3-($han-regions):15x16 15 16 // 抳
-⿰ han-624c:5x16 1 han-5c3c-($-1):9x16 // ⿰扌尼
+⿰ han-624c:5x16 han-5c3c-($-1):10x16 // ⿰扌尼
 
 glyph han-62b4:15x16 15 16 // 抴
 ⿰ han-624c:5x16 1 han-4e16:9x16 // ⿰扌世
@@ -428,6 +431,9 @@ glyph han-62fe:15x16 15 16 // 拾
 // glyph han-62ff:15x16 15 16 // 拿
 // ⿱ han-5408 han-624b // ⿱合手
 
+// glyph han-6301:15x16 15 16 // 持
+// ⿰ han-624c han-5bfa // ⿰扌寺
+
 glyph han-6302:15x16 15 16 // 挂
 ⿰ han-624c:5x16 1 han-572d:9x16 // ⿰扌圭
 
@@ -477,6 +483,9 @@ glyph han-6315:15x16 15 16 // 挕
 
 // glyph han-631f:15x16 15 16 // 挟
 // ⿰ han-624c han-5939 // ⿰扌夹
+
+// glyph han-6326:15x16 15 16 // 挦
+// ⿰ han-624c han-5bfb // ⿰扌寻
 
 glyph han-6327-($han-regions):15x16 15 16 // 挧
 ⿰ han-624c:3x16 1 han-7fbd-($-1):11x16 // ⿰扌羽
@@ -729,6 +738,9 @@ glyph han-6430:15x16 15 16 // 搰
 // ⿲ han-624b han-5408 han-624b // ⿲手合手
 
 ## 64.11
+
+// glyph han-63c5:15x16 15 16 // 揅
+// ⿱ han-7814 han-624b // ⿱研手
 
 glyph han-644e:15x16 15 16 // 摎
 ⿰ han-624c:5x16 1 han-7fcf:9x16 // ⿰扌翏
