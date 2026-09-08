@@ -381,30 +381,32 @@ pub(crate) fn render_grid_row(
     }
 
     let own_opacity = if is_layer_mode { 0.35 } else { 1.0 };
+    // Does a layer draw over this cell, so that the empty-cell background must
+    // not be painted on top of it?
+    //
+    // The question is about *paint*, not ink, and the two are not the same
+    // thing: a cell inked without geometry (`__` — see
+    // [`glyph_widget::grid_cell_draws`]) draws nothing whichever layer it is
+    // on. Reading it as ink here left a solid `grid_bg` cell wherever a
+    // `scale N` composite's rescaled layer had one — black confetti over
+    // `math.unf`'s `delta` — and, on a `negated` layer, painted the background
+    // over ink the layer subtracted nothing from.
+    //
+    // A negated layer never *adds* to the answer either: it paints in
+    // `grid_bg`, which is what the cell already shows, so a cell it alone
+    // touches stays an empty cell.
     let has_ref_pixel = |dc: i16| -> bool {
         composite.is_some_and(|comp| {
-            let mut visible = false;
-            for layer in &comp.layers {
+            comp.layers.iter().any(|layer| {
                 let lr = comp.own_offset_row + row - layer.offset_row;
                 let lc = comp.own_offset_col + dc - layer.offset_col;
-                if lr >= 0
+                !layer.negated
+                    && lr >= 0
                     && lr < layer.grid.height as i16
                     && lc >= 0
                     && lc < layer.grid.width as i16
-                {
-                    let shape = layer.grid.get(lr as u16, lc as u16);
-                    if !shape.is_clear() {
-                        if layer.negated {
-                            if shape.shape_id() == 0 {
-                                visible = false;
-                            }
-                        } else {
-                            visible = true;
-                        }
-                    }
-                }
-            }
-            visible
+                    && glyph_widget::grid_cell_draws(&layer.grid, lr as u16, lc as u16)
+            })
         })
     };
     for dc in extent.left..extent.right {

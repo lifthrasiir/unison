@@ -20,6 +20,34 @@ pub fn draw_grid_cell_colored(
     draw_pixel_cell_colored(painter, rect, shape, color);
 }
 
+/// Does [`draw_grid_cell_colored`] put anything in this cell?
+///
+/// A cell can be *inked* without being *drawn*: `PX_EMPTY` carrying the fill
+/// bit (`__`) is the bitmap face's claim on a pixel the vector face leaves
+/// empty, and [`crate::document::PixelGrid::rescale`] mints a ring of them
+/// around the geometry whenever a sub-pixel target is scaled into a `scale N`
+/// parent. Whoever paints *around* a cell — the grid's empty background — has
+/// to ask this rather than `is_clear`, or the claim reserves a cell nothing
+/// then draws in.
+pub fn grid_cell_draws(grid: &crate::document::PixelGrid, row: u16, col: u16) -> bool {
+    let shape = grid.get(row, col);
+    let shape_id = shape.shape_id();
+    if shape_id == pixel::PX_CUSTOM {
+        return grid
+            .details
+            .get(&(row, col))
+            .is_some_and(|region| !region.is_empty());
+    }
+    if shape.is_hardblank() || shape_id == pixel::PX_ALMOSTFULL {
+        return true;
+    }
+    if !pixel::shape_parts(shape_id).is_empty() {
+        return true;
+    }
+    let (adj_bits, segs) = pixel::adjacency(shape_id);
+    adj_bits != 0 || !segs.is_empty()
+}
+
 fn draw_detail_region(
     painter: &egui::Painter,
     rect: egui::Rect,

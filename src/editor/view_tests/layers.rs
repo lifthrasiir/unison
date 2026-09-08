@@ -626,3 +626,92 @@ fn caret_on_an_idc_line_offers_the_inline_commands() {
     assert_eq!(h.text(8), "ref left 0 0 // both halves");
     assert_eq!(h.text(9), "ref right 4 0");
 }
+
+/// A layer cell that is *inked* without being *drawn* — `PX_EMPTY` with the
+/// fill bit set, written `__` — must not swallow the cell's empty background.
+///
+/// Rescaling a sub-pixel target into a `scale N` parent produces a ring of
+/// those cells around the geometry (`PixelGrid::rescale` carries the bitmap
+/// face's ink flag into every destination cell it covers, geometry or not), so
+/// a composite like `math.unf`'s `delta` — `scale 2` over on-demand `:ceil`
+/// triangles — is fringed with them. The background test used to ask whether
+/// the cell was *clear*, which they are not, and each one came out as a solid
+/// `grid_bg` cell: black confetti sprinkled over the drawing.
+#[test]
+fn a_layer_cell_that_draws_nothing_keeps_its_empty_background() {
+    let src = "\
+glyph claim 3 1
+__@@..
+
+glyph host 3 1
+ref claim 0 0
+";
+    let h = EditorHarness::new(src);
+    let grid_line = h
+        .lines
+        .iter()
+        .position(|l| matches!(l, DocLine::Text(t) if t.trim() == "glyph host 3 1"))
+        .expect("the header is in the document")
+        + 1;
+    let pal = crate::editor::colors::Palette::dark();
+    let fill_at = |row: i16, col: i16| {
+        let pos = h.grid_cell_pos(grid_line, row, col);
+        h.painted_rects()
+            .iter()
+            .rev()
+            .find(|r| r.rect.contains(pos) && r.clip.contains(pos) && r.rect.width() < 40.0)
+            .map(|r| r.fill)
+    };
+    assert_eq!(
+        fill_at(0, 0),
+        Some(pal.grid_off),
+        "the `__` cell draws nothing, so it is an empty cell like any other"
+    );
+    assert_ne!(
+        fill_at(0, 1),
+        Some(pal.grid_off),
+        "the inked cell keeps the composite's background"
+    );
+    assert_eq!(
+        fill_at(0, 2),
+        Some(pal.grid_off),
+        "the cell past the layer is empty"
+    );
+}
+
+/// The mirror of the above on a `negated` layer: a `__` cell subtracts no
+/// geometry, so it must not hide the ink underneath it either.
+#[test]
+fn a_negated_layer_cell_that_draws_nothing_hides_nothing() {
+    let src = "\
+glyph solid 1 1
+@@
+
+glyph claim 1 1
+__
+
+glyph host 1 1
+ref solid 0 0
+ref claim 0 0 negated
+";
+    let h = EditorHarness::new(src);
+    let grid_line = h
+        .lines
+        .iter()
+        .position(|l| matches!(l, DocLine::Text(t) if t.trim() == "glyph host 1 1"))
+        .expect("the header is in the document")
+        + 1;
+    let pal = crate::editor::colors::Palette::dark();
+    let pos = h.grid_cell_pos(grid_line, 0, 0);
+    let fill = h
+        .painted_rects()
+        .iter()
+        .rev()
+        .find(|r| r.rect.contains(pos) && r.clip.contains(pos) && r.rect.width() < 40.0)
+        .map(|r| r.fill);
+    assert_ne!(
+        fill,
+        Some(pal.grid_off),
+        "the negated `__` cell erases nothing, so `solid`'s ink stays visible"
+    );
+}
