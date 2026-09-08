@@ -207,6 +207,7 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Folding: what a group is, why the list rides on `edit_gen`, which blocks start folded, where the caret goes, closing vs opening scroll | `editor/folding.rs` (`fold_groups`, `apply_initial`, `toggle_at`, `snap_caret`, `FoldScroll`) |
 | The gutter's marker columns; why wrapping is measured against the widest gutter | `document_view/layout.rs` (`GutterLayout`, `page_has_fold_marker`), `document_view/mod.rs` (`wrap_width`), `editor/folding.rs` (`nesting_depth`) |
 | Why a heading draws in zoom steps and re-picks the face | `document_view/layout.rs` (`heading_font_size`, `heading_font`), `app/mod.rs` (`uniform_family_at_size`), `editor/minimap.rs` |
+| Why the minimap is not the document to scale, and how a click, the wheel and the viewport box are placed on it | `editor/minimap.rs` (module note, `MinimapMap`, `pointer_scroll_target`, `strip_scroll`) |
 | Ctrl/Cmd+`/`: which lines a toggle takes, and the grid it demotes and promotes | `editor/comment.rs` |
 | A header and its grid are one block: Enter, line-wise copy/cut, paste | `editor/editing.rs` (`insert_newline`), `editor/doc_input.rs` (`current_line_range`, `paste_text`) |
 | Why an edit on a header or `ref` line waits before it reparses | `editor/document_view/changes.rs` (`apply_pending_rederive`) |
