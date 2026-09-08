@@ -566,7 +566,7 @@ glyph han-8dcf:15x16 15 16 // 跏
 ⿲ han-27fb7:5x16 han-529b:5x16 1 han-53e3:4x16 // ⿲𧾷力口
 
 glyph han-8dd0-($han-regions):15x16 15 16 // 跐
-⿲ han-27fb7:5x16 han-6b62:6x16 han-5315-($-1):4x16 // ⿲𧾷止匕
+⿰ han-27fb7:5x16 han-6b64-($-1):10x16 // ⿰𧾷此
 
 glyph han-8dd1:15x16 15 16 // 跑
 ⿰ han-27fb7:5x16 1 han-5305:9x16 // ⿰𧾷包

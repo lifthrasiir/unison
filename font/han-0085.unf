@@ -515,7 +515,7 @@ glyph han-6cf9:15x16 15 16 // 泹
 ## 85.6
 
 glyph han-6cda-($han-regions):15x16 15 16 // 泚
-⿲ han-6c35:3x16 han-6b62:6x16 han-5315-($-1):6x16 // ⿲氵止匕
+⿰ han-6c35:3x16 han-6b64-($-1):12x16 // ⿰氵此
 
 glyph han-6d00:15x16 15 16 // 洀
 ⿰ han-6c35:5x16 1 han-821f:9x16 // ⿰氵舟

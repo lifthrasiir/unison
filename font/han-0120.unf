@@ -132,7 +132,7 @@ glyph han-7d29:15x16 15 16 // 紩
 ⿰ han-7cf9:5x16 1 han-5931:9x16 // ⿰糹失
 
 glyph han-7d2a-($han-regions):15x16 15 16 // 紪
-⿲ han-7cf9:5x16 han-6b62:6x16 han-5315-($-1):4x16 // ⿲糹止匕
+⿰ han-7cf9:5x16 han-6b64-($-1):10x16 // ⿰糹此
 
 // glyph han-7d2b:15x16 15 16 // 紫
 // ⿱ han-6b64 han-7cf8 // ⿱此糸

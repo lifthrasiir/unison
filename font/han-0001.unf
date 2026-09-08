@@ -4106,7 +4106,7 @@ glyph han-4f4b:15x16 15 16 // 佋
 ⿰ han-4ebb:5x16 han-53ec:10x16 // ⿰亻召
 
 glyph han-4f4c-($han-regions):15x16 15 16 // 佌
-⿲ han-4ebb:3x16 han-6b62:6x16-l han-5315-($-1):6x16 // ⿲亻止匕
+⿰ han-4ebb:3x16 han-6b64-($-1):12x16 // ⿰亻此
 glyph han-4f4c.0:15x16 = han-4f4c-j:15x16
 
 glyph han-4f4d:15x16 15 16 // 位

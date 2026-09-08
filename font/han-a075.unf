@@ -169,8 +169,8 @@ glyph han-3c22:15x16 15 16 // 㰢
 
 ## 76.5
 
-glyph han-3c23:15x16 15 16 // 㰣
-⿲ -2 han-6b62:6x16 han-5315:4x16-l han-6b20:7x16 // ⿲止匕欠
+glyph han-3c23-($han-regions):15x16 15 16 // 㰣
+⿰ -2 han-6b64-($-1):10x16-l han-6b20:7x16 // ⿰此欠
 
 glyph han-3c24:15x16 15 16 // 㰤
 ⿰ han-53ef:8x16 han-6b20:7x16 // ⿰可欠
@@ -224,12 +224,12 @@ glyph han-3c52:15x16 15 16 // 㱒
 ⿱ han-6b62:15x5 1 han-53ef:15x10 // ⿱止可
 
 glyph han-3c53-($han-regions):15x16 15 16 // 㱓
-⿰ han-6b62:6x16 han-4ee4-($-1):9x16 // ⿰止令
+⿰ han-6b62:6x16-l han-4ee4-($-1):9x16 // ⿰止令
 
 ## 77.8
 
 glyph han-3c56:15x16 15 16 // 㱖
-⿰ han-6b62:8x16 han-5352:7x16 // ⿰止卒
+⿰ han-6b62:8x16-l han-5352:7x16 // ⿰止卒
 
 # CJK unified ideographs extension A: 毛 (82)
 

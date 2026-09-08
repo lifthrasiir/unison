@@ -723,7 +723,7 @@ glyph han-39cd:15x16 15 16 // 㧍
 // ⿰ han-624c han-7a74-($-1) // ⿰扌穴
 
 glyph han-39d7-($han-regions):15x16 15 16 // 㧗
-⿲ han-624c:3x16 han-6b62:6x16 han-5315-($-1):6x16 // ⿲扌止匕
+⿰ han-624c:3x16 han-6b64-($-1):12x16 // ⿰扌此
 
 // glyph han-39d8:15x16 15 16 // 㧘
 // ⿱ han-6b64 han-624b // ⿱此手

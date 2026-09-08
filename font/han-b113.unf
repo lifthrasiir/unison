@@ -386,7 +386,7 @@ glyph han-25783:15x16 15 16 // 𥞃
 ⿰ han-79be:5x16 1 han-51fa:9x16 // ⿰禾出
 
 glyph han-25785-($han-regions):15x16 15 16 // 𥞅
-⿲ han-79be:5x16 han-6b62:6x16 han-5315-($-1):4x16 // ⿲禾止匕
+⿰ han-79be:5x16 han-6b64-($-1):10x16 // ⿰禾此
 
 // glyph han-25786:15x16 15 16 // 𥞆
 // ⿱ han-79be han-793a // ⿱禾示

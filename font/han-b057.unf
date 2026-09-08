@@ -355,7 +355,7 @@ glyph han-224d5:15x16 15 16 // 𢓕
 // ⿰ han-5f73 han-4e15 // ⿰彳丕
 
 glyph han-224d7-($han-regions):15x16 15 16 // 𢓗
-⿲ han-5f73:3x16 han-6b62:6x16 han-5315-($-1):6x16 // ⿲彳止匕
+⿰ han-5f73:3x16 han-6b64-($-1):12x16 // ⿰彳此
 
 glyph han-224d9:15x16 15 16 // 𢓙
 ⿲ han-5f73:3x16 han-5f13:7x16 han-4eba:5x16 // ⿲彳弓人

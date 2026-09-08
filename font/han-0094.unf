@@ -794,7 +794,7 @@ glyph han-73bb:15x16 15 16 // 玻
 ⿰ han-248e9:5x16 1 han-76ae:9x16 // ⿰𤣩皮
 
 glyph han-73bc-($han-regions):15x16 15 16 // 玼
-⿲ han-248e9:3x16 han-6b62:6x16 han-5315-($-1):6x16 // ⿲𤣩止匕
+⿰ han-248e9:3x16 han-6b64-($-1):12x16 // ⿰𤣩此
 
 glyph han-73bd:15x16 15 16 // 玽
 ⿰ han-248e9:5x16 1 han-53e5:9x16 // ⿰𤣩句

@@ -3,12 +3,12 @@
 ## 77.2
 
 glyph han-2db59:15x16 15 16 // 𭭙
-⿰ han-6b62:6x16 han-51e0:9x16 // ⿰止几
+⿰ han-6b62:6x16-l han-51e0:9x16 // ⿰止几
 
 ## 77.4
 
 glyph han-2db5c:15x16 15 16 // 𭭜
-⿰ han-6b62:8x16 han-65a4:7x16 // ⿰止斤
+⿰ han-6b62:8x16-l han-65a4:7x16 // ⿰止斤
 
 glyph han-2db5d:15x16 15 16 // 𭭝
 ⿱ han-6b62:15x9 1 han-706b:15x6 // ⿱止火
@@ -26,7 +26,7 @@ glyph han-2db5e:15x16 15 16 // 𭭞
 ## 77.8
 
 glyph han-2db66-($han-regions):15x16 15 16 // 𭭦
-⿰ han-6b62:8x16 han-9752-($-1):7x16 // ⿰止青
+⿰ han-6b62:8x16-l han-9752-($-1):7x16 // ⿰止青
 
 // glyph han-2db68:15x16 15 16 // 𭭨
 // ⿰ han-6b62 han-5947 // ⿰止奇

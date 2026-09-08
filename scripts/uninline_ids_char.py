@@ -43,6 +43,11 @@ character there again.
 The script is idempotent: a source it has already rewritten has no inlined line
 left to find, and the glyph blocks it writes are the ones it would write again.
 
+A rule whose `split` is `None` is a **probe**: nothing is rewritten, and the
+call sites are surveyed instead -- every width the character is inlined at, and
+how the source divides it there (`9x16: 4-1-4 x3`) -- which is what one reads
+to write the rule's `split` in the first place.
+
 Usage:
     python3 scripts/uninline_ids_char.py [-i font] [--dry-run] [CHAR...]
 """
@@ -77,6 +82,9 @@ class Rule:
     call sites disagree, which is the whole reason for drawing the character
     once -- but it is written to reproduce the sizes already in the source, so
     that adopting it moves no glyph that was already right.
+
+    `split` is `None` while the rule is still being written: the character's
+    sites are then surveyed and reported, and nothing is rewritten.
     """
 
     char: str
@@ -85,17 +93,18 @@ class Rule:
     parts: tuple[str, str]
     # the character is drawn per region (`han-XXXX-($han-regions)` blocks)
     regional: bool
-    # width -> (first part, gap, second part), or None where no split fits
-    split: Callable[[int], tuple[int, int, int] | None]
+    # width -> (first part, gap, second part), or None where no split fits;
+    # the rule itself is None while it is only being probed
+    split: Callable[[int], tuple[int, int, int] | None] | None
     why: str
 
 
-def _equal_halves(w: int) -> tuple[int, int, int]:
+def 比(w: int) -> tuple[int, int, int]:
     """Two equal parts, the odd cell spent on the gap between them."""
     return w // 2, w % 2, w // 2
 
 
-def _person_plus_spoon(w: int) -> tuple[int, int, int] | None:
+def 化(w: int) -> tuple[int, int, int] | None:
     """亻 and 匕 with one cell between them, always.
 
     Without the gap the two collide at the top, where 亻's fall and 匕's head
@@ -107,13 +116,18 @@ def _person_plus_spoon(w: int) -> tuple[int, int, int] | None:
     return (left, 1, right) if right > 0 else None
 
 
+def 此(w: int) -> tuple[int, int, int] | None:
+    if 10 <= w:
+        return 6, 0, w - 6
+
+
 RULES = {
     "比": Rule(
         char="比",
         op="⿰",
         parts=("匕", "匕"),
         regional=False,
-        split=_equal_halves,
+        split=比,
         why="a pair of one part: the two halves are the same width at every size",
     ),
     "化": Rule(
@@ -121,9 +135,17 @@ RULES = {
         op="⿰",
         parts=("亻", "匕"),
         regional=True,
-        split=_person_plus_spoon,
+        split=化,
         why="亻 and 匕 always one cell apart",
     ),
+    "此": Rule(
+        char="此",
+        op="⿰",
+        parts=("止", "匕"),
+        regional=True,
+        split=此,
+        why="止 always takes 6 cells, 匕 takes the rest",
+    )
 }
 
 
@@ -190,6 +212,7 @@ class Site:
     commented: bool
     seq: str  # the IDS this block decomposes by, with the character in it
     size: tuple[int, int] | None  # the span the inlined pair fills, if sized
+    split: tuple[int, int, int] | None  # how that span divides, if sized
     naming: str  # how the second part was named: "plain", "backref" or a region
 
 
@@ -321,13 +344,14 @@ def match_idc(path, lines, i, header, rule, part_cps, cp, seq) -> Site | None:
         (t1, _), (t2, gap) = items[j], items[j + 1]
         _, s1, _ = name_size(t1)
         _, s2, _ = name_size(t2)
-        size = None
+        size = split = None
         if s1 and s2 and s1[1] == s2[1]:
             size = (s1[0] + gap + s2[0], s1[1])
+            split = (s1[0], gap, s2[0])
         elif s1 or s2:
             return None  # half-sized: not a shape this script knows
         return Site(path, i, "idc", cp, chr(cp), header[0], is_comment(line),
-                    seq, size, naming_of(t2))
+                    seq, size, split, naming_of(t2))
     return None
 
 
@@ -356,7 +380,8 @@ def match_refs(path, lines, i, header, rule, part_cps, cp, seq) -> Site | None:
     if gap < 0:
         return None
     return Site(path, i, "ref", cp, chr(cp), header[0], is_comment(lines[i]),
-                seq, (s1[0] + gap + s2[0], s1[1]), naming_of(second[0]))
+                seq, (s1[0] + gap + s2[0], s1[1]), (s1[0], gap, s2[0]),
+                naming_of(second[0]))
 
 
 # --------------------------------------------------------------------------
@@ -620,6 +645,55 @@ def existing_target(files: dict[str, list[str]], rule: Rule) -> tuple[str, int, 
 # --------------------------------------------------------------------------
 
 
+def probe_rule(files: dict[str, list[str]], rule: Rule, ids: dict,
+               sizes: dict, report: list[str]) -> None:
+    """Survey a rule with no `split`: what the call sites do today.
+
+    The point is to write the rule's `split` from what the source already says,
+    so the report is grouped the way the rule is written -- by the width the
+    site leaves the character, then by the division it chose there, commonest
+    first, with one call site named per division to go and look at.
+    """
+    sites = scan(files, rule, ids)
+    if not sites:
+        report.append("  nothing inlined")
+        return
+    by_size: dict[tuple[int, int], collections.Counter] = collections.defaultdict(
+        collections.Counter)
+    where: dict[tuple[tuple[int, int], tuple[int, int, int]], str] = {}
+    unsized: list[Site] = []
+    for site in sites:
+        if site.size is None or site.split is None:
+            unsized.append(site)
+            continue
+        by_size[site.size][site.split] += 1
+        where.setdefault((site.size, site.split),
+                         f"{site.path}:{site.line + 1} {site.char}")
+    total = sum(sum(c.values()) for c in by_size.values())
+    report.append(f"  {total} sized call site(s)"
+                  + (f", {len(unsized)} unsized" if unsized else ""))
+    for size in sorted(by_size):
+        counts = by_size[size]
+        report.append(f"  {size[0]}x{size[1]}:"
+                      + (" (one split)" if len(counts) == 1 else ""))
+        for split, n in sorted(counts.items(), key=lambda kv: (-kv[1], kv[0])):
+            a, gap, b = split
+            report.append(f"    {a}-{gap}-{b}  x{n}"
+                          f"   ({where[(size, split)]})")
+    # and the same divisions read across widths, which is what a `split` is
+    gaps = collections.Counter(s.split[1] for s in sites if s.split)
+    report.append("  gaps: " + " ".join(f"{g}x{n}" for g, n in sorted(gaps.items())))
+    lefts = collections.Counter((s.size[0], s.split[0]) for s in sites if s.split)
+    report.append("  first part by width: "
+                  + " ".join(f"{w}->{a}x{n}" for (w, a), n in sorted(lefts.items())))
+    for which in (0, 1):
+        got = sorted(part_sizes(rule, which, sizes))
+        report.append(f"  {rule.parts[which]} is drawn at: "
+                      + " ".join(f"{w}x{h}" for w, h in got))
+    for site in unsized:
+        report.append(f"  unsized {site.path}:{site.line + 1} {site.char}")
+
+
 def apply_rule(files: dict[str, list[str]], rule: Rule, ids: dict,
                sizes: dict, report: list[str]) -> bool:
     sites = scan(files, rule, ids)
@@ -704,7 +778,10 @@ def main() -> int:
     report: list[str] = []
     for c in chars:
         report.append(f"{c}: {RULES[c].why}")
-        apply_rule(files, RULES[c], ids, sizes, report)
+        if RULES[c].split is None:
+            probe_rule(files, RULES[c], ids, sizes, report)
+        else:
+            apply_rule(files, RULES[c], ids, sizes, report)
     print("\n".join(report))
 
     changed = [p for p in files if files[p] != before[p]]

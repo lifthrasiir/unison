@@ -137,8 +137,8 @@ glyph han-24767-($han-regions):15x16 15 16 // 𤝧
 glyph han-2476c:15x16 15 16 // 𤝬
 ⿰ han-72ad:6x16 1 han-6c10:8x16 // ⿰犭氐
 
-glyph han-2476d:15x16 15 16 // 𤝭
-⿲ han-72ad:4x16 han-6b62:7x16 han-5315.0:4x16 // ⿲犭止匕
+glyph han-2476d-($han-regions):15x16 15 16 // 𤝭
+⿰ han-72ad:4x16 han-6b64-($-1):11x16 // ⿰犭此
 
 ## 94.6
 

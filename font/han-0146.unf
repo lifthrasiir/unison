@@ -666,7 +666,7 @@ glyph han-8a3d:15x16 15 16 // 訽
 // ⿱ han-6b64 han-8a00 // ⿱此言
 
 glyph han-8a3f-($han-regions):15x16 15 16 // 訿
-⿲ han-8a01:5x16 han-6b62:6x16 han-5315-($-1):4x16 // ⿲訁止匕
+⿰ han-8a01:5x16 han-6b64-($-1):10x16 // ⿰訁此
 
 glyph han-8a40:15x16 15 16 // 詀
 ⿰ han-8a01:5x16 1 han-5360:9x16 // ⿰訁占

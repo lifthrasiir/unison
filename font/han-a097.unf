@@ -486,7 +486,7 @@ glyph han-4099:15x16 15 16 // 䂙
 // ⿱ han-52a0 han-77f3 // ⿱加石
 
 glyph han-40a3-($han-regions):15x16 15 16 // 䂣
-⿲ han-77f3:5x16 han-6b62:6x16 han-5315-($-1):4x16 // ⿲石止匕
+⿰ han-77f3:5x16 han-6b64-($-1):10x16 // ⿰石此
 
 glyph han-40a4:15x16 15 16 // 䂤
 ⿲ han-77f3:5x16 han-4ebb:3x16 han-5bf8:7x16 // ⿲石亻寸

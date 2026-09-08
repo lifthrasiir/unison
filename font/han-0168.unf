@@ -997,8 +997,10 @@ glyph han-96c3:15x16 15 16 // 雃
 glyph han-96ca:15x16 15 16 // 雊
 ⿰ han-53e5:7x16 1 han-96b9:7x16 // ⿰句隹
 
-glyph han-96cc:15x16 15 16 // 雌
-⿲ -2 han-6b62:6x16 han-5315:4x16-l han-96b9:7x16 // ⿲止匕隹
+glyph han-96cc-(g|h|t|j|k):15x16 15 16 // 雌
+⿰ -2 han-6b64-($-1):10x16-l han-96b9:7x16 // ⿰此隹
+glyph han-96cc-p:15x16 15 16 // 雌
+⿲ -2 han-6b62:6x16-l han-5315.x:4x16-l han-96b9:7x16 // ⿲止匕隹
 
 glyph han-96ce:15x16 15 16 // 雎
 ⿰ han-4e14:8x16 han-96b9:7x16 // ⿰且隹

@@ -1475,7 +1475,7 @@ glyph han-7560:15x16 15 16 // 畠
 ⿱ han-767d:15x8 1 han-7530:15x7 // ⿱白田
 
 glyph han-7689-($han-regions):15x16 15 16 // 皉
-⿲ han-767d:4x16 han-6b62:7x16 han-5315-($-1):4x16 // ⿲白止匕
+⿰ han-767d:4x16 han-6b64-($-1):11x16 // ⿰白此
 
 glyph han-768a-($han-regions):15x16 15 16 // 皊
 ⿰ han-767d:6x16 han-4ee4-($-1):9x16 // ⿰白令
@@ -2358,7 +2358,8 @@ glyph han-7724-($han-regions):15x16 15 16 // 眤
 // ⿱ han-6b64 han-76ee // ⿱此目
 
 glyph han-7726-($han-regions):15x16 15 16 // 眦
-⿲ han-76ee:3x16-l han-6b62:6x16 han-5315-($-1):6x16 // ⿲目止匕
+⿰ han-76ee:4x16-l han-6b64-($-1):11x16 // ⿰目此
+glyph han-7726.0:15x16 = han-7726-j:15x16
 
 glyph han-7727:15x16 15 16 // 眧
 ⿰ han-76ee:6x16 1 han-53ec:8x16 // ⿰目召
