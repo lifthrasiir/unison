@@ -729,10 +729,10 @@ glyph han-6084:15x16 15 16 // 悄
 // ⿰ han-5fc4 han-65f1 // ⿰忄旱
 
 glyph han-608e.0:15x16 15 16 // 悎
-⿰ han-5fc4:7x16 han-543f:8x16 // ⿰忄告
+⿰ han-5fc4:7x16 han-543f:8x16 // ⿰忄吿
 glyph han-608e.1:15x16 = han-608e.0:15x16
 glyph han-608e.2:15x16 15 16 // 悎
-⿰ han-5fc4:7x16 han-544a:8x16 // ⿰忄吿
+⿰ han-5fc4:7x16 han-544a:8x16 // ⿰忄告
 exists han-608e\.0:([0-9]+x[0-9]+)
 glyph han-608e-(h|j):($1) = ($0)
 exists han-608e\.2:([0-9]+x[0-9]+)
