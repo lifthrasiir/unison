@@ -320,6 +320,9 @@ glyph han-477c-(k|p):15x16 15 16 // 䝼
 // glyph han-47c5:15x16 15 16 // 䟅
 // ⿳ han-65ac han-571f han-9fb0 // ⿳斬土龰 <- ⿱斬走
 
+// glyph han-47c6:15x16 15 16 // 䟆
+// ⿺ han-8d70 han-7562 // ⿺走畢
+
 ## 156.18
 
 // glyph han-47d2:15x16 15 16 // 䟒
@@ -419,6 +422,40 @@ glyph han-4812:15x16 15 16 // 䠒
 glyph han-4830:15x16 15 16 // 䠰
 ⿰ han-27fb7:5x16 1 han-96da:9x16 // ⿰𧾷雚
 
+# CJK unified ideographs extension A: 身 (158)
+
+## 158.5
+
+// glyph han-4832-($han-regions):15x16 15 16 // 䠲
+// ⿰ han-8eab han-4ee4-($-1) // ⿰身令
+
+glyph han-4833:15x16 15 16 // 䠳
+⿰ han-8eab:9x16 1 han-51fa:5x16 // ⿰身出
+
+glyph han-4834:15x16 15 16 // 䠴
+⿰ han-8eab:9x16 -1 han-7acb:7x16 // ⿰身立
+
+// glyph han-4835:15x16 15 16 // 䠵
+// ⿰ han-8eab han-4ed8 // ⿰身付
+
+## 158.6
+
+// glyph han-4837:15x16 15 16 // 䠷
+// ⿰ han-8eab han-5146 // ⿰身兆
+
+// glyph han-483a:15x16 15 16 // 䠺
+// ⿰ han-8eab han-95ee // ⿰身问
+
+## 158.9
+
+// glyph han-483c:15x16 15 16 // 䠼
+// ⿰ han-8eab han-4fde // ⿰身俞
+
+## 158.10
+
+// glyph han-483e:15x16 15 16 // 䠾
+// ⿰ han-8eab han-9583 // ⿰身閃
+
 # CJK unified ideographs extension A: 車 (159)
 
 ## 159.2
@@ -455,8 +492,11 @@ glyph han-4852:15x16 15 16 // 䡒
 
 ## 159.6
 
-// glyph han-4853:15x16 15 16 // 䡓
-// ⿲ han-5f73 han-8eca han-4e8d // ⿲彳車亍
+glyph han-4853:15x16 15 16 // 䡓
+⿲ han-5f73:3x16 han-8eca:5x16 han-4e8d:7x16 // ⿲彳車亍
+
+glyph han-4854:15x16 15 16 // 䡔
+⿰ han-8eca:5x16 1 han-591a:9x16 // ⿰車多
 
 // glyph han-4857:15x16 15 16 // 䡗
 // ⿱ han-5de9 han-8eca // ⿱巩車
@@ -561,8 +601,8 @@ glyph han-4899-($han-regions):15x16 15 16 // 䢙
 
 ## 162.8
 
-// glyph han-489d-($han-regions):15x16 15 16 // 䢝
-// ⿺ han-8fb6-($-1) han-4e9e // ⿺辶亞
+glyph han-489d-($han-regions):15x16 15 16 // 䢝
+⿺ han-8fb6-($-1):15x16.11x14 han-4e9e:10x12 4 1 // ⿺辶亞
 
 glyph han-489e-($han-regions):15x16 15 16 // 䢞
 ⿺ han-8fb6-($-1):15x16.11x14 han-6797:11x12 4 1 // ⿺辶林

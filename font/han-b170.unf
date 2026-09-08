@@ -180,8 +180,8 @@ glyph han-28f20:15x16 15 16 // 𨼠
 
 ## 170.14
 
-// glyph han-28f47:15x16 15 16 // 𨽇
-// ⿲ han-961d han-9b5a han-4e8d // ⿲阝魚亍
+glyph han-28f47:15x16 15 16 // 𨽇
+⿲ han-961d:5x16-l han-9b5a:7x16 han-4e8d:3x16 // ⿲阝魚亍
 
 ## 170.17
 
@@ -267,6 +267,9 @@ glyph han-28fbe:15x16 15 16 // 𨾾
 
 // glyph han-28fbf:15x16 15 16 // 𨾿
 // ⿰ han-800c han-96b9 // ⿰而隹
+
+// glyph han-28fc5:15x16 15 16 // 𨿅
+// ⿰ han-540d han-96b9 // ⿰名隹
 
 // glyph han-28fc7:15x16 15 16 // 𨿇
 // ⿱ han-96b9 han-8089 // ⿱隹肉

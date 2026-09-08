@@ -790,35 +790,70 @@ glyph han-6b6e:15x16 15 16 // 歮
 // glyph han-6b74:15x16 15 16 // 歴
 // ⿸ han-20a75 han-6b62 // ⿸𠩵止
 
+# CJK unified ideographs: 歹 (78)
+
+## 78.0
+
+// glyph han-6b79:15x16 15 16 // 歹
+// ⿱ han-4e00 han-5915 // ⿱一夕
+
 # CJK unified ideographs: 比 (81)
 
 ## 81.0
 
-glyph han-6bd4-($han-regions):8x16 8 16 // 比
+glyph han-6bd4-(g|t|j|k|p|v):6x16 6 16 // 比
+⿰ han-5315.x:3x16-l han-5315-($-1):3x16 // ⿰匕匕
+glyph han-6bd4-h:6x16 6 16 // 比
+⿰ han-5315.x:3x16-l han-5315.x:3x16 // ⿰匕匕
+glyph han-6bd4-(g|t|j|k|p|v):7x16 7 16 // 比
+⿰ han-5315.x:3x16-l 1 han-5315-($-1):3x16 // ⿰匕匕
+glyph han-6bd4-h:7x16 7 16 // 比
+⿰ han-5315.x:3x16-l 1 han-5315.x:3x16 // ⿰匕匕
+glyph han-6bd4-(g|t|j|k|p|v):8x16 8 16 // 比
 ⿰ han-5315.x:4x16-l han-5315-($-1):4x16 // ⿰匕匕
-glyph han-6bd4-($han-regions):9x16 9 16 // 比
+glyph han-6bd4-h:8x16 8 16 // 比
+⿰ han-5315.x:4x16-l han-5315.x:4x16 // ⿰匕匕
+glyph han-6bd4-(g|t|j|k|p|v):9x16 9 16 // 比
 ⿰ han-5315.x:4x16-l 1 han-5315-($-1):4x16 // ⿰匕匕
-glyph han-6bd4-($han-regions):10x16 10 16 // 比
+glyph han-6bd4-h:9x16 9 16 // 比
+⿰ han-5315.x:4x16-l 1 han-5315.x:4x16 // ⿰匕匕
+glyph han-6bd4-(g|t|j|k|p|v):10x16 10 16 // 比
 ⿰ han-5315.x:5x16-l han-5315-($-1):5x16 // ⿰匕匕
-glyph han-6bd4:11x16 11 16 // 比
-⿰ han-5315.x:5x16-l 1 han-5315.0:5x16 // ⿰匕匕
-glyph han-6bd4-($han-regions):12x16 12 16 // 比
+glyph han-6bd4-h:10x16 10 16 // 比
+⿰ han-5315.x:5x16-l han-5315.x:5x16 // ⿰匕匕
+glyph han-6bd4-(g|t|j|k|p|v):11x16 11 16 // 比
+⿰ han-5315.x:5x16-l 1 han-5315-($-1):5x16 // ⿰匕匕
+glyph han-6bd4-h:11x16 11 16 // 比
+⿰ han-5315.x:5x16-l 1 han-5315.x:5x16 // ⿰匕匕
+glyph han-6bd4-(g|t|j|k|p|v):12x16 12 16 // 比
 ⿰ han-5315.x:6x16-l han-5315-($-1):6x16 // ⿰匕匕
-glyph han-6bd4-($han-regions):15x4 15 4 // 比
+glyph han-6bd4-h:12x16 12 16 // 比
+⿰ han-5315.x:6x16-l han-5315.x:6x16 // ⿰匕匕
+glyph han-6bd4-(g|t|j|k|p|v):15x4 15 4 // 比
 ⿰ han-5315:7x4-l 1 han-5315-($-1):7x4 // ⿰匕匕
-glyph han-6bd4-($han-regions):15x7 15 7 // 比
+glyph han-6bd4-h:15x4 15 4 // 比
+⿰ han-5315:7x4-l 1 han-5315.x:7x4 // ⿰匕匕
+glyph han-6bd4-(g|t|j|k|p|v):15x7 15 7 // 比
 ⿰ han-5315:7x7-l 1 han-5315-($-1):7x7 // ⿰匕匕
-glyph han-6bd4:15x8 15 8 // 比
-⿰ han-5315:7x8-l 1 han-5315.0:7x8 // ⿰匕匕
-glyph han-6bd4-($han-regions):15x12 15 12 // 比
+glyph han-6bd4-h:15x7 15 7 // 比
+⿰ han-5315:7x7-l 1 han-5315.x:7x7 // ⿰匕匕
+glyph han-6bd4-(g|t|j|k|p|v):15x8 15 8 // 比
+⿰ han-5315:7x8-l 1 han-5315-($-1):7x8 // ⿰匕匕
+glyph han-6bd4-h:15x8 15 8 // 比
+⿰ han-5315:7x8-l 1 han-5315.x:7x8 // ⿰匕匕
+glyph han-6bd4-(g|t|j|k|p|v):15x12 15 12 // 比
 ⿰ han-5315:7x12-l 1 han-5315-($-1):7x12 // ⿰匕匕
-glyph han-6bd4-($han-regions):15x16 15 16 // 比
+glyph han-6bd4-h:15x12 15 12 // 比
+⿰ han-5315:7x12-l 1 han-5315.x:7x12 // ⿰匕匕
+glyph han-6bd4-(g|t|j|k|p|v):15x16 15 16 // 比
 ⿰ han-5315.x:7x16-l 1 han-5315-($-1):7x16 // ⿰匕匕
+glyph han-6bd4-h:15x16 15 16 // 比
+⿰ han-5315.x:7x16-l 1 han-5315.x:7x16 // ⿰匕匕
 
 ## 81.2
 
 glyph han-6bd5:15x16 15 16 // 毕
-⿱ han-6bd4:15x8 1 han-5341:15x7 // ⿱比十
+⿱ han-6bd4-g:15x8 1 han-5341:15x7 // ⿱比十
 
 ## 81.5
 

@@ -146,6 +146,9 @@ glyph han-3432:15x16 15 16 // 㐲
 glyph han-3433:15x16 15 16 // 㐳
 ⿰ han-4ebb:5x16 han-5140:10x16 // ⿰亻兀
 
+// glyph han-3434:15x16 15 16 // 㐴
+// ⿰ han-4ebb han-5915 // ⿰亻夕
+
 glyph han-3436:15x16 15 16 // 㐶
 ⿰ han-4ebb:5x16 1 han-5df3:9x16 // ⿰亻巳
 
@@ -185,10 +188,16 @@ glyph han-3442:15x16 15 16 // 㑂
 // glyph han-344f:15x16 15 16 // 㑏
 // ⿰ han-4ebb han-5b88 // ⿰亻守
 
+// glyph han-3455:15x16 15 16 // 㑕
+// ⿰ han-4ebb han-5c81 // ⿰亻岁
+
 glyph han-3456:15x16 15 16 // 㑖
 ⿲ han-4ebb:3x16 han-4ebb:3x16 han-4e2d:9x16 // ⿲亻亻中
 
 ## 9.7
+
+glyph han-3457:15x16 15 16 // 㑗
+⿰ han-4ebb:5x16 1 han-8eab:9x16 // ⿰亻身
 
 glyph han-345b:15x16 15 16 // 㑛
 ⿰ han-4ebb:5x16 1 han-675f:9x16 // ⿰亻束
@@ -202,6 +211,9 @@ glyph han-3463:15x16 15 16 // 㑣
 ref han-4ebb:3x16 0 0 // ⿲亻木木
 ref han-6728:5x16 4 0
 ref han-6728:5x16 10 0
+
+// glyph han-3469:15x16 15 16 // 㑩
+// ⿰ han-4ebb han-7f57 // ⿰亻罗
 
 glyph han-346c:15x16 15 16 // 㑬
 ⿲ han-4ebb:3x16 han-5973:5x16 han-53e4:7x16 // ⿲亻女古
@@ -290,6 +302,16 @@ glyph han-34ca:15x16 15 16 // 㓊
 
 // glyph han-34d0:15x16 15 16 // 㓐
 // ⿰ han-51ab han-5774 // ⿰冫坴
+
+## 15.10
+
+// glyph han-34d4:15x16 15 16 // 㓔
+// ⿰ han-51ab han-5c04 // ⿰冫射
+
+## 15.11
+
+// glyph han-34d6:15x16 15 16 // 㓖
+// ⿰ han-51ab han-7562 // ⿰冫畢
 
 # CJK unified ideographs extension A: 凵 (17)
 
@@ -791,6 +813,21 @@ glyph han-365f:15x16 15 16 // 㙟
 glyph han-3681:15x16 15 16 // 㚁
 ⿰ han-582f:7x16 1 han-582f:7x16 // ⿰堯堯
 
+# CJK unified ideographs extension A: 夕 (36)
+
+## 36.2
+
+// glyph han-3688:15x16 15 16 // 㚈
+// ⿰ han-5915 han-5341 // ⿰夕十
+
+## 36.11
+
+glyph han-368b:15x16 15 16 // 㚋
+⿰ han-591a:7x16 han-5468:8x16 // ⿰多周
+
+glyph han-368c:15x16 15 16 // 㚌
+⿰ han-591a:7x16 1 han-679c:7x16 // ⿰多果
+
 # CJK unified ideographs extension A: 大 (37)
 
 ## 37.2
@@ -833,6 +870,9 @@ glyph han-3699:15x16 15 16 // 㚙
 ⿱ han-52a0:15x11 han-5927:15x5 // ⿱加大
 
 ## 37.6
+
+// glyph han-369a:15x16 15 16 // 㚚
+// ⿱ han-5927 han-540d // ⿱大名
 
 // glyph han-369b:15x16 15 16 // 㚛
 // ⿳ han-5927 han-5315 han-65e5 // ⿳大匕日 <- ⿱大旨
@@ -934,6 +974,9 @@ glyph han-36d6:15x16 15 16 // 㛖
 
 glyph han-36d9:15x16 15 16 // 㛙
 ⿰ han-5973:7x16 1 han-8f9b:7x16 // ⿰女辛
+
+glyph han-36db:15x16 15 16 // 㛛
+⿰ han-5973:5x16-l 1 han-8eab:9x16 // ⿰女身
 
 glyph han-36dd:15x16 15 16 // 㛝
 ⿰ han-5973:7x16 han-8c9d:8x16 // ⿰女貝
@@ -1063,6 +1106,9 @@ glyph han-3752:15x16 15 16 // 㝒
 // glyph han-3754:15x16 15 16 // 㝔
 // ⿱ han-5b80 han-4ea4 // ⿱宀交
 
+// glyph han-3756:15x16 15 16 // 㝖
+// ⿱ han-5b80 han-591a // ⿱宀多
+
 ## 40.7
 
 // glyph han-3757:15x16 15 16 // 㝗
@@ -1132,3 +1178,8 @@ glyph han-378e:15x16 15 16 // 㞎
 
 glyph han-3790:15x16 15 16 // 㞐
 ⿸ han-5c38:15x16.11x12 han-7acb:9x12 5 4 // ⿸尸立
+
+## 44.6
+
+// glyph han-3794:15x16 15 16 // 㞔
+// ⿸ han-5c38 han-591a // ⿸尸多

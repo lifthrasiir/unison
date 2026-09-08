@@ -66,6 +66,9 @@ glyph han-21b41:15x16 15 16 // 𡭁
 // glyph han-21b44:15x16 15 16 // 𡭄
 // ⿺ han-582f han-5bf8 // ⿺堯寸
 
+// glyph han-21b49-($han-regions):15x16 15 16 // 𡭉
+// ⿰ han-534a-($-1) han-5c04 // ⿰半射
+
 // glyph han-23292:15x16 15 16 // 𣊒
 // ⿺ han-662f han-5bfa // ⿺是寺
 
@@ -206,8 +209,8 @@ glyph han-21c76:15x16 15 16 // 𡱶
 // glyph han-21c7a:15x16 15 16 // 𡱺
 // ⿸ han-5c38 han-38d8 // ⿸尸㣘
 
-// glyph han-21c7b:15x16 15 16 // 𡱻
-// ⿸ han-5c38 han-4e9e // ⿸尸亞
+glyph han-21c7b:15x16 15 16 // 𡱻
+⿸ han-5c38:15x16.11x12 han-4e9e:9x10 5 5 // ⿸尸亞
 
 // glyph han-21c7c:15x16 15 16 // 𡱼
 // ⿸ han-5c38 han-679c // ⿸尸果

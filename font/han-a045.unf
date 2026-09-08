@@ -248,6 +248,11 @@ glyph han-383c:15x16 15 16 // 㠼
 // glyph han-383f:15x16 15 16 // 㠿
 // ⿱ han-6b64 han-5dfe // ⿱此巾
 
+## 50.6
+
+glyph han-3845:15x16 15 16 // 㡅
+⿰ han-5dfe:5x16 1 han-591a:9x16 // ⿰巾多
+
 ## 50.8
 
 // glyph han-384c:15x16 15 16 // 㡌
@@ -304,6 +309,11 @@ glyph han-3879:15x16 15 16 // 㡹
 glyph han-387a:15x16 15 16 // 㡺
 ⿸ han-5e7f:15x16.11x13 han-65e6:9x10 6 6 // ⿸广旦
 
+## 53.6
+
+// glyph han-3881:15x16 15 16 // 㢁
+// ⿸ han-5e7f han-591a // ⿸广多
+
 ## 53.7
 
 // glyph han-3883:15x16 15 16 // 㢃
@@ -319,6 +329,9 @@ glyph han-3888:15x16 15 16 // 㢈
 
 // glyph han-388a:15x16 15 16 // 㢊
 // ⿸ han-5e7f han-5947 // ⿸广奇
+
+// glyph han-388b:15x16 15 16 // 㢋
+// ⿸ han-5e7f han-4f88 // ⿸广侈
 
 // glyph han-388c:15x16 15 16 // 㢌
 // ⿸ han-5e7f han-963f // ⿸广阿
@@ -395,6 +408,9 @@ glyph han-38b5:15x16 15 16 // 㢵
 
 glyph han-38b6:15x16 15 16 // 㢶
 ⿰ han-5f13:6x16 1 han-767e:8x16 // ⿰弓百
+
+// glyph han-38b7:15x16 15 16 // 㢷
+// ⿰ han-5f13 han-5c81 // ⿰弓岁
 
 ## 57.7
 
@@ -665,6 +681,11 @@ glyph han-3969-j:15x16 15 16 // 㥩
 // glyph han-399a:15x16 15 16 // 㦚
 // ⿲ han-8f9b han-5fc3 han-8f9b // ⿲辛心辛
 
+## 61.16
+
+// glyph han-39a3:15x16 15 16 // 㦣
+// ⿱ han-885b han-5fc3 // ⿱衛心
+
 # CJK unified ideographs extension A: 戈 (62)
 
 ## 62.3
@@ -761,6 +782,9 @@ glyph han-39eb:15x16 15 16 // 㧫
 
 // glyph han-39f5:15x16 15 16 // 㧵
 // ⿰ han-624c han-5426 // ⿰扌否
+
+glyph han-39f6:15x16 15 16 // 㧶
+⿰ han-624c:5x16 1 han-8eab:9x16 // ⿰扌身
 
 // glyph han-39f7:15x16 15 16 // 㧷
 // ⿰ han-624c han-541e // ⿰扌吞
@@ -947,6 +971,9 @@ glyph han-3add:15x16 15 16 // 㫝
 // ⿱ han-65e5 han-7535 // ⿱日电
 
 ## 72.6
+
+// glyph han-3ae5:15x16 15 16 // 㫥
+// ⿰ han-65e5 han-540d // ⿰日名
 
 // glyph han-3ae7:15x16 15 16 // 㫧
 // ⿱ han-65e5 han-7c73 // ⿱日米

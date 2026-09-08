@@ -87,6 +87,9 @@ glyph han-309d8-($han-regions):15x16 15 16 // 𰧘
 glyph han-309f9:15x16 15 16 // 𰧹
 ⿲ han-793b:5x16 han-5973:5x16 1 han-53e3:4x16 // ⿲礻女口
 
+glyph han-309fa:15x16 15 16 // 𰧺
+⿰ han-793a:5x16 1 han-591a:9x16 // ⿰示多
+
 // glyph han-309ff:15x16 15 16 // 𰧿
 // ⿳ han-4ea0 han-65e5 han-793a // ⿳亠日示 <- ⿱𣅀示
 

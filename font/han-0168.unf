@@ -312,8 +312,8 @@ glyph han-95b3:15x16 15 16 // 閳
 glyph han-95b6:15x16 15 16 // 閶
 ⿵ han-9580:15x16.13x11 han-660c:11x10 2 6 // ⿵門昌
 
-// glyph han-95b8:15x16 15 16 // 閸
-// ⿵ han-9580 han-4e9e // ⿵門亞
+glyph han-95b8:15x16 15 16 // 閸
+⿵ han-9580:15x16.13x11 han-4e9e:9x10 3 6 // ⿵門亞
 
 glyph han-95c1:15x16 15 16 // 闁
 ⿵ han-9580:15x16.13x11 han-9580:11x10 2 6 // ⿵門門
@@ -718,8 +718,8 @@ glyph han-962e:15x16 15 16 // 阮
 glyph han-962f:15x16 15 16 // 阯
 ⿰ han-961d:5x16-l han-6b62:10x16 // ⿰阝止
 
-glyph han-9630:15x16 15 16 // 阰
-⿰ han-961d:4x16-l han-6bd4:11x16 // ⿰阝比
+glyph han-9630-($han-regions):15x16 15 16 // 阰
+⿰ han-961d:4x16-l 1 han-6bd4-($-1):10x16 // ⿰阝比
 
 glyph han-9631:15x16 15 16 // 阱
 ⿰ han-961d:5x16-l 1 han-4e95:9x16 // ⿰阝井
@@ -769,6 +769,9 @@ glyph han-9645:15x16 15 16 // 际
 ⿰ 1 han-961d:5x16-l 1 han-793a:7x16 // ⿰阝示
 
 ## 170.6
+
+glyph han-964a:15x16 15 16 // 陊
+⿰ han-961d:5x16-l 1 han-591a:9x16 // ⿰阝多
 
 glyph han-964c:15x16 15 16 // 陌
 ⿰ han-961d:5x16-l 1 han-767e:9x16 // ⿰阝百
@@ -1000,7 +1003,7 @@ glyph han-96ca:15x16 15 16 // 雊
 glyph han-96cc-(g|h|t|j|k):15x16 15 16 // 雌
 ⿰ -2 han-6b64-($-1):10x16-l han-96b9:7x16 // ⿰此隹
 glyph han-96cc-p:15x16 15 16 // 雌
-⿲ -2 han-6b62:6x16-l han-5315.x:4x16-l han-96b9:7x16 // ⿲止匕隹
+⿲ -1 han-6b62:6x16-l han-5315.x:3x16 han-96b9:7x16 // ⿲止匕隹
 
 glyph han-96ce:15x16 15 16 // 雎
 ⿰ han-4e14:8x16 han-96b9:7x16 // ⿰且隹
@@ -2227,6 +2230,11 @@ glyph han-97ae:15x16 15 16 // 鞮
 // glyph han-97b0:15x16 15 16 // 鞰
 // ⿰ han-9769 han-6637 // ⿰革昷
 
+## 177.11
+
+// glyph han-97b8:15x16 15 16 // 鞸
+// ⿰ han-9769 han-7562 // ⿰革畢
+
 ## 177.12
 
 glyph han-97bd:15x16 15 16 // 鞽
@@ -2450,6 +2458,11 @@ glyph han-97da:15x16 15 16 // 韚
 
 // glyph han-97df:15x16 15 16 // 韟
 // ⿰ han-97cb han-768b // ⿰韋皋
+
+## 178.11
+
+// glyph han-97e0:15x16 15 16 // 韠
+// ⿰ han-97cb han-7562 // ⿰韋畢
 
 # CJK unified ideographs: 韦 (178')
 

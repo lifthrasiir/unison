@@ -32,6 +32,9 @@ glyph han-27964:15x16 15 16 // 𧥤
 // glyph han-27965:15x16 15 16 // 𧥥
 // ⿱ han-5ddb han-8a00 // ⿱巛言
 
+// glyph han-27967:15x16 15 16 // 𧥧
+// ⿱ han-5915 han-8a00 // ⿱夕言
+
 ## 149.4
 
 glyph han-27971:15x16 15 16 // 𧥱
@@ -66,6 +69,9 @@ glyph han-27976:15x16 15 16 // 𧥶
 
 glyph han-27991:15x16 15 16 // 𧦑
 ⿰ han-8a01:5x16 1 han-4ea2:9x16 // ⿰訁亢
+
+glyph han-27993:15x16 15 16 // 𧦓
+⿰ han-8a01:5x16 han-7247:10x16 // ⿰訁片
 
 // glyph han-27994:15x16 15 16 // 𧦔
 // ⿱ han-51e0 han-8a08 // ⿱几計
@@ -201,6 +207,9 @@ glyph han-27a0e:15x16 15 16 // 𧨎
 // glyph han-27a3d:15x16 15 16 // 𧨽
 // ⿲ han-8a01 han-961d han-4ed8 // ⿲訁阝付 <- ⿰訁附
 
+// glyph han-27a40:15x16 15 16 // 𧩀
+// ⿰ han-8a01 han-4f88 // ⿰訁侈
+
 // glyph han-27a41:15x16 15 16 // 𧩁
 // ⿲ han-6c34 han-8a00 han-6c34 // ⿲水言水
 
@@ -284,6 +293,9 @@ glyph han-27ac2:15x16 15 16 // 𧫂
 
 // glyph han-27ae0:15x16 15 16 // 𧫠
 // ⿰ han-8a01 han-57fa // ⿰訁基
+
+// glyph han-27ae4:15x16 15 16 // 𧫤
+// ⿰ han-8a01 han-7562 // ⿰訁畢
 
 // glyph han-27af1:15x16 15 16 // 𧫱
 // ⿰ han-8a01 han-7ae0 // ⿰訁章

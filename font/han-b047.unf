@@ -8,6 +8,9 @@
 
 ## 47.3
 
+// glyph han-21fea:15x16 15 16 // 𡿪
+// ⿱ han-5ddb han-5915 // ⿱巛夕
+
 // glyph han-21feb-($han-regions):15x16 15 16 // 𡿫
 // ⿱ han-4ea1-($-1) han-5ddd // ⿱亡川
 
@@ -151,6 +154,9 @@ glyph han-2205c:15x16 15 16 // 𢁜
 
 // glyph han-2205d:15x16 15 16 // 𢁝
 // ⿱ han-5dfe han-5dfe // ⿱巾巾
+
+// glyph han-2205f:15x16 15 16 // 𢁟
+// ⿱ han-5915 han-5dfe // ⿱夕巾
 
 glyph han-22060:15x16 15 16 // 𢁠
 ⿰ han-5dfe:5x16 1 han-5f13:9x16 // ⿰巾弓

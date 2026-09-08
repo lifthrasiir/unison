@@ -46,6 +46,11 @@ glyph han-2b409-($han-regions):15x16 15 16 // 𫐉
 glyph han-2b40c:15x16 15 16 // 𫐌
 ⿰ han-8f66:6x16-l han-5e76:9x16 // ⿰车并
 
+## 159'.7
+
+glyph han-2b40d:15x16 15 16 // 𫐍
+⿰ han-8f66:6x16-l han-8eab:9x16 // ⿰车身
+
 ## 159'.8
 
 // glyph han-2b40e:15x16 15 16 // 𫐎
@@ -221,6 +226,9 @@ glyph han-2b4a8:15x16 15 16 // 𫒨
 
 glyph han-2b4ab-($han-regions):15x16 15 16 // 𫒫
 ⿲ han-91d2:5x16-l 1 han-767d:4x16 han-52fa-($-1):5x16 // ⿲釒白勺
+
+// glyph han-2b4ac:15x16 15 16 // 𫒬
+// ⿰ han-91d2 han-4f88 // ⿰釒侈
 
 // glyph han-2b4ad:15x16 15 16 // 𫒭
 // ⿰ han-91d2 han-5b9d // ⿰釒宝

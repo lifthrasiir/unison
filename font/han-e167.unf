@@ -8,6 +8,9 @@
 glyph han-2cac3:15x16 15 16 // 𬫃
 ⿰ han-91d2:5x16-l 1 han-738b:9x16 // ⿰釒王
 
+glyph han-2cac4:15x16 15 16 // 𬫄
+⿰ han-91d2:7x16 han-7247:8x16 // ⿰釒片
+
 ## 167.5
 
 // glyph han-2cac8:15x16 15 16 // 𬫈
@@ -192,6 +195,11 @@ glyph han-2cb85:15x16 15 16 // 𬮅
 // glyph han-2cb89:15x16 15 16 // 𬮉
 // ⿵ han-9580 han-51fa // ⿵門出
 
+## 169.10
+
+// glyph han-2cb8f:15x16 15 16 // 𬮏
+// ⿵ han-9580 han-5c04 // ⿵門射
+
 # CJK unified ideographs extension E: 门 (169')
 
 ## 169'.2
@@ -302,6 +310,11 @@ glyph han-2cbc3:15x16 15 16 // 𬯃
 
 glyph han-2cbd1:15x16 15 16 // 𬯑
 ⿲ -1 han-961d:4x16-l han-4ebb:3x16 han-5485:9x16 // ⿲阝亻咅
+
+## 170.11
+
+// glyph han-2cbd5:15x16 15 16 // 𬯕
+// ⿰ han-961d han-7562 // ⿰阝畢
 
 ## 170.19
 
@@ -416,6 +429,11 @@ glyph han-2cc1b:15x16 15 16 // 𬰛
 // glyph han-2cc20:15x16 15 16 // 𬰠
 // ⿱ han-672b han-9762 // ⿱末面
 
+## 176.8
+
+// glyph han-2cc21:15x16 15 16 // 𬰡
+// ⿰ han-9762 han-7f57 // ⿰面罗
+
 ## 176.11
 
 // glyph han-2cc23:15x16 15 16 // 𬰣
@@ -466,6 +484,11 @@ glyph han-2cc3f:15x16 15 16 // 𬰿
 
 // glyph han-2cc42:15x16 15 16 // 𬱂
 // ⿰ han-5fc5 han-9801 // ⿰必頁
+
+## 181.6
+
+// glyph han-2cc43:15x16 15 16 // 𬱃
+// ⿰ han-540d han-9801 // ⿰名頁
 
 ## 181.7
 
@@ -634,6 +657,11 @@ glyph han-2cdbe:15x16 15 16 // 𬶾
 
 glyph han-2cdbf:15x16 15 16 // 𬶿
 ⿰ han-5f13:7x16 1 han-9ce5:7x16 // ⿰弓鳥
+
+## 196.4
+
+glyph han-2cdc3:15x16 15 16 // 𬷃
+⿰ han-7247:8x16 han-9ce5:7x16 // ⿰片鳥
 
 ## 196.5
 

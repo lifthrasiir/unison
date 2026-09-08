@@ -262,6 +262,9 @@ glyph han-24fe2:15x16 15 16 // 𤿢
 // glyph han-24fe4:15x16 15 16 // 𤿤
 // ⿱ han-25ad7 han-76ae // ⿱𥫗皮
 
+glyph han-24fe6:15x16 15 16 // 𤿦
+⿰ han-76ae:8x16 han-591a:7x16 // ⿰皮多
+
 ## 107.7
 
 // glyph han-24fe7:15x16 15 16 // 𤿧
@@ -303,6 +306,11 @@ glyph han-25001-($han-regions):15x16 15 16 // 𥀁
 
 glyph han-2500a:15x16 15 16 // 𥀊
 ⿰ han-76ae:8x16 han-97cb:7x16 // ⿰皮韋
+
+## 107.11
+
+// glyph han-25015:15x16 15 16 // 𥀕
+// ⿰ han-7562 han-76ae // ⿰畢皮
 
 ## 107.12
 

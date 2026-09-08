@@ -23,6 +23,9 @@ glyph han-2bbde:15x16 15 16 // 𫯞
 glyph han-2bbe4:15x16 15 16 // 𫯤
 ⿰ han-592b:9x16 1 han-53e4:5x16 // ⿰夫古
 
+// glyph han-2bbe5:15x16 15 16 // 𫯥
+// ⿱ han-5927 han-5c81 // ⿱大岁
+
 ## 37.9
 
 // glyph han-2bbec:15x16 15 16 // 𫯬
@@ -168,6 +171,9 @@ glyph han-2bc53:15x16 15 16 // 𫱓
 
 glyph han-2bc5f:15x16 15 16 // 𫱟
 ⿲ -4 han-5973:5x16-l han-592b:9x16 han-898b:5x16 // ⿲女夫見
+
+// glyph han-2bc62:15x16 15 16 // 𫱢
+// ⿰ han-5973 han-30fda // ⿰女𰿚
 
 glyph han-2bc6b:15x16 15 16 // 𫱫
 ⿲ -1 han-5973:5x16-l han-7cf9:5x16 1 han-7530:5x16 // ⿲女糹田
@@ -516,6 +522,11 @@ glyph han-2bde6:15x16 15 16 // 𫷦
 // glyph han-2bdf7:15x16 15 16 // 𫷷
 // ⿸ han-5e7f han-94a6 // ⿸广钦
 
+## 53.10
+
+// glyph han-2bdfa:15x16 15 16 // 𫷺
+// ⿸ han-5e7f han-5c04 // ⿸广射
+
 ## 53.11
 
 // glyph han-2bdff-($han-regions):15x16 15 16 // 𫷿
@@ -748,6 +759,9 @@ glyph han-2bea2:15x16 15 16 // 𫺢
 
 ## 61.10
 
+// glyph han-2beb2:15x16 15 16 // 𫺲
+// ⿱ han-43e7 han-5fc3 // ⿱䏧心
+
 glyph han-2beb6:15x16 15 16 // 𫺶
 ⿲ han-5fc4:5x16 han-961d:5x16-r han-8eca:5x16 // ⿲忄阝車
 
@@ -870,6 +884,12 @@ glyph han-2bf3b:15x16 15 16 // 𫼻
 
 // glyph han-2bf49:15x16 15 16 // 𫽉
 // ⿰ han-624c han-6b68 // ⿰扌歨
+
+// glyph han-2bf4b:15x16 15 16 // 𫽋
+// ⿰ han-624c han-7f57 // ⿰扌罗
+
+// glyph han-2bf4e:15x16 15 16 // 𫽎
+// ⿰ han-624c han-4f88 // ⿰扌侈
 
 // glyph han-2bf54:15x16 15 16 // 𫽔
 // ⿰ han-624c han-95f9 // ⿰扌闹

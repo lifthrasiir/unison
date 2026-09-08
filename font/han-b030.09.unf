@@ -295,8 +295,11 @@ glyph han-20f22:15x16 15 16 // 𠼢
 // glyph han-20f28:15x16 15 16 // 𠼨
 // ⿳ han-5405 han-51f5 han-5405 // ⿳吅凵吅
 
-// glyph han-20f2b:15x16 15 16 // 𠼫
-// ⿲ han-53e3 han-91d2 han-4e8d // ⿲口釒亍
+// glyph han-20f2a:15x16 15 16 // 𠼪
+// ⿰ han-53e3 han-79fb // ⿰口移
+
+glyph han-20f2b:15x16 15 16 // 𠼫
+⿲ han-53e3:3x16-l han-91d2:5x16-l han-4e8d:7x16 // ⿲口釒亍 <- ⿰口⿰釒亍
 
 // glyph han-20f2d:15x16 15 16 // 𠼭
 // ⿲ han-53e3 han-7f36 han-672c // ⿲口缶本

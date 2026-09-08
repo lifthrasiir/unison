@@ -33,6 +33,9 @@ glyph han-2d829:15x16 15 16 // 𭠩
 // glyph han-2d82b:15x16 15 16 // 𭠫
 // ⿰ han-624b han-5408 // ⿰手合
 
+// glyph han-2d82c:15x16 15 16 // 𭠬
+// ⿰ han-624c han-540d // ⿰扌名
+
 glyph han-2d82f:15x16 15 16 // 𭠯
 ⿲ han-624c:3x16 han-961d:4x16-r 1 han-5bf8:7x16 // ⿲扌阝寸
 
@@ -61,6 +64,9 @@ glyph han-2d83e:15x16 15 16 // 𭠾
 
 glyph han-2d83f:15x16 15 16 // 𭠿
 ⿲ han-624c:3x16 han-4ebb:5x16 han-7acb:7x16 // ⿲扌亻立
+
+// glyph han-2d842:15x16 15 16 // 𭡂
+// ⿱ han-6278 han-5915 // ⿱扸夕
 
 // glyph han-2d843:15x16 15 16 // 𭡃
 // ⿲ han-624c han-820c han-4e5a // ⿲扌舌乚 <- ⿰扌乱
@@ -202,6 +208,9 @@ glyph han-2d922:15x16 15 16 // 𭤢
 glyph han-2d92b:15x16 15 16 // 𭤫
 ⿰ han-65b9:7x16 1 han-4e2d:7x16 // ⿰方中
 
+glyph han-2d92c:15x16 15 16 // 𭤬
+⿰ han-65b9:7x16 han-7247:8x16 // ⿰方片
+
 ## 70.5
 
 glyph han-2d92d:15x16 15 16 // 𭤭
@@ -238,6 +247,9 @@ glyph han-2d94f:15x16 15 16 // 𭥏
 
 glyph han-2d950:15x16 15 16 // 𭥐
 ⿱ han-65e5:15x7 1 han-5de5:15x8 // ⿱日工
+
+// glyph han-2d951:15x16 15 16 // 𭥑
+// ⿰ han-65e5 han-5915 // ⿰日夕
 
 ## 72.4
 
@@ -497,6 +509,9 @@ glyph han-2da62:15x16 15 16 // 𭩢
 glyph han-2da78:15x16 15 16 // 𭩸
 ⿱ -1 han-5405:15x5 han-6728:15x12 // ⿱吅木
 
+// glyph han-2da79:15x16 15 16 // 𭩹
+// ⿰ han-6728 han-540d // ⿰木名
+
 glyph han-2da7c:15x16 15 16 // 𭩼
 ⿰ han-7c73:7x16 1 han-6728:7x16 // ⿰米木
 
@@ -632,6 +647,9 @@ glyph han-2db45:15x16 15 16 // 𭭅
 
 glyph han-2db49:15x16 15 16 // 𭭉
 ⿰ han-4ea4:7x16 1 han-6b20:7x16 // ⿰交欠
+
+// glyph han-2db4a:15x16 15 16 // 𭭊
+// ⿰ han-540d han-6b20 // ⿰名欠
 
 glyph han-2db4b:15x16 15 16 // 𭭋
 ⿰ han-7f8a:7x16 1 han-6b20:7x16 // ⿰羊欠

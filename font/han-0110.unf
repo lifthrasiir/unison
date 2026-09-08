@@ -96,6 +96,9 @@ glyph han-77f9:15x16 15 16 // 矹
 glyph han-77fc:15x16 15 16 // 矼
 ⿰ han-77f3:8x16 han-5de5:7x16 // ⿰石工
 
+// glyph han-77fd:15x16 15 16 // 矽
+// ⿰ han-77f3 han-5915 // ⿰石夕
+
 glyph han-77fe:15x16 15 16 // 矾
 ⿰ han-77f3:5x16 han-51e1:10x16 // ⿰石凡
 
@@ -1153,6 +1156,12 @@ glyph han-79f7:15x16 15 16 // 秷
 
 glyph han-79f8:15x16 15 16 // 秸
 ⿰ han-79be:7x16 1 han-5409:7x16 // ⿰禾吉
+
+glyph han-79fb:15x16 15 16 // 移
+⿰ han-79be:5x16 1 han-591a:9x16 // ⿰禾多
+
+// glyph han-79fd:15x16 15 16 // 秽
+// ⿰ han-79be han-5c81 // ⿰禾岁
 
 glyph han-7a06-g:15x16 15 16 // 稆
 ⿰ han-79be:5x16 han-5415:10x16 // ⿰禾吕

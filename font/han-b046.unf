@@ -113,6 +113,12 @@ glyph han-21d67:15x16 15 16 // 𡵧
 glyph han-21d69:15x16 15 16 // 𡵩
 ⿱ han-6b62:15x4 han-5c71:15x12 // ⿱止山
 
+// glyph han-21d6a:15x16 15 16 // 𡵪
+// ⿳ han-5915 han-4e00 han-5c71 // ⿳夕一山
+
+// glyph han-21d6b:15x16 15 16 // 𡵫
+// ⿱ han-5c71 han-7247 // ⿱山片
+
 glyph han-21d6c:15x16 15 16 // 𡵬
 ⿱ han-5c71:15x4 han-6728:15x12 // ⿱山木
 
@@ -215,6 +221,9 @@ glyph han-21dbc:15x16 15 16 // 𡶼
 
 // glyph han-21dbe:15x16 15 16 // 𡶾
 // ⿱ han-5c71 han-767e // ⿱山百
+
+// glyph han-21dc2:15x16 15 16 // 𡷂
+// ⿱ han-5c71 han-540d // ⿱山名
 
 glyph han-21dc5:15x16 15 16 // 𡷅
 ⿳ han-5c71:15x5 han-571f:15x5 han-571f:15x6 // ⿳山土土
@@ -471,6 +480,9 @@ glyph han-21ea8:15x16 15 16 // 𡺨
 // glyph han-21eb4:15x16 15 16 // 𡺴
 // ⿰ han-5c71 han-7a8b // ⿰山窋
 
+// glyph han-21eba:15x16 15 16 // 𡺺
+// ⿱ han-5c71 han-8eac // ⿱山躬
+
 // glyph han-21ebe:15x16 15 16 // 𡺾
 // ⿳ han-5c71 han-96b9 han-5341 // ⿳山隹十 <- ⿱山隼
 
@@ -497,8 +509,14 @@ glyph han-21ecb:15x16 15 16 // 𡻋
 // glyph han-21edd:15x16 15 16 // 𡻝
 // ⿳ han-5c71 han-5ddb han-679c // ⿳山巛果 <- ⿱山巢
 
+// glyph han-21ede:15x16 15 16 // 𡻞
+// ⿰ han-5c71 han-7562 // ⿰山畢
+
 // glyph han-21edf:15x16 15 16 // 𡻟
 // ⿰ han-5c71 han-83ab // ⿰山莫
+
+// glyph han-21ee3:15x16 15 16 // 𡻣
+// ⿱ han-5c71 han-79fb // ⿱山移
 
 glyph han-21ee4:15x16 15 16 // 𡻤
 ⿸ han-9ebb:15x16.11x7 han-5c71:11x7 4 9 // ⿸麻山

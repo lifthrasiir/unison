@@ -176,6 +176,9 @@ glyph han-31ac0:15x16 15 16 // 𱫀
 // glyph han-31ac9:15x16 15 16 // 𱫉
 // ⿰ han-706b han-8db3 // ⿰火足
 
+glyph han-31acd:15x16 15 16 // 𱫍
+⿰ han-706b:5x16-l 1 han-8eab:9x16 // ⿰火身
+
 ## 86.8
 
 // glyph han-31ad4:15x16 15 16 // 𱫔
@@ -199,6 +202,9 @@ glyph han-31ac0:15x16 15 16 // 𱫀
 
 glyph han-31b00:15x16 15 16 // 𱬀
 ⿲ -2 han-706b:5x16 han-9769:7x16 han-529b:5x16 // ⿲火革力
+
+// glyph han-31b01:15x16 15 16 // 𱬁
+// ⿰ han-5774 han-2c279 // ⿰坴𬉹
 
 // glyph han-31b05:15x16 15 16 // 𱬅
 // ⿰ han-706b han-554f // ⿰火問
@@ -248,6 +254,20 @@ glyph han-31b50:15x16 15 16 // 𱭐
 
 // glyph han-31b51-($han-regions):15x16 15 16 // 𱭑
 // ⿰ han-723f han-28472-($-1) // ⿰爿𨑲
+
+# CJK unified ideographs extension H: 丬 (90')
+
+## 90'.7
+
+// glyph han-31b57:15x16 15 16 // 𱭗
+// ⿰ han-4e2c han-2c279 // ⿰丬𬉹
+
+# CJK unified ideographs extension H: 片 (91)
+
+## 91.11
+
+// glyph han-31b60:15x16 15 16 // 𱭠
+// ⿰ han-7247 han-7ae0 // ⿰片章
 
 # CJK unified ideographs extension H: 犬 (94)
 

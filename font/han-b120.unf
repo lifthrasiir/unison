@@ -127,8 +127,14 @@ glyph han-25fe5:15x16 15 16 // 𥿥
 glyph han-25fe6:15x16 15 16 // 𥿦
 ⿰ han-7cf9:5x16 1 han-821f:9x16 // ⿰糹舟
 
+// glyph han-25fe8:15x16 15 16 // 𥿨
+// ⿰ han-7cf9 han-540d // ⿰糹名
+
 // glyph han-25fe9:15x16 15 16 // 𥿩
 // ⿱ han-6b21 han-7cf8 // ⿱次糸
+
+glyph han-25feb:15x16 15 16 // 𥿫
+⿰ han-7cf9:5x16 1 han-591a:9x16 // ⿰糹多
 
 glyph han-25ff6:15x16 15 16 // 𥿶
 ⿰ han-7cf9:5x16 1 han-800c:9x16 // ⿰糹而

@@ -27,8 +27,8 @@ glyph han-2deb4:15x16 15 16 // 𭺴
 
 ## 101.3
 
-// glyph han-2deb8:15x16 15 16 // 𭺸
-// ⿱ han-5c38 han-7528 // ⿱尸用
+glyph han-2deb8:15x16 15 16 // 𭺸
+⿸ han-5c38:15x16.11x12 han-7528:10x12 4 4 // ⿸尸用
 
 # CJK unified ideographs extension F: 田 (102)
 
@@ -203,6 +203,9 @@ glyph han-2df4a:15x16 15 16 // 𭽊
 glyph han-2df4b:15x16 15 16 // 𭽋
 ⿰ han-767d:6x16 1 han-5143:8x16 // ⿰白元
 
+glyph han-2df4c:15x16 15 16 // 𭽌
+⿰ han-767d:7x16 han-7247:8x16 // ⿰白片
+
 glyph han-2df4d:15x16 15 16 // 𭽍
 ⿰ han-767d:6x16 han-65b9:9x16 // ⿰白方
 
@@ -370,6 +373,9 @@ glyph han-2dfba:15x16 15 16 // 𭾺
 
 ## 109.10
 
+// glyph han-2dfd1:15x16 15 16 // 𭿑
+// ⿰ han-76ee han-7562 // ⿰目畢
+
 glyph han-2dfd2:15x16 15 16 // 𭿒
 ⿲ han-76ee:3x16-l han-91d2:5x16-l han-5341:7x16 // ⿲目釒十
 
@@ -419,6 +425,9 @@ glyph han-2e014:15x16 15 16 // 𮀔
 
 // glyph han-2e01b:15x16 15 16 // 𮀛
 // ⿰ han-77f3 han-5446 // ⿰石呆
+
+glyph han-2e01d:15x16 15 16 // 𮀝
+⿰ han-77f3:5x16 1 han-8eab:9x16 // ⿰石身
 
 // glyph han-2e021:15x16 15 16 // 𮀡
 // ⿰ han-77f3 han-7075 // ⿰石灵

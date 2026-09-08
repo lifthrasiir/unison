@@ -411,6 +411,12 @@ glyph han-7fd4-($han-regions):15x16 15 16 // 翔
 glyph han-7fd6-($han-regions):15x16 15 16 // 翖
 ⿰ han-5408:7x16 han-7fbd-($-1):8x16 // ⿰合羽
 
+glyph han-7fd7-($han-regions):15x16 15 16 // 翗
+⿰ han-591a:7x16 han-7fbd-($-1):8x16 // ⿰多羽
+
+// glyph han-7fd9-($han-regions):15x16 15 16 // 翙
+// ⿰ han-5c81 han-7fbd-($-1) // ⿰岁羽
+
 ## 124.8
 
 // glyph han-7fdf-($han-regions):15x16 15 16 // 翟
@@ -1797,6 +1803,13 @@ glyph han-820c:15x16 15 16 // 舌
 
 // glyph han-8215:15x16 15 16 // 舕
 // ⿰ han-820c han-708e // ⿰舌炎
+
+# CJK unified ideographs: 舛 (136)
+
+## 136.0
+
+// glyph han-821b:15x16 15 16 // 舛
+// ⿰ han-5915 han-3404 // ⿰夕㐄
 
 # CJK unified ideographs: 舟 (137)
 

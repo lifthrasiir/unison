@@ -75,6 +75,9 @@ glyph han-7a75:15x16 15 16 // 穵
 
 ## 116.3
 
+glyph han-7a78:15x16 15 16 // 穸
+⿳ han-5b80:15x3 han-513f:15x3 1 han-5915:15x8 // ⿳宀儿夕 <- ⿱⿱宀儿夕
+
 // glyph han-7a79:15x16 15 16 // 穹
 // ⿳ han-5b80 han-513f han-5f13 // ⿳宀儿弓 <- ⿱⿱宀儿弓
 
@@ -161,6 +164,11 @@ glyph han-7a91:15x16 15 16 // 窑
 
 // glyph han-7aad-($han-regions):15x16 15 16 // 窭
 // ⿳ han-7a74-($-1) han-7c73 han-5973 // ⿳穴米女
+
+## 116.10
+
+// glyph han-7aae-($han-regions):15x16 15 16 // 窮
+// ⿱ han-7a74-($-1) han-8eac // ⿱穴躬
 
 ## 116.11
 
@@ -530,6 +538,9 @@ glyph han-7ae3:15x16 15 16 // 竣
 glyph han-7ae6:15x16 15 16 // 竦
 ⿰ han-7acb:5x16 1 han-675f:9x16 // ⿰立束
 
+glyph han-7ae7:15x16 15 16 // 竧
+⿰ han-7acb:5x16 1 han-8eab:9x16 // ⿰立身
+
 ## 117.8
 
 // glyph han-7ae9:15x16 15 16 // 竩
@@ -753,6 +764,9 @@ glyph han-7b52:15x16 15 16 // 筒
 // glyph han-7b54:15x16 15 16 // 答
 // ⿱ han-25ad7 han-5408 // ⿱𥫗合
 
+// glyph han-7b55:15x16 15 16 // 筕
+// ⿱ han-25ad7 han-884c // ⿱𥫗行
+
 glyph han-7b57:15x16 15 16 // 筗
 ⿱ han-25ad7:15x5 han-4ef2:15x11 // ⿱𥫗仲
 
@@ -884,6 +898,9 @@ glyph han-7b9f-($han-regions):15x16 15 16 // 箟
 // glyph han-7ba5:15x16 15 16 // 箥
 // ⿱ han-25ad7 han-6ce2 // ⿱𥫗波
 
+// glyph han-7ba9:15x16 15 16 // 箩
+// ⿱ han-25ad7 han-7f57 // ⿱𥫗罗
+
 ## 118.9
 
 // glyph han-7bae:15x16 15 16 // 箮
@@ -965,6 +982,9 @@ glyph han-7be5:15x16 15 16 // 篥
 // glyph han-7bf0:15x16 15 16 // 篰
 // ⿱ han-25ad7 han-90e8 // ⿱𥫗部
 
+// glyph han-7bf3:15x16 15 16 // 篳
+// ⿱ han-25ad7 han-7562 // ⿱𥫗畢
+
 // glyph han-7bf9:15x16 15 16 // 篹
 // ⿱ han-2e155 han-5df3 // ⿱𮅕巳
 
@@ -976,6 +996,9 @@ glyph han-7be5:15x16 15 16 // 篥
 
 // glyph han-7c00:15x16 15 16 // 簀
 // ⿳ han-25ad7 han-9fb6 han-8c9d // ⿳𥫗龶貝
+
+// glyph han-7c03:15x16 15 16 // 簃
+// ⿱ han-25ad7 han-79fb // ⿱𥫗移
 
 // glyph han-7c05:15x16 15 16 // 簅
 // ⿳ han-25ad7 han-6587 han-30198 // ⿳𥫗文𰆘
@@ -1016,6 +1039,9 @@ ref han-571f:11x4 2 12
 
 // glyph han-7c2f:15x16 15 16 // 簯
 // ⿱ han-25ad7 han-68cb // ⿱𥫗棋
+
+// glyph han-7c30:15x16 15 16 // 簰
+// ⿱ han-25ad7 han-724c // ⿱𥫗牌
 
 // glyph han-7c31:15x16 15 16 // 簱
 // ⿱ han-25ad7 han-23103 // ⿱𥫗𣄃

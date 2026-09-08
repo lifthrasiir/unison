@@ -155,6 +155,9 @@ glyph han-2cef8:15x16 15 16 // 𬻸
 // glyph han-2cf26:15x16 15 16 // 𬼦
 // ⿱ han-675c han-4e59 // ⿱杜乙
 
+// glyph han-2cf27:15x16 15 16 // 𬼧
+// ⿱ han-8eab han-4e5a // ⿱身乚
+
 ## 5.9
 
 // glyph han-2cf2c:15x16 15 16 // 𬼬
@@ -233,8 +236,8 @@ glyph han-2cef8:15x16 15 16 // 𬻸
 
 ## 9.3
 
-// glyph han-2cf63:15x16 15 16 // 𬽣
-// ⿰ han-4ebb han-4e8d // ⿰亻亍
+glyph han-2cf63:15x16 15 16 // 𬽣
+⿰ han-4ebb:5x16 1 han-4e8d:9x16 // ⿰亻亍
 
 // glyph han-2cf64:15x16 15 16 // 𬽤
 // ⿼ han-30001 han-4eba // ⿼𰀁人
@@ -345,8 +348,8 @@ glyph han-2cfe8:15x16 15 16 // 𬿨
 // glyph han-2cfeb:15x16 15 16 // 𬿫
 // ⿰ han-4ebb han-9032 // ⿰亻進
 
-// glyph han-2cfed:15x16 15 16 // 𬿭
-// ⿲ han-4ebb han-97cb han-4e8d // ⿲亻韋亍
+glyph han-2cfed:15x16 15 16 // 𬿭
+⿲ han-4ebb:3x16 han-97cb:7x16 han-4e8d:5x16 // ⿲亻韋亍
 
 ## 9.13
 
@@ -387,6 +390,11 @@ glyph han-2d00a:15x16 15 16 // 𭀊
 // glyph han-2d01c:15x16 15 16 // 𭀜
 // ref han-2d018 // ⿻𭀘丶
 // ref han-4e36
+
+## 10.5
+
+// glyph han-2d01e:15x16 15 16 // 𭀞
+// ⿺ han-5143 han-5915 // ⿺元夕
 
 ## 10.6
 
@@ -453,6 +461,11 @@ glyph han-2d022:15x16 15 16 // 𭀢
 
 // glyph han-2d06e:15x16 15 16 // 𭁮
 // ⿱ han-597d han-5185 // ⿱好内
+
+## 13.10
+
+glyph han-2d070:15x16 15 16 // 𭁰
+⿰ han-540c:8x16 han-591a:7x16 // ⿰同多
 
 # CJK unified ideographs extension F: 冫 (15)
 
@@ -600,6 +613,9 @@ glyph han-2d0d5:15x16 15 16 // 𭃕
 // glyph han-2d0da:15x16 15 16 // 𭃚
 // ⿰ han-751f han-5203 // ⿰生刃
 
+// glyph han-2d0de:15x16 15 16 // 𭃞
+// ⿰ han-540d han-5202 // ⿰名刂
+
 // glyph han-2d0df:15x16 15 16 // 𭃟
 // ⿱ han-5408 han-5200 // ⿱合刀
 
@@ -659,11 +675,16 @@ glyph han-2d11f:15x16 15 16 // 𭄟
 
 ## 19.6
 
-// glyph han-2d124:15x16 15 16 // 𭄤
-// ⿲ han-5f73 han-529b han-4e8d // ⿲彳力亍
+glyph han-2d124:15x16 15 16 // 𭄤
+⿲ han-5f73:3x16 han-529b:5x16 han-4e8d:7x16 // ⿲彳力亍
 
 // glyph han-2d125:15x16 15 16 // 𭄥
 // ⿱ han-5982 han-529b // ⿱如力
+
+## 19.7
+
+glyph han-2d128:15x16 15 16 // 𭄨
+⿰ han-8eab:9x16 han-529b:6x16 // ⿰身力
 
 ## 19.8
 

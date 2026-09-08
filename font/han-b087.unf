@@ -42,6 +42,9 @@
 // glyph han-2456f:15x16 15 16 // 𤕯
 // ⿰ han-723f han-6c34 // ⿰爿水
 
+glyph han-24570:15x16 15 16 // 𤕰
+⿰ han-723f:6x16 1 han-7247:8x16 // ⿰爿片
+
 ## 90.5
 
 glyph han-24572:15x16 15 16 // 𤕲
@@ -68,6 +71,11 @@ glyph han-24582:15x16 15 16 // 𤖂
 glyph han-24587:15x16 15 16 // 𤖇
 ⿰ han-723f:6x16 han-679c:9x16 // ⿰爿果
 
+## 90.9
+
+// glyph han-2458e:15x16 15 16 // 𤖎
+// ⿲ han-723f han-76ee han-7247 // ⿲爿目片
+
 ## 90.10
 
 // glyph han-24591:15x16 15 16 // 𤖑
@@ -77,3 +85,111 @@ glyph han-24587:15x16 15 16 // 𤖇
 
 // glyph han-2459f:15x16 15 16 // 𤖟
 // ⿲ han-723f han-21c2a han-8f9b // ⿲爿𡰪辛
+
+# CJK unified ideographs extension B: 片 (91)
+
+## 91.1
+
+glyph han-245a8:15x16 15 16 // 𤖨
+⿰ han-7247:8x16 han-4e5a:7x16 // ⿰片乚
+
+## 91.3
+
+glyph han-245a9:15x16 15 16 // 𤖩
+⿰ han-7247:8x16 han-5973:7x16 // ⿰片女
+
+// glyph han-245ab:15x16 15 16 // 𤖫
+// ⿰ han-7247 han-51e1 // ⿰片凡
+
+## 91.4
+
+glyph han-245ad:15x16 15 16 // 𤖭
+⿰ han-7247:8x16 han-5206:7x16 // ⿰片分
+
+// glyph han-245af:15x16 15 16 // 𤖯
+// ⿰ han-7247 han-4e0d // ⿰片不
+
+## 91.5
+
+glyph han-245b1:15x16 15 16 // 𤖱
+⿰ han-7247:8x16 han-79be:7x16 // ⿰片禾
+
+glyph han-245b2:15x16 15 16 // 𤖲
+⿰ han-7247:8x16 han-53e4:7x16 // ⿰片古
+
+// glyph han-245b3-($han-regions):15x16 15 16 // 𤖳
+// ⿰ han-7247 han-5e73-($-1) // ⿰片平
+
+glyph han-245b5:15x16 15 16 // 𤖵
+⿰ han-7247:8x16 han-53e5:7x16 // ⿰片句
+
+// glyph han-245b6:15x16 15 16 // 𤖶
+// ⿰ han-7247 han-4e19 // ⿰片丙
+
+// glyph han-245b7:15x16 15 16 // 𤖷
+// ⿰ han-7247 han-76ae // ⿰片皮
+
+glyph han-245b9:15x16 15 16 // 𤖹
+⿰ han-7247:8x16 han-7acb:7x16 // ⿰片立
+
+## 91.6
+
+glyph han-245bb:15x16 15 16 // 𤖻
+⿰ han-7247:8x16 han-591a:7x16 // ⿰片多
+
+glyph han-245be:15x16 15 16 // 𤖾
+⿰ han-7247:8x16 han-540c:7x16 // ⿰片同
+
+## 91.7
+
+glyph han-245c0:15x16 15 16 // 𤗀
+⿰ han-7247:8x16 han-826f:7x16 // ⿰片良
+
+// glyph han-245c1:15x16 15 16 // 𤗁
+// ⿰ han-7247 han-8db3 // ⿰片足
+
+glyph han-245c3:15x16 15 16 // 𤗃
+⿰ han-7247:8x16 han-752b:7x16 // ⿰片甫
+
+## 91.8
+
+// glyph han-245c7:15x16 15 16 // 𤗇
+// ⿰ han-7247 han-7a7a // ⿰片空
+
+glyph han-245cb:15x16 15 16 // 𤗋
+⿰ han-7247:8x16 han-975e:7x16 // ⿰片非
+
+// glyph han-245cf:15x16 15 16 // 𤗏
+// ⿰ han-7247 han-5485 // ⿰片咅
+
+// glyph han-245d6-($han-regions):15x16 15 16 // 𤗖
+// ⿰ han-7247 han-5b5f-($-1) // ⿰片孟
+
+## 91.9
+
+glyph han-245d8:15x16 15 16 // 𤗘
+⿰ han-7247:8x16 han-662f:7x16 // ⿰片是
+
+// glyph han-245df:15x16 15 16 // 𤗟
+// ⿰ han-4eb2 han-7247 // ⿰亲片
+
+glyph han-245e1-($han-regions):15x16 15 16 // 𤗡
+⿰ han-8005-($-1):7x16 han-7247:8x16 // ⿰者片
+
+## 91.11
+
+// glyph han-245e8-($han-regions):15x16 15 16 // 𤗨
+// ⿰ han-7247 han-7fd2-($-1) // ⿰片習
+
+## 91.12
+
+// glyph han-245f7:15x16 15 16 // 𤗷
+// ⿰ han-7247 han-7ca6 // ⿰片粦
+
+glyph han-245f9:15x16 15 16 // 𤗹
+⿰ han-7247:8x16 han-756a:7x16 // ⿰片番
+
+## 91.13
+
+// glyph han-245fd:15x16 15 16 // 𤗽
+// ⿰ han-7247 han-8449 // ⿰片葉

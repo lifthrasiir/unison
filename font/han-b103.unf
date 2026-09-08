@@ -197,6 +197,9 @@ glyph han-24db1:15x16 15 16 // 𤶱
 // glyph han-24db3:15x16 15 16 // 𤶳
 // ⿸ han-7592 han-544a // ⿸疒告
 
+// glyph han-24db4:15x16 15 16 // 𤶴
+// ⿸ han-7592 han-8eab // ⿸疒身
+
 // glyph han-24db6:15x16 15 16 // 𤶶
 // ⿸ han-7592 han-6c6a // ⿸疒汪
 
@@ -309,6 +312,9 @@ glyph han-24e14:15x16 15 16 // 𤸔
 // ⿸ han-7592 han-5bab // ⿸疒宫
 
 ## 104.11
+
+// glyph han-24e5d:15x16 15 16 // 𤹝
+// ⿸ han-7592 han-7562 // ⿸疒畢
 
 // glyph han-24e68:15x16 15 16 // 𤹨
 // ⿸ han-7592 han-9023 // ⿸疒連

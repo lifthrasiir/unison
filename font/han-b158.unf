@@ -10,6 +10,157 @@
 // glyph han-28211:15x16 15 16 // 𨈑
 // ㇯身㇒
 
+## 158.3
+
+// glyph han-28214:15x16 15 16 // 𨈔
+// ⿰ han-8eab han-51e1 // ⿰身凡
+
+glyph han-28215:15x16 15 16 // 𨈕
+⿰ han-8eab:9x16 1 han-961d:5x16-r // ⿰身阝
+
+// glyph han-28216:15x16 15 16 // 𨈖
+// ⿱ han-8eab han-53e3 // ⿱身口
+
+// glyph han-28217:15x16 15 16 // 𨈗
+// ⿱ han-53e3 han-8eab // ⿱口身
+
+## 158.4
+
+glyph han-2821a-($han-regions):15x16 15 16 // 𨈚
+⿰ han-8eab:9x16 han-6bd4-($-1):6x16 // ⿰身比
+
+// glyph han-2821c:15x16 15 16 // 𨈜
+// ⿰ han-8eab han-5184 // ⿰身冄
+
+glyph han-28222:15x16 15 16 // 𨈢
+⿰ han-8eab:9x16 1 han-4ea2:5x16 // ⿰身亢
+
+glyph han-28224:15x16 15 16 // 𨈤
+⿰ han-8eab:9x16 han-5143:6x16 // ⿰身元
+
+// glyph han-28225:15x16 15 16 // 𨈥
+// ⿰ han-8eab han-6bdb // ⿰身毛
+
+// glyph han-28226:15x16 15 16 // 𨈦
+// ⿰ han-8eab han-4ecc // ⿰身仌
+
+## 158.5
+
+// glyph han-2822e:15x16 15 16 // 𨈮
+// ⿰ han-8eab han-7533 // ⿰身申
+
+glyph han-28230:15x16 15 16 // 𨈰
+⿰ han-8eab:9x16 1 han-53e4:5x16 // ⿰身古
+
+glyph han-28231:15x16 15 16 // 𨈱
+⿰ han-8eab:9x16 1 han-65e6:5x16 // ⿰身旦
+
+// glyph han-28233:15x16 15 16 // 𨈳
+// ⿰ han-8eab han-53e5 // ⿰身句
+
+// glyph han-28235:15x16 15 16 // 𨈵
+// ⿰ han-8eab han-76ae // ⿰身皮
+
+## 158.6
+
+// glyph han-28238:15x16 15 16 // 𨈸
+// ⿰ han-8eab han-820c // ⿰身舌
+
+// glyph han-28239:15x16 15 16 // 𨈹
+// ⿰ han-8eab han-540c // ⿰身同
+
+// glyph han-2823e:15x16 15 16 // 𨈾
+// ⿰ han-8eab han-5e76 // ⿰身并
+
+// glyph han-2823f:15x16 15 16 // 𨈿
+// ⿱ han-5408 han-8eab // ⿱合身
+
+## 158.7
+
+// glyph han-28249-($han-regions):15x16 15 16 // 𨉉
+// ⿰ han-8eab han-5752-($-1) // ⿰身坒
+
+// glyph han-2824a:15x16 15 16 // 𨉊
+// ⿰ han-8eab han-215ec // ⿰身𡗬
+
+// glyph han-2824c:15x16 15 16 // 𨉌
+// ⿰ han-8eab han-8db3 // ⿰身足
+
+// glyph han-28251:15x16 15 16 // 𨉑
+// ⿰ han-8eab han-5448 // ⿰身呈
+
+## 158.8
+
+// glyph han-28256:15x16 15 16 // 𨉖
+// ⿵ han-9580 han-8eab // ⿵門身
+
+// glyph han-28257:15x16 15 16 // 𨉗
+// ⿰ han-8eab han-5b9d // ⿰身宝
+
+// glyph han-2825c:15x16 15 16 // 𨉜
+// ⿰ han-8eab han-5468 // ⿰身周
+
+## 158.9
+
+// glyph han-28264:15x16 15 16 // 𨉤
+// ⿰ han-8eab han-7687 // ⿰身皇
+
+// glyph han-28265:15x16 15 16 // 𨉥
+// ⿰ han-8eab han-9762 // ⿰身面
+
+// glyph han-2826a:15x16 15 16 // 𨉪
+// ⿰ han-8eab han-66f7 // ⿰身曷
+
+## 158.10
+
+// glyph han-28266:15x16 15 16 // 𨉦
+// ⿰ han-8eab han-9aa8 // ⿰身骨
+
+// glyph han-28270:15x16 15 16 // 𨉰
+// ⿰ han-8eab han-90de // ⿰身郞
+
+// glyph han-28272:15x16 15 16 // 𨉲
+// ⿰ han-8eab han-9ad8 // ⿰身高
+
+// glyph han-28274:15x16 15 16 // 𨉴
+// ⿰ han-8eab han-8338 // ⿰身茸
+
+// glyph han-28278:15x16 15 16 // 𨉸
+// ⿰ han-8eab han-99ac // ⿰身馬
+
+## 158.11
+
+// glyph han-2827b:15x16 15 16 // 𨉻
+// ⿰ han-8eab han-8edf // ⿰身軟
+
+// glyph han-2827c:15x16 15 16 // 𨉼
+// ⿰ han-8eab han-60e1 // ⿰身惡
+
+// glyph han-2827e:15x16 15 16 // 𨉾
+// ⿰ han-8eab han-25b25 // ⿰身𥬥
+
+## 158.12
+
+// glyph han-2827f:15x16 15 16 // 𨉿
+// ⿰ han-8eab han-264d4 // ⿰身𦓔
+
+// glyph han-28283:15x16 15 16 // 𨊃
+// ⿰ han-756a han-8eab // ⿰番身
+
+// glyph han-28284:15x16 15 16 // 𨊄
+// ⿰ han-8eab han-756a // ⿰身番
+
+// glyph han-28285:15x16 15 16 // 𨊅
+// ⿰ han-8eab han-582f // ⿰身堯
+
+// glyph han-2828c:15x16 15 16 // 𨊌
+// ⿰ han-8eab han-7ca6 // ⿰身粦
+
+## 158.19
+
+// glyph han-2829f:15x16 15 16 // 𨊟
+// ⿱ han-470c han-8eab // ⿱䜌身
+
 # CJK unified ideographs extension B: 車 (159)
 
 ## 159.2
@@ -34,8 +185,8 @@ glyph han-282a7:15x16 15 16 // 𨊧
 // glyph han-282a9:15x16 15 16 // 𨊩
 // ⿰ han-8eca han-5ddb // ⿰車巛
 
-// glyph han-282ab:15x16 15 16 // 𨊫
-// ⿰ han-8eca han-4e8d // ⿰車亍
+glyph han-282ab:15x16 15 16 // 𨊫
+⿰ han-8eca:5x16 1 han-4e8d:9x16 // ⿰車亍
 
 glyph han-282ad:15x16 15 16 // 𨊭
 ⿰ han-8eca:5x16 1 han-5bf8:9x16 // ⿰車寸
@@ -152,6 +303,9 @@ glyph han-28303:15x16 15 16 // 𨌃
 
 // glyph han-28304:15x16 15 16 // 𨌄
 // ⿱ han-58ef han-8eca // ⿱壯車
+
+glyph han-28308:15x16 15 16 // 𨌈
+⿰ han-8eca:5x16 1 han-8eab:9x16 // ⿰車身
 
 // glyph han-2830b:15x16 15 16 // 𨌋
 // ⿰ han-8eca han-542f // ⿰車启
@@ -281,8 +435,8 @@ glyph han-283c4:15x16 15 16 // 𨏄
 // glyph han-283c9:15x16 15 16 // 𨏉
 // ⿳ han-25b25 han-5927 han-8eca // ⿳𥬥大車 <- ⿱𥬥⿱大車
 
-// glyph han-283ce:15x16 15 16 // 𨏎
-// ⿲ han-8eca han-9b5a han-4e8d // ⿲車魚亍
+glyph han-283ce:15x16 15 16 // 𨏎
+⿲ -1 han-8eca:5x16 1 han-9b5a:7x16 han-4e8d:3x16 // ⿲車魚亍
 
 ## 159.17
 
@@ -329,6 +483,11 @@ glyph han-2840b:15x16 15 16 // 𨐋
 glyph han-2840e:15x16 15 16 // 𨐎
 ⿰ han-8f9b:7x16 1 han-5973:7x16 // ⿰辛女
 
+## 160.4
+
+glyph han-2840f:15x16 15 16 // 𨐏
+⿰ han-8f9b:7x16 han-7247:8x16 // ⿰辛片
+
 ## 160.5
 
 glyph han-28412:15x16 15 16 // 𨐒
@@ -338,6 +497,9 @@ glyph han-28413:15x16 15 16 // 𨐓
 ⿰ han-53ec:8x16 han-8f9b:7x16 // ⿰召辛
 
 ## 160.6
+
+glyph han-28414:15x16 15 16 // 𨐔
+⿰ han-591a:7x16 1 han-8f9b:7x16 // ⿰多辛
 
 // glyph han-28415:15x16 15 16 // 𨐕
 // ⿰ han-22451 han-8f9b // ⿰𢑑辛

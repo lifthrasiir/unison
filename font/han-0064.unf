@@ -284,6 +284,9 @@ glyph han-6299.0:15x16 = han-6299:15x16
 
 ## 64.5
 
+glyph han-6278:15x16 15 16 // 扸
+⿰ han-624c:5x16 han-7247:10x16 // ⿰扌片
+
 glyph han-62a6:15x16 15 16 // 抦
 ⿰ han-624c:3x16 1 han-4e19:11x16 // ⿰扌丙
 
@@ -418,6 +421,9 @@ glyph han-62ee:15x16 15 16 // 拮
 
 // glyph han-62f3:15x16 15 16 // 拳
 // ⿳ han-516b han-592b han-624b // ⿳八夫手 <- ⿱𠔉手
+
+glyph han-62f8:15x16 15 16 // 拸
+⿰ han-624c:5x16 1 han-591a:9x16 // ⿰扌多
 
 // glyph han-62fb:15x16 15 16 // 拻
 // ⿰ han-624c han-7070 // ⿰扌灰

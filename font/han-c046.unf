@@ -18,6 +18,9 @@ glyph han-2aa29:15x16 15 16 // 𪨩
 glyph han-2aa32:15x16 15 16 // 𪨲
 ⿱ han-5c71:15x7 han-7f36:15x9 // ⿱山缶
 
+// glyph han-2aa33:15x16 15 16 // 𪨳
+// ⿱ han-5c71 han-884c // ⿱山行
+
 ## 46.7
 
 // glyph han-2aa36:15x16 15 16 // 𪨶
@@ -98,6 +101,9 @@ glyph han-2aa66:15x16 15 16 // 𪩦
 
 glyph han-2aa74:15x16 15 16 // 𪩴
 ⿰ han-5dfe:5x16 1 han-9580:9x16 // ⿰巾門
+
+// glyph han-2aa75:15x16 15 16 // 𪩵
+// ⿱ han-884c han-5e02 // ⿱行市
 
 // glyph han-2aa76-($han-regions):15x16 15 16 // 𪩶
 // ⿳ han-7a74-($-1) han-5927 han-5dfe // ⿳穴大巾
@@ -229,7 +235,7 @@ glyph han-2aadf:15x16 15 16 // 𪫟
 ⿰ han-5fc4:5x16 1 han-6728:9x16 // ⿰忄木
 
 glyph han-2aae0:15x16 15 16 // 𪫠
-⿱ han-6bd4:15x8 1 han-5fc3:15x7 // ⿱比心
+⿱ han-6bd4-t:15x8 1 han-5fc3:15x7 // ⿱比心
 
 // glyph han-2aae1:15x16 15 16 // 𪫡
 // ⿰ han-5fc4 han-5386 // ⿰忄历
@@ -327,6 +333,11 @@ glyph han-2ab0d:15x16 15 16 // 𪬍
 // ⿰ han-6237 han-5de8 // ⿰户巨
 
 # CJK unified ideographs extension C: 手 (64)
+
+## 64.3
+
+// glyph han-2ab5c:15x16 15 16 // 𪭜
+// ⿰ han-624c han-5915 // ⿰扌夕
 
 ## 64.4
 

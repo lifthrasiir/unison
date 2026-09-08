@@ -63,8 +63,8 @@ glyph han-24735:15x16 15 16 // 𤜵
 // glyph han-24739:15x16 15 16 // 𤜹
 // ⿰ han-72ac han-6b20 // ⿰犬欠
 
-glyph han-2473b:15x16 15 16 // 𤜻
-⿰ han-72ad:4x16 han-6bd4:11x16 // ⿰犭比
+glyph han-2473b-($han-regions):15x16 15 16 // 𤜻
+⿰ han-72ad:4x16 han-6bd4-($-1):11x16 // ⿰犭比
 
 glyph han-2473d:15x16 15 16 // 𤜽
 ⿰ han-72ad:4x16 han-5185:11x16 // ⿰犭内
@@ -166,8 +166,14 @@ glyph han-24778:15x16 15 16 // 𤝸
 // glyph han-2477a:15x16 15 16 // 𤝺
 // ⿰ han-72ad han-21c31 // ⿰犭𡰱
 
+glyph han-2477b:15x16 15 16 // 𤝻
+⿰ han-72ad:6x16 han-591a:9x16 // ⿰犭多
+
 glyph han-24782:15x16 15 16 // 𤞂
 ⿰ han-72ad:6x16 han-81f3:9x16 // ⿰犭至
+
+// glyph han-24783:15x16 15 16 // 𤞃
+// ⿰ han-72ad han-5c81 // ⿰犭岁
 
 glyph han-24787:15x16 15 16 // 𤞇
 ⿰ han-72ad:6x16 han-572d:9x16 // ⿰犭圭
@@ -309,10 +315,16 @@ glyph han-24819:15x16 15 16 // 𤠙
 // glyph han-2482b:15x16 15 16 // 𤠫
 // ⿰ han-72ad han-6817 // ⿰犭栗
 
+// glyph han-2482d:15x16 15 16 // 𤠭
+// ⿰ han-72ad han-5c04 // ⿰犭射
+
 glyph han-24834:15x16 15 16 // 𤠴
 ⿲ -2 han-72ad:4x16 han-961d:4x16-r han-5b8c:9x16 // ⿲犭阝完
 
 ## 94.11
+
+// glyph han-2483a:15x16 15 16 // 𤠺
+// ⿰ han-72ad han-7562 // ⿰犭畢
 
 glyph han-24843:15x16 15 16 // 𤡃
 ⿲ -5 han-72ad:4x16 han-675f:9x16 han-6b20:7x16 // ⿲犭束欠

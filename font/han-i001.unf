@@ -78,6 +78,9 @@ glyph han-2ec1b:15x16 15 16 // 𮰛
 // glyph han-2ec1d:15x16 15 16 // 𮰝
 // ⿱ han-6739 han-571f // ⿱朹土
 
+// glyph han-2ec1e:15x16 15 16 // 𮰞
+// ⿰ han-571f han-540d // ⿰土名
+
 ## 32.7
 
 // glyph han-2ec23:15x16 15 16 // 𮰣
@@ -151,8 +154,16 @@ glyph han-2ec43:15x16 15 16 // 𮱃
 // glyph han-2ec48:15x16 15 16 // 𮱈
 // ⿰ han-5973 han-31782 // ⿰女𱞂
 
+// glyph han-2ec4a:15x16 15 16 // 𮱊
+// ⿰ han-5973 han-7f57 // ⿰女罗
+
 // glyph han-2ec4c:15x16 15 16 // 𮱌
 // ⿱ han-708f han-5973 // ⿱炏女
+
+## 38.11
+
+// glyph han-2ec56:15x16 15 16 // 𮱖
+// ⿰ han-5973 han-68a6 // ⿰女梦
 
 # CJK unified ideographs extension I: 子 (39)
 
@@ -433,6 +444,9 @@ glyph han-2ed1b:15x16 15 16 // 𮴛
 
 ## 96.11
 
+// glyph han-2ed2c:15x16 15 16 // 𮴬
+// ⿰ han-248e9 han-68a6 // ⿰𤣩梦
+
 // glyph han-2ed2e:15x16 15 16 // 𮴮
 // ⿲ han-248e9 han-2bd56 han-5bf8 // ⿲𤣩𫵖寸 <- ⿰𤣩尉
 
@@ -513,6 +527,13 @@ glyph han-2ed58:15x16 15 16 // 𮵘
 
 // glyph han-2ed5f:15x16 15 16 // 𮵟
 // ⿲ han-793b han-4eb2 han-65a4 // ⿲礻亲斤 <- ⿰礻新
+
+# CJK unified ideographs extension I: 禾 (115)
+
+## 115.6
+
+// glyph han-2ed61:15x16 15 16 // 𮵡
+// ⿰ han-79be han-540d // ⿰禾名
 
 # CJK unified ideographs extension I: 立 (117)
 
@@ -687,6 +708,16 @@ glyph han-2edc6:15x16 15 16 // 𮷆
 
 glyph han-2edca:15x16 15 16 // 𮷊
 ⿰ han-8ba0:5x16 1 han-756a:9x16 // ⿰讠番
+
+# CJK unified ideographs extension I: 身 (158)
+
+## 158.5
+
+// glyph han-2edd4:15x16 15 16 // 𮷔
+// ⿰ han-8eab han-672a // ⿰身未
+
+// glyph han-2edd5-($han-regions):15x16 15 16 // 𮷕
+// ⿰ han-534a-($-1) han-8eab // ⿰半身
 
 # CJK unified ideographs extension I: 车 (159')
 

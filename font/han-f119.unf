@@ -134,6 +134,9 @@ glyph han-2e217:15x16 15 16 // 𮈗
 // glyph han-2e21e:15x16 15 16 // 𮈞
 // ⿰ han-7cf8 han-2aa8e // ⿰糸𪪎
 
+// glyph han-2e220:15x16 15 16 // 𮈠
+// ⿰ han-7cf8 han-7a78 // ⿰糸穸
+
 ## 120.9
 
 // glyph han-2e223:15x16 15 16 // 𮈣
@@ -348,6 +351,11 @@ glyph han-2e2f7:15x16 15 16 // 𮋷
 // ⿻𦘒⿵冂⿰⿱丄丅⿱丄丅
 
 # CJK unified ideographs extension F: 肉 (130)
+
+## 130.3
+
+// glyph han-2e309:15x16 15 16 // 𮌉
+// ⿱ han-5915 han-8089 // ⿱夕肉
 
 ## 130.7
 

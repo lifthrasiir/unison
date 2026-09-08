@@ -246,6 +246,9 @@ glyph han-5c80:15x16 15 16 // 岀
 ⿱ han-5c71:15x8 han-5c71:15x8 // ⿱山山
 assert distinct han-5c80:15x16 han-51fa:15x16
 
+glyph han-5c81:15x16 15 16 // 岁
+⿱ han-5c71:15x7 1 han-5915:15x8 // ⿱山夕
+
 glyph han-5c82:15x16 15 16 // 岂
 ⿱ han-5c71:15x7 1 han-5df1:15x8 // ⿱山己
 
@@ -3044,6 +3047,11 @@ glyph han-5f3c:15x16 15 16 // 弼
 
 glyph han-5f41:15x16 15 16 // 彁 (THE ghost character)
 ⿰ han-5f13:7x16 1 han-54e5:7x16 // ⿰弓哥
+
+## 57.11
+
+// glyph han-5f43:15x16 15 16 // 彃
+// ⿰ han-5f13 han-7562 // ⿰弓畢
 
 ## 57.19
 

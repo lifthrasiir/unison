@@ -185,6 +185,11 @@ glyph han-20550:15x16 15 16 // 𠕐
 // glyph han-20556:15x16 15 16 // 𠕖
 // ⿱ han-5183 han-6728 // ⿱冃木
 
+## 13.8
+
+// glyph han-2055d:15x16 15 16 // 𠕝
+// ⿱ han-5183 han-591a // ⿱冃多
+
 ## 13.10
 
 // glyph han-20565:15x16 15 16 // 𠕥
@@ -248,6 +253,9 @@ glyph han-205c2:15x16 15 16 // 𠗂
 glyph han-205c3:15x16 15 16 // 𠗃
 ⿰ han-51ab:3x16 1 han-56e0:11x16 // ⿰冫因
 
+glyph han-205c4:15x16 15 16 // 𠗄
+⿰ han-51ab:5x16 1 han-591a:9x16 // ⿰冫多
+
 glyph han-205c5:15x16 15 16 // 𠗅
 ⿰ han-51ab:5x16 1 han-8840:9x16 // ⿰冫血
 
@@ -261,6 +269,9 @@ glyph han-205ca:15x16 15 16 // 𠗊
 
 // glyph han-205cc:15x16 15 16 // 𠗌
 // ⿰ han-51ab han-514b // ⿰冫克
+
+glyph han-205cf:15x16 15 16 // 𠗏
+⿰ han-51ab:5x16 1 han-8eab:9x16 // ⿰冫身
 
 glyph han-205d2:15x16 15 16 // 𠗒
 ⿰ han-51ab:5x16 1 han-752b:9x16 // ⿰冫甫
@@ -295,6 +306,9 @@ glyph han-205e7:15x16 15 16 // 𠗧
 
 ## 15.11
 
+// glyph han-205fa:15x16 15 16 // 𠗺
+// ⿰ han-51ab han-79fb // ⿰冫移
+
 glyph han-205fd:15x16 15 16 // 𠗽
 ⿰ han-51ab:5x16 1 han-7fcf:9x16 // ⿰冫翏
 
@@ -308,6 +322,9 @@ glyph han-20602:15x16 15 16 // 𠘂
 
 // glyph han-20606:15x16 15 16 // 𠘆
 // ⿰ han-51ab han-68ee // ⿰冫森
+
+// glyph han-20607:15x16 15 16 // 𠘇
+// ⿰ han-205cf han-821f // ⿰𠗏舟
 
 ## 15.13
 
@@ -388,6 +405,11 @@ glyph han-20649:15x16 15 16 // 𠙉
 
 // glyph han-2064d:15x16 15 16 // 𠙍
 // ⿺ han-51e0 han-866b // ⿺几虫
+
+## 16.7
+
+// glyph han-20651:15x16 15 16 // 𠙑
+// ⿰ han-3c51 han-51e0 // ⿰㱑几
 
 ## 16.8
 

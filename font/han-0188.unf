@@ -437,6 +437,9 @@ glyph han-9b75:15x16 15 16 // 魵
 // glyph han-9b76:15x16 15 16 // 魶
 // ⿰ han-9b5a han-5185 // ⿰魚内
 
+glyph han-9b78:15x16 15 16 // 魸
+⿰ han-9b5a:7x16 han-7247:8x16 // ⿰魚片
+
 glyph han-9b79:15x16 15 16 // 魹
 ⿰ han-9b5a:7x16 1 han-6bdb:7x16 // ⿰魚毛
 
@@ -586,6 +589,9 @@ glyph han-9bcf:15x16 15 16 // 鯏
 
 // glyph han-9bd0:15x16 15 16 // 鯐
 // ⿰ han-9b5a han-8d70 // ⿰魚走
+
+// glyph han-9bd3:15x16 15 16 // 鯓
+// ⿰ han-9b5a han-8eab // ⿰魚身
 
 ## 195.8
 

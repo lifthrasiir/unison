@@ -144,7 +144,13 @@ glyph han-306de:15x16 15 16 // 𰛞
 // glyph han-306e5:15x16 15 16 // 𰛥
 // ⿰ han-6c35 han-5c82 // ⿰氵岂
 
+// glyph han-306e6:15x16 15 16 // 𰛦
+// ⿰ han-6c35 han-5c81 // ⿰氵岁
+
 ## 85.7
+
+// glyph han-306eb:15x16 15 16 // 𰛫
+// ⿰ han-6c35 han-6278 // ⿰氵扸
 
 // glyph han-306ed:15x16 15 16 // 𰛭
 // ⿰ han-6c35 han-5752 // ⿰氵坒
@@ -310,6 +316,12 @@ glyph han-3078a:15x16 15 16 // 𰞊
 // glyph han-3078e:15x16 15 16 // 𰞎
 // ⿱ han-8089 han-706b // ⿱肉火
 
+// glyph han-30794:15x16 15 16 // 𰞔
+// ⿰ han-706b han-540d // ⿰火名
+
+// glyph han-30798:15x16 15 16 // 𰞘
+// ⿱ han-884c han-706b // ⿱行火
+
 // glyph han-30799:15x16 15 16 // 𰞙
 // ⿱ han-4ea4 han-706b // ⿱交火
 
@@ -443,6 +455,23 @@ glyph han-30816:15x16 15 16 // 𰠖
 // glyph han-30817:15x16 15 16 // 𰠗
 // ⿲ han-51ab han-4e28 han-5b50 // ⿲冫丨子 <- ⿰丬子
 
+# CJK unified ideographs extension G: 片 (91)
+
+## 91.4
+
+glyph han-3081a:15x16 15 16 // 𰠚
+⿰ han-7247:8x16 han-65b9:7x16 // ⿰片方
+
+## 91.5
+
+// glyph han-3081c:15x16 15 16 // 𰠜
+// ⿰ han-7247 han-5fc5 // ⿰片必
+
+## 91.8
+
+glyph han-3081f-($han-regions):15x16 15 16 // 𰠟
+⿰ han-7247:8x16 han-9751-($-1):7x16 // ⿰片靑
+
 # CJK unified ideographs extension G: 犬 (94)
 
 ## 94.3
@@ -551,6 +580,11 @@ glyph han-30874:15x16 15 16 // 𰡴
 
 // glyph han-30877:15x16 15 16 // 𰡷
 // ⿱ han-73a8 han-513f // ⿱玨儿
+
+## 96.7
+
+// glyph han-30880:15x16 15 16 // 𰢀
+// ⿲ han-248e9 han-5915 han-738b // ⿲𤣩夕王
 
 ## 96.8
 

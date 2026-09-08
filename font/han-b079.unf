@@ -10,8 +10,8 @@ glyph han-23b02-($han-regions):15x16 15 16 // 𣬂
 // glyph han-23b04:15x16 15 16 // 𣬄
 // ⿱ han-6bd4 han-5206 // ⿱比分
 
-glyph han-23b05:15x16 15 16 // 𣬅
-⿱ han-6bd4:15x8 han-6bd4:15x8 // ⿱比比
+glyph han-23b05-($han-regions):15x16 15 16 // 𣬅
+⿱ han-6bd4-($-1):15x8 han-6bd4-($-1):15x8 // ⿱比比
 
 ## 81.6
 
@@ -200,6 +200,12 @@ glyph han-23b5e:15x16 15 16 // 𣭞
 glyph han-23b66:15x16 15 16 // 𣭦
 ⿺ han-6bdb:15x16.10x14 han-866b:7x11 7 1 // ⿺毛虫
 
+// glyph han-23b67:15x16 15 16 // 𣭧
+// ⿺ han-6bdb han-591a // ⿺毛多
+
+// glyph han-23b68:15x16 15 16 // 𣭨
+// ⿺ han-6bdb han-540d // ⿺毛名
+
 // glyph han-23b6a:15x16 15 16 // 𣭪
 // ⿺ han-6bdb han-820c // ⿺毛舌
 
@@ -314,6 +320,9 @@ glyph han-23bf1:15x16 15 16 // 𣯱
 
 // glyph han-23bf3:15x16 15 16 // 𣯳
 // ⿰ han-83ab han-6bdb // ⿰莫毛
+
+// glyph han-23bf4:15x16 15 16 // 𣯴
+// ⿺ han-6bdb han-7562 // ⿺毛畢
 
 ## 82.12
 
