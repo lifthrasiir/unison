@@ -114,7 +114,7 @@ fn load_docs(dir: &Path) -> Vec<Document> {
 /// expansion into the shared one must not change what the editor draws, and
 /// only a snapshot at this granularity can show that.
 fn format_resolved(
-    resolved: &std::collections::HashMap<String, crate::ref_composite::ResolvedGlyph>,
+    resolved: &crate::hash::HashMap<String, crate::ref_composite::ResolvedGlyph>,
 ) -> String {
     use std::hash::{Hash, Hasher};
 

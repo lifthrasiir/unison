@@ -30,7 +30,7 @@
 //! other — the viewport box, a click, the wheel — goes through [`MinimapMap`],
 //! which walks the same rows the strip is drawn from.
 
-use std::collections::HashMap;
+use crate::hash::HashMap;
 
 use crate::document::{Document, DocumentItem, GlyphBody};
 use crate::editor::colors::Palette;

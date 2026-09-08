@@ -76,7 +76,7 @@
 //! on one shared lattice so the total is an integer sum. `area2` is the f64
 //! test helper, not the production path.
 
-use std::collections::HashMap;
+use crate::hash::HashMap;
 use std::f64::consts::{FRAC_PI_2, PI, TAU};
 use std::sync::{Mutex, OnceLock};
 

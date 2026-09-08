@@ -18,7 +18,7 @@ fn an_unopened_file_is_searched_from_the_snapshot_source() {
         &files,
         "bar",
         SearchKind::Name(LinkTargetKind::Glyph),
-        &NamePartsMap::new(),
+        &NamePartsMap::default(),
     );
     assert_eq!(file_count, 1);
     assert_eq!(hits.len(), 1);
@@ -41,7 +41,7 @@ fn declarations_are_listed_before_uses() {
         &files,
         "foo",
         SearchKind::Name(LinkTargetKind::Glyph),
-        &NamePartsMap::new(),
+        &NamePartsMap::default(),
     );
     assert_eq!(file_count, 2);
     assert_eq!(
@@ -75,7 +75,7 @@ fn a_name_an_exists_block_declares_is_found_at_the_block() {
         &files,
         "han-4e00",
         SearchKind::Name(LinkTargetKind::Glyph),
-        &NamePartsMap::new(),
+        &NamePartsMap::default(),
     );
     assert_eq!(
         hits.iter().map(|h| h.text.as_str()).collect::<Vec<_>>(),
@@ -97,7 +97,7 @@ fn a_capture_ref_is_a_use_of_the_name_the_search_matched() {
         &files,
         "han-4e00:15x16",
         SearchKind::Name(LinkTargetKind::Glyph),
-        &NamePartsMap::new(),
+        &NamePartsMap::default(),
     );
     assert_eq!(
         hits.iter()
@@ -123,7 +123,7 @@ fn the_search_does_not_reach_past_the_block_it_governs() {
         &files,
         "other-4e00",
         SearchKind::Name(LinkTargetKind::Glyph),
-        &NamePartsMap::new(),
+        &NamePartsMap::default(),
     );
     assert!(
         hits.is_empty(),
@@ -141,7 +141,7 @@ fn a_file_with_no_source_contributes_no_hits() {
         &files,
         "bar",
         SearchKind::Name(LinkTargetKind::Glyph),
-        &NamePartsMap::new(),
+        &NamePartsMap::default(),
     );
     assert!(hits.is_empty());
     assert_eq!(file_count, 0);
@@ -150,7 +150,7 @@ fn a_file_with_no_source_contributes_no_hits() {
 /// Start columns only; the spans' ends are pinned separately, by the
 /// highlight tests.
 fn cols(line: &str, name: &str, kind: LinkTargetKind) -> Vec<usize> {
-    cols_with(line, name, kind, &NamePartsMap::new())
+    cols_with(line, name, kind, &NamePartsMap::default())
 }
 
 fn cols_with(line: &str, name: &str, kind: LinkTargetKind, parts: &NamePartsMap) -> Vec<usize> {
@@ -224,7 +224,7 @@ fn a_pattern_that_does_not_denote_the_name_is_not_an_appearance() {
 /// does, so the search has to substitute them exactly as the pipeline does.
 #[test]
 fn a_name_part_is_substituted_before_the_pattern_is_matched() {
-    let mut parts = NamePartsMap::new();
+    let mut parts = NamePartsMap::default();
     parts.insert("$init".to_string(), vec!["g".to_string(), "n".to_string()]);
     assert_eq!(
         cols_with(
@@ -260,7 +260,7 @@ fn a_name_part_is_substituted_before_the_pattern_is_matched() {
 /// be walked with that header in force — on its own it denotes nothing.
 #[test]
 fn a_back_reference_is_read_against_the_header_above_it() {
-    let name_parts = NamePartsMap::new();
+    let name_parts = NamePartsMap::default();
     let mut captures: Vec<Vec<String>> = Vec::new();
     advance_block_captures(&mut captures, "glyph out-(a|b|c) 8 16", None, &name_parts);
 
@@ -315,7 +315,7 @@ fn a_pattern_hit_highlights_the_whole_pattern_token() {
         None,
         None,
         &[],
-        &NamePartsMap::new(),
+        &NamePartsMap::default(),
     )[0];
     let h = hit(std::path::Path::new("a.unf"), 0, 1, line, span);
     assert_eq!(&h.text[h.highlight.0..h.highlight.1], "fo(o|q)");
@@ -479,7 +479,7 @@ fn the_highlight_follows_the_trimmed_text() {
         None,
         None,
         &[],
-        &NamePartsMap::new(),
+        &NamePartsMap::default(),
     )[0];
     let h = hit(std::path::Path::new("a.unf"), 0, 3, line, span);
     assert_eq!(h.text, "ref foo 0 0");
@@ -511,7 +511,7 @@ fn the_highlight_covers_the_token_as_written() {
             "$init",
         ),
     ] {
-        let span = *match_spans(line, name, kind, None, None, &[], &NamePartsMap::new())
+        let span = *match_spans(line, name, kind, None, None, &[], &NamePartsMap::default())
             .first()
             .unwrap_or_else(|| panic!("no match in {line:?}"));
         let h = hit(std::path::Path::new("a.unf"), 0, 1, line, span);
@@ -530,7 +530,7 @@ fn each_row_highlights_its_own_occurrence() {
         None,
         None,
         &[],
-        &NamePartsMap::new(),
+        &NamePartsMap::default(),
     );
     assert_eq!(spans.len(), 2);
     let hits: Vec<_> = spans
@@ -556,7 +556,7 @@ fn hits_run_over_a_document_in_order_and_skip_pixel_grids() {
             &lines,
             "foo",
             SearchKind::Name(LinkTargetKind::Glyph),
-            &NamePartsMap::new()
+            &NamePartsMap::default()
         )
         .into_iter()
         .map(|(i, s)| (i, s.col_start, s.col_end, s.is_decl))
@@ -579,7 +579,7 @@ fn an_at_name_is_an_appearance_of_what_it_expands_to() {
         &files,
         "foo-bar",
         SearchKind::Name(LinkTargetKind::Glyph),
-        &NamePartsMap::new(),
+        &NamePartsMap::default(),
     );
     assert_eq!(
         hits.iter().map(|h| h.text.as_str()).collect::<Vec<_>>(),
@@ -592,7 +592,7 @@ fn an_at_name_is_an_appearance_of_what_it_expands_to() {
         &files,
         "foo",
         SearchKind::Name(LinkTargetKind::Glyph),
-        &NamePartsMap::new(),
+        &NamePartsMap::default(),
     );
     assert_eq!(
         hits.iter().map(|h| h.text.as_str()).collect::<Vec<_>>(),
@@ -643,7 +643,8 @@ fn a_text_search_is_verbatim_and_lists_every_occurrence() {
             SearchText::Source("meta ascent 14\n// the early bird, twice: early\n"),
         ),
     ];
-    let (hits, file_count) = collect_hits(&files, "early", SearchKind::Text, &NamePartsMap::new());
+    let (hits, file_count) =
+        collect_hits(&files, "early", SearchKind::Text, &NamePartsMap::default());
     assert_eq!(file_count, 2);
     assert_eq!(
         hits.iter()
@@ -665,7 +666,7 @@ fn a_text_search_is_verbatim_and_lists_every_occurrence() {
 
     // Verbatim: no case folding, and no collapsing of the space.
     for query in ["Early", "early  bird"] {
-        let (hits, _) = collect_hits(&files, query, SearchKind::Text, &NamePartsMap::new());
+        let (hits, _) = collect_hits(&files, query, SearchKind::Text, &NamePartsMap::default());
         assert!(hits.is_empty(), "'{query}' should not match");
     }
 }
@@ -685,7 +686,7 @@ fn a_grid_is_skipped_by_both_ends_of_a_text_search() {
         &[(path.clone(), SearchText::Source(source))],
         "@@",
         SearchKind::Text,
-        &NamePartsMap::new(),
+        &NamePartsMap::default(),
     );
     assert_eq!(
         from_source
@@ -702,7 +703,7 @@ fn a_grid_is_skipped_by_both_ends_of_a_text_search() {
         &[(path, SearchText::Buffer(&doclines, &document))],
         "@@",
         SearchKind::Text,
-        &NamePartsMap::new(),
+        &NamePartsMap::default(),
     );
     assert_eq!(
         from_buffer

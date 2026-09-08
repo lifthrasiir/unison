@@ -47,7 +47,8 @@
 //! Unison is entirely the second case: `map narrow :` appears nowhere, so Term's
 //! repertoire is a subset of Regular's.
 
-use std::collections::{BTreeMap, HashMap, HashSet};
+use crate::hash::{HashMap, HashSet};
+use std::collections::BTreeMap;
 
 /// The last registered stylistic set. `ss01`..`ss20` is the whole range; there
 /// is no `ss21`.
@@ -115,7 +116,7 @@ pub(super) fn fold_delta(primary: &BTreeMap<u32, &str>, other: &BTreeMap<u32, &s
     // glyphs, so two code points sharing a primary glyph must agree about what
     // it becomes.
     let mut by_source: BTreeMap<&str, &str> = BTreeMap::new();
-    let mut conflicted: HashSet<&str> = HashSet::new();
+    let mut conflicted: HashSet<&str> = HashSet::default();
 
     for (&cp, &p) in primary {
         let Some(&o) = other.get(&cp) else {
@@ -323,7 +324,7 @@ mod tests {
 
     #[test]
     fn tags_are_taken_from_the_top_of_the_stylistic_set_range() {
-        let used = HashSet::new();
+        let used = HashSet::default();
         assert_eq!(allocate_feature_tags(&used, 2).unwrap(), ["ss20", "ss19"]);
     }
 
@@ -341,8 +342,8 @@ mod tests {
 
     #[test]
     fn there_are_only_twenty_stylistic_sets() {
-        assert!(allocate_feature_tags(&HashSet::new(), 20).is_some());
-        assert!(allocate_feature_tags(&HashSet::new(), 21).is_none());
+        assert!(allocate_feature_tags(&HashSet::default(), 20).is_some());
+        assert!(allocate_feature_tags(&HashSet::default(), 21).is_none());
         let used: HashSet<String> = ["ss01"].iter().map(|s| s.to_string()).collect();
         assert!(allocate_feature_tags(&used, 20).is_none());
     }

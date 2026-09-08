@@ -1,7 +1,7 @@
 //! Reachability over the glyph graph: which glyphs and aliases no `map`,
 //! `remap` or `ref` root can reach.
 
-use std::collections::{HashMap, HashSet};
+use crate::hash::{HashMap, HashSet};
 
 use crate::document::{
     Directive, DocumentItem, GlyphName, classify_directive, expand_name_element,
@@ -58,7 +58,7 @@ pub(super) fn collect_graph<'a>(cx: &'a Cx<'_>) -> GlyphGraph<'a> {
     // Works at glyph-item granularity to avoid expensive repeated pattern expansion.
     // Assign each glyph item an index; track which items are reachable.
     // name_to_item: expanded glyph name -> item index
-    let mut name_to_item: HashMap<String, usize> = HashMap::new();
+    let mut name_to_item: HashMap<String, usize> = HashMap::default();
     // item_refs[i]: ref target names (expanded) for item i
     let mut item_refs: Vec<Vec<String>> = Vec::new();
     // item_location[i]: (doc_idx, item_idx, raw_name, is_alias) for reporting
@@ -145,7 +145,7 @@ pub(super) fn collect_graph<'a>(cx: &'a Cx<'_>) -> GlyphGraph<'a> {
     // Alias names belong here too: `glyph x:color = y:color` is what makes
     // the color/mono pair of `x` complete, so it is used by every use of
     // `x` — and it is absent from `all_glyph_names`, which holds glyphs.
-    let mut alt_names: HashMap<&str, Vec<&str>> = HashMap::new();
+    let mut alt_names: HashMap<&str, Vec<&str>> = HashMap::default();
     let alt_candidates = all_glyph_names
         .iter()
         .map(|n| n.as_str())

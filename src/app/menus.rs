@@ -1078,7 +1078,7 @@ impl UniformApp {
             // stale, so it is dropped rather than left to be replaced.
             self.named_glyphs = Arc::default();
             self.alt_index = Default::default();
-            self.name_parts = NamePartsMap::new();
+            self.name_parts = NamePartsMap::default();
             self.char_props = Default::default();
             self.color_aliases = Default::default();
             self.anchor_aligns = Default::default();

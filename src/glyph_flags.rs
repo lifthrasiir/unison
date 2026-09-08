@@ -68,7 +68,7 @@
 //! is only ever pushed on when it *raises* the target, and there are two
 //! levels to raise through.
 
-use std::collections::{HashMap, HashSet};
+use crate::hash::{HashMap, HashSet};
 use std::path::Path;
 
 use crate::document::{Document, DocumentItem, GlyphName};
@@ -162,7 +162,7 @@ pub fn collect(docs: &[&Document], issues: &[Issue], expansion: &Expansion) -> G
         .enumerate()
         .map(|(i, d)| (d.path.as_path(), i as u32))
         .collect();
-    let mut seeds: HashMap<ItemRef, GlyphFlag> = HashMap::new();
+    let mut seeds: HashMap<ItemRef, GlyphFlag> = HashMap::default();
     let mut named: Vec<(&str, GlyphFlag)> = Vec::new();
     for issue in issues {
         let flag = match issue.severity {
@@ -194,8 +194,8 @@ pub fn collect(docs: &[&Document], issues: &[Issue], expansion: &Expansion) -> G
     }
 
     // `used_by[target]` is every glyph that would carry `target`'s flag.
-    let mut used_by: HashMap<&str, Vec<&str>> = HashMap::new();
-    let mut glyph_names: HashSet<&str> = HashSet::new();
+    let mut used_by: HashMap<&str, Vec<&str>> = HashMap::default();
+    let mut glyph_names: HashSet<&str> = HashSet::default();
     // `(glyph, flag, the glyph the flag started at)`.
     let mut queue: Vec<(&str, GlyphFlag, &str)> = Vec::new();
     for e in &expansion.items {

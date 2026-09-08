@@ -197,7 +197,7 @@ fn recomputed_maxp(bytes: &[u8]) -> HashMap<&'static str, u16> {
         }
     }
 
-    let mut m: HashMap<&'static str, u16> = HashMap::new();
+    let mut m: HashMap<&'static str, u16> = HashMap::default();
     for raw in 0..num_glyphs as u32 {
         let gid = GlyphId::new(raw);
         let glyph = loca.get_glyf(gid, &glyf).unwrap();

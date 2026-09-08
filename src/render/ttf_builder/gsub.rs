@@ -400,7 +400,7 @@ pub(super) fn build_gsub(
     }
 
     let mut lookups: Vec<SubstitutionLookup> = Vec::new();
-    let mut set_to_lookup: HashMap<String, u16> = HashMap::new();
+    let mut set_to_lookup: HashMap<String, u16> = HashMap::default();
 
     // Lookup 0, before anything the source wrote. A rule aimed at a pair's
     // *target* has to see one glyph where the text had two, so the fold has to
@@ -605,7 +605,7 @@ pub(super) fn build_gsub(
     }
 
     let mut feature_records: Vec<FeatureRecord> = Vec::new();
-    let mut record_of: HashMap<(String, Vec<u16>), u16> = HashMap::new();
+    let mut record_of: HashMap<(String, Vec<u16>), u16> = HashMap::default();
     // Collect which feature indices belong to which language system
     let mut script_features: BTreeMap<String, ScriptFeatures> = BTreeMap::new();
     for (script, langs) in per_script {
@@ -704,7 +704,7 @@ pub(crate) fn shadowed_single_subst_rules(
         }
         // Keyed by the glyph, not the name: the collision this is about is one
         // the names hide.
-        let mut claimed: HashMap<&str, &str> = HashMap::new();
+        let mut claimed: HashMap<&str, &str> = HashMap::default();
         for remap in remaps {
             for (seq, tgt) in remap.source.iter().zip(remap.target.iter()) {
                 let ([source], [target]) = (&seq[..], &tgt[..]) else {

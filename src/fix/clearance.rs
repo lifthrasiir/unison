@@ -140,7 +140,7 @@
 //! over the smallest of the members' boxes. That the walls differ from member
 //! to member is exactly why the choice is collective.
 
-use std::collections::HashMap;
+use crate::hash::HashMap;
 use std::path::PathBuf;
 use std::rc::Rc;
 
@@ -400,14 +400,14 @@ impl<'a> Inventory<'a> {
         exists: &crate::exists::ExistsScopes,
     ) -> Self {
         let mut inv = Self {
-            boxes: HashMap::new(),
-            grids: HashMap::new(),
-            variants: HashMap::new(),
+            boxes: HashMap::default(),
+            grids: HashMap::default(),
+            variants: HashMap::default(),
             aliases: crate::alias::AliasMap::collect_with_merges(docs, name_parts, exists),
             aligns: crate::document::collect_anchor_aligns(
                 docs.iter().flat_map(|d| d.items.iter()),
             ),
-            profiles: std::cell::RefCell::new(HashMap::new()),
+            profiles: std::cell::RefCell::new(HashMap::default()),
         };
         for doc in docs {
             for item in &doc.items {
@@ -496,7 +496,7 @@ impl<'a> Inventory<'a> {
         docs: &[&'a Document],
         name_parts: &crate::document::NamePartsMap,
     ) {
-        let mut families: std::collections::HashSet<String> = std::collections::HashSet::new();
+        let mut families: crate::hash::HashSet<String> = crate::hash::HashSet::default();
         for doc in docs {
             for item in &doc.items {
                 let DocumentItem::Glyph { body, .. } = item else {
@@ -514,7 +514,7 @@ impl<'a> Inventory<'a> {
         }
 
         // Every plain block's body, for the walk to follow refs through.
-        let mut bodies: HashMap<String, &'a crate::document::GlyphBody> = HashMap::new();
+        let mut bodies: HashMap<String, &'a crate::document::GlyphBody> = HashMap::default();
         let mut roots: Vec<String> = Vec::new();
         for doc in docs {
             for item in &doc.items {

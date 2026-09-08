@@ -390,7 +390,7 @@ glyph han-xxxx-(j|k|p|v):15x16 15 16
             &[("han-0001.unf", source)],
             "han-xxxx-($-1):15x16",
             &caps(&[&["g", "h", "t", "j", "k", "p", "v"]]),
-            &NamePartsMap::new(),
+            &NamePartsMap::default(),
         );
         let PatternLink::Many(groups) = link else {
             panic!("two blocks declare these, so there is a choice: {link:?}");
@@ -414,7 +414,7 @@ glyph han-xxxx-(j|k|p|v):15x16 15 16
             ],
             "foo-(a|b)",
             &[],
-            &NamePartsMap::new(),
+            &NamePartsMap::default(),
         );
         let PatternLink::Many(groups) = link else {
             panic!("declared in two files: {link:?}");
@@ -432,7 +432,7 @@ glyph han-xxxx-(j|k|p|v):15x16 15 16
             &[("a.unf", "glyph foo-a 8 16\n")],
             "foo-(a|b)",
             &[],
-            &NamePartsMap::new(),
+            &NamePartsMap::default(),
         );
         assert_eq!(link, PatternLink::One("foo-a".to_string()));
     }
@@ -445,7 +445,7 @@ glyph han-xxxx-(j|k|p|v):15x16 15 16
             &[("a.unf", "glyph bar 8 16\n")],
             "foo-(a|b)",
             &[],
-            &NamePartsMap::new(),
+            &NamePartsMap::default(),
         );
         assert_eq!(link, PatternLink::Nowhere);
     }
@@ -454,9 +454,12 @@ glyph han-xxxx-(j|k|p|v):15x16 15 16
     /// capture — is left to the fallback rather than guessed at.
     #[test]
     fn a_token_that_does_not_expand_has_no_target() {
-        assert_eq!(expand_link_token("($0)", &NamePartsMap::new(), &[]), None);
         assert_eq!(
-            expand_link_token("han-($1)", &NamePartsMap::new(), &[]),
+            expand_link_token("($0)", &NamePartsMap::default(), &[]),
+            None
+        );
+        assert_eq!(
+            expand_link_token("han-($1)", &NamePartsMap::default(), &[]),
             None
         );
     }
@@ -465,7 +468,7 @@ glyph han-xxxx-(j|k|p|v):15x16 15 16
     /// popup, so it is left to the fallback rather than scanned name by name.
     #[test]
     fn a_pattern_too_wide_to_choose_from_is_left_alone() {
-        let name_parts = NamePartsMap::new();
+        let name_parts = NamePartsMap::default();
         assert!(expand_link_token("han-($#4e00..4eff)", &name_parts, &[]).is_some());
         assert_eq!(
             expand_link_token("han-($#4e00..9fff)", &name_parts, &[]),
@@ -506,12 +509,12 @@ glyph han-5b50-($han-regions):($1) = ($0)
         .map(|s| DocLine::Text((*s).to_string()))
         .collect();
         assert_eq!(
-            block_captures_at_line(&lines, 2, &NamePartsMap::new()),
+            block_captures_at_line(&lines, 2, &NamePartsMap::default()),
             caps(&[&["g", "h", "t"]]),
         );
         // The header's own groups are its own, not the previous block's.
         assert_eq!(
-            block_captures_at_line(&lines, 1, &NamePartsMap::new()),
+            block_captures_at_line(&lines, 1, &NamePartsMap::default()),
             caps(&[&["x", "y"]]),
         );
     }
@@ -528,7 +531,7 @@ glyph han-5b50-($han-regions):($1) = ($0)
         .map(|s| DocLine::Text((*s).to_string()))
         .collect();
         assert_eq!(
-            block_captures_at_line(&lines, 1, &NamePartsMap::new()),
+            block_captures_at_line(&lines, 1, &NamePartsMap::default()),
             caps(&[&["j", "k"]]),
         );
     }

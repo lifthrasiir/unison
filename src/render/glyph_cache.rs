@@ -9,7 +9,7 @@
 //! two consumers cannot drift apart; only the per-value composite
 //! construction stays with each caller.
 
-use std::collections::HashMap;
+use crate::hash::HashMap;
 
 use crate::document::{DocumentItem, GlyphName, GlyphPoint, GlyphRef, PixelGrid};
 
@@ -113,7 +113,7 @@ pub(crate) fn trim_blank_before_origin(
 pub(crate) fn build_alt_index<V: CachedGlyphEntry>(
     cache: &HashMap<String, V>,
 ) -> HashMap<String, Vec<(String, Vec<GlyphPoint>)>> {
-    let mut map: HashMap<String, Vec<(String, Vec<GlyphPoint>)>> = HashMap::new();
+    let mut map: HashMap<String, Vec<(String, Vec<GlyphPoint>)>> = HashMap::default();
     for (name, cached) in cache {
         for prefix in crate::ref_composite::alternative_prefixes(name) {
             map.entry(prefix.to_string())
@@ -142,7 +142,7 @@ pub(crate) fn seed_cache<'a, V: CachedGlyphEntry>(
     mut empty: impl FnMut() -> V,
     cancel: &crate::cancel::CancelToken,
 ) -> (HashMap<String, V>, Vec<PendingGlyph>) {
-    let mut cache: HashMap<String, V> = HashMap::new();
+    let mut cache: HashMap<String, V> = HashMap::default();
     let mut pending: Vec<PendingGlyph> = Vec::new();
 
     for (i, item) in all_items.into_iter().enumerate() {
@@ -301,13 +301,13 @@ where
 fn drop_unresolvable<V>(cache: &HashMap<String, V>, pending: &mut Vec<PendingGlyph>) {
     // Mirrors `resolve_cached`: a ref hits its own name, or the first expansion
     // of it read as a pattern.
-    fn ref_known(name: &str, known: &std::collections::HashSet<String>) -> bool {
+    fn ref_known(name: &str, known: &crate::hash::HashSet<String>) -> bool {
         known.contains(name)
             || crate::ref_composite::parse_ref_pattern(name)
                 .is_some_and(|expanded| known.contains(&expanded.get(0)))
     }
 
-    let mut known: std::collections::HashSet<String> = cache.keys().cloned().collect();
+    let mut known: crate::hash::HashSet<String> = cache.keys().cloned().collect();
     let mut unsettled: Vec<&PendingGlyph> = pending.iter().collect();
     loop {
         let before = unsettled.len();
@@ -331,11 +331,10 @@ fn drop_unresolvable<V>(cache: &HashMap<String, V>, pending: &mut Vec<PendingGly
     if unsettled.is_empty() {
         return;
     }
-    let dead: std::collections::HashSet<&str> =
-        unsettled.iter().map(|pg| pg.name.as_str()).collect();
+    let dead: crate::hash::HashSet<&str> = unsettled.iter().map(|pg| pg.name.as_str()).collect();
     // Owned up front: `dead` borrows `pending`, and the retain below needs it
     // to have let go.
-    let dead: std::collections::HashSet<String> = dead.into_iter().map(|s| s.to_string()).collect();
+    let dead: crate::hash::HashSet<String> = dead.into_iter().map(|s| s.to_string()).collect();
     pending.retain(|pg| !dead.contains(&pg.name));
 }
 
@@ -401,7 +400,7 @@ pub(crate) fn resolve_pending<V, B>(
     // does not hold the guard shut: it would never reach `alt_index` either
     // way, and leaving it counted only delayed every dependent composite to
     // the relaxation round.
-    let mut pending_alts: HashMap<String, usize> = HashMap::new();
+    let mut pending_alts: HashMap<String, usize> = HashMap::default();
     for pg in &pending {
         for prefix in crate::ref_composite::alternative_prefixes(&pg.name) {
             *pending_alts.entry(prefix.to_string()).or_default() += 1;

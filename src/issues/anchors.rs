@@ -1,7 +1,7 @@
 //! Anchor problems: alternatives whose anchors cannot be told apart, and
 //! the derivations that resolve to nothing.
 
-use std::collections::HashMap;
+use crate::hash::HashMap;
 use std::path::PathBuf;
 
 use crate::document::{DocumentItem, GlyphName, substitute_name_parts};
@@ -15,7 +15,8 @@ pub(super) fn check_ambiguous_anchors(cx: &Cx<'_>, issues: &mut Vec<Issue>) {
     // Detect alternative glyphs with ambiguous anchor matches.
     // For base "foo", if "foo" and "foo:bar" both have a `-name` anchor with
     // the same dimensions, warn that they are ambiguous (the first alphabetically wins).
-    let mut bases_to_alts: HashMap<String, Vec<(String, PathBuf, usize, usize)>> = HashMap::new();
+    let mut bases_to_alts: HashMap<String, Vec<(String, PathBuf, usize, usize)>> =
+        HashMap::default();
     for doc in docs {
         for (item_idx, item) in doc.items.iter().enumerate() {
             if let DocumentItem::Glyph {
@@ -45,7 +46,7 @@ pub(super) fn check_ambiguous_anchors(cx: &Cx<'_>, issues: &mut Vec<Issue>) {
     }
 
     // For each base, find point definitions and check for dimension conflicts.
-    let mut glyph_points_map: HashMap<String, Vec<(String, u16, u16)>> = HashMap::new();
+    let mut glyph_points_map: HashMap<String, Vec<(String, u16, u16)>> = HashMap::default();
     for doc in docs {
         for item in &doc.items {
             if let DocumentItem::Glyph {
@@ -71,7 +72,7 @@ pub(super) fn check_ambiguous_anchors(cx: &Cx<'_>, issues: &mut Vec<Issue>) {
             continue;
         }
         // Group by (position_name, width, height) and find duplicates.
-        let mut seen: HashMap<(String, u16, u16), Vec<&str>> = HashMap::new();
+        let mut seen: HashMap<(String, u16, u16), Vec<&str>> = HashMap::default();
         for (alt_name, _, _, _) in alts {
             if let Some(pts) = glyph_points_map.get(alt_name) {
                 for (pos, w, h) in pts {
@@ -152,8 +153,8 @@ pub(super) fn check_anchor_derivation(cx: &Cx<'_>, issues: &mut Vec<Issue>) {
         }
     }
 
-    let mut declared_anchors: HashMap<&str, &[crate::document::GlyphPoint]> = HashMap::new();
-    let mut origin_of: HashMap<&str, Option<crate::resolve::ItemRef>> = HashMap::new();
+    let mut declared_anchors: HashMap<&str, &[crate::document::GlyphPoint]> = HashMap::default();
+    let mut origin_of: HashMap<&str, Option<crate::resolve::ItemRef>> = HashMap::default();
     for e in &expansion.items {
         if let DocumentItem::Glyph {
             name: GlyphName(n),
@@ -216,7 +217,7 @@ pub(super) fn check_centred_anchor_parity(cx: &Cx<'_>, issues: &mut Vec<Issue>) 
     use crate::document::{Align1, AnchorAlign};
 
     // The classes that centre, and on which axis.
-    let mut centred: HashMap<&str, AnchorAlign> = HashMap::new();
+    let mut centred: HashMap<&str, AnchorAlign> = HashMap::default();
     for doc in cx.docs {
         for item in &doc.items {
             if let DocumentItem::FeatureAnchor { anchor, align, .. } = item
@@ -234,7 +235,7 @@ pub(super) fn check_centred_anchor_parity(cx: &Cx<'_>, issues: &mut Vec<Issue>) 
     // `(anchor, is_plus)` → `(width, height)` → first site.
     type Site = (PathBuf, usize, usize, String);
     #[allow(clippy::type_complexity)]
-    let mut sizes: HashMap<(&str, bool), HashMap<(u16, u16), Site>> = HashMap::new();
+    let mut sizes: HashMap<(&str, bool), HashMap<(u16, u16), Site>> = HashMap::default();
     for doc in cx.docs {
         for (item_idx, item) in doc.items.iter().enumerate() {
             let DocumentItem::Glyph {

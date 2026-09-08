@@ -15,7 +15,7 @@
 //! describing a grid that no longer matches it, which is exactly the state the
 //! parser cannot read.
 
-use std::collections::HashSet;
+use crate::hash::HashSet;
 use std::path::PathBuf;
 
 use super::docs::{load_open_document, shadowed_by_open};

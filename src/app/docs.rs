@@ -686,8 +686,8 @@ mod reload_tests {
         let mut open = load_open_document(path, None).unwrap();
         let before = text_of(&open);
 
-        let named = std::collections::HashMap::new();
-        let parts = crate::document::NamePartsMap::new();
+        let named = crate::hash::HashMap::default();
+        let parts = crate::document::NamePartsMap::default();
         let alts = crate::editor::ref_composite::AlternativesIndex::default();
         assert!(glyph_resize::begin(
             &open.document,

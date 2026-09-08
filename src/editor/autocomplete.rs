@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use crate::hash::{HashMap, HashSet};
 
 use crate::compose::{Direction, IdcOp, VariantSpec, direction_rank, enclosure_rank};
 use crate::document::{DocLine, Document, DocumentItem, NamePartsMap};
@@ -1012,7 +1012,7 @@ fn collect_candidates(
             candidates.sort_by(|a, b| a.label.cmp(&b.label));
         }
         CompletionKind::Point => {
-            let mut seen = HashSet::new();
+            let mut seen = HashSet::default();
             for glyph in source.named_glyphs.values() {
                 for anchor in &glyph.resolved_anchors {
                     if seen.insert(anchor.position.clone()) {
@@ -1294,8 +1294,8 @@ mod tests {
         let src = "glyph foo\nref @-b\nglyph @-bar\nglyph @-baz\nglyph other\n";
         let doc = crate::document_io::parse_document_from_str(src, "t.unf".into()).unwrap();
         let lines = crate::document_io::parse_doclines(src);
-        let named_glyphs = HashMap::new();
-        let name_parts = NamePartsMap::new();
+        let named_glyphs = HashMap::default();
+        let name_parts = NamePartsMap::default();
         let source = CompletionSource {
             named_glyphs: &named_glyphs,
             name_parts: &name_parts,
@@ -1446,8 +1446,8 @@ glyph parent 15 16
 ";
         let doc = crate::document_io::parse_document_from_str(src, "t.unf".into()).unwrap();
         let lines = crate::document_io::parse_doclines(src);
-        let named_glyphs = HashMap::new();
-        let name_parts = NamePartsMap::new();
+        let named_glyphs = HashMap::default();
+        let name_parts = NamePartsMap::default();
         let source = CompletionSource {
             named_glyphs: &named_glyphs,
             name_parts: &name_parts,
@@ -1497,8 +1497,8 @@ glyph parent 15 16
 ";
         let doc = crate::document_io::parse_document_from_str(src, "t.unf".into()).unwrap();
         let lines = crate::document_io::parse_doclines(src);
-        let named_glyphs = HashMap::new();
-        let name_parts = NamePartsMap::new();
+        let named_glyphs = HashMap::default();
+        let name_parts = NamePartsMap::default();
         let source = CompletionSource {
             named_glyphs: &named_glyphs,
             name_parts: &name_parts,
@@ -1555,7 +1555,7 @@ glyph parent 15 16
     fn on_demand_shapes_are_not_offered() {
         let labels = |src: &str| -> Vec<String> {
             let doc = crate::document_io::parse_document_from_str(src, "t.unf".into()).unwrap();
-            let name_parts = NamePartsMap::new();
+            let name_parts = NamePartsMap::default();
             let (named_glyphs, _) =
                 crate::ref_composite::resolve_named_glyphs_with_parts(&[&doc], &name_parts);
             let source = CompletionSource {

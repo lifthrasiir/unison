@@ -75,7 +75,7 @@ fn nothing_is_shown_until_the_directory_has_been_read() {
         inner: Arc::new(Mutex::new(Inner {
             index: None,
             generation: 0,
-            entries: HashMap::new(),
+            entries: HashMap::default(),
         })),
         requests: None,
     };

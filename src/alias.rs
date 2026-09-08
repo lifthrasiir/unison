@@ -52,7 +52,7 @@
 //! alias is used at all are reported by [`crate::issues`], where the full glyph
 //! set is known.
 
-use std::collections::{HashMap, HashSet};
+use crate::hash::{HashMap, HashSet};
 
 use crate::document::{Document, DocumentItem, NamePartsMap, substitute_name_parts};
 use crate::pattern::{NamePattern, capture_groups, substitute_captures};
@@ -109,7 +109,7 @@ impl AliasMap {
     ) -> Self {
         let mut decls: Vec<AliasDecl> = Vec::new();
         let mut diagnostics: Vec<Diagnostic> = Vec::new();
-        let mut seen: HashMap<String, Option<ItemRef>> = HashMap::new();
+        let mut seen: HashMap<String, Option<ItemRef>> = HashMap::default();
 
         for (doc_idx, doc) in docs.iter().enumerate() {
             for (item_idx, item) in doc.items.iter().enumerate() {
@@ -172,7 +172,7 @@ impl AliasMap {
             .iter()
             .map(|d| (d.name.as_str(), d.target.as_str()))
             .collect();
-        let mut map: HashMap<String, String> = HashMap::new();
+        let mut map: HashMap<String, String> = HashMap::default();
         for decl in &decls {
             let mut cur = decl.target.as_str();
             let mut steps = 0usize;
@@ -201,7 +201,7 @@ impl AliasMap {
         Self {
             map,
             decls,
-            implicit: HashSet::new(),
+            implicit: HashSet::default(),
             diagnostics,
         }
     }

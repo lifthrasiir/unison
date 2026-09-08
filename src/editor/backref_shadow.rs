@@ -39,7 +39,7 @@
 //! to fit is previewed against what has to keep fitting. The rest of the
 //! resize is [`crate::editor::glyph_resize`]'s.
 
-use std::collections::HashMap;
+use crate::hash::HashMap;
 
 use crate::editor::ref_composite::ResolvedGlyph;
 use crate::editor::shadow::{Shadow, ShadowBuilder, ShadowKind};

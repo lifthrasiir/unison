@@ -17,6 +17,7 @@ mod fix;
 mod glyph_flags;
 #[cfg(test)]
 mod golden;
+mod hash;
 mod issues;
 mod math;
 mod merge;
@@ -275,9 +276,15 @@ impl RebuildTiming {
 ///
 /// The stages are the editor's own, in the order `app::background` runs them:
 /// one expansion, then the font build beside validation, then the
-/// recomposition that consumes the expansion. The font build and validation
-/// overlap in the editor, so the total counts the longer of the two rather than
-/// both.
+/// recomposition beside what the specimen reads. The font build and validation
+/// overlap in the editor, as do the last two, so the total counts the longer of
+/// each pair rather than both.
+///
+/// The expansion is taken apart here exactly as `app::background` takes it
+/// apart — its items to the recomposition, the searches and aliases it already
+/// derived to the specimen. Deriving those a second time for the specimen, as
+/// this used to, charged it for four hundred milliseconds of work the editor
+/// does not do, and hid it behind a stage that looked expensive on its own.
 ///
 /// Which glyph is edited is deliberately arbitrary — the first one with a grid
 /// — because the cost of a rebuild does not depend on it: nothing downstream
@@ -330,9 +337,21 @@ fn run_edit_probe(input: &std::path::Path) {
         let flags = t.elapsed();
 
         let name_parts = resolution.name_parts;
+        // Taken apart the way `app::background` takes it apart: the searches and
+        // the aliases the expansion already derived go to the specimen, the
+        // items to the recomposition. Deriving them a second time here would
+        // charge the specimen for work the editor does not do.
+        let render::ttf_builder::Expansion {
+            items,
+            aliases,
+            exists,
+            ..
+        } = resolution.expansion;
+
         let t = std::time::Instant::now();
-        let _ = ref_composite::resolve_expansion_cached(
-            resolution.expansion,
+        let _ = ref_composite::resolve_expanded_items(
+            items,
+            &aliases,
             &name_parts,
             &never,
             Some(grid_cache),
@@ -343,8 +362,6 @@ fn run_edit_probe(input: &std::path::Path) {
         // it is on the critical path at all.
         let t = std::time::Instant::now();
         let _specimen = font.as_ref().map(|f| {
-            let (exists, _) = exists::resolve_scopes(&refs, &name_parts);
-            let aliases = alias::AliasMap::collect_with_merges(&refs, &name_parts, &exists);
             specimen::SpecimenData::collect(
                 &refs,
                 &name_parts,
@@ -537,18 +554,28 @@ fn run_probe(input: &std::path::Path, repeats: usize) {
     }
 }
 
-/// Windows only, and for one reason: the work here is allocation-bound —
-/// name expansion, validation and the glyph graph are millions of short-lived
-/// `String`s and small maps — and the platform heap serializes on a lock that
-/// two busy threads contend for. Measured against this same source on macOS,
-/// the compute-bound stages (exact geometry) run about 4x slower on the test
-/// Windows machine while the allocation-bound ones run 7x slower; the gap
-/// between those two numbers is the heap, not the CPU.
+/// The work here is allocation-bound — name expansion, validation and the
+/// glyph graph are millions of short-lived `String`s and small maps — so the
+/// heap is a stage of the pipeline rather than a detail under it.
 ///
-/// Nothing else on the platform is worth swapping the allocator for, so the
-/// other targets keep theirs: macOS's is already a per-thread magazine
-/// allocator and shows no such gap.
-#[cfg(target_os = "windows")]
+/// On Windows the platform heap serializes on a lock that two busy threads
+/// contend for: measured against this same source on macOS, the compute-bound
+/// stages (exact geometry) run about 4x slower on the test Windows machine
+/// while the allocation-bound ones run 7x slower, and the gap between those two
+/// numbers is the heap, not the CPU.
+///
+/// macOS was left on its own allocator for a long time on the reasoning that a
+/// per-thread magazine allocator has no such gap. That is no longer what the
+/// numbers say: with the font sources at 198 files, `probe --edit` puts a warm
+/// rebuild at 817 ms on the system heap and 672 ms here, and a cold one at
+/// 2.56 s against 1.87 s — every stage faster, the parallel ones most.
+/// Whether that is the cost of `malloc_zone` growing a new implementation or
+/// simply what this workload always cost there, the measurement is the same
+/// one Windows was switched on.
+///
+/// It costs about 60 KB of binary, which for a profile tuned to size (see
+/// `Cargo.toml`) is the trade being made deliberately.
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 #[global_allocator]
 static GLOBAL_ALLOC: mimalloc::MiMalloc = mimalloc::MiMalloc;
 

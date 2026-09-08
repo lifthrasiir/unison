@@ -1,7 +1,7 @@
 //! The document view: the `show_document` frame loop and everything it
 //! paints, scrolls and edits.
 
-use std::collections::HashMap;
+use crate::hash::HashMap;
 
 use crate::document::{
     DocLine, Document, DocumentItem, GlyphBody, GlyphPoint, NamePartsMap, PixelGrid,

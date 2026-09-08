@@ -242,7 +242,7 @@ fn pair_contours(
     b: &[Vec<(i16, i16)>],
 ) -> Vec<(Option<usize>, Option<usize>)> {
     let shared = |x: &[(i16, i16)], y: &[(i16, i16)]| -> usize {
-        let set: std::collections::HashSet<(i16, i16)> = x.iter().copied().collect();
+        let set: crate::hash::HashSet<(i16, i16)> = x.iter().copied().collect();
         y.iter().filter(|p| set.contains(p)).count()
     };
     let centroid = |c: &[(i16, i16)]| collapse_point(c);
@@ -385,7 +385,7 @@ pub(super) fn variations_for(
     vector: &mut [CollectedGlyph],
     bitmap: &[CollectedGlyph],
 ) -> Variations {
-    let by_name: std::collections::HashMap<&str, &CollectedGlyph> =
+    let by_name: crate::hash::HashMap<&str, &CollectedGlyph> =
         bitmap.iter().map(|g| (g.name.as_str(), g)).collect();
 
     let mut out = Variations {
@@ -465,7 +465,7 @@ pub(super) fn assert_composites_agree(
     vector: &[CollectedGlyph],
     bitmap: &[CollectedGlyph],
 ) -> Option<String> {
-    let by_name: std::collections::HashMap<&str, &CollectedGlyph> =
+    let by_name: crate::hash::HashMap<&str, &CollectedGlyph> =
         bitmap.iter().map(|g| (g.name.as_str(), g)).collect();
     for v in vector {
         let Some(b) = by_name.get(v.name.as_str()) else {

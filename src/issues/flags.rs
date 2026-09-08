@@ -1,6 +1,6 @@
 //! Glyph-flag consequences that reach past the glyph the flag is written on.
 
-use std::collections::{HashMap, HashSet};
+use crate::hash::{HashMap, HashSet};
 
 use crate::document::{DocumentItem, GlyphBody, GlyphName, GlyphRef, LayerVisibility};
 
@@ -23,9 +23,9 @@ pub(super) fn check_vectoronly_reach(
     mapped_glyphs: &HashSet<String>,
     issues: &mut Vec<Issue>,
 ) {
-    let mut roots: HashSet<&str> = HashSet::new();
-    let mut layers_of: HashMap<&str, Option<LayerVisibility>> = HashMap::new();
-    let mut refs_of: HashMap<&str, Vec<&GlyphRef>> = HashMap::new();
+    let mut roots: HashSet<&str> = HashSet::default();
+    let mut layers_of: HashMap<&str, Option<LayerVisibility>> = HashMap::default();
+    let mut refs_of: HashMap<&str, Vec<&GlyphRef>> = HashMap::default();
     for item in cx.expansion.items() {
         let DocumentItem::Glyph {
             name: GlyphName(n),
@@ -46,7 +46,7 @@ pub(super) fn check_vectoronly_reach(
 
     // The closure, minus the flagged glyphs themselves: a root is exempt
     // because it was asked to be, and owes no explanation.
-    let mut reached: HashSet<&str> = HashSet::new();
+    let mut reached: HashSet<&str> = HashSet::default();
     let mut queue: Vec<&str> = roots.iter().copied().collect();
     while let Some(name) = queue.pop() {
         // The same scope rule the build's own closure walks by, so the two
@@ -69,7 +69,7 @@ pub(super) fn check_vectoronly_reach(
     // Who else draws one of those, and how. A glyph outside the closure that
     // refs it gets the vector artwork in its own composite; a *mapped* one
     // gets it as the character's own drawing.
-    let mut outside_users: HashMap<&str, &str> = HashMap::new();
+    let mut outside_users: HashMap<&str, &str> = HashMap::default();
     for (user, refs) in &refs_of {
         if roots.contains(user) || reached.contains(user) {
             continue;

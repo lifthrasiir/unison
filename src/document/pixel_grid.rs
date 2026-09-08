@@ -2,7 +2,8 @@
 //! cells a glyph draws, and everything that reshapes one — cropping, resizing,
 //! rescaling and the exact sub-pixel geometry that rides along in `details`.
 
-use std::collections::{BTreeMap, HashMap};
+use crate::hash::HashMap;
+use std::collections::BTreeMap;
 
 use crate::detail::{self, Classified, DetailRegion, Frac64};
 use crate::pixel::{PX_ALMOSTFULL, PX_CUSTOM, PixelShape};
@@ -22,6 +23,36 @@ pub struct PixelGrid {
 }
 
 impl PixelGrid {
+    /// The size and every cell, hashed into `hasher`.
+    ///
+    /// Three caches key on a grid's content — the contour cache, the composite
+    /// grid cache and [`PixelGrid::rescale`]'s own — so this runs once per
+    /// glyph per rebuild and then some. Cells go in as **bulk writes**: a cell
+    /// is one byte, and `Hasher::write_u8` per cell put the fixed cost of a
+    /// short write between every one of them, which made hashing a grid cost
+    /// more than the tracing the cache exists to skip. The byte stream is the
+    /// same either way, so the keys are the ones the per-cell loop produced.
+    ///
+    /// What rides *beside* the cells — the denominator, `details`, and whatever
+    /// else a given cache keys on — is the caller's to add: no two of them want
+    /// the same set, and a key that quietly grew a field would collide across
+    /// them rather than fail.
+    pub fn hash_cells_into<H: std::hash::Hasher>(&self, hasher: &mut H) {
+        use std::hash::Hash;
+        self.width.hash(hasher);
+        self.height.hash(hasher);
+        // Chunked through a stack buffer rather than cast to `&[u8]`: a
+        // `PixelShape` is a one-byte newtype and the cast would be sound, but
+        // it would also be the one place in this crate that has to promise so.
+        let mut buf = [0u8; 256];
+        for chunk in self.pixels.chunks(buf.len()) {
+            for (out, px) in buf.iter_mut().zip(chunk) {
+                *out = px.0;
+            }
+            hasher.write(&buf[..chunk.len()]);
+        }
+    }
+
     pub fn new(width: u16, height: u16) -> Self {
         Self {
             width,
@@ -178,11 +209,7 @@ impl PixelGrid {
         let key = {
             use std::hash::{Hash, Hasher};
             let mut h = std::collections::hash_map::DefaultHasher::new();
-            self.width.hash(&mut h);
-            self.height.hash(&mut h);
-            for px in &self.pixels {
-                px.0.hash(&mut h);
-            }
+            self.hash_cells_into(&mut h);
             self.den.hash(&mut h);
             self.details.hash(&mut h);
             old_scale.hash(&mut h);
@@ -191,7 +218,7 @@ impl PixelGrid {
         };
         {
             let mut cache = CACHE.lock().unwrap();
-            if let Some(entries) = cache.get_or_insert_with(HashMap::new).get(&key) {
+            if let Some(entries) = cache.get_or_insert_with(HashMap::default).get(&key) {
                 for (src, o, n, out) in entries {
                     if *o == old_scale && *n == new_scale && src == self {
                         return out.clone();
@@ -201,7 +228,7 @@ impl PixelGrid {
         }
         let out = self.rescale_uncached(old_scale, new_scale);
         let mut cache = CACHE.lock().unwrap();
-        let map = cache.get_or_insert_with(HashMap::new);
+        let map = cache.get_or_insert_with(HashMap::default);
         // Crude bound: drop everything when the cache grows unreasonable
         // (long editor sessions keep mutating grids).
         if map.len() > 4096 {

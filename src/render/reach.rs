@@ -72,7 +72,8 @@
 //! caller chooses which groups to hand over; every `feature` in `font/` is
 //! default-on (`ccmp`, `liga`, `calt`, `locl`, `ljmo`, `vjmo`, `tjmo`).
 
-use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+use crate::hash::{HashMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet};
 
 /// How many times a group's rules are re-read before its own output stops
 /// improving.
@@ -140,9 +141,9 @@ impl<'a> Cascade<'a> {
         groups: &'a [Vec<RemapLine<'a>>],
     ) -> Self {
         let mut this = Cascade {
-            cmap: HashMap::new(),
-            uvs: HashMap::new(),
-            selectors: HashSet::new(),
+            cmap: HashMap::default(),
+            uvs: HashMap::default(),
+            selectors: HashSet::default(),
             seed: BTreeMap::new(),
             groups,
         };

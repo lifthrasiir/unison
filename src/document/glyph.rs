@@ -205,7 +205,7 @@ impl AnchorAlign {
 /// composite derivation ([`crate::ref_composite`]), which have to reduce the
 /// same pair to the same two points or a precomposed glyph would sit
 /// somewhere the shaped one does not.
-pub type AnchorAligns = std::collections::HashMap<String, AnchorAlign>;
+pub type AnchorAligns = crate::hash::HashMap<String, AnchorAlign>;
 
 /// The [`AnchorAligns`] the given items declare. Takes an item iterator rather
 /// than the documents so an already-expanded item list — which carries the
@@ -213,7 +213,7 @@ pub type AnchorAligns = std::collections::HashMap<String, AnchorAlign>;
 pub fn collect_anchor_aligns<'a>(
     items: impl Iterator<Item = &'a super::DocumentItem>,
 ) -> AnchorAligns {
-    let mut map = AnchorAligns::new();
+    let mut map = AnchorAligns::default();
     for item in items {
         if let super::DocumentItem::FeatureAnchor { anchor, align, .. } = item {
             // Last naming wins, as in the GPOS builder's own map: a class

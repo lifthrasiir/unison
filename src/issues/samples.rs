@@ -4,7 +4,7 @@
 //! See [`crate::samples`] for the model and why a label may carry a text of
 //! its own.
 
-use std::collections::HashSet;
+use crate::hash::HashSet;
 
 use crate::document::DocumentItem;
 use crate::samples::{SAMPLE_MODES, SampleMode};
@@ -15,13 +15,13 @@ pub(super) fn check_samples(cx: &Cx<'_>, issues: &mut Vec<Issue>) {
     // Names are unique across the whole source, not per file: the demo page
     // and the preview offer one list, and which file a text was written in is
     // not something a reader of that list can see.
-    let mut seen: HashSet<(&str, Option<&str>)> = HashSet::new();
+    let mut seen: HashSet<(&str, Option<&str>)> = HashSet::default();
     // A label whose heading writes its own *list* of texts, and every line
     // that puts a text of its own under some label: a label cannot be both,
     // since the generated list is the whole of what the heading offers and a
     // sublabel written beside it would never be shown. Checked after the walk
     // because either line may come first.
-    let mut group_modes: HashSet<&str> = HashSet::new();
+    let mut group_modes: HashSet<&str> = HashSet::default();
     let mut sublabelled: Vec<(&crate::document::Document, usize, &str, String)> = Vec::new();
     for doc in cx.docs {
         for (item_idx, item) in doc.items.iter().enumerate() {

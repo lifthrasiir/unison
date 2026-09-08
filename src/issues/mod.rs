@@ -34,7 +34,7 @@ mod samples;
 mod slices;
 mod unused;
 
-use std::collections::HashSet;
+use crate::hash::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 
 use crate::document::{Document, DocumentItem, GlyphName, SliceNameParts};
@@ -166,6 +166,16 @@ struct Cx<'a> {
     /// `feature` line may precede every rule of the group it attaches, and a
     /// declaration may follow them.
     groups: crate::document::RemapGroupOrder,
+    /// What each search-scoped `map` line actually expanded to, keyed by the
+    /// written line it came from — the substitution [`Cx::source_items`] makes.
+    ///
+    /// Indexed once rather than searched per line: five checks call
+    /// `source_items`, each over every document, and finding a scoped `map`'s
+    /// expansion by scanning the item list made that a walk of the whole
+    /// expansion — tens of thousands of items — per scoped `map` per check.
+    /// Empty when nothing is scoped, which is also when the lookup is never
+    /// reached.
+    scoped_map_expansions: HashMap<crate::resolve::ItemRef, Vec<&'a DocumentItem>>,
 }
 
 impl<'a> Cx<'a> {
@@ -198,19 +208,51 @@ impl<'a> Cx<'a> {
                 continue;
             }
             if exists.scope(here).is_some() && matches!(item, DocumentItem::Map { .. }) {
-                out.extend(
-                    self.expansion
-                        .items
-                        .iter()
-                        .filter(|e| e.origin == Some(here))
-                        .map(|e| (item_idx, &e.item)),
-                );
+                if let Some(expanded) = self.scoped_map_expansions.get(&here) {
+                    out.extend(expanded.iter().map(|item| (item_idx, *item)));
+                }
                 continue;
             }
             out.push((item_idx, item));
         }
         out
     }
+}
+
+/// The index behind [`Cx::scoped_map_expansions`]: one pass over the expansion,
+/// keeping only what a search-scoped `map` line produced.
+///
+/// Nothing is scoped in most sources, and then this is an empty map and one
+/// walk of the item list; the walk is still made rather than skipped, because
+/// "are there any" is the same scan as "which ones".
+fn scoped_map_expansions<'a>(
+    docs: &'a [&'a Document],
+    expansion: &'a crate::render::ttf_builder::Expansion,
+) -> HashMap<crate::resolve::ItemRef, Vec<&'a DocumentItem>> {
+    let exists = &expansion.exists;
+    if exists.is_empty() {
+        return HashMap::default();
+    }
+    let mut scoped_maps: HashSet<crate::resolve::ItemRef> = HashSet::default();
+    for (doc_idx, doc) in docs.iter().enumerate() {
+        for (item_idx, item) in doc.items.iter().enumerate() {
+            let here = crate::resolve::ItemRef::new(doc_idx, item_idx);
+            if matches!(item, DocumentItem::Map { .. }) && exists.scope(here).is_some() {
+                scoped_maps.insert(here);
+            }
+        }
+    }
+    let mut out: HashMap<crate::resolve::ItemRef, Vec<&DocumentItem>> = HashMap::default();
+    if scoped_maps.is_empty() {
+        return out;
+    }
+    for e in &expansion.items {
+        let Some(origin) = e.origin else { continue };
+        if scoped_maps.contains(&origin) {
+            out.entry(origin).or_default().push(&e.item);
+        }
+    }
+    out
 }
 
 pub fn collect_issues(docs: &[&Document]) -> Vec<Issue> {
@@ -245,6 +287,7 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
             })
             .collect(),
         groups: crate::document::remap_group_order(docs),
+        scoped_map_expansions: scoped_map_expansions(docs, expansion),
     };
 
     // The face/slice graph: bad ids, cycles and undeclared slices reached from
@@ -287,7 +330,7 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
     // Once per face, deduplicated: the check is about one font file's fallback
     // lookup (see `uvs_collision_diagnostics`), and a source with two faces
     // would otherwise report the same unqualified pair twice.
-    let mut seen_uvs: HashSet<(Option<crate::resolve::ItemRef>, String)> = HashSet::new();
+    let mut seen_uvs: HashSet<(Option<crate::resolve::ItemRef>, String)> = HashSet::default();
     for face in &cx.faces.faces {
         for d in maps::uvs_collision_diagnostics(expansion, face) {
             if seen_uvs.insert((d.origin, d.message.clone())) {

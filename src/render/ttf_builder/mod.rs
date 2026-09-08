@@ -99,7 +99,8 @@
 //! sub-pixel and on-demand shapes seen through a *composite* rather than on
 //! their own. Check contour output at composite level.
 
-use std::collections::{BTreeMap, HashMap, HashSet};
+use crate::hash::{HashMap, HashSet};
+use std::collections::BTreeMap;
 use std::hash::{Hash, Hasher};
 use std::path::Path;
 use std::sync::Arc;
@@ -576,7 +577,7 @@ fn load_dir(dir: &Path, cache: Option<&mut DirCache>) -> LoadedDir {
     let mut docs = Vec::new();
     let mut errors = Vec::new();
     let mut sources = Vec::new();
-    let mut fresh: HashMap<std::path::PathBuf, CachedFile> = HashMap::new();
+    let mut fresh: HashMap<std::path::PathBuf, CachedFile> = HashMap::default();
     for (path, item) in paths.into_iter().zip(loaded) {
         match item {
             Some(Loaded::Parsed(doc, bytes, stamp)) => {
@@ -731,7 +732,7 @@ fn build_pair_from_shared(
     let (b_meta, _, b_glyphs, b_gsub, b_palette) = bitmap_data;
     let (v_meta, v_scale, v_glyphs, v_gsub, v_palette) = vector_data;
 
-    let mut name_to_gid: HashMap<String, u16> = HashMap::new();
+    let mut name_to_gid: HashMap<String, u16> = HashMap::default();
     for (i, g) in v_glyphs.iter().enumerate() {
         name_to_gid.entry(g.name.clone()).or_insert(i as u16);
     }
@@ -1098,8 +1099,8 @@ fn build_with_gid_map(
 ) -> Option<FontWithGidMap> {
     let ascender = (meta.ascent() as f32 * scale).round() as i16;
     let descender = -((meta.descent() as f32 * scale).round() as i16);
-    let mut gid_to_name: HashMap<u16, String> = HashMap::new();
-    let mut seen = std::collections::HashSet::new();
+    let mut gid_to_name: HashMap<u16, String> = HashMap::default();
+    let mut seen = crate::hash::HashSet::default();
     for (i, g) in glyph_data.iter().enumerate() {
         if seen.insert(g.name.clone()) {
             gid_to_name.insert(i as u16, g.name.clone());

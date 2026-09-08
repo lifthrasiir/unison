@@ -456,7 +456,7 @@ pub(super) fn build_ttf(
     let max_context = compute_max_context(gsub_data);
 
     // Coverage-derived, never declared: these describe the font that came out.
-    let mapped: std::collections::HashSet<u32> =
+    let mapped: crate::hash::HashSet<u32> =
         glyphs.iter().flat_map(|g| &g.codepoints).copied().collect();
     let unicode_ranges = super::os2_ranges::unicode_ranges(mapped.iter().copied());
     let code_pages = super::os2_ranges::code_page_ranges(&mapped);

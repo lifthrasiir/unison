@@ -15,7 +15,8 @@
 //! [`crate::detail::DetailRegion`] or on-demand synthesis change, and test the
 //! degenerate inputs (empty, 1×1, zero-extent) explicitly.
 
-use std::collections::{BTreeMap, HashMap, HashSet};
+use crate::hash::{HashMap, HashSet};
+use std::collections::BTreeMap;
 
 /// A cell's outline data as [`pixel::multi_shape_adjacency`] computes it: the
 /// adjacency bitmask plus the gap segments interior to the cell.
@@ -52,7 +53,7 @@ pub fn track_contour(grid: &PixelGrid, mask: u8) -> Vec<Vec<(f32, f32)>> {
         let den = grid.den.max(1) as i64;
         if den % 2 == 0 { den } else { den * 2 }
     };
-    let mut custom: HashMap<usize, CustomCell> = HashMap::new();
+    let mut custom: HashMap<usize, CustomCell> = HashMap::default();
     for (&(r, c), region) in &grid.details {
         let idx = (r as usize + 1) * stride + c as usize;
         if data[idx] & mask != pixel::PX_CUSTOM {
@@ -80,7 +81,7 @@ pub fn track_contour(grid: &PixelGrid, mask: u8) -> Vec<Vec<(f32, f32)>> {
     }
 
     let mut paths = Vec::new();
-    let mut visited = HashSet::new();
+    let mut visited = HashSet::default();
 
     // Iterate over pixel rows (offset by 1 for top sentinel)
     for row in 0..height {
@@ -445,7 +446,7 @@ fn trace_closed_paths(
         }
 
         let mut path: Vec<(i64, i64)> = vec![start_key];
-        let mut indices: HashMap<(i64, i64), usize> = HashMap::new();
+        let mut indices: HashMap<(i64, i64), usize> = HashMap::default();
         indices.insert(start_key, 0);
 
         let mut x0 = start_key;
@@ -812,10 +813,10 @@ pub fn track_contour_multi(layers: &[(&PixelGrid, i32, i32)], mask: u8) -> Vec<V
     }
 
     // Cache for multi-shape gap segments, keyed by shape bitmask
-    let mut gap_cache: HashMap<u128, CellEdges> = HashMap::new();
+    let mut gap_cache: HashMap<u128, CellEdges> = HashMap::default();
 
     let mut paths = Vec::new();
-    let mut visited = HashSet::new();
+    let mut visited = HashSet::default();
 
     for row in 0..height {
         let i0 = (row + 1) * stride;
@@ -929,7 +930,7 @@ pub fn track_contour_multi_diff(
 
     // Pre-compute per-pixel adjacency.
     let mut adj_data: Vec<u8> = vec![0; total];
-    let mut diff_cache: HashMap<(u128, u128), CellEdges> = HashMap::new();
+    let mut diff_cache: HashMap<(u128, u128), CellEdges> = HashMap::default();
 
     for i in 0..total {
         if pos_masks[i] != 0 {
@@ -949,7 +950,7 @@ pub fn track_contour_multi_diff(
     }
 
     let mut paths = Vec::new();
-    let mut visited = HashSet::new();
+    let mut visited = HashSet::default();
 
     for row in 0..height {
         let i0 = (row + 1) * stride;

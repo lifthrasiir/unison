@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use crate::hash::HashMap;
 
 use crate::document::{Document, DocumentItem, NamePartsMap};
 use crate::editor::colors::Palette;

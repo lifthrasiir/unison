@@ -932,7 +932,7 @@ mod font_build_tests {
         let built = |n: u8| crate::render::BuiltFontPair {
             bitmap: vec![n],
             vector: vec![n * 10],
-            name_to_gid: HashMap::new(),
+            name_to_gid: HashMap::default(),
         };
         tx.send((2, FontBuildOutcome::Done(Some(built(2)))))
             .unwrap();

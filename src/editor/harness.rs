@@ -25,7 +25,7 @@
 //! debounced background thread ([`crate::app::UniformApp`]), so anything about
 //! *when* a shape becomes visible has to be tested below this harness.
 
-use std::collections::HashMap;
+use crate::hash::HashMap;
 use std::sync::Arc;
 
 use crate::document::{DocLine, Document, NamePartsMap, PixelGrid, collect_name_parts};
@@ -470,9 +470,9 @@ impl Pane {
             doc,
             lines,
             state: EditorState::new(),
-            named_glyphs: HashMap::new(),
+            named_glyphs: HashMap::default(),
             alt_index: AlternativesIndex::default(),
-            name_parts: NamePartsMap::new(),
+            name_parts: NamePartsMap::default(),
             exists_matches: Default::default(),
             meta: Default::default(),
         };
@@ -506,9 +506,9 @@ impl EditorHarness {
             lines,
             state: EditorState::new(),
             ref_images: None,
-            named_glyphs: HashMap::new(),
+            named_glyphs: HashMap::default(),
             alt_index: AlternativesIndex::default(),
-            name_parts: NamePartsMap::new(),
+            name_parts: NamePartsMap::default(),
             exists_matches: Default::default(),
             meta: Default::default(),
             show_metrics: false,

@@ -133,13 +133,13 @@ feature tjmo for hang : hangul-tjmo
         "remap-referenced non-cmap glyphs should be included"
     );
 
-    let mut name_to_gid: HashMap<String, GlyphId16> = HashMap::new();
+    let mut name_to_gid: HashMap<String, GlyphId16> = HashMap::default();
     for (i, g) in glyph_data.iter().enumerate() {
         name_to_gid
             .entry(g.name.clone())
             .or_insert(GlyphId16::new((i + 1) as u16));
     }
-    let gsub = build_gsub(&gsub_data, &name_to_gid, &HashMap::new());
+    let gsub = build_gsub(&gsub_data, &name_to_gid, &HashMap::default());
     assert!(gsub.is_some(), "GSUB table should be generated");
     let gsub = gsub.unwrap();
     let hang_found = gsub
@@ -170,14 +170,14 @@ feature liga for latn : ligset
     let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
     let (_, _, glyph_data, gsub_data, _) = collect_glyph_data(&[&doc], false).unwrap();
 
-    let mut name_to_gid: HashMap<String, GlyphId16> = HashMap::new();
+    let mut name_to_gid: HashMap<String, GlyphId16> = HashMap::default();
     for (i, g) in glyph_data.iter().enumerate() {
         name_to_gid
             .entry(g.name.clone())
             .or_insert(GlyphId16::new((i + 1) as u16));
     }
 
-    let gsub = build_gsub(&gsub_data, &name_to_gid, &HashMap::new());
+    let gsub = build_gsub(&gsub_data, &name_to_gid, &HashMap::default());
     assert!(
         gsub.is_some(),
         "GSUB should be generated for ligature remap"
@@ -285,13 +285,13 @@ feature ccmp for hang : second
 ";
     let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
     let (_, _, glyph_data, gsub_data, _) = collect_glyph_data(&[&doc], false).unwrap();
-    let mut name_to_gid: HashMap<String, GlyphId16> = HashMap::new();
+    let mut name_to_gid: HashMap<String, GlyphId16> = HashMap::default();
     for (i, g) in glyph_data.iter().enumerate() {
         name_to_gid
             .entry(g.name.clone())
             .or_insert(GlyphId16::new((i + 1) as u16));
     }
-    let gsub = build_gsub(&gsub_data, &name_to_gid, &HashMap::new()).expect("GSUB");
+    let gsub = build_gsub(&gsub_data, &name_to_gid, &HashMap::default()).expect("GSUB");
     assert_eq!(
         gsub.feature_list.feature_records.len(),
         2,

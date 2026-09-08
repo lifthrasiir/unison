@@ -26,7 +26,7 @@
 //! every file. So one control governs both surfaces: hide todos in the tab and
 //! the todo lines stop being tinted, which is what a reader hiding them meant.
 
-use std::collections::HashMap;
+use crate::hash::HashMap;
 use std::path::{Path, PathBuf};
 
 use crate::issues::{Issue, Severity};
@@ -75,7 +75,7 @@ impl IssueMarks {
         issues: impl IntoIterator<Item = &'a Issue>,
         shown: impl Fn(Severity) -> bool,
     ) -> Self {
-        let mut by_file: HashMap<PathBuf, LineIssues> = HashMap::new();
+        let mut by_file: HashMap<PathBuf, LineIssues> = HashMap::default();
         for issue in issues {
             if !shown(issue.severity) {
                 continue;
@@ -105,7 +105,7 @@ impl IssueMarks {
         }
         Self {
             by_file,
-            empty: LineIssues::new(),
+            empty: LineIssues::default(),
         }
     }
 

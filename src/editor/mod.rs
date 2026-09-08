@@ -285,7 +285,7 @@ pub struct EditorState {
     /// sideways, by code point. Per pane rather than per store: two panes on
     /// one file scroll their own copy of a strip, exactly as they scroll their
     /// own copy of the text. See [`ref_images`].
-    pub(crate) ref_image_scroll: std::collections::HashMap<u32, f32>,
+    pub(crate) ref_image_scroll: crate::hash::HashMap<u32, f32>,
     /// The strip a drag is currently scrolling, if any. Held across frames
     /// because it is what keeps the drag from also being a text selection
     /// once the pointer wanders off the strip's own row.
@@ -309,7 +309,7 @@ impl EditorState {
         Self {
             id,
             mode: EditMode::Normal,
-            ref_image_scroll: std::collections::HashMap::new(),
+            ref_image_scroll: crate::hash::HashMap::default(),
             ref_image_drag: None,
             folds: Default::default(),
             fold_scroll: None,

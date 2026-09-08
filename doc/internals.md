@@ -30,6 +30,7 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | `map CHAR = A B C`: ordered alternatives, why the choice is per codepoint, `.notdef` as the implicit last one, and the empty target | `render/ttf_builder/expand.rs` (`resolve_map_alternatives`), `issues/maps.rs` |
 | Expanding a `map` line's alternatives together, and the memo that parses a wide character spec once | `render/ttf_builder/expand.rs` (`WideMapRows`, `AltTarget`, `map_char_pattern`) |
 | Why the lines that write one character spec are settled together, and on every core | `render/ttf_builder/expand.rs` (`settle_wide_groups`, `SettledAlt`, `resolve_map_alternatives`), `parallel.rs` |
+| Why one search-scoped `map`'s expansion is indexed rather than searched for | `issues/mod.rs` (`scoped_map_expansions`, `Cx::source_items`) |
 | Why a `map` target nothing declares is never a reachability root | `issues/unused.rs` (`GlyphGraph::knows`), `render/ttf_builder/expand.rs` (`MapAlternativeIndex`) |
 | Why the duplicate-codepoint table holds two integers per codepoint | `issues/maps.rs` (`MapSite`, `SliceTable`) |
 | Which half of a variation sequence may be a range, and why not both | `render/ttf_builder/expand.rs` (`expand_uvs_map_triples`) |
@@ -61,6 +62,7 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Why a name that is nothing but one `($-N)` is never ragged | `issues/patterns.rs` (`whole_back_reference`) |
 | Stating one line for several slices (`map wide\|narrow :`) and per-slice `name-parts` | `document/name_parts.rs` (`SliceNameParts`), `pattern.rs` |
 | `exists PATTERN`: what is searched (aliases yes, on-demand no), the one-line scope, one run per match, the fixpoint and its cycle budget, the regex subset | `exists.rs` |
+| Why the search's fixpoint scans only what a round added, and the literal prefix that rejects a name before the regex does | `exists.rs` (`resolve_scopes`, `literal_prefix`) |
 | A `glyph … = …` under an `exists` | `exists.rs` (`resolve_scopes`), `alias.rs` (`collect_inner`) |
 | A code point computed from a match (`U+[BASE+]($N)`) | `exists.rs` (`eval_codepoint`) |
 | Where a scoped item is expanded, and why a source-side check reads a scoped `map`'s output but a scoped block's own line | `render/ttf_builder/expand.rs` (`expand_inner`), `issues/mod.rs` (`Cx::source_items`) |
@@ -158,6 +160,8 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Why the editor's preview keeps two static faces where the demo took the axis | `render/ttf_builder/mod.rs` (`build_face_variable`), `app/background.rs` |
 | Why an expansion is face-independent, and where a face is applied to it instead | `faces.rs` (`FaceSet::union`), `render/ttf_builder/collect.rs` (`face_items`) |
 | Why only the union face is traced, and what a secondary face costs instead | `render/ttf_builder/mod.rs` (`build_faces_from`), `collect.rs` (`collect_face_cmap`) |
+| Why every map here is hashed with `rustc-hash` rather than `std`'s default, and what that costs | `hash.rs` |
+| Hashing a pixel grid for a cache key: why the cells go in as one write | `document/pixel_grid.rs` (`hash_cells_into`), `render/ttf_builder/contours.rs` (`hash_grid_for_cache`), `ref_composite/mod.rs` (`hash_grid_into`) |
 | Which build stages run at once, and what they must not share | `render/ttf_builder/mod.rs` (`build_faces`, `build_font_pair_cached_for`), `contours.rs` (`ContourCaches`) |
 | Why a resolution round is a wave; splitting a memo off its tracer | `render/glyph_cache.rs` (`resolve_pending`, `CompositeBuilder`), `ref_composite/mod.rs` (`resolve_expansion_cached`), `render/ttf_builder/contours.rs` (`ContourBuilder`) |
 | Dropping a composite that can never resolve before the expensive loop sees it | `render/glyph_cache.rs` (`drop_unresolvable`) |
@@ -232,7 +236,7 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Why the remembered face is applied before the first build | `app/mod.rs` (`with_settings`) |
 | What survives between runs, where the settings file lives | `app/settings.rs`, `main.rs` (`with_app_id`) |
 | Where the seconds before the first frame go; what one edit costs; where an edit's wait goes in the running editor | `startup.rs`, `main.rs` (`run_edit_probe`), `app/timing.rs` |
-| Why Windows gets a different allocator | `main.rs` (`GLOBAL_ALLOC`) |
+| Why Windows and macOS get a different allocator, and the numbers behind each | `main.rs` (`GLOBAL_ALLOC`) |
 | Why the release build compiles some dependencies for size, and which renderer backend it links | `Cargo.toml` (`[profile.release.package."*"]`) |
 
 ## The preview

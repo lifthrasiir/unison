@@ -148,7 +148,7 @@ pub(super) fn build_anchor_gpos(
     // that it stays an index into the per-class arrays `num_classes` sizes —
     // counting declarations instead handed a class a number past their end the
     // moment one name was declared twice.
-    let mut anchor_class_map: HashMap<String, u16> = HashMap::new();
+    let mut anchor_class_map: HashMap<String, u16> = HashMap::default();
     for name in &anchor_names {
         let next = anchor_class_map.len() as u16;
         anchor_class_map.entry(name.clone()).or_insert(next);
@@ -162,10 +162,10 @@ pub(super) fn build_anchor_gpos(
     let mut mark2_gids: Vec<AnchoredGlyph> = Vec::new();
 
     // Collect all mark glyph GIDs for ccmp/GDEF
-    let mut mark_gid_set: HashSet<GlyphId16> = HashSet::new();
+    let mut mark_gid_set: HashSet<GlyphId16> = HashSet::default();
 
     // Build alternative index from glyphs: name:variant → base_name
-    let mut alt_index: HashMap<String, Vec<(String, Vec<GlyphPoint>)>> = HashMap::new();
+    let mut alt_index: HashMap<String, Vec<(String, Vec<GlyphPoint>)>> = HashMap::default();
     for g in glyphs {
         let mut prefix = g.name.as_str();
         while let Some(colon_pos) = prefix.rfind(':') {
@@ -190,7 +190,7 @@ pub(super) fn build_anchor_gpos(
     let mut ccmp_entries: Vec<CcmpEntry> = Vec::new();
 
     // Map anchor_name → (feature_tag, scripts) from the declarations.
-    let mut anchor_to_feature: HashMap<String, (String, Vec<String>)> = HashMap::new();
+    let mut anchor_to_feature: HashMap<String, (String, Vec<String>)> = HashMap::default();
     for feature in &gsub_data.anchor_features {
         anchor_to_feature
             .entry(feature.anchor.clone())
@@ -199,7 +199,7 @@ pub(super) fn build_anchor_gpos(
 
     // The footprints the marks of each class take, ascending — what the bases
     // of that class are asked to hold.
-    let mut class_mark_sizes: HashMap<&str, Vec<AnchorSize>> = HashMap::new();
+    let mut class_mark_sizes: HashMap<&str, Vec<AnchorSize>> = HashMap::default();
     for anchor_name in &anchor_names {
         let minus_name = format!("-{anchor_name}");
         let mut sizes: Vec<AnchorSize> = glyphs
@@ -284,7 +284,7 @@ pub(super) fn build_anchor_gpos(
             let mut own_plus: Vec<Option<(i16, i16)>> = vec![None; num_classes as usize];
             let mut has_own = false;
             // alt_name → plus_anchors for each alternative that provides anchors
-            let mut alt_plus_map: HashMap<String, Vec<Option<(i16, i16)>>> = HashMap::new();
+            let mut alt_plus_map: HashMap<String, Vec<Option<(i16, i16)>>> = HashMap::default();
 
             for anchor_name in anchor_names.iter() {
                 let plus_name = format!("+{anchor_name}");
@@ -654,7 +654,7 @@ pub(super) fn build_anchor_gpos(
     // a class of its own, between a letter and its vowel, and a rule looking
     // for the vowel one glyph along would otherwise find the dagesh and stop.
     let mut mark_glyph_sets: Vec<CoverageTable> = Vec::new();
-    let mut filtering_set_for: HashMap<&str, u16> = HashMap::new();
+    let mut filtering_set_for: HashMap<&str, u16> = HashMap::default();
     for anchor_name in &anchor_names {
         let minus_name = format!("-{anchor_name}");
         let mut filtering_gids: Vec<GlyphId16> = glyphs
@@ -810,7 +810,7 @@ pub(super) fn build_anchor_gpos(
     // backtrack = bases whose `+X` matches the alt's `-X` size.
     {
         let mark_alt_index: HashMap<String, Vec<(String, Vec<GlyphPoint>)>> = {
-            let mut map: HashMap<String, Vec<(String, Vec<GlyphPoint>)>> = HashMap::new();
+            let mut map: HashMap<String, Vec<(String, Vec<GlyphPoint>)>> = HashMap::default();
             for g in glyphs {
                 if !g.mark {
                     continue;

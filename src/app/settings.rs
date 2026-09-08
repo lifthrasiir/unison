@@ -221,7 +221,7 @@ mod tests {
     /// the same "a blob that will not parse reads as `None`" behavior — that
     /// [`super::super::UniformApp::save_settings`] writes through.
     #[derive(Default)]
-    struct TestStorage(std::collections::HashMap<String, String>);
+    struct TestStorage(crate::hash::HashMap<String, String>);
 
     impl eframe::Storage for TestStorage {
         fn get_string(&self, key: &str) -> Option<String> {

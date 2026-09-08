@@ -21,9 +21,9 @@ impl Fixture {
         let mut f = Fixture {
             doc,
             lines,
-            named_glyphs: HashMap::new(),
+            named_glyphs: HashMap::default(),
             alt_index: AlternativesIndex::default(),
-            name_parts: NamePartsMap::new(),
+            name_parts: NamePartsMap::default(),
             anchor_aligns: Default::default(),
         };
         f.resolve();

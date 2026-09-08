@@ -1,7 +1,7 @@
 //! The eframe application: `UniformApp`, its panels and the background
 //! pipeline that keeps the font and derived data fresh.
 
-use std::collections::HashMap;
+use crate::hash::HashMap;
 use std::hash::{Hash, Hasher};
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex, mpsc};
@@ -484,7 +484,7 @@ impl UniformApp {
             ref_images: None,
             ref_images_asked: false,
             font_data: None,
-            font_name_to_gid: HashMap::new(),
+            font_name_to_gid: HashMap::default(),
             font_applied: None,
             font_data_gen: 0,
             last_font_gen: 0,
@@ -503,7 +503,7 @@ impl UniformApp {
             face_ids,
             named_glyphs: Arc::default(),
             alt_index: Default::default(),
-            name_parts: NamePartsMap::new(),
+            name_parts: NamePartsMap::default(),
             exists_matches: Default::default(),
             char_props: Default::default(),
             color_aliases: Default::default(),

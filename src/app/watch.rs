@@ -105,7 +105,8 @@
 //! correctly a no-op too. That comparison is the first thing the scan does, so
 //! a file that did not really change is never even parsed.
 
-use std::collections::{BTreeSet, HashMap};
+use crate::hash::HashMap;
+use std::collections::BTreeSet;
 use std::hash::{Hash, Hasher};
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex, mpsc};

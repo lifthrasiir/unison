@@ -432,7 +432,7 @@ struct Orbits {
     periods: Vec<u32>,
     /// Shape id (the fill bit ignored — rotation never touches it) →
     /// (representative index, clockwise steps from that representative).
-    by_id: std::collections::HashMap<u8, (usize, u32)>,
+    by_id: crate::hash::HashMap<u8, (usize, u32)>,
     /// First representative of the palette's second row; see
     /// [`palette_row_break`].
     row_break: usize,
@@ -446,7 +446,7 @@ fn orbits() -> &'static Orbits {
 fn build_orbits() -> Orbits {
     let mut reps: Vec<PixelShape> = Vec::new();
     let mut periods: Vec<u32> = Vec::new();
-    let mut by_id: std::collections::HashMap<u8, (usize, u32)> = std::collections::HashMap::new();
+    let mut by_id: crate::hash::HashMap<u8, (usize, u32)> = crate::hash::HashMap::default();
 
     for &shape in all_valid_shapes() {
         if by_id.contains_key(&shape.shape_id()) {
@@ -604,10 +604,10 @@ mod tests {
         }
         // ... and nothing outside the catalog sneaks in: 18 cells × their
         // periods must be exactly the 60 shapes.
-        let reached: std::collections::HashSet<u8> = (0..palette_shapes().len())
+        let reached: crate::hash::HashSet<u8> = (0..palette_shapes().len())
             .flat_map(|idx| (0..4).map(move |r| rotate_shape(palette_shapes()[idx], r).shape_id()))
             .collect();
-        let catalog: std::collections::HashSet<u8> =
+        let catalog: crate::hash::HashSet<u8> =
             all_valid_shapes().iter().map(|s| s.shape_id()).collect();
         assert_eq!(reached, catalog);
     }

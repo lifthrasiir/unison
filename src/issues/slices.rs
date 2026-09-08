@@ -2,7 +2,7 @@
 //! them: which slices a line may name, which slice binds a part, and which
 //! declared slice nothing is qualified to.
 
-use std::collections::{HashMap, HashSet};
+use crate::hash::{HashMap, HashSet};
 
 use crate::document::DocumentItem;
 use crate::resolve::Diagnostic;
@@ -131,7 +131,7 @@ pub(super) fn check_name_part_bindings(cx: &Cx<'_>, issues: &mut Vec<Issue>) {
     // unqualified binding that a slice overrode would be a precedence rule,
     // and `crate::faces` has none. Two bindings for one slice are the same
     // conflict a slice deeper in.
-    let mut seen: HashMap<(&str, Option<&str>), ()> = HashMap::new();
+    let mut seen: HashMap<(&str, Option<&str>), ()> = HashMap::default();
     for doc in docs {
         for (item_idx, item) in doc.items.iter().enumerate() {
             let DocumentItem::NameParts { slices, name, .. } = item else {
@@ -190,7 +190,7 @@ pub(super) fn check_empty_slices(cx: &Cx<'_>, issues: &mut Vec<Issue>) {
     //
     // Content is counted transitively, so a slice that exists only to compose
     // others (`slice both = narrow wide`) is not empty when they are not.
-    let mut has_own: HashSet<&str> = HashSet::new();
+    let mut has_own: HashSet<&str> = HashSet::default();
     for doc in docs {
         for item in &doc.items {
             match item {
@@ -212,7 +212,7 @@ pub(super) fn check_empty_slices(cx: &Cx<'_>, issues: &mut Vec<Issue>) {
     // Reachability over `inherits`, bounded by the number of slices, so a
     // cycle (reported elsewhere) cannot spin here.
     for (name, (_, origin)) in &faces.declared {
-        let mut seen: HashSet<&str> = HashSet::new();
+        let mut seen: HashSet<&str> = HashSet::default();
         let mut stack = vec![name.as_str()];
         let mut found = false;
         while let Some(cur) = stack.pop() {

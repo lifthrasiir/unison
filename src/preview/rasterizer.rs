@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use crate::hash::HashMap;
 
 use skrifa::color::{Brush, ColorGlyph, ColorPainter, CompositeMode, Transform};
 use skrifa::outline::{DrawSettings, OutlinePen};
@@ -22,7 +22,7 @@ pub struct GlyphCache {
 impl GlyphCache {
     pub fn new() -> Self {
         Self {
-            cache: HashMap::new(),
+            cache: HashMap::default(),
             font_gen: u64::MAX,
         }
     }

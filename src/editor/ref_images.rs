@@ -60,7 +60,7 @@
 //! cropped, since a strip from somewhere else is still worth seeing whole.
 //! Wider than the row is the normal case, and that scrolls: drag the strip.
 
-use std::collections::{HashMap, HashSet};
+use crate::hash::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex, mpsc};
 
@@ -150,7 +150,7 @@ impl RefImages {
         let inner = Arc::new(Mutex::new(Inner {
             index: None,
             generation: 0,
-            entries: HashMap::new(),
+            entries: HashMap::default(),
         }));
         let (tx, rx) = mpsc::channel::<(u32, bool)>();
         let store = Self {
@@ -222,7 +222,7 @@ impl RefImages {
             inner: Arc::new(Mutex::new(Inner {
                 index: Some(index),
                 generation: 1,
-                entries: HashMap::new(),
+                entries: HashMap::default(),
             })),
             requests: None,
         }
@@ -342,7 +342,7 @@ impl RefImages {
         let Some(index) = guard.index.as_ref() else {
             return Vec::new();
         };
-        let mut seen: HashSet<u32> = HashSet::new();
+        let mut seen: HashSet<u32> = HashSet::default();
         let mut rows = Vec::new();
         for (i, line) in lines.iter().enumerate() {
             let DocLine::Text(text) = line else { continue };
@@ -447,7 +447,7 @@ fn image_path(root: &Path, cp: u32) -> PathBuf {
 /// generated output, and a directory that is not there at all is the ordinary
 /// case for a checkout that has never run the script.
 fn scan_index(root: &Path) -> HashSet<u32> {
-    let mut found = HashSet::new();
+    let mut found = HashSet::default();
     let Ok(dirs) = std::fs::read_dir(root) else {
         return found;
     };

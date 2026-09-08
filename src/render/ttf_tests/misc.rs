@@ -826,7 +826,7 @@ map D = colored
     let want = recomputed_maxp(&bytes);
     let font = read_fonts::FontRef::new(&bytes).unwrap();
     let maxp = font.maxp().unwrap();
-    let got: HashMap<&'static str, u16> = HashMap::from([
+    let got: HashMap<&'static str, u16> = HashMap::from_iter([
         ("maxPoints", maxp.max_points().unwrap()),
         ("maxContours", maxp.max_contours().unwrap()),
         ("maxCompositePoints", maxp.max_composite_points().unwrap()),

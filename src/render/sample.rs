@@ -9,7 +9,8 @@
 //! claims no code point in the font either, and a page listing a character
 //! the font does not map is the old way the two came to disagree.
 
-use std::collections::{BTreeMap, HashMap, HashSet};
+use crate::hash::{HashMap, HashSet};
+use std::collections::BTreeMap;
 use std::io::{self};
 use std::path::Path;
 
@@ -162,7 +163,7 @@ fn collect_sample_data_with(
 
     use crate::render::glyph_cache::resolve_cached as resolve_cached_ref;
 
-    let mut glyph_declared_anchors: HashMap<String, Vec<GlyphPoint>> = HashMap::new();
+    let mut glyph_declared_anchors: HashMap<String, Vec<GlyphPoint>> = HashMap::default();
     for item in all_items() {
         if let DocumentItem::Glyph {
             name: GlyphName(n),
@@ -418,7 +419,7 @@ fn collect_sample_data_with(
 
     // Collect features
     let mut features: Vec<String> = Vec::new();
-    let mut seen_features: HashSet<String> = HashSet::new();
+    let mut seen_features: HashSet<String> = HashSet::default();
     for item in all_items() {
         if let DocumentItem::Feature { name, .. } = item
             && seen_features.insert(name.clone())
@@ -521,7 +522,7 @@ pub(crate) fn udhr_selection(
         .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?;
 
     let cmap_set: HashSet<u32> = cmap.keys().copied().collect();
-    let mut covered: HashSet<u32> = HashSet::new();
+    let mut covered: HashSet<u32> = HashSet::default();
     let mut selected: Vec<UdhrEntry> = Vec::new();
     for entry in entries {
         if entry

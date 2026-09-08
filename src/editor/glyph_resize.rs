@@ -67,7 +67,7 @@
 //! pixel of the target is one logical pixel of whoever draws it, whatever
 //! either scale is.
 
-use std::collections::{HashMap, HashSet};
+use crate::hash::{HashMap, HashSet};
 use std::path::PathBuf;
 
 use crate::document::{DocLine, Document, DocumentItem, GlyphBody, NamePartsMap, PixelGrid};
@@ -512,7 +512,7 @@ pub(crate) fn target_names(
     name_parts: &NamePartsMap,
     glyph_name: &str,
 ) -> HashSet<String> {
-    let mut names: HashSet<String> = HashSet::new();
+    let mut names: HashSet<String> = HashSet::default();
     names.insert(glyph_name.to_string());
     let aliases = crate::alias::AliasMap::collect(docs, name_parts);
     for (name, target) in aliases.entries() {

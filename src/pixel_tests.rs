@@ -521,7 +521,7 @@ fn verify_union_exhaustive() {
     for &s in &valid {
         computed_rasters[s as usize] = expected_raster(s);
     }
-    let mut raster_to_id = std::collections::HashMap::new();
+    let mut raster_to_id = crate::hash::HashMap::default();
     for &s in &valid {
         raster_to_id
             .entry(computed_rasters[s as usize])
@@ -558,7 +558,7 @@ fn verify_subtract_exhaustive() {
     for &s in &valid {
         computed_rasters[s as usize] = expected_raster(s);
     }
-    let mut raster_to_id = std::collections::HashMap::new();
+    let mut raster_to_id = crate::hash::HashMap::default();
     for &s in &valid {
         raster_to_id
             .entry(computed_rasters[s as usize])
@@ -794,7 +794,7 @@ fn multi_shape_adjacency_hquad_dot() {
             all_segs.push((seg[0], seg[1], seg[2], seg[3]));
         }
     }
-    let mut degree: std::collections::HashMap<(i32, i32), u32> = std::collections::HashMap::new();
+    let mut degree: crate::hash::HashMap<(i32, i32), u32> = crate::hash::HashMap::default();
     let quantize = |v: f32| (v * 1200.0).round() as i32;
     for &(x1, y1, x2, y2) in &all_segs {
         *degree.entry((quantize(x1), quantize(y1))).or_default() += 1;

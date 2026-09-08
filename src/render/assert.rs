@@ -17,7 +17,7 @@
 //! its own cmap and its own GSUB, so shaping `for narrow` against the primary
 //! face would test the wrong font and quietly agree with itself.
 
-use std::collections::HashMap;
+use crate::hash::HashMap;
 use std::path::PathBuf;
 
 use crate::document::{
@@ -238,7 +238,7 @@ fn run_assertions_inner(
     }
 
     let faces = crate::faces::FaceSet::collect(docs);
-    let mut face_fonts: HashMap<String, Option<crate::render::FontWithGidMap>> = HashMap::new();
+    let mut face_fonts: HashMap<String, Option<crate::render::FontWithGidMap>> = HashMap::default();
 
     for assertion in &assertions {
         // An assertion no face satisfies is reported by `issues.rs`; here it
@@ -1024,7 +1024,7 @@ assert distinct a b c
             declared_origin: (0, 0),
             inline_source: None,
         };
-        let mut resolved = HashMap::new();
+        let mut resolved = HashMap::default();
         resolved.insert("a".to_string(), make(9));
         resolved.insert("b".to_string(), make(8));
         let assertion = SameDistinctAssertion {

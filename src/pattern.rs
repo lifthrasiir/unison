@@ -66,7 +66,7 @@
 //! `parse_element` and the two verbatim names `a*2`, `b` to `parse`. Both
 //! readings are relied on, so the tests below pin each one.
 
-use std::collections::HashMap;
+use crate::hash::HashMap;
 use std::fmt;
 
 pub const MAX_EXPANSION: usize = 1 << 16;
@@ -983,7 +983,7 @@ mod tests {
 
     #[test]
     fn element_expands_hex_ranges() {
-        let parts = NamePartsMap::new();
+        let parts = NamePartsMap::default();
         let expanded = substitute_name_parts("uni($#2800..2802)", &parts);
         assert_eq!(element(&expanded), vec!["uni2800", "uni2801", "uni2802"]);
         assert_eq!(
@@ -998,7 +998,7 @@ mod tests {
     /// the whole pattern. This layer only sees whatever substitution produced.
     #[test]
     fn an_unsubstituted_inline_range_stays_verbatim() {
-        let parts = NamePartsMap::new();
+        let parts = NamePartsMap::default();
         for bad in ["uni($#2802..2800)", "uni($#00000000..FFFFFFFF)"] {
             assert_eq!(
                 substitute_name_parts(bad, &parts),
@@ -1146,7 +1146,7 @@ mod tests {
     /// take 65536 built names to enumerate is answered without building any.
     #[test]
     fn matches_a_large_range_without_enumerating_it() {
-        let parts = NamePartsMap::new();
+        let parts = NamePartsMap::default();
         let p = NamePattern::parse(&substitute_name_parts("uni($#0000..ffff)", &parts)).unwrap();
         assert!(p.matches("uni0041"));
         assert!(!p.matches("uni041"));
@@ -1163,7 +1163,7 @@ mod tests {
 
     #[test]
     fn range_len_is_available_without_materializing() {
-        let parts = NamePartsMap::new();
+        let parts = NamePartsMap::default();
         let p = NamePattern::parse(&substitute_name_parts("uni($#0000..FFFF)", &parts)).unwrap();
         assert_eq!(p.len(), 0x10000);
         assert_eq!(p.get(0x41), "uni0041");
@@ -1180,7 +1180,7 @@ mod tests {
 
     #[test]
     fn parse_name_element_falls_back_to_the_substituted_literal() {
-        let parts = NamePartsMap::new();
+        let parts = NamePartsMap::default();
         // `foo*bar` is not a valid repeat, so the element grammar rejects it;
         // the fallback keeps the (substituted) name as-is.
         assert_eq!(expand_name_element("foo*bar", &parts), vec!["foo*bar"]);
@@ -1188,7 +1188,7 @@ mod tests {
 
     #[test]
     fn inline_range_decimal() {
-        let parts = NamePartsMap::new();
+        let parts = NamePartsMap::default();
         assert_eq!(
             substitute_name_parts("($0..9)", &parts),
             "(0|1|2|3|4|5|6|7|8|9)",
@@ -1197,7 +1197,7 @@ mod tests {
 
     #[test]
     fn inline_range_decimal_zero_padded() {
-        let parts = NamePartsMap::new();
+        let parts = NamePartsMap::default();
         assert_eq!(
             substitute_name_parts("($00..12)", &parts),
             "(00|01|02|03|04|05|06|07|08|09|10|11|12)",
@@ -1206,7 +1206,7 @@ mod tests {
 
     #[test]
     fn inline_range_decimal_mixed_width() {
-        let parts = NamePartsMap::new();
+        let parts = NamePartsMap::default();
         let result = substitute_name_parts("($0..11)", &parts);
         assert!(result.starts_with("(0|1|2|"));
         assert!(result.contains("|9|10|11)"));
@@ -1214,25 +1214,25 @@ mod tests {
 
     #[test]
     fn inline_range_hex() {
-        let parts = NamePartsMap::new();
+        let parts = NamePartsMap::default();
         assert_eq!(substitute_name_parts("($#a..f)", &parts), "(a|b|c|d|e|f)",);
     }
 
     #[test]
     fn inline_range_hex_zero_padded() {
-        let parts = NamePartsMap::new();
+        let parts = NamePartsMap::default();
         assert_eq!(substitute_name_parts("($#0a..0c)", &parts), "(0a|0b|0c)",);
     }
 
     #[test]
     fn inline_range_reversed_leaves_as_is() {
-        let parts = NamePartsMap::new();
+        let parts = NamePartsMap::default();
         assert_eq!(substitute_name_parts("($3..2)", &parts), "($3..2)",);
     }
 
     #[test]
     fn inline_range_in_glyph_name() {
-        let parts = NamePartsMap::new();
+        let parts = NamePartsMap::default();
         assert_eq!(
             substitute_name_parts("sup-($0..9)", &parts),
             "sup-(0|1|2|3|4|5|6|7|8|9)",
@@ -1246,7 +1246,7 @@ mod tests {
     }
 
     fn abc_parts() -> NamePartsMap {
-        let mut parts = NamePartsMap::new();
+        let mut parts = NamePartsMap::default();
         parts.insert(
             "$foo".to_string(),
             vec!["a".to_string(), "b".to_string(), "c".to_string()],
@@ -1290,7 +1290,7 @@ mod tests {
 
     #[test]
     fn inline_range_repeat_distributes_over_every_value() {
-        let parts = NamePartsMap::new();
+        let parts = NamePartsMap::default();
         assert_eq!(
             substitute_name_parts("($#0a..0c*2)", &parts),
             "(0a*2|0b*2|0c*2)",
@@ -1314,7 +1314,7 @@ mod tests {
 
     #[test]
     fn arbitrary_mixture_of_alternative_forms() {
-        let mut parts = NamePartsMap::new();
+        let mut parts = NamePartsMap::default();
         parts.insert("$bar".to_string(), vec!["b1".to_string(), "b2".to_string()]);
         let s = substitute_name_parts("(foo|$bar|baz*5|$#00..02*3**2)", &parts);
         let mut expected = vec!["foo", "foo", "b1", "b1", "b2", "b2"];
@@ -1327,7 +1327,7 @@ mod tests {
 
     #[test]
     fn substitute_name_parts_with_group_mult_suffix() {
-        let mut parts = NamePartsMap::new();
+        let mut parts = NamePartsMap::default();
         parts.insert(
             "$foo".to_string(),
             vec!["a".to_string(), "b".to_string(), "c".to_string()],
@@ -1337,7 +1337,7 @@ mod tests {
         assert_eq!(substitute_name_parts("($foo)", &parts), "(a|b|c)",);
         // Unknown var keeps suffix verbatim.
         assert_eq!(
-            substitute_name_parts("($bar**2)", &NamePartsMap::new()),
+            substitute_name_parts("($bar**2)", &NamePartsMap::default()),
             "($bar**2)",
         );
     }
@@ -1403,7 +1403,7 @@ mod tests {
     /// spelling, and an ordinary `$var` beside it still resolves.
     #[test]
     fn a_back_reference_wins_over_a_name_part_of_the_same_name() {
-        let mut parts = NamePartsMap::new();
+        let mut parts = NamePartsMap::default();
         parts.insert("$-1".to_string(), vec!["outer".to_string()]);
         parts.insert("$half".to_string(), vec!["-half".to_string()]);
         let groups = capture_groups("out-(a|b)");

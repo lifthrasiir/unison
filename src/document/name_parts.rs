@@ -1,7 +1,7 @@
 //! `name-parts` as the data model reads them: the unqualified bindings, the
 //! per-slice ones layered over them, and expanding one glyph block's names.
 
-use std::collections::HashMap;
+use crate::hash::HashMap;
 
 use super::{
     ComposeItem, Document, DocumentItem, GlyphBody, GlyphName, MAX_EXPANSION,
@@ -15,7 +15,7 @@ use crate::pattern::{
 /// The unqualified name parts: what every context that is not scoped to a
 /// slice — a glyph name, a `ref` target, a `remap` operand — substitutes with.
 pub fn collect_name_parts(docs: &[&Document]) -> NamePartsMap {
-    let mut map = NamePartsMap::new();
+    let mut map = NamePartsMap::default();
     for doc in docs {
         for item in &doc.items {
             if let DocumentItem::NameParts {
@@ -67,7 +67,7 @@ impl SliceNameParts {
     /// consumer of the expansion has one. Nothing is cloned when the source
     /// binds nothing per slice.
     pub fn with_base(docs: &[&Document], base: NamePartsMap) -> Self {
-        let mut per_slice: HashMap<String, NamePartsMap> = HashMap::new();
+        let mut per_slice: HashMap<String, NamePartsMap> = HashMap::default();
         for doc in docs {
             for item in &doc.items {
                 if let DocumentItem::NameParts {

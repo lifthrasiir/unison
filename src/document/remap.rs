@@ -1,7 +1,7 @@
 //! `remap group`: what a declaration says about the lookup as a whole, and the
 //! stable order the groups are built in.
 
-use std::collections::HashMap;
+use crate::hash::HashMap;
 
 use super::{Document, DocumentItem};
 
@@ -45,7 +45,7 @@ pub struct RemapGroupOrder {
 /// shuffle on an unrelated edit.
 pub fn remap_group_order(docs: &[&Document]) -> RemapGroupOrder {
     let mut out = RemapGroupOrder::default();
-    let mut index: HashMap<String, usize> = HashMap::new();
+    let mut index: HashMap<String, usize> = HashMap::default();
 
     let see = |name: &str, out: &mut RemapGroupOrder, index: &mut HashMap<String, usize>| {
         if !index.contains_key(name) {

@@ -76,11 +76,7 @@ pub fn new_contour_cache() -> SharedContourCache {
 
 fn hash_grid_for_cache(grid: &PixelGrid, bitmap: bool) -> u64 {
     let mut hasher = std::collections::hash_map::DefaultHasher::new();
-    grid.width.hash(&mut hasher);
-    grid.height.hash(&mut hasher);
-    for px in &grid.pixels {
-        px.0.hash(&mut hasher);
-    }
+    grid.hash_cells_into(&mut hasher);
     if !grid.details.is_empty() {
         grid.den.hash(&mut hasher);
         grid.details.hash(&mut hasher);

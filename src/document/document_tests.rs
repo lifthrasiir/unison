@@ -220,8 +220,11 @@ fn collect_name_parts_preserves_repeat_that_exceeds_cumulative_limit() {
     });
 
     assert!(
-        try_resolve_name_part_values(&["a".to_string(), oversized.clone()], &NamePartsMap::new())
-            .is_err(),
+        try_resolve_name_part_values(
+            &["a".to_string(), oversized.clone()],
+            &NamePartsMap::default()
+        )
+        .is_err(),
         "a binding over the expansion limit is an error",
     );
     let parts = collect_name_parts(&[&doc]);
@@ -233,7 +236,7 @@ fn collect_name_parts_preserves_repeat_that_exceeds_cumulative_limit() {
 /// `bar1 bar2 bar3` states.
 #[test]
 fn name_part_values_expand_patterns() {
-    let mut defined = NamePartsMap::new();
+    let mut defined = NamePartsMap::default();
     defined.insert("$ab".to_string(), vec!["a".to_string(), "b".to_string()]);
 
     let resolve = |values: &[&str]| {
@@ -262,15 +265,16 @@ fn name_part_values_expand_patterns() {
 fn a_name_part_value_over_the_expansion_limit_is_an_error() {
     let over = format!("x-($1..{})", MAX_EXPANSION + 1);
     let one = std::slice::from_ref(&over);
-    assert!(try_resolve_name_part_values(one, &NamePartsMap::new()).is_err());
+    assert!(try_resolve_name_part_values(one, &NamePartsMap::default()).is_err());
     assert_eq!(
-        resolve_name_part_values(one, &NamePartsMap::new()),
+        resolve_name_part_values(one, &NamePartsMap::default()),
         std::slice::from_ref(&over)
     );
 
     let half = format!("x-($1..{})", MAX_EXPANSION / 2 + 1);
     assert!(
-        try_resolve_name_part_values(&[half.clone(), half.clone()], &NamePartsMap::new()).is_err(),
+        try_resolve_name_part_values(&[half.clone(), half.clone()], &NamePartsMap::default())
+            .is_err(),
         "the limit is cumulative over the whole binding",
     );
 }
@@ -333,7 +337,7 @@ fn expand_glyph_block_expands_a_hex_range() {
     let items = expand_glyph_block(
         &GlyphName(substitute_name_parts(
             "uni($#2800..2801)",
-            &NamePartsMap::new(),
+            &NamePartsMap::default(),
         )),
         &ref_body("base"),
     )

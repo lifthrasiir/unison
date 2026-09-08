@@ -33,7 +33,7 @@ pub fn parse_hex_color(s: &str) -> Option<Rgba> {
 pub type ColorAliasMap = HashMap<String, (Rgba, Option<LayerVisibility>)>;
 
 pub fn collect_color_aliases(docs: &[&Document]) -> ColorAliasMap {
-    let mut map = ColorAliasMap::new();
+    let mut map = ColorAliasMap::default();
     for doc in docs {
         for item in &doc.items {
             if let DocumentItem::Color {

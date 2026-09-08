@@ -4,7 +4,7 @@
 //! per-item scan — features, `name-parts` values, headings and unrecognized
 //! directives — which walks the same items.
 
-use std::collections::{HashMap, HashSet};
+use crate::hash::{HashMap, HashSet};
 use std::path::PathBuf;
 
 use crate::document::{
@@ -87,10 +87,10 @@ pub(super) fn check_maps(
     // conflict the face split exists to make explicit.
     // `(slice id, site id)` per codepoint, both into the tables below: see
     // `MapSite` for why the site is not stored here.
-    let mut mapped_codepoints: HashMap<u32, Vec<(u16, u32)>> = HashMap::new();
+    let mut mapped_codepoints: HashMap<u32, Vec<(u16, u32)>> = HashMap::default();
     let mut slices_seen = SliceTable::default();
     let mut sites: Vec<MapSite> = Vec::new();
-    let mut mapped_glyphs: HashSet<String> = HashSet::new();
+    let mut mapped_glyphs: HashSet<String> = HashSet::default();
     // The alternatives too wide to enumerate: answered from the declared side
     // once the walk below is done. See `MapAlternativeIndex`.
     let mut alt_index = crate::render::ttf_builder::MapAlternativeIndex::default();
@@ -486,8 +486,8 @@ pub(super) fn uvs_collision_diagnostics(
     };
 
     // Which glyph each codepoint reaches, and which codepoints reach each glyph.
-    let mut cp_to_glyph: HashMap<u32, String> = HashMap::new();
-    let mut glyph_to_cps: HashMap<String, Vec<u32>> = HashMap::new();
+    let mut cp_to_glyph: HashMap<u32, String> = HashMap::default();
+    let mut glyph_to_cps: HashMap<String, Vec<u32>> = HashMap::default();
     for e in expansion.items.iter().filter(|e| included(&e.item)) {
         let DocumentItem::Map {
             char_repr,
@@ -506,7 +506,7 @@ pub(super) fn uvs_collision_diagnostics(
     }
 
     // (base glyph, selector) → the target the first pair claimed.
-    let mut claimed: HashMap<(String, u32), String> = HashMap::new();
+    let mut claimed: HashMap<(String, u32), String> = HashMap::default();
     for e in expansion.items.iter().filter(|e| included(&e.item)) {
         let DocumentItem::Map {
             char_repr,
@@ -604,7 +604,7 @@ pub(super) fn check_uvs_maps(cx: &Cx<'_>, issues: &mut Vec<Issue>) {
     // `map` an `exists` governs still says `U+($1)` on the line: read as
     // written it names no codepoint at all, and a pair whose base is stated by
     // another scoped `map` would read as a base mapped nowhere.
-    let mut base_cps: HashMap<Option<&str>, HashSet<u32>> = HashMap::new();
+    let mut base_cps: HashMap<Option<&str>, HashSet<u32>> = HashMap::default();
     for doc_idx in 0..docs.len() {
         for (_, item) in cx.source_items(doc_idx) {
             let DocumentItem::Map {

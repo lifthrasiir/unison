@@ -42,7 +42,8 @@
 //! source has no say in it. Only the filled grid folds: with undeclared
 //! characters hidden, every row is a glyph the source drew.
 
-use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+use crate::hash::{HashMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet};
 
 use skrifa::prelude::*;
 use skrifa::{FontRef, MetadataProvider};
@@ -377,7 +378,7 @@ impl SpecimenState {
             declared: BTreeMap::new(),
             uvs: BTreeMap::new(),
             blocks: BlockMap::default(),
-            unfolded: HashSet::new(),
+            unfolded: HashSet::default(),
             cached_gen: None,
             glyph_cache: GlyphCache::new(),
             char_props: crate::ucd::CharProps::default(),
@@ -534,7 +535,7 @@ impl SpecimenData {
             .flatten()
             .flat_map(|t| expand_name_element(t, name_parts))
             .collect();
-        let mut mapped_glyphs: HashSet<String> = HashSet::new();
+        let mut mapped_glyphs: HashSet<String> = HashSet::default();
         for (doc_idx, doc) in docs.iter().enumerate() {
             for (item_idx, item) in doc.items.iter().enumerate() {
                 let origin = ItemRef::new(doc_idx, item_idx);
@@ -689,7 +690,7 @@ impl SpecimenData {
         let declared = map;
 
         // Build reverse map: glyph_name → smallest codepoint.
-        let mut glyph_to_cp: HashMap<&str, u32> = HashMap::new();
+        let mut glyph_to_cp: HashMap<&str, u32> = HashMap::default();
         for (cp, (glyph_name, _)) in &declared {
             glyph_to_cp.entry(glyph_name.as_str()).or_insert(*cp);
         }
@@ -705,7 +706,7 @@ impl SpecimenData {
         }
         let mut ligature_rules: Vec<RemapRule> = Vec::new();
         // feature name for each remap-only glyph (first seen wins).
-        let mut glyph_feature: HashMap<String, String> = HashMap::new();
+        let mut glyph_feature: HashMap<String, String> = HashMap::default();
 
         for doc in docs {
             for item in &doc.items {

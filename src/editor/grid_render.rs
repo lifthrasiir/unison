@@ -18,7 +18,7 @@
 //! than scaled with the zoom, and the ring comment in `draw_metrics_box` for why
 //! the outer box is drawn as three *closed rectangles* instead of four edges.
 
-use std::collections::HashMap;
+use crate::hash::HashMap;
 
 use crate::document::{Document, DocumentItem, NamePartsMap, PixelGrid};
 use crate::editor::EditMode;
@@ -175,7 +175,7 @@ pub(crate) fn build_composites(
     aligns: &crate::document::AnchorAligns,
     exists: &crate::exists::FirstMatches,
 ) -> HashMap<usize, GlyphComposite> {
-    let mut composites = HashMap::new();
+    let mut composites = HashMap::default();
     for (idx, item) in doc.items.iter().enumerate() {
         if let DocumentItem::Glyph { body, .. } = item {
             // What the block's own `$-N` and `$N` stand for; borrowed

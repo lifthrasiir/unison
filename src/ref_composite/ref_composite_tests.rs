@@ -28,7 +28,7 @@ fn filled_grid(w: u16, h: u16) -> PixelGrid {
 /// which this test pins down.
 #[test]
 fn composite_to_grid_resolves_pattern_refs_like_compute_composite() {
-    let mut cache: HashMap<String, ResolvedGlyph> = HashMap::new();
+    let mut cache: HashMap<String, ResolvedGlyph> = HashMap::default();
     cache.insert(
         "digit0".to_string(),
         ResolvedGlyph {
@@ -62,7 +62,7 @@ fn composite_to_grid_resolves_pattern_refs_like_compute_composite() {
         refs: refs.clone(),
         ..GlyphBody::new()
     };
-    let empty_parts = NamePartsMap::new();
+    let empty_parts = NamePartsMap::default();
     let composite = compute_composite(
         &body,
         &cache,
@@ -100,7 +100,7 @@ fn composite_to_grid_resolves_pattern_refs_like_compute_composite() {
 /// have it yet.
 #[test]
 fn on_demand_ref_composites_before_the_next_resolve() {
-    let cache: HashMap<String, ResolvedGlyph> = HashMap::new();
+    let cache: HashMap<String, ResolvedGlyph> = HashMap::default();
     let refs = vec![GlyphRef {
         raw_name: None,
         comment: None,
@@ -116,7 +116,7 @@ fn on_demand_ref_composites_before_the_next_resolve() {
         refs: refs.clone(),
         ..GlyphBody::new()
     };
-    let empty_parts = NamePartsMap::new();
+    let empty_parts = NamePartsMap::default();
     let composite = compute_composite(
         &body,
         &cache,
@@ -177,7 +177,7 @@ ref target
     let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
 
     let docs = vec![&doc];
-    let name_parts = NamePartsMap::new();
+    let name_parts = NamePartsMap::default();
     let (resolved, _alt_idx) = resolve_named_glyphs_with_parts(&docs, &name_parts);
 
     let container = resolved
@@ -211,7 +211,7 @@ anchor +join 3 0
 ref target
 ";
     let mut doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
-    let name_parts = NamePartsMap::new();
+    let name_parts = NamePartsMap::default();
 
     let (resolved, _alt_idx) = resolve_named_glyphs_with_parts(&[&doc], &name_parts);
     assert_eq!(resolved["container"].grid.width, 4);
@@ -301,7 +301,7 @@ ref wrapped
 ref wrapped
 ";
     let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
-    let (resolved, _alt_idx) = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::new());
+    let (resolved, _alt_idx) = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::default());
     assert_eq!(resolved["chain"].grid.width, 3);
     assert!(resolved["chain"].grid.get(0, 0).is_bitmap_filled());
     assert!(resolved["chain"].grid.get(0, 2).is_bitmap_filled());
@@ -404,7 +404,7 @@ ref outer
 ref inner
 ";
     let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
-    let (resolved, _alt_idx) = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::new());
+    let (resolved, _alt_idx) = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::default());
 
     let pf = resolved.get("combo-plus-first").unwrap();
     let mf = resolved.get("combo-minus-first").unwrap();
@@ -438,7 +438,7 @@ ref target-wide
 ref target-narrow
 ";
     let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
-    let (resolved, _alt_idx) = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::new());
+    let (resolved, _alt_idx) = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::default());
 
     let container = resolved.get("container").unwrap();
     // target-wide has 2x2 anchor matching +join (2x2): offset = 3-1 = 2, placed at col 2.
@@ -470,7 +470,7 @@ anchor +join 3..4 0
 ref stem
 ";
     let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
-    let name_parts = NamePartsMap::new();
+    let name_parts = NamePartsMap::default();
     let (resolved, _alt_idx) = resolve_named_glyphs_with_parts(&[&doc], &name_parts);
 
     // stem has 1x1 anchor, +join is 2x1. stem:wide has 2x1 anchor → matches.
@@ -530,7 +530,7 @@ anchor +a 1..2 1..2
 ref base
 ";
     let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
-    let name_parts = NamePartsMap::new();
+    let name_parts = NamePartsMap::default();
     let (resolved, _alt_idx) = resolve_named_glyphs_with_parts(&[&doc], &name_parts);
 
     let host_body = doc
@@ -626,7 +626,7 @@ ref ($ab)-inner
         &[],
         &b_refs,
         1,
-        &AnchorAligns::new(),
+        &AnchorAligns::default(),
         |name| resolved.get(name).map(|r| r.resolved_anchors.clone()),
         |name| alt_idx.get(name).to_vec(),
         |name| resolved.get(name).map(|r| r.declared_anchors.clone()),
@@ -657,7 +657,7 @@ ref base
 ref overlay
 ";
     let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
-    let (resolved, _) = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::new());
+    let (resolved, _) = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::default());
     let base = &resolved["base"].grid;
     let overlay = &resolved["overlay"].grid;
     let contours = track_contour_multi(&[(base, 0, 0), (overlay, 0, 0)], PX_SUBPIXEL);
@@ -688,7 +688,7 @@ glyph host 1 1
 ref part
 ";
     let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
-    let (resolved, _) = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::new());
+    let (resolved, _) = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::default());
     let host_grid = &resolved["host"].grid;
     let part_grid = &resolved["part"].grid;
 
@@ -738,7 +738,7 @@ ref base
 ref mark-above:wide 2 1
 ";
     let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
-    let (resolved, _) = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::new());
+    let (resolved, _) = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::default());
 
     // `mark-above` is one cell wide against `base`'s two-cell `+above`, so only
     // `mark-above:wide` can attach; both are composites, so both resolve in the
@@ -788,9 +788,9 @@ ref base
 ref mark-below
 ";
     let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
-    let (resolved, alt_idx) = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::new());
+    let (resolved, alt_idx) = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::default());
 
-    let mut decl_anchors: HashMap<String, Vec<GlyphPoint>> = HashMap::new();
+    let mut decl_anchors: HashMap<String, Vec<GlyphPoint>> = HashMap::default();
     for item in &doc.items {
         if let DocumentItem::Glyph { name, body } = item {
             decl_anchors
@@ -813,7 +813,7 @@ ref mark-below
         &above_body.points,
         &above_body.refs,
         1,
-        &AnchorAligns::new(),
+        &AnchorAligns::default(),
         |name| resolved.get(name).map(|r| r.resolved_anchors.clone()),
         |name| alt_idx.get(name).to_vec(),
         |name| decl_anchors.get(name).cloned(),
@@ -838,7 +838,7 @@ ref mark-below
         &below_body.points,
         &below_body.refs,
         1,
-        &AnchorAligns::new(),
+        &AnchorAligns::default(),
         |name| resolved.get(name).map(|r| r.resolved_anchors.clone()),
         |name| alt_idx.get(name).to_vec(),
         |name| decl_anchors.get(name).cloned(),
@@ -893,8 +893,9 @@ ref mark-above
     let resolve = |inherit: &str| {
         let doc =
             document_io::parse_document_from_str(&source(inherit), "test.unf".into()).unwrap();
-        let (resolved, alt_idx) = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::new());
-        let mut decl_anchors: HashMap<String, Vec<GlyphPoint>> = HashMap::new();
+        let (resolved, alt_idx) =
+            resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::default());
+        let mut decl_anchors: HashMap<String, Vec<GlyphPoint>> = HashMap::default();
         for item in &doc.items {
             if let DocumentItem::Glyph { name, body } = item {
                 decl_anchors
@@ -915,7 +916,7 @@ ref mark-above
             &body.points,
             &body.refs,
             1,
-            &AnchorAligns::new(),
+            &AnchorAligns::default(),
             |name| resolved.get(name).map(|r| r.resolved_anchors.clone()),
             |name| alt_idx.get(name).to_vec(),
             |name| decl_anchors.get(name).cloned(),
@@ -965,7 +966,7 @@ ref mark-above
 fn on_demand_fractional_rect_resolved() {
     // 1p2r3x4 → scale 3, grid 6×12, rect (0,0)-(5,12)
     let doc = make_doc("glyph container\n  ref 1p2r3x4\n");
-    let name_parts = NamePartsMap::new();
+    let name_parts = NamePartsMap::default();
     let (cache, _) = resolve_named_glyphs_with_parts(&[&doc], &name_parts);
 
     assert!(cache.contains_key("1p2r3x4"));
@@ -998,7 +999,7 @@ fn on_demand_fractional_rect_neg_anchoring() {
     // Wait: extent_w = ceil(5/3) = 2, grid_w = 6, off_c = 6-5 = 1
     //        extent_h = ceil(4/3) = 2, grid_h = 6, off_r = 6-4 = 2
     let doc = make_doc("glyph container\n  ref -1p2r3x-1p1r3\n");
-    let name_parts = NamePartsMap::new();
+    let name_parts = NamePartsMap::default();
     let (cache, _) = resolve_named_glyphs_with_parts(&[&doc], &name_parts);
 
     let resolved = &cache["-1p2r3x-1p1r3"];
@@ -1037,7 +1038,7 @@ fn make_doc(text: &str) -> Document {
 #[test]
 fn on_demand_glyph_injected_for_ref() {
     let doc = make_doc("glyph test 3 5\n......\n......\n......\n......\n......\n  ref 2x3\n");
-    let name_parts = NamePartsMap::new();
+    let name_parts = NamePartsMap::default();
     let (cache, _) = resolve_named_glyphs_with_parts(&[&doc], &name_parts);
 
     assert!(cache.contains_key("2x3"));
@@ -1054,7 +1055,7 @@ fn on_demand_glyph_injected_for_ref() {
 #[test]
 fn on_demand_glyph_composite_resolves() {
     let doc = make_doc("glyph composite\n  ref 3x2\n");
-    let name_parts = NamePartsMap::new();
+    let name_parts = NamePartsMap::default();
     let (cache, _) = resolve_named_glyphs_with_parts(&[&doc], &name_parts);
 
     assert!(
@@ -1086,7 +1087,7 @@ fn on_demand_glyph_resolves_in_multi_ref_composite() {
         "  ref base\n",
         "  ref 3x2 2 0\n",
     ));
-    let name_parts = NamePartsMap::new();
+    let name_parts = NamePartsMap::default();
     let (cache, _) = resolve_named_glyphs_with_parts(&[&doc], &name_parts);
 
     assert!(
@@ -1104,7 +1105,7 @@ fn on_demand_glyph_resolves_in_multi_ref_composite() {
 #[test]
 fn on_demand_glyph_not_injected_when_defined() {
     let doc = make_doc("glyph 2x3 2 3\n....\n....\n....\n");
-    let name_parts = NamePartsMap::new();
+    let name_parts = NamePartsMap::default();
     let (cache, _) = resolve_named_glyphs_with_parts(&[&doc], &name_parts);
 
     let resolved = &cache["2x3"];
@@ -1124,7 +1125,7 @@ fn color_mono_on_demand_glyph_created() {
         "glyph test:color\n  ref part-b\n",
         "glyph container\n  ref test\n",
     ));
-    let name_parts = NamePartsMap::new();
+    let name_parts = NamePartsMap::default();
     let (cache, _) = resolve_named_glyphs_with_parts(&[&doc], &name_parts);
 
     assert!(
@@ -1152,7 +1153,7 @@ fn color_mono_on_demand_not_created_when_defined() {
         "glyph test\n  ref part\n",
         "glyph container\n  ref test\n",
     ));
-    let name_parts = NamePartsMap::new();
+    let name_parts = NamePartsMap::default();
     let (cache, _) = resolve_named_glyphs_with_parts(&[&doc], &name_parts);
 
     assert!(cache.contains_key("test"));
@@ -1165,7 +1166,7 @@ fn color_mono_on_demand_not_created_when_only_mono_exists() {
         "glyph test:mono\n  ref part\n",
         "glyph container\n  ref test\n",
     ));
-    let name_parts = NamePartsMap::new();
+    let name_parts = NamePartsMap::default();
     let (cache, _) = resolve_named_glyphs_with_parts(&[&doc], &name_parts);
 
     assert!(
@@ -1427,7 +1428,7 @@ fn derive_reports_duplicates_and_ambiguity() {
         &[],
         &refs,
         1,
-        &AnchorAligns::new(),
+        &AnchorAligns::default(),
         lookup,
         |_| Vec::new(),
         lookup,
@@ -1456,7 +1457,7 @@ fn derive_reports_duplicates_and_ambiguity() {
         &[],
         &refs,
         1,
-        &AnchorAligns::new(),
+        &AnchorAligns::default(),
         lookup,
         |_| Vec::new(),
         lookup,
@@ -1577,7 +1578,7 @@ fn a_wider_plus_holds_a_narrower_minus() {
     };
     let refs = vec![gref("base"), gref("mark")];
 
-    let mut aligns = AnchorAligns::new();
+    let mut aligns = AnchorAligns::default();
     aligns.insert(
         "below".to_string(),
         AnchorAlign {
@@ -1606,7 +1607,7 @@ fn a_wider_plus_holds_a_narrower_minus() {
             &[],
             &refs,
             1,
-            &AnchorAligns::new(),
+            &AnchorAligns::default(),
             lookup,
             |_| Vec::new(),
             lookup,
@@ -1659,7 +1660,7 @@ fn derive_reports_size_mismatched_attachment() {
         &[],
         &refs,
         1,
-        &AnchorAligns::new(),
+        &AnchorAligns::default(),
         lookup,
         |_| Vec::new(),
         lookup,
@@ -1681,7 +1682,7 @@ fn derive_reports_size_mismatched_attachment() {
         &[],
         &refs,
         1,
-        &AnchorAligns::new(),
+        &AnchorAligns::default(),
         lookup,
         |_| Vec::new(),
         lookup,
@@ -1744,7 +1745,7 @@ fn attaching_through_one_minus_retires_the_other_alternatives() {
         &[],
         &refs,
         1,
-        &AnchorAligns::new(),
+        &AnchorAligns::default(),
         lookup,
         |_| Vec::new(),
         lookup,
@@ -1818,7 +1819,7 @@ ref acute
             &body.points,
             refs,
             1,
-            &AnchorAligns::new(),
+            &AnchorAligns::default(),
             |name| resolved.get(name).map(|r| r.resolved_anchors.clone()),
             |name| alt_idx.get(name).to_vec(),
             |name| resolved.get(name).map(|r| r.declared_anchors.clone()),
@@ -1911,7 +1912,7 @@ ref circle
             &body.points,
             &body.refs,
             1,
-            &AnchorAligns::new(),
+            &AnchorAligns::default(),
             |name| resolved.get(name).map(|r| r.resolved_anchors.clone()),
             |name| alt_idx.get(name).to_vec(),
             |name| resolved.get(name).map(|r| r.declared_anchors.clone()),
@@ -1978,7 +1979,7 @@ ref bar
 "
         )
     };
-    let name_parts = NamePartsMap::new();
+    let name_parts = NamePartsMap::default();
     let mut grid_cache = CompositeGridCache::default();
     let resolve = |text: &str, gc: &mut CompositeGridCache| {
         let doc = document_io::parse_document_from_str(text, "test.unf".into()).unwrap();
@@ -2068,10 +2069,11 @@ fn a_ref_offset_names_the_targets_box_corner() {
     // Where the target's single ink cell lands in the parent's raster, as
     // (row, col), read off the layer rather than the flattened grid.
     let placed = |child_origin: (i16, i16), offset: (i16, i16)| {
-        let mut cache: HashMap<String, ResolvedGlyph> = HashMap::new();
+        let mut cache: HashMap<String, ResolvedGlyph> = HashMap::default();
         cache.insert("child".to_string(), child(child_origin));
         let refs = one_ref(offset);
-        let layout = resolve_composite_layout(None, &refs, &cache, &NamePartsMap::new(), 1, false);
+        let layout =
+            resolve_composite_layout(None, &refs, &cache, &NamePartsMap::default(), 1, false);
         assert_eq!(layout.layers.len(), 1, "the ref must resolve");
         (layout.layers[0].raster_row, layout.layers[0].raster_col)
     };
@@ -2100,7 +2102,7 @@ glyph user 1 1
 ref a-j
 ";
     let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
-    let (resolved, _alt_idx) = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::new());
+    let (resolved, _alt_idx) = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::default());
     for name in ["a-g", "a-j", "a-k", "user"] {
         assert!(resolved.contains_key(name), "{name} should resolve");
     }
@@ -2144,7 +2146,7 @@ glyph forced 2 2
 ref outer fill green
 ";
     let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
-    let (resolved, alt_index) = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::new());
+    let (resolved, alt_index) = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::default());
     let aliases = crate::render::ttf_builder::collect_color_aliases(&[&doc]);
     let body_of = |name: &str| {
         doc.items
@@ -2163,7 +2165,7 @@ ref outer fill green
         compute_composite(
             &body_of(name),
             &resolved,
-            &NamePartsMap::new(),
+            &NamePartsMap::default(),
             &alt_index,
             &aliases,
             &AnchorAligns::default(),
@@ -2216,7 +2218,7 @@ fn a_hardblank_keeps_the_exact_geometry_a_ref_lays_over_it() {
         "..".repeat(9),
     );
     let doc = document_io::parse_document_from_str(&input, "test.unf".into()).unwrap();
-    let name_parts = NamePartsMap::new();
+    let name_parts = NamePartsMap::default();
     let (resolved, _) = resolve_named_glyphs_with_parts(&[&doc], &name_parts);
 
     for name in ["host", "parent"] {

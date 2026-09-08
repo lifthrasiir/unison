@@ -48,8 +48,8 @@ fn rebuilds_when_name_parts_and_gids_arrive_late() {
     assert!(state.needs_rebuild(0, 0));
     state.rebuild_if_needed(
         &docs,
-        &NamePartsMap::new(),
-        &HashMap::new(),
+        &NamePartsMap::default(),
+        &HashMap::default(),
         None,
         &GlyphFlags::default(),
         0,
@@ -93,8 +93,8 @@ fn a_rebuild_picks_up_the_prop_lines() {
 
     state.rebuild_if_needed(
         &docs,
-        &NamePartsMap::new(),
-        &HashMap::new(),
+        &NamePartsMap::default(),
+        &HashMap::default(),
         None,
         &GlyphFlags::default(),
         1,
@@ -137,7 +137,7 @@ fn state(src: &str) -> SpecimenState {
     state.rebuild_if_needed(
         &docs,
         &name_parts,
-        &HashMap::new(),
+        &HashMap::default(),
         None,
         &GlyphFlags::default(),
         1,
@@ -168,7 +168,7 @@ map U+0041 = whole
     let flags = crate::glyph_flags::collect(&docs, &issues, &resolution.expansion);
     let name_parts = crate::document::collect_name_parts(&docs);
     let mut state = SpecimenState::new();
-    state.rebuild_if_needed(&docs, &name_parts, &HashMap::new(), None, &flags, 1, 1);
+    state.rebuild_if_needed(&docs, &name_parts, &HashMap::default(), None, &flags, 1, 1);
     state.rebuild_sections();
 
     let cell = *state
@@ -202,7 +202,7 @@ map U+0041 = whole
     let flags = crate::glyph_flags::collect(&docs, &issues, &resolution.expansion);
     let name_parts = crate::document::collect_name_parts(&docs);
     let mut state = SpecimenState::new();
-    state.rebuild_if_needed(&docs, &name_parts, &HashMap::new(), None, &flags, 1, 1);
+    state.rebuild_if_needed(&docs, &name_parts, &HashMap::default(), None, &flags, 1, 1);
     state.rebuild_sections();
 
     let cell = *state
@@ -809,7 +809,7 @@ map U+($1) U+E01E7 = han-($1)-k
     state.rebuild_if_needed(
         &docs,
         &name_parts,
-        &HashMap::new(),
+        &HashMap::default(),
         None,
         &GlyphFlags::default(),
         1,
@@ -895,7 +895,7 @@ fn no_font_yet_tints_nothing() {
     state.rebuild_if_needed(
         &docs,
         &name_parts,
-        &HashMap::new(),
+        &HashMap::default(),
         None,
         &GlyphFlags::default(),
         1,

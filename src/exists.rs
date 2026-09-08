@@ -81,6 +81,17 @@ pub struct ExistsPattern {
     source: String,
     re: Regex,
     captures: usize,
+    /// The literal text every match has to start with, read off the parsed
+    /// form ([`literal_prefix`]). A necessary condition, never a sufficient
+    /// one, and empty when the pattern begins with anything but a literal.
+    ///
+    /// This is a prefilter, and the reason it exists is the shape of the
+    /// search: the fixpoint runs *every* directive over *every* declared name,
+    /// so a source with eighty `exists han-96e8\.3:…` lines and sixty thousand
+    /// names is millions of match attempts, nearly all of which the first byte
+    /// already answers. The regex engine has its own prefilter and still costs
+    /// a call to reach it; `starts_with` is the same answer for a memcmp.
+    prefix: String,
 }
 
 impl PartialEq for ExistsPattern {
@@ -127,6 +138,7 @@ impl ExistsPattern {
             source: source.to_string(),
             re,
             captures,
+            prefix: literal_prefix(&hir),
         })
     }
 
@@ -145,7 +157,7 @@ impl ExistsPattern {
     /// and it does not ask the question through here so far.
     #[cfg_attr(not(test), expect(dead_code))]
     pub fn is_match(&self, name: &str) -> bool {
-        self.re.is_match(name)
+        name.starts_with(&self.prefix) && self.re.is_match(name)
     }
 
     /// `[$0, $1, …]` for a matching name, `None` otherwise.
@@ -154,6 +166,9 @@ impl ExistsPattern {
     /// rather than dropping out, so the slot count is the pattern's and a `$N`
     /// never silently shifts to another group's value.
     pub fn capture(&self, name: &str) -> Option<Vec<String>> {
+        if !name.starts_with(&self.prefix) {
+            return None;
+        }
         let caps = self.re.captures(name)?;
         Some(
             (0..=self.captures)
@@ -237,6 +252,43 @@ fn char_range_is_name_text(start: char, end: char) -> bool {
     (start..=end).all(is_name_char)
 }
 
+/// The literal text a match is bound to start with, or `""` when the pattern
+/// starts with anything else.
+///
+/// Only the leading run of literals is read, and only through the nodes that
+/// cannot change what comes first — a capture around the start, the first
+/// branch of a concatenation. A repetition, a class or an alternation ends it,
+/// since none of them pins a first byte down. `(?i)` never reaches here as a
+/// literal: `regex_syntax` turns a case-insensitive letter into a class.
+fn literal_prefix(hir: &Hir) -> String {
+    fn push(hir: &Hir, out: &mut String) -> bool {
+        match hir.kind() {
+            HirKind::Literal(lit) => match str::from_utf8(&lit.0) {
+                Ok(text) => {
+                    out.push_str(text);
+                    true
+                }
+                // Not reachable for a checked pattern (`check_subset` rejects
+                // non-name text), and stopping is the safe answer anyway.
+                Err(_) => false,
+            },
+            HirKind::Capture(cap) => push(&cap.sub, out),
+            HirKind::Concat(subs) => {
+                for sub in subs {
+                    if !push(sub, out) {
+                        return false;
+                    }
+                }
+                true
+            }
+            _ => false,
+        }
+    }
+    let mut out = String::new();
+    push(hir, &mut out);
+    out
+}
+
 fn count_captures(hir: &Hir) -> usize {
     match hir.kind() {
         HirKind::Empty | HirKind::Literal(_) | HirKind::Class(_) | HirKind::Look(_) => 0,
@@ -270,7 +322,7 @@ impl std::fmt::Display for ExistsCycle {
 #[path = "exists_tests.rs"]
 mod exists_tests;
 
-use std::collections::{HashMap, HashSet};
+use crate::hash::{HashMap, HashSet};
 #[cfg(feature = "editor")]
 use std::path::{Path, PathBuf};
 
@@ -414,7 +466,7 @@ pub struct FirstMatches {
 #[cfg(feature = "editor")]
 impl FirstMatches {
     pub fn collect(docs: &[&Document], scopes: &ExistsScopes) -> Self {
-        let mut per_file: HashMap<PathBuf, HashMap<usize, Vec<String>>> = HashMap::new();
+        let mut per_file: HashMap<PathBuf, HashMap<usize, Vec<String>>> = HashMap::default();
         for (r, scope) in scopes.iter() {
             let Some(first) = scope.matches.first() else {
                 continue;
@@ -539,7 +591,7 @@ pub fn resolve_scopes(
     // have no names until their own search has run.
     let scoped_targets: HashSet<ItemRef> = pending.iter().map(|p| p.target).collect();
     let mut names: Vec<String> = Vec::new();
-    let mut seen: HashSet<String> = HashSet::new();
+    let mut seen: HashSet<String> = HashSet::default();
     for (doc_idx, doc) in docs.iter().enumerate() {
         for (item_idx, item) in doc.items.iter().enumerate() {
             let DocumentItem::Glyph { name, .. } = item else {
@@ -589,19 +641,36 @@ pub fn resolve_scopes(
         .collect();
     let budget = pending.len();
     let mut settled = false;
+    // Both halves of a round are *incremental*, and that is what keeps the
+    // fixpoint from costing the whole search once per round. `names` and each
+    // scope's `matches` only ever grow, so a name a directive has already been
+    // run over cannot answer differently later, and a match already fed back
+    // cannot declare anything new. Every run therefore takes at least two
+    // rounds — one that finds the matches, one that confirms nothing follows
+    // from them — and re-searching sixty thousand names for that confirmation
+    // was half the cost of the whole stage.
+    //
+    // The two indices are per directive rather than shared because `names`
+    // grows *during* a round: a directive earlier in the list has seen fewer
+    // names than one after it, and the next round picks up exactly what each
+    // one missed.
+    let mut searched = vec![0usize; pending.len()];
+    let mut fed_back = vec![0usize; pending.len()];
     for _ in 0..=budget {
         let mut changed = false;
         for (k, p) in pending.iter().enumerate() {
-            let matches: Vec<Vec<String>> =
-                names.iter().filter_map(|n| p.pattern.capture(n)).collect();
-            if matches.len() != scopes[k].matches.len() {
-                changed = true;
+            let upto = names.len();
+            for name in &names[searched[k]..upto] {
+                if let Some(caps) = p.pattern.capture(name) {
+                    scopes[k].matches.push(caps);
+                    changed = true;
+                }
             }
-            scopes[k].matches = matches;
+            searched[k] = upto;
             let Some(header) = &p.declares else {
                 continue;
             };
-            if scopes[k].matches.is_empty() {
+            if fed_back[k] == scopes[k].len() {
                 continue;
             }
             // Per match, because that is how the block below runs: a name
@@ -609,7 +678,7 @@ pub fn resolve_scopes(
             // the build expands the header once for each match with the slots
             // bound to one string each.
             let mut bound = name_parts.clone();
-            for i in 0..scopes[k].len() {
+            for i in fed_back[k]..scopes[k].len() {
                 scopes[k].rebind(&mut bound, i);
                 for n in expand_header_names(header, &bound) {
                     if seen.insert(n.clone()) {
@@ -618,6 +687,7 @@ pub fn resolve_scopes(
                     }
                 }
             }
+            fed_back[k] = scopes[k].len();
         }
         if !changed {
             settled = true;

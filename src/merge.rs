@@ -90,7 +90,7 @@
 //! escape hatch, and it is stated per block, which is where the pattern that
 //! would merge is written.
 
-use std::collections::{HashMap, HashSet};
+use crate::hash::{HashMap, HashSet};
 
 use crate::alias::AliasMap;
 use crate::document::{
@@ -126,7 +126,7 @@ pub fn implicit_merges(
     // Name → the glyph it has been merged into. Values are never keys: a
     // representative is canonicalized before it is stored, so `canon` is one
     // lookup and not a walk.
-    let mut merged: HashMap<String, String> = HashMap::new();
+    let mut merged: HashMap<String, String> = HashMap::default();
 
     loop {
         let mut changed = false;
@@ -144,7 +144,7 @@ pub fn implicit_merges(
                 })
                 .collect();
 
-            let mut first_with_key: HashMap<&[&str], usize> = HashMap::new();
+            let mut first_with_key: HashMap<&[&str], usize> = HashMap::default();
             let mut new_merges: Vec<(String, String)> = Vec::new();
             for (i, key) in keys.iter().enumerate() {
                 // A glyph some rule matches on keeps its own id, and cannot
@@ -201,7 +201,7 @@ fn remap_inputs(
     name_parts: &NamePartsMap,
     aliases: &AliasMap,
 ) -> HashSet<String> {
-    let mut out = HashSet::new();
+    let mut out = HashSet::default();
     for doc in docs {
         for item in &doc.items {
             let DocumentItem::Remap {

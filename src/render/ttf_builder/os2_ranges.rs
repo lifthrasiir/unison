@@ -215,7 +215,7 @@ pub(super) fn unicode_ranges(codepoints: impl Iterator<Item = u32>) -> [u32; 4] 
 /// coverage is not something a Unicode cmap states — but it is the heuristic
 /// every other tool uses, so a font built here reports what a font built
 /// elsewhere with the same coverage would.
-pub(super) fn code_page_ranges(codepoints: &std::collections::HashSet<u32>) -> [u32; 2] {
+pub(super) fn code_page_ranges(codepoints: &crate::hash::HashSet<u32>) -> [u32; 2] {
     let has = |c: char| codepoints.contains(&(c as u32));
     let has_ascii = (0x20..0x7E).all(|c| codepoints.contains(&c));
     let has_lineart = has('┤');

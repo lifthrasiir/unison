@@ -19,7 +19,7 @@
 //! through them changes nothing the view is built from, and rebuilding it is
 //! O(document).
 
-use std::collections::HashMap;
+use crate::hash::HashMap;
 
 use crate::document::GlyphPoint;
 use crate::editor::ref_composite::ResolvedGlyph;

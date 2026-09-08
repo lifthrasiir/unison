@@ -39,7 +39,7 @@ pub(super) fn build_glyph_outlines(glyphs: &[CollectedGlyph]) -> OutlineBuild {
         glyf_builder: GlyfLocaBuilder::new(),
         h_metrics: Vec::new(),
         cmap_mappings: Vec::new(),
-        name_to_gid: HashMap::new(),
+        name_to_gid: HashMap::default(),
         max_points: 0,
         max_contours: 0,
         max_composite_points: 0,
@@ -57,7 +57,7 @@ pub(super) fn build_glyph_outlines(glyphs: &[CollectedGlyph]) -> OutlineBuild {
     // and deterministic long enough for that report to be read — a panic here
     // kills the editor's background build thread and takes the diagnostic with
     // it. First glyph in collection order wins, which is source order.
-    let mut mapped: HashSet<char> = HashSet::new();
+    let mut mapped: HashSet<char> = HashSet::default();
 
     // Pass 1: build name→GID mapping and cmap
     for (i, g) in glyphs.iter().enumerate() {
@@ -86,7 +86,7 @@ pub(super) fn build_glyph_outlines(glyphs: &[CollectedGlyph]) -> OutlineBuild {
     // so a chain of blank refs collapses in one place and deep composites
     // cannot grow the stack.  A composite whose contours cancel out to nothing
     // but whose components are real (negated refs) is not empty.
-    let mut empty_glyphs: HashSet<&str> = HashSet::new();
+    let mut empty_glyphs: HashSet<&str> = HashSet::default();
     loop {
         let mut changed = false;
         for (i, g) in glyphs.iter().enumerate() {

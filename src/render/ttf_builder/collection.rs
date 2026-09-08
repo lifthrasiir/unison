@@ -31,7 +31,7 @@
 //! what the field being advisory allows and what keeps two faces with otherwise
 //! identical `head` tables sharing one.
 
-use std::collections::HashMap;
+use crate::hash::HashMap;
 
 use write_fonts::types::Tag;
 
@@ -79,7 +79,7 @@ pub(crate) fn build_collection(fonts: &[Vec<u8>]) -> Result<Vec<u8>, String> {
     // Content -> offset, so identical tables are stored once. Keyed by the
     // bytes themselves rather than a hash: a collision here would silently
     // corrupt a face, and the tables are already in memory.
-    let mut seen: HashMap<&[u8], u32> = HashMap::new();
+    let mut seen: HashMap<&[u8], u32> = HashMap::default();
     let blob_base = header_len + directories_len;
 
     // Offsets are resolved before anything is written, because a directory

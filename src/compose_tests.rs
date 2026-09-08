@@ -642,7 +642,7 @@ fn an_idc_line_resolves_to_the_composed_glyph() {
 
     let (resolved, _) = crate::ref_composite::resolve_named_glyphs_with_parts(
         &[&doc],
-        &crate::document::NamePartsMap::new(),
+        &crate::document::NamePartsMap::default(),
     );
     let whole = resolved.get("whole").expect("whole should resolve");
     assert_eq!((whole.grid.width, whole.grid.height), (4, 4));
@@ -664,7 +664,7 @@ fn the_live_view_places_the_parts_where_the_font_does() {
     // two must land in the same place — a glyph drawn one way on screen and
     // another in the font is the failure this derivation exists to avoid.
     let doc = parse("\u{2FF0} part:2x4-l part:2x4-r");
-    let name_parts = crate::document::NamePartsMap::new();
+    let name_parts = crate::document::NamePartsMap::default();
     let (resolved, alt_index) =
         crate::ref_composite::resolve_named_glyphs_with_parts(&[&doc], &name_parts);
     let body = doc
@@ -874,7 +874,7 @@ fn a_negated_hardblank_releases_a_claim_at_the_frontier() {
     );
 }
 
-fn profiles(entries: &[(&str, &[&str])]) -> std::collections::HashMap<String, InkProfile> {
+fn profiles(entries: &[(&str, &[&str])]) -> crate::hash::HashMap<String, InkProfile> {
     entries
         .iter()
         .map(|(name, rows)| (name.to_string(), whole(&grid(rows), 1)))
@@ -886,7 +886,7 @@ fn with_clearance(
     parent: (u16, u16),
     compose: &GlyphCompose,
     dims: &dyn Fn(&str) -> PartDims,
-    profiles: &std::collections::HashMap<String, InkProfile>,
+    profiles: &crate::hash::HashMap<String, InkProfile>,
     min: i16,
     max: i16,
 ) -> Vec<String> {
@@ -1049,7 +1049,7 @@ fn a_hardblank_outside_the_box_claims_the_neighbours_cell() {
     let dims = table(&[("a:3x1", (3, 1)), ("b:3x1", (3, 1))]);
     // `a` is 3 wide from grid column 0 and claims the column past it; `b` is 3
     // wide from grid column 1 and claims the column before it.
-    let ink: std::collections::HashMap<String, InkProfile> = [
+    let ink: crate::hash::HashMap<String, InkProfile> = [
         (
             "a:3x1".to_string(),
             InkProfile::of(&grid(&["$##$"]), 1, (0, 0), (0, 0), (3, 1)),
@@ -1303,7 +1303,7 @@ fn with_contact_run(
     parent: (u16, u16),
     compose: &GlyphCompose,
     dims: &dyn Fn(&str) -> PartDims,
-    profiles: &std::collections::HashMap<String, InkProfile>,
+    profiles: &crate::hash::HashMap<String, InkProfile>,
     max_contact_run: Option<u16>,
 ) -> Vec<String> {
     let ink = |name: &str| profiles.get(name);

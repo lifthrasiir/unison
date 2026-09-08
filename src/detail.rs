@@ -20,8 +20,9 @@
 //! of it. [`Frac`] explains why a chained fixed-width rational cannot work at
 //! any width, which is the bug this shape exists to rule out.
 
+use crate::hash::HashMap;
 use std::cmp::Ordering;
-use std::collections::{BTreeMap, HashMap};
+use std::collections::BTreeMap;
 
 use crate::math::{gcd_i128, gcd_u64, lcm_u64};
 
@@ -198,7 +199,7 @@ fn shape_region_table() -> &'static [DetailRegion; 128] {
 fn classify_index() -> &'static HashMap<DetailRegion, u8> {
     static INDEX: std::sync::OnceLock<HashMap<DetailRegion, u8>> = std::sync::OnceLock::new();
     INDEX.get_or_init(|| {
-        let mut map = HashMap::new();
+        let mut map = HashMap::default();
         for (id, region) in shape_region_table().iter().enumerate() {
             if !region.is_empty() {
                 // Prefer the smallest id when two ids share geometry.
@@ -233,14 +234,14 @@ pub fn subtract_classified(a: &DetailRegion, b: &DetailRegion) -> Classified {
     if let Some(hit) = CACHE
         .lock()
         .unwrap()
-        .get_or_insert_with(HashMap::new)
+        .get_or_insert_with(HashMap::default)
         .get(&key)
     {
         return hit.clone();
     }
     let result = bool_op(a, b, BoolOp::Subtract).classify();
     let mut cache = CACHE.lock().unwrap();
-    let map = cache.get_or_insert_with(HashMap::new);
+    let map = cache.get_or_insert_with(HashMap::default);
     if map.len() > 65536 {
         map.clear();
     }
@@ -861,7 +862,7 @@ fn link_rings(segs: Vec<(FPoint, FPoint, Line)>) -> Vec<Vec<(FPoint, Line)>> {
     points.dedup();
     let id = |p: &FPoint| -> u32 { points.binary_search(p).expect("interned point") as u32 };
 
-    let mut counter: HashMap<(u32, u32), (i32, Line)> = HashMap::new();
+    let mut counter: HashMap<(u32, u32), (i32, Line)> = HashMap::default();
     for (a, b, line) in &segs {
         let (a, b) = (id(a), id(b));
         if a == b {
@@ -1249,7 +1250,7 @@ impl DetailRegion {
         if let Some(&hit) = CACHE
             .lock()
             .unwrap()
-            .get_or_insert_with(HashMap::new)
+            .get_or_insert_with(HashMap::default)
             .get(&canon)
         {
             return hit;
@@ -1278,7 +1279,7 @@ impl DetailRegion {
         CACHE
             .lock()
             .unwrap()
-            .get_or_insert_with(HashMap::new)
+            .get_or_insert_with(HashMap::default)
             .insert(canon, best_id);
         best_id
     }
@@ -1585,7 +1586,7 @@ mod tests {
     #[cfg(feature = "editor")]
     #[test]
     fn sample_masks_are_distinct() {
-        let mut seen: HashMap<u64, usize> = HashMap::new();
+        let mut seen: HashMap<u64, usize> = HashMap::default();
         for (id, region) in shape_region_table().iter().enumerate() {
             if region.is_empty() {
                 continue;

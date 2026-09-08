@@ -2,7 +2,8 @@
 //! [`crate::meta`]: does the line parse, is its slot already taken, and do
 //! the effective numbers add up.
 
-use std::collections::{BTreeMap, HashMap};
+use crate::hash::HashMap;
+use std::collections::BTreeMap;
 
 use crate::document::DocumentItem;
 use crate::resolve::{Diagnostic, ItemRef};
@@ -145,8 +146,8 @@ pub(super) fn check_meta(cx: &Cx<'_>, issues: &mut Vec<Issue>) {
     // between, and a duplicate PostScript name additionally breaks PDF
     // embedding. Checked across faces because no single face can see it.
     if faces.faces.len() > 1 {
-        let mut seen_full: HashMap<(String, String), &str> = HashMap::new();
-        let mut seen_ps: HashMap<String, &str> = HashMap::new();
+        let mut seen_full: HashMap<(String, String), &str> = HashMap::default();
+        let mut seen_ps: HashMap<String, &str> = HashMap::default();
         for face in &faces.faces {
             let id = if face.id.is_empty() {
                 None

@@ -432,7 +432,7 @@ fn expand_inner(
     // After canonicalization, so a component named through an alias is sized by
     // the glyph it actually is, and before everything below, so nothing
     // downstream has to know an IDC line exists.
-    let mut undecided_parts: HashSet<(Option<ItemRef>, String)> = HashSet::new();
+    let mut undecided_parts: HashSet<(Option<ItemRef>, String)> = HashSet::default();
     let audit = crate::audit::AuditRules::collect(docs);
     expand_compose_lines(
         &mut all_items,
@@ -454,7 +454,7 @@ fn expand_inner(
     // The range form of `expand_map_pairs` filters out non-scalar values but
     // the single/pipe forms cannot, so an out-of-range `map U+FFFFFFFF = g`
     // used to reach the cmap builder unnoticed.
-    let mut cp_to_glyph: HashMap<u32, String> = HashMap::new();
+    let mut cp_to_glyph: HashMap<u32, String> = HashMap::default();
     let mut map_targets: Vec<MapTarget> = Vec::new();
     for e in &all_items {
         let DocumentItem::Map {
@@ -544,7 +544,7 @@ fn expand_compose_lines(
 
     // Declared, not raster: a header's `W H` before `scale` multiplied it.
     let declared = |body: &crate::document::GlyphBody| body.declared_extent();
-    let mut boxes: HashMap<String, Option<(u16, u16)>> = HashMap::new();
+    let mut boxes: HashMap<String, Option<(u16, u16)>> = HashMap::default();
     for e in all_items.iter() {
         if let DocumentItem::Glyph { name, body } = &e.item {
             // First definition wins, as everywhere else.
@@ -567,7 +567,7 @@ fn expand_compose_lines(
     // and only where the source has an undecided component to ask about — an
     // IDS-populated source has tens of thousands of names and nearly all of
     // them are decided.
-    let mut families: HashMap<&str, Vec<(u16, u16)>> = HashMap::new();
+    let mut families: HashMap<&str, Vec<(u16, u16)>> = HashMap::default();
     if all_items.iter().any(|e| match &e.item {
         DocumentItem::Glyph { body, .. } => body
             .compose
@@ -685,9 +685,9 @@ fn ink_profiles(
     name_parts: &NamePartsMap,
 ) -> HashMap<String, crate::compose::InkProfile> {
     if clearances.is_empty() {
-        return HashMap::new();
+        return HashMap::default();
     }
-    let mut wanted: HashSet<&str> = HashSet::new();
+    let mut wanted: HashSet<&str> = HashSet::default();
     for e in all_items {
         let DocumentItem::Glyph { name, body } = &e.item else {
             continue;
@@ -698,11 +698,11 @@ fn ink_profiles(
         wanted.extend(body.compose.iter().flat_map(|c| c.part_names()));
     }
     if wanted.is_empty() {
-        return HashMap::new();
+        return HashMap::default();
     }
     // First definition wins here as everywhere else, which is what the
     // `or_insert_with` says; the lookups below all go through it.
-    let mut bodies: HashMap<&str, &GlyphBody> = HashMap::new();
+    let mut bodies: HashMap<&str, &GlyphBody> = HashMap::default();
     for e in all_items {
         if let DocumentItem::Glyph { name, body } = &e.item {
             bodies.entry(name.0.as_str()).or_insert(body);
@@ -716,7 +716,7 @@ fn ink_profiles(
         crate::compose::InkProfile::of(pixels, scale, raster, body.declared_origin(), extent)
     };
 
-    let mut profiles = HashMap::new();
+    let mut profiles = HashMap::default();
     let mut composites: Vec<&str> = Vec::new();
     for &name in &wanted {
         let Some(body) = bodies.get(name) else {
@@ -1382,7 +1382,7 @@ fn settle_wide_groups(
     usable: &(impl Fn(&str) -> bool + Sync),
     notdef_usable: bool,
 ) -> HashMap<usize, WideGroupSettle> {
-    let mut groups: HashMap<&str, Vec<usize>> = HashMap::new();
+    let mut groups: HashMap<&str, Vec<usize>> = HashMap::default();
     for (idx, e) in items.iter().enumerate() {
         if !resolvable(e) {
             continue;
@@ -1399,7 +1399,7 @@ fn settle_wide_groups(
     }
     groups.retain(|_, members| members.len() > 1);
 
-    let mut out: HashMap<usize, WideGroupSettle> = HashMap::new();
+    let mut out: HashMap<usize, WideGroupSettle> = HashMap::default();
     for (char_repr, members) in groups {
         let Some(spec) = wide_map_rows(char_repr) else {
             continue;
@@ -1584,8 +1584,8 @@ fn resolve_map_alternatives(
     // reason: a name is only worth mapping if a glyph is going to be built for
     // it, which a contentless block is not. Built here as well as there because
     // `expand_decomposed_maps` adds glyphs between the two passes.
-    let mut defined: HashSet<String> = HashSet::new();
-    let mut contentless: HashSet<String> = HashSet::new();
+    let mut defined: HashSet<String> = HashSet::default();
+    let mut contentless: HashSet<String> = HashSet::default();
     for e in all_items.iter() {
         match &e.item {
             DocumentItem::Glyph {
@@ -1817,11 +1817,11 @@ fn inject_on_demand_glyph_items(
     undecided_parts: &HashSet<(Option<ItemRef>, String)>,
     diagnostics: &mut Vec<Diagnostic>,
 ) {
-    let mut defined: HashSet<String> = HashSet::new();
+    let mut defined: HashSet<String> = HashSet::default();
     // Where each glyph's body is, not a copy of it: the only reader below is
     // the color/mono pair, which is a handful of glyphs, while a copy here is
     // every pixel grid in the font cloned for nothing.
-    let mut glyph_bodies: HashMap<String, usize> = HashMap::new();
+    let mut glyph_bodies: HashMap<String, usize> = HashMap::default();
     // A glyph with neither a pixel grid nor a ref never enters the resolution
     // cache (see `glyph_cache::seed_cache`), so it is not built and every use
     // of it — cmap entry, composite component, GSUB coverage — is dropped. It
@@ -1829,7 +1829,7 @@ fn inject_on_demand_glyph_items(
     // exception is a `keep` placeholder, which `seed_cache` does build as an
     // empty anchor-carrying entry (and `issues.rs` likewise exempts from its
     // "has no content" warning).
-    let mut contentless: HashSet<String> = HashSet::new();
+    let mut contentless: HashSet<String> = HashSet::default();
 
     for (idx, e) in all_items.iter().enumerate() {
         if let DocumentItem::Glyph {
@@ -1851,7 +1851,7 @@ fn inject_on_demand_glyph_items(
     // expands to the same missing name repeatedly reports once per line.
 
     let mut mentions: Vec<Mention> = Vec::new();
-    let mut mention_seen: HashSet<(Option<ItemRef>, String)> = HashSet::new();
+    let mut mention_seen: HashSet<(Option<ItemRef>, String)> = HashSet::default();
     let mut consider = |name: &str, origin: Option<ItemRef>, by: Option<&str>, kind: RefKind| {
         let unusable = !defined.contains(name) || contentless.contains(name);
         if unusable && mention_seen.insert((origin, name.to_string())) {
@@ -1909,7 +1909,7 @@ fn inject_on_demand_glyph_items(
     // Synthesis is per unique name; reporting is per mention, so the loops
     // are separate.
     let unique: Vec<(String, Option<ItemRef>)> = {
-        let mut seen: HashSet<&str> = HashSet::new();
+        let mut seen: HashSet<&str> = HashSet::default();
         mentions
             .iter()
             // Contentless names are in `mentions` to be reported, but they are
@@ -1918,7 +1918,7 @@ fn inject_on_demand_glyph_items(
             .map(|m| (m.name.clone(), m.origin))
             .collect()
     };
-    let mut unresolved: HashSet<String> = HashSet::new();
+    let mut unresolved: HashSet<String> = HashSet::default();
 
     // The alias items are gone from `all_items` by now, so `defined` holds
     // only the glyphs themselves. A half of a color/mono pair may well be
@@ -2323,7 +2323,7 @@ fn map_char_pattern(char_repr: &str) -> Option<Arc<MapCharSpec>> {
         return Some(spec.clone());
     }
 
-    let text = substitute_name_parts(char_repr, &NamePartsMap::new());
+    let text = substitute_name_parts(char_repr, &NamePartsMap::default());
     let captures = capture_groups(&text);
     if captures.is_empty() {
         return None;

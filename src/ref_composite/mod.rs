@@ -88,7 +88,7 @@ pub(crate) use anchors::*;
 pub(crate) use composite::*;
 use composite::{CompositeLayout, resolve_composite_layout};
 
-use std::collections::HashMap;
+use crate::hash::HashMap;
 
 use crate::document::{
     Document, DocumentItem, GlyphName, GlyphPoint, GlyphRef, NamePartsMap, PixelGrid,
@@ -216,11 +216,7 @@ impl CompositeGridCache {
 
 fn hash_grid_into(grid: &PixelGrid, hasher: &mut std::collections::hash_map::DefaultHasher) {
     use std::hash::Hash;
-    grid.width.hash(hasher);
-    grid.height.hash(hasher);
-    for px in &grid.pixels {
-        px.0.hash(hasher);
-    }
+    grid.hash_cells_into(hasher);
     if !grid.details.is_empty() {
         grid.den.hash(hasher);
         grid.details.hash(hasher);
@@ -419,7 +415,7 @@ pub(crate) fn resolve_reachable<'a, 'b>(
     use crate::document::GlyphBody;
 
     let mut bodies: Vec<(String, GlyphBody)> = Vec::new();
-    let mut seen: std::collections::HashSet<String> = std::collections::HashSet::new();
+    let mut seen: crate::hash::HashSet<String> = crate::hash::HashSet::default();
     let mut queue: Vec<String> = Vec::new();
     for root in roots {
         if seen.insert(root.to_string()) {
@@ -592,7 +588,7 @@ pub(crate) fn resolve_glyph_bodies(
     if let Some(gc) = grid_cache.as_deref_mut() {
         gc.begin_generation();
     }
-    let mut cache: HashMap<String, ResolvedGlyph> = HashMap::new();
+    let mut cache: HashMap<String, ResolvedGlyph> = HashMap::default();
 
     struct Pending {
         name: String,
@@ -607,7 +603,7 @@ pub(crate) fn resolve_glyph_bodies(
     let mut pending: Vec<Pending> = Vec::new();
     // Mirrors `pending` names for O(1) duplicate checks; a linear scan here
     // is quadratic over the whole font (~18k glyphs).
-    let mut pending_names: std::collections::HashSet<String> = std::collections::HashSet::new();
+    let mut pending_names: crate::hash::HashSet<String> = crate::hash::HashSet::default();
 
     for (i, (key, body)) in bodies.enumerate() {
         if i.is_multiple_of(crate::render::glyph_cache::CANCEL_STRIDE) && cancel.is_cancelled() {
@@ -661,7 +657,7 @@ pub(crate) fn resolve_glyph_bodies(
     // alternative silently falls back to offset (0, 0) instead. `i-upper` +
     // `acute-above` did exactly that — serving `i-upper`'s two-cell `+above` is
     // the whole reason `acute-above:wide` exists.
-    let mut pending_alts: HashMap<String, usize> = HashMap::new();
+    let mut pending_alts: HashMap<String, usize> = HashMap::default();
     for pg in &pending {
         for prefix in alternative_prefixes(&pg.name) {
             *pending_alts.entry(prefix.to_string()).or_default() += 1;
@@ -1085,7 +1081,7 @@ pub struct AlternativesIndex {
 
 impl AlternativesIndex {
     pub fn build(named_glyphs: &HashMap<String, ResolvedGlyph>) -> Self {
-        let mut map: HashMap<String, Vec<(String, Vec<GlyphPoint>)>> = HashMap::new();
+        let mut map: HashMap<String, Vec<(String, Vec<GlyphPoint>)>> = HashMap::default();
         for (name, resolved) in named_glyphs {
             for prefix in alternative_prefixes(name) {
                 map.entry(prefix.to_string())

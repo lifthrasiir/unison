@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use crate::hash::HashMap;
 
 use crate::document::{
     DocLine, Document, DocumentItem, GlyphBody, GlyphRef, NamePartsMap, is_name_pattern,
@@ -856,7 +856,7 @@ mod tests {
         };
         let refs = vec![gref("alpha"), gref("beta")];
         // No glyphs defined at all: every ref line must carry an error span.
-        let named_glyphs = HashMap::new();
+        let named_glyphs = HashMap::default();
         let name_parts = NamePartsMap::default();
         let mut cur = 0usize;
         let vlines = build_ref_vlines(
@@ -904,7 +904,7 @@ mod tests {
             comment: None,
         };
         let refs = vec![gref("($0)"), gref("beta")];
-        let named_glyphs = HashMap::new();
+        let named_glyphs = HashMap::default();
         let name_parts = NamePartsMap::default();
         let mut cur = 0usize;
         let vlines = build_ref_vlines(

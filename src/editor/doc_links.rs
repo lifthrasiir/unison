@@ -1248,12 +1248,17 @@ mod rename_detection_tests {
                 &lines,
                 "narrow",
                 &LinkTargetKind::Slice,
-                &NamePartsMap::new()
+                &NamePartsMap::default()
             ),
             Some(0),
         );
         assert_eq!(
-            find_link_target_in_doc(&lines, "term", &LinkTargetKind::Face, &NamePartsMap::new()),
+            find_link_target_in_doc(
+                &lines,
+                "term",
+                &LinkTargetKind::Face,
+                &NamePartsMap::default()
+            ),
             Some(2),
         );
         // The two ids live in different namespaces and never cross.
@@ -1262,7 +1267,7 @@ mod rename_detection_tests {
                 &lines,
                 "narrow",
                 &LinkTargetKind::Face,
-                &NamePartsMap::new()
+                &NamePartsMap::default()
             ),
             None,
         );
@@ -1277,7 +1282,7 @@ mod rename_detection_tests {
             .iter()
             .map(|s| DocLine::Text(s.to_string()))
             .collect();
-        let parts = NamePartsMap::new();
+        let parts = NamePartsMap::default();
         assert_eq!(
             find_link_target_in_doc(&lines, "han-4e01", &LinkTargetKind::Glyph, &parts),
             Some(1),
@@ -1303,7 +1308,7 @@ mod rename_detection_tests {
         .iter()
         .map(|s| DocLine::Text(s.to_string()))
         .collect();
-        let parts = NamePartsMap::new();
+        let parts = NamePartsMap::default();
         assert_eq!(
             find_link_target_in_doc(&lines, "han-4e00", &LinkTargetKind::Glyph, &parts),
             Some(2),
@@ -1437,7 +1442,7 @@ mod capture_target_tests {
 #[cfg(test)]
 mod comment_link_tests {
     use super::*;
-    use std::collections::HashSet;
+    use crate::hash::HashSet;
 
     fn links(line: &str, known: &[&str]) -> Vec<(usize, usize, String)> {
         let set: HashSet<&str> = known.iter().copied().collect();

@@ -132,12 +132,12 @@ fn vectoronly_closure<'a>(
     all_items: impl IntoIterator<Item = &'a DocumentItem>,
     bitmap: bool,
 ) -> HashSet<String> {
-    let mut exempt: HashSet<String> = HashSet::new();
+    let mut exempt: HashSet<String> = HashSet::default();
     if !bitmap {
         return exempt;
     }
-    let mut refs_of: HashMap<&str, &[GlyphRef]> = HashMap::new();
-    let mut layers_of: HashMap<&str, Option<LayerVisibility>> = HashMap::new();
+    let mut refs_of: HashMap<&str, &[GlyphRef]> = HashMap::default();
+    let mut layers_of: HashMap<&str, Option<LayerVisibility>> = HashMap::default();
     let mut queue: Vec<&str> = Vec::new();
     for item in all_items {
         let DocumentItem::Glyph {
@@ -402,7 +402,7 @@ fn shared_font_input(
         glyph_aliases,
     } = compute_face_input(docs, face, cancel, source)?;
 
-    let mut declared_anchors_map: HashMap<String, Vec<GlyphPoint>> = HashMap::new();
+    let mut declared_anchors_map: HashMap<String, Vec<GlyphPoint>> = HashMap::default();
     for item in &all_items {
         if let DocumentItem::Glyph {
             name: GlyphName(n),
@@ -419,10 +419,10 @@ fn shared_font_input(
 
     let color_aliases = collect_color_aliases(docs);
 
-    let mut glyph_meta: GlyphMetaMap = HashMap::new();
-    let mut inline_glyphs: HashSet<String> = HashSet::new();
+    let mut glyph_meta: GlyphMetaMap = HashMap::default();
+    let mut inline_glyphs: HashSet<String> = HashSet::default();
     let mut glyph_bodies: Vec<(String, GlyphBody)> = Vec::new();
-    let mut seen_bodies: HashSet<String> = HashSet::new();
+    let mut seen_bodies: HashSet<String> = HashSet::default();
     for item in &all_items {
         if let DocumentItem::Glyph {
             name: GlyphName(n),
@@ -504,7 +504,7 @@ pub(super) fn collect_face_cmap(
     cancel: &crate::cancel::CancelToken,
 ) -> Option<FaceCmap> {
     let shared = compute_face_input(docs, face, cancel, ExpansionSource::Lent(expansion))?;
-    let mut per_name: HashMap<String, Vec<u32>> = HashMap::new();
+    let mut per_name: HashMap<String, Vec<u32>> = HashMap::default();
     for item in &shared.all_items {
         let DocumentItem::Map {
             char_repr,
@@ -890,7 +890,7 @@ pub(super) fn collect_glyph_data_with_shared(
         glyph_bodies.iter().map(|(n, b)| (n.as_str(), b)).collect();
 
     let mut glyph_data: Vec<CollectedGlyph> = Vec::new();
-    let mut seen_names: HashSet<String> = HashSet::new();
+    let mut seen_names: HashSet<String> = HashSet::default();
 
     for (i, item) in all_items.iter().enumerate() {
         if i.is_multiple_of(CANCEL_STRIDE) && cancel.is_cancelled() {
@@ -1027,7 +1027,7 @@ pub(super) fn collect_glyph_data_with_shared(
     // of a collection share `glyf`, `loca` and `hmtx`. Unmapped glyphs sort
     // last, by name.
     {
-        let mut by_name: HashMap<String, usize> = HashMap::new();
+        let mut by_name: HashMap<String, usize> = HashMap::default();
         let mut merged: Vec<CollectedGlyph> = Vec::with_capacity(glyph_data.len());
         for glyph in glyph_data {
             match by_name.get(&glyph.name) {
@@ -1057,7 +1057,7 @@ pub(super) fn collect_glyph_data_with_shared(
         glyph_data = merged;
     }
 
-    let mut remap_referenced: HashSet<&str> = HashSet::new();
+    let mut remap_referenced: HashSet<&str> = HashSet::default();
     for remaps in gsub_data.remap_sets.values() {
         for r in remaps {
             for seq in &r.source {
@@ -1299,11 +1299,11 @@ pub(super) fn collect_glyph_data_with_shared(
 
     // Build color palette: collect all unique RGBA colors used across fills
     let mut palette_colors: Vec<Rgba> = Vec::new();
-    let mut color_to_index: HashMap<Rgba, u16> = HashMap::new();
+    let mut color_to_index: HashMap<Rgba, u16> = HashMap::default();
     // Build per-glyph color layers
     let color_alt_index = build_cached_alternatives(&cache);
-    let mut colored_memo: HashMap<String, bool> = HashMap::new();
-    let mut pieces_memo: HashMap<String, Rc<Vec<ColorPiece>>> = HashMap::new();
+    let mut colored_memo: HashMap<String, bool> = HashMap::default();
+    let mut pieces_memo: HashMap<String, Rc<Vec<ColorPiece>>> = HashMap::default();
     for g in &mut glyph_data {
         let name = g.name.clone();
         let Some(body) = glyph_bodies_map.get(name.as_str()).copied() else {

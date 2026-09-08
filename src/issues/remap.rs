@@ -1,7 +1,7 @@
 //! The per-document scan over glyph and `remap` items: duplicate and
 //! contentless glyph definitions, and every group-level `remap` problem.
 
-use std::collections::HashMap;
+use crate::hash::HashMap;
 use std::path::PathBuf;
 
 use crate::document::{
@@ -17,7 +17,7 @@ pub(super) fn check_glyphs_and_remaps(cx: &Cx<'_>, issues: &mut Vec<Issue>) {
     let expansion = cx.expansion;
     let groups = &cx.groups;
     let _resolution = cx.resolution;
-    let mut glyph_defs: HashMap<String, (PathBuf, usize)> = HashMap::new();
+    let mut glyph_defs: HashMap<String, (PathBuf, usize)> = HashMap::default();
 
     // Groups are collected up front rather than as the scan reaches them: a
     // `feature` line may precede every rule of the group it attaches, and a
