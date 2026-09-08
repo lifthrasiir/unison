@@ -942,6 +942,39 @@ mod app_tests {
         );
     }
 
+    /// An edit made after a search does not move the rows the pane is still
+    /// showing, so a click on one has to land on the line that row *displays*
+    /// — not on whatever now sits at the ordinal the row was recorded with.
+    /// Inserting one more occurrence above the others used to push every later
+    /// click one entry off.
+    #[test]
+    fn a_click_lands_on_the_listed_line_after_the_file_was_edited() {
+        let (dir, ctx, mut app) = two_file_app("search-after-edit");
+        app.open_file(dir.0.join("b.unf"));
+        app.search.kind = SearchKind::Text;
+        app.search.query = "alpha".to_string();
+        app.run_search_from_box(&ctx);
+
+        // The last row is b.unf's prose mention; jump to it once, as a reader
+        // would before going back to edit.
+        let last = app.search.hits().len() - 1;
+        app.goto_search_hit(&ctx, last);
+        assert_eq!(caret(&app), ("b.unf".to_string(), 3));
+
+        // An edit that adds an earlier occurrence to the same file.
+        let idx = app.panes.active_doc_idx().unwrap();
+        app.open_documents[idx]
+            .lines
+            .insert(0, DocLine::Text("// alpha inserted".to_string()));
+
+        app.goto_search_hit(&ctx, last);
+        assert_eq!(
+            caret(&app),
+            ("b.unf".to_string(), 4),
+            "the prose mention, one line further down than it was"
+        );
+    }
+
     /// Escape in the box is a focus move and nothing more — the results and the
     /// place in them survive, so a Ctrl/Cmd+G from the editor carries on.
     #[test]

@@ -53,9 +53,12 @@
 //! rewrites spacing and comments, never the order names appear in, so the
 //! ordinal survives it. The ordinal counts *occurrences*, not lines — a line
 //! naming the same glyph twice is two rows — and both ends have to agree on that
-//! or every later hit in the file lands one off. (Like the navigation history,
-//! nothing rewrites a recorded position when the document is edited underneath
-//! it; a stale search is re-run by clicking the name again.)
+//! or every later hit in the file lands one off. An edit made after the run
+//! shifts the ordinals of everything after it while the pane still shows the
+//! rows the run produced, so a click confirms the ordinal against the text and
+//! column the row displays before it moves the caret — see [`relocate`]. Only
+//! the rows themselves are not re-derived: a stale list is re-run by clicking
+//! the name again.
 //!
 //! Open documents are searched as they stand, unsaved edits included; unopened
 //! ones come from the
@@ -735,6 +738,48 @@ pub(super) fn collect_hits(
     (hits, file_count)
 }
 
+/// Which of the file's occurrences the row a click landed on was listed for,
+/// now that the buffer may have moved under it.
+///
+/// The ordinal is the address of a hit (see the module note) and stays right
+/// for exactly as long as nothing is edited. An edit that adds or removes an
+/// occurrence earlier in the same file shifts every later one, while the pane
+/// goes on showing the rows the last run produced — so the ordinal on its own
+/// sends the click to the neighbour of the line the row displays, which is the
+/// one thing a listed row promises. Each row carries the text and the column it
+/// displays, so the ordinal is taken as a hint and confirmed against them: of
+/// the occurrences that still read exactly the same, the one nearest the
+/// recorded ordinal is the row's own. A row whose line has itself been edited
+/// matches none of them and falls back to the bare ordinal, which is all that
+/// is left to go on.
+fn relocate(
+    candidates: &[(usize, MatchSpan)],
+    lines: &[DocLine],
+    ordinal: usize,
+    text: &str,
+    highlight: (usize, usize),
+) -> Option<usize> {
+    candidates
+        .iter()
+        .enumerate()
+        .filter(|(_, (line_idx, span))| {
+            lines
+                .get(*line_idx)
+                .and_then(|line| line.as_text())
+                .is_some_and(|line| {
+                    let leading = line.chars().count() - line.trim_start().chars().count();
+                    line.trim() == text
+                        && (
+                            span.col_start.saturating_sub(leading),
+                            span.col_end.saturating_sub(leading),
+                        ) == highlight
+                })
+        })
+        .map(|(i, _)| i)
+        .min_by_key(|i| i.abs_diff(ordinal))
+        .or_else(|| (ordinal < candidates.len()).then_some(ordinal))
+}
+
 impl UniformApp {
     /// Lists every appearance of `name` and reveals the Search pane.
     ///
@@ -918,6 +963,7 @@ impl UniformApp {
             return;
         };
         let (path, ordinal) = (hit.path.clone(), hit.ordinal);
+        let (text, highlight) = (hit.text.clone(), hit.highlight);
         let (name, kind) = (search.query.clone(), search.kind);
         self.search.current = Some(hit_idx);
         self.search.message = None;
@@ -946,17 +992,33 @@ impl UniformApp {
         };
         self.panes.show_document(idx);
 
-        let hit = hits_in_doclines(
+        let candidates = hits_in_doclines(
             &self.open_documents[idx].lines,
             &name,
             kind,
             &self.name_parts,
-        )
-        .get(ordinal)
-        .copied();
-        let Some((line, span)) = hit else {
+        );
+        let lines = &self.open_documents[idx].lines;
+        let Some(found) = relocate(&candidates, lines, ordinal, &text, highlight) else {
             return;
         };
+        let (line, span) = candidates[found];
+        // The row is now addressed by where its line actually is, so a second
+        // edit is measured from here rather than from the run that is by now
+        // two edits old — and the location the row displays stops disagreeing
+        // with the caret the click just moved.
+        if found != ordinal {
+            let file_line = self.open_documents[idx].document.docline_file_line(line);
+            if let Some(hit) = self
+                .search
+                .results
+                .as_mut()
+                .and_then(|r| r.hits.get_mut(hit_idx))
+            {
+                hit.ordinal = found;
+                hit.file_line = file_line;
+            }
+        }
         let col = span.col_start;
         let doc = &mut self.open_documents[idx];
         doc.editor_state.goto_caret(&doc.lines, line, col);
