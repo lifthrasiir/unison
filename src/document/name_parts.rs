@@ -102,6 +102,35 @@ impl SliceNameParts {
         }
     }
 
+    /// One map per slice a `SLICE|SLICE... :` qualifier names — the bindings
+    /// each of them puts in force over the line's names.
+    ///
+    /// The slices are an *outer loop*: the line is stated once per slice, so
+    /// its names are read once per slice too. Folding them into one map — a
+    /// scoped `$-half` bound to both slices' values at once — would make the
+    /// part an alternation of two zipped against the line's own groups, which
+    /// is the very thing this type's note warns about: `map wide|narrow :
+    /// ⓪|①|… = ($0..9)-circled($-half)` names ten glyphs per slice, not ten
+    /// glyphs alternating between the two.
+    ///
+    /// A slice that binds nothing reads with the unqualified map, and so does
+    /// an unqualified line, so the result is never empty and holds no map
+    /// twice.
+    #[cfg(feature = "editor")]
+    pub fn for_each_slice(&self, slices: &[String]) -> Vec<&NamePartsMap> {
+        let mut maps: Vec<&NamePartsMap> = Vec::new();
+        for slice in slices {
+            let map = self.for_slice(Some(slice));
+            if !maps.iter().any(|m| std::ptr::eq(*m, map)) {
+                maps.push(map);
+            }
+        }
+        if maps.is_empty() {
+            maps.push(&self.base);
+        }
+        maps
+    }
+
     /// Whether any slice binds `name` (`$`-prefixed), for diagnostics that want
     /// to tell "undefined" from "defined, but not here".
     pub fn is_slice_scoped(&self, name: &str) -> bool {

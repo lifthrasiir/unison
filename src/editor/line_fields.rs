@@ -152,6 +152,47 @@ fn push_slice_refs(fields: &mut Vec<LineField>, leading: usize, span: &TokenSpan
     }
 }
 
+/// The slices whose `name-parts` bindings are in force over the names on
+/// `line`, from its `SLICE|SLICE... :` qualifier; empty for every other line.
+///
+/// A slice-scoped `name-parts` binds a name only inside its slices
+/// ([`crate::document::SliceNameParts`]), and the qualifier is the only thing
+/// that puts a line inside one — so a token like `triple-star($-half)` cannot
+/// be read at all without knowing them. Reading it is what makes a `map`
+/// target behave like every other glyph-name position.
+///
+/// `meta`'s qualifier is deliberately not one of these: it scopes to a *face*,
+/// which binds no name parts. `assert shape`'s `for SLICE...` is not one
+/// either — it picks the faces the assertion is run against, while its glyph
+/// names are read with the unqualified parts, as `render::assert` reads them.
+pub(crate) fn qualifier_slices(line: &str) -> Vec<String> {
+    let trimmed = line.trim_start();
+    // Asked of every line of every file a name search walks, pixel rows
+    // included, so the keyword is read off the raw text first: only three
+    // directives take a qualifier, and nothing else pays for the tokenizer.
+    if !matches!(
+        trimmed.split_ascii_whitespace().next().unwrap_or_default(),
+        "map" | "feature" | "name-parts"
+    ) {
+        return Vec::new();
+    }
+    let Ok(spans) = tokenize_with_spans(trimmed) else {
+        return Vec::new();
+    };
+    let Some((_, rest)) = spans.split_first() else {
+        return Vec::new();
+    };
+    let (Some(qualifier), _) = split_qualifier(rest) else {
+        return Vec::new();
+    };
+    qualifier
+        .value
+        .split('|')
+        .filter(|s| !s.is_empty())
+        .map(str::to_string)
+        .collect()
+}
+
 pub(crate) fn classify_line(line: &str) -> Vec<LineField> {
     let trimmed = line.trim_start();
     let leading = line.chars().count() - trimmed.chars().count();
@@ -716,6 +757,33 @@ mod tests {
                 (FieldRole::GlyphRef, "c".to_string()),
             ],
         );
+    }
+
+    /// The qualifier is what puts a line inside a slice, and a slice is what
+    /// binds a scoped `name-parts` — so every keyword that takes one reports
+    /// its slices, and nothing else does. `meta` scopes to a face and `assert
+    /// shape` picks the faces it runs against; neither binds a name part.
+    #[test]
+    fn a_qualifier_reports_the_slices_in_force() {
+        assert_eq!(
+            qualifier_slices("map wide|narrow : ⁂ = triple-star($-half)"),
+            vec!["wide".to_string(), "narrow".to_string()],
+        );
+        assert_eq!(
+            qualifier_slices("name-parts wide : $-half = ``"),
+            vec!["wide".to_string()],
+        );
+        assert_eq!(
+            qualifier_slices("feature narrow : liga for narrow"),
+            vec!["narrow".to_string()],
+        );
+        assert!(qualifier_slices("map ⁂ = triple-star").is_empty());
+        // A `map : = colon` writes its own colon and is not qualified, exactly
+        // as the parser reads it.
+        assert!(qualifier_slices("map : = colon").is_empty());
+        assert!(qualifier_slices("meta term : family Unison Term").is_empty());
+        assert!(qualifier_slices("assert shape AB for narrow : a-b").is_empty());
+        assert!(qualifier_slices("ref foo 0 0").is_empty());
     }
 
     #[test]

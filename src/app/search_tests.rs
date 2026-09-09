@@ -6,6 +6,13 @@
 
 use super::*;
 
+/// A source with no `name-parts` at all, for the walks that take the scoped
+/// map (a slice-qualified line is read once per slice, with that slice's
+/// bindings; see [`SliceNameParts::for_each_slice`]).
+fn no_scoped_parts() -> SliceNameParts {
+    SliceNameParts::default()
+}
+
 /// The point of the snapshot sources: a file no pane is editing is searched
 /// without the filesystem being consulted at all. The path here exists
 /// nowhere on disk, so any hit can only have come from memory.
@@ -18,7 +25,7 @@ fn an_unopened_file_is_searched_from_the_snapshot_source() {
         &files,
         "bar",
         SearchKind::Name(LinkTargetKind::Glyph),
-        &NamePartsMap::default(),
+        &no_scoped_parts(),
     );
     assert_eq!(file_count, 1);
     assert_eq!(hits.len(), 1);
@@ -41,7 +48,7 @@ fn declarations_are_listed_before_uses() {
         &files,
         "foo",
         SearchKind::Name(LinkTargetKind::Glyph),
-        &NamePartsMap::default(),
+        &no_scoped_parts(),
     );
     assert_eq!(file_count, 2);
     assert_eq!(
@@ -75,13 +82,48 @@ fn a_name_an_exists_block_declares_is_found_at_the_block() {
         &files,
         "han-4e00",
         SearchKind::Name(LinkTargetKind::Glyph),
-        &NamePartsMap::default(),
+        &no_scoped_parts(),
     );
     assert_eq!(
         hits.iter().map(|h| h.text.as_str()).collect::<Vec<_>>(),
         vec!["glyph han-($1) 16 16 advance 16"],
     );
     assert!(hits[0].is_decl);
+}
+
+/// A `map`'s target is written with the `name-parts` its own `SLICE :`
+/// qualifier binds, so the line is an appearance of one glyph per slice —
+/// `triple-star` for `wide` and `triple-star-half` for `narrow`. Read with the
+/// unqualified map alone the token expands to nothing and the line is an
+/// appearance of neither, which is what made a `map` target behave unlike
+/// every other glyph-name position.
+#[test]
+fn a_slice_qualified_map_target_is_an_appearance_of_each_slices_name() {
+    let src = "name-parts wide : $-half = ``\n\
+               name-parts narrow : $-half = -half\n\
+               glyph triple-star 8 16\n\
+               glyph triple-star-half 8 16\n\
+               map wide|narrow : ⁂ = triple-star($-half)\n";
+    let doc = crate::document_io::parse_document_from_str(src, PathBuf::from("s.unf")).unwrap();
+    let refs = [&doc];
+    let scoped = SliceNameParts::with_base(&refs, crate::document::collect_name_parts(&refs));
+    let files = vec![(PathBuf::from("s.unf"), SearchText::Source(src))];
+    for name in ["triple-star", "triple-star-half"] {
+        let (hits, _) = collect_hits(
+            &files,
+            name,
+            SearchKind::Name(LinkTargetKind::Glyph),
+            &scoped,
+        );
+        assert_eq!(
+            hits.iter().map(|h| h.text.as_str()).collect::<Vec<_>>(),
+            vec![
+                format!("glyph {name} 8 16").as_str(),
+                "map wide|narrow : ⁂ = triple-star($-half)",
+            ],
+            "{name} is declared once and used by the map line",
+        );
+    }
 }
 
 /// And the `ref` inside that block is a *use* of what the search matched,
@@ -97,7 +139,7 @@ fn a_capture_ref_is_a_use_of_the_name_the_search_matched() {
         &files,
         "han-4e00:15x16",
         SearchKind::Name(LinkTargetKind::Glyph),
-        &NamePartsMap::default(),
+        &no_scoped_parts(),
     );
     assert_eq!(
         hits.iter()
@@ -123,7 +165,7 @@ fn the_search_does_not_reach_past_the_block_it_governs() {
         &files,
         "other-4e00",
         SearchKind::Name(LinkTargetKind::Glyph),
-        &NamePartsMap::default(),
+        &no_scoped_parts(),
     );
     assert!(
         hits.is_empty(),
@@ -141,7 +183,7 @@ fn a_file_with_no_source_contributes_no_hits() {
         &files,
         "bar",
         SearchKind::Name(LinkTargetKind::Glyph),
-        &NamePartsMap::default(),
+        &no_scoped_parts(),
     );
     assert!(hits.is_empty());
     assert_eq!(file_count, 0);
@@ -556,7 +598,7 @@ fn hits_run_over_a_document_in_order_and_skip_pixel_grids() {
             &lines,
             "foo",
             SearchKind::Name(LinkTargetKind::Glyph),
-            &NamePartsMap::default()
+            &no_scoped_parts()
         )
         .into_iter()
         .map(|(i, s)| (i, s.col_start, s.col_end, s.is_decl))
@@ -579,7 +621,7 @@ fn an_at_name_is_an_appearance_of_what_it_expands_to() {
         &files,
         "foo-bar",
         SearchKind::Name(LinkTargetKind::Glyph),
-        &NamePartsMap::default(),
+        &no_scoped_parts(),
     );
     assert_eq!(
         hits.iter().map(|h| h.text.as_str()).collect::<Vec<_>>(),
@@ -592,7 +634,7 @@ fn an_at_name_is_an_appearance_of_what_it_expands_to() {
         &files,
         "foo",
         SearchKind::Name(LinkTargetKind::Glyph),
-        &NamePartsMap::default(),
+        &no_scoped_parts(),
     );
     assert_eq!(
         hits.iter().map(|h| h.text.as_str()).collect::<Vec<_>>(),
@@ -643,8 +685,7 @@ fn a_text_search_is_verbatim_and_lists_every_occurrence() {
             SearchText::Source("meta ascent 14\n// the early bird, twice: early\n"),
         ),
     ];
-    let (hits, file_count) =
-        collect_hits(&files, "early", SearchKind::Text, &NamePartsMap::default());
+    let (hits, file_count) = collect_hits(&files, "early", SearchKind::Text, &no_scoped_parts());
     assert_eq!(file_count, 2);
     assert_eq!(
         hits.iter()
@@ -666,7 +707,7 @@ fn a_text_search_is_verbatim_and_lists_every_occurrence() {
 
     // Verbatim: no case folding, and no collapsing of the space.
     for query in ["Early", "early  bird"] {
-        let (hits, _) = collect_hits(&files, query, SearchKind::Text, &NamePartsMap::default());
+        let (hits, _) = collect_hits(&files, query, SearchKind::Text, &no_scoped_parts());
         assert!(hits.is_empty(), "'{query}' should not match");
     }
 }
@@ -686,7 +727,7 @@ fn a_grid_is_skipped_by_both_ends_of_a_text_search() {
         &[(path.clone(), SearchText::Source(source))],
         "@@",
         SearchKind::Text,
-        &NamePartsMap::default(),
+        &no_scoped_parts(),
     );
     assert_eq!(
         from_source
@@ -703,7 +744,7 @@ fn a_grid_is_skipped_by_both_ends_of_a_text_search() {
         &[(path, SearchText::Buffer(&doclines, &document))],
         "@@",
         SearchKind::Text,
-        &NamePartsMap::default(),
+        &no_scoped_parts(),
     );
     assert_eq!(
         from_buffer

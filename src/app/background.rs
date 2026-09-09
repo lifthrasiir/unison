@@ -460,6 +460,13 @@ impl UniformApp {
                 .map(|f| f.id.clone())
                 .collect();
             let name_parts = resolution.name_parts;
+            // The editor resolves the names on a slice-qualified line — a
+            // `map wide|narrow : … = triple-star($-half)` — with the bindings
+            // those slices make, so it needs the scoped map beside the plain
+            // one. Built here rather than on the UI thread for the usual
+            // reason: it walks every document.
+            let scoped_name_parts =
+                crate::document::SliceNameParts::with_base(&refs, name_parts.clone());
             // Before the expansion is consumed below: the editor draws a
             // search-scoped block as its first match, and this is the only
             // place that holds the searches at all.
@@ -551,6 +558,7 @@ impl UniformApp {
                 alt_index,
                 meta: resolution.meta.metrics,
                 name_parts,
+                scoped_name_parts,
                 exists_matches,
                 char_props,
                 issues,
@@ -778,6 +786,7 @@ impl UniformApp {
                     self.named_glyphs = std::sync::Arc::new(data.named_glyphs);
                     self.alt_index = data.alt_index;
                     self.name_parts = data.name_parts;
+                    self.scoped_name_parts = data.scoped_name_parts;
                     self.exists_matches = data.exists_matches;
                     self.char_props = data.char_props;
                     self.font_meta = data.meta;

@@ -66,6 +66,10 @@ struct DerivedDataMessage {
     named_glyphs: HashMap<String, ResolvedGlyph>,
     alt_index: crate::editor::ref_composite::AlternativesIndex,
     name_parts: NamePartsMap,
+    /// The same bindings seen from each slice, for the names on a
+    /// slice-qualified line; see
+    /// [`crate::document::SliceNameParts::for_each_slice`].
+    scoped_name_parts: crate::document::SliceNameParts,
     /// The first match of every `exists`, which is the one the editor draws a
     /// search-scoped block as. See [`crate::exists::FirstMatches`].
     exists_matches: crate::exists::FirstMatches,
@@ -205,6 +209,9 @@ pub struct UniformApp {
     named_glyphs: Arc<HashMap<String, ResolvedGlyph>>,
     alt_index: crate::editor::ref_composite::AlternativesIndex,
     name_parts: NamePartsMap,
+    /// The bindings a slice-qualified line's names are read with, one reading
+    /// per slice; see [`crate::document::SliceNameParts::for_each_slice`].
+    scoped_name_parts: crate::document::SliceNameParts,
     /// What a `ref ($0)` under an `exists` draws — one match per scoped item,
     /// alongside the name parts it is bound like.
     exists_matches: crate::exists::FirstMatches,
@@ -504,6 +511,7 @@ impl UniformApp {
             named_glyphs: Arc::default(),
             alt_index: Default::default(),
             name_parts: NamePartsMap::default(),
+            scoped_name_parts: crate::document::SliceNameParts::default(),
             exists_matches: Default::default(),
             char_props: Default::default(),
             color_aliases: Default::default(),

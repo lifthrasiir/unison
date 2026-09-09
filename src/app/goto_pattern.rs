@@ -135,6 +135,43 @@ pub(super) fn block_captures_at_line(
     captures
 }
 
+/// How one line is read: the `name-parts` bindings in force over its names and
+/// the capture groups it binds, which depend on those bindings in turn.
+///
+/// There is one reading per slice of a `SLICE :` qualifier, because the line is
+/// stated once per slice — see [`readings_at_line`].
+pub(super) struct Reading<'a> {
+    pub parts: &'a NamePartsMap,
+    pub captures: Vec<Vec<String>>,
+}
+
+/// How the token written on `line` is to be read, once per slice the line is
+/// stated for.
+///
+/// A `map wide|narrow : ⁂ = triple-star($-half)` writes its target with the
+/// parts those slices bind, and a scoped part is in no unqualified map — so
+/// without this the token still carries a `$`, expands to nothing, and the
+/// click falls back to the search. That was the one glyph-name position a
+/// Ctrl/Cmd+click could not follow; every other one is unqualified and comes
+/// back with the single unqualified reading.
+pub(super) fn readings_at_line<'a>(
+    lines: &[DocLine],
+    line: usize,
+    scoped: &'a crate::document::SliceNameParts,
+) -> Vec<Reading<'a>> {
+    let text = lines.get(line).and_then(DocLine::as_text).unwrap_or("");
+    scoped
+        .for_each_slice(&crate::editor::line_fields::qualifier_slices(text))
+        .into_iter()
+        .map(|parts| Reading {
+            parts,
+            // Per reading, not once: the groups a `map` binds are read off its
+            // own character spec, which a slice-scoped part can be written in.
+            captures: block_captures_at_line(lines, line, parts),
+        })
+        .collect()
+}
+
 /// Where each of `names` is declared, in the same order, `None` for a name
 /// nothing declares.
 ///
@@ -219,12 +256,28 @@ fn scan_file(
 pub(super) fn resolve(
     files: &[(PathBuf, SearchText<'_>)],
     token: &str,
-    captures: &[Vec<String>],
-    name_parts: &NamePartsMap,
+    readings: &[Reading<'_>],
 ) -> PatternLink {
-    let Some(names) = expand_link_token(token, name_parts, captures) else {
+    // One expansion per reading, in the order the slices are written, with a
+    // name a later slice repeats dropped: the reader picks a place to go, and
+    // two slices that spell one name are one place.
+    let mut names: Vec<String> = Vec::new();
+    for reading in readings {
+        let Some(expansion) = expand_link_token(token, reading.parts, &reading.captures) else {
+            continue;
+        };
+        for name in expansion {
+            if !names.contains(&name) {
+                names.push(name);
+            }
+        }
+    }
+    if names.is_empty() {
         return PatternLink::Nowhere;
-    };
+    }
+    // A `glyph` line is never slice-qualified, so any reading's parts locate a
+    // declaration equally well.
+    let name_parts = readings[0].parts;
     let mut groups: Vec<GotoGroup> = Vec::new();
     for (name, at) in names
         .iter()
@@ -271,7 +324,9 @@ impl super::UniformApp {
         let Some(doc) = self.open_documents.get(from_doc) else {
             return PatternLink::Nowhere;
         };
-        let captures = block_captures_at_line(&doc.lines, line, &self.name_parts);
+        // The line's own slices decide what its `$`-names mean; see
+        // [`readings_at_line`].
+        let readings = readings_at_line(&doc.lines, line, &self.scoped_name_parts);
         let paths: Vec<PathBuf> = self
             .collect_all_docs()
             .iter()
@@ -287,7 +342,7 @@ impl super::UniformApp {
                 Some((path, text))
             })
             .collect();
-        resolve(&files, token, &captures, &self.name_parts)
+        resolve(&files, token, &readings)
     }
 
     /// Puts the choice in front of the reader, in the editor the click came
@@ -348,11 +403,30 @@ mod tests {
         captures: &[Vec<String>],
         name_parts: &NamePartsMap,
     ) -> PatternLink {
+        resolve_readings(
+            sources,
+            token,
+            &[Reading {
+                parts: name_parts,
+                captures: captures.to_vec(),
+            }],
+        )
+    }
+
+    fn resolve_readings(
+        sources: &[(&str, &str)],
+        token: &str,
+        readings: &[Reading<'_>],
+    ) -> PatternLink {
         let files: Vec<(PathBuf, SearchText<'_>)> = sources
             .iter()
             .map(|(path, text)| (PathBuf::from(path), SearchText::Source(text)))
             .collect();
-        resolve(&files, token, captures, name_parts)
+        resolve(&files, token, readings)
+    }
+
+    fn parse(source: &str) -> crate::document::Document {
+        crate::document_io::parse_document_from_str(source, PathBuf::from("a.unf")).unwrap()
     }
 
     fn caps(groups: &[&[&str]]) -> Vec<Vec<String>> {
@@ -494,6 +568,85 @@ glyph han-5b50-($han-regions):($1) = ($0)
             &name_parts,
         );
         assert_eq!(link, PatternLink::One("han-5b50-g:9x16".to_string()));
+    }
+
+    /// A `map`'s target is written with the `name-parts` its own `SLICE :`
+    /// qualifier binds, and a scoped part is in no unqualified map — so
+    /// without the line's slices the token keeps its `$`, expands to nothing
+    /// and the click falls back to the search. Every other glyph-name position
+    /// is unqualified and resolves either way; this is the one that did not.
+    #[test]
+    fn a_slice_qualified_map_target_is_read_with_its_slices_parts() {
+        let src = "\
+name-parts wide : $-half = ``
+name-parts narrow : $-half = -half
+glyph triple-star 8 16
+glyph triple-star-half 8 16
+map wide|narrow : ⁂ = triple-star($-half)
+";
+        let docs = [parse(src)];
+        let refs: Vec<&crate::document::Document> = docs.iter().collect();
+        let scoped = crate::document::SliceNameParts::with_base(
+            &refs,
+            crate::document::collect_name_parts(&refs),
+        );
+        let lines: Vec<DocLine> = src.lines().map(|s| DocLine::Text(s.to_string())).collect();
+        let map_line = 4;
+        let readings = readings_at_line(&lines, map_line, &scoped);
+        assert_eq!(readings.len(), 2, "one reading per slice of the qualifier");
+        let link = resolve_readings(&[("a.unf", src)], "triple-star($-half)", &readings);
+        let PatternLink::Many(groups) = link else {
+            panic!("the two slices name two glyphs, declared apart: {link:?}");
+        };
+        assert_eq!(groups.len(), 2);
+        assert_eq!(groups[0].name, "triple-star");
+        assert_eq!(groups[1].name, "triple-star-half");
+
+        // The unqualified map alone is what the click used to have, and it
+        // leaves the token unexpandable.
+        assert_eq!(
+            expand_link_token(
+                "triple-star($-half)",
+                &crate::document::collect_name_parts(&refs),
+                &[]
+            ),
+            None
+        );
+    }
+
+    /// The slices are an outer loop, not one more alternation: a target that
+    /// writes both a group of its own and a scoped part names every
+    /// combination, and never zips the two. Folding the slices into one map
+    /// would pair `0` with `wide` and `1` with `narrow` and lose half the
+    /// glyphs the line maps.
+    #[test]
+    fn the_slices_of_a_qualifier_multiply_the_target_rather_than_zip_it() {
+        let src = "\
+name-parts wide : $-half = ``
+name-parts narrow : $-half = -half
+glyph (0|1)-circled 8 16
+glyph (0|1)-circled-half 8 16
+map wide|narrow : ⓪|① = ($0..1)-circled($-half)
+";
+        let docs = [parse(src)];
+        let refs: Vec<&crate::document::Document> = docs.iter().collect();
+        let scoped = crate::document::SliceNameParts::with_base(
+            &refs,
+            crate::document::collect_name_parts(&refs),
+        );
+        let lines: Vec<DocLine> = src.lines().map(|s| DocLine::Text(s.to_string())).collect();
+        let readings = readings_at_line(&lines, 4, &scoped);
+        let names: Vec<String> = readings
+            .iter()
+            .flat_map(|r| {
+                expand_link_token("($0..1)-circled($-half)", r.parts, &r.captures)
+                    .unwrap_or_default()
+            })
+            .collect();
+        assert_eq!(
+            names,
+            vec!["0-circled", "1-circled", "0-circled-half", "1-circled-half"],
+        );
     }
 
     /// A `$-N` on a `ref` names a group of the header *above* it, which the

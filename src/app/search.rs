@@ -76,6 +76,7 @@
 //! the row the moment the file opened, throwing every later ordinal off.
 
 use super::*;
+use crate::document::SliceNameParts;
 use crate::document_io::SourceLine;
 use crate::editor::doc_links::{LinkSpan, pattern_denotes, scan_dollar_refs};
 use crate::editor::line_fields::{FieldRole, LineField, classify_line};
@@ -389,29 +390,50 @@ impl LineCarry {
         text: &str,
         query: &str,
         kind: SearchKind,
-        name_parts: &NamePartsMap,
+        name_parts: &SliceNameParts,
     ) -> Vec<MatchSpan> {
         let SearchKind::Name(kind) = kind else {
             return text_spans(text, query);
         };
         self.exists.enter(text);
-        let spans = match_spans(
-            text,
-            query,
-            kind,
-            self.at_base.as_deref(),
-            self.exists.pattern(),
-            &self.captures,
-            name_parts,
-        );
+        // A slice-qualified line's names are written with that slice's
+        // `name-parts` in force, and the line is stated once per slice — so it
+        // is matched once per slice, and a span any of them produces is a hit.
+        // Every other line has exactly one reading, the unqualified one; see
+        // [`crate::editor::line_fields::qualifier_slices`].
+        let slices = crate::editor::line_fields::qualifier_slices(text);
+        let mut spans: Vec<MatchSpan> = Vec::new();
+        for parts in name_parts.for_each_slice(&slices) {
+            for span in match_spans(
+                text,
+                query,
+                kind,
+                self.at_base.as_deref(),
+                self.exists.pattern(),
+                &self.captures,
+                parts,
+            ) {
+                // Two slices that spell one name on one token are one hit, or
+                // every ordinal after it would count a row the reader cannot
+                // see.
+                if !spans.contains(&span) {
+                    spans.push(span);
+                }
+            }
+        }
+        // Ordered as the line is written, whichever slice found which span.
+        spans.sort_by_key(|s| (s.col_start, s.col_end));
         // After matching, never before: a header's own `@` stands for the base
         // that was already in force, exactly as the parser reads it.
+        //
+        // A `glyph` block header takes no qualifier, so the groups it carries
+        // down are read with the unqualified map alone.
         advance_at_base(&mut self.at_base, text);
         advance_block_captures(
             &mut self.captures,
             text,
             self.at_base.as_deref(),
-            name_parts,
+            name_parts.for_slice(None),
         );
         spans
     }
@@ -424,7 +446,7 @@ fn hits_in_doclines(
     lines: &[DocLine],
     query: &str,
     kind: SearchKind,
-    name_parts: &NamePartsMap,
+    name_parts: &SliceNameParts,
 ) -> Vec<(usize, MatchSpan)> {
     let mut hits = Vec::new();
     let mut carry = LineCarry::default();
@@ -686,7 +708,7 @@ pub(super) fn collect_hits(
     files: &[(PathBuf, SearchText<'_>)],
     query: &str,
     kind: SearchKind,
-    name_parts: &NamePartsMap,
+    name_parts: &SliceNameParts,
 ) -> (Vec<SearchHit>, usize) {
     let mut hits: Vec<SearchHit> = Vec::new();
     let mut file_count = 0usize;
@@ -822,7 +844,7 @@ impl UniformApp {
                 Some((path, text))
             })
             .collect();
-        let (hits, file_count) = collect_hits(&files, &query, kind, &self.name_parts);
+        let (hits, file_count) = collect_hits(&files, &query, kind, &self.scoped_name_parts);
         drop(files);
 
         self.search.results = Some(SearchResults {
@@ -996,7 +1018,7 @@ impl UniformApp {
             &self.open_documents[idx].lines,
             &name,
             kind,
-            &self.name_parts,
+            &self.scoped_name_parts,
         );
         let lines = &self.open_documents[idx].lines;
         let Some(found) = relocate(&candidates, lines, ordinal, &text, highlight) else {
