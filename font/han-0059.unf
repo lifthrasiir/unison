@@ -511,8 +511,10 @@ glyph han-6002:15x16 15 16 // 怂
 
 ## 61.5
 
-glyph han-6007:15x16 15 16 // 怇
-⿰ han-5fc4:5x16 1 han-5de8:9x16 // ⿰忄巨
+glyph han-6007-(g|k):15x16 15 16 // 怇
+⿰ han-5fc4:5x16 1 han-5de8.0:9x16 // ⿰忄巨
+glyph han-6007-(t|j):15x16 15 16 // 怇
+⿰ han-5fc4:5x16 1 han-5de8.1:9x16 // ⿰忄巨
 
 glyph han-6008:15x16 15 16 // 怈
 ⿰ han-5fc4:5x16 1 han-4e16:9x16 // ⿰忄世

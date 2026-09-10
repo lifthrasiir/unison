@@ -2295,8 +2295,10 @@ glyph han-4e6a:15x16 15 16 // 乪
 glyph han-4e6b:15x16 15 16 // 乫
 ⿱ han-52a0:15x8 han-4e59:15x8 // ⿱加乙
 
-glyph han-4e6c:15x16 15 16 // 乬
-⿱ han-5de8:15x7 1 han-4e59:15x8 // ⿱巨乙
+glyph han-4e6c-(g|j|p):15x16 15 16 // 乬
+⿱ han-5de8.0:15x7 1 han-4e59:15x8 // ⿱巨乙
+glyph han-4e6c-k:15x16 15 16 // 乬
+⿱ han-5de8.1:15x7 1 han-4e59:15x8 // ⿱巨乙
 
 // glyph han-4e6d:15x16 15 16 // 乭
 // ⿱ han-77f3 han-4e59 // ⿱石乙
@@ -4253,8 +4255,10 @@ glyph han-4f5b:15x16 15 16 // 佛
 glyph han-4f5d:15x16 15 16 // 佝
 ⿰ han-4ebb:5x16 1 han-53e5:9x16 // ⿰亻句
 
-glyph han-4f62:15x16 15 16 // 佢
-⿰ han-4ebb:5x16 1 han-5de8:9x16 // ⿰亻巨
+glyph han-4f62-g:15x16 15 16 // 佢
+⿰ han-4ebb:5x16 1 han-5de8.0:9x16 // ⿰亻巨
+glyph han-4f62-(h|t|j):15x16 15 16 // 佢
+⿰ han-4ebb:5x16 1 han-5de8.1:9x16 // ⿰亻巨
 
 glyph han-4f63:15x16 15 16 // 佣
 ⿰ han-4ebb:5x16 han-7528:10x16 // ⿰亻用
@@ -4303,8 +4307,8 @@ glyph han-4f6f:15x16 15 16 // 佯
 glyph han-4f70:15x16 15 16 // 佰
 ⿰ han-4ebb:5x16 1 han-767e:9x16 // ⿰亻百
 
-// glyph han-4f72:15x16 15 16 // 佲
-// ⿰ han-4ebb han-540d // ⿰亻名
+glyph han-4f72:15x16 15 16 // 佲
+⿰ han-4ebb:5x16 1 han-540d:9x16 // ⿰亻名
 
 glyph han-4f73:15x12 15 12 // 佳
 ⿰ han-4ebb:5x12 1 han-572d:9x12 // ⿰亻圭
@@ -4378,6 +4382,9 @@ glyph han-4f97:15x16 15 16 // 侗
 ⿰ han-4ebb:5x16 1 han-540c:9x16 // ⿰亻同
 glyph han-4f97.0:15x16 = han-4f97:15x16
 
+glyph han-4f9b:15x16 15 16 // 供
+⿰ han-4ebb:5x16 -1 han-5171:11x16 // ⿰亻共
+
 glyph han-4f9c:15x16 15 16 // 侜
 ⿰ han-4ebb:5x16 1 han-821f:9x16 // ⿰亻舟
 
@@ -4390,8 +4397,12 @@ glyph han-4f9e:15x16 15 16 // 侞
 // glyph han-4fa0:15x16 15 16 // 侠
 // ⿰ han-4ebb han-5939 // ⿰亻夹
 
-// glyph han-4fa1:15x16 15 16 // 価
-// ⿰ han-4ebb han-8980 // ⿰亻覀
+glyph han-4fa1:15x16 15 16 // 価
+⿰ han-4ebb:5x16 han-8980:10x16 // ⿰亻覀
+glyph han-4fa1.0:15x16 = han-4fa1:15x16
+glyph han-4fa1.1:15x16 = han-4fa1:15x16
+glyph han-4fa1.2:15x16 15 16 // 価
+⿰ han-4ebb:5x16 han-897f:10x16 // ⿰亻覀
 
 glyph han-4fa3:15x16 15 16 // 侣
 ⿰ han-4ebb:3x16 1 han-5415:11x16 // ⿰亻吕
@@ -4452,14 +4463,14 @@ glyph han-4fd3:15x16 15 16 // 俓
 glyph han-4fd4:15x16 15 16 // 俔
 ⿰ han-4ebb:5x16 han-898b:10x16 // ⿰亻見
 
-// glyph han-4fd5:15x16 15 16 // 俕
-// ⿰ han-4ebb han-5b8b // ⿰亻宋
+glyph han-4fd5:15x16 15 16 // 俕
+⿰ han-4ebb:5x16 1 han-5b8b:9x16 // ⿰亻宋
 
 // glyph han-4fd6:15x16 15 16 // 俖
 // ⿰ han-4ebb han-5426 // ⿰亻否
 
-// glyph han-4fdd:15x16 15 16 // 保
-// ⿰ han-4ebb han-5446 // ⿰亻呆
+glyph han-4fdd:15x16 15 16 // 保
+⿰ han-4ebb:5x16 1 han-5446:9x16 // ⿰亻呆
 
 glyph han-4fde:7x16 7 16 // 俞
 $$....d3....$$

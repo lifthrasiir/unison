@@ -201,7 +201,7 @@ glyph han-231c6:15x16 15 16 // 𣇆
 // ⿶ han-24570 han-65e5 // ⿶𤕰日
 
 glyph han-231d6:15x16 15 16 // 𣇖
-⿲ han-65e5:4x16-l han-5de5:5x16 han-65e5:6x16 // ⿲日工日
+⿲ han-65e5:4x16-l han-5de5:5x16-l han-65e5:6x16 // ⿲日工日
 
 glyph han-231d8:15x16 15 16 // 𣇘
 ⿱ han-5229:15x11 han-65e5:15x5 // ⿱利日

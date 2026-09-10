@@ -99,8 +99,8 @@ glyph han-28e5d:15x16 15 16 // 𨹝
 // glyph han-28e63:15x16 15 16 // 𨹣
 // ⿰ han-961d han-378e // ⿰阝㞎
 
-// glyph han-28e66:15x16 15 16 // 𨹦
-// ⿰ han-961d han-5446 // ⿰阝呆
+glyph han-28e66:15x16 15 16 // 𨹦
+⿰ han-961d:5x16-l 1 han-5446:9x16 // ⿰阝呆
 
 glyph han-28e6c:15x16 15 16 // 𨹬
 ⿰ han-961d:4x16-l han-5415.x:11x16 // ⿰阝吕

@@ -214,6 +214,11 @@ glyph han-2b8d1:15x16 15 16 // 𫣑
 // glyph han-2b8e9:15x16 15 16 // 𫣩
 // ⿲ han-4ebb han-4eb2 han-65a4 // ⿲亻亲斤 <- ⿰亻新
 
+## 9.14
+
+// glyph han-2b8ef:15x16 15 16 // 𫣯
+// ⿱ han-4fdd han-5229 // ⿱保利
+
 ## 9.16
 
 glyph han-2b8f9:15x16 15 16 // 𫣹
@@ -692,6 +697,9 @@ glyph han-2baac-($han-regions):15x16 15 16 // 𫪬
 
 glyph han-2bab2:15x16 15 16 // 𫪲
 ⿲ -4 han-53e3:3x16-l han-6728:5x16 han-4e19:11x16 // ⿲口木丙
+
+// glyph han-2bab5:15x16 15 16 // 𫪵
+// ⿰ han-53e3 han-62f1 // ⿰口拱
 
 // glyph han-2bab6:15x16 15 16 // 𫪶
 // ⿲ han-53e3 han-624c han-7a75 // ⿲口扌穵 <- ⿰口挖

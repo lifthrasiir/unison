@@ -375,6 +375,9 @@ glyph han-4026:15x16 15 16 // 䀦
 
 ## 109.6
 
+glyph han-4027:15x16 15 16 // 䀧
+⿰ han-76ee:6x16 han-5171:9x16 // ⿰目共
+
 // glyph han-4028:15x16 15 16 // 䀨
 // ⿰ han-76ee han-820c // ⿰目舌
 
@@ -445,7 +448,7 @@ glyph han-406a:15x16 15 16 // 䁪
 ## 109.12
 
 glyph han-4070:15x16 15 16 // 䁰
-⿲ han-76ee:4x16-l han-5de5:5x16 1 han-9801:5x16 // ⿲目工頁
+⿲ han-76ee:4x16-l han-5de5:5x16-l 1 han-9801:5x16 // ⿲目工頁
 
 glyph han-4071:15x16 15 16 // 䁱
 ⿰ han-76ee:7x16 1 han-582f:7x16 // ⿰目堯
@@ -1137,16 +1140,16 @@ glyph han-4280:15x16 15 16 // 䊀
 // glyph han-4284:15x16 15 16 // 䊄
 // ⿱ han-5de9 han-7c73 // ⿱巩米
 
-// glyph han-4285:15x16 15 16 // 䊅
-// ⿰ han-7c73 han-540d // ⿰米名
+glyph han-4285:15x16 15 16 // 䊅
+⿰ han-7c73:5x16 1 han-540d:9x16 // ⿰米名
 
 ## 119.7
 
 glyph han-4287:15x16 15 16 // 䊇
 ⿰ han-7c73:7x16 1 han-752b:7x16 // ⿰米甫
 
-// glyph han-4289:15x16 15 16 // 䊉
-// ⿰ han-7c73 han-5b8b // ⿰米宋
+glyph han-4289:15x16 15 16 // 䊉
+⿰ han-7c73:5x16 1 han-5b8b:9x16 // ⿰米宋
 
 glyph han-428b:15x16 15 16 // 䊋
 ⿲ -3 han-7c73:5x16 han-723f:6x16 han-58eb:7x16 // ⿲米爿士

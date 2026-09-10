@@ -225,6 +225,9 @@ glyph han-272be:15x16 15 16 // 𧊾
 // glyph han-272c0:15x16 15 16 // 𧋀
 // ⿰ han-866b han-5dde // ⿰虫州
 
+glyph han-272c4:15x16 15 16 // 𧋄
+⿰ han-866b:5x16 1 han-5171:9x16 // ⿰虫共
+
 // glyph han-272c7:15x16 15 16 // 𧋇
 // ⿰ han-866b han-3193d // ⿰虫𱤽
 

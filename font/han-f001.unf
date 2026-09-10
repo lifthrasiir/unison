@@ -403,7 +403,7 @@ glyph han-2cfc2:15x16 15 16 // 𬿂
 ## 9.12
 
 glyph han-2cfe6:15x16 15 16 // 𬿦
-⿲ han-4ebb:3x16 han-5de5:5x16 han-9801:7x16 // ⿲亻工頁
+⿲ han-4ebb:3x16 han-5de5:5x16-l han-9801:7x16 // ⿲亻工頁
 
 glyph han-2cfe8:15x16 15 16 // 𬿨
 ⿰ han-4ebb:3x16 1 han-6b6e:11x16 // ⿰亻歮
@@ -707,8 +707,8 @@ glyph han-2d0d5:15x16 15 16 // 𭃕
 // glyph han-2d0da:15x16 15 16 // 𭃚
 // ⿰ han-751f han-5203 // ⿰生刃
 
-// glyph han-2d0de:15x16 15 16 // 𭃞
-// ⿰ han-540d han-5202 // ⿰名刂
+glyph han-2d0de:15x16 15 16 // 𭃞
+⿰ han-540d:9x16 1 han-5202:5x16 // ⿰名刂
 
 // glyph han-2d0df:15x16 15 16 // 𭃟
 // ⿱ han-5408 han-5200 // ⿱合刀

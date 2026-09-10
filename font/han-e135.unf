@@ -506,8 +506,8 @@ glyph han-2c8e7:15x16 15 16 // 𬣧
 glyph han-2c8ec:15x16 15 16 // 𬣬
 ⿰ han-8ba0:5x16 1 han-56de:9x16 // ⿰讠回
 
-// glyph han-2c8ee:15x16 15 16 // 𬣮
-// ⿰ han-8ba0 han-540d // ⿰讠名
+glyph han-2c8ee:15x16 15 16 // 𬣮
+⿰ han-8ba0:5x16 1 han-540d:9x16 // ⿰讠名
 
 // glyph han-2c8f1:15x16 15 16 // 𬣱
 // ⿰ han-8ba0 han-5dde // ⿰讠州
@@ -897,6 +897,9 @@ glyph han-2ca79:15x16 15 16 // 𬩹
 ⿲ -2 han-4ebb:3x16 han-4e09:10x16 han-961d:4x16-r // ⿲亻三阝
 
 ## 163.6
+
+// glyph han-2ca7a:15x16 15 16 // 𬩺
+// ⿰ han-5171 han-9091 // ⿰共邑
 
 // glyph han-2ca7d:15x16 15 16 // 𬩽
 // ⿰ han-5bfb han-961d // ⿰寻阝

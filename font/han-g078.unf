@@ -32,6 +32,9 @@ glyph han-30693:15x16 15 16 // 𰚓
 
 ## 82.6
 
+// glyph han-30696:15x16 15 16 // 𰚖
+// ⿱ han-5171 han-6bdb // ⿱共毛
+
 glyph han-30697:15x16 15 16 // 𰚗
 ⿰ han-5e76:8x16 han-6bdb:7x16 // ⿰并毛
 
@@ -316,8 +319,8 @@ glyph han-3078a:15x16 15 16 // 𰞊
 // glyph han-3078e:15x16 15 16 // 𰞎
 // ⿱ han-8089 han-706b // ⿱肉火
 
-// glyph han-30794:15x16 15 16 // 𰞔
-// ⿰ han-706b han-540d // ⿰火名
+glyph han-30794:15x16 15 16 // 𰞔
+⿰ han-706b:5x16-l 1 han-540d:9x16 // ⿰火名
 
 // glyph han-30798:15x16 15 16 // 𰞘
 // ⿱ han-884c han-706b // ⿱行火
@@ -399,8 +402,14 @@ glyph han-307c1:15x16 15 16 // 𰟁
 // glyph han-307c7:15x16 15 16 // 𰟇
 // ⿱ han-22b73 han-706b // ⿱𢭳火
 
+// glyph han-307c8:15x16 15 16 // 𰟈
+// ⿱ han-3ae5 han-706c // ⿱㫥灬
+
 // glyph han-307c9:15x16 15 16 // 𰟉
 // ⿱ han-7727 han-706c // ⿱眧灬
+
+// glyph han-307ce:15x16 15 16 // 𰟎
+// ⿱ han-708e han-5171 // ⿱炎共
 
 ## 86.11
 

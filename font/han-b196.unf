@@ -142,8 +142,10 @@ glyph han-29fd8:15x16 15 16 // 𩿘
 // glyph han-29fdc:15x16 15 16 // 𩿜
 // ⿳ han-5341 han-5efe han-9ce5 // ⿳十廾鳥
 
-glyph han-29fdd:15x16 15 16 // 𩿝
-⿰ han-5de8:7x16 1 han-9ce5:7x16 // ⿰巨鳥
+glyph han-29fdd-g:15x16 15 16 // 𩿝
+⿰ han-5de8.0:7x16 1 han-9ce5:7x16 // ⿰巨鳥
+glyph han-29fdd-(t|j):15x16 15 16 // 𩿝
+⿰ han-5de8.1:7x16 1 han-9ce5:7x16 // ⿰巨鳥
 
 glyph han-29fe1:15x16 15 16 // 𩿡
 ⿰ han-9ce5:7x16 1 han-53f0:7x16 // ⿰鳥台
@@ -202,7 +204,7 @@ glyph han-2a001:15x16 15 16 // 𪀁
 ⿲ -2 han-9ce5:7x16 han-529b:5x16 1 han-53e3:4x16 // ⿲鳥力口
 
 glyph han-2a003:15x16 15 16 // 𪀃
-⿲ -2 han-9ce5:7x16 han-5de5:5x16 han-5369:5x16 // ⿲鳥工卩
+⿲ han-9ce5:7x16 han-5de5:3x16-l han-5369:5x16 // ⿲鳥工卩
 
 glyph han-2a004:15x16 15 16 // 𪀄
 ⿰ han-5360:5x16 1 han-9ce5:9x16 // ⿰占鳥
@@ -225,8 +227,10 @@ glyph han-2a00c:15x16 15 16 // 𪀌
 glyph han-2a00d:15x16 15 16 // 𪀍
 ⿰ han-9ce5:7x16 han-6c10:8x16 // ⿰鳥氐
 
-glyph han-2a00f:15x16 15 16 // 𪀏
-⿰ han-9ce5:7x16 1 han-5de8:7x16 // ⿰鳥巨
+glyph han-2a00f-g:15x16 15 16 // 𪀏
+⿰ han-9ce5:7x16 1 han-5de8.0:7x16 // ⿰鳥巨
+glyph han-2a00f-(t|j|k):15x16 15 16 // 𪀏
+⿰ han-9ce5:7x16 1 han-5de8.1:7x16 // ⿰鳥巨
 
 ## 196.6
 
@@ -425,6 +429,9 @@ glyph han-2a0be:15x16 15 16 // 𪂾
 glyph han-2a0bf:15x16 15 16 // 𪂿
 ⿰ han-9ce5:7x16 1 han-662f:7x16 // ⿰鳥是
 
+// glyph han-2a0c1:15x16 15 16 // 𪃁
+// ⿱ han-4fdd han-9ce5 // ⿱保鳥
+
 // glyph han-2a0c4:15x16 15 16 // 𪃄
 // ⿰ han-601d han-9ce5 // ⿰思鳥
 
@@ -466,6 +473,9 @@ glyph han-2a0d9-($han-regions):15x16 15 16 // 𪃙
 
 // glyph han-2a0e0:15x16 15 16 // 𪃠
 // ⿱ han-52c5 han-9ce5 // ⿱勅鳥
+
+// glyph han-2a0e1:15x16 15 16 // 𪃡
+// ⿰ han-6d2a han-9ce5 // ⿰洪鳥
 
 glyph han-2a0e5:15x16 15 16 // 𪃥
 ⿲ han-6728:5x16 han-76ee:3x16-l han-9ce5:7x16 // ⿲木目鳥

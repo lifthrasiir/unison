@@ -182,8 +182,8 @@ glyph han-21735:15x16 15 16 // 𡜵
 // glyph han-2173a:15x16 15 16 // 𡜺
 // ⿰ han-5973 han-674f // ⿰女杏
 
-// glyph han-2173b:15x16 15 16 // 𡜻
-// ⿰ han-5973 han-5b8b // ⿰女宋
+glyph han-2173b:15x16 15 16 // 𡜻
+⿰ han-5973:5x16-l 1 han-5b8b:9x16 // ⿰女宋
 
 // glyph han-2173d:15x16 15 16 // 𡜽
 // ⿱ han-8096 han-5973 // ⿱肖女

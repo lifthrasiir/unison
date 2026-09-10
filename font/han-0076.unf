@@ -767,8 +767,10 @@ glyph han-6b68:15x16 15 16 // 歨
 glyph han-6b6a:15x16 15 16 // 歪
 ⿱ han-4e0d:15x8 han-6b63:15x8 // ⿱不正
 
-glyph han-6b6b:15x16 15 16 // 歫
-⿰ han-6b62:6x16 han-5de8:9x16 // ⿰止巨
+glyph han-6b6b-(g|k|p):15x16 15 16 // 歫
+⿰ han-6b62:6x16-l han-5de8.0:9x16 // ⿰止巨
+glyph han-6b6b-(t|j):15x16 15 16 // 歫
+⿰ han-6b62:6x16-l han-5de8.1:9x16 // ⿰止巨
 
 ## 77.6
 

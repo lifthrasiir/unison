@@ -596,6 +596,9 @@ glyph han-3915:15x16 15 16 // 㤕
 // glyph han-3923:15x16 15 16 // 㤣
 // ⿱ han-5e76 han-5fc3 // ⿱并心
 
+glyph han-3928:15x16 15 16 // 㤨
+⿰ han-5fc4:5x16 1 han-5171:9x16 // ⿰忄共
+
 // glyph han-3929:15x16 15 16 // 㤩
 // ⿱ han-5404 han-5fc3 // ⿱各心
 
@@ -774,8 +777,8 @@ glyph han-39eb:15x16 15 16 // 㧫
 
 ## 64.7
 
-// glyph han-39f2:15x16 15 16 // 㧲
-// ⿰ han-624c han-5b8b // ⿰扌宋
+glyph han-39f2:15x16 15 16 // 㧲
+⿰ han-624c:5x16 1 han-5b8b:9x16 // ⿰扌宋
 
 // glyph han-39f3:15x16 15 16 // 㧳
 // ⿱ han-626e han-624b // ⿱扮手
@@ -972,8 +975,8 @@ glyph han-3add:15x16 15 16 // 㫝
 
 ## 72.6
 
-// glyph han-3ae5:15x16 15 16 // 㫥
-// ⿰ han-65e5 han-540d // ⿰日名
+glyph han-3ae5:15x16 15 16 // 㫥
+⿰ han-65e5:6x16 han-540d:9x16 // ⿰日名
 
 // glyph han-3ae7:15x16 15 16 // 㫧
 // ⿱ han-65e5 han-7c73 // ⿱日米
@@ -1069,6 +1072,9 @@ glyph han-3b33:15x16 15 16 // 㬳
 // ⿰ han-6708 han-5185 // ⿰月内
 
 ## 74.6
+
+glyph han-3b34:15x16 15 16 // 㬴
+⿰ han-6708:5x16-l 1 han-5171:9x16 // ⿰月共
 
 glyph han-3b35:15x16 15 16 // 㬵
 ⿰ han-6708:5x16-l 1 han-4ea4:9x16 // ⿰月交

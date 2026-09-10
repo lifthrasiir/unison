@@ -406,7 +406,7 @@ glyph han-20fbd:15x16 15 16 // 𠾽
 ⿰ han-53e3:3x16-l 1 han-958f:11x16 // ⿰口閏
 
 glyph han-20fbf:15x16 15 16 // 𠾿
-⿲ han-53e3:5x16-l han-5de5:5x16 han-9801:5x16 // ⿲口工頁
+⿲ han-53e3:5x16-l han-5de5:5x16-l han-9801:5x16 // ⿲口工頁
 
 glyph han-20fc0:15x16 15 16 // 𠿀
 ⿲ han-53e3:3x16-l han-79be:5x16 han-8096:7x16 // ⿲口禾肖

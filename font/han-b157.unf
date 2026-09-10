@@ -179,7 +179,7 @@ glyph han-28025:15x16 15 16 // 𨀥
 // ⿲ han-27fb7 han-4e30 han-5200 // ⿲𧾷丰刀
 
 glyph han-2802f:15x16 15 16 // 𨀯
-⿲ han-27fb7:5x16 han-5de5:5x16 han-961d:5x16-r // ⿲𧾷工阝
+⿲ han-27fb7:5x16 han-5de5:5x16-l han-961d:5x16-r // ⿲𧾷工阝
 
 // glyph han-28030:15x16 15 16 // 𨀰
 // ⿲ han-27fb7 han-51ab han-6c34 // ⿲𧾷冫水 <- ⿰𧾷冰

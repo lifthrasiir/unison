@@ -402,8 +402,8 @@ glyph han-2bd73:15x16 15 16 // 𫵳
 // glyph han-2bd7d:15x16 15 16 // 𫵽
 // ⿱ han-5c71 han-51ee // ⿱山凮
 
-// glyph han-2bd80:15x16 15 16 // 𫶀
-// ⿰ han-5c71 han-5b8b // ⿰山宋
+glyph han-2bd80:15x16 15 16 // 𫶀
+⿰ han-5c71:5x16 1 han-5b8b:9x16 // ⿰山宋
 
 ## 46.8
 
@@ -812,6 +812,9 @@ glyph han-2beb6:15x16 15 16 // 𫺶
 
 // glyph han-2bf0b:15x16 15 16 // 𫼋
 // ⿸ han-6236 han-572d // ⿸戶圭
+
+// glyph han-2bf0c:15x16 15 16 // 𫼌
+// ⿰ han-6237 han-5171 // ⿰户共
 
 ## 63.7
 

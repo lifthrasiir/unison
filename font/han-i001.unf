@@ -78,8 +78,8 @@ glyph han-2ec1b:15x16 15 16 // 𮰛
 // glyph han-2ec1d:15x16 15 16 // 𮰝
 // ⿱ han-6739 han-571f // ⿱朹土
 
-// glyph han-2ec1e:15x16 15 16 // 𮰞
-// ⿰ han-571f han-540d // ⿰土名
+glyph han-2ec1e:15x16 15 16 // 𮰞
+⿰ han-571f:7x16-l -1 han-540d:9x16 // ⿰土名
 
 ## 32.7
 
@@ -271,6 +271,9 @@ glyph han-2ec9a:15x16 15 16 // 𮲚
 // ⿱ han-65e5 han-672c // ⿱日本
 
 ## 72.6
+
+// glyph han-2eca1:15x16 15 16 // 𮲡
+// ⿱ han-65e5 han-5171 // ⿱日共
 
 // glyph han-2eca2:15x16 15 16 // 𮲢
 // ⿱ han-65e5 han-8863 // ⿱日衣
@@ -537,8 +540,8 @@ glyph han-2ed58:15x16 15 16 // 𮵘
 
 ## 115.6
 
-// glyph han-2ed61:15x16 15 16 // 𮵡
-// ⿰ han-79be han-540d // ⿰禾名
+glyph han-2ed61:15x16 15 16 // 𮵡
+⿰ han-79be:5x16 1 han-540d:9x16 // ⿰禾名
 
 # CJK unified ideographs extension I: 立 (117)
 
@@ -770,8 +773,8 @@ glyph han-2ede9:15x16 15 16 // 𮷩
 
 ## 167.7
 
-// glyph han-2edf0:15x16 15 16 // 𮷰
-// ⿰ han-91d2 han-5446 // ⿰釒呆
+glyph han-2edf0:15x16 15 16 // 𮷰
+⿰ han-91d2:5x16-l 1 han-5446:9x16 // ⿰釒呆
 
 ## 167.8
 

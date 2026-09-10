@@ -63,8 +63,8 @@ glyph han-2e1de:15x16 15 16 // 𮇞
 // glyph han-2e1df:15x16 15 16 // 𮇟
 // ⿰ han-7c73 han-8db3 // ⿰米足
 
-// glyph han-2e1e0:15x16 15 16 // 𮇠
-// ⿰ han-7c73 han-5446 // ⿰米呆
+glyph han-2e1e0:15x16 15 16 // 𮇠
+⿰ han-7c73:5x16 1 han-5446:9x16 // ⿰米呆
 
 // glyph han-2e1e4:15x16 15 16 // 𮇤
 // ⿰ han-7c73 han-7075 // ⿰米灵
@@ -114,6 +114,9 @@ glyph han-2e209:15x16 15 16 // 𮈉
 // ⿰ han-7cf8 han-5fc5 // ⿰糸必
 
 ## 120.6
+
+// glyph han-2e20d:15x16 15 16 // 𮈍
+// ⿱ han-5171 han-7cf8 // ⿱共糸
 
 // glyph han-2e20e:15x16 15 16 // 𮈎
 // ⿰ han-7cf8 han-65e9 // ⿰糸早
@@ -264,6 +267,9 @@ glyph han-2e2ba-($han-regions):15x16 15 16 // 𮊺
 ⿰ han-5206:7x16 han-7fbd-($-1):8x16 // ⿰分羽
 
 ## 124.6
+
+// glyph han-2e2be-($han-regions):15x16 15 16 // 𮊾
+// ⿱ han-7fbd-($-1) han-5171 // ⿱羽共
 
 // glyph han-2e2c1-($han-regions):15x16 15 16 // 𮋁
 // ⿱ han-7fbd-($-1) han-5408 // ⿱羽合

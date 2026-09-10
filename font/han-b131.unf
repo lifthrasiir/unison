@@ -270,7 +270,7 @@ glyph han-26a2d:15x16 15 16 // 𦨭
 // ⿰ han-821f han-820c // ⿰舟舌
 
 glyph han-26a30:15x16 15 16 // 𦨰
-⿲ -1 han-821f:7x16 han-5de5:5x16 han-961d:4x16-r // ⿲舟工阝
+⿲ han-821f:7x16 han-5de5:3x16-l han-961d:5x16-r // ⿲舟工阝
 
 glyph han-26a34:15x16 15 16 // 𦨴
 ⿰ han-821f:7x16 han-540c:8x16 // ⿰舟同

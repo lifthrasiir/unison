@@ -936,6 +936,9 @@ glyph han-7bc5:15x16 15 16 // 篅
 glyph han-7bc8:15x16 15 16 // 篈
 ⿱ han-25ad7:15x5 han-5c01:15x11 // ⿱𥫗封
 
+// glyph han-7bca:15x16 15 16 // 篊
+// ⿱ han-25ad7 han-6d2a // ⿱𥫗洪
+
 glyph han-7bcd:15x16 15 16 // 篍
 ⿱ han-25ad7:15x5 han-79cb:15x11 // ⿱𥫗秋
 
@@ -1212,8 +1215,10 @@ glyph han-7c92:15x16 15 16 // 粒
 glyph han-7c93:15x16 15 16 // 粓
 ⿰ han-7c73:5x16 1 han-7518:9x16 // ⿰米甘
 
-glyph han-7c94:15x16 15 16 // 粔
-⿰ han-7c73:5x16 1 han-5de8:9x16 // ⿰米巨
+glyph han-7c94-(g|k|p):15x16 15 16 // 粔
+⿰ han-7c73:5x16 1 han-5de8.0:9x16 // ⿰米巨
+glyph han-7c94-(h|t|j):15x16 15 16 // 粔
+⿰ han-7c73:5x16 1 han-5de8.1:9x16 // ⿰米巨
 
 glyph han-7c95:15x16 15 16 // 粕
 ⿰ han-7c73:9x16 han-767d:6x16 // ⿰米白
@@ -1243,6 +1248,9 @@ glyph han-7c9e:15x16 15 16 // 粞
 
 // glyph han-7c9f:15x16 15 16 // 粟
 // ⿱ han-8980 han-7c73 // ⿱覀米
+
+glyph han-7ca0:15x16 15 16 // 粠
+⿰ han-7c73:5x16 1 han-5171:9x16 // ⿰米共
 
 glyph han-7ca1:15x16 15 16 // 粡
 ⿰ han-7c73:7x16 1 han-540c:7x16 // ⿰米同
@@ -1293,6 +1301,9 @@ $$@@0/........@@$$
 
 glyph han-7ca8:15x16 15 16 // 粨
 ⿰ han-7c73:7x16 han-767e:8x16 // ⿰米百
+
+// glyph han-7caa:15x16 15 16 // 粪
+// ⿱ han-7c73 han-5171 // ⿱米共
 
 glyph han-7cab:15x16 15 16 // 粫
 ⿰ han-7c73:5x16 1 han-800c:9x16 // ⿰米而

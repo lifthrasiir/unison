@@ -12,7 +12,7 @@ glyph han-21b1f:15x16 15 16 // 𡬟
 ⿰ han-79be:5x16 1 han-5bf8:9x16 // ⿰禾寸
 
 glyph han-21b21:15x16 15 16 // 𡬡
-⿰ han-5de8:9x16 han-5bf8:6x16 // ⿰巨寸
+⿰ han-5de8-g:9x16 han-5bf8:6x16 // ⿰巨寸
 
 // glyph han-21b23:15x16 15 16 // 𡬣
 // ⿺ han-5144 han-5bf8 // ⿺兄寸
@@ -177,6 +177,9 @@ glyph han-21c48:15x16 15 16 // 𡱈
 
 // glyph han-21c4f:15x16 15 16 // 𡱏
 // ⿸ han-5c38 han-7cf8 // ⿸尸糸
+
+// glyph han-21c52:15x16 15 16 // 𡱒
+// ⿸ han-5c38 han-5171 // ⿸尸共
 
 // glyph han-21c5c:15x16 15 16 // 𡱜
 // ⿸ han-5c38 han-5146 // ⿸尸兆

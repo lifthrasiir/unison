@@ -356,6 +356,11 @@ ref han-9b25:15x16.13x11
 glyph han-9b27:15x16 15 16 // 鬧
 ⿵ han-9b25:15x16.13x11 han-5e02:11x11 2 5 // ⿵鬥市
 
+## 191.6
+
+// glyph han-9b28:15x16 15 16 // 鬨
+// ⿵ han-9b25 han-5171 // ⿵鬥共
+
 # CJK unified ideographs: 魚 (195)
 
 ## 195.0
@@ -508,8 +513,10 @@ glyph han-9b91:15x16 15 16 // 鮑
 glyph han-9b92:15x16 15 16 // 鮒
 ⿲ -1 han-9b5a:7x16 han-4ebb:3x16 han-5bf8:6x16 // ⿲魚亻寸
 
-glyph han-9b94:15x16 15 16 // 鮔
-⿰ han-9b5a:7x16 1 han-5de8:7x16 // ⿰魚巨
+glyph han-9b94-g:15x16 15 16 // 鮔
+⿰ han-9b5a:7x16 1 han-5de8.0:7x16 // ⿰魚巨
+glyph han-9b94-(t|j):15x16 15 16 // 鮔
+⿰ han-9b5a:7x16 1 han-5de8.1:7x16 // ⿰魚巨
 
 glyph han-9b95:15x16 15 16 // 鮕
 ⿰ han-9b5a:7x16 1 han-53e4:7x16 // ⿰魚古

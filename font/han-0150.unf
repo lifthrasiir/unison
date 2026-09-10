@@ -265,6 +265,9 @@ glyph han-8ced-j:15x16 15 16 // 賭
 glyph han-8cf1:15x16 15 16 // 賱
 ⿰ han-8c9d:6x16 han-8ecd:9x16 // ⿰貝軍
 
+// glyph han-8cf2:15x16 15 16 // 賲
+// ⿱ han-4fdd han-8c9d // ⿱保貝
+
 // glyph han-8cf5:15x16 15 16 // 賵
 // ⿰ han-8c9d han-5192 // ⿰貝冒
 
@@ -604,8 +607,8 @@ glyph han-8ddb:15x16 15 16 // 跛
 glyph han-8ddc-($han-regions):15x16 15 16 // 跜
 ⿰ han-27fb7:5x16 1 han-5c3c-($-1):9x16 // ⿰𧾷尼
 
-glyph han-8ddd:15x16 15 16 // 距
-⿰ han-27fb7:5x16 1 han-5de8:9x16 // ⿰𧾷巨
+glyph han-8ddd-($han-regions):15x16 15 16 // 距
+⿰ han-27fb7:5x16 1 han-5de8-($-1):9x16 // ⿰𧾷巨
 
 ## 157.6
 

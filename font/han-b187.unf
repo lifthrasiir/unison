@@ -87,7 +87,7 @@ glyph han-2989d:15x16 15 16 // 𩢝
 ⿰ han-99ac:7x16 han-7247:8x16 // ⿰馬片
 
 glyph han-2989e:15x16 15 16 // 𩢞
-⿲ -2 han-99ac:7x16 han-5de5:5x16 han-5369:5x16 // ⿲馬工卩
+⿲ han-99ac:7x16 han-5de5:3x16-l han-5369:5x16 // ⿲馬工卩
 
 glyph han-298a0:15x16 15 16 // 𩢠
 ⿰ han-53f0:7x16 1 han-99ac:7x16 // ⿰台馬

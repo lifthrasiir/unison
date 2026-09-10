@@ -107,8 +107,10 @@ glyph han-24754:15x16 15 16 // 𤝔
 glyph han-24757:15x16 15 16 // 𤝗
 ⿰ han-72ad:6x16 han-7530:9x16 // ⿰犭田
 
-glyph han-24759:15x16 15 16 // 𤝙
-⿰ han-72ad:6x16 han-5de8:9x16 // ⿰犭巨
+glyph han-24759-g:15x16 15 16 // 𤝙
+⿰ han-72ad:6x16 han-5de8.0:9x16 // ⿰犭巨
+glyph han-24759-(t|j):15x16 15 16 // 𤝙
+⿰ han-72ad:6x16 han-5de8.1:9x16 // ⿰犭巨
 
 glyph han-2475a:15x16 15 16 // 𤝚
 ⿰ han-72ad:6x16 han-7533:9x16 // ⿰犭申
@@ -187,6 +189,9 @@ glyph han-2478f:15x16 15 16 // 𤞏
 glyph han-24791:15x16 15 16 // 𤞑
 ⿰ han-72ad:6x16 han-56de:9x16 // ⿰犭回
 
+glyph han-24792:15x16 15 16 // 𤞒
+⿰ han-72ad:6x16 han-5171:9x16 // ⿰犭共
+
 ## 94.7
 
 glyph han-2479a:15x16 15 16 // 𤞚
@@ -201,8 +206,8 @@ glyph han-2479a:15x16 15 16 // 𤞚
 // glyph han-247a2:15x16 15 16 // 𤞢
 // ⿰ han-72ad han-8289 // ⿰犭芉
 
-// glyph han-247a5:15x16 15 16 // 𤞥
-// ⿰ han-72ad han-5446 // ⿰犭呆
+glyph han-247a5:15x16 15 16 // 𤞥
+⿰ han-72ad:6x16 han-5446:9x16 // ⿰犭呆
 
 glyph han-247a7:15x16 15 16 // 𤞧
 ⿰ han-72ad:4x16 han-56f0:11x16 // ⿰犭困

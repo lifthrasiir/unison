@@ -47,8 +47,8 @@ glyph han-42c3:15x16 15 16 // 䋃
 glyph han-42ca:15x16 15 16 // 䋊
 ⿰ han-7cf9:5x16 han-6b63:10x16 // ⿰糹正
 
-glyph han-42cc:15x16 15 16 // 䋌
-⿰ han-7cf9:5x16 1 han-5de8:9x16 // ⿰糹巨
+glyph han-42cc-($han-regions):15x16 15 16 // 䋌
+⿰ han-7cf9:5x16 1 han-5de8-($-1):9x16 // ⿰糹巨
 
 glyph han-42cd:15x16 15 16 // 䋍
 ⿰ han-7cf9:5x16 han-53ef:10x16 // ⿰糹可

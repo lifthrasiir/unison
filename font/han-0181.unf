@@ -713,8 +713,10 @@ glyph han-99cb:15x16 15 16 // 駋
 glyph han-99ce:15x16 15 16 // 駎
 ⿰ han-99ac:7x16 1 han-7531:7x16 // ⿰馬由
 
-glyph han-99cf:15x16 15 16 // 駏
-⿰ han-99ac:7x16 1 han-5de8:7x16 // ⿰馬巨
+glyph han-99cf-(g|k|p):15x16 15 16 // 駏
+⿰ han-99ac:7x16 1 han-5de8.0:7x16 // ⿰馬巨
+glyph han-99cf-(h|t|j):15x16 15 16 // 駏
+⿰ han-99ac:7x16 1 han-5de8.1:7x16 // ⿰馬巨
 
 glyph han-99d2:15x16 15 16 // 駒
 ⿰ han-99ac:7x16 1 han-53e5:7x16 // ⿰馬句

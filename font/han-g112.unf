@@ -411,8 +411,8 @@ glyph han-30ae1:15x16 15 16 // 𰫡
 
 ## 120.7
 
-// glyph han-30ae7:15x16 15 16 // 𰫧
-// ⿰ han-7cf9 han-5b8b // ⿰糹宋
+glyph han-30ae7:15x16 15 16 // 𰫧
+⿰ han-7cf9:5x16 1 han-5b8b:9x16 // ⿰糹宋
 
 ## 120.8
 
@@ -573,8 +573,10 @@ glyph han-30b81:15x16 15 16 // 𰮁
 
 ## 130.5
 
-glyph han-30b92:15x16 15 16 // 𰮒
-⿰ han-6708:5x16-l 1 han-5de8:9x16 // ⿰月巨
+glyph han-30b92-(g|v):15x16 15 16 // 𰮒
+⿰ han-6708:5x16-l 1 han-5de8.0:9x16 // ⿰月巨
+glyph han-30b92-t:15x16 15 16 // 𰮒
+⿰ han-6708:5x16-l 1 han-5de8.1:9x16 // ⿰月巨
 
 // glyph han-30b95:15x16 15 16 // 𰮕
 // ⿱ han-7518 han-8089 // ⿱甘肉

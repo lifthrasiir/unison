@@ -144,8 +144,8 @@ glyph han-2e573:15x16 15 16 // 𮕳
 // glyph han-2e57a:15x16 15 16 // 𮕺
 // ⿱ han-8863 han-540c // ⿱衣同
 
-// glyph han-2e57f:15x16 15 16 // 𮕿
-// ⿰ han-8864 han-540d // ⿰衤名
+glyph han-2e57f:15x16 15 16 // 𮕿
+⿰ han-8864:5x16 1 han-540d:9x16 // ⿰衤名
 
 ## 145.7
 
@@ -308,8 +308,8 @@ glyph han-2e60b:15x16 15 16 // 𮘋
 glyph han-2e611:15x16 15 16 // 𮘑
 ⿲ -1 han-8a01:5x16 han-4e14:6x16 han-529b:5x16 // ⿲訁且力
 
-// glyph han-2e612:15x16 15 16 // 𮘒
-// ⿰ han-8a01 han-5446 // ⿰訁呆
+glyph han-2e612:15x16 15 16 // 𮘒
+⿰ han-8a01:5x16 1 han-5446:9x16 // ⿰訁呆
 
 glyph han-2e613:15x16 15 16 // 𮘓
 ⿲ han-8a01:5x16 han-4ebb:3x16 1 han-767d:6x16 // ⿲訁亻白
@@ -335,6 +335,9 @@ glyph han-2e61f:15x16 15 16 // 𮘟
 
 glyph han-2e622:15x16 15 16 // 𮘢
 ⿲ han-8a01:5x16 han-6728:5x16 1 han-76ee:4x16 // ⿲訁木目
+
+// glyph han-2e627:15x16 15 16 // 𮘧
+// ⿱ han-4fdd han-8a00 // ⿱保言
 
 ## 149.10
 
@@ -431,6 +434,11 @@ glyph han-2e6a4:15x16 15 16 // 𮚤
 
 // glyph han-2e6b4:15x16 15 16 // 𮚴
 // ⿺ han-8d70 han-592b // ⿺走夫
+
+## 156.6
+
+// glyph han-2e6b8:15x16 15 16 // 𮚸
+// ⿺ han-8d70 han-5171 // ⿺走共
 
 # CJK unified ideographs extension F: 足 (157)
 
@@ -561,6 +569,9 @@ glyph han-2e718:15x16 15 16 // 𮜘
 # CJK unified ideographs extension F: 身 (158)
 
 ## 158.6
+
+// glyph han-2e732:15x16 15 16 // 𮜲
+// ⿰ han-8eab han-5171 // ⿰身共
 
 // glyph han-2e735:15x16 15 16 // 𮜵
 // ⿰ han-8eab han-5e74 // ⿰身年

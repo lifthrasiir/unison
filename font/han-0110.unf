@@ -246,6 +246,9 @@ glyph han-7851:15x16 15 16 // 硑
 glyph han-7852:15x16 15 16 // 硒
 ⿰ han-77f3:7x16 1 han-897f:7x16 // ⿰石西
 
+glyph han-7854:15x16 15 16 // 硔
+⿰ han-77f3:8x16 han-5171:7x16 // ⿰石共
+
 // glyph han-7856:15x16 15 16 // 硖
 // ⿰ han-77f3 han-5939 // ⿰石夹
 
@@ -1125,8 +1128,10 @@ glyph han-79ea:15x16 15 16 // 秪
 // glyph han-79eb:15x16 15 16 // 秫
 // ⿰ han-79be han-672f // ⿰禾术
 
-glyph han-79ec:15x16 15 16 // 秬
-⿰ han-79be:5x16 1 han-5de8:9x16 // ⿰禾巨
+glyph han-79ec-(g|k|p):15x16 15 16 // 秬
+⿰ han-79be:5x16 1 han-5de8.0:9x16 // ⿰禾巨
+glyph han-79ec-(h|t|j):15x16 15 16 // 秬
+⿰ han-79be:5x16 1 han-5de8.1:9x16 // ⿰禾巨
 
 glyph han-79ee:15x16 15 16 // 秮
 ⿰ han-79be:7x16 1 han-53f0:7x16 // ⿰禾台

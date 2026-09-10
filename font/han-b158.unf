@@ -238,7 +238,7 @@ glyph han-282d9:15x16 15 16 // 𨋙
 ⿰ han-8eca:5x16 1 han-7533:9x16 // ⿰車申
 
 glyph han-282dd:15x16 15 16 // 𨋝
-⿲ han-8eca:5x16 han-5de5:5x16 han-529b:5x16 // ⿲車工力
+⿲ han-8eca:5x16 han-5de5:5x16-l han-529b:5x16 // ⿲車工力
 
 // glyph han-282df:15x16 15 16 // 𨋟
 // ⿱ han-79be han-8eca // ⿱禾車

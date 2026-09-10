@@ -1073,8 +1073,10 @@ glyph han-6618:15x16 15 16 // 昘
 
 ## 72.5
 
-glyph han-661b:15x16 15 16 // 昛
-⿰ han-65e5:5x16 1 han-5de8:9x16 // ⿰日巨
+glyph han-661b-(g|k|p|v):15x16 15 16 // 昛
+⿰ han-65e5:5x16 1 han-5de8.0:9x16 // ⿰日巨
+glyph han-661b-(t|j):15x16 15 16 // 昛
+⿰ han-65e5:5x16 1 han-5de8.1:9x16 // ⿰日巨
 
 glyph han-661c:7x16 7 16 // 昜
 $$@@@@@@@@@@$$
@@ -1249,6 +1251,9 @@ glyph han-664a:15x16 15 16 // 晊
 
 glyph han-664d:15x16 15 16 // 晍
 ⿰ han-65e5:7x16 1 han-540c:7x16 // ⿰日同
+
+glyph han-664e:15x16 15 16 // 晎
+⿰ han-65e5:6x16 han-5171:9x16 // ⿰日共
 
 // glyph han-664f:15x16 15 16 // 晏
 // ⿳ han-65e5 han-5b80 han-5973 // ⿳日宀女 <- ⿱日安

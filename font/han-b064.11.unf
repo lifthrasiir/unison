@@ -68,7 +68,7 @@ glyph han-22d18-($han-regions):15x16 15 16 // 𢴘
 ## 64.12
 
 glyph han-22d26:15x16 15 16 // 𢴦
-⿲ han-624c:3x16 han-5de5:5x16 han-9801:7x16 // ⿲扌工頁
+⿲ han-624c:3x16 han-5de5:5x16-l han-9801:7x16 // ⿲扌工頁
 
 // glyph han-22d33:15x16 15 16 // 𢴳
 // ⿱ han-6e6f han-624b // ⿱湯手

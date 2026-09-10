@@ -135,6 +135,9 @@ glyph han-25956:15x16 15 16 // 𥥖
 
 ## 116.6
 
+// glyph han-25961-($han-regions):15x16 15 16 // 𥥡
+// ⿱ han-7a74-($-1) han-5171 // ⿱穴共
+
 // glyph han-25963:15x16 15 16 // 𥥣
 // ⿳ han-5b80 han-516b han-4e98 // ⿳宀八亘
 
@@ -382,7 +385,7 @@ glyph han-25a6b:15x16 15 16 // 𥩫
 // ⿱ han-7acb han-53e5 // ⿱立句
 
 glyph han-25a70:15x16 15 16 // 𥩰
-⿰ han-7acb:5x16 1 han-5de8:9x16 // ⿰立巨
+⿰ han-7acb:5x16 1 han-5de8-v:9x16 // ⿰立巨
 
 ## 117.6
 

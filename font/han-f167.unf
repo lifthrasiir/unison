@@ -189,6 +189,11 @@ glyph han-2e92c:15x16 15 16 // 𮤬
 // glyph han-2e936:15x16 15 16 // 𮤶
 // ⿵ han-95e8 han-7a7a // ⿵门空
 
+## 169'.9
+
+// glyph han-2e937:15x16 15 16 // 𮤷
+// ⿵ han-95e8 han-6d2a // ⿵门洪
+
 # CJK unified ideographs extension F: 阜 (170)
 
 ## 170.4
@@ -461,7 +466,7 @@ glyph han-2e9d6:15x16 15 16 // 𮧖
 ## 177.6
 
 glyph han-2e9d8:15x16 15 16 // 𮧘
-⿲ -6 han-9769:7x16 han-5de5:5x16 han-51e1:9x16 // ⿲革工凡
+⿲ -4 han-9769:7x16 han-5de5:3x16-l han-51e1:9x16 // ⿲革工凡
 
 ## 177.7
 
