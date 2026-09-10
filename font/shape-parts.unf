@@ -2,7 +2,7 @@
 
 // TODO: make them on-demand shapes? probably requires bresenham's algorithm or similar, but can't be sure about qualities
 
-## white circles
+## white and black circles
 
 glyph circle-3w1 3 3 desync
 ..@@..
@@ -10,6 +10,17 @@ glyph circle-3w1 3 3 desync
 ..@@..
 ref 3x3-circle:zero
 ref 1x1-circle:zero 1 1 negated
+
+glyph circle-3x7w1 3 7 desync
+..@@..
+@@..@@
+@@..@@
+@@..@@
+@@..@@
+@@..@@
+..@@..
+ref 3x7-circle:zero
+ref 1x5-circle:zero 1 1 negated
 
 glyph circle-5w1 5 5 desync
 ..@@@@@@..
@@ -20,6 +31,17 @@ glyph circle-5w1 5 5 desync
 ref 5x5-circle:zero
 ref 3x3-circle:zero 1 1 negated
 
+glyph circle-5x7w1 5 7 desync
+..@@@@@@..
+@@......@@
+@@......@@
+@@......@@
+@@......@@
+@@......@@
+..@@@@@@..
+ref 5x7-circle:zero
+ref 3x5-circle:zero 1 1 negated
+
 glyph circle-6w1 6 6 desync
 ....@@@@....
 ..@@....@@..
@@ -29,6 +51,15 @@ glyph circle-6w1 6 6 desync
 ....@@@@....
 ref 6x6-circle:zero
 ref 4x4-circle:zero 1 1 negated
+
+glyph circle-6 6 6 desync
+....@@@@....
+..@@@@@@@@..
+@@@@@@@@@@@@
+@@@@@@@@@@@@
+..@@@@@@@@..
+....@@@@....
+ref 6x6-circle:zero
 
 glyph circle-7w1 7 7 desync
 ....@@@@@@....
