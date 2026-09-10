@@ -14,32 +14,9 @@ glyph apl-diamond 5 10
 ..`v@@v'..
 ....3P....
 
-glyph apl-circle 7 7 desync
-....@@@@@@....
-..@@......@@..
-@@..........@@
-@@..........@@
-@@..........@@
-..@@......@@..
-....@@@@@@....
-ref 7x7-circle:zero 0 0
-ref 5x5-circle:zero 1 1 negated
-
-glyph apl-cirjot 5 5 desync // between apl-circle and apl-jot
-..@@@@@@..
-@@......@@
-@@......@@
-@@......@@
-..@@@@@@..
-ref 5x5-circle:zero 0 0
-ref 3x3-circle:zero 1 1 negated
-
-glyph apl-jot 3 3 desync
-..@@..
-@@..@@
-..@@..
-ref 3x3-circle:zero 0 0
-ref 1x1-circle:zero 1 1 negated
+glyph apl-circle = circle-7w1
+glyph apl-cirjot = circle-5w1 // between apl-circle and apl-jot
+glyph apl-jot = circle-3w1
 
 glyph apl-star 5 5 desync
 ....@@....

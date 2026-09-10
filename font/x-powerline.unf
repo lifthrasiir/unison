@@ -5,7 +5,7 @@ prop block `Powerline Compatibility` = U+E0A0..E0BF
 // L2/19-068 proposes different but not suitable names
 prop U+E0A0 = `BRANCHING LINE WITH NODES` gc So
 prop U+E0A1 = `LINE NUMBER SIGN` gc So
-prop U+E0A2 = `PADLOCK` gc So
+prop U+E0A2 = PADLOCK gc So
 prop U+E0A3 = `COLUMN NUMBER SIGN` gc So
 prop U+E0B0 = `RIGHT-POINTING TRIANGULAR BLOCK` gc So
 prop U+E0B1 = `BOX DRAWINGS HEAVY DIAGONAL UPPER LEFT TO MIDDLE RIGHT TO LOWER LEFT` gc So // i.e. U+1FBDF but heavier
@@ -124,7 +124,7 @@ glyph quadrant-rr 8 16
 ............\1@@
 ..............\1
 
-glyph quadrant-ll-arc 8 16 advance 8 desync
+glyph quadrant-ll-arc 8 16 desync advance 8
 @@@@@@..........
 @@@@@@@@@@......
 @@@@@@@@@@@@....
@@ -144,7 +144,7 @@ glyph quadrant-ll-arc 8 16 advance 8 desync
 ref 16x16-circle:zero -8 0
 ref 8x16 -8 0 negated
 
-glyph quadrant-rr-arc 8 16 advance 8 desync
+glyph quadrant-rr-arc 8 16 desync advance 8
 ..........@@@@@@
 ......@@@@@@@@@@
 ....@@@@@@@@@@@@
@@ -164,46 +164,12 @@ glyph quadrant-rr-arc 8 16 advance 8 desync
 ref 16x16-circle:zero 0 0
 ref 8x16 8 0 negated
 
-glyph lineseg-zzss-arc 8 16 advance 8 desync
-@@@@@@..........
-......@@@@......
-..........@@....
-............@@..
-............@@..
-..............@@
-..............@@
-..............@@
-..............@@
-..............@@
-..............@@
-............@@..
-............@@..
-..........@@....
-......@@@@......
-@@@@@@..........
-ref 16x16-circle:zero -8 0
-ref 14x14-circle:zero -7 1 negated
+glyph lineseg-zzss-arc 8 16 desync advance 8
+ref circle-16w1 -8 0
 ref 8x16 -8 0 negated
 
-glyph lineseg-sszz-arc 8 16 advance 8 desync
-..........@@@@@@
-......@@@@......
-....@@..........
-..@@............
-..@@............
-@@..............
-@@..............
-@@..............
-@@..............
-@@..............
-@@..............
-..@@............
-..@@............
-....@@..........
-......@@@@......
-..........@@@@@@
-ref 16x16-circle:zero 0 0
-ref 14x14-circle:zero 1 1 negated
+glyph lineseg-sszz-arc 8 16 desync advance 8
+ref circle-16w1
 ref 8x16 8 0 negated
 
 map  = branching-line-with-nodes
