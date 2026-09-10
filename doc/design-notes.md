@@ -82,3 +82,43 @@ Some consequences of these rules include:
 - Circles and squares are Ambiguous **except for a single Wide emoji for each set**. In this case we can't satisfy both rules 3 and 4 at the same time, so we chose to be consistent (because shapes are especially... shape-dependent) and always draw them without squashing. This is a rare case where the rule 4 is intentionally violated.
 - Circles also pose an additional problem because they somehow include punctuations. Since we only explicitly avoid squashing, those characters are drawn in a single cell as long as the shape fits within the 8x16 grid. No squares are punctuations so they are not subject to this decision.
 - Many PUA characters are wide even though they are all Ambiguous by the Unicode standard. We can assume they will get appropriate widths when they eventually get into the standard so it should be okay. Practically speaking it means they are not very usable in the terminal environments without an additional configuration, like monkey-patching `wcwidth`.
+
+## How to draw a 1:1 slope
+
+There are at least three possibilities when it comes to drawing a line with a slope of 1:1 (45 degrees) in a pixel grid:
+
+```
+A. /01/           B. /0@P           C. /0@@
+   1/..              @P/.              @@0/
+   +----+----+       +----+----+       +----+----+
+   |  .:|:::'|       |  .:|::::|       |  .:|::::|
+   |.:::|:'  |       |.:::|:::'|       |.:::|::::|
+   +----+----+       +----+----+       +----+----+
+   |:::'|    |       |::::|:'  |       |::::|:::'|
+   |:'  |    |       |:::'|    |       |::::|:'  |
+   +----+----+       +----+----+       +----+----+
+```
+
+Each possibility has a nominal (perpendicular) width of {1/2, 3/4, 1} * sqrt(2) ~= {0.707, 1.061, 1.414}. At first glance B looks optimal, as its nominal width is the closest to 1. It turns out that A is actually better however, for many reasons:
+
+- A diagonal matches the visual weight of a straight line when its nominal width is slightly *less* than the straight line's, about 0.9 by the conventional type design. B already exceeds 1 before any rendering effect is considered, while A falls short and is then pushed towards the target by the next point. (A also uses exactly the same amount of ink per row as a straight line, but that is a coincidence rather than a rule: ink per row differs from the nominal width by a factor of 1 / max(|cos θ|, |sin θ|), which peaks at exactly 1:1 with sqrt(2) and is only about 12% at 2:1.)
+
+- *Every* pixel constituting a line with a slope of 1:1 will be antialiased, while straight lines snap to the grid. Antialiased pixels do not really look like a "half" pixel at the target resolution: for dark text on a light background they look darker than their coverage, so a diagonal looks heavier than its nominal width suggests. A therefore gets closer to the target, while B and C look even heavier and thicker. The exact amount depends on how the renderer blends (with or without gamma correction) and on the text and background colors; for light text on a dark background the blending part partly reverses.
+
+- A also fits better when the visual space is heavily limited.
+
+The possibility A does have a small problem when it comes to the bitmap representation, as we have to choose between even and odd pixels for the bitmap. If this is not desirable (for example, if we want to keep the symmetry) then use the following variant of A:
+
+```
+A'. ./d/
+    d//.
+    +----+----+
+    |    |.:::|
+    |  .:|:::'|
+    +----+----+
+    |.:::|:'  |
+    |:::'|    |
+    +----+----+
+```
+
+A' is a bit more complicated but perfectly symmetric and has the same nominal and visual width as A.
