@@ -455,8 +455,8 @@ glyph han-2da31:15x16 15 16 // 𭨱
 
 ## 74.6
 
-// glyph han-2da32:15x16 15 16 // 𭨲
-// ⿲ han-6708 han-65e5 han-4e86 // ⿲月日了
+glyph han-2da32:15x16 15 16 // 𭨲
+⿲ -1 han-6708:5x16-l 1 han-65e5:3x16 han-4e86:7x16 // ⿲月日了
 
 // glyph han-2da33:15x16 15 16 // 𭨳
 // ⿰ han-6708 han-8863 // ⿰月衣

@@ -644,8 +644,8 @@ glyph han-2cd70:15x16 15 16 // 𬵰
 
 ## 196.2
 
-// glyph han-2cdbc:15x16 15 16 // 𬶼
-// ⿰ han-4e86 han-9ce5 // ⿰了鳥
+glyph han-2cdbc:15x16 15 16 // 𬶼
+⿰ han-4e86:7x16 1 han-9ce5:7x16 // ⿰了鳥
 
 ## 196.3
 

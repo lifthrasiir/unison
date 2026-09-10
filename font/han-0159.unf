@@ -1190,6 +1190,9 @@ glyph han-90a1:15x16 15 16 // 邡
 glyph han-90a2:15x16 15 16 // 邢
 ⿰ han-5f00:9x16 1 han-961d:5x16-r // ⿰开阝
 
+// glyph han-90a3:15x16 15 16 // 那
+// ⿰ han-2d0c2 han-961d // ⿰𭃂阝
+
 glyph han-90a4:15x16 15 16 // 邤
 ⿰ han-65a4:7x16 1 han-961d:7x16-r // ⿰斤阝
 

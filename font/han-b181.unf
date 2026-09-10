@@ -41,6 +41,9 @@ glyph han-29464:15x16 15 16 // 𩑤
 // glyph han-2946a:15x16 15 16 // 𩑪
 // ⿰ han-5eff han-9801 // ⿰廿頁
 
+// glyph han-2946b:15x16 15 16 // 𩑫
+// ⿰ han-2d0c2 han-9801 // ⿰𭃂頁
+
 glyph han-2946d-($han-regions):15x16 15 16 // 𩑭
 ⿰ han-5316-($-1):10x16 han-9801:5x16 // ⿰化頁
 

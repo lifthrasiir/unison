@@ -317,7 +317,7 @@ glyph han-2dd04:15x16 15 16 // 𭴄
 ⿱ han-706b:15x5 han-51e1:15x11 // ⿱火凡
 
 glyph han-2dd06-($han-regions):15x16 15 16 // 𭴆
-⿱ han-4ea1-($-1):15x8 1 han-706b:15x6 // ⿱亡火
+⿱ han-4ea1-($-1):15x8 han-706b:15x8 // ⿱亡火
 
 // glyph han-2dd07:15x16 15 16 // 𭴇
 // ⿱ han-5973 han-706c // ⿱女灬

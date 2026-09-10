@@ -30,6 +30,9 @@ glyph han-26400-($han-regions):15x16 15 16 // 𦐀
 
 ## 124.4
 
+// glyph han-26403-($han-regions):15x16 15 16 // 𦐃
+// ⿰ han-2d0c2 han-7fbd-($-1) // ⿰𭃂羽
+
 glyph han-26404-($han-regions):15x16 15 16 // 𦐄
 ⿰ han-4ea2:7x16 han-7fbd-($-1):8x16 // ⿰亢羽
 

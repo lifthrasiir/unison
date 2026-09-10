@@ -13,8 +13,8 @@ glyph han-29f91:15x16 15 16 // 𩾑
 
 ## 196.2
 
-// glyph han-29f92:15x16 15 16 // 𩾒
-// ⿰ han-9ce5 han-4e86 // ⿰鳥了
+glyph han-29f92:15x16 15 16 // 𩾒
+⿰ han-9ce5:7x16 1 han-4e86:7x16 // ⿰鳥了
 
 glyph han-29f93:15x16 15 16 // 𩾓
 ⿰ han-9ce5:7x16 1 han-5369:7x16 // ⿰鳥卩

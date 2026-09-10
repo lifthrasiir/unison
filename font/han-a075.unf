@@ -549,7 +549,7 @@ glyph han-3da8:15x16 15 16 // 㶨
 ⿱ han-4e0d:15x12 han-706c:15x4 // ⿱不灬
 
 glyph han-3daa:15x16 15 16 // 㶪
-⿱ han-4e0d:15x8 1 han-706b:15x6 // ⿱不火
+⿱ han-4e0d:15x8 han-706b:15x8 // ⿱不火
 
 ## 86.5
 
