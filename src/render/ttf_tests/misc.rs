@@ -949,7 +949,8 @@ map A = a
 /// trip each, and 44 of them were eight seconds of a cold start). Concurrency
 /// is not observable from here — the contract it must not break is: documents
 /// sorted by path, one source per parsed document, a file that fails to parse
-/// reported and its bytes dropped, and a non-`.unf` file ignored.
+/// reported — at the line it failed on, not in the message — and its bytes
+/// dropped, and a non-`.unf` file ignored.
 #[test]
 fn directory_load_keeps_its_order_and_reports_every_bad_file() {
     let dir = std::env::temp_dir().join(format!(
@@ -965,7 +966,12 @@ fn directory_load_keeps_its_order_and_reports_every_bad_file() {
     for (i, name) in good.iter().enumerate() {
         std::fs::write(dir.join(name), format!("glyph g{i} 2 2\n@@\n.@\n")).unwrap();
     }
-    std::fs::write(dir.join("bad.unf"), "glyph x 2 nope\n..@@\n").unwrap();
+    // Doclines: the comment, `glyph ok`, its grid, the blank, `glyph x`.
+    std::fs::write(
+        dir.join("bad.unf"),
+        "// fine so far\nglyph ok 1 2\n@@\n@@\n\nglyph x 2 nope\n..@@\n",
+    )
+    .unwrap();
     std::fs::write(dir.join("notes.txt"), "not a source file").unwrap();
 
     let (docs, errors, sources) = load_docs_from_directory_with_sources(&dir);
@@ -981,7 +987,9 @@ fn directory_load_keeps_its_order_and_reports_every_bad_file() {
     assert_eq!(names, good);
 
     assert_eq!(errors.len(), 1, "{errors:?}");
-    assert!(errors[0].0.ends_with("bad.unf"), "{errors:?}");
+    assert!(errors[0].file.ends_with("bad.unf"), "{errors:?}");
+    assert_eq!((errors[0].line, errors[0].file_line), (4, 6), "{errors:?}");
+    assert!(!errors[0].message.contains("line"), "{errors:?}");
 
     // One source per parsed document, and nothing for the file that failed.
     assert_eq!(sources.len(), docs.len());

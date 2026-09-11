@@ -1198,7 +1198,7 @@ impl super::UniformApp {
     fn apply_directory_snapshot(
         &mut self,
         mut docs: Vec<Document>,
-        errors: Vec<(PathBuf, String)>,
+        errors: Vec<crate::issues::Issue>,
         sources: Vec<(PathBuf, Vec<u8>)>,
     ) -> usize {
         // Hashed once per file here rather than per document below; the same

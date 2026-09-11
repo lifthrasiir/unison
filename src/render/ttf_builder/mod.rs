@@ -334,8 +334,13 @@ struct GsubData {
     uvs_selectors: Vec<u32>,
 }
 
-/// A file that failed to parse, and why.
-pub type ParseError = (std::path::PathBuf, String);
+/// A file that failed to load, as the `error:` the report shows for it.
+///
+/// An [`Issue`](crate::issues::Issue) rather than a path and a message, so that
+/// it carries the line the parser stopped on as a location: spelled into the
+/// message instead, the editor's issue list could only send a click to the top
+/// of the file.
+pub type ParseError = crate::issues::Issue;
 /// The bytes one document was parsed from.
 pub type DocSource = (std::path::PathBuf, Vec<u8>);
 /// A directory's `.unf` files as loaded: what parsed, what did not, and the
@@ -495,7 +500,7 @@ fn load_dir(dir: &Path, cache: Option<&mut DirCache>) -> LoadedDir {
         Parsed(Box<Document>, Vec<u8>, Option<FileStamp>),
         /// The cache had this file and the stamp says it did not move.
         Reused(Arc<Document>, Arc<Vec<u8>>, FileStamp),
-        Failed(String),
+        Failed(ParseError),
     }
 
     // Held immutably while the workers run; the cache is rebuilt from what
@@ -522,7 +527,7 @@ fn load_dir(dir: &Path, cache: Option<&mut DirCache>) -> LoadedDir {
         let read_elapsed = read_t0.elapsed();
         let (bytes, stamp) = match read {
             Ok(read) => read,
-            Err(e) => return Loaded::Failed(format!("reading: {e}")),
+            Err(e) => return Loaded::Failed(load_error(path, format!("reading: {e}"), None)),
         };
         let parse_t0 = std::time::Instant::now();
         let content = String::from_utf8_lossy(&bytes);
@@ -530,7 +535,10 @@ fn load_dir(dir: &Path, cache: Option<&mut DirCache>) -> LoadedDir {
         crate::startup::record_file(path, bytes.len(), read_elapsed, parse_t0.elapsed());
         match parsed {
             Ok(doc) => Loaded::Parsed(Box::new(doc), bytes, stamp),
-            Err(e) => Loaded::Failed(e.to_string()),
+            Err(e) => Loaded::Failed(match e.downcast_ref::<document_io::ParseError>() {
+                Some(p) => load_error(path, p.message.clone(), Some((p.line, p.file_line))),
+                None => load_error(path, e.to_string(), None),
+            }),
         }
     };
 
@@ -609,14 +617,33 @@ fn load_dir(dir: &Path, cache: Option<&mut DirCache>) -> LoadedDir {
             // cached either: a file being edited into shape is read again
             // every time, which is the cheap case and the one that wants to
             // see the next save at once.
-            Some(Loaded::Failed(msg)) => errors.push((path, msg)),
-            None => errors.push((path, "reading: the loader thread died".to_string())),
+            Some(Loaded::Failed(error)) => errors.push(error),
+            None => errors.push(load_error(
+                &path,
+                "reading: the loader thread died".to_string(),
+                None,
+            )),
         }
     }
     if let Some(cache) = cache {
         cache.files = fresh;
     }
     (docs, errors, sources)
+}
+
+/// The `error:` a file that did not load reports. `at` is the `(docline, file
+/// line)` the parser stopped on; a file that could not be read at all is about
+/// the file as a whole, and goes to its top.
+fn load_error(path: &Path, message: String, at: Option<(usize, usize)>) -> ParseError {
+    let (line, file_line) = at.unwrap_or((0, 1));
+    ParseError {
+        severity: Severity::Error,
+        glyph: None,
+        message,
+        file: path.to_path_buf(),
+        line,
+        file_line,
+    }
 }
 
 #[cfg(any(feature = "editor", test))]

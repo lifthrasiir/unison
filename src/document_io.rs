@@ -139,7 +139,7 @@ use std::fmt;
 use std::io::Write;
 use std::path::Path;
 
-use anyhow::{Result, bail};
+use anyhow::Result;
 
 use crate::document::*;
 use crate::pixel::chars_to_shape;
@@ -995,11 +995,16 @@ pub fn parse_document_from_str(content: &str, path: std::path::PathBuf) -> Resul
 /// [`parse_pixel_rows`]). All other lines (comments, meta, directives,
 /// ref lines, alias/ref-only glyph headers) are passed through as-is; their
 /// grammar is interpreted later by [`derive_document`].
-fn tokenize_strict(content: &str) -> Result<Vec<DocLine>> {
+fn tokenize_strict(content: &str) -> std::result::Result<Vec<DocLine>, ParseError> {
     let mut lines = Vec::new();
     let mut iter = content.lines().enumerate().peekable();
 
     while let Some((line_no, line)) = iter.next() {
+        // The docline this line becomes is the one pushed next.
+        let at = At {
+            line: lines.len(),
+            file_line: line_no + 1,
+        };
         let trimmed = line.trim();
 
         // Comments and headings are free text — `derive_document` passes them
@@ -1016,17 +1021,16 @@ fn tokenize_strict(content: &str) -> Result<Vec<DocLine>> {
             continue;
         }
 
-        let tokens =
-            tokenize_tokens(trimmed).map_err(|e| anyhow::anyhow!("line {}: {}", line_no + 1, e))?;
+        let tokens = tokenize_tokens(trimmed).map_err(|e| at.error(e))?;
 
         if tokens.first().is_some_and(|t| t == "glyph") {
             let parts = &tokens[1..];
-            validate_glyph_header(parts, line_no)?;
+            validate_glyph_header(parts, at)?;
             lines.push(DocLine::Text(line.to_string()));
 
             if let Some(dims) = glyph_header_dims(parts) {
                 if is_pixel_row_next(&mut iter, dims.width) {
-                    let grid = parse_pixel_rows(&mut iter, dims.width, dims.height, line_no)?;
+                    let grid = parse_pixel_rows(&mut iter, dims.width, dims.height, at)?;
                     lines.push(DocLine::Grid(grid));
                 } else {
                     lines.push(DocLine::Grid(PixelGrid::new(dims.width, dims.height)));
@@ -1040,9 +1044,29 @@ fn tokenize_strict(content: &str) -> Result<Vec<DocLine>> {
     Ok(lines)
 }
 
-fn validate_glyph_header<S: AsRef<str>>(parts: &[S], line_no: usize) -> Result<()> {
+/// A line of [`tokenize_strict`], as a [`ParseError`] on it is located.
+#[derive(Clone, Copy)]
+struct At {
+    line: usize,
+    file_line: usize,
+}
+
+impl At {
+    fn error(self, message: impl Into<String>) -> ParseError {
+        ParseError {
+            line: self.line,
+            file_line: self.file_line,
+            message: message.into(),
+        }
+    }
+}
+
+fn validate_glyph_header<S: AsRef<str>>(
+    parts: &[S],
+    at: At,
+) -> std::result::Result<(), ParseError> {
     if parts.is_empty() {
-        bail!("line {}: empty glyph name", line_no + 1);
+        return Err(at.error("empty glyph name"));
     }
     let rest = &parts[1..];
 
@@ -1052,35 +1076,36 @@ fn validate_glyph_header<S: AsRef<str>>(parts: &[S], line_no: usize) -> Result<(
     if let Some(eq_pos) = rest.iter().position(|p| p.as_ref() == "=") {
         if eq_pos != 0 {
             let flags: Vec<&str> = rest[..eq_pos].iter().map(|s| s.as_ref()).collect();
-            bail!(
-                "line {}: `glyph NAME = TARGET` is an alias for one glyph and takes no flags \
+            return Err(at.error(format!(
+                "`glyph NAME = TARGET` is an alias for one glyph and takes no flags \
                  (found `{}`); write `glyph NAME {}` with a `ref TARGET` line instead",
-                line_no + 1,
                 flags.join(" "),
                 flags.join(" "),
-            );
+            )));
         }
         if eq_pos + 1 != rest.len() - 1 {
             if eq_pos + 1 >= rest.len() {
-                bail!("line {}: missing alias target after '='", line_no + 1);
+                return Err(at.error("missing alias target after '='"));
             }
             // Extra tokens after alias target
             let extra: Vec<&str> = rest[eq_pos + 2..].iter().map(|s| s.as_ref()).collect();
-            bail!(
-                "line {}: unexpected tokens after alias target: {}",
-                line_no + 1,
+            return Err(at.error(format!(
+                "unexpected tokens after alias target: {}",
                 extra.join(" "),
-            );
+            )));
         }
         return Ok(());
     }
 
-    validate_glyph_flags(rest, line_no)
+    validate_glyph_flags(rest, at)
 }
 
 /// Strict form of [`parse_glyph_flag_parts`]: same grammar, same walker,
 /// but the first malformed token becomes an error.
-fn validate_glyph_flags<S: AsRef<str>>(tokens: &[S], line_no: usize) -> Result<()> {
+fn validate_glyph_flags<S: AsRef<str>>(
+    tokens: &[S],
+    at: At,
+) -> std::result::Result<(), ParseError> {
     let mut first_err: Option<String> = None;
     parse_glyph_flag_parts_impl(tokens, &mut |msg| {
         if first_err.is_none() {
@@ -1088,7 +1113,7 @@ fn validate_glyph_flags<S: AsRef<str>>(tokens: &[S], line_no: usize) -> Result<(
         }
     });
     match first_err {
-        Some(msg) => bail!("line {}: {}", line_no + 1, msg),
+        Some(msg) => Err(at.error(msg)),
         None => Ok(()),
     }
 }
@@ -1123,43 +1148,37 @@ fn parse_pixel_rows(
     lines: &mut std::iter::Peekable<std::iter::Enumerate<std::str::Lines<'_>>>,
     width: u16,
     height: u16,
-    header_line: usize,
-) -> Result<PixelGrid> {
+    header: At,
+) -> std::result::Result<PixelGrid, ParseError> {
     let mut grid = PixelGrid::new(width, height);
 
     for row in 0..height {
-        let (line_no, line) = lines.next().ok_or_else(|| {
-            anyhow::anyhow!(
-                "line {}: expected {} pixel rows, got {}",
-                header_line + 1,
-                height,
-                row,
-            )
-        })?;
+        // Rows that run out are the header's promise broken.
+        let (line_no, line) = lines
+            .next()
+            .ok_or_else(|| header.error(format!("expected {height} pixel rows, got {row}")))?;
+        // Every row is part of the one grid docline after the header.
+        let at = At {
+            line: header.line + 1,
+            file_line: line_no + 1,
+        };
 
         let chars: Vec<char> = line.chars().collect();
         let expected_len = width as usize * 2;
         if chars.len() != expected_len {
-            bail!(
-                "line {}: expected {} chars ({} pixel columns × 2), got {}",
-                line_no + 1,
+            return Err(at.error(format!(
+                "expected {} chars ({} pixel columns × 2), got {}",
                 expected_len,
                 width,
                 chars.len(),
-            );
+            )));
         }
 
         for col in 0..width as usize {
             let c1 = chars[col * 2];
             let c2 = chars[col * 2 + 1];
             let shape = chars_to_shape(c1, c2).ok_or_else(|| {
-                anyhow::anyhow!(
-                    "line {}: unknown pixel pair '{}{}' at column {}",
-                    line_no + 1,
-                    c1,
-                    c2,
-                    col,
-                )
+                at.error(format!("unknown pixel pair '{c1}{c2}' at column {col}"))
             })?;
             grid.set(row, col as u16, shape);
         }
@@ -1509,6 +1528,31 @@ impl fmt::Display for DeriveError {
 }
 
 impl std::error::Error for DeriveError {}
+
+/// Where the strict parse ([`parse_document_from_str`]) stopped, and why.
+///
+/// The location is kept out of the message so that a report can put it where
+/// it puts every other location: a file that fails to parse is an `error:` in
+/// the same list as the rest, and one whose line lived only in its text could
+/// be sent nowhere but the top of the file. `Display` still spells it out, for
+/// the callers that have nowhere else to show it.
+#[derive(Debug)]
+pub struct ParseError {
+    /// The DocLine index (0-based) of the line the parse stopped on — the index
+    /// [`parse_doclines`] gives the same line, which is what the editor opens.
+    pub line: usize,
+    /// The 1-based file line of the same line.
+    pub file_line: usize,
+    pub message: String,
+}
+
+impl fmt::Display for ParseError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "line {}: {}", self.file_line, self.message)
+    }
+}
+
+impl std::error::Error for ParseError {}
 
 /// The keywords that begin a top-level item, as [`derive_document`] dispatches
 /// on them.

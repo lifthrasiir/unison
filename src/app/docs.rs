@@ -440,7 +440,7 @@ impl UniformApp {
     pub(super) fn install_font_snapshot(
         &mut self,
         docs: Vec<Document>,
-        errors: Vec<(PathBuf, String)>,
+        errors: Vec<crate::issues::Issue>,
         sources: Vec<(PathBuf, Vec<u8>)>,
     ) {
         self.font_base_docs = docs;

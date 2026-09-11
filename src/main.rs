@@ -50,12 +50,13 @@ extern crate windows_core;
 /// were skipped, so the caller can fail the run over it.
 fn load_docs_reporting_errors(dir: &std::path::Path) -> (Vec<document::Document>, usize) {
     let (docs, errors) = render::ttf_builder::load_docs_from_directory_checked(dir);
-    for (path, msg) in &errors {
-        let file = path
+    for error in &errors {
+        let file = error
+            .file
             .file_name()
             .map(|n| n.to_string_lossy().into_owned())
             .unwrap_or_default();
-        eprintln!("error: {file}: {msg}");
+        eprintln!("error: {file}:{}: {}", error.file_line, error.message);
     }
     if !errors.is_empty() {
         eprintln!("{} file(s) failed to parse and were skipped", errors.len());
@@ -141,8 +142,13 @@ fn report_issues(
 /// 0 otherwise — a source with nothing to fix is a success.
 fn run_fix(input: &std::path::Path, optimize_clearance: bool, dry_run: bool) -> i32 {
     let (docs, errors, sources) = render::ttf_builder::load_docs_from_directory_with_sources(input);
-    for (path, msg) in &errors {
-        eprintln!("error: {}: {msg}", path.display());
+    for error in &errors {
+        eprintln!(
+            "error: {}:{}: {}",
+            error.file.display(),
+            error.file_line,
+            error.message
+        );
     }
     if docs.is_empty() {
         eprintln!("No .unf files found in {}", input.display());

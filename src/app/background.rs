@@ -539,19 +539,7 @@ impl UniformApp {
                 slot.set(DerivedDataResult::Cancelled);
                 return;
             }
-            for (path, msg) in &file_parse_errors {
-                issues.insert(
-                    0,
-                    Issue {
-                        glyph: None,
-                        severity: crate::issues::Severity::Error,
-                        message: msg.clone(),
-                        file: path.clone(),
-                        line: 0,
-                        file_line: 1,
-                    },
-                );
-            }
+            issues.splice(0..0, file_parse_errors);
             slot.set(DerivedDataResult::Done(Box::new(DerivedDataMessage {
                 build_gen,
                 named_glyphs,

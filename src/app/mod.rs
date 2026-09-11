@@ -265,7 +265,7 @@ pub struct UniformApp {
     /// which is why the three inputs each carry a generation.
     issue_marks: crate::editor::issue_marks::IssueMarks,
     issue_marks_key: Option<(u64, u64, panels::IssueFilter)>,
-    file_parse_errors: Vec<(PathBuf, String)>,
+    file_parse_errors: Vec<Issue>,
     assert_issues: Vec<Issue>,
     /// Bumped whenever `assert_issues` is replaced. `assert` results arrive on
     /// their own thread and out of step with a build, so they have no build

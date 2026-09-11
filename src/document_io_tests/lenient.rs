@@ -108,6 +108,43 @@ fn strict_parse_rejects_partial_glyph_header() {
     assert!(parse_document_from_str(input, "test.unf".into()).is_err());
 }
 
+/// A strict parse failure is located as `(docline, file line)` of the line it
+/// stopped on, rather than by a `line N:` inside its message: the report puts
+/// that location beside the message, and the editor goes to it on a click.
+/// The docline is the one the lenient split gives the same line, since a pixel
+/// grid is one docline however many file lines it spans.
+#[test]
+fn strict_parse_errors_are_located_at_the_failing_line() {
+    for (input, expected) in [
+        // A header, after a grid: doclines 0 `glyph a`, 1 its grid, 2 blank.
+        ("glyph a 1 2\n@@\n@@\n\nglyph x 2 nope\n..@@\n", (3, 5)),
+        // An alias with flags.
+        ("// c\nglyph foo keep = bar\n", (1, 2)),
+        // A tokenizer error.
+        ("glyph a 1 1\n@@\nmap `x\n", (2, 3)),
+        // A malformed pixel row is located on the grid it belongs to.
+        ("// c\nglyph a 2 2\n@@@@\n@@@\n", (2, 4)),
+        ("// c\nglyph a 1 2\n@@\nzz\n", (2, 4)),
+        // Rows that run out are reported on the header that promised them.
+        ("// c\nglyph a 1 3\n@@\n", (1, 2)),
+    ] {
+        let err = parse_document_from_str(input, "test.unf".into())
+            .expect_err(&format!("should reject: {input:?}"));
+        let parse = err
+            .downcast_ref::<ParseError>()
+            .unwrap_or_else(|| panic!("not a located ParseError for {input:?}: {err}"));
+        assert_eq!(
+            (parse.line, parse.file_line),
+            expected,
+            "{input:?}: {parse:?}"
+        );
+        assert!(
+            !parse.message.starts_with("line "),
+            "{input:?}: the location is spelled into the message: {parse:?}"
+        );
+    }
+}
+
 #[test]
 fn strict_parse_accepts_valid_glyph_headers() {
     for input in [
