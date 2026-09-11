@@ -77,12 +77,86 @@ fn grid_gesture(
     ui.data(|d| d.get_temp::<bool>(gesture_id).unwrap_or(false))
 }
 
+/// Give a glyph whose header states no size the grid a stroke needs, returning
+/// the new grid's line.
+///
+/// The size is the composite's positive part — exactly the cells the view
+/// already draws as the glyph's own (`compute_grid_display_extent`), so neither
+/// the drawing nor the box it resolves to moves. What a negative `ref` offset
+/// reaches stays outside the grid: a size is all a header states, and a grid
+/// covering that area would need an `origin` and every ref moved with it. A
+/// composite with no positive part has no grid to give.
+///
+/// Only a stroke pins it, never entering the grid: clicking into a composite on
+/// the way to one of its layers is not drawing, and must not rewrite the
+/// header. The size is an edit of its own, so the stroke undoes separately.
+fn pin_grid(
+    doc: &Document,
+    lines: &mut Vec<DocLine>,
+    state: &mut EditorState,
+    composite: &GlyphComposite,
+    item_idx: usize,
+) -> Option<usize> {
+    let DocumentItem::Glyph { body, .. } = doc.items.get(item_idx)? else {
+        return None;
+    };
+    let header_line = *doc.item_line_starts.get(item_idx)?;
+    if body.pixels.is_some() {
+        return None;
+    }
+    let own_w = (composite.width as i32 - composite.own_offset_col as i32).max(0) as u16;
+    let own_h = (composite.height as i32 - composite.own_offset_row as i32).max(0) as u16;
+    // The raster is in subcells and the header states logical pixels; round
+    // up, so a part not on a whole logical pixel is still inside the grid.
+    let s = body.scale.max(1) as u16;
+    let (w, h) = (own_w.div_ceil(s), own_h.div_ceil(s));
+    if w == 0 || h == 0 {
+        return None;
+    }
+    // A deferred reparse can leave `doc` a step behind the buffer; only a
+    // header that still states no size, with no grid under it, is this one.
+    let Some(DocLine::Text(header)) = lines.get(header_line) else {
+        return None;
+    };
+    let is_plain_header = crate::document_io::tokenize_tokens(header.trim())
+        .is_ok_and(|t| t.first().is_some_and(|t| t == "glyph") && !t.iter().any(|t| t == "="));
+    if !is_plain_header
+        || crate::editor::reconcile::parse_glyph_header_dims(header).is_some()
+        || matches!(lines.get(header_line + 1), Some(DocLine::Grid(_)))
+    {
+        return None;
+    }
+    let new_header = crate::document_io::append_to_line(header, &format!("{w} {h}"));
+    // The grid is whatever reconcile would make of the new header, so the two
+    // cannot disagree about what a `scale` does to it.
+    let (grid_w, grid_h) = crate::editor::reconcile::parse_glyph_header_dims(&new_header)?;
+
+    let old = vec![DocLine::Text(header.clone())];
+    let new = vec![
+        DocLine::Text(new_header),
+        DocLine::Grid(PixelGrid::new(grid_w, grid_h)),
+    ];
+    lines.splice(header_line..header_line + 1, new.iter().cloned());
+    let caret_before = state.cursor;
+    if state.cursor.line > header_line {
+        state.cursor.line += 1;
+    }
+    state.undo.break_coalesce();
+    state
+        .undo
+        .push_lines(header_line, old, new, caret_before, state.cursor);
+    state.undo.break_coalesce();
+    Some(header_line + 1)
+}
+
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn handle_pixel_painting(
     ui: &egui::Ui,
+    doc: &Document,
     lines: &mut Vec<DocLine>,
     state: &mut EditorState,
     needs_rederive: &mut bool,
+    composite: Option<&GlyphComposite>,
     grid_doc_line: usize,
     item_idx: usize,
     pixel_row: i16,
@@ -94,13 +168,12 @@ pub(crate) fn handle_pixel_painting(
     grid_y: f32,
     grid_cell: f32,
 ) {
-    let in_own_row = pixel_row >= 0 && pixel_row < grid_height as i16;
     let mut slant_toggle: Option<pixel::PixelShape> = None;
     if let EditMode::GlyphEdit {
         item_idx: eidx,
         selected_shape,
-    } = &state.mode
-        && *eidx == item_idx
+    } = state.mode
+        && eidx == item_idx
     {
         if state.suppress_grid_click && !ui.input(|i| i.pointer.primary_down()) {
             state.suppress_grid_click = false;
@@ -120,34 +193,52 @@ pub(crate) fn handle_pixel_painting(
 
         if (primary || secondary)
             && let Some(pp) = ui.input(|i| i.pointer.hover_pos())
+            && strip.accepts_pointer(pp)
+            && pp.y >= grid_y
+            && pp.y < grid_y + grid_cell
         {
             let rel_x = pp.x - grid_x;
             let gc = (rel_x / grid_cell) as i32 + extent.left as i32;
-            if strip.accepts_pointer(pp)
-                && pp.y >= grid_y
-                && pp.y < grid_y + grid_cell
-                && in_own_row
-                && gc >= 0
-                && gc < grid_width as i32
+            let new_shape = if secondary {
+                // Right-click erases; with shift it erases to a hardblank,
+                // the blank that stays in the file.
+                if shift_held {
+                    pixel::PixelShape::new(pixel::PX_HARDBLANK, false)
+                } else {
+                    pixel::PixelShape::EMPTY
+                }
+            } else if shift_held && !selected_shape.is_clear() {
+                selected_shape.with_fill_toggled()
+            } else {
+                selected_shape
+            };
+            // A stroke that would write something, anywhere on the drawn grid
+            // of a glyph with no grid of its own, pins one first and is then
+            // worked out again on it — so out past the positive part it pins
+            // the size and paints nothing. See [`pin_grid`].
+            let (mut grid_doc_line, mut grid_width, mut grid_height) =
+                (grid_doc_line, grid_width, grid_height);
+            let mut pinned = false;
+            if !new_shape.is_clear()
+                && (extent.left as i32..extent.right as i32).contains(&gc)
+                && !matches!(lines.get(grid_doc_line), Some(DocLine::Grid(_)))
+                && let Some(composite) = composite
+                && let Some(line) = pin_grid(doc, lines, state, composite, item_idx)
+                && let Some(DocLine::Grid(grid)) = lines.get(line)
             {
+                (grid_doc_line, grid_width, grid_height) = (line, grid.width, grid.height);
+                pinned = true;
+                state.skip_reconcile = true;
+                *needs_rederive = true;
+                ui.ctx().request_repaint();
+            }
+            let in_own_row = pixel_row >= 0 && pixel_row < grid_height as i16;
+            if in_own_row && gc >= 0 && gc < grid_width as i32 {
                 let col = gc as u16;
                 let row = pixel_row as u16;
                 let last_cell: Option<(u16, u16)> = ui.data(|d| d.get_temp(slant_last_id));
                 let on_same_slant_cell =
                     selected_shape.is_slant_pair() && last_cell == Some((row, col));
-                let new_shape = if secondary {
-                    // Right-click erases; with shift it erases to a hardblank,
-                    // the blank that stays in the file.
-                    if shift_held {
-                        pixel::PixelShape::new(pixel::PX_HARDBLANK, false)
-                    } else {
-                        pixel::PixelShape::EMPTY
-                    }
-                } else if shift_held && !selected_shape.is_clear() {
-                    selected_shape.with_fill_toggled()
-                } else {
-                    *selected_shape
-                };
                 let mut painted = false;
                 if on_same_slant_cell {
                     // Already painted this cell with the pre-toggle shape; don't overwrite.
@@ -169,49 +260,16 @@ pub(crate) fn handle_pixel_painting(
                             grid.set(row, col, new_shape);
                         }
                         state.skip_reconcile = true;
-                        state.pixel_paint_dirty = Some((item_idx, grid_doc_line));
+                        // A grid pinned this frame is a new line under a
+                        // rewritten header, which the pixel-only fast path
+                        // cannot tell the document about.
+                        if !pinned {
+                            state.pixel_paint_dirty = Some((item_idx, grid_doc_line));
+                        }
                         state.suppress_font_rebuild = true;
                         *needs_rederive = true;
                         ui.ctx().request_repaint();
                         painted = true;
-                    }
-                } else if !new_shape.is_clear() && grid_doc_line > 0 {
-                    // Materialize pixel grid for ref-only glyph
-                    let header_line = grid_doc_line - 1;
-                    if let Some(DocLine::Text(header_text)) = lines.get(header_line) {
-                        let trimmed = header_text.trim();
-                        if let Ok(tokens) = crate::document_io::tokenize_tokens(trimmed)
-                            && tokens.first().is_some_and(|t| t == "glyph")
-                            && tokens.len() == 2
-                        {
-                            let new_header = crate::document_io::append_to_line(
-                                trimmed,
-                                &format!("{grid_width} {grid_height}"),
-                            );
-                            let mut new_grid = PixelGrid::new(grid_width, grid_height);
-                            new_grid.set(row, col, new_shape);
-
-                            let old_header = header_text.clone();
-                            state.undo.break_coalesce();
-                            state.undo.push_lines(
-                                header_line,
-                                vec![DocLine::Text(old_header)],
-                                vec![
-                                    DocLine::Text(new_header.clone()),
-                                    DocLine::Grid(new_grid.clone()),
-                                ],
-                                state.cursor,
-                                state.cursor,
-                            );
-                            state.undo.break_coalesce();
-
-                            lines[header_line] = DocLine::Text(new_header);
-                            lines.insert(header_line + 1, DocLine::Grid(new_grid));
-                            state.skip_reconcile = true;
-                            *needs_rederive = true;
-                            ui.ctx().request_repaint();
-                            painted = true;
-                        }
                     }
                 }
                 if painted && !secondary && new_shape.is_slant_pair() {

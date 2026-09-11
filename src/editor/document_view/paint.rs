@@ -882,9 +882,11 @@ pub(super) fn paint_document_area(
                 {
                     pixel_interaction::handle_pixel_painting(
                         ui,
+                        doc,
                         lines,
                         state,
                         needs_rederive,
+                        composites.get(item_idx),
                         *grid_doc_line,
                         *item_idx,
                         *row,

@@ -248,4 +248,169 @@ fn view_cache_reused_when_idle_and_rebuilt_on_edit() {
     );
 }
 
+/// `child` is 4x4 with ink in its top-left 2x2 cells; `parent` states no size
+/// and only places `refs`.
+///
+/// DocLines: 0 header child, 1 grid child, 2 blank, 3 "glyph parent", 4.. refs.
+/// Item indices: child = 0, blank line = 1, parent = 2.
+fn dimensionless_parent_doc(refs: &[&str]) -> String {
+    let mut s = String::from("glyph child 4 4\n");
+    for r in 0..4 {
+        for c in 0..4 {
+            s.push_str(if r < 2 && c < 2 { "@@" } else { ".." });
+        }
+        s.push('\n');
+    }
+    s.push_str("\nglyph parent\n");
+    for gref in refs {
+        s.push_str(gref);
+        s.push('\n');
+    }
+    s
+}
+
+#[track_caller]
+fn assert_grid_clear(grid: &crate::document::PixelGrid) {
+    for r in 0..grid.height {
+        for c in 0..grid.width {
+            assert!(grid.get(r, c).is_clear(), "cell ({r}, {c}) is painted");
+        }
+    }
+}
+
+/// Click into `parent`'s composite, which is drawn on its first ref line
+/// (DocLine 4), and check that it is being edited and nothing was written.
+#[track_caller]
+fn enter_dimensionless_parent(h: &mut EditorHarness, row: i16, col: i16) {
+    let before = h.lines.clone();
+    h.click_grid_cell(4, row, col);
+    h.frame();
+    assert!(
+        matches!(h.state.mode, EditMode::GlyphEdit { item_idx: 2, .. }),
+        "clicking the composite edits it: {:?}",
+        h.state.mode
+    );
+    assert_eq!(h.lines, before, "entering the grid is not a stroke");
+}
+
+/// A header that states no size has no grid of its own, so a stroke on its
+/// composite used to have nothing to land in. The first stroke pins the size
+/// the composite is drawn at, and is carried out on the grid that gave it.
+#[test]
+fn the_first_stroke_on_a_dimensionless_glyph_pins_its_size() {
+    let mut h = EditorHarness::new(&dimensionless_parent_doc(&[
+        "ref child 0 0",
+        "ref child 4 0",
+    ]));
+    let original_lines = h.lines.clone();
+    enter_dimensionless_parent(&mut h, 1, 5);
+
+    h.click_grid_cell(4, 3, 6);
+    h.frame();
+    assert_eq!(h.text(3), "glyph parent 8 4");
+    let grid = h.grid(4);
+    assert_eq!((grid.width, grid.height), (8, 4));
+    assert!(
+        grid.get(3, 6).is_bitmap_filled(),
+        "the stroke that pinned the size paints"
+    );
+    assert_eq!(h.text(5), "ref child 0 0");
+    assert_eq!(h.text(6), "ref child 4 0");
+    assert_view_consistent(&h);
+
+    h.click_grid_cell(4, 0, 0);
+    assert!(
+        h.grid(4).get(0, 0).is_bitmap_filled(),
+        "so does the next one"
+    );
+
+    undo_all(&mut h);
+    assert_eq!(h.lines, original_lines);
+    h.frame();
+    assert_eq!(
+        h.lines, original_lines,
+        "nothing pins it again but a stroke"
+    );
+    assert_view_consistent(&h);
+}
+
+/// Only the composite's positive part becomes the grid; what a negative ref
+/// offset reaches stays outside it. A stroke out there is still a stroke on
+/// the glyph, so it pins the size — and then, on the new grid, has no cell to
+/// land in.
+#[test]
+fn a_stroke_at_negative_coordinates_pins_the_size_and_paints_nothing() {
+    let mut h = EditorHarness::new(&dimensionless_parent_doc(&["ref child -2 -1"]));
+    enter_dimensionless_parent(&mut h, 0, 0);
+
+    h.click_grid_cell(4, -1, -2);
+    h.frame();
+    assert_eq!(h.text(3), "glyph parent 2 3");
+    let grid = h.grid(4);
+    assert_eq!((grid.width, grid.height), (2, 3));
+    assert_grid_clear(grid);
+    assert_eq!(h.text(5), "ref child -2 -1", "the ref stays where it was");
+    assert_view_consistent(&h);
+
+    h.click_grid_cell(4, 0, 1);
+    assert!(h.grid(4).get(0, 1).is_bitmap_filled());
+    assert_eq!(h.text(3), "glyph parent 2 3");
+}
+
+/// A composite drawn entirely at negative coordinates has no positive part to
+/// make a grid of, and a zero-sized grid is not one; the header is left alone.
+#[test]
+fn a_dimensionless_glyph_with_no_positive_part_is_left_alone() {
+    let mut h = EditorHarness::new(&dimensionless_parent_doc(&["ref child -4 0"]));
+    let original_lines = h.lines.clone();
+    enter_dimensionless_parent(&mut h, 0, -4);
+
+    h.click_grid_cell(4, 0, -3);
+    h.frame();
+    assert_eq!(h.lines, original_lines);
+    assert_view_consistent(&h);
+}
+
+/// Clicking into the grid on the way to a layer is not drawing.
+#[test]
+fn passing_through_the_grid_of_a_dimensionless_glyph_writes_nothing() {
+    let mut h = EditorHarness::new(&dimensionless_parent_doc(&[
+        "ref child 0 0",
+        "ref child 4 0",
+    ]));
+    let original_lines = h.lines.clone();
+    enter_dimensionless_parent(&mut h, 1, 1);
+
+    h.key(Key::Num2);
+    h.frame();
+    assert!(
+        matches!(
+            h.state.mode,
+            EditMode::LayerMove {
+                item_idx: 2,
+                layer_idx: 0
+            }
+        ),
+        "{:?}",
+        h.state.mode
+    );
+    assert_eq!(h.lines, original_lines);
+}
+
+/// A plain right-click erases, and a glyph with no grid has nothing to erase:
+/// that is no reason to give it a size.
+#[test]
+fn erasing_on_a_dimensionless_glyph_writes_nothing() {
+    let mut h = EditorHarness::new(&dimensionless_parent_doc(&[
+        "ref child 0 0",
+        "ref child 4 0",
+    ]));
+    let original_lines = h.lines.clone();
+    enter_dimensionless_parent(&mut h, 1, 1);
+
+    h.right_click_grid_cell_mod(4, 0, 0, Modifiers::NONE);
+    h.frame();
+    assert_eq!(h.lines, original_lines);
+}
+
 // -- scroll persistence across zoom changes ----------------------------------
