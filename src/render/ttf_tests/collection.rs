@@ -164,8 +164,7 @@ face wide : wide
     let doc = document_io::parse_document_from_str(src, "test.unf".into()).unwrap();
     let built = crate::render::ttf_builder::build_faces(&[&doc]).unwrap();
     assert_eq!(built.len(), 2);
-    let bytes =
-        build_collection(&built.iter().map(|(_, b)| b.clone()).collect::<Vec<_>>()).unwrap();
+    let bytes = build_collection(&built.iter().map(|f| f.ttf.clone()).collect::<Vec<_>>()).unwrap();
 
     let read_fonts::FileRef::Collection(ttc) = read_fonts::FileRef::new(&bytes).unwrap() else {
         panic!("expected a collection");
@@ -216,9 +215,82 @@ fn one_face_builds_the_same_font_either_way() {
     let faces = crate::render::ttf_builder::build_faces(&[&doc]).unwrap();
     assert_eq!(faces.len(), 1);
     assert_eq!(
-        faces[0].1, single,
+        faces[0].ttf, single,
         "the two build paths must agree byte for byte"
     );
+}
+
+/// What `build` reports of each face. The character count has to be the one
+/// the demo page states — the sample's cmap, which is short of the built one by
+/// the plain entry each variation selector takes for the fallback lookup — and
+/// the glyph count is `maxp`'s, COLR layer glyphs included.
+#[test]
+fn a_built_face_counts_characters_as_the_demo_does_and_glyphs_as_maxp_does() {
+    let src = "\
+meta height 16
+meta ascent 12
+meta descent 4
+slice narrow
+slice wide
+color red = #ff0000
+color blue = #0000ff
+glyph n 1 1
+@@
+glyph w 2 1
+@@@@
+glyph other 1 1
+..
+glyph zero 1 1
+@@
+glyph zero-emoji 1 1
+..
+glyph combo
+ref n fill red
+ref zero fill blue
+map A = n
+map B = other
+map C = combo
+map U+0030 = zero
+map U+0030 U+FE0F = zero-emoji
+map wide : ° = w
+map wide : D = w
+map narrow : ° = n
+face wide : wide
+face narrow : narrow
+";
+    use skrifa::MetadataProvider;
+    let doc = document_io::parse_document_from_str(src, "test.unf".into()).unwrap();
+    let docs = [&doc];
+    let built = crate::render::ttf_builder::build_faces(&docs).unwrap();
+    let counts: Vec<_> = built
+        .iter()
+        .map(|f| (f.id.as_str(), f.characters))
+        .collect();
+    assert_eq!(counts, [("wide", 6), ("narrow", 5)]);
+
+    let sample = crate::render::sample::SampleSource::collect_with(
+        &docs,
+        &crate::resolve::Resolution::compute(&docs),
+    )
+    .unwrap();
+    assert_eq!(built[0].characters, sample.cmap().len(), "the demo's count");
+
+    for face in &built {
+        let font = skrifa::FontRef::new(&face.ttf).unwrap();
+        assert!(font.colr().is_ok(), "{}: the layers are counted", face.id);
+        assert_eq!(
+            font.charmap().mappings().count(),
+            face.characters + 1,
+            "{}: U+FE0F's own entry is not a character",
+            face.id
+        );
+        assert_eq!(
+            face.glyphs,
+            usize::from(font.maxp().unwrap().num_glyphs()),
+            "{}",
+            face.id
+        );
+    }
 }
 
 /// The editor builds one face at a time — never a collection — so which face

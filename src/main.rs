@@ -782,6 +782,19 @@ fn main() {
             eprintln!("Font build failed");
             std::process::exit(1);
         };
+        // Nothing past this point adds a character or a glyph, so the counts
+        // are stated now rather than after the outputs' brotli.
+        for face in &built {
+            let label = if face.id.is_empty() {
+                String::new()
+            } else {
+                format!(" `{}`", face.id)
+            };
+            eprintln!(
+                "Built face{label}: {} characters, {} glyphs",
+                face.characters, face.glyphs,
+            );
+        }
         // Every `--output` is planned before anything is written, so a wrong
         // combination fails before it has half-produced a set of files.
         let plans: Vec<faces::OutputPlan> = output_files
@@ -811,7 +824,8 @@ fn main() {
                 faces::OutputPlan::Collection(path) => works.push((path, OutputWork::Collection)),
                 faces::OutputPlan::PerFace(targets) => {
                     for (face_id, path) in targets {
-                        let Some((_, ttf)) = built.iter().find(|(id, _)| *id == face_id) else {
+                        let Some(ttf) = built.iter().find(|f| f.id == face_id).map(|f| &f.ttf[..])
+                        else {
                             eprintln!("error: no built face `{face_id}`");
                             std::process::exit(1);
                         };
@@ -851,7 +865,7 @@ fn main() {
                         match work {
                             OutputWork::Collection => {
                                 let fonts: Vec<Vec<u8>> =
-                                    built.iter().map(|(_, b)| b.clone()).collect();
+                                    built.iter().map(|f| f.ttf.clone()).collect();
                                 render::build_collection(&fonts).unwrap_or_else(|e| {
                                     eprintln!("error: {e}");
                                     std::process::exit(1);

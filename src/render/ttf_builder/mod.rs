@@ -299,6 +299,11 @@ fn vs_glyph_name(selector: u32) -> String {
     format!("@vs-{selector:04X}")
 }
 
+/// Whether `name` is some selector's [`vs_glyph_name`].
+fn is_vs_glyph_name(name: &str) -> bool {
+    name.starts_with("@vs-")
+}
+
 /// One `feature TAG for SCRIPT... : anchor NAME [align XX]` declaration.
 ///
 /// `align` rides on the declaration and not on either `anchor` line because it
@@ -806,7 +811,21 @@ fn build_pair_from_shared(
     })
 }
 
-/// Build every declared face, in declaration order, as `(face id, TTF bytes)`.
+/// One face out of [`build_faces_from`], with the two numbers `build` reports
+/// of it.
+pub struct BuiltFace {
+    pub id: String,
+    pub ttf: Vec<u8>,
+    /// The code points the face maps, on the demo page's rule: a selector's own
+    /// plain entry is not a character, and a code point two `map`s disagree on
+    /// is still one.
+    pub characters: usize,
+    /// `maxp.numGlyphs` — `.notdef`, every collected glyph, and a glyph per
+    /// COLR layer. The same for every face, since they share the store.
+    pub glyphs: usize,
+}
+
+/// Build every declared face, in declaration order.
 ///
 /// A source declaring no `face` yields one entry with an empty id — the same
 /// font `build_font_from_documents` returns, so the two paths cannot drift.
@@ -814,7 +833,7 @@ fn build_pair_from_shared(
 /// [`build_faces_from`]; this is the convenience that computes one, and only
 /// the tests still want it.
 #[cfg(test)]
-pub fn build_faces(docs: &[&Document]) -> Option<Vec<(String, Vec<u8>)>> {
+pub fn build_faces(docs: &[&Document]) -> Option<Vec<BuiltFace>> {
     let name_parts = crate::document::collect_name_parts(docs);
     let faces = crate::faces::FaceSet::collect(docs);
     let expansion = {
@@ -833,7 +852,7 @@ pub fn build_faces(docs: &[&Document]) -> Option<Vec<(String, Vec<u8>)>> {
 pub fn build_faces_from(
     docs: &[&Document],
     expansion: &expand::Expansion,
-) -> Option<Vec<(String, Vec<u8>)>> {
+) -> Option<Vec<BuiltFace>> {
     let faces = crate::faces::FaceSet::collect(docs);
 
     // The glyph store is built once, for a synthetic face that includes every
@@ -909,6 +928,14 @@ pub fn build_faces_from(
         );
     }
 
+    // Every GID `build_ttf` hands out: the collected glyphs, `.notdef` first
+    // among them, and then one per color layer (`add_color_layer_glyphs`).
+    let glyph_count = union_glyphs.len()
+        + union_glyphs
+            .iter()
+            .map(|g| g.color_layers.len())
+            .sum::<usize>();
+
     let mut out = Vec::new();
     for (face, collected) in faces.faces.iter().zip(per_face) {
         // Expanded for this face, for its own `meta`, its own GSUB, and above
@@ -921,20 +948,26 @@ pub fn build_faces_from(
             gsub_data,
         } = collected?;
 
+        let mut characters: Vec<u32> = Vec::new();
         let glyphs: Vec<CollectedGlyph> = union_glyphs
             .iter()
             .map(|g| {
                 let mut g = g.clone();
                 g.codepoints = per_name.get(g.name.as_str()).cloned().unwrap_or_default();
+                if !is_vs_glyph_name(&g.name) {
+                    characters.extend_from_slice(&g.codepoints);
+                }
                 g
             })
             .collect();
+        characters.sort_unstable();
+        characters.dedup();
 
         let ascender = (meta.ascent() as f32 * scale).round() as i16;
         let descender = -((meta.descent() as f32 * scale).round() as i16);
-        out.push((
-            face.id.clone(),
-            tables::build_ttf(
+        out.push(BuiltFace {
+            id: face.id.clone(),
+            ttf: tables::build_ttf(
                 ascender,
                 descender,
                 &glyphs,
@@ -944,7 +977,9 @@ pub fn build_faces_from(
                 scale,
                 &meta,
             ),
-        ));
+            characters: characters.len(),
+            glyphs: glyph_count,
+        });
     }
     Some(out)
 }
