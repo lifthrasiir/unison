@@ -157,8 +157,9 @@ pub(crate) enum Slot {
     /// Latched at press time: did the in-flight pointer gesture start on the
     /// glyph grid itself? Painting follows only such a gesture.
     GridPaintGesture,
-    /// Sub-cell remainder of an in-progress layer-move drag.
-    LayerDragAccum,
+    /// The in-progress layer-move drag and the offset it has already applied
+    /// (see `pixel_interaction::CellDrag`).
+    LayerDrag,
     /// The in-progress pixel-selection drag (new selection, or moving one).
     PixelSelectDrag,
     /// Interaction id of one ref-layer thumbnail, keyed by

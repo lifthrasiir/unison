@@ -356,6 +356,7 @@ pub(crate) fn handle_layer_drag(
     layer_idx: usize,
     item_line_starts: &[usize],
     composite: Option<&GlyphComposite>,
+    grid_origin: Option<egui::Pos2>,
     grid_cell: f32,
 ) {
     let body = match doc.items.get(item_idx) {
@@ -363,7 +364,7 @@ pub(crate) fn handle_layer_drag(
         _ => return,
     };
 
-    let Some((dcol, drow)) = drag_cell_step(ui, state.id(), grid_cell) else {
+    let Some((dcol, drow)) = drag_cell_step(ui, state.id(), grid_origin, grid_cell) else {
         return;
     };
 
@@ -400,38 +401,94 @@ pub(crate) fn handle_layer_drag(
     }
 }
 
-/// Accumulate the pointer drag and convert it to a whole-cell step.
-/// Returns `(dcol, drow)` once the accumulated drag reaches at least one cell,
-/// keeping the sub-cell remainder for the next frame; returns `None` (updating
-/// or clearing the stored accumulator as appropriate) while the drag is still
-/// sub-cell or the button is released.
-fn drag_cell_step(ui: &egui::Ui, editor: EditorId, grid_cell: f32) -> Option<(i16, i16)> {
-    let dragging = ui.input(|i| i.pointer.primary_down());
-    let drag_id = editor.key(Slot::LayerDragAccum);
-    if !dragging {
-        ui.data_mut(|d| d.remove::<egui::Vec2>(drag_id));
-        return None;
+/// A drag that moves something by whole grid cells: the selection, everything
+/// a glyph draws, or one of its layers.
+///
+/// The offset is a function of where the pointer is and where it was pressed,
+/// and of nothing an earlier frame decided. These drags used to add up pointer
+/// deltas and round what was left over, which fails in two ways a function of
+/// the pointer cannot. `round` sends both +0.5 and -0.5 away from zero, so a
+/// remainder of exactly half a cell — a single integer-pixel move, the cell
+/// size being even — stepped one way, left exactly -0.5 behind, stepped back,
+/// and went on doing so every frame under a pointer held perfectly still. And
+/// a delta that went unread, on a frame the pointer was off the grid, was lost
+/// for the rest of the drag.
+///
+/// Steps land on grid lines, as they do for every other pointer interaction on
+/// the grid: the press keeps how far into its cell it landed, and the offset is
+/// the number of lines crossed since. Only the press frame's layout is read. A
+/// drag that moves a layer can change the drawn extent under the pointer, but
+/// only by whole cells, which leaves every line where it was.
+#[derive(Clone, Copy, Debug)]
+pub(crate) struct CellDrag {
+    press: egui::Pos2,
+    /// How far into its cell the press landed, in `0.0..grid_cell` per axis.
+    within_cell: egui::Vec2,
+}
+
+impl CellDrag {
+    /// A drag pressed at `press` over a grid that has a cell corner at
+    /// `grid_origin` — any corner, only the position within a cell matters.
+    pub(crate) fn new(press: egui::Pos2, grid_origin: egui::Pos2, grid_cell: f32) -> Self {
+        let within = |d: f32| {
+            let r = d.rem_euclid(grid_cell);
+            // A tiny negative `d` rounds up to `grid_cell` itself, which would
+            // read as a step before the pointer has moved.
+            if r < grid_cell { r } else { 0.0 }
+        };
+        Self {
+            press,
+            within_cell: egui::vec2(
+                within(press.x - grid_origin.x),
+                within(press.y - grid_origin.y),
+            ),
+        }
     }
 
-    let drag_delta = ui.input(|i| i.pointer.delta());
-    if drag_delta.x.abs() < 0.5 && drag_delta.y.abs() < 0.5 {
+    /// `(dcol, drow)` from the pressed cell to the cell under `pointer`.
+    pub(crate) fn cells(&self, pointer: egui::Pos2, grid_cell: f32) -> (i16, i16) {
+        let d = self.within_cell + (pointer - self.press);
+        (
+            (d.x / grid_cell).floor() as i16,
+            (d.y / grid_cell).floor() as i16,
+        )
+    }
+}
+
+/// The whole-cell step a layer drag still owes: the offset [`CellDrag`] reads
+/// off the pointer, less what earlier frames have applied. `None` while there
+/// is nothing to apply or the button is up.
+///
+/// `grid_origin` is where the glyph's grid is drawn. With the grid scrolled out
+/// of view there are no lines to step at, and the press counts as mid-cell.
+fn drag_cell_step(
+    ui: &egui::Ui,
+    editor: EditorId,
+    grid_origin: Option<egui::Pos2>,
+    grid_cell: f32,
+) -> Option<(i16, i16)> {
+    let drag_id = editor.key(Slot::LayerDrag);
+    if !ui.input(|i| i.pointer.primary_down()) {
+        ui.data_mut(|d| d.remove::<(CellDrag, (i16, i16))>(drag_id));
         return None;
     }
+    let pointer = ui.input(|i| i.pointer.hover_pos())?;
 
-    let mut accum = ui.data_mut(|d| d.get_temp::<egui::Vec2>(drag_id).unwrap_or_default());
-    accum += drag_delta;
+    let (drag, applied) = ui
+        .data(|d| d.get_temp::<(CellDrag, (i16, i16))>(drag_id))
+        .unwrap_or_else(|| {
+            let press = ui.input(|i| i.pointer.press_origin()).unwrap_or(pointer);
+            let origin = grid_origin.unwrap_or(press - egui::Vec2::splat(grid_cell / 2.0));
+            (CellDrag::new(press, origin, grid_cell), (0, 0))
+        });
+    let target = drag.cells(pointer, grid_cell);
+    ui.data_mut(|d| d.insert_temp(drag_id, (drag, target)));
 
-    let dcol = (accum.x / grid_cell).round() as i16;
-    let drow = (accum.y / grid_cell).round() as i16;
-
-    accum.x -= dcol as f32 * grid_cell;
-    accum.y -= drow as f32 * grid_cell;
-    ui.data_mut(|d| d.insert_temp(drag_id, accum));
-
-    if dcol == 0 && drow == 0 {
-        return None;
-    }
-    Some((dcol, drow))
+    let step = (
+        target.0.saturating_sub(applied.0),
+        target.1.saturating_sub(applied.1),
+    );
+    (step != (0, 0)).then_some(step)
 }
 
 #[cfg(test)]

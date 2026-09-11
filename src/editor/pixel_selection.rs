@@ -1,4 +1,5 @@
 use crate::document::{DocLine, Document, DocumentItem, PixelGrid};
+use crate::editor::pixel_interaction::CellDrag;
 use crate::editor::undo::{self, PixelSelectionSnapshot};
 use crate::editor::{EditMode, EditorState, Slot};
 use crate::pixel::{self, PixelShape};
@@ -183,17 +184,20 @@ enum SelectDrag {
         anchor_row: i16,
         anchor_col: i16,
     },
+    /// Moving the selection, which sat at `origin` (row, col) when pressed.
     Move {
-        accum: egui::Vec2,
+        drag: CellDrag,
+        origin: (i16, i16),
     },
     /// Ctrl/Cmd + drag started outside the selection: everything the glyph
-    /// draws moves together (see [`shift_all_layers`]).
+    /// draws moves together (see [`shift_all_layers`]). `applied` is the
+    /// `(dcol, drow)` already shifted by.
     MoveAll {
-        accum: egui::Vec2,
+        drag: CellDrag,
+        applied: (i16, i16),
     },
 }
 
-/// The owning editor's slot for the in-progress selection drag.
 /// Where a selection of `size` cells may sit along one axis of a grid `extent`
 /// cells long. A selection that fits is held inside the grid; one that does not
 /// — a paste is free to be larger than the grid it lands on — is held the other
@@ -206,6 +210,7 @@ fn clamp_within_grid(pos: i16, size: u16, extent: u16) -> i16 {
     pos.clamp(slack.min(0), slack.max(0))
 }
 
+/// The owning editor's slot for the in-progress selection drag.
 fn drag_id(state: &EditorState) -> egui::Id {
     state.key(Slot::PixelSelectDrag)
 }
@@ -262,6 +267,102 @@ pub(crate) fn handle_pixel_select_interaction(
         return;
     };
 
+    // A move follows the pointer wherever it goes — off this row, off the grid
+    // — so it is not gated like everything below. Every visible row runs it,
+    // which is harmless: the position is a function of the pointer, so once
+    // one row has applied it the others find nothing left to do.
+    if !primary_pressed {
+        match ui.data(|d| d.get_temp::<SelectDrag>(sel_drag_id)) {
+            Some(SelectDrag::Move { drag, origin }) => {
+                let Some(sel) = state
+                    .pixel_selection
+                    .clone()
+                    .filter(|s| s.item_idx == item_idx)
+                else {
+                    return;
+                };
+                let (dcol, drow) = drag.cells(hp, grid_cell);
+                let new_row =
+                    clamp_within_grid(origin.0.saturating_add(drow), sel.height, grid_height);
+                let new_col =
+                    clamp_within_grid(origin.1.saturating_add(dcol), sel.width, grid_width);
+                if (new_row, new_col) == (sel.row, sel.col) {
+                    return;
+                }
+
+                let before_snap = sel.to_snapshot();
+                let mode_before = state.mode.clone();
+                // The rectangle no longer sits where it was drawn, so the corner
+                // it was pinned by means nothing; a later shift-click extends
+                // from the rectangle itself.
+                state.pixel_select_anchor = None;
+
+                // First move: extract pixels from grid
+                let mut pixel_changes = Vec::new();
+                let float_pixels = match &sel.float_pixels {
+                    Some(float) => float.clone(),
+                    None => {
+                        let Some(extracted) = extract_grounded_to_float(
+                            lines,
+                            grid_doc_line,
+                            &sel,
+                            grid_width,
+                            grid_height,
+                            &mut pixel_changes,
+                        ) else {
+                            return;
+                        };
+                        extracted
+                    }
+                };
+                state.pixel_selection = Some(PixelSelection {
+                    row: new_row,
+                    col: new_col,
+                    float_pixels: Some(float_pixels),
+                    ..sel
+                });
+
+                let after_snap = state.pixel_selection.as_ref().unwrap().to_snapshot();
+                state.undo.push_pixel_selection(
+                    grid_doc_line,
+                    pixel_changes,
+                    mode_before,
+                    state.mode.clone(),
+                    Some(before_snap),
+                    Some(after_snap),
+                    state.cursor,
+                    state.cursor,
+                );
+                state.skip_reconcile = true;
+                *needs_rederive = true;
+                ui.ctx().request_repaint();
+                return;
+            }
+            Some(SelectDrag::MoveAll { drag, applied }) => {
+                let target = drag.cells(hp, grid_cell);
+                if target != applied {
+                    ui.data_mut(|d| {
+                        d.insert_temp(
+                            sel_drag_id,
+                            SelectDrag::MoveAll {
+                                drag,
+                                applied: target,
+                            },
+                        )
+                    });
+                    let dcol = target.0.saturating_sub(applied.0);
+                    let drow = target.1.saturating_sub(applied.1);
+                    if shift_all_layers(doc, lines, state, item_idx, composite, dcol, drow) {
+                        *needs_rederive = true;
+                        ui.ctx().request_repaint();
+                    }
+                }
+                return;
+            }
+            Some(SelectDrag::New { .. }) | None => {}
+        }
+    }
+
     // Only process if pointer is on this row, inside the visible grid band.
     if hp.y < grid_y || hp.y >= grid_y + grid_cell || !strip.accepts_pointer(hp) {
         return;
@@ -315,16 +416,12 @@ pub(crate) fn handle_pixel_select_interaction(
             return;
         }
 
-        if inside {
-            // Start move drag
-            ui.data_mut(|d| {
-                d.insert_temp(
-                    sel_drag_id,
-                    SelectDrag::Move {
-                        accum: egui::Vec2::ZERO,
-                    },
-                )
-            });
+        // `grid_x` is the left edge of column `extent.left` and `grid_y` the top
+        // of this row: a cell corner, which is what a move measures from.
+        let drag = CellDrag::new(hp, egui::pos2(grid_x, grid_y), grid_cell);
+        if let Some(sel) = state.pixel_selection.as_ref().filter(|_| inside) {
+            let origin = (sel.row, sel.col);
+            ui.data_mut(|d| d.insert_temp(sel_drag_id, SelectDrag::Move { drag, origin }));
         } else if ui.input(|i| i.modifiers.command) {
             // Ctrl/Cmd outside the selection: move every layer at once. Any
             // selection is committed and dropped first — the grid slides out
@@ -340,7 +437,8 @@ pub(crate) fn handle_pixel_select_interaction(
                 d.insert_temp(
                     sel_drag_id,
                     SelectDrag::MoveAll {
-                        accum: egui::Vec2::ZERO,
+                        drag,
+                        applied: (0, 0),
                     },
                 )
             });
@@ -377,126 +475,20 @@ pub(crate) fn handle_pixel_select_interaction(
         return;
     }
 
-    // primary_down (held) - process drag
-    let drag_state: Option<SelectDrag> = ui.data(|d| d.get_temp(sel_drag_id));
-    let Some(drag) = drag_state else { return };
-
-    match drag {
-        SelectDrag::New {
-            anchor_row,
-            anchor_col,
-        } => {
-            state.pixel_selection = Some(selection_between(
-                item_idx,
-                (anchor_row, anchor_col),
-                (hover_row, hover_col),
-            ));
-            state.pixel_select_anchor = Some((anchor_row, anchor_col));
-            ui.ctx().request_repaint();
-        }
-        SelectDrag::MoveAll { mut accum } => {
-            accum += ui.input(|i| i.pointer.delta());
-            let dcol = (accum.x / grid_cell).round() as i16;
-            let drow = (accum.y / grid_cell).round() as i16;
-            if dcol != 0 || drow != 0 {
-                accum.x -= dcol as f32 * grid_cell;
-                accum.y -= drow as f32 * grid_cell;
-                if shift_all_layers(doc, lines, state, item_idx, composite, dcol, drow) {
-                    *needs_rederive = true;
-                    ui.ctx().request_repaint();
-                }
-            }
-            ui.data_mut(|d| d.insert_temp(sel_drag_id, SelectDrag::MoveAll { accum }));
-        }
-        SelectDrag::Move { mut accum } => {
-            let drag_delta = ui.input(|i| i.pointer.delta());
-            accum += drag_delta;
-
-            let dcol = (accum.x / grid_cell).round() as i16;
-            let drow = (accum.y / grid_cell).round() as i16;
-
-            if dcol == 0 && drow == 0 {
-                ui.data_mut(|d| d.insert_temp(sel_drag_id, SelectDrag::Move { accum }));
-                return;
-            }
-
-            let Some(sel) = state.pixel_selection.clone() else {
-                return;
-            };
-            if sel.item_idx != item_idx {
-                return;
-            }
-
-            // Clamp to grid bounds
-            let new_row = clamp_within_grid(sel.row + drow, sel.height, grid_height);
-            let new_col = clamp_within_grid(sel.col + dcol, sel.width, grid_width);
-            let actual_drow = new_row - sel.row;
-            let actual_dcol = new_col - sel.col;
-
-            if actual_drow == 0 && actual_dcol == 0 {
-                ui.data_mut(|d| d.insert_temp(sel_drag_id, SelectDrag::Move { accum }));
-                return;
-            }
-
-            accum.x -= actual_dcol as f32 * grid_cell;
-            accum.y -= actual_drow as f32 * grid_cell;
-            ui.data_mut(|d| d.insert_temp(sel_drag_id, SelectDrag::Move { accum }));
-
-            let before_snap = sel.to_snapshot();
-            let mode_before = state.mode.clone();
-            // The rectangle no longer sits where it was drawn, so the corner it
-            // was pinned by means nothing; a later shift-click extends from the
-            // rectangle itself.
-            state.pixel_select_anchor = None;
-
-            // First move: extract pixels from grid
-            let mut pixel_changes = Vec::new();
-            if !sel.is_floating() {
-                let Some(extracted) = extract_grounded_to_float(
-                    lines,
-                    grid_doc_line,
-                    &sel,
-                    grid_width,
-                    grid_height,
-                    &mut pixel_changes,
-                ) else {
-                    return;
-                };
-
-                state.pixel_selection = Some(PixelSelection {
-                    item_idx,
-                    row: new_row,
-                    col: new_col,
-                    width: sel.width,
-                    height: sel.height,
-                    float_pixels: Some(extracted),
-                });
-            } else {
-                state.pixel_selection = Some(PixelSelection {
-                    item_idx,
-                    row: new_row,
-                    col: new_col,
-                    width: sel.width,
-                    height: sel.height,
-                    float_pixels: sel.float_pixels.clone(),
-                });
-            }
-
-            let after_snap = state.pixel_selection.as_ref().unwrap().to_snapshot();
-            state.undo.push_pixel_selection(
-                grid_doc_line,
-                pixel_changes,
-                mode_before,
-                state.mode.clone(),
-                Some(before_snap),
-                Some(after_snap),
-                state.cursor,
-                state.cursor,
-            );
-            state.skip_reconcile = true;
-            *needs_rederive = true;
-            ui.ctx().request_repaint();
-        }
+    // primary_down (held): stretch a new selection to the hovered cell. Moves
+    // were handled above, before the row gate.
+    if let Some(SelectDrag::New {
+        anchor_row,
+        anchor_col,
+    }) = ui.data(|d| d.get_temp::<SelectDrag>(sel_drag_id))
+    {
+        state.pixel_selection = Some(selection_between(
+            item_idx,
+            (anchor_row, anchor_col),
+            (hover_row, hover_col),
+        ));
+        state.pixel_select_anchor = Some((anchor_row, anchor_col));
+        ui.ctx().request_repaint();
     }
 }
 

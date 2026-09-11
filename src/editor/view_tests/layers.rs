@@ -113,6 +113,26 @@ fn drag_layer_move_on_grid_survives_leaving_the_grid_columns() {
     );
 }
 
+/// A dragged layer steps when the pointer crosses a grid line, wherever in its
+/// cell the drag was pressed — not half a cell from the press point.
+#[test]
+fn drag_layer_move_steps_at_grid_lines() {
+    let mut h = EditorHarness::new(&composite_doc());
+    enter_layer_move(&mut h, 4, 2, 0);
+    let center = h.grid_cell_pos(4, 0, 0);
+    let cell = h.snap().grid_cell;
+    let press = egui::pos2(center.x - cell / 4.0, center.y); // a quarter into the cell
+    let line = center.x + cell / 2.0; // the grid line to its right
+
+    h.frame_with(vec![egui::Event::PointerMoved(press)], Modifiers::NONE);
+    h.press_at(press);
+    h.move_pointer(egui::pos2(line - 1.0, press.y));
+    assert_eq!(h.text(5), "ref child 4 0", "still over the pressed cell");
+    h.move_pointer(egui::pos2(line + 1.0, press.y));
+    assert_eq!(h.text(5), "ref child 5 0", "crossed into the next cell");
+    h.release_at(egui::pos2(line + 1.0, press.y));
+}
+
 /// Same as [`composite_doc`], but `parent` has no pixel grid of its own: it is
 /// a ref-only composite of two side-by-side copies of `child`.
 ///

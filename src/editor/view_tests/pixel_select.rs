@@ -94,6 +94,80 @@ fn move_selection_makes_floating_and_clears_grid() {
     assert!(grid.get(0, 1).is_clear());
 }
 
+/// A pointer held still half a cell from where the move began used to make the
+/// selection hop back and forth every frame: the move integrated pointer deltas
+/// and rounded the remainder, and `round` sends both +0.5 and -0.5 away from
+/// zero, so each hop left exactly the remainder that triggered the next one.
+#[test]
+fn a_moving_selection_holds_still_under_a_still_pointer() {
+    let mut h = make_pixel_select_harness();
+    h.drag_grid(1, (0, 0), (0, 0));
+    let center = h.grid_cell_pos(1, 0, 0);
+    let cell = h.snap().grid_cell;
+
+    h.press_at(center);
+    h.move_pointer(egui::pos2(center.x + cell / 2.0, center.y));
+    let mut positions = Vec::new();
+    for _ in 0..6 {
+        h.frame();
+        let sel = h.state.pixel_selection.as_ref().unwrap();
+        positions.push((sel.row, sel.col));
+    }
+    assert!(
+        positions.windows(2).all(|w| w[0] == w[1]),
+        "the selection must not move while the pointer does not: {positions:?}"
+    );
+}
+
+/// The selection follows the cell under the pointer: it steps when the pointer
+/// crosses a grid line, wherever in its cell the drag was pressed — not half a
+/// cell from the press point, a boundary nothing on screen shows.
+#[test]
+fn a_moving_selection_steps_at_grid_lines() {
+    let mut h = make_pixel_select_harness();
+    h.drag_grid(1, (0, 0), (0, 0));
+    let center = h.grid_cell_pos(1, 0, 0);
+    let cell = h.snap().grid_cell;
+    let press = egui::pos2(center.x - cell / 4.0, center.y); // a quarter into the cell
+    let line = center.x + cell / 2.0; // the grid line to its right
+
+    h.press_at(press);
+    h.move_pointer(egui::pos2(line - 1.0, press.y));
+    assert_eq!(
+        h.state.pixel_selection.as_ref().unwrap().col,
+        0,
+        "the pointer is still over the pressed cell"
+    );
+    h.move_pointer(egui::pos2(line + 1.0, press.y));
+    assert_eq!(
+        h.state.pixel_selection.as_ref().unwrap().col,
+        1,
+        "the pointer crossed into the next cell"
+    );
+    h.release_at(egui::pos2(line + 1.0, press.y));
+}
+
+/// A pointer that leaves the grid in one frame still carries the selection to
+/// the edge. The move used to be read only while the pointer was over one of
+/// the grid's own cells, so the selection stayed wherever it was last seen.
+#[test]
+fn a_selection_dragged_past_the_edge_stops_at_it() {
+    let mut h = make_pixel_select_harness();
+    h.drag_grid(1, (0, 0), (0, 0));
+    let center = h.grid_cell_pos(1, 0, 0);
+    let cell = h.snap().grid_cell;
+
+    h.press_at(center);
+    let past = egui::pos2(center.x + 6.0 * cell, center.y);
+    h.move_pointer(past);
+    assert_eq!(
+        h.state.pixel_selection.as_ref().unwrap().col,
+        3,
+        "held at the last column of the 4-wide grid"
+    );
+    h.release_at(past);
+}
+
 #[test]
 fn undo_move_restores_grid_and_grounded_state() {
     let mut h = make_pixel_select_harness();
@@ -330,6 +404,39 @@ fn undo_move_all_restores_every_layer_at_once() {
     assert!(
         !h.state.undo.can_undo(),
         "the whole drag should be a single undo entry"
+    );
+}
+
+/// Same hop as [`a_moving_selection_holds_still_under_a_still_pointer`], for a
+/// move-all: every layer used to shift back and forth each frame.
+#[test]
+fn move_all_holds_still_under_a_still_pointer() {
+    let mut h = make_move_all_harness();
+    let center = h.grid_cell_pos(6, 2, 0);
+    let cell = h.snap().grid_cell;
+
+    h.frame_with(
+        vec![
+            egui::Event::PointerMoved(center),
+            egui::Event::PointerButton {
+                pos: center,
+                button: egui::PointerButton::Primary,
+                pressed: true,
+                modifiers: Modifiers::COMMAND,
+            },
+        ],
+        Modifiers::COMMAND,
+    );
+    let to = egui::pos2(center.x + cell / 2.0, center.y);
+    h.frame_with(vec![egui::Event::PointerMoved(to)], Modifiers::COMMAND);
+    let mut anchors = Vec::new();
+    for _ in 0..6 {
+        h.frame_with(Vec::new(), Modifiers::COMMAND);
+        anchors.push(h.text(9).trim().to_string());
+    }
+    assert!(
+        anchors.windows(2).all(|w| w[0] == w[1]),
+        "the layers must not move while the pointer does not: {anchors:?}"
     );
 }
 

@@ -1138,6 +1138,10 @@ pub(super) fn paint_document_area(
         layer_idx,
     } = state.mode
     {
+        let grid_origin = blocks
+            .iter()
+            .find(|b| b.item_idx == eidx)
+            .map(|b| egui::pos2(strip.grid_x(b.content_w), origin.y + b.y0));
         pixel_interaction::handle_layer_drag(
             ui,
             lines,
@@ -1148,6 +1152,7 @@ pub(super) fn paint_document_area(
             layer_idx,
             &doc.item_line_starts,
             composites.get(&eidx),
+            grid_origin,
             grid_cell,
         );
     }
