@@ -207,6 +207,7 @@ impl UniformApp {
         ));
 
         let all_docs: Vec<Document> = self.collect_all_docs().into_iter().cloned().collect();
+        self.assert_pending_line_ids = crate::editor::issue_marks::snapshot_line_ids(&all_docs);
         let active_path = if current_file_only {
             self.active_doc_idx()
                 .map(|i| self.open_documents[i].document.path.clone())
@@ -379,6 +380,7 @@ impl UniformApp {
             let t0 = std::time::Instant::now();
             let mut timing = super::timing::BackgroundTiming::default();
             let refs: Vec<&Document> = owned_docs.iter().collect();
+            let issue_line_ids = crate::editor::issue_marks::snapshot_line_ids(&owned_docs);
             let Some(resolution) = crate::resolve::Resolution::compute_cancellable(&refs, &cancel)
             else {
                 font_slot.set((build_gen, FontBuildOutcome::Cancelled));
@@ -550,6 +552,7 @@ impl UniformApp {
                 exists_matches,
                 char_props,
                 issues,
+                issue_line_ids,
                 glyph_flags,
                 face_ids,
                 specimen,
@@ -781,6 +784,7 @@ impl UniformApp {
                     self.named_glyphs_gen = data.build_gen;
                     self.derived_gen = self.derived_gen.wrapping_add(1);
                     self.issues = data.issues;
+                    self.issues_line_ids = data.issue_line_ids;
                     self.issues_gen = data.build_gen;
                     self.glyph_flags = data.glyph_flags;
                     // The list an edit to a `face` line changes; the startup
@@ -845,6 +849,7 @@ impl UniformApp {
         if let Ok(assert_issues) = self.assert_rx.try_recv() {
             let count = assert_issues.len();
             self.assert_issues = assert_issues;
+            self.assert_line_ids = std::mem::take(&mut self.assert_pending_line_ids);
             self.assert_gen = self.assert_gen.wrapping_add(1);
             self.assert_running = false;
             finish(&mut self.bg_tasks.test);

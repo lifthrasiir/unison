@@ -618,10 +618,10 @@ fn each_row_highlights_its_own_occurrence() {
 fn hits_run_over_a_document_in_order_and_skip_pixel_grids() {
     use crate::document::PixelGrid;
     let lines = vec![
-        DocLine::Text("glyph foo 2 2".to_string()),
-        DocLine::Grid(PixelGrid::new(2, 2)),
-        DocLine::Text("ref foo 0 0".to_string()),
-        DocLine::Text("map A = foo".to_string()),
+        DocLine::text("glyph foo 2 2".to_string()),
+        DocLine::grid(PixelGrid::new(2, 2)),
+        DocLine::text("ref foo 0 0".to_string()),
+        DocLine::text("map A = foo".to_string()),
     ];
     assert_eq!(
         hits_in_doclines(
@@ -1037,7 +1037,7 @@ mod app_tests {
         let idx = app.panes.active_doc_idx().unwrap();
         app.open_documents[idx]
             .lines
-            .insert(0, DocLine::Text("// alpha inserted".to_string()));
+            .insert(0, DocLine::text("// alpha inserted".to_string()));
 
         app.goto_search_hit(&ctx, last);
         assert_eq!(

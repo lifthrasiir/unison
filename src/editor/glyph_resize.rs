@@ -375,7 +375,7 @@ fn rebox_block(block: &[DocLine], boxed: BoxFlags) -> Option<Vec<DocLine>> {
         boxed.extent,
     )?;
     let mut out = block.to_vec();
-    out[0] = DocLine::Text(new_header);
+    out[0] = DocLine::text(new_header).with_id_of(&out[0]);
     Some(out)
 }
 
@@ -418,15 +418,15 @@ pub(crate) fn resize_block(
         boxed.advance,
         boxed.extent,
     )?;
-    out[0] = DocLine::Text(new_header);
+    out[0] = DocLine::text(new_header).with_id_of(&out[0]);
 
     let new_grid = shifted_grid(grid, dcol, drow, new_w as u16, new_h as u16);
     match out.get(1) {
-        Some(DocLine::Grid(_)) => out[1] = DocLine::Grid(new_grid),
+        Some(DocLine::Grid(_)) => out[1] = DocLine::grid(new_grid).with_id_of(&out[1]),
         // An all-empty grid is written as a bare header, and `reconcile`
         // materializes the `DocLine::Grid` for it. Do the same rather than
         // leave the header describing a grid that is not there.
-        _ => out.insert(1, DocLine::Grid(new_grid)),
+        _ => out.insert(1, DocLine::grid(new_grid)),
     }
 
     if dcol != 0 || drow != 0 {
@@ -447,15 +447,17 @@ pub(crate) fn resize_block(
                     if own_anchor_placed.get(idx).copied().unwrap_or(false) {
                         continue;
                     }
-                    *line = DocLine::Text(
+                    *line = DocLine::text(
                         gref.format_line(Some((gref.col() + dcol, gref.row() + drow))),
-                    );
+                    )
+                    .with_id_of(line);
                 }
                 Some("anchor") => {
                     let idx = point_i;
                     point_i += 1;
                     if let Some(point) = body.points.get(idx) {
-                        *line = DocLine::Text(point.shifted(dcol, drow).format_line());
+                        *line =
+                            DocLine::text(point.shifted(dcol, drow).format_line()).with_id_of(line);
                     }
                 }
                 _ => break,
@@ -567,10 +569,10 @@ pub(crate) fn adjust_refs_in_doc(
                 continue;
             };
             let new = gref.format_line(Some(new_offset));
-            if *old != new {
+            if **old != new {
                 edits.push(LineEdit {
                     line,
-                    old: old.clone(),
+                    old: String::clone(old),
                     new,
                 });
             }
@@ -623,10 +625,14 @@ pub(crate) fn plan_document_resize(
         ResizeKind::Canvas => Vec::new(),
     };
     for edit in ref_edits {
+        // The same line, moved: it keeps its id through the edit and its undo.
+        let Some(line) = lines.get(edit.line) else {
+            continue;
+        };
         plan.push((
             edit.line,
-            vec![DocLine::Text(edit.old)],
-            vec![DocLine::Text(edit.new)],
+            vec![DocLine::text(edit.old).with_id_of(line)],
+            vec![DocLine::text(edit.new).with_id_of(line)],
         ));
     }
     // Splicing back to front keeps the earlier positions valid even when a

@@ -131,10 +131,10 @@ fn pin_grid(
     // cannot disagree about what a `scale` does to it.
     let (grid_w, grid_h) = crate::editor::reconcile::parse_glyph_header_dims(&new_header)?;
 
-    let old = vec![DocLine::Text(header.clone())];
+    let old = vec![lines[header_line].clone()];
     let new = vec![
-        DocLine::Text(new_header),
-        DocLine::Grid(PixelGrid::new(grid_w, grid_h)),
+        DocLine::text(new_header).with_id_of(&old[0]),
+        DocLine::grid(PixelGrid::new(grid_w, grid_h)),
     ];
     lines.splice(header_line..header_line + 1, new.iter().cloned());
     let caret_before = state.cursor;
@@ -385,9 +385,9 @@ pub(crate) fn handle_layer_drag(
     let layer_line = layer_doc_line(lines, body, header_line, layer_idx);
 
     if let Some(DocLine::Text(old_text)) = lines.get(layer_line)
-        && *old_text != new_text
+        && **old_text != new_text
     {
-        let old_text = old_text.clone();
+        let old_text = String::clone(old_text);
         state.undo.push_text(
             layer_line,
             0,
@@ -396,7 +396,7 @@ pub(crate) fn handle_layer_drag(
             state.cursor,
             state.cursor,
         );
-        lines[layer_line] = DocLine::Text(new_text);
+        lines[layer_line] = DocLine::text(new_text).with_id_of(&lines[layer_line]);
         *needs_rederive = true;
     }
 }

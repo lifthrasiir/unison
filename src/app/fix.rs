@@ -61,16 +61,16 @@ impl UniformApp {
                 let Some(DocLine::Text(text)) = doc.lines.get_mut(line) else {
                     continue;
                 };
-                if *text == fix.new_line {
+                if **text == fix.new_line {
                     continue;
                 }
                 ops.push(UndoOp::Text {
                     line,
                     col: 0,
-                    old: text.clone(),
+                    old: String::clone(text),
                     new: fix.new_line.clone(),
                 });
-                *text = fix.new_line.clone();
+                **text = fix.new_line.clone();
                 lines += 1;
             }
             if ops.is_empty() {
@@ -225,7 +225,7 @@ glyph test-x 8 4
         doc.lines
             .iter()
             .find_map(|l| match l {
-                DocLine::Text(t) if t.starts_with('\u{2FF0}') => Some(t.clone()),
+                DocLine::Text(t) if t.starts_with('\u{2FF0}') => Some(String::clone(t)),
                 _ => None,
             })
             .expect("the IDC line")

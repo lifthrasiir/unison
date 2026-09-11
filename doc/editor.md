@@ -176,6 +176,11 @@ color, darker — a warning is a yellow line with a brown message on it. A line 
 finding shows the worst of them and counts the rest as `[+3]`. The filter above the list governs
 this too, so hiding a severity there takes its tint off the text as well.
 
+The report is about the text as it was when the rebuild started, but it follows your edits until
+the next one arrives: open a line above a finding and its tint and its line number in the list move
+down with it; delete the line it was on and it drops out of both. Enter at the start of a line, or
+Backspace over a blank line above it, moves the line rather than replacing it.
+
 F6 runs the `assert` directives of the current file, Ctrl+F6 those of every file. F10/F11 step
 through the faces the source declares; the chosen face is remembered. *Font ▸ Optimize clearance*
 runs `uniform fix --optimize-clearance` against the open documents: the rewrites land in the

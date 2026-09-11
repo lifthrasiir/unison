@@ -45,7 +45,7 @@ fn rename_in_place(
             {
                 c.col = shift_caret_col(c.col, &spans);
             }
-            changed.push((i, std::mem::replace(s, t)));
+            changed.push((i, std::mem::replace(&mut **s, t)));
         }
     }
     changed
@@ -459,7 +459,7 @@ mod rename_tests {
     use crate::editor::doc_links::RenameKind;
 
     fn t(s: &str) -> DocLine {
-        DocLine::Text(s.to_string())
+        DocLine::text(s.to_string())
     }
 
     fn do_rename(lines: &[DocLine], old: &str, new: &str, kind: &RenameKind) -> Vec<String> {
@@ -469,7 +469,7 @@ mod rename_tests {
             .into_iter()
             .filter_map(|l| {
                 if let DocLine::Text(s) = l {
-                    Some(s)
+                    Some(String::clone(&s))
                 } else {
                     None
                 }
@@ -831,7 +831,7 @@ mod rename_caret_tests {
     use crate::editor::doc_links::RenameKind;
 
     fn t(s: &str) -> DocLine {
-        DocLine::Text(s.to_string())
+        DocLine::text(s.to_string())
     }
 
     fn caret_after(lines: &[DocLine], caret: Caret, old: &str, new: &str) -> Caret {
@@ -957,7 +957,7 @@ impl UniformApp {
                         };
                         crate::editor::undo::UndoOp::Lines {
                             at: *idx,
-                            old: vec![DocLine::Text(old_text.clone())],
+                            old: vec![DocLine::text(old_text.clone())],
                             new: vec![DocLine::Text(new_text)],
                         }
                     })

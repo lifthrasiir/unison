@@ -9,7 +9,7 @@ use crate::edit_menu::EditAction;
 
 #[test]
 fn deferred_change_is_dirty_without_advancing_generation_and_is_per_editor() {
-    let lines = vec![DocLine::Text("glyph foo 2 2".into())];
+    let lines = vec![DocLine::text("glyph foo 2 2")];
     let (mut doc, _) = derive_document(&lines, "test.unf".into()).unwrap();
     doc.edit_gen = 7;
 
@@ -35,7 +35,7 @@ fn deferred_change_is_dirty_without_advancing_generation_and_is_per_editor() {
 
 #[test]
 fn external_edit_action_can_be_flushed_immediately() {
-    let mut lines = vec![DocLine::Text("//abc".into())];
+    let mut lines = vec![DocLine::text("//abc")];
     let (mut doc, _) = derive_document(&lines, "test.unf".into()).unwrap();
     let mut state = EditorState::new();
     state.selection_anchor = Some(Caret::new(0, 2));
@@ -49,7 +49,7 @@ fn external_edit_action_can_be_flushed_immediately() {
     ));
     flush_document_changes(&mut lines, &mut doc, &mut state);
 
-    assert_eq!(lines, vec![DocLine::Text("//bc".into())]);
+    assert_eq!(lines, vec![DocLine::text("//bc")]);
     assert!(matches!(
         doc.items.first(),
         Some(crate::document::DocumentItem::Comment(text)) if text == "bc"

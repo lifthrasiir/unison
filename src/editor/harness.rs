@@ -407,6 +407,11 @@ pub(crate) struct EditorHarness {
     /// What the app's issue list says about this document's lines. Empty
     /// unless a test sets it; see [`EditorHarness::set_line_issues`].
     pub line_issues: crate::editor::issue_marks::LineIssues,
+    /// Issues reported through [`EditorHarness::report_issues`]: what
+    /// `line_issues` is derived from at the start of every frame, the way the
+    /// app derives it from a build's report.
+    report: Vec<crate::issues::Issue>,
+    report_marks: crate::editor::issue_marks::IssueMarks,
     /// Stands in for a menu-bar menu being open over the editor, which is the
     /// one kind of focus loss a pixel selection survives.
     pub menu_open: bool,
@@ -513,6 +518,8 @@ impl EditorHarness {
             meta: Default::default(),
             show_metrics: false,
             line_issues: Default::default(),
+            report: Vec::new(),
+            report_marks: Default::default(),
             menu_open: false,
             zoom: 1,
             font_id: egui::FontId::monospace(16.0),
@@ -576,6 +583,30 @@ impl EditorHarness {
             .collect();
     }
 
+    /// Reports issues against the document as it stands now, as a build that
+    /// read this buffer would, as `(doc_line, severity, message)`. Unlike
+    /// [`EditorHarness::set_line_issues`] the report is re-read every frame,
+    /// so edits made after it are what the highlights have to follow.
+    pub fn report_issues(
+        &mut self,
+        issues: impl IntoIterator<Item = (usize, crate::issues::Severity, &'static str)>,
+    ) {
+        self.report = issues
+            .into_iter()
+            .map(|(line, severity, message)| crate::issues::Issue {
+                severity,
+                glyph: None,
+                message: message.to_string(),
+                file: self.doc.path.clone(),
+                line,
+                file_line: self.doc.docline_file_line(line),
+            })
+            .collect();
+        let snapshot = crate::editor::issue_marks::snapshot_line_ids([&self.doc]);
+        self.report_marks =
+            crate::editor::issue_marks::IssueMarks::new([(&self.report[..], &snapshot)]);
+    }
+
     /// Advance the harness clock without running a frame. Successive wheel
     /// ticks in the same direction are debounced on real time
     /// (`COARSE_SCROLL_COOLDOWN`), so a test sending more than one must space
@@ -587,6 +618,15 @@ impl EditorHarness {
     /// Run one frame of the real editor with the given input events.
     pub fn frame_with(&mut self, events: Vec<egui::Event>, modifiers: egui::Modifiers) {
         self.time += 1.0 / 60.0;
+        if !self.report.is_empty() {
+            let (report, doc) = (&self.report, &self.doc);
+            self.report_marks.follow(
+                |i| &report[i],
+                |path| (path == doc.path).then_some(doc),
+                |_| true,
+            );
+            self.line_issues = self.report_marks.for_file(&self.doc.path).clone();
+        }
         let raw = egui::RawInput {
             screen_rect: Some(egui::Rect::from_min_size(
                 egui::pos2(0.0, 0.0),

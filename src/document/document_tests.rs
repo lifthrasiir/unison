@@ -528,11 +528,11 @@ fn compute_docline_file_lines_skips_omitted_empty_grids() {
     filled.set(0, 0, PixelShape(PX_ALMOSTFULL | PX_FULL));
 
     let lines = vec![
-        DocLine::Text("glyph a 2 2".to_string()),
-        DocLine::Grid(PixelGrid::new(2, 2)),
-        DocLine::Text("glyph b 1 1".to_string()),
-        DocLine::Grid(filled),
-        DocLine::Text("map A = b".to_string()),
+        DocLine::text("glyph a 2 2".to_string()),
+        DocLine::grid(PixelGrid::new(2, 2)),
+        DocLine::text("glyph b 1 1".to_string()),
+        DocLine::grid(filled),
+        DocLine::text("map A = b".to_string()),
     ];
 
     let file_lines = compute_docline_file_lines(&lines);

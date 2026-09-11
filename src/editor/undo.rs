@@ -639,10 +639,10 @@ mod tests {
     use crate::document::PixelGrid;
 
     fn text(s: &str) -> DocLine {
-        DocLine::Text(s.to_string())
+        DocLine::text(s.to_string())
     }
     fn grid(w: u16, h: u16) -> DocLine {
-        DocLine::Grid(PixelGrid::new(w, h))
+        DocLine::grid(PixelGrid::new(w, h))
     }
     fn c(line: usize, col: usize) -> Caret {
         Caret::new(line, col)
@@ -655,7 +655,7 @@ mod tests {
 
         // Delete 'o' at col 4
         undo.push_text(0, 4, "o".into(), "".into(), c(0, 5), c(0, 4));
-        lines[0] = DocLine::Text("hell".into());
+        lines[0] = DocLine::text("hell");
 
         let caret = undo.undo(&mut lines).unwrap();
         assert_eq!(lines[0], text("hello"));
@@ -894,11 +894,11 @@ mod tests {
 
         undo.break_coalesce();
         undo.push_text(0, 3, "".into(), "d".into(), c(0, 3), c(0, 4));
-        lines[0] = DocLine::Text("abcd".into());
+        lines[0] = DocLine::text("abcd");
 
         undo.break_coalesce();
         undo.push_text(0, 4, "".into(), "e".into(), c(0, 4), c(0, 5));
-        lines[0] = DocLine::Text("abcde".into());
+        lines[0] = DocLine::text("abcde");
 
         // Undo "e"
         undo.undo(&mut lines);
@@ -906,7 +906,7 @@ mod tests {
 
         // New edit — should truncate the redo for "e"
         undo.push_text(0, 4, "".into(), "f".into(), c(0, 4), c(0, 5));
-        lines[0] = DocLine::Text("abcdf".into());
+        lines[0] = DocLine::text("abcdf");
 
         assert!(undo.redo(&mut lines).is_none());
     }
@@ -935,7 +935,7 @@ mod tests {
 
         undo.break_coalesce();
         undo.push_text(0, 5, "".into(), " world".into(), c(0, 5), c(0, 11));
-        lines[0] = DocLine::Text("hello world".into());
+        lines[0] = DocLine::text("hello world");
         assert!(!undo.is_at_saved());
 
         undo.undo(&mut lines);
@@ -988,11 +988,11 @@ mod tests {
 
         undo.break_coalesce();
         undo.push_text(0, 3, "".into(), "d".into(), c(0, 3), c(0, 4));
-        lines[0] = DocLine::Text("abcd".into());
+        lines[0] = DocLine::text("abcd");
 
         undo.break_coalesce();
         undo.push_text(0, 4, "".into(), "e".into(), c(0, 4), c(0, 5));
-        lines[0] = DocLine::Text("abcde".into());
+        lines[0] = DocLine::text("abcde");
 
         assert!(!undo.is_at_saved());
 
@@ -1010,7 +1010,7 @@ mod tests {
         let mut undo = UndoStack::new();
 
         undo.push_text(0, 3, "".into(), "d".into(), c(0, 3), c(0, 4));
-        lines[0] = DocLine::Text("abcd".into());
+        lines[0] = DocLine::text("abcd");
 
         undo.undo(&mut lines);
         assert!(undo.is_at_saved());
@@ -1029,13 +1029,13 @@ mod tests {
 
         undo.break_coalesce();
         undo.push_text(0, 3, "".into(), "d".into(), c(0, 3), c(0, 4));
-        lines[0] = DocLine::Text("abcd".into());
+        lines[0] = DocLine::text("abcd");
 
         let point = undo.save_point();
 
         undo.break_coalesce();
         undo.push_text(0, 4, "".into(), "e".into(), c(0, 4), c(0, 5));
-        lines[0] = DocLine::Text("abcde".into());
+        lines[0] = DocLine::text("abcde");
 
         undo.mark_saved_at(point);
         assert!(
@@ -1057,14 +1057,14 @@ mod tests {
 
         undo.break_coalesce();
         undo.push_text(0, 3, "".into(), "d".into(), c(0, 3), c(0, 4));
-        lines[0] = DocLine::Text("abcd".into());
+        lines[0] = DocLine::text("abcd");
 
         let point = undo.save_point();
 
         undo.undo(&mut lines);
         undo.break_coalesce();
         undo.push_text(0, 3, "".into(), "z".into(), c(0, 3), c(0, 4));
-        lines[0] = DocLine::Text("abcz".into());
+        lines[0] = DocLine::text("abcz");
 
         undo.mark_saved_at(point);
         assert!(!undo.is_at_saved());
@@ -1081,14 +1081,14 @@ mod tests {
 
         undo.break_coalesce();
         undo.push_text(0, 3, "".into(), "d".into(), c(0, 3), c(0, 4));
-        lines[0] = DocLine::Text("abcd".into());
+        lines[0] = DocLine::text("abcd");
 
         undo.mark_saved();
         assert!(undo.is_at_saved());
 
         undo.break_coalesce();
         undo.push_text(0, 4, "".into(), "e".into(), c(0, 4), c(0, 5));
-        lines[0] = DocLine::Text("abcde".into());
+        lines[0] = DocLine::text("abcde");
         assert!(!undo.is_at_saved());
 
         undo.undo(&mut lines);
@@ -1124,11 +1124,11 @@ mod tests {
 
         undo.break_coalesce();
         undo.push_text(0, 3, "".into(), "d".into(), c(0, 3), c(0, 4));
-        lines[0] = DocLine::Text("abcd".into());
+        lines[0] = DocLine::text("abcd");
 
         undo.break_coalesce();
         undo.push_text(0, 4, "".into(), "e".into(), c(0, 4), c(0, 5));
-        lines[0] = DocLine::Text("abcde".into());
+        lines[0] = DocLine::text("abcde");
 
         undo.mark_saved();
         assert!(undo.is_at_saved());
@@ -1138,7 +1138,7 @@ mod tests {
 
         undo.break_coalesce();
         undo.push_text(0, 3, "".into(), "x".into(), c(0, 3), c(0, 4));
-        lines[0] = DocLine::Text("abcx".into());
+        lines[0] = DocLine::text("abcx");
 
         assert!(!undo.is_at_saved());
 
@@ -1153,14 +1153,14 @@ mod tests {
 
         undo.break_coalesce();
         undo.push_text(0, 3, "".into(), "d".into(), c(0, 3), c(0, 4));
-        lines[0] = DocLine::Text("abcd".into());
+        lines[0] = DocLine::text("abcd");
 
         undo.undo(&mut lines);
         assert!(undo.is_at_saved());
 
         undo.break_coalesce();
         undo.push_text(0, 3, "".into(), "x".into(), c(0, 3), c(0, 4));
-        lines[0] = DocLine::Text("abcx".into());
+        lines[0] = DocLine::text("abcx");
         assert!(!undo.is_at_saved());
 
         undo.undo(&mut lines);
@@ -1175,7 +1175,7 @@ mod tests {
         // Type "c" then "d" fast (coalesced into one entry)
         undo.push_text(0, 2, "".into(), "c".into(), c(0, 2), c(0, 3));
         undo.push_text(0, 3, "".into(), "d".into(), c(0, 3), c(0, 4));
-        lines[0] = DocLine::Text("abcd".into());
+        lines[0] = DocLine::text("abcd");
         assert_eq!(undo.position, 1);
 
         undo.undo(&mut lines);
@@ -1227,7 +1227,7 @@ mod tests {
 
         undo.break_coalesce();
         undo.push_text(0, 5, "".into(), "!".into(), c(0, 5), c(0, 6));
-        lines[0] = DocLine::Text("hello!".into());
+        lines[0] = DocLine::text("hello!");
 
         undo.break_coalesce();
         let s0 = PixelShape::EMPTY;
@@ -1270,7 +1270,7 @@ mod tests {
         let mut undo = UndoStack::new();
 
         undo.push_text(0, 3, "".into(), "d".into(), c(0, 3), c(0, 4));
-        lines[0] = DocLine::Text("abcd".into());
+        lines[0] = DocLine::text("abcd");
 
         undo.undo(&mut lines);
         assert!(undo.is_at_saved());
@@ -1289,13 +1289,13 @@ mod tests {
 
         undo.break_coalesce();
         undo.push_text(0, 1, "".into(), "b".into(), c(0, 1), c(0, 2));
-        lines[0] = DocLine::Text("ab".into());
+        lines[0] = DocLine::text("ab");
 
         undo.mark_saved();
 
         undo.break_coalesce();
         undo.push_text(0, 2, "".into(), "c".into(), c(0, 2), c(0, 3));
-        lines[0] = DocLine::Text("abc".into());
+        lines[0] = DocLine::text("abc");
         assert!(!undo.is_at_saved());
 
         undo.undo(&mut lines);

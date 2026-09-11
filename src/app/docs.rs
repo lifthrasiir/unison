@@ -152,7 +152,7 @@ pub(super) fn document_from_source(
     let canonical = String::from_utf8(buf).unwrap_or_default();
     let mut lines = document_io::parse_doclines(&canonical);
     if lines.is_empty() {
-        lines.push(crate::document::DocLine::Text(String::new()));
+        lines.push(crate::document::DocLine::text(String::new()));
     }
     let mut doc = doc;
     if let Ok((fresh_doc, _)) = document_io::derive_document(&lines, path) {
@@ -250,7 +250,10 @@ pub(super) fn apply_reloaded_lines(open: &mut OpenDocument, new_lines: Vec<DocLi
     if old_lines == open.lines {
         // The canonical form is unchanged (a comment respaced, a trailing
         // newline added). Nothing to record, but the hash still has to move on
-        // or the file reports itself changed on every event from now on.
+        // or the file reports itself changed on every event from now on. The
+        // lines that were there stay: equal is not the same, and a report
+        // locates its findings by line id (`editor::issue_marks`).
+        open.lines = old_lines;
         open.disk_hash = Some(hash);
         return;
     }
@@ -411,12 +414,23 @@ impl UniformApp {
             // snapshot's plain parse did. That is the invariant the parser's
             // round-trip tests exist for, and the one every editor flush
             // already depends on.
+            //
+            // The same lines, too: a report on the snapshot locates its
+            // findings by line id, and no rebuild is coming to replace it.
             Some(source) => open_document_from_text(
                 &source.text,
                 source.hash,
                 path.clone(),
                 base_gen.unwrap_or((0, 0)),
-            ),
+            )
+            .map(|mut open| {
+                if let Some(base) = self.font_base_docs.iter().find(|base| base.path == path)
+                    && DocLine::adopt_line_ids(&mut open.lines, &base.line_ids)
+                {
+                    open.document.line_ids = std::sync::Arc::clone(&base.line_ids);
+                }
+                open
+            }),
             None => load_open_document(path.clone(), base_gen),
         };
         match loaded {
@@ -775,6 +789,54 @@ mod reload_tests {
                 &std::fs::read(&path).unwrap()
             ))
         );
+    }
+
+    /// A reload that finds the canonical text unchanged keeps the lines that
+    /// were there, not merely equal ones: a build's report names its lines by
+    /// id, and fresh ids would hide every finding in the file until the next
+    /// build — which an unchanged file never asks for.
+    #[test]
+    fn an_identical_rewrite_keeps_the_lines_it_already_had() {
+        let dir = TempDir::new("reload-ids");
+        let path = dir.write("a.unf", BEFORE);
+        let mut open = load_open_document(path.clone(), None).unwrap();
+        let ids: Vec<_> = open.lines.iter().map(DocLine::line_id).collect();
+
+        std::fs::write(&path, "glyph   a   2   2\n@@@@\n@@@@\n").unwrap();
+        reload_open_document(&mut open).unwrap();
+
+        let after: Vec<_> = open.lines.iter().map(DocLine::line_id).collect();
+        assert_eq!(after, ids);
+    }
+
+    /// Opening a file the snapshot holds re-parses the same bytes, and must
+    /// come out as the same lines: the open is deliberately no rebuild, so the
+    /// report on the snapshot is the report there is, and the Issues tab click
+    /// that opened the file must not make its findings vanish.
+    #[test]
+    fn a_file_opened_from_the_snapshot_keeps_its_findings() {
+        let dir = TempDir::new("open-ids");
+        let path = dir.write("a.unf", "// one\n// two\n// three\n");
+        let ctx = egui::Context::default();
+        let mut app =
+            super::super::UniformApp::with_settings(&ctx, Default::default(), Some(dir.0.clone()));
+        let base = app.font_base_docs.iter().find(|d| d.path == path).unwrap();
+        app.issues = vec![crate::issues::Issue {
+            severity: crate::issues::Severity::Error,
+            glyph: None,
+            message: "two".to_string(),
+            file: path.clone(),
+            line: 1,
+            file_line: 2,
+        }];
+        app.issues_line_ids = crate::editor::issue_marks::snapshot_line_ids([base]);
+        app.issues_gen = 1;
+        app.refresh_issue_marks();
+        assert_eq!(app.issue_marks.position(0), Some((1, 2)));
+
+        app.open_file(path.clone());
+        app.refresh_issue_marks();
+        assert_eq!(app.issue_marks.position(0), Some((1, 2)));
     }
 
     /// Saving is what makes the buffer and the file agree again, so it clears

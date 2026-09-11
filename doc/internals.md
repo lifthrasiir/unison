@@ -224,6 +224,8 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | The empty band below the last line | `editor/document_view/paint.rs` (`paint_document_area`) |
 | Who owns a key while an IME is composing | `editor/doc_input.rs` (`ImeKeyGuard`) |
 | A reported line's tint and the message drawn after it; why the message is painted rather than annotated | `editor/issue_marks.rs`, `editor/document_view/paint.rs` (`paint_document_area`), `editor/colors.rs` (`issue_colors`) |
+| How a finding follows lines opened or deleted after its build, and why a line is located by id rather than index | `editor/issue_marks.rs` (`# Following edits`), `document/line_id.rs` |
+| Which line an edit that rebuilds lines from text continues, and where a snapshot's ids are carried over (open, reload, refresh) | `document/mod.rs` (`DocLine::continue_text_edit`, `DocLine::with_id_of`, `DocLine::adopt_line_ids`), `app/docs.rs` (`open_file`, `apply_reloaded_lines`), `app/watch.rs` (`apply_directory_snapshot`) |
 | Inline annotations, and the dotted circle before a zero-advance character | `editor/annotations.rs` (`zero_advance_placeholders`, `paint_dotted_circle`, `display_prefix`), `editor/visual_lines.rs` (`compute_wrap_segments`) |
 | Alt + wheel / Alt + Up/Down over a number | `editor/document_view/number_scroll.rs` |
 | The metrics overlay | `editor/grid_render.rs`, `editor/document_view/layout.rs` (`GlyphMetrics`) |

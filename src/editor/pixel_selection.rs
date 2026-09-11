@@ -531,7 +531,7 @@ pub(crate) fn shift_all_layers(
     let mut new_lines = old_lines.clone();
     let mut put_text = |line: usize, text: String| {
         if let Some(slot @ DocLine::Text(_)) = new_lines.get_mut(line - start) {
-            *slot = DocLine::Text(text);
+            *slot = DocLine::text(text).with_id_of(slot);
         }
     };
 
@@ -549,7 +549,7 @@ pub(crate) fn shift_all_layers(
     }
     // The glyph's own grid is the line right after the header.
     if let Some(DocLine::Grid(grid)) = new_lines.get(1) {
-        new_lines[1] = DocLine::Grid(grid.shifted(dcol, drow));
+        new_lines[1] = DocLine::grid(grid.shifted(dcol, drow)).with_id_of(&new_lines[1]);
     }
 
     if new_lines == old_lines {
@@ -1232,10 +1232,13 @@ pub(crate) fn handle_adjust_scale(
         match line {
             DocLine::Text(t) if i == 0 => {
                 let (body_text, suffix) = split_with_comment(t);
-                new_lines.push(DocLine::Text(format!(
-                    "{}{suffix}",
-                    rewrite_scale_in_header(&body_text, new_scale)
-                )));
+                new_lines.push(
+                    DocLine::text(format!(
+                        "{}{suffix}",
+                        rewrite_scale_in_header(&body_text, new_scale)
+                    ))
+                    .with_id_of(line),
+                );
             }
             DocLine::Grid(grid) => {
                 // The exact rescale can land on geometry no shape code
@@ -1244,23 +1247,29 @@ pub(crate) fn handle_adjust_scale(
                 // onto the catalog before they reach the file.
                 let mut rescaled = grid.rescale(old_scale, new_scale);
                 rescaled.snap_details_to_catalog();
-                new_lines.push(DocLine::Grid(rescaled));
+                new_lines.push(DocLine::grid(rescaled).with_id_of(line));
             }
             DocLine::Text(t) => {
                 let (body_text, suffix) = split_with_comment(t);
                 if let Ok(tokens) = crate::document_io::tokenize_tokens(&body_text) {
                     if tokens.first().is_some_and(|k| k == "ref") {
-                        new_lines.push(DocLine::Text(format!(
-                            "{}{suffix}",
-                            rewrite_ref_line(&tokens, old_scale, new_scale)
-                        )));
+                        new_lines.push(
+                            DocLine::text(format!(
+                                "{}{suffix}",
+                                rewrite_ref_line(&tokens, old_scale, new_scale)
+                            ))
+                            .with_id_of(line),
+                        );
                         continue;
                     }
                     if tokens.first().is_some_and(|k| k == "anchor") {
-                        new_lines.push(DocLine::Text(format!(
-                            "{}{suffix}",
-                            rewrite_anchor_line(&tokens, old_scale, new_scale)
-                        )));
+                        new_lines.push(
+                            DocLine::text(format!(
+                                "{}{suffix}",
+                                rewrite_anchor_line(&tokens, old_scale, new_scale)
+                            ))
+                            .with_id_of(line),
+                        );
                         continue;
                     }
                 }

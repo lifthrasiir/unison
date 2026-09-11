@@ -92,7 +92,7 @@ impl Fixture {
         let mut out = Vec::new();
         for line in &self.lines {
             match line {
-                DocLine::Text(t) => out.push(t.clone()),
+                DocLine::Text(t) => out.push(String::clone(t)),
                 DocLine::Grid(g) => {
                     for row in 0..g.height {
                         out.push(encode_grid_row(g, row));

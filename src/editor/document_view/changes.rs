@@ -212,7 +212,7 @@ fn flush_pixel_change(
     if let Some(DocLine::Grid(grid)) = lines.get(grid_doc_line)
         && let Some(DocumentItem::Glyph { body, .. }) = doc.items.get_mut(item_idx)
     {
-        body.pixels = Some(grid.clone());
+        body.pixels = Some(PixelGrid::clone(grid));
     }
     doc.docline_file_lines = crate::document::compute_docline_file_lines(lines);
     doc.pixel_gen += 1;
@@ -772,9 +772,9 @@ fn apply_inline(
         }
         if dims.is_none() {
             let new_header = document_io::append_to_line(&header_text, &format!("{w} {h}"));
-            lines[item_start] = DocLine::Text(new_header);
+            lines[item_start] = DocLine::text(new_header).with_id_of(&lines[item_start]);
         }
-        lines.insert(grid_line_idx, DocLine::Grid(PixelGrid::new(w, h)));
+        lines.insert(grid_line_idx, DocLine::grid(PixelGrid::new(w, h)));
         ref_text_line_idx += 1;
         inserted_grid = 1;
     }
@@ -787,10 +787,17 @@ fn apply_inline(
         }
     }
 
-    lines.remove(ref_text_line_idx);
+    // What is left of the merged line, if anything, is that line rewritten.
+    let merged_line = lines.remove(ref_text_line_idx);
     let replacement_len = replacement.len();
     for (i, text) in replacement.into_iter().enumerate() {
-        lines.insert(ref_text_line_idx + i, DocLine::Text(text));
+        let line = DocLine::text(text);
+        let line = if i == 0 {
+            line.with_id_of(&merged_line)
+        } else {
+            line
+        };
+        lines.insert(ref_text_line_idx + i, line);
     }
 
     let new_len = old_len + inserted_grid - 1 + replacement_len;

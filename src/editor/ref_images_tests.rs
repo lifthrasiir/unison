@@ -63,7 +63,7 @@ fn a_strip_is_shown_once_per_code_point_and_only_over_a_glyph_line() {
         "glyph han-4e02",
     ]
     .iter()
-    .map(|s| DocLine::Text(s.to_string()))
+    .map(|s| DocLine::text(s.to_string()))
     .collect();
     assert_eq!(store.rows_for(&lines), vec![(2, 0x4e00), (5, 0x4e01)]);
 }
@@ -79,7 +79,7 @@ fn nothing_is_shown_until_the_directory_has_been_read() {
         })),
         requests: None,
     };
-    let lines = vec![DocLine::Text("glyph han-4e00".to_string())];
+    let lines = vec![DocLine::text("glyph han-4e00".to_string())];
     assert!(store.rows_for(&lines).is_empty());
 }
 

@@ -435,18 +435,24 @@ fn show_issue_filter(
     });
 }
 
+/// `issues` are `(issue, doc_line, file_line)` as `UniformApp::located_issues`
+/// hands them out: where each finding is now, not where it was reported.
 fn show_issues_tab(
     ui: &mut egui::Ui,
-    issues: &[&Issue],
+    issues: &[(&Issue, usize, usize)],
     filter: &mut IssueFilter,
     click: &mut Option<(PathBuf, usize)>,
 ) {
-    let counts = severity_counts(issues);
+    let all: Vec<&Issue> = issues.iter().map(|(issue, ..)| *issue).collect();
+    let counts = severity_counts(&all);
     show_issue_filter(ui, filter, counts);
     ui.separator();
 
     let filter = *filter;
-    let shown: Vec<&&Issue> = issues.iter().filter(|i| filter.shows(i.severity)).collect();
+    let shown: Vec<&(&Issue, usize, usize)> = issues
+        .iter()
+        .filter(|(i, ..)| filter.shows(i.severity))
+        .collect();
     if shown.is_empty() {
         ui.centered_and_justified(|ui| {
             ui.label(if issues.is_empty() {
@@ -459,7 +465,7 @@ fn show_issues_tab(
     }
 
     egui::ScrollArea::vertical().show(ui, |ui| {
-        for (issue_idx, issue) in shown.iter().enumerate() {
+        for (issue_idx, &&(issue, line, file_line)) in shown.iter().enumerate() {
             let icon = severity_icon(issue.severity);
             let icon_color = severity_color(ui, issue.severity);
             let file_name = issue
@@ -467,7 +473,7 @@ fn show_issues_tab(
                 .file_name()
                 .map(|n| n.to_string_lossy().to_string())
                 .unwrap_or_default();
-            let location = format!("{file_name}:{}", issue.file_line);
+            let location = format!("{file_name}:{file_line}");
 
             let row_id = ui.id().with(("issue_row", issue_idx));
             let resp = ui.horizontal(|ui| {
@@ -487,7 +493,7 @@ fn show_issues_tab(
                 ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
             }
             if click_resp.clicked() {
-                *click = Some((issue.file.clone(), issue.line));
+                *click = Some((issue.file.clone(), line));
             }
         }
     });
@@ -717,11 +723,11 @@ impl UniformApp {
                         }
                     }
                 }
-                let all_issues: Vec<&Issue> = self
-                    .issues
-                    .iter()
-                    .chain(self.assert_issues.iter())
-                    .collect();
+                let all_issues: Vec<&Issue> =
+                    Self::located_issues(&self.issues, &self.assert_issues, &self.issue_marks)
+                        .into_iter()
+                        .map(|(issue, ..)| issue)
+                        .collect();
                 let issues_label = issues_tab_label(severity_counts(&all_issues));
                 let issues_selected = self.bottom_panel_tab == Some(2);
                 if ui.selectable_label(issues_selected, issues_label).clicked() {
@@ -839,8 +845,8 @@ impl UniformApp {
                     }
                 }
                 Some(2) => {
-                    let mut all_issues: Vec<&Issue> = self.issues.iter().collect();
-                    all_issues.extend(self.assert_issues.iter());
+                    let all_issues =
+                        Self::located_issues(&self.issues, &self.assert_issues, &self.issue_marks);
                     show_issues_tab(
                         ui,
                         &all_issues,
@@ -864,22 +870,52 @@ impl UniformApp {
         result
     }
 
-    /// Rebuilds the editors' line highlights when what they are derived from
-    /// has moved — a new build's issues, a new `assert` run's, or the reader
-    /// toggling a severity off. All three are rare next to a frame, and the
-    /// reduction is O(issues), so this is a comparison per frame and a rebuild
-    /// almost never. See [`crate::editor::issue_marks`].
-    fn refresh_issue_marks(&mut self) {
-        let key = (self.issues_gen, self.assert_gen, self.issue_filter);
-        if self.issue_marks_key == Some(key) {
-            return;
+    /// Brings the issue positions and the editors' line highlights up to date:
+    /// regrouped when a new build's or `assert` run's report lands, and
+    /// relocated for any file whose buffer was re-derived since, or re-reduced
+    /// when the reader toggles a severity. A comparison per file on a frame
+    /// where none of that happened. Returns whether anything moved. See
+    /// [`crate::editor::issue_marks`].
+    pub(super) fn refresh_issue_marks(&mut self) -> bool {
+        let key = (self.issues_gen, self.assert_gen);
+        if self.issue_marks_key != Some(key) {
+            self.issue_marks = crate::editor::issue_marks::IssueMarks::new([
+                (&self.issues[..], &self.issues_line_ids),
+                (&self.assert_issues[..], &self.assert_line_ids),
+            ]);
+            self.issue_marks_key = Some(key);
         }
+        let (issues, asserts) = (&self.issues, &self.assert_issues);
+        let docs: crate::hash::HashMap<&std::path::Path, &Document> =
+            super::docs::collect_effective_docs(&self.open_documents, &self.font_base_docs)
+                .into_iter()
+                .map(|doc| (doc.path.as_path(), doc))
+                .collect();
         let filter = self.issue_filter;
-        self.issue_marks = crate::editor::issue_marks::IssueMarks::collect(
-            self.issues.iter().chain(self.assert_issues.iter()),
+        self.issue_marks.follow(
+            |i| issues.get(i).unwrap_or_else(|| &asserts[i - issues.len()]),
+            |path| docs.get(path).copied(),
             |severity| filter.shows(severity),
-        );
-        self.issue_marks_key = Some(key);
+        )
+    }
+
+    /// Every issue whose line is still there, with where it is now: `(issue,
+    /// doc_line, 1-based file_line)`, in report order. Borrows only the fields
+    /// it reads, so the Issues tab can hold it beside `&mut issue_filter`.
+    pub(super) fn located_issues<'a>(
+        issues: &'a [Issue],
+        assert_issues: &'a [Issue],
+        marks: &crate::editor::issue_marks::IssueMarks,
+    ) -> Vec<(&'a Issue, usize, usize)> {
+        issues
+            .iter()
+            .chain(assert_issues)
+            .enumerate()
+            .filter_map(|(idx, issue)| {
+                let (line, file_line) = marks.position(idx)?;
+                Some((issue, line, file_line))
+            })
+            .collect()
     }
 
     /// One pane's contents: the editor for its document, or the placeholder.
@@ -895,7 +931,6 @@ impl UniformApp {
         resize_request: &mut Option<crate::editor::glyph_resize::ResizeAction>,
         use_sample: &mut Option<String>,
     ) -> Option<egui::Rect> {
-        self.refresh_issue_marks();
         let pane = self.panes.get(pane_idx)?;
         let zoom_level = pane.zoom_level;
         let Some(doc_idx) = pane.doc_idx else {

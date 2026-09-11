@@ -28,19 +28,14 @@ pub fn reconcile(lines: &mut Vec<DocLine>, undo: &mut UndoStack, caret: Caret) -
                 }
                 Some(DocLine::Grid(g)) => {
                     // Resize
-                    let old_grid = g.clone();
-                    let mut resized = old_grid.clone();
+                    let mut resized = PixelGrid::clone(g);
                     resized.resize(w, h);
+                    let old = lines[i + 1].clone();
+                    let resized = DocLine::grid(resized).with_id_of(&old);
                     undo.break_coalesce();
-                    undo.push_derived_lines(
-                        i + 1,
-                        vec![DocLine::Grid(old_grid)],
-                        vec![DocLine::Grid(resized.clone())],
-                        caret,
-                        caret,
-                    );
+                    undo.push_derived_lines(i + 1, vec![old], vec![resized.clone()], caret, caret);
                     undo.break_coalesce();
-                    lines[i + 1] = DocLine::Grid(resized);
+                    lines[i + 1] = resized;
                     return Some(caret);
                 }
                 _ => {
@@ -51,12 +46,12 @@ pub fn reconcile(lines: &mut Vec<DocLine>, undo: &mut UndoStack, caret: Caret) -
                     undo.push_derived_lines(
                         i + 1,
                         vec![],
-                        vec![DocLine::Grid(empty.clone())],
+                        vec![DocLine::grid(empty.clone())],
                         caret,
                         caret_after,
                     );
                     undo.break_coalesce();
-                    lines.insert(i + 1, DocLine::Grid(empty));
+                    lines.insert(i + 1, DocLine::grid(empty));
                     return Some(caret_after);
                 }
             }
@@ -81,7 +76,7 @@ pub fn reconcile(lines: &mut Vec<DocLine>, undo: &mut UndoStack, caret: Caret) -
                     Vec::new()
                 } else {
                     (0..g.height)
-                        .map(|r| DocLine::Text(encode_grid_row(g, r)))
+                        .map(|r| DocLine::text(encode_grid_row(g, r)))
                         .collect()
                 };
                 let caret_after = caret_after_splice(caret, i, 1, rows.len());
@@ -138,10 +133,10 @@ mod tests {
     use crate::pixel::PixelShape;
 
     fn text(s: &str) -> DocLine {
-        DocLine::Text(s.to_string())
+        DocLine::text(s.to_string())
     }
     fn grid(w: u16, h: u16) -> DocLine {
-        DocLine::Grid(PixelGrid::new(w, h))
+        DocLine::grid(PixelGrid::new(w, h))
     }
     fn c(line: usize, col: usize) -> Caret {
         Caret::new(line, col)
@@ -184,7 +179,7 @@ mod tests {
         g.set(0, 0, PixelShape::new(0, true));
         g.set(1, 1, PixelShape::new(0, true));
 
-        let mut lines = vec![text("glyph foo 3 3"), DocLine::Grid(g)];
+        let mut lines = vec![text("glyph foo 3 3"), DocLine::grid(g)];
         let mut undo = UndoStack::new();
         assert!(reconcile(&mut lines, &mut undo, c(0, 0)).is_some());
 
@@ -247,7 +242,7 @@ mod tests {
         let mut g = PixelGrid::new(2, 1);
         g.set(0, 0, PixelShape::new(0, true));
 
-        let mut lines = vec![text("// not a header"), DocLine::Grid(g)];
+        let mut lines = vec![text("// not a header"), DocLine::grid(g)];
         let mut undo = UndoStack::new();
         assert!(reconcile(&mut lines, &mut undo, c(0, 0)).is_some());
 
@@ -261,7 +256,7 @@ mod tests {
         g.set(0, 0, PixelShape::new(0, true));
         g.set(1, 1, PixelShape::new(0, true));
 
-        let mut lines = vec![DocLine::Grid(g)]; // orphan at line 0
+        let mut lines = vec![DocLine::grid(g)]; // orphan at line 0
         let mut undo = UndoStack::new();
         assert!(reconcile(&mut lines, &mut undo, c(0, 0)).is_some());
 
@@ -276,7 +271,7 @@ mod tests {
         g.set(0, 0, PixelShape::new(0, true));
         let mut lines = vec![
             text("// not a header"),
-            DocLine::Grid(g),
+            DocLine::grid(g),
             text("// caret stays here"),
         ];
         let mut undo = UndoStack::new();
@@ -350,7 +345,7 @@ mod tests {
     fn reconcile_undo_demote() {
         let mut g = PixelGrid::new(2, 1);
         g.set(0, 0, PixelShape::new(0, true));
-        let original = DocLine::Grid(g);
+        let original = DocLine::grid(g);
 
         let mut lines = vec![text("// comment"), original.clone()];
         let mut undo = UndoStack::new();

@@ -393,11 +393,11 @@ mod tests {
         doc.editor_state.undo.push_lines(
             at,
             Vec::new(),
-            vec![DocLine::Text(text.to_string())],
+            vec![DocLine::text(text.to_string())],
             caret,
             caret,
         );
-        doc.lines.push(DocLine::Text(text.to_string()));
+        doc.lines.push(DocLine::text(text.to_string()));
         doc.document.dirty = !doc.editor_state.undo.is_at_saved();
     }
 

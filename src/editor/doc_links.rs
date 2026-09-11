@@ -1251,7 +1251,7 @@ mod rename_detection_tests {
     fn face_and_slice_declarations_are_found_in_a_document() {
         let lines: Vec<DocLine> = ["slice narrow", "", "face term : narrow"]
             .iter()
-            .map(|s| DocLine::Text(s.to_string()))
+            .map(|s| DocLine::text(s.to_string()))
             .collect();
         assert_eq!(
             find_link_target_in_doc(
@@ -1290,7 +1290,7 @@ mod rename_detection_tests {
     fn a_pattern_glyph_definition_is_found_in_a_document() {
         let lines: Vec<DocLine> = ["glyph latin-a 8 16", "glyph han-($#4e00..9fff) 16 16"]
             .iter()
-            .map(|s| DocLine::Text(s.to_string()))
+            .map(|s| DocLine::text(s.to_string()))
             .collect();
         let parts = NamePartsMap::default();
         assert_eq!(
@@ -1316,7 +1316,7 @@ mod rename_detection_tests {
             "ref ($0) 1 0",
         ]
         .iter()
-        .map(|s| DocLine::Text(s.to_string()))
+        .map(|s| DocLine::text(s.to_string()))
         .collect();
         let parts = NamePartsMap::default();
         assert_eq!(
@@ -1341,7 +1341,7 @@ mod rename_detection_tests {
     fn a_multi_alias_is_found_as_the_definition_of_what_it_names() {
         let lines: Vec<DocLine> = ["glyph han.0:15x16 16 16", "glyph han-k:* = han.0:*"]
             .iter()
-            .map(|s| DocLine::Text(s.to_string()))
+            .map(|s| DocLine::text(s.to_string()))
             .collect();
         let parts = NamePartsMap::default();
         assert_eq!(
@@ -1363,7 +1363,7 @@ mod rename_detection_tests {
     fn a_patterned_multi_alias_is_found_as_the_definition_of_what_it_names() {
         let lines: Vec<DocLine> = ["glyph han.0:15x16 16 16", "glyph han-(g|j):* = han.0:*"]
             .iter()
-            .map(|s| DocLine::Text(s.to_string()))
+            .map(|s| DocLine::text(s.to_string()))
             .collect();
         let parts = NamePartsMap::default();
         assert_eq!(

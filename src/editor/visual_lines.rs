@@ -839,9 +839,9 @@ mod tests {
         let ctx = test_ctx();
         let font_id = egui::FontId::monospace(16.0);
         let lines = vec![
-            DocLine::Text("ref alpha".into()),
-            DocLine::Text("anchor + 0 0".into()),
-            DocLine::Text("ref beta".into()),
+            DocLine::text("ref alpha"),
+            DocLine::text("anchor + 0 0"),
+            DocLine::text("ref beta"),
         ];
         let gref = |name: &str| GlyphRef {
             raw_name: None,
@@ -888,10 +888,7 @@ mod tests {
     fn a_capture_ref_carries_no_undefined_span() {
         let ctx = test_ctx();
         let font_id = egui::FontId::monospace(16.0);
-        let lines = vec![
-            DocLine::Text("ref ($0)".into()),
-            DocLine::Text("ref beta".into()),
-        ];
+        let lines = vec![DocLine::text("ref ($0)"), DocLine::text("ref beta")];
         let gref = |name: &str| GlyphRef {
             raw_name: None,
             name: name.into(),

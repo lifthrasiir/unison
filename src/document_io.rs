@@ -1018,7 +1018,7 @@ fn tokenize_strict(content: &str) -> std::result::Result<Vec<DocLine>, ParseErro
             || split_heading(trimmed).is_some()
             || continuation_text(trimmed).is_some()
         {
-            lines.push(DocLine::Text(line.to_string()));
+            lines.push(DocLine::text(line.to_string()));
             continue;
         }
 
@@ -1027,18 +1027,18 @@ fn tokenize_strict(content: &str) -> std::result::Result<Vec<DocLine>, ParseErro
         if tokens.first().is_some_and(|t| t == "glyph") {
             let parts = &tokens[1..];
             validate_glyph_header(parts, at)?;
-            lines.push(DocLine::Text(line.to_string()));
+            lines.push(DocLine::text(line.to_string()));
 
             if let Some(dims) = glyph_header_dims(parts) {
                 if is_pixel_row_next(&mut iter, dims.width) {
                     let grid = parse_pixel_rows(&mut iter, dims.width, dims.height, at)?;
-                    lines.push(DocLine::Grid(grid));
+                    lines.push(DocLine::grid(grid));
                 } else {
-                    lines.push(DocLine::Grid(PixelGrid::new(dims.width, dims.height)));
+                    lines.push(DocLine::grid(PixelGrid::new(dims.width, dims.height)));
                 }
             }
         } else {
-            lines.push(DocLine::Text(line.to_string()));
+            lines.push(DocLine::text(line.to_string()));
         }
     }
 
@@ -1477,7 +1477,7 @@ pub fn walk_source_lines<'a>(content: &'a str, mut f: impl FnMut(usize, SourceLi
 pub fn parse_doclines(content: &str) -> Vec<DocLine> {
     let mut lines = Vec::new();
     walk_source_lines(content, |_, unit| match unit {
-        SourceLine::Text(text) => lines.push(DocLine::Text(text.to_string())),
+        SourceLine::Text(text) => lines.push(DocLine::text(text.to_string())),
         SourceLine::Grid {
             width,
             height,
@@ -1495,7 +1495,7 @@ pub fn parse_doclines(content: &str) -> Vec<DocLine> {
                     }
                 }
             }
-            lines.push(DocLine::Grid(grid));
+            lines.push(DocLine::grid(grid));
         }
     });
     lines
@@ -1883,7 +1883,7 @@ pub fn derive_document(
                                 && g.width == w
                                 && g.height == h
                             {
-                                body.pixels = Some(g.clone());
+                                body.pixels = Some(PixelGrid::clone(g));
                                 i += 1;
                             } else {
                                 body.pixels = Some(PixelGrid::new(w, h));
@@ -2030,6 +2030,10 @@ pub fn derive_document(
 
     doc.item_line_starts = item_line_starts.clone();
     doc.docline_file_lines = crate::document::compute_docline_file_lines(lines);
+    #[cfg(feature = "editor")]
+    {
+        doc.line_ids = lines.iter().map(DocLine::line_id).collect();
+    }
     Ok((doc, item_line_starts))
 }
 

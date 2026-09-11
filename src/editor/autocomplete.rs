@@ -359,11 +359,11 @@ fn continue_from_selection(lines: &mut [DocLine], state: &mut super::EditorState
     state.undo.push_lines(
         line_idx,
         vec![DocLine::Text(old_line)],
-        vec![DocLine::Text(new_line.clone())],
+        vec![DocLine::text(new_line.clone())],
         state.cursor,
         new_cursor,
     );
-    lines[line_idx] = DocLine::Text(new_line);
+    lines[line_idx] = DocLine::text(new_line).with_id_of(&lines[line_idx]);
     state.cursor = new_cursor;
     state.selection_anchor = None;
 
@@ -413,11 +413,11 @@ pub(crate) fn apply_completion(lines: &mut [DocLine], state: &mut super::EditorS
     state.undo.push_lines(
         line_idx,
         vec![DocLine::Text(old_line)],
-        vec![DocLine::Text(new_line.clone())],
+        vec![DocLine::text(new_line.clone())],
         state.cursor,
         new_cursor,
     );
-    lines[line_idx] = DocLine::Text(new_line);
+    lines[line_idx] = DocLine::text(new_line).with_id_of(&lines[line_idx]);
     state.cursor = new_cursor;
     state.selection_anchor = None;
 }
@@ -1225,23 +1225,23 @@ mod tests {
         };
 
         // Caret moved back before the prefix being completed.
-        let mut lines = vec![DocLine::Text("ref lat".into())];
+        let mut lines = vec![DocLine::text("ref lat")];
         let mut state = crate::editor::EditorState::new();
         state.cursor = Caret::new(0, 2);
         state.autocomplete = Some(popup(0, 4));
         apply_completion(&mut lines, &mut state);
-        assert_eq!(lines[0], DocLine::Text("ref lat".into()));
+        assert_eq!(lines[0], DocLine::text("ref lat"));
         assert!(state.autocomplete.is_none());
         assert_eq!(state.cursor, Caret::new(0, 2));
 
         // Caret moved to a different line.
-        let mut lines = vec![DocLine::Text("ref lat".into()), DocLine::Text("x".into())];
+        let mut lines = vec![DocLine::text("ref lat"), DocLine::text("x")];
         let mut state = crate::editor::EditorState::new();
         state.cursor = Caret::new(1, 0);
         state.autocomplete = Some(popup(0, 4));
         apply_completion(&mut lines, &mut state);
-        assert_eq!(lines[0], DocLine::Text("ref lat".into()));
-        assert_eq!(lines[1], DocLine::Text("x".into()));
+        assert_eq!(lines[0], DocLine::text("ref lat"));
+        assert_eq!(lines[1], DocLine::text("x"));
         assert!(state.autocomplete.is_none());
     }
 

@@ -134,7 +134,7 @@ struct ShapedDoc {
 impl ShapedPreviewState {
     pub fn new() -> Self {
         Self {
-            lines: vec![DocLine::Text(String::new())],
+            lines: vec![DocLine::text(String::new())],
             cursor: Caret::zero(),
             selection_anchor: None,
             undo: UndoStack::new(),
@@ -176,10 +176,10 @@ impl ShapedPreviewState {
     fn text_as_lines(text: &str) -> Vec<DocLine> {
         let mut lines: Vec<DocLine> = text
             .split('\n')
-            .map(|l| DocLine::Text(l.replace('\r', "")))
+            .map(|l| DocLine::text(l.replace('\r', "")))
             .collect();
         if lines.is_empty() {
-            lines.push(DocLine::Text(String::new()));
+            lines.push(DocLine::text(String::new()));
         }
         lines
     }

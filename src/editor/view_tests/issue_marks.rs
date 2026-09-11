@@ -87,3 +87,194 @@ fn the_message_is_not_part_of_the_line() {
     h.key(Key::End);
     assert_eq!(h.state.cursor, Caret::new(0, end));
 }
+
+// ---------------------------------------------------------------------------
+// Following edits made after the report
+// ---------------------------------------------------------------------------
+
+const THREE: &str = "// one\n// two\n// three\n";
+
+/// A line opened above a reported one carries its highlight down with it:
+/// the report named the line, not the row it happened to be on.
+#[test]
+fn a_line_opened_above_carries_the_mark_down() {
+    let mut h = EditorHarness::new(THREE);
+    h.report_issues([(2, Severity::Warning, "three")]);
+    h.frame();
+
+    h.click_text(0, 6);
+    h.key(Key::Enter);
+    h.frame();
+
+    assert_eq!(h.text(3), "// three");
+    assert_eq!(
+        h.issue_lines(),
+        vec![(3, Severity::Warning, "three".to_string())]
+    );
+}
+
+/// A reported line joined into the one above is gone, and its finding with
+/// it; the line below moves up and keeps its own. Undo puts both back.
+#[test]
+fn a_line_joined_away_takes_its_mark_and_undo_restores_it() {
+    let mut h = EditorHarness::new(THREE);
+    h.report_issues([(1, Severity::Error, "two"), (2, Severity::Warning, "three")]);
+    h.frame();
+
+    h.click_text(1, 0);
+    h.key(Key::Backspace);
+    h.frame();
+
+    assert_eq!(h.text(0), "// one// two");
+    assert_eq!(
+        h.issue_lines(),
+        vec![(1, Severity::Warning, "three".to_string())]
+    );
+
+    h.key_mod(Key::Z, Modifiers::COMMAND);
+    h.frame();
+    assert_eq!(h.text(1), "// two");
+    assert_eq!(
+        h.issue_lines(),
+        vec![
+            (1, Severity::Error, "two".to_string()),
+            (2, Severity::Warning, "three".to_string())
+        ]
+    );
+}
+
+/// Enter inside a reported line splits it, and the first half is the line
+/// continued: the mark stays where the reader is still looking.
+#[test]
+fn a_split_line_keeps_its_mark_on_the_first_half() {
+    let mut h = EditorHarness::new(THREE);
+    h.report_issues([(1, Severity::Error, "two"), (2, Severity::Warning, "three")]);
+    h.frame();
+
+    h.click_text(1, 5);
+    h.key(Key::Enter);
+    h.frame();
+
+    assert_eq!((h.text(1), h.text(2)), ("// tw", "o"));
+    assert_eq!(
+        h.issue_lines(),
+        vec![
+            (1, Severity::Error, "two".to_string()),
+            (3, Severity::Warning, "three".to_string())
+        ]
+    );
+}
+
+/// Pulling the next line up into a reported one keeps the reported line: it
+/// is the one that grew.
+#[test]
+fn a_line_joined_into_a_reported_one_keeps_that_mark() {
+    let mut h = EditorHarness::new(THREE);
+    h.report_issues([(1, Severity::Error, "two"), (2, Severity::Warning, "three")]);
+    h.frame();
+
+    h.click_text(2, 0);
+    h.key(Key::Backspace);
+    h.frame();
+
+    assert_eq!(h.text(1), "// two// three");
+    assert_eq!(
+        h.issue_lines(),
+        vec![(1, Severity::Error, "two".to_string())]
+    );
+}
+
+/// Enter at the very start of a reported line opens a blank line *above* it:
+/// the text moved down, so the mark does too, and the new blank line is not
+/// the reported one.
+#[test]
+fn enter_at_the_start_of_a_reported_line_pushes_it_down() {
+    let mut h = EditorHarness::new(THREE);
+    h.report_issues([(1, Severity::Error, "two")]);
+    h.frame();
+
+    h.click_text(1, 0);
+    h.key(Key::Enter);
+    h.frame();
+
+    assert_eq!((h.text(1), h.text(2)), ("", "// two"));
+    assert_eq!(
+        h.issue_lines(),
+        vec![(2, Severity::Error, "two".to_string())]
+    );
+}
+
+/// Backspace at the start of a reported line under a blank one deletes the
+/// blank line, not the reported one.
+#[test]
+fn a_blank_line_deleted_above_keeps_the_mark_below() {
+    let mut h = EditorHarness::new("// one\n\n// three\n");
+    h.report_issues([(2, Severity::Warning, "three")]);
+    h.frame();
+
+    h.click_text(2, 0);
+    h.key(Key::Backspace);
+    h.frame();
+
+    assert_eq!(h.text(1), "// three");
+    assert_eq!(
+        h.issue_lines(),
+        vec![(1, Severity::Warning, "three".to_string())]
+    );
+}
+
+/// A selection from the start of one line to the start of a reported one
+/// deletes everything before the reported text; the text that is left is
+/// still the reported line.
+#[test]
+fn a_selection_deleted_up_to_a_reported_line_keeps_it() {
+    let mut h = EditorHarness::new(THREE);
+    h.report_issues([(0, Severity::Error, "one"), (2, Severity::Warning, "three")]);
+    h.frame();
+
+    h.click_text(0, 0);
+    h.click_at_mod(h.text_pos(2, 0), Modifiers::SHIFT);
+    h.key(Key::Backspace);
+    h.frame();
+
+    assert_eq!(h.text(0), "// three");
+    assert_eq!(
+        h.issue_lines(),
+        vec![(0, Severity::Warning, "three".to_string())]
+    );
+}
+
+/// Lines pasted at the start of a reported line land above its text, and the
+/// mark stays with the text.
+#[test]
+fn lines_pasted_before_a_reported_line_keep_it_on_its_text() {
+    let mut h = EditorHarness::new(THREE);
+    h.report_issues([(1, Severity::Error, "two")]);
+    h.frame();
+
+    h.click_text(1, 0);
+    h.paste("// a\n// b\n");
+    h.frame();
+
+    assert_eq!(h.text(3), "// two");
+    assert_eq!(
+        h.issue_lines(),
+        vec![(3, Severity::Error, "two".to_string())]
+    );
+}
+
+/// Commenting a reported line out rewrites it, but it is the same line: the
+/// mark stays until the next build says otherwise.
+#[test]
+fn commenting_a_reported_line_keeps_its_mark() {
+    let mut h = EditorHarness::new("meta a 1\nmeta b 2\nmeta c 3\n");
+    h.report_issues([(1, Severity::Error, "b")]);
+    h.frame();
+
+    h.click_text(1, 0);
+    h.key_mod(Key::Slash, Modifiers::COMMAND);
+    h.frame();
+
+    assert!(h.text(1).starts_with("//"), "{:?}", h.text(1));
+    assert_eq!(h.issue_lines(), vec![(1, Severity::Error, "b".to_string())]);
+}

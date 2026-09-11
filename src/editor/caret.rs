@@ -342,10 +342,10 @@ mod tests {
     use crate::document::PixelGrid;
 
     fn text(s: &str) -> DocLine {
-        DocLine::Text(s.to_string())
+        DocLine::text(s.to_string())
     }
     fn grid(w: u16, h: u16) -> DocLine {
-        DocLine::Grid(PixelGrid::new(w, h))
+        DocLine::grid(PixelGrid::new(w, h))
     }
 
     #[test]

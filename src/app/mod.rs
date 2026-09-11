@@ -76,6 +76,8 @@ struct DerivedDataMessage {
     char_props: crate::ucd::CharProps,
     meta: crate::meta::FontMetrics,
     issues: Vec<Issue>,
+    /// The line ids of the documents the issues were computed from.
+    issue_line_ids: crate::editor::issue_marks::LineIdSnapshot,
     /// Which glyphs those issues are about, the specimen's cell backgrounds.
     glyph_flags: crate::glyph_flags::GlyphFlags,
     /// Every face the source declares, in declaration order, for the face
@@ -253,24 +255,32 @@ pub struct UniformApp {
     specimen: SpecimenState,
     issues: Vec<Issue>,
     issues_gen: u64,
+    /// The line ids of the documents `issues` were computed from; what lets
+    /// them follow the edits made since. Replaced with `issues`.
+    issues_line_ids: crate::editor::issue_marks::LineIdSnapshot,
     /// Which glyphs `issues` are about, propagated through the `ref` graph —
     /// what tints a specimen cell. Kept beside `issues` and replaced with it.
     glyph_flags: crate::glyph_flags::GlyphFlags,
     /// Which severities the Issues tab lists; see [`panels::IssueFilter`].
     issue_filter: panels::IssueFilter,
     /// The same findings seen from the editor: which line of which file each
-    /// one is on, so a pane can tint it. Derived from `issues`,
-    /// `assert_issues` and `issue_filter` together and rebuilt by
-    /// [`UniformApp::refresh_issue_marks`] whenever `issue_marks_key` moves —
-    /// which is why the three inputs each carry a generation.
+    /// one is on *now*, so a pane can tint it and the Issues tab can name it.
+    /// Regrouped by [`UniformApp::refresh_issue_marks`] whenever
+    /// `issue_marks_key` moves — which is why both reports carry a generation
+    /// — and brought up to the open buffers and `issue_filter` every frame.
     issue_marks: crate::editor::issue_marks::IssueMarks,
-    issue_marks_key: Option<(u64, u64, panels::IssueFilter)>,
+    issue_marks_key: Option<(u64, u64)>,
     file_parse_errors: Vec<Issue>,
     assert_issues: Vec<Issue>,
     /// Bumped whenever `assert_issues` is replaced. `assert` results arrive on
     /// their own thread and out of step with a build, so they have no build
     /// generation to be keyed on.
     assert_gen: u64,
+    /// The line ids of the documents `assert_issues` were computed from.
+    assert_line_ids: crate::editor::issue_marks::LineIdSnapshot,
+    /// Those of the run in flight, installed with its result. Only one runs at
+    /// a time (`assert_running`), so one slot is enough.
+    assert_pending_line_ids: crate::editor::issue_marks::LineIdSnapshot,
     assert_rx: mpsc::Receiver<AssertResultMessage>,
     assert_tx: mpsc::Sender<AssertResultMessage>,
     assert_running: bool,
@@ -535,6 +545,7 @@ impl UniformApp {
             specimen,
             issues: Vec::new(),
             issues_gen: u64::MAX,
+            issues_line_ids: Default::default(),
             issue_marks: Default::default(),
             issue_marks_key: None,
             glyph_flags: crate::glyph_flags::GlyphFlags::default(),
@@ -542,6 +553,8 @@ impl UniformApp {
             file_parse_errors,
             assert_issues: Vec::new(),
             assert_gen: 0,
+            assert_line_ids: Default::default(),
+            assert_pending_line_ids: Default::default(),
             assert_rx,
             assert_tx,
             assert_running: false,
@@ -982,9 +995,18 @@ impl eframe::App for UniformApp {
 
         self.show_status_bar(ctx);
 
+        // Before both readers: the Issues tab and the panes locate a finding
+        // through the same positions.
+        self.refresh_issue_marks();
         let bottom = self.show_bottom_panel(ctx);
 
         let editor_panel = self.show_editor_panel(ctx);
+        // An edit this frame moved lines under findings the panels above have
+        // already drawn. Nothing else may be about to repaint — the rebuild's
+        // debounce is up to a second — so ask for the frame that shows it.
+        if self.refresh_issue_marks() {
+            ctx.request_repaint();
+        }
         let divider_closed_pane = editor_panel.divider_closed_pane;
         // Now that this frame's editors have run, "the pane the focus is in"
         // is up to date — everything below acts on that pane.

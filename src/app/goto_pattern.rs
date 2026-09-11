@@ -590,7 +590,7 @@ map wide|narrow : ⁂ = triple-star($-half)
             &refs,
             crate::document::collect_name_parts(&refs),
         );
-        let lines: Vec<DocLine> = src.lines().map(|s| DocLine::Text(s.to_string())).collect();
+        let lines: Vec<DocLine> = src.lines().map(|s| DocLine::text(s.to_string())).collect();
         let map_line = 4;
         let readings = readings_at_line(&lines, map_line, &scoped);
         assert_eq!(readings.len(), 2, "one reading per slice of the qualifier");
@@ -634,7 +634,7 @@ map wide|narrow : ⓪|① = ($0..1)-circled($-half)
             &refs,
             crate::document::collect_name_parts(&refs),
         );
-        let lines: Vec<DocLine> = src.lines().map(|s| DocLine::Text(s.to_string())).collect();
+        let lines: Vec<DocLine> = src.lines().map(|s| DocLine::text(s.to_string())).collect();
         let readings = readings_at_line(&lines, 4, &scoped);
         let names: Vec<String> = readings
             .iter()
@@ -659,7 +659,7 @@ map wide|narrow : ⓪|① = ($0..1)-circled($-half)
             "ref han-yyyy-($-1):15x16 0 0",
         ]
         .iter()
-        .map(|s| DocLine::Text((*s).to_string()))
+        .map(|s| DocLine::text((*s).to_string()))
         .collect();
         assert_eq!(
             block_captures_at_line(&lines, 2, &NamePartsMap::default()),
@@ -681,7 +681,7 @@ map wide|narrow : ⓪|① = ($0..1)-circled($-half)
             "glyph han-yyyy-(j|k):15x16 = han-zzzz-($-1):15x16",
         ]
         .iter()
-        .map(|s| DocLine::Text((*s).to_string()))
+        .map(|s| DocLine::text((*s).to_string()))
         .collect();
         assert_eq!(
             block_captures_at_line(&lines, 1, &NamePartsMap::default()),

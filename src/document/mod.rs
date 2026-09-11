@@ -7,6 +7,7 @@
 //! this module re-exports for the legacy import paths that predate the split.
 
 mod glyph;
+mod line_id;
 mod name_parts;
 mod names;
 mod pixel_grid;
@@ -14,6 +15,7 @@ mod remap;
 mod serialize;
 
 pub use glyph::*;
+pub use line_id::*;
 pub use name_parts::*;
 pub use names::*;
 pub use pixel_grid::*;
@@ -426,6 +428,12 @@ pub struct Document {
     pub pixel_gen: u64,
     /// Incremented only when `items` actually change (not on every keystroke).
     pub content_gen: u64,
+    /// The [`LineId`] of each DocLine this was derived from, so a report about
+    /// this snapshot can be located in a buffer edited since; see
+    /// [`crate::editor::issue_marks`]. An `Arc` because every rebuild clones
+    /// every document.
+    #[cfg(feature = "editor")]
+    pub line_ids: std::sync::Arc<[LineId]>,
 }
 
 impl Document {
@@ -439,6 +447,8 @@ impl Document {
             edit_gen: 0,
             pixel_gen: 0,
             content_gen: 0,
+            #[cfg(feature = "editor")]
+            line_ids: std::sync::Arc::from([]),
         }
     }
 
@@ -490,14 +500,89 @@ pub use crate::pattern::{
 
 // ---------------------------------------------------------------------------
 
+/// One line of the buffer the editor edits: a text line, or the pixel rows of
+/// a grid as one unit. Each carries a [`LineId`] inside it; see [`line_id`].
 #[derive(Clone, Debug, PartialEq)]
 pub enum DocLine {
-    Text(String),
-    Grid(PixelGrid),
+    Text(Tracked<String>),
+    Grid(Tracked<PixelGrid>),
+}
+
+impl DocLine {
+    pub fn text(text: impl Into<String>) -> Self {
+        DocLine::Text(Tracked::new(text.into()))
+    }
+
+    pub fn grid(grid: PixelGrid) -> Self {
+        DocLine::Grid(Tracked::new(grid))
+    }
 }
 
 #[cfg(feature = "editor")]
 impl DocLine {
+    pub fn line_id(&self) -> LineId {
+        match self {
+            DocLine::Text(t) => t.line_id(),
+            DocLine::Grid(g) => g.line_id(),
+        }
+    }
+
+    fn set_line_id(&mut self, id: LineId) {
+        match self {
+            DocLine::Text(t) => t.set_line_id(id),
+            DocLine::Grid(g) => g.set_line_id(id),
+        }
+    }
+
+    /// This line under `other`'s id: for an edit that rebuilds a line from
+    /// its text but means it as the same line, rewritten.
+    pub fn with_id_of(mut self, other: &DocLine) -> Self {
+        self.set_line_id(other.line_id());
+        self
+    }
+
+    /// Hands the ids of a replaced range of lines on to the lines replacing
+    /// it, for a text edit across line boundaries — Enter, a join, a delete or
+    /// paste over several lines. Such an edit keeps some of the first old line
+    /// in front of what it inserts (`front_kept`) and some of the last old
+    /// line behind it (`back_kept`).
+    ///
+    /// The old line that keeps text of its own is the one continued: the first
+    /// if anything of it stays in front, else the last if anything of it stays
+    /// behind. That is what makes Enter at the start of a line push *it* down
+    /// under a fresh blank one, and Backspace over a blank line above delete
+    /// the blank one. A single line rewritten whole is still that line.
+    pub fn continue_text_edit(
+        old: &[DocLine],
+        new: &mut [DocLine],
+        front_kept: bool,
+        back_kept: bool,
+    ) {
+        let (Some(first), Some(last)) = (old.first(), old.last()) else {
+            return;
+        };
+        if front_kept || (!back_kept && old.len() == 1) {
+            if let Some(line) = new.first_mut() {
+                line.set_line_id(first.line_id());
+            }
+        } else if back_kept && let Some(line) = new.last_mut() {
+            line.set_line_id(last.line_id());
+        }
+    }
+
+    /// Gives `lines` the ids of a snapshot parsed from the same text, so a
+    /// report on that snapshot still finds them. Changes nothing and returns
+    /// `false` when the two do not have the same number of lines.
+    pub fn adopt_line_ids(lines: &mut [DocLine], ids: &[LineId]) -> bool {
+        if lines.len() != ids.len() {
+            return false;
+        }
+        for (line, id) in lines.iter_mut().zip(ids) {
+            line.set_line_id(*id);
+        }
+        true
+    }
+
     pub fn as_text(&self) -> Option<&str> {
         match self {
             DocLine::Text(s) => Some(s),

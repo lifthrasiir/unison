@@ -35,7 +35,7 @@ fn derive_glyph_header_split_from_alias() {
 #[test]
 fn derive_glyph_with_dims_no_grid_docline() {
     // Simulates editing state: header with dims but Grid DocLine removed
-    let lines = vec![DocLine::Text("glyph foo 8 16".to_string())];
+    let lines = vec![DocLine::text("glyph foo 8 16".to_string())];
     let (doc, _) = derive_document(&lines, "test.unf".into()).unwrap();
     assert_eq!(doc.items.len(), 1);
     if let DocumentItem::Glyph { body, .. } = &doc.items[0] {

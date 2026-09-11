@@ -585,7 +585,8 @@ pub(crate) fn paste_text(
     let first_clean = chunks[0].replace('\r', "");
     if chunks.len() == 1 {
         let col = prefix.chars().count() + first_clean.chars().count();
-        new.push(DocLine::Text(format!("{prefix}{first_clean}{suffix}")));
+        new.push(DocLine::text(format!("{prefix}{first_clean}{suffix}")));
+        DocLine::continue_text_edit(&old, &mut new, !prefix.is_empty(), !suffix.is_empty());
         let caret_after = Caret::new(lo.line, col);
         undo.push_lines(lo.line, old, new.clone(), *cursor, caret_after);
         lines.splice(lo.line..=hi.line, new);
@@ -618,6 +619,7 @@ pub(crate) fn paste_text(
     {
         new.pop();
     }
+    DocLine::continue_text_edit(&old, &mut new, !prefix.is_empty(), !suffix.is_empty());
 
     let caret_after = match new.last() {
         Some(DocLine::Grid(_)) => Caret::new(lo.line + new.len() - 1, 0),

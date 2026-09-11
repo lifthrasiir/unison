@@ -68,11 +68,11 @@ pub fn insert_newline(lines: &mut Vec<DocLine>, undo: &mut UndoStack, caret: Car
         undo.push_lines(
             at,
             vec![],
-            vec![DocLine::Text(String::new())],
+            vec![DocLine::text(String::new())],
             caret,
             new_caret,
         );
-        lines.insert(at, DocLine::Text(String::new()));
+        lines.insert(at, DocLine::text(String::new()));
         return new_caret;
     }
 
@@ -81,7 +81,9 @@ pub fn insert_newline(lines: &mut Vec<DocLine>, undo: &mut UndoStack, caret: Car
     let after_str = t[byte..].to_string();
 
     let old = vec![lines[caret.line].clone()];
-    let new = vec![DocLine::Text(before_str), DocLine::Text(after_str)];
+    let (front_kept, back_kept) = (!before_str.is_empty(), !after_str.is_empty());
+    let mut new = vec![DocLine::text(before_str), DocLine::text(after_str)];
+    DocLine::continue_text_edit(&old, &mut new, front_kept, back_kept);
     let new_caret = Caret::new(caret.line + 1, 0);
 
     undo.push_lines(caret.line, old, new.clone(), caret, new_caret);
@@ -132,7 +134,8 @@ pub fn backspace(lines: &mut Vec<DocLine>, undo: &mut UndoStack, caret: Caret) -
             let cur = lines[caret.line].as_text().unwrap().to_string();
             let merged = format!("{prev}{cur}");
             let old = vec![lines[caret.line - 1].clone(), lines[caret.line].clone()];
-            let new = vec![DocLine::Text(merged)];
+            let mut new = vec![DocLine::text(merged)];
+            DocLine::continue_text_edit(&old, &mut new, join_col > 0, !cur.is_empty());
             let new_caret = Caret::new(caret.line - 1, join_col);
             undo.push_lines(caret.line - 1, old, new.clone(), caret, new_caret);
             lines.splice(caret.line - 1..=caret.line, new);
@@ -174,7 +177,8 @@ pub fn delete(lines: &mut Vec<DocLine>, undo: &mut UndoStack, caret: Caret) -> (
             let cur = lines[caret.line].as_text().unwrap().to_string();
             let merged = format!("{cur}{next}");
             let old = vec![lines[caret.line].clone(), lines[caret.line + 1].clone()];
-            let new = vec![DocLine::Text(merged)];
+            let mut new = vec![DocLine::text(merged)];
+            DocLine::continue_text_edit(&old, &mut new, !cur.is_empty(), !next.is_empty());
             undo.push_lines(caret.line, old, new.clone(), caret, caret);
             lines.splice(caret.line..=caret.line + 1, new);
             (caret, true)
@@ -235,7 +239,8 @@ pub fn delete_selection(
 
     let old: Vec<DocLine> = lines[lo.line..=hi.line].to_vec();
     let merged = format!("{prefix}{suffix}");
-    let new = vec![DocLine::Text(merged)];
+    let mut new = vec![DocLine::text(merged)];
+    DocLine::continue_text_edit(&old, &mut new, !prefix.is_empty(), !suffix.is_empty());
     let new_caret = Caret::new(lo.line, lo.col);
 
     undo.push_lines(lo.line, old, new.clone(), cursor, new_caret);
@@ -249,10 +254,10 @@ mod tests {
     use crate::document::PixelGrid;
 
     fn text(s: &str) -> DocLine {
-        DocLine::Text(s.to_string())
+        DocLine::text(s.to_string())
     }
     fn grid(w: u16, h: u16) -> DocLine {
-        DocLine::Grid(PixelGrid::new(w, h))
+        DocLine::grid(PixelGrid::new(w, h))
     }
     fn c(line: usize, col: usize) -> Caret {
         Caret::new(line, col)

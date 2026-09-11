@@ -178,7 +178,7 @@ pub(crate) fn toggle(
                 // would write rows of blank pixel text nothing ever wrote.
                 if !g.is_all_empty() {
                     for row in 0..g.height {
-                        staged.push(DocLine::Text(format!(
+                        staged.push(DocLine::text(format!(
                             "{PREFIX}{}",
                             encode_grid_row(g, row)
                         )));
@@ -190,7 +190,7 @@ pub(crate) fn toggle(
                     match comment_body(t) {
                         Some(body) => {
                             col_delta.push(body.chars().count() as i64 - t.chars().count() as i64);
-                            staged.push(DocLine::Text(body.to_string()));
+                            staged.push(DocLine::text(body.to_string()).with_id_of(line));
                         }
                         None => {
                             col_delta.push(0);
@@ -206,7 +206,7 @@ pub(crate) fn toggle(
                         format!("{PREFIX}{t}")
                     };
                     col_delta.push(commented.chars().count() as i64 - t.chars().count() as i64);
-                    staged.push(DocLine::Text(commented));
+                    staged.push(DocLine::text(commented).with_id_of(line));
                 }
             }
         }
@@ -311,7 +311,7 @@ fn promote(lines: &[DocLine]) -> (Vec<DocLine>, Vec<usize>) {
             }
         }
         let grid_at = out.len();
-        out.push(DocLine::Grid(grid));
+        out.push(DocLine::grid(grid));
         for _ in 0..rows.len() {
             map.push(grid_at);
         }

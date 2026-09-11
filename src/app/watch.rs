@@ -1237,6 +1237,9 @@ impl super::UniformApp {
                 // carried, or a document that nothing changed would still
                 // hash differently.
                 doc.pixel_gen = previous.pixel_gen;
+                // The same lines, for the report that names them by id; see
+                // `editor::issue_marks`.
+                doc.line_ids = std::sync::Arc::clone(&previous.line_ids);
                 continue;
             }
             doc.edit_gen = previous.edit_gen.wrapping_add(1);
@@ -1785,6 +1788,21 @@ mod tests {
             before,
             "a refresh that found nothing must not look like an edit"
         );
+
+        // What a build's report locates its findings through: a file that did
+        // not change is the same lines, or its findings would vanish with no
+        // rebuild to bring them back.
+        let ids_of = |app: &super::super::UniformApp| -> Vec<Vec<crate::document::LineId>> {
+            app.font_base_docs
+                .iter()
+                .map(|d| d.line_ids.to_vec())
+                .collect()
+        };
+        let ids = ids_of(&app);
+        let (docs, errors, sources) =
+            crate::render::ttf_builder::load_docs_from_directory_with_sources(&dir);
+        app.apply_directory_snapshot(docs, errors, sources);
+        assert_eq!(ids_of(&app), ids, "an unchanged file keeps its line ids");
 
         std::fs::write(dir.join("b.unf"), "glyph b 2 2\n@@\n@@\n").unwrap();
         let (docs, errors, sources) =
