@@ -164,8 +164,8 @@ glyph han-25b37:15x16 15 16 // 𥬷
 // glyph han-25b3e:15x16 15 16 // 𥬾
 // ⿱ han-25ad7 han-808c // ⿱𥫗肌
 
-// glyph han-25b41:15x16 15 16 // 𥭁
-// ⿱ han-25ad7 han-7c73 // ⿱𥫗米
+glyph han-25b41:15x16 15 16 // 𥭁
+⿱ 1 han-25ad7:15x5 han-7c73:15x9 // ⿱𥫗米
 
 // glyph han-25b42:15x16 15 16 // 𥭂
 // ⿱ han-25ad7 han-5fdb // ⿱𥫗忛

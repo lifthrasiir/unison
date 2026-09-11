@@ -136,6 +136,11 @@ glyph han-25465:15x16 15 16 // 𥑥
 // glyph han-2546b-($han-regions):15x16 15 16 // 𥑫
 // ⿰ han-77f3 han-7a74-($-1) // ⿰石穴
 
+glyph han-2546c-h:15x16 15 16 // 𥑬
+⿰ han-77f3:6x16 han-518c.x:9x16 // ⿰石册
+glyph han-2546c-t:15x16 15 16 // 𥑬
+⿰ han-77f3:6x16 han-518c.0:9x16 // ⿰石册
+
 glyph han-2546d:15x16 15 16 // 𥑭
 ⿰ han-77f3:7x16 1 han-5de8.0:7x16 // ⿰石巨
 

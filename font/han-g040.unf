@@ -872,6 +872,9 @@ glyph han-305f3:15x16 15 16 // 𰗳
 // glyph han-305ff:15x16 15 16 // 𰗿
 // ⿱ han-884d han-6728 // ⿱衍木
 
+// glyph han-30602:15x16 15 16 // 𰘂
+// ⿰ han-6728 han-7c7b // ⿰木类
+
 ## 75.10
 
 glyph han-3060d-($han-regions):15x16 15 16 // 𰘍

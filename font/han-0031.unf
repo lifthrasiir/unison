@@ -1327,7 +1327,8 @@ glyph han-57e3:15x16 15 16 // 埣
 ⿰ han-571f:7x16 1 han-5352:7x16 // ⿰土卒
 
 glyph han-57e4:15x16 15 16 // 埤
-⿰ han-571f:7x16 han-5351:8x16 // ⿰土卑
+⿰ han-571f:5x16-l han-5351.0:10x16 // ⿰土卑
+glyph han-57e4.0:* = han-57e4:*
 
 glyph han-57e5-(g|h|t):15x16 15 16 // 埥
 ⿰ han-571f:5x16-l 1 han-9752-($-1):9x16 // ⿰土青

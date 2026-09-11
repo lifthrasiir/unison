@@ -146,7 +146,7 @@ glyph han-2adc9:15x16 15 16 // 𪷉
 // ⿰ han-6c35 han-91cf // ⿰氵量
 
 glyph han-2add7:15x16 15 16 // 𪷗
-⿲ han-6c35:3x16 han-6708:5x16 1 han-5351:6x16 // ⿲氵月卑
+⿲ han-6c35:3x16 han-6708:5x16 1 han-5351.0:6x16 // ⿲氵月卑
 
 // glyph han-2addc:15x16 15 16 // 𪷜
 // ⿲ han-6c35 han-7cf8 han-7cf8 // ⿲氵糸糸
@@ -824,6 +824,11 @@ glyph han-2b044:15x16 15 16 // 𫁄
 // ⿰ han-7a7a han-5321 // ⿰空匡
 
 # CJK unified ideographs extension C: 立 (117)
+
+## 117.5
+
+glyph han-2b060:15x16 15 16 // 𫁠
+⿰ han-7acb:5x16 1 han-518c.0:9x16 // ⿰立册
 
 ## 117.7
 

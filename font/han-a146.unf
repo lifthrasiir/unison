@@ -413,7 +413,7 @@ glyph han-480a:15x16 15 16 // 䠊
 ⿰ han-27fb7:5x16 1 han-975e:9x16 // ⿰𧾷非
 
 glyph han-480b:15x16 15 16 // 䠋
-⿰ han-27fb7:5x16 han-5351:10x16 // ⿰𧾷卑
+⿰ han-27fb7:5x16 han-5351.0:10x16 // ⿰𧾷卑
 
 ## 157.9
 
@@ -538,7 +538,7 @@ glyph han-485b:15x16 15 16 // 䡛
 // ⿳ han-76ee han-5927 han-8eca // ⿳目大車
 
 glyph han-485f:15x16 15 16 // 䡟
-⿰ han-8eca:7x16 han-5351:8x16 // ⿰車卑
+⿰ han-8eca:7x16 han-5351.0:8x16 // ⿰車卑
 
 ## 159.9
 
@@ -857,6 +857,9 @@ glyph han-493a:15x16 15 16 // 䤺
 // ⿰ han-91d2 han-57fa // ⿰釒基
 
 ## 167.12
+
+// glyph han-4954:15x16 15 16 // 䥔
+// ⿰ han-91d2 han-7c9f // ⿰釒粟
 
 // glyph han-4958:15x16 15 16 // 䥘
 // ⿰ han-91d2 han-3afa // ⿰釒㫺

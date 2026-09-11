@@ -62,7 +62,7 @@ glyph han-2a72e:15x16 15 16 // 𪜮
 // ⿰ han-4ebb han-53e6 // ⿰亻另
 
 glyph han-2a730:15x16 15 16 // 𪜰
-⿰ han-4ebb:5x16 1 han-79be:9x16 // ⿰亻禾
+⿰ han-4ebb:5x16 han-79be:9x16 // ⿰亻禾
 
 ## 9.6
 

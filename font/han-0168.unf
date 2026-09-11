@@ -836,7 +836,8 @@ glyph han-966e:15x16 15 16 // 陮
 ⿰ han-961d:5x16-l 1 han-96b9:9x16 // ⿰阝隹
 
 glyph han-9674:15x16 15 16 // 陴
-⿰ han-961d:5x16-l han-5351:10x16 // ⿰阝卑
+⿰ han-961d:5x16-l han-5351.0:10x16 // ⿰阝卑
+glyph han-9674.0:* = han-9674:*
 
 // glyph han-9678:15x16 15 16 // 陸
 // ⿰ han-961d han-5774 // ⿰阝坴
@@ -2221,7 +2222,8 @@ glyph han-9798:15x16 15 16 // 鞘
 // ⿰ han-9769 han-6c93 // ⿰革沓
 
 glyph han-979e:15x16 15 16 // 鞞
-⿰ han-9769:7x16 han-5351:8x16 // ⿰革卑
+⿰ han-9769:7x16 han-5351.0:8x16 // ⿰革卑
+glyph han-979e.0:* = han-979e:*
 
 glyph han-97a1:15x16 15 16 // 鞡
 ⿲ han-9769:7x16 han-624c:3x16 han-7acb:5x16 // ⿲革扌立

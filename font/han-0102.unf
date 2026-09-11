@@ -2550,7 +2550,8 @@ glyph han-7762:15x16 15 16 // 睢
 ⿰ han-76ee:6x16 han-96b9:9x16 // ⿰目隹
 
 glyph han-7765:15x16 15 16 // 睥
-⿰ han-76ee:6x16 1 han-5351:8x16 // ⿰目卑
+⿰ han-76ee:6x16 1 han-5351.0:8x16 // ⿰目卑
+glyph han-7765.0:* = han-7765:*
 
 // glyph han-7766:15x16 15 16 // 睦
 // ⿰ han-76ee han-5774 // ⿰目坴

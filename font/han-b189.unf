@@ -58,7 +58,7 @@ glyph han-29adb:15x16 15 16 // 𩫛
 ⿰ han-9ad8:7x16 1 han-5352:7x16 // ⿰高卒
 
 glyph han-29add:15x16 15 16 // 𩫝
-⿰ han-9ad8:7x16 han-5351:8x16 // ⿰高卑
+⿰ han-9ad8:7x16 han-5351.0:8x16 // ⿰高卑
 
 ## 189.10
 

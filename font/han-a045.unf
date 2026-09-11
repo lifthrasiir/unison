@@ -1024,8 +1024,8 @@ glyph han-3add:15x16 15 16 // 㫝
 glyph han-3ae5:15x16 15 16 // 㫥
 ⿰ han-65e5:6x16 han-540d:9x16 // ⿰日名
 
-// glyph han-3ae7:15x16 15 16 // 㫧
-// ⿱ han-65e5 han-7c73 // ⿱日米
+glyph han-3ae7:15x16 15 16 // 㫧
+⿱ han-65e5:15x7 han-7c73:15x9 // ⿱日米
 
 // glyph han-3ae8:15x16 15 16 // 㫨
 // ⿰ han-65e5 han-5b89 // ⿰日安

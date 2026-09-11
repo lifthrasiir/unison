@@ -202,6 +202,9 @@ glyph han-2dc2c:15x16 15 16 // 𭰬
 glyph han-2dc35:15x16 15 16 // 𭰵
 ⿲ han-6c35:3x16 han-5f73:3x16 han-751f:9x16 // ⿲氵彳生
 
+// glyph han-2dc39:15x16 15 16 // 𭰹
+// ⿰ han-6c35 han-519e // ⿰氵冞
+
 // glyph han-2dc3b-($han-regions):15x16 15 16 // 𭰻
 // ⿰ han-6c35 han-25043-($-1) // ⿰氵𥁃
 
@@ -551,12 +554,12 @@ glyph han-2ddc4:15x16 15 16 // 𭷄
 ## 91.4
 
 glyph han-2ddc9:15x16 15 16 // 𭷉
-⿰ han-7247:8x16 han-6728:7x16 // ⿰片木
+⿰ han-7247.0:8x16 han-6728:7x16 // ⿰片木
 
 ## 91.5
 
-glyph han-2ddca-($han-regions):15x16 15 16 // 𭷊
-⿰ han-7247:8x16 han-4ee4-($-1):7x16 // ⿰片令
+glyph han-2ddca:15x16 15 16 // 𭷊
+⿰ han-7247.0:8x16 han-4ee4-j:7x16 // ⿰片令
 
 # CJK unified ideographs extension F: 犬 (94)
 
@@ -674,6 +677,9 @@ glyph han-2de53:15x16 15 16 // 𭹓
 
 // glyph han-2de55:15x16 15 16 // 𭹕
 // ⿰ han-248e9 han-2d957 // ⿰𤣩𭥗
+
+// glyph han-2de58:15x16 15 16 // 𭹘
+// ⿰ han-248e9 han-519e // ⿰𤣩冞
 
 // glyph han-2de5b:15x16 15 16 // 𭹛
 // ⿰ han-248e9 han-82b3 // ⿰𤣩芳

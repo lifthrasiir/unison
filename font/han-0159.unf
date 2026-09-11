@@ -1342,7 +1342,8 @@ glyph han-90e8:15x16 15 16 // 部
 ⿰ han-5485:9x16 1 han-961d:5x16-r // ⿰咅阝
 
 glyph han-90eb:15x16 15 16 // 郫
-⿰ han-5351:10x16 han-961d:5x16-r // ⿰卑阝
+⿰ han-5351.0:10x16 han-961d:5x16-r // ⿰卑阝
+glyph han-90eb.0:* = han-90eb:*
 
 glyph han-90ec-(g|h|t):15x16 15 16 // 郬
 ⿰ han-9752-($-1):9x16 1 han-961d:5x16-r // ⿰青阝

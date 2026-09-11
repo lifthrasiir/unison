@@ -249,6 +249,9 @@ glyph han-6f5e:15x16 15 16 // 潞
 glyph han-6f64:15x16 15 16 // 潤
 ⿰ han-6c35:3x16 1 han-958f:11x16 // ⿰氵閏
 
+// glyph han-6f65:15x16 15 16 // 潥
+// ⿰ han-6c35 han-7c9f // ⿰氵粟
+
 glyph han-6f6e:15x16 15 16 // 潮
 ⿲ han-6c35:3x16 han-2099d:5x16 han-6708:7x16 // ⿲氵𠦝月
 

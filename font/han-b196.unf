@@ -374,7 +374,7 @@ glyph han-2a082:15x16 15 16 // 𪂂
 ⿰ han-2099d:5x16 1 han-9ce5:9x16 // ⿰𠦝鳥
 
 glyph han-2a083:15x16 15 16 // 𪂃
-⿰ han-9ce5:7x16 han-5351:8x16 // ⿰鳥卑
+⿰ han-9ce5:7x16 han-5351.0:8x16 // ⿰鳥卑
 
 // glyph han-2a084:15x16 15 16 // 𪂄
 // ⿰ han-4f88 han-9ce5 // ⿰侈鳥

@@ -16,8 +16,10 @@ glyph han-3b45:15x16 15 16 // 㭅
 glyph han-3b49:15x16 15 16 // 㭉
 ⿱ han-8279:15x3 1 han-6728:15x12 // ⿱艹木
 
-glyph han-3b4a:15x16 15 16 // 㭊
-⿰ han-6728:7x16 han-7247:8x16 // ⿰木片
+glyph han-3b4a-(g|j|p):15x16 15 16 // 㭊
+⿰ han-6728:7x16 han-7247.0:8x16 // ⿰木片
+glyph han-3b4a-t:15x16 15 16 // 㭊
+⿰ han-6728:7x16 han-7247.x:8x16 // ⿰木片
 
 // glyph han-3b4b:15x16 15 16 // 㭋
 // ⿰ han-6728 han-4e30 // ⿰木丰
@@ -155,6 +157,9 @@ glyph han-3bdd:15x16 15 16 // 㯝
 // glyph han-3be4:15x16 15 16 // 㯤
 // ⿰ han-4f86 han-4f86 // ⿰來來
 
+// glyph han-3be8:15x16 15 16 // 㯨
+// ⿰ han-6728 han-7c9f // ⿰木粟
+
 ## 75.14
 
 glyph han-3bf9:15x16 15 16 // 㯹
@@ -271,8 +276,10 @@ glyph han-3c56:15x16 15 16 // 㱖
 glyph han-3c8e:15x16 15 16 // 㲎
 ⿰ han-6bdb:7x16 1 han-6bdb:7x16 // ⿰毛毛
 
-glyph han-3c8f:15x16 15 16 // 㲏
-⿰ han-7247:8x16 han-6bdb:7x16 // ⿰片毛
+glyph han-3c8f-(g|j|p):15x16 15 16 // 㲏
+⿰ han-7247.0:8x16 han-6bdb:7x16 // ⿰片毛
+glyph han-3c8f-t:15x16 15 16 // 㲏
+⿰ han-7247.x:6x16 han-6bdb:9x16 // ⿰片毛
 
 // glyph han-3c90:15x16 15 16 // 㲐
 // ⿺ han-6bdb han-4eca // ⿺毛今
@@ -691,16 +698,22 @@ glyph han-3e1b:15x16 15 16 // 㸛
 
 ## 91.4
 
-glyph han-3e1d:15x16 15 16 // 㸝
-⿰ han-7247:8x16 han-6b20:7x16 // ⿰片欠
+glyph han-3e1d-(g|j|p):15x16 15 16 // 㸝
+⿰ han-7247.0:8x16 han-6b20:7x16 // ⿰片欠
+glyph han-3e1d-t:15x16 15 16 // 㸝
+⿰ han-7247.x:6x16 han-6b20:9x16 // ⿰片欠
 
-// glyph han-3e1e:15x16 15 16 // 㸞
-// ⿰ han-7247 han-7247 // ⿰片片
+glyph han-3e1e-(g|j):15x16 15 16 // 㸞
+⿰ han-7247.0:8x16 -1 han-7247.0:8x16 // ⿰片片
+glyph han-3e1e-t:15x16 15 16 // 㸞
+⿰ han-7247.x:6x16 1 han-7247.x:8x16 // ⿰片片
 
 ## 91.6
 
-glyph han-3e20:15x16 15 16 // 㸠
-⿰ han-7247:8x16 han-5146:7x16 // ⿰片兆
+glyph han-3e20-(g|j):15x16 15 16 // 㸠
+⿰ han-7247.0:8x16 han-5146:7x16 // ⿰片兆
+glyph han-3e20-t:15x16 15 16 // 㸠
+⿰ han-7247.x:6x16 han-5146:9x16 // ⿰片兆
 
 ## 91.14
 
@@ -743,6 +756,9 @@ glyph han-3e66:15x16 15 16 // 㹦
 
 glyph han-3e68:15x16 15 16 // 㹨
 ⿰ han-72ad:6x16 han-7531:9x16 // ⿰犭由
+
+glyph han-3e6a:15x16 15 16 // 㹪
+⿰ han-72ad:6x16 han-518c.0:9x16 // ⿰犭册
 
 ## 94.6
 

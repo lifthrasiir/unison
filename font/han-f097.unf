@@ -218,7 +218,7 @@ glyph han-2df4b:15x16 15 16 // 𭽋
 ⿰ han-767d:6x16 1 han-5143:8x16 // ⿰白元
 
 glyph han-2df4c:15x16 15 16 // 𭽌
-⿰ han-767d:7x16 han-7247:8x16 // ⿰白片
+⿰ han-767d:7x16 han-7247.0:8x16 // ⿰白片
 
 glyph han-2df4d:15x16 15 16 // 𭽍
 ⿰ han-767d:6x16 han-65b9:9x16 // ⿰白方
@@ -404,6 +404,9 @@ glyph han-2dfc2:15x16 15 16 // 𭿂
 // glyph han-2dfcd:15x16 15 16 // 𭿍
 // ⿰ han-76ee han-91cd // ⿰目重
 
+// glyph han-2dfce:15x16 15 16 // 𭿎
+// ⿰ han-76ee han-7c7b // ⿰目类
+
 ## 109.10
 
 // glyph han-2dfd1:15x16 15 16 // 𭿑
@@ -545,6 +548,9 @@ glyph han-2e063-($han-regions):15x16 15 16 // 𮁣
 // glyph han-2e064:15x16 15 16 // 𮁤
 // ⿱ han-672a han-793a // ⿱未示
 
+glyph han-2e067:15x16 15 16 // 𮁧
+⿰ han-793a:5x16 1 han-518c.0:9x16 // ⿰示册
+
 // glyph han-2e06b:15x16 15 16 // 𮁫
 // ⿰ han-793a han-5b81 // ⿰示宁
 
@@ -670,6 +676,9 @@ glyph han-2e0e3:15x16 15 16 // 𮃣
 
 // glyph han-2e0e4:15x16 15 16 // 𮃤
 // ⿰ han-79be han-57fa // ⿰禾基
+
+// glyph han-2e0ea:15x16 15 16 // 𮃪
+// ⿰ han-79be han-7568 // ⿰禾畨
 
 ## 115.12
 

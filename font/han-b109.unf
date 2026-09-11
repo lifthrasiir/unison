@@ -224,8 +224,8 @@ glyph han-25167:15x16 15 16 // 𥅧
 // glyph han-25175:15x16 15 16 // 𥅵
 // ⿳ han-6b62 han-516b han-76ee // ⿳止八目
 
-// glyph han-2517c:15x16 15 16 // 𥅼
-// ⿱ han-76ee han-7c73 // ⿱目米
+glyph han-2517c:15x16 15 16 // 𥅼
+⿱ han-76ee:15x7 han-7c73:15x9 // ⿱目米
 
 // glyph han-2517d:15x16 15 16 // 𥅽
 // ⿱ han-5408 han-76ee // ⿱合目

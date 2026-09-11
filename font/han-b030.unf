@@ -191,7 +191,7 @@ glyph han-20bed:15x16 15 16 // 𠯭
 ref han-53e3:15x6 0 0 // ⿱口日
 
 glyph han-20bef:15x16 15 16 // 𠯯
-⿰ han-53e3:7x16 han-7247:8x16 // ⿰口片
+⿰ han-53e3:7x16 han-7247.0:8x16 // ⿰口片
 
 glyph han-20bf0:15x16 15 16 // 𠯰
 ⿲ han-53e3:3x16-l han-4ebb:3x16 han-5341:9x16 // ⿲口亻十

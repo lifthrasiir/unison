@@ -359,6 +359,9 @@ glyph han-212a0:15x16 15 16 // 𡊠
 glyph han-212a1:15x16 15 16 // 𡊡
 ⿰ han-571f:5x16-l 1 han-7531:9x16 // ⿰土由
 
+glyph han-212a2:15x16 15 16 // 𡊢
+⿰ han-571f:3x16-l han-518c.x:12x16 // ⿰土册
+
 glyph han-212a4:15x16 15 16 // 𡊤
 ⿰ han-571f:7x16 han-7528:8x16 // ⿰土用
 

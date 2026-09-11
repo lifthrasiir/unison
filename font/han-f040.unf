@@ -198,7 +198,7 @@ glyph han-2d58d:15x16 15 16 // 𭖍
 ⿱ han-5c71:15x4 1 han-4e14:15x11 // ⿱山且
 
 glyph han-2d58e:15x16 15 16 // 𭖎
-⿰ han-5c71:7x16 han-7247:8x16 // ⿰山片
+⿰ han-5c71:7x16 han-7247.2:8x16 // ⿰山片
 
 // glyph han-2d590:15x16 15 16 // 𭖐
 // ⿳ han-5c71 han-4ea0 han-5dfe // ⿳山亠巾 <- ⿱山市
@@ -574,7 +574,7 @@ glyph han-2d6bb:15x16 15 16 // 𭚻
 ⿰ han-5f13:7x16 1 han-9801:7x16 // ⿰弓頁
 
 glyph han-2d6bd:15x16 15 16 // 𭚽
-⿰ han-5f13:7x16 han-5351:8x16 // ⿰弓卑
+⿰ han-5f13:6x16 han-5351.1:9x16 // ⿰弓卑
 
 ## 57.14
 
@@ -792,6 +792,9 @@ glyph han-2d74a:15x16 15 16 // 𭝊
 
 // glyph han-2d771:15x16 15 16 // 𭝱
 // ⿱ han-4fdd han-5fc3 // ⿱保心
+
+// glyph han-2d772:15x16 15 16 // 𭝲
+// ⿲ han-4ebb han-4e28 han-2263b // ⿲亻丨𢘻
 
 ## 61.10
 

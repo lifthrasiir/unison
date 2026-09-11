@@ -300,7 +300,7 @@ glyph han-220c7:15x16 15 16 // 𢃇
 ## 50.8
 
 glyph han-220cd:15x16 15 16 // 𢃍
-⿰ han-5dfe:7x16 han-5351:8x16 // ⿰巾卑
+⿰ han-5dfe:5x16 han-5351.0:10x16 // ⿰巾卑
 
 // glyph han-220d0:15x16 15 16 // 𢃐
 // ⿰ han-5dfe han-7a7a // ⿰巾空

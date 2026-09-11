@@ -333,7 +333,7 @@ glyph han-4ac5:15x16 15 16 // 䫅
 ## 181.8
 
 glyph han-4acc:15x16 15 16 // 䫌
-⿰ han-5351:8x16 han-9801:7x16 // ⿰卑頁
+⿰ han-5351.0:8x16 han-9801:7x16 // ⿰卑頁
 
 glyph han-4acd:15x16 15 16 // 䫍
 ⿰ han-975e:7x16 1 han-9801:7x16 // ⿰非頁
@@ -817,7 +817,7 @@ glyph han-4c51:15x16 15 16 // 䱑
 ## 195.8
 
 glyph han-4c5d:15x16 15 16 // 䱝
-⿰ han-9b5a:7x16 han-5351:8x16 // ⿰魚卑
+⿰ han-9b5a:7x16 han-5351.0:8x16 // ⿰魚卑
 
 // glyph han-4c5f:15x16 15 16 // 䱟
 // ⿰ han-9b5a han-5c45 // ⿰魚居

@@ -357,7 +357,7 @@ glyph han-293bb:15x16 15 16 // 𩎻
 // ⿰ han-97cb han-660c // ⿰韋昌
 
 glyph han-293c2:15x16 15 16 // 𩏂
-⿰ han-97cb:9x16 han-5351:6x16 // ⿰韋卑
+⿰ han-97cb:9x16 han-5351.0:6x16 // ⿰韋卑
 
 glyph han-293c3:15x16 15 16 // 𩏃
 ⿲ -3 han-97cb:7x16 han-5f73:3x16 han-76ae:8x16 // ⿲韋彳皮

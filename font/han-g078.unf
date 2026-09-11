@@ -133,6 +133,9 @@ glyph han-306cf:15x16 15 16 // 𰛏
 // glyph han-306d9:15x16 15 16 // 𰛙
 // ⿰ han-76ee han-6c34 // ⿰目水
 
+glyph han-306da:15x16 15 16 // 𰛚
+⿰ han-6c35:3x16 han-518c.0:12x16 // ⿰氵册
+
 // glyph han-306db:15x16 15 16 // 𰛛
 // ⿰ han-6c35 han-95ea // ⿰氵闪
 
@@ -241,6 +244,9 @@ glyph han-30727:15x16 15 16 // 𰜧
 
 // glyph han-3073a:15x16 15 16 // 𰜺
 // ⿰ han-6c35 han-7b20 // ⿰氵笠
+
+// glyph han-3073f:15x16 15 16 // 𰜿
+// ⿰ han-6c35 han-2596a // ⿰氵𥥪
 
 ## 85.12
 
@@ -474,7 +480,7 @@ glyph han-30816:15x16 15 16 // 𰠖
 ## 91.4
 
 glyph han-3081a:15x16 15 16 // 𰠚
-⿰ han-7247:8x16 han-65b9:7x16 // ⿰片方
+⿰ han-7247.0:8x16 han-65b9:7x16 // ⿰片方
 
 ## 91.5
 
@@ -483,8 +489,8 @@ glyph han-3081a:15x16 15 16 // 𰠚
 
 ## 91.8
 
-glyph han-3081f-($han-regions):15x16 15 16 // 𰠟
-⿰ han-7247:8x16 han-9751-($-1):7x16 // ⿰片靑
+glyph han-3081f:15x16 15 16 // 𰠟
+⿰ han-7247.x:6x16 han-9751-k:9x16 // ⿰片靑
 
 # CJK unified ideographs extension G: 犬 (94)
 

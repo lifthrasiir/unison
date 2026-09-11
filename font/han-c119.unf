@@ -7,13 +7,13 @@
 
 ## 119.3
 
-// glyph han-2b0b3:15x16 15 16 // 𫂳
-// ⿱ han-5c71 han-7c73 // ⿱山米
+glyph han-2b0b3:15x16 15 16 // 𫂳
+⿱ han-5c71:15x7 han-7c73:15x9 // ⿱山米
 
 ## 119.4
 
-// glyph han-2b0b5:15x16 15 16 // 𫂵
-// ⿱ han-7c73 han-65e5 // ⿱米日
+glyph han-2b0b5:15x16 15 16 // 𫂵
+⿱ han-7c73:15x9 han-65e5:15x7 // ⿱米日
 
 // glyph han-2b0b6:15x16 15 16 // 𫂶
 // ⿰ han-7c73 han-4e30 // ⿰米丰

@@ -139,7 +139,8 @@ glyph han-9abf:15x16 15 16 // 骿
 ⿰ han-9aa8:7x16 han-5e76:8x16 // ⿰骨并
 
 glyph han-9ac0:15x16 15 16 // 髀
-⿰ han-9aa8:7x16 han-5351:8x16 // ⿰骨卑
+⿰ han-9aa8:7x16 han-5351.0:8x16 // ⿰骨卑
+glyph han-9ac0.0:* = han-9ac0:*
 
 glyph han-9ac1:15x16 15 16 // 髁
 ⿰ han-9aa8:7x16 1 han-679c:7x16 // ⿰骨果
@@ -449,7 +450,8 @@ glyph han-9b75:15x16 15 16 // 魵
 // ⿰ han-9b5a han-5185 // ⿰魚内
 
 glyph han-9b78:15x16 15 16 // 魸
-⿰ han-9b5a:7x16 han-7247:8x16 // ⿰魚片
+⿰ han-9b5a:7x16 han-7247.0:8x16 // ⿰魚片
+glyph han-9b78.0:* = han-9b78:*
 
 glyph han-9b79:15x16 15 16 // 魹
 ⿰ han-9b5a:7x16 1 han-6bdb:7x16 // ⿰魚毛

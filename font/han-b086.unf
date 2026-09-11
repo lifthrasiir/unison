@@ -135,6 +135,9 @@ glyph han-241cc:15x16 15 16 // 𤇌
 // glyph han-241cf:15x16 15 16 // 𤇏
 // ⿳ han-4e5b han-6c34 han-706c // ⿳乛水灬 <- ⿱氶灬
 
+glyph han-241d2:15x16 15 16 // 𤇒
+⿰ han-706b:5x16-l 1 han-518c.0:9x16 // ⿰火册
+
 glyph han-241d3:15x16 15 16 // 𤇓
 ⿱ han-751f:15x12 han-706c:15x4 // ⿱生灬
 

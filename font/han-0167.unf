@@ -593,7 +593,8 @@ glyph han-930b:15x16 15 16 // 錋
 ⿲ han-91d2:5x16-l han-6708:5x16 han-6708:5x16 // ⿲釒月月
 
 glyph han-930d:15x16 15 16 // 錍
-⿰ han-91d2:7x16 han-5351:8x16 // ⿰釒卑
+⿰ han-91d2:5x16-l han-5351.0:10x16 // ⿰釒卑
+glyph han-930d.0:* = han-930d:*
 
 glyph han-930f:15x16 15 16 // 錏
 ⿰ han-91d2:5x16-l han-4e9e:10x16 // ⿰釒亞

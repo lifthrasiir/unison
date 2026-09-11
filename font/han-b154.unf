@@ -110,6 +110,9 @@ glyph han-27d5b:15x16 15 16 // 𧵛
 // glyph han-27d60:15x16 15 16 // 𧵠
 // ⿱ han-51fa han-8c9d // ⿱出貝
 
+glyph han-27d61:15x16 15 16 // 𧵡
+⿰ han-8c9d:6x16 han-518c.0:9x16 // ⿰貝册
+
 glyph han-27d62:15x16 15 16 // 𧵢
 ⿰ han-8c9d:6x16 han-5305:9x16 // ⿰貝包
 
