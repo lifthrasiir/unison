@@ -168,10 +168,8 @@ glyph han-23cee.0:15x16 15 16 // 𣳮
 ⿰ han-6c35:3x16 1 han-5415:11x16 // ⿰氵吕
 glyph han-23cee.1:15x16 15 16 // 𣳮
 ⿰ han-6c35:3x16 1 han-5415.x:11x16 // ⿰氵吕
-exists han-23cee\.0:([^:]+)
-glyph han-23cee-(g|t|j):($1) = ($0)
-exists han-23cee\.1:([^:]+)
-glyph han-23cee-v:($1) = ($0)
+glyph han-23cee-(g|t|j):* = han-23cee.0:*
+glyph han-23cee-v:* = han-23cee.1:*
 
 // glyph han-23cf1:15x16 15 16 // 𣳱
 // ⿲ han-6c35 han-4e30 han-5200 // ⿲氵丰刀

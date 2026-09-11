@@ -1179,14 +1179,12 @@ glyph han-8941.0:15x16 15 16 // 襁
 ⿲ -1 han-8864:5x16 han-5f13:4x16 han-27227:7x16 // ⿲衤弓𧈧
 glyph han-8941.1:15x16 15 16 // 襁
 ⿲ -1 han-8864:5x16 han-5f13:4x16 han-867d:7x16 // ⿲衤弓虽
-glyph han-8941.2:15x16 = han-8941.0:15x16
-glyph han-8941.3:15x16 = han-8941.1:15x16
-glyph han-8941.4:15x16 = han-8941.0:15x16
-glyph han-8941.5:15x16 = han-8941.1:15x16
-exists han-8941\.0:([^:]+)
-glyph han-8941-(h|t|j):($1) = ($0)
-exists han-8941\.1:([^:]+)
-glyph han-8941-(g|k|p):($1) = ($0)
+glyph han-8941.2:* = han-8941.0:*
+glyph han-8941.3:* = han-8941.1:*
+glyph han-8941.4:* = han-8941.0:*
+glyph han-8941.5:* = han-8941.1:*
+glyph han-8941-(h|t|j):* = han-8941.0:*
+glyph han-8941-(g|k|p):* = han-8941.1:*
 
 glyph han-8944:7x16 7 16 // 襄
 $$....@@....$$

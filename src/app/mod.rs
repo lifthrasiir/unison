@@ -802,12 +802,21 @@ impl UniformApp {
         // pane matches with, so the two agree on where a name is declared. An
         // `exists` on the line above is part of what the header says, and here
         // that is one index back in the item list — the binding is adjacency.
+        // A multi-alias carries its search on the item itself.
         let declares = |items: &[DocumentItem], idx: usize, n: &str| {
-            let exists = match idx.checked_sub(1).and_then(|p| items.get(p)) {
-                Some(DocumentItem::Exists { pattern, .. }) => Some(pattern.as_str()),
+            let prev = idx.checked_sub(1).and_then(|p| items.get(p));
+            let search = match (items.get(idx), prev) {
+                (
+                    Some(DocumentItem::GlyphAlias {
+                        search_prefix: Some(prefix),
+                        ..
+                    }),
+                    _,
+                ) => Some(crate::alias::multi_alias_search(prefix)),
+                (_, Some(DocumentItem::Exists { pattern, .. })) => Some(pattern.clone()),
                 _ => None,
             };
-            n == name || pattern_denotes(n, true, name, &self.name_parts, exists, &[])
+            n == name || pattern_denotes(n, true, name, &self.name_parts, search.as_deref(), &[])
         };
         let target_path =
             {

@@ -468,6 +468,41 @@ fn strict_parse_rejects_flags_on_an_alias() {
     }
 }
 
+/// A multi-alias needs its `*` on both sides. The target takes a plain name
+/// before it, since it is what the search looks for; the name may be a
+/// pattern, but not one that writes a slot, an `@` or a bare repeat.
+#[test]
+fn strict_parse_rejects_a_malformed_multi_alias() {
+    for input in [
+        "glyph foo* = bar\n",
+        "glyph foo = bar*\n",
+        "glyph foo* = bar-(a|b)*\n",
+        "glyph foo* = bar-($v)*\n",
+        "glyph foo** = bar*\n",
+        "glyph foo*2* = bar*\n",
+        "glyph foo-($1)* = bar*\n",
+        "glyph foo* = a..b*\n",
+        "glyph @-foo* = bar*\n",
+    ] {
+        let err = parse_document_from_str(input, "test.unf".into())
+            .expect_err(&format!("should reject: {input:?}"))
+            .to_string();
+        assert!(err.contains("multi-alias"), "unexpected error: {err}");
+    }
+}
+
+#[test]
+fn strict_parse_accepts_a_pattern_on_a_multi_alias_name() {
+    for input in [
+        "glyph foo-(a|b)* = bar*\n",
+        "glyph foo-($v)* = bar*\n",
+        "glyph foo-(a|b**2)* = bar*\n",
+    ] {
+        parse_document_from_str(input, "test.unf".into())
+            .unwrap_or_else(|e| panic!("should accept {input:?}: {e}"));
+    }
+}
+
 // -----------------------------------------------------------------------
 // Backtick-quoting tokenizer tests
 // -----------------------------------------------------------------------

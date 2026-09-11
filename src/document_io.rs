@@ -123,7 +123,8 @@
 //! ([`crate::compose`] — each token a gap if it reads as a number, else a
 //! component name, except on an enclosure where the two numbers are offsets).
 //! `glyph NAME = TARGET` is an alias ([`crate::alias`]), takes no flags and no
-//! body. NAME accepts the patterns of [`crate::pattern`], and a block expands
+//! body; `glyph NAME* = PREFIX*` is a multi-alias, read as the alias an
+//! `exists PREFIX(.*)` would scope. NAME accepts the patterns of [`crate::pattern`], and a block expands
 //! in lock-step with its `ref` and IDC patterns.
 //!
 //! A glyph needs a pixel grid, at least one `ref` or an IDC line to exist at
@@ -1094,6 +1095,8 @@ fn validate_glyph_header<S: AsRef<str>>(
                 extra.join(" "),
             )));
         }
+        crate::alias::multi_alias_prefixes(parts[0].as_ref(), rest[eq_pos + 1].as_ref())
+            .map_err(|message| at.error(message))?;
         return Ok(());
     }
 
@@ -1236,6 +1239,7 @@ pub fn serialize_document(doc: &Document, writer: &mut dyn Write) -> Result<()> 
                 raw_name,
                 raw_target,
                 comment,
+                ..
             } => {
                 writeln!(
                     writer,
@@ -1793,34 +1797,63 @@ pub fn derive_document(
                         // *without* one becomes the next base — which is what
                         // makes `glyph @-bar` / `ref @-baz` name `foo-baz`
                         // rather than `foo-bar-baz`.
-                        let written = parts[0].clone();
+                        let rest_parts = &parts[1..];
+                        let alias_target = rest_parts
+                            .iter()
+                            .position(|p| p == "=")
+                            .and_then(|eq_pos| rest_parts.get(eq_pos + 1));
+                        // `glyph NAME* = PREFIX*` is read as the alias its
+                        // `exists` form scopes, `glyph NAME($1) = ($0)`, and
+                        // every name-reading step below sees that. One the
+                        // strict parse rejects stays an ordinary alias here,
+                        // whose `*` names no glyph.
+                        let multi = alias_target.and_then(|target| {
+                            crate::alias::multi_alias_prefixes(&parts[0], target)
+                                .ok()
+                                .flatten()
+                        });
+
+                        let written = match multi {
+                            Some((name_prefix, _)) => format!("{name_prefix}($1)"),
+                            None => parts[0].clone(),
+                        };
                         let expanded =
                             crate::document::expand_at_name(&written, at_base.as_deref());
-                        let raw_name = crate::document::written_form(&written, &expanded);
+                        let raw_name = match multi {
+                            Some(_) => Some(parts[0].clone()),
+                            None => crate::document::written_form(&written, &expanded),
+                        };
                         if let Some(base) = crate::document::at_base_from_glyph_name(&written) {
                             at_base = Some(base);
                         }
                         let name = parse_glyph_name(&expanded);
 
-                        let rest_parts = &parts[1..];
-
                         // `glyph NAME = TARGET` is an alias: a name for a
                         // glyph, with no body of its own. Flags before the `=`
                         // are rejected by `validate_glyph_header`; the lenient
                         // `DocLine` path drops them the same way.
-                        if let Some(eq_pos) = rest_parts.iter().position(|p| p == "=")
-                            && let Some(target) = rest_parts.get(eq_pos + 1)
-                        {
+                        if let Some(target) = alias_target {
                             item_line_starts.push(header_idx);
-                            let expanded_target =
-                                crate::document::expand_at_name(target, at_base.as_deref());
-                            let raw_target =
-                                crate::document::written_form(target, &expanded_target);
+                            let (expanded_target, raw_target, search_prefix) = match multi {
+                                Some((_, prefix)) => (
+                                    "($0)".to_string(),
+                                    Some(target.clone()),
+                                    Some(prefix.to_string()),
+                                ),
+                                None => {
+                                    let expanded_target =
+                                        crate::document::expand_at_name(target, at_base.as_deref());
+                                    let raw_target =
+                                        crate::document::written_form(target, &expanded_target);
+                                    (expanded_target, raw_target, None)
+                                }
+                            };
                             doc.items.push(DocumentItem::GlyphAlias {
                                 name,
                                 target: expanded_target,
                                 raw_name,
                                 raw_target,
+                                search_prefix,
                                 comment,
                             });
                             continue;

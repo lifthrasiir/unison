@@ -131,6 +131,23 @@ ref ($0)
     assert_eq!(String::from_utf8(output).unwrap(), input);
 }
 
+/// A multi-alias is read as the alias its `exists` form scopes, and written back
+/// as it was written.
+#[test]
+fn multi_alias_lines_round_trip() {
+    let input = "glyph han-k:* = han.0:* // every drawing of han.0\n";
+    let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+    assert!(
+        matches!(&doc.items[0], DocumentItem::GlyphAlias { name, target, .. }
+            if name.0 == "han-k:($1)" && target == "($0)"),
+        "expected the alias `exists` would scope, got {:?}",
+        doc.items[0],
+    );
+    let mut output = Vec::new();
+    serialize_document(&doc, &mut output).unwrap();
+    assert_eq!(String::from_utf8(output).unwrap(), input);
+}
+
 /// A second token is neither a flag nor a second pattern, so the line stays an
 /// unrecognized directive for `issues` to report — and round-trips verbatim.
 #[test]

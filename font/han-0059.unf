@@ -330,7 +330,7 @@ $$......@@............@@....$$
 $$......@@............@@....$$
 $$......\0@@@@@@@@@@@@0/....$$
 $$..........................$$
-glyph han-5fc3.0:15x16 = han-5fc3:15x16
+glyph han-5fc3.0:* = han-5fc3:*
 
 glyph han-5fc4:5x16 5 16 // 忄
 $$..@@..$$
@@ -368,7 +368,7 @@ $$....@@....$$
 $$..\1@@....$$
 glyph han-5fc4:15x16 15 16 // 忄
 ref han-5fc4:7x16
-glyph han-5fc4.0:15x16 = han-5fc4:15x16
+glyph han-5fc4.0:* = han-5fc4:*
 
 ## 61.1
 
@@ -390,7 +390,7 @@ glyph han-5fc5:15x16 15 16 // 必
 ..............................
 ..............................
 ref han-5fc3:15x16
-glyph han-5fc5.0:15x16 = han-5fc5:15x16
+glyph han-5fc5.0:* = han-5fc5:*
 
 glyph han-5fc6:15x16 15 16 // 忆
 ⿰ han-5fc4:7x16 han-4e59:8x16 // ⿰忄乙
@@ -744,13 +744,11 @@ glyph han-6084:15x16 15 16 // 悄
 
 glyph han-608e.0:15x16 15 16 // 悎
 ⿰ han-5fc4:7x16 han-543f:8x16 // ⿰忄吿
-glyph han-608e.1:15x16 = han-608e.0:15x16
+glyph han-608e.1:* = han-608e.0:*
 glyph han-608e.2:15x16 15 16 // 悎
 ⿰ han-5fc4:7x16 han-544a:8x16 // ⿰忄告
-exists han-608e\.0:([^:]+)
-glyph han-608e-(h|j):($1) = ($0)
-exists han-608e\.2:([^:]+)
-glyph han-608e-(g|t|k):($1) = ($0)
+glyph han-608e-(h|j):* = han-608e.0:*
+glyph han-608e-(g|t|k):* = han-608e.2:*
 
 // glyph han-6090:15x16 15 16 // 悐
 // ⿱ han-72c4 han-5fc3 // ⿱狄心

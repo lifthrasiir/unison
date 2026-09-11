@@ -48,6 +48,10 @@
 //! block; a second answer is how those drift apart. One consequence: `exists`
 //! does not stack, so `$N` is never ambiguous about which pattern it came from.
 //!
+//! A multi-alias (`glyph NAME* = PREFIX*`, [`crate::alias`]) is the one search
+//! not written on a line of its own: it scopes its own item, and for the same
+//! reason an `exists` cannot scope it in turn.
+//!
 //! # Recursion
 //!
 //! An `exists` may match names another `exists` declared, so the bindings are a
@@ -587,15 +591,43 @@ pub fn resolve_scopes(
         /// header or an alias's own name. Those are what feed names back into
         /// the search; a `map` declares nothing.
         declares: Option<GlyphName>,
+        /// The target as written (`PREFIX*`) when this is a multi-alias, which
+        /// is its own `origin` and `target` and has no pattern as written.
+        multi: Option<String>,
     }
     let mut pending: Vec<Pending> = Vec::new();
 
     for (doc_idx, doc) in docs.iter().enumerate() {
         for (item_idx, item) in doc.items.iter().enumerate() {
-            let DocumentItem::Exists { pattern, .. } = item else {
-                continue;
-            };
             let origin = ItemRef::new(doc_idx, item_idx);
+            let pattern = match item {
+                DocumentItem::Exists { pattern, .. } => pattern,
+                DocumentItem::GlyphAlias {
+                    name,
+                    search_prefix: Some(prefix),
+                    ..
+                } => {
+                    let multi = format!("{prefix}*");
+                    match ExistsPattern::parse(&crate::alias::multi_alias_search(prefix)) {
+                        Ok(pattern) => pending.push(Pending {
+                            origin,
+                            target: origin,
+                            pattern,
+                            declares: Some(name.clone()),
+                            multi: Some(multi),
+                        }),
+                        Err(message) => {
+                            diagnostics.push(Diagnostic::error(
+                                origin,
+                                format!("multi-alias `{multi}` cannot be searched: {message}"),
+                            ));
+                            silenced.push(origin);
+                        }
+                    }
+                    continue;
+                }
+                _ => continue,
+            };
             out.directives.insert(origin);
             // A search that cannot run leaves the line below it standing for
             // nothing, rather than for a glyph named `han-($1)`: the `$N` on it
@@ -621,9 +653,14 @@ pub fn resolve_scopes(
                 // part-($1) = ($0)` is how a search gives every drawing it
                 // found a second name — so it feeds the search back the same
                 // way, and the name it declares is the one on its left.
-                Some(DocumentItem::Glyph { name, .. } | DocumentItem::GlyphAlias { name, .. }) => {
-                    Some(name.clone())
-                }
+                Some(
+                    DocumentItem::Glyph { name, .. }
+                    | DocumentItem::GlyphAlias {
+                        name,
+                        search_prefix: None,
+                        ..
+                    },
+                ) => Some(name.clone()),
                 Some(DocumentItem::Map { .. }) => None,
                 other => {
                     fail(
@@ -642,6 +679,7 @@ pub fn resolve_scopes(
                 target,
                 pattern: compiled,
                 declares,
+                multi: None,
             });
         }
     }
@@ -772,7 +810,11 @@ pub fn resolve_scopes(
         let cycle = ExistsCycle {
             patterns: pending
                 .iter()
-                .map(|p| p.pattern.source().to_string())
+                .map(|p| {
+                    p.multi
+                        .clone()
+                        .unwrap_or_else(|| p.pattern.source().to_string())
+                })
                 .collect(),
         };
         for p in &pending {
@@ -789,13 +831,19 @@ pub fn resolve_scopes(
             // yet is a source in progress, and the line it would build is
             // simply not built. But it is worth saying, because the pattern
             // that matches nothing looks exactly like the one that works.
-            diagnostics.push(Diagnostic::new(
-                crate::issues::Severity::Warning,
-                Some(p.origin),
-                format!(
+            let message = match &p.multi {
+                Some(written) => format!(
+                    "multi-alias `{written}` matches no declared glyph name, so it names nothing"
+                ),
+                None => format!(
                     "`exists {}` matches no declared glyph name, so the line below builds nothing",
                     scope.pattern,
                 ),
+            };
+            diagnostics.push(Diagnostic::new(
+                crate::issues::Severity::Warning,
+                Some(p.origin),
+                message,
             ));
         }
         out.scoped.insert(p.target, scope);
@@ -826,6 +874,10 @@ fn describe_scoped(item: Option<&DocumentItem>) -> &'static str {
         Some(DocumentItem::Heading { .. }) => "a heading",
         Some(DocumentItem::Exists { .. }) => "another `exists`",
         Some(DocumentItem::MapDecomposed { .. }) => "a `map generate`",
+        Some(DocumentItem::GlyphAlias {
+            search_prefix: Some(_),
+            ..
+        }) => "a multi-alias, which is a search of its own",
         Some(_) => "another directive",
     }
 }
@@ -853,6 +905,23 @@ pub fn pattern_on_line(line: &str) -> Option<String> {
     let tokens = crate::document_io::tokenize_tokens(trimmed).ok()?;
     match tokens.as_slice() {
         [kw, pattern] if kw == "exists" => Some(pattern.clone()),
+        _ => None,
+    }
+}
+
+/// The search a multi-alias line runs, if `line` is one. Text, for the reason
+/// [`pattern_on_line`] is.
+fn multi_alias_search_on_line(line: &str) -> Option<String> {
+    let trimmed = line.trim_start();
+    if !trimmed.starts_with("glyph") || !trimmed.contains('*') {
+        return None;
+    }
+    let tokens = crate::document_io::tokenize_tokens(trimmed).ok()?;
+    match tokens.as_slice() {
+        [kw, name, eq, target, ..] if kw == "glyph" && eq == "=" => {
+            let (_, prefix) = crate::alias::multi_alias_prefixes(name, target).ok()??;
+            Some(crate::alias::multi_alias_search(prefix))
+        }
         _ => None,
     }
 }
@@ -982,7 +1051,6 @@ fn collect_capture_sources(hir: &Hir, out: &mut Vec<(u32, String)>) {
 /// makes this answerable from the text alone, which is what the editor needs —
 /// it underlines an undefined `ref` while typing, long before anything has
 /// resolved the searches.
-#[cfg_attr(all(not(feature = "editor"), not(test)), expect(dead_code))]
 pub fn mentions_capture(name: &str) -> bool {
     name.as_bytes()
         .windows(2)
@@ -1057,7 +1125,8 @@ pub enum Carry {
     /// The previous line was the directive; the line being entered is the one
     /// it governs, and it is not yet known whether that is a block or a line.
     Armed(String),
-    /// A `map`: governed for this line and no further.
+    /// A `map` or an alias: governed for this line and no further. A
+    /// multi-alias line enters this directly, being its own search.
     Once(String),
     /// Inside the `glyph` block it governs.
     Body(String),
@@ -1081,6 +1150,10 @@ impl Carry {
     pub fn enter(&mut self, line: &str) {
         if let Some(pattern) = pattern_on_line(line) {
             *self = Carry::Armed(pattern);
+            return;
+        }
+        if let Some(pattern) = multi_alias_search_on_line(line) {
+            *self = Carry::Once(pattern);
             return;
         }
         let trimmed = line.trim_start();

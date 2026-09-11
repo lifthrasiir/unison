@@ -91,6 +91,36 @@ fn a_name_an_exists_block_declares_is_found_at_the_block() {
     assert!(hits[0].is_decl);
 }
 
+/// The same for a multi-alias: `han-k:15x16` is written nowhere, and the line
+/// that names it is also an appearance of the `han.0:15x16` it stands for.
+#[test]
+fn a_name_a_multi_alias_declares_is_found_at_the_alias() {
+    let src = "glyph han.0:15x16 15 16\n\
+               glyph han-k:* = han.0:*\n";
+    let files = vec![(PathBuf::from("han.unf"), SearchText::Source(src))];
+    let search = |name: &str| {
+        collect_hits(
+            &files,
+            name,
+            SearchKind::Name(LinkTargetKind::Glyph),
+            &no_scoped_parts(),
+        )
+        .0
+        .iter()
+        .map(|h| (h.text.clone(), h.is_decl))
+        .collect::<Vec<_>>()
+    };
+    let alias = "glyph han-k:* = han.0:*".to_string();
+    assert_eq!(search("han-k:15x16"), [(alias.clone(), true)]);
+    assert_eq!(
+        search("han.0:15x16"),
+        [
+            ("glyph han.0:15x16 15 16".to_string(), true),
+            (alias, false)
+        ],
+    );
+}
+
 /// A `map`'s target is written with the `name-parts` its own `SLICE :`
 /// qualifier binds, so the line is an appearance of one glyph per slice —
 /// `triple-star` for `wide` and `triple-star-half` for `narrow`. Read with the

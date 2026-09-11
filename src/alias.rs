@@ -45,6 +45,25 @@
 //! added after the alternatives index is built, so an alias never becomes an
 //! `x:alt` alternative of anything.
 //!
+//! # Multi-alias
+//!
+//! `glyph NAME* = PREFIX*` is `exists PREFIX(.*)` over `glyph NAME($1) = ($0)`,
+//! written on one line with the prefix escaped — which is the point of it, since
+//! the prefixes a source aliases by are full of `.`. The parser reads the line
+//! as exactly that alias and keeps the prefix beside it (`search_prefix`), and
+//! [`crate::exists`] registers the search as scoping the alias's own item. From
+//! there the build cannot tell the two spellings apart. The editor's navigation
+//! reads lines rather than items, so it spells the halves out the same way for
+//! itself (`exists::Carry`, `doc_links::pattern_denotes`).
+//!
+//! `*` is never part of a glyph name, which is what frees it for this. The
+//! name may be a pattern, which the scoped alias expands once per match like
+//! any other. The target may not: the line finds names under the prefix and
+//! swaps it for the name, and a prefix that expanded to several would leave
+//! nothing to pair each one with a name. [`multi_alias_prefixes`] rejects
+//! that, and whatever on either side would read differently once `($1)` is
+//! appended to it.
+//!
 //! # What is an error
 //!
 //! Declaring one alias name twice, and an alias cycle, are reported here. That
@@ -320,6 +339,61 @@ impl AliasMap {
     }
 }
 
+/// The two prefixes of a multi-alias `glyph NAME* = PREFIX*`, `None` for an
+/// ordinary alias, or why the line is neither.
+///
+/// The one place the form is recognized: the parser, its strict validation
+/// and the editor's line reading all ask here.
+pub fn multi_alias_prefixes<'a>(
+    name: &'a str,
+    target: &'a str,
+) -> Result<Option<(&'a str, &'a str)>, String> {
+    let (name_prefix, target_prefix) = match (name.strip_suffix('*'), target.strip_suffix('*')) {
+        (None, None) => return Ok(None),
+        (Some(n), Some(t)) => (n, t),
+        _ => {
+            return Err(format!(
+                "a multi-alias `glyph NAME* = PREFIX*` takes a `*` at the end of both sides, \
+                 not `{name} = {target}`"
+            ));
+        }
+    };
+    // The target is what the search looks for, so it takes nothing a name
+    // pattern, a `name-parts` or an `@` base reads: none of it could be
+    // escaped into a search as written, and a target that expanded to several
+    // prefixes would leave nothing to say which name each one is under.
+    if target_prefix.contains(['(', ')', '|', '$', '*', '@']) || target_prefix.contains("..") {
+        return Err(format!(
+            "a multi-alias takes a plain name before the `*` of its target, not `{target}`"
+        ));
+    }
+    // The name is only ever expanded, once per suffix, so a pattern there is
+    // one alias per expansion. What it may not write is what `NAME($1)` would
+    // change the meaning of: a slot of its own, an `@` base, or a `*` outside
+    // parentheses, which is a bare repeat until something follows it.
+    let mut depth = 0i32;
+    let bare_star = name_prefix.chars().any(|c| {
+        match c {
+            '(' => depth += 1,
+            ')' => depth -= 1,
+            _ => {}
+        }
+        c == '*' && depth <= 0
+    });
+    if bare_star || name_prefix.contains('@') || crate::exists::mentions_capture(name_prefix) {
+        return Err(format!(
+            "a multi-alias takes a name or a name pattern before the `*` of its name, \
+             with no `@`, `$N` or bare `*`, not `{name}`"
+        ));
+    }
+    Ok(Some((name_prefix, target_prefix)))
+}
+
+/// The `exists` pattern a multi-alias with this target prefix searches with.
+pub fn multi_alias_search(prefix: &str) -> String {
+    format!("{}(.*)", regex::escape(prefix))
+}
+
 /// Expand one alias declaration's name and target in lock-step, the way a
 /// glyph block expands against its `ref` lines: the name pattern decides how
 /// many aliases are declared and the target pattern is consumed cyclically.
@@ -457,6 +531,43 @@ mod tests {
         assert_eq!(canonical(&aliases, "a-k"), "a-j");
         assert_eq!(canonical(&aliases, "b"), "a-j");
         assert!(aliases.diagnostics.is_empty());
+    }
+
+    /// `glyph NAME* = PREFIX*` names every declared name under the prefix, and
+    /// reads the prefix literally: the `.` in `han.0` is not a wildcard.
+    #[test]
+    fn a_multi_alias_names_every_name_under_its_prefix() {
+        let aliases = collect_with_merges(
+            "glyph han.0:15x16 1 1\n@\nglyph han.0:7x16 1 1\n@\nglyph hanx0:9x16 1 1\n@\n\
+             glyph han-k:* = han.0:*\n",
+        );
+        assert_eq!(canonical(&aliases, "han-k:15x16"), "han.0:15x16");
+        assert_eq!(canonical(&aliases, "han-k:7x16"), "han.0:7x16");
+        assert_eq!(canonical(&aliases, "han-k:9x16"), "han-k:9x16");
+        assert!(aliases.diagnostics.is_empty());
+    }
+
+    /// A name pattern before the `*` on the left is `glyph NAME-SUFFIX =
+    /// PREFIX-SUFFIX` once per suffix found, so each suffix gets one alias per
+    /// name the pattern expands to — `name-parts` included.
+    #[test]
+    fn a_multi_alias_name_may_be_a_pattern() {
+        let aliases = collect_with_merges(
+            "name-parts $r = h t\n\
+             glyph han.0:15x16 1 1\n@\nglyph han.0:7x16 1 1\n@\n\
+             glyph han-(g|j):* = han.0:*\n\
+             glyph han-($r):* = han.0:*\n",
+        );
+        for region in ["g", "j", "h", "t"] {
+            for size in ["15x16", "7x16"] {
+                assert_eq!(
+                    canonical(&aliases, &format!("han-{region}:{size}")),
+                    format!("han.0:{size}"),
+                );
+            }
+        }
+        assert_eq!(aliases.decls().len(), 8);
+        assert!(aliases.diagnostics.is_empty(), "{:?}", aliases.diagnostics);
     }
 
     #[test]

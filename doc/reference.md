@@ -1262,6 +1262,36 @@ canonical one, because that name is also a claim about which slot the drawing fi
 `glyph 阝:4x16-c = 阝:4x16-r` is how a source says the right-hand drawing serves a `⿲`'s middle
 slot, and the `-c` is what makes it reachable for that slot at all.
 
+#### Multi-alias
+
+```
+glyph NAME* = PREFIX*
+```
+
+Aliases a whole family of names at once: for every declared glyph name that starts with `PREFIX`,
+`NAME` followed by the rest of that name (which may be empty) is an alias of it. The line means
+exactly
+
+```
+exists PREFIX(.*)
+glyph NAME($1) = ($0)
+```
+
+except that `PREFIX` is taken literally, so `glyph han-5b50-k:* = han-5b50.0:*` needs no `\.`.
+Everything else is that [`exists`](#exists-searching-the-declared-names) search's: the names it may
+find, the fixpoint, and the warning when it finds nothing. The line is a search of its own, so an
+`exists` above it is an error.
+
+`NAME` may be a [name pattern](#name-pattern), `name-parts` included: every suffix found is then
+`glyph NAMESUFFIX = PREFIXSUFFIX` with `NAMESUFFIX` expanded, so each suffix gets as many aliases as
+`NAME` has names. `glyph han-4e30-(g|j|k):* = han-4e30.0:*` is three aliases per drawing of
+`han-4e30.0`. `PREFIX` takes a plain name only. The line *finds* the names starting with `PREFIX`
+and swaps that part for `NAME`; a `PREFIX` that expanded to several names would leave nothing to
+say which of `NAME`'s names each one goes under.
+
+An `@`, a `$N` slot, or a `*` outside parentheses (a bare repeat) before either `*` is an error,
+and so is a `*` on one side only.
+
 #### Implicit merges and `keep`
 
 A `glyph` block whose name is a pattern declares several names for one drawing, and the expansions

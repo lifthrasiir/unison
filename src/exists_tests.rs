@@ -483,6 +483,71 @@ ref ($0)
     );
 }
 
+/// `glyph NAME* = PREFIX*` is `exists PREFIX(.*)` over `glyph NAME($1) = ($0)`,
+/// with the prefix escaped: the `.` in `part.0` is not a wildcard. What it
+/// names is searchable in turn, like what any other alias names.
+#[test]
+fn a_multi_alias_is_a_search_of_its_own() {
+    let d = doc("\
+glyph part.0:a 1 1
+@@
+glyph part.0:b 1 1
+@@
+glyph partx0:c 1 1
+@@
+glyph part-k:* = part.0:*
+exists part-k:(.*)
+glyph made-($1) 1 1
+ref ($0)
+");
+    let r = Resolution::compute(&[&d]);
+    assert_eq!(errors(&r), Vec::<String>::new());
+    assert_eq!(
+        declared(&r),
+        ["made-a", "made-b", "part.0:a", "part.0:b", "partx0:c"]
+    );
+}
+
+/// Every name a patterned multi-alias expands to is searchable, per suffix.
+#[test]
+fn a_patterned_multi_alias_feeds_every_expansion_back() {
+    let d = doc("\
+glyph part.0:a 1 1
+@@
+glyph part-(g|j):* = part.0:*
+exists part-(.):(.*)
+glyph made-($1)-($2) 1 1
+ref ($0)
+");
+    let r = Resolution::compute(&[&d]);
+    assert_eq!(errors(&r), Vec::<String>::new());
+    // Both are built, and fold into one glyph as in
+    // `finding_one_glyph_under_two_names_is_fine`.
+    assert_eq!(declared(&r), ["made-g-a", "part.0:a"]);
+    assert_eq!(
+        r.expansion.aliases.resolved_target("made-j-a"),
+        Some("made-g-a")
+    );
+}
+
+/// A multi-alias already binds `$1` by its own search, so an `exists` above one
+/// would be a second binding of the same slot.
+#[test]
+fn an_exists_above_a_multi_alias_is_an_error() {
+    let d = doc("\
+glyph part.0:a 1 1
+@@
+exists part\\.0:(.*)
+glyph part-k:* = part.0:*
+");
+    let r = Resolution::compute(&[&d]);
+    let errors = errors(&r);
+    assert!(
+        errors.iter().any(|e| e.contains("multi-alias")),
+        "{errors:?}"
+    );
+}
+
 /// Two matched names that are one glyph are not a search's problem: the block
 /// below still names its output by the captures, so it builds two glyphs that
 /// happen to share a shape. That is what an alias is for.

@@ -133,6 +133,12 @@ pub enum DocumentItem {
         raw_name: Option<String>,
         /// Likewise for `target`.
         raw_target: Option<String>,
+        /// `Some(PREFIX)` for a multi-alias, `glyph NAME* = PREFIX*`: the
+        /// declared names starting with `PREFIX` are what it searches, and
+        /// `name`/`target` are the `NAME($1)`/`($0)` that `exists` would scope.
+        /// The written halves are in `raw_name`/`raw_target`. See
+        /// [`crate::alias`].
+        search_prefix: Option<String>,
         comment: Option<String>,
     },
     /// `face FACE [: SLICE...]` — one typeface in the output. Declaration order

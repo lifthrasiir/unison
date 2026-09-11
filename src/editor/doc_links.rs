@@ -46,6 +46,20 @@ pub fn pattern_denotes(
     if !token.contains(['(', '|', '$', '*']) {
         return false;
     }
+    // The halves of a multi-alias, whose search is the one in force on its
+    // own line: spelled as its `exists` form spells them, `NAME($1) = ($0)`.
+    let multi;
+    let token = match exists.and_then(|_| token.strip_suffix('*')) {
+        Some(prefix) => {
+            multi = if is_def {
+                format!("{prefix}($1)")
+            } else {
+                "($0)".to_string()
+            };
+            multi.as_str()
+        }
+        None => token,
+    };
     if let Some(pattern) = exists.filter(|_| crate::exists::mentions_capture(token)) {
         // Name parts and back-references first: a scoped header writes both
         // kinds of `$` — `glyph han-5b50-($han-regions):($1)` — and only the
@@ -1317,6 +1331,47 @@ mod rename_detection_tests {
         // And a name outside what the capture can hold is not declared here.
         assert_eq!(
             find_link_target_in_doc(&lines, "han-zzzz", &LinkTargetKind::Glyph, &parts),
+            None,
+        );
+    }
+
+    /// A multi-alias names nothing on its own line either: `han-k:*` is every
+    /// `han-k:…` whose `han.0:…` was declared, as its `exists` form says.
+    #[test]
+    fn a_multi_alias_is_found_as_the_definition_of_what_it_names() {
+        let lines: Vec<DocLine> = ["glyph han.0:15x16 16 16", "glyph han-k:* = han.0:*"]
+            .iter()
+            .map(|s| DocLine::Text(s.to_string()))
+            .collect();
+        let parts = NamePartsMap::default();
+        assert_eq!(
+            find_link_target_in_doc(&lines, "han-k:15x16", &LinkTargetKind::Glyph, &parts),
+            Some(1),
+        );
+        assert_eq!(
+            find_link_target_in_doc(&lines, "han-k", &LinkTargetKind::Glyph, &parts),
+            None,
+        );
+        assert_eq!(
+            find_link_target_in_doc(&lines, "han-g:15x16", &LinkTargetKind::Glyph, &parts),
+            None,
+        );
+    }
+
+    /// The same when the name is a pattern: `han-(g|j):*` defines `han-j:15x16`.
+    #[test]
+    fn a_patterned_multi_alias_is_found_as_the_definition_of_what_it_names() {
+        let lines: Vec<DocLine> = ["glyph han.0:15x16 16 16", "glyph han-(g|j):* = han.0:*"]
+            .iter()
+            .map(|s| DocLine::Text(s.to_string()))
+            .collect();
+        let parts = NamePartsMap::default();
+        assert_eq!(
+            find_link_target_in_doc(&lines, "han-j:15x16", &LinkTargetKind::Glyph, &parts),
+            Some(1),
+        );
+        assert_eq!(
+            find_link_target_in_doc(&lines, "han-k:15x16", &LinkTargetKind::Glyph, &parts),
             None,
         );
     }

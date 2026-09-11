@@ -295,10 +295,8 @@ glyph han-7d7d.0:15x16 15 16 // 絽
 ⿰ han-7cf9:5x16 1 han-5415.x:9x16 // ⿰糹吕
 glyph han-7d7d.x:15x16 15 16 // 絽
 ⿰ han-7cf9:5x16 1 han-5415:9x16 // ⿰糹吕
-exists han-7d7d\.0:([^:]+)
-glyph han-7d7d-(h|t|j|k|p):($1) = ($0)
-exists han-7d7d\.x:([^:]+)
-glyph han-7d7d-g:($1) = ($0)
+glyph han-7d7d-(h|t|j|k|p):* = han-7d7d.0:*
+glyph han-7d7d-g:* = han-7d7d.x:*
 
 glyph han-7d80:15x16 15 16 // 綀
 ⿰ han-7cf9:5x16 1 han-675f:9x16 // ⿰糹束
