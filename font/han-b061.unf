@@ -278,9 +278,9 @@ glyph han-22672.0:15x16 15 16 // 𢙲
 ⿰ han-5fc4:5x16 han-5415.x:10x16 // ⿰忄吕
 glyph han-22672.1:15x16 15 16 // 𢙲
 ⿰ han-5fc4:5x16 han-5415:10x16 // ⿰忄吕
-exists han-22672\.0:([0-9]+x[0-9]+)
+exists han-22672\.0:([^:]+)
 glyph han-22672-(t|j|v):($1) = ($0)
-exists han-22672\.1:([0-9]+x[0-9]+)
+exists han-22672\.1:([^:]+)
 glyph han-22672-g:($1) = ($0)
 
 glyph han-22673:15x16 15 16 // 𢙳

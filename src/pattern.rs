@@ -903,10 +903,13 @@ fn try_expand_inline_range(chars: &[char], start: usize) -> Option<(usize, Vec<S
 ///
 /// Checked against *expanded* names, so how one was written does not matter.
 pub fn is_valid_glyph_name(name: &str) -> bool {
-    !name.is_empty()
-        && name
-            .chars()
-            .all(|c| c.is_ascii_alphanumeric() || matches!(c, '-' | '.' | '_' | ':'))
+    !name.is_empty() && name.chars().all(is_glyph_name_char)
+}
+
+/// One letter of [`is_valid_glyph_name`]'s alphabet. ASCII by construction,
+/// which `crate::exists` relies on to build the alphabet as a regex class.
+pub fn is_glyph_name_char(c: char) -> bool {
+    c.is_ascii_alphanumeric() || matches!(c, '-' | '.' | '_' | ':')
 }
 
 /// Check a string for invalid inline numeric ranges (`$end..start` where

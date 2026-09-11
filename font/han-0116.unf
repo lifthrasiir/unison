@@ -55,9 +55,9 @@ glyph han-7a74.2:15x16 15 16 // 穴
 ref han-7a74.2:15x7
 glyph han-7a74.3:15x16 = han-7a74.0:15x16
 glyph han-7a74.4:15x16 = han-7a74.1:15x16
-exists han-7a74\.0:([0-9]+x[0-9]+)
+exists han-7a74\.0:([^:]+)
 glyph han-7a74-(g|h|t|j):($1) = ($0)
-exists han-7a74\.1:([0-9]+x[0-9]+)
+exists han-7a74\.1:([^:]+)
 glyph han-7a74-(k|p|v):($1) = ($0)
 
 ## 116.1
@@ -812,9 +812,9 @@ glyph han-7b65.0:15x16 15 16 // 筥
 ⿱ han-25ad7:15x5 han-5415.x:15x11 // ⿱𥫗吕
 glyph han-7b65.x:15x16 15 16 // 筥
 ⿱ han-25ad7:15x5 han-5415:15x11 // ⿱𥫗吕
-exists han-7b65\.0:([0-9]+x[0-9]+)
+exists han-7b65\.0:([^:]+)
 glyph han-7b65-(h|t|j|k|p|v):($1) = ($0)
-exists han-7b65\.x:([0-9]+x[0-9]+)
+exists han-7b65\.x:([^:]+)
 glyph han-7b65-g:($1) = ($0)
 
 glyph han-7b66:15x16 15 16 // 筦

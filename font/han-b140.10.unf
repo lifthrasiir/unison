@@ -7,9 +7,9 @@ glyph han-26d61.0:15x16 15 16 // 𦵡
 glyph han-26d61.1:15x16 = han-26d61.0:15x16
 glyph han-26d61.x:15x16 15 16 // 𦵡
 ⿳ han-8279:15x3 han-5b80:15x3 han-5415:15x10 // ⿳艹宀吕
-exists han-26d61\.0:([0-9]+x[0-9]+)
+exists han-26d61\.0:([^:]+)
 glyph han-26d61-(t|j):($1) = ($0)
-exists han-26d61\.x:([0-9]+x[0-9]+)
+exists han-26d61\.x:([^:]+)
 glyph han-26d61-g:($1) = ($0)
 
 // glyph han-26d67:15x16 15 16 // 𦵧

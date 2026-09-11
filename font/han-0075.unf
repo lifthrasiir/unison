@@ -1144,9 +1144,9 @@ glyph han-68a0.0:15x16 15 16 // 梠
 ⿰ han-6728:5x16 1 han-5415.x:9x16 // ⿰木吕
 glyph han-68a0.x:15x16 15 16 // 梠
 ⿰ han-6728:5x16 1 han-5415:9x16 // ⿰木吕
-exists han-68a0\.0:([0-9]+x[0-9]+)
+exists han-68a0\.0:([^:]+)
 glyph han-68a0-(h|t|j|k|p):($1) = ($0)
-exists han-68a0\.x:([0-9]+x[0-9]+)
+exists han-68a0\.x:([^:]+)
 glyph han-68a0-g:($1) = ($0)
 
 glyph han-68a1:15x16 15 16 // 梡

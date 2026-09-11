@@ -54,30 +54,72 @@ fn no_match_is_none() {
     assert_eq!(caps("han-([0-9])", "kana-4"), None);
 }
 
-/// A bare `.` matches `(`, `|` and `$`, so a match could carry name-pattern
-/// syntax into a glyph name. It is rejected in favour of an explicit class.
+/// A class is a set, and it means its members *within the glyph-name
+/// alphabet*: `[^:]` is every name character but `:`, not every Unicode scalar
+/// but `:`. Computed over Unicode instead, every negated class, `.` and `\w`
+/// reached outside the alphabet and was rejected — `foo:([^:]+)` included.
 #[test]
-fn a_bare_dot_is_rejected() {
-    let err = ExistsPattern::parse("han-(.)").unwrap_err();
-    assert!(err.contains("character class"), "{err}");
-    // The escaped form is a literal dot, which *is* a name character.
-    let p = ExistsPattern::parse(r"han-(x)\.alt").unwrap();
-    assert!(p.is_match("han-x.alt"));
+fn a_class_means_its_members_within_the_name_alphabet() {
+    assert_eq!(
+        caps("foo:([^:]+)", "foo:bar-1.x"),
+        Some(vec!["foo:bar-1.x".to_string(), "bar-1.x".to_string()])
+    );
+    assert_eq!(caps("foo:([^:]+)", "foo:a:b"), None);
+
+    let dot = ExistsPattern::parse("han-(.)").unwrap();
+    assert!(dot.is_match("han-a") && dot.is_match("han-:"));
+    assert!(!dot.is_match("han-ab"));
+
+    let word = ExistsPattern::parse(r"han-(\w+)").unwrap();
+    assert!(word.is_match("han-a_1"));
+    assert!(!word.is_match("han-a.1"));
+
+    // `(?i)k` is `[Kk\u{212A}]`; the Kelvin sign is not in the alphabet and
+    // drops out rather than rejecting the pattern.
+    assert!(ExistsPattern::parse("(?i)han-k").unwrap().is_match("HAN-K"));
+    // A range between two name characters holds the name characters between.
+    let range = ExistsPattern::parse("han-([0-z])").unwrap();
+    assert!(range.is_match("han-_") && range.is_match("han-:"));
 }
 
+/// What the alphabet constrains is the text of the definition: a character
+/// written into a pattern that no glyph name can contain is a mistake, whether
+/// it stands alone, in a class, or at the end of a range.
 #[test]
-fn classes_reaching_outside_name_characters_are_rejected() {
-    for pattern in [r"han-(\w+)", "han-([^x])", "han-([a-~])", "han-([ -/])"] {
+fn a_character_written_outside_the_name_alphabet_is_rejected() {
+    for pattern in [
+        r"han-\(x\)",
+        "han-[a(]",
+        "han-[^(]",
+        "han-([a-~])",
+        "han-([ -/])",
+        r"han-\n",
+    ] {
+        let err = ExistsPattern::parse(pattern).unwrap_err();
         assert!(
-            ExistsPattern::parse(pattern).is_err(),
-            "{pattern} should be rejected"
+            err.contains("not a glyph-name character"),
+            "{pattern}: {err}"
         );
     }
-    for pattern in ["han-([0-9a-f]+)", "han-([-_.:])", "han-([A-Za-z0-9]{2})"] {
+    for pattern in [
+        "han-([0-9a-f]+)",
+        "han-([-_.:])",
+        "han-([A-Za-z0-9]{2})",
+        r"han-(x)\.alt",
+    ] {
         assert!(
             ExistsPattern::parse(pattern).is_ok(),
             "{pattern} should be accepted"
         );
+    }
+}
+
+/// A class left with no member in the alphabet can never match anything.
+#[test]
+fn a_class_with_no_name_character_is_rejected() {
+    for pattern in [r"han-\s", "han-[^-.0-9:A-Z_a-z]", "han-[[:space:]]"] {
+        let err = ExistsPattern::parse(pattern).unwrap_err();
+        assert!(err.contains("no glyph-name character"), "{pattern}: {err}");
     }
 }
 
@@ -592,6 +634,15 @@ fn a_template_expands_the_pattern_around_its_slot() {
     );
 }
 
+/// Navigation reads a search the way the build does, so a pattern the build
+/// accepts is never one the editor gives up on.
+#[test]
+fn a_template_reads_a_class_within_the_name_alphabet() {
+    let p = "foo:([^:]+)";
+    assert_eq!(template_denotes(p, "bar-($1)", "bar-x.1"), Some(true));
+    assert_eq!(template_denotes(p, "bar-($1)", "bar-a:b"), Some(false));
+}
+
 #[test]
 fn capture_zero_denotes_the_whole_matched_name() {
     let p = "han-([0-9a-f]{4,5}):15x16";
@@ -617,7 +668,7 @@ fn slots_are_numbered_by_the_groups_the_author_counted() {
 #[test]
 fn a_pattern_that_is_not_a_pattern_denotes_nothing() {
     assert_eq!(template_denotes("han-(", "han-($1)", "han-4e00"), None);
-    assert_eq!(template_denotes("han-(.)", "han-($1)", "han-4e00"), None);
+    assert_eq!(template_denotes(r"han-(\()", "han-($1)", "han-4e00"), None);
 }
 
 #[test]

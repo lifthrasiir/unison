@@ -818,11 +818,11 @@ d@@@@@$$......................
 /0@P0W_HH~h\$$$$$$$$$$$$$$$$$$
 @P/.....\h_H@@@@@@@@@@@@@@@@@@
 glyph han-8fb6.4:15x16 = han-8fb6.4:15x16.11x14
-exists han-8fb6\.0:([0-9]+x[0-9]+(?:\.[0-9]+x[0-9]+)?)
+exists han-8fb6\.0:([^:]+)
 glyph han-8fb6-(j|k|p|v):($1) = ($0)
-exists han-8fb6\.1:([0-9]+x[0-9]+(?:\.[0-9]+x[0-9]+)?)
+exists han-8fb6\.1:([^:]+)
 glyph han-8fb6-g:($1) = ($0)
-exists han-8fb6\.4:([0-9]+x[0-9]+(?:\.[0-9]+x[0-9]+)?)
+exists han-8fb6\.4:([^:]+)
 glyph han-8fb6-(h|t):($1) = ($0)
 
 ## 162.1
@@ -1319,9 +1319,9 @@ glyph han-90d8.0:15x16 15 16 // 郘
 ⿰ han-5415.x:10x16 1 han-961d:4x16-r // ⿰吕阝
 glyph han-90d8.x:15x16 15 16 // 郘
 ⿰ han-5415:10x16 1 han-961d:4x16-r // ⿰吕阝
-exists han-90d8\.0:([0-9]+x[0-9]+)
+exists han-90d8\.0:([^:]+)
 glyph han-90d8-(h|t|j|k|p):($1) = ($0)
-exists han-90d8\.x:([0-9]+x[0-9]+)
+exists han-90d8\.x:([^:]+)
 glyph han-90d8-g:($1) = ($0)
 
 glyph han-90d9:15x16 15 16 // 郙

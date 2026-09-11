@@ -61,14 +61,27 @@
 //!
 //! # The pattern
 //!
-//! A regular expression, implicitly anchored, restricted by [`check_subset`] to
-//! literals, classes, repetition, groups and alternation, every literal and
-//! class within the glyph-name character set. That is what rejects a bare `.`
-//! — it matches `(` and `|` and would let a match carry pattern syntax into a
-//! name — and anchors and word boundaries, since the match is the whole name.
+//! A regular expression, implicitly anchored, over the glyph-name alphabet Σ
+//! ([`crate::pattern::is_glyph_name_char`]) rather than over Unicode.
+//!
+//! Σ constrains the *definition*: every character written into a pattern — a
+//! literal, a class member, the end of a range — has to be in Σ, since one that
+//! is not can only be a mistake ([`WrittenText`]). It does not constrain the
+//! *meaning* by computing over Unicode and then refusing whatever reached
+//! outside Σ. That once rejected every negated class, `.`, `\w` and even
+//! `(?i)k` (whose case folding holds the Kelvin sign), all of which mean
+//! something perfectly good over Σ. So a class is intersected with Σ instead
+//! ([`restrict`]) — `[^:]` is every name character but `:` — and one left
+//! empty is an error, because it can never match. Anchors and word boundaries
+//! are rejected, since the match is always the whole name.
+
+use std::sync::LazyLock;
 
 use regex::Regex;
-use regex_syntax::hir::{Hir, HirKind, Look};
+use regex_syntax::ast::{self, Ast, ClassSetItem};
+use regex_syntax::hir::{
+    self, Class, ClassBytes, ClassBytesRange, ClassUnicode, ClassUnicodeRange, Hir, HirKind, Look,
+};
 
 /// The most capture groups an `exists` may have: `$1`…`$9`, since `$0` is the
 /// whole name and a two-digit `$10` would not be distinguishable from `$1`
@@ -108,21 +121,8 @@ impl ExistsPattern {
         if source.is_empty() {
             return Err("exists pattern is empty".to_string());
         }
-        let hir = regex_syntax::parse(source).map_err(|e| {
-            // The parser's own message spans several lines — a banner, the
-            // pattern, a caret rule, then the finding — which is unreadable
-            // inside a one-line diagnostic. The finding is the last line, and
-            // it is the only part that is not already on screen.
-            let msg = e.to_string();
-            let last = msg
-                .lines()
-                .map(str::trim)
-                .rfind(|l| !l.is_empty())
-                .unwrap_or("syntax error");
-            let last = last.strip_prefix("error: ").unwrap_or(last);
-            format!("invalid exists pattern `{source}`: {last}")
-        })?;
-        check_subset(&hir).map_err(|e| format!("invalid exists pattern `{source}`: {e}"))?;
+        let hir = restricted_hir(source)
+            .map_err(|e| format!("invalid exists pattern `{source}`: {e}"))?;
         let captures = count_captures(&hir);
         if captures > MAX_CAPTURES {
             return Err(format!(
@@ -132,7 +132,9 @@ impl ExistsPattern {
         // Anchored by construction, so a pattern is never quietly a substring
         // test. `\A`/`\z` rather than `^`/`$` because the latter are line
         // anchors under multi-line mode and a glyph name is not a line.
-        let re = Regex::new(&format!(r"\A(?:{source})\z"))
+        // Compiled from the restricted form rather than `source`, which differs
+        // from it in every class.
+        let re = Regex::new(&format!(r"\A(?:{hir})\z"))
             .map_err(|e| format!("invalid exists pattern `{source}`: {e}"))?;
         Ok(Self {
             source: source.to_string(),
@@ -183,49 +185,135 @@ impl ExistsPattern {
     }
 }
 
-/// Reject the regex features an `exists` has no use for, before one reaches a
-/// name.
+/// `source` as a regular expression over the glyph-name alphabet, or why it is
+/// not one. [`ExistsPattern::parse`] and [`template_denotes`] both read a
+/// pattern through here, so navigation never disagrees with the build.
 ///
-/// The rule is stated over the parsed form rather than the text so that it
-/// cannot be spelled around: `.` and `[^x]` and `\w` are one `Class` node each,
-/// and all three are answered by the same question — can this match a character
-/// a glyph name may not contain?
-fn check_subset(hir: &Hir) -> Result<(), String> {
-    match hir.kind() {
-        HirKind::Empty => Ok(()),
-        HirKind::Literal(lit) => match str::from_utf8(&lit.0) {
-            Ok(s) if s.chars().all(is_name_char) => Ok(()),
-            _ => Err(format!(
-                "literal `{}` is not glyph-name text",
-                String::from_utf8_lossy(&lit.0)
-            )),
-        },
-        HirKind::Class(class) => {
-            let ok = match class {
-                regex_syntax::hir::Class::Unicode(c) => c
-                    .iter()
-                    .all(|r| char_range_is_name_text(r.start(), r.end())),
-                regex_syntax::hir::Class::Bytes(c) => c
-                    .iter()
-                    .all(|r| char_range_is_name_text(r.start() as char, r.end() as char)),
-            };
-            if ok {
-                Ok(())
-            } else {
-                Err("a character class must stay within glyph-name characters \
-                     (write `\\.` for a literal dot; `.`, `\\w` and `[^…]` match too much)"
-                    .to_string())
+/// Two passes, because the two halves of the rule live at different levels.
+/// What was *written* is only in the syntax tree: `[^:]` and a class spelling
+/// out every other scalar are the same `Class` once translated. What a class
+/// *means* is only in the translation, after negation, `&&`, `--` and `(?i)`
+/// have been applied — and intersecting with Σ there commutes with all of them,
+/// `(U ∖ A) ∩ Σ` being `Σ ∖ A`.
+fn restricted_hir(source: &str) -> Result<Hir, String> {
+    let ast = ast::parse::Parser::new()
+        .parse(source)
+        .map_err(|e| syntax_error(&e))?;
+    ast::visit(&ast, WrittenText)?;
+    let hir = hir::translate::Translator::new()
+        .translate(source, &ast)
+        .map_err(|e| syntax_error(&e))?;
+    restrict(hir)
+}
+
+/// The parser's own message spans several lines — a banner, the pattern, a
+/// caret rule, then the finding — which is unreadable inside a one-line
+/// diagnostic. The finding is the last line, and it is the only part that is
+/// not already on screen.
+fn syntax_error(e: &dyn std::fmt::Display) -> String {
+    let msg = e.to_string();
+    let last = msg
+        .lines()
+        .map(str::trim)
+        .rfind(|l| !l.is_empty())
+        .unwrap_or("syntax error");
+    last.strip_prefix("error: ").unwrap_or(last).to_string()
+}
+
+/// Rejects a character written into the pattern that no glyph name contains.
+struct WrittenText;
+
+impl ast::Visitor for WrittenText {
+    type Output = ();
+    type Err = String;
+
+    fn finish(self) -> Result<(), String> {
+        Ok(())
+    }
+
+    fn visit_pre(&mut self, ast: &Ast) -> Result<(), String> {
+        match ast {
+            Ast::Literal(lit) => written(lit.c),
+            _ => Ok(()),
+        }
+    }
+
+    fn visit_class_set_item_pre(&mut self, item: &ClassSetItem) -> Result<(), String> {
+        match item {
+            ClassSetItem::Literal(lit) => written(lit.c),
+            ClassSetItem::Range(range) => written(range.start.c).and(written(range.end.c)),
+            _ => Ok(()),
+        }
+    }
+}
+
+fn written(c: char) -> Result<(), String> {
+    if crate::pattern::is_glyph_name_char(c) {
+        Ok(())
+    } else {
+        Err(format!(
+            "`{}` is not a glyph-name character",
+            c.escape_debug()
+        ))
+    }
+}
+
+/// Σ as a class of either kind. It is ASCII
+/// ([`crate::pattern::is_glyph_name_char`]), so scanning ASCII builds all of it.
+static ALPHABET: LazyLock<(ClassUnicode, ClassBytes)> = LazyLock::new(|| {
+    let members = || (0..=0x7f_u8).filter(|&b| crate::pattern::is_glyph_name_char(char::from(b)));
+    (
+        ClassUnicode::new(members().map(|b| ClassUnicodeRange::new(b.into(), b.into()))),
+        ClassBytes::new(members().map(|b| ClassBytesRange::new(b, b))),
+    )
+});
+
+/// `hir` with every class intersected with Σ, and the nodes an `exists` has no
+/// use for rejected.
+fn restrict(hir: Hir) -> Result<Hir, String> {
+    Ok(match hir.into_kind() {
+        HirKind::Empty => Hir::empty(),
+        // Written text, which `WrittenText` has already held to Σ.
+        HirKind::Literal(lit) => Hir::literal(lit.0),
+        HirKind::Class(mut class) => {
+            match &mut class {
+                Class::Unicode(c) => c.intersect(&ALPHABET.0),
+                Class::Bytes(c) => c.intersect(&ALPHABET.1),
             }
+            if class.is_empty() {
+                return Err(
+                    "a character class has no glyph-name character in it, so it never matches"
+                        .to_string(),
+                );
+            }
+            Hir::class(class)
         }
         // `\b`, `^`, `$`, `\A`, `\z` — the match is the whole name, so an
         // anchor is either redundant or a lie about what is being matched.
-        HirKind::Look(look) => Err(format!("`{}` is not allowed here", look_name(*look))),
-        HirKind::Repetition(rep) => check_subset(&rep.sub),
-        HirKind::Capture(cap) => check_subset(&cap.sub),
-        HirKind::Concat(subs) | HirKind::Alternation(subs) => {
-            subs.iter().try_for_each(check_subset)
+        HirKind::Look(look) => return Err(format!("`{}` is not allowed here", look_name(look))),
+        HirKind::Repetition(hir::Repetition {
+            min,
+            max,
+            greedy,
+            sub,
+        }) => Hir::repetition(hir::Repetition {
+            min,
+            max,
+            greedy,
+            sub: Box::new(restrict(*sub)?),
+        }),
+        HirKind::Capture(hir::Capture { index, name, sub }) => Hir::capture(hir::Capture {
+            index,
+            name,
+            sub: Box::new(restrict(*sub)?),
+        }),
+        HirKind::Concat(subs) => {
+            Hir::concat(subs.into_iter().map(restrict).collect::<Result<_, _>>()?)
         }
-    }
+        HirKind::Alternation(subs) => {
+            Hir::alternation(subs.into_iter().map(restrict).collect::<Result<_, _>>()?)
+        }
+    })
 }
 
 fn look_name(look: Look) -> &'static str {
@@ -236,20 +324,6 @@ fn look_name(look: Look) -> &'static str {
         Look::WordAsciiNegate | Look::WordUnicodeNegate => r"\B",
         _ => "a look-around assertion",
     }
-}
-
-fn is_name_char(c: char) -> bool {
-    c.is_ascii_alphanumeric() || matches!(c, '-' | '.' | '_' | ':')
-}
-
-/// Whether every character in an inclusive range is a name character. Ranges
-/// are short in practice (`0-9`, `a-f`); a class spanning the whole code space
-/// fails on its first character.
-fn char_range_is_name_text(start: char, end: char) -> bool {
-    if !is_name_char(start) || !is_name_char(end) {
-        return false;
-    }
-    (start..=end).all(is_name_char)
 }
 
 /// The literal text a match is bound to start with, or `""` when the pattern
@@ -268,8 +342,8 @@ fn literal_prefix(hir: &Hir) -> String {
                     out.push_str(text);
                     true
                 }
-                // Not reachable for a checked pattern (`check_subset` rejects
-                // non-name text), and stopping is the safe answer anyway.
+                // Not reachable for a restricted pattern (a literal is written
+                // text, held to Σ), and stopping is the safe answer anyway.
                 Err(_) => false,
             },
             HirKind::Capture(cap) => push(&cap.sub, out),
@@ -801,10 +875,7 @@ pub fn pattern_on_line(line: &str) -> Option<String> {
 /// pattern, or a `$N` past the groups it has.
 #[cfg_attr(all(not(feature = "editor"), not(test)), expect(dead_code))]
 pub fn template_denotes(pattern: &str, template: &str, name: &str) -> Option<bool> {
-    let hir = regex_syntax::parse(pattern).ok()?;
-    if check_subset(&hir).is_err() {
-        return None;
-    }
+    let hir = restricted_hir(pattern).ok()?;
     // `$0` is the whole pattern; `$N` is the group the regex parser gave index
     // `N`, which is the one the author counted opening parentheses to.
     let mut indexed: Vec<(u32, String)> = Vec::new();

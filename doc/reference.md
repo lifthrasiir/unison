@@ -1050,11 +1050,15 @@ glyph han-($1) 16 16 advance 16
 ref ($0) 1 0
 ```
 
-`PATTERN` is a regular expression, anchored at both ends, restricted to what can only ever match a
-glyph name: literals, character classes, repetition, groups and alternation, every literal and
-class inside the glyph-name character set. A bare `.` is therefore rejected — write `\.` for a
-literal dot — and anchors and word boundaries are not accepted, since the match is always the whole
-name.
+`PATTERN` is a regular expression, anchored at both ends, over the glyph-name alphabet (letters,
+digits, `-`, `.`, `_` and `:`): literals, character classes, repetition, groups and alternation.
+Every character *written* into the pattern — a literal, a class member, the end of a range — has to
+be one a glyph name can contain, so `\(` or `[a-~]` is an error. A class, on the other hand, means
+its members *within* that alphabet: `.` is any name character, `[^:]` any name character but `:`,
+and `\w` the letters, digits and `_`, which is what makes `exists foo:([^:]+)` work. Since `.` is
+the wildcard it is everywhere else, a literal dot is still written `\.`. A class with no name
+character left in it (`\s`) is an error, and so are anchors and word boundaries, since the match is
+always the whole name.
 
 The scoped item is one `glyph` block (its `ref`, IDC and pixel lines included), one
 `glyph … = …` alias, or one `map`. A blank line, a comment or anything else on the next line is an

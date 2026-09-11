@@ -343,9 +343,9 @@ glyph han-3cba.0:15x16 15 16 // 㲺
 ⿰ han-6c35:5x16 1 han-4e03:8x16 // ⿰氵七
 glyph han-3cba.1:15x16 15 16 // 㲺
 ⿰ han-6c35:5x16 1 han-5315.0:9x16 // ⿰氵匕
-exists han-3cba\.0:([0-9]+x[0-9]+)
+exists han-3cba\.0:([^:]+)
 glyph han-3cba-(g|t|j):($1) = ($0)
-exists han-3cba\.1:([0-9]+x[0-9]+)
+exists han-3cba\.1:([^:]+)
 glyph han-3cba-p:($1) = ($0)
 
 // glyph han-3cbb:15x16 15 16 // 㲻

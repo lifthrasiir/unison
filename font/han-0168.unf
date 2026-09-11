@@ -296,9 +296,9 @@ glyph han-95ad.0:15x16 15 16 // 閭
 glyph han-95ad.1:15x16 = han-95ad.0:15x16
 glyph han-95ad.2:15x16 15 16 // 閭
 ⿵ han-9580:15x16.13x11 han-5415:11x10 2 6 // ⿵門吕
-exists han-95ad\.0:([0-9]+x[0-9]+)
+exists han-95ad\.0:([^:]+)
 glyph han-95ad-(h|t|j|k|p|v):($1) = ($0)
-exists han-95ad\.2:([0-9]+x[0-9]+)
+exists han-95ad\.2:([^:]+)
 glyph han-95ad-g:($1) = ($0)
 
 glyph han-95b3:15x16 15 16 // 閳
@@ -1352,11 +1352,11 @@ $$............@@............$$
 @@..h/........@@........\h..@@
 @@............@@............@@
 @@............@@..........\1@@
-exists han-96e8:([0-9]+x[0-9]+) // short enough glyphs are shared
+exists han-96e8:([^:]+) // short enough glyphs are shared
 glyph han-96e8-($han-regions):($1) = ($0)
-exists han-96e8\.0:([0-9]+x[0-9]+)
+exists han-96e8\.0:([^:]+)
 glyph han-96e8-(g|j|k|p):($1) = ($0)
-exists han-96e8\.3:([0-9]+x[0-9]+)
+exists han-96e8\.3:([^:]+)
 glyph han-96e8-(h|t|v):($1) = ($0)
 
 ## 173.3

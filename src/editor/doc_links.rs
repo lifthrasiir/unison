@@ -232,12 +232,12 @@ pub(crate) fn extract_comment_links(
     let chars: Vec<char> = comment.chars().collect();
     let mut i = 0;
     while i < chars.len() {
-        if !is_glyph_name_char(chars[i]) {
+        if !crate::pattern::is_glyph_name_char(chars[i]) {
             i += 1;
             continue;
         }
         let start = i;
-        while i < chars.len() && is_glyph_name_char(chars[i]) {
+        while i < chars.len() && crate::pattern::is_glyph_name_char(chars[i]) {
             i += 1;
         }
         let word: String = chars[start..i].iter().collect();
@@ -251,10 +251,6 @@ pub(crate) fn extract_comment_links(
             });
         }
     }
-}
-
-fn is_glyph_name_char(c: char) -> bool {
-    c.is_ascii_alphanumeric() || matches!(c, '-' | '.' | '_' | ':')
 }
 
 /// `at_base` is the `@` base in force on this line — see
