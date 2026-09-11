@@ -16,6 +16,11 @@
 //! *every* face that includes those slices, each from its own build. A face has
 //! its own cmap and its own GSUB, so shaping `for narrow` against the primary
 //! face would test the wrong font and quietly agree with itself.
+//!
+//! `assert same` is checked one line at a time, but `assert distinct` is not:
+//! it names a group of look-alikes, and groups sharing a name are one class
+//! (see [`check_distinct_classes`]). A collapse no single line states is
+//! therefore a warning, not an error, and it names the lines that imply it.
 
 use crate::hash::HashMap;
 use std::path::PathBuf;
@@ -506,6 +511,26 @@ fn fmt_dim((n, d): (u32, u32)) -> String {
     }
 }
 
+/// What `assert same` and `assert distinct` compare: logical dimensions and
+/// canonical contours.
+type Rendering = (((u32, u32), (u32, u32)), CanonicalContours);
+
+/// `g`'s rendering on the lattice `q`, which must be a common multiple of the
+/// lattice denominators of every glyph it is compared with.
+fn rendering(g: &ResolvedGlyph, q: i64) -> Rendering {
+    (
+        glyph_logical_dims(g),
+        canonicalize_contours(&g.grid, g.scale, q),
+    )
+}
+
+/// The smallest lattice every one of `glyphs` snaps to exactly.
+fn common_lattice<'a>(glyphs: impl IntoIterator<Item = &'a ResolvedGlyph>) -> i64 {
+    glyphs.into_iter().fold(1i64, |acc, g| {
+        crate::pattern::lcm(acc as usize, glyph_lattice_denom(g) as usize) as i64
+    })
+}
+
 struct SameDistinctAssertion {
     is_same: bool,
     names: Vec<String>,
@@ -513,15 +538,50 @@ struct SameDistinctAssertion {
     file: PathBuf,
     line: usize,
     file_line: usize,
+    /// Whether this assertion is checked and counted. The editor checks one
+    /// file, but a class of look-alikes spans the whole source, so the `assert
+    /// distinct`s of the other files are collected all the same: they join
+    /// the classes the checked ones belong to.
+    reported: bool,
 }
 
-fn collect_same_distinct_assertions(docs: &[&Document]) -> Vec<SameDistinctAssertion> {
+impl SameDistinctAssertion {
+    fn keyword(&self) -> &'static str {
+        if self.is_same { "same" } else { "distinct" }
+    }
+
+    fn issue(&self, severity: Severity, message: String) -> Issue {
+        Issue {
+            glyph: None,
+            severity,
+            message,
+            file: self.file.clone(),
+            line: self.line,
+            file_line: self.file_line,
+        }
+    }
+
+    /// `FILE:LINE`, for naming this assertion in the message of another.
+    fn location(&self) -> String {
+        let file = self.file.file_name().map_or_else(
+            || self.file.display().to_string(),
+            |n| n.to_string_lossy().into_owned(),
+        );
+        format!("{file}:{}", self.file_line)
+    }
+}
+
+fn collect_same_distinct_assertions(
+    docs: &[&Document],
+    reported: impl Fn(&Document) -> bool,
+) -> Vec<SameDistinctAssertion> {
     let name_parts = collect_name_parts(docs);
     let mut result = Vec::new();
     for doc in docs {
+        let reported = reported(doc);
         for (item_idx, item) in doc.items.iter().enumerate() {
             let (is_same, names, comment) = match item {
-                DocumentItem::AssertSame { names, comment } => (true, names, comment),
+                DocumentItem::AssertSame { names, comment } if reported => (true, names, comment),
                 DocumentItem::AssertDistinct { names, comment } => (false, names, comment),
                 _ => continue,
             };
@@ -537,6 +597,7 @@ fn collect_same_distinct_assertions(docs: &[&Document]) -> Vec<SameDistinctAsser
                 file: doc.path.clone(),
                 line: docline,
                 file_line,
+                reported,
             });
         }
     }
@@ -547,125 +608,280 @@ fn run_same_distinct_inner(
     assertions: Vec<SameDistinctAssertion>,
     resolved: &HashMap<String, ResolvedGlyph>,
 ) -> AssertShapeResult {
-    let total = assertions.len();
-    let mut issues = Vec::new();
-    let mut passed = 0;
+    // Collected per assertion, so that they come out in source order although
+    // `assert distinct` is checked class by class.
+    let mut issues: Vec<Vec<Issue>> = assertions.iter().map(|_| Vec::new()).collect();
 
-    for assertion in &assertions {
-        let keyword = if assertion.is_same {
-            "same"
-        } else {
-            "distinct"
-        };
-
-        let mut missing = Vec::new();
-        let mut glyphs: Vec<(&str, &ResolvedGlyph)> = Vec::new();
-        for name in &assertion.names {
-            if let Some(g) = resolved.get(name.as_str()) {
-                glyphs.push((name.as_str(), g));
-            } else {
-                missing.push(name.as_str());
-            }
+    for (assertion, issues) in assertions.iter().zip(&mut issues) {
+        if !assertion.reported {
+            continue;
         }
-
+        let missing: Vec<&str> = assertion
+            .names
+            .iter()
+            .map(String::as_str)
+            .filter(|name| !resolved.contains_key(*name))
+            .collect();
         if !missing.is_empty() {
-            issues.push(Issue {
-                glyph: None,
-                severity: Severity::Error,
-                message: format!(
+            issues.push(assertion.issue(
+                Severity::Error,
+                format!(
                     "assert {}{}: undefined glyph(s): {}",
-                    keyword,
+                    assertion.keyword(),
                     format_comment_suffix(&assertion.comment),
                     missing.join(", "),
                 ),
-                file: assertion.file.clone(),
-                line: assertion.line,
-                file_line: assertion.file_line,
-            });
-            continue;
+            ));
+        } else if assertion.is_same {
+            issues.extend(check_same(assertion, resolved));
         }
+    }
+    check_distinct_classes(&assertions, resolved, &mut issues);
 
-        let q = glyphs.iter().fold(1i64, |acc, (_, g)| {
-            crate::pattern::lcm(acc as usize, glyph_lattice_denom(g) as usize) as i64
-        });
-        let entries: Vec<_> = glyphs
-            .iter()
-            .map(|(name, g)| {
-                let dims = glyph_logical_dims(g);
-                let contours = canonicalize_contours(&g.grid, g.scale, q);
-                (*name, dims, contours)
-            })
-            .collect();
-
-        if assertion.is_same {
-            let (ref_name, ref_dims, ref_contours) = &entries[0];
-            let mut mismatches = Vec::new();
-            for (name, dims, contours) in &entries[1..] {
-                if dims != ref_dims {
-                    mismatches.push(format!(
-                        "'{}' ({}x{}) vs '{}' ({}x{}): different dimensions",
-                        name,
-                        fmt_dim(dims.0),
-                        fmt_dim(dims.1),
-                        ref_name,
-                        fmt_dim(ref_dims.0),
-                        fmt_dim(ref_dims.1),
-                    ));
-                } else if contours != ref_contours {
-                    mismatches.push(format!("'{}' vs '{}': different contours", name, ref_name,));
-                }
-            }
-            if mismatches.is_empty() {
+    let (mut total, mut passed) = (0, 0);
+    for (assertion, issues) in assertions.iter().zip(&issues) {
+        if assertion.reported {
+            total += 1;
+            // A warning is about the class, which no one assertion states.
+            if issues.iter().all(|issue| issue.severity != Severity::Error) {
                 passed += 1;
-            } else {
-                issues.push(Issue {
-                    glyph: None,
-                    severity: Severity::Error,
-                    message: format!(
-                        "assert same{}: {}",
-                        format_comment_suffix(&assertion.comment),
-                        mismatches.join("; "),
-                    ),
-                    file: assertion.file.clone(),
-                    line: assertion.line,
-                    file_line: assertion.file_line,
-                });
-            }
-        } else {
-            let mut duplicates = Vec::new();
-            for i in 0..entries.len() {
-                for j in (i + 1)..entries.len() {
-                    let (ni, di, ci) = &entries[i];
-                    let (nj, dj, cj) = &entries[j];
-                    if di == dj && ci == cj {
-                        duplicates.push(format!("'{}' and '{}'", ni, nj));
-                    }
-                }
-            }
-            if duplicates.is_empty() {
-                passed += 1;
-            } else {
-                issues.push(Issue {
-                    glyph: None,
-                    severity: Severity::Error,
-                    message: format!(
-                        "assert distinct{}: same rendering: {}",
-                        format_comment_suffix(&assertion.comment),
-                        duplicates.join("; "),
-                    ),
-                    file: assertion.file.clone(),
-                    line: assertion.line,
-                    file_line: assertion.file_line,
-                });
             }
         }
     }
-
     AssertShapeResult {
-        issues,
+        issues: issues.into_iter().flatten().collect(),
         total,
         passed,
     }
+}
+
+/// Check one `assert same` whose names all resolve.
+fn check_same(
+    assertion: &SameDistinctAssertion,
+    resolved: &HashMap<String, ResolvedGlyph>,
+) -> Option<Issue> {
+    let glyphs: Vec<&ResolvedGlyph> = assertion
+        .names
+        .iter()
+        .map(|name| &resolved[name.as_str()])
+        .collect();
+    let q = common_lattice(glyphs.iter().copied());
+    let entries: Vec<(&str, Rendering)> = assertion
+        .names
+        .iter()
+        .zip(&glyphs)
+        .map(|(name, g)| (name.as_str(), rendering(g, q)))
+        .collect();
+
+    let (ref_name, (ref_dims, ref_contours)) = &entries[0];
+    let mut mismatches = Vec::new();
+    for (name, (dims, contours)) in &entries[1..] {
+        if dims != ref_dims {
+            mismatches.push(format!(
+                "'{}' ({}x{}) vs '{}' ({}x{}): different dimensions",
+                name,
+                fmt_dim(dims.0),
+                fmt_dim(dims.1),
+                ref_name,
+                fmt_dim(ref_dims.0),
+                fmt_dim(ref_dims.1),
+            ));
+        } else if contours != ref_contours {
+            mismatches.push(format!("'{}' vs '{}': different contours", name, ref_name,));
+        }
+    }
+    (!mismatches.is_empty()).then(|| {
+        assertion.issue(
+            Severity::Error,
+            format!(
+                "assert same{}: {}",
+                format_comment_suffix(&assertion.comment),
+                mismatches.join("; "),
+            ),
+        )
+    })
+}
+
+/// Check every `assert distinct` as part of its class of look-alikes.
+///
+/// An `assert distinct` is one statement about a group of characters that
+/// look alike, and two such groups sharing a character are one group: `a ≠ b`
+/// and `a ≠ c` are written because `b` and `c` resemble `a`, and so each
+/// other. The names are joined into classes by union–find, and each class is
+/// rendered once and compared as a whole.
+///
+/// Two names one assertion states apart are its error, as they would be
+/// alone. Two that only the class holds apart are a warning, since no line
+/// says so: it is reported at the last checked assertion on the shortest chain
+/// joining them, and names that chain.
+fn check_distinct_classes(
+    assertions: &[SameDistinctAssertion],
+    resolved: &HashMap<String, ResolvedGlyph>,
+    issues: &mut [Vec<Issue>],
+) {
+    // Names by id, in order of first appearance. An undefined name is left
+    // out: it has been reported already, and there is nothing to compare.
+    let mut ids: HashMap<&str, usize> = HashMap::default();
+    let mut names: Vec<&str> = Vec::new();
+    let mut parent: Vec<usize> = Vec::new();
+    // The assertions naming each name, and the names of each assertion.
+    let mut named_by: Vec<Vec<usize>> = Vec::new();
+    let mut names_of: Vec<Vec<usize>> = vec![Vec::new(); assertions.len()];
+    for (a, assertion) in assertions.iter().enumerate() {
+        if assertion.is_same {
+            continue;
+        }
+        for name in &assertion.names {
+            let name = name.as_str();
+            if !resolved.contains_key(name) {
+                continue;
+            }
+            let id = *ids.entry(name).or_insert_with(|| {
+                names.push(name);
+                parent.push(parent.len());
+                named_by.push(Vec::new());
+                parent.len() - 1
+            });
+            if named_by[id].last() != Some(&a) {
+                named_by[id].push(a);
+            }
+            if let Some(&first) = names_of[a].first() {
+                union(&mut parent, first, id);
+            }
+            names_of[a].push(id);
+        }
+    }
+
+    // Members by root; every other entry stays empty.
+    let mut classes: Vec<Vec<usize>> = vec![Vec::new(); names.len()];
+    for id in 0..names.len() {
+        classes[find(&mut parent, id)].push(id);
+    }
+    // Rendered only for a class some checked assertion belongs to: the editor
+    // checks one file, and the rest of the source is only there to join.
+    let mut renderings: Vec<Option<Rendering>> = vec![None; names.len()];
+    for class in &classes {
+        let checked = class
+            .iter()
+            .any(|&id| named_by[id].iter().any(|&a| assertions[a].reported));
+        if checked {
+            let q = common_lattice(class.iter().map(|&id| &resolved[names[id]]));
+            for &id in class {
+                renderings[id] = Some(rendering(&resolved[names[id]], q));
+            }
+        }
+    }
+
+    for (a, assertion) in assertions.iter().enumerate() {
+        if assertion.is_same || !assertion.reported {
+            continue;
+        }
+        let mut duplicates = Vec::new();
+        for (i, &x) in names_of[a].iter().enumerate() {
+            for &y in &names_of[a][i + 1..] {
+                if renderings[x] == renderings[y] {
+                    duplicates.push(format!("'{}' and '{}'", names[x], names[y]));
+                }
+            }
+        }
+        if !duplicates.is_empty() {
+            issues[a].push(assertion.issue(
+                Severity::Error,
+                format!(
+                    "assert distinct{}: same rendering: {}",
+                    format_comment_suffix(&assertion.comment),
+                    duplicates.join("; "),
+                ),
+            ));
+        }
+    }
+
+    for class in &classes {
+        if class.first().is_none_or(|&id| renderings[id].is_none()) {
+            continue;
+        }
+        let mut sorted = class.clone();
+        sorted.sort_by(|&x, &y| renderings[x].cmp(&renderings[y]).then(x.cmp(&y)));
+        for group in sorted.chunk_by(|&x, &y| renderings[x] == renderings[y]) {
+            for (i, &x) in group.iter().enumerate() {
+                for &y in &group[i + 1..] {
+                    if named_by[x].iter().any(|a| named_by[y].contains(a)) {
+                        continue;
+                    }
+                    let (chain, via) = distinct_chain(x, y, &named_by, &names_of);
+                    let Some(&at) = chain.iter().filter(|&&a| assertions[a].reported).max() else {
+                        continue;
+                    };
+                    let via: Vec<String> =
+                        via.iter().map(|&id| format!("'{}'", names[id])).collect();
+                    let by: Vec<String> = chain.iter().map(|&a| assertions[a].location()).collect();
+                    issues[at].push(assertions[at].issue(
+                        Severity::Warning,
+                        format!(
+                            "assert distinct: same rendering: '{}' and '{}', \
+                             joined into one class via {} by {}",
+                            names[x],
+                            names[y],
+                            via.join(", "),
+                            by.join(", "),
+                        ),
+                    ));
+                }
+            }
+        }
+    }
+}
+
+fn find(parent: &mut [usize], mut x: usize) -> usize {
+    while parent[x] != x {
+        parent[x] = parent[parent[x]];
+        x = parent[x];
+    }
+    x
+}
+
+fn union(parent: &mut [usize], x: usize, y: usize) {
+    let (x, y) = (find(parent, x), find(parent, y));
+    parent[x.max(y)] = x.min(y);
+}
+
+/// The shortest chain of `assert distinct`s joining the names `from` and `to`,
+/// which must be in one class: the assertions along it in order, and the names
+/// linking each to the next.
+fn distinct_chain(
+    from: usize,
+    to: usize,
+    named_by: &[Vec<usize>],
+    names_of: &[Vec<usize>],
+) -> (Vec<usize>, Vec<usize>) {
+    // For each name reached, the name and the assertion it was reached through.
+    let mut reached: Vec<Option<(usize, usize)>> = vec![None; named_by.len()];
+    let mut queue = std::collections::VecDeque::from([from]);
+    'search: while let Some(name) = queue.pop_front() {
+        for &a in &named_by[name] {
+            for &next in &names_of[a] {
+                if next != from && reached[next].is_none() {
+                    reached[next] = Some((name, a));
+                    if next == to {
+                        break 'search;
+                    }
+                    queue.push_back(next);
+                }
+            }
+        }
+    }
+    let (mut chain, mut via) = (Vec::new(), Vec::new());
+    let mut name = to;
+    while let Some((prev, a)) = reached[name] {
+        chain.push(a);
+        if prev != from {
+            via.push(prev);
+        }
+        name = prev;
+    }
+    chain.reverse();
+    via.reverse();
+    (chain, via)
 }
 
 /// Run all same/distinct assertions from all documents.
@@ -673,7 +889,7 @@ pub fn run_same_distinct_assertions(
     docs: &[&Document],
     resolved: &HashMap<String, ResolvedGlyph>,
 ) -> AssertShapeResult {
-    run_same_distinct_inner(collect_same_distinct_assertions(docs), resolved)
+    run_same_distinct_inner(collect_same_distinct_assertions(docs, |_| true), resolved)
 }
 
 /// Whether any of `docs` states an `assert same` or `assert distinct`.
@@ -694,12 +910,19 @@ pub fn has_same_distinct_assertions(docs: &[&Document]) -> bool {
 }
 
 /// Run same/distinct assertions only from the specified subset of documents.
+///
+/// `docs` is still the *whole* source: an `assert distinct` in another file
+/// joins the class of look-alikes one of these belongs to.
 #[cfg(feature = "editor")]
 pub fn run_same_distinct_assertions_for_files(
     test_docs: &[&Document],
+    docs: &[&Document],
     resolved: &HashMap<String, ResolvedGlyph>,
 ) -> AssertShapeResult {
-    run_same_distinct_inner(collect_same_distinct_assertions(test_docs), resolved)
+    let assertions = collect_same_distinct_assertions(docs, |doc| {
+        test_docs.iter().any(|test_doc| test_doc.path == doc.path)
+    });
+    run_same_distinct_inner(assertions, resolved)
 }
 
 #[cfg(test)]
@@ -1004,6 +1227,7 @@ assert distinct a b c
         let result = resolve_and_assert(input);
         assert_eq!(result.total, 1);
         assert_eq!(result.passed, 0);
+        assert_eq!(result.issues[0].severity, Severity::Error);
         assert!(result.issues[0].message.contains("'a' and 'c'"));
     }
 
@@ -1034,9 +1258,138 @@ assert distinct a b c
             file: "test.unf".into(),
             line: 1,
             file_line: 1,
+            reported: true,
         };
         let result = run_same_distinct_inner(vec![assertion], &resolved);
         assert_eq!(result.passed, 1, "{:?}", result.issues);
+    }
+
+    /// Three 2×1 glyphs where `b` and `c` render the same and `a` differs.
+    const B_SAME_AS_C: &str = "\
+glyph a 2 1
+@@..
+
+glyph b 2 1
+..@@
+
+glyph c 2 1
+..@@
+";
+
+    /// `assert distinct` states classes of look-alikes, so two assertions
+    /// sharing a name join their classes: `a ≠ b` and `a ≠ c` also mean
+    /// `b ≠ c`. Each assertion used to be checked on its own, and the collapse
+    /// of `b` into `c` went unnoticed. It is a warning, not a failure: no one
+    /// assertion says it, so the message names the ones that do together.
+    #[test]
+    fn assert_distinct_classes_join_through_a_shared_name() {
+        let result = resolve_and_assert(&format!(
+            "{B_SAME_AS_C}\nassert distinct a b\nassert distinct a c\n"
+        ));
+        assert_eq!(result.total, 2);
+        assert_eq!(result.passed, 2, "{:?}", result.issues);
+        assert_eq!(result.issues.len(), 1, "{:?}", result.issues);
+        let issue = &result.issues[0];
+        assert_eq!(issue.severity, Severity::Warning);
+        assert_eq!(
+            issue.message,
+            "assert distinct: same rendering: 'b' and 'c', \
+             joined into one class via 'a' by test.unf:10, test.unf:11"
+        );
+        // Reported where the implication was completed: the later assertion.
+        assert_eq!(issue.file_line, 11);
+    }
+
+    /// The chain may be longer than one step, and the message spells it out
+    /// in order.
+    #[test]
+    fn assert_distinct_classes_join_transitively() {
+        let result = resolve_and_assert(&format!(
+            "{B_SAME_AS_C}\nglyph d 2 1\n@@@@\n\n\
+             assert distinct b d\nassert distinct d a\nassert distinct a c\n"
+        ));
+        assert_eq!(result.total, 3);
+        assert_eq!(result.passed, 3, "{:?}", result.issues);
+        assert_eq!(result.issues.len(), 1, "{:?}", result.issues);
+        assert_eq!(
+            result.issues[0].message,
+            "assert distinct: same rendering: 'b' and 'c', \
+             joined into one class via 'd', 'a' by test.unf:13, test.unf:14, test.unf:15"
+        );
+    }
+
+    /// A collapse one assertion states by itself stays an error, and is not
+    /// also reported as a warning through the class it belongs to.
+    #[test]
+    fn assert_distinct_named_together_is_an_error_only() {
+        let result = resolve_and_assert(&format!(
+            "{B_SAME_AS_C}\nassert distinct a b\nassert distinct a c\nassert distinct b c\n"
+        ));
+        assert_eq!(result.total, 3);
+        assert_eq!(result.passed, 2, "{:?}", result.issues);
+        assert_eq!(result.issues.len(), 1, "{:?}", result.issues);
+        assert_eq!(result.issues[0].severity, Severity::Error);
+        assert_eq!(result.issues[0].file_line, 12);
+    }
+
+    /// Unrelated assertions do not join, and a class whose members all differ
+    /// passes.
+    #[test]
+    fn assert_distinct_classes_do_not_join_without_a_shared_name() {
+        let result = resolve_and_assert(&format!(
+            "{B_SAME_AS_C}\nglyph d 2 1\n@@@@\n\n\
+             assert distinct a b\nassert distinct d c\n"
+        ));
+        assert_eq!(result.total, 2);
+        assert_eq!(result.passed, 2, "{:?}", result.issues);
+    }
+
+    /// A name that does not resolve is still reported, and the rest of its
+    /// assertion still joins the class.
+    #[test]
+    fn assert_distinct_with_an_undefined_name_still_joins() {
+        let result = resolve_and_assert(&format!(
+            "{B_SAME_AS_C}\nassert distinct a b missing\nassert distinct a c\n"
+        ));
+        let mut messages: Vec<_> = result.issues.iter().map(|i| &i.message[..]).collect();
+        messages.sort();
+        assert_eq!(
+            messages,
+            vec![
+                "assert distinct: same rendering: 'b' and 'c', \
+                 joined into one class via 'a' by test.unf:10, test.unf:11",
+                "assert distinct: undefined glyph(s): missing",
+            ]
+        );
+        assert_eq!(result.passed, 1);
+    }
+
+    /// The editor checks the assertions of one file, but the classes they
+    /// belong to are joined over the whole source. The warning goes to the
+    /// last assertion of the chain in the checked file, and still names the
+    /// one in the other.
+    #[cfg(feature = "editor")]
+    #[test]
+    fn assert_distinct_classes_span_files_in_the_editor() {
+        let parse = |source: &str, path: &str| {
+            document_io::parse_document_from_str(source, path.into()).unwrap()
+        };
+        let glyphs = parse(B_SAME_AS_C, "glyphs.unf");
+        let one = parse("assert distinct a b\n", "one.unf");
+        let two = parse("assert distinct a c\n", "two.unf");
+        let docs = vec![&glyphs, &one, &two];
+        let name_parts = collect_name_parts(&docs);
+        let (resolved, _) = ref_composite::resolve_named_glyphs_with_parts(&docs, &name_parts);
+
+        for (checked, other) in [(&one, "two.unf:1"), (&two, "one.unf:1")] {
+            let result = run_same_distinct_assertions_for_files(&[checked], &docs, &resolved);
+            assert_eq!(result.total, 1);
+            assert_eq!(result.issues.len(), 1, "{:?}", result.issues);
+            let issue = &result.issues[0];
+            assert_eq!(issue.file, checked.path);
+            assert_eq!(issue.severity, Severity::Warning);
+            assert!(issue.message.contains(other), "{}", issue.message);
+        }
     }
 
     #[test]

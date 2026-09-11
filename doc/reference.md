@@ -1915,6 +1915,18 @@ assert same quadrant-12 upper-4-over-8
 be visually separable start rendering the same, which is easy to do by accident when a shape is
 adjusted.
 
+Each `assert distinct` names a group of look-alikes, and groups that share a name — in any file — form
+one class:
+
+```
+assert distinct cy-o-bar-lower gr-theta-lower
+assert distinct o-lower-bar gr-theta-lower
+```
+
+Here `cy-o-bar-lower` and `o-lower-bar` are expected to differ as well. Two names that one line
+states apart are an error when they render the same; two that are held apart only by the class are
+a warning, reported at the last line of the chain joining them and naming every line in it.
+
 ### `assume unused`: Suppress unused-glyph warnings
 
 ```

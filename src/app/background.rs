@@ -267,7 +267,7 @@ impl UniformApp {
                     )
                 });
                 let sd_result = crate::render::assert::run_same_distinct_assertions_for_files(
-                    &test_docs, &resolved,
+                    &test_docs, &refs, &resolved,
                 );
                 result.extend(sd_result.issues);
                 if let Some(t1) = perf_t1 {

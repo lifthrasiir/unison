@@ -1054,7 +1054,15 @@ fn main() {
                 .file_name()
                 .map(|n| n.to_string_lossy().to_string())
                 .unwrap_or_default();
-            eprintln!("FAIL {}:{}: {}", file_name, issue.file_line, issue.message);
+            // A warning does not fail its assertion; see `render::assert`.
+            let label = match issue.severity {
+                issues::Severity::Warning => "WARN",
+                _ => "FAIL",
+            };
+            eprintln!(
+                "{label} {}:{}: {}",
+                file_name, issue.file_line, issue.message
+            );
         }
 
         let failed = total - passed;
