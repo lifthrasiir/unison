@@ -15,7 +15,7 @@
 //! typing that could refine it and anything but its own keys dismisses it.
 
 use crate::editor::caret::Caret;
-use crate::editor::list_popup::{ListMove, ListNav, read_move};
+use crate::editor::list_popup::{ListNav, read_move};
 
 /// One place a pattern's expansions lead.
 #[derive(Clone, Debug, PartialEq)]
@@ -133,15 +133,10 @@ pub(crate) fn handle_keys(ui: &egui::Ui, state: &mut super::EditorState) -> Goto
         return GotoKeys::Consumed;
     }
     if let Some(step) = step {
+        // A sideways step moves nothing, and is consumed all the same: letting
+        // it through would only move the caret out from under the popup.
         let popup = state.goto_choice.as_mut().expect("checked above");
-        match step {
-            ListMove::Prev => popup.nav.move_to(selected.saturating_sub(1), len),
-            ListMove::Next => popup.nav.move_to(selected + 1, len),
-            ListMove::To(to) => popup.nav.move_to(to, len),
-            // One column wide: a sideways step means nothing, and letting it
-            // through would only move the caret out from under the popup.
-            ListMove::Sideways => {}
-        }
+        popup.nav.step(step, len);
         return GotoKeys::Consumed;
     }
     if accept {

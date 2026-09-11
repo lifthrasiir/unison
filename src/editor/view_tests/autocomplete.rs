@@ -328,7 +328,7 @@ fn autocomplete_escape_keeps_what_was_typed() {
 /// would only dismiss the popup.
 #[test]
 fn autocomplete_page_home_and_end_walk_the_listing() {
-    use crate::editor::autocomplete::MAX_VISIBLE;
+    use crate::editor::list_popup::MAX_VISIBLE;
 
     let mut doc = String::new();
     for i in 0..12 {

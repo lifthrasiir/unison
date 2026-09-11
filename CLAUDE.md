@@ -92,7 +92,7 @@ Editor (feature `editor`):
 
 | Module | What it holds |
 | --- | --- |
-| `app/` | `UniformApp`: the frame loop, background rebuilds, documents, panes, history, search, rename, resize, save, watch, settings, timing. |
+| `app/` | `UniformApp`: the frame loop, background rebuilds, documents, panes, history, search, the menu commands and the palette, rename, resize, save, watch, settings, timing. |
 | `editor/mod.rs`, `editor/ids.rs` | `EditorState`, `EditMode`, and the editor-is-a-widget model. |
 | `editor/document_view/` | The editor widget's frame loop, split by concern (`layout`, `paint`, `scroll`, `keys`, `popups`, `changes`). Most churn is here. |
 | `editor/` others | One file per feature: shadows, caret, popups, folding, comment toggle, resize, annotations, autocomplete, links, `line_fields` (the one place that knows where names live on a line), `harness`, `view_tests/`. |
@@ -115,7 +115,7 @@ module; the suites that outgrew one:
 | `issues/` | `issues/issues_tests.rs` |
 | `ref_composite/` | `ref_composite/ref_composite_tests.rs` |
 | `editor/document_view/` | `document_view/tests.rs` (helpers) and `editor/view_tests/` (harness scenarios) |
-| `exists.rs`, `pixel.rs`, `specimen.rs`, `meta.rs`, `faces.rs`, `on_demand.rs`, `compose.rs`, `fix/clearance.rs`, `render/sample.rs`, `render/reach.rs`, `editor/pixel_selection.rs`, `editor/ref_images.rs`, `editor/glyph_resize.rs`, `app/search.rs` | `<name>_tests.rs` beside the module |
+| `exists.rs`, `pixel.rs`, `specimen.rs`, `meta.rs`, `faces.rs`, `on_demand.rs`, `compose.rs`, `fix/clearance.rs`, `render/sample.rs`, `render/reach.rs`, `editor/pixel_selection.rs`, `editor/ref_images.rs`, `editor/glyph_resize.rs`, `app/search.rs`, `app/palette.rs` | `<name>_tests.rs` beside the module |
 
 ## Where the bugs come from
 

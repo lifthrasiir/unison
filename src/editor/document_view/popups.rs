@@ -203,31 +203,23 @@ pub(super) fn show_autocomplete_popup(
         let ac_area =
             caret_anchored_area(ui.ctx(), state, Slot::AutocompletePopup).show(ui.ctx(), |ui| {
                 egui::Frame::popup(ui.style()).show(ui, |ui| {
+                    use crate::editor::autocomplete::CompletionKind;
                     let ac = state.autocomplete.as_ref().unwrap();
-                    let visible = ac.nav.visible(ac.candidates.len());
                     ui.set_min_width(180.0);
-                    let mut clicked_idx: Option<usize> = None;
-                    for i in visible {
-                        let selected = i == ac.nav.selected;
+                    let len = ac.candidates.len();
+                    crate::editor::list_popup::show_window(ui, &ac.nav, len, |ui, i, selected| {
                         let candidate = &ac.candidates[i];
                         let kind_char = match candidate.kind {
-                            crate::editor::autocomplete::CompletionKind::Glyph => "G",
-                            crate::editor::autocomplete::CompletionKind::NameParts => "$",
-                            crate::editor::autocomplete::CompletionKind::Point => "P",
-                            crate::editor::autocomplete::CompletionKind::Keyword => "K",
-                            crate::editor::autocomplete::CompletionKind::GlyphFlag => "F",
-                            crate::editor::autocomplete::CompletionKind::Color => "C",
-                            crate::editor::autocomplete::CompletionKind::RemapGroup => "R",
+                            CompletionKind::Glyph => "G",
+                            CompletionKind::NameParts => "$",
+                            CompletionKind::Point => "P",
+                            CompletionKind::Keyword => "K",
+                            CompletionKind::GlyphFlag => "F",
+                            CompletionKind::Color => "C",
+                            CompletionKind::RemapGroup => "R",
                         };
-                        let text = format!("{kind_char}  {}", candidate.label);
-                        if ui.selectable_label(selected, &text).clicked() {
-                            clicked_idx = Some(i);
-                        }
-                    }
-                    if ac.candidates.len() > crate::editor::autocomplete::MAX_VISIBLE {
-                        ui.label(format!("{}/{}", ac.nav.selected + 1, ac.candidates.len()));
-                    }
-                    clicked_idx
+                        ui.selectable_label(selected, format!("{kind_char}  {}", candidate.label))
+                    })
                 })
             });
         if let Some(clicked) = ac_area.inner.inner {
@@ -249,8 +241,6 @@ pub(super) fn show_goto_choice_popup(ui: &egui::Ui, state: &mut EditorState) {
         return;
     };
     let rows = popup.rows();
-    let (selected, visible) = (popup.nav.selected, popup.nav.visible(rows.len()));
-    let total = rows.len();
     let area = egui::Area::new(state.key(Slot::GotoChoicePopup))
         .order(egui::Order::Foreground)
         .fixed_pos(popup.anchor);
@@ -258,21 +248,20 @@ pub(super) fn show_goto_choice_popup(ui: &egui::Ui, state: &mut EditorState) {
         .show(ui.ctx(), |ui| {
             egui::Frame::popup(ui.style())
                 .show(ui, |ui| {
-                    let mut clicked: Option<usize> = None;
-                    for i in visible {
-                        let (label, location) = &rows[i];
-                        // Monospaced and padded, so the locations line up as a
-                        // column: what the reader is comparing between rows is
-                        // where each one goes.
-                        let text = egui::RichText::new(format!("{label}   {location}")).monospace();
-                        if ui.selectable_label(i == selected, text).clicked() {
-                            clicked = Some(i);
-                        }
-                    }
-                    if total > crate::editor::list_popup::MAX_VISIBLE {
-                        ui.label(format!("{}/{total}", selected + 1));
-                    }
-                    clicked
+                    crate::editor::list_popup::show_window(
+                        ui,
+                        &popup.nav,
+                        rows.len(),
+                        |ui, i, selected| {
+                            let (label, location) = &rows[i];
+                            // Monospaced and padded, so the locations line up as
+                            // a column: what the reader is comparing between rows
+                            // is where each one goes.
+                            let text =
+                                egui::RichText::new(format!("{label}   {location}")).monospace();
+                            ui.selectable_label(selected, text)
+                        },
+                    )
                 })
                 .inner
         })

@@ -1,16 +1,21 @@
-//! The scrolling-list half of a caret-anchored popup, shared by the two popups
-//! that offer a list to walk: autocompletion ([`super::autocomplete`]) and the
-//! goto choice ([`super::goto_popup`]).
+//! The scrolling-list half of a popup, shared by the three popups that offer a
+//! list to walk: autocompletion ([`super::autocomplete`]), the goto choice
+//! ([`super::goto_popup`]) and the host's palette (`crate::app::palette`).
 //!
 //! What is shared is the *walk*, not the list: a selection index, the window it
-//! is kept visible in, and the keys that move it. Both popups are read the same
-//! way — a short window onto a possibly long list, walked with the arrows and
-//! the four jump keys — and the two had no business spelling that out twice.
+//! is kept visible in, the keys that move it, and the loop that draws the
+//! window. Every one of them is read the same way — a short window onto a
+//! possibly long list, walked with the arrows and the four jump keys — and none
+//! had any business spelling that out again.
 //!
-//! What is deliberately **not** here is what a popup does with the choice, what
-//! else its keys mean (autocompletion aliases Ctrl+J/K onto the arrows and
-//! rewrites the line as it walks) and when it closes. Those differ, and each
-//! popup keeps them.
+//! The two popups that narrow a list by typing — completion and the palette —
+//! also agree on the Ctrl+J/K aliases and on Enter/Tab accepting
+//! ([`read_typed_list_key`]). The goto choice narrows nothing, so it keeps the
+//! plain walk and dismisses on anything else.
+//!
+//! What is deliberately **not** here is what a popup does with the choice, how
+//! it narrows (completion by prefix, the palette by subsequence) and when it
+//! closes. Those differ, and each popup keeps them.
 
 /// How many rows a popup shows at once. Also the step `PageUp`/`PageDown` take,
 /// so a page moves by exactly a window.
@@ -102,6 +107,96 @@ pub(crate) fn read_move(i: &egui::InputState, selected: usize, len: usize) -> Op
     } else {
         None
     }
+}
+
+/// A bare Ctrl chord on a letter key. `ctrl` and not `command`: off the Mac
+/// `command` mirrors `ctrl`, so testing `command` would reject every Ctrl
+/// chord, and `mac_cmd` is what rules the Cmd variant out on the Mac.
+pub(crate) fn ctrl_letter(i: &egui::InputState, key: egui::Key) -> bool {
+    i.modifiers.ctrl
+        && !i.modifiers.mac_cmd
+        && !i.modifiers.alt
+        && !i.modifiers.shift
+        && i.key_pressed(key)
+}
+
+/// What one frame's keys ask of a list that is narrowed by typing.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub(crate) enum TypedListKey {
+    /// Escape: give up on the listing.
+    Dismiss,
+    /// Enter or Tab: take the selected item.
+    Accept,
+    /// A step through the list, already resolved against its length. `Prev` at
+    /// the first item and `Next` at the last stay where they are — a list that
+    /// is being narrowed has no wrap-around to discover.
+    Move(ListMove),
+}
+
+/// Reads this frame's input for a popup narrowed by typing: Escape, the walk of
+/// [`read_move`], Ctrl+J and Ctrl+K as Down and Up, and Enter or Tab to accept.
+///
+/// Escape first, then the walk, then accepting, which is the order a frame that
+/// somehow carries two of them resolves in.
+pub(crate) fn read_typed_list_key(
+    i: &egui::InputState,
+    selected: usize,
+    len: usize,
+) -> Option<TypedListKey> {
+    if i.key_pressed(egui::Key::Escape) {
+        return Some(TypedListKey::Dismiss);
+    }
+    if let Some(step) = read_move(i, selected, len) {
+        return Some(TypedListKey::Move(step));
+    }
+    let arrow = |key| i.key_pressed(key) && !i.modifiers.shift && !i.modifiers.command;
+    if arrow(egui::Key::ArrowUp) || ctrl_letter(i, egui::Key::K) {
+        return Some(TypedListKey::Move(ListMove::Prev));
+    }
+    if arrow(egui::Key::ArrowDown) || ctrl_letter(i, egui::Key::J) {
+        return Some(TypedListKey::Move(ListMove::Next));
+    }
+    if i.key_pressed(egui::Key::Enter) || i.key_pressed(egui::Key::Tab) {
+        return Some(TypedListKey::Accept);
+    }
+    None
+}
+
+impl ListNav {
+    /// Applies a step read off the keys. `Sideways` moves nothing; whether it is
+    /// swallowed is the popup's call.
+    pub(crate) fn step(&mut self, step: ListMove, len: usize) {
+        match step {
+            ListMove::Prev => self.move_to(self.selected.saturating_sub(1), len),
+            ListMove::Next => self.move_to(self.selected + 1, len),
+            ListMove::To(to) => self.move_to(to, len),
+            ListMove::Sideways => {}
+        }
+    }
+}
+
+/// Draws the window `nav` shows onto a list of `len` rows, one `row` call per
+/// visible index (`row(ui, index, selected)`), and the `n/m` counter beneath a
+/// list longer than the window. Returns the row that was clicked, if any.
+///
+/// The row's own look is the popup's: completion prefixes a kind letter, the
+/// goto choice lines its locations up, the palette right-aligns a detail.
+pub(crate) fn show_window(
+    ui: &mut egui::Ui,
+    nav: &ListNav,
+    len: usize,
+    mut row: impl FnMut(&mut egui::Ui, usize, bool) -> egui::Response,
+) -> Option<usize> {
+    let mut clicked = None;
+    for i in nav.visible(len) {
+        if row(ui, i, i == nav.selected).clicked() {
+            clicked = Some(i);
+        }
+    }
+    if len > MAX_VISIBLE {
+        ui.label(format!("{}/{len}", nav.selected + 1));
+    }
+    clicked
 }
 
 #[cfg(test)]

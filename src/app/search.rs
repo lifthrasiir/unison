@@ -990,19 +990,9 @@ impl UniformApp {
         self.search.current = Some(hit_idx);
         self.search.message = None;
 
-        let from = self.active_doc_idx().and_then(|idx| {
-            let doc = self.open_documents.get(idx)?;
-            // The pane is not a position in a document, so the caret is what
-            // was left — the page it was left on included.
-            Some(
-                NavLoc::new(
-                    idx,
-                    doc.editor_state.cursor.line,
-                    doc.editor_state.cursor.col,
-                )
-                .seen_at(doc.editor_state.caret_view_offset),
-            )
-        });
+        // The pane is not a position in a document, so the caret is what was
+        // left — the page it was left on included.
+        let from = self.caret_nav_loc();
 
         self.open_file(path.clone());
         let Some(idx) = self

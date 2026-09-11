@@ -883,7 +883,7 @@ pub(crate) fn paste_selection(
 // Transform operations (mirror, flip, rotate, opposite)
 // ---------------------------------------------------------------------------
 
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum SelectionTransform {
     MirrorH,
     FlipV,

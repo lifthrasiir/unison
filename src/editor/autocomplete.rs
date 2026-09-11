@@ -6,8 +6,7 @@ use crate::document_io::{TokenSpan, tokenize_with_spans};
 use crate::editor::caret::{Caret, char_to_byte};
 use crate::ref_composite::ResolvedGlyph;
 
-pub(crate) use crate::editor::list_popup::MAX_VISIBLE;
-use crate::editor::list_popup::{ListMove, ListNav, read_move};
+use crate::editor::list_popup::{ListMove, ListNav, TypedListKey, read_typed_list_key};
 
 #[derive(Clone, Debug, PartialEq)]
 pub(crate) enum CompletionKind {
@@ -220,89 +219,56 @@ pub(crate) enum HandleResult {
     TextChanged,
 }
 
-/// A bare Ctrl chord on a letter key. `ctrl` and not `command`: off the Mac
-/// `command` mirrors `ctrl`, so testing `command` would reject every Ctrl
-/// chord, and `mac_cmd` is what rules the Cmd variant out on the Mac.
-fn ctrl_letter(i: &egui::InputState, key: egui::Key) -> bool {
-    i.modifiers.ctrl
-        && !i.modifiers.mac_cmd
-        && !i.modifiers.alt
-        && !i.modifiers.shift
-        && i.key_pressed(key)
-}
-
 /// Handles autocomplete-specific key events.
 ///
-/// Ctrl+J and Ctrl+K duplicate Down and Up while the popup is open. Ctrl+J is
-/// also what opens it (see `document_view::keys`): opening the popup is the
-/// step down from a virtual item before the first candidate, and there is no
-/// way back onto it — Ctrl+K on the first candidate is a no-op, not a dismissal.
-/// Ctrl+K therefore never reaches the code-point popup while this one is up.
+/// Ctrl+J and Ctrl+K duplicate Down and Up while the popup is open (the aliases
+/// are [`read_typed_list_key`]'s, shared with the palette). Ctrl+J is also what
+/// opens it (see `document_view::keys`): opening the popup is the step down
+/// from a virtual item before the first candidate, and there is no way back
+/// onto it — Ctrl+K on the first candidate is a no-op, not a dismissal. Ctrl+K
+/// therefore never reaches the code-point popup while this one is up.
 pub(crate) fn handle_keys(
     ui: &egui::Ui,
     lines: &mut [DocLine],
     state: &mut super::EditorState,
 ) -> HandleResult {
-    if state.autocomplete.is_none() {
+    let Some(ac) = &state.autocomplete else {
         return HandleResult::NotConsumed;
-    }
+    };
+    let (selected, len) = (ac.nav.selected, ac.candidates.len());
 
-    let escape = ui.input(|i| i.key_pressed(egui::Key::Escape));
-    let up = ui.input(|i| {
-        (i.key_pressed(egui::Key::ArrowUp) && !i.modifiers.shift && !i.modifiers.command)
-            || ctrl_letter(i, egui::Key::K)
-    });
-    let down = ui.input(|i| {
-        (i.key_pressed(egui::Key::ArrowDown) && !i.modifiers.shift && !i.modifiers.command)
-            || ctrl_letter(i, egui::Key::J)
-    });
-    let accept = ui.input(|i| i.key_pressed(egui::Key::Enter) || i.key_pressed(egui::Key::Tab));
-
-    if escape {
-        // The line keeps whatever stands on it, including a name a walk of the
-        // list already wrote there: dismissing the popup is giving up on the
-        // *listing*, not on the typing.
-        state.autocomplete = None;
-        return HandleResult::Consumed;
-    }
-
-    // The arrows and the four jump keys walk the listing while it is open;
-    // nothing else reaches an item a long list keeps off-screen, and moving the
-    // caret instead would only dismiss the popup. Left and Right are swallowed
-    // rather than obeyed: the listing is narrowed by the word the caret sits at
-    // the end of, so a step off it would only dismiss the popup or re-filter
-    // against half a name.
-    let ac = state.autocomplete.as_ref().unwrap();
-    let (selected, last) = (ac.nav.selected, ac.candidates.len().saturating_sub(1));
-    let step = ui.input(|i| read_move(i, selected, ac.candidates.len()));
-    match step {
-        Some(ListMove::Sideways) => return HandleResult::Consumed,
-        Some(ListMove::To(to)) => {
-            move_selection(state.autocomplete.as_mut().unwrap(), to);
+    match ui.input(|i| read_typed_list_key(i, selected, len)) {
+        Some(TypedListKey::Dismiss) => {
+            // The line keeps whatever stands on it, including a name a walk of
+            // the list already wrote there: dismissing the popup is giving up
+            // on the *listing*, not on the typing.
+            state.autocomplete = None;
             return HandleResult::Consumed;
         }
-        // The arrows arrive here as well as through `up`/`down` above, which
-        // also read the Ctrl+J/K aliases; both end in the same move.
-        Some(ListMove::Prev) | Some(ListMove::Next) | None => {}
-    }
-
-    if up {
-        if selected > 0 {
-            move_selection(state.autocomplete.as_mut().unwrap(), selected - 1);
+        // The arrows and the four jump keys walk the listing while it is open;
+        // nothing else reaches an item a long list keeps off-screen, and moving
+        // the caret instead would only dismiss the popup. Left and Right are
+        // swallowed rather than obeyed: the listing is narrowed by the word the
+        // caret sits at the end of, so a step off it would only dismiss the
+        // popup or re-filter against half a name.
+        Some(TypedListKey::Move(step)) => {
+            let ac = state.autocomplete.as_mut().expect("checked above");
+            match step {
+                ListMove::Sideways => {}
+                ListMove::To(to) => move_selection(ac, to),
+                // A step off either end moves nothing, and so walks nothing:
+                // the next character still continues what is written.
+                ListMove::Prev if selected > 0 => move_selection(ac, selected - 1),
+                ListMove::Next if selected + 1 < len => move_selection(ac, selected + 1),
+                ListMove::Prev | ListMove::Next => {}
+            }
+            return HandleResult::Consumed;
         }
-        return HandleResult::Consumed;
-    }
-
-    if down {
-        if selected < last {
-            move_selection(state.autocomplete.as_mut().unwrap(), selected + 1);
+        Some(TypedListKey::Accept) => {
+            apply_completion(lines, state);
+            return HandleResult::TextChanged;
         }
-        return HandleResult::Consumed;
-    }
-
-    if accept {
-        apply_completion(lines, state);
-        return HandleResult::TextChanged;
+        None => {}
     }
 
     // A character typed after a key walked the list continues the *selected*
@@ -902,6 +868,32 @@ fn find_rest_token_at(rest: &[crate::document_io::TokenSpan], adj_col: usize) ->
     None
 }
 
+/// Adds the glyph names `doc` declares outright — block headers and alias lines,
+/// as written — to `out`. What [`offers_glyph_name`] is asked against.
+pub(crate) fn declared_glyph_names(doc: &Document, out: &mut HashSet<String>) {
+    out.extend(doc.items.iter().filter_map(|item| match item {
+        DocumentItem::Glyph { name, .. } | DocumentItem::GlyphAlias { name, .. } => {
+            Some(name.display())
+        }
+        _ => None,
+    }));
+}
+
+/// Whether a resolved glyph name is worth offering in a listing of names —
+/// completion's, and the palette's. `declared` is what [`declared_glyph_names`]
+/// collected, so a source that does write a shape-shaped name keeps it.
+///
+/// An on-demand *shape* (`3x10`, `2x1-circle`, `4x8-poly5`) is not a name anyone
+/// wrote: it is resolved because some `ref` spelled the geometry out, and there
+/// are as many of them as a source cares to spell. Offering them buries the
+/// declared names — they lead with a digit, so they sort to the very top — and
+/// picking one saves nothing, since the name *is* the shape. The color/mono pair
+/// is not one of these: its halves are declared and `parse_on_demand_glyph`
+/// never matches it (see `on_demand::detect_color_mono_glyph`).
+pub(crate) fn offers_glyph_name(name: &str, declared: &HashSet<String>) -> bool {
+    crate::on_demand::parse_on_demand_glyph(name).is_none() || declared.contains(name)
+}
+
 /// `cross` narrows the glyph listing to the names that fit the IDC slot the
 /// caret is in; see [`SlotFit`]. It is applied here rather than in
 /// [`filter_candidates`] because it does not depend on what is typed, so the
@@ -945,34 +937,10 @@ fn collect_candidates(
         CompletionKind::Glyph => {
             let admits =
                 |name: &str, declared| cross.is_none_or(|cross| cross.admits(name, declared));
-            // The names this document declares outright, so a source that does
-            // write a shape-shaped name keeps it below.
-            let declared_here: HashSet<String> = source
-                .doc
-                .items
-                .iter()
-                .filter_map(|item| match item {
-                    DocumentItem::Glyph { name, .. } | DocumentItem::GlyphAlias { name, .. } => {
-                        Some(name.display())
-                    }
-                    _ => None,
-                })
-                .collect();
-            // An on-demand *shape* (`3x10`, `2x1-circle`, `4x8-poly5`) is not a
-            // name anyone wrote: it is resolved because some `ref` spelled the
-            // geometry out, and there are as many of them as a source cares to
-            // spell. Offering them buries the declared names — they lead with a
-            // digit, so they sort to the very top — and completing one saves no
-            // typing, since the name *is* the shape. The color/mono pair is not
-            // one of these: its halves are declared and
-            // `parse_on_demand_glyph` never matches it (see
-            // `on_demand::detect_color_mono_glyph`).
-            let synthesized = |name: &str| {
-                crate::on_demand::parse_on_demand_glyph(name).is_some()
-                    && !declared_here.contains(name)
-            };
+            let mut declared_here = HashSet::default();
+            declared_glyph_names(source.doc, &mut declared_here);
             for (name, glyph) in source.named_glyphs {
-                if admits(name, glyph.declared_box) && !synthesized(name) {
+                if admits(name, glyph.declared_box) && offers_glyph_name(name, &declared_here) {
                     candidates.push(CompletionCandidate {
                         label: name.clone(),
                         kind: CompletionKind::Glyph,

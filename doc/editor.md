@@ -74,6 +74,17 @@ inside a glyph's pixel rows: they are one grid line to the caret, not text.
 **Ctrl+T / Ctrl+Shift+T** go back and forward through jumps. Going back restores the page that was
 on screen, not merely the line.
 
+**Ctrl+P** opens the palette at the top of the window: one box for a file, a glyph, a character the
+font maps, and a menu entry. What is typed matches by subsequence — its letters in order, anything in
+between, case ignored — and rows it starts come first, then rows it appears in unbroken, then the
+rest. `U+` or `uni` followed by hex digits lists characters instead, the digits matched against the
+start or the end of the code point written with at least four digits: `U+123` finds U+0123, U+1234
+and U+12345 (and, after those, U+A123). The keys are completion's — ↑/↓ or Ctrl+J/K, PgUp/PgDn,
+Home/End, Enter or Tab to take a row, Escape to dismiss — and dismissing returns the keyboard to
+wherever it was. A file opens; a glyph or a character goes to the glyph, as a jump Ctrl+T comes back
+from; a menu entry runs as if it had been clicked, and only the entries that could do something are
+listed.
+
 **Folding.** A `glyph` block and a `#`/`##`/`###` heading section each fold to their first line;
 Ctrl+; toggles the innermost group at the caret, and the gutter marker does the same. A glyph whose
 grid draws taller than about two lines of text (a `scale N` glyph, typically) starts folded. The

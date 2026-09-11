@@ -1,11 +1,10 @@
 //! The menu bar and the actions it produces.
 
+use super::commands::{Command, CommandCx};
 use super::panes::{PaneAction, SplitSide};
-use super::zoom::{
-    DEFAULT_PREVIEW_FONT_SIZE, MAX_PREVIEW_FONT_SIZE, MAX_ZOOM_LEVEL, MIN_PREVIEW_FONT_SIZE,
-    MIN_ZOOM_LEVEL, ZoomTarget, preview_font_step, zoom_step,
-};
 use super::*;
+use crate::edit_menu::EditAction;
+use crate::editor::pixel_selection::SelectionTransform;
 
 #[derive(Clone, Copy, PartialEq)]
 pub(super) enum EditTarget {
@@ -13,7 +12,7 @@ pub(super) enum EditTarget {
     Preview,
 }
 
-enum SelMenuAction {
+pub(super) enum SelMenuAction {
     Cancel,
     Transform(crate::editor::pixel_selection::SelectionTransform),
 }
@@ -29,18 +28,18 @@ pub(super) enum NavAction {
 /// frame; dispatched after the panels have run.
 #[derive(Default)]
 pub(super) struct MenuActions {
-    new_file: bool,
-    open_folder: bool,
-    rename_file: bool,
+    pub(super) new_file: bool,
+    pub(super) open_folder: bool,
+    pub(super) rename_file: bool,
     /// File ▸ Refresh filesystem (F5): scan the font directory now.
-    refresh_fs: bool,
+    pub(super) refresh_fs: bool,
     /// Edit ▸ Go to symbol: follow the link under the caret, as Ctrl/Cmd+`]`
     /// and a Ctrl/Cmd+click both do.
-    goto_symbol: bool,
-    rename_symbol: bool,
-    type_codepoint: bool,
-    export: bool,
-    export_new: bool,
+    pub(super) goto_symbol: bool,
+    pub(super) rename_symbol: bool,
+    pub(super) type_codepoint: bool,
+    pub(super) export: bool,
+    pub(super) export_new: bool,
     pub(super) exit: bool,
     pub(super) save: bool,
     pub(super) save_all: bool,
@@ -49,9 +48,9 @@ pub(super) struct MenuActions {
     pub(super) run_assert_file: bool,
     /// Font ▸ Optimize clearance: the `uniform fix --optimize-clearance` run.
     pub(super) optimize_clearance: bool,
-    edit_action: crate::edit_menu::EditAction,
-    sel_menu_action: Option<SelMenuAction>,
-    scale_action: Option<u8>,
+    pub(super) edit_action: crate::edit_menu::EditAction,
+    pub(super) sel_menu_action: Option<SelMenuAction>,
+    pub(super) scale_action: Option<u8>,
     /// Split/swap/close, dispatched after the panes are laid out so it acts on
     /// the pane the focus is actually in this frame.
     pub(super) pane_action: PaneAction,
@@ -69,6 +68,9 @@ pub(super) struct MenuActions {
     pub(super) find: Option<bool>,
     /// Edit ▸ Find next/previous: the menu half of Ctrl/Cmd+G, `true` forward.
     pub(super) find_step: Option<bool>,
+    /// Edit ▸ Command palette: open it on the next frame, the chord being read
+    /// at the top of this one.
+    pub(super) palette: bool,
 }
 
 /// The subset of [`MenuActions`] dispatched after the central panel.
@@ -114,7 +116,7 @@ fn take_swap_cut_event(events: &mut Vec<egui::Event>, modifiers: egui::Modifiers
 /// The key annotation the View menu's row for face `id` carries, given which
 /// face is selected. The keys move the selection, so the row they annotate
 /// moves with it; with two faces they both land on the same row.
-fn face_shortcut(faces: &[String], current: &str, id: &str) -> &'static str {
+pub(super) fn face_shortcut(faces: &[String], current: &str, id: &str) -> &'static str {
     let reaches = |delta: isize| {
         super::background::step_face_id(faces, current, delta).as_deref() == Some(id)
     };
@@ -127,8 +129,67 @@ fn face_shortcut(faces: &[String], current: &str, id: &str) -> &'static str {
 }
 
 impl UniformApp {
+    /// One menu entry, drawn from its [`Command`]: the label, the key, the
+    /// enabled test, the checked fill, and on a click the command itself.
+    fn command_item(
+        &mut self,
+        ui: &mut egui::Ui,
+        cx: CommandCx,
+        cmd: Command,
+        menu: &mut MenuActions,
+    ) {
+        let label = cmd.label(self);
+        // The font toggle is written in the font it switches to.
+        let text: egui::WidgetText = match cmd {
+            Command::ToggleUiFont => {
+                let family = if self.escape_mode {
+                    "UniformBitmap"
+                } else {
+                    "System"
+                };
+                egui::RichText::new(label)
+                    .family(egui::FontFamily::Name(family.into()))
+                    .into()
+            }
+            _ => label.into(),
+        };
+        let mut button = egui::Button::new(text);
+        let shortcut = cmd.shortcut(self);
+        if !shortcut.is_empty() {
+            button = button.shortcut_text(shortcut);
+        }
+        if cmd.checked(self, ui.ctx()) {
+            button = button.fill(ui.visuals().selection.bg_fill);
+        }
+        if ui.add_enabled(cmd.enabled(self, cx), button).clicked() {
+            let ctx = ui.ctx().clone();
+            cmd.apply(self, &ctx, menu);
+            ui.close_menu();
+        }
+    }
+
+    /// Menu entries in order, with a separator wherever `entries` holds `None`.
+    fn command_items(
+        &mut self,
+        ui: &mut egui::Ui,
+        cx: CommandCx,
+        entries: &[Option<Command>],
+        menu: &mut MenuActions,
+    ) {
+        for entry in entries {
+            match entry {
+                Some(cmd) => self.command_item(ui, cx, *cmd, menu),
+                None => {
+                    ui.separator();
+                }
+            }
+        }
+    }
+
     /// The top menu bar plus its global keyboard accelerators; every request
     /// lands in `menu` for dispatch after the panels.
+    ///
+    /// What each entry is and does is its [`Command`]'s; this is the layout.
     pub(super) fn show_menu_bar(
         &mut self,
         ctx: &egui::Context,
@@ -136,41 +197,12 @@ impl UniformApp {
         edit_target: EditTarget,
         editor_focused: bool,
     ) {
-        let theme_before = ctx.options(|o| o.theme_preference);
-        let (mod_name, shift_name) = crate::edit_menu::platform_shortcut_names();
-        let exit_shortcut = if cfg!(target_os = "macos") {
-            "⌘Q"
-        } else {
-            "Alt+F4"
+        use Command::*;
+        use SelectionTransform as T;
+        let cx = CommandCx {
+            edit_target,
+            editor_focused,
         };
-
-        let menu_new_file = &mut menu.new_file;
-        let menu_open_folder = &mut menu.open_folder;
-        let menu_rename = &mut menu.rename_file;
-        let menu_refresh_fs = &mut menu.refresh_fs;
-        let menu_goto_symbol = &mut menu.goto_symbol;
-        let menu_rename_symbol = &mut menu.rename_symbol;
-        let menu_type_codepoint = &mut menu.type_codepoint;
-        let menu_export = &mut menu.export;
-        let menu_export_new = &mut menu.export_new;
-        let menu_exit = &mut menu.exit;
-        let ctrl_s_pressed = &mut menu.save;
-        let ctrl_shift_s_pressed = &mut menu.save_all;
-        let escape_toggled = &mut menu.escape_toggled;
-        let run_assert_all = &mut menu.run_assert_all;
-        let run_assert_file = &mut menu.run_assert_file;
-        let optimize_clearance = &mut menu.optimize_clearance;
-        let edit_action = &mut menu.edit_action;
-        let sel_menu_action = &mut menu.sel_menu_action;
-        let scale_action = &mut menu.scale_action;
-        let pane_action = &mut menu.pane_action;
-        let nav_action = &mut menu.nav_action;
-        let toggle_fold = &mut menu.toggle_fold;
-        let toggle_comment = &mut menu.toggle_comment;
-        let find = &mut menu.find;
-        let find_step = &mut menu.find_step;
-
-        use crate::edit_menu::EditMenuCaps;
 
         // Whether any of the bar's menus is showing its contents this frame.
         // `menu_button` returns `Some` inner exactly then — including on the
@@ -182,719 +214,173 @@ impl UniformApp {
         egui::TopBottomPanel::top("menu_bar").show(ctx, |ui| {
             egui::menu::bar(ui, |ui| {
                 let file_open = ui.menu_button("File", |ui| {
-                    if ui
-                        .add(egui::Button::new("New file...").shortcut_text(format!("{mod_name}N")))
-                        .clicked()
-                    {
-                        *menu_new_file = true;
-                        ui.close_menu();
-                    }
-                    ui.separator();
-                    if ui
-                        .add(
-                            egui::Button::new("Open folder...")
-                                .shortcut_text(format!("{mod_name}{shift_name}O")),
-                        )
-                        .clicked()
-                    {
-                        *menu_open_folder = true;
-                        ui.close_menu();
-                    }
-                    ui.separator();
-                    let has_active = self.active_doc_idx().is_some();
-                    if ui
-                        .add_enabled(
-                            has_active,
-                            egui::Button::new("Save").shortcut_text(format!("{mod_name}S")),
-                        )
-                        .clicked()
-                    {
-                        *ctrl_s_pressed = true;
-                        ui.close_menu();
-                    }
-                    if ui
-                        .add(
-                            egui::Button::new("Save all")
-                                .shortcut_text(format!("{mod_name}{shift_name}S")),
-                        )
-                        .clicked()
-                    {
-                        *ctrl_shift_s_pressed = true;
-                        ui.close_menu();
-                    }
-                    ui.separator();
-                    if ui
-                        .add_enabled(
-                            has_active && !editor_focused,
-                            egui::Button::new("Rename file...").shortcut_text("F2"),
-                        )
-                        .clicked()
-                    {
-                        *menu_rename = true;
-                        ui.close_menu();
-                    }
-                    if ui
-                        .add_enabled(
-                            self.font_dir.is_some(),
-                            egui::Button::new("Refresh filesystem").shortcut_text("F5"),
-                        )
-                        .clicked()
-                    {
-                        *menu_refresh_fs = true;
-                        ui.close_menu();
-                    }
-                    ui.separator();
-                    let export_label = if let Some(ref p) = self.last_export_path {
-                        format!(
-                            "Export to {}",
-                            p.file_name()
-                                .map(|n| n.to_string_lossy().to_string())
-                                .unwrap_or_else(|| "last font".into()),
-                        )
-                    } else {
-                        "Export to last font".into()
-                    };
-                    if ui
-                        .add_enabled(
-                            self.last_export_path.is_some(),
-                            egui::Button::new(export_label).shortcut_text(format!("{mod_name}E")),
-                        )
-                        .clicked()
-                    {
-                        *menu_export = true;
-                        ui.close_menu();
-                    }
-                    if ui
-                        .add(
-                            egui::Button::new("Export to new font...")
-                                .shortcut_text(format!("{mod_name}{shift_name}E")),
-                        )
-                        .clicked()
-                    {
-                        *menu_export_new = true;
-                        ui.close_menu();
-                    }
-                    ui.separator();
-                    if ui
-                        .add(egui::Button::new("Exit").shortcut_text(exit_shortcut))
-                        .clicked()
-                    {
-                        *menu_exit = true;
-                        ui.close_menu();
-                    }
+                    self.command_items(
+                        ui,
+                        cx,
+                        &[
+                            Some(NewFile),
+                            None,
+                            Some(OpenFolder),
+                            None,
+                            Some(Save),
+                            Some(SaveAll),
+                            None,
+                            Some(RenameFile),
+                            Some(RefreshFilesystem),
+                            None,
+                            Some(ExportToLast),
+                            Some(ExportToNew),
+                            None,
+                            Some(Exit),
+                        ],
+                        menu,
+                    );
                 });
                 any_menu_open |= file_open.inner.is_some();
                 let edit_open = ui.menu_button("Edit", |ui| {
-                    let caps = match edit_target {
-                        EditTarget::Preview => self.shaped_preview.edit_menu_caps(),
-                        EditTarget::Editor => self
-                            .active_doc()
-                            .map(|d| d.editor_state.edit_menu_caps(&d.document))
-                            .unwrap_or(EditMenuCaps {
-                                can_undo: false,
-                                can_redo: false,
-                                has_selection: false,
-                                can_edit: false,
-                            }),
-                    };
-                    *edit_action = crate::edit_menu::show_edit_menu_items(ui, &caps, true);
-                    ui.separator();
-                    if ui
-                        .add_enabled(
-                            self.nav_history.can_go_back(),
-                            egui::Button::new("Go back").shortcut_text(format!("{mod_name}T")),
-                        )
-                        .clicked()
-                    {
-                        *nav_action = Some(NavAction::Back);
-                        ui.close_menu();
-                    }
-                    if ui
-                        .add_enabled(
-                            self.nav_history.can_go_forward(),
-                            egui::Button::new("Go forward")
-                                .shortcut_text(format!("{mod_name}{shift_name}T")),
-                        )
-                        .clicked()
-                    {
-                        *nav_action = Some(NavAction::Forward);
-                        ui.close_menu();
-                    }
-                    ui.separator();
-                    if ui
-                        .add_enabled(
-                            editor_focused,
-                            egui::Button::new("Fold/unfold innermost group")
-                                .shortcut_text(format!("{mod_name};")),
-                        )
-                        .clicked()
-                    {
-                        *toggle_fold = true;
-                        ui.close_menu();
-                    }
-                    if ui
-                        .add_enabled(
-                            editor_focused,
-                            egui::Button::new("Toggle line comment")
-                                .shortcut_text(format!("{mod_name}/")),
-                        )
-                        .clicked()
-                    {
-                        *toggle_comment = true;
-                        ui.close_menu();
-                    }
-                    ui.separator();
-                    // Always enabled: the box is where the reader types, and it
-                    // is reachable whether or not an editor holds the keyboard.
-                    if ui
-                        .add(
-                            egui::Button::new("Find text...").shortcut_text(format!("{mod_name}F")),
-                        )
-                        .clicked()
-                    {
-                        *find = Some(false);
-                        ui.close_menu();
-                    }
-                    if ui
-                        .add(
-                            egui::Button::new("Find glyph...")
-                                .shortcut_text(format!("{mod_name}{shift_name}F")),
-                        )
-                        .clicked()
-                    {
-                        *find = Some(true);
-                        ui.close_menu();
-                    }
-                    let has_hits = !self.search.hits().is_empty();
-                    if ui
-                        .add_enabled(
-                            has_hits,
-                            egui::Button::new("Find next").shortcut_text(format!("{mod_name}G")),
-                        )
-                        .clicked()
-                    {
-                        *find_step = Some(true);
-                        ui.close_menu();
-                    }
-                    if ui
-                        .add_enabled(
-                            has_hits,
-                            egui::Button::new("Find previous")
-                                .shortcut_text(format!("{mod_name}{shift_name}G")),
-                        )
-                        .clicked()
-                    {
-                        *find_step = Some(false);
-                        ui.close_menu();
-                    }
-                    ui.separator();
-                    if ui
-                        .add_enabled(
-                            editor_focused,
-                            egui::Button::new("Go to symbol").shortcut_text(format!("{mod_name}]")),
-                        )
-                        .clicked()
-                    {
-                        *menu_goto_symbol = true;
-                        ui.close_menu();
-                    }
-                    if ui
-                        .add_enabled(
-                            editor_focused,
-                            egui::Button::new("Rename symbol...").shortcut_text("F2"),
-                        )
-                        .clicked()
-                    {
-                        *menu_rename_symbol = true;
-                        ui.close_menu();
-                    }
-                    if ui
-                        .add_enabled(
-                            editor_focused,
-                            egui::Button::new("Type code point...").shortcut_text("Ctrl+K"),
-                        )
-                        .clicked()
-                    {
-                        *menu_type_codepoint = true;
-                        ui.close_menu();
-                    }
-                    let in_grid_edit = self.in_grid_edit();
-                    ui.separator();
-                    if ui
-                        .add_enabled(
-                            in_grid_edit,
-                            egui::Button::new("Selection mode").shortcut_text("`"),
-                        )
-                        .clicked()
-                    {
-                        if let Some(d) = self.active_doc_mut()
-                            && let crate::editor::EditMode::GlyphEdit { item_idx, .. } =
-                                d.editor_state.mode
-                        {
-                            d.editor_state.mode = crate::editor::EditMode::pixel_select(
-                                item_idx,
-                                &d.editor_state.mode,
-                            );
-                            d.editor_state.refocus();
+                    for (action, separated) in EditAction::MENU {
+                        if separated {
+                            ui.separator();
                         }
-                        ui.close_menu();
+                        self.command_item(ui, cx, Edit(action), menu);
                     }
-                    if ui
-                        .add_enabled(
-                            in_grid_edit,
-                            egui::Button::new("Drawing mode").shortcut_text("1"),
-                        )
-                        .clicked()
-                    {
-                        if let Some(d) = self.active_doc_mut()
-                            && let crate::editor::EditMode::PixelSelect { item_idx, .. } =
-                                d.editor_state.mode
-                        {
-                            d.editor_state.mode = crate::editor::EditMode::GlyphEdit {
-                                item_idx,
-                                selected_shape: crate::pixel::PixelShape::new(
-                                    crate::pixel::PX_ALMOSTFULL,
-                                    true,
-                                ),
-                            };
-                            d.editor_state.refocus();
-                        }
-                        ui.close_menu();
-                    }
-                    ui.separator();
-                    let current_scale = self.active_doc().and_then(|d| {
-                        crate::editor::pixel_selection::can_adjust_scale(
-                            &d.document,
-                            &d.lines,
-                            &d.editor_state,
-                        )
-                    });
-                    ui.add_enabled_ui(current_scale.is_some(), |ui| {
+                    self.command_items(
+                        ui,
+                        cx,
+                        &[
+                            None,
+                            Some(GoBack),
+                            Some(GoForward),
+                            None,
+                            Some(ToggleFold),
+                            Some(ToggleComment),
+                            None,
+                            Some(FindText),
+                            Some(FindGlyph),
+                            Some(FindNext),
+                            Some(FindPrevious),
+                            Some(Palette),
+                            None,
+                            Some(GotoSymbol),
+                            Some(RenameSymbol),
+                            Some(TypeCodepoint),
+                            None,
+                            Some(SelectionMode),
+                            Some(DrawingMode),
+                            None,
+                        ],
+                        menu,
+                    );
+                    let can_scale = self.current_scale().is_some();
+                    ui.add_enabled_ui(can_scale, |ui| {
                         ui.menu_button("Adjust scale", |ui| {
                             for s in 1u8..=10 {
-                                let label = if current_scale == Some(s) {
-                                    format!("{s} ✓")
-                                } else {
-                                    format!("{s}")
-                                };
-                                if ui
-                                    .add_enabled(current_scale != Some(s), egui::Button::new(label))
-                                    .clicked()
-                                {
-                                    *scale_action = Some(s);
-                                    ui.close_menu();
-                                }
+                                self.command_item(ui, cx, AdjustScale(s), menu);
                             }
                         });
                     });
                 });
                 any_menu_open |= edit_open.inner.is_some();
                 let sel_open = ui.menu_button("Selection", |ui| {
-                    // The transforms answer to the bare letter as well as to
-                    // the Ctrl/Cmd chord (see `document_view::keys`); the menu
-                    // names the shorter of the two.
-                    let (_, shift_name) = crate::edit_menu::platform_shortcut_names();
-                    let active_doc = self.active_doc();
-                    let in_grid_mode = self.in_grid_edit();
-                    let has_sel =
-                        active_doc.is_some_and(|d| d.editor_state.pixel_selection.is_some());
-
-                    use crate::editor::pixel_selection::{SelectionTransform, can_transform};
-
-                    let can_do = |t: SelectionTransform| -> bool {
-                        if !in_grid_mode {
-                            return false;
-                        }
-                        if let Some(d) = active_doc {
-                            return can_transform(&d.document, &d.editor_state, t);
-                        }
-                        false
-                    };
-
-                    if ui
-                        .add_enabled(
-                            has_sel,
-                            egui::Button::new("Cancel selection").shortcut_text("Esc"),
-                        )
-                        .clicked()
-                    {
-                        *sel_menu_action = Some(SelMenuAction::Cancel);
-                        ui.close_menu();
-                    }
-
-                    ui.separator();
-
-                    if ui
-                        .add_enabled(
-                            can_do(SelectionTransform::MirrorH),
-                            egui::Button::new("Mirror selection").shortcut_text("M"),
-                        )
-                        .clicked()
-                    {
-                        *sel_menu_action =
-                            Some(SelMenuAction::Transform(SelectionTransform::MirrorH));
-                        ui.close_menu();
-                    }
-                    if ui
-                        .add_enabled(
-                            can_do(SelectionTransform::FlipV),
-                            egui::Button::new("Flip selection").shortcut_text("I"),
-                        )
-                        .clicked()
-                    {
-                        *sel_menu_action =
-                            Some(SelMenuAction::Transform(SelectionTransform::FlipV));
-                        ui.close_menu();
-                    }
+                    self.command_items(
+                        ui,
+                        cx,
+                        &[
+                            Some(CancelSelection),
+                            None,
+                            Some(Transform(T::MirrorH)),
+                            Some(Transform(T::FlipV)),
+                        ],
+                        menu,
+                    );
                     ui.menu_button("Rotate selection", |ui| {
-                        if ui
-                            .add_enabled(
-                                can_do(SelectionTransform::RotateCCW),
-                                egui::Button::new("Counterclockwise").shortcut_text("J"),
-                            )
-                            .clicked()
-                        {
-                            *sel_menu_action =
-                                Some(SelMenuAction::Transform(SelectionTransform::RotateCCW));
-                            ui.close_menu();
-                        }
-                        if ui
-                            .add_enabled(
-                                can_do(SelectionTransform::Rotate180),
-                                egui::Button::new("180 degrees").shortcut_text("K"),
-                            )
-                            .clicked()
-                        {
-                            *sel_menu_action =
-                                Some(SelMenuAction::Transform(SelectionTransform::Rotate180));
-                            ui.close_menu();
-                        }
-                        if ui
-                            .add_enabled(
-                                can_do(SelectionTransform::RotateCW),
-                                egui::Button::new("Clockwise").shortcut_text("L"),
-                            )
-                            .clicked()
-                        {
-                            *sel_menu_action =
-                                Some(SelMenuAction::Transform(SelectionTransform::RotateCW));
-                            ui.close_menu();
+                        for t in [T::RotateCCW, T::Rotate180, T::RotateCW] {
+                            self.command_item(ui, cx, Transform(t), menu);
                         }
                     });
-
-                    ui.separator();
-
-                    if ui
-                        .add_enabled(
-                            can_do(SelectionTransform::Opposite),
-                            egui::Button::new("Opposite subglyphs").shortcut_text("O"),
-                        )
-                        .clicked()
-                    {
-                        *sel_menu_action =
-                            Some(SelMenuAction::Transform(SelectionTransform::Opposite));
-                        ui.close_menu();
-                    }
-                    if ui
-                        .add_enabled(
-                            can_do(SelectionTransform::OppositeBitmap),
-                            egui::Button::new("Opposite bitmap")
-                                .shortcut_text(format!("{shift_name}O")),
-                        )
-                        .clicked()
-                    {
-                        *sel_menu_action =
-                            Some(SelMenuAction::Transform(SelectionTransform::OppositeBitmap));
-                        ui.close_menu();
-                    }
+                    self.command_items(
+                        ui,
+                        cx,
+                        &[
+                            None,
+                            Some(Transform(T::Opposite)),
+                            Some(Transform(T::OppositeBitmap)),
+                        ],
+                        menu,
+                    );
                 });
                 any_menu_open |= sel_open.inner.is_some();
                 let font_open = ui.menu_button("Font", |ui| {
-                    if ui
-                        .add_enabled(
-                            !self.assert_running && self.active_doc_idx().is_some(),
-                            egui::Button::new("Run assertions (current file)").shortcut_text("F6"),
-                        )
-                        .clicked()
-                    {
-                        *run_assert_file = true;
-                        ui.close_menu();
-                    }
-                    if ui
-                        .add_enabled(
-                            !self.assert_running,
-                            egui::Button::new("Run assertions (all files)")
-                                .shortcut_text(format!("{mod_name}F6")),
-                        )
-                        .clicked()
-                    {
-                        *run_assert_all = true;
-                        ui.close_menu();
-                    }
                     // Below the separator: everything that rewrites the source
                     // (`uniform fix`), as against the checks above it.
-                    ui.separator();
-                    if ui
-                        .add_enabled(!self.fix_running, egui::Button::new("Optimize clearance"))
-                        .clicked()
-                    {
-                        *optimize_clearance = true;
-                        ui.close_menu();
-                    }
+                    self.command_items(
+                        ui,
+                        cx,
+                        &[
+                            Some(RunAssertionsInFile),
+                            Some(RunAssertionsInAll),
+                            None,
+                            Some(OptimizeClearance),
+                        ],
+                        menu,
+                    );
                 });
                 any_menu_open |= font_open.inner.is_some();
                 let view_open = ui.menu_button("View", |ui| {
-                    // Splitting is only offered from a single pane that has a
-                    // document: from a placeholder it would leave two of them,
-                    // and there is no third pane.
-                    let alt_name = if cfg!(target_os = "macos") {
-                        "\u{2325}"
-                    } else {
-                        "Alt+"
-                    };
-                    for (side, label, key) in [
-                        (SplitSide::Left, "Split editor left", "\u{2190}"),
-                        (SplitSide::Right, "Split editor right", "\u{2192}"),
-                    ] {
-                        if ui
-                            .add_enabled(
-                                self.panes.can_split(),
-                                egui::Button::new(label)
-                                    .shortcut_text(format!("{mod_name}{alt_name}{key}")),
-                            )
-                            .clicked()
-                        {
-                            *pane_action = PaneAction::Split(side);
-                            ui.close_menu();
-                        }
-                    }
-                    // Moving the focus is vim-keyed rather than arrow-keyed:
-                    // the arrows are taken by the splits above, and h/l leave
-                    // j/k free for a horizontal split should one ever land.
-                    for (side, label, key) in [
-                        (SplitSide::Left, "Focus editor pane left", "H"),
-                        (SplitSide::Right, "Focus editor pane right", "L"),
-                    ] {
-                        if ui
-                            .add_enabled(
-                                self.panes.can_focus_side(side),
-                                egui::Button::new(label)
-                                    .shortcut_text(format!("{mod_name}{alt_name}{key}")),
-                            )
-                            .clicked()
-                        {
-                            *pane_action = PaneAction::Focus(side);
-                            ui.close_menu();
-                        }
-                    }
-                    if ui
-                        .add_enabled(
-                            self.panes.can_swap(),
-                            egui::Button::new("Swap editor panes")
-                                .shortcut_text(format!("{mod_name}{alt_name}X")),
-                        )
-                        .clicked()
-                    {
-                        *pane_action = PaneAction::Swap;
-                        ui.close_menu();
-                    }
-                    if ui
-                        .add_enabled(
-                            self.panes.can_close(),
-                            egui::Button::new("Close editor pane")
-                                .shortcut_text(format!("{mod_name}W")),
-                        )
-                        .clicked()
-                    {
-                        *pane_action = PaneAction::Close;
-                        ui.close_menu();
-                    }
-                    ui.separator();
-                    if ui
-                        .add(egui::Button::new("Close panes").shortcut_text(format!("{mod_name}`")))
-                        .clicked()
-                    {
-                        self.bottom_panel_tab = None;
-                        ui.close_menu();
-                    }
-                    ui.separator();
-                    for (tab, label) in [(0, "Preview"), (1, "Specimen"), (2, "Issues")] {
-                        let selected = self.bottom_panel_tab == Some(tab);
-                        let mut btn = egui::Button::new(label)
-                            .shortcut_text(format!("{mod_name}{}", tab + 1));
-                        if selected {
-                            btn = btn.fill(ui.visuals().selection.bg_fill);
-                        }
-                        if ui.add(btn).clicked() {
-                            let screen_h = ui.ctx().input(|i| i.screen_rect.height());
-                            self.open_bottom_panel(tab, screen_h);
-                            ui.close_menu();
-                        }
-                    }
-                    ui.separator();
+                    self.command_items(
+                        ui,
+                        cx,
+                        &[
+                            Some(SplitPane(SplitSide::Left)),
+                            Some(SplitPane(SplitSide::Right)),
+                            Some(FocusPane(SplitSide::Left)),
+                            Some(FocusPane(SplitSide::Right)),
+                            Some(SwapPanes),
+                            Some(ClosePane),
+                            None,
+                            Some(ClosePanels),
+                            None,
+                            Some(ShowTab(0)),
+                            Some(ShowTab(1)),
+                            Some(ShowTab(2)),
+                            None,
+                        ],
+                        menu,
+                    );
                     // A source with one face has nothing to pick, and its face
                     // id is the empty implicit one — unnameable in a menu.
                     if self.face_ids.len() > 1 {
                         ui.menu_button("Face", |ui| {
-                            // The keys annotate the faces they actually reach,
-                            // so the annotation moves with the selection rather
-                            // than sitting on a fixed "next/previous" entry.
-                            // With exactly two faces both keys reach the same
-                            // one, and it says so.
-                            let current = self.selected_face().to_string();
-                            for id in self.face_ids.clone() {
-                                let selected = current == id;
-                                let mut btn = egui::Button::new(&id);
-                                if selected {
-                                    btn = btn.fill(ui.visuals().selection.bg_fill);
-                                }
-                                let keys = face_shortcut(&self.face_ids, &current, &id);
-                                if !keys.is_empty() {
-                                    btn = btn.shortcut_text(keys);
-                                }
-                                if ui.add(btn).clicked() {
-                                    let ctx = ui.ctx().clone();
-                                    self.set_selected_face(id, &ctx);
-                                    ui.close_menu();
-                                }
+                            for i in 0..self.face_ids.len() {
+                                self.command_item(ui, cx, Face(i), menu);
                             }
                         });
                     }
-                    let (font_label, preview_family) = if self.escape_mode {
-                        (
-                            "Use dogfooded font",
-                            egui::FontFamily::Name("UniformBitmap".into()),
-                        )
-                    } else {
-                        ("Use system font", egui::FontFamily::Name("System".into()))
-                    };
-                    let label = egui::RichText::new(font_label).family(preview_family);
-                    if ui
-                        .add(egui::Button::new(label).shortcut_text("F12"))
-                        .clicked()
-                    {
-                        self.escape_mode = !self.escape_mode;
-                        *escape_toggled = true;
-                        ui.close_menu();
-                    }
-                    ui.separator();
-                    let mut metrics_btn = egui::Button::new("Show glyph metrics");
-                    if self.show_metrics {
-                        metrics_btn = metrics_btn.fill(ui.visuals().selection.bg_fill);
-                    }
-                    if ui.add(metrics_btn).clicked() {
-                        self.show_metrics = !self.show_metrics;
-                        ui.close_menu();
-                    }
-                    ui.separator();
-                    // The zoom entries drive whichever surface has the focus, and are
-                    // disabled outright when that is neither the editor nor the preview.
-                    let zoom_target = self.focused_zoom_target();
-                    let editor_zoom = self.focused_zoom_level();
-                    let (can_in, can_out, can_reset) = match zoom_target {
-                        ZoomTarget::Editor(_) => (
-                            editor_zoom < MAX_ZOOM_LEVEL,
-                            editor_zoom > MIN_ZOOM_LEVEL,
-                            editor_zoom != 1,
-                        ),
-                        ZoomTarget::Preview => (
-                            self.preview_font_size < MAX_PREVIEW_FONT_SIZE,
-                            self.preview_font_size > MIN_PREVIEW_FONT_SIZE,
-                            self.preview_font_size != DEFAULT_PREVIEW_FONT_SIZE,
-                        ),
-                        ZoomTarget::None => (false, false, false),
-                    };
-                    if ui
-                        .add_enabled(
-                            can_in,
-                            egui::Button::new("Zoom in").shortcut_text(format!("{mod_name}=")),
-                        )
-                        .clicked()
-                    {
-                        match zoom_target {
-                            ZoomTarget::Editor(idx) => {
-                                self.set_pane_zoom_level(idx, zoom_step(editor_zoom, 1));
-                            }
-                            ZoomTarget::Preview => {
-                                let size = preview_font_step(self.preview_font_size, 1);
-                                self.set_preview_font_size(size);
-                            }
-                            ZoomTarget::None => {}
-                        }
-                        ui.close_menu();
-                    }
-                    if ui
-                        .add_enabled(
-                            can_out,
-                            egui::Button::new("Zoom out").shortcut_text(format!("{mod_name}-")),
-                        )
-                        .clicked()
-                    {
-                        match zoom_target {
-                            ZoomTarget::Editor(idx) => {
-                                self.set_pane_zoom_level(idx, zoom_step(editor_zoom, -1));
-                            }
-                            ZoomTarget::Preview => {
-                                let size = preview_font_step(self.preview_font_size, -1);
-                                self.set_preview_font_size(size);
-                            }
-                            ZoomTarget::None => {}
-                        }
-                        ui.close_menu();
-                    }
-                    if ui
-                        .add_enabled(
-                            can_reset,
-                            egui::Button::new("Reset zoom").shortcut_text(format!("{mod_name}0")),
-                        )
-                        .clicked()
-                    {
-                        match zoom_target {
-                            ZoomTarget::Editor(idx) => {
-                                self.set_pane_zoom_level(idx, 1);
-                            }
-                            ZoomTarget::Preview => {
-                                self.set_preview_font_size(DEFAULT_PREVIEW_FONT_SIZE);
-                            }
-                            ZoomTarget::None => {}
-                        }
-                        ui.close_menu();
-                    }
-                    ui.separator();
-                    // The only route to the startup report when the binary was
-                    // launched with no console to print it to; see `startup.rs`.
-                    if ui.button("Startup timing\u{2026}").clicked() {
-                        self.startup_timing_open = true;
-                        ui.close_menu();
-                    }
-                    // What one *edit* costs, which is a different question and
-                    // has a report of its own; see `app::timing`.
-                    if ui.button("Rebuild timing\u{2026}").clicked() {
-                        self.rebuild_timing_open = true;
-                        ui.close_menu();
-                    }
-                    ui.separator();
+                    self.command_items(
+                        ui,
+                        cx,
+                        &[
+                            Some(ToggleUiFont),
+                            None,
+                            Some(ShowMetrics),
+                            None,
+                            Some(ZoomIn),
+                            Some(ZoomOut),
+                            Some(ResetZoom),
+                            None,
+                            Some(StartupTiming),
+                            Some(RebuildTiming),
+                            None,
+                        ],
+                        menu,
+                    );
                     ui.menu_button("Color Scheme", |ui| {
-                        if ui
-                            .radio(theme_before == egui::ThemePreference::System, "System")
-                            .clicked()
-                        {
-                            ctx.set_theme(egui::ThemePreference::System);
-                            ui.close_menu();
-                        }
-                        if ui
-                            .radio(theme_before == egui::ThemePreference::Dark, "Dark")
-                            .clicked()
-                        {
-                            ctx.set_theme(egui::ThemePreference::Dark);
-                            ui.close_menu();
-                        }
-                        if ui
-                            .radio(theme_before == egui::ThemePreference::Light, "Light")
-                            .clicked()
-                        {
-                            ctx.set_theme(egui::ThemePreference::Light);
-                            ui.close_menu();
+                        for theme in [
+                            egui::ThemePreference::System,
+                            egui::ThemePreference::Dark,
+                            egui::ThemePreference::Light,
+                        ] {
+                            self.command_item(ui, cx, Theme(theme), menu);
                         }
                     });
                 });
@@ -902,29 +388,26 @@ impl UniformApp {
             });
         });
         self.menu_open = any_menu_open;
-        if ctx.options(|o| o.theme_preference) != theme_before {
-            self.font_applied = None;
-        }
 
         ctx.input(|i| {
             if i.modifiers.command && !i.modifiers.shift && i.key_pressed(egui::Key::N) {
-                *menu_new_file = true;
+                menu.new_file = true;
             }
             if i.modifiers.command
                 && i.modifiers.shift
                 && i.key_pressed(egui::Key::O)
                 && !self.in_grid_edit()
             {
-                *menu_open_folder = true;
+                menu.open_folder = true;
             }
             if i.modifiers.command && !i.modifiers.shift && i.key_pressed(egui::Key::S) {
-                *ctrl_s_pressed = true;
+                menu.save = true;
             }
             if i.modifiers.command && i.modifiers.shift && i.key_pressed(egui::Key::S) {
-                *ctrl_shift_s_pressed = true;
+                menu.save_all = true;
             }
             if i.modifiers.command && !i.modifiers.shift && i.key_pressed(egui::Key::E) {
-                *menu_export = true;
+                menu.export = true;
             }
             // Pane commands. The arrows carry Alt as well as Cmd/Ctrl because
             // bare Alt + arrow is word-wise cursor movement on macOS. Swap
@@ -932,32 +415,32 @@ impl UniformApp {
             // see `take_swap_cut_event` below.
             if i.modifiers.command && !i.modifiers.shift {
                 if i.key_pressed(egui::Key::W) {
-                    *pane_action = PaneAction::Close;
+                    menu.pane_action = PaneAction::Close;
                 }
                 if i.modifiers.alt {
                     if i.key_pressed(egui::Key::ArrowLeft) {
-                        *pane_action = PaneAction::Split(SplitSide::Left);
+                        menu.pane_action = PaneAction::Split(SplitSide::Left);
                     }
                     if i.key_pressed(egui::Key::ArrowRight) {
-                        *pane_action = PaneAction::Split(SplitSide::Right);
+                        menu.pane_action = PaneAction::Split(SplitSide::Right);
                     }
                     // Moving the focus between panes, vim-style.
                     if i.key_pressed(egui::Key::H) {
-                        *pane_action = PaneAction::Focus(SplitSide::Left);
+                        menu.pane_action = PaneAction::Focus(SplitSide::Left);
                     }
                     if i.key_pressed(egui::Key::L) {
-                        *pane_action = PaneAction::Focus(SplitSide::Right);
+                        menu.pane_action = PaneAction::Focus(SplitSide::Right);
                     }
                 }
             }
             if i.modifiers.command && i.modifiers.shift && i.key_pressed(egui::Key::E) {
-                *menu_export_new = true;
+                menu.export_new = true;
             }
             // Go back / go forward through followed links. Both are dispatched
             // even with nothing to go to; the history just reports there is no
             // step to take.
             if i.modifiers.command && i.key_pressed(egui::Key::T) {
-                *nav_action = Some(if i.modifiers.shift {
+                menu.nav_action = Some(if i.modifiers.shift {
                     NavAction::Forward
                 } else {
                     NavAction::Back
@@ -965,10 +448,10 @@ impl UniformApp {
             }
             if cfg!(target_os = "macos") {
                 if i.modifiers.command && i.key_pressed(egui::Key::Q) {
-                    *menu_exit = true;
+                    menu.exit = true;
                 }
             } else if i.modifiers.alt && i.key_pressed(egui::Key::F4) {
-                *menu_exit = true;
+                menu.exit = true;
             }
             if i.modifiers.command && !i.modifiers.shift {
                 for (key, tab) in [

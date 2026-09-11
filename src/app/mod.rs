@@ -19,11 +19,13 @@ use crate::sidebar::{Sidebar, SidebarAction};
 use crate::specimen::SpecimenState;
 
 mod background;
+mod commands;
 mod docs;
 mod fix;
 mod goto_pattern;
 mod history;
 mod menus;
+mod palette;
 mod panels;
 mod panes;
 mod rename;
@@ -131,6 +133,16 @@ pub struct UniformApp {
     /// happen before it — so the click is held over one frame rather than
     /// focusing a box that will not be drawn again until then.
     menu_find: Option<bool>,
+    /// The palette, while it is open. See [`palette`].
+    palette: Option<palette::PaletteState>,
+    /// Edit ▸ Command palette, waiting for the next frame as `menu_find` waits:
+    /// the chord is read at the top of the frame, the menu below it.
+    palette_requested: bool,
+    /// A command picked in the palette, run at the top of the next frame once
+    /// the keyboard is back where the palette took it from. See [`palette`].
+    palette_command: Option<commands::Command>,
+    /// The palette's glyph and character listings, kept between openings.
+    palette_cache: palette::PaletteCache,
     sidebar: Sidebar,
     /// The sidebar panel's rect as of the last frame. The file watcher holds a
     /// listing refresh back while the pointer is over it, so that rows never
@@ -490,6 +502,10 @@ impl UniformApp {
             nav_history: NavHistory::new(),
             search: SearchState::default(),
             menu_find: None,
+            palette: None,
+            palette_requested: false,
+            palette_command: None,
+            palette_cache: Default::default(),
             sidebar: Sidebar::new(),
             sidebar_rect: egui::Rect::NOTHING,
             watch: watch::WatchState::with_cache(dir_cache),
@@ -608,21 +624,12 @@ impl UniformApp {
                 hops
             }
             NavTarget::CrossFile(goto) => {
-                match self.goto_glyph(ctx, &goto.name, &goto.kind) {
-                    Some((doc_idx, line)) => {
-                        let mut hops = vec![NavLoc::new(doc_idx, line, 0)];
-                        if goto.kind == LinkTargetKind::Glyph {
-                            hops.extend(self.follow_goto_chain(ctx, &goto.name));
-                        }
-                        hops
-                    }
-                    // Nothing declares the name, so there is no jump to make
-                    // or to record — list who writes it instead.
-                    None => {
-                        self.search_name(ctx, &goto.name, goto.kind);
-                        Vec::new()
-                    }
+                // Nothing declares the name, so there is no jump to make or to
+                // record — list who writes it instead.
+                if !self.jump_to_name(ctx, &goto.name, goto.kind, Some(from)) {
+                    self.search_name(ctx, &goto.name, goto.kind);
                 }
+                Vec::new()
             }
             // A pattern names many glyphs, which need not be declared in one
             // place. Where they all agree the jump is made without asking;
@@ -632,17 +639,10 @@ impl UniformApp {
             NavTarget::Pattern { token, line } => {
                 match self.resolve_pattern_link(from_doc, &token, line) {
                     goto_pattern::PatternLink::One(name) => {
-                        match self.goto_glyph(ctx, &name, &LinkTargetKind::Glyph) {
-                            Some((doc_idx, line)) => {
-                                let mut hops = vec![NavLoc::new(doc_idx, line, 0)];
-                                hops.extend(self.follow_goto_chain(ctx, &name));
-                                hops
-                            }
-                            None => {
-                                self.search_name(ctx, &token, LinkTargetKind::Glyph);
-                                Vec::new()
-                            }
+                        if !self.jump_to_name(ctx, &name, LinkTargetKind::Glyph, Some(from)) {
+                            self.search_name(ctx, &token, LinkTargetKind::Glyph);
                         }
+                        Vec::new()
                     }
                     goto_pattern::PatternLink::Many(groups) => {
                         self.open_goto_choice(from_doc, groups, nav.from, nav.from_offset);
@@ -681,14 +681,42 @@ impl UniformApp {
         ctx: &egui::Context,
         click: crate::specimen::SpecimenClick,
     ) {
-        let Some((doc_idx, line)) = self.goto_glyph(ctx, &click.name, &click.kind) else {
-            return;
+        self.jump_to_name(ctx, &click.name, click.kind, None);
+    }
+
+    /// Goes to where `name` is declared, carries the jump on through any `goto`
+    /// ref, and records every step from `from`. Reports whether anything
+    /// declares the name at all; where nothing does, nothing moves and nothing
+    /// is recorded, and what to do instead is the caller's call.
+    ///
+    /// Shared by everything that jumps to a *name*: a followed link, a specimen
+    /// click and the palette. They differ only in where the jump starts — see
+    /// [`Self::record_nav_chain`] for a `from` of `None`.
+    fn jump_to_name(
+        &mut self,
+        ctx: &egui::Context,
+        name: &str,
+        kind: LinkTargetKind,
+        from: Option<NavLoc>,
+    ) -> bool {
+        let Some((doc_idx, line)) = self.goto_glyph(ctx, name, &kind) else {
+            return false;
         };
         let mut hops = vec![NavLoc::new(doc_idx, line, 0)];
-        if click.kind == LinkTargetKind::Glyph {
-            hops.extend(self.follow_goto_chain(ctx, &click.name));
+        if kind == LinkTargetKind::Glyph {
+            hops.extend(self.follow_goto_chain(ctx, name));
         }
-        self.record_nav_chain(None, hops);
+        self.record_nav_chain(from, hops);
+        true
+    }
+
+    /// The active document's caret as a history location, with the page it was
+    /// seen on — the position a jump that starts from no link departs from (a
+    /// search hit, a palette row).
+    fn caret_nav_loc(&self) -> Option<NavLoc> {
+        let idx = self.active_doc_idx()?;
+        let state = &self.open_documents.get(idx)?.editor_state;
+        Some(NavLoc::new(idx, state.cursor.line, state.cursor.col).seen_at(state.caret_view_offset))
     }
 
     /// Records one gesture's landings as one history entry per step: the link
@@ -914,6 +942,9 @@ impl eframe::App for UniformApp {
         self.ensure_ref_images(ctx);
 
         let mut menu = MenuActions::default();
+        // First of all the input: while the palette is open it owns the list
+        // keys, Escape included, and takes them out of the queue.
+        let palette_jump = self.palette_frame(ctx, &mut menu);
         // Collected here and acted on below: switching a face rebuilds the
         // font, and that must not run while the input lock is held.
         let mut face_step = 0isize;
@@ -1023,6 +1054,10 @@ impl eframe::App for UniformApp {
         if let Some((from_doc, nav)) = editor_panel.nav {
             self.follow_nav_request(ctx, from_doc, nav);
         }
+        // Picked at the top of the frame, carried out here like every jump.
+        if let Some(jump) = palette_jump {
+            self.apply_palette_jump(ctx, jump);
+        }
 
         // A `sample` line's *Use* button. It goes in as one undoable edit —
         // what it overwrites is whatever the reader typed into the panel, and
@@ -1057,6 +1092,7 @@ impl eframe::App for UniformApp {
             self.run_search_from_box(ctx);
         }
         self.menu_find = menu.find;
+        self.palette_requested |= menu.palette;
         search_step = search_step.or(menu.find_step);
         if let Some(forward) = search_step {
             self.step_search_hit(ctx, forward);

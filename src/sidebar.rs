@@ -68,7 +68,7 @@ impl Sidebar {
         }
     }
 
-    #[expect(unused)]
+    /// The listed files, in the order the sidebar shows them.
     pub fn files(&self) -> &[PathBuf] {
         &self.files
     }
