@@ -94,6 +94,11 @@ glyph han-30357-($han-regions):15x16 15 16 // 𰍗
 
 # CJK unified ideographs extension G: 寸 (41)
 
+## 41.11
+
+// glyph han-30365:15x16 15 16 // 𰍥
+// ⿰ han-27227 han-5bfa // ⿰𧈧寺
+
 ## 41.12
 
 // glyph han-30366:15x16 15 16 // 𰍦
@@ -168,6 +173,9 @@ glyph han-30379:15x16 15 16 // 𰍹
 
 glyph han-3038c:15x16 15 16 // 𰎌
 ⿲ han-5c71:5x16 han-4eba:5x16 han-4eba:5x16 // ⿲山人人
+
+// glyph han-3038d:15x16 15 16 // 𰎍
+// ⿰ han-5c71 han-5141 // ⿰山允
 
 ## 46.5
 
@@ -429,6 +437,9 @@ glyph han-30443:15x16 15 16 // 𰑃
 
 glyph han-30445:15x16 15 16 // 𰑅
 ⿲ han-5fc4:5x16 han-4eba:5x16 han-4eba:5x16 // ⿲忄人人
+
+// glyph han-30447:15x16 15 16 // 𰑇
+// ⿰ han-5fc5 han-4e8e // ⿰必于
 
 glyph han-30448:15x16 15 16 // 𰑈
 ⿱ han-5df4:15x8 1 han-5fc3:15x7 // ⿱巴心

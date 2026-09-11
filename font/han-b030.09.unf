@@ -301,8 +301,10 @@ glyph han-20f17:15x16 15 16 // 𠼗
 // glyph han-20f1e:15x16 15 16 // 𠼞
 // ⿰ han-5408 han-4e9e // ⿰合亞
 
-glyph han-20f22:15x16 15 16 // 𠼢
+glyph han-20f22-g:15x16 15 16 // 𠼢
 ⿲ han-53e3:3x16-l 1 han-5f13:4x16 han-867d:7x16 // ⿲口弓虽
+glyph han-20f22-(t|j|v):15x16 15 16 // 𠼢
+⿲ han-53e3:3x16-l 1 han-5f13:4x16 han-27227:7x16 // ⿲口弓𧈧
 
 // glyph han-20f28:15x16 15 16 // 𠼨
 // ⿳ han-5405 han-51f5 han-5405 // ⿳吅凵吅

@@ -243,6 +243,9 @@ glyph han-2aae0:15x16 15 16 // 𪫠
 glyph han-2aae3:15x16 15 16 // 𪫣
 ⿰ han-5fc4:5x16 han-6b62:10x16 // ⿰忄止
 
+// glyph han-2aae4:15x16 15 16 // 𪫤
+// ⿰ han-5fc4 han-5141 // ⿰忄允
+
 // glyph han-2aae5:15x16 15 16 // 𪫥
 // ⿱ han-5f14 han-5fc3 // ⿱弔心
 
@@ -716,6 +719,9 @@ glyph han-2ac9a:15x16 15 16 // 𪲚
 // ⿰ han-6728 han-5e8a // ⿰木床
 
 ## 75.8
+
+// glyph han-2aca1:15x16 15 16 // 𪲡
+// ⿱ han-6797 han-4e91 // ⿱林云
 
 glyph han-2aca2:15x16 15 16 // 𪲢
 ⿲ han-6728:5x16 han-793b:5x16 han-5df3:5x16 // ⿲木礻巳

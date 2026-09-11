@@ -94,6 +94,9 @@ $$....@@............\1@@....$$
 // glyph han-9aab-($han-regions):15x16 15 16 // 骫
 // ⿰ han-9aa8 han-4e38-($-1) // ⿰骨丸
 
+// glyph han-9aac:15x16 15 16 // 骬
+// ⿰ han-9aa8 han-4e8e // ⿰骨于
+
 glyph han-9aad:15x16 15 16 // 骭
 ⿰ han-9aa8:7x16 1 han-5e72:7x16 // ⿰骨干
 
@@ -455,6 +458,9 @@ glyph han-9b7a:15x16 15 16 // 魺
 
 glyph han-9b7b:15x16 15 16 // 魻
 ⿰ han-9b5a:7x16 1 han-7532:7x16 // ⿰魚甲
+
+// glyph han-9b7c:15x16 15 16 // 魼
+// ⿰ han-9b5a han-53bb // ⿰魚去
 
 glyph han-9b7d:15x16 15 16 // 魽
 ⿰ han-9b5a:7x16 1 han-7518:7x16 // ⿰魚甘

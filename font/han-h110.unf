@@ -283,6 +283,9 @@ glyph han-31e0b:15x16 15 16 // 𱸋
 // glyph han-31e19:15x16 15 16 // 𱸙
 // ⿱ han-25ad7 han-6d91 // ⿱𥫗涑
 
+// glyph han-31e1b:15x16 15 16 // 𱸛
+// ⿱ han-25ad7 han-755a // ⿱𥫗畚
+
 ## 118.11
 
 glyph han-31e1c:15x16 15 16 // 𱸜
@@ -430,6 +433,13 @@ glyph han-31e7f:15x16 15 16 // 𱹿
 
 glyph han-31e88:15x16 15 16 // 𱺈
 ⿲ -3 han-7cf9:5x16 1 han-8a01:5x16 1 han-53ec:6x16 // ⿲糹訁召
+
+# CJK unified ideographs extension H: 缶 (121)
+
+## 121.4
+
+// glyph han-31eb1:15x16 15 16 // 𱺱
+// ⿰ han-7f36 han-4e91 // ⿰缶云
 
 # CJK unified ideographs extension H: 网 (122)
 
@@ -628,6 +638,9 @@ glyph han-31f51:15x16 15 16 // 𱽑
 // ⿳ han-8279 han-4ece han-4e00 // ⿳艹从一 <- ⿱艹丛
 
 ## 140.6
+
+// glyph han-31f5d:15x16 15 16 // 𱽝
+// ⿱ han-8279 han-4e1f // ⿱艹丟
 
 // glyph han-31f5f:15x16 15 16 // 𱽟
 // ⿱ han-8279 han-673a // ⿱艹机

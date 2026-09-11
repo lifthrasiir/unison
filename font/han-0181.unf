@@ -684,6 +684,9 @@ glyph han-99b8:15x16 15 16 // 馸
 glyph han-99b9:15x16 15 16 // 馹
 ⿰ han-99ac:7x16 1 han-65e5:7x16 // ⿰馬日
 
+// glyph han-99bb:15x16 15 16 // 馻
+// ⿰ han-99ac han-5141 // ⿰馬允
+
 glyph han-99bc:15x16 15 16 // 馼
 ⿰ han-99ac:7x16 1 han-6587:7x16 // ⿰馬文
 

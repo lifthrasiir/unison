@@ -13,6 +13,9 @@ glyph han-25ad9:15x16 15 16 // 𥫙
 // glyph han-25ada:15x16 15 16 // 𥫚
 // ⿱ han-25ad7 han-5182 // ⿱𥫗冂
 
+glyph han-25adb:15x16 15 16 // 𥫛
+⿱ 1 han-25ad7:15x5 4 han-53b6:15x5-d // ⿱𥫗厶
+
 ## 118.3
 
 glyph han-25ade:15x16 15 16 // 𥫞
@@ -68,6 +71,9 @@ glyph han-25af8:15x16 15 16 // 𥫸
 // glyph han-25aff:15x16 15 16 // 𥫿
 // ⿳ han-25ad7 han-4e36 han-5c38 // ⿳𥫗丶尸 <- ⿱𥫗户
 
+// glyph han-25b00:15x16 15 16 // 𥬀
+// ⿱ han-25ad7 han-4e91 // ⿱𥫗云
+
 // glyph han-25b02:15x16 15 16 // 𥬂
 // ⿳ han-25ad7 han-4e00 han-5ddd // ⿳𥫗一川
 
@@ -102,6 +108,9 @@ glyph han-25b08:15x16 15 16 // 𥬈
 
 // glyph han-25b10:15x16 15 16 // 𥬐
 // ⿱ han-25ad7 han-7533 // ⿱𥫗申
+
+// glyph han-25b14:15x16 15 16 // 𥬔
+// ⿱ han-25ad7 han-53bb // ⿱𥫗去
 
 glyph han-25b19-g:15x16 15 16 // 𥬙
 ⿱ han-25ad7:15x5 1 han-5de8.0:15x10 // ⿱𥫗巨
@@ -459,6 +468,9 @@ ref han-53ef:15x6 0 10
 
 glyph han-25c44:15x16 15 16 // 𥱄
 ⿳ -5 han-25ad7:15x5 han-5929:15x8 han-866b:15x8 // ⿳𥫗天虫
+
+// glyph han-25c46:15x16 15 16 // 𥱆
+// ⿳ han-7b20 han-53b6 han-571f // ⿳笠厶土 <- ⿱笠⿱厶土
 
 glyph han-25c47:15x16 15 16 // 𥱇
 ⿳ han-25ad7:15x5 han-800c:15x5 han-706b:15x6 // ⿳𥫗而火

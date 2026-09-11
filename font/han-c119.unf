@@ -468,6 +468,9 @@ glyph han-2b220:15x16 15 16 // 𫈠
 // glyph han-2b25d:15x16 15 16 // 𫉝
 // ⿳ han-8279 han-73a8 han-5fc5 // ⿳艹玨必
 
+// glyph han-2b25e:15x16 15 16 // 𫉞
+// ⿳ han-8279 han-54c1 han-4e8e // ⿳艹品于
+
 // glyph han-2b261:15x16 15 16 // 𫉡
 // ⿱ han-8279 han-813a // ⿱艹脺
 
@@ -555,6 +558,9 @@ glyph han-2b2a7:15x16 15 16 // 𫊧
 // glyph han-2b2ad:15x16 15 16 // 𫊭
 // ⿱ han-592e han-866b // ⿱央虫
 
+// glyph han-2b2b2:15x16 15 16 // 𫊲
+// ⿱ han-53b6 han-27239 // ⿱厶𧈹
+
 ## 142.6
 
 // glyph han-2b2b5:15x16 15 16 // 𫊵
@@ -602,7 +608,7 @@ glyph han-2b2d8:15x16 15 16 // 𫋘
 ⿲ -1 han-866b:5x16 han-7cf9:5x16 1 han-7530:5x16 // ⿲虫糹田
 
 glyph han-2b2d9:15x16 15 16 // 𫋙
-⿲ -2 han-866b:5x16 1 han-5f13:4x16 han-867d:7x16 // ⿲虫弓虽
+⿲ -2 han-866b:5x16 1 han-5f13:4x16 han-27227:7x16 // ⿲虫弓𧈧
 
 # CJK unified ideographs extension C: 血 (143)
 
@@ -766,6 +772,11 @@ glyph han-2b33c:15x16 15 16 // 𫌼
 glyph han-2b35b:15x16 15 16 // 𫍛
 ⿰ han-8ba0:5x16 1 han-5206:9x16 // ⿰讠分
 
+## 149'.5
+
+// glyph han-2b35c:15x16 15 16 // 𫍜
+// ⿰ han-8ba0 han-53bb // ⿰讠去
+
 ## 149'.6
 
 glyph han-2b363:15x16 15 16 // 𫍣
@@ -806,6 +817,11 @@ glyph han-2b365:15x16 15 16 // 𫍥
 
 // glyph han-2b38e:15x16 15 16 // 𫎎
 // ⿲ han-4e28 han-8c9d han-4e28 // ⿲丨貝丨
+
+## 154.3
+
+// glyph han-2b38f:15x16 15 16 // 𫎏
+// ⿰ han-8c9d han-4e8e // ⿰貝于
 
 ## 154.4
 

@@ -315,6 +315,9 @@ glyph han-276ad:15x16 15 16 // 𧚭
 glyph han-276ae:15x16 15 16 // 𧚮
 ⿰ han-8864:5x16 1 han-96b9:9x16 // ⿰衤隹
 
+glyph han-276b4:15x16 15 16 // 𧚴
+⿰ han-8864:7x16 1 han-27227:7x16 // ⿰衤𧈧
+
 // glyph han-276b5:15x16 15 16 // 𧚵
 // ⿳ han-706b han-65e5 han-8863 // ⿳火日衣
 

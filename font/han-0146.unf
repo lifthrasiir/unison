@@ -592,6 +592,9 @@ glyph han-8a0c:15x16 15 16 // 訌
 glyph han-8a0e:15x16 15 16 // 討
 ⿰ han-8a01:5x16 1 han-5bf8:9x16 // ⿰訁寸
 
+// glyph han-8a0f:15x16 15 16 // 訏
+// ⿰ han-8a01 han-4e8e // ⿰訁于
+
 glyph han-8a10:15x16 15 16 // 訐
 ⿰ han-8a01:5x16 1 han-5e72:9x16 // ⿰訁干
 
@@ -731,6 +734,9 @@ glyph han-8a4e-(h|t|j):15x16 15 16 // 詎
 
 glyph han-8a52:15x16 15 16 // 詒
 ⿰ han-8a01:5x16 1 han-53f0:9x16 // ⿰訁台
+
+// glyph han-8a53:15x16 15 16 // 詓
+// ⿰ han-8a01 han-53bb // ⿰訁去
 
 glyph han-8a54:15x16 15 16 // 詔
 ⿰ han-8a01:5x16 han-53ec:10x16 // ⿰訁召

@@ -164,6 +164,11 @@ glyph han-432f:15x16 15 16 // 䌯
 
 # CJK unified ideographs extension A: 缶 (121)
 
+## 121.3
+
+// glyph han-4342:15x16 15 16 // 䍂
+// ⿰ han-7f36 han-4e8e // ⿰缶于
+
 ## 121.5
 
 // glyph han-4344:15x16 15 16 // 䍄
@@ -408,6 +413,9 @@ glyph han-43c7:15x16 15 16 // 䏇
 
 glyph han-43ce:15x16 15 16 // 䏎
 ⿰ han-6708:5x16-l han-51e1:10x16 // ⿰月凡
+
+// glyph han-43cf:15x16 15 16 // 䏏
+// ⿰ han-6708 han-4e8e // ⿰月于
 
 ## 130.4
 
@@ -688,6 +696,9 @@ glyph han-44a4:15x16 15 16 // 䒤
 // ⿳ han-8279 han-4e00 han-5dfe // ⿳艹一巾 <- ⿱艹帀
 
 ## 140.5
+
+// glyph han-44a7:15x16 15 16 // 䒧
+// ⿱ han-8279 han-53bb // ⿱艹去
 
 // glyph han-44a9:15x16 15 16 // 䒩
 // ⿱ han-8279 han-79be // ⿱艹禾

@@ -62,6 +62,9 @@ glyph han-2d1d2:15x16 15 16 // 𭇒
 glyph han-2d1d5-($han-regions):15x16 15 16 // 𭇕
 ⿰ han-53e5:7x16 1 han-52fa-($-1):7x16 // ⿰句勺
 
+// glyph han-2d1d7:15x16 15 16 // 𭇗
+// ⿰ han-53e3 han-5e83 // ⿰口広
+
 // glyph han-2d1db:15x16 15 16 // 𭇛
 // ⿰ han-53e3 han-6c37 // ⿰口氷
 
@@ -373,6 +376,11 @@ glyph han-2d347:15x16 15 16 // 𭍇
 // glyph han-2d35a:15x16 15 16 // 𭍚
 // ⿴ han-56d7 han-51e0 // ⿴囗几
 
+## 31.5
+
+// glyph han-2d35d:15x16 15 16 // 𭍝
+// ⿴ han-56d7 han-53bb // ⿴囗去
+
 ## 31.6
 
 // glyph han-2d35f:15x16 15 16 // 𭍟
@@ -596,7 +604,18 @@ glyph han-2d42a:15x16 15 16 // 𭐪
 // glyph han-2d442:15x16 15 16 // 𭑂
 // ⿱ han-4e5d han-5927 // ⿱九大
 
+## 37.3
+
+// glyph han-2d443:15x16 15 16 // 𭑃
+// ⿱ han-5927 han-4e8e // ⿱大于
+
 ## 37.5
+
+// glyph han-2d446:15x16 15 16 // 𭑆
+// ⿱ han-5929 han-4e91 // ⿱天云
+
+// glyph han-2d447:15x16 15 16 // 𭑇
+// ⿰ han-5929 han-4e91 // ⿰天云
 
 // glyph han-2d448:15x16 15 16 // 𭑈
 // ⿰ han-5929 han-5929 // ⿰天天
@@ -726,6 +745,9 @@ glyph han-2d4b6:15x16 15 16 // 𭒶
 
 glyph han-2d4b7:15x16 15 16 // 𭒷
 ⿰ han-5b50.0:5x16-l han-513f:10x16 // ⿰子儿
+
+// glyph han-2d4b8-($han-regions):15x16 15 16 // 𭒸
+// ⿰ han-5b50-($-1) han-53b6 // ⿰子厶
 
 glyph han-2d4b9:15x16 15 16 // 𭒹
 ⿰ han-5b50.0:7x16-l han-529b:8x16 // ⿰子力

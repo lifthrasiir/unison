@@ -298,6 +298,11 @@ glyph han-3853:15x16 15 16 // 㡓
 
 # CJK unified ideographs extension A: 广 (53)
 
+## 53.3
+
+// glyph han-3870:15x16 15 16 // 㡰
+// ⿸ han-5e7f han-4e8e // ⿸广于
+
 ## 53.5
 
 glyph han-3874:15x16 15 16 // 㡴
@@ -723,6 +728,9 @@ glyph han-39bf:15x16 15 16 // 㦿
 
 ## 63.5
 
+// glyph han-39c1:15x16 15 16 // 㧁
+// ⿸ han-6237 han-53bb // ⿸户去
+
 glyph han-39c2:15x16 15 16 // 㧂
 ⿸ han-6237:15x16.11x9 han-7530:9x8 5 8 // ⿸户田
 
@@ -856,6 +864,9 @@ glyph han-3a1b:15x16 15 16 // 㨛
 glyph han-3a25:15x16 15 16 // 㨥
 ⿲ -5 han-624c:3x16 han-7cf9:5x16 1 han-5185:11x16 // ⿲扌糹内
 
+// glyph han-3a27:15x16 15 16 // 㨧
+// ⿰ han-624c han-755a // ⿰扌畚
+
 ## 64.11
 
 // glyph han-3a32:15x16 15 16 // 㨲
@@ -986,6 +997,9 @@ glyph han-3add:15x16 15 16 // 㫝
 
 // glyph han-3ae0-($han-regions):15x16 15 16 // 㫠
 // ⿰ han-65e5 han-534a-($-1) // ⿰日半
+
+// glyph han-3ae2:15x16 15 16 // 㫢
+// ⿰ han-65e5 han-53bb // ⿰日去
 
 // glyph han-3ae3:15x16 15 16 // 㫣
 // ⿱ han-65e5 han-7535 // ⿱日电

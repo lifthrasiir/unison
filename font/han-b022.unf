@@ -31,6 +31,9 @@ glyph han-20980:15x16 15 16 // 𠦀
 glyph han-20989:15x16 15 16 // 𠦉
 ⿰ han-5341:9x16 han-65a4:6x16 // ⿰十斤
 
+// glyph han-2098a:15x16 15 16 // 𠦊
+// ⿰ han-4e91 han-5341 // ⿰云十
+
 // glyph han-2098c:15x16 15 16 // 𠦌
 // ⿰ han-5344 han-5344 // ⿰卄卄
 
@@ -198,6 +201,9 @@ glyph han-20a3e:15x16 15 16 // 𠨾
 
 ## 27.5
 
+// glyph han-20a42:15x16 15 16 // 𠩂
+// ⿸ han-5382 han-53bb // ⿸厂去
+
 // glyph han-20a43:15x16 15 16 // 𠩃
 // ⿱ han-51fa han-5382 // ⿱出厂
 
@@ -312,15 +318,84 @@ glyph han-20a75:15x16 15 16 // 𠩵
 // ref han-4e00 // ⿻一厶
 // ref han-53b6
 
+// glyph han-20ad4:15x16 15 16 // 𠫔
+// ⿱ han-4e00 han-53b6 // ⿱一厶
+
+glyph han-20ad5:15x16 15 16 // 𠫕
+⿺ han-4e59:15x16.10x14 han-53b6:11x5 4 0 // ⿺乙厶
+
+// glyph han-20ad6:15x16 15 16 // 𠫖
+// ⿰ han-53b6 han-4e5a // ⿰厶乚
+
 ## 28.2
 
-// glyph han-20ad7:15x16 15 16 // 𠫗
-// ⿻⿻丿㇈厶
+glyph han-20ad7:15x16 15 16 // 𠫗
+⿵ han-20628:15x16.8x15 han-53b6:7x5 2 11 // ⿵𠘨厶
+
+glyph han-20ad8:15x16 15 16 // 𠫘
+⿱ han-53b6:15x5 1 han-5341:15x9 // ⿱厶十
+
+## 28.3
+
+// glyph han-20ada:15x16 15 16 // 𠫚
+// ⿱ han-53b6 han-30001 // ⿱厶𰀁
+
+## 28.4
+
+glyph han-20ae1:15x16 15 16 // 𠫡
+⿱ han-53b6:15x5 1 han-6728:15x10 // ⿱厶木
+
+// glyph han-20ae3:15x16 15 16 // 𠫣
+// ⿱ han-53b6 han-5185 // ⿱厶内
+
+## 28.5
+
+// glyph han-20ae7:15x16 15 16 // 𠫧
+// ⿱ han-53b6 han-4e19 // ⿱厶丙
+
+## 28.7
+
+glyph han-20af6:15x16 15 16 // 𠫶
+⿱ han-53b6:15x5 han-91cc:15x11 // ⿱厶里
+
+## 28.8
+
+// glyph han-20afb:15x16 15 16 // 𠫻
+// ⿳ han-53b6 han-5927 han-51f7 // ⿳厶大凷
+
+## 28.9
+
+// glyph han-20afe:15x16 15 16 // 𠫾
+// ⿰ han-53bb han-591a // ⿰去多
+
+## 28.10
+
+// glyph han-20b03:15x16 15 16 // 𠬃
+// ⿰ han-53bb han-752b // ⿰去甫
 
 ## 28.11
 
+// glyph han-20b08:15x16 15 16 // 𠬈
+// ⿰ han-53bb han-5351 // ⿰去卑
+
 glyph han-20b0c:15x16 15 16 // 𠬌
 ⿰ han-5e76:8x16 han-590b:7x16 // ⿰并夋
+
+## 28.13
+
+// glyph han-20b11:15x16 15 16 // 𠬑
+// ⿲ han-53bb han-53bb han-53bb // ⿲去去去
+
+// glyph han-20b12:15x16 15 16 // 𠬒
+// ⿰ han-53bb han-9aa8 // ⿰去骨
+
+## 28.15
+
+// glyph han-20b15:15x16 15 16 // 𠬕
+// ⿰ han-53bb han-88dc // ⿰去補
+
+// glyph han-20b16:15x16 15 16 // 𠬖
+// ⿱ han-53bb han-88dc // ⿱去補
 
 # CJK unified ideographs extension B: 又 (29)
 

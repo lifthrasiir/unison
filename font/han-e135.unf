@@ -415,6 +415,11 @@ glyph han-2c868:15x16 15 16 // 𬡨
 // glyph han-2c879:15x16 15 16 // 𬡹
 // ⿱ han-897f han-4f2f // ⿱西伯
 
+## 146.8
+
+// glyph han-2c87a:15x16 15 16 // 𬡺
+// ⿰ han-8981 han-53bb // ⿰要去
+
 # CJK unified ideographs extension E: 見 (147)
 
 ## 147.5
@@ -481,6 +486,9 @@ glyph han-2c8ad:15x16 15 16 // 𬢭
 # CJK unified ideographs extension E: 讠 (149')
 
 ## 149'.3
+
+// glyph han-2c8d9:15x16 15 16 // 𬣙
+// ⿰ han-8ba0 han-4e8e // ⿰讠于
 
 glyph han-2c8da:15x16 15 16 // 𬣚
 ⿰ han-8ba0:5x16 1 han-53e3:9x16 // ⿰讠口

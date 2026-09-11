@@ -496,6 +496,11 @@ glyph han-2cc3b:15x16 15 16 // 𬰻
 glyph han-2cc3f:15x16 15 16 // 𬰿
 ⿰ han-5200:9x16 1 han-9801:5x16 // ⿰刀頁
 
+## 181.3
+
+// glyph han-2cc40:15x16 15 16 // 𬱀
+// ⿰ han-4e8e han-9801 // ⿰于頁
+
 ## 181.5
 
 // glyph han-2cc42:15x16 15 16 // 𬱂

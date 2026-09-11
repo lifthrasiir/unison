@@ -869,6 +869,9 @@ glyph han-65f2:15x16 15 16 // 旲
 glyph han-65f3-($han-regions):15x16 15 16 // 旳
 ⿰ han-65e5:7x16 1 han-52fa-($-1):7x16 // ⿰日勺
 
+// glyph han-65f4:15x16 15 16 // 旴
+// ⿰ han-65e5 han-4e8e // ⿰日于
+
 glyph han-65f5:15x16 15 16 // 旵
 ⿱ han-65e5:15x9 han-5c71:15x7 // ⿱日山
 
@@ -1071,6 +1074,9 @@ glyph han-6617:15x16 15 16 // 昗
 glyph han-6618:15x16 15 16 // 昘
 ⿱ han-65e5:15x5 1 han-65b9:15x10 // ⿱日方
 
+// glyph han-6619:15x16 15 16 // 昙
+// ⿱ han-65e5 han-4e91 // ⿱日云
+
 ## 72.5
 
 glyph han-661b-(g|k|p|v):15x16 15 16 // 昛
@@ -1225,6 +1231,9 @@ glyph han-6637:15x16 15 16 // 昷
 
 // glyph han-663b:15x16 15 16 // 昻
 // ⿱ han-65e5 han-536d // ⿱日卭
+
+// glyph han-663f:15x16 15 16 // 昿
+// ⿰ han-65e5 han-5e83 // ⿰日広
 
 ## 72.6
 
@@ -1549,6 +1558,11 @@ $$..@@...v@@v...@@
 
 // glyph han-66fa:15x16 15 16 // 曺
 // ⿳ han-4ea0 han-7530 han-65e5 // ⿳亠田日 <- ⿱亩日
+
+## 73.10
+
+// glyph han-6705:15x16 15 16 // 朅
+// ⿰ han-53bb han-66f7 // ⿰去曷
 
 # CJK unified ideographs: 月 (74)
 

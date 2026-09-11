@@ -501,6 +501,9 @@ glyph han-3083f:15x16 15 16 // 𰠿
 glyph han-30843:15x16 15 16 // 𰡃
 ⿰ han-72ad:6x16 han-672a:9x16 // ⿰犭未
 
+// glyph han-30845:15x16 15 16 // 𰡅
+// ⿰ han-72ad han-53ba // ⿰犭厺
+
 glyph han-30846:15x16 15 16 // 𰡆
 ⿰ han-72ad:6x16 1 han-7528:8x16 // ⿰犭用
 
@@ -827,6 +830,9 @@ glyph han-3091c:15x16 15 16 // 𰤜
 # CJK unified ideographs extension G: 皮 (107)
 
 ## 107.5
+
+// glyph han-3091f:15x16 15 16 // 𰤟
+// ⿰ han-76ae han-53bb // ⿰皮去
 
 glyph han-30921:15x16 15 16 // 𰤡
 ⿰ han-5305:7x16 han-76ae:8x16 // ⿰包皮

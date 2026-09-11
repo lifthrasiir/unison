@@ -29,6 +29,9 @@ glyph han-225b0:15x16 15 16 // 𢖰
 
 ## 61.3
 
+// glyph han-225b3:15x16 15 16 // 𢖳
+// ⿰ han-5fc4 han-4e8e // ⿰忄于
+
 glyph han-225b5:15x16 15 16 // 𢖵
 ⿰ han-5fc4:7x16 1 han-5973:7x16 // ⿰忄女
 
@@ -619,7 +622,7 @@ glyph han-22807:15x16 15 16 // 𢠇
 ⿲ -4 han-5fc4:5x16 han-8a01:5x16 han-5348:9x16 // ⿲忄訁午
 
 glyph han-2280c:15x16 15 16 // 𢠌
-⿲ -1 han-5fc4:5x16 han-5f13:4x16 han-867d:7x16 // ⿲忄弓虽
+⿲ -1 han-5fc4:5x16 han-5f13:4x16 han-27227:7x16 // ⿲忄弓𧈧
 
 // glyph han-2280e:15x16 15 16 // 𢠎
 // ⿰ han-5fc4 han-5d11 // ⿰忄崑

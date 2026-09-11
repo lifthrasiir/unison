@@ -319,6 +319,9 @@ glyph han-8edf:15x16 15 16 // 軟
 glyph han-8ee1:15x16 15 16 // 軡
 ⿰ han-8eca:7x16 1 han-4eca:7x16 // ⿰車今
 
+// glyph han-8ee2:15x16 15 16 // 転
+// ⿰ han-8eca han-4e91 // ⿰車云
+
 ## 159.5
 
 glyph han-8ee5:15x16 15 16 // 軥
@@ -335,6 +338,9 @@ glyph han-8ee8-($han-regions):15x16 15 16 // 軨
 
 glyph han-8ee9:15x16 15 16 // 軩
 ⿰ han-8eca:7x16 1 han-53f0:7x16 // ⿰車台
+
+// glyph han-8eec:15x16 15 16 // 軬
+// ⿳ han-53b6 han-5927 han-8eca // ⿳厶大車
 
 // glyph han-8eee:15x16 15 16 // 軮
 // ⿰ han-8eca han-592e // ⿰車央
@@ -459,6 +465,11 @@ glyph han-8f38:15x16 15 16 // 輸
 
 glyph han-8f3c:15x16 15 16 // 輼
 ⿰ han-8eca:5x16 1 han-6637:9x16 // ⿰車昷
+
+## 159.10
+
+// glyph han-8f3d:15x16 15 16 // 輽
+// ⿰ han-8eca han-755a // ⿰車畚
 
 ## 159.11
 
@@ -860,6 +871,9 @@ glyph han-8fbf-($han-regions):15x16 15 16 // 辿
 glyph han-8fc0-($han-regions):15x16 15 16 // 迀
 ⿺ han-8fb6-($-1):15x16.11x14 han-5e72:11x14 4 0 // ⿺辶干
 
+// glyph han-8fc2-($han-regions):15x16 15 16 // 迂
+// ⿺ han-8fb6-($-1) han-4e8e // ⿺辶于
+
 glyph han-8fc7-($han-regions):15x16 15 16 // 过
 ⿺ han-8fb6-($-1):15x16.11x14 han-5bf8:10x12 5 1 // ⿺辶寸
 
@@ -882,6 +896,9 @@ glyph han-8fcc-($han-regions):15x16 15 16 // 迌
 
 // glyph han-8fcf:15x16 15 16 // 迏
 // ⿺ han-8fb6 han-592a // ⿺辶太
+
+// glyph han-8fd0-($han-regions):15x16 15 16 // 运
+// ⿺ han-8fb6-($-1) han-4e91 // ⿺辶云
 
 // glyph han-8fd1:15x16 15 16 // 近
 // ⿺ han-8fb6 han-65a4 // ⿺辶斤
@@ -953,6 +970,9 @@ glyph han-8fed-($han-regions):15x16 15 16 // 迭
 
 // glyph han-8ff0-($han-regions):15x16 15 16 // 述
 // ⿺ han-8fb6-($-1) han-672f // ⿺辶术
+
+// glyph han-8ff2-($han-regions):15x16 15 16 // 迲
+// ⿺ han-8fb6-($-1) han-53bb // ⿺辶去
 
 ## 162.6
 
@@ -1163,6 +1183,9 @@ glyph han-9096:15x16 15 16 // 邖
 
 glyph han-9097:15x16 15 16 // 邗
 ⿰ han-5e72:9x16 1 han-961d:5x16-r // ⿰干阝
+
+// glyph han-9098:15x16 15 16 // 邘
+// ⿰ han-4e8e han-961d // ⿰于阝
 
 glyph han-9099-($han-regions):15x16 15 16 // 邙
 ⿰ han-4ea1-($-1):7x16 1 han-961d:7x16-r // ⿰亡阝
@@ -1539,6 +1562,9 @@ glyph han-914e:15x16 15 16 // 酎
 glyph han-9150:15x16 15 16 // 酐
 ⿰ han-9149:7x16 1 han-5e72:7x16 // ⿰酉干
 
+// glyph han-9151:15x16 15 16 // 酑
+// ⿰ han-9149 han-4e8e // ⿰酉于
+
 glyph han-9152:15x12 15 12 // 酒
 ⿰ han-6c35:5x12 1 han-9149:9x12 // ⿰氵酉
 glyph han-9152:15x16 15 16 // 酒
@@ -1560,6 +1586,9 @@ glyph han-915b:15x16 15 16 // 酛
 
 // glyph han-915c:15x16 15 16 // 酜
 // ⿰ han-9149 han-592b // ⿰酉夫
+
+// glyph han-915d:15x16 15 16 // 酝
+// ⿰ han-9149 han-4e91 // ⿰酉云
 
 // glyph han-915e:15x16 15 16 // 酞
 // ⿰ han-9149 han-592a // ⿰酉太

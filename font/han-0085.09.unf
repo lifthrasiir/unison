@@ -188,8 +188,10 @@ glyph han-6f02:15x16 15 16 // 漂
 // glyph han-6f0f-($han-regions):15x16 15 16 // 漏
 // ⿰ han-6c35 han-5c5a-($-1) // ⿰氵屚
 
-glyph han-6f12:15x16 15 16 // 漒
+glyph han-6f12-(g|v):15x16 15 16 // 漒
 ⿲ han-6c35:3x16 han-5f13:5x16 han-867d:7x16 // ⿲氵弓虽
+glyph han-6f12-(h|t|j|k):15x16 15 16 // 漒
+⿲ han-6c35:3x16 han-5f13:5x16 han-27227:7x16 // ⿲氵弓𧈧
 
 // glyph han-6f1c:15x16 15 16 // 漜
 // ⿰ han-6c35 han-57dc // ⿰氵埜

@@ -1,5 +1,10 @@
 # CJK unified ideographs extension H: 一 (1)
 
+## 1.5
+
+// glyph han-31351:15x16 15 16 // 𱍑
+// ⿱ han-53bb han-4e00 // ⿱去一
+
 ## 1.6
 
 // glyph han-31352:15x16 15 16 // 𱍒
@@ -283,6 +288,41 @@ glyph han-31459:15x16 15 16 // 𱑙
 
 // glyph han-3145f:15x16 15 16 // 𱑟
 // ⿸ han-5382 han-67e5 // ⿸厂查
+
+# CJK unified ideographs extension H: 厶 (28)
+
+## 28.1
+
+glyph han-31462:15x16 15 16 // 𱑢
+⿱ han-53b6:15x5 2 han-4e59:15x8 // ⿱厶乙
+
+## 28.7
+
+// glyph han-31464:15x16 15 16 // 𱑤
+// ⿰ han-53bb han-6b62 // ⿰去止
+
+## 28.9
+
+// glyph han-31467:15x16 15 16 // 𱑧
+// ⿱ han-53b6 han-6d1b // ⿱厶洛
+
+## 28.10
+
+// glyph han-31469:15x16 15 16 // 𱑩
+// ⿰ han-53bb han-5439 // ⿰去吹
+
+// glyph han-3146a:15x16 15 16 // 𱑪
+// ⿰ han-53bb han-5bfe // ⿰去対
+
+## 28.14
+
+// glyph han-3146c:15x16 15 16 // 𱑬
+// ⿰ han-53bb han-79fb // ⿰去移
+
+## 28.16
+
+// glyph han-3146e:15x16 15 16 // 𱑮
+// ⿱ han-88dc han-53bb // ⿱補去
 
 # CJK unified ideographs extension H: 口 (30)
 
