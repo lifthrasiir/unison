@@ -97,6 +97,9 @@ glyph han-319dd:15x16 15 16 // 𱧝
 
 ## 85.10
 
+// glyph han-319ee:15x16 15 16 // 𱧮
+// ⿰ han-6c35 han-57cb // ⿰氵埋
+
 glyph han-319f6:15x16 15 16 // 𱧶
 ⿲ han-6c35:3x16 han-5c71:5x16 han-590b:7x16 // ⿲氵山夋
 
@@ -263,6 +266,11 @@ glyph han-31b50:15x16 15 16 // 𱭐
 // ⿰ han-4e2c han-2c279 // ⿰丬𬉹
 
 # CJK unified ideographs extension H: 片 (91)
+
+## 91.6
+
+// glyph han-31b5b:15x16 15 16 // 𱭛
+// ⿰ han-7247 han-5b89 // ⿰片安
 
 ## 91.11
 

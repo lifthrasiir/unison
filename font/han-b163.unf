@@ -127,7 +127,7 @@ glyph han-286af:15x16 15 16 // 𨚯
 // ⿰ han-65e9 han-961d // ⿰早阝
 
 glyph han-286b4:15x16 15 16 // 𨚴
-⿲ han-5973:5x16-l han-53e3:4x16 1 han-961d:5x16-r // ⿲女口阝
+⿲ han-5973:5x16-l 1 han-53e3:3x16-l 1 han-961d:5x16-r // ⿲女口阝
 
 // glyph han-286b6:15x16 15 16 // 𨚶
 // ⿰ han-5e74 han-961d // ⿰年阝
@@ -157,6 +157,9 @@ glyph han-286c5:15x16 15 16 // 𨛅
 // ⿲ han-72ad han-5927 han-961d // ⿲犭大阝
 
 ## 163.7
+
+glyph han-286cb:15x16 15 16 // 𨛋
+⿰ han-91cc:7x16 1 han-961d:7x16-r // ⿰里阝
 
 // glyph han-286cc-($han-regions):15x16 15 16 // 𨛌
 // ⿰ han-6757-($-1) han-961d // ⿰杗阝
@@ -269,6 +272,9 @@ glyph han-28753:15x16 15 16 // 𨝓
 
 glyph han-2876d:15x16 15 16 // 𨝭
 ⿲ han-51ab:3x16 han-99ac:7x16 1 han-961d:4x16-r // ⿲冫馬阝
+
+// glyph han-2876f:15x16 15 16 // 𨝯
+// ⿰ han-7ae5 han-961d // ⿰童阝
 
 glyph han-28770:15x16 15 16 // 𨝰
 ⿰ han-55ac:9x16 1 han-961d:5x16-r // ⿰喬阝
@@ -529,7 +535,62 @@ glyph han-288ad:15x16 15 16 // 𨢭
 // glyph han-288cb:15x16 15 16 // 𨣋
 // ⿰ han-9149 han-3afa // ⿰酉㫺
 
+// glyph han-288d2:15x16 15 16 // 𨣒
+// ⿰ han-9149 han-7ae5 // ⿰酉童
+
 ## 164.16
 
 glyph han-288fa:15x16 15 16 // 𨣺
 ⿲ -5 han-9149:7x16 1 han-9b5a:7x16 han-79be:5x16 // ⿲酉魚禾
+
+# CJK unified ideographs extension B: 里 (166)
+
+## 166.3
+
+// glyph han-28923:15x16 15 16 // 𨤣
+// ⿳ han-52f9 han-4e00 han-91cc // ⿳勹一里
+
+## 166.4
+
+// glyph han-28925:15x16 15 16 // 𨤥
+// ⿳ han-53e3 han-4e00 han-91cc // ⿳口一里
+
+## 166.5
+
+// glyph han-28926:15x16 15 16 // 𨤦
+// ⿱ han-2067c han-91cc // ⿱𠙼里
+
+// glyph han-28928:15x16 15 16 // 𨤨
+// ⿲ han-4ebb han-4e28 han-91cd // ⿲亻丨重
+
+// glyph han-28929:15x16 15 16 // 𨤩
+// ⿱ han-5fc5 han-91cc // ⿱必里
+
+## 166.6
+
+// glyph han-2892a:15x16 15 16 // 𨤪
+// ⿳ han-5c71 han-5927 han-91cc // ⿳山大里
+
+## 166.8
+
+// glyph han-2892d:15x16 15 16 // 𨤭
+// ⿱ han-4f86 han-91cc // ⿱來里
+
+glyph han-2892e:15x16 15 16 // 𨤮
+⿰ han-91cc:7x16 1 han-708e:7x16 // ⿰里炎
+
+// glyph han-2892f:15x16 15 16 // 𨤯
+// ⿰ han-91cd han-540c // ⿰重同
+
+## 166.9
+
+// glyph han-28931:15x16 15 16 // 𨤱
+// ⿺ han-662f han-91cc // ⿺是里
+
+## 166.11
+
+// glyph han-28935:15x16 15 16 // 𨤵
+// ⿰ han-91cc han-6de1 // ⿰里淡
+
+// glyph han-28936:15x16 15 16 // 𨤶
+// ⿰ han-91cd han-91cd // ⿰重重

@@ -66,6 +66,9 @@ glyph han-24577:15x16 15 16 // 𤕷
 glyph han-24582:15x16 15 16 // 𤖂
 ⿰ han-723f:6x16 han-675f:9x16 // ⿰爿束
 
+glyph han-24583:15x16 15 16 // 𤖃
+⿰ han-723f:6x16 han-91cc:9x16 // ⿰爿里
+
 ## 90.8
 
 glyph han-24587:15x16 15 16 // 𤖇
@@ -155,6 +158,9 @@ glyph han-245c3:15x16 15 16 // 𤗃
 
 // glyph han-245c7:15x16 15 16 // 𤗇
 // ⿰ han-7247 han-7a7a // ⿰片空
+
+// glyph han-245c8:15x16 15 16 // 𤗈
+// ⿰ han-7247 han-59be // ⿰片妾
 
 glyph han-245cb:15x16 15 16 // 𤗋
 ⿰ han-7247:8x16 han-975e:7x16 // ⿰片非

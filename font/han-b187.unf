@@ -148,6 +148,9 @@ glyph han-298c6:15x16 15 16 // 𩣆
 // glyph han-298c9:15x16 15 16 // 𩣉
 // ⿱ han-5982 han-99ac // ⿱如馬
 
+// glyph han-298d1:15x16 15 16 // 𩣑
+// ⿰ han-99ac han-5b89 // ⿰馬安
+
 ## 187.7
 
 // glyph han-298da:15x16 15 16 // 𩣚
@@ -270,6 +273,9 @@ glyph han-29972:15x16 15 16 // 𩥲
 
 // glyph han-29983:15x16 15 16 // 𩦃
 // ⿰ han-99ac han-9591 // ⿰馬閑
+
+// glyph han-2998d:15x16 15 16 // 𩦍
+// ⿰ han-7ae5 han-99ac // ⿰童馬
 
 ## 187.13
 
@@ -422,6 +428,9 @@ glyph han-29a67:15x16 15 16 // 𩩧
 glyph han-29a72:15x16 15 16 // 𩩲
 ⿰ han-9aa8:7x16 han-66f7:8x16 // ⿰骨曷
 
+// glyph han-29a73:15x16 15 16 // 𩩳
+// ⿰ han-9aa8 han-91cd // ⿰骨重
+
 glyph han-29a78:15x16 15 16 // 𩩸
 ⿰ han-9aa8:7x16 1 han-9769:7x16 // ⿰骨革
 
@@ -445,6 +454,9 @@ glyph han-29a8a:15x16 15 16 // 𩪊
 // ⿰ han-9aa8 han-7562 // ⿰骨畢
 
 ## 188.12
+
+// glyph han-29a98:15x16 15 16 // 𩪘
+// ⿰ han-9aa8 han-7ae5 // ⿰骨童
 
 // glyph han-29a9f:15x16 15 16 // 𩪟
 // ⿰ han-9aa8 han-20db7 // ⿰骨𠶷

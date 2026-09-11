@@ -60,6 +60,9 @@ glyph han-4a1c-($han-regions):15x16 15 16 // 䨜
 // glyph han-4a29-($han-regions):15x16 15 16 // 䨩
 // ⿱ han-96e8-($-1) han-795e-($-1) // ⿱雨神
 
+// glyph han-4a2a-($han-regions):15x16 15 16 // 䨪
+// ⿱ han-96e8-($-1) han-57cb // ⿱雨埋
+
 ## 173.11
 
 // glyph han-4a2c:15x16 15 16 // 䨬
@@ -509,6 +512,11 @@ glyph han-4b3a:15x16 15 16 // 䬺
 // glyph han-4b57:15x16 15 16 // 䭗
 // ⿰ han-98e0 han-7adf // ⿰飠竟
 
+## 184.12
+
+// glyph han-4b5a:15x16 15 16 // 䭚
+// ⿰ han-98e0 han-7ae5 // ⿰飠童
+
 ## 184.13
 
 // glyph han-4b5f:15x16 15 16 // 䭟
@@ -603,6 +611,9 @@ glyph han-4ba9:15x16 15 16 // 䮩
 
 glyph han-4bb3:15x16 15 16 // 䮳
 ⿰ han-99ac:7x16 1 han-756a:7x16 // ⿰馬番
+
+// glyph han-4bb5:15x16 15 16 // 䮵
+// ⿰ han-99ac han-7ae5 // ⿰馬童
 
 ## 187.24
 
@@ -803,6 +814,9 @@ glyph han-4c66:15x16 15 16 // 䱦
 // glyph han-4c6b:15x16 15 16 // 䱫
 // ⿱ han-524c han-9b5a // ⿱剌魚
 
+// glyph han-4c70:15x16 15 16 // 䱰
+// ⿰ han-9b5a han-91cd // ⿰魚重
+
 // glyph han-4c74:15x16 15 16 // 䱴
 // ⿲ han-9b5a han-5fc4 han-4e98 // ⿲魚忄亘
 
@@ -939,6 +953,9 @@ glyph han-4ccf:15x16 15 16 // 䳏
 // glyph han-4cda:15x16 15 16 // 䳚
 // ⿰ han-65f1 han-9ce5 // ⿰旱鳥
 
+// glyph han-4cdb:15x16 15 16 // 䳛
+// ⿰ han-599f han-9ce5 // ⿰妟鳥
+
 ## 196.8
 
 // glyph han-4cdd:15x16 15 16 // 䳝
@@ -958,11 +975,17 @@ glyph han-4ce2:15x16 15 16 // 䳢
 glyph han-4ce8:15x16 15 16 // 䳨
 ⿰ han-7687:7x16 1 han-9ce5:7x16 // ⿰皇鳥
 
+// glyph han-4ce9:15x16 15 16 // 䳩
+// ⿰ han-8981 han-9ce5 // ⿰要鳥
+
 // glyph han-4cea:15x16 15 16 // 䳪
 // ⿰ han-8011 han-9ce5 // ⿰耑鳥
 
 glyph han-4cec:15x16 15 16 // 䳬
 ⿰ han-9769:7x16 1 han-9ce5:7x16 // ⿰革鳥
+
+// glyph han-4cef:15x16 15 16 // 䳯
+// ⿰ han-91cd han-9ce5 // ⿰重鳥
 
 // glyph han-4cf0:15x16 15 16 // 䳰
 // ⿲ han-4ebb han-5446 han-9ce5 // ⿲亻呆鳥 <- ⿰保鳥
@@ -981,6 +1004,9 @@ glyph han-4cec:15x16 15 16 // 䳬
 // ⿱ han-65ac han-9ce5 // ⿱斬鳥
 
 ## 196.12
+
+// glyph han-4d00:15x16 15 16 // 䴀
+// ⿰ han-7ae5 han-9ce5 // ⿰童鳥
 
 glyph han-4d03:15x16 15 16 // 䴃
 ⿰ han-582f:7x16 1 han-9ce5:7x16 // ⿰堯鳥

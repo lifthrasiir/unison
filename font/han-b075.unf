@@ -294,6 +294,9 @@ glyph han-2349c:15x16 15 16 // 𣒜
 glyph han-2349e:15x16 15 16 // 𣒞
 ⿰ han-6728:5x16 1 han-8eca:9x16 // ⿰木車
 
+// glyph han-234a2:15x16 15 16 // 𣒢
+// ⿰ han-6728 han-26b11 // ⿰木𦬑
+
 // glyph han-234a3-($han-regions):15x16 15 16 // 𣒣
 // ⿰ han-6728 han-8292-($-1) // ⿰木芒
 

@@ -53,6 +53,9 @@ glyph han-2622f:15x16 15 16 // 𦈯
 // glyph han-26241:15x16 15 16 // 𦉁
 // ⿰ han-7f36 han-662f // ⿰缶是
 
+// glyph han-26242:15x16 15 16 // 𦉂
+// ⿰ han-7f36 han-91cd // ⿰缶重
+
 // glyph han-26243:15x16 15 16 // 𦉃
 // ⿰ han-7f36 han-67bc // ⿰缶枼
 
@@ -342,6 +345,9 @@ glyph han-262fa:15x16 15 16 // 𦋺
 // glyph han-26317:15x16 15 16 // 𦌗
 // ⿱ han-7f52 han-6b3b // ⿱罒欻
 
+// glyph han-2631c:15x16 15 16 // 𦌜
+// ⿱ han-7f51 han-7ae5 // ⿱网童
+
 ## 122.13
 
 // glyph han-26325:15x16 15 16 // 𦌥
@@ -452,6 +458,9 @@ glyph han-2638e:15x16 15 16 // 𦎎
 // glyph han-2638f:15x16 15 16 // 𦎏
 // ⿰ han-7f8a han-675f // ⿰羊束
 
+glyph han-26390:15x16 15 16 // 𦎐
+⿰ han-7f8a:7x16 1 han-91cc:7x16 // ⿰羊里
+
 // glyph han-26391:15x16 15 16 // 𦎑
 // ⿰ han-7f8a han-5415 // ⿰羊吕
 
@@ -506,6 +515,9 @@ glyph han-263b0:15x16 15 16 // 𦎰
 // ⿰ han-7f8a han-83a7 // ⿰羊莧
 
 ## 123.12
+
+// glyph han-263c6:15x16 15 16 // 𦏆
+// ⿰ han-7f8a han-7ae5 // ⿰羊童
 
 // glyph han-263cc:15x16 15 16 // 𦏌
 // ⿰ han-7f8a han-264d4 // ⿰羊𦓔

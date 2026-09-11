@@ -164,6 +164,9 @@ glyph han-21971:15x16 15 16 // 𡥱
 // glyph han-2197b:15x16 15 16 // 𡥻
 // ⿱ han-79cb han-5b50 // ⿱秋子
 
+// glyph han-2197f-($han-regions):15x16 15 16 // 𡥿
+// ⿰ han-5b50-($-1) han-91cd // ⿰子重
+
 // glyph han-21980:15x16 15 16 // 𡦀
 // ⿱ han-5b54 han-660e // ⿱孔明
 
@@ -193,6 +196,9 @@ glyph han-2198f:15x16 15 16 // 𡦏
 
 // glyph han-21999:15x16 15 16 // 𡦙
 // ⿳ han-5c71 han-5c7e han-5b57 // ⿳山屾字 <- ⿱𡷈字
+
+// glyph han-2199c-($han-regions):15x16 15 16 // 𡦜
+// ⿰ han-5b50-($-1) han-7ae5 // ⿰子童
 
 ## 39.13
 
@@ -435,6 +441,9 @@ glyph han-21a56:15x16 15 16 // 𡩖
 
 glyph han-21a58:15x16 15 16 // 𡩘
 ⿳ han-5b80:15x4 -1 han-7acb:15x7 1 han-65e5:15x5 // ⿳宀立日
+
+// glyph han-21a5b:15x16 15 16 // 𡩛
+// ⿰ han-5b89 han-767e // ⿰安百
 
 // glyph han-21a5c:15x16 15 16 // 𡩜
 // ⿳ han-5b80 han-9fb6 han-7f52 // ⿳宀龶罒

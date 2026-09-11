@@ -26,6 +26,9 @@ glyph han-23632:15x16 15 16 // 𣘲
 // glyph han-23635:15x16 15 16 // 𣘵
 // ⿰ han-6728 han-79fb // ⿰木移
 
+// glyph han-23638:15x16 15 16 // 𣘸
+// ⿰ han-6728 han-9ed2 // ⿰木黒
+
 // glyph han-2363f-($han-regions):15x16 15 16 // 𣘿
 // ⿳ han-7a74-($-1) han-5408 han-6728 // ⿳穴合木
 
@@ -111,6 +114,9 @@ glyph han-236b3:15x16 15 16 // 𣚳
 
 // glyph han-236b5:15x16 15 16 // 𣚵
 // ⿰ han-6728 han-711a // ⿰木焚
+
+// glyph han-236c0:15x16 15 16 // 𣛀
+// ⿰ han-6728 han-91cf // ⿰木量
 
 // glyph han-236c6:15x16 15 16 // 𣛆
 // ⿰ han-6728 han-7b49 // ⿰木等

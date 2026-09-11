@@ -92,6 +92,9 @@ glyph han-3b8c:15x16 15 16 // 㮌
 // glyph han-3b92:15x16 15 16 // 㮒
 // ⿰ han-6728 han-5794 // ⿰木垔
 
+// glyph han-3b94:15x16 15 16 // 㮔
+// ⿰ han-6728 han-91cd // ⿰木重
+
 // glyph han-3b95:15x16 15 16 // 㮕
 // ⿰ han-6728 han-800e // ⿰木耎
 
@@ -430,6 +433,9 @@ glyph han-3d0c:15x16 15 16 // 㴌
 
 glyph han-3d16:15x16 15 16 // 㴖
 ⿰ han-6c35:5x16 1 han-9769:9x16 // ⿰氵革
+
+// glyph han-3d17:15x16 15 16 // 㴗
+// ⿰ han-6c35 han-8981 // ⿰氵要
 
 // glyph han-3d18:15x16 15 16 // 㴘
 // ⿰ han-6c35 han-5192 // ⿰氵冒

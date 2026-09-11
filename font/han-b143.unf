@@ -124,6 +124,11 @@ glyph han-275f6:15x16 15 16 // 𧗶
 glyph han-275f9:15x16 15 16 // 𧗹
 ⿲ han-5f73:3x16 han-97f3:7x16 han-4e8d:5x16 // ⿲彳音亍
 
+## 144.12
+
+// glyph han-27602:15x16 15 16 // 𧘂
+// ⿲ han-5f73 han-7ae5 han-4e8d // ⿲彳童亍
+
 # CJK unified ideographs extension B: 衣 (145)
 
 ## 145.2
@@ -288,7 +293,13 @@ glyph han-2768f:15x16 15 16 // 𧚏
 // glyph han-27696:15x16 15 16 // 𧚖
 // ⿰ han-8864 han-8db3 // ⿰衤足
 
+// glyph han-276a3:15x16 15 16 // 𧚣
+// ⿱ han-91cc han-8863 // ⿱里衣
+
 ## 145.8
+
+// glyph han-276aa:15x16 15 16 // 𧚪
+// ⿰ han-8864 han-59be // ⿰衤妾
 
 glyph han-276ab-(g|t):15x16 15 16 // 𧚫
 ⿰ han-8864:5x16 1 han-9752-($-1):9x16 // ⿰衤青
@@ -395,6 +406,9 @@ glyph han-27739-($han-regions):15x16 15 16 // 𧜹
 // ⿰ han-8864 han-5c5a-($-1) // ⿰衤屚
 
 ## 145.12
+
+// glyph han-2774e:15x16 15 16 // 𧝎
+// ⿰ han-8864 han-7ae5 // ⿰衤童
 
 // glyph han-27756:15x16 15 16 // 𧝖
 // ⿱ han-570d han-8863 // ⿱圍衣

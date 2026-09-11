@@ -796,8 +796,8 @@ $$..........................$$
 
 ## 126.3
 
-// glyph han-800d:15x16 15 16 // 耍
-// ⿱ han-800c han-5973 // ⿱而女
+glyph han-800d:15x16 15 16 // 耍
+⿱ han-800c:15x7 han-5973:15x9 // ⿱而女
 
 glyph han-800e:15x16 15 16 // 耎
 ⿱ han-800c:15x5 1 han-5927:15x10 // ⿱而大
@@ -1410,6 +1410,9 @@ glyph han-80f6:15x16 15 16 // 胶
 glyph han-80f9:15x16 15 16 // 胹
 ⿰ han-6708:5x16-l 1 han-800c:9x16 // ⿰月而
 
+// glyph han-80fa:15x16 15 16 // 胺
+// ⿰ han-6708 han-5b89 // ⿰月安
+
 // glyph han-80fb:15x16 15 16 // 胻
 // ⿲ han-6708 han-5f73 han-4e8d // ⿲月彳亍
 
@@ -1526,8 +1529,14 @@ glyph han-8167:15x16 15 16 // 腧
 glyph han-816a:15x16 15 16 // 腪
 ⿰ han-6708:5x16-l 1 han-8ecd:9x16 // ⿰月軍
 
+// glyph han-816b:15x16 15 16 // 腫
+// ⿰ han-6708 han-91cd // ⿰月重
+
 // glyph han-816e:15x16 15 16 // 腮
 // ⿰ han-6708 han-601d // ⿰月思
+
+// glyph han-8170:15x16 15 16 // 腰
+// ⿰ han-6708 han-8981 // ⿰月要
 
 glyph han-8178:15x16 15 16 // 腸
 ⿰ han-6708:5x16-l 1 han-661c:9x16 // ⿰月昜
@@ -1564,6 +1573,9 @@ glyph han-81a0:15x16 15 16 // 膠
 
 glyph han-81a6:15x16 15 16 // 膦
 ⿰ han-6708:5x16-l 1 han-7ca6:9x16 // ⿰月粦
+
+// glyph han-81a7:15x16 15 16 // 膧
+// ⿰ han-6708 han-7ae5 // ⿰月童
 
 glyph han-81ae:15x16 15 16 // 膮
 ⿰ han-6708:7x16 1 han-582f:7x16 // ⿰月堯
@@ -1936,6 +1948,9 @@ glyph han-823e:15x16 15 16 // 舾
 glyph han-8241:15x16 15 16 // 艁
 ⿰ han-821f:7x16 han-544a:8x16 // ⿰舟告
 
+glyph han-8243:15x16 15 16 // 艃
+⿰ han-821f:7x16 1 han-91cc:7x16 // ⿰舟里
+
 glyph han-8244:15x16 15 16 // 艄
 ⿰ han-821f:7x16 1 han-8096:7x16 // ⿰舟肖
 
@@ -1960,6 +1975,11 @@ glyph han-824e:15x16 15 16 // 艎
 
 // glyph han-8253:15x16 15 16 // 艓
 // ⿰ han-821f han-67bc // ⿰舟枼
+
+## 137.12
+
+// glyph han-825f:15x16 15 16 // 艟
+// ⿰ han-821f han-7ae5 // ⿰舟童
 
 # CJK unified ideographs: 艮 (138)
 

@@ -681,6 +681,9 @@ glyph han-7142:15x16 15 16 // 煂
 // glyph han-7143:15x16 15 16 // 煃
 // ⿰ han-706b han-594e // ⿰火奎
 
+// glyph han-7144:15x16 15 16 // 煄
+// ⿰ han-706b han-91cd // ⿰火重
+
 glyph han-7147:15x16 15 16 // 煇
 ⿰ han-706b:7x16 1 han-8ecd:7x16 // ⿰火軍
 
@@ -812,6 +815,9 @@ glyph han-71cd:15x16 15 16 // 燍
 
 glyph han-71d0:15x16 15 16 // 燐
 ⿰ han-706b:5x16 1 han-7ca6:9x16 // ⿰火粦
+
+// glyph han-71d1:15x16 15 16 // 燑
+// ⿰ han-706b han-7ae5 // ⿰火童
 
 glyph han-71d2:15x16 15 16 // 燒
 ⿰ han-706b:7x16 1 han-582f:7x16 // ⿰火堯

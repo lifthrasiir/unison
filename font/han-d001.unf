@@ -227,6 +227,13 @@ glyph han-2b7de:15x16 15 16 // 𫟞
 glyph han-2b7e7-($han-regions):15x16 15 16 // 𫟧
 ⿺ han-8fb6-($-1):15x16.11x14 han-4e01:9x14 6 0 // ⿺辶丁
 
+# CJK unified ideographs extension D: 里 (166)
+
+## 166.2
+
+// glyph han-2b7ef:15x16 15 16 // 𫟯
+// ⿱ han-4ea0 han-91cc // ⿱亠里
+
 # CJK unified ideographs extension D: 钅 (167')
 
 ## 167'.2

@@ -127,6 +127,9 @@ glyph han-981c:15x16 15 16 // 頜
 glyph han-981d:15x16 15 16 // 頝
 ⿰ han-4ea4:7x16 1 han-9801:7x16 // ⿰交頁
 
+// glyph han-981e:15x16 15 16 // 頞
+// ⿰ han-5b89 han-9801 // ⿰安頁
+
 glyph han-981f:15x16 15 16 // 頟
 ⿰ han-5404:7x16 1 han-9801:7x16 // ⿰各頁
 
@@ -830,6 +833,9 @@ glyph han-9a11:15x16 15 16 // 騑
 
 glyph han-9a14:15x16 15 16 // 騔
 ⿰ han-99ac:7x16 han-66f7:8x16 // ⿰馬曷
+
+// glyph han-9a15:15x16 15 16 // 騕
+// ⿰ han-99ac han-8981 // ⿰馬要
 
 glyph han-9a1c:15x16 15 16 // 騜
 ⿰ han-99ac:7x16 1 han-7687:7x16 // ⿰馬皇

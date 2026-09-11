@@ -535,6 +535,9 @@ glyph han-7ae1:15x16 15 16 // 竡
 glyph han-7ae3:15x16 15 16 // 竣
 ⿰ han-7acb:7x16 1 han-590b:7x16 // ⿰立夋
 
+glyph han-7ae5:15x16 15 16 // 童
+⿱ han-7acb:15x6 1 han-91cc:15x9 // ⿱立里
+
 glyph han-7ae6:15x16 15 16 // 竦
 ⿰ han-7acb:5x16 1 han-675f:9x16 // ⿰立束
 
@@ -918,6 +921,9 @@ glyph han-7bb6:15x16 15 16 // 箶
 // glyph han-7bb9-($han-regions):15x16 15 16 // 箹
 // ⿱ han-25ad7 han-7d04-($-1) // ⿱𥫗約
 
+// glyph han-7bbd:15x16 15 16 // 箽
+// ⿱ han-25ad7 han-91cd // ⿱𥫗重
+
 // glyph han-7bbe:15x16 15 16 // 箾
 // ⿱ han-25ad7 han-524a // ⿱𥫗削
 
@@ -1238,8 +1244,8 @@ glyph han-7c99:15x16 15 16 // 粙
 // glyph han-7c9c:15x16 15 16 // 粜
 // ⿱ han-51fa han-7c73 // ⿱出米
 
-// glyph han-7ca3:15x16 15 16 // 粣
-// ⿰ han-7c73 han-518a // ⿰米冊
+glyph han-7ca3:15x16 15 16 // 粣
+⿰ han-7c73:5x16 1 han-518a:9x16 // ⿰米冊
 
 ## 119.6
 
@@ -1319,6 +1325,9 @@ glyph han-7cae:15x16 15 16 // 粮
 glyph han-7caf:15x16 15 16 // 粯
 ⿰ han-7c73:7x16 1 han-898b:7x16 // ⿰米見
 
+glyph han-7cb4:15x16 15 16 // 粴
+⿰ han-7c73:5x16 1 han-91cc:9x16 // ⿰米里
+
 ## 119.8
 
 glyph han-7cb8:15x16 15 16 // 粸
@@ -1370,6 +1379,9 @@ glyph han-7ce8:15x16 15 16 // 糨
 
 // glyph han-7ce5:15x16 15 16 // 糥
 // ⿰ han-7c73 han-264d4 // ⿰米𦓔
+
+// glyph han-7ce7:15x16 15 16 // 糧
+// ⿰ han-7c73 han-91cf // ⿰米量
 
 ## 119.14
 

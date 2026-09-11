@@ -89,6 +89,9 @@ glyph han-2c02c:15x16 15 16 // 𬀬
 glyph han-2c045:15x16 15 16 // 𬁅
 ⿲ han-65e5:4x16-l 1 han-866b:5x16 han-5de5:5x16 // ⿲日虫工
 
+// glyph han-2c047:15x16 15 16 // 𬁇
+// ⿰ han-65e5 han-91cd // ⿰日重
+
 ## 72.11
 
 // glyph han-2c051:15x16 15 16 // 𬁑
@@ -594,6 +597,9 @@ glyph han-2c266:15x16 15 16 // 𬉦
 
 glyph han-2c267:15x16 15 16 // 𬉧
 ⿲ han-6c35:3x16 han-2099d:5x16 han-97cb:7x16 // ⿲氵𠦝韋
+
+// glyph han-2c268:15x16 15 16 // 𬉨
+// ⿱ han-91cf han-6cc9 // ⿱量泉
 
 # CJK unified ideographs extension E: 火 (86)
 

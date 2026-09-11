@@ -368,8 +368,8 @@ glyph han-25041:15x16 15 16 // 𥁁
 glyph han-25043-($han-regions):15x16 15 16 // 𥁃
 ⿱ han-4ea1-($-1):15x8 1 han-76bf:15x7 // ⿱亡皿
 
-// glyph han-25045:15x16 15 16 // 𥁅
-// ⿱ han-5973 han-76bf // ⿱女皿
+glyph han-25045:15x16 15 16 // 𥁅
+⿱ han-5973:15x9 han-76bf:15x7 // ⿱女皿
 
 ## 108.4
 

@@ -384,6 +384,9 @@ glyph han-7dd9:15x16 15 16 // 緙
 glyph han-7ddd:15x16 15 16 // 緝
 ⿰ han-7cf9:5x16 han-54a0:10x16 // ⿰糹咠
 
+// glyph han-7ddf:15x16 15 16 // 緟
+// ⿰ han-7cf9 han-91cd // ⿰糹重
+
 // glyph han-7de2:15x16 15 16 // 緢
 // ⿰ han-7cf8 han-82d7 // ⿰糸苗
 
@@ -735,6 +738,11 @@ glyph han-7f73:15x16 15 16 // 罳
 
 // glyph han-7f7c:15x16 15 16 // 罼
 // ⿱ han-7f52 han-7562 // ⿱罒畢
+
+## 122.12
+
+// glyph han-7f7f:15x16 15 16 // 罿
+// ⿱ han-7f52 han-7ae5 // ⿱罒童
 
 ## 122.14
 

@@ -338,6 +338,9 @@ glyph han-26a65:15x16 15 16 // 𦩥
 // glyph han-26a6d:15x16 15 16 // 𦩭
 // ⿰ han-821f han-601d // ⿰舟思
 
+// glyph han-26a70:15x16 15 16 // 𦩰
+// ⿰ han-821f han-91cd // ⿰舟重
+
 glyph han-26a73-($han-regions):15x16 15 16 // 𦩳
 ⿰ han-821f:7x16 1 han-8005-($-1):7x16 // ⿰舟者
 

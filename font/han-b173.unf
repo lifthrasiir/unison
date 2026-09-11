@@ -18,8 +18,8 @@ glyph han-29078-($han-regions):15x16 15 16 // 𩁸
 // glyph han-2907a-($han-regions):15x16 15 16 // 𩁺
 // ⿱ han-96e8-($-1) han-5f61 // ⿱雨彡
 
-// glyph han-2907b:15x16 15 16 // 𩁻
-// ⿱ han-96e8 han-5973 // ⿱雨女
+glyph han-2907b-($han-regions):15x16 15 16 // 𩁻
+⿱ han-96e8-($-1):15x7 han-5973:15x9 // ⿱雨女
 
 glyph han-2907c-($han-regions):15x16 15 16 // 𩁼
 ⿱ han-5915:15x8 han-96e8-($-1):15x8 // ⿱夕雨

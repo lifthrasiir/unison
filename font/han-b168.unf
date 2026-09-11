@@ -147,6 +147,9 @@ glyph han-28d0e:15x16 15 16 // 𨴎
 // glyph han-28d22:15x16 15 16 // 𨴢
 // ⿵ han-9580 han-591a // ⿵門多
 
+// glyph han-28d23:15x16 15 16 // 𨴣
+// ⿵ han-9580 han-5b89 // ⿵門安
+
 // glyph han-28d24-($han-regions):15x16 15 16 // 𨴤
 // ⿵ han-9580 han-6c52-($-1) // ⿵門汒
 
@@ -169,6 +172,9 @@ glyph han-28d0e:15x16 15 16 // 𨴎
 
 // glyph han-28d3a:15x16 15 16 // 𨴺
 // ⿵ han-9580 han-6751 // ⿵門村
+
+// glyph han-28d3b:15x16 15 16 // 𨴻
+// ⿵ han-9580 han-91cc // ⿵門里
 
 // glyph han-28d3c:15x16 15 16 // 𨴼
 // ⿵ han-9580 han-898b // ⿵門見
@@ -237,6 +243,9 @@ glyph han-28d0e:15x16 15 16 // 𨴎
 // glyph han-28d6a:15x16 15 16 // 𨵪
 // ⿵ han-9580 han-9801 // ⿵門頁
 
+// glyph han-28d6e:15x16 15 16 // 𨵮
+// ⿵ han-9580 han-91cd // ⿵門重
+
 // glyph han-28d72:15x16 15 16 // 𨵲
 // ⿵ han-9580 han-31c8b // ⿵門𱲋
 
@@ -287,6 +296,9 @@ glyph han-28d0e:15x16 15 16 // 𨴎
 
 // glyph han-28db8:15x16 15 16 // 𨶸
 // ⿵ han-9580 han-756a // ⿵門番
+
+// glyph han-28dbb:15x16 15 16 // 𨶻
+// ⿵ han-9580 han-7ae5 // ⿵門童
 
 // glyph han-28dbd:15x16 15 16 // 𨶽
 // ⿰ han-5c45 han-958f // ⿰居閏

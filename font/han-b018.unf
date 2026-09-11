@@ -198,6 +198,9 @@ glyph han-2075c-($han-regions):15x16 15 16 // 𠝜
 // glyph han-2075d:15x16 15 16 // 𠝝
 // ⿰ han-67bc han-5202 // ⿰枼刂
 
+// glyph han-20764:15x16 15 16 // 𠝤
+// ⿰ han-91cd han-5202 // ⿰重刂
+
 // glyph han-20765:15x16 15 16 // 𠝥
 // ⿰ han-594e han-5202 // ⿰奎刂
 
@@ -220,6 +223,9 @@ glyph han-2075c-($han-regions):15x16 15 16 // 𠝜
 
 glyph han-2078f:15x16 15 16 // 𠞏
 ⿲ -2 han-751f:7x16 han-751f:7x16 han-5202:3x16 // ⿲生生刂
+
+// glyph han-20795:15x16 15 16 // 𠞕
+// ⿰ han-91cd han-5203 // ⿰重刃
 
 glyph han-2079f:15x16 15 16 // 𠞟
 ⿰ han-9ad8:9x16 1 han-5202:5x16 // ⿰高刂
@@ -254,6 +260,9 @@ glyph han-207cb:15x16 15 16 // 𠟋
 
 // glyph han-207cc:15x16 15 16 // 𠟌
 // ⿰ han-83e9 han-5202 // ⿰菩刂
+
+// glyph han-207cd:15x16 15 16 // 𠟍
+// ⿰ han-7ae5 han-5202 // ⿰童刂
 
 // glyph han-207cf:15x16 15 16 // 𠟏
 // ⿰ han-3afa han-5202 // ⿰㫺刂
@@ -364,6 +373,9 @@ glyph han-2084f:15x16 15 16 // 𠡏
 
 // glyph han-20851:15x16 15 16 // 𠡑
 // ⿱ han-6c4b han-529b // ⿱汋力
+
+// glyph han-20853:15x16 15 16 // 𠡓
+// ⿰ han-5b89 han-529b // ⿰安力
 
 // glyph han-20856:15x16 15 16 // 𠡖
 // ⿱ han-5218 han-529b // ⿱刘力

@@ -134,6 +134,9 @@ glyph han-2adc9:15x16 15 16 // 𪷉
 
 ## 85.12
 
+// glyph han-2add1:15x16 15 16 // 𪷑
+// ⿰ han-6c35 han-91cf // ⿰氵量
+
 glyph han-2add7:15x16 15 16 // 𪷗
 ⿲ han-6c35:3x16 han-6708:5x16 1 han-5351:6x16 // ⿲氵月卑
 
@@ -493,6 +496,11 @@ glyph han-2af61:15x16 15 16 // 𪽡
 // glyph han-2af70:15x16 15 16 // 𪽰
 // ⿸ han-7592 han-8db3 // ⿸疒足
 
+## 104.9
+
+// glyph han-2af73:15x16 15 16 // 𪽳
+// ⿸ han-7592 han-8981 // ⿸疒要
+
 # CJK unified ideographs extension C: 白 (106)
 
 ## 106.4
@@ -519,6 +527,9 @@ glyph han-2af83:15x16 15 16 // 𪾃
 # CJK unified ideographs extension C: 皮 (107)
 
 ## 107.9
+
+// glyph han-2af88:15x16 15 16 // 𪾈
+// ⿰ han-76ae han-8981 // ⿰皮要
 
 // glyph han-2af89:15x16 15 16 // 𪾉
 // ⿱ han-76ae han-8036 // ⿱皮耶

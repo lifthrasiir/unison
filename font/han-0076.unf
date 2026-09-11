@@ -787,6 +787,11 @@ glyph han-6b6e:11x16 11 16 // 歮
 glyph han-6b6e:15x16 15 16 // 歮
 ⿱ han-6b62:15x8 han-23956:15x8 // ⿱止𣥖
 
+## 77.9
+
+// glyph han-6b71:15x16 15 16 // 歱
+// ⿰ han-6b62 han-91cd // ⿰止重
+
 ## 77.10
 
 // glyph han-6b74:15x16 15 16 // 歴
@@ -1128,6 +1133,11 @@ glyph han-6bfc:15x16 15 16 // 毼
 
 // glyph han-6c01:15x16 15 16 // 氁
 // ⿺ han-6bdb han-83ab // ⿺毛莫
+
+## 82.12
+
+// glyph han-6c03:15x16 15 16 // 氃
+// ⿰ han-7ae5 han-6bdb // ⿰童毛
 
 ## 82.13
 

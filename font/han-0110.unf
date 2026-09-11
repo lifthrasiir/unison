@@ -1251,6 +1251,9 @@ glyph han-7a26:15x16 15 16 // 稦
 // glyph han-7a2d:15x16 15 16 // 稭
 // ⿰ han-79be han-7686 // ⿰禾皆
 
+// glyph han-7a2e:15x16 15 16 // 種
+// ⿰ han-79be han-91cd // ⿰禾重
+
 ## 115.10
 
 // glyph han-7a3e:15x16 15 16 // 稾
@@ -1283,6 +1286,9 @@ glyph han-7a58:15x16 15 16 // 穘
 
 glyph han-7a5a:15x16 15 16 // 穚
 ⿰ han-79be:5x16 1 han-55ac:9x16 // ⿰禾喬
+
+// glyph han-7a5c:15x16 15 16 // 穜
+// ⿰ han-79be han-7ae5 // ⿰禾童
 
 ## 115.14
 

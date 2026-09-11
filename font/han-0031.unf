@@ -1243,6 +1243,9 @@ glyph han-57b0:15x16 15 16 // 垰
 // glyph han-57b3:15x16 15 16 // 垳
 // ⿲ han-571f han-5f73 han-4e8d // ⿲土彳亍
 
+// glyph han-57b5:15x16 15 16 // 垵
+// ⿰ han-571f han-5b89 // ⿰土安
+
 ## 32.7
 
 glyph han-57b6:15x16 15 16 // 垶
@@ -1274,6 +1277,9 @@ glyph han-57c8:15x16 15 16 // 埈
 
 glyph han-57ca:15x16 15 16 // 埊
 ⿳ han-5c71:15x4 han-6c34:15x8 han-571f:15x4 // ⿳山水土
+
+glyph han-57cb:15x16 15 16 // 埋
+⿰ han-571f:5x16-l 1 han-91cc:9x16 // ⿰土里
 
 glyph han-57cc:15x16 15 16 // 埌
 ⿰ han-571f:7x16 1 han-826f:7x16 // ⿰土良
@@ -1463,6 +1469,9 @@ glyph han-5837:15x16 15 16 // 堷
 glyph han-5838:15x16 15 16 // 堸
 ⿰ han-571f:3x16-l 1 han-98a8:11x16 // ⿰土風
 
+// glyph han-5839:15x16 15 16 // 堹
+// ⿰ han-571f han-91cd // ⿰土重
+
 glyph han-583c:15x16 15 16 // 堼
 ⿱ han-5c01:15x11 han-571f:15x5 // ⿱封土
 
@@ -1534,6 +1543,9 @@ glyph han-5882:15x16 15 16 // 墂
 
 glyph han-589d:15x16 15 16 // 墝
 ⿰ han-571f:7x16 1 han-582f:7x16 // ⿰土堯
+
+// glyph han-58a5:15x16 15 16 // 墥
+// ⿰ han-571f han-7ae5 // ⿰土童
 
 glyph han-58a6:15x16 15 16 // 墦
 ⿰ han-571f:7x16 1 han-756a:7x16 // ⿰土番

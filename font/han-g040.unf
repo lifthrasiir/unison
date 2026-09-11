@@ -74,6 +74,9 @@ glyph han-30357-($han-regions):15x16 15 16 // 𰍗
 // glyph han-30358:15x16 15 16 // 𰍘
 // ⿱ han-5b80 han-23d83 // ⿱宀𣶃
 
+// glyph han-3035a:15x16 15 16 // 𰍚
+// ⿰ han-5b89 han-7f57 // ⿰安罗
+
 ## 40.12
 
 // glyph han-3035c:15x16 15 16 // 𰍜
@@ -772,6 +775,11 @@ glyph han-3059f:15x16 15 16 // 𰖟
 
 // glyph han-305b4:15x16 15 16 // 𰖴
 // ⿱ han-615a han-65e5 // ⿱慚日
+
+## 72.15
+
+// glyph han-305b7:15x16 15 16 // 𰖷
+// ⿰ han-6697 han-5b89 // ⿰暗安
 
 # CJK unified ideographs extension G: 月 (74)
 

@@ -246,6 +246,9 @@ glyph han-28069:15x16 15 16 // 𨁩
 glyph han-2806a:15x16 15 16 // 𨁪
 ⿰ han-27fb7:5x16 1 han-9149:9x16 // ⿰𧾷酉
 
+glyph han-2806b:15x16 15 16 // 𨁫
+⿰ han-27fb7:5x16 1 han-91cc:9x16 // ⿰𧾷里
+
 glyph han-2806c:15x16 15 16 // 𨁬
 ⿲ han-27fb7:5x16 han-4ebb:3x16 han-7533:7x16 // ⿲𧾷亻申
 

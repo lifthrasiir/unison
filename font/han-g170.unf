@@ -143,6 +143,9 @@ glyph han-31082:15x16 15 16 // 𱂂
 // glyph han-31098:15x16 15 16 // 𱂘
 // ⿰ han-3693 han-9801 // ⿰㚓頁
 
+// glyph han-31099:15x16 15 16 // 𱂙
+// ⿰ han-599f han-9801 // ⿰妟頁
+
 # CJK unified ideographs extension G: 風 (182)
 
 ## 182.4
@@ -345,6 +348,11 @@ glyph han-311a4:15x16 15 16 // 𱆤
 glyph han-311b4:15x16 15 16 // 𱆴
 ⿲ -2 han-9b5a:7x16 han-6728:5x16 han-6728:5x16 // ⿲魚木木
 
+## 195.12
+
+// glyph han-311c1:15x16 15 16 // 𱇁
+// ⿰ han-9b5a han-91cf // ⿰魚量
+
 # CJK unified ideographs extension G: 鳥 (196)
 
 ## 196.4
@@ -364,6 +372,9 @@ glyph han-31225:15x16 15 16 // 𱈥
 ⿰ han-53f0:7x16 1 han-9ce5:7x16 // ⿰台鳥
 
 ## 196.7
+
+// glyph han-3122a:15x16 15 16 // 𱈪
+// ⿰ han-9ce5 han-599f // ⿰鳥妟
 
 // glyph han-3122b:15x16 15 16 // 𱈫
 // ⿰ han-9ce5 han-65f1 // ⿰鳥旱

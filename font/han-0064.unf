@@ -455,6 +455,9 @@ glyph han-6303:15x16 15 16 // 挃
 // glyph han-6306:15x16 15 16 // 挆
 // ⿰ han-624c han-6735 // ⿰扌朵
 
+// glyph han-6309:15x16 15 16 // 按
+// ⿰ han-624c han-5b89 // ⿰扌安
+
 glyph han-630a:15x16 15 16 // 挊
 ⿰ han-624c:5x16 1 han-209d7:9x16 // ⿰扌𠧗
 glyph han-630a.0:15x16 = han-630a:15x16
@@ -560,6 +563,9 @@ glyph han-6358:15x16 15 16 // 捘
 glyph han-6359:15x16 15 16 // 捙
 ⿰ han-624c:5x16 1 han-8eca:9x16 // ⿰扌車
 
+glyph han-635a:15x16 15 16 // 捚
+⿰ han-624c:5x16 1 han-91cc:9x16 // ⿰扌里
+
 glyph han-635b.0:15x16 15 16 // 捛
 ⿰ han-624c:3x16 1 han-5415.x:11x16 // ⿰扌吕
 glyph han-635b.x:15x16 15 16 // 捛
@@ -631,6 +637,9 @@ glyph han-639e:15x16 15 16 // 掞
 glyph han-63a4:15x16 15 16 // 掤
 ⿲ han-624c:3x16 han-6708:6x16 han-6708:6x16 // ⿲扌月月
 
+// glyph han-63a5:15x16 15 16 // 接
+// ⿰ han-624c han-59be // ⿰扌妾
+
 // glyph han-63a7:15x16 15 16 // 控
 // ⿰ han-624c han-7a7a // ⿰扌空
 
@@ -701,6 +710,9 @@ glyph han-63ed:15x16 15 16 // 揭
 
 glyph han-63ee:15x16 15 16 // 揮
 ⿰ han-624c:5x16 1 han-8ecd:9x16 // ⿰扌軍
+
+// glyph han-63f0:15x16 15 16 // 揰
+// ⿰ han-624c han-91cd // ⿰扌重
 
 // glyph han-63f1:15x16 15 16 // 揱
 // ⿱ han-524a han-624b // ⿱削手
@@ -806,6 +818,9 @@ glyph han-6495:15x16 15 16 // 撕
 
 glyph han-649b:15x16 15 16 // 撛
 ⿰ han-624c:5x16 1 han-7ca6:9x16 // ⿰扌粦
+
+// glyph han-649e:15x16 15 16 // 撞
+// ⿰ han-624c han-7ae5 // ⿰扌童
 
 glyph han-649f:15x16 15 16 // 撟
 ⿰ han-624c:5x16 1 han-55ac:9x16 // ⿰扌喬

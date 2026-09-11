@@ -433,6 +433,9 @@ glyph han-21e88:15x16 15 16 // 𡺈
 // glyph han-21e8b:15x16 15 16 // 𡺋
 // ⿱ han-5c71 han-9801 // ⿱山頁
 
+// glyph han-21e8d:15x16 15 16 // 𡺍
+// ⿰ han-5c71 han-91cd // ⿰山重
+
 glyph han-21e90-($han-regions):15x16 15 16 // 𡺐
 ⿰ han-5c71:7x16 1 han-8005-($-1):7x16 // ⿰山者
 

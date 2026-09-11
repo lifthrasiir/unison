@@ -271,6 +271,9 @@ glyph han-2aaf0:15x16 15 16 // 𪫰
 // glyph han-2aaf1:15x16 15 16 // 𪫱
 // ⿱ han-4efd han-5fc3 // ⿱份心
 
+// glyph han-2aaf2:15x16 15 16 // 𪫲
+// ⿰ han-5fc4 han-5b89 // ⿰忄安
+
 // glyph han-2aaf3:15x16 15 16 // 𪫳
 // ⿱ han-8863 han-5fc3 // ⿱衣心
 
@@ -319,6 +322,11 @@ glyph han-2ab0d:15x16 15 16 // 𪬍
 
 // glyph han-2ab22:15x16 15 16 // 𪬢
 // ⿲ han-5fc4 han-5192 han-529b // ⿲忄冒力 <- ⿰忄勖
+
+## 61.12
+
+// glyph han-2ab28:15x16 15 16 // 𪬨
+// ⿰ han-5fc4 han-91cf // ⿰忄量
 
 ## 61.16
 
@@ -583,6 +591,9 @@ glyph han-2ac25:15x16 15 16 // 𪰥
 // ⿳ han-65e5 han-4e00 han-5229 // ⿳日一利 <- ⿱旦利
 
 ## 72.10
+
+// glyph han-2ac39:15x16 15 16 // 𪰹
+// ⿱ han-65e5 han-57cb // ⿱日埋
 
 // glyph han-2ac3d:15x16 15 16 // 𪰽
 // ⿰ han-65e5 han-5eab // ⿰日庫

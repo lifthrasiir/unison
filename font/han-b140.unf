@@ -42,8 +42,8 @@ glyph han-26b0a:15x16 15 16 // 𦬊
 // glyph han-26b0b:15x16 15 16 // 𦬋
 // ⿳ han-8279 han-4e00 han-529b // ⿳艹一力
 
-// glyph han-26b11:15x16 15 16 // 𦬑
-// ⿱ han-8279 han-5973 // ⿱艹女
+glyph han-26b11:15x16 15 16 // 𦬑
+⿱ 1 han-8279:15x3 2 han-5973:15x9 // ⿱艹女
 
 // glyph han-26b12:15x16 15 16 // 𦬒
 // ⿱ han-8279 han-30001 // ⿱艹𰀁

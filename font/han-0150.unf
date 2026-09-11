@@ -598,8 +598,8 @@ glyph han-8dd7:15x16 15 16 // 跗
 glyph han-8dd9:15x16 15 16 // 跙
 ⿰ han-27fb7:5x16 1 han-4e14:9x16 // ⿰𧾷且
 
-// glyph han-8dda:15x16 15 16 // 跚
-// ⿰ han-27fb7 han-518a // ⿰𧾷冊
+glyph han-8dda:15x16 15 16 // 跚
+⿰ han-27fb7:5x16 1 han-518a:9x16 // ⿰𧾷冊
 
 glyph han-8ddb:15x16 15 16 // 跛
 ⿰ han-27fb7:5x16 1 han-76ae:9x16 // ⿰𧾷皮
@@ -715,6 +715,9 @@ glyph han-8e23:15x16 15 16 // 踣
 glyph han-8e24:15x16 15 16 // 踤
 ⿰ han-27fb7:5x16 1 han-5352:9x16 // ⿰𧾷卒
 
+// glyph han-8e25:15x16 15 16 // 踥
+// ⿰ han-27fb7 han-59be // ⿰𧾷妾
+
 // glyph han-8e26:15x16 15 16 // 踦
 // ⿰ han-27fb7 han-5947 // ⿰𧾷奇
 
@@ -725,6 +728,9 @@ glyph han-8e24:15x16 15 16 // 踤
 
 glyph han-8e30:15x16 15 16 // 踰
 ⿰ han-27fb7:5x16 1 han-4fde:9x16 // ⿰𧾷俞
+
+// glyph han-8e35:15x16 15 16 // 踵
+// ⿰ han-27fb7 han-91cd // ⿰𧾷重
 
 glyph han-8e36:15x16 15 16 // 踶
 ⿰ han-27fb7:5x16 1 han-662f:9x16 // ⿰𧾷是
@@ -781,6 +787,9 @@ glyph han-8e5e:15x16 15 16 // 蹞
 
 glyph han-8e6f:15x16 15 16 // 蹯
 ⿰ han-27fb7:5x16 1 han-756a:9x16 // ⿰𧾷番
+
+// glyph han-8e71:15x16 15 16 // 蹱
+// ⿰ han-27fb7 han-7ae5 // ⿰𧾷童
 
 glyph han-8e78:15x16 15 16 // 蹸
 ⿰ han-27fb7:5x16 1 han-7ca6:9x16 // ⿰𧾷粦

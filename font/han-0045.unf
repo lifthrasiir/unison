@@ -392,6 +392,9 @@ glyph han-5cd2:15x16 15 16 // 峒
 // glyph han-5cd5:15x16 15 16 // 峕
 // ⿳ han-5c71 han-4ea0 han-65e5 // ⿳山亠日 <- ⿱山𣅀
 
+// glyph han-5cd6:15x16 15 16 // 峖
+// ⿰ han-5c71 han-5b89 // ⿰山安
+
 // glyph han-5cd8:15x16 15 16 // 峘
 // ⿰ han-5c71 han-4e98 // ⿰山亘
 
@@ -555,6 +558,9 @@ glyph han-5d3c:15x16 15 16 // 崼
 
 glyph han-5d3d:15x16 15 16 // 崽
 ⿳ han-5c71:15x5 1 han-7530:15x5 han-5fc3:15x5 // ⿳山田心
+
+// glyph han-5d3e:15x16 15 16 // 崾
+// ⿰ han-5c71 han-8981 // ⿰山要
 
 // glyph han-5d4c:15x16 15 16 // 嵌
 // ⿱ han-5c71 han-2389f // ⿱山𣢟
@@ -2258,6 +2264,9 @@ glyph han-5e29:15x16 15 16 // 帩
 glyph han-5e37:15x16 15 16 // 帷
 ⿰ han-5dfe:7x16 1 han-96b9:7x16 // ⿰巾隹
 
+// glyph han-5e39:15x16 15 16 // 帹
+// ⿰ han-5dfe han-59be // ⿰巾妾
+
 glyph han-5e3a:15x16 15 16 // 帺
 ⿰ han-5dfe:7x16 han-5176:8x16 // ⿰巾其
 
@@ -2305,6 +2314,9 @@ glyph han-5e56:15x16 15 16 // 幖
 
 glyph han-5e61:15x16 15 16 // 幡
 ⿰ han-5dfe:7x16 1 han-756a:7x16 // ⿰巾番
+
+// glyph han-5e62:15x16 15 16 // 幢
+// ⿰ han-5dfe han-7ae5 // ⿰巾童
 
 ## 50.13
 

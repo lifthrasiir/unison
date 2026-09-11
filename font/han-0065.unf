@@ -1405,6 +1405,9 @@ glyph han-66a2:15x16 15 16 // 暢
 glyph han-66bd:15x16 15 16 // 暽
 ⿰ han-65e5:6x16 han-7ca6:9x16 // ⿰日粦
 
+// glyph han-66c8:15x16 15 16 // 曈
+// ⿰ han-65e5 han-7ae5 // ⿰日童
+
 glyph han-66c9:15x16 15 16 // 曉
 ⿰ han-65e5:7x16 1 han-582f:7x16 // ⿰日堯
 
@@ -1874,6 +1877,9 @@ glyph han-671f:15x16 15 16 // 期
 ⿰ han-5176:8x16 han-6708:7x16 // ⿰其月
 
 ## 74.12
+
+// glyph han-6723:15x16 15 16 // 朣
+// ⿰ han-6708 han-7ae5 // ⿰月童
 
 glyph han-6724:15x16 15 16 // 朤
 ⿱ han-670b:15x8 han-670b:15x8 // ⿱朋朋

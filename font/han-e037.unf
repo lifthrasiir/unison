@@ -34,6 +34,14 @@ glyph han-2bbe4:15x16 15 16 // 𫯤
 // glyph han-2bbed:15x16 15 16 // 𫯭
 // ⿱ han-5927 han-661c // ⿱大昜
 
+## 37.10
+
+// glyph han-2bbf0:15x16 15 16 // 𫯰
+// ⿰ han-592b han-91cd // ⿰夫重
+
+// glyph han-2bbf3:15x16 15 16 // 𫯳
+// ⿰ han-91cd han-592b // ⿰重夫
+
 ## 37.11
 
 // glyph han-2bbf5:15x16 15 16 // 𫯵
@@ -67,7 +75,7 @@ glyph han-2bc06:15x16 15 16 // 𫰆
 ## 38.3
 
 glyph han-2bc08:15x16 15 16 // 𫰈
-⿰ han-5973:5x16-l 1 han-4e0b:9x16 // ⿰女下
+⿰ han-5973:5x16-l -1 han-4e0b:11x16 // ⿰女下
 
 glyph han-2bc09:15x16 15 16 // 𫰉
 ⿰ han-5973:5x16-l han-51e1:10x16 // ⿰女凡
@@ -83,8 +91,8 @@ glyph han-2bc09:15x16 15 16 // 𫰉
 glyph han-2bc0c:15x16 15 16 // 𫰌
 ⿰ han-5973:5x16-l 1 han-4e94:9x16 // ⿰女五
 
-// glyph han-2bc0f:15x16 15 16 // 𫰏
-// ⿱ han-5973 han-6b62 // ⿱女止
+glyph han-2bc0f:15x16 15 16 // 𫰏
+⿱ han-5973:15x9 -1 han-6b62:15x8 // ⿱女止
 
 glyph han-2bc11:15x16 15 16 // 𫰑
 ⿰ han-5973:7x16 1 han-6b20:7x16 // ⿰女欠
@@ -181,7 +189,7 @@ glyph han-2bc6b:15x16 15 16 // 𫱫
 ## 38.12
 
 glyph han-2bc6f:15x16 15 16 // 𫱯
-⿲ han-5973:5x16-l han-767e:4x16 2 han-767e:4x16 // ⿲女百百
+⿲ han-5973:5x16-l 1 han-767e:4x16 1 han-767e:4x16 // ⿲女百百
 
 ## 38.13
 
@@ -202,6 +210,9 @@ glyph han-2bca4:15x16 15 16 // 𫲤
 
 // glyph han-2bca7:15x16 15 16 // 𫲧
 // ⿰ han-5b50 han-91d1 // ⿰子金
+
+// glyph han-2bca8-($han-regions):15x16 15 16 // 𫲨
+// ⿰ han-59be han-5b50-($-1) // ⿰妾子
 
 ## 39.11
 
@@ -596,6 +607,11 @@ glyph han-2be34:15x16 15 16 // 𫸴
 // glyph han-2be3a:15x16 15 16 // 𫸺
 // ⿰ han-5f1c han-5bfa // ⿰弜寺
 
+## 57.11
+
+// glyph han-2be3b:15x16 15 16 // 𫸻
+// ⿰ han-5f17 han-8981 // ⿰弗要
+
 # CJK unified ideographs extension E: 彐 (58)
 
 ## 58.5
@@ -861,7 +877,7 @@ glyph han-2bf1b:15x16 15 16 // 𫼛
 // ⿰ han-624c han-8fb9 // ⿰扌边
 
 glyph han-2bf30:15x16 15 16 // 𫼰
-⿲ han-624c:3x16 han-5973:5x16 han-53e3:7x16 // ⿲扌女口
+⿲ han-624c:3x16 han-5973:5x16 1 han-53e3:6x16 // ⿲扌女口
 
 ## 64.7
 
@@ -925,6 +941,9 @@ glyph han-2bf70:15x16 15 16 // 𫽰
 // ⿳ han-6797 han-5927 han-624b // ⿳林大手 <- ⿱𡘽手
 
 ## 64.12
+
+// glyph han-2bf84:15x16 15 16 // 𫾄
+// ⿰ han-624c han-91cf // ⿰扌量
 
 glyph han-2bf88:15x16 15 16 // 𫾈
 ⿲ han-624c:3x16 han-6c35:3x16 han-9aa8:9x16 // ⿲扌氵骨

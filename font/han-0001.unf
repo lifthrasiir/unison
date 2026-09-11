@@ -4255,6 +4255,9 @@ glyph han-4f5b:15x16 15 16 // 佛
 glyph han-4f5d:15x16 15 16 // 佝
 ⿰ han-4ebb:5x16 1 han-53e5:9x16 // ⿰亻句
 
+// glyph han-4f5e:15x16 15 16 // 佞
+// ⿰ han-4ebb han-216ac // ⿰亻𡚬
+
 glyph han-4f62-g:15x16 15 16 // 佢
 ⿰ han-4ebb:5x16 1 han-5de8.0:9x16 // ⿰亻巨
 glyph han-4f62-(h|t|j):15x16 15 16 // 佢
@@ -4375,6 +4378,9 @@ glyph han-4f8e:15x16 15 16 // 侎
 glyph han-4f90:15x16 15 16 // 侐
 ⿰ han-4ebb:5x16 han-8840:9x16 // ⿰亻血
 
+// glyph han-4f92:15x16 15 16 // 侒
+// ⿰ han-4ebb han-5b89 // ⿰亻安
+
 glyph han-4f95:15x16 15 16 // 侕
 ⿰ han-4ebb:5x16 1 han-800c:9x16 // ⿰亻而
 
@@ -4392,7 +4398,7 @@ glyph han-4f9c:15x16 15 16 // 侜
 // ⿰ han-4ebb han-8863 // ⿰亻衣
 
 glyph han-4f9e:15x16 15 16 // 侞
-⿲ han-4ebb:3x16 han-5973:5x16 han-53e3:7x16 // ⿲亻女口
+⿲ han-4ebb:3x16 han-5973:5x16 1 han-53e3:6x16 // ⿲亻女口
 
 // glyph han-4fa0:15x16 15 16 // 侠
 // ⿰ han-4ebb han-5939 // ⿰亻夹
@@ -4468,6 +4474,9 @@ glyph han-4fd5:15x16 15 16 // 俕
 
 // glyph han-4fd6:15x16 15 16 // 俖
 // ⿰ han-4ebb han-5426 // ⿰亻否
+
+glyph han-4fda:15x16 15 16 // 俚
+⿰ han-4ebb:5x16 1 han-91cc:9x16 // ⿰亻里
 
 glyph han-4fdd:15x16 15 16 // 保
 ⿰ han-4ebb:5x16 1 han-5446:9x16 // ⿰亻呆
@@ -4608,6 +4617,9 @@ glyph han-502e:15x16 15 16 // 倮
 // glyph han-5031:15x16 15 16 // 倱
 // ⿰ han-4ebb han-6606 // ⿰亻昆
 
+// glyph han-503f:15x16 15 16 // 倿
+// ⿰ han-4ebb han-59be // ⿰亻妾
+
 ## 9.9
 
 glyph han-503b:15x16 15 16 // 倻
@@ -4615,6 +4627,9 @@ glyph han-503b:15x16 15 16 // 倻
 
 // glyph han-5044:15x16 15 16 // 偄
 // ⿰ han-4ebb han-800e // ⿰亻耎
+
+// glyph han-5045:15x16 15 16 // 偅
+// ⿰ han-4ebb han-91cd // ⿰亻重
 
 glyph han-5048:15x16 15 16 // 偈
 ⿰ han-4ebb:5x16 han-66f7:9x16 // ⿰亻曷
@@ -4647,6 +4662,9 @@ glyph han-5058:15x16 15 16 // 偘
 
 glyph han-505f:15x16 15 16 // 偟
 ⿰ han-4ebb:5x16 1 han-7687:9x16 // ⿰亻皇
+
+// glyph han-5060:15x16 15 16 // 偠
+// ⿰ han-4ebb han-8981 // ⿰亻要
 
 glyph han-5062:15x16 15 16 // 偢
 ⿲ han-4ebb:3x16 han-79be:5x16 han-706b:7x16 // ⿲亻禾火
@@ -4747,6 +4765,9 @@ glyph han-50e9.0:15x16 = han-50e9:15x16
 
 // glyph han-50eb:15x16 15 16 // 僫
 // ⿰ han-4ebb han-60e1 // ⿰亻惡
+
+// glyph han-50ee:15x16 15 16 // 僮
+// ⿰ han-4ebb han-7ae5 // ⿰亻童
 
 glyph han-50ef:15x16 15 16 // 僯
 ⿰ han-4ebb:5x16 1 han-7ca6:9x16 // ⿰亻粦

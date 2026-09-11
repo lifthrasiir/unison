@@ -272,11 +272,19 @@ glyph han-2cbac-($han-regions):15x16 15 16 // 𬮬
 // glyph han-2cbb1:15x16 15 16 // 𬮱
 // ⿵ han-95e8 han-5794 // ⿵门垔
 
+// glyph han-2cbb2:15x16 15 16 // 𬮲
+// ⿵ han-95e8 han-8981 // ⿵门要
+
 glyph han-2cbb3:15x16 15 16 // 𬮳
 ⿵ han-95e8:15x16.11x15 han-54c1:11x13 2 3 // ⿵门品
 
 // glyph han-2cbb4:15x16 15 16 // 𬮴
 // ⿵ han-95e8 han-97f3 // ⿵门音
+
+## 169'.12
+
+// glyph han-2cbb8:15x16 15 16 // 𬮸
+// ⿵ han-95e8 han-7ae5 // ⿵门童
 
 # CJK unified ideographs extension E: 阜 (170)
 
@@ -508,6 +516,13 @@ glyph han-2cc43:15x16 15 16 // 𬱃
 // glyph han-2cc4e:15x16 15 16 // 𬱎
 // ⿲ han-9802 han-4ebb han-5485 // ⿲頂亻咅 <- ⿰頂倍
 
+# CJK unified ideographs extension E: 風 (182)
+
+## 182.9
+
+// glyph han-2cc74:15x16 15 16 // 𬱴
+// ⿺ han-98a8 han-91cd // ⿺風重
+
 # CJK unified ideographs extension E: 食 (184)
 
 ## 184.4
@@ -523,6 +538,14 @@ glyph han-2cc8d:15x16 15 16 // 𬲍
 
 glyph han-2cc8e:15x16 15 16 // 𬲎
 ⿰ han-98e0:7x16 1 han-6bdb:7x16 // ⿰飠毛
+
+## 184.9
+
+// glyph han-2cc97:15x16 15 16 // 𬲗
+// ⿰ han-98e0 han-800d // ⿰飠耍
+
+// glyph han-2cc98:15x16 15 16 // 𬲘
+// ⿰ han-98e0 han-8981 // ⿰飠要
 
 ## 184.12
 
@@ -618,6 +641,9 @@ glyph han-2cd52:15x16 15 16 // 𬵒
 // ⿰ han-9b5a han-7afa // ⿰魚竺
 
 ## 195.9
+
+// glyph han-2cd5c:15x16 15 16 // 𬵜
+// ⿰ han-9b5a han-8981 // ⿰魚要
 
 // glyph han-2cd5d:15x16 15 16 // 𬵝
 // ⿰ han-9b5a han-6bd8 // ⿰魚毘

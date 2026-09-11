@@ -320,6 +320,9 @@ glyph han-2e2f2:15x16 15 16 // 𮋲
 glyph han-2e2f4:15x16 15 16 // 𮋴
 ⿲ han-8033:6x16-l han-76ee:4x16 1 han-5f13:4x16 // ⿲耳目弓
 
+// glyph han-2e2f5:15x16 15 16 // 𮋵
+// ⿰ han-8033 han-59be // ⿰耳妾
+
 ## 128.9
 
 // glyph han-2e2f6:15x16 15 16 // 𮋶
@@ -370,6 +373,11 @@ glyph han-2e2f7:15x16 15 16 // 𮋷
 
 // glyph han-2e318:15x16 15 16 // 𮌘
 // ⿰ han-6708 han-8db3 // ⿰月足
+
+## 130.8
+
+// glyph han-2e31f:15x16 15 16 // 𮌟
+// ⿰ han-6708 han-59be // ⿰月妾
 
 ## 130.11
 

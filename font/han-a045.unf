@@ -158,6 +158,9 @@ glyph han-3804:15x16 15 16 // 㠄
 // glyph han-3808:15x16 15 16 // 㠈
 // ⿰ han-5c71 han-958f // ⿰山閏
 
+// glyph han-3809:15x16 15 16 // 㠉
+// ⿰ han-5c71 han-7ae5 // ⿰山童
+
 // glyph han-380c:15x16 15 16 // 㠌
 // ⿱ han-5c71 han-6b3a // ⿱山欺
 
@@ -272,6 +275,9 @@ glyph han-384f:15x16 15 16 // 㡏
 glyph han-3853:15x16 15 16 // 㡓
 ⿰ han-5dfe:7x16 1 han-8ecd:7x16 // ⿰巾軍
 
+// glyph han-3856:15x16 15 16 // 㡖
+// ⿰ han-5dfe han-91cd // ⿰巾重
+
 ## 50.13
 
 // glyph han-3862:15x16 15 16 // 㡢
@@ -318,6 +324,9 @@ glyph han-387a:15x16 15 16 // 㡺
 
 // glyph han-3883:15x16 15 16 // 㢃
 // ⿸ han-5e7f han-826f // ⿸广良
+
+// glyph han-3886:15x16 15 16 // 㢆
+// ⿸ han-5e7f han-91cc // ⿸广里
 
 glyph han-3887:15x16 15 16 // 㢇
 ⿸ han-5e7f:15x16.11x13 han-8a00:11x10 4 5 // ⿸广言
@@ -417,6 +426,11 @@ glyph han-38b6:15x16 15 16 // 㢶
 glyph han-38b9:15x16 15 16 // 㢹
 ⿰ han-5f13:4x16 han-8f9b:11x16 // ⿰弓辛
 
+## 57.8
+
+// glyph han-38ba:15x16 15 16 // 㢺
+// ⿰ han-5f13 han-59be // ⿰弓妾
+
 ## 57.9
 
 glyph han-38bd:15x16 15 16 // 㢽
@@ -506,6 +520,9 @@ glyph han-38e9:15x16 15 16 // 㣩
 
 ## 60.9
 
+// glyph han-38eb:15x16 15 16 // 㣫
+// ⿰ han-5f73 han-91cd // ⿰彳重
+
 glyph han-38ec:15x16 15 16 // 㣬
 ⿰ han-5f73:5x16 han-54a0:10x16 // ⿰彳咠
 
@@ -537,8 +554,8 @@ ref han-5fc4:7x16
 // glyph han-38fc:15x16 15 16 // 㣼
 // ⿰ han-5fc4 han-5203 // ⿰忄刃
 
-// glyph han-38fd:15x16 15 16 // 㣽
-// ⿱ han-5973 han-5fc3 // ⿱女心
+glyph han-38fd:15x16 15 16 // 㣽
+⿱ han-5973:15x9 han-5fc3:15x7 // ⿱女心
 
 glyph han-38ff-(g|t):15x16 15 16 // 㣿
 ⿰ han-5fc4:7x16 1 han-52fa-($-1):7x16 // ⿰忄勺
@@ -980,6 +997,9 @@ glyph han-3ae5:15x16 15 16 // 㫥
 
 // glyph han-3ae7:15x16 15 16 // 㫧
 // ⿱ han-65e5 han-7c73 // ⿱日米
+
+// glyph han-3ae8:15x16 15 16 // 㫨
+// ⿰ han-65e5 han-5b89 // ⿰日安
 
 // glyph han-3ae9:15x16 15 16 // 㫩
 // ⿳ han-5341 han-5344 han-65e5 // ⿳十卄日

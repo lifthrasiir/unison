@@ -56,8 +56,8 @@ glyph han-2d1cf:15x16 15 16 // 𭇏
 glyph han-2d1d0:15x16 15 16 // 𭇐
 ⿱ han-53e3:15x4 han-7518:15x12 // ⿱口甘
 
-// glyph han-2d1d2:15x16 15 16 // 𭇒
-// ⿰ han-53e3 han-518a // ⿰口冊
+glyph han-2d1d2:15x16 15 16 // 𭇒
+⿰ han-53e3:3x16-l han-518a:12x16 // ⿰口冊
 
 glyph han-2d1d5-($han-regions):15x16 15 16 // 𭇕
 ⿰ han-53e5:7x16 1 han-52fa-($-1):7x16 // ⿰句勺
@@ -201,6 +201,9 @@ glyph han-2d250:15x16 15 16 // 𭉐
 // glyph han-2d25b:15x16 15 16 // 𭉛
 // ⿲ han-53e3 han-624c han-2d950 // ⿲口扌𭥐
 
+// glyph han-2d25c:15x16 15 16 // 𭉜
+// ⿰ han-53e3 han-635a // ⿰口捚
+
 // glyph han-2d264:15x16 15 16 // 𭉤
 // ⿰ han-53e3 han-27258 // ⿰口𧉘
 
@@ -209,6 +212,9 @@ glyph han-2d269:15x16 15 16 // 𭉩
 
 glyph han-2d26c:15x16 15 16 // 𭉬
 ⿲ -2 han-53e3:3x16-l han-79be:5x16 han-672a:9x16 // ⿲口禾未
+
+// glyph han-2d26d:15x16 15 16 // 𭉭
+// ⿰ han-53e3 han-72f8 // ⿰口狸
 
 glyph han-2d26f:15x16 15 16 // 𭉯
 ⿲ -2 han-53e3:3x16-l han-4ea4:7x16 han-6b20:7x16 // ⿲口交欠
@@ -229,6 +235,9 @@ glyph han-2d27b:15x16 15 16 // 𭉻
 
 // glyph han-2d280:15x16 15 16 // 𭊀
 // ⿱ han-5475 han-8863 // ⿱呵衣
+
+// glyph han-2d282:15x16 15 16 // 𭊂
+// ⿰ han-53e3 han-68a9 // ⿰口梩
 
 // glyph han-2d284:15x16 15 16 // 𭊄
 // ⿲ han-53e3 han-675f han-72ac // ⿲口束犬
@@ -630,8 +639,8 @@ glyph han-2d46a:15x16 15 16 // 𭑪
 glyph han-2d46c-($han-regions):15x16 15 16 // 𭑬
 ⿰ han-5973:5x16-l 1 han-4ea1-($-1):9x16 // ⿰女亡
 
-// glyph han-2d46d:15x16 15 16 // 𭑭
-// ⿱ han-5df3 han-5973 // ⿱巳女
+glyph han-2d46d:15x16 15 16 // 𭑭
+⿱ han-5df3:15x7 han-5973:15x9 // ⿱巳女
 
 ## 38.4
 

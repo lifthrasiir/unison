@@ -239,6 +239,9 @@ glyph han-9d2b:15x16 15 16 // 鴫
 // glyph han-9d30:15x16 15 16 // 鴰
 // ⿰ han-820c han-9ce5 // ⿰舌鳥
 
+// glyph han-9d33:15x16 15 16 // 鴳
+// ⿰ han-5b89 han-9ce5 // ⿰安鳥
+
 // glyph han-9d34:15x16 15 16 // 鴴
 // ⿲ han-5f73 han-4e8d han-9ce5 // ⿲彳亍鳥
 
@@ -526,6 +529,18 @@ glyph han-9ebb:15x16 15 16 // 麻
 
 glyph han-9ebf:15x16 15 16 // 麿
 ⿸ han-9ebb:15x16.11x7 han-5415:11x7 4 9 // ⿸麻吕
+
+# CJK unified ideographs: 黑 (203)
+
+## 203.0
+
+glyph han-9ed2:15x16 15 16 // 黒
+⿱ han-91cc:15x13 han-706c:15x3 // ⿱里灬
+
+## 203.3
+
+// glyph han-58a8:15x16 15 16 // 墨
+// ⿱ han-9ed2 han-571f // ⿱黒土
 
 # CJK unified ideographs: 黾 (205')
 
