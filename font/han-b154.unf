@@ -290,6 +290,9 @@ glyph han-27e30:15x16 15 16 // 𧸰
 // glyph han-27e8b:15x16 15 16 // 𧺋
 // ⿺ han-8d70 han-51e0 // ⿺走几
 
+// glyph han-27e8c:15x16 15 16 // 𧺌
+// ⿺ han-8d70 han-5165 // ⿺走入
+
 // glyph han-27e8d:15x16 15 16 // 𧺍
 // ⿺ han-8d70 han-516b // ⿺走八
 
@@ -423,6 +426,9 @@ glyph han-27e30:15x16 15 16 // 𧸰
 
 // glyph han-27ed3:15x16 15 16 // 𧻓
 // ⿺ han-8d70 han-5e76 // ⿺走并
+
+// glyph han-27ed4:15x16 15 16 // 𧻔
+// ⿺ han-8d70 han-5321 // ⿺走匡
 
 // glyph han-27ed6:15x16 15 16 // 𧻖
 // ⿺ han-8d70 han-821f // ⿺走舟

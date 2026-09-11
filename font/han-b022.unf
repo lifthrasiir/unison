@@ -1,3 +1,125 @@
+# CJK unified ideographs extension B: 匚 (22)
+
+## 22.2
+
+glyph han-2092d:15x16 15 16 // 𠤭
+⿷ han-531a:15x16.14x14 han-4eba:11x14 3 1 // ⿷匚人
+
+## 22.4
+
+// glyph han-2092e:15x16 15 16 // 𠤮
+// ⿷ han-531a han-4eca // ⿷匚今
+
+// glyph han-2092f:15x16 15 16 // 𠤯
+// ⿷ han-531a han-4e0d // ⿷匚不
+
+// glyph han-20931:15x16 15 16 // 𠤱
+// ⿷ han-531a han-592b // ⿷匚夫
+
+## 22.5
+
+glyph han-20933:15x16 15 16 // 𠤳
+⿷ han-531a:15x16.14x14 han-53e4:11x12 2 2 // ⿷匚古
+
+glyph han-20935:15x16 15 16 // 𠤵
+⿷ han-531a:15x16.14x14 han-751f:11x13 3 1 // ⿷匚生
+
+## 22.6
+
+// glyph han-20938:15x16 15 16 // 𠤸
+// ⿷ han-531a han-7f36 // ⿷匚缶
+
+// glyph han-2093b:15x16 15 16 // 𠤻
+// ⿷ han-531a han-7c73 // ⿷匚米
+
+## 22.7
+
+// glyph han-2093e:15x16 15 16 // 𠤾
+// ⿷ han-531a han-541f // ⿷匚吟
+
+// glyph han-20940:15x16 15 16 // 𠥀
+// ⿷ han-531a han-5426 // ⿷匚否
+
+glyph han-20947:15x16 15 16 // 𠥇
+⿷ han-531a:15x16.14x14 han-8a00:11x10 3 2 // ⿷匚言
+
+// glyph han-20948:15x16 15 16 // 𠥈
+// ⿷ han-531a han-574e // ⿷匚坎
+
+## 22.8
+
+// glyph han-20949:15x16 15 16 // 𠥉
+// ⿷ han-531a han-5351 // ⿷匚卑
+
+// glyph han-2094a:15x16 15 16 // 𠥊
+// ⿷ han-531a han-5176 // ⿷匚其
+
+// glyph han-2094b:15x16 15 16 // 𠥋
+// ⿷ han-531a han-6cca // ⿷匚泊
+
+// glyph han-2094c:15x16 15 16 // 𠥌
+// ⿷ han-531a han-5f7c // ⿷匚彼
+
+// glyph han-2094d:15x16 15 16 // 𠥍
+// ⿷ han-531a han-963f // ⿷匚阿
+
+## 22.9
+
+glyph han-2094e:15x16 15 16 // 𠥎
+⿷ han-531a:15x16.14x14 han-97cb:11x12 3 2 // ⿷匚韋
+
+## 22.10
+
+// glyph han-20954:15x16 15 16 // 𠥔
+// ⿷ han-531a han-5020 // ⿷匚倠
+
+## 22.11
+
+// glyph han-20957:15x16 15 16 // 𠥗
+// ⿷ han-531a han-98e4 // ⿷匚飤
+
+## 22.13
+
+// glyph han-2095c:15x16 15 16 // 𠥜
+// ⿷ han-531a han-6b47 // ⿷匚歇
+
+## 22.16
+
+// glyph han-20965:15x16 15 16 // 𠥥
+// ⿷ han-531a han-96d4 // ⿷匚雔
+
+# CJK unified ideographs extension B: 匸 (23)
+
+## 23.2
+
+glyph han-2096d:15x16 15 16 // 𠥭
+⿷ han-531a:15x16.14x14 han-5200:11x13 2 2 // ⿷匚刀
+
+## 23.4
+
+// glyph han-2096e:15x16 15 16 // 𠥮
+// ⿷ han-531a han-5185 // ⿷匚内
+
+## 23.5
+
+glyph han-20971:15x16 15 16 // 𠥱
+⿷ han-531a:15x16.14x14 han-51fa:9x13 4 1 // ⿷匚出
+
+## 23.7
+
+// glyph han-20974:15x16 15 16 // 𠥴
+// ⿷ han-531a han-6c75 // ⿷匚汵
+
+## 23.12
+
+// glyph han-20977:15x16 15 16 // 𠥷
+// ⿰ han-5340 han-51e1 // ⿰區凡
+
+## 23.20
+
+// glyph han-2097a:15x16 15 16 // 𠥺
+// ⿰ han-5340 han-5340 // ⿰區區
+
 # CJK unified ideographs extension B: 十 (24)
 
 ## 24.2
@@ -349,6 +471,9 @@ glyph han-20ae1:15x16 15 16 // 𠫡
 // ⿱ han-53b6 han-5185 // ⿱厶内
 
 ## 28.5
+
+// glyph han-20ae6:15x16 15 16 // 𠫦
+// ⿳ han-53b6 han-5196 han-5dfe // ⿳厶冖巾
 
 // glyph han-20ae7:15x16 15 16 // 𠫧
 // ⿱ han-53b6 han-4e19 // ⿱厶丙

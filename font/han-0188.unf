@@ -397,6 +397,9 @@ glyph han-9b5c:15x16 15 16 // 魜
 glyph han-9b5d:15x16 15 16 // 魝
 ⿰ han-9b5a:7x16 2 han-5202:5x16 // ⿰魚刂
 
+// glyph han-9b5e:15x16 15 16 // 魞
+// ⿰ han-9b5a han-5165 // ⿰魚入
+
 ## 195.3
 
 glyph han-9b5f:15x16 15 16 // 魟
@@ -722,6 +725,9 @@ glyph han-9fd0:15x16 15 16 // 鿐
 
 glyph han-9c33:15x16 15 16 // 鰳
 ⿲ -4 han-9b5a:7x16 han-9769:7x16 han-529b:5x16 // ⿲魚革力
+
+// glyph han-9c38:15x16 15 16 // 鰸
+// ⿰ han-9b5a han-5340 // ⿰魚區
 
 // glyph han-9c3c-($han-regions):15x16 15 16 // 鰼
 // ⿰ han-9b5a han-7fd2-($-1) // ⿰魚習

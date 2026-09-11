@@ -95,6 +95,9 @@ glyph han-201fa:15x16 15 16 // 𠇺
 // glyph han-201fb:15x16 15 16 // 𠇻
 // ⿰ han-4ebb han-7f52 // ⿰亻罒
 
+// glyph han-201fd:15x16 15 16 // 𠇽
+// ⿰ han-4ebb han-531d // ⿰亻匝
+
 ## 9.6
 
 glyph han-20204:15x16 15 16 // 𠈄
@@ -233,6 +236,9 @@ glyph han-20312:15x16 15 16 // 𠌒
 
 glyph han-20326:15x16 15 16 // 𠌦
 ⿲ -5 han-4ebb:3x16 han-7cf9:5x16 1 han-5185:11x16 // ⿲亻糹内
+
+// glyph han-20328:15x16 15 16 // 𠌨
+// ⿰ han-4ebb han-532a // ⿰亻匪
 
 ## 9.11
 

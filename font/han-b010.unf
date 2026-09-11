@@ -49,6 +49,56 @@ glyph han-2048c:15x16 15 16 // 𠒌
 // glyph han-204c8:15x16 15 16 // 𠓈
 // ⿺ han-514b han-9b5a // ⿺克魚
 
+# CJK unified ideographs extension B: 入 (11)
+
+## 11.1
+
+// glyph han-204db:15x16 15 16 // 𠓛
+// ⿱ han-5165 han-4e00 // ⿱入一
+
+## 11.2
+
+// glyph han-204dc:15x16 15 16 // 𠓜
+// ⿰ han-5165 han-5165 // ⿰入入
+
+// glyph han-204dd:15x16 15 16 // 𠓝
+// ⿱ han-5165 han-5341 // ⿱入十
+
+// glyph han-204de:15x16 15 16 // 𠓞
+// ⿱ han-5165 han-4e8c // ⿱入二
+
+## 11.4
+
+// glyph han-204e2:15x16 15 16 // 𠓢
+// ⿱ han-5165 han-624b // ⿱入手
+
+// glyph han-204e3:15x16 15 16 // 𠓣
+// ⿱ han-5165 han-5fc3 // ⿱入心
+
+## 11.5
+
+// glyph han-204e6:15x16 15 16 // 𠓦
+// ⿱ han-5165 han-7530 // ⿱入田
+
+// glyph han-204e8:15x16 15 16 // 𠓨
+// ⿺ han-5305 han-5165 // ⿺包入
+
+## 11.8
+
+// glyph han-204ed:15x16 15 16 // 𠓭
+// ⿱ han-5165 han-6797 // ⿱入林
+
+// glyph han-204ee:15x16 15 16 // 𠓮
+// ⿱ han-5165 han-9763 // ⿱入靣
+
+// glyph han-204ef:15x16 15 16 // 𠓯
+// ⿱ han-5165 han-7a7a // ⿱入空
+
+## 11.18
+
+// glyph han-204ff:15x16 15 16 // 𠓿
+// ⿳ han-5165 han-975e han-532a // ⿳入非匪
+
 # CJK unified ideographs extension B: 八 (12)
 
 ## 12.1
@@ -210,6 +260,95 @@ glyph han-20550:15x16 15 16 // 𠕐
 
 // glyph han-20566:15x16 15 16 // 𠕦
 // ⿱ han-5183 han-4fde // ⿱冃俞
+
+# CJK unified ideographs extension B: 冖 (14)
+
+## 14.2
+
+// glyph han-20573:15x16 15 16 // 𠕳
+// ⿱ han-5196 han-5165 // ⿱冖入
+
+// glyph han-20574:15x16 15 16 // 𠕴
+// ⿱ han-5196 han-4e5d // ⿱冖九
+
+## 14.3
+
+glyph han-20575:15x16 15 16 // 𠕵
+⿱ han-5196:15x3 1 han-51e1:15x12 // ⿱冖凡
+
+glyph han-20576:15x16 15 16 // 𠕶
+⿱ han-5196:15x3 1 han-5140:15x12 // ⿱冖兀
+
+glyph han-20577:15x16 15 16 // 𠕷
+⿱ 1 han-5196:15x3 2 han-5973:15x9 // ⿱冖女
+
+## 14.4
+
+glyph han-20579:15x16 15 16 // 𠕹
+⿱ han-5196:15x3 1 han-5929:15x12 // ⿱冖天
+
+glyph han-2057b:15x16 15 16 // 𠕻
+⿱ han-5196:15x3 han-5143:15x12 // ⿱冖元
+
+glyph han-2057c:15x16 15 16 // 𠕼
+⿱ han-5196:15x3 han-516d:15x13 // ⿱冖六
+
+glyph han-2057d:15x16 15 16 // 𠕽
+⿱ han-5196:15x3 han-6c34:15x12 // ⿱冖水
+
+glyph han-2057e:15x16 15 16 // 𠕾
+⿱ han-5196:15x3 1 han-65e5:15x12 // ⿱冖日
+
+// glyph han-2057f-($han-regions):15x16 15 16 // 𠕿
+// ⿱ han-5196 han-5316-($-1) // ⿱冖化
+
+## 14.5
+
+// glyph han-20580:15x16 15 16 // 𠖀
+// ⿱ han-5196 han-793a // ⿱冖示
+
+glyph han-20583:15x16 15 16 // 𠖃
+⿱ han-5196:15x3 han-7acb:15x12 // ⿱冖立
+
+## 14.6
+
+glyph han-20584:15x16 15 16 // 𠖄
+⿱ han-5196:15x3 1 han-540c:15x12 // ⿱冖同
+
+## 14.7
+
+// glyph han-20587:15x16 15 16 // 𠖇
+// ⿱ han-5196 han-65f2 // ⿱冖旲
+
+// glyph han-20588:15x16 15 16 // 𠖈
+// ⿺ han-2057b han-4e0b // ⿺𠕻下
+
+// glyph han-20589:15x16 15 16 // 𠖉
+// ⿳ han-5196 han-5eff han-5927 // ⿳冖廿大 <- ⿱冖⿱廿大
+
+// glyph han-2058b-($han-regions):15x16 15 16 // 𠖋
+// ⿳ han-5196 han-516b-($-1) han-7530 // ⿳冖八田 <- ⿱冖⿱八田
+
+## 14.8
+
+// glyph han-2058c:15x16 15 16 // 𠖌
+// ⿱ han-5196 han-886c // ⿱冖衬
+
+// glyph han-2058f:15x16 15 16 // 𠖏
+// ⿱ han-5196 han-5947 // ⿱冖奇
+
+glyph han-20590:15x16 15 16 // 𠖐
+⿳ han-5196:15x3 han-53e3:15x3 1 han-7530:15x9 // ⿳冖口田 <- ⿱冖⿱口田
+
+## 14.9
+
+// glyph han-20593:15x16 15 16 // 𠖓
+// ⿱ han-5196 han-601d // ⿱冖思
+
+## 14.10
+
+// glyph han-20596:15x16 15 16 // 𠖖
+// ⿱ han-5196 han-99ac // ⿱冖馬
 
 # CJK unified ideographs extension B: 冫 (15)
 
@@ -443,6 +582,11 @@ glyph han-20649:15x16 15 16 // 𠙉
 
 // glyph han-2065e:15x16 15 16 // 𠙞
 // ⿰ han-8981 han-51e0 // ⿰要几
+
+## 16.11
+
+// glyph han-20666:15x16 15 16 // 𠙦
+// ⿱ han-241fe han-51e1 // ⿱𤇾凡
 
 ## 16.12
 

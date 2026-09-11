@@ -34,6 +34,9 @@ $$..............@@..........$$
 // glyph han-3407:15x16 15 16 // 㐇
 // ⿱ han-4e5d han-4e59 // ⿱九乙
 
+// glyph han-3408:15x16 15 16 // 㐈
+// ⿱ han-5165 han-4e59 // ⿱入乙
+
 glyph han-3409:15x16 15 16 // 㐉
 ⿱ han-4e01:15x8 han-4e59:15x8 // ⿱丁乙
 
@@ -188,6 +191,9 @@ glyph han-3442:15x16 15 16 // 㑂
 
 ## 9.6
 
+// glyph han-344c:15x16 15 16 // 㑌
+// ⿰ han-4ebb han-5321 // ⿰亻匡
+
 // glyph han-344f:15x16 15 16 // 㑏
 // ⿰ han-4ebb han-5b88 // ⿰亻守
 
@@ -256,10 +262,26 @@ glyph han-348b:15x16 15 16 // 㒋
 
 # CJK unified ideographs extension A: 入 (11)
 
+## 11.3
+
+// glyph han-34b0:15x16 15 16 // 㒰
+// ⿱ han-5165 han-5de5 // ⿱入工
+
+// glyph han-34b1:15x16 15 16 // 㒱
+// ⿱ han-5165 han-5915 // ⿱入夕
+
+## 11.4
+
+// glyph han-34b2:15x16 15 16 // 㒲
+// ⿱ han-5165 han-65e5 // ⿱入日
+
 ## 11.5
 
 // glyph han-34b3:15x16 15 16 // 㒳
 // ⿻⿵冂丨𠓜
+
+// glyph han-34b4:15x16 15 16 // 㒴
+// ⿱ han-5165 han-51fa // ⿱入出
 
 # CJK unified ideographs extension A: 八 (12)
 
@@ -280,6 +302,13 @@ glyph han-348b:15x16 15 16 // 㒋
 
 glyph han-34bb:15x16 15 16 // 㒻
 ⿳ han-65e5:15x5 1 han-76ee:15x7 han-513f:15x3 // ⿳日目儿
+
+# CJK unified ideographs extension A: 冖 (14)
+
+## 14.2
+
+glyph han-34c1:15x16 15 16 // 㓁
+⿱ han-5196:15x3 han-513f:15x12 // ⿱冖儿
 
 # CJK unified ideographs extension A: 冫 (15)
 
@@ -446,6 +475,13 @@ glyph han-3520:15x16 15 16 // 㔠
 glyph han-352d:15x16 15 16 // 㔭
 ⿰ han-5315:6x16-l han-662f:9x16 // ⿰匕是
 
+# CJK unified ideographs extension A: 匸 (23)
+
+## 23.5
+
+// glyph han-3537:15x16 15 16 // 㔷
+// ⿷ han-531a han-4e19 // ⿷匚丙
+
 # CJK unified ideographs extension A: 十 (24)
 
 ## 24.2
@@ -558,6 +594,9 @@ glyph han-3570:15x16 15 16 // 㕰
 
 glyph han-3572:15x16 15 16 // 㕲
 ⿰ han-53e3:7x16 1 han-6728:7x16 // ⿰口木
+
+// glyph han-3574:15x16 15 16 // 㕴
+// ⿰ han-53e3 han-5197 // ⿰口冗
 
 glyph han-3575:15x16 15 16 // 㕵
 ⿰ han-53e3:5x16-l 1 han-738b:9x16 // ⿰口王
@@ -931,6 +970,9 @@ glyph han-36a7:15x16 15 16 // 㚧
 
 glyph han-36aa:15x16 15 16 // 㚪
 ⿰ han-5973:5x16-l 1 han-6bdb:9x16 // ⿰女毛
+
+// glyph han-36ae:15x16 15 16 // 㚮
+// ⿰ han-5973 han-5197 // ⿰女冗
 
 // glyph han-36e0:15x16 15 16 // 㛠
 // ⿰ han-5973 han-95f4 // ⿰女间

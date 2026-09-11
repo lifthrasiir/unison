@@ -282,6 +282,9 @@ glyph han-220b7:15x16 15 16 // 𢂷
 // glyph han-220c3:15x16 15 16 // 𢃃
 // ⿱ han-52a9 han-5dfe // ⿱助巾
 
+// glyph han-220c4:15x16 15 16 // 𢃄
+// ⿳ han-4e16 han-5196 han-5dfe // ⿳世冖巾
+
 // glyph han-220c5:15x16 15 16 // 𢃅
 // ⿰ han-5dfe han-5e8a // ⿰巾床
 
@@ -370,7 +373,15 @@ glyph han-22108:15x16 15 16 // 𢄈
 // glyph han-22109:15x16 15 16 // 𢄉
 // ⿻帀⿰⿱𠂊𱼀又
 
+## 50.10
+
+// glyph han-2210b:15x16 15 16 // 𢄋
+// ⿱ han-241fe han-5dfe // ⿱𤇾巾
+
 ## 50.11
+
+// glyph han-22120:15x16 15 16 // 𢄠
+// ⿰ han-5dfe han-5340 // ⿰巾區
 
 // glyph han-22124:15x16 15 16 // 𢄤
 // ⿱ han-65ac han-5dfe // ⿱斬巾

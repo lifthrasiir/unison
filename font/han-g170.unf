@@ -99,6 +99,11 @@ glyph han-31058-($han-regions):15x16 15 16 // 𱁘
 
 # CJK unified ideographs extension G: 革 (177)
 
+## 177.4
+
+// glyph han-31072:15x16 15 16 // 𱁲
+// ⿰ han-9769 han-5197 // ⿰革冗
+
 ## 177.6
 
 // glyph han-31074:15x16 15 16 // 𱁴
@@ -299,6 +304,9 @@ glyph han-31174:15x16 15 16 // 𱅴
 
 // glyph han-31175:15x16 15 16 // 𱅵
 // ⿱ han-9ad8 han-51e0 // ⿱高几
+
+// glyph han-31176:15x16 15 16 // 𱅶
+// ⿱ han-9ad8 han-5165 // ⿱高入
 
 ## 189.3
 

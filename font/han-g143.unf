@@ -93,6 +93,9 @@ glyph han-30d2b:15x16 15 16 // 𰴫
 // glyph han-30d2e:15x16 15 16 // 𰴮
 // ⿰ han-8a01 han-4e98 // ⿰訁亘
 
+// glyph han-30d2f:15x16 15 16 // 𰴯
+// ⿱ han-2b1e6 han-8a00 // ⿱𫇦言
+
 glyph han-30d30:15x16 15 16 // 𰴰
 ⿰ han-8a01:5x16 1 han-5415:9x16 // ⿰訁吕
 
@@ -424,6 +427,11 @@ glyph han-30e50:15x16 15 16 // 𰹐
 glyph han-30e6f:15x16 15 16 // 𰹯
 ⿰ han-8f66:6x16-l han-4e59:9x16 // ⿰车乙
 
+## 159'.2
+
+// glyph han-30e70:15x16 15 16 // 𰹰
+// ⿰ han-8f66 han-5165 // ⿰车入
+
 ## 159'.3
 
 // glyph han-30e72:15x16 15 16 // 𰹲
@@ -536,6 +544,11 @@ glyph han-30eb1-($han-regions):15x16 15 16 // 𰺱
 
 // glyph han-30eb3-($han-regions):15x16 15 16 // 𰺳
 // ⿺ han-8fb6-($-1) han-5f13 // ⿺辶弓
+
+## 162.4
+
+// glyph han-30eb4-($han-regions):15x16 15 16 // 𰺴
+// ⿺ han-8fb6-($-1) han-5339 // ⿺辶匹
 
 ## 162.7
 

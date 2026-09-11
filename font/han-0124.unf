@@ -1201,6 +1201,12 @@ glyph han-808c:15x16 15 16 // 肌
 glyph han-808d:15x16 15 16 // 肍
 ⿰ han-6708:5x16-l 1 han-4e5d:9x16 // ⿰月九
 
+// glyph han-808e:15x16 15 16 // 肎
+// ⿱ han-5196 han-6708 // ⿱冖月
+
+// glyph han-808f:15x16 15 16 // 肏
+// ⿱ han-5165 han-8089 // ⿱入肉
+
 ## 130.3
 
 glyph han-8091-($han-regions):15x16 15 16 // 肑
@@ -1558,10 +1564,16 @@ glyph han-817d:15x16 15 16 // 腽
 
 ## 130.10
 
+// glyph han-818b:15x16 15 16 // 膋
+// ⿱ han-241fe han-6708 // ⿱𤇾月
+
 // glyph han-818f:15x16 15 16 // 膏
 // ⿱ han-9ad8 han-6708 // ⿱高月
 
 ## 130.11
+
+// glyph han-8192:15x16 15 16 // 膒
+// ⿰ han-6708 han-5340 // ⿰月區
 
 glyph han-8198:15x16 15 16 // 膘
 ⿰ han-6708:5x16-l 1 han-7968:9x16 // ⿰月票
@@ -1803,6 +1815,11 @@ glyph han-81f5:15x16 15 16 // 臵
 
 glyph han-81f8:15x16 15 16 // 臸
 ⿰ han-81f3:7x16 1 han-81f3:7x16 // ⿰至至
+
+## 133.8
+
+// glyph han-81fa:15x16 15 16 // 臺
+// ⿳ han-5409 han-5196 han-81f3 // ⿳吉冖至
 
 # CJK unified ideographs: 臼 (134)
 

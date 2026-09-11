@@ -126,6 +126,9 @@ glyph han-20705:15x16 15 16 // 𠜅
 // glyph han-20706:15x16 15 16 // 𠜆
 // ⿰ han-8863 han-5202 // ⿰衣刂
 
+// glyph han-2070d:15x16 15 16 // 𠜍
+// ⿺ han-2057b han-5202 // ⿺𠕻刂
+
 ## 18.7
 
 glyph han-20712:15x16 15 16 // 𠜒
@@ -433,6 +436,9 @@ glyph han-20883:15x16 15 16 // 𠢃
 // glyph han-20893:15x16 15 16 // 𠢓
 // ⿰ han-83ab han-529b // ⿰莫力
 
+// glyph han-20894:15x16 15 16 // 𠢔
+// ⿰ han-5340 han-529b // ⿰區力
+
 ## 19.12
 
 // glyph han-208a6:15x16 15 16 // 𠢦
@@ -441,10 +447,23 @@ glyph han-20883:15x16 15 16 // 𠢃
 // glyph han-208a9:15x16 15 16 // 𠢩
 // ⿺ han-582f han-529b // ⿺堯力
 
+// glyph han-208ae:15x16 15 16 // 𠢮
+// ⿳ han-7531 han-5196 han-7537 // ⿳由冖男
+
 ## 19.13
 
 // glyph han-208b5:15x16 15 16 // 𠢵
 // ⿳ han-6797 han-793a han-529b // ⿳林示力 <- ⿱禁力
+
+## 19.14
+
+// glyph han-208b8:15x16 15 16 // 𠢸
+// ⿳ han-7131 han-5196 han-529b // ⿳焱冖力 <- ⿱焱⿱冖力
+
+## 19.16
+
+// glyph han-208c1:15x16 15 16 // 𠣁
+// ⿳ han-241fe han-7c73 han-529b // ⿳𤇾米力 <- ⿱𤇾⿱米力
 
 # CJK unified ideographs extension B: 勹 (20)
 

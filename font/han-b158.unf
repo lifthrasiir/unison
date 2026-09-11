@@ -205,6 +205,9 @@ glyph han-282b2:15x16 15 16 // 𨊲
 // glyph han-282b3:15x16 15 16 // 𨊳
 // ⿰ han-8eca han-5fc3 // ⿰車心
 
+// glyph han-282b6:15x16 15 16 // 𨊶
+// ⿰ han-8eca han-5197 // ⿰車冗
+
 glyph han-282b8:15x16 15 16 // 𨊸
 ⿰ han-8eca:7x16 1 han-6708:7x16 // ⿰車月
 
@@ -399,6 +402,9 @@ glyph han-28367:15x16 15 16 // 𨍧
 
 // glyph han-28375:15x16 15 16 // 𨍵
 // ⿰ han-8eca han-3760 // ⿰車㝠
+
+// glyph han-28376:15x16 15 16 // 𨍶
+// ⿱ han-241fe han-8eca // ⿱𤇾車
 
 // glyph han-28377:15x16 15 16 // 𨍷
 // ⿰ han-8eca han-8338 // ⿰車茸

@@ -169,6 +169,9 @@ glyph han-6253.0:15x16 = han-6253:15x16
 // glyph han-6255:15x16 15 16 // 払
 // ⿰ han-624c han-53b6 // ⿰扌厶
 
+// glyph han-6256:15x16 15 16 // 扖
+// ⿰ han-624c han-5165 // ⿰扌入
+
 ## 64.3
 
 glyph han-624f:15x16 15 16 // 扏
@@ -804,6 +807,9 @@ glyph han-646b:15x16 15 16 // 摫
 
 glyph han-6472:15x16 15 16 // 摲
 ⿲ han-624c:3x16 han-8eca:5x16 han-65a4:7x16 // ⿲扌車斤
+
+// glyph han-6473:15x16 15 16 // 摳
+// ⿰ han-624c han-5340 // ⿰扌區
 
 // glyph han-6478:15x16 15 16 // 摸
 // ⿰ han-624c han-83ab // ⿰扌莫

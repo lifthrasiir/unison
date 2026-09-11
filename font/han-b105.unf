@@ -152,6 +152,9 @@ glyph han-24f89:15x16 15 16 // 𤾉
 // glyph han-24f8f:15x16 15 16 // 𤾏
 // ⿰ han-767d han-23429 // ⿰白𣐩
 
+// glyph han-24f92:15x16 15 16 // 𤾒
+// ⿱ han-7560 han-5197 // ⿱畠冗
+
 // glyph han-24f93:15x16 15 16 // 𤾓
 // ⿱ han-767e han-6797 // ⿱百林
 
@@ -164,6 +167,9 @@ glyph han-24f95:15x16 15 16 // 𤾕
 
 glyph han-24f9b:15x16 15 16 // 𤾛
 ⿰ han-767d:6x16 1 han-7968:7x16 // ⿰白票
+
+// glyph han-24f9c:15x16 15 16 // 𤾜
+// ⿳ han-3fdf han-5196 han-65b9 // ⿳㿟冖方
 
 // glyph han-24f9d:15x16 15 16 // 𤾝
 // ⿰ han-767d han-9ebb // ⿰白麻

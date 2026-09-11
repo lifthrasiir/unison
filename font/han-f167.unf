@@ -203,6 +203,9 @@ glyph han-2e93a:15x16 15 16 // 𮤺
 
 ## 170.5
 
+// glyph han-2e93c:15x16 15 16 // 𮤼
+// ⿰ han-961d han-531d // ⿰阝匝
+
 glyph han-2e93d:15x16 15 16 // 𮤽
 ⿰ han-961d:5x16-l 1 han-7acb:9x16 // ⿰阝立
 
@@ -221,6 +224,9 @@ glyph han-2e941:15x16 15 16 // 𮥁
 // ⿰ han-961d han-5bfa // ⿰阝寺
 
 ## 170.7
+
+// glyph han-2e947:15x16 15 16 // 𮥇
+// ⿰ han-961d han-5323 // ⿰阝匣
 
 // glyph han-2e948:15x16 15 16 // 𮥈
 // ⿰ han-961d han-65f1 // ⿰阝旱
@@ -550,6 +556,11 @@ glyph han-2ea12:15x16 15 16 // 𮨒
 ⿰ han-5468:8x16 han-9801:7x16 // ⿰周頁
 
 # CJK unified ideographs extension F: 風 (182)
+
+## 182.2
+
+// glyph han-2ea26:15x16 15 16 // 𮨦
+// ⿺ han-98a8 han-5165 // ⿺風入
 
 ## 182.4
 

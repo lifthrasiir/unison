@@ -198,6 +198,11 @@ glyph han-4a75:15x16 15 16 // 䩵
 glyph han-4a7b:15x16 15 16 // 䩻
 ⿰ han-9769:7x16 1 han-99ac:7x16 // ⿰革馬
 
+## 177.11
+
+// glyph han-4a7d:15x16 15 16 // 䩽
+// ⿰ han-9769 han-5340 // ⿰革區
+
 # CJK unified ideographs extension A: 韋 (178)
 
 ## 178.4
@@ -274,6 +279,11 @@ glyph han-4aaa:15x16 15 16 // 䪪
 
 glyph han-4aad:15x16 15 16 // 䪭
 ⿰ han-97f3:7x16 1 han-97f3:7x16 // ⿰音音
+
+## 180.10
+
+// glyph han-4aaf:15x16 15 16 // 䪯
+// ⿱ han-241fe han-97f3 // ⿱𤇾音
 
 ## 180.13
 
@@ -1014,6 +1024,9 @@ glyph han-4cec:15x16 15 16 // 䳬
 
 // glyph han-4cfb:15x16 15 16 // 䳻
 // ⿱ han-65ac han-9ce5 // ⿱斬鳥
+
+// glyph han-4cfc:15x16 15 16 // 䳼
+// ⿰ han-9ce5 han-5340 // ⿰鳥區
 
 ## 196.12
 

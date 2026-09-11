@@ -324,6 +324,9 @@ glyph han-7d93:15x16 15 16 // 經
 // glyph han-7d95:15x16 15 16 // 綕
 // ⿰ han-7cf9 han-5fd7 // ⿰糹志
 
+// glyph han-7d9a:15x16 15 16 // 続
+// ⿰ han-7cf8 han-58f2 // ⿰糸売
+
 ## 120.8
 
 glyph han-7d9d:15x16 15 16 // 綝
@@ -436,6 +439,9 @@ glyph han-7dfc:15x16 15 16 // 緼
 // ⿲ han-7cf9 han-5fc4 han-4e98 // ⿲糹忄亘
 
 ## 120.10
+
+// glyph han-7e08:15x16 15 16 // 縈
+// ⿱ han-241fe han-7cf8 // ⿱𤇾糸
 
 glyph han-7e0e:15x16 15 16 // 縎
 ⿰ han-7cf9:5x16 1 han-9aa8:9x16 // ⿰糹骨
@@ -610,6 +616,11 @@ glyph han-7f39:15x16 15 16 // 缹
 // glyph han-7f40:15x16 15 16 // 罀
 // ⿰ han-7f36 han-5146 // ⿰缶兆
 
+## 121.10
+
+// glyph han-7f43:15x16 15 16 // 罃
+// ⿱ han-241fe han-7f36 // ⿱𤇾缶
+
 ## 121.14
 
 // glyph han-7f4c:15x16 15 16 // 罌
@@ -683,6 +694,9 @@ ref han-7f52:15x4
 
 ## 122.3
 
+// glyph han-7f55:15x16 15 16 // 罕
+// ⿱ han-34c1 han-5e72 // ⿱㓁干
+
 glyph han-7f57:15x16 15 16 // 罗
 ⿱ han-7f52:15x7 1 han-5915:15x8 // ⿱罒夕
 
@@ -690,6 +704,9 @@ glyph han-7f57:15x16 15 16 // 罗
 
 glyph han-7f58:15x16 15 16 // 罘
 ⿱ han-7f52:15x7 1 han-4e0d:15x8 // ⿱罒不
+
+// glyph han-7f59:15x16 15 16 // 罙
+// ⿱ han-34c1 han-6728 // ⿱㓁木
 
 ## 122.5
 

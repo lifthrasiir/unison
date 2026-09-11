@@ -5,6 +5,11 @@
 // glyph han-2deaa:15x16 15 16 // 𭺪
 // ㇯耳㇀
 
+## 99.8
+
+// glyph han-2dead:15x16 15 16 // 𭺭
+// ⿳ han-7518 han-5196 han-7f8a // ⿳甘冖羊
+
 # CJK unified ideographs extension F: 生 (100)
 
 ## 100.3
@@ -433,6 +438,9 @@ glyph han-2e00d:15x16 15 16 // 𮀍
 // ⿱ han-5206 han-77f3 // ⿱分石
 
 ## 112.5
+
+// glyph han-2e00f:15x16 15 16 // 𮀏
+// ⿰ han-77f3 han-53f5 // ⿰石叵
 
 // glyph han-2e012:15x16 15 16 // 𮀒
 // ⿳ han-4e36 han-738b han-77f3 // ⿳丶王石 <- ⿱主石

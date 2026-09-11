@@ -5,6 +5,9 @@
 // glyph han-2d1b8:15x16 15 16 // 𭆸
 // ⿱ han-53e3 han-4e5d // ⿱口九
 
+// glyph han-2d1b9:15x16 15 16 // 𭆹
+// ⿱ han-5165 han-53e3 // ⿱入口
+
 ## 30.3
 
 glyph han-2d1ba:15x16 15 16 // 𭆺
@@ -61,6 +64,9 @@ glyph han-2d1d2:15x16 15 16 // 𭇒
 
 glyph han-2d1d5-($han-regions):15x16 15 16 // 𭇕
 ⿰ han-53e5:7x16 1 han-52fa-($-1):7x16 // ⿰句勺
+
+glyph han-2d1d6:15x16 15 16 // 𭇖
+⿳ han-53e3:15x3 1 han-5196:15x3 han-5e72:15x9 // ⿳口冖干
 
 // glyph han-2d1d7:15x16 15 16 // 𭇗
 // ⿰ han-53e3 han-5e83 // ⿰口広
@@ -425,6 +431,11 @@ glyph han-2d368:15x16 15 16 // 𭍨
 
 # CJK unified ideographs extension F: 土 (32)
 
+## 32.2
+
+// glyph han-2d37a:15x16 15 16 // 𭍺
+// ⿱ han-5165 han-571f // ⿱入土
+
 ## 32.4
 
 glyph han-2d37f:15x16 15 16 // 𭍿
@@ -689,6 +700,9 @@ glyph han-2d471:15x16 15 16 // 𭑱
 // ⿰ han-5973 han-65e9 // ⿰女早
 
 ## 38.7
+
+// glyph han-2d47b:15x16 15 16 // 𭑻
+// ⿰ han-5973 han-5323 // ⿰女匣
 
 glyph han-2d47c:15x16 15 16 // 𭑼
 ⿰ han-5973:5x16-l 1 han-5446:9x16 // ⿰女呆

@@ -154,6 +154,9 @@ glyph han-2c75e:15x16 15 16 // 𬝞
 // glyph han-2c769:15x16 15 16 // 𬝩
 // ⿳ han-8279 han-6b21 han-624b // ⿳艹次手 <- ⿱茨手
 
+// glyph han-2c76b:15x16 15 16 // 𬝫
+// ⿱ han-2b1e6 han-660a // ⿱𫇦昊
+
 // glyph han-2c76d:15x16 15 16 // 𬝭
 // ⿳ han-8279 han-51b6 han-5efe // ⿳艹冶廾
 
@@ -348,6 +351,11 @@ glyph han-2c83f:15x16 15 16 // 𬠿
 
 # CJK unified ideographs extension E: 衣 (145)
 
+## 145.2
+
+// glyph han-2c842:15x16 15 16 // 𬡂
+// ⿰ han-8864 han-5165 // ⿰衤入
+
 ## 145.3
 
 glyph han-2c843:15x16 15 16 // 𬡃
@@ -368,6 +376,9 @@ glyph han-2c84a:15x16 15 16 // 𬡊
 ⿰ han-8864:5x16 1 han-5df4:9x16 // ⿰衤巴
 
 ## 145.5
+
+// glyph han-2c84b:15x16 15 16 // 𬡋
+// ⿰ han-8864 han-531d // ⿰衤匝
 
 // glyph han-2c84c-($han-regions):15x16 15 16 // 𬡌
 // ⿱ han-4ee4-($-1) han-8863 // ⿱令衣

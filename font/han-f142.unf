@@ -55,6 +55,9 @@ glyph han-2e506:15x16 15 16 // 𮔆
 // glyph han-2e50d:15x16 15 16 // 𮔍
 // ⿰ han-866b han-3ad6 // ⿰虫㫖
 
+// glyph han-2e50e:15x16 15 16 // 𮔎
+// ⿰ han-866b han-519d // ⿰虫冝
+
 // glyph han-2e511:15x16 15 16 // 𮔑
 // ⿲ han-866b han-820c han-4e5a // ⿲虫舌乚 <- ⿰虫乱
 
@@ -583,6 +586,9 @@ glyph han-2e718:15x16 15 16 // 𮜘
 
 // glyph han-2e732:15x16 15 16 // 𮜲
 // ⿰ han-8eab han-5171 // ⿰身共
+
+// glyph han-2e733:15x16 15 16 // 𮜳
+// ⿰ han-8eab han-5321 // ⿰身匡
 
 // glyph han-2e735:15x16 15 16 // 𮜵
 // ⿰ han-8eab han-5e74 // ⿰身年

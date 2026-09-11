@@ -130,6 +130,9 @@ glyph han-31a4c:15x16 15 16 // 𱩌
 
 ## 86.2
 
+// glyph han-31aa1:15x16 15 16 // 𱪡
+// ⿰ han-706b han-5165 // ⿰火入
+
 glyph han-31aa2:15x16 15 16 // 𱪢
 ⿰ han-706b:7x16 han-529b:8x16 // ⿰火力
 
@@ -175,6 +178,9 @@ glyph han-31ac0:15x16 15 16 // 𱫀
 // ⿰ han-706b han-65e9 // ⿰火早
 
 ## 86.7
+
+// glyph han-31ac8:15x16 15 16 // 𱫈
+// ⿰ han-706b han-58f3 // ⿰火壳
 
 // glyph han-31ac9:15x16 15 16 // 𱫉
 // ⿰ han-706b han-8db3 // ⿰火足

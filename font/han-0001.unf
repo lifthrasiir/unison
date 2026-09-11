@@ -1435,7 +1435,7 @@ ref han-4ece:15x14
 // ⿳ han-4e5b han-6c34 han-4e00 // ⿳乛水一 <- ⿱氶一
 
 glyph han-4e1f:15x16 15 16 // 丟
-⿱ han-738b:15x11 han-53b6:15x5 // ⿱王厶
+⿱ han-738b:15x11 han-53b6:15x5-d // ⿱王厶
 
 // glyph han-4e21:15x16 15 16 // 両
 // ref han-30003 // ⿻𰀃山
@@ -4128,6 +4128,9 @@ glyph han-4f12:15x16 15 16 // 伒
 glyph han-4f13:15x16 15 16 // 伓
 ⿰ han-4ebb:5x16 1 han-4e0d:9x16 // ⿰亻不
 
+// glyph han-4f14:15x16 15 16 // 伔
+// ⿰ han-4ebb han-5197 // ⿰亻冗
+
 glyph han-4f15:15x16 15 16 // 伕
 ⿰ han-4ebb:5x16 1 han-592b:9x16 // ⿰亻夫
 
@@ -4777,6 +4780,9 @@ glyph han-50a8-($han-regions):15x16 15 16 // 储
 
 // glyph han-50b0:15x16 15 16 // 傰
 // ⿰ han-4ebb han-5d29 // ⿰亻崩
+
+// glyph han-50b4:15x16 15 16 // 傴
+// ⿰ han-4ebb han-5340 // ⿰亻區
 
 // glyph han-50b9:15x16 15 16 // 傹
 // ⿰ han-4ebb han-7adf // ⿰亻竟

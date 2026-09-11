@@ -151,6 +151,12 @@ glyph han-21d7c:15x16 15 16 // 𡵼
 glyph han-21d84:15x16 15 16 // 𡶄
 ⿰ han-5c71:7x16 1 han-5305:7x16 // ⿰山包
 
+// glyph han-21d85:15x16 15 16 // 𡶅
+// ⿰ han-5c71 han-53f5 // ⿰山叵
+
+// glyph han-21d86:15x16 15 16 // 𡶆
+// ⿱ han-5c71 han-53f5 // ⿱山叵
+
 // glyph han-21d87:15x16 15 16 // 𡶇
 // ⿱ han-5fc5 han-5c71 // ⿱必山
 

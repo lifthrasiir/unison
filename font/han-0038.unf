@@ -615,6 +615,9 @@ glyph han-5acf:15x16 15 16 // 嫏
 glyph han-5abd:15x16 15 16 // 媽
 ⿰ han-5973:5x16-l 1 han-99ac:9x16 // ⿰女馬
 
+// glyph han-5ac8:15x16 15 16 // 嫈
+// ⿱ han-241fe han-5973 // ⿱𤇾女
+
 // glyph han-5ad0:15x16 15 16 // 嫐
 // ⿲ han-5973 han-7537 han-5973 // ⿲女男女
 
@@ -625,6 +628,9 @@ glyph han-5abd:15x16 15 16 // 媽
 
 glyph han-5ad6:15x16 15 16 // 嫖
 ⿰ han-5973:7x16 1 han-7968:7x16 // ⿰女票
+
+// glyph han-5ad7:15x16 15 16 // 嫗
+// ⿰ han-5973 han-5340 // ⿰女區
 
 // glyph han-5adc:15x16 15 16 // 嫜
 // ⿰ han-5973 han-7ae0 // ⿰女章
@@ -1603,6 +1609,11 @@ glyph han-5bfe:15x16 15 16 // 対
 
 // glyph han-5bff:15x16 15 16 // 寿
 // ⿸ han-4e30 han-5bf8 // ⿸丰寸
+
+## 41.5
+
+// glyph han-5c00:15x16 15 16 // 尀
+// ⿰ han-53f5 han-5bf8 // ⿰叵寸
 
 ## 41.6
 

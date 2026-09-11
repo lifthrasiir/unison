@@ -507,6 +507,9 @@ glyph han-2abf4:15x16 15 16 // 𪯴
 
 ## 70.6
 
+// glyph han-2abf5:15x16 15 16 // 𪯵
+// ⿰ han-5321 han-65b9 // ⿰匡方
+
 glyph han-2abf7:15x16 15 16 // 𪯷
 ⿰ han-65b9:7x16 1 han-7f8a:7x16 // ⿰方羊
 
@@ -806,6 +809,9 @@ glyph han-2ad01:15x16 15 16 // 𪴁
 // ⿰ han-6728 han-3b05 // ⿰木㬅
 
 ## 75.14
+
+// glyph han-2ad0b:15x16 15 16 // 𪴋
+// ⿰ han-674f han-5340 // ⿰杏區
 
 // glyph han-2ad0d:15x16 15 16 // 𪴍
 // ⿱ han-7187 han-6728 // ⿱熇木

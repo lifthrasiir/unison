@@ -36,6 +36,11 @@ glyph han-2db66-($han-regions):15x16 15 16 // 𭭦
 // glyph han-2db6a:15x16 15 16 // 𭭪
 // ⿲ han-6b6a han-4e28 han-2b739 // ⿲歪丨𫜹
 
+## 77.11
+
+// glyph han-2db71:15x16 15 16 // 𭭱
+// ⿱ han-241fe han-6b63 // ⿱𤇾正
+
 ## 77.12
 
 glyph han-2db74:15x16 15 16 // 𭭴
@@ -159,6 +164,9 @@ glyph han-2dc15:15x16 15 16 // 𭰕
 
 ## 85.7
 
+// glyph han-2dc19:15x16 15 16 // 𭰙
+// ⿰ han-6c35 han-5323 // ⿰氵匣
+
 glyph han-2dc1b:15x16 15 16 // 𭰛
 ⿲ han-6c35:3x16 han-77f3:5x16 1 han-529b:6x16 // ⿲氵石力
 
@@ -201,6 +209,9 @@ glyph han-2dc35:15x16 15 16 // 𭰵
 // ⿰ han-6c35 han-225e8 // ⿰氵𢗨
 
 ## 85.9
+
+// glyph han-2dc45:15x16 15 16 // 𭱅
+// ⿲ han-6c35 han-58f3 han-529b // ⿲氵壳力
 
 glyph han-2dc46:15x16 15 16 // 𭱆
 ⿲ han-6c35:3x16 han-8eca:7x16 han-5202:5x16 // ⿲氵車刂
@@ -458,6 +469,9 @@ glyph han-2dd63:15x16 15 16 // 𭵣
 glyph han-2dd64:15x16 15 16 // 𭵤
 ⿲ -3 han-706b:5x16 han-77f3:5x16 han-76ae:8x16 // ⿲火石皮
 
+glyph han-2dd66:15x16 15 16 // 𭵦
+⿳ han-6797:15x8 han-5196:15x3 -1 han-706b:15x6 // ⿳林冖火
+
 // glyph han-2dd6a:15x16 15 16 // 𭵪
 // ⿰ han-706b han-5c04 // ⿰火射
 
@@ -550,6 +564,11 @@ glyph han-2ddca-($han-regions):15x16 15 16 // 𭷊
 
 glyph han-2ddf8:15x16 15 16 // 𭷸
 ⿰ han-72ad:6x16 han-4e01:9x16 // ⿰犭丁
+
+## 94.4
+
+// glyph han-2ddfb:15x16 15 16 // 𭷻
+// ⿰ han-72ad han-5197 // ⿰犭冗
 
 ## 94.5
 

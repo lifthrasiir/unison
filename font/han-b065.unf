@@ -61,6 +61,11 @@ glyph han-23061:15x16 15 16 // 𣁡
 glyph han-23063:15x16 15 16 // 𣁣
 ⿰ han-7ca6:8x16 han-6587:7x16 // ⿰粦文
 
+## 67.17
+
+// glyph han-2306a:15x16 15 16 // 𣁪
+// ⿳ han-6587 han-4020 han-519d // ⿳文䀠冝
+
 # CJK unified ideographs extension B: 斤 (69)
 
 ## 69.2
@@ -116,6 +121,11 @@ glyph han-230b0:15x16 15 16 // 𣂰
 // glyph han-251f4:15x16 15 16 // 𥇴
 // ⿱ han-76ee han-65a8 // ⿱目斨
 
+## 69.11
+
+// glyph han-230bb:15x16 15 16 // 𣂻
+// ⿰ han-5340 han-65a4 // ⿰區斤
+
 ## 69.12
 
 // glyph han-230c0:15x16 15 16 // 𣃀
@@ -151,6 +161,9 @@ glyph han-230db:15x16 15 16 // 𣃛
 // glyph han-230dd:15x16 15 16 // 𣃝
 // ⿰ han-65b9 han-592e // ⿰方央
 
+glyph han-230df:15x16 15 16 // 𣃟
+⿳ -1 han-4e0b:15x5 han-5196:15x3 -1 han-65b9:15x10 // ⿳下冖方 <- ⿱下⿱冖方
+
 glyph han-230e0-($han-regions):15x16 15 16 // 𣃠
 ⿰ han-65b9:7x16 1 han-4ee4-($-1):7x16 // ⿰方令
 
@@ -159,6 +172,11 @@ glyph han-230e3:15x16 15 16 // 𣃣
 
 glyph han-230e4:15x16 15 16 // 𣃤
 ⿰ han-76ae:8x16 han-65b9:7x16 // ⿰皮方
+
+## 70.6
+
+// glyph han-230f1:15x16 15 16 // 𣃱
+// ⿰ han-65b9 han-5321 // ⿰方匡
 
 ## 70.7
 

@@ -83,6 +83,9 @@ glyph han-29891-($han-regions):15x16 15 16 // 𩢑
 // glyph han-29897:15x16 15 16 // 𩢗
 // ⿱ han-536d han-99ac // ⿱卭馬
 
+// glyph han-29898:15x16 15 16 // 𩢘
+// ⿰ han-99ac han-53f5 // ⿰馬叵
+
 glyph han-2989d:15x16 15 16 // 𩢝
 ⿰ han-99ac:7x16 han-7247:8x16 // ⿰馬片
 
@@ -135,6 +138,9 @@ glyph han-298b7:15x16 15 16 // 𩢷
 
 glyph han-298b8:15x16 15 16 // 𩢸
 ⿰ han-99ac:7x16 1 han-821f:7x16 // ⿰馬舟
+
+// glyph han-298bc:15x16 15 16 // 𩢼
+// ⿰ han-99ac han-5321 // ⿰馬匡
 
 // glyph han-298bd:15x16 15 16 // 𩢽
 // ⿱ han-5de9 han-99ac // ⿱巩馬
@@ -423,6 +429,9 @@ glyph han-29a67:15x16 15 16 // 𩩧
 // glyph han-29a6b:15x16 15 16 // 𩩫
 // ⿰ han-9aa8 han-660c // ⿰骨昌
 
+// glyph han-29a6c:15x16 15 16 // 𩩬
+// ⿰ han-58f3 han-9aa8 // ⿰壳骨
+
 ## 188.9
 
 // glyph han-29a70:15x16 15 16 // 𩩰
@@ -452,6 +461,9 @@ glyph han-29a86:15x16 15 16 // 𩪆
 
 glyph han-29a8a:15x16 15 16 // 𩪊
 ⿰ han-9aa8:7x16 1 han-7968:7x16 // ⿰骨票
+
+// glyph han-29a8d:15x16 15 16 // 𩪍
+// ⿰ han-9aa8 han-5340 // ⿰骨區
 
 // glyph han-29a96:15x16 15 16 // 𩪖
 // ⿰ han-9aa8 han-7562 // ⿰骨畢

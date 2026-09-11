@@ -171,6 +171,9 @@ glyph han-24778:15x16 15 16 // 𤝸
 glyph han-2477b:15x16 15 16 // 𤝻
 ⿰ han-72ad:6x16 han-591a:9x16 // ⿰犭多
 
+// glyph han-2477f:15x16 15 16 // 𤝿
+// ⿰ han-72ad han-5321 // ⿰犭匡
+
 glyph han-24782:15x16 15 16 // 𤞂
 ⿰ han-72ad:6x16 han-81f3:9x16 // ⿰犭至
 
@@ -333,6 +336,9 @@ glyph han-24834:15x16 15 16 // 𤠴
 
 // glyph han-2483a:15x16 15 16 // 𤠺
 // ⿰ han-72ad han-7562 // ⿰犭畢
+
+// glyph han-2483e:15x16 15 16 // 𤠾
+// ⿰ han-72ad han-5340 // ⿰犭區
 
 glyph han-24843:15x16 15 16 // 𤡃
 ⿲ -5 han-72ad:4x16 han-675f:9x16 han-6b20:7x16 // ⿲犭束欠

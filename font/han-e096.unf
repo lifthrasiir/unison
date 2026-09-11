@@ -897,6 +897,9 @@ glyph han-2c60f:15x16 15 16 // 𬘏
 glyph han-2c656:15x16 15 16 // 𬙖
 ⿱ han-7f52:15x4 1 han-4e0b:15x11 // ⿱罒下
 
+// glyph han-2c657:15x16 15 16 // 𬙗
+// ⿱ han-34c1 han-4e8e // ⿱㓁于
+
 // glyph han-2c658:15x16 15 16 // 𬙘
 // ⿱ han-7f52 han-4e8e // ⿱罒于
 
@@ -1014,6 +1017,11 @@ glyph han-2c6af:15x16 15 16 // 𬚯
 
 // glyph han-2c6b2:15x16 15 16 // 𬚲
 // ⿰ han-8089 han-5fc3 // ⿰肉心
+
+## 130.5
+
+// glyph han-2c6b4:15x16 15 16 // 𬚴
+// ⿰ han-8089 han-531d // ⿰肉匝
 
 ## 130.6
 
