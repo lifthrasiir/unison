@@ -159,6 +159,9 @@ glyph han-624e.0:* = han-624e:*
 glyph han-6250:15x16 15 16 // 扐
 ⿰ han-624c:5x16 1 han-529b:9x16 // ⿰扌力
 
+// glyph han-6251:15x16 15 16 // 扑
+// ⿰ han-624c han-535c // ⿰扌卜
+
 // glyph han-6252:15x16 15 16 // 扒
 // ⿰ han-624c han-516b // ⿰扌八
 

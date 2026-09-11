@@ -81,6 +81,9 @@ glyph han-46b0-($han-regions):15x16 15 16 // 䚰
 
 ## 149.3
 
+// glyph han-46b1:15x16 15 16 // 䚱
+// ⿰ han-8a01 han-5c0f // ⿰訁小
+
 // glyph han-46b2:15x16 15 16 // 䚲
 // ⿰ han-8a01 han-5f61 // ⿰訁彡
 
@@ -342,6 +345,9 @@ glyph han-477c-(k|p):15x16 15 16 // 䝼
 
 glyph han-47d3:15x16 15 16 // 䟓
 ⿰ han-27fb7:5x16 1 han-4e01:9x16 // ⿰𧾷丁
+
+// glyph han-47d4:15x16 15 16 // 䟔
+// ⿰ han-27fb7 han-535c // ⿰𧾷卜
 
 ## 157.3
 

@@ -265,6 +265,9 @@ glyph han-6c5f:15x16 15 16 // 江
 glyph han-6c62:15x16 15 16 // 汢
 ⿰ han-6c35:5x16 1 han-571f:9x16 // ⿰氵土
 
+// glyph han-6c77:15x16 15 16 // 汷
+// ⿰ han-6c35 han-5902 // ⿰氵夂
+
 ## 85.4
 
 glyph han-6c67:15x16 15 16 // 汧

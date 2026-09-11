@@ -172,6 +172,9 @@ glyph han-28018:15x16 15 16 // 𨀘
 glyph han-28019:15x16 15 16 // 𨀙
 ⿰ han-27fb7:5x16 1 han-5409:9x16 // ⿰𧾷吉
 
+// glyph han-2801a:15x16 15 16 // 𨀚
+// ⿰ han-27fb7 han-5c17 // ⿰𧾷尗
+
 glyph han-2801c:15x16 15 16 // 𨀜
 ⿰ han-27fb7:5x16 1 han-540c:8x16 // ⿰𧾷同
 

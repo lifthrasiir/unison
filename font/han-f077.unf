@@ -665,6 +665,9 @@ glyph han-2de41:15x16 15 16 // 𭹁
 glyph han-2de44:15x16 15 16 // 𭹄
 ⿰ han-248e9:5x16 1 han-800c:9x16 // ⿰𤣩而
 
+// glyph han-2de48:15x16 15 16 // 𭹈
+// ⿰ han-248e9 han-5c16 // ⿰𤣩尖
+
 glyph han-2de4a:15x16 15 16 // 𭹊
 ⿲ han-5f73:3x16 han-738b:7x16 han-4e8d:5x16 // ⿲彳王亍
 

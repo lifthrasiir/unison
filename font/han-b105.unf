@@ -27,6 +27,9 @@ glyph han-24f42:15x16 15 16 // 𤽂
 // glyph han-24f43:15x16 15 16 // 𤽃
 // ⿱ han-767d han-5ddd // ⿱白川
 
+glyph han-24f44:15x16 15 16 // 𤽄
+⿱ han-767d:15x9 han-5c0f:15x7 // ⿱白小
+
 glyph han-24f45:15x16 15 16 // 𤽅
 ⿱ han-767d:15x11 1 han-5140:15x4 // ⿱白兀
 
@@ -55,6 +58,9 @@ glyph han-24f4f:15x16 15 16 // 𤽏
 
 // glyph han-24f52:15x16 15 16 // 𤽒
 // ⿱ han-767d han-5345 // ⿱白卅
+
+// glyph han-24f54:15x16 15 16 // 𤽔
+// ⿳ han-767d han-5c0f han-4e00 // ⿳白小一 <- ⿱白⿱小一
 
 // glyph han-24f55:15x16 15 16 // 𤽕
 // ⿳ han-767d han-4e36 han-5140 // ⿳白丶兀
@@ -230,6 +236,9 @@ glyph han-24fce-($han-regions):15x16 15 16 // 𤿎
 
 glyph han-24fd0:15x16 15 16 // 𤿐
 ⿰ han-5f00:7x16 han-76ae:8x16 // ⿰开皮
+
+// glyph han-24fd1:15x16 15 16 // 𤿑
+// ⿺ han-5c23 han-76ae // ⿺尣皮
 
 // glyph han-24fd2:15x16 15 16 // 𤿒
 // ⿰ han-76ae han-5185 // ⿰皮内

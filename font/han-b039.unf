@@ -304,6 +304,9 @@ glyph han-219e9:15x16 15 16 // 𡧩
 // glyph han-219ee:15x16 15 16 // 𡧮
 // ⿳ han-5b80 han-65e5 han-5315 // ⿳宀日匕 <- ⿱宀㫐
 
+// glyph han-219ef:15x16 15 16 // 𡧯
+// ⿱ han-5b80 han-5c17 // ⿱宀尗
+
 glyph han-219f0:15x16 15 16 // 𡧰
 ⿱ han-5b80:15x3 han-7f36:15x13 // ⿱宀缶
 
@@ -318,6 +321,9 @@ glyph han-219f1:15x16 15 16 // 𡧱
 
 glyph han-219f6:15x16 15 16 // 𡧶
 ⿳ han-5b80:15x5 -1 han-5927:15x5 han-53e3:15x7 // ⿳宀大口
+
+// glyph han-219f8:15x16 15 16 // 𡧸
+// ⿳ han-5b80 han-5902 han-5c71 // ⿳宀夂山
 
 // glyph han-219f9:15x16 15 16 // 𡧹
 // ⿳ han-5b80 han-7531 han-4e00 // ⿳宀由一 <- ⿱宙一
@@ -469,6 +475,9 @@ glyph han-21a58:15x16 15 16 // 𡩘
 
 // glyph han-21a7e:15x16 15 16 // 𡩾
 // ⿱ han-5b80 han-5340 // ⿱宀區
+
+// glyph han-21a82:15x16 15 16 // 𡪂
+// ⿳ han-5b80 han-5902 han-91cc // ⿳宀夂里
 
 // glyph han-21a84-($han-regions):15x16 15 16 // 𡪄
 // ⿰ han-5b81 han-8005-($-1) // ⿰宁者

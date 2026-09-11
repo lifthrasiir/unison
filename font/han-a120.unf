@@ -696,6 +696,9 @@ glyph han-4476-($han-regions):15x16 15 16 // 䑶
 
 ## 140.3
 
+glyph han-4495:15x16 15 16 // 䒕
+⿱ 1 han-8279:15x3 2 han-5c0f:15x9 // ⿱艹小
+
 glyph han-4499:15x16 15 16 // 䒙
 ⿱ han-8279:15x3 han-4e0a:15x13 // ⿱艹上
 

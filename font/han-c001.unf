@@ -362,6 +362,13 @@ glyph han-2a7fa:15x16 15 16 // 𪟺
 // glyph han-2a7fb:15x16 15 16 // 𪟻
 // ⿱ han-96d4 han-5341 // ⿱雔十
 
+# CJK unified ideographs extension C: 卜 (25)
+
+## 25.5
+
+// glyph han-2a7fe:15x16 15 16 // 𪟾
+// ⿺ han-672a han-535c // ⿺未卜
+
 # CJK unified ideographs extension C: 卩 (26)
 
 ## 26.6
@@ -574,6 +581,11 @@ glyph han-2a8ab:15x16 15 16 // 𪢫
 
 # CJK unified ideographs extension C: 土 (32)
 
+## 32.2
+
+// glyph han-2a8b1:15x16 15 16 // 𪢱
+// ⿱ han-571f han-535c // ⿱土卜
+
 ## 32.3
 
 glyph han-2a8b4:15x16 15 16 // 𪢴
@@ -582,6 +594,9 @@ ref han-571f:9x16 6 0
 
 glyph han-2a8b5:15x16 15 16 // 𪢵
 ⿰ han-571f:5x16-l han-51e1:10x16 // ⿰土凡
+
+// glyph han-2a8b6:15x16 15 16 // 𪢶
+// ⿱ han-5902 han-571f // ⿱夂土
 
 glyph han-2a8b7:15x16 15 16 // 𪢷
 ⿰ han-571f:5x16-l 1 han-4ea1-v:9x16 // ⿰土亡
@@ -1030,6 +1045,23 @@ glyph han-2a9d6:15x16 15 16 // 𪧖
 
 // glyph han-2a9fb-($han-regions):15x16 15 16 // 𪧻
 // ⿰ han-5c04 han-534a-($-1) // ⿰射半
+
+# CJK unified ideographs extension C: 小 (42)
+
+## 42.4
+
+// glyph han-2a9ff:15x16 15 16 // 𪧿
+// ⿰ han-5185 han-5c0f // ⿰内小
+
+## 42.5
+
+// glyph han-2aa00:15x16 15 16 // 𪨀
+// ⿰ han-5c0f han-51fa // ⿰小出
+
+## 42.11
+
+// glyph han-2aa03:15x16 15 16 // 𪨃
+// ⿱ han-5c0f han-637d // ⿱小捽
 
 # CJK unified ideographs extension C: 尸 (44)
 

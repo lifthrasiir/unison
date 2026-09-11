@@ -24,6 +24,9 @@ glyph han-2cacc:15x16 15 16 // 𬫌
 
 ## 167.6
 
+// glyph han-2cad0:15x16 15 16 // 𬫐
+// ⿰ han-91d2 han-5c17 // ⿰釒尗
+
 // glyph han-2cad1:15x16 15 16 // 𬫑
 // ⿲ han-91d2 han-5f73 han-4e8d // ⿲釒彳亍
 
@@ -595,6 +598,11 @@ glyph han-2cd1d:15x16 15 16 // 𬴝
 ⿰ han-9ad8:7x16 1 han-582f:7x16 // ⿰高堯
 
 # CJK unified ideographs extension E: 魚 (195)
+
+## 195.2
+
+// glyph han-2cd42:15x16 15 16 // 𬵂
+// ⿰ han-9b5a han-535c // ⿰魚卜
 
 ## 195.3
 

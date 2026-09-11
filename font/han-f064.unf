@@ -681,6 +681,11 @@ glyph han-2db16:15x16 15 16 // 𭬖
 
 # CJK unified ideographs extension F: 欠 (76)
 
+## 76.2
+
+// glyph han-2db44:15x16 15 16 // 𭭄
+// ⿰ han-535c han-6b20 // ⿰卜欠
+
 ## 76.4
 
 glyph han-2db45:15x16 15 16 // 𭭅

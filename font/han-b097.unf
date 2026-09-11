@@ -135,6 +135,9 @@ glyph han-24c02:15x16 15 16 // 𤰂
 // glyph han-21da4:15x16 15 16 // 𡶤
 // ⿱ han-5c71 han-7528 // ⿱山用
 
+// glyph han-24c05:15x16 15 16 // 𤰅
+// ⿱ han-5902 han-7528 // ⿱夂用
+
 ## 101.5
 
 glyph han-20ceb:15x16 15 16 // 𠳫
@@ -170,6 +173,9 @@ glyph han-20ceb:15x16 15 16 // 𠳫
 
 // glyph han-24c15:15x16 15 16 // 𤰕
 // ⿰ han-7530 han-5ddc // ⿰田巜
+
+// glyph han-24c18:15x16 15 16 // 𤰘
+// ⿰ han-7530 han-535c // ⿰田卜
 
 // glyph han-24c19:15x16 15 16 // 𤰙
 // ⿺ han-4e5d han-7530 // ⿺九田

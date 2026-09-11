@@ -3,7 +3,7 @@
 ## 85.2
 
 glyph han-2ad68:15x16 15 16 // 𪵨
-⿱ han-53b6:15x5 1 han-6c34:15x9 // ⿱厶水
+⿱ han-53b6:15x7 han-6c34:15x9 // ⿱厶水
 
 ## 85.3
 
@@ -456,6 +456,13 @@ glyph han-2af19:15x16 15 16 // 𪼙
 glyph han-2af40:15x16 15 16 // 𪽀
 ⿰ han-544a:8x16 han-7518:7x16 // ⿰告甘
 
+# CJK unified ideographs extension C: 生 (100)
+
+## 100.2
+
+// glyph han-2af41:15x16 15 16 // 𪽁
+// ⿰ han-751f han-535c // ⿰生卜
+
 # CJK unified ideographs extension C: 田 (102)
 
 ## 102.2
@@ -860,6 +867,11 @@ glyph han-2b06a:15x16 15 16 // 𫁪
 ⿱ han-7acb:15x7 han-7add:15x9 // ⿱立竝
 
 # CJK unified ideographs extension C: 竹 (118)
+
+## 118.2
+
+// glyph han-2b070:15x16 15 16 // 𫁰
+// ⿱ han-25ad7 han-535c // ⿱𥫗卜
 
 ## 118.5
 

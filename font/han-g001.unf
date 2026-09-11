@@ -345,6 +345,11 @@ glyph han-300a9:15x16 15 16 // 𰂩
 // glyph han-300d6:15x16 15 16 // 𰃖
 // ⿱ han-5165 han-4e95 // ⿱入井
 
+## 11.6
+
+// glyph han-300d8:15x16 15 16 // 𰃘
+// ⿱ han-5165 han-5c16 // ⿱入尖
+
 ## 11.7
 
 // glyph han-300da:15x16 15 16 // 𰃚
@@ -736,6 +741,9 @@ glyph han-301d3:15x16 15 16 // 𰇓
 
 glyph han-301d7:15x16 15 16 // 𰇗
 ⿲ han-53e3:4x16-l han-624c:5x16 han-53e3:6x16 // ⿲口扌口
+
+// glyph han-301da:15x16 15 16 // 𰇚
+// ⿰ han-5439 han-535c // ⿰吹卜
 
 // glyph han-301db:15x16 15 16 // 𰇛
 // ⿲ han-53e3 han-4ebb han-72ac // ⿲口亻犬 <- ⿰口伏

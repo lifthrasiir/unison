@@ -302,6 +302,9 @@ glyph han-21df5:15x16 15 16 // 𡷵
 glyph han-21df9:15x16 15 16 // 𡷹
 ⿳ han-5c71:15x4 1 han-76ee:15x7 han-513f:15x4 // ⿳山目儿
 
+// glyph han-21dfa:15x16 15 16 // 𡷺
+// ⿱ han-4495 han-5c71 // ⿱䒕山
+
 glyph han-21dfb:15x16 15 16 // 𡷻
 ⿲ han-5c71:5x16 han-6728:5x16 han-5c71:5x16 // ⿲山木山
 

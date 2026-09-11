@@ -11,10 +11,16 @@ glyph han-206a5:15x16 15 16 // 𠚥
 glyph han-206a7:15x16 15 16 // 𠚧
 ⿰ han-4e8c:9x16 1 han-5202:5x16 // ⿰二刂
 
+// glyph han-206a9:15x16 15 16 // 𠚩
+// ⿰ han-535c han-5202 // ⿰卜刂
+
 glyph han-206aa:11x13 11 13 // 𠚪
 ⿰ han-5200:5x13 1 han-5200:5x13 // ⿰刀刀
 glyph han-206aa:15x16 15 16 // 𠚪
 ⿰ han-5200:7x16 1 han-5200:7x16 // ⿰刀刀
+
+// glyph han-206ac:15x16 15 16 // 𠚬
+// ⿰ han-535c han-5200 // ⿰卜刀
 
 ## 18.3
 

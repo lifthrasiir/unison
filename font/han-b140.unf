@@ -1,5 +1,10 @@
 # CJK unified ideographs extension B: 艸 (140)
 
+## 140.1
+
+// glyph han-26af3:15x16 15 16 // 𦫳
+// ⿱ han-535d han-4e28 // ⿱卝丨
+
 ## 140.2
 
 glyph han-26af8:15x16 15 16 // 𦫸
@@ -18,6 +23,9 @@ ref han-4ebb:5x12 5 4
 glyph han-26afd:15x16 15 16 // 𦫽
 ref han-8279:15x3 0 0 // ⿱艹二
 ref han-4e8c:15x10 0 6
+
+// glyph han-26b00:15x16 15 16 // 𦬀
+// ⿱ han-8279 han-5338 // ⿱艹匸
 
 ## 140.3
 
@@ -265,6 +273,9 @@ glyph han-26bd6:15x16 15 16 // 𦯖
 
 glyph han-26bdc:15x16 15 16 // 𦯜
 ⿱ han-8279:15x3 han-7683:15x13 // ⿱艹皃
+
+// glyph han-26bdd:15x16 15 16 // 𦯝
+// ⿱ han-82b7 han-5c0f // ⿱芷小
 
 // glyph han-26be1:15x16 15 16 // 𦯡
 // ⿳ han-8279 han-5f13 han-5fc3 // ⿳艹弓心

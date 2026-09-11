@@ -381,6 +381,37 @@ glyph han-2bcdf:15x16 15 16 // 𫳟
 glyph han-2bd2f:15x16 15 16 // 𫴯
 ⿲ han-8c9d:5x16 1 han-5202:3x16 han-5bf8:6x16 // ⿲貝刂寸
 
+# CJK unified ideographs extension E: 小 (42)
+
+## 42.4
+
+// glyph han-2bd38:15x16 15 16 // 𫴸
+// ⿰ han-5c0f han-65e5 // ⿰小日
+
+// glyph han-2bd39:15x16 15 16 // 𫴹
+// ⿱ han-5185 han-5c0f // ⿱内小
+
+## 42.5
+
+// glyph han-2bd3a:15x16 15 16 // 𫴺
+// ⿺ han-672d han-5c0f // ⿺札小
+
+## 42.8
+
+// glyph han-2bd3e-($han-regions):15x16 15 16 // 𫴾
+// ⿱ han-5c0f han-6606-($-1) // ⿱小昆
+
+// glyph han-2bd3f-($han-regions):15x16 15 16 // 𫴿
+// ⿱ han-7684-($-1) han-5c0f // ⿱的小
+
+// glyph han-2bd40:15x16 15 16 // 𫵀
+// ⿱ han-5c0f han-3915 // ⿱小㤕
+
+## 42.13
+
+// glyph han-2bd4b:15x16 15 16 // 𫵋
+// ⿰ han-610f han-5c0f // ⿰意小
+
 # CJK unified ideographs extension E: 尸 (44)
 
 ## 44.4
@@ -497,6 +528,9 @@ glyph han-2bdb7:15x16 15 16 // 𫶷
 # CJK unified ideographs extension E: 巾 (50)
 
 ## 50.2
+
+// glyph han-2bdbd:15x16 15 16 // 𫶽
+// ⿰ han-5dfe han-535c // ⿰巾卜
 
 glyph han-2bdbe:15x16 15 16 // 𫶾
 ⿰ han-5dfe:7x16 1 han-4eba:7x16 // ⿰巾人

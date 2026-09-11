@@ -62,6 +62,32 @@ glyph han-21547:15x16 15 16 // 𡕇
 // ref han-4e05 // ⿻丅𠃋
 // ref han-200cb
 
+## 34.3
+
+// glyph han-21555-($han-regions):15x16 15 16 // 𡕕
+// ⿱ han-5902 han-5b50-($-1) // ⿱夂子
+
+// glyph han-21556:15x16 15 16 // 𡕖
+// ⿱ han-5902 han-30001 // ⿱夂𰀁
+
+## 34.4
+
+// glyph han-21557:15x16 15 16 // 𡕗
+// ⿱ han-5902 han-4e2f // ⿱夂丯
+
+// glyph han-21559:15x16 15 16 // 𡕙
+// ⿱ han-5902 han-6708 // ⿱夂月
+
+## 34.7
+
+// glyph han-2155a:15x16 15 16 // 𡕚
+// ⿱ han-5902 han-898b // ⿱夂見
+
+## 34.10
+
+// glyph han-2155d:15x16 15 16 // 𡕝
+// ⿳ han-5902 han-706b han-7c73 // ⿳夂火米
+
 # CJK unified ideographs extension B: 夊 (35)
 
 ## 35.8

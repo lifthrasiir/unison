@@ -7,6 +7,9 @@ glyph han-250e4:15x16 15 16 // 𥃤
 
 ## 109.2
 
+// glyph han-250e8:15x16 15 16 // 𥃨
+// ⿰ han-76ee han-535c // ⿰目卜
+
 // glyph han-250e9:15x16 15 16 // 𥃩
 // ⿱ han-76ee han-5315 // ⿱目匕
 
@@ -48,6 +51,9 @@ glyph han-250f9:15x16 15 16 // 𥃹
 glyph han-250fa:15x16 15 16 // 𥃺
 ⿱ han-76ee:15x7 2 han-5140:15x7 // ⿱目兀
 
+glyph han-250fb:15x16 15 16 // 𥃻
+⿱ han-5c0f:15x7 han-76ee:15x9 // ⿱小目
+
 glyph han-250fd:15x16 15 16 // 𥃽
 ⿰ han-76ee:6x16 han-5de5:9x16 // ⿰目工
 
@@ -88,6 +94,9 @@ glyph han-25113:15x16 15 16 // 𥄓
 
 // glyph han-25114:15x16 15 16 // 𥄔
 // ⿰ han-76ee han-5dff // ⿰目巿
+
+// glyph han-25115:15x16 15 16 // 𥄕
+// ⿱ han-535d han-76ee // ⿱卝目
 
 // glyph han-25118:15x16 15 16 // 𥄘
 // ⿳ han-516b han-52f9 han-76ee // ⿳八勹目 <- ⿱八⿱勹目
@@ -342,6 +351,9 @@ glyph han-251c3:15x16 15 16 // 𥇃
 
 glyph han-251df:15x16 15 16 // 𥇟
 ⿲ han-76ee:3x16-l han-4ea4:7x16 han-529b:5x16 // ⿲目交力
+
+// glyph han-251e0:15x16 15 16 // 𥇠
+// ⿱ han-5902 han-4020 // ⿱夂䀠
 
 glyph han-251e2:15x16 15 16 // 𥇢
 ⿲ han-76ee:3x16-l 1 han-8f66:4x16-l han-65a4:7x16 // ⿲目车斤

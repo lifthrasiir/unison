@@ -618,6 +618,11 @@ glyph han-40f4-($han-regions):15x16 15 16 // 䃴
 
 # CJK unified ideographs extension A: 示 (113)
 
+## 113.2
+
+// glyph han-40fc:15x16 15 16 // 䃼
+// ⿰ han-793a han-535c // ⿰示卜
+
 ## 113.4
 
 glyph han-40fe-($han-regions):15x16 15 16 // 䃾

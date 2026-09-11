@@ -1,5 +1,10 @@
 # CJK unified ideographs extension A: 一 (1)
 
+## 1.4
+
+// glyph han-3400:15x16 15 16 // 㐀
+// ⿱ han-535d han-4e00 // ⿱卝一
+
 ## 1.14
 
 // glyph han-4db6:15x16 15 16 // 䶶
@@ -197,6 +202,9 @@ glyph han-3442:15x16 15 16 // 㑂
 // glyph han-344f:15x16 15 16 // 㑏
 // ⿰ han-4ebb han-5b88 // ⿰亻守
 
+// glyph han-3450:15x16 15 16 // 㑐
+// ⿰ han-4ebb han-5c17 // ⿰亻尗
+
 // glyph han-3455:15x16 15 16 // 㑕
 // ⿰ han-4ebb han-5c81 // ⿰亻岁
 
@@ -306,6 +314,9 @@ glyph han-34bb:15x16 15 16 // 㒻
 # CJK unified ideographs extension A: 冖 (14)
 
 ## 14.2
+
+// glyph han-34c0:15x16 15 16 // 㓀
+// ⿱ han-5196 han-535c // ⿱冖卜
 
 glyph han-34c1:15x16 15 16 // 㓁
 ⿱ han-5196:15x3 han-513f:15x12 // ⿱冖儿
@@ -552,7 +563,7 @@ glyph han-354d:15x16 15 16 // 㕍
 ## 28.2
 
 glyph han-3555:15x16 15 16 // 㕕
-⿱ 1 han-53b6:15x5 4 han-53b6:15x5 // ⿱厶厶
+⿱ han-53b6:15x7 1 han-53b6:15x7 // ⿱厶厶
 
 # CJK unified ideographs extension A: 口 (30)
 
@@ -617,6 +628,9 @@ glyph han-3578:15x16 15 16 // 㕸
 
 // glyph han-357b:15x16 15 16 // 㕻
 // ⿳ han-4e36 han-4e0d han-53e3 // ⿳丶不口
+
+// glyph han-357e:15x16 15 16 // 㕾
+// ⿱ han-5c0f han-20b9f // ⿱小𠮟
 
 // glyph han-357f:15x16 15 16 // 㕿
 // ⿱ han-79be han-53e3 // ⿱禾口
@@ -1225,6 +1239,13 @@ glyph han-3775:15x16 15 16 // 㝵
 
 glyph han-3776:15x16 15 16 // 㝶
 ⿳ han-7f52:15x3 han-513f:15x4 han-5bf8:15x9 // ⿳罒儿寸
+
+# CJK unified ideographs extension A: 小 (42)
+
+## 42.7
+
+glyph han-3778:15x16 15 16 // 㝸
+⿳ han-5c0f:15x7 han-65e5:15x5 han-513f:15x4 // ⿳小日儿 <- ⿱小⿱日儿
 
 # CJK unified ideographs extension A: 尸 (44)
 

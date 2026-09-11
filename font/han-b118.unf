@@ -14,7 +14,7 @@ glyph han-25ad9:15x16 15 16 // 𥫙
 // ⿱ han-25ad7 han-5182 // ⿱𥫗冂
 
 glyph han-25adb:15x16 15 16 // 𥫛
-⿱ 1 han-25ad7:15x5 4 han-53b6:15x5-d // ⿱𥫗厶
+⿱ 1 han-25ad7:15x5 2 han-53b6:15x7 // ⿱𥫗厶
 
 ## 118.3
 
@@ -184,6 +184,9 @@ glyph han-25b45:15x16 15 16 // 𥭅
 
 // glyph han-25b4b:15x16 15 16 // 𥭋
 // ⿱ han-25ad7 han-591a // ⿱𥫗多
+
+// glyph han-25b4d:15x16 15 16 // 𥭍
+// ⿱ han-25ad7 han-5c16 // ⿱𥫗尖
 
 // glyph han-25b4e-($han-regions):15x16 15 16 // 𥭎
 // ⿱ han-25ad7 han-6c52-($-1) // ⿱𥫗汒
