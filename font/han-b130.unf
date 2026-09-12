@@ -319,8 +319,8 @@ glyph han-26772:15x16 15 16 // 𦝲
 // glyph han-267a8:15x16 15 16 // 𦞨
 // ⿰ han-6708 han-5bab // ⿰月宫
 
-// glyph han-267b0:15x16 15 16 // 𦞰
-// ⿰ han-6708 han-6817 // ⿰月栗
+glyph han-267b0:15x16 15 16 // 𦞰
+⿰ han-6708:5x16-l 1 han-6817:9x16 // ⿰月栗
 
 glyph han-267bd:15x16 15 16 // 𦞽
 ⿰ han-6708:5x16-l 1 han-9aa8:9x16 // ⿰月骨

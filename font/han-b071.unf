@@ -378,7 +378,7 @@ glyph han-2325e:15x16 15 16 // 𣉞
 ⿰ han-65e5:7x16 1 han-9ad8:7x16 // ⿰日高
 
 glyph han-23264:15x16 15 16 // 𣉤
-⿲ han-65e5:3x16 1 han-8a01:5x16 han-5ddd:6x16 // ⿲日訁川
+⿲ han-65e5:3x16 1 han-8a01.x:5x16 han-5ddd:6x16 // ⿲日訁川
 
 // glyph han-23269:15x16 15 16 // 𣉩
 // ⿳ han-4e9e han-516b han-65e5 // ⿳亞八日
@@ -399,7 +399,7 @@ glyph han-2326c:15x16 15 16 // 𣉬
 // ⿱ han-65e5 han-684e // ⿱日桎
 
 glyph han-23278:15x16 15 16 // 𣉸
-⿲ han-65e5:4x16-l 1 han-8a01:5x16 2 han-5df1:3x16 // ⿲日訁己
+⿲ han-65e5:4x16-l 1 han-8a01.x:5x16 1 han-5df1:4x16 // ⿲日訁己
 
 glyph han-2327a:15x16 15 16 // 𣉺
 ⿰ han-661c:7x16 1 han-5931:7x16 // ⿰昜失

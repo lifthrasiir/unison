@@ -182,13 +182,13 @@ glyph han-22df0:15x16 15 16 // 𢷰
 ## 64.15
 
 glyph han-22e1b:15x16 15 16 // 𢸛
-⿲ -1 han-624c:3x16 han-8a01:5x16 han-5468:8x16 // ⿲扌訁周
+⿲ -1 han-624c:3x16 han-8a01.x:5x16 han-5468:8x16 // ⿲扌訁周
 
 glyph han-22e1c:15x16 15 16 // 𢸜
 ⿲ han-624c:3x16 han-7ca6:8x16 han-961d:4x16-r // ⿲扌粦阝
 
 glyph han-22e20:15x16 15 16 // 𢸠
-⿲ han-624c:3x16 han-8a01:5x16 han-679c:7x16 // ⿲扌訁果
+⿲ han-624c:3x16 han-8a01.x:5x16 han-679c:7x16 // ⿲扌訁果
 
 ## 64.16
 

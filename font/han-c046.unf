@@ -758,7 +758,7 @@ glyph han-2acb5:15x16 15 16 // 𪲵
 // ⿰ han-6728 han-4352 // ⿰木䍒
 
 glyph han-2acbc:15x16 15 16 // 𪲼
-⿲ han-6728:5x16 han-4ebb:3x16 han-8a00:7x16 // ⿲木亻言
+⿲ han-6728:5x16 han-4ebb:3x16 han-8a00.0:7x16 // ⿲木亻言
 
 glyph han-2acc0:15x16 15 16 // 𪳀
 ⿰ han-6728:5x16 1 han-97f3:9x16 // ⿰木音

@@ -400,7 +400,7 @@ glyph han-2c492:15x16 15 16 // 𬒒
 ## 112.9
 
 glyph han-2c498:15x16 15 16 // 𬒘
-⿲ han-77f3:5x16 han-4ebb:3x16 han-8a00:7x16 // ⿲石亻言
+⿲ han-77f3:5x16 han-4ebb:3x16 han-8a00.0:7x16 // ⿲石亻言
 
 glyph han-2c49a:15x16 15 16 // 𬒚
 ⿰ han-77f3:7x16 1 han-8ecd:7x16 // ⿰石軍
@@ -999,7 +999,7 @@ glyph han-2c698:15x16 15 16 // 𬚘
 ## 128.7
 
 glyph han-2c69d:15x16 15 16 // 𬚝
-⿰ han-8033:6x16-l han-8a00:9x16 // ⿰耳言
+⿰ han-8033:6x16-l han-8a00.0:9x16 // ⿰耳言
 
 ## 128.8
 

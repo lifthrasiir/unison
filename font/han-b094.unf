@@ -323,8 +323,8 @@ glyph han-24819:15x16 15 16 // 𤠙
 // glyph han-24827:15x16 15 16 // 𤠧
 // ⿰ han-72ad han-2d0f3 // ⿰犭𭃳
 
-// glyph han-2482b:15x16 15 16 // 𤠫
-// ⿰ han-72ad han-6817 // ⿰犭栗
+glyph han-2482b:15x16 15 16 // 𤠫
+⿰ han-72ad:6x16 han-6817:9x16 // ⿰犭栗
 
 // glyph han-2482d:15x16 15 16 // 𤠭
 // ⿰ han-72ad han-5c04 // ⿰犭射
@@ -344,7 +344,7 @@ glyph han-24843:15x16 15 16 // 𤡃
 ⿲ -5 han-72ad:4x16 han-675f:9x16 han-6b20:7x16 // ⿲犭束欠
 
 glyph han-24848:15x16 15 16 // 𤡈
-⿲ -3 han-72ad:4x16 han-8a01:5x16 han-5348:9x16 // ⿲犭訁午
+⿲ -1 han-72ad:4x16 han-8a01.x:5x16 han-5348:7x16 // ⿲犭訁午
 
 glyph han-2484b:15x16 15 16 // 𤡋
 ⿲ -1 han-72ad:4x16 han-8eca:5x16 han-6b20:7x16 // ⿲犭車欠

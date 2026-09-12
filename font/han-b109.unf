@@ -561,7 +561,7 @@ glyph han-2530e:15x16 15 16 // 𥌎
 ## 109.15
 
 glyph han-25325:15x16 15 16 // 𥌥
-⿲ -1 han-76ee:3x16-l 1 han-8a01:5x16 han-679c:7x16 // ⿲目訁果
+⿲ -1 han-76ee:3x16-l 1 han-8a01.x:5x16 han-679c:7x16 // ⿲目訁果
 
 glyph han-25328:15x16 15 16 // 𥌨
 ⿲ han-76ee:4x16-l han-7c73:5x16 1 han-9801:5x16 // ⿲目米頁

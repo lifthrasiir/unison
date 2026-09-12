@@ -408,8 +408,8 @@ glyph han-28367:15x16 15 16 // 𨍧
 
 ## 159.10
 
-// glyph han-2836b:15x16 15 16 // 𨍫
-// ⿰ han-8eca han-6817 // ⿰車栗
+glyph han-2836b:15x16 15 16 // 𨍫
+⿰ han-8eca:5x16 1 han-6817:9x16 // ⿰車栗
 
 // glyph han-28375:15x16 15 16 // 𨍵
 // ⿰ han-8eca han-3760 // ⿰車㝠

@@ -455,7 +455,7 @@ glyph han-5a1a:15x16 15 16 // 娚
 // ⿰ han-5973 han-65f1 // ⿰女旱
 
 glyph han-5a2e:15x16 15 16 // 娮
-⿰ han-5973:5x16-l 1 han-8a00:9x16 // ⿰女言
+⿰ han-5973:5x16-l 1 han-8a00.0:9x16 // ⿰女言
 
 // glyph han-5a31:15x16 15 16 // 娱
 // ⿰ han-5973 han-5434 // ⿰女吴
@@ -1379,7 +1379,7 @@ glyph han-5ba6:15x16 15 16 // 宦
 // ⿱ han-5b80 han-5146 // ⿱宀兆
 
 glyph han-5ba9:15x16 15 16 // 宩
-⿱ han-5b80:15x5 1 han-7c73:15x9 // ⿱宀米
+⿱ han-5b80:15x3 han-7c73:15x13 // ⿱宀米
 
 glyph han-5bab:15x16 15 16 // 宫
 ⿱ han-5b80:15x4 han-5415:15x12 // ⿱宀吕

@@ -25,7 +25,7 @@ glyph han-3204e:15x16 15 16 // 𲁎
 // ⿰ han-8a01 han-624d // ⿰訁才
 
 glyph han-32063-($han-regions):15x16 15 16 // 𲁣
-⿰ han-8a01:5x16 1 han-4ea1-($-1):9x16 // ⿰訁亡
+⿰ han-8a01.x:5x16 1 han-4ea1-($-1):9x16 // ⿰訁亡
 
 ## 149.6
 
@@ -41,10 +41,10 @@ glyph han-32063-($han-regions):15x16 15 16 // 𲁣
 ## 149.8
 
 glyph han-3206a:15x16 15 16 // 𲁪
-⿲ han-8a01:5x16 han-81f3:7x16 han-5202:3x16 // ⿲訁至刂
+⿲ han-8a01.x:5x16 han-81f3:7x16 han-5202:3x16 // ⿲訁至刂
 
 glyph han-3206c:15x16 15 16 // 𲁬
-⿲ han-8a01:5x16 han-5f73:3x16 han-751f:7x16 // ⿲訁彳生
+⿲ han-8a01.x:5x16 han-5f73:3x16 han-751f:7x16 // ⿲訁彳生
 
 ## 149.9
 
@@ -54,7 +54,7 @@ glyph han-3206c:15x16 15 16 // 𲁬
 ## 149.14
 
 glyph han-3207b:15x16 15 16 // 𲁻
-⿲ -2 han-8a01:5x16 han-2099d:5x16 han-821f:7x16 // ⿲訁𠦝舟
+⿲ -2 han-8a01.0:5x16 han-2099d:5x16 han-821f:7x16 // ⿲訁𠦝舟
 
 # CJK unified ideographs extension H: 讠 (149')
 
@@ -87,7 +87,7 @@ glyph han-3208b:15x16 15 16 // 𲂋
 ⿰ han-8ba0:3x16 han-56f0:13x16 // ⿰讠困
 
 glyph han-3208d:15x16 15 16 // 𲂍
-⿰ han-8ba0:5x16 1 han-8a00:9x16 // ⿰讠言
+⿰ han-8ba0:5x16 1 han-8a00.0:9x16 // ⿰讠言
 
 ## 149'.9
 
@@ -396,8 +396,8 @@ glyph han-3218f-($han-regions):15x16 15 16 // 𲆏
 
 ## 164.4
 
-// glyph han-321a8:15x16 15 16 // 𲆨
-// ⿰ han-9149 han-5348 // ⿰酉午
+glyph han-321a8:15x16 15 16 // 𲆨
+⿰ han-9149:7x16 1 han-5348:7x16 // ⿰酉午
 
 ## 164.6
 
@@ -467,7 +467,7 @@ glyph han-321d2:15x16 15 16 // 𲇒
 ## 167.11
 
 glyph han-321e0:15x16 15 16 // 𲇠
-⿲ -5 han-91d2:5x16-l 1 han-8a01:5x16 han-5348:9x16 // ⿲釒訁午
+⿲ -3 han-91d2:5x16-l 1 han-8a01.0:5x16 han-5348:7x16 // ⿲釒訁午
 
 # CJK unified ideographs extension H: 钅 (167')
 

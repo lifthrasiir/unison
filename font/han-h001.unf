@@ -92,8 +92,9 @@ glyph han-3139d-($han-regions):15x16 15 16 // 𱎝
 
 ## 9.4
 
-// glyph han-313a0:15x16 15 16 // 𱎠
-// ⿴ han-4e95 han-4eba // ⿴井人
+glyph han-313a0:15x16 15 16 // 𱎠
+ref han-4e95:15x16 // ⿴井人
+ref han-4eba:5x5 5 5
 
 // glyph han-313a3:15x16 15 16 // 𱎣
 // ⿺ han-4ecc han-4eba // ⿺仌人
@@ -492,7 +493,7 @@ glyph han-314d7:15x16 15 16 // 𱓗
 // ⿲ han-53e3 han-624c han-5bfa // ⿲口扌寺
 
 glyph han-314de:15x16 15 16 // 𱓞
-⿲ han-53e3:3x16-l han-4ebb:3x16 han-8a00:9x16 // ⿲口亻言
+⿲ han-53e3:3x16-l han-4ebb:3x16 han-8a00.0:9x16 // ⿲口亻言
 
 // glyph han-314df-($han-regions):15x16 15 16 // 𱓟
 // ⿲ han-53e3 han-6708 han-534a-($-1) // ⿲口月半
@@ -590,8 +591,8 @@ glyph han-31551:15x16 15 16 // 𱕑
 
 ## 30.16
 
-glyph han-31563-($han-regions):15x16 15 16 // 𱕣
-⿲ han-53e3:3x16-l han-8a01:5x16 han-8005-($-1):7x16 // ⿲口訁者
+glyph han-31563:15x16 15 16 // 𱕣
+⿲ han-53e3:3x16-l han-8a01.x:5x16 han-8005.0:7x16 // ⿲口訁者
 
 ## 30.17
 

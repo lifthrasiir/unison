@@ -1209,7 +1209,7 @@ glyph han-53f1:15x16 15 16 // 叱
 // ⿱ han-4e5d han-53e3 // ⿱九口
 
 glyph han-53f5:15x16 15 16 // 叵
-⿷ han-531a:15x16.14x14 han-53e3:10x12 4 2 // ⿷匚口
+⿷ han-531a:15x16.14x14 han-53e3:10x12 3 2 // ⿷匚口
 
 glyph han-53f6:15x16 15 16 // 叶
 ⿰ han-53e3:5x16-l 1 han-5341:9x16 // ⿰口十
@@ -2451,7 +2451,7 @@ glyph han-54ff:15x16 15 16 // 哿
 ⿱ han-52a0:15x8 han-53ef:15x8 // ⿱加可
 
 glyph han-5501:15x16 15 16 // 唁
-⿰ han-53e3:5x16-l 1 han-8a00:9x16 // ⿰口言
+⿰ han-53e3:5x16-l 1 han-8a00.0:9x16 // ⿰口言
 
 glyph han-5504:15x16 15 16 // 唄
 ⿰ han-53e3:8x16 1 han-8c9d:6x16 // ⿰口貝

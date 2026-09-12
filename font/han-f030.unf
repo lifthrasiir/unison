@@ -332,7 +332,7 @@ glyph han-2d2f4:15x16 15 16 // 𭋴
 // ⿳ han-5405 han-8033 han-5405 // ⿳吅耳吅
 
 glyph han-2d304:15x16 15 16 // 𭌄
-⿲ -1 han-53e3:3x16-l han-8a01:5x16 han-5468:8x16 // ⿲口訁周
+⿲ -1 han-53e3:3x16-l han-8a01.0:5x16 han-5468:8x16 // ⿲口訁周
 
 glyph han-2d305:15x16 15 16 // 𭌅
 ⿲ -2 han-53e3:3x16-l han-7f8a:7x16 han-66f7:7x16 // ⿲口羊曷

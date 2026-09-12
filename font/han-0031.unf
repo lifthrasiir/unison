@@ -500,7 +500,7 @@ glyph han-56fd.0:* = han-56fd:*
 ## 31.7
 
 glyph han-5701:15x16 15 16 // 圁
-⿴ han-56d7:15x16.11x12 han-8a00:11x10 2 3 // ⿴囗言
+⿴ han-56d7:15x16.11x12 han-8a00.0:11x11 2 3 // ⿴囗言
 
 // glyph han-5703:15x16 15 16 // 圃
 // ⿴ han-56d7 han-752b // ⿴囗甫
@@ -1515,8 +1515,8 @@ glyph han-583c:15x16 15 16 // 堼
 glyph han-5859:15x16 15 16 // 塙
 ⿰ han-571f:7x16 1 han-9ad8:7x16 // ⿰土高
 
-// glyph han-585b:15x16 15 16 // 塛
-// ⿰ han-571f han-6817 // ⿰土栗
+glyph han-585b:15x16 15 16 // 塛
+⿰ han-571f:5x16-l 1 han-6817:9x16 // ⿰土栗
 
 // glyph han-5863:15x16 15 16 // 塣
 // ⿱ han-6d67 han-571f // ⿱浧土

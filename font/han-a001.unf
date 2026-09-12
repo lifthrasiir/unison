@@ -738,8 +738,8 @@ glyph han-35ca:15x16 15 16 // 㗊
 // glyph han-35d7:15x16 15 16 // 㗗
 // ⿰ han-53e6 han-5351 // ⿰另卑
 
-// glyph han-35da:15x16 15 16 // 㗚
-// ⿰ han-53e3 han-6817 // ⿰口栗
+glyph han-35da:15x16 15 16 // 㗚
+⿰ han-53e3:5x16-l 1 han-6817:9x16 // ⿰口栗
 
 glyph han-35de:15x16 15 16 // 㗞
 ⿲ -1 han-53e3:3x16-l han-77f3:5x16 han-76ae:8x16 // ⿲口石皮
@@ -1097,7 +1097,7 @@ glyph han-3700:15x16 15 16 // 㜀
 // ⿱ han-5c01 han-5973 // ⿱封女
 
 glyph han-3703:15x16 15 16 // 㜃
-⿲ han-5973:5x16-l han-4ebb:3x16 han-8a00:7x16 // ⿲女亻言
+⿲ han-5973:5x16-l han-4ebb:3x16 han-8a00.0:7x16 // ⿲女亻言
 
 // glyph han-3704:15x16 15 16 // 㜄
 // ⿰ han-5973 han-98a8 // ⿰女風

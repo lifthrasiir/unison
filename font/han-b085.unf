@@ -284,7 +284,7 @@ glyph han-23d64:15x16 15 16 // 𣵤
 ⿲ han-6c35:3x16 han-4ebb:3x16 han-65e6:9x16 // ⿲氵亻旦
 
 glyph han-23d67:15x16 15 16 // 𣵧
-⿰ han-6c35:5x16 1 han-8a00:9x16 // ⿰氵言
+⿰ han-6c35:5x16 1 han-8a00.0:9x16 // ⿰氵言
 
 // glyph han-23d69:15x16 15 16 // 𣵩
 // ⿰ han-6c35 han-2418d // ⿰氵𤆍

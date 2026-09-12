@@ -959,8 +959,8 @@ glyph han-6132:15x16 15 16 // 愲
 // glyph han-613a:15x16 15 16 // 愺
 // ⿰ han-5fc4 han-8349 // ⿰忄草
 
-// glyph han-6144:15x16 15 16 // 慄
-// ⿰ han-5fc4 han-6817 // ⿰忄栗
+glyph han-6144:15x16 15 16 // 慄
+⿰ han-5fc4:5x16 1 han-6817:9x16 // ⿰忄栗
 
 // glyph han-6150:15x16 15 16 // 慐
 // ⿳ han-5de5 han-8c9d han-5fc3 // ⿳工貝心 <- ⿱貢心

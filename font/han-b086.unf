@@ -317,7 +317,7 @@ glyph han-24256:15x16 15 16 // 𤉖
 ⿰ han-706b:5x16 1 han-8eca:9x16 // ⿰火車
 
 glyph han-24258:15x16 15 16 // 𤉘
-⿰ han-706b:5x16-l 1 han-8a00:9x16 // ⿰火言
+⿰ han-706b:5x16-l 1 han-8a00.0:9x16 // ⿰火言
 
 glyph han-2425a:15x16 15 16 // 𤉚
 ⿲ -1 han-706b:5x16-l 1 han-53e3:3x16-l han-6b20:7x16 // ⿲火口欠
@@ -517,8 +517,8 @@ glyph han-24304-($han-regions):15x16 15 16 // 𤌄
 // glyph han-24322:15x16 15 16 // 𤌢
 // ⿰ han-706b han-43a1 // ⿰火䎡
 
-// glyph han-24323:15x16 15 16 // 𤌣
-// ⿰ han-706b han-6817 // ⿰火栗
+glyph han-24323:15x16 15 16 // 𤌣
+⿰ han-706b:5x16-l 1 han-6817:9x16 // ⿰火栗
 
 // glyph han-2432a:15x16 15 16 // 𤌪
 // ⿰ han-706b han-4673 // ⿰火䙳

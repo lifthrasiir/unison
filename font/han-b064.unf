@@ -478,7 +478,7 @@ glyph han-22c39-($han-regions):15x16 15 16 // 𢰹
 // ⿰ han-624c han-67b6 // ⿰扌架
 
 glyph han-22c4f:15x16 15 16 // 𢱏
-⿲ han-624c:3x16 han-8a01:5x16 han-4e01:7x16 // ⿲扌訁丁
+⿲ han-624c:3x16 han-8a01.x:5x16 han-4e01:7x16 // ⿲扌訁丁
 
 glyph han-22c50:15x16 15 16 // 𢱐
 ⿲ han-624c:3x16 han-5973:5x16 han-5146:7x16 // ⿲扌女兆

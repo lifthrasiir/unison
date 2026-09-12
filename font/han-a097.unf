@@ -545,7 +545,7 @@ glyph han-40b0:15x16 15 16 // 䂰
 ⿲ han-77f3:5x16 han-79be:5x16 han-5202:5x16 // ⿲石禾刂
 
 glyph han-40b4:15x16 15 16 // 䂴
-⿰ han-77f3:8x16 han-8a00:7x16 // ⿰石言
+⿰ han-77f3:8x16 han-8a00.0:7x16 // ⿰石言
 
 ## 112.8
 
@@ -613,8 +613,12 @@ glyph han-40e8:15x16 15 16 // 䃨
 
 ## 112.16
 
-glyph han-40f4-($han-regions):15x16 15 16 // 䃴
-⿲ -1 han-77f3:5x16 1 han-8a01:5x16 han-8005-($-1):5x16 // ⿲石訁者
+glyph han-40f4-(g|t):15x16 15 16 // 䃴
+⿲ -1 han-77f3:5x16 1 han-8a01.x:5x16 han-8005.0:5x16 // ⿲石訁者
+glyph han-40f4-(j|k):15x16 15 16 // 䃴
+⿲ -1 han-77f3:5x16 1 han-8a01.0:5x16 han-8005.1:5x16 // ⿲石訁者
+glyph han-40f4-(p):15x16 15 16 // 䃴
+⿲ -1 han-77f3:5x16 1 han-8a01.x:5x16 han-8005.1:5x16 // ⿲石訁者
 
 # CJK unified ideographs extension A: 示 (113)
 
@@ -1245,5 +1249,8 @@ glyph han-42a9:15x16 15 16 // 䊩
 
 ## 119.16
 
-glyph han-42b0-($han-regions):15x16 15 16 // 䊰
-⿲ han-7c73:5x16 han-8a01:5x16 han-8005-($-1):5x16 // ⿲米訁者
+glyph han-42b0-(g|t):15x16 15 16 // 䊰
+⿲ han-7c73:5x16 han-8a01.x:5x16 han-8005.0:5x16 // ⿲米訁者
+glyph han-42b0-(k|p):15x16 15 16 // 䊰
+⿲ han-7c73:5x16 han-8a01.0:5x16 han-8005.1:5x16 // ⿲米訁者
+

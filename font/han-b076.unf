@@ -122,7 +122,7 @@ glyph han-238de:15x16 15 16 // 𣣞
 ⿰ han-8ecd:7x16 1 han-6b20:7x16 // ⿰軍欠
 
 glyph han-238e2:15x16 15 16 // 𣣢
-⿲ han-4ebb:3x16 han-8a00:5x16 han-6b20:7x16 // ⿲亻言欠
+⿲ han-4ebb:3x16 han-8a00.0:5x16 han-6b20:7x16 // ⿲亻言欠
 
 // glyph han-238ea:15x16 15 16 // 𣣪
 // ⿲ han-65a4 han-767d han-6b20 // ⿲斤白欠

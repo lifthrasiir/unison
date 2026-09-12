@@ -775,8 +775,8 @@ glyph han-641f:15x16 15 16 // 搟
 // glyph han-6428-($han-regions):15x16 15 16 // 搨
 // ⿰ han-624c han-26407-($-1) // ⿰扌𦐇
 
-// glyph han-642e:15x16 15 16 // 搮
-// ⿰ han-624c han-6817 // ⿰扌栗
+glyph han-642e:15x16 15 16 // 搮
+⿰ han-624c:5x16 1 han-6817:9x16 // ⿰扌栗
 
 glyph han-6430:15x16 15 16 // 搰
 ⿰ han-624c:5x16 1 han-9aa8:9x16 // ⿰扌骨

@@ -342,8 +342,8 @@ glyph han-260ba:15x16 15 16 // 𦂺
 // glyph han-260c4:15x16 15 16 // 𦃄
 // ⿰ han-7cf9 han-532a // ⿰糹匪
 
-// glyph han-260ca:15x16 15 16 // 𦃊
-// ⿰ han-7cf9 han-6817 // ⿰糹栗
+glyph han-260ca:15x16 15 16 // 𦃊
+⿰ han-7cf9:5x16 1 han-6817:9x16 // ⿰糹栗
 
 glyph han-260d6:15x16 15 16 // 𦃖
 ⿲ han-7cf9:5x16 han-708e:7x16 han-5202:3x16 // ⿲糹炎刂

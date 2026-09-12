@@ -303,8 +303,15 @@ glyph han-6ac7:15x16 15 16 // 櫇
 
 ## 75.16
 
-glyph han-6ae7-($han-regions):15x16 15 16 // 櫧
-⿲ han-6728:5x16 han-8a01:5x16 han-8005-($-1):5x16 // ⿲木訁者
+glyph han-6ae7.0:15x16 15 16 // 櫧
+⿲ han-6728:5x16 han-8a01.0:5x16 han-8005.1:5x16 // ⿲木訁者
+glyph han-6ae7.x:15x16 15 16 // 櫧
+⿲ han-6728:5x16 han-8a01.x:5x16 han-8005.0:5x16 // ⿲木訁者
+glyph han-6ae7.y:15x16 15 16 // 櫧
+⿲ han-6728:5x16 han-8a01.0:5x16 han-8005.1:5x16 // ⿲木訁者
+glyph han-6ae7-(j|k):* = han-6ae7.0:*
+glyph han-6ae7-(g|h|t):* = han-6ae7.x:*
+glyph han-6ae7-p:* = han-6ae7.y:*
 
 // glyph han-6aec:15x16 15 16 // 櫬
 // ⿲ han-6728 han-4eb2 han-898b // ⿲木亲見 <- ⿰木親
