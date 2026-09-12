@@ -1,4 +1,5 @@
 CARGO = cargo
+CARGOBUILD = $(CARGO) build
 CARGOFLAGS = -r
 
 SRC = Cargo.* src/*.rs src/*/*.rs src/*/*/*.rs
@@ -50,6 +51,7 @@ clean:
 # every specimen from the font itself rather than from pre-rendered SVG, which
 # is why it is a fraction of the size of the sample pages it replaced.
 $(OUTPUTS): $(INPATH)/*.unf $(SRC)
+	$(CARGOBUILD) $(CARGOFLAGS)
 	$(CARGO) run $(CARGOFLAGS) -- build -i $(INPATH) -o $(TTC) -o unison-%.woff2 --woff2-quality $(WOFF2QUALITY) \
 	    --demo-html demo.html -d data
 

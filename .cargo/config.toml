@@ -1,6 +1,8 @@
 [alias]
+# Those aliases are intended for the author's own environment. Do not rely on them.
 xb = 'xbuild'
-xbuild = 'xwin build --target x86_64-pc-windows-msvc'
+#xbuild = 'xwin build --target x86_64-pc-windows-msvc'
+xbuild = 'tidybuild --xwin --target x86_64-pc-windows-msvc'
 # Both go through run-local.cmd, which copies the binary to a local disk and
 # runs the copy: the repo is on an SMB mount, and an image demand-paged over it
 # kills the process the moment the share cannot serve a cold page.
