@@ -69,21 +69,22 @@ The major differences (and possible advantages) are as follows:
 
 ## Coverage
 
-As of 2026-09-05:
+As of 2026-09-12:
 
 | Script | Status |
 |--------|--------|
 | Latin | Latin-1, Ext.A and Extended complete, Ext.B 50% |
-| IPA | Complete for characters in the modern use |
+| IPA | Complete for characters in the modern use, supports tone contours |
 | Greek | Main block 50% (enough for modern Greek), Extended >90% |
 | Cyrillic | Main block 70% (enough for many Slavic languages) |
 | Armenian | Complete |
 | Hebrew | Complete for modern Hebrew and Yiddish |
+| Cherokee | Complete |
 | Unified Canadian Aboriginal Syllabics | Complete |
 | Ogham | Complete |
 | Runic | Complete |
 | Kana | Placeholder glyphs only (100%) |
-| Han | Semi-automatically composed (URO ~20%, total 10+%), verification needed |
+| Han | Semi-automatically composed (URO 20+%, total 10+%), verification needed |
 | Hangul | Modern complete, archaic 80% |
 | General symbols | ~30% |
 | Mathematical symbols | ~20% |
