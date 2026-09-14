@@ -382,6 +382,33 @@ pub fn resolve_expanded_items(
     resolve_glyph_bodies(bodies, aliases, name_parts, &aligns, cancel, grid_cache)
 }
 
+/// [`resolve_expanded_items`] for a caller that keeps the items as well: the
+/// editor's rebuild, which recomposes *beside* the font build and validation
+/// while both are still reading them, so that what the panes draw is not held
+/// back behind either.
+///
+/// What resolution takes ownership of — each glyph's name and body — is cloned
+/// as it is read, and nothing else: the `map` items, which are most of an
+/// expansion, are never copied.
+#[cfg(feature = "editor")]
+pub fn resolve_expanded_items_shared(
+    items: &[crate::render::ttf_builder::ExpandedItem],
+    aliases: &crate::alias::AliasMap,
+    name_parts: &NamePartsMap,
+    cancel: &crate::cancel::CancelToken,
+    grid_cache: Option<&mut CompositeGridCache>,
+) -> (HashMap<String, ResolvedGlyph>, AlternativesIndex) {
+    let aligns = crate::document::collect_anchor_aligns(items.iter().map(|e| &e.item));
+    let bodies = items.iter().filter_map(|e| match &e.item {
+        DocumentItem::Glyph {
+            name: GlyphName(key),
+            body,
+        } => Some((key.clone(), body.clone())),
+        _ => None,
+    });
+    resolve_glyph_bodies(bodies, aliases, name_parts, &aligns, cancel, grid_cache)
+}
+
 /// Flatten `roots` and everything they reach, and nothing else.
 ///
 /// This is what a caller with no [`Expansion`](crate::render::ttf_builder::Expansion)

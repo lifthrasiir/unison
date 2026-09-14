@@ -61,9 +61,11 @@ enum FontBuildOutcome {
     Cancelled,
 }
 type FontBuildMessage = (u64, FontBuildOutcome);
-/// What one derived-data rebuild produces. A struct rather than a tuple
-/// because every consumer picks fields out of it by name.
-struct DerivedDataMessage {
+/// What a rebuild sends the moment its composites exist: everything a pane
+/// draws a glyph from. It goes ahead of validation, which the drawing does not
+/// need; see `background`'s module docs. A struct rather than a tuple because
+/// every consumer picks fields out of it by name.
+struct ResolvedMessage {
     build_gen: u64,
     named_glyphs: HashMap<String, ResolvedGlyph>,
     alt_index: crate::editor::ref_composite::AlternativesIndex,
@@ -77,14 +79,19 @@ struct DerivedDataMessage {
     exists_matches: crate::exists::FirstMatches,
     char_props: crate::ucd::CharProps,
     meta: crate::meta::FontMetrics,
+    /// Every face the source declares, in declaration order, for the face
+    /// picker. Resolution already collects them, so nothing else has to.
+    face_ids: Vec<String>,
+}
+/// What the rest of a rebuild produces: the findings, and what is read off
+/// them.
+struct DerivedDataMessage {
+    build_gen: u64,
     issues: Vec<Issue>,
     /// The line ids of the documents the issues were computed from.
     issue_line_ids: crate::editor::issue_marks::LineIdSnapshot,
     /// Which glyphs those issues are about, the specimen's cell backgrounds.
     glyph_flags: crate::glyph_flags::GlyphFlags,
-    /// Every face the source declares, in declaration order, for the face
-    /// picker. Resolution already collects them, so nothing else has to.
-    face_ids: Vec<String>,
     /// What the specimen reads out of the documents, when its tab is open —
     /// a third full expansion, and the reason it is not done on the UI thread.
     /// See [`crate::specimen::SpecimenData`].
@@ -93,12 +100,14 @@ struct DerivedDataMessage {
     /// [`timing`].
     timing: timing::BackgroundTiming,
 }
-/// How one derived-data thread ended. `Failed` is a rebuild that died on the
-/// way (see `background::ResultSlot`) and `Cancelled` one that was superseded
-/// mid-resolve; both leave the previous derived data in place, since a stale
-/// view of the font beats none, but only the first is worth telling the user
-/// about.
+/// What a rebuild sends on the derived-data channel, in this order: at most one
+/// `Resolved`, then exactly one of the other three, which is what ends the
+/// rebuild and frees its slot. `Failed` is a rebuild that died on the way (see
+/// `background::ResultSlot`) and `Cancelled` one that was superseded; both leave
+/// the previous findings in place, since a stale view of the font beats none,
+/// but only the first is worth telling the user about.
 enum DerivedDataResult {
+    Resolved(Box<ResolvedMessage>),
     Done(Box<DerivedDataMessage>),
     Failed,
     Cancelled,

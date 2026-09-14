@@ -259,11 +259,16 @@ struct RebuildTiming {
 
 #[cfg(feature = "editor")]
 impl RebuildTiming {
-    /// What the edit costs, with the pairs that overlap counted once: the font
-    /// build runs beside validation, and the recomposition beside the
-    /// specimen's data.
+    /// What the edit costs, with the stages that overlap counted once: the
+    /// font build, validation and the recomposition run at once, and the
+    /// specimen's data after them.
     fn total(&self) -> std::time::Duration {
-        self.expand + self.font.max(self.validate + self.flags) + self.recompose.max(self.specimen)
+        self.expand
+            + self
+                .font
+                .max(self.validate + self.flags)
+                .max(self.recompose)
+            + self.specimen
     }
 }
 
@@ -449,8 +454,55 @@ fn run_edit_probe(input: &std::path::Path, repeats: usize) {
         cancels.push((delay, ended));
     }
 
+    // When each result reaches the editor with the stages really at once, which
+    // the table above can only model: on a machine with few cores, running
+    // three stages together is not three times as fast as running one.
+    let never = cancel::CancelToken::never();
+    let mut milestones: Vec<Milestones> = Vec::new();
+    for _ in 0..3 {
+        edit_one_pixel(&mut docs);
+        milestones.extend(rebuild_like_the_editor(
+            &docs,
+            &contour_cache,
+            &mut grid_cache,
+            &never,
+        ));
+    }
+
     print!("{}", edit_probe_report(&rows));
+    print!("{}", milestone_report(&milestones));
     print!("{}", cancel_probe_report(&cancels));
+}
+
+/// When each result of [`rebuild_like_the_editor`] would be sent to the editor,
+/// counted from the rebuild starting.
+#[cfg(feature = "editor")]
+#[derive(Clone, Copy)]
+struct Milestones {
+    font: std::time::Duration,
+    composites: std::time::Duration,
+    done: std::time::Duration,
+}
+
+#[cfg(feature = "editor")]
+fn milestone_report(rows: &[Milestones]) -> String {
+    let ms = |d: std::time::Duration| format!("{:.1} ms", d.as_secs_f64() * 1000.0);
+    let mut out = String::from(
+        "\nOne pixel, as the editor runs it\n================================\n\n\
+         From the rebuild starting to each result being sent: the font, the\n\
+         composites the editor draws, and the rest (issues, flags, specimen).\n\n\
+         pass           font     composites           done\n",
+    );
+    for (i, m) in rows.iter().enumerate() {
+        out.push_str(&format!(
+            "  {:<4}{:>11}{:>15}{:>15}\n",
+            i + 1,
+            ms(m.font),
+            ms(m.composites),
+            ms(m.done)
+        ));
+    }
+    out
 }
 
 /// One rebuild in the shape `app::background::UniformApp::rebuild` runs it —
@@ -465,57 +517,59 @@ fn rebuild_like_the_editor(
     contour_cache: &render::SharedContourCache,
     grid_cache: &mut ref_composite::CompositeGridCache,
     cancel: &cancel::CancelToken,
-) {
+) -> Option<Milestones> {
+    let started = std::time::Instant::now();
     let refs: Vec<&document::Document> = docs.iter().collect();
-    let Some(resolution) = resolve::Resolution::compute_cancellable(&refs, cancel) else {
-        return;
-    };
-    let (font, glyph_flags) = std::thread::scope(|s| {
+    let resolution = resolve::Resolution::compute_cancellable(&refs, cancel)?;
+    let expansion = &resolution.expansion;
+    let ((font, font_at), composites_at, glyph_flags) = std::thread::scope(|s| {
         let build = s.spawn(|| {
-            render::build_font_pair_cached_from(&refs, contour_cache, &resolution, None, cancel)
+            let font = render::build_font_pair_cached_from(
+                &refs,
+                contour_cache,
+                &resolution,
+                None,
+                cancel,
+            );
+            (font, started.elapsed())
+        });
+        let resolve = s.spawn(|| {
+            let _char_props = ucd::CharProps::collect(&refs);
+            let _scoped = document::SliceNameParts::with_base(&refs, resolution.name_parts.clone());
+            let _first = exists::FirstMatches::collect(&refs, &expansion.exists);
+            let _ = ref_composite::resolve_expanded_items_shared(
+                &expansion.items,
+                &expansion.aliases,
+                &resolution.name_parts,
+                cancel,
+                Some(grid_cache),
+            );
+            started.elapsed()
         });
         let flags = issues::collect_issues_cancellable(&refs, &resolution, cancel)
-            .map(|issues| glyph_flags::collect(&refs, &issues, &resolution.expansion));
-        (build.join().unwrap(), flags)
+            .map(|issues| glyph_flags::collect(&refs, &issues, expansion));
+        (build.join().unwrap(), resolve.join().unwrap(), flags)
     });
     let (Some(glyph_flags), false) = (glyph_flags, cancel.is_cancelled()) else {
-        return;
+        return None;
     };
-    let gid_map = font.map(|f| f.name_to_gid);
-
-    let _char_props = ucd::CharProps::collect(&refs);
-    let name_parts = resolution.name_parts;
-    let _scoped = document::SliceNameParts::with_base(&refs, name_parts.clone());
-    let _first = exists::FirstMatches::collect(&refs, &resolution.expansion.exists);
-    let render::ttf_builder::Expansion {
-        items,
-        aliases,
-        exists,
-        ..
-    } = resolution.expansion;
-    std::thread::scope(|s| {
-        s.spawn(|| {
-            gid_map.as_ref().map(|gid_map| {
-                specimen::SpecimenData::collect(
-                    &refs,
-                    &name_parts,
-                    &exists,
-                    &aliases,
-                    gid_map,
-                    None,
-                    &glyph_flags,
-                    cancel,
-                )
-            })
-        });
-        let _ = ref_composite::resolve_expanded_items(
-            items,
-            &aliases,
-            &name_parts,
+    if let Some(font) = font {
+        specimen::SpecimenData::collect(
+            &refs,
+            &resolution.name_parts,
+            &expansion.exists,
+            &expansion.aliases,
+            &font.name_to_gid,
+            None,
+            &glyph_flags,
             cancel,
-            Some(grid_cache),
         );
-    });
+    }
+    Some(Milestones {
+        font: font_at,
+        composites: composites_at,
+        done: started.elapsed(),
+    })
 }
 
 #[cfg(feature = "editor")]
@@ -611,9 +665,9 @@ fn edit_probe_report(rows: &[RebuildTiming]) -> String {
         );
     }
     out.push_str(
-        "One expansion feeds the font build and validation, which run at once;\n\
-         the recomposition and the specimen's data then run at once too. The\n\
-         total counts each pair once. The specimen is only collected when its\n\
+        "One expansion feeds the font build, validation and the recomposition,\n\
+         which run at once; the specimen's data follows them. The total counts\n\
+         the overlapping stages once. The specimen is only collected when its\n\
          tab is open, which is the case measured here.\n\n",
     );
     out.push_str(

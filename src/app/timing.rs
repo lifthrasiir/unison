@@ -44,12 +44,15 @@ pub(super) struct BackgroundTiming {
     pub(super) font: Duration,
     pub(super) validate: Duration,
     pub(super) flags: Duration,
+    /// Beside the font build and validation, since what it produces is sent
+    /// ahead of both.
     pub(super) recompose: Duration,
     /// Collecting what the specimen reads out of the documents, which runs
-    /// beside the recomposition and only when its tab is open — zero otherwise.
+    /// after the font build and validation (it reads both) and only when its
+    /// tab is open — zero otherwise.
     pub(super) specimen: Duration,
     /// The thread's own wall time, which is less than the sum above: the font
-    /// build and validation run at once.
+    /// build, validation and the recomposition run at once.
     pub(super) total: Duration,
 }
 
@@ -74,7 +77,11 @@ pub(super) struct RebuildTiming {
     pub(super) slowest_frame: Option<Duration>,
     /// Edit to the font being on screen.
     pub(super) to_font: Option<Duration>,
-    /// Edit to the derived data — names, issues, glyph flags — being applied.
+    /// Edit to the composites the panes draw being applied, which is when a
+    /// `ref` edit shows in the editor.
+    pub(super) to_resolved: Option<Duration>,
+    /// Edit to the rest of the derived data — issues, glyph flags, the
+    /// specimen's data — being applied.
     pub(super) to_derived: Option<Duration>,
     pub(super) cancelled: bool,
 }
@@ -137,6 +144,13 @@ impl RebuildLog {
         self.watch_frames_until = Some(Instant::now() + Duration::from_millis(500));
         if let Some(entry) = self.entry(build_gen) {
             entry.to_font = elapsed;
+        }
+    }
+
+    pub(super) fn resolved_applied(&mut self, build_gen: u64) {
+        let elapsed = self.since_edit();
+        if let Some(entry) = self.entry(build_gen) {
+            entry.to_resolved = elapsed;
         }
     }
 
@@ -208,10 +222,10 @@ impl RebuildLog {
             );
         }
         out.push_str(
-            "One edit, from the debounce to the font being on screen. The font build\n\
-             and validation run at once on the background thread, so its total is less\n\
-             than their sum; `apply font` and `specimen` are on the UI thread, in a\n\
-             later frame. A dash is a stage this rebuild never reached.\n\n",
+            "One edit, from the debounce to the font being on screen. The font build,\n\
+             validation and the recomposition run at once on the background thread, so\n\
+             its total is less than their sum; `apply font` and `specimen` are on the UI\n\
+             thread, in a later frame. A dash is a stage this rebuild never reached.\n\n",
         );
 
         // First, because it belongs to no rebuild and answers a question the
@@ -263,6 +277,7 @@ impl RebuildLog {
             out.push_str(&row("slowest frame after", entry.slowest_frame));
             out.push_str("  -- end to end --\n");
             out.push_str(&row("edit to font on screen", entry.to_font));
+            out.push_str(&row("edit to composites applied", entry.to_resolved));
             out.push_str(&row("edit to derived applied", entry.to_derived));
             out.push('\n');
         }

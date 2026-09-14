@@ -238,6 +238,7 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Files changed outside the editor; F5; the poll backend | `app/watch.rs` (`request_refresh`, `run_scan`, `apply_directory_snapshot`, `poll_snapshot`, `next_poll_delay`) |
 | Saving off the UI thread, the revision a write is credited to, why quitting waits, why the bytes are recorded first | `app/save.rs`, `editor/undo.rs` (`SavePoint`), `app/docs.rs` (`knows_disk_bytes`, `confirm_close_and_maybe_save`) |
 | Rebuild debouncing, generations, one build at a time, cancellation, why the font result is sent early | `app/background.rs` (`UniformApp::rebuild`, `take_current_font_build`, `arm_initial_font_build`, `set_selected_face`), `cancel.rs`, `specimen.rs` |
+| Why a rebuild sends the composites ahead of validation, and what the recomposition borrows to run beside it | `app/background.rs` (`# Three results`, `take_derived_data`), `app/mod.rs` (`ResolvedMessage`), `ref_composite/mod.rs` (`resolve_expanded_items_shared`) |
 | Which stages notice a cancel, and why the next edit waits for the ones that do not | `issues/mod.rs` (`collect_issues_cancellable`), `render/ttf_builder/expand.rs` (`expand_documents_cancellable`), `main.rs` (`rebuild_like_the_editor`) |
 | Why the remembered face is applied before the first build | `app/mod.rs` (`with_settings`) |
 | What survives between runs, where the settings file lives | `app/settings.rs`, `main.rs` (`with_app_id`) |

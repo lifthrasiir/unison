@@ -35,6 +35,23 @@
 //! Results carry the generation of the request that produced them, and consumers
 //! key their caches on the generation of the *result* they read, never of the
 //! request; [`crate::specimen`] is where getting that wrong shows.
+//!
+//! # Three results, each sent when it exists
+//!
+//! A rebuild sends three messages: the font, on a channel of its own, the moment
+//! its bytes exist; the composites the panes draw ([`ResolvedMessage`]), the
+//! moment the recomposition is done; and the rest — the findings, the glyph
+//! flags, the specimen's data — which is also the message that ends the rebuild
+//! and frees its slot. The recomposition used to follow validation and travel
+//! with it, so on a slow machine a `ref` edit stayed invisible for most of a
+//! second longer than it had to, waiting on findings the drawing never reads.
+//! It runs beside the font build and validation instead, over items it borrows
+//! rather than consumes (`ref_composite::resolve_expanded_items_shared`).
+//!
+//! A superseded rebuild may still deliver its composites: they are complete for
+//! the documents it started from, exactly as a rebuild that finished just before
+//! the edit would have been. Only a recomposition that was itself cancelled is
+//! held back, being partial.
 
 use super::docs::shadowed_by_open;
 use super::*;
@@ -164,12 +181,14 @@ fn take_current_font_build(
     received
 }
 
-fn take_latest_derived_data(rx: &mpsc::Receiver<DerivedDataResult>) -> Option<DerivedDataResult> {
-    let mut received = None;
-    while let Ok(msg) = rx.try_recv() {
-        received = Some(msg);
-    }
-    received
+/// Drains the derived-data channel in the order the rebuild sent it.
+///
+/// A rebuild sends its composites ahead of everything else, and both may be
+/// waiting by the time the UI looks. Keeping only the last message — which was
+/// right while a rebuild sent one — would drop the composites whenever the rest
+/// was quick to follow.
+fn take_derived_data(rx: &mpsc::Receiver<DerivedDataResult>) -> Vec<DerivedDataResult> {
+    rx.try_iter().collect()
 }
 
 impl UniformApp {
@@ -372,8 +391,12 @@ impl UniformApp {
         let font_ctx = ctx.clone();
         let ctx = ctx.clone();
         std::thread::spawn(move || {
-            // Dropped in reverse order of declaration, so the derived result
-            // goes out first; either message frees the slot.
+            // The composites go out on the derived channel ahead of the slot's
+            // own message, and are not what frees the slot.
+            let resolved_tx = derived_tx.clone();
+            let resolved_ctx = ctx.clone();
+            // The font slot is sent from the font build's own thread below;
+            // this one is what ends the rebuild, however it ends.
             let mut font_slot =
                 ResultSlot::new(font_tx, font_ctx, (build_gen, FontBuildOutcome::Done(None)));
             let mut slot = ResultSlot::new(derived_tx, ctx, DerivedDataResult::Failed);
@@ -389,80 +412,141 @@ impl UniformApp {
             };
             timing.expand = t0.elapsed();
 
-            // The font build and validation both read the expansion, and
-            // neither writes anything the other looks at, so they run at once.
+            // Three things read the expansion and none of them writes anything
+            // another looks at, so they run at once — the font build, the
+            // recomposition behind what the panes draw, and validation — and
+            // the first two send their result the moment it exists. See the
+            // module docs for why the composites do not wait for validation.
             let face_id = (!face.is_empty()).then_some(face.as_str());
-            let ((pair, font_took), (issues, glyph_flags, validate_took, flags_took)) =
-                std::thread::scope(|scope| {
-                    let build = scope.spawn(|| {
-                        let t = std::time::Instant::now();
-                        // Whichever face is selected: the expansion above is
-                        // face-independent, so the build is always the lent
-                        // one. Picking a secondary face used to fall back to
-                        // expanding again for it, on every edit.
-                        let pair = crate::render::build_font_pair_cached_from(
-                            &refs,
-                            &contour_cache,
-                            &resolution,
-                            face_id,
-                            &cancel,
-                        );
-                        (pair, t.elapsed())
-                    });
+            let face_ids: Vec<String> = resolution
+                .faces
+                .faces
+                .iter()
+                .map(|f| f.id.clone())
+                .collect();
+            let expansion = &resolution.expansion;
+            let (
+                (gid_map, font_took),
+                (recompose_took, (hits, misses)),
+                (issues, glyph_flags, validate_took, flags_took),
+            ) = std::thread::scope(|scope| {
+                let build = scope.spawn(|| {
                     let t = std::time::Instant::now();
-                    // Cancellable, because the next rebuild waits for this one
-                    // to return, and validation is most of a second on a slow
-                    // machine; see `collect_issues_cancellable`.
-                    let issues =
-                        crate::issues::collect_issues_cancellable(&refs, &resolution, &cancel);
-                    let validate_took = t.elapsed();
-                    // Computed here rather than on the UI thread because it
-                    // needs the expansion, which the glyph cache consumes below.
-                    let t = std::time::Instant::now();
-                    let glyph_flags = issues.as_ref().map(|issues| {
-                        crate::glyph_flags::collect(&refs, issues, &resolution.expansion)
-                    });
-                    // Read before the join, or the wait for the font build —
-                    // which is the *other* leg of this scope and usually the
-                    // longer one — is charged to whatever was measured last.
-                    let flags_took = t.elapsed();
-                    (
-                        build.join().unwrap(),
-                        (issues, glyph_flags, validate_took, flags_took),
-                    )
+                    // Whichever face is selected: the expansion above is
+                    // face-independent, so the build is always the lent one.
+                    // Picking a secondary face used to fall back to expanding
+                    // again for it, on every edit.
+                    let pair = crate::render::build_font_pair_cached_from(
+                        &refs,
+                        &contour_cache,
+                        &resolution,
+                        face_id,
+                        &cancel,
+                    );
+                    let took = t.elapsed();
+                    // Copied before the pair leaves for the UI, and only where
+                    // the specimen is going to be collected below: it needs the
+                    // *built* font's glyph set, which is the only honest answer
+                    // to whether a cell can be drawn.
+                    let gid_map = want_specimen
+                        .then(|| pair.as_ref().map(|p| p.name_to_gid.clone()))
+                        .flatten();
+                    // A cancelled build returns `None` like a failed one; only
+                    // the token tells the two apart, and only so a cancellation
+                    // does not blank the displayed font.
+                    font_slot.set((
+                        build_gen,
+                        if cancel.is_cancelled() {
+                            FontBuildOutcome::Cancelled
+                        } else {
+                            FontBuildOutcome::Done(pair)
+                        },
+                    ));
+                    // Sent from here, the moment the bytes exist, because a
+                    // `ResultSlot` delivers on drop and nothing else this
+                    // rebuild does is anything the font waits for.
+                    drop(font_slot);
+                    (gid_map, took)
                 });
+                let recompose = scope.spawn(|| {
+                    let t = std::time::Instant::now();
+                    let char_props = crate::ucd::CharProps::collect(&refs);
+                    // The editor resolves the names on a slice-qualified line —
+                    // a `map wide|narrow : … = triple-star($-half)` — with the
+                    // bindings those slices make, so it needs the scoped map
+                    // beside the plain one. Built here rather than on the UI
+                    // thread for the usual reason: it walks every document.
+                    let scoped_name_parts = crate::document::SliceNameParts::with_base(
+                        &refs,
+                        resolution.name_parts.clone(),
+                    );
+                    // The editor draws a search-scoped block as its first
+                    // match, and the expansion is the only place that holds
+                    // the searches at all.
+                    let exists_matches =
+                        crate::exists::FirstMatches::collect(&refs, &expansion.exists);
+                    // Borrowed, not consumed: the font build and validation are
+                    // reading the same items right now.
+                    let mut gc = grid_cache.lock().unwrap();
+                    let (named_glyphs, alt_index) =
+                        crate::ref_composite::resolve_expanded_items_shared(
+                            &expansion.items,
+                            &expansion.aliases,
+                            &resolution.name_parts,
+                            &cancel,
+                            Some(&mut gc),
+                        );
+                    let stats = gc.stats();
+                    drop(gc);
+                    // A cancelled recomposition stopped part-way, so what it
+                    // holds is a partial font: it is not published, and the
+                    // message that ends this rebuild says `Cancelled`.
+                    if !cancel.is_cancelled() {
+                        let _ = resolved_tx.send(DerivedDataResult::Resolved(Box::new(
+                            ResolvedMessage {
+                                build_gen,
+                                named_glyphs,
+                                alt_index,
+                                name_parts: resolution.name_parts.clone(),
+                                scoped_name_parts,
+                                exists_matches,
+                                char_props,
+                                meta: resolution.meta.metrics.clone(),
+                                face_ids,
+                            },
+                        )));
+                        resolved_ctx.request_repaint();
+                    }
+                    (t.elapsed(), stats)
+                });
+                let t = std::time::Instant::now();
+                // Cancellable, because the next rebuild waits for this one to
+                // return, and validation is most of a second on a slow
+                // machine; see `collect_issues_cancellable`.
+                let issues = crate::issues::collect_issues_cancellable(&refs, &resolution, &cancel);
+                let validate_took = t.elapsed();
+                let t = std::time::Instant::now();
+                let glyph_flags = issues
+                    .as_ref()
+                    .map(|issues| crate::glyph_flags::collect(&refs, issues, expansion));
+                // Read before the joins, or the wait for the other legs of
+                // this scope is charged to whatever was measured last.
+                let flags_took = t.elapsed();
+                (
+                    build.join().unwrap(),
+                    recompose.join().unwrap(),
+                    (issues, glyph_flags, validate_took, flags_took),
+                )
+            });
             timing.font = font_took;
             timing.validate = validate_took;
             timing.flags = flags_took;
-            // A cancelled build returns `None` like a failed one; only the
-            // token tells the two apart, and only so a cancellation does not
-            // blank the displayed font.
-            // Copied before the pair leaves for the UI, and only where the
-            // specimen is going to be collected below: it needs the *built*
-            // font's glyph set, which is the only honest answer to whether a
-            // cell can be drawn.
-            let gid_map = want_specimen
-                .then(|| pair.as_ref().map(|p| p.name_to_gid.clone()))
-                .flatten();
-            font_slot.set((
-                build_gen,
-                if cancel.is_cancelled() {
-                    FontBuildOutcome::Cancelled
-                } else {
-                    FontBuildOutcome::Done(pair)
-                },
-            ));
-            // Sent now rather than when this thread ends, because a `ResultSlot`
-            // delivers on drop and everything below — the recomposition, the
-            // specimen's data — is work the *font* does not wait for. Holding it
-            // to the end made the font appear a second late for no reason, and
-            // made the two end-to-end numbers in the report read as one.
-            drop(font_slot);
+            timing.recompose = recompose_took;
 
             // Everything below is derived data for a document set an edit has
             // already replaced, and the rebuild for that edit is waiting for
             // this thread to end — so a cancellation noticed by now ends it
-            // here rather than after the recomposition and the specimen.
+            // here rather than after the specimen.
             let (Some(mut issues), Some(glyph_flags), false) =
                 (issues, glyph_flags, cancel.is_cancelled())
             else {
@@ -470,90 +554,36 @@ impl UniformApp {
                 return;
             };
 
-            let char_props = crate::ucd::CharProps::collect(&refs);
-            let face_ids: Vec<String> = resolution
-                .faces
-                .faces
-                .iter()
-                .map(|f| f.id.clone())
-                .collect();
-            let name_parts = resolution.name_parts;
-            // The editor resolves the names on a slice-qualified line — a
-            // `map wide|narrow : … = triple-star($-half)` — with the bindings
-            // those slices make, so it needs the scoped map beside the plain
-            // one. Built here rather than on the UI thread for the usual
-            // reason: it walks every document.
-            let scoped_name_parts =
-                crate::document::SliceNameParts::with_base(&refs, name_parts.clone());
-            // Before the expansion is consumed below: the editor draws a
-            // search-scoped block as its first match, and this is the only
-            // place that holds the searches at all.
-            let exists_matches =
-                crate::exists::FirstMatches::collect(&refs, &resolution.expansion.exists);
-            // Beside the recomposition, which shares none of its inputs: one
-            // reads the expansion, the other the documents.
-            // The searches and the aliases are kept back from the
-            // recomposition, which needs neither, so the specimen can read the
-            // ones this rebuild already derived instead of deriving them again.
-            let crate::render::ttf_builder::Expansion {
-                items,
-                aliases,
-                exists,
-                ..
-            } = resolution.expansion;
-            let mut gc = grid_cache.lock().unwrap();
-            let (specimen, (named_glyphs, alt_index, recompose_took)) =
-                std::thread::scope(|scope| {
-                    let collect = scope.spawn(|| {
-                        let gid_map = gid_map.as_ref()?;
-                        let t = std::time::Instant::now();
-                        let data = crate::specimen::SpecimenData::collect(
-                            &refs,
-                            &name_parts,
-                            &exists,
-                            &aliases,
-                            gid_map,
-                            face_id,
-                            &glyph_flags,
-                            &cancel,
-                        );
-                        Some((data, t.elapsed()))
-                    });
+            // After the three above rather than beside them: it reads both the
+            // built font's glyph set and the flags validation left.
+            let (specimen, specimen_took) = match gid_map.as_ref() {
+                Some(gid_map) => {
                     let t = std::time::Instant::now();
-                    let (named_glyphs, alt_index) =
-                        crate::editor::ref_composite::resolve_expanded_items(
-                            items,
-                            &aliases,
-                            &name_parts,
-                            &cancel,
-                            Some(&mut gc),
-                        );
-                    // Read before the join, or the wait for the other leg of
-                    // this scope is charged to this one.
-                    let recompose_took = t.elapsed();
-                    (
-                        collect.join().unwrap(),
-                        (named_glyphs, alt_index, recompose_took),
-                    )
-                });
-            timing.recompose = recompose_took;
-            let (specimen, specimen_took) = match specimen {
-                Some((data, took)) => (Some(data), took),
+                    let data = crate::specimen::SpecimenData::collect(
+                        &refs,
+                        &resolution.name_parts,
+                        &expansion.exists,
+                        &expansion.aliases,
+                        gid_map,
+                        face_id,
+                        &glyph_flags,
+                        &cancel,
+                    );
+                    (Some(data), t.elapsed())
+                }
                 None => (None, std::time::Duration::ZERO),
             };
             timing.specimen = specimen_took;
             timing.total = t0.elapsed();
             if perf_log_enabled() {
-                let (hits, misses) = gc.stats();
                 eprintln!(
                     "[perf] rebuild (background): {:?} (expand {:?}, font {:?}, validate {:?}, \
                      recompose {:?}; {misses} composite(s) recomposed, {hits} reused)",
                     timing.total, timing.expand, timing.font, timing.validate, timing.recompose,
                 );
             }
-            drop(gc);
-            // Resolution stops where it was interrupted, so what it holds is a
-            // partial font; it is discarded rather than published.
+            // A specimen collection that was cancelled stopped part-way; it is
+            // discarded rather than published.
             if cancel.is_cancelled() {
                 slot.set(DerivedDataResult::Cancelled);
                 return;
@@ -561,17 +591,9 @@ impl UniformApp {
             issues.splice(0..0, file_parse_errors);
             slot.set(DerivedDataResult::Done(Box::new(DerivedDataMessage {
                 build_gen,
-                named_glyphs,
-                alt_index,
-                meta: resolution.meta.metrics,
-                name_parts,
-                scoped_name_parts,
-                exists_matches,
-                char_props,
                 issues,
                 issue_line_ids,
                 glyph_flags,
-                face_ids,
                 specimen,
                 timing,
             })));
@@ -773,24 +795,13 @@ impl UniformApp {
             self.rebuild(ctx);
         }
 
-        if let Some(result) = take_latest_derived_data(&self.derived_data_rx) {
-            self.rebuild_inflight = false;
+        for result in take_derived_data(&self.derived_data_rx) {
             match result {
-                // The previous derived data stays in both non-`Done` cases — a
-                // stale view of the font beats none — but only a rebuild that
-                // *died* is something the user should hear about; one that was
-                // cancelled is about to be replaced by design.
-                DerivedDataResult::Failed => {
-                    self.status_message = Some((
-                        "Resolving the font sources failed (internal error).".to_string(),
-                        std::time::Instant::now(),
-                    ));
-                }
-                DerivedDataResult::Cancelled => {}
-                DerivedDataResult::Done(data) => {
+                // Not the end of the rebuild: the slot stays taken until the
+                // message that follows this one.
+                DerivedDataResult::Resolved(data) => {
                     let data = *data;
-                    self.rebuild_log
-                        .derived_applied(data.build_gen, data.timing);
+                    self.rebuild_log.resolved_applied(data.build_gen);
                     self.named_glyphs = std::sync::Arc::new(data.named_glyphs);
                     self.alt_index = data.alt_index;
                     self.name_parts = data.name_parts;
@@ -800,22 +811,11 @@ impl UniformApp {
                     self.font_meta = data.meta;
                     self.named_glyphs_gen = data.build_gen;
                     self.derived_gen = self.derived_gen.wrapping_add(1);
-                    self.issues = data.issues;
-                    self.issues_line_ids = data.issue_line_ids;
-                    self.issues_gen = data.build_gen;
-                    self.glyph_flags = data.glyph_flags;
                     // The list an edit to a `face` line changes; the startup
                     // one was collected from the same directives before the
                     // first build, so a remembered face is already selected by
                     // the time this arrives and no rebuild follows it.
                     self.face_ids = data.face_ids;
-                    // Keyed on the generations of the *results* it was
-                    // collected beside, which is what `SpecimenState` compares
-                    // against; see `crate::specimen::SpecimenState::cached_gen`.
-                    if let Some(specimen) = data.specimen {
-                        self.specimen
-                            .apply(specimen, self.font_data_gen, self.derived_gen);
-                    }
                     // The selection is not silently rewritten when its face
                     // goes away: the build falls back to the primary on its
                     // own, and an edit that briefly breaks a `face` line must
@@ -832,6 +832,39 @@ impl UniformApp {
                     drop(all_docs);
                     self.color_aliases = color_aliases;
                     self.anchor_aligns = anchor_aligns;
+                }
+                // The previous findings stay in both of these — a stale view
+                // of the font beats none — but only a rebuild that *died* is
+                // something the user should hear about; one that was cancelled
+                // is about to be replaced by design.
+                DerivedDataResult::Failed => {
+                    self.rebuild_inflight = false;
+                    self.status_message = Some((
+                        "Resolving the font sources failed (internal error).".to_string(),
+                        std::time::Instant::now(),
+                    ));
+                }
+                DerivedDataResult::Cancelled => self.rebuild_inflight = false,
+                DerivedDataResult::Done(data) => {
+                    self.rebuild_inflight = false;
+                    let data = *data;
+                    self.rebuild_log
+                        .derived_applied(data.build_gen, data.timing);
+                    self.issues = data.issues;
+                    self.issues_line_ids = data.issue_line_ids;
+                    self.issues_gen = data.build_gen;
+                    self.glyph_flags = data.glyph_flags;
+                    // Stepped again, not only for the composites: everything
+                    // keyed on the derived generation (the panes' view cache,
+                    // the specimen) was keyed on findings arriving with it.
+                    self.derived_gen = self.derived_gen.wrapping_add(1);
+                    // Keyed on the generations of the *results* it was
+                    // collected beside, which is what `SpecimenState` compares
+                    // against; see `crate::specimen::SpecimenState::cached_gen`.
+                    if let Some(specimen) = data.specimen {
+                        self.specimen
+                            .apply(specimen, self.font_data_gen, self.derived_gen);
+                    }
                 }
             }
         }
@@ -1237,7 +1270,12 @@ pub(crate) mod startup_tests {
             .unwrap(),
         );
         let deadline = std::time::Instant::now() + std::time::Duration::from_secs(20);
-        while app.font_build_gen == gen_before || app.named_glyphs_gen != app.font_build_gen {
+        // The rest of the derived data follows the composites, so what ends
+        // the wait is the rebuild ending, not the composites landing.
+        while app.font_build_gen == gen_before
+            || app.named_glyphs_gen != app.font_build_gen
+            || app.rebuild_inflight
+        {
             assert!(
                 std::time::Instant::now() < deadline,
                 "the edit never produced a rebuild"
@@ -1253,6 +1291,51 @@ pub(crate) mod startup_tests {
         assert!(
             line.trim_end().ends_with("ms"),
             "an edit gives the end-to-end numbers something to measure: {line:?}"
+        );
+    }
+
+    /// A rebuild sends the composites the panes draw ahead of the rest of what
+    /// it derives, and only the rest ends it.
+    ///
+    /// They used to travel together, behind validation — which on a slow
+    /// machine is most of a second a `ref` edit spent invisible, waiting on
+    /// findings the drawing never reads.
+    #[test]
+    fn a_rebuild_sends_its_composites_ahead_of_its_findings() {
+        let dir = TempDir::new("resolved-first");
+        std::fs::write(
+            dir.0.join("a.unf"),
+            "meta height 4\nmeta ascent 3\nmeta descent 1\n\n\
+             glyph a 2 2\n@@\n.@\n\nglyph b 2 2\nref a\n\nmap A = b\n",
+        )
+        .unwrap();
+
+        let ctx = egui::Context::default();
+        let mut app = UniformApp::with_settings(&ctx, Settings::default(), Some(dir.0.clone()));
+        app.pump_background_pipeline(&ctx);
+        assert!(app.rebuild_inflight, "the first build starts at once");
+
+        // Read off the channel directly: a pump would apply both messages in
+        // one frame and hide which came first.
+        let wait = std::time::Duration::from_secs(20);
+        let first = app
+            .derived_data_rx
+            .recv_timeout(wait)
+            .expect("nothing was sent");
+        let DerivedDataResult::Resolved(resolved) = first else {
+            panic!("the composites have to come first");
+        };
+        assert!(
+            resolved.named_glyphs.contains_key("b"),
+            "and they are the composites"
+        );
+        let second = app
+            .derived_data_rx
+            .recv_timeout(wait)
+            .expect("the rebuild never ended");
+        assert!(
+            matches!(second, DerivedDataResult::Done(_)),
+            "the findings follow, and are what ends the rebuild"
         );
     }
 
