@@ -251,13 +251,16 @@ pub(super) fn build_anchor_gpos(
             // of the coverage. `resolved_anchors` is already the exposed set, so
             // that fallback respects `inherit` on its own.
             for source in [&g.declared_anchors, &g.resolved_anchors] {
-                let found = anchor_names.iter().zip(&signed).find_map(|(anchor_name, signs)| {
-                    let minus_name = signs.0.as_str();
-                    source
-                        .iter()
-                        .find(|p| p.position == minus_name)
-                        .map(|pt| (anchor_class_map[anchor_name], anchor_name.as_str(), pt))
-                });
+                let found = anchor_names
+                    .iter()
+                    .zip(&signed)
+                    .find_map(|(anchor_name, signs)| {
+                        let minus_name = signs.0.as_str();
+                        source
+                            .iter()
+                            .find(|p| p.position == minus_name)
+                            .map(|pt| (anchor_class_map[anchor_name], anchor_name.as_str(), pt))
+                    });
                 if let Some((class, anchor_name, pt)) = found {
                     let align = align_of(&anchor_align, anchor_name);
                     let (x, y) = anchor_font_units(pt, align, scale, ascent, loff, toff);

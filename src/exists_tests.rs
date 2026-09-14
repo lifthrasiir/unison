@@ -7,7 +7,10 @@ fn caps(pattern: &str, name: &str) -> Option<Vec<String>> {
 #[test]
 fn the_prefix_index_files_a_name_under_every_prefix_it_starts_with() {
     let mut index = PrefixIndex::new(["ab", "abc", "", "é"].into_iter());
-    for (i, name) in ["abc-1", "a", "ab", "éx", "xabc", "\u{e9}"].iter().enumerate() {
+    for (i, name) in ["abc-1", "a", "ab", "éx", "xabc", "\u{e9}"]
+        .iter()
+        .enumerate()
+    {
         index.add(i, name);
     }
     assert_eq!(index.bucket("ab"), Some(&[0, 2][..]));

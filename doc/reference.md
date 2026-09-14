@@ -37,7 +37,9 @@ a half per face and is not the default.
 `probe` reports where the time before the editor's first frame goes — the executable loading, the
 directory read (one row per file), the initial font build — and `--repeat` re-runs the directory
 read, which tells a cold cache from a warm one. `--edit` measures instead what one edit costs once
-the caches are warm, and there `--repeat` repeats the one-pixel edit, long enough for a profiler.
+the caches are warm, and there `--repeat` repeats the one-pixel edit, long enough for a profiler. It
+ends with how long a rebuild cancelled part-way keeps running, which is how long an edit made during
+a rebuild waits before its own rebuild starts.
 Setting `UNIFORM_PERF` prints the same per-stage timings on stderr in every mode, the editor included.
 
 `sequences` prints, for every glyph only a `remap` produces (the flags, the composed jamo), the

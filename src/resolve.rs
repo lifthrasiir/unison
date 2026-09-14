@@ -96,11 +96,11 @@ impl Resolution {
             .expect("a `never` token cannot cancel")
     }
 
-    /// The same, abortable at each stage boundary. The stages here are coarse —
-    /// expansion is the expensive one and does not report progress — so this
-    /// gives up between them rather than within, which is enough: the editor's
-    /// derived-data rebuild is cancelled to stop it *blocking the next one*,
-    /// and one stage is the granularity that costs.
+    /// The same, abortable. The editor's derived-data rebuild is cancelled to
+    /// stop it *blocking the next one*, so what matters is how long a cancel
+    /// takes to be noticed: the expansion, which is most of a second on a slow
+    /// machine, checks between its own stages as well as here
+    /// ([`crate::render::ttf_builder::expand_documents_cancellable`]).
     pub fn compute_cancellable(
         docs: &[&Document],
         cancel: &crate::cancel::CancelToken,
@@ -121,10 +121,12 @@ impl Resolution {
         if cancel.is_cancelled() {
             return None;
         }
-        let expansion = crate::render::ttf_builder::expand_documents_for(docs, &name_parts, &faces);
-        if cancel.is_cancelled() {
-            return None;
-        }
+        let expansion = crate::render::ttf_builder::expand_documents_cancellable(
+            docs,
+            &name_parts,
+            &faces,
+            cancel,
+        )?;
         Some(Self {
             name_parts,
             faces,

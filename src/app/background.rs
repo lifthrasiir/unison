@@ -392,7 +392,7 @@ impl UniformApp {
             // The font build and validation both read the expansion, and
             // neither writes anything the other looks at, so they run at once.
             let face_id = (!face.is_empty()).then_some(face.as_str());
-            let ((pair, font_took), (mut issues, glyph_flags, validate_took, flags_took)) =
+            let ((pair, font_took), (issues, glyph_flags, validate_took, flags_took)) =
                 std::thread::scope(|scope| {
                     let build = scope.spawn(|| {
                         let t = std::time::Instant::now();
@@ -410,13 +410,18 @@ impl UniformApp {
                         (pair, t.elapsed())
                     });
                     let t = std::time::Instant::now();
-                    let issues = crate::issues::collect_issues_with(&refs, &resolution);
+                    // Cancellable, because the next rebuild waits for this one
+                    // to return, and validation is most of a second on a slow
+                    // machine; see `collect_issues_cancellable`.
+                    let issues =
+                        crate::issues::collect_issues_cancellable(&refs, &resolution, &cancel);
                     let validate_took = t.elapsed();
                     // Computed here rather than on the UI thread because it
                     // needs the expansion, which the glyph cache consumes below.
                     let t = std::time::Instant::now();
-                    let glyph_flags =
-                        crate::glyph_flags::collect(&refs, &issues, &resolution.expansion);
+                    let glyph_flags = issues.as_ref().map(|issues| {
+                        crate::glyph_flags::collect(&refs, issues, &resolution.expansion)
+                    });
                     // Read before the join, or the wait for the font build —
                     // which is the *other* leg of this scope and usually the
                     // longer one — is charged to whatever was measured last.
@@ -453,6 +458,17 @@ impl UniformApp {
             // to the end made the font appear a second late for no reason, and
             // made the two end-to-end numbers in the report read as one.
             drop(font_slot);
+
+            // Everything below is derived data for a document set an edit has
+            // already replaced, and the rebuild for that edit is waiting for
+            // this thread to end — so a cancellation noticed by now ends it
+            // here rather than after the recomposition and the specimen.
+            let (Some(mut issues), Some(glyph_flags), false) =
+                (issues, glyph_flags, cancel.is_cancelled())
+            else {
+                slot.set(DerivedDataResult::Cancelled);
+                return;
+            };
 
             let char_props = crate::ucd::CharProps::collect(&refs);
             let face_ids: Vec<String> = resolution
@@ -499,6 +515,7 @@ impl UniformApp {
                             gid_map,
                             face_id,
                             &glyph_flags,
+                            &cancel,
                         );
                         Some((data, t.elapsed()))
                     });

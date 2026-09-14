@@ -436,6 +436,7 @@ impl SpecimenState {
             name_to_gid,
             face_id,
             glyph_flags,
+            &crate::cancel::CancelToken::never(),
         );
         self.apply(data, font_data_gen, derived_gen);
     }
@@ -476,7 +477,12 @@ impl SpecimenData {
         name_to_gid: &HashMap<String, u16>,
         face_id: Option<&str>,
         glyph_flags: &GlyphFlags,
+        cancel: &crate::cancel::CancelToken,
     ) -> Self {
+        // `cancel` stops the walk over the documents, which is nearly all of
+        // this, and what comes back is then however far it got: the rebuild
+        // that collects this drops a cancelled result whole (see
+        // `crate::cancel`), and the next rebuild is waiting for it to return.
         let glyph_flags = glyph_flags.clone();
         let char_props = crate::ucd::CharProps::collect(docs);
         let blocks = BlockMap::collect(docs);
@@ -537,6 +543,9 @@ impl SpecimenData {
             .collect();
         let mut mapped_glyphs: HashSet<String> = HashSet::default();
         for (doc_idx, doc) in docs.iter().enumerate() {
+            if cancel.is_cancelled() {
+                break;
+            }
             for (item_idx, item) in doc.items.iter().enumerate() {
                 let origin = ItemRef::new(doc_idx, item_idx);
                 // The `exists` line itself states nothing of its own, and a

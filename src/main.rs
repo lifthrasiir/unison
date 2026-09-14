@@ -380,6 +380,7 @@ fn run_edit_probe(input: &std::path::Path, repeats: usize) {
                 &f.name_to_gid,
                 None,
                 &_flags,
+                &never,
             )
         });
         let specimen = t.elapsed();
@@ -424,7 +425,122 @@ fn run_edit_probe(input: &std::path::Path, repeats: usize) {
         "one glyph block",
     ));
 
+    // How long a superseded rebuild keeps the slot. An edit arriving while one
+    // runs cancels it, and the next rebuild only starts once the cancelled one
+    // has returned — so whatever a stage does not notice, the edit waits for.
+    // Cancelled at points spread over a warm rebuild, each after an edit of its
+    // own, as a burst of edits would.
+    let warm = rows[1].total();
+    let mut cancels: Vec<(std::time::Duration, std::time::Duration)> = Vec::new();
+    for tenth in [1u32, 3, 5, 7, 9] {
+        edit_one_pixel(&mut docs);
+        let delay = warm * tenth / 10;
+        let cancel = cancel::CancelToken::new();
+        let started = std::time::Instant::now();
+        let ended = std::thread::scope(|s| {
+            let worker = s.spawn(|| {
+                rebuild_like_the_editor(&docs, &contour_cache, &mut grid_cache, &cancel);
+                started.elapsed()
+            });
+            std::thread::sleep(delay);
+            cancel.cancel();
+            worker.join().unwrap()
+        });
+        cancels.push((delay, ended));
+    }
+
     print!("{}", edit_probe_report(&rows));
+    print!("{}", cancel_probe_report(&cancels));
+}
+
+/// One rebuild in the shape `app::background::UniformApp::rebuild` runs it —
+/// the stages at once where the editor runs them at once, and the cancellation
+/// checks exactly where the editor makes them — for the cancel measurement in
+/// [`run_edit_probe`]. Kept beside that thread's body by hand: what is measured
+/// is how long the *editor* takes to notice, so a check added there has to be
+/// added here.
+#[cfg(feature = "editor")]
+fn rebuild_like_the_editor(
+    docs: &[document::Document],
+    contour_cache: &render::SharedContourCache,
+    grid_cache: &mut ref_composite::CompositeGridCache,
+    cancel: &cancel::CancelToken,
+) {
+    let refs: Vec<&document::Document> = docs.iter().collect();
+    let Some(resolution) = resolve::Resolution::compute_cancellable(&refs, cancel) else {
+        return;
+    };
+    let (font, glyph_flags) = std::thread::scope(|s| {
+        let build = s.spawn(|| {
+            render::build_font_pair_cached_from(&refs, contour_cache, &resolution, None, cancel)
+        });
+        let flags = issues::collect_issues_cancellable(&refs, &resolution, cancel)
+            .map(|issues| glyph_flags::collect(&refs, &issues, &resolution.expansion));
+        (build.join().unwrap(), flags)
+    });
+    let (Some(glyph_flags), false) = (glyph_flags, cancel.is_cancelled()) else {
+        return;
+    };
+    let gid_map = font.map(|f| f.name_to_gid);
+
+    let _char_props = ucd::CharProps::collect(&refs);
+    let name_parts = resolution.name_parts;
+    let _scoped = document::SliceNameParts::with_base(&refs, name_parts.clone());
+    let _first = exists::FirstMatches::collect(&refs, &resolution.expansion.exists);
+    let render::ttf_builder::Expansion {
+        items,
+        aliases,
+        exists,
+        ..
+    } = resolution.expansion;
+    std::thread::scope(|s| {
+        s.spawn(|| {
+            gid_map.as_ref().map(|gid_map| {
+                specimen::SpecimenData::collect(
+                    &refs,
+                    &name_parts,
+                    &exists,
+                    &aliases,
+                    gid_map,
+                    None,
+                    &glyph_flags,
+                    cancel,
+                )
+            })
+        });
+        let _ = ref_composite::resolve_expanded_items(
+            items,
+            &aliases,
+            &name_parts,
+            cancel,
+            Some(grid_cache),
+        );
+    });
+}
+
+#[cfg(feature = "editor")]
+fn cancel_probe_report(rows: &[(std::time::Duration, std::time::Duration)]) -> String {
+    let ms = |d: std::time::Duration| format!("{:.1} ms", d.as_secs_f64() * 1000.0);
+    let mut out = String::from(
+        "\nCancelling a rebuild part-way\n=============================\n\n\
+         Cancelled that far into a warm rebuild (the editor's stages, at once\n\
+         where it runs them at once): how long the rebuild kept running, which\n\
+         is how long the next edit's rebuild waits to start.\n\n\
+         cancelled at     returned at     kept running\n",
+    );
+    for &(delay, ended) in rows {
+        let kept = match ended.checked_sub(delay) {
+            Some(kept) => ms(kept),
+            None => "(finished first)".to_string(),
+        };
+        out.push_str(&format!(
+            "  {:>11}  {:>14}  {:>15}\n",
+            ms(delay),
+            ms(ended),
+            kept
+        ));
+    }
+    out
 }
 
 /// Flip the first pixel of the first glyph that has a grid, the way the editor's

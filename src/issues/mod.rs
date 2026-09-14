@@ -265,6 +265,25 @@ pub fn collect_issues(docs: &[&Document]) -> Vec<Issue> {
 /// font build — should use this rather than [`collect_issues`], which resolves
 /// again from scratch.
 pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<Issue> {
+    collect_issues_cancellable(docs, resolution, &crate::cancel::CancelToken::never())
+        .expect("a `never` token cannot cancel")
+}
+
+/// [`collect_issues_with`], given up between its checks once `cancel` is set.
+///
+/// The editor validates beside the font build, on every rebuild, and an edit
+/// arriving meanwhile cancels that rebuild — but the next one only starts once
+/// this has returned. On a slow machine validation is most of a second, so a
+/// run that could not be stopped was most of a second added to every edit made
+/// while one was in flight. Between checks is fine-grained enough: no single
+/// check is more than a small part of the whole.
+///
+/// `None` means cancelled and nothing else.
+pub fn collect_issues_cancellable(
+    docs: &[&Document],
+    resolution: &Resolution,
+    cancel: &crate::cancel::CancelToken,
+) -> Option<Vec<Issue>> {
     let mut issues = Vec::new();
 
     let expansion = &resolution.expansion;
@@ -309,24 +328,42 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
     slices::check_name_part_bindings(&cx, &mut issues);
     slices::check_empty_slices(&cx, &mut issues);
     glyph_names::check_glyph_charset(&cx, &mut issues);
+    if cancel.is_cancelled() {
+        return None;
+    }
     remap::check_glyphs_and_remaps(&cx, &mut issues);
     directives::check_audit(&cx, &mut issues);
     directives::check_meta(&cx, &mut issues);
     // Built before the roots are collected, so a `map` target the walk could
     // do nothing with is never collected as one; see `unused::GlyphGraph`.
     let graph = unused::collect_graph(&cx);
+    if cancel.is_cancelled() {
+        return None;
+    }
     let mapped_glyphs = maps::check_maps(&cx, &graph, &mut issues);
+    if cancel.is_cancelled() {
+        return None;
+    }
     flags::check_vectoronly_reach(&cx, &mapped_glyphs, &mut issues);
     flags::check_goto_refs(&cx, &mut issues);
     unused::check_unused_glyphs(&cx, &graph, mapped_glyphs, &mut issues);
     anchors::check_ambiguous_anchors(&cx, &mut issues);
     anchors::check_centred_anchor_parity(&cx, &mut issues);
+    if cancel.is_cancelled() {
+        return None;
+    }
     anchors::check_anchor_derivation(&cx, &mut issues);
+    if cancel.is_cancelled() {
+        return None;
+    }
     colors::check_colors(&cx, &mut issues);
     samples::check_samples(&cx, &mut issues);
     patterns::check_props(docs, &mut issues);
     maps::check_uvs_maps(&cx, &mut issues);
     patterns::check_ragged_patterns(docs, cx.name_parts, &mut issues);
+    if cancel.is_cancelled() {
+        return None;
+    }
     // Once per face, deduplicated: the check is about one font file's fallback
     // lookup (see `uvs_collision_diagnostics`), and a source with two faces
     // would otherwise report the same unqualified pair twice.
@@ -356,7 +393,7 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
             .then_with(|| a.file.cmp(&b.file))
             .then_with(|| a.line.cmp(&b.line))
     });
-    issues
+    Some(issues)
 }
 
 impl PartialOrd for Severity {

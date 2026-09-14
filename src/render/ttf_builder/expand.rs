@@ -84,6 +84,20 @@ pub(crate) fn expand_documents_for(
     expand_for(docs, name_parts, &faces.union())
 }
 
+/// [`expand_documents_for`], given up between its stages once `cancel` is set.
+///
+/// For the editor's rebuild, which an edit arriving mid-expansion makes
+/// obsolete and which the next rebuild waits behind; on a slow machine the
+/// expansion is most of a second. `None` means cancelled and nothing else.
+pub(crate) fn expand_documents_cancellable(
+    docs: &[&Document],
+    name_parts: &NamePartsMap,
+    faces: &crate::faces::FaceSet,
+    cancel: &crate::cancel::CancelToken,
+) -> Option<Expansion> {
+    expand_inner(docs, name_parts, &faces.union(), cancel)
+}
+
 /// Expand for one face: items qualified with a slice the face does not include
 /// are dropped here, so nothing downstream — cmap, GSUB, the glyph cache — ever
 /// sees a mapping that belongs to a different typeface.
@@ -95,7 +109,8 @@ pub(crate) fn expand_for(
     name_parts: &NamePartsMap,
     face: &crate::faces::Face,
 ) -> Expansion {
-    expand_inner(docs, name_parts, face)
+    expand_inner(docs, name_parts, face, &crate::cancel::CancelToken::never())
+        .expect("a `never` token cannot cancel")
 }
 
 /// One `glyph` block for one binding of the name parts: the header expanded,
@@ -196,11 +211,14 @@ fn expand_glyph_item(
     }
 }
 
+/// `cancel` is read between the stages below, and inside the one that runs on
+/// every core (settling `map` alternatives); `None` means it was set.
 fn expand_inner(
     docs: &[&Document],
     name_parts: &NamePartsMap,
     face: &crate::faces::Face,
-) -> Expansion {
+    cancel: &crate::cancel::CancelToken,
+) -> Option<Expansion> {
     let mut all_items: Vec<ExpandedItem> = Vec::new();
     let mut diagnostics: Vec<Diagnostic> = Vec::new();
 
@@ -213,7 +231,13 @@ fn expand_inner(
     // alias map of its own.
     let (exists, exists_diagnostics) = crate::exists::resolve_scopes(docs, name_parts);
     diagnostics.extend(exists_diagnostics);
+    if cancel.is_cancelled() {
+        return None;
+    }
     let aliases = crate::alias::AliasMap::collect_with_merges(docs, name_parts, &exists);
+    if cancel.is_cancelled() {
+        return None;
+    }
     // Slice-scoped `name-parts`, so a qualified line substitutes with the
     // bindings of the slice it is being stated for. Empty (and free) unless the
     // source binds something per slice.
@@ -387,6 +411,10 @@ fn expand_inner(
         }
     }
 
+    if cancel.is_cancelled() {
+        return None;
+    }
+
     // Every `ref` now points at the glyph it actually names. A `map` target is
     // not rewritten in place: it is a pattern that `expand_map_pairs` unrolls
     // per codepoint, so its canonicalization happens where the concrete names
@@ -445,7 +473,13 @@ fn expand_inner(
 
     // Before anything reads a `map`'s target: every line here has exactly one
     // from now on, whatever it listed.
-    resolve_map_alternatives(&mut all_items, &aliases, &mut diagnostics);
+    if cancel.is_cancelled() {
+        return None;
+    }
+    resolve_map_alternatives(&mut all_items, &aliases, &mut diagnostics, cancel);
+    if cancel.is_cancelled() {
+        return None;
+    }
 
     // Expanding a `map` is not free (the font has ranges thousands of
     // codepoints wide), and three later steps need the result, so it happens
@@ -493,6 +527,9 @@ fn expand_inner(
     }
 
     expand_decomposed_maps(&mut all_items, &cp_to_glyph, &mut diagnostics);
+    if cancel.is_cancelled() {
+        return None;
+    }
     inject_on_demand_glyph_items(
         &mut all_items,
         map_targets,
@@ -502,12 +539,12 @@ fn expand_inner(
         &mut diagnostics,
     );
 
-    Expansion {
+    Some(Expansion {
         items: all_items,
         diagnostics,
         aliases,
         exists,
-    }
+    })
 }
 
 /// Turn every IDC line into the `ref`s it stands for.
@@ -1380,6 +1417,7 @@ fn settle_wide_groups(
     resolvable: &impl Fn(&ExpandedItem) -> bool,
     usable: &(impl Fn(&str) -> bool + Sync),
     notdef_usable: bool,
+    cancel: &crate::cancel::CancelToken,
 ) -> HashMap<usize, WideGroupSettle> {
     let mut groups: HashMap<&str, Vec<usize>> = HashMap::default();
     for (idx, e) in items.iter().enumerate() {
@@ -1438,32 +1476,31 @@ fn settle_wide_groups(
         let targets: Vec<AltTarget<'_>> = written.iter().map(|g| AltTarget::of(g, &spec)).collect();
 
         let rows = spec.rows();
-        let per_row =
-            crate::parallel::map_indexed(rows.len(), &crate::cancel::CancelToken::never(), |k| {
-                let (i, _) = rows[k];
-                // The row's memo, one slot per distinct target. Per row rather
-                // than shared across rows, because sharing would need a lock on
-                // the one loop that must not have one — see `crate::parallel`.
-                let mut judged: Vec<Option<bool>> = vec![None; targets.len()];
-                let mut buf = String::new();
-                lines
-                    .iter()
-                    .map(|(alts, optional)| {
-                        settle_alt(
-                            alts.len(),
-                            |n| {
-                                let t = alts[n];
-                                *judged[t].get_or_insert_with(|| {
-                                    targets[t].get_into(i, &mut buf);
-                                    usable(&buf)
-                                })
-                            },
-                            *optional,
-                            notdef_usable,
-                        )
-                    })
-                    .collect::<Vec<_>>()
-            });
+        let per_row = crate::parallel::map_indexed(rows.len(), cancel, |k| {
+            let (i, _) = rows[k];
+            // The row's memo, one slot per distinct target. Per row rather
+            // than shared across rows, because sharing would need a lock on
+            // the one loop that must not have one — see `crate::parallel`.
+            let mut judged: Vec<Option<bool>> = vec![None; targets.len()];
+            let mut buf = String::new();
+            lines
+                .iter()
+                .map(|(alts, optional)| {
+                    settle_alt(
+                        alts.len(),
+                        |n| {
+                            let t = alts[n];
+                            *judged[t].get_or_insert_with(|| {
+                                targets[t].get_into(i, &mut buf);
+                                usable(&buf)
+                            })
+                        },
+                        *optional,
+                        notdef_usable,
+                    )
+                })
+                .collect::<Vec<_>>()
+        });
 
         // Row-major to line-major: each line is emitted on its own, in the
         // order the source wrote it.
@@ -1578,6 +1615,7 @@ fn resolve_map_alternatives(
     all_items: &mut Vec<ExpandedItem>,
     aliases: &crate::alias::AliasMap,
     diagnostics: &mut Vec<Diagnostic>,
+    cancel: &crate::cancel::CancelToken,
 ) {
     // An empty target changes what a *single*-target line means too, so it is
     // enough on its own to bring the line through this pass.
@@ -1646,7 +1684,9 @@ fn resolve_map_alternatives(
     let notdef_usable = usable(NOTDEF);
 
     let items = std::mem::take(all_items);
-    let mut grouped = settle_wide_groups(&items, &resolvable, &usable, notdef_usable);
+    // A cancelled settling leaves rows unsettled, which the emitting below
+    // skips; the caller then discards the whole expansion.
+    let mut grouped = settle_wide_groups(&items, &resolvable, &usable, notdef_usable, cancel);
 
     let mut out: Vec<ExpandedItem> = Vec::with_capacity(items.len());
     for (idx, e) in items.into_iter().enumerate() {
@@ -1714,23 +1754,19 @@ fn resolve_map_alternatives(
             let settled = match &group {
                 Some(group) => &group.settled,
                 None => {
-                    settled_alone = crate::parallel::map_indexed(
-                        rows.len(),
-                        &crate::cancel::CancelToken::never(),
-                        |k| {
-                            let (i, _) = rows[k];
-                            let mut buf = String::new();
-                            settle_alt(
-                                targets.len(),
-                                |n| {
-                                    targets[n].get_into(i, &mut buf);
-                                    usable(&buf)
-                                },
-                                optional,
-                                notdef_usable,
-                            )
-                        },
-                    );
+                    settled_alone = crate::parallel::map_indexed(rows.len(), cancel, |k| {
+                        let (i, _) = rows[k];
+                        let mut buf = String::new();
+                        settle_alt(
+                            targets.len(),
+                            |n| {
+                                targets[n].get_into(i, &mut buf);
+                                usable(&buf)
+                            },
+                            optional,
+                            notdef_usable,
+                        )
+                    });
                     &settled_alone
                 }
             };
@@ -2564,6 +2600,36 @@ mod compose_expand_tests {
         let docs = vec![&doc];
         let name_parts = crate::document::collect_name_parts(&docs);
         super::expand_documents(&docs, &name_parts)
+    }
+
+    /// A cancelled expansion gives up and says so, including one cancelled
+    /// while its `map` alternatives are being settled on every core; an
+    /// uncancelled one is exactly [`super::expand_documents_for`].
+    #[test]
+    fn a_cancelled_expansion_returns_nothing() {
+        let doc = parse_document_from_str(
+            "glyph a 1 1\n@@\nglyph b-4e01 1 1\n@@\nmap U+4E00..4EFF = b-($#4e00..4eff) a\n",
+            "test.unf".into(),
+        )
+        .unwrap();
+        let docs = vec![&doc];
+        let name_parts = crate::document::collect_name_parts(&docs);
+        let faces = crate::faces::FaceSet::collect(&docs);
+        let items = |e: &super::Expansion| e.items.len();
+
+        let cancel = crate::cancel::CancelToken::new();
+        let uncancelled = super::expand_documents_cancellable(&docs, &name_parts, &faces, &cancel);
+        assert_eq!(
+            uncancelled.as_ref().map(items),
+            Some(items(&super::expand_documents_for(
+                &docs,
+                &name_parts,
+                &faces
+            )))
+        );
+
+        cancel.cancel();
+        assert!(super::expand_documents_cancellable(&docs, &name_parts, &faces, &cancel).is_none());
     }
 
     fn of(expansion: &super::Expansion, severity: Severity) -> Vec<&str> {

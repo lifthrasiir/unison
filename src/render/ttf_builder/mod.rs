@@ -179,7 +179,7 @@ pub(crate) use expand::expand_map_pairs_per_alternative;
 pub(crate) use expand::parse_map_char;
 pub(crate) use expand::{
     ExpandedItem, Expansion, MapAlternativeIndex, UvsExpandError, decomposed_map_pairs,
-    expand_documents, expand_documents_for, expand_map_codepoints, expand_map_pairs,
+    expand_documents, expand_documents_cancellable, expand_map_codepoints, expand_map_pairs,
     expand_uvs_map_triples, for_each_map_alternative_name, map_char_captures, resolved_map_target,
 };
 pub(crate) use gsub::{remap_rule_kind, shadowed_single_subst_rules};
@@ -776,6 +776,11 @@ fn build_pair_from_shared(
     let v_ascender = (v_meta.ascent() as f32 * v_scale).round() as i16;
     let v_descender = -((v_meta.descent() as f32 * v_scale).round() as i16);
 
+    // The tables are a stage of their own — on a slow machine a third of the
+    // build — and nobody reads a cancelled build's bytes.
+    if cancel.is_cancelled() {
+        return None;
+    }
     let _t3 = crate::startup::PerfStage::new("font pair: tables");
     let (bitmap, vector) = std::thread::scope(|s| {
         let bh = s.spawn(|| {
