@@ -130,6 +130,11 @@ glyph han-320b2:15x16 15 16 // 𲂲
 
 # CJK unified ideographs extension H: 走 (156)
 
+## 156.4
+
+// glyph han-320ca:15x16 15 16 // 𲃊
+// ⿺ han-8d70 han-722a // ⿺走爪
+
 ## 156.5
 
 // glyph han-320cb:15x16 15 16 // 𲃋
@@ -215,6 +220,9 @@ glyph han-320f7:15x16 15 16 // 𲃷
 // ⿰ han-27fb7 han-7b14 // ⿰𧾷笔
 
 ## 157.11
+
+// glyph han-32103:15x16 15 16 // 𲄃
+// ⿰ han-27fb7 han-2466d // ⿰𧾷𤙭
 
 // glyph han-32105:15x16 15 16 // 𲄅
 // ⿳ han-4ea0 han-4fdd han-8db3 // ⿳亠保足

@@ -44,6 +44,9 @@ glyph han-6e34:15x16 15 16 // 渴
 glyph han-6e3e:15x16 15 16 // 渾
 ⿰ han-6c35:5x16 1 han-8ecd:9x16 // ⿰氵軍
 
+// glyph han-6e40:15x16 15 16 // 湀
+// ⿰ han-6c35 han-7678 // ⿰氵癸
+
 glyph han-6e41:15x16 15 16 // 湁
 ⿲ han-6c35:3x16 han-624c:3x16 han-5408:9x16 // ⿲氵扌合
 

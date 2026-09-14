@@ -4340,6 +4340,9 @@ glyph han-4ef5:15x16 15 16 // 仵
 ⿰ han-4ebb:5x16 1 han-5348:9x16 // ⿰亻午
 glyph han-4ef5.0:* = han-4ef5:*
 
+// glyph han-4ef6:15x16 15 16 // 件
+// ⿰ han-4ebb han-725b // ⿰亻牛
+
 // glyph han-4ef9:15x16 15 16 // 仹
 // ⿰ han-4ebb han-4e30 // ⿰亻丰
 

@@ -673,6 +673,9 @@ glyph han-2c9a2:15x16 15 16 // 𬦢
 // glyph han-2c9a3:15x16 15 16 // 𬦣
 // ⿰ han-27fb7 han-5386 // ⿰𧾷历
 
+// glyph han-2c9a6:15x16 15 16 // 𬦦
+// ⿰ han-27fb7 han-722a // ⿰𧾷爪
+
 ## 157.5
 
 glyph han-2c9a8:15x16 15 16 // 𬦨
@@ -915,6 +918,9 @@ glyph han-2ca73:15x16 15 16 // 𬩳
 
 glyph han-2ca75:15x16 15 16 // 𬩵
 ⿰ han-4e2d:9x16 1 han-961d:5x16-r // ⿰中阝
+
+glyph han-2ca76:15x16 15 16 // 𬩶
+⿰ 1 han-725c:6x16 1 han-961d:7x16-r // ⿰牜阝
 
 ## 163.5
 

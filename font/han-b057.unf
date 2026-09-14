@@ -362,6 +362,9 @@ glyph han-224ca:15x16 15 16 // 𢓊
 // glyph han-224cf:15x16 15 16 // 𢓏
 // ⿰ han-5f73 han-5184 // ⿰彳冄
 
+// glyph han-224d0:15x16 15 16 // 𢓐
+// ⿰ han-5f73 han-725b // ⿰彳牛
+
 glyph han-224d1:15x16 15 16 // 𢓑
 ⿰ han-5f73:5x16 1 han-6b20:9x16 // ⿰彳欠
 

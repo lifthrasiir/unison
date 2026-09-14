@@ -41,6 +41,9 @@ glyph han-30336:15x16 15 16 // 𰌶
 
 ## 40.8
 
+// glyph han-30341:15x16 15 16 // 𰍁
+// ⿺ han-5b8c han-725b // ⿺完牛
+
 // glyph han-30343:15x16 15 16 // 𰍃
 // ⿱ han-5b80 han-5379 // ⿱宀卹
 
@@ -395,6 +398,11 @@ glyph han-3041d:15x16 15 16 // 𰐝
 
 # CJK unified ideographs extension G: 彡 (59)
 
+## 59.4
+
+// glyph han-30426:15x16 15 16 // 𰐦
+// ⿰ han-725c han-5f61 // ⿰牜彡
+
 ## 59.5
 
 // glyph han-30427:15x16 15 16 // 𰐧
@@ -455,6 +463,9 @@ glyph han-30443:15x16 15 16 // 𰑃
 
 glyph han-30445:15x16 15 16 // 𰑅
 ⿲ han-5fc4:5x16 han-4eba:5x16 han-4eba:5x16 // ⿲忄人人
+
+// glyph han-30446:15x16 15 16 // 𰑆
+// ⿱ han-725b han-5fc3 // ⿱牛心
 
 // glyph han-30447:15x16 15 16 // 𰑇
 // ⿰ han-5fc5 han-4e8e // ⿰必于

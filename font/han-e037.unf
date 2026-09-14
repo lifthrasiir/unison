@@ -108,6 +108,9 @@ glyph han-2bc11:15x16 15 16 // 𫰑
 glyph han-2bc12:15x16 15 16 // 𫰒
 ⿰ han-5973:7x16 1 han-6708:7x16 // ⿰女月
 
+// glyph han-2bc14:15x16 15 16 // 𫰔
+// ⿰ han-5973 han-725b // ⿰女牛
+
 // glyph han-2bc16:15x16 15 16 // 𫰖
 // ⿰ han-5973 han-6c34 // ⿰女水
 
@@ -418,6 +421,9 @@ glyph han-2bd2f:15x16 15 16 // 𫴯
 
 // glyph han-2bd53:15x16 15 16 // 𫵓
 // ⿸ han-5c38 han-5185 // ⿸尸内
+
+// glyph han-2bd55:15x16 15 16 // 𫵕
+// ⿸ han-5c38 han-722a // ⿸尸爪
 
 ## 44.5
 

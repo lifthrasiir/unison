@@ -431,6 +431,18 @@ glyph han-2ece6:15x16 15 16 // 𮳦
 // glyph han-2ecf2:15x16 15 16 // 𮳲
 // ⿰ han-706b han-6cc9 // ⿰火泉
 
+# CJK unified ideographs extension I: 牛 (93)
+
+## 93.4
+
+// glyph han-2ecfb:15x16 15 16 // 𮳻
+// ⿰ han-725c han-5386 // ⿰牜历
+
+## 93.8
+
+// glyph han-2ecfc:15x16 15 16 // 𮳼
+// ⿰ han-725c han-5c45 // ⿰牜居
+
 # CJK unified ideographs extension I: 犬 (94)
 
 ## 94.7

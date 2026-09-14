@@ -36,6 +36,9 @@ glyph han-42c1:15x16 15 16 // 䋁
 glyph han-42c3:15x16 15 16 // 䋃
 ⿰ han-7cf9:5x16 1 han-6bdb:9x16 // ⿰糹毛
 
+// glyph han-42c5:15x16 15 16 // 䋅
+// ⿰ han-7cf8 han-725b // ⿰糸牛
+
 // glyph han-42c6:15x16 15 16 // 䋆
 // ⿰ han-7cf8 han-6238 // ⿰糸戸
 
@@ -258,6 +261,9 @@ glyph han-4363:15x16 15 16 // 䍣
 # CJK unified ideographs extension A: 羊 (123)
 
 ## 123.4
+
+glyph han-4367:15x16 15 16 // 䍧
+⿰ han-725c:6x16 han-7f8a:9x16 // ⿰牜羊
 
 // glyph han-4368:15x16 15 16 // 䍨
 // ⿰ han-7f8a han-5dff // ⿰羊巿
@@ -707,6 +713,9 @@ glyph han-4499:15x16 15 16 // 䒙
 
 ## 140.4
 
+// glyph han-449c:15x16 15 16 // 䒜
+// ⿱ han-8279 han-725b // ⿱艹牛
+
 // glyph han-44a0:15x16 15 16 // 䒠
 // ⿱ han-8279 han-4e30 // ⿱艹丰
 
@@ -1020,6 +1029,11 @@ glyph han-459f-($han-regions):15x16 15 16 // 䖟
 glyph han-45a0:15x16 15 16 // 䖠
 ⿰ han-866b:5x16 han-51e1:10x16 // ⿰虫凡
 
+## 142.4
+
+// glyph han-45a3:15x16 15 16 // 䖣
+// ⿰ han-866b han-722a // ⿰虫爪
+
 ## 142.5
 
 glyph han-45a6:15x16 15 16 // 䖦
@@ -1246,6 +1260,9 @@ glyph han-4640:15x16 15 16 // 䙀
 
 // glyph han-4645:15x16 15 16 // 䙅
 // ⿰ han-8864 han-8981 // ⿰衤要
+
+// glyph han-4646:15x16 15 16 // 䙆
+// ⿰ han-8864 han-7678 // ⿰衤癸
 
 // glyph han-4647:15x16 15 16 // 䙇
 // ⿰ han-8864 han-800e // ⿰衤耎

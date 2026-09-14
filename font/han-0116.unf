@@ -96,6 +96,9 @@ glyph han-7a7c:15x16 15 16 // 穼
 glyph han-7a81:15x16 15 16 // 突
 ⿱ han-7a74.2:15x7 -1 han-5927:15x10 // ⿱穴大
 
+// glyph han-7a82:15x16 15 16 // 窂
+// ⿳ han-5b80 han-513f han-725b // ⿳宀儿牛 <- ⿱⿱宀儿牛
+
 // glyph han-7a83:15x16 15 16 // 窃
 // ⿳ han-5b80 han-513f han-5207 // ⿳宀儿切
 
@@ -637,6 +640,9 @@ glyph han-7b06:15x16 15 16 // 笆
 
 // glyph han-7b07:15x16 15 16 // 笇
 // ⿳ han-25ad7 han-4e36 han-4e0b // ⿳𥫗丶下 <- ⿱𥫗卞
+
+// glyph han-7b0a:15x16 15 16 // 笊
+// ⿱ han-25ad7 han-722a // ⿱𥫗爪
 
 // glyph han-7b0d:15x16 15 16 // 笍
 // ⿱ han-25ad7 han-5185 // ⿱𥫗内

@@ -195,6 +195,9 @@ glyph han-31d9e:15x16 15 16 // 𱶞
 
 ## 116.9
 
+// glyph han-31dcd:15x16 15 16 // 𱷍
+// ⿳ han-5b80 han-513f han-3082d // ⿳宀儿𰠭 <- ⿱⿱宀儿𰠭
+
 // glyph han-31dce:15x16 15 16 // 𱷎
 // ⿳ han-5b80 han-513f han-3100b // ⿳宀儿𱀋 <- ⿱⿱宀儿𱀋
 
@@ -234,6 +237,9 @@ glyph han-31de3:15x16 15 16 // 𱷣
 
 glyph han-31df3:15x16 15 16 // 𱷳
 ⿱ han-25ad7:15x5 han-65e5:15x11 // ⿱𥫗日
+
+// glyph han-31df4:15x16 15 16 // 𱷴
+// ⿱ han-25ad7 han-725b // ⿱𥫗牛
 
 ## 118.6
 

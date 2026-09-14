@@ -315,6 +315,9 @@ glyph han-6c78:15x16 15 16 // 汸
 glyph han-6c7b:15x16 15 16 // 汻
 ⿰ han-6c35:5x16 1 han-5348:9x16 // ⿰氵午
 
+// glyph han-6c7c:15x16 15 16 // 汼
+// ⿰ han-6c35 han-725b // ⿰氵牛
+
 glyph han-6c7e:15x16 15 16 // 汾
 ⿰ han-6c35:5x16 1 han-5206:9x16 // ⿰氵分
 
@@ -379,6 +382,9 @@ glyph han-6c9c.0:* = han-6c9c-j:*
 
 // glyph han-6c9e:15x16 15 16 // 沞
 // ⿰ han-6c35 han-5e00 // ⿰氵帀
+
+// glyph han-6ca0:15x16 15 16 // 沠
+// ⿰ han-6c35 han-722a // ⿰氵爪
 
 // glyph han-6ca3:15x16 15 16 // 沣
 // ⿰ han-6c35 han-4e30 // ⿰氵丰

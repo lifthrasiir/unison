@@ -465,6 +465,9 @@ glyph han-835c:15x16 15 16 // 荜
 // glyph han-8365:15x16 15 16 // 荥
 // ⿱ han-2b1e6 han-6c34 // ⿱𫇦水
 
+// glyph han-8366:15x16 15 16 // 荦
+// ⿱ han-2b1e6 han-725b // ⿱𫇦牛
+
 // glyph han-8367:15x16 15 16 // 荧
 // ⿱ han-2b1e6 han-706b // ⿱𫇦火
 
@@ -873,6 +876,9 @@ glyph han-846b:15x16 15 16 // 葫
 
 glyph han-8472:15x16 15 16 // 葲
 ⿳ han-8279:15x3 han-767d:15x6 1 han-6c34:15x6 // ⿳艹白水
+
+// glyph han-8475:15x16 15 16 // 葵
+// ⿱ han-8279 han-7678 // ⿱艹癸
 
 glyph han-8477:15x16 15 16 // 葷
 ⿱ han-8279:15x3 1 han-8ecd:15x12 // ⿱艹軍

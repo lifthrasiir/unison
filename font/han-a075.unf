@@ -27,6 +27,9 @@ glyph han-3b4a-t:15x16 15 16 // 㭊
 // glyph han-3b4b:15x16 15 16 // 㭋
 // ⿰ han-6728 han-4e30 // ⿰木丰
 
+// glyph han-3b4c:15x16 15 16 // 㭌
+// ⿰ han-6728 han-725b // ⿰木牛
+
 // glyph han-3b50:15x16 15 16 // 㭐
 // ⿱ han-5927 han-672b // ⿱大末
 
@@ -731,6 +734,74 @@ glyph han-3e20-t:15x16 15 16 // 㸠
 
 // glyph han-3e26:15x16 15 16 // 㸦
 // ⿻丁⿱𠃋乀
+
+# CJK unified ideographs extension A: 牛 (93)
+
+## 93.3
+
+glyph han-3e29:15x16 15 16 // 㸩
+⿰ han-725c:6x16 han-5e72:9x16 // ⿰牜干
+
+glyph han-3e2a:15x16 15 16 // 㸪
+⿰ han-725c:6x16 han-5ddd:9x16 // ⿰牜川
+
+## 93.4
+
+glyph han-3e2b:15x16 15 16 // 㸫
+⿰ han-725c:6x16 han-65a4:9x16 // ⿰牜斤
+
+glyph han-3e2c:15x16 15 16 // 㸬
+⿰ han-725c:6x16 han-5e02:9x16 // ⿰牜市
+
+glyph han-3e2d:15x16 15 16 // 㸭
+⿰ han-725c:6x16 han-5df4:9x16 // ⿰牜巴
+
+glyph han-3e2e:15x16 15 16 // 㸮
+⿰ han-725c:6x16 han-5206:9x16 // ⿰牜分
+
+## 93.5
+
+// glyph han-3e34:15x16 15 16 // 㸴
+// ⿱ han-77f3 han-725b // ⿱石牛
+
+## 93.6
+
+glyph han-3e35:15x16 15 16 // 㸵
+⿰ han-725c:6x16 han-5409:9x16 // ⿰牜吉
+
+// glyph han-3e36:15x16 15 16 // 㸶
+// ⿰ han-725c han-56e0 // ⿰牜因
+
+## 93.7
+
+glyph han-3e3d:15x16 15 16 // 㸽
+⿰ han-725c:6x16 han-8c9d:9x16 // ⿰牜貝
+
+// glyph han-3e3f:15x16 15 16 // 㸿
+// ⿰ han-725c han-58f2 // ⿰牜売
+
+## 93.9
+
+glyph han-3e46:15x16 15 16 // 㹆
+⿰ han-725c:6x16 han-8ecd:9x16 // ⿰牜軍
+
+glyph han-3e47:15x16 15 16 // 㹇
+⿰ han-725c:6x16 han-66f7:9x16 // ⿰牜曷
+
+## 93.12
+
+glyph han-3e53:15x16 15 16 // 㹓
+⿰ han-725c:6x16 han-582f:9x16 // ⿰牜堯
+
+## 93.13
+
+// glyph han-3e55:15x16 15 16 // 㹕
+// ⿱ han-9811 han-725b // ⿱頑牛
+
+## 93.14
+
+glyph han-3e58:15x16 15 16 // 㹘
+⿰ han-725c:6x16 han-9700:9x16 // ⿰牜需
 
 # CJK unified ideographs extension A: 犬 (94)
 

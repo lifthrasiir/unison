@@ -30,6 +30,9 @@ glyph han-28e19:15x16 15 16 // 𨸙
 
 ## 170.4
 
+// glyph han-28e21:15x16 15 16 // 𨸡
+// ⿰ han-961d han-725b // ⿰阝牛
+
 glyph han-28e22:15x16 15 16 // 𨸢
 ⿰ han-961d:5x16-l 1 han-65a4:9x16 // ⿰阝斤
 
@@ -360,6 +363,9 @@ glyph han-28ffd:15x16 15 16 // 𨿽
 
 // glyph han-28fff:15x16 15 16 // 𨿿
 // ⿰ han-91cd han-96b9 // ⿰重隹
+
+// glyph han-29001:15x16 15 16 // 𩀁
+// ⿰ han-7678 han-96b9 // ⿰癸隹
 
 // glyph han-29004:15x16 15 16 // 𩀄
 // ⿰ han-8981 han-96b9 // ⿰要隹
