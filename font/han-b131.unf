@@ -411,3 +411,51 @@ glyph han-26aac:15x16 15 16 // 𦪬
 
 // glyph han-26ab5:15x16 15 16 // 𦪵
 // ⿰ han-821f han-7b95 // ⿰舟箕
+
+# CJK unified ideographs extension B: 色 (139)
+
+## 139.3
+
+// glyph han-26ad3:15x16 15 16 // 𦫓
+// ⿺ han-8272 han-5915 // ⿺色夕
+
+## 139.5
+
+// glyph han-26ad4:15x16 15 16 // 𦫔
+// ⿱ han-7676 han-8272 // ⿱癶色
+
+// glyph han-26ad5:15x16 15 16 // 𦫕
+// ⿰ han-672b han-8272 // ⿰末色
+
+// glyph han-26ad6:15x16 15 16 // 𦫖
+// ⿺ han-8272 han-767d // ⿺色白
+
+// glyph han-26ad7:15x16 15 16 // 𦫗
+// ⿰ han-76ae han-8272 // ⿰皮色
+
+// glyph han-26ad9:15x16 15 16 // 𦫙
+// ⿰ han-767d han-8272 // ⿰白色
+
+## 139.7
+
+// glyph han-26adc:15x16 15 16 // 𦫜
+// ⿰ han-2418d han-8272 // ⿰𤆍色
+
+// glyph han-26add:15x16 15 16 // 𦫝
+// ⿰ han-590b han-8272 // ⿰夋色
+
+## 139.8
+
+// glyph han-26adf:15x16 15 16 // 𦫟
+// ⿰ han-708e han-8272 // ⿰炎色
+
+// glyph han-26ae1:15x16 15 16 // 𦫡
+// ⿰ han-5176 han-8272 // ⿰其色
+
+## 139.9
+
+// glyph han-26ae4:15x16 15 16 // 𦫤
+// ⿺ han-8272 han-9801 // ⿺色頁
+
+// glyph han-26ae5:15x16 15 16 // 𦫥
+// ⿰ han-9762 han-8272 // ⿰面色

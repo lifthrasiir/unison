@@ -99,6 +99,9 @@ glyph han-2bc09:15x16 15 16 // 𫰉
 glyph han-2bc0c:15x16 15 16 // 𫰌
 ⿰ han-5973:5x16-l 1 han-4e94:9x16 // ⿰女五
 
+// glyph han-2bc0d:15x16 15 16 // 𫰍
+// ⿰ han-5973 han-97e6 // ⿰女韦
+
 glyph han-2bc0f:15x16 15 16 // 𫰏
 ⿱ han-5973:15x9 -1 han-6b62:15x8 // ⿱女止
 
@@ -149,6 +152,9 @@ glyph han-2bc2b:15x16 15 16 // 𫰫
 
 glyph han-2bc2c:15x16 15 16 // 𫰬
 ⿲ han-5973:5x16-l han-6728:5x16 han-5de5:5x16 // ⿲女木工
+
+// glyph han-2bc2d:15x16 15 16 // 𫰭
+// ⿰ han-5973 han-8d64 // ⿰女赤
 
 glyph han-2bc2f:15x16 15 16 // 𫰯
 ⿰ han-5973:5x16-l 1 han-56f0:9x16 // ⿰女困
@@ -453,10 +459,16 @@ glyph han-2bd73:15x16 15 16 // 𫵳
 
 ## 46.4
 
+// glyph han-2bd76:15x16 15 16 // 𫵶
+// ⿰ han-5c71 han-97e6 // ⿰山韦
+
 // glyph han-2bd77:15x16 15 16 // 𫵷
 // ⿰ han-5c71 han-5386 // ⿰山历
 
 ## 46.6
+
+// glyph han-2bd7a:15x16 15 16 // 𫵺
+// ⿰ han-5c71 han-8272 // ⿰山色
 
 // glyph han-2bd7b:15x16 15 16 // 𫵻
 // ⿳ han-5c71 han-5b80 han-5973 // ⿳山宀女 <- ⿱山安
@@ -761,6 +773,9 @@ glyph han-2be6f:15x16 15 16 // 𫹯
 // ⿱ han-5ddb han-5fc3 // ⿱巛心
 
 ## 61.4
+
+// glyph han-2be74:15x16 15 16 // 𫹴
+// ⿰ han-5fc4 han-97e6 // ⿰忄韦
 
 glyph han-2be75:15x16 15 16 // 𫹵
 ⿱ han-5143:15x9 1 han-5fc3:15x6 // ⿱元心

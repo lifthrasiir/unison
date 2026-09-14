@@ -318,6 +318,9 @@ glyph han-786f:15x16 15 16 // 硯
 glyph han-7871:15x16 15 16 // 硱
 ⿰ han-77f3:5x16 1 han-56f0:9x16 // ⿰石困
 
+// glyph han-7873:15x16 15 16 // 硳
+// ⿰ han-77f3 han-8d64 // ⿰石赤
+
 ## 112.8
 
 glyph han-787c:15x16 15 16 // 硼
@@ -640,6 +643,9 @@ glyph han-794c-(g|h|t):15x16 15 16 // 祌
 ⿰ han-793b:5x16 1 han-4e2d:9x16 // ⿰礻中
 glyph han-794c-(k|p):15x16 15 16 // 祌
 ⿰ han-793a:5x16 1 han-4e2d:9x16 // ⿰示中
+
+// glyph han-794e:15x16 15 16 // 祎
+// ⿰ han-793b han-97e6 // ⿰礻韦
 
 ## 113.5
 

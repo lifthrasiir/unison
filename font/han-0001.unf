@@ -4403,6 +4403,9 @@ glyph han-4f19:15x16 15 16 // 伙
 // glyph han-4f1d:15x16 15 16 // 伝
 // ⿰ han-4ebb han-4e91 // ⿰亻云
 
+// glyph han-4f1f:15x16 15 16 // 伟
+// ⿰ han-4ebb han-97e6 // ⿰亻韦
+
 glyph han-4f21:15x16 15 16 // 伡
 ⿰ han-4ebb:5x16 han-8f66:9x16 // ⿰亻车
 
@@ -4796,6 +4799,9 @@ glyph han-4fa3:15x16 15 16 // 侣
 glyph han-4fb1:15x16 15 16 // 侱
 ⿰ han-4ebb:3x16 1 han-5448:11x16 // ⿰亻呈
 
+// glyph han-4fb8:15x16 15 16 // 侸
+// ⿰ han-4ebb han-8c46 // ⿰亻豆
+
 glyph han-4fbd:15x16 15 16 // 侽
 ⿰ han-4ebb:5x16 1 han-7537:9x16 // ⿰亻男
 
@@ -4930,6 +4936,9 @@ glyph han-4ffd:15x16 15 16 // 俽
 glyph han-4ffe:15x16 15 16 // 俾
 ⿰ han-4ebb:5x16 han-5351.0:10x16 // ⿰亻卑
 glyph han-4ffe.0:* = han-4ffe:*
+
+// glyph han-5000:15x16 15 16 // 倀
+// ⿰ han-4ebb han-9577 // ⿰亻長
 
 glyph han-5005:15x16 15 16 // 倅
 ⿰ han-4ebb:5x16 1 han-5352:9x16 // ⿰亻卒

@@ -984,6 +984,9 @@ glyph han-75d0:15x16 15 16 // 痐
 
 ## 104.7
 
+// glyph han-75d8:15x16 15 16 // 痘
+// ⿸ han-7592 han-8c46 // ⿸疒豆
+
 // glyph han-75d9:15x16 15 16 // 痙
 // ⿸ han-7592 han-5de0 // ⿸疒巠
 
@@ -1012,6 +1015,9 @@ glyph han-75e1:15x16 15 16 // 痡
 
 // glyph han-75ed:15x16 15 16 // 痭
 // ⿸ han-7592 han-670b // ⿸疒朋
+
+// glyph han-75ee:15x16 15 16 // 痮
+// ⿸ han-7592 han-9577 // ⿸疒長
 
 glyph han-75f0:15x16 15 16 // 痰
 ⿸ han-7592:15x16.11x13 han-708e:9x12 5 4 // ⿸疒炎
@@ -1143,6 +1149,11 @@ glyph han-7677:15x16 15 16 // 癷
 
 glyph han-7678:15x16 15 16 // 癸
 ⿱ han-7676:15x5 han-5929:15x11 // ⿱癶天
+
+## 105.7
+
+// glyph han-767b:15x16 15 16 // 登
+// ⿱ han-7676 han-8c46 // ⿱癶豆
 
 # CJK unified ideographs: 白 (106)
 

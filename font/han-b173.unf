@@ -400,6 +400,11 @@ glyph han-291da-($han-regions):15x16 15 16 // 𩇚
 glyph han-291db-($han-regions):15x16 15 16 // 𩇛
 ⿰ han-751f:7x16 1 han-9752-($-1):7x16 // ⿰生青
 
+## 174.8
+
+// glyph han-291dd-($han-regions):15x16 15 16 // 𩇝
+// ⿰ han-51ca-($-1) han-8272 // ⿰凊色
+
 ## 174.9
 
 glyph han-291df-($han-regions):15x16 15 16 // 𩇟

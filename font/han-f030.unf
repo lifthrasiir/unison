@@ -489,6 +489,9 @@ glyph han-2d39b-($han-regions):15x16 15 16 // 𭎛
 // glyph han-2d39d:15x16 15 16 // 𭎝
 // ⿰ han-571f han-541e // ⿰土吞
 
+// glyph han-2d39e:15x16 15 16 // 𭎞
+// ⿰ han-571f han-8c46 // ⿰土豆
+
 // glyph han-2d39f:15x16 15 16 // 𭎟
 // ⿰ han-571f han-5426 // ⿰土否
 
@@ -583,6 +586,11 @@ glyph han-2d412:15x16 15 16 // 𭐒
 // glyph han-2d41d:15x16 15 16 // 𭐝
 // ref han-5902 // ⿻夂𰀪
 // ref han-3002a
+
+## 34.7
+
+// glyph han-2d41e:15x16 15 16 // 𭐞
+// ⿺ han-5902 han-8c46 // ⿺夂豆
 
 # CJK unified ideographs extension F: 夊 (35)
 

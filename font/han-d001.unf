@@ -303,6 +303,13 @@ glyph han-2b7f9:15x16 15 16 // 𫟹
 // glyph han-2b802-($han-regions):15x16 15 16 // 𫠂
 // ⿵ han-95e8 han-4ee4-($-1) // ⿵门令
 
+# CJK unified ideographs extension D: 韦 (178')
+
+## 178'.9
+
+// glyph han-2b805:15x16 15 16 // 𫠅
+// ⿰ han-97e6 han-9769 // ⿰韦革
+
 # CJK unified ideographs extension D: 魚 (195)
 
 ## 195.10

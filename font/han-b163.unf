@@ -156,6 +156,9 @@ glyph han-286c5:15x16 15 16 // 𨛅
 // glyph han-286c7:15x16 15 16 // 𨛇
 // ⿰ han-8089 han-961d // ⿰肉阝
 
+// glyph han-286c9:15x16 15 16 // 𨛉
+// ⿰ han-8272 han-961d // ⿰色阝
+
 // glyph han-286ca:15x16 15 16 // 𨛊
 // ⿲ han-72ad han-5927 han-961d // ⿲犭大阝
 
@@ -421,6 +424,9 @@ glyph han-28827:15x16 15 16 // 𨠧
 glyph han-28834:15x16 15 16 // 𨠴
 ⿰ han-9149:7x16 1 han-897f:7x16 // ⿰酉西
 
+// glyph han-28836:15x16 15 16 // 𨠶
+// ⿰ han-9149 han-8272 // ⿰酉色
+
 ## 164.7
 
 // glyph han-28838:15x16 15 16 // 𨠸
@@ -553,6 +559,19 @@ glyph han-288fa:15x16 15 16 // 𨣺
 ⿲ -5 han-9149:7x16 1 han-9b5a:7x16 han-79be:5x16 // ⿲酉魚禾
 
 # CJK unified ideographs extension B: 釆 (165)
+
+## 165.8
+
+// glyph han-28917:15x16 15 16 // 𨤗
+// ⿳ han-91c6 han-5927 han-76ee // ⿳釆大目
+
+## 165.9
+
+// glyph han-28918:15x16 15 16 // 𨤘
+// ⿱ han-91c6 han-67bc // ⿱釆枼
+
+// glyph han-28919:15x16 15 16 // 𨤙
+// ⿳ han-91c6 han-5927 han-7cf8 // ⿳釆大糸
 
 ## 165.10
 

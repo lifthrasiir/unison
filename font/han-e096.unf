@@ -219,6 +219,11 @@ glyph han-2c3d7:15x16 15 16 // 𬏗
 // glyph han-2c3ec-($han-regions):15x16 15 16 // 𬏬
 // ⿸ han-7592 han-7fbd-($-1) // ⿸疒羽
 
+## 104.7
+
+// glyph han-2c3ed:15x16 15 16 // 𬏭
+// ⿸ han-7592 han-8d64 // ⿸疒赤
+
 ## 104.8
 
 // glyph han-2c3f3:15x16 15 16 // 𬏳
@@ -565,6 +570,11 @@ glyph han-2c51b:15x16 15 16 // 𬔛
 glyph han-2c51c:15x16 15 16 // 𬔜
 ⿰ han-7acb:7x16 han-76ae:8x16 // ⿰立皮
 
+## 117.8
+
+// glyph han-2c521:15x16 15 16 // 𬔡
+// ⿰ han-7acb han-9577 // ⿰立長
+
 ## 117.9
 
 // glyph han-2c525:15x16 15 16 // 𬔥
@@ -818,6 +828,9 @@ glyph han-2c5d4:15x16 15 16 // 𬗔
 
 ## 120.7
 
+// glyph han-2c5d6:15x16 15 16 // 𬗖
+// ⿰ han-7cf8 han-8c46 // ⿰糸豆
+
 glyph han-2c5d7:15x16 15 16 // 𬗗
 ⿲ han-7cf9:5x16 han-624c:3x16 han-65a4:7x16 // ⿲糹扌斤
 
@@ -948,6 +961,9 @@ glyph han-2c664:15x16 15 16 // 𬙤
 # CJK unified ideographs extension E: 羊 (123)
 
 ## 123.4
+
+// glyph han-2c66d:15x16 15 16 // 𬙭
+// ⿰ han-7f8a han-97e6 // ⿰羊韦
 
 // glyph han-2c66e:15x16 15 16 // 𬙮
 // ⿱ han-7f8a han-725b // ⿱羊牛

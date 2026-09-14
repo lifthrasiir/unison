@@ -656,6 +656,9 @@ glyph han-30b92-t:15x16 15 16 // 𰮒
 // glyph han-30ba1:15x16 15 16 // 𰮡
 // ⿱ han-80ba han-516b // ⿱肺八
 
+// glyph han-30ba3:15x16 15 16 // 𰮣
+// ⿰ han-8089 han-8272 // ⿰肉色
+
 ## 130.7
 
 // glyph han-30ba9:15x16 15 16 // 𰮩
@@ -744,6 +747,21 @@ glyph han-30c0e:15x16 15 16 // 𰰎
 
 // glyph han-30c13-($han-regions):15x16 15 16 // 𰰓
 // ⿰ han-821f han-9032-($-1) // ⿰舟進
+
+# CJK unified ideographs extension G: 色 (139)
+
+## 139.5
+
+// glyph han-30c16:15x16 15 16 // 𰰖
+// ⿺ han-8272 han-7acb // ⿺色立
+
+// glyph han-30c17:15x16 15 16 // 𰰗
+// ⿺ han-8272 han-5b81 // ⿺色宁
+
+## 139.8
+
+// glyph han-30c19:15x16 15 16 // 𰰙
+// ⿰ han-91cd han-8272 // ⿰重色
 
 # CJK unified ideographs extension G: 艸 (140)
 

@@ -834,6 +834,9 @@ glyph han-73ad-($han-regions):15x16 15 16 // 玭
 ⿰ han-248e9:5x16 han-6bd4-($-1):10x16 // ⿰𤣩比
 glyph han-73ad.0:* = han-73ad-j:*
 
+// glyph han-73ae:15x16 15 16 // 玮
+// ⿰ han-248e9 han-97e6 // ⿰𤣩韦
+
 glyph han-73af:15x16 15 16 // 环
 ⿰ han-248e9:5x16 1 han-4e0d:9x16 // ⿰𤣩不
 

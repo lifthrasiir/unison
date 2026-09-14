@@ -481,6 +481,9 @@ glyph han-92a4:15x16 15 16 // 銤
 // glyph han-92a9:15x16 15 16 // 銩
 // ⿰ han-91d2 han-4e1f // ⿰釒丟
 
+// glyph han-92ab:15x16 15 16 // 銫
+// ⿰ han-91d2 han-8272 // ⿰釒色
+
 // glyph han-92af:15x16 15 16 // 銯
 // ⿰ han-91d2 han-7cf8 // ⿰釒糸
 
@@ -503,6 +506,9 @@ glyph han-92b7:15x16 15 16 // 銷
 
 // glyph han-92be:15x16 15 16 // 銾
 // ⿰ han-91d2 han-6c5e // ⿰釒汞
+
+// glyph han-92c0:15x16 15 16 // 鋀
+// ⿰ han-91d2 han-8c46 // ⿰釒豆
 
 glyph han-92c1.0:15x16 15 16 // 鋁
 ⿰ han-91d2:5x16-l 1 han-5415.x:9x16 // ⿰釒吕
@@ -583,6 +589,9 @@ glyph han-927c:15x16 15 16 // 鉼
 
 // glyph han-92f8:15x16 15 16 // 鋸
 // ⿰ han-91d2 han-5c45 // ⿰釒居
+
+// glyph han-92f9:15x16 15 16 // 鋹
+// ⿰ han-91d2 han-9577 // ⿰釒長
 
 glyph han-9301:15x16 15 16 // 錁
 ⿰ han-91d2:7x16 1 han-679c:7x16 // ⿰釒果
@@ -1158,6 +1167,9 @@ glyph han-94ec:15x16 15 16 // 铬
 
 glyph han-94ed:15x16 15 16 // 铭
 ⿰ han-9485:6x16 han-540d:9x16 // ⿰钅名
+
+// glyph han-94ef:15x16 15 16 // 铯
+// ⿰ han-9485 han-8272 // ⿰钅色
 
 glyph han-94f0:15x16 15 16 // 铰
 ⿰ han-9485:5x16 1 han-4ea4:9x16 // ⿰钅交

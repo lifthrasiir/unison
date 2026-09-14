@@ -30,6 +30,9 @@ glyph han-3b4a-t:15x16 15 16 // 㭊
 // glyph han-3b4c:15x16 15 16 // 㭌
 // ⿰ han-6728 han-725b // ⿰木牛
 
+// glyph han-3b4f:15x16 15 16 // 㭏
+// ⿰ han-6728 han-97e6 // ⿰木韦
+
 // glyph han-3b50:15x16 15 16 // 㭐
 // ⿱ han-5927 han-672b // ⿱大末
 
@@ -226,6 +229,11 @@ glyph han-3c29:15x16 15 16 // 㰩
 
 glyph han-3c2a:15x16 15 16 // 㰪
 ⿰ han-572d:7x16 1 han-6b20:7x16 // ⿰圭欠
+
+## 76.7
+
+// glyph han-3c2f:15x16 15 16 // 㰯
+// ⿰ han-8c46 han-6b20 // ⿰豆欠
 
 ## 76.8
 
@@ -628,6 +636,9 @@ glyph han-3db4:15x16 15 16 // 㶴
 // ⿱ han-8980 han-706d // ⿱覀灭
 
 ## 86.8
+
+// glyph han-3dc3:15x16 15 16 // 㷃
+// ⿱ han-706b han-9577 // ⿱火長
 
 glyph han-3dc4:15x16 15 16 // 㷄
 ⿰ han-706b:7x16 1 han-679c:7x16 // ⿰火果

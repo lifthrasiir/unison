@@ -831,6 +831,9 @@ glyph han-8857:15x16 15 16 // 街
 glyph han-885b:15x16 15 16 // 衛
 ⿲ han-5f73:3x16 han-97cb:7x16 han-4e8d:5x16 // ⿲彳韋亍
 
+// glyph han-885c:15x16 15 16 // 衜
+// ⿲ han-5f73 han-9996 han-4e8d // ⿲彳首亍
+
 // glyph han-885d:15x16 15 16 // 衝
 // ⿲ han-5f73 han-91cd han-4e8d // ⿲彳重亍
 
@@ -943,6 +946,9 @@ glyph han-887f:15x16 15 16 // 衿
 
 // glyph han-8883:15x16 15 16 // 袃
 // ⿱ han-5207 han-8863 // ⿱切衣
+
+// glyph han-8886:15x16 15 16 // 袆
+// ⿰ han-8864 han-97e6 // ⿰衤韦
 
 ## 145.5
 
@@ -1057,6 +1063,9 @@ glyph han-88c7:15x16 15 16 // 裇
 ⿰ han-8864:5x16 1 han-8840:9x16 // ⿰衤血
 
 ## 145.7
+
+// glyph han-88cb:15x16 15 16 // 裋
+// ⿰ han-8864 han-8c46 // ⿰衤豆
 
 glyph han-88cd:15x16 15 16 // 裍
 ⿰ han-8864:5x16 1 han-56f0:9x16 // ⿰衤困

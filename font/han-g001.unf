@@ -358,6 +358,9 @@ glyph han-300a9:15x16 15 16 // 𰂩
 // glyph han-300da:15x16 15 16 // 𰃚
 // ⿱ han-5165 han-8eca // ⿱入車
 
+// glyph han-300db:15x16 15 16 // 𰃛
+// ⿰ han-8c46 han-5165 // ⿰豆入
+
 ## 11.9
 
 // glyph han-300dc:15x16 15 16 // 𰃜
@@ -628,6 +631,11 @@ glyph han-30172:15x16 15 16 // 𰅲
 glyph han-30176:15x16 15 16 // 𰅶
 ⿱ han-53e4:15x8 1 han-5df4:15x7 // ⿱古巴
 
+## 24.8
+
+// glyph han-30178:15x16 15 16 // 𰅸
+// ⿰ han-5341 han-9577 // ⿰十長
+
 ## 24.11
 
 // glyph han-3017c-($han-regions):15x16 15 16 // 𰅼
@@ -790,6 +798,9 @@ glyph han-301f4:15x16 15 16 // 𰇴
 
 ## 30.9
 
+// glyph han-301ff:15x16 15 16 // 𰇿
+// ⿱ han-8c46 han-20b9f // ⿱豆𠮟
+
 // glyph han-30200:15x16 15 16 // 𰈀
 // ⿱ han-8d70 han-2b738 // ⿱走𫜸
 
@@ -900,6 +911,9 @@ glyph han-3024f:15x16 15 16 // 𰉏
 // ref han-571f
 
 ## 32.4
+
+// glyph han-30258:15x16 15 16 // 𰉘
+// ⿰ han-571f han-97e6 // ⿰土韦
 
 // glyph han-3025c:15x16 15 16 // 𰉜
 // ⿱ han-571f han-4eca // ⿱土今

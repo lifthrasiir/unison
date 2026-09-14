@@ -272,6 +272,9 @@ glyph han-3211c:15x16 15 16 // 𲄜
 
 ## 158.7
 
+// glyph han-32120:15x16 15 16 // 𲄠
+// ⿰ han-8eab han-8d64 // ⿰身赤
+
 // glyph han-32121:15x16 15 16 // 𲄡
 // ⿰ han-8eab han-9091 // ⿰身邑
 
@@ -304,6 +307,11 @@ glyph han-3213a:15x16 15 16 // 𲄺
 ⿰ han-8ecd:7x16 1 han-590b:7x16 // ⿰軍夋
 
 # CJK unified ideographs extension H: 车 (159')
+
+## 159'.4
+
+// glyph han-32140:15x16 15 16 // 𲅀
+// ⿰ han-8f66 han-97e6 // ⿰车韦
 
 ## 159'.7
 
@@ -810,12 +818,24 @@ glyph han-322d5:15x16 15 16 // 𲋕
 // glyph han-322dc:15x16 15 16 // 𲋜
 // ⿰ han-98e0 han-7686 // ⿰飠皆
 
+# CJK unified ideographs extension H: 首 (185)
+
+## 185.9
+
+// glyph han-322ed:15x16 15 16 // 𲋭
+// ⿺ han-662f han-9996 // ⿺是首
+
 # CJK unified ideographs extension H: 馬 (187)
 
 ## 187.4
 
 glyph han-322f3:15x16 15 16 // 𲋳
 ⿰ -1 han-99ac:7x16 1 han-6bd4-k:8x16 // ⿰馬比
+
+## 187.7
+
+// glyph han-322f9:15x16 15 16 // 𲋹
+// ⿰ han-99ac han-8d64 // ⿰馬赤
 
 ## 187.10
 

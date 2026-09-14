@@ -173,6 +173,9 @@ glyph han-4a67:15x16 15 16 // 䩧
 
 ## 177.8
 
+// glyph han-4a68:15x16 15 16 // 䩨
+// ⿰ han-9769 han-9577 // ⿰革長
+
 // glyph han-4a6d:15x16 15 16 // 䩭
 // ⿰ han-9769 han-5947 // ⿰革奇
 
@@ -415,6 +418,9 @@ glyph han-4b03:15x16 15 16 // 䬃
 // glyph han-4b06:15x16 15 16 // 䬆
 // ⿺ han-98a8 han-5229 // ⿺風利
 
+// glyph han-4b09:15x16 15 16 // 䬉
+// ⿺ han-98a8 han-8d64 // ⿺風赤
+
 ## 182.8
 
 // glyph han-4b0f:15x16 15 16 // 䬏
@@ -537,6 +543,13 @@ glyph han-4b3a:15x16 15 16 // 䬺
 
 // glyph han-4b5f:15x16 15 16 // 䭟
 // ⿰ han-98e0 han-8449 // ⿰飠葉
+
+# CJK unified ideographs extension A: 首 (185)
+
+## 185.9
+
+// glyph han-4b6d:15x16 15 16 // 䭭
+// ⿰ han-9996 han-9801 // ⿰首頁
 
 # CJK unified ideographs extension A: 馬 (187)
 
@@ -810,6 +823,9 @@ glyph han-4c4b:15x16 15 16 // 䱋
 // ⿰ han-9b5a han-4e98 // ⿰魚亘
 
 ## 195.7
+
+// glyph han-4c4f:15x16 15 16 // 䱏
+// ⿰ han-9b5a han-8c46 // ⿰魚豆
 
 glyph han-4c51:15x16 15 16 // 䱑
 ⿲ -1 han-9b5a:7x16 han-624c:3x16 han-65a4:6x16 // ⿲魚扌斤

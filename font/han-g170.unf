@@ -129,6 +129,31 @@ glyph han-31081:15x16 15 16 // 𱂁
 glyph han-31082:15x16 15 16 // 𱂂
 ⿲ han-97cb:7x16 han-79be:5x16 han-5202:3x16 // ⿲韋禾刂
 
+# CJK unified ideographs extension G: 韦 (178')
+
+## 178'.5
+
+// glyph han-31084:15x16 15 16 // 𱂄
+// ⿰ han-97e6 han-672a // ⿰韦未
+
+// glyph han-31085:15x16 15 16 // 𱂅
+// ⿰ han-97e6 han-5fc5 // ⿰韦必
+
+## 178'.6
+
+// glyph han-31086:15x16 15 16 // 𱂆
+// ⿰ han-97e6 han-5408 // ⿰韦合
+
+## 178'.7
+
+// glyph han-31089:15x16 15 16 // 𱂉
+// ⿰ han-97e6 han-8096 // ⿰韦肖
+
+## 178'.9
+
+// glyph han-3108a:15x16 15 16 // 𱂊
+// ⿰ han-97e6 han-67bc // ⿰韦枼
+
 # CJK unified ideographs extension G: 韭 (179)
 
 ## 179.5

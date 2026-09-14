@@ -558,6 +558,9 @@ glyph han-6341-(h|j):15x16 15 16 // 捁
 glyph han-6346:15x16 15 16 // 捆
 ⿰ han-624c:3x16 han-56f0:13x16 // ⿰扌困
 
+// glyph han-6347:15x16 15 16 // 捇
+// ⿰ han-624c han-8d64 // ⿰扌赤
+
 // glyph han-6349:15x16 15 16 // 捉
 // ⿰ han-624c han-8db3 // ⿰扌足
 
@@ -630,6 +633,9 @@ glyph han-637d:15x16 15 16 // 捽
 
 glyph han-6380:15x16 15 16 // 掀
 ⿲ -1 han-624c:3x16 han-65a4:6x16 han-6b20:7x16 // ⿲扌斤欠
+
+// glyph han-6381:15x16 15 16 // 掁
+// ⿰ han-624c han-9577 // ⿰扌長
 
 // glyph han-6382:15x16 15 16 // 掂
 // ⿰ han-624c han-5e97 // ⿰扌店

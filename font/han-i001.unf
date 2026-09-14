@@ -59,7 +59,19 @@ glyph han-2ebf6:15x16 15 16 // 𮯶
 glyph han-2ec06:15x16 15 16 // 𮰆
 ⿰ han-51ab:5x16 1 han-5f13:9x16 // ⿰冫弓
 
+# CJK unified ideographs extension I: 几 (16)
+
+## 16.7
+
+// glyph han-2ec0a:15x16 15 16 // 𮰊
+// ⿰ han-8d64 han-51e0 // ⿰赤几
+
 # CJK unified ideographs extension I: 口 (30)
+
+## 30.4
+
+// glyph han-2ec14:15x16 15 16 // 𮰔
+// ⿰ han-53e3 han-97e6 // ⿰口韦
 
 ## 30.9
 
@@ -557,9 +569,19 @@ glyph han-2ed3e:15x16 15 16 // 𮴾
 glyph han-2ed44:15x16 15 16 // 𮵄
 ⿰ han-767d:8x16 han-4eca:7x16 // ⿰白今
 
+# CJK unified ideographs extension I: 目 (109)
+
+## 109.4
+
+// glyph han-2ed46:15x16 15 16 // 𮵆
+// ⿰ han-76ee han-97e6 // ⿰目韦
+
 # CJK unified ideographs extension I: 石 (112)
 
 ## 112.4
+
+// glyph han-2ed4a:15x16 15 16 // 𮵊
+// ⿰ han-77f3 han-97e6 // ⿰石韦
 
 glyph han-2ed4c:15x16 15 16 // 𮵌
 ⿲ han-77f3:5x16 han-5b50.0:5x16-l han-4e5a:5x16 // ⿲石子乚
@@ -596,6 +618,11 @@ glyph han-2ed58:15x16 15 16 // 𮵘
 // ⿲ han-793b han-4eb2 han-65a4 // ⿲礻亲斤 <- ⿰礻新
 
 # CJK unified ideographs extension I: 禾 (115)
+
+## 115.4
+
+// glyph han-2ed60:15x16 15 16 // 𮵠
+// ⿰ han-79be han-97e6 // ⿰禾韦
 
 ## 115.6
 
@@ -704,6 +731,13 @@ glyph han-2ed90:15x16 15 16 // 𮶐
 glyph han-2ed92:15x16 15 16 // 𮶒
 ⿰ han-8033:7x16 1 han-572d:7x16 // ⿰耳圭
 
+# CJK unified ideographs extension I: 肉 (130)
+
+## 130.4
+
+// glyph han-2ed94:15x16 15 16 // 𮶔
+// ⿰ han-6708 han-97e6 // ⿰月韦
+
 # CJK unified ideographs extension I: 舟 (137)
 
 ## 137.3
@@ -800,6 +834,13 @@ glyph han-2edc6:15x16 15 16 // 𮷆
 
 glyph han-2edca:15x16 15 16 // 𮷊
 ⿰ han-8ba0:5x16 1 han-756a:9x16 // ⿰讠番
+
+# CJK unified ideographs extension I: 豆 (151)
+
+## 151.2
+
+// glyph han-2edcb:15x16 15 16 // 𮷋
+// ⿰ han-8c46 han-529b // ⿰豆力
 
 # CJK unified ideographs extension I: 足 (157)
 

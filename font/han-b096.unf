@@ -378,6 +378,9 @@ ref han-98a8:11x16 4 0
 glyph han-249fc:15x16 15 16 // 𤧼
 ⿰ han-248e9:5x16 1 han-9ad8:9x16 // ⿰𤣩高
 
+// glyph han-249fe:15x16 15 16 // 𤧾
+// ⿲ han-248e9 han-65b9 han-8272 // ⿲𤣩方色
+
 // glyph han-24a05:15x16 15 16 // 𤨅
 // ⿲ han-248e9 han-65e5 han-5bfa // ⿲𤣩日寺
 

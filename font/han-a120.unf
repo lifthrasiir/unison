@@ -391,6 +391,11 @@ glyph han-43b4:15x16 15 16 // 䎴
 glyph han-43b6:15x16 15 16 // 䎶
 ⿰ han-8033:6x16-l han-7533:9x16 // ⿰耳申
 
+## 128.7
+
+// glyph han-43b9:15x16 15 16 // 䎹
+// ⿱ han-91c6 han-8033 // ⿱釆耳
+
 ## 128.8
 
 glyph han-43bb:15x16 15 16 // 䎻
@@ -693,6 +698,13 @@ glyph han-4476-($han-regions):15x16 15 16 // 䑶
 // glyph han-4481-($han-regions):15x16 15 16 // 䒁
 // ⿰ han-821f han-7fd2-($-1) // ⿰舟習
 
+# CJK unified ideographs extension A: 色 (139)
+
+## 139.5
+
+// glyph han-448b:15x16 15 16 // 䒋
+// ⿰ han-592e han-8272 // ⿰央色
+
 # CJK unified ideographs extension A: 艸 (140)
 
 ## 140.2
@@ -793,6 +805,9 @@ glyph han-44c1:15x16 15 16 // 䓁
 
 // glyph han-44c6:15x16 15 16 // 䓆
 // ⿱ han-8279 han-6298 // ⿱艹折
+
+// glyph han-44c7:15x16 15 16 // 䓇
+// ⿱ han-8279 han-8d64 // ⿱艹赤
 
 // glyph han-44ca:15x16 15 16 // 䓊
 // ⿳ han-8279 han-4e94 han-53e3 // ⿳艹五口 <- ⿱艹吾
@@ -1080,6 +1095,9 @@ glyph han-45be:15x16 15 16 // 䖾
 
 // glyph han-45c1:15x16 15 16 // 䗁
 // ⿰ han-866b han-5947 // ⿰虫奇
+
+// glyph han-45c5:15x16 15 16 // 䗅
+// ⿰ han-866b han-9577 // ⿰虫長
 
 // glyph han-45c8-($han-regions):15x16 15 16 // 䗈
 // ⿰ han-866b han-76f2-($-1) // ⿰虫盲

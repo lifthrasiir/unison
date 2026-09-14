@@ -1465,6 +1465,9 @@ glyph han-7cba:15x16 15 16 // 粺
 ⿰ han-7c73:5x16 han-5351.0:10x16 // ⿰米卑
 glyph han-7cba.0:* = han-7cba:*
 
+// glyph han-7cbb:15x16 15 16 // 粻
+// ⿰ han-7c73 han-9577 // ⿰米長
+
 // glyph han-7cbc:15x16 15 16 // 粼
 // ⿰ han-7ca6 han-5ddc // ⿰粦巜
 

@@ -281,6 +281,69 @@ glyph han-27e30:15x16 15 16 // 𧸰
 // glyph han-27e48:15x16 15 16 // 𧹈
 // ⿳ han-8c9d han-8ccf han-5927 // ⿳貝賏大 <- ⿱贔大
 
+# CJK unified ideographs extension B: 赤 (155)
+
+## 155.2
+
+// glyph han-27e59:15x16 15 16 // 𧹙
+// ⿰ han-8d64 han-4e01 // ⿰赤丁
+
+// glyph han-27e5a:15x16 15 16 // 𧹚
+// ⿰ han-4e01 han-8d64 // ⿰丁赤
+
+## 155.5
+
+// glyph han-27e5e:15x16 15 16 // 𧹞
+// ⿰ han-8d64 han-76ae // ⿰赤皮
+
+## 155.6
+
+// glyph han-27e61:15x16 15 16 // 𧹡
+// ⿰ han-8d64 han-767e // ⿰赤百
+
+// glyph han-27e62:15x16 15 16 // 𧹢
+// ⿰ han-8d64 han-56e0 // ⿰赤因
+
+## 155.7
+
+// glyph han-27e64:15x16 15 16 // 𧹤
+// ⿰ han-8d64 han-8db3 // ⿰赤足
+
+// glyph han-27e65:15x16 15 16 // 𧹥
+// ⿱ han-8d64 han-675c // ⿱赤杜
+
+// glyph han-27e66:15x16 15 16 // 𧹦
+// ⿱ han-8d64 han-898b // ⿱赤見
+
+## 155.8
+
+// glyph han-27e6b:15x16 15 16 // 𧹫
+// ⿱ han-6797 han-8d64 // ⿱林赤
+
+## 155.9
+
+// glyph han-27e6c:15x16 15 16 // 𧹬
+// ⿰ han-8d64 han-5794 // ⿰赤垔
+
+## 155.12
+
+// glyph han-27e78:15x16 15 16 // 𧹸
+// ⿰ han-8d64 han-264d4 // ⿰赤𦓔
+
+// glyph han-27e7b-($han-regions):15x16 15 16 // 𧹻
+// ⿰ han-8d64 han-5835-($-1) // ⿰赤堵
+
+// glyph han-27e7c-($han-regions):15x16 15 16 // 𧹼
+// ⿱ han-8d64 han-90fd-($-1) // ⿱赤都
+
+## 155.16
+
+// glyph han-27e82-($han-regions):15x16 15 16 // 𧺂
+// ⿱ han-89a9-($-1) han-8d64 // ⿱覩赤
+
+// glyph han-27e83-($han-regions):15x16 15 16 // 𧺃
+// ⿱ han-8d64 han-89a9-($-1) // ⿱赤覩
+
 # CJK unified ideographs extension B: 走 (156)
 
 ## 156.1
@@ -498,6 +561,9 @@ glyph han-27e30:15x16 15 16 // 𧸰
 
 // glyph han-27efc:15x16 15 16 // 𧻼
 // ⿺ han-8d70 han-573c // ⿺走圼
+
+// glyph han-27eff:15x16 15 16 // 𧻿
+// ⿺ han-8d70 han-8c46 // ⿺走豆
 
 // glyph han-27f00:15x16 15 16 // 𧼀
 // ⿺ han-8d70 han-8c9d // ⿺走貝

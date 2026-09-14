@@ -120,6 +120,9 @@ glyph han-211cc:15x16 15 16 // 𡇌
 // glyph han-211e3:15x16 15 16 // 𡇣
 // ⿴ han-56db han-53e4 // ⿴四古
 
+// glyph han-211e7:15x16 15 16 // 𡇧
+// ⿴ han-56d7 han-8c46 // ⿴囗豆
+
 // glyph han-211e8:15x16 15 16 // 𡇨
 // ⿴ han-56d7 han-7537 // ⿴囗男
 
@@ -487,6 +490,9 @@ glyph han-212f5:15x16 15 16 // 𡋵
 
 // glyph han-212fc:15x16 15 16 // 𡋼
 // ⿰ han-571f han-58f3 // ⿰土壳
+
+// glyph han-212fd:15x16 15 16 // 𡋽
+// ⿰ han-571f han-8d64 // ⿰土赤
 
 glyph han-212ff:15x16 15 16 // 𡋿
 ⿰ han-571f:3x16-l 1 han-5415.x:11x16 // ⿰土吕

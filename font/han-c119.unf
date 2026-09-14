@@ -630,6 +630,9 @@ glyph han-2b2c1:15x16 15 16 // 𫋁
 // glyph han-2b2cb:15x16 15 16 // 𫋋
 // ⿰ han-866b han-76c3 // ⿰虫盃
 
+// glyph han-2b2ce:15x16 15 16 // 𫋎
+// ⿰ han-866b han-9996 // ⿰虫首
+
 ## 142.11
 
 glyph han-2b2d8:15x16 15 16 // 𫋘
@@ -887,6 +890,18 @@ glyph han-2b396:15x16 15 16 // 𫎖
 
 glyph han-2b39e:15x16 15 16 // 𫎞
 ⿰ han-8c9d:6x16 han-97cb:9x16 // ⿰貝韋
+
+# CJK unified ideographs extension C: 赤 (155)
+
+## 155.6
+
+// glyph han-2b3ae:15x16 15 16 // 𫎮
+// ⿰ han-8d64 han-81f3 // ⿰赤至
+
+## 155.11
+
+// glyph han-2b3b0:15x16 15 16 // 𫎰
+// ⿰ han-8d64 han-7d30 // ⿰赤細
 
 # CJK unified ideographs extension C: 走 (156)
 

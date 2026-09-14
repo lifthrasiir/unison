@@ -2291,6 +2291,9 @@ glyph han-5e0a:15x16 15 16 // 帊
 // glyph han-5e0d:15x16 15 16 // 帍
 // ⿸ han-6236 han-5dfe // ⿸戶巾
 
+// glyph han-5e0f:15x16 15 16 // 帏
+// ⿰ han-5dfe han-97e6 // ⿰巾韦
+
 ## 50.5
 
 glyph han-5e13:15x16 15 16 // 帓
@@ -2343,6 +2346,9 @@ glyph han-5e29:15x16 15 16 // 帩
 ⿰ han-5dfe:7x16 1 han-8096:7x16 // ⿰巾肖
 
 ## 50.8
+
+// glyph han-5e33:15x16 15 16 // 帳
+// ⿰ han-5dfe han-9577 // ⿰巾長
 
 glyph han-5e37:15x16 15 16 // 帷
 ⿰ han-5dfe:7x16 1 han-96b9:7x16 // ⿰巾隹
@@ -3435,6 +3441,9 @@ glyph han-5f33:15x16 15 16 // 弳
 ⿰ han-5f13:6x16 han-5de0:9x16 // ⿰弓巠
 
 ## 57.8
+
+// glyph han-5f35:15x16 15 16 // 張
+// ⿰ han-5f13 han-9577 // ⿰弓長
 
 glyph han-5f37:15x16 15 16 // 強
 ⿰ han-5f13:4x16 han-27227:11x16 // ⿰弓𧈧

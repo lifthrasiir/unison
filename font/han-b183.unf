@@ -258,6 +258,41 @@ glyph han-297bb:15x16 15 16 // 𩞻
 // glyph han-297e2:15x16 15 16 // 𩟢
 // ⿰ han-98e0 han-84b2 // ⿰飠蒲
 
+# CJK unified ideographs extension B: 首 (185)
+
+## 185.2
+
+// glyph han-29811:15x16 15 16 // 𩠑
+// ⿰ han-4e01 han-9996 // ⿰丁首
+
+## 185.4
+
+// glyph han-29814:15x16 15 16 // 𩠔
+// ⿰ han-9996 han-6bdb // ⿰首毛
+
+## 185.5
+
+// glyph han-29817:15x16 15 16 // 𩠗
+// ⿰ han-76ae han-9996 // ⿰皮首
+
+## 185.7
+
+// glyph han-29824:15x16 15 16 // 𩠤
+// ⿰ han-9996 han-752b // ⿰首甫
+
+// glyph han-29826:15x16 15 16 // 𩠦
+// ⿰ han-8096 han-9996 // ⿰肖首
+
+## 185.9
+
+// glyph han-2982c:15x16 15 16 // 𩠬
+// ⿰ han-9996 han-9996 // ⿰首首
+
+## 185.12
+
+// glyph han-29833:15x16 15 16 // 𩠳
+// ⿰ han-9996 han-690e // ⿰首椎
+
 # CJK unified ideographs extension B: 香 (186)
 
 ## 186.1

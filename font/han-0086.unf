@@ -439,6 +439,9 @@ glyph han-709a:15x16 15 16 // 炚
 // glyph han-709b:15x16 15 16 // 炛
 // ⿱ han-706b han-5316 // ⿱火化
 
+// glyph han-709c:15x16 15 16 // 炜
+// ⿰ han-706b han-97e6 // ⿰火韦
+
 ## 86.5
 
 glyph han-709f:15x16 15 16 // 炟
@@ -594,6 +597,9 @@ glyph han-70fe:15x16 15 16 // 烾
 
 // glyph han-7101:15x16 15 16 // 焁
 // ⿱ han-5439 han-706b // ⿱吹火
+
+// glyph han-7103:15x16 15 16 // 焃
+// ⿰ han-706b han-8d64 // ⿰火赤
 
 glyph han-7105-(g|t|k|p):15x16 15 16 // 焅
 ⿰ han-706b:7x16 han-544a:8x16 // ⿰火告

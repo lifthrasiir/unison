@@ -253,6 +253,11 @@ glyph han-2b8f9:15x16 15 16 // 𫣹
 
 # CJK unified ideographs extension E: 儿 (10)
 
+## 10.11
+
+// glyph han-2b91e:15x16 15 16 // 𫤞
+// ⿺ han-5143 han-9996 // ⿺元首
+
 ## 10.12
 
 // glyph han-2b91f:15x16 15 16 // 𫤟
@@ -752,6 +757,9 @@ glyph han-2ba8d:15x16 15 16 // 𫪍
 glyph han-2ba9a:15x16 15 16 // 𫪚
 ⿲ han-53e3:3x16-l 1 han-8f66:4x16-l han-65a4:7x16 // ⿲口车斤
 
+// glyph han-2ba9b:15x16 15 16 // 𫪛
+// ⿰ han-53e3 han-9577 // ⿰口長
+
 // glyph han-2baa0:15x16 15 16 // 𫪠
 // ⿳ han-5405 han-5196 han-5c38 // ⿳吅冖尸
 
@@ -994,6 +1002,11 @@ glyph han-2bb80:15x16 15 16 // 𫮀
 
 // glyph han-2bb84:15x16 15 16 // 𫮄
 // ⿱ han-963f han-571f // ⿱阿土
+
+## 32.9
+
+// glyph han-2bb90:15x16 15 16 // 𫮐
+// ⿰ han-571f han-9996 // ⿰土首
 
 ## 32.10
 

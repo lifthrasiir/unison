@@ -111,6 +111,9 @@ glyph han-2d52e:15x16 15 16 // 𭔮
 
 ## 41.7
 
+// glyph han-2d530:15x16 15 16 // 𭔰
+// ⿰ han-8c46 han-5bf8 // ⿰豆寸
+
 glyph han-2d532:15x16 15 16 // 𭔲
 ⿳ -5 han-5df1:15x7 han-5fc3:15x5 han-5bf8:15x9 // ⿳己心寸
 
@@ -679,6 +682,9 @@ glyph han-2d6f1:15x16 15 16 // 𭛱
 
 glyph han-2d6fb:15x16 15 16 // 𭛻
 ⿲ han-5f73:3x16 han-79be:5x16 han-706b:7x16 // ⿲彳禾火
+
+// glyph han-2d6fc:15x16 15 16 // 𭛼
+// ⿰ han-5f73 han-9996 // ⿰彳首
 
 ## 60.13
 

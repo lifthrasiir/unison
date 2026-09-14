@@ -178,6 +178,9 @@ glyph han-30d66:15x16 15 16 // 𰵦
 glyph han-30d69:15x16 15 16 // 𰵩
 ⿰ han-8ba0:5x16 1 han-752b:9x16 // ⿰讠甫
 
+// glyph han-30d6b:15x16 15 16 // 𰵫
+// ⿰ han-8ba0 han-8c46 // ⿰讠豆
+
 // glyph han-30d6c:15x16 15 16 // 𰵬
 // ⿲ han-8ba0 han-53e6 han-5202 // ⿲讠另刂
 
@@ -220,6 +223,33 @@ glyph han-30d7f:15x16 15 16 // 𰵿
 
 glyph han-30d8c:15x16 15 16 // 𰶌
 ⿰ han-8ba0:5x16 1 han-9700:9x16 // ⿰讠需
+
+# CJK unified ideographs extension G: 豆 (151)
+
+## 151.4
+
+// glyph han-30d98:15x16 15 16 // 𰶘
+// ⿰ han-592b han-8c46 // ⿰夫豆
+
+## 151.5
+
+// glyph han-30d99:15x16 15 16 // 𰶙
+// ⿰ han-8c46 han-706d // ⿰豆灭
+
+## 151.7
+
+// glyph han-30d9c:15x16 15 16 // 𰶜
+// ⿰ han-8c46 han-5b8c // ⿰豆完
+
+## 151.12
+
+// glyph han-30da0-($han-regions):15x16 15 16 // 𰶠
+// ⿰ han-8c46 han-90fd-($-1) // ⿰豆都
+
+## 151.13
+
+// glyph han-30da2:15x16 15 16 // 𰶢
+// ⿰ han-8c46 han-60f3 // ⿰豆想
 
 # CJK unified ideographs extension G: 貝 (154)
 
@@ -276,6 +306,13 @@ glyph han-30dc2:15x16 15 16 // 𰷂
 
 glyph han-30dc9:15x16 15 16 // 𰷉
 ⿰ han-8c9d:6x16 2 han-9762:7x16 // ⿰貝面
+
+# CJK unified ideographs extension G: 赤 (155)
+
+## 155.6
+
+// glyph han-30def:15x16 15 16 // 𰷯
+// ⿱ han-540c han-8d64 // ⿱同赤
 
 # CJK unified ideographs extension G: 走 (156)
 
@@ -647,6 +684,13 @@ glyph han-30f0c:15x16 15 16 // 𰼌
 glyph han-30f14:15x16 15 16 // 𰼔
 ⿲ -3 han-9149:7x16 1 han-7cf9:5x16 han-5409:5x16 // ⿲酉糹吉
 
+# CJK unified ideographs extension G: 釆 (165)
+
+## 165.4
+
+// glyph han-30f17:15x16 15 16 // 𰼗
+// ⿰ han-91c6 han-4e95 // ⿰釆井
+
 # CJK unified ideographs extension G: 里 (166)
 
 ## 166.9
@@ -880,6 +924,13 @@ glyph han-30fb4:15x16 15 16 // 𰾴
 glyph han-30fc2:15x16 15 16 // 𰿂
 ⿰ han-9485:5x16 1 han-9700:9x16 // ⿰钅需
 
+# CJK unified ideographs extension G: 長 (168)
+
+## 168.7
+
+// glyph han-30fcf:15x16 15 16 // 𰿏
+// ⿺ han-9577 han-91cc // ⿺長里
+
 # CJK unified ideographs extension G: 門 (169)
 
 ## 169.2
@@ -944,6 +995,9 @@ glyph han-30fed:15x16 15 16 // 𰿭
 ⿵ han-95e8:15x16.11x15 han-7530:9x11 3 4 // ⿵门田
 
 ## 169'.7
+
+// glyph han-30fef:15x16 15 16 // 𰿯
+// ⿵ han-95e8 han-8c46 // ⿵门豆
 
 // glyph han-30ff0:15x16 15 16 // 𰿰
 // ⿵ han-95e8 han-8eab // ⿵门身

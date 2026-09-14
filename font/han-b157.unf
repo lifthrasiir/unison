@@ -225,6 +225,9 @@ glyph han-28045:15x16 15 16 // 𨁅
 glyph han-28049:15x16 15 16 // 𨁉
 ⿰ han-27fb7:5x16 1 han-56f0:9x16 // ⿰𧾷困
 
+// glyph han-2804b:15x16 15 16 // 𨁋
+// ⿰ han-27fb7 han-8c46 // ⿰𧾷豆
+
 glyph han-2804d:15x16 15 16 // 𨁍
 ⿰ han-27fb7:5x16 han-898b:10x16 // ⿰𧾷見
 
@@ -246,6 +249,9 @@ glyph han-2805a:15x16 15 16 // 𨁚
 glyph han-2805c:15x16 15 16 // 𨁜
 ⿲ -2 han-27fb7:5x16 han-624c:3x16 han-592b:9x16 // ⿲𧾷扌夫
 
+// glyph han-28062:15x16 15 16 // 𨁢
+// ⿱ han-91c6 han-8db3 // ⿱釆足
+
 // glyph han-28064:15x16 15 16 // 𨁤
 // ⿰ han-27fb7 han-5e8a // ⿰𧾷床
 
@@ -266,6 +272,9 @@ glyph han-2806b:15x16 15 16 // 𨁫
 
 glyph han-2806c:15x16 15 16 // 𨁬
 ⿲ han-27fb7:5x16 han-4ebb:3x16 han-7533:7x16 // ⿲𧾷亻申
+
+// glyph han-2806f:15x16 15 16 // 𨁯
+// ⿰ han-27fb7 han-8d64 // ⿰𧾷赤
 
 glyph han-28070:15x16 15 16 // 𨁰
 ⿲ -1 han-27fb7:5x16 1 han-53e3:3x16-l han-6b20:7x16 // ⿲𧾷口欠
