@@ -331,8 +331,8 @@ glyph han-26772:15x16 15 16 // 𦝲
 glyph han-267b0:15x16 15 16 // 𦞰
 ⿰ han-6708:5x16-l 1 han-6817:9x16 // ⿰月栗
 
-glyph han-267bd:15x16 15 16 // 𦞽
-⿰ han-6708:5x16-l 1 han-9aa8:9x16 // ⿰月骨
+glyph han-267bd-($han-regions):15x16 15 16 // 𦞽
+⿰ han-6708:5x16-l 1 han-9aa8-($-1):9x16 // ⿰月骨
 
 glyph han-267c3:15x16 15 16 // 𦟃
 ⿲ -3 han-6708:5x16-l han-723f:6x16 han-7f8a:7x16 // ⿲月爿羊

@@ -702,6 +702,7 @@ glyph han-7562.0:* = han-7562:*
 
 glyph han-7565:15x16 15 16 // 略
 ⿰ han-7530:7x16-l 1 han-5404:7x16 // ⿰田各
+glyph han-7565.0:* = han-7565:*
 
 glyph han-7566:15x16 15 16 // 畦
 ⿰ han-7530:7x16-l 1 han-572d:7x16 // ⿰田圭

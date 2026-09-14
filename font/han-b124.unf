@@ -454,8 +454,8 @@ glyph han-265c7:15x16 15 16 // 𦗇
 
 ## 128.10
 
-glyph han-265bc:15x16 15 16 // 𦖼
-⿰ han-8033:7x16 1 han-9aa8:7x16 // ⿰耳骨
+glyph han-265bc-($han-regions):15x16 15 16 // 𦖼
+⿰ han-8033:7x16 1 han-9aa8-($-1):7x16 // ⿰耳骨
 
 // glyph han-265bd:15x16 15 16 // 𦖽
 // ⿱ han-241fe han-8033 // ⿱𤇾耳

@@ -516,8 +516,8 @@ glyph han-21ea8:15x16 15 16 // 𡺨
 // glyph han-21ec4:15x16 15 16 // 𡻄
 // ⿲ han-5c71 han-65e5 han-5bfa // ⿲山日寺
 
-glyph han-21ecb:15x16 15 16 // 𡻋
-⿰ han-5c71:5x16 1 han-9aa8:9x16 // ⿰山骨
+glyph han-21ecb-($han-regions):15x16 15 16 // 𡻋
+⿰ han-5c71:5x16 1 han-9aa8-($-1):9x16 // ⿰山骨
 
 // glyph han-21ed3:15x16 15 16 // 𡻓
 // ⿱ han-5c71 han-500d // ⿱山倍

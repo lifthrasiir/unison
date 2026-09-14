@@ -516,7 +516,7 @@ glyph han-25c47:15x16 15 16 // 𥱇
 
 glyph han-25c6a:15x16 15 16 // 𥱪
 ref han-25ad7:15x5 0 0 // ⿱𥫗骨
-ref han-9aa8:15x12 0 4
+ref han-9aa8-v:15x12 0 4
 
 // glyph han-25c6c:15x16 15 16 // 𥱬
 // ⿱ han-25ad7 han-8a18 // ⿱𥫗記

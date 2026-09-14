@@ -4739,7 +4739,7 @@ $$../10/......@@......\01\..$$
 /h~H0/........@@........\0H~h\
 ref han-4eba:7x8 0 3
 ref han-4eba:7x8 8 3
-glyph han-4f86:15x16.0 = han-4f86:15x16
+glyph han-4f86.0:* = han-4f86:*
 
 glyph han-4f88:15x16 15 16 // 侈
 ⿰ han-4ebb:5x16 han-591a:9x16 // ⿰亻多
@@ -5125,8 +5125,8 @@ glyph han-50a0.0:* = han-50a0-j:*
 glyph han-50a1:15x16 15 16 // 傡
 ⿲ han-4ebb:3x16 han-7acb:5x16 han-7acb:7x16 // ⿲亻立立
 
-glyph han-50a6:15x16 15 16 // 傦
-⿰ han-4ebb:5x16 1 han-9aa8:9x16 // ⿰亻骨
+glyph han-50a6-($han-regions):15x16 15 16 // 傦
+⿰ han-4ebb:5x16 1 han-9aa8-($-1):9x16 // ⿰亻骨
 
 glyph han-50a8-($han-regions):15x16 15 16 // 储
 ⿲ han-4ebb:3x16 han-8ba0:3x16 han-8005-($-1):9x16 // ⿲亻讠者

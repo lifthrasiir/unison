@@ -409,8 +409,8 @@ glyph han-276de:15x16 15 16 // 𧛞
 // glyph han-2770f:15x16 15 16 // 𧜏
 // ⿳ han-4ea0 han-975e han-8863 // ⿳亠非衣
 
-glyph han-27713:15x16 15 16 // 𧜓
-⿰ han-8864:5x16 1 han-9aa8:9x16 // ⿰衤骨
+glyph han-27713-($han-regions):15x16 15 16 // 𧜓
+⿰ han-8864:5x16 1 han-9aa8-($-1):9x16 // ⿰衤骨
 
 glyph han-27717:15x16 15 16 // 𧜗
 ⿰ han-8864:5x16 1 han-99ac:9x16 // ⿰衤馬

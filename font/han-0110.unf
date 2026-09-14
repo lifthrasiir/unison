@@ -419,8 +419,9 @@ glyph han-78bb:15x16 15 16 // 碻
 glyph han-78bc:15x16 15 16 // 碼
 ⿰ han-77f3:5x16 1 han-99ac:9x16 // ⿰石馬
 
-glyph han-78c6:15x16 15 16 // 磆
-⿰ han-77f3:5x16 1 han-9aa8:9x16 // ⿰石骨
+glyph han-78c6-($han-regions):15x16 15 16 // 磆
+⿰ han-77f3:5x16 1 han-9aa8-($-1):9x16 // ⿰石骨
+glyph han-78c6.0:* = han-78c6-j:*
 
 // glyph han-78ca:15x16 15 16 // 磊
 // ⿱ han-77f3 han-7833 // ⿱石砳
@@ -455,6 +456,7 @@ glyph han-78f7:15x16 15 16 // 磷
 
 glyph han-78fb:15x16 15 16 // 磻
 ⿰ han-77f3:7x16 1 han-756a:7x16 // ⿰石番
+glyph han-78fb.0:* = han-78fb:*
 
 glyph han-78fd:15x16 15 16 // 磽
 ⿰ han-77f3:7x16 1 han-582f:7x16 // ⿰石堯

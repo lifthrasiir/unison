@@ -590,8 +590,8 @@ glyph han-8779:15x16 15 16 // 蝹
 glyph han-8782:15x16 15 16 // 螂
 ⿲ -1 han-866b:5x16 han-826f:7x16 han-961d:4x16-r // ⿲虫良阝
 
-glyph han-8796:15x16 15 16 // 螖
-⿰ han-866b:5x16 1 han-9aa8:9x16 // ⿰虫骨
+glyph han-8796-($han-regions):15x16 15 16 // 螖
+⿰ han-866b:5x16 1 han-9aa8-($-1):9x16 // ⿰虫骨
 
 // glyph han-8799:15x16 15 16 // 螙
 // ⿱ han-6728 han-45b5 // ⿱木䖵

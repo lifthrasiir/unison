@@ -347,8 +347,9 @@ glyph han-7341:15x16 15 16 // 獁
 
 ## 94.10
 
-glyph han-733e:15x16 15 16 // 猾
-⿰ han-72ad:6x16 han-9aa8:9x16 // ⿰犭骨
+glyph han-733e-($han-regions):15x16 15 16 // 猾
+⿰ han-72ad:6x16 han-9aa8-($-1):9x16 // ⿰犭骨
+glyph han-733e.0:* = han-733e-j:*
 
 // glyph han-7346:15x16 15 16 // 獆
 // ⿰ han-72ad han-768b // ⿰犭皋
@@ -988,6 +989,7 @@ glyph han-73dd-(g|h|t):* = han-73dd.2:*
 
 glyph han-73de:15x16 15 16 // 珞
 ⿰ han-248e9:7x16 1 han-5404:7x16 // ⿰𤣩各
+glyph han-73de.0:* = han-73de:*
 
 // glyph han-73e1:15x16 15 16 // 珡
 // ⿱ han-73a8 han-4eba // ⿱玨人

@@ -175,8 +175,8 @@ glyph han-236ed-($han-regions):15x16 15 16 // 𣛭
 // glyph han-2374f:15x16 15 16 // 𣝏
 // ⿰ han-6728 han-84bf // ⿰木蒿
 
-glyph han-23757:15x16 15 16 // 𣝗
-⿲ -2 han-6728:5x16 han-6708:5x16 han-9aa8:7x16 // ⿲木月骨
+glyph han-23757-($han-regions):15x16 15 16 // 𣝗
+⿲ -2 han-6728:5x16 han-6708:5x16 han-9aa8-($-1):7x16 // ⿲木月骨
 
 // glyph han-23768:15x16 15 16 // 𣝨
 // ⿱ han-29faf han-6728 // ⿱𩾯木

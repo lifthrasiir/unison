@@ -1460,6 +1460,9 @@ glyph han-96f4:15x16 15 16 // 雴
 
 glyph han-96f7:15x16 15 16 // 雷
 ⿱ han-96e8:15x8 1 han-7530:15x7 // ⿱雨田
+glyph han-96f7.0:* = han-96f7:*
+glyph han-96f7.1:* = han-96f7:*
+glyph han-96f7.2:* = han-96f7:* // indistinguishable
 
 glyph han-96f8:15x16 15 16 // 雸
 ⿱ han-96e8:15x7 han-7518:15x9 // ⿱雨甘

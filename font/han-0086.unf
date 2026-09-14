@@ -550,6 +550,7 @@ glyph han-70d8:15x16 15 16 // 烘
 
 glyph han-70d9:15x16 15 16 // 烙
 ⿰ han-706b:7x16 1 han-5404:7x16 // ⿰火各
+glyph han-70d9.0:* = han-70d9:*
 
 glyph han-70da:15x16 15 16 // 烚
 ⿰ han-706b:7x16 1 han-5408:7x16 // ⿰火合

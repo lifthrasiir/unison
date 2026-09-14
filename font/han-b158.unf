@@ -430,7 +430,7 @@ glyph han-2836b:15x16 15 16 // 𨍫
 // ⿰ han-8eca han-8338 // ⿰車茸
 
 glyph han-2837e:15x16 15 16 // 𨍾
-⿰ han-8eca:5x16 1 han-9aa8:9x16 // ⿰車骨
+⿰ han-8eca:5x16 1 han-9aa8-g:9x16 // ⿰車骨
 
 // glyph han-28380:15x16 15 16 // 𨎀
 // ⿰ han-8eca han-768b // ⿰車皋

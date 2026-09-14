@@ -435,8 +435,9 @@ glyph han-9dae:15x16 15 16 // 鶮
 // glyph han-9daf:15x16 15 16 // 鶯
 // ⿱ han-241fe han-9ce5 // ⿱𤇾鳥
 
-glyph han-9dbb:15x16 15 16 // 鶻
-⿰ han-9aa8:7x16 1 han-9ce5:7x16 // ⿰骨鳥
+glyph han-9dbb-($han-regions):15x16 15 16 // 鶻
+⿰ han-9aa8-($-1):7x16 1 han-9ce5:7x16 // ⿰骨鳥
+glyph han-9dbb.0:* = han-9dbb-j:*
 
 // glyph han-9dc5:15x16 15 16 // 鷅
 // ⿰ han-6817 han-9ce5 // ⿰栗鳥

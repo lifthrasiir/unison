@@ -327,8 +327,8 @@ glyph han-28a9a:15x16 15 16 // 𨪚
 glyph han-28ab5:15x16 15 16 // 𨪵
 ⿲ -1 han-91d2:5x16-l 1 han-76ee:3x16-l han-53e5:7x16 // ⿲釒目句
 
-glyph han-28ab7:15x16 15 16 // 𨪷
-⿰ han-91d2:5x16-l 1 han-9aa8:9x16 // ⿰釒骨
+glyph han-28ab7-($han-regions):15x16 15 16 // 𨪷
+⿰ han-91d2:5x16-l 1 han-9aa8-($-1):9x16 // ⿰釒骨
 
 // glyph han-28ac3:15x16 15 16 // 𨫃
 // ⿰ han-91d2 han-5bb0 // ⿰釒宰

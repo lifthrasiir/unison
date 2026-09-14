@@ -496,8 +496,8 @@ glyph han-2469d:15x16 15 16 // 𤚝
 
 ## 93.10
 
-glyph han-246b1:15x16 15 16 // 𤚱
-⿰ han-725c:6x16 han-9aa8:9x16 // ⿰牜骨
+glyph han-246b1-($han-regions):15x16 15 16 // 𤚱
+⿰ han-725c:6x16 han-9aa8-($-1):9x16 // ⿰牜骨
 
 glyph han-246b4:15x16 15 16 // 𤚴
 ⿰ han-725c:6x16 han-99ac:9x16 // ⿰牜馬

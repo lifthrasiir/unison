@@ -258,8 +258,8 @@ glyph han-256b6:15x16 15 16 // 𥚶
 // glyph han-2059f:15x16 15 16 // 𠖟
 // ⿱ han-5196 han-527d // ⿱冖剽
 
-glyph han-256d4:15x16 15 16 // 𥛔
-⿰ han-793b:5x16 1 han-9aa8:9x16 // ⿰礻骨
+glyph han-256d4-($han-regions):15x16 15 16 // 𥛔
+⿰ han-793b:5x16 1 han-9aa8-($-1):9x16 // ⿰礻骨
 
 // glyph han-256d6:15x16 15 16 // 𥛖
 // ⿰ han-793a han-5c04 // ⿰示射
@@ -610,8 +610,8 @@ glyph han-2581f:15x16 15 16 // 𥠟
 glyph han-25832:15x16 15 16 // 𥠲
 ⿰ han-79be:5x16 1 han-6817:9x16 // ⿰禾栗
 
-glyph han-25833:15x16 15 16 // 𥠳
-⿰ han-79be:7x16 1 han-9aa8:7x16 // ⿰禾骨
+glyph han-25833-($han-regions):15x16 15 16 // 𥠳
+⿰ han-79be:7x16 1 han-9aa8-($-1):7x16 // ⿰禾骨
 
 // glyph han-25836:15x16 15 16 // 𥠶
 // ⿰ han-79be han-532a // ⿰禾匪

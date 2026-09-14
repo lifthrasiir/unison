@@ -144,8 +144,9 @@ glyph han-69aa:15x16 15 16 // 榪
 // glyph han-69bb-($han-regions):15x16 15 16 // 榻
 // ⿰ han-6728 han-26407-($-1) // ⿰木𦐇
 
-glyph han-69be:15x16 15 16 // 榾
-⿰ han-6728:5x16 1 han-9aa8:9x16 // ⿰木骨
+glyph han-69be-($han-regions):15x16 15 16 // 榾
+⿰ han-6728:5x16 1 han-9aa8-($-1):9x16 // ⿰木骨
+glyph han-69be.0:* = han-69be-j:*
 
 glyph han-69c0:15x16 15 16 // 槀
 ⿱ han-9ad8:15x9 han-6728:15x7 // ⿱高木

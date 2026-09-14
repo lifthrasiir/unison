@@ -336,47 +336,47 @@ glyph han-299be:15x16 15 16 // 𩦾
 
 ## 188.2
 
-glyph han-29a11:15x16 15 16 // 𩨑
-⿰ han-9aa8:7x16 1 han-4e01:7x16 // ⿰骨丁
+glyph han-29a11-($han-regions):15x16 15 16 // 𩨑
+⿰ han-9aa8-($-1):7x16 1 han-4e01:7x16 // ⿰骨丁
 
 // glyph han-29a12:15x16 15 16 // 𩨒
 // ⿰ han-9aa8 han-51e0 // ⿰骨几
 
 glyph han-29a13:15x16 15 16 // 𩨓
-⿰ han-9aa8:9x16 1 han-535c:5x16 // ⿰骨卜
+⿰ han-9aa8-g:9x16 1 han-535c:5x16 // ⿰骨卜
 
 ## 188.3
 
 // glyph han-29a14:15x16 15 16 // 𩨔
 // ⿺ han-4e5d han-9aa8 // ⿺九骨
 
-glyph han-29a15:15x16 15 16 // 𩨕
-⿰ han-9aa8:7x16 1 han-5df2:7x16 // ⿰骨已
+glyph han-29a15-($han-regions):15x16 15 16 // 𩨕
+⿰ han-9aa8-($-1):7x16 1 han-5df2:7x16 // ⿰骨已
 
-glyph han-29a19:15x16 15 16 // 𩨙
-⿰ han-9aa8:7x16 1 han-5f13:7x16 // ⿰骨弓
+glyph han-29a19-($han-regions):15x16 15 16 // 𩨙
+⿰ han-9aa8-($-1):7x16 1 han-5f13:7x16 // ⿰骨弓
 
-glyph han-29a1a:15x16 15 16 // 𩨚
-⿰ han-9aa8:7x16 1 han-5973:7x16 // ⿰骨女
+glyph han-29a1a-($han-regions):15x16 15 16 // 𩨚
+⿰ han-9aa8-($-1):7x16 1 han-5973:7x16 // ⿰骨女
 
 ## 188.4
 
-glyph han-29a1c:15x16 15 16 // 𩨜
-⿰ han-9aa8:7x16 1 han-5df4:7x16 // ⿰骨巴
+glyph han-29a1c-($han-regions):15x16 15 16 // 𩨜
+⿰ han-9aa8-($-1):7x16 1 han-5df4:7x16 // ⿰骨巴
 
 // glyph han-29a22:15x16 15 16 // 𩨢
 // ⿰ han-9aa8 han-722a // ⿰骨爪
 
-glyph han-29a23:15x16 15 16 // 𩨣
-⿰ han-9aa8:7x16 1 han-65b9:7x16 // ⿰骨方
+glyph han-29a23-($han-regions):15x16 15 16 // 𩨣
+⿰ han-9aa8-($-1):7x16 1 han-65b9:7x16 // ⿰骨方
 
 glyph han-29a28-($han-regions):15x16 15 16 // 𩨨
-⿰ han-9aa8:7x16 han-6bd4-($-1):8x16 // ⿰骨比
+⿰ han-9aa8-($-1):7x16 han-6bd4-($-1):8x16 // ⿰骨比
 
 ## 188.5
 
-glyph han-29a30:15x16 15 16 // 𩨰
-⿰ han-9aa8:7x16 1 han-5931:7x16 // ⿰骨失
+glyph han-29a30-($han-regions):15x16 15 16 // 𩨰
+⿰ han-9aa8-($-1):7x16 1 han-5931:7x16 // ⿰骨失
 
 // glyph han-29a31:15x16 15 16 // 𩨱
 // ⿱ han-6b64 han-9aa8 // ⿱此骨
@@ -384,36 +384,36 @@ glyph han-29a30:15x16 15 16 // 𩨰
 // glyph han-29a32:15x16 15 16 // 𩨲
 // ⿰ han-9aa8 han-5fc5 // ⿰骨必
 
-glyph han-29a33:15x16 15 16 // 𩨳
-⿰ han-51fa:5x16 1 han-9aa8:9x16 // ⿰出骨
+glyph han-29a33-($han-regions):15x16 15 16 // 𩨳
+⿰ han-51fa:5x16 1 han-9aa8-($-1):9x16 // ⿰出骨
 
-glyph han-29a38:15x16 15 16 // 𩨸
-⿰ han-9aa8:7x16 1 han-51fa:7x16 // ⿰骨出
+glyph han-29a38-($han-regions):15x16 15 16 // 𩨸
+⿰ han-9aa8-($-1):7x16 1 han-51fa:7x16 // ⿰骨出
 
-glyph han-29a39:15x16 15 16 // 𩨹
-⿰ han-9aa8:7x16 1 han-7532:7x16 // ⿰骨甲
+glyph han-29a39-($han-regions):15x16 15 16 // 𩨹
+⿰ han-9aa8-($-1):7x16 1 han-7532:7x16 // ⿰骨甲
 
 ## 188.6
 
 // glyph han-29a3f:15x16 15 16 // 𩨿
 // ⿰ han-9aa8 han-7070 // ⿰骨灰
 
-glyph han-29a42:15x16 15 16 // 𩩂
-⿰ han-9aa8:7x16 1 han-5408:7x16 // ⿰骨合
+glyph han-29a42-($han-regions):15x16 15 16 // 𩩂
+⿰ han-9aa8-($-1):7x16 1 han-5408:7x16 // ⿰骨合
 
-glyph han-29a44:15x16 15 16 // 𩩄
-⿲ -2 han-9aa8:7x16 han-5e72:5x16 han-5e72:5x16 // ⿲骨干干
+glyph han-29a44-($han-regions):15x16 15 16 // 𩩄
+⿲ -2 han-9aa8-($-1):7x16 han-5e72:5x16 han-5e72:5x16 // ⿲骨干干
 
 glyph han-29a45:15x16 15 16 // 𩩅
-⿰ han-9aa8:7x16 1 han-540c:7x16 // ⿰骨同
+⿰ han-9aa8-g:7x16 1 han-540c:7x16 // ⿰骨同
 
 ## 188.7
 
 // glyph han-29a4b:15x16 15 16 // 𩩋
 // ⿰ han-9aa8 han-5de0 // ⿰骨巠
 
-glyph han-29a53:15x16 15 16 // 𩩓
-⿰ han-9aa8:7x16 1 han-8096:7x16 // ⿰骨肖
+glyph han-29a53-($han-regions):15x16 15 16 // 𩩓
+⿰ han-9aa8-($-1):7x16 1 han-8096:7x16 // ⿰骨肖
 
 // glyph han-29a54:15x16 15 16 // 𩩔
 // ⿰ han-9aa8 han-8db3 // ⿰骨足
@@ -429,14 +429,14 @@ glyph han-29a53:15x16 15 16 // 𩩓
 // glyph han-29a5d:15x16 15 16 // 𩩝
 // ⿰ han-9aa8 han-7a7a // ⿰骨空
 
-glyph han-29a60:15x16 15 16 // 𩩠
-⿰ han-9aa8:7x16 1 han-5352:7x16 // ⿰骨卒
+glyph han-29a60-($han-regions):15x16 15 16 // 𩩠
+⿰ han-9aa8-($-1):7x16 1 han-5352:7x16 // ⿰骨卒
 
 // glyph han-29a64:15x16 15 16 // 𩩤
 // ⿰ han-9aa8 han-4e9e // ⿰骨亞
 
-glyph han-29a67:15x16 15 16 // 𩩧
-⿰ han-9aa8:7x16 1 han-708e:7x16 // ⿰骨炎
+glyph han-29a67-($han-regions):15x16 15 16 // 𩩧
+⿰ han-9aa8-($-1):7x16 1 han-708e:7x16 // ⿰骨炎
 
 // glyph han-29a6a:15x16 15 16 // 𩩪
 // ⿰ han-660c han-9aa8 // ⿰昌骨
@@ -452,30 +452,31 @@ glyph han-29a67:15x16 15 16 // 𩩧
 // glyph han-29a70:15x16 15 16 // 𩩰
 // ⿰ han-9aa8 han-7686 // ⿰骨皆
 
-glyph han-29a72:15x16 15 16 // 𩩲
-⿰ han-9aa8:7x16 han-66f7:8x16 // ⿰骨曷
+glyph han-29a72-($han-regions):15x16 15 16 // 𩩲
+⿰ han-9aa8-($-1):7x16 han-66f7:8x16 // ⿰骨曷
+glyph han-29a72.0:* = han-29a72-j:*
 
 // glyph han-29a73:15x16 15 16 // 𩩳
 // ⿰ han-9aa8 han-91cd // ⿰骨重
 
-glyph han-29a78:15x16 15 16 // 𩩸
-⿰ han-9aa8:7x16 1 han-9769:7x16 // ⿰骨革
+glyph han-29a78-($han-regions):15x16 15 16 // 𩩸
+⿰ han-9aa8-($-1):7x16 1 han-9769:7x16 // ⿰骨革
 
 // glyph han-29a7a:15x16 15 16 // 𩩺
 // ⿰ han-9aa8 han-6cc9 // ⿰骨泉
 
 glyph han-29a7f:15x16 15 16 // 𩩿
-⿰ han-9aa8:7x16 1 han-97f3:7x16 // ⿰骨音
+⿰ han-9aa8-v:7x16 1 han-97f3:7x16 // ⿰骨音
 
 ## 188.10
 
-glyph han-29a86:15x16 15 16 // 𩪆
-⿰ han-9aa8:7x16 1 han-9aa8:7x16 // ⿰骨骨
+glyph han-29a86-($han-regions):15x16 15 16 // 𩪆
+⿰ han-9aa8-($-1):7x16 1 han-9aa8-($-1):7x16 // ⿰骨骨
 
 ## 188.11
 
-glyph han-29a8a:15x16 15 16 // 𩪊
-⿰ han-9aa8:7x16 1 han-7968:7x16 // ⿰骨票
+glyph han-29a8a-($han-regions):15x16 15 16 // 𩪊
+⿰ han-9aa8-($-1):7x16 1 han-7968:7x16 // ⿰骨票
 
 // glyph han-29a8d:15x16 15 16 // 𩪍
 // ⿰ han-9aa8 han-5340 // ⿰骨區
@@ -493,8 +494,8 @@ glyph han-29a8a:15x16 15 16 // 𩪊
 
 ## 188.13
 
-glyph han-29aa2:15x16 15 16 // 𩪢
-⿲ -6 han-9aa8:7x16 han-97f3:7x16 han-6b20:7x16 // ⿲骨音欠
+glyph han-29aa2-($han-regions):15x16 15 16 // 𩪢
+⿲ -6 han-9aa8-($-1):7x16 han-97f3:7x16 han-6b20:7x16 // ⿲骨音欠
 
 // glyph han-29aa3:15x16 15 16 // 𩪣
 // ⿰ han-9aa8 han-610f // ⿰骨意
@@ -505,12 +506,12 @@ glyph han-29aa2:15x16 15 16 // 𩪢
 ## 188.14
 
 glyph han-29ab0:15x16 15 16 // 𩪰
-⿰ han-9aa8:7x16 1 han-9700:7x16 // ⿰骨需
+⿰ han-9aa8-g:7x16 1 han-9700:7x16 // ⿰骨需
 
 ## 188.18
 
-glyph han-29abc:15x16 15 16 // 𩪼
-⿰ han-9aa8:7x16 han-96da:8x16 // ⿰骨雚
+glyph han-29abc-($han-regions):15x16 15 16 // 𩪼
+⿰ han-9aa8-($-1):7x16 han-96da:8x16 // ⿰骨雚
 
 ## 188.19
 

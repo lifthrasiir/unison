@@ -978,8 +978,8 @@ glyph han-84b2:15x16 15 16 // 蒲
 glyph han-84bf:15x16 15 16 // 蒿
 ⿱ han-8279:15x3 han-9ad8:15x13 // ⿱艹高
 
-glyph han-84c7:15x16 15 16 // 蓇
-⿱ han-8279:15x3 han-9aa8:15x13 // ⿱艹骨
+glyph han-84c7-($han-regions):15x16 15 16 // 蓇
+⿱ han-8279:15x3 han-9aa8-($-1):15x13 // ⿱艹骨
 
 // glyph han-84c8:15x16 15 16 // 蓈
 // ⿱ han-8279 han-90de // ⿱艹郞

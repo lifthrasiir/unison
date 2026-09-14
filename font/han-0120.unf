@@ -448,8 +448,8 @@ glyph han-7dfc:15x16 15 16 // 緼
 // glyph han-7e08:15x16 15 16 // 縈
 // ⿱ han-241fe han-7cf8 // ⿱𤇾糸
 
-glyph han-7e0e:15x16 15 16 // 縎
-⿰ han-7cf9:5x16 1 han-9aa8:9x16 // ⿰糹骨
+glyph han-7e0e-($han-regions):15x16 15 16 // 縎
+⿰ han-7cf9:5x16 1 han-9aa8-($-1):9x16 // ⿰糹骨
 
 // glyph han-7e19:15x16 15 16 // 縙
 // ⿰ han-7cf9 han-8338 // ⿰糹茸

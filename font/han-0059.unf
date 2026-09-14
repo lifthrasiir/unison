@@ -961,8 +961,8 @@ glyph han-6120:15x16 15 16 // 愠
 
 ## 61.10
 
-glyph han-6132:15x16 15 16 // 愲
-⿰ han-5fc4:5x16 1 han-9aa8:9x16 // ⿰忄骨
+glyph han-6132-($han-regions):15x16 15 16 // 愲
+⿰ han-5fc4:5x16 1 han-9aa8-($-1):9x16 // ⿰忄骨
 
 // glyph han-6133:15x16 15 16 // 愳
 // ⿱ han-4020 han-5fc3 // ⿱䀠心
