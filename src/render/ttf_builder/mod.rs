@@ -1228,7 +1228,13 @@ fn build_font_from_documents_inner(
 
 /// Everything needed to assemble the font tables for one build flavor:
 /// font metadata, pixel→unit scale, glyphs, GSUB inputs, and color palette.
-type CollectedFontData = (FontMeta, f32, Vec<CollectedGlyph>, GsubData, Vec<Rgba>);
+type CollectedFontData = (
+    FontMeta,
+    f32,
+    Vec<CollectedGlyph>,
+    std::sync::Arc<GsubData>,
+    Vec<Rgba>,
+);
 
 /// Resolve all documents' glyph items (expanding name patterns, following
 /// refs, tracking contours) into the flat, codepoint-sorted glyph list that

@@ -469,6 +469,7 @@ impl SpecimenData {
     /// caller holding the same document set they were resolved over — which is
     /// the whole point of collecting this inside the rebuild rather than after
     /// it.
+    #[expect(clippy::too_many_arguments)]
     pub fn collect(
         docs: &[&Document],
         name_parts: &NamePartsMap,

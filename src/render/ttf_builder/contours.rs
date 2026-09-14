@@ -8,6 +8,10 @@ use super::*;
 /// Traced contours of one glyph, in the tracer's own float coordinates.
 type TracedContours = Vec<Vec<(f32, f32)>>;
 
+/// A glyph's own grid traced for one flavor: the contours, and the flavor's
+/// grid they were traced from. See [`trace_own_grid`].
+type OwnGridTrace = (std::sync::Arc<TracedContours>, std::sync::Arc<PixelGrid>);
+
 #[derive(Clone)]
 struct CacheEntry<T> {
     value: T,
@@ -16,7 +20,9 @@ struct CacheEntry<T> {
 
 #[derive(Default, Clone)]
 pub struct ContourCache {
-    entries: HashMap<u64, CacheEntry<TracedContours>>,
+    /// A glyph's own grid, traced: the contours and the grid of the flavor they
+    /// were traced from, keyed as [`trace_own_grid`] says.
+    entries: HashMap<u64, CacheEntry<OwnGridTrace>>,
     composite_entries: HashMap<u64, CacheEntry<CachedContours>>,
     gen_id: u64,
 }
@@ -85,26 +91,65 @@ fn hash_grid_for_cache(grid: &PixelGrid, bitmap: bool) -> u64 {
     hasher.finish()
 }
 
-fn cached_track_contour(
-    cache: &mut ContourCache,
+/// The grid one flavor traces a glyph's own pixels from: the bitmap flavor
+/// reads only whether each pixel is filled.
+fn flavor_grid(grid: &PixelGrid, bitmap: bool) -> PixelGrid {
+    let mut out = grid.clone();
+    if bitmap {
+        for pixel in &mut out.pixels {
+            if pixel.is_bitmap_filled() {
+                *pixel = PixelShape::new(PX_ALMOSTFULL, true);
+            } else {
+                *pixel = PixelShape::EMPTY;
+            }
+        }
+    }
+    out
+}
+
+/// A glyph's own grid traced for one flavor: the contours, the flavor's grid
+/// they came from, and the key the two are cached under — which is also the
+/// entry's [`CachedContours::grid_hash`].
+///
+/// Keyed on the grid *as written* and the flavor rather than on the flavor's
+/// grid, because the second is a function of the first two. On a hit, which is
+/// every glyph an edit did not touch, neither is then rebuilt or copied: both
+/// are shared out of the cache. Keying on the flavor's grid meant deriving it
+/// for every glyph on every rebuild just to find out it was already there.
+fn trace_own_grid(
+    cache: Option<&mut ContourCache>,
     grid: &PixelGrid,
     bitmap: bool,
-) -> Vec<Vec<(f32, f32)>> {
+) -> (
+    std::sync::Arc<TracedContours>,
+    std::sync::Arc<PixelGrid>,
+    u64,
+) {
     let key = hash_grid_for_cache(grid, bitmap);
+    let trace = || {
+        let flavored = flavor_grid(grid, bitmap);
+        let contours = track_contour(&flavored, PX_SUBPIXEL);
+        (std::sync::Arc::new(contours), std::sync::Arc::new(flavored))
+    };
+    let Some(cache) = cache else {
+        let (contours, flavored) = trace();
+        return (contours, flavored, key);
+    };
     let cur_gen = cache.gen_id;
     if let Some(entry) = cache.entries.get_mut(&key) {
         entry.gen_id = cur_gen;
-        return entry.value.clone();
+        let (contours, flavored) = &entry.value;
+        return (contours.clone(), flavored.clone(), key);
     }
-    let contours = track_contour(grid, PX_SUBPIXEL);
+    let (contours, flavored) = trace();
     cache.entries.insert(
         key,
         CacheEntry {
-            value: contours.clone(),
+            value: (contours.clone(), flavored.clone()),
             gen_id: cur_gen,
         },
     );
-    contours
+    (contours, flavored, key)
 }
 
 #[derive(Clone)]
@@ -116,12 +161,22 @@ pub(super) struct CachedContours {
     pub(super) height: u16,
     /// Contours in the glyph's own logical space; negative coordinates are
     /// kept as such.
-    pub(super) contours: Vec<Vec<(f32, f32)>>,
+    ///
+    /// Shared, like `grid`: an entry is copied out of the composite cache on
+    /// every hit and into it on every store, and a deep copy of both per
+    /// composite per rebuild was the largest single cost of a warm build.
+    pub(super) contours: std::sync::Arc<TracedContours>,
     /// The glyph's declared box origin in logical cells, carried so a ref's
     /// placement can run box to box (`glyph_cache::CachedGlyphEntry`).
     declared_origin: (i16, i16),
     pub(super) anchors: Vec<GlyphPoint>,
-    pub(super) grid: Option<PixelGrid>,
+    pub(super) grid: Option<std::sync::Arc<PixelGrid>>,
+    /// What a parent's composite key reads in place of `grid`, which it used to
+    /// hash in full — once per ref, per composite, per flavor, on every
+    /// rebuild, so a component with many users was hashed that many times.
+    /// Computed once, where `grid` is made, and meaningless when `grid` is
+    /// `None`.
+    grid_hash: u64,
     /// Logical coordinate of raster cell `(0, 0)` of `grid`, in this glyph's
     /// own scale.  Zero unless a ref reaches above/left of the origin; a
     /// parent has to add it to the `ref` offset, or it loses that area.
@@ -193,9 +248,10 @@ impl CachedContours {
             declared_origin: (0, 0),
             width: 0,
             height: 0,
-            contours: Vec::new(),
+            contours: Default::default(),
             anchors: Vec::new(),
             grid: None,
+            grid_hash: 0,
             origin_row: 0,
             origin_col: 0,
             composite_components: None,
@@ -204,48 +260,19 @@ impl CachedContours {
     }
 
     pub(super) fn from_grid(grid: &PixelGrid, bitmap: bool, cc: Option<&mut ContourCache>) -> Self {
-        if bitmap {
-            let mut bitmap_grid = grid.clone();
-            for pixel in &mut bitmap_grid.pixels {
-                if pixel.is_bitmap_filled() {
-                    *pixel = PixelShape::new(PX_ALMOSTFULL, true);
-                } else {
-                    *pixel = PixelShape::EMPTY;
-                }
-            }
-            let contours = match cc {
-                Some(c) => cached_track_contour(c, &bitmap_grid, true),
-                None => track_contour(&bitmap_grid, PX_SUBPIXEL),
-            };
-            Self {
-                declared_origin: (0, 0),
-                width: bitmap_grid.width,
-                height: bitmap_grid.height,
-                contours,
-                anchors: Vec::new(),
-                grid: Some(bitmap_grid),
-                origin_row: 0,
-                origin_col: 0,
-                composite_components: None,
-                scale: 1,
-            }
-        } else {
-            let contours = match cc {
-                Some(c) => cached_track_contour(c, grid, false),
-                None => track_contour(grid, PX_SUBPIXEL),
-            };
-            Self {
-                declared_origin: (0, 0),
-                width: grid.width,
-                height: grid.height,
-                contours,
-                anchors: Vec::new(),
-                grid: Some(grid.clone()),
-                origin_row: 0,
-                origin_col: 0,
-                composite_components: None,
-                scale: 1,
-            }
+        let (contours, flavored, grid_hash) = trace_own_grid(cc, grid, bitmap);
+        Self {
+            declared_origin: (0, 0),
+            width: flavored.width,
+            height: flavored.height,
+            contours,
+            anchors: Vec::new(),
+            grid: Some(flavored),
+            grid_hash,
+            origin_row: 0,
+            origin_col: 0,
+            composite_components: None,
+            scale: 1,
         }
     }
 
@@ -269,8 +296,10 @@ impl CachedContours {
             gref.offset.hash(&mut hasher);
             gref.negated.hash(&mut hasher);
             if let Some(resolved) = resolve_cached_ref(&gref.name, cache) {
-                if let Some(ref grid) = resolved.grid {
-                    hash_grid_for_cache(grid, bitmap).hash(&mut hasher);
+                // The component's content by the hash it was made with, not by
+                // hashing its grid again; see `CachedContours::grid_hash`.
+                if resolved.grid.is_some() {
+                    resolved.grid_hash.hash(&mut hasher);
                 }
                 resolved.origin_row.hash(&mut hasher);
                 resolved.origin_col.hash(&mut hasher);
@@ -322,7 +351,7 @@ impl CachedContours {
         // reaches left of / above its origin starts that much before the
         // `ref` offset, and dropping that is how the left column of a nested
         // negative-offset composite used to disappear.
-        let ref_scaled: Vec<Option<(PixelGrid, i32, i32)>> = refs
+        let ref_scaled: Vec<Option<(std::sync::Arc<PixelGrid>, i32, i32)>> = refs
             .iter()
             .map(|gref| {
                 let cached = resolve_cached_ref(&gref.name, cache)?;
@@ -331,7 +360,7 @@ impl CachedContours {
                 let grid = if rs == ps {
                     ref_grid.clone()
                 } else {
-                    ref_grid.rescale(rs, ps)
+                    std::sync::Arc::new(ref_grid.rescale(rs, ps))
                 };
                 let (row, col) = cached.placed_at(gref.row() as i32, gref.col() as i32, ps);
                 Some((grid, row, col))
@@ -348,7 +377,7 @@ impl CachedContours {
             }
             for (gref, sg) in refs.iter().zip(ref_scaled.iter()) {
                 if let Some((sg, row, col)) = sg {
-                    diff_layers.push((sg, *row, *col, gref.negated));
+                    diff_layers.push((&**sg, *row, *col, gref.negated));
                 }
             }
 
@@ -401,9 +430,10 @@ impl CachedContours {
                 height: (min_r + raster_h as i32)
                     .max(declared_extent(|c| c.height, |g| g.row(), |o| o.1))
                     .max(0) as u16,
-                contours,
+                contours: std::sync::Arc::new(contours),
                 anchors: Vec::new(),
-                grid: Some(result),
+                grid_hash: hash_grid_for_cache(&result, bitmap),
+                grid: Some(std::sync::Arc::new(result)),
                 origin_row,
                 origin_col,
                 composite_components: None,
@@ -416,7 +446,7 @@ impl CachedContours {
             layers.push((grid, 0, 0));
         }
         for sg in ref_scaled.iter().flatten() {
-            layers.push((&sg.0, sg.1, sg.2));
+            layers.push((&*sg.0, sg.1, sg.2));
         }
 
         let needs_multi = own_pixels.is_some() || layers_have_subpixel_conflicts(&layers);
@@ -485,9 +515,10 @@ impl CachedContours {
                 height: (min_r + raster_h)
                     .max(declared_extent(|c| c.height, |g| g.row(), |o| o.1))
                     .max(0) as u16,
-                contours,
+                contours: std::sync::Arc::new(contours),
                 anchors: Vec::new(),
-                grid: Some(result),
+                grid_hash: hash_grid_for_cache(&result, bitmap),
+                grid: Some(std::sync::Arc::new(result)),
                 origin_row,
                 origin_col,
                 composite_components,
@@ -509,7 +540,7 @@ impl CachedContours {
             let scale_f = ps as f32 / rs as f32;
             let (dx, dy) = box_placement(gref, cached, ps);
             components.push((gref.name.clone(), dx, dy));
-            for contour in &cached.contours {
+            for contour in cached.contours.iter() {
                 let translated: Vec<(f32, f32)> = contour
                     .iter()
                     .map(|&(x, y)| (x * scale_f + dx, y * scale_f + dy))
@@ -560,9 +591,12 @@ impl CachedContours {
             declared_origin: (0, 0),
             width: max_width as u16,
             height: max_height as u16,
-            contours: all_contours,
+            contours: std::sync::Arc::new(all_contours),
             anchors: Vec::new(),
-            grid: combined_grid,
+            grid_hash: combined_grid
+                .as_ref()
+                .map_or(0, |grid| hash_grid_for_cache(grid, bitmap)),
+            grid: combined_grid.map(std::sync::Arc::new),
             origin_row,
             origin_col,
             composite_components: Some(components),
@@ -632,6 +666,11 @@ impl crate::render::glyph_cache::CompositeBuilder<CachedContours> for ContourBui
         refs: &[GlyphRef],
         cache: &HashMap<String, CachedContours>,
     ) -> (u64, Option<CachedContours>) {
+        // With no cache — the headless build — there is nothing to look a key
+        // up in or store one under, and `store` ignores it.
+        if self.cache.is_none() {
+            return (0, None);
+        }
         let key = CachedContours::hash_composite_key(
             self.own_pixels(pg),
             refs,

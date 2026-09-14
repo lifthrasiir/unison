@@ -230,7 +230,10 @@ pub(super) struct SharedFontInput {
     /// and the composite derivation both read, so a mark a shaped run places
     /// and a mark a precomposed glyph places land together.
     anchor_aligns: crate::document::AnchorAligns,
-    gsub_data: GsubData,
+    /// Shared rather than owned, because each flavor's collection hands it on
+    /// to its own table build, and a copy per flavor was a full clone of every
+    /// `remap` rule on every rebuild.
+    gsub_data: std::sync::Arc<GsubData>,
     color_aliases: ColorAliasMap,
     glyph_aliases: crate::alias::AliasMap,
     glyph_meta: GlyphMetaMap,
@@ -461,7 +464,7 @@ fn shared_font_input(
         all_items,
         declared_anchors_map,
         anchor_aligns,
-        gsub_data,
+        gsub_data: std::sync::Arc::new(gsub_data),
         color_aliases,
         glyph_aliases,
         glyph_meta,
@@ -1045,14 +1048,13 @@ pub(super) fn collect_glyph_data_with_shared(
             glyph.codepoints.sort_unstable();
             glyph.codepoints.dedup();
         }
+        // Compared in place: a key that owns the name is an allocation per
+        // comparison, which over a five-figure glyph set is most of the sort.
+        let first_cp = |g: &CollectedGlyph| g.codepoints.first().copied().unwrap_or(u32::MAX);
         merged.sort_by(|a, b| {
-            let key = |g: &CollectedGlyph| {
-                (
-                    g.codepoints.first().copied().unwrap_or(u32::MAX),
-                    g.name.clone(),
-                )
-            };
-            key(a).cmp(&key(b))
+            first_cp(a)
+                .cmp(&first_cp(b))
+                .then_with(|| a.name.cmp(&b.name))
         });
         glyph_data = merged;
     }
@@ -1103,6 +1105,11 @@ pub(super) fn collect_glyph_data_with_shared(
         }
     }
 
+    // Read by the anchor passes just below and by the colour pass further on,
+    // and built once for both: it walks the whole cache, which nothing in
+    // between changes.
+    let alt_index = build_cached_alternatives(&cache);
+
     // Include alternative glyphs needed for anchor-based features:
     // 1. Base alts: base:alt carries a "+X" the base itself does not, or one
     //    of a different size — a base offering several slot sizes reaches the
@@ -1114,12 +1121,13 @@ pub(super) fn collect_glyph_data_with_shared(
         // to `extra_name_set` as they go, and an alternative is not itself a
         // reason to keep another glyph's alternatives.
         let extras_before: HashSet<String> = extra_name_set.clone();
-        let anchor_names: Vec<&str> = gsub_data
+        // `+X` and `-X` of every class, spelled once rather than per glyph and
+        // class in the loops below.
+        let signed: Vec<(String, String)> = gsub_data
             .anchor_features
             .iter()
-            .map(|f| f.anchor.as_str())
+            .map(|f| (format!("-{}", f.anchor), format!("+{}", f.anchor)))
             .collect();
-        let alt_index = build_cached_alternatives(&cache);
         // A glyph reached only as an *extra* — a `remap` names it and nothing
         // maps it, which is what a ligature output is — is as real as any
         // other, and its alternatives carry the slots marks attach by. Asking
@@ -1135,14 +1143,13 @@ pub(super) fn collect_glyph_data_with_shared(
                 .get(base_name.as_str())
                 .map(|b| &b.points[..])
                 .unwrap_or(&[]);
-            for anchor_name in &anchor_names {
-                let plus_name = format!("+{anchor_name}");
-                let own = declared.iter().find(|p| p.position == plus_name);
+            for (_, plus_name) in &signed {
+                let own = declared.iter().find(|p| p.position == *plus_name);
                 for (alt_name, alt_anchors) in alts {
                     // An alternative of the base's own size is the slot the
                     // base already offers, so nothing would ever substitute
                     // it in; every other size is a slot of its own.
-                    let Some(alt_plus) = alt_anchors.iter().find(|p| p.position == plus_name)
+                    let Some(alt_plus) = alt_anchors.iter().find(|p| p.position == *plus_name)
                     else {
                         continue;
                     };
@@ -1166,9 +1173,8 @@ pub(super) fn collect_glyph_data_with_shared(
                 Some(b) if b.mark => *b,
                 _ => continue,
             };
-            for anchor_name in &anchor_names {
-                let minus_name = format!("-{anchor_name}");
-                let Some(mark_minus) = mark_body.points.iter().find(|p| p.position == minus_name)
+            for (minus_name, _) in &signed {
+                let Some(mark_minus) = mark_body.points.iter().find(|p| p.position == *minus_name)
                 else {
                     continue;
                 };
@@ -1176,7 +1182,7 @@ pub(super) fn collect_glyph_data_with_shared(
                     if seen_names.contains(alt_name) || extra_name_set.contains(alt_name) {
                         continue;
                     }
-                    if let Some(alt_minus) = alt_anchors.iter().find(|p| p.position == minus_name)
+                    if let Some(alt_minus) = alt_anchors.iter().find(|p| p.position == *minus_name)
                         && !alt_minus.size_matches(mark_minus)
                     {
                         extra_name_set.insert(alt_name.clone());
@@ -1301,7 +1307,6 @@ pub(super) fn collect_glyph_data_with_shared(
     let mut palette_colors: Vec<Rgba> = Vec::new();
     let mut color_to_index: HashMap<Rgba, u16> = HashMap::default();
     // Build per-glyph color layers
-    let color_alt_index = build_cached_alternatives(&cache);
     let mut colored_memo: HashMap<String, bool> = HashMap::default();
     let mut pieces_memo: HashMap<String, Rc<Vec<ColorPiece>>> = HashMap::default();
     for g in &mut glyph_data {
@@ -1309,12 +1314,7 @@ pub(super) fn collect_glyph_data_with_shared(
         let Some(body) = glyph_bodies_map.get(name.as_str()).copied() else {
             continue;
         };
-        if !glyph_is_colored(
-            &name,
-            &glyph_bodies_map,
-            &color_alt_index,
-            &mut colored_memo,
-        ) {
+        if !glyph_is_colored(&name, &glyph_bodies_map, &alt_index, &mut colored_memo) {
             continue;
         }
 
@@ -1330,7 +1330,7 @@ pub(super) fn collect_glyph_data_with_shared(
 
         let ctx = PieceCtx {
             cache: &cache,
-            alt_index: &color_alt_index,
+            alt_index: &alt_index,
             declared_anchors_map,
             aligns: &shared.anchor_aligns,
             color_aliases,

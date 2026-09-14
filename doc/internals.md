@@ -162,6 +162,7 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Why only the union face is traced, and what a secondary face costs instead | `render/ttf_builder/mod.rs` (`build_faces_from`), `collect.rs` (`collect_face_cmap`) |
 | Why every map here is hashed with `rustc-hash` rather than `std`'s default, and what that costs | `hash.rs` |
 | Hashing a pixel grid for a cache key: why the cells go in as one write | `document/pixel_grid.rs` (`hash_cells_into`), `render/ttf_builder/contours.rs` (`hash_grid_for_cache`), `ref_composite/mod.rs` (`hash_grid_into`) |
+| Why a glyph's own grid is cached under the grid as written, why a composite key reads a component's stored hash, and why cache entries share their contours | `render/ttf_builder/contours.rs` (`trace_own_grid`, `CachedContours::grid_hash`, `CachedContours::contours`) |
 | Which build stages run at once, and what they must not share | `render/ttf_builder/mod.rs` (`build_faces`, `build_font_pair_cached_for`), `contours.rs` (`ContourCaches`) |
 | Why a resolution round is a wave; splitting a memo off its tracer | `render/glyph_cache.rs` (`resolve_pending`, `CompositeBuilder`), `ref_composite/mod.rs` (`resolve_expansion_cached`), `render/ttf_builder/contours.rs` (`ContourBuilder`) |
 | Dropping a composite that can never resolve before the expensive loop sees it | `render/glyph_cache.rs` (`drop_unresolvable`) |

@@ -48,10 +48,12 @@
 //! It runs beside the font build and validation instead, over items it borrows
 //! rather than consumes (`ref_composite::resolve_expanded_items_shared`).
 //!
-//! A superseded rebuild may still deliver its composites: they are complete for
-//! the documents it started from, exactly as a rebuild that finished just before
-//! the edit would have been. Only a recomposition that was itself cancelled is
-//! held back, being partial.
+//! Composites from a rebuild an edit has since superseded are dropped when they
+//! arrive, as its font is. They are complete for the documents that rebuild
+//! started from, but after an edit and its undo those are the documents the undo
+//! has just left, and drawing them until the undo's own rebuild lands is a
+//! flicker back to what was undone. A recomposition that was itself cancelled is
+//! not even sent, being partial.
 
 use super::docs::shadowed_by_open;
 use super::*;
@@ -511,7 +513,7 @@ impl UniformApp {
                                 scoped_name_parts,
                                 exists_matches,
                                 char_props,
-                                meta: resolution.meta.metrics.clone(),
+                                meta: resolution.meta.metrics,
                                 face_ids,
                             },
                         )));
@@ -797,6 +799,9 @@ impl UniformApp {
 
         for result in take_derived_data(&self.derived_data_rx) {
             match result {
+                // From a rebuild an edit has since superseded: dropped, as its
+                // font is (see `take_current_font_build`). See the module docs.
+                DerivedDataResult::Resolved(data) if data.build_gen != self.font_build_gen => {}
                 // Not the end of the rebuild: the slot stays taken until the
                 // message that follows this one.
                 DerivedDataResult::Resolved(data) => {
@@ -1336,6 +1341,53 @@ pub(crate) mod startup_tests {
         assert!(
             matches!(second, DerivedDataResult::Done(_)),
             "the findings follow, and are what ends the rebuild"
+        );
+    }
+
+    /// Composites from a rebuild an edit has since superseded are not applied,
+    /// exactly as its font is not.
+    ///
+    /// They were, for a while: a superseded rebuild's composites are complete
+    /// for the documents it started from, and that looked like reason enough.
+    /// But an edit followed by an undo then showed the undone drawing again for
+    /// as long as the undo's own rebuild took, and the timing report charged
+    /// that to the wrong edit.
+    #[test]
+    fn superseded_composites_are_not_applied() {
+        let ctx = egui::Context::default();
+        let mut app = UniformApp::with_settings(&ctx, Settings::default(), None);
+        app.pump_background_pipeline(&ctx);
+        let resolved = |build_gen| {
+            DerivedDataResult::Resolved(Box::new(ResolvedMessage {
+                build_gen,
+                named_glyphs: Default::default(),
+                alt_index: Default::default(),
+                name_parts: Default::default(),
+                scoped_name_parts: Default::default(),
+                exists_matches: Default::default(),
+                char_props: Default::default(),
+                meta: Default::default(),
+                face_ids: Vec::new(),
+            }))
+        };
+        let current = app.font_build_gen.wrapping_add(1);
+        app.font_build_gen = current;
+
+        app.derived_data_tx
+            .send(resolved(current.wrapping_sub(1)))
+            .unwrap();
+        app.pump_background_pipeline(&ctx);
+        assert_ne!(
+            app.named_glyphs_gen,
+            current.wrapping_sub(1),
+            "an edit has superseded the rebuild these came from"
+        );
+
+        app.derived_data_tx.send(resolved(current)).unwrap();
+        app.pump_background_pipeline(&ctx);
+        assert_eq!(
+            app.named_glyphs_gen, current,
+            "the current rebuild's composites are applied"
         );
     }
 

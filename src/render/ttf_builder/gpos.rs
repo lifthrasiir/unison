@@ -292,6 +292,14 @@ pub(super) fn build_anchor_gpos(
             // Base glyphs: look for `+anchor` anchors (direct or via alternatives).
             // Own anchors go on the original glyph; anchors provided only by
             // alternatives go on the alt glyph (which ccmp substitutes in).
+            //
+            // Nearly every glyph of a large font has no anchor, forwards none
+            // and has no alternative, and so offers no slot: it is skipped
+            // here rather than walked through the per-class loop below.
+            let alts = alt_index.get(&g.name);
+            if alts.is_none() && g.declared_anchors.is_empty() && g.resolved_anchors.is_empty() {
+                continue;
+            }
             let mut own_plus: Vec<Option<(i16, i16)>> = vec![None; num_classes as usize];
             let mut has_own = false;
             // alt_name → plus_anchors for each alternative that provides anchors
@@ -308,7 +316,7 @@ pub(super) fn build_anchor_gpos(
                 // loses to.
                 let own_pt = g.declared_anchors.iter().find(|p| p.position == plus_name);
                 let mut alt_slots: Vec<(&String, &GlyphPoint)> = Vec::new();
-                if let Some(alts) = alt_index.get(&g.name) {
+                if let Some(alts) = alts {
                     for (alt_name, alt_anchors) in alts {
                         if let Some(pt) = alt_anchors.iter().find(|p| p.position == plus_name)
                             && !alt_slots.iter().any(|(_, seen)| seen.size_matches(pt))
@@ -856,7 +864,8 @@ pub(super) fn build_anchor_gpos(
             let plus_bases: Vec<(GlyphId16, &crate::document::GlyphPoint)> = glyphs
                 .iter()
                 .filter_map(|base| {
-                    let &gid = name_to_gid.get(&base.name)?;
+                    // The anchor first: nearly every glyph has none, and asking
+                    // it costs less than hashing the name to find its gid.
                     let pt = base
                         .declared_anchors
                         .iter()
@@ -866,6 +875,7 @@ pub(super) fn build_anchor_gpos(
                                 .iter()
                                 .find(|p| p.position == plus_name)
                         })?;
+                    let &gid = name_to_gid.get(&base.name)?;
                     Some((gid, pt))
                 })
                 .collect();
