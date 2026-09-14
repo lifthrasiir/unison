@@ -15,7 +15,7 @@ glyph han-201a7:15x16 15 16 // 𠆧
 ⿰ han-4ebb:5x16 1 han-4eba:9x16 // ⿰亻人
 
 glyph han-201a8:15x16 15 16 // 𠆨
-⿰ han-4ebb:5x16 1 han-4e86:9x16 // ⿰亻了
+⿰ han-4ebb:5x16 1 han-4e86.0:9x16 // ⿰亻了
 
 ## 9.3
 
@@ -108,6 +108,9 @@ glyph han-2020c:15x16 15 16 // 𠈌
 
 // glyph han-2020f:15x16 15 16 // 𠈏
 // ⿱ han-5408 han-4eba // ⿱合人
+
+// glyph han-20213:15x16 15 16 // 𠈓
+// ⿰ han-4ebb han-4e21 // ⿰亻両
 
 // glyph han-20217:15x16 15 16 // 𠈗
 // ⿰ han-4ebb han-4e98 // ⿰亻亘
@@ -270,7 +273,7 @@ glyph han-2035f:15x16 15 16 // 𠍟
 ⿲ -3 han-4ebb:3x16 han-540c:7x16 1 han-5f17:7x16 // ⿲亻同弗
 
 glyph han-20363:15x16 15 16 // 𠍣
-⿲ han-4ebb:3x16 han-624c:3x16 han-975e:9x16 // ⿲亻扌非
+⿲ han-4ebb:3x16 han-624c:3x16 han-975e-v:9x16 // ⿲亻扌非
 
 // glyph han-20368:15x16 15 16 // 𠍨
 // ⿰ han-4ebb han-9ebb // ⿰亻麻

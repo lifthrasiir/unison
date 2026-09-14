@@ -260,8 +260,9 @@ glyph han-7301:15x16 15 16 // 猁
 
 ## 94.8
 
-glyph han-7305:15x16 15 16 // 猅
-⿰ han-72ad:6x16 han-975e:9x16 // ⿰犭非
+glyph han-7305-($han-regions):15x16 15 16 // 猅
+⿰ han-72ad:6x16 han-975e-($-1):9x16 // ⿰犭非
+glyph han-7305.0:* = han-7305-j:*
 
 // glyph han-7306:15x16 15 16 // 猆
 // ⿱ han-975e han-72ac // ⿱非犬
@@ -1083,8 +1084,12 @@ glyph han-7430.0:* = han-7430:*
 glyph han-7431:15x16 15 16 // 琱
 ⿰ han-248e9:5x16 han-5468:10x16 // ⿰𤣩周
 
-glyph han-7432:15x16 15 16 // 琲
-⿰ han-248e9:5x16 1 han-975e:9x16 // ⿰𤣩非
+glyph han-7432-($han-regions):15x16 15 16 // 琲
+⿰ han-248e9:5x16 1 han-975e-($-1):9x16 // ⿰𤣩非
+glyph han-7432.0:* = han-7432-j:*
+glyph han-7432.1:* = han-7432-j:*
+glyph han-7432.2:* = han-7432-j:*
+glyph han-7432.3:* = han-7432-j:*
 
 glyph han-7433:15x16 15 16 // 琳
 ⿲ han-248e9:5x16 han-6728:5x16 han-6728:5x16 // ⿲𤣩木木

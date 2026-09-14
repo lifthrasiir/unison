@@ -174,8 +174,8 @@ glyph han-20ceb:15x16 15 16 // 𠳫
 // glyph han-24c15:15x16 15 16 // 𤰕
 // ⿰ han-7530 han-5ddc // ⿰田巜
 
-// glyph han-24c18:15x16 15 16 // 𤰘
-// ⿰ han-7530 han-535c // ⿰田卜
+glyph han-24c18:15x16 15 16 // 𤰘
+⿰ han-7530:9x16 1 han-535c:5x16 // ⿰田卜
 
 // glyph han-24c19:15x16 15 16 // 𤰙
 // ⿺ han-4e5d han-7530 // ⿺九田

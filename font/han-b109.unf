@@ -7,8 +7,8 @@ glyph han-250e4:15x16 15 16 // 𥃤
 
 ## 109.2
 
-// glyph han-250e8:15x16 15 16 // 𥃨
-// ⿰ han-76ee han-535c // ⿰目卜
+glyph han-250e8:15x16 15 16 // 𥃨
+⿰ han-76ee:9x16 1 han-535c:5x16 // ⿰目卜
 
 // glyph han-250e9:15x16 15 16 // 𥃩
 // ⿱ han-76ee han-5315 // ⿱目匕
@@ -364,8 +364,8 @@ glyph han-251e2:15x16 15 16 // 𥇢
 glyph han-251e6:15x16 15 16 // 𥇦
 ⿲ han-76ee:4x16-l han-6728:5x16 han-65a4:6x16 // ⿲目木斤
 
-glyph han-251ea:15x16 15 16 // 𥇪
-⿰ han-76ee:6x16 han-975e:9x16 // ⿰目非
+glyph han-251ea-($han-regions):15x16 15 16 // 𥇪
+⿰ han-76ee:6x16 han-975e-($-1):9x16 // ⿰目非
 
 glyph han-251ec:15x16 15 16 // 𥇬
 ⿰ han-76ee:6x16 han-679c:9x16 // ⿰目果

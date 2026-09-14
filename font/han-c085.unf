@@ -460,8 +460,8 @@ glyph han-2af40:15x16 15 16 // 𪽀
 
 ## 100.2
 
-// glyph han-2af41:15x16 15 16 // 𪽁
-// ⿰ han-751f han-535c // ⿰生卜
+glyph han-2af41:15x16 15 16 // 𪽁
+⿰ han-751f:9x16 1 han-535c:5x16 // ⿰生卜
 
 # CJK unified ideographs extension C: 田 (102)
 
@@ -674,7 +674,7 @@ glyph han-2afe2:15x16 15 16 // 𪿢
 ## 112.8
 
 glyph han-2afe8:15x16 15 16 // 𪿨
-⿰ han-77f3:8x16 han-975e:7x16 // ⿰石非
+⿰ han-77f3:8x16 han-975e.0:7x16 // ⿰石非
 
 // glyph han-2afe9:15x16 15 16 // 𪿩
 // ⿰ han-77f3 han-5c45 // ⿰石居

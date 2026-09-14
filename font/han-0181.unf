@@ -229,6 +229,9 @@ glyph han-9860:15x16 15 16 // 顠
 glyph han-9864:15x16 15 16 // 顤
 ⿰ han-582f:7x16 1 han-9801:7x16 // ⿰堯頁
 
+// glyph han-9868:15x16 15 16 // 顨
+// ⿱ han-2950a han-4e0c // ⿱𩔊丌
+
 ## 181.14
 
 glyph han-986c:15x16 15 16 // 顬
@@ -835,8 +838,9 @@ glyph han-9a0d:15x16 15 16 // 騍
 glyph han-9a0f:15x16 15 16 // 騏
 ⿰ han-99ac:7x16 han-5176:8x16 // ⿰馬其
 
-glyph han-9a11:15x16 15 16 // 騑
-⿰ han-99ac:7x16 1 han-975e:7x16 // ⿰馬非
+glyph han-9a11-($han-regions):15x16 15 16 // 騑
+⿰ han-99ac:7x16 1 han-975e-($-1):7x16 // ⿰馬非
+glyph han-9a11.0:* = han-9a11-j:*
 
 ## 187.9
 

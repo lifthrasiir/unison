@@ -109,8 +109,8 @@ glyph han-21054-($han-regions):15x16 15 16 // 𡁔
 // glyph han-21062:15x16 15 16 // 𡁢
 // ⿰ han-54a0 han-20c44 // ⿰咠𠱄
 
-glyph han-2106d:15x16 15 16 // 𡁭
-⿲ han-53e3:3x16-l han-7c73:5x16 han-975e:7x16 // ⿲口米非
+glyph han-2106d-($han-regions):15x16 15 16 // 𡁭
+⿲ han-53e3:3x16-l han-7c73:5x16 han-975e-($-1):7x16 // ⿲口米非
 
 glyph han-2107c:15x16 15 16 // 𡁼
 ⿲ han-53e3:5x16-l han-6c35:3x16 han-7968:7x16 // ⿲口氵票

@@ -401,6 +401,9 @@ glyph han-8f0a:15x16 15 16 // 輊
 // glyph han-8f0b:15x16 15 16 // 輋
 // ⿳ han-5c71 han-5927 han-8eca // ⿳山大車
 
+// glyph han-8f0c:15x16 15 16 // 輌
+// ⿰ han-8eca han-4e21 // ⿰車両
+
 ## 159.7
 
 glyph han-8f0e:15x16 15 16 // 輎
@@ -443,8 +446,9 @@ glyph han-8f24-(k|p):15x16 15 16 // 輤
 // glyph han-8f29:15x16 15 16 // 輩
 // ⿱ han-975e han-8eca // ⿱非車
 
-glyph han-8f2b:15x16 15 16 // 輫
-⿰ han-8eca:5x16 1 han-975e:9x16 // ⿰車非
+glyph han-8f2b-($han-regions):15x16 15 16 // 輫
+⿰ han-8eca:5x16 1 han-975e-($-1):9x16 // ⿰車非
+glyph han-8f2b.0:* = han-8f2b-j:*
 
 ## 159.9
 

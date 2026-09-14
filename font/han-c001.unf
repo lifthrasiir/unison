@@ -196,7 +196,7 @@ glyph han-2a79c:15x16 15 16 // 𪞜
 // ref han-4e00
 
 glyph han-2a7a0:15x16 15 16 // 𪞠
-⿲ -2 han-51ab:3x16 han-4ee4.2:7x16 han-4e86:7x16 // ⿲冫令了
+⿲ -2 han-51ab:3x16 han-4ee4.2:7x16 han-4e86.0:7x16 // ⿲冫令了
 
 ## 15.8
 
@@ -637,6 +637,9 @@ glyph han-2a8c3:15x16 15 16 // 𪣃
 
 glyph han-2a8c5:15x16 15 16 // 𪣅
 ⿰ han-571f:5x16-l 1 han-4e16:9x16 // ⿰土世
+
+// glyph han-2a8c6:15x16 15 16 // 𪣆
+// ⿰ han-571f han-4e1c // ⿰土东
 
 // glyph han-2a8ca:15x16 15 16 // 𪣊
 // ⿰ han-571f han-5fc5 // ⿰土必

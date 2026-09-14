@@ -223,6 +223,9 @@ glyph han-25980:15x16 15 16 // 𥦀
 
 ## 116.8
 
+// glyph han-2599b:15x16 15 16 // 𥦛
+// ⿳ han-5b80 han-513f han-5366 // ⿳宀儿卦 <- ⿱⿱宀儿卦
+
 glyph han-2599c:15x16 15 16 // 𥦜
 ⿱ han-7a74.2:15x7 1 han-670b:15x8 // ⿱穴朋
 
@@ -330,8 +333,8 @@ glyph han-2599d:15x16 15 16 // 𥦝
 glyph han-25a55:15x16 15 16 // 𥩕
 ⿱ han-7acb:15x7 1 han-51e0:15x8 // ⿱立几
 
-// glyph han-25a56:15x16 15 16 // 𥩖
-// ⿰ han-7acb han-535c // ⿰立卜
+glyph han-25a56:15x16 15 16 // 𥩖
+⿰ han-7acb:9x16 1 han-535c:5x16 // ⿰立卜
 
 ## 117.3
 

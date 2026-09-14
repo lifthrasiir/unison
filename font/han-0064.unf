@@ -159,8 +159,8 @@ glyph han-624e.0:* = han-624e:*
 glyph han-6250:15x16 15 16 // 扐
 ⿰ han-624c:5x16 1 han-529b:9x16 // ⿰扌力
 
-// glyph han-6251:15x16 15 16 // 扑
-// ⿰ han-624c han-535c // ⿰扌卜
+glyph han-6251:15x16 15 16 // 扑
+⿰ 1 han-624c:5x16 3 han-535c:5x16 // ⿰扌卜
 
 // glyph han-6252:15x16 15 16 // 扒
 // ⿰ han-624c han-516b // ⿰扌八
@@ -648,11 +648,18 @@ glyph han-638a:15x16 15 16 // 掊
 glyph han-6391:15x16 15 16 // 掑
 ⿰ han-624c:5x16 1 han-5176:9x16 // ⿰扌其
 
-glyph han-6392:15x16 15 16 // 排
-⿰ han-624c:5x16 1 han-975e:9x16 // ⿰扌非
+glyph han-6392-($han-regions):15x16 15 16 // 排
+⿰ han-624c:5x16 1 han-975e-($-1):9x16 // ⿰扌非
+glyph han-6392.0:* = han-6392-k:*
+glyph han-6392.1:* = han-6392-j:*
+glyph han-6392.2:* = han-6392-k:*
+glyph han-6392.3:* = han-6392-j:*
 
 glyph han-6397:15x16 15 16 // 掗
 ⿰ han-624c:5x16 han-4e9e:10x16 // ⿰扌亞
+
+// glyph han-639b:15x16 15 16 // 掛
+// ⿰ han-624c han-5366 // ⿰扌卦
 
 glyph han-639e:15x16 15 16 // 掞
 ⿰ han-624c:5x16 1 han-708e:9x16 // ⿰扌炎

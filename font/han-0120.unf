@@ -371,8 +371,12 @@ glyph han-7dc2:15x16 15 16 // 緂
 // glyph han-7dc4:15x16 15 16 // 緄
 // ⿰ han-7cf9 han-6606 // ⿰糹昆
 
-glyph han-7dcb:15x16 15 16 // 緋
-⿰ han-7cf9:5x16 1 han-975e:9x16 // ⿰糹非
+glyph han-7dcb-($han-regions):15x16 15 16 // 緋
+⿰ han-7cf9:5x16 1 han-975e-($-1):9x16 // ⿰糹非
+glyph han-7dcb.0:* = han-7dcb-j:*
+glyph han-7dcb.1:* = han-7dcb-j:*
+glyph han-7dcb.2:* = han-7dcb-j:*
+glyph han-7dcb.3:* = han-7dcb-j:*
 
 glyph han-7dd2-($han-regions):15x16 15 16 // 緒
 ⿰ han-7cf9:5x16 1 han-8005-($-1):9x16 // ⿰糹者
@@ -738,6 +742,9 @@ glyph han-7f67:15x16 15 16 // 罧
 
 // glyph han-7f6a:15x16 15 16 // 罪
 // ⿱ han-7f52 han-975e // ⿱罒非
+
+// glyph han-7f6b:15x16 15 16 // 罫
+// ⿱ han-7f52 han-5366 // ⿱罒卦
 
 // glyph han-7f72-($han-regions):15x16 15 16 // 署
 // ⿱ han-7f52 han-8005-($-1) // ⿱罒者

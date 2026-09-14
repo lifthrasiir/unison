@@ -67,8 +67,8 @@ glyph han-2b0cb:15x16 15 16 // 𫃋
 
 ## 120.2
 
-// glyph han-2b0da:15x16 15 16 // 𫃚
-// ⿰ han-7cf9 han-535c // ⿰糹卜
+glyph han-2b0da:15x16 15 16 // 𫃚
+⿰ 1 han-7cf9:5x16 3 han-535c:5x16 // ⿰糹卜
 
 ## 120.3
 

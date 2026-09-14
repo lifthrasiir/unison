@@ -600,6 +600,9 @@ glyph han-7537:15x16 15 16 // 男
 // glyph han-7538:15x16 15 16 // 甸
 // ⿹ han-52f9 han-7530 // ⿹勹田
 
+// glyph han-7539:15x16 15 16 // 甹
+// ⿱ han-7531 han-4e02 // ⿱由丂
+
 glyph han-753a:15x16 15 16 // 町
 ⿰ han-7530:7x16-l 1 han-4e01:7x16 // ⿰田丁
 
@@ -620,6 +623,12 @@ glyph han-753d.0:* = han-753d:*
 
 glyph han-753f-($han-regions):15x16 15 16 // 甿
 ⿰ han-7530:5x16-l 1 han-4ea1-($-1):9x16 // ⿰田亡
+
+// glyph han-7540:15x16 15 16 // 畀
+// ⿱ han-7530 han-4e0c // ⿱田丌
+
+// glyph han-7541:15x16 15 16 // 畁
+// ⿱ han-7531 han-4e0c // ⿱由丌
 
 glyph han-7543-(g|t):15x16 15 16 // 畃
 ⿰ han-7533:7x16 1 han-52fa-($-1):7x16 // ⿰申勺
@@ -1007,8 +1016,9 @@ glyph han-75e1:15x16 15 16 // 痡
 glyph han-75f0:15x16 15 16 // 痰
 ⿸ han-7592:15x16.11x13 han-708e:9x12 5 4 // ⿸疒炎
 
-glyph han-75f1:15x16 15 16 // 痱
-⿸ han-7592:15x16.11x13 han-975e:11x13 4 3 // ⿸疒非
+glyph han-75f1-($han-regions):15x16 15 16 // 痱
+⿸ han-7592:15x16.11x13 han-975e-($-1):11x13 4 3 // ⿸疒非
+glyph han-75f1.0:* = han-75f1-j:*
 
 glyph han-75f3:15x16 15 16 // 痳
 ⿸ han-7592:15x16.11x13 han-6797:11x12 4 4 // ⿸疒林
@@ -1947,6 +1957,9 @@ glyph han-76c5:15x16 15 16 // 盅
 
 // glyph han-76ce:15x16 15 16 // 盎
 // ⿱ han-592e han-76bf // ⿱央皿
+
+// glyph han-76d0:15x16 15 16 // 盐
+// ⿱ han-5724 han-76bf // ⿱圤皿
 
 ## 108.6
 

@@ -208,7 +208,7 @@ glyph han-284fd-($han-regions):15x16 15 16 // 𨓽
 // ⿺ han-8fb6-($-1) han-5947 // ⿺辶奇
 
 glyph han-284ff-($han-regions):15x16 15 16 // 𨓿
-⿺ han-8fb6-($-1):15x16.11x14 han-975e:11x13 4 1 // ⿺辶非
+⿺ han-8fb6-($-1):15x16.11x14 han-975e-($-1):11x13 4 1 // ⿺辶非
 
 // glyph han-28500-($han-regions):15x16 15 16 // 𨔀
 // ⿺ han-8fb6-($-1) han-6b68 // ⿺辶歨

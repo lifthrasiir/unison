@@ -11,16 +11,16 @@ glyph han-206a5:15x16 15 16 // 𠚥
 glyph han-206a7:15x16 15 16 // 𠚧
 ⿰ han-4e8c:9x16 1 han-5202:5x16 // ⿰二刂
 
-// glyph han-206a9:15x16 15 16 // 𠚩
-// ⿰ han-535c han-5202 // ⿰卜刂
+glyph han-206a9:15x16 15 16 // 𠚩
+⿰ 1 han-535c:5x16 3 han-5202:5x16 // ⿰卜刂
 
 glyph han-206aa:11x13 11 13 // 𠚪
 ⿰ han-5200:5x13 1 han-5200:5x13 // ⿰刀刀
 glyph han-206aa:15x16 15 16 // 𠚪
 ⿰ han-5200:7x16 1 han-5200:7x16 // ⿰刀刀
 
-// glyph han-206ac:15x16 15 16 // 𠚬
-// ⿰ han-535c han-5200 // ⿰卜刀
+glyph han-206ac:15x16 15 16 // 𠚬
+⿰ han-535c:5x16 han-5200:10x16 // ⿰卜刀
 
 ## 18.3
 
@@ -389,6 +389,9 @@ glyph han-2084e:15x16 15 16 // 𠡎
 glyph han-2084f:15x16 15 16 // 𠡏
 ⿰ han-751f:7x16 han-529b:8x16 // ⿰生力
 
+// glyph han-20850:15x16 15 16 // 𠡐
+// ⿱ han-52a0 han-4e02 // ⿱加丂
+
 ## 19.6
 
 // glyph han-20851:15x16 15 16 // 𠡑
@@ -402,6 +405,9 @@ glyph han-2084f:15x16 15 16 // 𠡏
 
 glyph han-20857:15x16 15 16 // 𠡗
 ⿰ han-81e3:8x16 han-529b:7x16 // ⿰臣力
+
+// glyph han-20859:15x16 15 16 // 𠡙
+// ⿰ han-529b han-6734 // ⿰力朴
 
 // glyph han-2085a:15x16 15 16 // 𠡚
 // ⿰ han-4e98 han-529b // ⿰亘力

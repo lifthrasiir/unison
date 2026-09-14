@@ -811,8 +811,8 @@ glyph han-3e95:15x16 15 16 // 㺕
 // glyph han-3ea8:15x16 15 16 // 㺨
 // ⿰ han-248e9 han-53b6 // ⿰𤣩厶
 
-// glyph han-3eaa:15x16 15 16 // 㺪
-// ⿰ han-248e9 han-535c // ⿰𤣩卜
+glyph han-3eaa:15x16 15 16 // 㺪
+⿰ 1 han-248e9:7x16 1 han-535c:5x16 // ⿰𤣩卜
 
 glyph han-3eab:15x16 15 16 // 㺫
 ⿰ 1 han-248e9:7x16 1 han-5202:5x16 // ⿰𤣩刂

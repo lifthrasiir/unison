@@ -1060,8 +1060,8 @@ glyph han-3af0:15x16 15 16 // 㫰
 
 ## 72.8
 
-glyph han-3af5:15x16 15 16 // 㫵
-⿰ han-65e5:6x16 han-975e:9x16 // ⿰日非
+glyph han-3af5-($han-regions):15x16 15 16 // 㫵
+⿰ han-65e5:6x16 han-975e-($-1):9x16 // ⿰日非
 
 glyph han-3af7:15x16 15 16 // 㫷
 ⿱ han-5176:15x10 1 han-65e5:15x5 // ⿱其日

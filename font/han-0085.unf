@@ -200,6 +200,9 @@ glyph han-6c41:15x16 15 16 // 汁
 glyph han-6c44:15x16 15 16 // 汄
 ⿰ han-6c35:5x16 1 han-4eba:9x16 // ⿰氵人
 
+// glyph han-6c45:15x16 15 16 // 汅
+// ⿰ han-6c35 han-4e02 // ⿰氵丂
+
 // glyph han-6c46:15x16 15 16 // 汆
 // ⿱ han-5165 han-6c34 // ⿱入水
 
@@ -847,8 +850,9 @@ glyph han-6df8-($han-regions):15x16 15 16 // 淸
 // glyph han-6dfe:15x16 15 16 // 淾
 // ⿱ han-91d1 han-6c34 // ⿱金水
 
-glyph han-6e04:15x16 15 16 // 渄
-⿰ han-6c35:5x16 1 han-975e:9x16 // ⿰氵非
+glyph han-6e04-($han-regions):15x16 15 16 // 渄
+⿰ han-6c35:5x16 1 han-975e-($-1):9x16 // ⿰氵非
+glyph han-6e04.0:* = han-6e04-j:*
 
 glyph han-6e05-($han-regions):15x16 15 16 // 清
 ⿰ han-6c35:5x16 1 han-9752-($-1):9x16 // ⿰氵青

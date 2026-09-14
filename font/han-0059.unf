@@ -185,8 +185,12 @@ glyph han-5f91:15x16 15 16 // 徑
 // glyph han-5f97:15x16 15 16 // 得
 // ⿰ han-5f73 han-3775 // ⿰彳㝵
 
-glyph han-5f98:15x16 15 16 // 徘
-⿰ han-5f73:5x16 1 han-975e:9x16 // ⿰彳非
+glyph han-5f98-($han-regions):15x16 15 16 // 徘
+⿰ han-5f73:5x16 1 han-975e-($-1):9x16 // ⿰彳非
+glyph han-5f98.0:* = han-5f98-k:*
+glyph han-5f98.1:* = han-5f98-j:*
+glyph han-5f98.2:* = han-5f98-k:*
+glyph han-5f98.3:* = han-5f98-j:*
 
 // glyph han-5f99:15x16 15 16 // 徙
 // ⿰ han-5f73 han-6b68 // ⿰彳歨
@@ -803,8 +807,9 @@ glyph han-60a7:15x16 15 16 // 悧
 
 ## 61.8
 
-glyph han-60b1:15x16 15 16 // 悱
-⿰ han-5fc4:5x16 1 han-975e:9x16 // ⿰忄非
+glyph han-60b1-($han-regions):15x16 15 16 // 悱
+⿰ han-5fc4:5x16 1 han-975e-($-1):9x16 // ⿰忄非
+glyph han-60b1.0:* = han-60b1-j:*
 
 // glyph han-60b2:15x16 15 16 // 悲
 // ⿱ han-975e han-5fc3 // ⿱非心

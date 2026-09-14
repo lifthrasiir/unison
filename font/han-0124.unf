@@ -1398,6 +1398,9 @@ glyph han-80e2:15x16 15 16 // 胢
 // glyph han-80e6:15x16 15 16 // 胦
 // ⿰ han-6708 han-592e // ⿰月央
 
+// glyph han-80e8:15x16 15 16 // 胨
+// ⿰ han-6708 han-4e1c // ⿰月东
+
 ## 130.6
 
 // glyph han-80ed:15x16 15 16 // 胭
@@ -1506,8 +1509,12 @@ glyph han-8148-(k):15x16 15 16 // 腈
 // glyph han-8152:15x16 15 16 // 腒
 // ⿰ han-6708 han-5c45 // ⿰月居
 
-glyph han-8153:15x16 15 16 // 腓
-⿰ han-6708:5x16-l 1 han-975e:9x16 // ⿰月非
+glyph han-8153-($han-regions):15x16 15 16 // 腓
+⿰ han-6708:5x16-l 1 han-975e-($-1):9x16 // ⿰月非
+glyph han-8153.0:* = han-8153-j:*
+glyph han-8153.1:* = han-8153-j:*
+glyph han-8153.2:* = han-8153-j:*
+glyph han-8153.3:* = han-8153-j:*
 
 // glyph han-8154:15x16 15 16 // 腔
 // ⿰ han-6708 han-7a7a // ⿰月空

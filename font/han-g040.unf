@@ -194,6 +194,9 @@ glyph han-3038c:15x16 15 16 // 𰎌
 
 ## 46.5
 
+// glyph han-3038f:15x16 15 16 // 𰎏
+// ⿰ han-5c71 han-4e1c // ⿰山东
+
 glyph han-30392:15x16 15 16 // 𰎒
 ⿱ han-5c71:15x5 han-767d:15x11 // ⿱山白
 
@@ -741,6 +744,9 @@ glyph han-3056b:15x16 15 16 // 𰕫
 # CJK unified ideographs extension G: 日 (72)
 
 ## 72.2
+
+// glyph han-30571:15x16 15 16 // 𰕱
+// ⿰ han-65e5 han-4e02 // ⿰日丂
 
 // glyph han-30572:15x16 15 16 // 𰕲
 // ⿲ han-4e36 han-4e3f han-65e5 // ⿲丶丿日 <- ⿰⿰丶丿日

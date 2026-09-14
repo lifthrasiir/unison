@@ -14,7 +14,7 @@
 // ⿱ han-767d han-4e04 // ⿱白丄
 
 glyph han-24f40:15x16 15 16 // 𤽀
-⿰ han-767d:6x16 han-4e86:9x16 // ⿰白了
+⿰ han-767d:6x16 han-4e86-v:9x16 // ⿰白了
 
 glyph han-24f41:15x16 15 16 // 𤽁
 ⿰ han-767d:6x16 han-5341:9x16 // ⿰白十
@@ -141,8 +141,8 @@ glyph han-24f83:15x16 15 16 // 𤾃
 // glyph han-24f84:15x16 15 16 // 𤾄
 // ⿱ han-660b han-767d // ⿱昋白
 
-glyph han-24f85:15x16 15 16 // 𤾅
-⿰ han-767d:6x16 han-975e:9x16 // ⿰白非
+glyph han-24f85-($han-regions):15x16 15 16 // 𤾅
+⿰ han-767d:6x16 han-975e-($-1):9x16 // ⿰白非
 
 ## 106.9
 
@@ -311,8 +311,8 @@ glyph han-24fed:15x16 15 16 // 𤿭
 glyph han-24ffa:15x16 15 16 // 𤿺
 ⿰ han-5176:6x16 han-76ae:9x16 // ⿰其皮
 
-glyph han-24ffb:15x16 15 16 // 𤿻
-⿰ han-975e:7x16 han-76ae:8x16 // ⿰非皮
+glyph han-24ffb-($han-regions):15x16 15 16 // 𤿻
+⿰ han-975e-($-1):7x16 han-76ae:8x16 // ⿰非皮
 
 // glyph han-24ffd:15x16 15 16 // 𤿽
 // ⿰ han-6c93 han-76ae // ⿰沓皮
@@ -377,6 +377,9 @@ glyph han-25036:15x16 15 16 // 𥀶
 # CJK unified ideographs extension B: 皿 (108)
 
 ## 108.2
+
+// glyph han-2503f:15x16 15 16 // 𥀿
+// ⿱ han-76bf han-4e02 // ⿱皿丂
 
 // glyph han-25040:15x16 15 16 // 𥁀
 // ⿱ han-5200 han-76bf // ⿱刀皿

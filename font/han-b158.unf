@@ -12,8 +12,8 @@
 
 ## 158.2
 
-// glyph han-28212:15x16 15 16 // 𨈒
-// ⿰ han-8eab han-535c // ⿰身卜
+glyph han-28212:15x16 15 16 // 𨈒
+⿰ han-8eab:9x16 1 han-535c:5x16 // ⿰身卜
 
 ## 158.3
 
@@ -179,8 +179,8 @@ glyph han-28231:15x16 15 16 // 𨈱
 glyph han-282a1:15x16 15 16 // 𨊡
 ⿰ han-8eca:5x16 1 han-4e01:9x16 // ⿰車丁
 
-// glyph han-282a3:15x16 15 16 // 𨊣
-// ⿰ han-8eca han-535c // ⿰車卜
+glyph han-282a3:15x16 15 16 // 𨊣
+⿰ han-8eca:9x16 1 han-535c:5x16 // ⿰車卜
 
 glyph han-282a4:15x16 15 16 // 𨊤
 ⿰ han-8eca:5x16 1 han-4eba:9x16 // ⿰車人

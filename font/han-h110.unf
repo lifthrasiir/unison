@@ -883,6 +883,9 @@ glyph han-32029:15x16 15 16 // 𲀩
 
 ## 145.6
 
+// glyph han-3202a:15x16 15 16 // 𲀪
+// ⿱ han-8865 han-65b9 // ⿱补方
+
 glyph han-3202e-($han-regions):15x16 15 16 // 𲀮
 ⿰ han-8864:5x16 1 han-7fbd-($-1):9x16 // ⿰衤羽
 

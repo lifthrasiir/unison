@@ -17,8 +17,8 @@ glyph han-2986a:15x16 15 16 // 𩡪
 // glyph han-2986b:15x16 15 16 // 𩡫
 // ⿵ han-20628 han-99ac // ⿵𠘨馬
 
-// glyph han-2986d:15x16 15 16 // 𩡭
-// ⿰ han-99ac han-535c // ⿰馬卜
+glyph han-2986d:15x16 15 16 // 𩡭
+⿰ han-99ac:9x16 1 han-535c:5x16 // ⿰馬卜
 
 glyph han-2986e:15x16 15 16 // 𩡮
 ⿰ han-99ac:7x16 1 han-4eba:7x16 // ⿰馬人
@@ -342,8 +342,8 @@ glyph han-29a11:15x16 15 16 // 𩨑
 // glyph han-29a12:15x16 15 16 // 𩨒
 // ⿰ han-9aa8 han-51e0 // ⿰骨几
 
-// glyph han-29a13:15x16 15 16 // 𩨓
-// ⿰ han-9aa8 han-535c // ⿰骨卜
+glyph han-29a13:15x16 15 16 // 𩨓
+⿰ han-9aa8:9x16 1 han-535c:5x16 // ⿰骨卜
 
 ## 188.3
 

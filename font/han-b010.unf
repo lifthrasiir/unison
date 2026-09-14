@@ -364,8 +364,8 @@ glyph han-205ac:15x16 15 16 // 𠖬
 
 ## 15.2
 
-glyph han-205ad:15x16 15 16 // 𠖭
-⿰ han-51ab:5x16 1 han-4e86:9x16 // ⿰冫了
+glyph han-205ad-($han-regions):15x16 15 16 // 𠖭
+⿰ han-51ab:5x16 1 han-4e86-($-1):9x16 // ⿰冫了
 
 ## 15.3
 

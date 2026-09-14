@@ -618,7 +618,7 @@ glyph han-444f:15x16 15 16 // 䑏
 ## 137.2
 
 glyph han-4460:15x16 15 16 // 䑠
-⿰ han-821f:7x16 1 han-4e86:7x16 // ⿰舟了
+⿰ han-821f:7x16 1 han-4e86.0:7x16 // ⿰舟了
 
 ## 137.3
 
@@ -690,6 +690,9 @@ glyph han-4476-($han-regions):15x16 15 16 // 䑶
 # CJK unified ideographs extension A: 艸 (140)
 
 ## 140.2
+
+// glyph han-4493:15x16 15 16 // 䒓
+// ⿱ han-8279 han-4e02 // ⿱艹丂
 
 // glyph han-4494:15x16 15 16 // 䒔
 // ⿱ han-8279 han-516b // ⿱艹八

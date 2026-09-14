@@ -289,8 +289,8 @@ glyph han-20efa:15x16 15 16 // 𠻺
 glyph han-20f11:15x16 15 16 // 𠼑
 ⿰ han-544a:7x16 han-544a:8x16 // ⿰告告
 
-glyph han-20f15:15x16 15 16 // 𠼕
-⿲ han-53e3:3x16-l han-624c:3x16 han-975e:9x16 // ⿲口扌非
+glyph han-20f15-($han-regions):15x16 15 16 // 𠼕
+⿲ han-53e3:3x16-l han-624c:3x16 han-975e-($-1):9x16 // ⿲口扌非
 
 // glyph han-20f16:15x16 15 16 // 𠼖
 // ⿰ han-53e3 han-5a6a // ⿰口婪

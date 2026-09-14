@@ -105,8 +105,8 @@ glyph han-9ce8:15x16 15 16 // 鳨
 // glyph han-9ce9:15x16 15 16 // 鳩
 // ⿰ han-4e5d han-9ce5 // ⿰九鳥
 
-// glyph han-9cea:15x16 15 16 // 鳪
-// ⿰ han-535c han-9ce5 // ⿰卜鳥
+glyph han-9cea:15x16 15 16 // 鳪
+⿰ han-535c:5x16 1 han-9ce5:9x16 // ⿰卜鳥
 
 // glyph han-9ceb:15x16 15 16 // 鳫
 // ⿸ han-5382 han-9ce5 // ⿸厂鳥

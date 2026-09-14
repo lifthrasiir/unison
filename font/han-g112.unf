@@ -80,6 +80,9 @@ glyph han-309d8-($han-regions):15x16 15 16 // 𰧘
 // glyph han-309ed:15x16 15 16 // 𰧭
 // ⿳ han-5341 han-4e00 han-793a // ⿳十一示 <- ⿱士示
 
+// glyph han-309ee:15x16 15 16 // 𰧮
+// ⿰ han-793b han-4e0c // ⿰礻丌
+
 ## 113.4
 
 // glyph han-309f1:15x16 15 16 // 𰧱
@@ -105,7 +108,7 @@ glyph han-309fa:15x16 15 16 // 𰧺
 // ⿰ han-793b han-36bb // ⿰礻㚻
 
 glyph han-30a05:15x16 15 16 // 𰨅
-⿰ han-793a:5x16 1 han-975e:9x16 // ⿰示非
+⿰ han-793a:5x16 1 han-975e-k:9x16 // ⿰示非
 
 ## 113.10
 

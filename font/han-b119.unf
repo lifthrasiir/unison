@@ -173,8 +173,8 @@ glyph han-25e95:15x16 15 16 // 𥺕
 
 ## 119.8
 
-glyph han-25e98:15x16 15 16 // 𥺘
-⿰ han-7c73:5x16 1 han-975e:9x16 // ⿰米非
+glyph han-25e98-($han-regions):15x16 15 16 // 𥺘
+⿰ han-7c73:5x16 1 han-975e-($-1):9x16 // ⿰米非
 
 glyph han-25e9a:15x16 15 16 // 𥺚
 ⿲ -1 han-7c73:5x16 han-6728:5x16 han-65a4:6x16 // ⿲米木斤

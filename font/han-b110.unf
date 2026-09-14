@@ -10,8 +10,8 @@ glyph han-25415:15x16 15 16 // 𥐕
 // glyph han-25419:15x16 15 16 // 𥐙
 // ⿰ han-77f3 han-516b // ⿰石八
 
-// glyph han-2541a:15x16 15 16 // 𥐚
-// ⿰ han-77f3 han-535c // ⿰石卜
+glyph han-2541a:15x16 15 16 // 𥐚
+⿰ han-77f3:9x16 1 han-535c:5x16 // ⿰石卜
 
 glyph han-2541b:15x16 15 16 // 𥐛
 ⿰ han-77f3:5x16 1 han-5200:9x16 // ⿰石刀

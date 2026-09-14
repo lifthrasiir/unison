@@ -280,6 +280,13 @@ glyph han-3142e:15x16 15 16 // 𱐮
 // glyph han-31436:15x16 15 16 // 𱐶
 // ⿰ han-529b han-7f67 // ⿰力罧
 
+# CJK unified ideographs extension H: 勹 (20)
+
+## 20.7
+
+// glyph han-31438:15x16 15 16 // 𱐸
+// ⿺ han-5305 han-4ec6 // ⿺包仆
+
 # CJK unified ideographs extension H: 匚 (22)
 
 ## 22.9
@@ -407,6 +414,9 @@ glyph han-31493:15x16 15 16 // 𱒓
 ⿲ han-53e3:4x16-l han-6c35:3x16 -1 han-4e01:9x16 // ⿲口氵丁
 
 ## 30.6
+
+// glyph han-31496:15x16 15 16 // 𱒖
+// ⿰ han-53e3 han-6734 // ⿰口朴
 
 glyph han-31497:15x16 15 16 // 𱒗
 ⿲ han-53e3:3x16-l han-5de5:3x16-l han-51e1:9x16 // ⿲口工凡
@@ -715,7 +725,7 @@ glyph han-315ba:15x16 15 16 // 𱖺
 // ⿰ han-571f han-5fe0 // ⿰土忠
 
 glyph han-315be:15x16 15 16 // 𱖾
-⿰ han-571f:5x16-l 1 han-975e:9x16 // ⿰土非
+⿰ han-571f:5x16-l 1 han-975e-g:9x16 // ⿰土非
 
 // glyph han-315c7:15x16 15 16 // 𱗇
 // ⿱ han-793e han-571f // ⿱社土

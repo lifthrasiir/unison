@@ -642,8 +642,12 @@ glyph han-9bdb:15x16 15 16 // 鯛
 // glyph han-9be0:15x16 15 16 // 鯠
 // ⿰ han-9b5a han-4f86 // ⿰魚來
 
-glyph han-9be1:15x16 15 16 // 鯡
-⿰ han-9b5a:7x16 1 han-975e:7x16 // ⿰魚非
+glyph han-9be1-($han-regions):15x16 15 16 // 鯡
+⿰ han-9b5a:7x16 1 han-975e-($-1):7x16 // ⿰魚非
+glyph han-9be1.0:* = han-9be1-j:*
+glyph han-9be1.1:* = han-9be1-j:*
+glyph han-9be1.2:* = han-9be1-j:*
+glyph han-9be1.3:* = han-9be1-j:*
 
 // glyph han-9be4:15x16 15 16 // 鯤
 // ⿰ han-9b5a han-6606 // ⿰魚昆

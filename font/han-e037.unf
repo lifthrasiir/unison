@@ -529,8 +529,8 @@ glyph han-2bdb7:15x16 15 16 // 𫶷
 
 ## 50.2
 
-// glyph han-2bdbd:15x16 15 16 // 𫶽
-// ⿰ han-5dfe han-535c // ⿰巾卜
+glyph han-2bdbd:15x16 15 16 // 𫶽
+⿰ han-5dfe:9x16 1 han-535c:5x16 // ⿰巾卜
 
 glyph han-2bdbe:15x16 15 16 // 𫶾
 ⿰ han-5dfe:7x16 1 han-4eba:7x16 // ⿰巾人
@@ -736,6 +736,9 @@ glyph han-2be69:15x16 15 16 // 𫹩
 
 ## 61.2
 
+// glyph han-2be6b:15x16 15 16 // 𫹫
+// ⿰ han-5fc4 han-4e02 // ⿰忄丂
+
 // glyph han-2be6c:15x16 15 16 // 𫹬
 // ref han-5c14 // ⿻尔丶
 // ref han-4e36
@@ -763,6 +766,9 @@ glyph han-2be7a:15x16 15 16 // 𫹺
 
 // glyph han-2be7b:15x16 15 16 // 𫹻
 // ⿱ han-672a han-5fc3 // ⿱未心
+
+// glyph han-2be7c:15x16 15 16 // 𫹼
+// ⿰ han-5fc4 han-4e1c // ⿰忄东
 
 // glyph han-2be7e:15x16 15 16 // 𫹾
 // ⿱ han-5305 han-5fc3 // ⿱包心
