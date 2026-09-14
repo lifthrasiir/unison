@@ -448,6 +448,23 @@ impl Scope {
             out.insert(format!("${slot}"), vec![self.matches[i][slot].clone()]);
         }
     }
+
+    /// Undo every [`Scope::rebind`] on `out`, which was `base` before them:
+    /// each slot goes back to what `base` holds for it, or away. What lets a
+    /// caller unrolling many scopes keep one copy of the base for all of them.
+    pub fn unbind(&self, out: &mut NamePartsMap, base: &NamePartsMap) {
+        for slot in 0..self.slots {
+            let key = format!("${slot}");
+            match base.get(&key) {
+                Some(values) => {
+                    out.insert(key, values.clone());
+                }
+                None => {
+                    out.remove(&key);
+                }
+            }
+        }
+    }
 }
 
 /// Every `exists` of a document set, resolved: which item each one scopes and
@@ -496,11 +513,11 @@ impl ExistsScopes {
     ///
     /// A closure rather than a list of maps because the base is every
     /// `name-parts` the source declares and a han search matches tens of
-    /// thousands of names: this clones the base once for the item and rebinds
-    /// per match.
+    /// thousands of names: the base is copied once for the whole walk (see
+    /// [`Bindings`]) and rebound per match.
     pub fn for_each_binding(
         &self,
-        base: &NamePartsMap,
+        bindings: &mut Bindings<'_>,
         r: ItemRef,
         mut f: impl FnMut(&NamePartsMap),
     ) {
@@ -508,16 +525,37 @@ impl ExistsScopes {
             return;
         }
         match self.scope(r) {
-            None => f(base),
+            None => f(bindings.base),
             Some(scope) if scope.matches.is_empty() => {}
             Some(scope) => {
-                let mut per = base.clone();
+                let base = bindings.base;
+                let bound = bindings.bound.get_or_insert_with(|| base.clone());
                 for i in 0..scope.len() {
-                    scope.rebind(&mut per, i);
-                    f(&per);
+                    scope.rebind(bound, i);
+                    f(bound);
                 }
+                scope.unbind(bound, base);
             }
         }
+    }
+}
+
+/// The base a walk binds `$N` over, and the one copy of it the walk rebinds.
+///
+/// A walk over the source asks [`ExistsScopes::for_each_binding`] about every
+/// item, and every multi-alias is a scoped item: a font writing six hundred of
+/// them copied every `name-parts` it declares six hundred times per walk, in
+/// each of the several walks one rebuild makes. The copy is taken the first
+/// time a scoped item is met and put back after each one, so it is the base
+/// again whenever it is not in use.
+pub struct Bindings<'a> {
+    base: &'a NamePartsMap,
+    bound: Option<NamePartsMap>,
+}
+
+impl<'a> Bindings<'a> {
+    pub fn new(base: &'a NamePartsMap) -> Self {
+        Self { base, bound: None }
     }
 }
 
@@ -766,19 +804,43 @@ pub fn resolve_scopes(
     // grows *during* a round: a directive earlier in the list has seen fewer
     // names than one after it, and the next round picks up exactly what each
     // one missed.
+    //
+    // `searched` counts names for a directive with no literal prefix and
+    // entries of its prefix's bucket for one with a prefix; both only grow in
+    // the order `names` does, so the window means the same either way.
     let mut searched = vec![0usize; pending.len()];
     let mut fed_back = vec![0usize; pending.len()];
+    let mut index = PrefixIndex::new(pending.iter().map(|p| p.pattern.prefix.as_str()));
+    for (i, name) in names.iter().enumerate() {
+        index.add(i, name);
+    }
+    // One copy of the base for the whole fixpoint rather than one per
+    // directive: a source with hundreds of multi-aliases is hundreds of
+    // directives, and each directive puts back the slots it bound.
+    let mut bound = name_parts.clone();
     for _ in 0..=budget {
         let mut changed = false;
         for (k, p) in pending.iter().enumerate() {
-            let upto = names.len();
-            for name in &names[searched[k]..upto] {
-                if let Some(caps) = p.pattern.capture(name) {
-                    scopes[k].matches.push(caps);
-                    changed = true;
+            searched[k] = match index.bucket(&p.pattern.prefix) {
+                Some(bucket) => {
+                    for &i in &bucket[searched[k]..] {
+                        if let Some(caps) = p.pattern.capture(&names[i]) {
+                            scopes[k].matches.push(caps);
+                            changed = true;
+                        }
+                    }
+                    bucket.len()
                 }
-            }
-            searched[k] = upto;
+                None => {
+                    for name in &names[searched[k]..] {
+                        if let Some(caps) = p.pattern.capture(name) {
+                            scopes[k].matches.push(caps);
+                            changed = true;
+                        }
+                    }
+                    names.len()
+                }
+            };
             let Some(header) = &p.declares else {
                 continue;
             };
@@ -789,16 +851,17 @@ pub fn resolve_scopes(
             // the search may go on to find is one the *build* declares, and
             // the build expands the header once for each match with the slots
             // bound to one string each.
-            let mut bound = name_parts.clone();
             for i in fed_back[k]..scopes[k].len() {
                 scopes[k].rebind(&mut bound, i);
                 for n in expand_header_names(header, &bound) {
                     if seen.insert(n.clone()) {
+                        index.add(names.len(), &n);
                         names.push(n);
                         changed = true;
                     }
                 }
             }
+            scopes[k].unbind(&mut bound, name_parts);
             fed_back[k] = scopes[k].len();
         }
         if !changed {
@@ -850,6 +913,59 @@ pub fn resolve_scopes(
     }
     register_silenced(&mut out, &silenced);
     (out, diagnostics)
+}
+
+/// The searched names bucketed by the literal prefixes the directives start
+/// with ([`ExistsPattern::prefix`]).
+///
+/// The prefilter answers a name with one memcmp, but it still asks every
+/// directive about every name, and a multi-alias is a directive: a font that
+/// writes six hundred `glyph han-XXXX.0:* = han-XXXX:*` lines is six hundred
+/// scans of sixty thousand names per round, on every rebuild. Bucketed, a
+/// directive only reads the names that could match it, and a name is filed by
+/// looking up one slice per distinct prefix *length*, of which there are few.
+///
+/// A bucket holds indices into the searched list in the order they were added,
+/// which is the order a scan would have met them in — so the matches, and
+/// everything built from them, come out in the same order.
+struct PrefixIndex {
+    lens: Vec<usize>,
+    buckets: HashMap<String, Vec<usize>>,
+}
+
+impl PrefixIndex {
+    fn new<'a>(prefixes: impl Iterator<Item = &'a str>) -> Self {
+        let mut lens = Vec::new();
+        let mut buckets: HashMap<String, Vec<usize>> = HashMap::default();
+        for prefix in prefixes.filter(|p| !p.is_empty()) {
+            if !lens.contains(&prefix.len()) {
+                lens.push(prefix.len());
+            }
+            buckets.entry(prefix.to_string()).or_default();
+        }
+        Self { lens, buckets }
+    }
+
+    fn add(&mut self, idx: usize, name: &str) {
+        for &len in &self.lens {
+            // `get` is `None` past the end and inside a multi-byte character,
+            // neither of which a prefix can match.
+            if let Some(head) = name.get(..len)
+                && let Some(bucket) = self.buckets.get_mut(head)
+            {
+                bucket.push(idx);
+            }
+        }
+    }
+
+    /// The indices of the names starting with `prefix`, or `None` for the
+    /// empty prefix, which every name starts with and no bucket is kept for.
+    fn bucket(&self, prefix: &str) -> Option<&[usize]> {
+        if prefix.is_empty() {
+            return None;
+        }
+        self.buckets.get(prefix).map(Vec::as_slice)
+    }
 }
 
 /// The names one `glyph`/`glyph … =` header declares, with `name_parts`

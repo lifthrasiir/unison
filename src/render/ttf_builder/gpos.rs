@@ -123,6 +123,14 @@ pub(super) fn build_anchor_gpos(
             anchor_names.push(feature.anchor.clone());
         }
     }
+    // `-X` and `+X` of every class, beside `anchor_names`, spelled once. The
+    // per-glyph loops below ask about every class for every glyph, and a font
+    // with five-figure glyph counts spent most of this function formatting
+    // the same few strings again.
+    let signed: Vec<(String, String)> = anchor_names
+        .iter()
+        .map(|a| (format!("-{a}"), format!("+{a}")))
+        .collect();
 
     // The name each gid carries, for the entry lists the tests read. Built once
     // rather than by scanning the glyph set per gid: the scan is quadratic in a
@@ -243,8 +251,8 @@ pub(super) fn build_anchor_gpos(
             // of the coverage. `resolved_anchors` is already the exposed set, so
             // that fallback respects `inherit` on its own.
             for source in [&g.declared_anchors, &g.resolved_anchors] {
-                let found = anchor_names.iter().find_map(|anchor_name| {
-                    let minus_name = format!("-{anchor_name}");
+                let found = anchor_names.iter().zip(&signed).find_map(|(anchor_name, signs)| {
+                    let minus_name = signs.0.as_str();
                     source
                         .iter()
                         .find(|p| p.position == minus_name)
@@ -261,8 +269,8 @@ pub(super) fn build_anchor_gpos(
             // Mark-to-mark: mark glyphs with `+anchor` anchors
             let mut plus_anchors: Vec<Option<(i16, i16)>> = vec![None; num_classes as usize];
             let mut has_any = false;
-            for anchor_name in anchor_names.iter() {
-                let plus_name = format!("+{anchor_name}");
+            for (anchor_name, signs) in anchor_names.iter().zip(&signed) {
+                let plus_name = signs.1.as_str();
                 if let Some(pt) = g.resolved_anchors.iter().find(|p| p.position == plus_name) {
                     let class = anchor_class_map[anchor_name] as usize;
                     let align = align_of(&anchor_align, anchor_name);
@@ -286,8 +294,8 @@ pub(super) fn build_anchor_gpos(
             // alt_name → plus_anchors for each alternative that provides anchors
             let mut alt_plus_map: HashMap<String, Vec<Option<(i16, i16)>>> = HashMap::default();
 
-            for anchor_name in anchor_names.iter() {
-                let plus_name = format!("+{anchor_name}");
+            for (anchor_name, signs) in anchor_names.iter().zip(&signed) {
+                let plus_name = signs.1.as_str();
                 let class = anchor_class_map[anchor_name] as usize;
                 let align = align_of(&anchor_align, anchor_name);
 

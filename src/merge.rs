@@ -234,6 +234,7 @@ fn collect_blocks(
     exists: &crate::exists::ExistsScopes,
 ) -> Vec<Block> {
     let mut blocks = Vec::new();
+    let mut bindings = crate::exists::Bindings::new(name_parts);
     for (doc_idx, doc) in docs.iter().enumerate() {
         for (item_idx, item) in doc.items.iter().enumerate() {
             let DocumentItem::Glyph { name, body } = item else {
@@ -260,7 +261,7 @@ fn collect_blocks(
             // of one drawing back into one glyph id.
             let mut members: Vec<String> = Vec::new();
             let mut slots: Vec<Vec<String>> = Vec::new();
-            exists.for_each_binding(name_parts, here, |name_parts| {
+            exists.for_each_binding(&mut bindings, here, |name_parts| {
                 // A block that does not expand is reported by the expansion,
                 // which is where the line is known; here it simply declares
                 // nothing to merge.

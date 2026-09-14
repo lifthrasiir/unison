@@ -1321,22 +1321,21 @@ enum SettledAlt {
     Nothing,
 }
 
-/// [`settle_row`] over a wide line's targets, read at row index `i`.
+/// [`settle_row`] over one row of a wide line's `count` alternatives.
 ///
-/// `judge` is `usable` for a line settling alone and the group's per-row memo
-/// for one settling with others; `buf` is the caller's, because a row that
-/// settles on its ninth alternative would otherwise allocate nine names.
+/// `usable_at(n)` answers for the line's `n`-th alternative at this row. It is
+/// the name read off the target and judged for a line settling alone, and the
+/// group's per-row memo for one settling with others; either way the caller
+/// builds the name into a buffer of its own, because a row that settles on its
+/// ninth alternative would otherwise allocate nine names.
 fn settle_alt(
-    targets: &[AltTarget<'_>],
-    i: usize,
-    buf: &mut String,
-    mut judge: impl FnMut(&str) -> bool,
+    count: usize,
+    mut usable_at: impl FnMut(usize) -> bool,
     optional: bool,
     notdef_usable: bool,
 ) -> SettledAlt {
-    for (n, target) in targets.iter().enumerate() {
-        target.get_into(i, buf);
-        if judge(buf) {
+    for n in 0..count {
+        if usable_at(n) {
             return SettledAlt::Alt(n as u16);
         }
     }
@@ -1408,46 +1407,56 @@ fn settle_wide_groups(
             continue;
         }
         let spec = std::sync::Arc::new(spec);
+        // The group's alternatives, each distinct written target once, and
+        // every line as indices into them. The lines permute one list, and a
+        // target written the same way over the same spec names the same glyph
+        // at every row — so the memo is keyed by the target, not by the name
+        // it builds, and a name is neither built nor compared twice.
+        //
         // Borrowed from `items` for as long as the settling below, which is why
         // this is a pass of its own: the caller consumes `items` as it emits.
-        let lines: Vec<(Vec<AltTarget<'_>>, bool)> = members
+        let mut written: Vec<&str> = Vec::new();
+        let lines: Vec<(Vec<usize>, bool)> = members
             .iter()
             .map(|&idx| {
                 let DocumentItem::Map { glyphs, .. } = &items[idx].item else {
                     unreachable!("collected as a map above");
                 };
-                (
-                    glyphs.iter().map(|g| AltTarget::of(g, &spec)).collect(),
-                    glyphs.last().is_some_and(String::is_empty),
-                )
+                let alts = glyphs
+                    .iter()
+                    .map(|g| match written.iter().position(|w| w == g) {
+                        Some(t) => t,
+                        None => {
+                            written.push(g);
+                            written.len() - 1
+                        }
+                    })
+                    .collect();
+                (alts, glyphs.last().is_some_and(String::is_empty))
             })
             .collect();
+        let targets: Vec<AltTarget<'_>> = written.iter().map(|g| AltTarget::of(g, &spec)).collect();
 
         let rows = spec.rows();
         let per_row =
             crate::parallel::map_indexed(rows.len(), &crate::cancel::CancelToken::never(), |k| {
                 let (i, _) = rows[k];
-                // The row's memo: one entry per distinct name the group's
-                // alternatives build here, which is a handful, so a scan beats
-                // hashing them. Per row rather than shared across rows, because
-                // sharing would need a lock on the one loop that must not have
-                // one — see `crate::parallel`.
-                let mut judged: Vec<(String, bool)> = Vec::new();
+                // The row's memo, one slot per distinct target. Per row rather
+                // than shared across rows, because sharing would need a lock on
+                // the one loop that must not have one — see `crate::parallel`.
+                let mut judged: Vec<Option<bool>> = vec![None; targets.len()];
                 let mut buf = String::new();
                 lines
                     .iter()
-                    .map(|(targets, optional)| {
+                    .map(|(alts, optional)| {
                         settle_alt(
-                            targets,
-                            i,
-                            &mut buf,
-                            |name| match judged.iter().find(|(seen, _)| seen == name) {
-                                Some(&(_, ok)) => ok,
-                                None => {
-                                    let ok = usable(name);
-                                    judged.push((name.to_string(), ok));
-                                    ok
-                                }
+                            alts.len(),
+                            |n| {
+                                let t = alts[n];
+                                *judged[t].get_or_insert_with(|| {
+                                    targets[t].get_into(i, &mut buf);
+                                    usable(&buf)
+                                })
                             },
                             *optional,
                             notdef_usable,
@@ -1711,7 +1720,15 @@ fn resolve_map_alternatives(
                         |k| {
                             let (i, _) = rows[k];
                             let mut buf = String::new();
-                            settle_alt(&targets, i, &mut buf, &usable, optional, notdef_usable)
+                            settle_alt(
+                                targets.len(),
+                                |n| {
+                                    targets[n].get_into(i, &mut buf);
+                                    usable(&buf)
+                                },
+                                optional,
+                                notdef_usable,
+                            )
                         },
                     );
                     &settled_alone

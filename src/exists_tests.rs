@@ -5,6 +5,30 @@ fn caps(pattern: &str, name: &str) -> Option<Vec<String>> {
 }
 
 #[test]
+fn the_prefix_index_files_a_name_under_every_prefix_it_starts_with() {
+    let mut index = PrefixIndex::new(["ab", "abc", "", "é"].into_iter());
+    for (i, name) in ["abc-1", "a", "ab", "éx", "xabc", "\u{e9}"].iter().enumerate() {
+        index.add(i, name);
+    }
+    assert_eq!(index.bucket("ab"), Some(&[0, 2][..]));
+    assert_eq!(index.bucket("abc"), Some(&[0][..]));
+    assert_eq!(index.bucket("é"), Some(&[3, 5][..]));
+    // The empty prefix keeps no bucket: its directives scan every name.
+    assert_eq!(index.bucket(""), None);
+}
+
+#[test]
+fn a_prefix_length_inside_a_multibyte_character_files_nothing() {
+    // `ab` is two bytes and `é` is two bytes, so a two-byte slice of `éx` is
+    // `é` and a one-byte slice would cut it; neither may panic.
+    let mut index = PrefixIndex::new(["a", "ab"].into_iter());
+    index.add(0, "éab");
+    index.add(1, "ab");
+    assert_eq!(index.bucket("a"), Some(&[1][..]));
+    assert_eq!(index.bucket("ab"), Some(&[1][..]));
+}
+
+#[test]
 fn matches_the_whole_name_only() {
     let p = ExistsPattern::parse("han-([0-9a-f]{4,5}):15x16").unwrap();
     assert!(p.is_match("han-4e00:15x16"));

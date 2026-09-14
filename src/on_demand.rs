@@ -635,7 +635,9 @@ pub fn detect_color_mono_glyph(
     name: &str,
     has_glyph: impl Fn(&str) -> bool,
 ) -> Option<OnDemandGlyph> {
-    if name.contains(":mono") || name.contains(":color") {
+    // The one-byte search first: most names asked about have no colon at all,
+    // and two substring searches per name were the larger half of a miss.
+    if name.contains(':') && (name.contains(":mono") || name.contains(":color")) {
         return None;
     }
     // One buffer, reused for the second probe and handed over as the answer:

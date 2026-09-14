@@ -37,8 +37,8 @@ a half per face and is not the default.
 `probe` reports where the time before the editor's first frame goes — the executable loading, the
 directory read (one row per file), the initial font build — and `--repeat` re-runs the directory
 read, which tells a cold cache from a warm one. `--edit` measures instead what one edit costs once
-the caches are warm. Setting `UNIFORM_PERF` prints the same per-stage timings on stderr in every
-mode, the editor included.
+the caches are warm, and there `--repeat` repeats the one-pixel edit, long enough for a profiler.
+Setting `UNIFORM_PERF` prints the same per-stage timings on stderr in every mode, the editor included.
 
 `sequences` prints, for every glyph only a `remap` produces (the flags, the composed jamo), the
 shortest code point sequence a reader can type to get it. The answers are checked by running the

@@ -295,8 +295,12 @@ impl RebuildTiming {
 /// Which glyph is edited is deliberately arbitrary — the first one with a grid
 /// — because the cost of a rebuild does not depend on it: nothing downstream
 /// of the caches is keyed on what changed.
+///
+/// `repeats` runs the one-pixel pass that many times (flipping the same pixel
+/// back and forth), which is what a sampling profiler needs to see the warm
+/// path rather than the cold build.
 #[cfg(feature = "editor")]
-fn run_edit_probe(input: &std::path::Path) {
+fn run_edit_probe(input: &std::path::Path, repeats: usize) {
     let never = cancel::CancelToken::never();
     let (mut docs, errors, _sources) =
         render::ttf_builder::load_docs_from_directory_with_sources(input);
@@ -404,11 +408,13 @@ fn run_edit_probe(input: &std::path::Path) {
         "warm (nothing changed)",
     ));
 
-    if !edit_one_pixel(&mut docs) {
-        eprintln!("no glyph with a pixel grid to edit");
-        std::process::exit(1);
+    for _ in 0..repeats {
+        if !edit_one_pixel(&mut docs) {
+            eprintln!("no glyph with a pixel grid to edit");
+            std::process::exit(1);
+        }
+        rows.push(rebuild(&docs, &contour_cache, &mut grid_cache, "one pixel"));
     }
-    rows.push(rebuild(&docs, &contour_cache, &mut grid_cache, "one pixel"));
 
     add_one_glyph_block(&mut docs);
     rows.push(rebuild(
@@ -619,7 +625,7 @@ fn main() {
         };
         if edit {
             #[cfg(feature = "editor")]
-            run_edit_probe(&input);
+            run_edit_probe(&input, repeats);
             #[cfg(not(feature = "editor"))]
             eprintln!("`--edit` measures the editor's rebuild and needs the `editor` feature");
         } else {

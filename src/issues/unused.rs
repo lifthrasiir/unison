@@ -64,6 +64,7 @@ pub(super) fn collect_graph<'a>(cx: &'a Cx<'_>) -> GlyphGraph<'a> {
     // item_location[i]: (doc_idx, item_idx, raw_name, is_alias) for reporting
     let mut item_location: Vec<(usize, usize, &str, bool)> = Vec::new();
 
+    let mut bindings = crate::exists::Bindings::new(name_parts);
     for (doc_idx, doc) in docs.iter().enumerate() {
         for (item_idx, item) in doc.items.iter().enumerate() {
             // An alias is a node of this graph like any glyph: it is
@@ -88,7 +89,7 @@ pub(super) fn collect_graph<'a>(cx: &'a Cx<'_>) -> GlyphGraph<'a> {
             let mut names: Vec<String> = Vec::new();
             let mut refs: Vec<String> = Vec::new();
             cx.expansion.exists.for_each_binding(
-                name_parts,
+                &mut bindings,
                 crate::resolve::ItemRef::new(doc_idx, item_idx),
                 |name_parts| {
                     let name = substitute_name_parts(name, name_parts);

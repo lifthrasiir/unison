@@ -67,6 +67,7 @@ pub(super) fn check_glyphs_and_remaps(cx: &Cx<'_>, issues: &mut Vec<Issue>) {
         }
     }
 
+    let mut bindings = crate::exists::Bindings::new(name_parts);
     for (doc_idx, doc) in docs.iter().enumerate() {
         for (item_idx, item) in doc.items.iter().enumerate() {
             match item {
@@ -96,7 +97,7 @@ pub(super) fn check_glyphs_and_remaps(cx: &Cx<'_>, issues: &mut Vec<Issue>) {
                     let mut expanded: Vec<String> = Vec::new();
                     expansion
                         .exists
-                        .for_each_binding(name_parts, here, |name_parts| {
+                        .for_each_binding(&mut bindings, here, |name_parts| {
                             let name_str = substitute_name_parts(n, name_parts);
                             if is_name_pattern(&name_str) {
                                 // A pattern that fails to expand is already

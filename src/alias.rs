@@ -129,6 +129,7 @@ impl AliasMap {
         let mut decls: Vec<AliasDecl> = Vec::new();
         let mut diagnostics: Vec<Diagnostic> = Vec::new();
         let mut seen: HashMap<String, Option<ItemRef>> = HashMap::default();
+        let mut bindings = crate::exists::Bindings::new(name_parts);
 
         for (doc_idx, doc) in docs.iter().enumerate() {
             for (item_idx, item) in doc.items.iter().enumerate() {
@@ -161,7 +162,7 @@ impl AliasMap {
                 };
                 match exists {
                     Some(exists) => exists.for_each_binding(
-                        name_parts,
+                        &mut bindings,
                         ItemRef::new(doc_idx, item_idx),
                         per_binding,
                     ),
