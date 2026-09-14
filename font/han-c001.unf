@@ -86,6 +86,9 @@ glyph han-2a73e:15x16 15 16 // 𪜾
 // glyph han-2a73f:15x16 15 16 // 𪜿
 // ⿰ han-4ebb han-599f // ⿰亻妟
 
+// glyph han-2a740-($han-regions):15x16 15 16 // 𪝀
+// ⿰ han-4ebb han-89d2-($-1) // ⿰亻角
+
 ## 9.8
 
 // glyph han-2a746:15x16 15 16 // 𪝆
@@ -424,9 +427,39 @@ glyph han-2a801:15x16 15 16 // 𪠁
 // glyph han-2a81e:15x16 15 16 // 𪠞
 // ⿰ han-591a han-53bb // ⿰多去
 
+# CJK unified ideographs extension C: 又 (29)
+
+## 29.2
+
+// glyph han-2a824-($han-regions):15x16 15 16 // 𪠤
+// ⿰ han-5200 han-53c8-($-1) // ⿰刀又
+
+## 29.4
+
+// glyph han-2a825-($han-regions):15x16 15 16 // 𪠥
+// ⿱ han-53c8-($-1) han-6708 // ⿱又月
+
+## 29.5
+
+// glyph han-2a826-($han-regions):15x16 15 16 // 𪠦
+// ⿰ han-5727 han-53c8-($-1) // ⿰圧又
+
+## 29.6
+
+// glyph han-2a827-($han-regions):15x16 15 16 // 𪠧
+// ⿰ han-8980 han-53c8-($-1) // ⿰覀又
+
+## 29.11
+
+// glyph han-2a82f-($han-regions):15x16 15 16 // 𪠯
+// ⿰ han-5340-($-1) han-53c8-($-1) // ⿰區又
+
 # CJK unified ideographs extension C: 口 (30)
 
 ## 30.2
+
+// glyph han-2a832-($han-regions):15x16 15 16 // 𪠲
+// ⿱ han-53e3 han-53c8-($-1) // ⿱口又
 
 glyph han-2b738-($han-regions):15x16 15 16 // 𫜸
 ⿰ han-53e3:5x16-l 1 han-5315-($-1):9x16 // ⿰口匕
@@ -597,6 +630,9 @@ glyph han-2a8ab:15x16 15 16 // 𪢫
 // glyph han-2a8b1:15x16 15 16 // 𪢱
 // ⿱ han-571f han-535c // ⿱土卜
 
+// glyph han-2a8b2-($han-regions):15x16 15 16 // 𪢲
+// ⿰ han-571f han-53c8-($-1) // ⿰土又
+
 ## 32.3
 
 glyph han-2a8b4:15x16 15 16 // 𪢴
@@ -620,8 +656,8 @@ glyph han-2a8bb:15x16 15 16 // 𪢻
 glyph han-2a8bc:15x16 15 16 // 𪢼
 ⿰ han-571f:5x16-l han-5316-g:10x16 // ⿰土化
 
-// glyph han-2a8bd:15x16 15 16 // 𪢽
-// ⿰ han-571f han-4e30 // ⿰土丰
+glyph han-2a8bd-($han-regions):15x16 15 16 // 𪢽
+⿰ han-571f:5x16-l 1 han-4e30-($-1):9x16 // ⿰土丰
 
 glyph han-2a8be:15x16 15 16 // 𪢾
 ⿱ han-706b:15x6 han-571f:15x10 // ⿱火土
@@ -805,6 +841,9 @@ glyph han-2a942:15x16 15 16 // 𪥂
 
 glyph han-2a944:15x16 15 16 // 𪥄
 ⿱ han-6728:15x8 han-5927:15x8 // ⿱木大
+
+// glyph han-2a946-($han-regions):15x16 15 16 // 𪥆
+// ⿳ han-5927 han-516b-($-1) han-53c8-($-1) // ⿳大八又
 
 ## 37.5
 

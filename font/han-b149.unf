@@ -46,8 +46,11 @@ glyph han-27975-($han-regions):15x16 15 16 // 𧥵
 glyph han-27976-($han-regions):15x16 15 16 // 𧥶
 ⿰ han-8a01-($-1):5x16 1 han-738b:9x16 // ⿰訁王
 
-// glyph han-27979:15x16 15 16 // 𧥹
-// ⿰ han-8a01 han-4e30 // ⿰訁丰
+// glyph han-27978-($han-regions):15x16 15 16 // 𧥸
+// ⿰ han-8a01-($-1) han-725b // ⿰訁牛
+
+glyph han-27979-($han-regions):15x16 15 16 // 𧥹
+⿰ han-8a01-($-1):5x16 1 han-4e30-($-1):9x16 // ⿰訁丰
 
 // glyph han-2797c:15x16 15 16 // 𧥼
 // ⿰ han-8a01 han-4e91 // ⿰訁云
@@ -69,6 +72,9 @@ glyph han-27976-($han-regions):15x16 15 16 // 𧥶
 
 // glyph han-2798c:15x16 15 16 // 𧦌
 // ⿰ han-8a01 han-624b // ⿰訁手
+
+// glyph han-27990-($han-regions):15x16 15 16 // 𧦐
+// ⿰ han-8a01-($-1) han-722a // ⿰訁爪
 
 glyph han-27991-($han-regions):15x16 15 16 // 𧦑
 ⿰ han-8a01-($-1):5x16 1 han-4ea2:9x16 // ⿰訁亢
@@ -108,6 +114,9 @@ glyph han-279b0:15x16 15 16 // 𧦰
 glyph han-279b3:15x16 15 16 // 𧦳
 ⿰ han-8a01.x:5x16 1 han-77f3:9x16 // ⿰訁石
 
+// glyph han-279b4-($han-regions):15x16 15 16 // 𧦴
+// ⿱ han-7676 han-8a00-($-1) // ⿱癶言
+
 glyph han-279b5:15x16 15 16 // 𧦵
 ⿰ han-8a01.x:5x16 1 han-7530:9x16 // ⿰訁田
 
@@ -143,6 +152,9 @@ glyph han-279d4-($han-regions):15x16 15 16 // 𧧔
 // glyph han-279d5:15x16 15 16 // 𧧕
 // ⿰ han-8a01 han-5b57 // ⿰訁字
 
+// glyph han-279d8-($han-regions):15x16 15 16 // 𧧘
+// ⿰ han-8a01-($-1) han-8272 // ⿰訁色
+
 // glyph han-279dc:15x16 15 16 // 𧧜
 // ⿰ han-8a01 han-7f51 // ⿰訁网
 
@@ -175,6 +187,9 @@ glyph han-279fe-($han-regions):15x16 15 16 // 𧧾
 glyph han-27a02-($han-regions):15x16 15 16 // 𧨂
 ⿲ han-8a01-($-1):5x16 han-4ebb:3x16 han-53ef:7x16 // ⿲訁亻可
 
+// glyph han-27a03-($han-regions):15x16 15 16 // 𧨃
+// ⿰ han-8a01-($-1) han-8d64 // ⿰訁赤
+
 // glyph han-27a05:15x16 15 16 // 𧨅
 // ⿳ han-8279 han-571f han-8a00 // ⿳艹土言
 
@@ -189,6 +204,9 @@ glyph han-27a0e:15x16 15 16 // 𧨎
 
 // glyph han-27a14-($han-regions):15x16 15 16 // 𧨔
 // ⿰ han-8a01 han-8292-($-1) // ⿰訁芒
+
+// glyph han-27a16-($han-regions):15x16 15 16 // 𧨖
+// ⿰ han-8a01-($-1) han-89d2-($-1) // ⿰訁角
 
 // glyph han-27a17:15x16 15 16 // 𧨗
 // ⿰ han-8a01 han-3da3 // ⿰訁㶣

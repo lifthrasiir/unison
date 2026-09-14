@@ -1,5 +1,10 @@
 # CJK unified ideographs extension B: 癶 (105)
 
+## 105.2
+
+// glyph han-24f26-($han-regions):15x16 15 16 // 𤼦
+// ⿱ han-7676 han-53c8-($-1) // ⿱癶又
+
 ## 105.4
 
 glyph han-24f28:15x16 15 16 // 𤼨
@@ -11,6 +16,9 @@ glyph han-24f28:15x16 15 16 // 𤼨
 // ⿳ han-7676 han-9fb4 han-5140 // ⿳癶龴兀 <- ⿱癶⿱龴兀
 
 ## 105.6
+
+// glyph han-24f2c-($han-regions):15x16 15 16 // 𤼬
+// ⿳ han-7676 han-6b62 han-53c8-($-1) // ⿳癶止又 <- ⿱癶⿱止又
 
 glyph han-24f2d:15x16 15 16 // 𤼭
 ⿱ han-7676:15x5 han-866b:15x11 // ⿱癶虫
@@ -264,6 +272,9 @@ glyph han-24fd0:15x16 15 16 // 𤿐
 
 // glyph han-24fd2:15x16 15 16 // 𤿒
 // ⿰ han-76ae han-5185 // ⿰皮内
+
+// glyph han-24fd3-($han-regions):15x16 15 16 // 𤿓
+// ⿰ han-723b-($-1) han-76ae // ⿰爻皮
 
 ## 107.5
 

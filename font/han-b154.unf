@@ -356,6 +356,9 @@ glyph han-27e30:15x16 15 16 // 𧸰
 // glyph han-27e88:15x16 15 16 // 𧺈
 // ⿺ han-8d70 han-5202 // ⿺走刂
 
+// glyph han-27e89-($han-regions):15x16 15 16 // 𧺉
+// ⿺ han-8d70 han-53c8-($-1) // ⿺走又
+
 // glyph han-27e8a:15x16 15 16 // 𧺊
 // ⿺ han-8d70 han-5315 // ⿺走匕
 
@@ -504,6 +507,9 @@ glyph han-27e30:15x16 15 16 // 𧸰
 
 // glyph han-27ed6:15x16 15 16 // 𧻖
 // ⿺ han-8d70 han-821f // ⿺走舟
+
+// glyph han-27ed8-($han-regions):15x16 15 16 // 𧻘
+// ⿺ han-8d70 han-34de-($-1) // ⿺走㓞
 
 // glyph han-27ed9:15x16 15 16 // 𧻙
 // ⿺ han-8d70 han-767e // ⿺走百

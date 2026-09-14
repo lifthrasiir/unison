@@ -233,6 +233,9 @@ glyph han-247aa:15x16 15 16 // 𤞪
 glyph han-247ad:15x16 15 16 // 𤞭
 ⿰ han-72ad:6x16 1 han-898b:8x16 // ⿰犭見
 
+// glyph han-247b4-($han-regions):15x16 15 16 // 𤞴
+// ⿰ han-72ad han-89d2-($-1) // ⿰犭角
+
 glyph han-247b5:15x16 15 16 // 𤞵
 ⿰ han-72ad:6x16 han-5b8c:9x16 // ⿰犭完
 

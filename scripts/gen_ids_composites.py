@@ -74,7 +74,8 @@ variants and the gaps.
 
 A part whose shape differs by **region** has no plain name to write. The source
 draws such a character as `han-XXXX-R` blocks, or as `han-XXXX.S` shapes with
-`exists`-scoped aliases tying each region to one of them, and a line that uses
+aliases tying each region to one of them (`glyph han-XXXX-t:* = han-XXXX.1:*`,
+or the `exists`-scoped form that abbreviates), and a line that uses
 it names it `han-XXXX-($-1)` -- the region the block's own name is expanding
 for. So a block with any such component is written as a *family*:
 
@@ -143,12 +144,14 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import bisect
 import gzip
 import os
 import re
 import sys
 import unicodedata
 from collections import defaultdict
+from collections.abc import Iterator
 from dataclasses import dataclass, field
 
 # The two inputs, kept in `data/` as gzipped copies of what these URLs serve;
@@ -305,9 +308,10 @@ def parse_label(label: str) -> tuple[tuple[int, int] | None, tuple[int, int] | N
 #
 # each optionally followed by `:LABEL`, the `WxH[.NxM][-l]` variant spec
 # `compose.rs` reads. A name never carries a shape *and* a region: the regions
-# are tied to the shapes by `exists`-scoped aliases instead (`exists
-# han-XXXX\.0:(…)` over `glyph han-XXXX-(j|k):($1) = ($0)`), which is how
-# `load_inventory` reads them.
+# are tied to the shapes by aliases that search the declared names instead --
+# a multi-alias `glyph han-XXXX-(j|k):* = han-XXXX.0:*`, or the older `exists
+# han-XXXX\.0:(…)` over `glyph han-XXXX-(j|k):($1) = ($0)` it abbreviates --
+# which is how `load_inventory` reads them.
 HAN_NAME_RE = re.compile(
     r"^han-(?P<cp>[0-9a-f]{4,5})"
     r"(?:\.(?P<shape>[0-9a-z]+)|-(?P<region>\([^()]*\)|[a-z]))?"
@@ -458,16 +462,19 @@ def load_name_parts(font_dir: str) -> dict[str, list[str]]:
 def load_inventory(font_dir: str, parts: dict[str, list[str]]) -> Inventory:
     """Read every `.unf` in the directory into an [`Inventory`].
 
-    Three kinds of `glyph` line matter and they are read in three passes,
+    Four kinds of `glyph` line matter and they are read in three passes,
     because each rests on the one before: a **drawing** (`glyph NAME W H` over a
-    grid), a plain **alias** (`glyph A = B`), and an alias under an **`exists`**
-    scope, which names a whole family at once and so has to wait until the
-    names it searches are known.
+    grid), a plain **alias** (`glyph A = B`), and the two that name a whole
+    family at once and so have to wait until the names they search are known --
+    an alias under an **`exists`** scope, and a **multi-alias** (`glyph NAME* =
+    PREFIX*`), which is the same search spelled on one line.
     """
     inv = Inventory(regions=list(parts.get("han-regions", DEFAULT_REGIONS)))
     plain_aliases: list[tuple[str, str]] = []
     # (the `exists` pattern, the scoped `glyph A = B` line's two sides)
     scoped_aliases: list[tuple[str, str, str]] = []
+    # (`NAME`, `PREFIX`) of each `glyph NAME* = PREFIX*`, the `*`s dropped
+    multi_aliases: list[tuple[str, str]] = []
 
     for fname in sorted(os.listdir(font_dir)):
         if not fname.endswith(".unf"):
@@ -512,7 +519,11 @@ def load_inventory(font_dir: str, parts: dict[str, list[str]]) -> Inventory:
             if len(toks) > 2 and toks[1] == "=":
                 # `glyph A = B`: a second *name* for a drawing, and the only way
                 # the source says which shape a region uses.
-                if here is not None:
+                if name.endswith("*") and toks[2].endswith("*"):
+                    # `glyph NAME* = PREFIX*`, a search of its own; `alias.rs`
+                    # rejects an `exists` above one, so `here` cannot apply.
+                    multi_aliases.append((name[:-1], toks[2][:-1]))
+                elif here is not None:
                     scoped_aliases.append((here, name, toks[2]))
                 else:
                     plain_aliases.append((name, toks[2]))
@@ -552,7 +563,7 @@ def load_inventory(font_dir: str, parts: dict[str, list[str]]) -> Inventory:
 
     for lhs, rhs in plain_aliases:
         add_aliases(inv, lhs, rhs, parts)
-    resolve_scoped_aliases(inv, scoped_aliases, parts)
+    resolve_scoped_aliases(inv, scoped_aliases, multi_aliases, parts)
     build_families(inv)
     return inv
 
@@ -609,15 +620,25 @@ EXISTS_ROUNDS = 4
 
 
 def resolve_scoped_aliases(
-    inv: Inventory, scoped: list[tuple[str, str, str]], parts: dict[str, list[str]]
+    inv: Inventory,
+    scoped: list[tuple[str, str, str]],
+    multi: list[tuple[str, str]],
+    parts: dict[str, list[str]],
 ) -> None:
-    """`exists BASE:(…)` over `glyph han-XXXX-(j|k):($1) = ($0)`.
+    """`exists BASE:(…)` over `glyph han-XXXX-(j|k):($1) = ($0)`, and `glyph NAME* = PREFIX*`.
 
     This is the whole of how a region is tied to a shape: the search binds `$0`
     to a drawing's full name and `$1` to its label, and the line under it
     declares that name again for each region it lists. Substituting the
     bindings *before* expanding the pattern is what keeps `($1)` from being
     read as an alternation.
+
+    A multi-alias is that same search with the prefix taken literally
+    (`alias.rs`, "Multi-alias"): every declared name starting with `PREFIX` is
+    aliased again as each name `NAME` expands to, followed by the rest of it. It
+    is how the source mostly ties regions to shapes now --
+    `glyph han-820c-t:* = han-820c.1:*` -- and it runs in the same fixpoint,
+    since either kind of search may find a name the other declared.
     """
     for _ in range(EXISTS_ROUNDS):
         before = len(inv.aliases)
@@ -629,8 +650,23 @@ def resolve_scoped_aliases(
                     rhs.replace("($1)", label).replace("($0)", name),
                     parts,
                 )
+        declared = sorted(set(inv.drawings) | set(inv.aliases))
+        for lhs, prefix in multi:
+            for name in names_with_prefix(declared, prefix):
+                # a name never carries a parenthesis, so appending the suffix
+                # leaves the pattern's own groups what they were
+                add_aliases(inv, lhs + name[len(prefix):], name, parts)
         if len(inv.aliases) == before:
             return
+
+
+def names_with_prefix(declared: list[str], prefix: str) -> list[str]:
+    """The names in the sorted `declared` that start with `prefix`."""
+    lo = bisect.bisect_left(declared, prefix)
+    hi = lo
+    while hi < len(declared) and declared[hi].startswith(prefix):
+        hi += 1
+    return declared[lo:hi]
 
 
 def build_families(inv: Inventory) -> None:
@@ -761,6 +797,33 @@ def load_ids(path: str) -> dict[int, IdsEntry]:
     return out
 
 
+def sequence_trees(entry: IdsEntry, allow_ivi: bool) -> Iterator[tuple[Node | None, str | None]]:
+    """A character's sequences, best-attested first, each as `(tree, None)` or `(None, why)`.
+
+    The one reading of `IDS.TXT` everything here agrees on -- which sequences
+    are usable at all, and what `〾` does -- so that `han_next_parts.py` asks
+    about exactly the sequences a run of this script would write from. A tree
+    comes back only for a sequence that decomposes; whether its operator is one
+    `compose.rs` lays out is the caller's question.
+    """
+    for seq, _ in sorted(entry.seqs, key=lambda s: -tag_score(s[1])):
+        if "？" in seq or "{" in seq:
+            yield None, "an unrepresentable component"
+            continue
+        if "〾" in seq:
+            if not allow_ivi:
+                yield None, "marked 〾 (use --allow-ivi)"
+                continue
+            seq = seq.replace("〾", "")
+        tree, used = parse_ids(seq)
+        if tree is None or used != len(seq):
+            yield None, "unparsable IDS"
+        elif tree.op is None:
+            yield None, "no decomposition at all"
+        else:
+            yield tree, None
+
+
 # --------------------------------------------------------------------------
 # inlining a nested component
 # --------------------------------------------------------------------------
@@ -796,15 +859,8 @@ def build_split_index(ids: dict[int, "IdsEntry"], allow_ivi: bool) -> dict[int, 
     """
     out: dict[int, tuple[str, list[int]]] = {}
     for cp, entry in ids.items():
-        for seq, tags in sorted(entry.seqs, key=lambda s: -tag_score(s[1])):
-            if "？" in seq or "{" in seq:
-                continue
-            if "〾" in seq:
-                if not allow_ivi:
-                    continue
-                seq = seq.replace("〾", "")
-            tree, used = parse_ids(seq)
-            if tree is None or used != len(seq):
+        for tree, _ in sequence_trees(entry, allow_ivi):
+            if tree is None:
                 continue
             split = binary_split(tree)
             if split is None:
@@ -1675,21 +1731,9 @@ def main() -> int:
         # `build_unsupported`.
         unsupported: Node | None = None
         why = "no decomposition at all"
-        for seq, tags in sorted(entry.seqs, key=lambda s: -tag_score(s[1])):
-            if "？" in seq or "{" in seq:
-                why = min(why, "an unrepresentable component", key=reason_rank)
-                continue
-            if "〾" in seq:
-                if not args.allow_ivi:
-                    why = min(why, "marked 〾 (use --allow-ivi)", key=reason_rank)
-                    continue
-                seq = seq.replace("〾", "")
-            tree, used = parse_ids(seq)
-            if tree is None or used != len(seq):
-                why = min(why, "unparsable IDS", key=reason_rank)
-                continue
-            if tree.op is None:
-                why = min(why, "no decomposition at all", key=reason_rank)
+        for tree, unreadable in sequence_trees(entry, args.allow_ivi):
+            if tree is None:
+                why = min(why, unreadable, key=reason_rank)
                 continue
             if tree.op not in IDC_ARITY:
                 why = min(why, f"not an IDC this source lays out ({tree.op})",

@@ -5,6 +5,9 @@
 glyph han-25e27:15x16 15 16 // 𥸧
 ⿰ han-7c73:5x16 1 han-4e01:9x16 // ⿰米丁
 
+// glyph han-25e29-($han-regions):15x16 15 16 // 𥸩
+// ⿰ han-7c73 han-53c8-($-1) // ⿰米又
+
 glyph han-25e2a:15x16 15 16 // 𥸪
 ⿱ han-7c73:15x9 han-4eba:15x7 // ⿱米人
 

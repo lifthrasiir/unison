@@ -532,6 +532,11 @@ glyph han-2dd9f:15x16 15 16 // 𭶟
 // glyph han-2ddab:15x16 15 16 // 𭶫
 // ⿺ han-722a han-7532 // ⿺爪甲
 
+## 87.9
+
+// glyph han-2ddb2-($han-regions):15x16 15 16 // 𭶲
+// ⿰ han-722a han-5351-($-1) // ⿰爪卑
+
 ## 87.11
 
 // glyph han-2ddb6:15x16 15 16 // 𭶶
@@ -540,6 +545,9 @@ glyph han-2dd9f:15x16 15 16 // 𭶟
 # CJK unified ideographs extension F: 爿 (90)
 
 ## 90.3
+
+// glyph han-2ddbe-($han-regions):15x16 15 16 // 𭶾
+// ⿰ han-723f han-4e08-($-1) // ⿰爿丈
 
 // glyph han-2ddbf-($han-regions):15x16 15 16 // 𭶿
 // ⿰ han-4e2c han-4ea1-($-1) // ⿰丬亡
@@ -617,6 +625,11 @@ glyph han-2ddde:15x16 15 16 // 𭷞
 // glyph han-2dde3:15x16 15 16 // 𭷣
 // ⿳ han-53bb han-5196 han-725b // ⿳去冖牛 <- ⿱去⿱冖牛
 
+## 93.9
+
+glyph han-2dded-($han-regions):15x16 15 16 // 𭷭
+⿰ han-725c:6x16 han-8005-($-1):9x16 // ⿰牜者
+
 ## 93.11
 
 // glyph han-2ddf1:15x16 15 16 // 𭷱
@@ -628,6 +641,11 @@ glyph han-2ddde:15x16 15 16 // 𭷞
 
 glyph han-2ddf8:15x16 15 16 // 𭷸
 ⿰ han-72ad:6x16 han-4e01:9x16 // ⿰犭丁
+
+## 94.3
+
+// glyph han-2ddf9-($han-regions):15x16 15 16 // 𭷹
+// ⿰ han-72ad han-4e08-($-1) // ⿰犭丈
 
 ## 94.4
 

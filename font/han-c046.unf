@@ -8,6 +8,11 @@ glyph han-2aa22:15x16 15 16 // 𪨢
 glyph han-2aa24:15x16 15 16 // 𪨤
 ⿱ han-5c0f:15x9 han-5c71:15x7 // ⿱小山
 
+## 46.4
+
+// glyph han-2aa28-($han-regions):15x16 15 16 // 𪨨
+// ⿰ han-5c71 han-535e-($-1) // ⿰山卞
+
 ## 46.5
 
 glyph han-2aa29:15x16 15 16 // 𪨩
@@ -658,6 +663,11 @@ glyph han-2ac52:15x16 15 16 // 𪱒
 ⿰ han-65e5:6x16 han-8944:9x16 // ⿰日襄
 
 # CJK unified ideographs extension C: 月 (74)
+
+## 74.2
+
+// glyph han-2ac59-($han-regions):15x16 15 16 // 𪱙
+// ⿰ han-6708 han-53c8-($-1) // ⿰月又
 
 ## 74.3
 

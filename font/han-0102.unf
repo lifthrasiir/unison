@@ -2437,8 +2437,8 @@ glyph han-76fa:15x16 15 16 // 盺
 glyph han-76fc:15x16 15 16 // 盼
 ⿰ han-76ee:6x16 han-5206:9x16 // ⿰目分
 
-// glyph han-76fd:15x16 15 16 // 盽
-// ⿰ han-76ee han-4e30 // ⿰目丰
+glyph han-76fd-($han-regions):15x16 15 16 // 盽
+⿰ han-76ee:5x16-l 1 han-4e30-($-1):9x16 // ⿰目丰
 
 glyph han-76ff:15x16 15 16 // 盿
 ⿰ han-76ee:6x16 han-6587:9x16 // ⿰目文

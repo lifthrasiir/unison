@@ -16,6 +16,9 @@ glyph han-2e868:15x16 15 16 // 𮡨
 // glyph han-2e869:15x16 15 16 // 𮡩
 // ⿰ han-91d2 han-2bd71 // ⿰釒𫵱
 
+// glyph han-2e86c-($han-regions):15x16 15 16 // 𮡬
+// ⿰ han-91d2 han-535e-($-1) // ⿰釒卞
+
 ## 167.5
 
 glyph han-2e86e:15x16 15 16 // 𮡮
@@ -644,6 +647,11 @@ glyph han-2ea3a:15x16 15 16 // 𮨺
 // ⿰ han-98e0 han-2ebb0 // ⿰飠𮮰
 
 # CJK unified ideographs extension F: 首 (185)
+
+## 185.3
+
+// glyph han-2ea5f-($han-regions):15x16 15 16 // 𮩟
+// ⿰ han-9996 han-4e08-($-1) // ⿰首丈
 
 ## 185.9
 

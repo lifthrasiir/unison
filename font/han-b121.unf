@@ -481,6 +481,9 @@ glyph han-26381:15x16 15 16 // 𦎁
 
 ## 123.7
 
+// glyph han-26388-($han-regions):15x16 15 16 // 𦎈
+// ⿰ han-7f8a han-89d2-($-1) // ⿰羊角
+
 glyph han-2638e:15x16 15 16 // 𦎎
 ⿰ han-7f8a:7x16 1 han-752b:7x16 // ⿰羊甫
 

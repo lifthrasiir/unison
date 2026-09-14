@@ -453,6 +453,9 @@ glyph han-98e6:15x16 15 16 // 飦
 // glyph han-98ec:15x16 15 16 // 飬
 // ⿳ han-516b han-592b han-826f // ⿳八夫良 <- ⿱𠔉良
 
+// glyph han-98f0-($han-regions):15x16 15 16 // 飰
+// ⿰ han-98e0 han-535e-($-1) // ⿰飠卞
+
 glyph han-98f2:15x16 15 16 // 飲
 ⿰ han-98e0:7x16 1 han-6b20:7x16 // ⿰飠欠
 
@@ -700,6 +703,9 @@ $$......................\1@@$$
 
 ## 187.2
 
+// glyph han-99ad-($han-regions):15x16 15 16 // 馭
+// ⿰ han-99ac han-53c8-($-1) // ⿰馬又
+
 glyph han-99ae:15x16 15 16 // 馮
 ⿰ han-51ab:5x16 1 han-99ac:9x16 // ⿰冫馬
 
@@ -744,6 +750,9 @@ glyph han-99bc:15x16 15 16 // 馼
 
 // glyph han-99bf:15x16 15 16 // 馿
 // ⿰ han-99ac han-6236 // ⿰馬戶
+
+// glyph han-99c1-($han-regions):15x16 15 16 // 駁
+// ⿰ han-99ac han-723b-($-1) // ⿰馬爻
 
 // glyph han-99c3:15x16 15 16 // 駃
 // ⿰ han-99ac han-592c // ⿰馬夬

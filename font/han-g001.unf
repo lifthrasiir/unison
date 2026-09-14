@@ -130,6 +130,11 @@ $$............@@............$$
 
 # CJK unified ideographs extension G: 丨 (2)
 
+## 2.3
+
+// glyph han-30021-($han-regions):15x16 15 16 // 𰀡
+// ⿲ han-4e28 han-4e28 han-53c8-($-1) // ⿲丨丨又
+
 ## 2.7
 
 // glyph han-30024:15x16 15 16 // 𰀤
@@ -568,6 +573,11 @@ glyph han-3014a:15x16 15 16 // 𰅊
 // glyph han-3015b:15x16 15 16 // 𰅛
 // ⿹ han-52f9 han-516b // ⿹勹八
 
+## 20.7
+
+// glyph han-3015d-($han-regions):15x16 15 16 // 𰅝
+// ⿺ han-8272 han-52fa-($-1) // ⿺色勺
+
 ## 20.9
 
 // glyph han-3015f:15x16 15 16 // 𰅟
@@ -699,6 +709,32 @@ glyph han-301ad:15x16 15 16 // 𰆭
 
 // glyph han-301af:15x16 15 16 // 𰆯
 // ⿰ han-53bb han-91cc // ⿰去里
+
+# CJK unified ideographs extension G: 又 (29)
+
+## 29.4
+
+// glyph han-301b1-($han-regions):15x16 15 16 // 𰆱
+// ⿰ han-4e0d han-53c8-($-1) // ⿰不又
+
+// glyph han-301b3-($han-regions):15x16 15 16 // 𰆳
+// ⿰ han-53c8-($-1) han-5316-($-1) // ⿰又化
+
+// glyph han-301b4-($han-regions):15x16 15 16 // 𰆴
+// ⿱ han-535e-($-1) han-53c8-($-1) // ⿱卞又
+
+## 29.5
+
+// glyph han-301b8-($han-regions):15x16 15 16 // 𰆸
+// ⿱ han-76ee han-53c8-($-1) // ⿱目又
+
+// glyph han-301b9-($han-regions):15x16 15 16 // 𰆹
+// ⿰ han-7531 han-53c8-($-1) // ⿰由又
+
+## 29.6
+
+// glyph han-301bb-($han-regions):15x16 15 16 // 𰆻
+// ⿰ han-53c8-($-1) han-572d // ⿰又圭
 
 # CJK unified ideographs extension G: 口 (30)
 

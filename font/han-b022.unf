@@ -286,6 +286,9 @@ glyph han-209e8:15x16 15 16 // 𠧨
 
 ## 26.2
 
+// glyph han-20a0f-($han-regions):15x16 15 16 // 𠨏
+// ⿰ han-53c8-($-1) han-5369 // ⿰又卩
+
 glyph han-20a10:15x16 15 16 // 𠨐
 ⿰ han-5315.x:8x16 han-5369:7x16 // ⿰匕卩
 
@@ -561,7 +564,83 @@ glyph han-20b0c:15x16 15 16 // 𠬌
 
 # CJK unified ideographs extension B: 又 (29)
 
+## 29.2
+
+// glyph han-20b1a-($han-regions):15x16 15 16 // 𠬚
+// ⿱ han-4e5d han-53c8-($-1) // ⿱九又
+
+// glyph han-20b1b-($han-regions):15x16 15 16 // 𠬛
+// ⿱ han-5200 han-53c8-($-1) // ⿱刀又
+
+// glyph han-20b1d-($han-regions):15x16 15 16 // 𠬝
+// ⿸ han-5369 han-53c8-($-1) // ⿸卩又
+
+// glyph han-20b1f-($han-regions):15x16 15 16 // 𠬟
+// ⿱ han-53c8-($-1) han-53b6 // ⿱又厶
+
+## 29.3
+
+// glyph han-20b24-($han-regions):15x16 15 16 // 𠬤
+// ⿱ han-53c8-($-1) han-30001 // ⿱又𰀁
+
+// glyph han-20b25-($han-regions):15x16 15 16 // 𠬥
+// ⿱ han-5dfe han-53c8-($-1) // ⿱巾又
+
+// glyph han-20b27-($han-regions):15x16 15 16 // 𠬧
+// ⿰ han-4e2c han-53c8-($-1) // ⿰丬又
+
+// glyph han-20b28-($han-regions):15x16 15 16 // 𠬨
+// ⿰ han-536a han-53c8-($-1) // ⿰卪又
+
+## 29.4
+
+// glyph han-20b30-($han-regions):15x16 15 16 // 𠬰
+// ⿱ han-5206 han-53c8-($-1) // ⿱分又
+
+## 29.5
+
+// glyph han-20b31-($han-regions):15x16 15 16 // 𠬱
+// ⿰ han-53e6 han-53c8-($-1) // ⿰另又
+
+// glyph han-20b36-($han-regions):15x16 15 16 // 𠬶
+// ⿳ han-2b739 han-5196 han-53c8-($-1) // ⿳𫜹冖又
+
+// glyph han-20b38-($han-regions):15x16 15 16 // 𠬸
+// ⿱ han-56d8 han-53c8-($-1) // ⿱囘又
+
 ## 29.6
+
+// glyph han-20b39-($han-regions):15x16 15 16 // 𠬹
+// ⿱ han-53c8-($-1) han-7cf8 // ⿱又糸
 
 // glyph han-20b3b:15x16 15 16 // 𠬻
 // ⿻⿱三𠬞丨
+
+## 29.7
+
+// glyph han-20b41-($han-regions):15x16 15 16 // 𠭁
+// ⿱ han-8c9d han-53c8-($-1) // ⿱貝又
+
+// glyph han-20b44-($han-regions):15x16 15 16 // 𠭄
+// ⿱ han-675f han-53c8-($-1) // ⿱束又
+
+## 29.8
+
+// glyph han-20b4d-($han-regions):15x16 15 16 // 𠭍
+// ⿱ han-96e8-($-1) han-53c8-($-1) // ⿱雨又
+
+// glyph han-20b51-($han-regions):15x16 15 16 // 𠭑
+// ⿰ han-53c8-($-1) han-5947 // ⿰又奇
+
+// glyph han-20b52-($han-regions):15x16 15 16 // 𠭒
+// ⿱ han-660c han-53c8-($-1) // ⿱昌又
+
+## 29.10
+
+// glyph han-20b6a-($han-regions):15x16 15 16 // 𠭪
+// ⿱ han-43b3 han-53c8-($-1) // ⿱䎳又
+
+## 29.13
+
+// glyph han-20b85-($han-regions):15x16 15 16 // 𠮅
+// ⿳ han-7d05 han-5344 han-53c8-($-1) // ⿳紅卄又

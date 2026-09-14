@@ -635,6 +635,9 @@ glyph han-7b01:15x16 15 16 // 笁
 
 ## 118.4
 
+// glyph han-7b05-($han-regions):15x16 15 16 // 笅
+// ⿱ han-25ad7 han-723b-($-1) // ⿱𥫗爻
+
 glyph han-7b06:15x16 15 16 // 笆
 ⿱ han-25ad7:15x5 han-5df4:15x11 // ⿱𥫗巴
 
@@ -1289,6 +1292,9 @@ glyph han-7c7d:15x16 15 16 // 籽
 
 glyph han-7c7f:15x16 15 16 // 籿
 ⿰ han-7c73:5x16 1 han-5bf8:9x16 // ⿰米寸
+
+// glyph han-7c80-($han-regions):15x16 15 16 // 粀
+// ⿰ han-7c73 han-4e08-($-1) // ⿰米丈
 
 ## 119.4
 

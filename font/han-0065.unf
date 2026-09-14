@@ -1,3 +1,10 @@
+# CJK unified ideographs: 支 (65)
+
+## 65.0
+
+// glyph han-652f-($han-regions):15x16 15 16 // 支
+// ⿱ han-5341 han-53c8-($-1) // ⿱十又
+
 # CJK unified ideographs: 文 (67)
 
 ## 67.0
@@ -1571,6 +1578,11 @@ $$..@@...v@@v...@@
 
 // glyph han-66fa:15x16 15 16 // 曺
 // ⿳ han-4ea0 han-7530 han-65e5 // ⿳亠田日 <- ⿱亩日
+
+## 73.7
+
+// glyph han-66fc-($han-regions):15x16 15 16 // 曼
+// ⿳ han-65e5 han-7f52 han-53c8-($-1) // ⿳日罒又
 
 ## 73.10
 

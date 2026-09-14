@@ -29,6 +29,11 @@ glyph han-8c46.0:* = han-8c46:*
 // glyph han-8c48:15x16 15 16 // 豈
 // ⿱ han-5c71 han-8c46 // ⿱山豆
 
+## 151.8
+
+// glyph han-8c4d-($han-regions):15x16 15 16 // 豍
+// ⿰ han-8c46 han-5351-($-1) // ⿰豆卑
+
 # CJK unified ideographs: 豕 (152)
 
 ## 152.1
@@ -362,6 +367,11 @@ glyph han-8d64.0:* = han-8d64:*
 
 // glyph han-8d6b:15x16 15 16 // 赫
 // ⿰ han-8d64 han-8d64 // ⿰赤赤
+
+## 155.9
+
+// glyph han-8d6d-($han-regions):15x16 15 16 // 赭
+// ⿰ han-8d64 han-8005-($-1) // ⿰赤者
 
 # CJK unified ideographs: 走 (156)
 

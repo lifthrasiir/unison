@@ -241,6 +241,9 @@ glyph han-7d58:15x16 15 16 // 絘
 // glyph han-7d59:15x16 15 16 // 絙
 // ⿰ han-7cf8 han-4e98 // ⿰糸亘
 
+// glyph han-7d5c-($han-regions):15x16 15 16 // 絜
+// ⿱ han-34de-($-1) han-7cf8 // ⿱㓞糸
+
 glyph han-7d5e:15x16 15 16 // 絞
 ⿰ han-7cf9:5x16 1 han-4ea4:9x16 // ⿰糹交
 

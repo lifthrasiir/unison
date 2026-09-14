@@ -162,6 +162,9 @@ glyph han-2760f:15x16 15 16 // 𧘏
 glyph han-27611-($han-regions):15x16 15 16 // 𧘑
 ⿰ han-8864:5x16 1 han-52fa-($-1):9x16 // ⿰衤勺
 
+// glyph han-27613-($han-regions):15x16 15 16 // 𧘓
+// ⿰ han-8864 han-4e08-($-1) // ⿰衤丈
+
 glyph han-27614:15x16 15 16 // 𧘔
 ⿰ han-8864:5x16 -1 han-4e0b:11x16 // ⿰衤下
 

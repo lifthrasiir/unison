@@ -289,6 +289,9 @@ glyph han-2396e:15x16 15 16 // 𣥮
 // glyph han-23977:15x16 15 16 // 𣥷
 // ⿳ han-6b62 han-5902 han-4e2d // ⿳止夂中
 
+// glyph han-23978-($han-regions):15x16 15 16 // 𣥸
+// ⿳ han-6b62 han-53c8-($-1) han-76ee // ⿳止又目
+
 ## 77.8
 
 // glyph han-2397e:15x16 15 16 // 𣥾

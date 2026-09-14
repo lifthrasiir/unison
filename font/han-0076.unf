@@ -42,6 +42,9 @@ $$/vV'......`Vv\$$
 glyph han-6b21:15x16 15 16 // 次
 ⿰ han-51ab:5x16 1 han-6b20:9x16 // ⿰冫欠
 
+// glyph han-6b22-($han-regions):15x16 15 16 // 欢
+// ⿰ han-53c8-($-1) han-6b20 // ⿰又欠
+
 ## 76.4
 
 glyph han-6b23:15x16 15 16 // 欣
@@ -808,6 +811,13 @@ glyph han-6b6e:15x16 15 16 // 歮
 
 // glyph han-6b79:15x16 15 16 // 歹
 // ⿱ han-4e00 han-5915 // ⿱一夕
+
+# CJK unified ideographs: 殳 (79)
+
+## 79.0
+
+// glyph han-6bb3-($han-regions):15x16 15 16 // 殳
+// ⿱ han-51e0 han-53c8-($-1) // ⿱几又
 
 # CJK unified ideographs: 比 (81)
 

@@ -243,8 +243,8 @@ glyph han-868a:15x16 15 16 // 蚊
 // glyph han-868b:15x16 15 16 // 蚋
 // ⿰ han-866b han-5185 // ⿰虫内
 
-// glyph han-868c:15x16 15 16 // 蚌
-// ⿰ han-866b han-4e30 // ⿰虫丰
+glyph han-868c-($han-regions):15x16 15 16 // 蚌
+⿰ han-866b:5x16 1 han-4e30-($-1):9x16 // ⿰虫丰
 
 glyph han-868d-($han-regions):15x16 15 16 // 蚍
 ⿰ han-866b:5x16 1 han-6bd4-($-1):9x16 // ⿰虫比
@@ -416,6 +416,9 @@ glyph han-86e8:15x16 15 16 // 蛨
 
 // glyph han-86e9:15x16 15 16 // 蛩
 // ⿱ han-5de9 han-866b // ⿱巩虫
+
+// glyph han-86ea-($han-regions):15x16 15 16 // 蛪
+// ⿱ han-34de-($-1) han-866b // ⿱㓞虫
 
 // glyph han-86ec:15x16 15 16 // 蛬
 // ⿱ han-5171 han-866b // ⿱共虫

@@ -39,6 +39,9 @@ glyph han-201bb:15x16 15 16 // 𠆻
 // glyph han-201be:15x16 15 16 // 𠆾
 // ⿰ han-4ebb han-516d // ⿰亻六
 
+// glyph han-201c0-($han-regions):15x16 15 16 // 𠇀
+// ⿱ han-4eca han-53c8-($-1) // ⿱今又
+
 // glyph han-201c1:15x16 15 16 // 𠇁
 // ⿲ han-4ebb han-5f13 han-4e28 // ⿲亻弓丨 <- ⿰亻引
 

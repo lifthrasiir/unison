@@ -312,6 +312,9 @@ glyph han-7868:15x16 15 16 // 硨
 // glyph han-786d-($han-regions):15x16 15 16 // 硭
 // ⿰ han-77f3 han-8292-($-1) // ⿰石芒
 
+// glyph han-786e-($han-regions):15x16 15 16 // 确
+// ⿰ han-77f3 han-89d2-($-1) // ⿰石角
+
 glyph han-786f:15x16 15 16 // 硯
 ⿰ han-77f3:7x16 1 han-898b:7x16 // ⿰石見
 

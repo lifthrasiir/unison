@@ -844,6 +844,11 @@ glyph han-2c30c:15x16 15 16 // 𬌌
 
 # CJK unified ideographs extension E: 牛 (93)
 
+## 93.2
+
+// glyph han-2c319-($han-regions):15x16 15 16 // 𬌙
+// ⿰ han-725c han-516b-($-1) // ⿰牜八
+
 ## 93.3
 
 glyph han-2c31a:15x16 15 16 // 𬌚

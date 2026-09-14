@@ -208,6 +208,9 @@ glyph han-316eb:15x16 15 16 // 𱛫
 glyph han-316ec:15x16 15 16 // 𱛬
 ⿱ -1 han-5c71:15x4 1 han-65f6:15x12 // ⿱山时
 
+// glyph han-316ee-($han-regions):15x16 15 16 // 𱛮
+// ⿱ han-5c71 han-89d2-($-1) // ⿱山角
+
 // glyph han-316f0:15x16 15 16 // 𱛰
 // ⿰ han-5c71 han-7075 // ⿰山灵
 
@@ -346,6 +349,9 @@ glyph han-31775:15x16 15 16 // 𱝵
 
 glyph han-3177c:15x16 15 16 // 𱝼
 ⿱ han-53b6:15x7 han-5fc3:15x9 // ⿱厶心
+
+// glyph han-3177d-($han-regions):15x16 15 16 // 𱝽
+// ⿰ han-5fc4 han-53c8-($-1) // ⿰忄又
 
 ## 61.3
 

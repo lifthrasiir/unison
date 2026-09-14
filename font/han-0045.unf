@@ -511,6 +511,9 @@ glyph han-5cfc-(g|t|k|p):* = han-5cfc.1:*
 // glyph han-5d01:15x16 15 16 // 崁
 // ⿱ han-5c71 han-574e // ⿱山坎
 
+// glyph han-5d05-($han-regions):15x16 15 16 // 崅
+// ⿰ han-5c71 han-89d2-($-1) // ⿰山角
+
 ## 46.8
 
 // glyph han-5d06:15x16 15 16 // 崆
@@ -2344,6 +2347,9 @@ glyph han-5e22:15x16 15 16 // 帢
 
 glyph han-5e29:15x16 15 16 // 帩
 ⿰ han-5dfe:7x16 1 han-8096:7x16 // ⿰巾肖
+
+// glyph han-5e2e-($han-regions):15x16 15 16 // 帮
+// ⿱ han-90a6-($-1) han-5dfe // ⿱邦巾
 
 ## 50.8
 

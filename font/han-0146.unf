@@ -371,6 +371,11 @@ $$........@@......@@........$$
 $$......./@@......@@....../1$$
 $$@@@@@@@@0/......@@@@@@@@@@$$
 
+## 147.2
+
+// glyph han-898c-($han-regions):15x16 15 16 // 覌
+// ⿰ han-53c8-($-1) han-898b // ⿰又見
+
 ## 147.3
 
 // glyph han-898e:15x16 15 16 // 覎
@@ -380,6 +385,9 @@ $$@@@@@@@@0/......@@@@@@@@@@$$
 
 glyph han-898f:15x16 15 16 // 規
 ⿰ han-592b:9x16 1 han-898b:5x16 // ⿰夫見
+
+// glyph han-8990-($han-regions):15x16 15 16 // 覐
+// ⿺ han-898b han-723b-($-1) // ⿺見爻
 
 glyph han-8991-(g|j|p):15x16 15 16 // 覑
 ⿰ han-7247.0:8x16 han-898b:7x16 // ⿰片見
@@ -516,6 +524,73 @@ $$....@@........@@......\1@@$$
 glyph han-89d2.4:* = han-89d2.0:*
 glyph han-89d2-g:* = han-89d2.0:*
 glyph han-89d2-(h|t|j|k|p|v):* = han-89d2.1:*
+
+## 148.2
+
+// glyph han-89d4-($han-regions):15x16 15 16 // 觔
+// ⿰ han-89d2-($-1) han-529b // ⿰角力
+
+## 148.4
+
+// glyph han-89d5-($han-regions):15x16 15 16 // 觕
+// ⿰ han-725c han-89d2-($-1) // ⿰牜角
+
+// glyph han-89d6-($han-regions):15x16 15 16 // 觖
+// ⿰ han-89d2-($-1) han-592c // ⿰角夬
+
+## 148.5
+
+// glyph han-89db-($han-regions):15x16 15 16 // 觛
+// ⿰ han-89d2-($-1) han-65e6 // ⿰角旦
+
+// glyph han-89dd-($han-regions):15x16 15 16 // 觝
+// ⿰ han-89d2-($-1) han-6c10 // ⿰角氐
+
+## 148.6
+
+// glyph han-89dc-($han-regions):15x16 15 16 // 觜
+// ⿱ han-6b64-($-1) han-89d2-($-1) // ⿱此角
+
+// glyph han-89df-($han-regions):15x16 15 16 // 觟
+// ⿰ han-89d2-($-1) han-572d // ⿰角圭
+
+// glyph han-89e1-($han-regions):15x16 15 16 // 觡
+// ⿰ han-89d2-($-1) han-5404 // ⿰角各
+
+// glyph han-89e2-($han-regions):15x16 15 16 // 觢
+// ⿱ han-34de-($-1) han-89d2-($-1) // ⿱㓞角
+
+// glyph han-89e6-($han-regions):15x16 15 16 // 触
+// ⿰ han-89d2-($-1) han-866b // ⿰角虫
+
+// glyph han-89e7-($han-regions):15x16 15 16 // 觧
+// ⿰ han-89d2-($-1) han-7f8a // ⿰角羊
+
+## 148.7
+
+// glyph han-89e8-($han-regions):15x16 15 16 // 觨
+// ⿰ han-89d2-($-1) han-6c5e // ⿰角汞
+
+// glyph han-89ea-($han-regions):15x16 15 16 // 觪
+// ⿰ han-89d2-($-1) han-8f9b // ⿰角辛
+
+// glyph han-89eb-($han-regions):15x16 15 16 // 觫
+// ⿰ han-89d2-($-1) han-675f // ⿰角束
+
+## 148.8
+
+// glyph han-89ed-($han-regions):15x16 15 16 // 觭
+// ⿰ han-89d2-($-1) han-5947 // ⿰角奇
+
+## 148.9
+
+// glyph han-89f0-($han-regions):15x16 15 16 // 觰
+// ⿰ han-89d2-($-1) han-8005-($-1) // ⿰角者
+
+## 148.11
+
+// glyph han-9d64-($han-regions):15x16 15 16 // 鵤
+// ⿰ han-89d2-($-1) han-9ce5 // ⿰角鳥
 
 # CJK unified ideographs: 言 (149)
 
@@ -791,8 +866,8 @@ glyph han-8a02-($han-regions):15x16 15 16 // 訂
 ⿰ han-8a01-($-1):5x16 1 han-4e01:9x16 // ⿰訁丁
 glyph han-8a02.0:* = han-8a02-j:*
 
-// glyph han-8a03:15x16 15 16 // 訃
-// ⿰ han-8a01 han-535c // ⿰訁卜
+glyph han-8a03-($han-regions):15x16 15 16 // 訃
+⿰ 1 han-8a01-($-1):5x16 3 han-535c:5x16 // ⿰訁卜
 
 // glyph han-8a04:15x16 15 16 // 訄
 // ⿺ han-4e5d han-8a00 // ⿺九言
@@ -886,6 +961,9 @@ glyph han-8a22.0:* = han-8a22-j:*
 
 // glyph han-8a23:15x16 15 16 // 訣
 // ⿰ han-8a01 han-592c // ⿰訁夬
+
+// glyph han-8a24-($han-regions):15x16 15 16 // 訤
+// ⿰ han-8a01-($-1) han-723b-($-1) // ⿰訁爻
 
 // glyph han-8a25:15x16 15 16 // 訥
 // ⿰ han-8a01 han-5185 // ⿰訁内

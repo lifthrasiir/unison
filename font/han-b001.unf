@@ -44,6 +44,9 @@ $$/0@PH/..................$$..
 // glyph han-20009:15x16 15 16 // 𠀉
 // ㇯丘丨
 
+// glyph han-2000b-($han-regions):15x16 15 16 // 𠀋
+// ⿺ han-4e08-($-1) han-4e36 // ⿺丈丶
+
 ## 1.4
 
 // glyph han-2000d:15x16 15 16 // 𠀍
@@ -562,6 +565,9 @@ glyph han-20150-($han-regions):15x16 15 16 // 𠅐
 // ⿱ han-4ea1-($-1) han-79e9 // ⿱亡秩
 
 ## 8.14
+
+// glyph han-2018e-($han-regions):15x16 15 16 // 𠆎
+// ⿳ han-4ea0 han-570d han-53c8-($-1) // ⿳亠圍又
 
 // glyph han-20190:15x16 15 16 // 𠆐
 // ⿳ han-4ea0 han-4020 han-706c // ⿳亠䀠灬

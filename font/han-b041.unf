@@ -28,6 +28,9 @@ glyph han-21b24:15x16 15 16 // 𡬤
 // glyph han-21b27:15x16 15 16 // 𡬧
 // ⿰ han-5c17 han-5bf8 // ⿰尗寸
 
+// glyph han-21b28-($han-regions):15x16 15 16 // 𡬨
+// ⿱ han-34de-($-1) han-5bf8 // ⿱㓞寸
+
 glyph han-21b2a:15x16 15 16 // 𡬪
 ⿰ han-8840:9x16 han-5bf8:6x16 // ⿰血寸
 
@@ -195,6 +198,11 @@ glyph han-21b82:15x16 15 16 // 𡮂
 // glyph han-21bc2:15x16 15 16 // 𡯂
 // ⿱ han-516b han-51e0 // ⿱八几
 
+## 43.2
+
+// glyph han-21bc5-($han-regions):15x16 15 16 // 𡯅
+// ⿺ han-5140 han-53c8-($-1) // ⿺兀又
+
 ## 43.4
 
 // glyph han-21bd1:15x16 15 16 // 𡯑
@@ -210,6 +218,9 @@ glyph han-21b82:15x16 15 16 // 𡮂
 
 // glyph han-21bdd:15x16 15 16 // 𡯝
 // ⿺ han-5140 han-77f3 // ⿺兀石
+
+// glyph han-21be0-($han-regions):15x16 15 16 // 𡯠
+// ⿺ han-5c23 han-7a74-($-1) // ⿺尣穴
 
 ## 43.7
 

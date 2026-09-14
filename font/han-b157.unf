@@ -90,8 +90,8 @@ glyph han-27fde:15x16 15 16 // 𧿞
 // glyph han-27fe1:15x16 15 16 // 𧿡
 // ⿰ han-27fb7 han-72ac // ⿰𧾷犬
 
-// glyph han-27fe3:15x16 15 16 // 𧿣
-// ⿰ han-27fb7 han-4e30 // ⿰𧾷丰
+glyph han-27fe3-($han-regions):15x16 15 16 // 𧿣
+⿰ han-27fb7:5x16 1 han-4e30-($-1):9x16 // ⿰𧾷丰
 
 glyph han-27fe4:15x16 15 16 // 𧿤
 ⿰ han-27fb7:5x16 1 han-4e0d:9x16 // ⿰𧾷不

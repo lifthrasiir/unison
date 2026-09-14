@@ -40,6 +40,9 @@ glyph han-2821a-($han-regions):15x16 15 16 // 𨈚
 // glyph han-2821c:15x16 15 16 // 𨈜
 // ⿰ han-8eab han-5184 // ⿰身冄
 
+// glyph han-28220-($han-regions):15x16 15 16 // 𨈠
+// ⿰ han-8eab han-723b-($-1) // ⿰身爻
+
 glyph han-28222:15x16 15 16 // 𨈢
 ⿰ han-8eab:9x16 1 han-4ea2:5x16 // ⿰身亢
 
@@ -376,6 +379,9 @@ glyph han-28334:15x16 15 16 // 𨌴
 
 // glyph han-28336-($han-regions):15x16 15 16 // 𨌶
 // ⿰ han-8eca han-76f2-($-1) // ⿰車盲
+
+// glyph han-28338-($han-regions):15x16 15 16 // 𨌸
+// ⿲ han-723b-($-1) han-8eca han-723b-($-1) // ⿲爻車爻
 
 glyph han-28339:15x16 15 16 // 𨌹
 ⿰ han-8eca:7x16 1 han-708e:7x16 // ⿰車炎

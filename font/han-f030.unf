@@ -606,6 +606,11 @@ glyph han-2d42a:15x16 15 16 // 𭐪
 
 # CJK unified ideographs extension F: 夕 (36)
 
+## 36.5
+
+// glyph han-2d436-($han-regions):15x16 15 16 // 𭐶
+// ⿰ han-591a han-53c8-($-1) // ⿰多又
+
 ## 36.8
 
 // glyph han-2d437:15x16 15 16 // 𭐷

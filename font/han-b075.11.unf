@@ -59,8 +59,8 @@ glyph han-23648:15x16 15 16 // 𣙈
 // glyph han-2366b:15x16 15 16 // 𣙫
 // ⿰ han-6728 han-7b20 // ⿰木笠
 
-// glyph han-2366c:15x16 15 16 // 𣙬
-// ⿰ han-6817 han-5de8 // ⿰栗巨
+glyph han-2366c-($han-regions):15x16 15 16 // 𣙬
+⿰ han-6817:9x16 1 han-5de8-($-1):5x16 // ⿰栗巨
 
 glyph han-2366f:15x16 15 16 // 𣙯
 ⿲ han-6728:5x16 han-571f:3x16-l han-96b9:7x16 // ⿲木土隹

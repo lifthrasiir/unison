@@ -8,10 +8,16 @@ glyph han-2893d:15x16 15 16 // 𨤽
 glyph han-2893f:15x16 15 16 // 𨤿
 ⿰ han-91d2:5x16-l 1 han-4eba:9x16 // ⿰釒人
 
+// glyph han-28941-($han-regions):15x16 15 16 // 𨥁
+// ⿰ han-91d2 han-53c8-($-1) // ⿰釒又
+
 ## 167.3
 
 // glyph han-28942:15x16 15 16 // 𨥂
 // ⿰ han-91d2 han-5b51 // ⿰釒孑
+
+// glyph han-28945-($han-regions):15x16 15 16 // 𨥅
+// ⿰ han-91d2 han-4e08-($-1) // ⿰釒丈
 
 glyph han-28947:15x16 15 16 // 𨥇
 ⿰ han-91d2:5x16-l 1 han-5bf8:9x16 // ⿰釒寸

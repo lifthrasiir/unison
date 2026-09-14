@@ -100,8 +100,8 @@ glyph han-290a9:15x16 15 16 // 𩂩
 // ref han-96fb // ⿻電一
 // ref han-4e00
 
-// glyph han-290ae:15x16 15 16 // 𩂮
-// ⿱ han-96e8 han-7c73 // ⿱雨米
+glyph han-290ae-($han-regions):15x16 15 16 // 𩂮
+⿱ han-96e8-($-1):15x7 han-7c73:15x9 // ⿱雨米
 
 glyph han-290af:15x16 15 16 // 𩂯
 ⿱ han-96e8:15x7 han-4f11:15x9 // ⿱雨休

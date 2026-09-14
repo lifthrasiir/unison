@@ -108,6 +108,9 @@ glyph han-248f6:15x16 15 16 // 𤣶
 glyph han-248f7:15x16 15 16 // 𤣷
 ⿰ han-248e9:7x16 1 han-5973:7x16 // ⿰𤣩女
 
+// glyph han-248f8-($han-regions):15x16 15 16 // 𤣸
+// ⿰ han-248e9 han-4e08-($-1) // ⿰𤣩丈
+
 ## 96.4
 
 // glyph han-248fa:15x16 15 16 // 𤣺

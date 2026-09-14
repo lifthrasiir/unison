@@ -67,6 +67,9 @@ glyph han-31988:15x16 15 16 // 𱦈
 glyph han-319a7:15x16 15 16 // 𱦧
 ⿲ han-6c35:3x16 han-4ebb:3x16 han-76ae:9x16 // ⿲氵亻皮
 
+// glyph han-319a8-($han-regions):15x16 15 16 // 𱦨
+// ⿰ han-6c35 han-89d2-($-1) // ⿰氵角
+
 // glyph han-319ac:15x16 15 16 // 𱦬
 // ⿰ han-6c35 han-2bcba // ⿰氵𫲺
 

@@ -25,6 +25,9 @@
 glyph han-24d26:15x16 15 16 // 𤴦
 ⿸ han-7592:15x16.11x13 han-4e5d:10x12 5 4 // ⿸疒九
 
+// glyph han-24d28-($han-regions):15x16 15 16 // 𤴨
+// ⿸ han-7592 han-53c8-($-1) // ⿸疒又
+
 // glyph han-24d29:15x16 15 16 // 𤴩
 // ⿸ han-7592 han-535c // ⿸疒卜
 

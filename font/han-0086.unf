@@ -415,8 +415,8 @@ glyph han-708f:15x12 15 12 // 炏
 glyph han-708f:15x16 15 16 // 炏
 ⿰ han-706b:7x16 1 han-706b:7x16 // ⿰火火
 
-// glyph han-7090:15x16 15 16 // 炐
-// ⿰ han-706b han-4e30 // ⿰火丰
+glyph han-7090-($han-regions):15x16 15 16 // 炐
+⿰ han-706b:5x16-l 1 han-4e30-($-1):9x16 // ⿰火丰
 
 glyph han-7091:15x16 15 16 // 炑
 ⿰ han-706b:5x16 1 han-6728:9x16 // ⿰火木
@@ -441,6 +441,9 @@ glyph han-709a:15x16 15 16 // 炚
 
 // glyph han-709c:15x16 15 16 // 炜
 // ⿰ han-706b han-97e6 // ⿰火韦
+
+// glyph han-709e-($han-regions):15x16 15 16 // 炞
+// ⿰ han-706b han-535e-($-1) // ⿰火卞
 
 ## 86.5
 
@@ -977,6 +980,11 @@ $$/h~HH_h/........\h_HH~h\..$$
 glyph han-723b-(j|k):* = han-723b.0:*
 glyph han-723b-(g|h|t|p|v):* = han-723b.3:*
 
+## 89.5
+
+// glyph han-723c-($han-regions):15x16 15 16 // 爼
+// ⿰ han-723b-($-1) han-4e14 // ⿰爻且
+
 ## 89.7
 
 // glyph han-723d:15x16 15 16 // 爽
@@ -1361,6 +1369,9 @@ glyph han-725c.0:* = han-725c:*
 
 ## 93.2
 
+glyph han-725d-($han-regions):15x16 15 16 // 牝
+⿰ han-725c:6x16 han-5315-($-1):9x16 // ⿰牜匕
+
 glyph han-725e:15x16 15 16 // 牞
 ⿰ han-725c:6x16 han-529b:9x16 // ⿰牜力
 
@@ -1377,6 +1388,9 @@ glyph han-7261:15x16 15 16 // 牡
 
 // glyph han-7263:15x16 15 16 // 牣
 // ⿰ han-725c han-5203 // ⿰牜刃
+
+glyph han-7264-($han-regions):15x16 15 16 // 牤
+⿰ han-725c:6x16 han-4ea1-($-1):9x16 // ⿰牜亡
 
 ## 93.4
 

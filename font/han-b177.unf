@@ -18,6 +18,9 @@ glyph han-2925b:15x16 15 16 // 𩉛
 glyph han-29262:15x16 15 16 // 𩉢
 ⿰ han-9769:7x16 1 han-6b20:7x16 // ⿰革欠
 
+// glyph han-29264-($han-regions):15x16 15 16 // 𩉤
+// ⿰ han-9769 han-723b-($-1) // ⿰革爻
+
 // glyph han-29267:15x16 15 16 // 𩉧
 // ⿰ han-9769 han-4e30 // ⿰革丰
 
@@ -148,6 +151,9 @@ glyph han-292ac:15x16 15 16 // 𩊬
 
 glyph han-292b9:15x16 15 16 // 𩊹
 ⿲ han-9769:7x16 han-4ebb:3x16 han-65e6:5x16 // ⿲革亻旦
+
+// glyph han-292ba-($han-regions):15x16 15 16 // 𩊺
+// ⿰ han-9769 han-89d2-($-1) // ⿰革角
 
 glyph han-292bb:15x16 15 16 // 𩊻
 ⿰ han-9769:7x16 1 han-590b:7x16 // ⿰革夋
@@ -288,6 +294,9 @@ glyph han-29392:15x16 15 16 // 𩎒
 // glyph han-29393:15x16 15 16 // 𩎓
 // ⿰ han-97cb han-72ac // ⿰韋犬
 
+// glyph han-29394-($han-regions):15x16 15 16 // 𩎔
+// ⿰ han-97cb han-723b-($-1) // ⿰韋爻
+
 glyph han-29396:15x16 15 16 // 𩎖
 ⿰ han-97cb:7x16 1 han-4eca:7x16 // ⿰韋今
 
@@ -339,6 +348,9 @@ glyph han-293a6:15x16 15 16 // 𩎦
 
 glyph han-293ac:15x16 15 16 // 𩎬
 ⿰ han-97cb:7x16 1 han-5404:7x16 // ⿰韋各
+
+// glyph han-293ae-($han-regions):15x16 15 16 // 𩎮
+// ⿳ han-516d han-97cb han-53c8-($-1) // ⿳六韋又
 
 ## 178.7
 
