@@ -837,8 +837,17 @@ glyph han-73a9:15x16 15 16 // 玩
 ⿰ han-248e9:7x16 han-5143:8x16 // ⿰𤣩元
 glyph han-73a9.0:* = han-73a9:*
 
-glyph han-73aa:15x16 15 16 // 玪
-⿰ han-248e9:7x16 1 han-4eca:7x16 // ⿰𤣩今
+glyph han-73aa.0:15x16 15 16 // 玪
+⿰ han-248e9:5x16 1 han-4eca.0:9x16 // ⿰𤣩今
+glyph han-73aa.1:* = han-73aa.0:*
+glyph han-73aa.2:15x16 15 16 // 玪
+⿰ han-248e9:5x16 1 han-4eca.1:9x16 // ⿰𤣩今
+glyph han-73aa.3:15x16 15 16 // 玪
+⿰ han-248e9:5x16 1 han-4eca.y:9x16 // ⿰𤣩今
+glyph han-73aa.x:15x16 15 16 // 玪
+⿰ han-248e9:5x16 1 han-4eca.x:9x16 // ⿰𤣩今
+glyph han-73aa-(h|t|j|k):* = han-73aa.0:*
+glyph han-73aa-(g|p):* = han-73aa.x:*
 
 // glyph han-73ac:15x16 15 16 // 玬
 // ⿰ han-248e9 han-4e39 // ⿰𤣩丹

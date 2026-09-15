@@ -209,8 +209,12 @@ glyph han-5994:15x16 15 16 // 妔
 glyph han-5995:15x16 15 16 // 妕
 ⿰ han-5973:5x16-l 1 han-4e2d:9x16 // ⿰女中
 
-glyph han-5997:15x16 15 16 // 妗
-⿰ han-5973:7x16 1 han-4eca:7x16 // ⿰女今
+glyph han-5997.0:15x16 15 16 // 妗
+⿰ han-5973:5x16-l 1 han-4eca.0:9x16 // ⿰女今
+glyph han-5997.x:15x16 15 16 // 妗
+⿰ han-5973:5x16-l 1 han-4eca.x:9x16 // ⿰女今
+glyph han-5997-(h|t|j|k):* = han-5997.0:*
+glyph han-5997-(g|p):* = han-5997.x:*
 
 // glyph han-5998:15x16 15 16 // 妘
 // ⿰ han-5973 han-4e91 // ⿰女云
@@ -1302,8 +1306,8 @@ glyph han-5b82:15x16 15 16 // 宂
 // glyph han-5b83:15x16 15 16 // 它
 // ⿱ han-5b80 han-5315 // ⿱宀匕
 
-// glyph han-5b84:15x16 15 16 // 宄
-// ⿱ han-5b80 han-4e5d // ⿱宀九
+glyph han-5b84:15x16 15 16 // 宄
+⿱ han-5b80:15x4 han-4e5d:15x12 // ⿱宀九
 
 ## 40.3
 

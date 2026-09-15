@@ -306,8 +306,10 @@ glyph han-6c6d:15x16 15 16 // 汭
 // glyph han-6c74-($han-regions):15x16 15 16 // 汴
 // ⿰ han-6c35 han-535e-($-1) // ⿰氵卞
 
-glyph han-6c75:15x16 15 16 // 汵
-⿰ han-6c35:5x16 1 han-4eca:9x16 // ⿰氵今
+glyph han-6c75-(h|t|j|k|v):15x16 15 16 // 汵
+⿰ han-6c35:5x16 1 han-4eca.0:9x16 // ⿰氵今
+glyph han-6c75-(g|p):15x16 15 16 // 汵
+⿰ han-6c35:5x16 1 han-4eca.x:9x16 // ⿰氵今
 
 glyph han-6c76:15x16 15 16 // 汶
 ⿰ han-6c35:5x16 1 han-6587:9x16 // ⿰氵文

@@ -182,8 +182,8 @@ glyph han-866d:15x16 15 16 // 虭
 glyph han-866e:15x16 15 16 // 虮
 ⿰ han-866b:5x16 1 han-51e0:9x16 // ⿰虫几
 
-// glyph han-866f:15x16 15 16 // 虯
-// ⿰ han-866b han-4e29 // ⿰虫丩
+glyph han-866f:15x16 15 16 // 虯
+⿰ han-866b:7x16 1 han-4e29:7x16 // ⿰虫丩
 
 glyph han-8670:15x16 15 16 // 虰
 ⿰ han-866b:7x16 1 han-4e01:7x16 // ⿰虫丁
@@ -273,8 +273,8 @@ glyph han-8696:15x16 15 16 // 蚖
 // glyph han-8697:15x16 15 16 // 蚗
 // ⿰ han-866b han-592c // ⿰虫夬
 
-glyph han-8699:15x16 15 16 // 蚙
-⿰ han-866b:7x16 1 han-4eca:7x16 // ⿰虫今
+glyph han-8699-($han-regions):15x16 15 16 // 蚙
+⿰ han-866b:7x16 1 han-4eca-($-1):7x16 // ⿰虫今
 
 glyph han-869a:15x16 15 16 // 蚚
 ⿰ han-866b:9x16 han-65a4:6x16 // ⿰虫斤
@@ -956,8 +956,12 @@ glyph han-8876:15x16 15 16 // 衶
 // glyph han-887e:15x16 15 16 // 衾
 // ⿱ han-4eca han-8863 // ⿱今衣
 
-glyph han-887f:15x16 15 16 // 衿
-⿰ han-8864:7x16 1 han-4eca:7x16 // ⿰衤今
+glyph han-887f.0:15x16 15 16 // 衿
+⿰ han-8864:7x16 1 han-4eca.0:7x16 // ⿰衤今
+glyph han-887f.x:15x16 15 16 // 衿
+⿰ han-8864:7x16 1 han-4eca.x:7x16 // ⿰衤今
+glyph han-887f-(h|t|j|k):* = han-887f.0:*
+glyph han-887f-(g|p):* = han-887f.x:*
 
 // glyph han-8882:15x16 15 16 // 袂
 // ⿰ han-8864 han-592c // ⿰衤夬

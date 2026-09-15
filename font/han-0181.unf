@@ -812,6 +812,9 @@ glyph han-99d9:15x16 15 16 // 駙
 // glyph han-99da:15x16 15 16 // 駚
 // ⿰ han-99ac han-592e // ⿰馬央
 
+// glyph han-99db-($han-regions):15x16 15 16 // 駛
+// ⿰ han-99ac han-53f2-($-1) // ⿰馬史
+
 // glyph han-99dc:15x16 15 16 // 駜
 // ⿰ han-99ac han-5fc5 // ⿰馬必
 

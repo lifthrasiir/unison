@@ -89,6 +89,9 @@ glyph han-2897c:15x16 15 16 // 𨥼
 // glyph han-2897e-($han-regions):15x16 15 16 // 𨥾
 // ⿰ han-91d2 han-5e73-($-1) // ⿰釒平
 
+// glyph han-28980-($han-regions):15x16 15 16 // 𨦀
+// ⿰ han-91d2 han-53eb-($-1) // ⿰釒叫
+
 glyph han-28981:15x16 15 16 // 𨦁
 ⿲ han-91d2:5x16-l han-4ebb:3x16 han-58eb:7x16 // ⿲釒亻士
 

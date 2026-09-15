@@ -200,6 +200,9 @@ glyph han-26b73-($han-regions):15x16 15 16 // 𦭳
 // glyph han-26b79:15x16 15 16 // 𦭹
 // ⿱ han-8279 han-7070 // ⿱艹灰
 
+// glyph han-26b7a:15x16 15 16 // 𦭺
+// ⿳ han-8279 han-4e29 han-2b845 // ⿳艹丩𫡅 <- ⿱艹⿱丩𫡅
+
 // glyph han-26b82:15x16 15 16 // 𦮂
 // ⿳ han-8279 han-5315 han-65e5 // ⿳艹匕日 <- ⿱艹旨
 

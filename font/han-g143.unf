@@ -149,8 +149,8 @@ glyph han-30d3a:15x16 15 16 // 𰴺
 
 ## 149'.2
 
-// glyph han-30d4a:15x16 15 16 // 𰵊
-// ⿰ han-8ba0 han-4e29 // ⿰讠丩
+glyph han-30d4a:15x16 15 16 // 𰵊
+⿰ 1 han-8ba0:5x16 1 han-4e29:7x16 // ⿰讠丩
 
 ## 149'.5
 
@@ -323,6 +323,9 @@ glyph han-30db9:15x16 15 16 // 𰶹
 
 glyph han-30dbc:15x16 15 16 // 𰶼
 ⿰ han-8c9d:6x16 2 han-7530:7x16 // ⿰貝田
+
+// glyph han-30dbd-($han-regions):15x16 15 16 // 𰶽
+// ⿰ han-8c9d han-53f2-($-1) // ⿰貝史
 
 glyph han-30dbe:15x16 15 16 // 𰶾
 ⿰ han-8c9d:6x16 han-4ee4-g:9x16 // ⿰貝令

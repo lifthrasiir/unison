@@ -62,6 +62,9 @@ glyph han-22a82:15x16 15 16 // 𢪂
 glyph han-22a83:15x16 15 16 // 𢪃
 ⿲ -1 han-624c:3x16 han-4e03:8x16 han-5200:5x16 // ⿲扌七刀
 
+// glyph han-22a84:15x16 15 16 // 𢪄
+// ⿰ han-624c han-5346 // ⿰扌卆
+
 // glyph han-22a87:15x16 15 16 // 𢪇
 // ⿰ han-723f han-624b // ⿰爿手
 
@@ -144,6 +147,9 @@ glyph han-22ab7:15x16 15 16 // 𢪷
 
 // glyph han-22ac0:15x16 15 16 // 𢫀
 // ⿱ han-53bb han-624b // ⿱去手
+
+// glyph han-22ac3-($han-regions):15x16 15 16 // 𢫃
+// ⿰ han-624c han-53eb-($-1) // ⿰扌叫
 
 glyph han-22ac4:15x16 15 16 // 𢫄
 ⿲ han-624c:3x16 han-6728:5x16 han-4e5a:7x16 // ⿲扌木乚
@@ -292,6 +298,9 @@ glyph han-22b3a:15x16 15 16 // 𢬺
 
 // glyph han-22b45:15x16 15 16 // 𢭅
 // ⿰ han-624c han-3da3 // ⿰扌㶣
+
+// glyph han-22b55:15x16 15 16 // 𢭕
+// ⿰ han-624c han-7a76 // ⿰扌究
 
 glyph han-22b57:15x16 15 16 // 𢭗
 ⿰ han-624c:5x16 1 han-826f:9x16 // ⿰扌良

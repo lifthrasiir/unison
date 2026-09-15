@@ -139,8 +139,12 @@ glyph han-9cf4:15x16 15 16 // 鳴
 // glyph han-9cf8:15x16 15 16 // 鳸
 // ⿸ han-6237 han-9ce5 // ⿸户鳥
 
-glyph han-9cf9:15x16 15 16 // 鳹
-⿰ han-4eca:7x16 1 han-9ce5:7x16 // ⿰今鳥
+glyph han-9cf9.0:15x16 15 16 // 鳹
+⿰ han-4eca.0:7x16 1 han-9ce5:7x16 // ⿰今鳥
+glyph han-9cf9.x:15x16 15 16 // 鳹
+⿰ han-4eca.x:7x16 1 han-9ce5:7x16 // ⿰今鳥
+glyph han-9cf9-(h|t|j|k):* = han-9cf9.0:*
+glyph han-9cf9-(g|p):* = han-9cf9.x:*
 
 // glyph han-9cfa:15x16 15 16 // 鳺
 // ⿰ han-592b han-9ce5 // ⿰夫鳥

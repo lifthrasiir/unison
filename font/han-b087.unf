@@ -338,8 +338,10 @@ glyph han-24619:15x16 15 16 // 𤘙
 // glyph han-24620:15x16 15 16 // 𤘠
 // ⿰ han-725c han-5929 // ⿰牜天
 
-glyph han-24621:15x16 15 16 // 𤘡
-⿰ han-725c:6x16 han-4eca:9x16 // ⿰牜今
+glyph han-24621-(t|j):15x16 15 16 // 𤘡
+⿰ han-725c:6x16 han-4eca.0:9x16 // ⿰牜今
+glyph han-24621-(g|p):15x16 15 16 // 𤘡
+⿰ han-725c:6x16 han-4eca.x:9x16 // ⿰牜今
 
 glyph han-24622:15x16 15 16 // 𤘢
 ⿰ han-725c:6x16 han-4e0d:9x16 // ⿰牜不

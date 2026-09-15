@@ -201,6 +201,9 @@ glyph han-31d9e:15x16 15 16 // 𱶞
 // glyph han-31dc8:15x16 15 16 // 𱷈
 // ⿳ han-5b80 han-516b han-5351 // ⿳宀八卑 <- ⿱穴卑
 
+// glyph han-31dc9-($han-regions):15x16 15 16 // 𱷉
+// ⿱ han-7a74-($-1) han-7cfe // ⿱穴糾
+
 ## 116.9
 
 // glyph han-31dcd:15x16 15 16 // 𱷍
@@ -248,6 +251,11 @@ glyph han-31df3:15x16 15 16 // 𱷳
 
 // glyph han-31df4:15x16 15 16 // 𱷴
 // ⿱ han-25ad7 han-725b // ⿱𥫗牛
+
+## 118.5
+
+// glyph han-31df5-($han-regions):15x16 15 16 // 𱷵
+// ⿱ han-25ad7 han-53eb-($-1) // ⿱𥫗叫
 
 ## 118.6
 
@@ -578,6 +586,11 @@ glyph han-31f02:15x16 15 16 // 𱼂
 
 // glyph han-31f04:15x16 15 16 // 𱼄
 // ⿱ han-7f52 han-8089 // ⿱罒肉
+
+## 130.6
+
+// glyph han-31f05-($han-regions):15x16 15 16 // 𱼅
+// ⿰ han-6708 han-540f-($-1) // ⿰月吏
 
 ## 130.7
 

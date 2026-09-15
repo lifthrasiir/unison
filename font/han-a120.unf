@@ -653,8 +653,8 @@ glyph han-4460:15x16 15 16 // 䑠
 
 ## 137.4
 
-glyph han-4464:15x16 15 16 // 䑤
-⿰ han-821f:7x16 1 han-4eca:7x16 // ⿰舟今
+glyph han-4464-($han-regions):15x16 15 16 // 䑤
+⿰ han-821f:7x16 1 han-4eca-($-1):7x16 // ⿰舟今
 
 ## 137.5
 

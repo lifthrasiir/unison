@@ -240,8 +240,10 @@ glyph han-626f:15x16 15 16 // 扯
 ⿰ han-624c:5x16 han-6b62:10x16 // ⿰扌止
 glyph han-626f.0:* = han-626f:*
 
-glyph han-6272:15x16 15 16 // 扲
-⿰ han-624c:5x16 1 han-4eca:9x16 // ⿰扌今
+glyph han-6272-(h|t|j|k|v):15x16 15 16 // 扲
+⿰ han-624c:5x16 1 han-4eca.0:9x16 // ⿰扌今
+glyph han-6272-(g|p):15x16 15 16 // 扲
+⿰ han-624c:5x16 1 han-4eca.x:9x16 // ⿰扌今
 
 glyph han-6276:15x16 15 16 // 扶
 ⿰ han-624c:5x16 1 han-592b:9x16 // ⿰扌夫

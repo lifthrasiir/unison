@@ -879,8 +879,8 @@ glyph han-8a05-($han-regions):15x16 15 16 // 訅
 ⿰ han-8a01-($-1):5x16 1 han-4e5d:9x16 // ⿰訁九
 glyph han-8a05.0:* = han-8a05-j:*
 
-// glyph han-8a06-($han-regions):15x16 15 16 // 訆
-// ⿰ han-8a01-($-1) han-4e29 // ⿰訁丩
+glyph han-8a06-($han-regions):15x16 15 16 // 訆
+⿰ 1 han-8a01-($-1):5x16 1 han-4e29:7x16 // ⿰訁丩
 
 // glyph han-8a07:15x16 15 16 // 訇
 // ⿹ han-52f9 han-8a00 // ⿹勹言
@@ -957,9 +957,15 @@ glyph han-8a1c-($han-regions):15x16 15 16 // 訜
 // glyph han-8a20:15x16 15 16 // 訠
 // ⿲ han-8a01 han-5f13 han-4e28 // ⿲訁弓丨 <- ⿰訁引
 
-glyph han-8a21-($han-regions):15x16 15 16 // 訡
-⿰ han-8a01-($-1):5x16 1 han-4eca:9x16 // ⿰訁今
-glyph han-8a21.0:* = han-8a21-j:*
+glyph han-8a21.0:15x16 15 16 // 訡
+⿰ han-8a01.0:5x16 1 han-4eca.0:9x16 // ⿰訁今
+glyph han-8a21.x:15x16 15 16 // 訡
+⿰ han-8a01.x:5x16 1 han-4eca.x:9x16 // ⿰訁今
+glyph han-8a21.y:15x16 15 16 // 訡
+⿰ han-8a01.x:5x16 1 han-4eca.0:9x16 // ⿰訁今
+glyph han-8a21-j:* = han-8a21.0:*
+glyph han-8a21-(g|p):* = han-8a21.x:*
+glyph han-8a21-t:* = han-8a21.y:*
 
 glyph han-8a22-($han-regions):15x16 15 16 // 訢
 ⿰ han-8a01-($-1):5x16 1 han-65a4:9x16 // ⿰訁斤

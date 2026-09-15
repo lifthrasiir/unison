@@ -634,8 +634,12 @@ glyph han-8db5-j:15x16 15 16 // 趵
 glyph han-8dba:15x16 15 16 // 趺
 ⿰ han-27fb7:5x16 1 han-592b:9x16 // ⿰𧾷夫
 
-glyph han-8dbb:15x16 15 16 // 趻
-⿰ han-27fb7:5x16 1 han-4eca:9x16 // ⿰𧾷今
+glyph han-8dbb.0:15x16 15 16 // 趻
+⿰ han-27fb7:5x16 1 han-4eca.0:9x16 // ⿰𧾷今
+glyph han-8dbb.x:15x16 15 16 // 趻
+⿰ han-27fb7:5x16 1 han-4eca.x:9x16 // ⿰𧾷今
+glyph han-8dbb-(t|j|k):* = han-8dbb.0:*
+glyph han-8dbb-(g|p):* = han-8dbb.x:*
 
 glyph han-8dbd:15x16 15 16 // 趽
 ⿰ han-27fb7:5x16 1 han-65b9:9x16 // ⿰𧾷方

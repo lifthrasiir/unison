@@ -492,6 +492,9 @@ glyph han-31497:15x16 15 16 // 𱒗
 glyph han-31498:15x16 15 16 // 𱒘
 ⿲ han-53e3:5x16-l han-248e9:3x16 han-4e01:7x16 // ⿲口𤣩丁
 
+// glyph han-3149a-($han-regions):15x16 15 16 // 𱒚
+// ⿰ han-53e3 han-540f-($-1) // ⿰口吏
+
 glyph han-3149b:15x16 15 16 // 𱒛
 ⿱ -1 han-5405:15x9 han-4ea1-g:15x8 // ⿱吅亡
 

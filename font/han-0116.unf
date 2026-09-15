@@ -65,8 +65,8 @@ glyph han-7a75:15x16 15 16 // 穵
 
 ## 116.2
 
-// glyph han-7a76:15x16 15 16 // 究
-// ⿳ han-5b80 han-513f han-4e5d // ⿳宀儿九 <- ⿱⿱宀儿九
+glyph han-7a76:15x16 15 16 // 究
+⿳ han-5b80:15x3 han-513f:15x3 han-4e5d:15x10 // ⿳宀儿九 <- ⿱⿱宀儿九
 
 // glyph han-7a77:15x16 15 16 // 穷
 // ⿳ han-5b80 han-516b han-529b // ⿳宀八力 <- ⿱穴力
@@ -1322,6 +1322,9 @@ glyph han-7c89:15x16 15 16 // 粉
 
 glyph han-7c8a-($han-regions):15x16 15 16 // 粊
 ⿱ han-6bd4-($-1):15x7 han-7c73:15x9 // ⿱比米
+
+// glyph han-7c8b:15x16 15 16 // 粋
+// ⿰ han-7c73 han-5346 // ⿰米卆
 
 // glyph han-7c8c:15x16 15 16 // 粌
 // ⿲ han-7c73 han-5f13 han-4e28 // ⿲米弓丨 <- ⿰米引

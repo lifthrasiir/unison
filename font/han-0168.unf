@@ -1056,8 +1056,10 @@ $$$$@@@@@@@@@@@@@@@@@@
 // glyph han-96c1:15x16 15 16 // 雁
 // ⿸ han-5382 han-5020 // ⿸厂倠
 
-glyph han-96c2:15x16 15 16 // 雂
-⿰ han-4eca:7x16 1 han-96b9:7x16 // ⿰今隹
+glyph han-96c2-(h|t|j|k):15x16 15 16 // 雂
+⿰ han-4eca.0:7x16 1 han-96b9:7x16 // ⿰今隹
+glyph han-96c2-(g|p):15x16 15 16 // 雂
+⿰ han-4eca.x:7x16 1 han-96b9:7x16 // ⿰今隹
 
 glyph han-96c3:15x16 15 16 // 雃
 ⿲ -2 han-5e72:5x16 han-5e72:5x16 han-96b9:7x16 // ⿲干干隹
@@ -2295,8 +2297,10 @@ glyph han-976f:15x16 15 16 // 靯
 
 ## 177.4
 
-glyph han-9772:15x16 15 16 // 靲
-⿰ han-9769:7x16 1 han-4eca:7x16 // ⿰革今
+glyph han-9772-(h|t|j|k):15x16 15 16 // 靲
+⿰ han-9769:7x16 1 han-4eca.0:7x16 // ⿰革今
+glyph han-9772-(g|p):15x16 15 16 // 靲
+⿰ han-9769:7x16 1 han-4eca.x:7x16 // ⿰革今
 
 glyph han-9773:15x16 15 16 // 靳
 ⿰ han-9769:9x16 han-65a4:6x16 // ⿰革斤

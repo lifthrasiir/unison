@@ -53,8 +53,10 @@ glyph han-6b23:15x16 15 16 // 欣
 glyph han-6b25:15x16 15 16 // 欥
 ⿰ han-65e5:7x16 1 han-6b20:7x16 // ⿰日欠
 
-glyph han-6b26:15x16 15 16 // 欦
-⿰ han-4eca:7x16 1 han-6b20:7x16 // ⿰今欠
+glyph han-6b26-(t|j|k):15x16 15 16 // 欦
+⿰ han-4eca.0:7x16 1 han-6b20:7x16 // ⿰今欠
+glyph han-6b26-(g|p):15x16 15 16 // 欦
+⿰ han-4eca.x:7x16 1 han-6b20:7x16 // ⿰今欠
 
 ## 76.5
 

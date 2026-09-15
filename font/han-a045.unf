@@ -655,6 +655,9 @@ glyph han-3915:15x16 15 16 // 㤕
 // glyph han-3923:15x16 15 16 // 㤣
 // ⿱ han-5e76 han-5fc3 // ⿱并心
 
+// glyph han-3926-($han-regions):15x16 15 16 // 㤦
+// ⿰ han-5fc4 han-540f-($-1) // ⿰忄吏
+
 glyph han-3928:15x16 15 16 // 㤨
 ⿰ han-5fc4:5x16 1 han-5171:9x16 // ⿰忄共
 
@@ -784,8 +787,8 @@ glyph han-39c2:15x16 15 16 // 㧂
 
 ## 64.2
 
-// glyph han-39c3:15x16 15 16 // 㧃
-// ⿰ han-624c han-4e29 // ⿰扌丩
+glyph han-39c3:15x16 15 16 // 㧃
+⿰ 1 han-624c:5x16 1 han-4e29:7x16 // ⿰扌丩
 
 glyph han-39c4:15x16 15 16 // 㧄
 ⿰ han-624c:5x16 han-51f5:11x16.7x14 // ⿰扌凵

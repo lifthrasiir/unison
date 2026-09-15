@@ -166,14 +166,17 @@ glyph han-7812-($han-regions):15x16 15 16 // 砒
 glyph han-7814:15x16 15 16 // 研
 ⿰ han-77f3:5x16 1 han-5f00:9x16 // ⿰石开
 
+// glyph han-7815:15x16 15 16 // 砕
+// ⿰ han-77f3 han-5346 // ⿰石卆
+
 // glyph han-7816:15x16 15 16 // 砖
 // ⿰ han-77f3 han-4e13 // ⿰石专
 
 glyph han-7817:15x16 15 16 // 砗
 ⿰ han-77f3:5x16 1 han-8f66:9x16 // ⿰石车
 
-glyph han-781b:15x16 15 16 // 砛
-⿰ han-77f3:7x16 1 han-4eca:7x16 // ⿰石今
+glyph han-781b-($han-regions):15x16 15 16 // 砛
+⿰ han-77f3:5x16 1 han-4eca-($-1):9x16 // ⿰石今
 
 ## 112.5
 

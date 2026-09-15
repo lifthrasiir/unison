@@ -107,8 +107,8 @@ glyph han-4a3e-($han-regions):15x16 15 16 // 䨾
 
 ## 176.4
 
-glyph han-4a42:15x16 15 16 // 䩂
-⿰ han-9762:7x16 1 han-4eca:7x16 // ⿰面今
+glyph han-4a42-($han-regions):15x16 15 16 // 䩂
+⿰ han-9762:7x16 1 han-4eca-($-1):7x16 // ⿰面今
 
 glyph han-4a43-($han-regions):15x16 15 16 // 䩃
 ⿰ han-9762:7x16 1 han-6bd4-($-1):7x16 // ⿰面比
@@ -268,8 +268,10 @@ glyph han-4aa8-($han-regions):15x16 15 16 // 䪨
 
 ## 180.4
 
-glyph han-4aa9:15x16 15 16 // 䪩
-⿰ han-97f3:7x16 1 han-4eca:7x16 // ⿰音今
+glyph han-4aa9-(t|j):15x16 15 16 // 䪩
+⿰ han-97f3:7x16 1 han-4eca.0:7x16 // ⿰音今
+glyph han-4aa9-(g|p):15x16 15 16 // 䪩
+⿰ han-97f3:7x16 1 han-4eca.x:7x16 // ⿰音今
 
 ## 180.5
 
@@ -783,8 +785,10 @@ glyph han-4c36-($han-regions):15x16 15 16 // 䰶
 glyph han-4c3a:15x16 15 16 // 䰺
 ⿰ han-9b5a:7x16 1 han-65a4:7x16 // ⿰魚斤
 
-glyph han-4c3c:15x16 15 16 // 䰼
-⿰ han-9b5a:7x16 1 han-4eca:7x16 // ⿰魚今
+glyph han-4c3c-(t|j|k|v):15x16 15 16 // 䰼
+⿰ han-9b5a:7x16 1 han-4eca.0:7x16 // ⿰魚今
+glyph han-4c3c-(g|p):15x16 15 16 // 䰼
+⿰ han-9b5a:7x16 1 han-4eca.x:7x16 // ⿰魚今
 
 // glyph han-4c3d:15x16 15 16 // 䰽
 // ⿰ han-9b5a han-5dff // ⿰魚巿

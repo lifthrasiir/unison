@@ -1062,8 +1062,9 @@ glyph han-5740:15x16 15 16 // 址
 glyph han-5743:15x16 15 16 // 坃
 ⿰ han-571f:7x16 han-5143:8x16 // ⿰土元
 
-glyph han-5745:15x16 15 16 // 坅
-⿰ han-571f:7x16 1 han-4eca:7x16 // ⿰土今
+glyph han-5745-($han-regions):15x16 15 16 // 坅
+⿰ han-571f:5x16-l 1 han-4eca-($-1):9x16 // ⿰土今
+glyph han-5745.0:* = han-5745-j:*
 
 // glyph han-5748:15x16 15 16 // 坈
 // ⿰ han-571f han-5197 // ⿰土冗

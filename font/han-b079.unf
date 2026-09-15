@@ -147,6 +147,9 @@ glyph han-23b40:15x16 15 16 // 𣭀
 // glyph han-23b41:15x16 15 16 // 𣭁
 // ⿱ han-6b64 han-6bdb // ⿱此毛
 
+// glyph han-23b42-($han-regions):15x16 15 16 // 𣭂
+// ⿰ han-53f2-($-1) han-6bdb // ⿰史毛
+
 // glyph han-23b43:15x16 15 16 // 𣭃
 // ⿰ han-56da han-6bdb // ⿰囚毛
 

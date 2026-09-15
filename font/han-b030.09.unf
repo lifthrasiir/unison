@@ -73,7 +73,7 @@ glyph han-20dfb:15x16 15 16 // 𠷻
 // ⿰ han-53e3 han-8304 // ⿰口茄
 
 glyph han-20e10:15x16 15 16 // 𠸐
-⿲ han-53e3:3x16-l han-8864:5x16 han-4eca:7x16 // ⿲口衤今
+⿲ han-53e3:3x16-l han-8864:5x16 han-4eca-h:7x16 // ⿲口衤今
 
 glyph han-20e11:15x16 15 16 // 𠸑
 ⿲ han-53e3:4x16-l han-8096:7x16 han-5202:4x16 // ⿲口肖刂

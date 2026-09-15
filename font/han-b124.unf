@@ -242,8 +242,8 @@ glyph han-264ce:15x16 15 16 // 𦓎
 // glyph han-264cf:15x16 15 16 // 𦓏
 // ⿺ han-4e5d han-800c // ⿺九而
 
-// glyph han-264d1:15x16 15 16 // 𦓑
-// ⿱ han-800c han-4e5d // ⿱而九
+glyph han-264d1:15x16 15 16 // 𦓑
+⿱ han-800c:15x6 han-4e5d:15x10 // ⿱而九
 
 ## 126.4
 

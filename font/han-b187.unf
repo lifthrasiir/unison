@@ -142,6 +142,9 @@ glyph han-298ae:15x16 15 16 // 𩢮
 glyph han-298b1:15x16 15 16 // 𩢱
 ⿰ han-99ac:7x16 1 han-56de:7x16 // ⿰馬回
 
+// glyph han-298b2-($han-regions):15x16 15 16 // 𩢲
+// ⿰ han-99ac han-540f-($-1) // ⿰馬吏
+
 glyph han-298b3-($han-regions):15x16 15 16 // 𩢳
 ⿰ han-7fbd-($-1):6x16 2 han-99ac:7x16 // ⿰羽馬
 

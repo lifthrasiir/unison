@@ -66,8 +66,8 @@ glyph han-827b:15x16 15 16 // 艻
 glyph han-827c:15x16 15 16 // 艼
 ⿱ han-8279:15x3 1 han-4e01:15x12 // ⿱艹丁
 
-// glyph han-827d:15x16 15 16 // 艽
-// ⿱ han-8279 han-4e5d // ⿱艹九
+glyph han-827d:15x16 15 16 // 艽
+⿱ han-8279:15x3 1 han-4e5d:15x12 // ⿱艹九
 
 // glyph han-827e-($han-regions):15x16 15 16 // 艾
 // ⿱ han-8279 han-4e42-($-1) // ⿱艹乂

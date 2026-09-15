@@ -2,8 +2,8 @@
 
 ## 30.2
 
-// glyph han-2d1b8:15x16 15 16 // 𭆸
-// ⿱ han-53e3 han-4e5d // ⿱口九
+glyph han-2d1b8:15x16 15 16 // 𭆸
+⿱ han-53e3:15x4 han-4e5d:15x12 // ⿱口九
 
 // glyph han-2d1b9:15x16 15 16 // 𭆹
 // ⿱ han-5165 han-53e3 // ⿱入口
@@ -644,8 +644,8 @@ glyph han-2d42a:15x16 15 16 // 𭐪
 
 ## 37.2
 
-// glyph han-2d442:15x16 15 16 // 𭑂
-// ⿱ han-4e5d han-5927 // ⿱九大
+glyph han-2d442:15x16 15 16 // 𭑂
+⿱ han-4e5d:15x10 1 han-5927:15x5 // ⿱九大
 
 ## 37.3
 

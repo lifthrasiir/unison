@@ -489,11 +489,14 @@ glyph han-5fe8:15x16 15 16 // 忨
 // glyph han-5fed-($han-regions):15x16 15 16 // 忭
 // ⿰ han-5fc4 han-535e-($-1) // ⿰忄卞
 
+// glyph han-5ff0:15x16 15 16 // 忰
+// ⿰ han-5fc4 han-5346 // ⿰忄卆
+
 // glyph han-5ff2:15x16 15 16 // 忲
 // ⿰ han-5fc4 han-592a // ⿰忄太
 
-glyph han-5ff4:15x16 15 16 // 忴
-⿰ han-5fc4:7x16 1 han-4eca:7x16 // ⿰忄今
+glyph han-5ff4-($han-regions):15x16 15 16 // 忴
+⿰ han-5fc4:5x16 1 han-4eca-($-1):9x16 // ⿰忄今
 
 // glyph han-5ff5:15x16 15 16 // 念
 // ⿱ han-4eca han-5fc3 // ⿱今心

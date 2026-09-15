@@ -53,8 +53,8 @@ glyph han-7cfc:15x16 15 16 // 糼
 glyph han-7cfd:15x16 15 16 // 糽
 ⿰ han-7cf9:5x16 1 han-4e01:9x16 // ⿰糹丁
 
-// glyph han-7cfe:15x16 15 16 // 糾
-// ⿰ han-7cf9 han-4e29 // ⿰糹丩
+glyph han-7cfe:15x16 15 16 // 糾
+⿰ 1 han-7cf9:5x16 1 han-4e29:7x16 // ⿰糹丩
 
 glyph han-7cff:15x16 15 16 // 糿
 ⿰ han-7cf9:5x16 1 han-5200:9x16 // ⿰糹刀
@@ -117,14 +117,19 @@ glyph han-7d1b:15x16 15 16 // 紛
 // glyph han-7d1c:15x16 15 16 // 紜
 // ⿰ han-7cf9 han-4e91 // ⿰糹云
 
-glyph han-7d1f:15x16 15 16 // 紟
-⿰ han-7cf9:5x16 1 han-4eca:9x16 // ⿰糹今
+glyph han-7d1f-(h|t|j|k):15x16 15 16 // 紟
+⿰ han-7cf9:5x16 1 han-4eca.0:9x16 // ⿰糹今
+glyph han-7d1f-(g|p):15x16 15 16 // 紟
+⿰ han-7cf9:5x16 1 han-4eca.x:9x16 // ⿰糹今
 
 // glyph han-7d20:15x16 15 16 // 素
 // ⿱ han-9fb6 han-7cf8 // ⿱龶糸
 
 glyph han-7d21:15x16 15 16 // 紡
 ⿰ han-7cf9:5x16 1 han-65b9:9x16 // ⿰糹方
+
+// glyph han-7d23:15x16 15 16 // 紣
+// ⿰ han-7cf9 han-5346 // ⿰糹卆
 
 glyph han-7d24:15x16 15 16 // 紤
 ⿰ han-7cf9:5x16 1 han-65a4:9x16 // ⿰糹斤

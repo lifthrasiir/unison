@@ -44,8 +44,15 @@ glyph han-29694:15x16 15 16 // 𩚔
 
 ## 184.4
 
-glyph han-29695:15x16 15 16 // 𩚕
-⿰ han-98e0:7x16 1 han-4eca:7x16 // ⿰飠今
+glyph han-29695.0:15x16 15 16 // 𩚕
+⿰ han-98e0:7x16 1 han-4eca.0:7x16 // ⿰飠今
+glyph han-29695.1:15x16 15 16 // 𩚕
+⿰ han-98e0:7x16 1 han-4eca.0:7x16 // ⿰飠今
+glyph han-29695.x:15x16 15 16 // 𩚕
+⿰ han-98e0:7x16 1 han-4eca.x:7x16 // ⿰飠今
+glyph han-29695-j:* = han-29695.0:*
+glyph han-29695-t:* = han-29695.1:*
+glyph han-29695-g:* = han-29695.x:*
 
 // glyph han-29696-($han-regions):15x16 15 16 // 𩚖
 // ⿰ han-98e0 han-4e11-($-1) // ⿰飠丑
