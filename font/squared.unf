@@ -1804,6 +1804,11 @@ glyph squared-hp 16 16
 ref narrow-h-upper 3 0
 ref narrow-p-upper 8 0
 
+glyph squared-hpa 16 16
+ref narrow-h-lower 1 0
+ref narrow-p-upper 6 0
+ref narrow-a-lower 10 0
+
 glyph squared-hz 16 16
 ref narrow-h-upper 3 0
 ref narrow-z-lower 8 0
@@ -2250,6 +2255,7 @@ map ㏉ = squared-gy
 map ㏊ = squared-ha
 map ㋌ = squared-hg
 map ㏋ = squared-hp
+map ㍱ = squared-hpa
 map ㎐ = squared-hz
 map ㏌ = squared-in
 map ㍺ = squared-iu
