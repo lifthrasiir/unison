@@ -477,7 +477,7 @@ glyph han-43d5:15x16 15 16 // 䏕
 
 ## 130.5
 
-glyph han-43de:15x16 15 16 // 䏞
+glyph han-43de:15x16 15 16 // 䏞 (U18.0: T-source fixed)
 ⿰ han-6708:5x16-l 1 han-672b:9x16 // ⿰月末
 
 // glyph han-43df:15x16 15 16 // 䏟

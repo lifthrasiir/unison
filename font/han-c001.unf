@@ -792,7 +792,7 @@ glyph han-2a8fa:15x16 15 16 // 𪣺
 // glyph han-2a90f:15x16 15 16 // 𪤏
 // ⿰ han-571f han-57fa // ⿰土基
 
-glyph han-2a917:15x16 15 16 // 𪤗
+glyph han-2a917:15x16 15 16 // 𪤗 (U18.0: G-source fixed)
 ⿰ han-571f:5x16-l 1 han-7fcf:9x16 // ⿰土翏
 
 ## 32.12
