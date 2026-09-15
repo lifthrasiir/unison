@@ -467,8 +467,8 @@ glyph han-25a99:15x16 15 16 // 𥪙
 // glyph han-25aa2-($han-regions):15x16 15 16 // 𥪢
 // ⿱ han-7ae5 han-516b-($-1) // ⿱童八
 
-glyph han-25aa4-($han-regions):15x16 15 16 // 𥪤
-⿰ han-7acb:5x16 1 han-8005-($-1):9x16 // ⿰立者
+glyph han-25aa4:15x16 15 16 // 𥪤
+⿰ han-7acb:5x16 1 han-8005-t:9x16 // ⿰立者
 
 ## 117.10
 

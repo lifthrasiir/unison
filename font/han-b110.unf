@@ -180,7 +180,7 @@ glyph han-25484:15x16 15 16 // 𥒄
 // ⿳ han-77f3 han-5b80 han-5973 // ⿳石宀女 <- ⿱石安
 
 glyph han-25489:15x16 15 16 // 𥒉
-⿰ han-77f3:5x16 1 han-7fbd.1:9x16 // ⿰石羽
+⿰ han-77f3:5x16 1 han-7fbd-t:9x16 // ⿰石羽
 
 glyph han-2548a:15x16 15 16 // 𥒊
 ⿰ han-77f3:5x16 1 han-540d:9x16 // ⿰石名

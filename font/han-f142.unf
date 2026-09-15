@@ -136,8 +136,8 @@ glyph han-2e568:15x16 15 16 // 𮕨
 // glyph han-2e56a:15x16 15 16 // 𮕪
 // ⿱ han-4e2d han-8863 // ⿱中衣
 
-glyph han-2e56c-($han-regions):15x16 15 16 // 𮕬
-⿰ han-8864:5x16 han-5316-($-1):10x16 // ⿰衤化
+glyph han-2e56c:15x16 15 16 // 𮕬
+⿰ han-8864:5x16 han-5316-g:10x16 // ⿰衤化
 
 // glyph han-2e56e:15x16 15 16 // 𮕮
 // ⿱ han-5206 han-8863 // ⿱分衣
@@ -548,8 +548,8 @@ glyph han-2e6c5:15x16 15 16 // 𮛅
 glyph han-2e6c6:15x16 15 16 // 𮛆
 ⿰ han-27fb7:5x16 1 han-5dfe:9x16 // ⿰𧾷巾
 
-glyph han-2e6c7-($han-regions):15x16 15 16 // 𮛇
-⿰ han-27fb7:5x16 1 han-4ea1-($-1):9x16 // ⿰𧾷亡
+glyph han-2e6c7:15x16 15 16 // 𮛇
+⿰ han-27fb7:5x16 1 han-4ea1-j:9x16 // ⿰𧾷亡
 
 glyph han-2e6c8:15x16 15 16 // 𮛈
 ⿰ han-27fb7:5x16 2 han-961d:7x16-r // ⿰𧾷阝
@@ -763,8 +763,8 @@ glyph han-2e77c:15x16 15 16 // 𮝼
 
 ## 162.3
 
-glyph han-2e781-($han-regions):15x16 15 16 // 𮞁
-⿺ han-8fb6-($-1):15x16.11x14 han-4e09:11x12 4 0 // ⿺辶三
+glyph han-2e781:15x16 15 16 // 𮞁
+⿺ han-8fb6-g:15x16.11x14 han-4e09:11x12 4 0 // ⿺辶三
 
 ## 162.5
 
@@ -784,8 +784,8 @@ glyph han-2e781-($han-regions):15x16 15 16 // 𮞁
 
 ## 162.8
 
-glyph han-2e79b-($han-regions):15x16 15 16 // 𮞛
-⿺ han-8fb6-($-1):15x16.11x14 han-96e8-($-1):11x13 4 0 // ⿺辶雨
+glyph han-2e79b:15x16 15 16 // 𮞛
+⿺ han-8fb6-j:15x16.11x14 han-96e8-j:11x13 4 0 // ⿺辶雨
 
 // glyph han-2e79d:15x16 15 16 // 𮞝
 // ⿺ han-8fb6 han-6790 // ⿺辶析
@@ -795,8 +795,8 @@ glyph han-2e79b-($han-regions):15x16 15 16 // 𮞛
 
 ## 162.9
 
-glyph han-2e7ac-($han-regions):15x16 15 16 // 𮞬
-⿺ han-8fb6-($-1):15x16.11x14 han-54c1:11x13 4 1 // ⿺辶品
+glyph han-2e7ac:15x16 15 16 // 𮞬
+⿺ han-8fb6-g:15x16.11x14 han-54c1:11x13 4 1 // ⿺辶品
 
 // glyph han-2e7b0:15x16 15 16 // 𮞰
 // ⿺ han-8fb6 han-6cc9 // ⿺辶泉
@@ -929,8 +929,8 @@ glyph han-2e828:15x16 15 16 // 𮠨
 glyph han-2e829:15x16 15 16 // 𮠩
 ⿰ han-9149:7x16 1 han-7c73:7x16 // ⿰酉米
 
-glyph han-2e82a-($han-regions):15x16 15 16 // 𮠪
-⿰ han-9149:7x16 han-7fbd-($-1):8x16 // ⿰酉羽
+glyph han-2e82a:15x16 15 16 // 𮠪
+⿰ han-9149:7x16 han-7fbd.0:8x16 // ⿰酉羽
 
 ## 164.7
 

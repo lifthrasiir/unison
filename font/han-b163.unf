@@ -68,8 +68,8 @@ glyph han-2868a:15x16 15 16 // 𨚊
 // glyph han-2868b:15x16 15 16 // 𨚋
 // ⿱ han-9091 han-706c // ⿱邑灬
 
-glyph han-2868d-($han-regions):15x16 15 16 // 𨚍
-⿰ han-6bd4-($-1):8x16 han-961d:7x16-r // ⿰比阝
+glyph han-2868d:15x16 15 16 // 𨚍
+⿰ han-6bd4-g:8x16 han-961d:7x16-r // ⿰比阝
 
 // glyph han-28691:15x16 15 16 // 𨚑
 // ⿰ han-2000c han-961d // ⿰𠀌阝
@@ -249,8 +249,8 @@ glyph han-286fa:15x16 15 16 // 𨛺
 glyph han-28714:15x16 15 16 // 𨜔
 ⿰ han-7687:9x16 1 han-961d:5x16-r // ⿰皇阝
 
-glyph han-2871e-($han-regions):15x16 15 16 // 𨜞
-⿰ -1 han-8005-($-1):5x16 1 han-9091:10x16 // ⿰者邑
+glyph han-2871e:15x16 15 16 // 𨜞
+⿰ -1 han-8005-g:5x16 1 han-9091:10x16 // ⿰者邑
 
 // glyph han-28721:15x16 15 16 // 𨜡
 // ⿰ han-7686 han-961d // ⿰皆阝

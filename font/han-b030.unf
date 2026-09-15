@@ -560,8 +560,8 @@ glyph han-20d0a-v:15x16 15 16 // 𠴊
 // glyph han-20d11:15x16 15 16 // 𠴑
 // ⿰ han-53e3 han-26b11 // ⿰口𦬑
 
-glyph han-20d12-($han-regions):15x16 15 16 // 𠴒
-⿲ han-53e3:3x16-l han-4ebb:3x16 han-4ee4-($-1):9x16 // ⿲口亻令
+glyph han-20d12:15x16 15 16 // 𠴒
+⿲ han-53e3:3x16-l han-4ebb:3x16 han-4ee4.2:9x16 // ⿲口亻令
 
 glyph han-20d13:15x16 15 16 // 𠴓
 ⿲ han-53e3:4x16-l han-4ebb:3x16 han-6c10:8x16 // ⿲口亻氐

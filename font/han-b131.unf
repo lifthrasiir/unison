@@ -257,8 +257,8 @@ glyph han-26a0d:15x16 15 16 // 𦨍
 // glyph han-26a11:15x16 15 16 // 𦨑
 // ⿰ han-821f han-624d // ⿰舟才
 
-glyph han-26a13-($han-regions):15x16 15 16 // 𦨓
-⿰ han-821f:7x16 1 han-52fa-($-1):7x16 // ⿰舟勺
+glyph han-26a13:15x16 15 16 // 𦨓
+⿰ han-821f:7x16 1 han-52fa.1:7x16 // ⿰舟勺
 
 // glyph han-26a14:15x16 15 16 // 𦨔
 // ⿰ han-821f han-5203 // ⿰舟刃
@@ -380,8 +380,8 @@ glyph han-26a65:15x16 15 16 // 𦩥
 // glyph han-26a70:15x16 15 16 // 𦩰
 // ⿰ han-821f han-91cd // ⿰舟重
 
-glyph han-26a73-($han-regions):15x16 15 16 // 𦩳
-⿰ han-821f:7x16 1 han-8005-($-1):7x16 // ⿰舟者
+glyph han-26a73:15x16 15 16 // 𦩳
+⿰ han-821f:7x16 1 han-8005-v:7x16 // ⿰舟者
 
 ## 137.10
 

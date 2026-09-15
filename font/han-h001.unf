@@ -121,8 +121,8 @@ glyph han-31369:15x16 15 16 // 𱍩
 
 ## 9.3
 
-glyph han-3139d-($han-regions):15x16 15 16 // 𱎝
-⿰ han-4ebb:5x16 1 han-4ea1-($-1):9x16 // ⿰亻亡
+glyph han-3139d:15x16 15 16 // 𱎝
+⿰ han-4ebb:5x16 1 han-4ea1-g:9x16 // ⿰亻亡
 
 ## 9.4
 
@@ -492,8 +492,8 @@ glyph han-31497:15x16 15 16 // 𱒗
 glyph han-31498:15x16 15 16 // 𱒘
 ⿲ han-53e3:5x16-l han-248e9:3x16 han-4e01:7x16 // ⿲口𤣩丁
 
-glyph han-3149b-($han-regions):15x16 15 16 // 𱒛
-⿱ -1 han-5405:15x9 han-4ea1-($-1):15x8 // ⿱吅亡
+glyph han-3149b:15x16 15 16 // 𱒛
+⿱ -1 han-5405:15x9 han-4ea1-g:15x8 // ⿱吅亡
 
 // glyph han-3149c:15x16 15 16 // 𱒜
 // ⿰ han-53e3 han-5c16 // ⿰口尖
@@ -639,8 +639,8 @@ glyph han-3151d:15x16 15 16 // 𱔝
 // glyph han-31521:15x16 15 16 // 𱔡
 // ⿰ han-53e3 han-8857 // ⿰口街
 
-glyph han-31522-($han-regions):15x16 15 16 // 𱔢
-⿲ han-53e3:4x16-l han-72ad:4x16 han-8005-($-1):7x16 // ⿲口犭者
+glyph han-31522:15x16 15 16 // 𱔢
+⿲ han-53e3:4x16-l han-72ad:4x16 han-8005-v:7x16 // ⿲口犭者
 
 // glyph han-31526:15x16 15 16 // 𱔦
 // ⿲ han-53e3 han-6c35 han-5247 // ⿲口氵則 <- ⿰口測

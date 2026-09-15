@@ -398,8 +398,8 @@ glyph han-2cf75:15x16 15 16 // 𬽵
 // glyph han-2cf80:15x16 15 16 // 𬾀
 // ⿰ han-4ebb han-4f17 // ⿰亻众
 
-glyph han-2cf82-($han-regions):15x16 15 16 // 𬾂
-⿰ han-4ee4-($-1):7x16 1 han-4e0b:7x16 // ⿰令下
+glyph han-2cf82:15x16 15 16 // 𬾂
+⿰ han-4ee4-g:7x16 1 han-4e0b:7x16 // ⿰令下
 
 ## 9.7
 
@@ -443,8 +443,8 @@ glyph han-2cfb0:15x16 15 16 // 𬾰
 // glyph han-2cfb8:15x16 15 16 // 𬾸
 // ⿲ han-4ebb han-5fc4 han-5bfa // ⿲亻忄寺
 
-glyph han-2cfba-($han-regions):15x16 15 16 // 𬾺
-⿰ han-5e76:8x16 han-4ee4-($-1):7x16 // ⿰并令
+glyph han-2cfba:15x16 15 16 // 𬾺
+⿰ han-5e76:8x16 han-4ee4-k:7x16 // ⿰并令
 
 ## 9.10
 
@@ -972,8 +972,8 @@ glyph han-2d153:15x16 15 16 // 𭅓
 
 ## 22.2
 
-glyph han-2d154-($han-regions):15x16 15 16 // 𭅔
-⿷ han-531a:15x16.14x14 han-5315-($-1):10x13 4 1 // ⿷匚匕
+glyph han-2d154:15x16 15 16 // 𭅔
+⿷ han-531a:15x16.14x14 han-5315-j:10x13 4 1 // ⿷匚匕
 
 ## 22.3
 

@@ -762,11 +762,11 @@ glyph han-2013a:15x16 15 16 // 𠄺
 // glyph han-2014d-($han-regions):15x16 15 16 // 𠅍
 // ⿰ han-672b han-4ea1-($-1) // ⿰末亡
 
-glyph han-2014e-($han-regions):15x16 15 16 // 𠅎
-⿰ han-4ea1-($-1):7x16 1 han-5931:7x16 // ⿰亡失
+glyph han-2014e:15x16 15 16 // 𠅎
+⿰ han-4ea1-v:7x16 1 han-5931:7x16 // ⿰亡失
 
-glyph han-20150-($han-regions):15x16 15 16 // 𠅐
-⿰ han-5931:7x16 1 han-4ea1-($-1):7x16 // ⿰失亡
+glyph han-20150:15x16 15 16 // 𠅐
+⿰ han-5931:7x16 1 han-4ea1-v:7x16 // ⿰失亡
 
 // glyph han-20152-($han-regions):15x16 15 16 // 𠅒
 // ⿰ han-4ea1-($-1) han-672b // ⿰亡末

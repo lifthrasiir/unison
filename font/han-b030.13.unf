@@ -138,8 +138,8 @@ glyph han-210b0:15x16 15 16 // 𡂰
 // glyph han-210bd:15x16 15 16 // 𡂽
 // ⿳ han-5405 han-8980 han-65e9 // ⿳吅覀早
 
-glyph han-210c1-($han-regions):15x16 15 16 // 𡃁
-⿲ han-53e3:3x16-l han-9752-($-1):5x16 han-898b:7x16 // ⿲口青見
+glyph han-210c1:15x16 15 16 // 𡃁
+⿲ han-53e3:3x16-l han-9752-h:5x16 han-898b:7x16 // ⿲口青見
 
 glyph han-210c3:15x16 15 16 // 𡃃
 ⿲ -3 han-53e3:3x16-l han-7cf9:5x16 han-54a0:10x16 // ⿲口糹咠

@@ -128,8 +128,8 @@ glyph han-2b77b:15x16 15 16 // 𫝻
 
 ## 85.10
 
-glyph han-2b79b-($han-regions):15x16 15 16 // 𫞛
-⿲ han-6c35:3x16 han-8ba0:3x16 han-8005-($-1):9x16 // ⿲氵讠者
+glyph han-2b79b:15x16 15 16 // 𫞛
+⿲ han-6c35:3x16 han-8ba0:3x16 han-8005-g:9x16 // ⿲氵讠者
 
 # CJK unified ideographs extension D: 火 (86)
 

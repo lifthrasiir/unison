@@ -306,8 +306,8 @@ $$..........@@............@@$$
 $$........\1@@..........\1@@$$
 glyph han-7fbd.0:* = han-7fbd:*
 glyph han-7fbd.1:* = han-7fbd:*
-glyph han-7fbd-(g|h|t|j|v):* = han-7fbd.0:*
-glyph han-7fbd-(k|p):* = han-7fbd.1:*
+glyph han-7fbd-(k|p):* = han-7fbd.0:*
+glyph han-7fbd-(g|h|t|j|v):* = han-7fbd.1:*
 
 ## 124.3
 

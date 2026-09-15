@@ -400,8 +400,8 @@ glyph han-22bb5:15x16 15 16 // 𢮵
 // glyph han-22bc5:15x16 15 16 // 𢯅
 // ⿰ han-624c han-5774 // ⿰扌坴
 
-glyph han-22bca-($han-regions):15x16 15 16 // 𢯊
-⿲ han-624c:3x16 han-767d:4x16 1 han-52fa-($-1):7x16 // ⿲扌白勺
+glyph han-22bca:15x16 15 16 // 𢯊
+⿲ han-624c:3x16 han-767d:4x16 1 han-52fa.1:7x16 // ⿲扌白勺
 
 glyph han-22bcf:15x16 15 16 // 𢯏
 ⿲ han-624c:3x16 han-5f73:3x16 han-76ae:9x16 // ⿲扌彳皮
@@ -492,8 +492,8 @@ glyph han-22c2e:15x16 15 16 // 𢰮
 // glyph han-22c37:15x16 15 16 // 𢰷
 // ⿰ han-624c han-70b9 // ⿰扌点
 
-glyph han-22c39-($han-regions):15x16 15 16 // 𢰹
-⿲ han-624c:3x16 han-7cf9:5x16 han-52fa-($-1):7x16 // ⿲扌糹勺
+glyph han-22c39:15x16 15 16 // 𢰹
+⿲ han-624c:3x16 han-7cf9:5x16 han-52fa.1:7x16 // ⿲扌糹勺
 
 // glyph han-22c40:15x16 15 16 // 𢱀
 // ⿱ han-79cc han-624b // ⿱秌手

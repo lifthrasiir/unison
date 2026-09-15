@@ -601,8 +601,8 @@ glyph han-2ac19:15x16 15 16 // 𪰙
 // glyph han-2ac22:15x16 15 16 // 𪰢
 // ⿰ han-65e5 han-5dde // ⿰日州
 
-glyph han-2ac23-($han-regions):15x16 15 16 // 𪰣
-⿰ han-65e5:4x16-l han-7fbd-($-1):11x16 // ⿰日羽
+glyph han-2ac23:15x16 15 16 // 𪰣
+⿰ han-65e5:4x16-l han-7fbd-g:11x16 // ⿰日羽
 
 glyph han-2ac24:15x16 15 16 // 𪰤
 ⿲ han-65e5:4x16-l han-6c35:3x16 1 han-5973:7x16 // ⿲日氵女
@@ -633,8 +633,8 @@ glyph han-2ac25:15x16 15 16 // 𪰥
 // glyph han-2ac3f:15x16 15 16 // 𪰿
 // ⿺ han-662f han-5b57 // ⿺是字
 
-glyph han-2ac42-($han-regions):15x16 15 16 // 𪱂
-⿲ han-65e5:4x16-l han-72ad:4x16 han-8005-($-1):7x16 // ⿲日犭者
+glyph han-2ac42:15x16 15 16 // 𪱂
+⿲ han-65e5:4x16-l han-72ad:4x16 han-8005-v:7x16 // ⿲日犭者
 
 // glyph han-2ac45:15x16 15 16 // 𪱅
 // ⿱ han-65e5 han-6e1a // ⿱日渚

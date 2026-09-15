@@ -256,8 +256,8 @@ glyph han-25b68:15x16 15 16 // 𥭨
 glyph han-25b74:15x16 15 16 // 𥭴
 ⿳ han-25ad7:15x5 -1 han-7acb:15x7 han-5341:15x5 // ⿳𥫗立十
 
-glyph han-25b76-($han-regions):15x16 15 16 // 𥭶
-⿳ han-25ad7:15x5 han-8279:15x3 han-4ea1-($-1):15x8 // ⿳𥫗艹亡
+glyph han-25b76:15x16 15 16 // 𥭶
+⿳ han-25ad7:15x5 han-8279:15x3 han-4ea1-v:15x8 // ⿳𥫗艹亡
 
 // glyph han-25b79:15x16 15 16 // 𥭹
 // ⿳ han-25ad7 han-34c1 han-5915 // ⿳𥫗㓁夕

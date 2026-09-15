@@ -254,8 +254,8 @@ glyph han-231db:15x16 15 16 // 𣇛
 glyph han-231dc:15x16 15 16 // 𣇜
 ⿰ han-65e5:6x16 1 han-8c9d:8x16 // ⿰日貝
 
-glyph han-231dd-($han-regions):15x16 15 16 // 𣇝
-⿲ han-65e5:4x16-l han-51ab:3x16 1 han-4ee4-($-1):7x16 // ⿲日冫令
+glyph han-231dd:15x16 15 16 // 𣇝
+⿲ han-65e5:4x16-l han-51ab:3x16 1 han-4ee4.2:7x16 // ⿲日冫令
 
 // glyph han-231e1:15x16 15 16 // 𣇡
 // ⿰ han-65e5 han-5fcc // ⿰日忌

@@ -294,8 +294,8 @@ glyph han-20a10:15x16 15 16 // 𠨐
 
 ## 26.3
 
-glyph han-20a11-($han-regions):15x16 15 16 // 𠨑
-⿰ han-4ea1-($-1):7x16 1 han-5369:7x16 // ⿰亡卩
+glyph han-20a11:15x16 15 16 // 𠨑
+⿰ han-4ea1-h:7x16 1 han-5369:7x16 // ⿰亡卩
 
 ## 26.4
 

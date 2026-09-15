@@ -37,8 +37,8 @@ glyph han-24726:15x16 15 16 // 𤜦
 // glyph han-24727:15x16 15 16 // 𤜧
 // ⿰ han-5dfe han-72ac // ⿰巾犬
 
-glyph han-2472a-($han-regions):15x16 15 16 // 𤜪
-⿰ han-72ad:6x16 han-4ea1-($-1):9x16 // ⿰犭亡
+glyph han-2472a:15x16 15 16 // 𤜪
+⿰ han-72ad:6x16 han-4ea1-g:9x16 // ⿰犭亡
 
 glyph han-2472c:15x16 15 16 // 𤜬
 ⿰ han-72ad:6x16 han-5c71:9x16 // ⿰犭山
@@ -151,8 +151,8 @@ glyph han-24767-($han-regions):15x16 15 16 // 𤝧
 glyph han-2476c:15x16 15 16 // 𤝬
 ⿰ han-72ad:6x16 1 han-6c10:8x16 // ⿰犭氐
 
-glyph han-2476d-($han-regions):15x16 15 16 // 𤝭
-⿰ han-72ad:4x16 han-6b64-($-1):11x16 // ⿰犭此
+glyph han-2476d:15x16 15 16 // 𤝭
+⿰ han-72ad:4x16 han-6b64-g:11x16 // ⿰犭此
 
 ## 94.6
 

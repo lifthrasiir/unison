@@ -47,8 +47,8 @@ glyph han-22cdd:15x16 15 16 // 𢳝
 glyph han-22cf6:15x16 15 16 // 𢳶
 ⿰ 1 han-624c:5x16 1 han-9b5a:7x16 // ⿰扌魚
 
-glyph han-22d06-($han-regions):15x16 15 16 // 𢴆
-⿲ han-624c:3x16 han-6c35:3x16 han-9752-($-1):9x16 // ⿲扌氵青
+glyph han-22d06:15x16 15 16 // 𢴆
+⿲ han-624c:3x16 han-6c35:3x16 han-9752-g:9x16 // ⿲扌氵青
 
 // glyph han-22d08:15x16 15 16 // 𢴈
 // ⿰ han-624c han-7b2a // ⿰扌笪
@@ -62,8 +62,8 @@ glyph han-22d06-($han-regions):15x16 15 16 // 𢴆
 glyph han-22d17:15x16 15 16 // 𢴗
 ⿲ han-624c:3x16 han-6c35:3x16 han-708e:9x16 // ⿲扌氵炎
 
-glyph han-22d18-($han-regions):15x16 15 16 // 𢴘
-⿲ han-624c:3x16 han-72ad:4x16 1 han-9751-($-1):7x16 // ⿲扌犭靑
+glyph han-22d18:15x16 15 16 // 𢴘
+⿲ han-624c:3x16 han-72ad:4x16 1 han-9752.0:7x16 // ⿲扌犭青
 
 // glyph han-22d19:15x16 15 16 // 𢴙
 // ⿲ han-624c han-53e3 han-4f86 // ⿲扌口來
@@ -88,8 +88,8 @@ glyph han-22d3f:15x16 15 16 // 𢴿
 // glyph han-22d44:15x16 15 16 // 𢵄
 // ⿰ han-624c han-3afa // ⿰扌㫺
 
-glyph han-22d4b-($han-regions):15x16 15 16 // 𢵋
-⿲ han-624c:3x16 han-8005-($-1):7x16 1 han-961d:4x16-r // ⿲扌者阝
+glyph han-22d4b:15x16 15 16 // 𢵋
+⿲ han-624c:3x16 han-8005-v:7x16 1 han-961d:4x16-r // ⿲扌者阝
 
 // glyph han-22d55:15x16 15 16 // 𢵕
 // ⿲ han-624c han-2099d han-725b // ⿲扌𠦝牛 <- ⿰扌⿰𠦝牛
@@ -118,8 +118,8 @@ glyph han-22d70:15x16 15 16 // 𢵰
 // glyph han-22d73:15x16 15 16 // 𢵳
 // ⿰ han-624c han-68ee // ⿰扌森
 
-glyph han-22d7b-($han-regions):15x16 15 16 // 𢵻
-⿲ han-624c:3x16 han-6c35:3x16 han-8005-($-1):9x16 // ⿲扌氵者
+glyph han-22d7b:15x16 15 16 // 𢵻
+⿲ han-624c:3x16 han-6c35:3x16 han-8005-v:9x16 // ⿲扌氵者
 
 glyph han-22dc5:15x16 15 16 // 𢷅
 ⿲ han-624c:3x16 han-27fb7:5x16 han-5404:7x16 // ⿲扌𧾷各
@@ -147,8 +147,8 @@ glyph han-22d8f:15x16 15 16 // 𢶏
 glyph han-22d96:15x16 15 16 // 𢶖
 ⿲ -2 han-624c:3x16 han-4fde:7x16 han-6b20:7x16 // ⿲扌俞欠
 
-glyph han-22da4-($han-regions):15x16 15 16 // 𢶤
-⿲ -3 han-624c:3x16 han-9769:7x16 han-5316-($-1):8x16 // ⿲扌革化
+glyph han-22da4:15x16 15 16 // 𢶤
+⿲ -3 han-624c:3x16 han-9769:7x16 han-5316-h:8x16 // ⿲扌革化
 
 // glyph han-22da5:15x16 15 16 // 𢶥
 // ⿰ han-624c han-6e96 // ⿰扌準

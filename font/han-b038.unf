@@ -347,8 +347,8 @@ glyph han-217b8:15x16 15 16 // 𡞸
 // glyph han-217c4:15x16 15 16 // 𡟄
 // ⿰ han-5973 han-6631 // ⿰女昱
 
-glyph han-217c5-($han-regions):15x16 15 16 // 𡟅
-⿲ han-5973:5x16-l han-7cf9:5x16 han-52fa-($-1):5x16 // ⿲女糹勺
+glyph han-217c5:15x16 15 16 // 𡟅
+⿲ han-5973:5x16-l han-7cf9:5x16 han-52fa-t:5x16 // ⿲女糹勺
 
 glyph han-217ca:15x16 15 16 // 𡟊
 ⿲ han-5973:5x16-l han-79be:5x16 han-706b:5x16 // ⿲女禾火
@@ -422,8 +422,8 @@ glyph han-21824-t:15x16 15 16 // 𡠤
 glyph han-21835:15x16 15 16 // 𡠵
 ⿰ han-5973:7x16 1 han-9b5a:7x16 // ⿰女魚
 
-glyph han-21836-($han-regions):15x16 15 16 // 𡠶
-⿲ han-5973:5x16-l han-91d2:5x16-l han-52fa-($-1):5x16 // ⿲女釒勺
+glyph han-21836:15x16 15 16 // 𡠶
+⿲ han-5973:5x16-l han-91d2:5x16-l han-52fa-t:5x16 // ⿲女釒勺
 
 // glyph han-2183a:15x16 15 16 // 𡠺
 // ⿳ han-708f han-5b80 han-5973 // ⿳炏宀女 <- ⿱炏安

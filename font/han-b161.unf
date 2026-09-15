@@ -39,11 +39,11 @@ glyph han-28456-($han-regions):15x16 15 16 // 𨑖
 glyph han-28457-($han-regions):15x16 15 16 // 𨑗
 ⿺ han-8fb6-($-1):15x16.11x14 han-4e0a:11x13 4 0 // ⿺辶上
 
-glyph han-28459-($han-regions):15x16 15 16 // 𨑙
-⿺ han-8fb6-($-1):15x16.11x14 han-51e1:11x14 4 0 // ⿺辶凡
+glyph han-28459:15x16 15 16 // 𨑙
+⿺ han-8fb6-t:15x16.11x14 han-51e1:11x14 4 0 // ⿺辶凡
 
-glyph han-2845a-($han-regions):15x16 15 16 // 𨑚
-⿺ han-8fb6-($-1):15x16.11x14 han-5915:9x8 6 2 // ⿺辶夕
+glyph han-2845a:15x16 15 16 // 𨑚
+⿺ han-8fb6-t:15x16.11x14 han-5915:9x8 6 2 // ⿺辶夕
 
 glyph han-2845c-($han-regions):15x16 15 16 // 𨑜
 ⿺ han-8fb6-($-1):15x16.11x14 han-4e0b:11x14 4 0 // ⿺辶下
@@ -74,8 +74,8 @@ glyph han-2846d-($han-regions):15x16 15 16 // 𨑭
 // glyph han-2846e-($han-regions):15x16 15 16 // 𨑮
 // ⿺ han-8fb6-($-1) han-4ec0 // ⿺辶什
 
-glyph han-2846f-($han-regions):15x16 15 16 // 𨑯
-⿺ han-8fb6-($-1):15x16.11x14 han-706b:11x14 4 0 // ⿺辶火
+glyph han-2846f:15x16 15 16 // 𨑯
+⿺ han-8fb6-t:15x16.11x14 han-706b:11x14 4 0 // ⿺辶火
 
 glyph han-28472-($han-regions):15x16 15 16 // 𨑲
 ⿺ han-8fb6-($-1):15x16.11x14 han-624b:11x13 4 1 // ⿺辶手
@@ -86,8 +86,8 @@ glyph han-28472-($han-regions):15x16 15 16 // 𨑲
 glyph han-28479-($han-regions):15x16 15 16 // 𨑹
 ⿺ han-8fb6-($-1):15x16.11x14 han-4ece:11x14 4 0 // ⿺辶从
 
-glyph han-2847a-($han-regions):15x16 15 16 // 𨑺
-⿺ han-8fb6-($-1):15x16.11x14 han-6bdb:11x14 4 0 // ⿺辶毛
+glyph han-2847a:15x16 15 16 // 𨑺
+⿺ han-8fb6-g:15x16.11x14 han-6bdb:11x14 4 0 // ⿺辶毛
 
 // glyph han-2847e:15x16 15 16 // 𨑾
 // ⿺ han-8fb6 han-6c34 // ⿺辶水
@@ -167,11 +167,11 @@ glyph han-284a9-($han-regions):15x16 15 16 // 𨒩
 // glyph han-284b6-($han-regions):15x16 15 16 // 𨒶
 // ⿺ han-8fb6-($-1) han-8272 // ⿺辶色
 
-glyph han-284b7-($han-regions):15x16 15 16 // 𨒷
-⿺ han-8fb6-($-1):15x16.11x14 han-866b:11x14 4 0 // ⿺辶虫
+glyph han-284b7:15x16 15 16 // 𨒷
+⿺ han-8fb6-k:15x16.11x14 han-866b:11x14 4 0 // ⿺辶虫
 
-glyph han-284b9-($han-regions):15x16 15 16 // 𨒹
-⿺ han-8fb6-($-1):15x16.11x14 han-767e:10x13 5 0 // ⿺辶百
+glyph han-284b9:15x16 15 16 // 𨒹
+⿺ han-8fb6-k:15x16.11x14 han-767e:10x13 5 0 // ⿺辶百
 
 // glyph han-284bb-($han-regions):15x16 15 16 // 𨒻
 // ⿺ han-8fb6-($-1) han-5bfe // ⿺辶対
@@ -299,8 +299,8 @@ glyph han-284ff-($han-regions):15x16 15 16 // 𨓿
 // glyph han-285ca-($han-regions):15x16 15 16 // 𨗊
 // ⿺ han-8fb6-($-1) han-90fd-($-1) // ⿺辶都
 
-glyph han-285cf-($han-regions):15x16 15 16 // 𨗏
-⿺ han-8fb6-($-1):15x16.11x14 han-6676:11x13 4 0 // ⿺辶晶
+glyph han-285cf:15x16 15 16 // 𨗏
+⿺ han-8fb6-t:15x16.11x14 han-6676:11x13 4 0 // ⿺辶晶
 
 // glyph han-285d7-($han-regions):15x16 15 16 // 𨗗
 // ⿺ han-8fb6-($-1) han-88dc // ⿺辶補

@@ -162,8 +162,8 @@ glyph han-24587:15x16 15 16 // 𤖇
 
 ## 90.9
 
-glyph han-2458e-($han-regions):15x16 15 16 // 𤖎
-⿲ han-723f:6x16 1 han-76ee:3x16-l -1 han-7247-($-1):6x16 // ⿲爿目片
+glyph han-2458e:15x16 15 16 // 𤖎
+⿲ han-723f:6x16 1 han-76ee:3x16-l -1 han-7247-t:6x16 // ⿲爿目片
 
 ## 90.10
 
@@ -283,8 +283,8 @@ glyph han-245d8-t:15x16 15 16 // 𤗘
 // glyph han-245df:15x16 15 16 // 𤗟
 // ⿰ han-4eb2 han-7247 // ⿰亲片
 
-glyph han-245e1-($han-regions):15x16 15 16 // 𤗡
-⿰ han-8005-t:7x16 han-7247.x:8x16 // ⿰者片
+glyph han-245e1:15x16 15 16 // 𤗡
+⿰ han-8005-t:7x16 han-7247-t:8x16 // ⿰者片
 
 ## 91.11
 

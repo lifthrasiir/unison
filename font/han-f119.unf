@@ -55,8 +55,8 @@ glyph han-2e1d5:15x16 15 16 // 𮇕
 glyph han-2e1db:15x16 15 16 // 𮇛
 ⿰ han-7c73:5x16 1 han-5e76:9x16 // ⿰米并
 
-glyph han-2e1dd-($han-regions):15x16 15 16 // 𮇝
-⿰ han-7c73:5x16 1 han-7fbd-($-1):9x16 // ⿰米羽
+glyph han-2e1dd:15x16 15 16 // 𮇝
+⿰ han-7c73:5x16 1 han-7fbd.0:9x16 // ⿰米羽
 
 ## 119.7
 
@@ -235,8 +235,8 @@ glyph han-2e28b:15x16 15 16 // 𮊋
 
 ## 122.11
 
-glyph han-2e299-($han-regions):15x16 15 16 // 𮊙
-⿳ han-7f52:15x3 1 han-7fbd-($-1):15x6 han-767d:15x6 // ⿳罒羽白
+glyph han-2e299:15x16 15 16 // 𮊙
+⿳ han-7f52:15x3 1 han-7fbd:15x6 han-767d:15x6 // ⿳罒羽白
 
 ## 122.12
 
@@ -252,8 +252,8 @@ glyph han-2e299-($han-regions):15x16 15 16 // 𮊙
 
 ## 123.3
 
-glyph han-2e2a4-($han-regions):15x16 15 16 // 𮊤
-⿰ han-4ea1-($-1):7x16 1 han-7f8a:7x16 // ⿰亡羊
+glyph han-2e2a4:15x16 15 16 // 𮊤
+⿰ han-4ea1-k:7x16 1 han-7f8a:7x16 // ⿰亡羊
 
 ## 123.8
 
@@ -269,11 +269,11 @@ glyph han-2e2b4:15x16 15 16 // 𮊴
 
 ## 124.4
 
-glyph han-2e2b9-($han-regions):15x16 15 16 // 𮊹
-⿰ han-4e2d:7x16 han-7fbd-($-1):8x16 // ⿰中羽
+glyph han-2e2b9:15x16 15 16 // 𮊹
+⿰ han-4e2d:7x16 han-7fbd-k:8x16 // ⿰中羽
 
-glyph han-2e2ba-($han-regions):15x16 15 16 // 𮊺
-⿰ han-5206:7x16 han-7fbd-($-1):8x16 // ⿰分羽
+glyph han-2e2ba:15x16 15 16 // 𮊺
+⿰ han-5206:7x16 han-7fbd.0:8x16 // ⿰分羽
 
 ## 124.6
 
@@ -298,8 +298,8 @@ glyph han-2e2c6:15x16 15 16 // 𮋆
 
 ## 124.9
 
-glyph han-2e2cb-($han-regions):15x16 15 16 // 𮋋
-⿰ han-7687:7x16 han-7fbd-($-1):8x16 // ⿰皇羽
+glyph han-2e2cb:15x16 15 16 // 𮋋
+⿰ han-7687:7x16 han-7fbd-k:8x16 // ⿰皇羽
 
 ## 124.11
 

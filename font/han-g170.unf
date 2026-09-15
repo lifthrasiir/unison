@@ -77,7 +77,7 @@ glyph han-3103a:15x16 15 16 // 𱀺
 // glyph han-31057:15x16 15 16 // 𱁗
 // ⿳ han-96e8 han-7530 han-516b // ⿳雨田八 <- ⿱雷八
 
-glyph han-31058-($han-regions):15x16 15 16 // 𱁘
+glyph han-31058:15x16 15 16 // 𱁘
 ⿳ -2 han-96e8:15x6 1 han-7530:15x5 han-529b:15x6 // ⿳雨田力
 
 // glyph han-3105a-($han-regions):15x16 15 16 // 𱁚

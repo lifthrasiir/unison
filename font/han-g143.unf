@@ -169,8 +169,8 @@ glyph han-30d54:15x16 15 16 // 𰵔
 glyph han-30d59:15x16 15 16 // 𰵙
 ⿰ han-8ba0:5x16 1 han-5931:9x16 // ⿰讠失
 
-glyph han-30d5a-($han-regions):15x16 15 16 // 𰵚
-⿰ han-8ba0:5x16 1 han-4ee4-($-1):9x16 // ⿰讠令
+glyph han-30d5a:15x16 15 16 // 𰵚
+⿰ han-8ba0:5x16 1 han-4ee4-g:9x16 // ⿰讠令
 
 glyph han-30d5b:15x16 15 16 // 𰵛
 ⿰ han-8ba0:5x16 1 han-53e5:9x16 // ⿰讠句
@@ -324,8 +324,8 @@ glyph han-30db9:15x16 15 16 // 𰶹
 glyph han-30dbc:15x16 15 16 // 𰶼
 ⿰ han-8c9d:6x16 2 han-7530:7x16 // ⿰貝田
 
-glyph han-30dbe-($han-regions):15x16 15 16 // 𰶾
-⿰ han-8c9d:6x16 han-4ee4-($-1):9x16 // ⿰貝令
+glyph han-30dbe:15x16 15 16 // 𰶾
+⿰ han-8c9d:6x16 han-4ee4-g:9x16 // ⿰貝令
 
 ## 154.6
 
@@ -432,8 +432,8 @@ glyph han-30e30:15x16 15 16 // 𰸰
 
 ## 157.14
 
-glyph han-30e35-($han-regions):15x16 15 16 // 𰸵
-⿲ -2 han-27fb7:5x16 han-4ee4-($-1):7x16 han-9801:5x16 // ⿲𧾷令頁
+glyph han-30e35:15x16 15 16 // 𰸵
+⿲ -2 han-27fb7:5x16 han-4ee4-k:7x16 han-9801:5x16 // ⿲𧾷令頁
 
 # CJK unified ideographs extension G: 身 (158)
 
@@ -467,8 +467,8 @@ glyph han-30e48:15x16 15 16 // 𰹈
 
 ## 159.3
 
-glyph han-30e4b-($han-regions):15x16 15 16 // 𰹋
-⿰ han-8eca:7x16 1 han-52fa-($-1):7x16 // ⿰車勺
+glyph han-30e4b:15x16 15 16 // 𰹋
+⿰ han-8eca:7x16 1 han-52fa-g:7x16 // ⿰車勺
 
 ## 159.4
 
@@ -562,8 +562,8 @@ glyph han-30e87:15x16 15 16 // 𰺇
 
 ## 159'.8
 
-glyph han-30e89-($han-regions):15x16 15 16 // 𰺉
-⿰ han-8f66:4x16-l han-9752-($-1):11x16 // ⿰车青
+glyph han-30e89:15x16 15 16 // 𰺉
+⿰ han-8f66:4x16-l han-9752.0:11x16 // ⿰车青
 
 glyph han-30e8d:15x16 15 16 // 𰺍
 ⿰ han-8f66:6x16-l han-679c:9x16 // ⿰车果
@@ -612,8 +612,8 @@ glyph han-30e9c:15x16 15 16 // 𰺜
 // glyph han-30eb0:15x16 15 16 // 𰺰
 // ⿺ han-8fb6 han-5140 // ⿺辶兀
 
-glyph han-30eb1-($han-regions):15x16 15 16 // 𰺱
-⿺ han-8fb6-($-1):15x16.11x14 han-5dfe:7x14 6 0 // ⿺辶巾
+glyph han-30eb1:15x16 15 16 // 𰺱
+⿺ han-8fb6-j:15x16.11x14 han-5dfe:7x14 6 0 // ⿺辶巾
 
 // glyph han-30eb3-($han-regions):15x16 15 16 // 𰺳
 // ⿺ han-8fb6-($-1) han-5f13 // ⿺辶弓
@@ -644,8 +644,8 @@ glyph han-30eb1-($han-regions):15x16 15 16 // 𰺱
 
 ## 162.10
 
-glyph han-30eca-($han-regions):15x16 15 16 // 𰻊
-⿺ han-8fb6-($-1):15x16.11x14 han-9ad8:9x13 6 0 // ⿺辶高
+glyph han-30eca:15x16 15 16 // 𰻊
+⿺ han-8fb6-g:15x16.11x14 han-9ad8:9x13 6 0 // ⿺辶高
 
 // glyph han-30ecb:15x16 15 16 // 𰻋
 // ⿺ han-8fb6 han-427c // ⿺辶䉼
@@ -678,8 +678,8 @@ glyph han-30ee0:15x16 15 16 // 𰻠
 glyph han-30ee4:15x16 15 16 // 𰻤
 ⿰ han-6b62:10x16-l han-961d:5x16-r // ⿰止阝
 
-glyph han-30ee5-($han-regions):15x16 15 16 // 𰻥
-⿰ han-5316-($-1):10x16 han-961d:5x16-r // ⿰化阝
+glyph han-30ee5:15x16 15 16 // 𰻥
+⿰ han-5316-g:10x16 han-961d:5x16-r // ⿰化阝
 
 ## 163.5
 

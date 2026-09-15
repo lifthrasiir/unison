@@ -87,8 +87,8 @@ glyph han-31d1c:15x16 15 16 // 𱴜
 
 ## 112.12
 
-glyph han-31d34-($han-regions):15x16 15 16 // 𱴴
-⿲ han-77f3:5x16 han-72ad:4x16 1 han-8005-($-1):5x16 // ⿲石犭者
+glyph han-31d34:15x16 15 16 // 𱴴
+⿲ han-77f3:5x16 han-72ad:4x16 1 han-8005-v:5x16 // ⿲石犭者
 
 # CJK unified ideographs extension H: 示 (113)
 
@@ -510,8 +510,8 @@ glyph han-31ecd:15x16 15 16 // 𱻍
 
 ## 124.8
 
-glyph han-31edb-($han-regions):15x16 15 16 // 𱻛
-⿰ han-5176:6x16 han-7fbd-($-1):9x16 // ⿰其羽
+glyph han-31edb:15x16 15 16 // 𱻛
+⿰ han-5176:6x16 han-7fbd.0:9x16 // ⿰其羽
 
 // glyph han-31edc-($han-regions):15x16 15 16 // 𱻜
 // ⿳ han-8279 han-5206 han-7fbd-($-1) // ⿳艹分羽
@@ -923,8 +923,8 @@ glyph han-32029:15x16 15 16 // 𲀩
 // glyph han-3202a:15x16 15 16 // 𲀪
 // ⿱ han-8865 han-65b9 // ⿱补方
 
-glyph han-3202e-($han-regions):15x16 15 16 // 𲀮
-⿰ han-8864:5x16 1 han-7fbd-($-1):9x16 // ⿰衤羽
+glyph han-3202e:15x16 15 16 // 𲀮
+⿰ han-8864:5x16 1 han-7fbd-k:9x16 // ⿰衤羽
 
 ## 145.7
 

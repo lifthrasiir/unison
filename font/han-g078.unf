@@ -48,8 +48,8 @@ glyph han-30697:15x16 15 16 // 𰚗
 
 ## 82.8
 
-glyph han-3069e-($han-regions):15x16 15 16 // 𰚞
-⿰ han-9752-($-1):5x16 1 han-6bdb:9x16 // ⿰青毛
+glyph han-3069e:15x16 15 16 // 𰚞
+⿰ -1 han-9751.0:7x16 han-6bdb:9x16 // ⿰靑毛
 
 // glyph han-3069f:15x16 15 16 // 𰚟
 // ⿺ han-6bdb han-3775 // ⿺毛㝵
@@ -799,8 +799,8 @@ glyph han-308b5:15x16 15 16 // 𰢵
 glyph han-308b9:15x16 15 16 // 𰢹
 ⿰ han-7530:5x16-l 1 han-5f00:9x16 // ⿰田开
 
-glyph han-308ba-($han-regions):15x16 15 16 // 𰢺
-⿰ han-7530:5x16-l han-5316-($-1):10x16 // ⿰田化
+glyph han-308ba:15x16 15 16 // 𰢺
+⿰ han-7530:5x16-l han-5316-k:10x16 // ⿰田化
 
 // glyph han-308be:15x16 15 16 // 𰢾
 // ⿱ han-4ea0 han-3f57 // ⿱亠㽗

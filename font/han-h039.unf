@@ -431,8 +431,8 @@ glyph han-31799:15x16 15 16 // 𱞙
 // glyph han-317ae:15x16 15 16 // 𱞮
 // ⿰ han-5fc4 han-6631 // ⿰忄昱
 
-glyph han-317ba-($han-regions):15x16 15 16 // 𱞺
-⿲ han-5fc4:5x16 han-7cf9:5x16 han-52fa-($-1):5x16 // ⿲忄糹勺
+glyph han-317ba:15x16 15 16 // 𱞺
+⿲ han-5fc4:5x16 han-7cf9:5x16 han-52fa-g:5x16 // ⿲忄糹勺
 
 ## 61.10
 
@@ -491,8 +491,8 @@ glyph han-317fa:15x16 15 16 // 𱟺
 // glyph han-317fb:15x16 15 16 // 𱟻
 // ⿰ han-624b han-8db3 // ⿰手足
 
-glyph han-31803-($han-regions):15x16 15 16 // 𱠃
-⿲ han-624c:3x16 han-51ab:3x16 han-4ee4-($-1):9x16 // ⿲扌冫令
+glyph han-31803:15x16 15 16 // 𱠃
+⿲ han-624c:3x16 han-51ab:3x16 han-4ee4-g:9x16 // ⿲扌冫令
 
 // glyph han-31805:15x16 15 16 // 𱠅
 // ⿰ han-624b han-8a00 // ⿰手言
@@ -662,8 +662,8 @@ glyph han-3189e:15x16 15 16 // 𱢞
 
 ## 74.5
 
-glyph han-318b8-($han-regions):15x16 15 16 // 𱢸
-⿰ han-4ee4-($-1):7x16 1 han-6708:7x16 // ⿰令月
+glyph han-318b8:15x16 15 16 // 𱢸
+⿰ han-4ee4-j:7x16 1 han-6708:7x16 // ⿰令月
 
 ## 74.6
 

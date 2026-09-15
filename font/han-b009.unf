@@ -278,8 +278,8 @@ glyph han-20343:15x16 15 16 // 𠍃
 // glyph han-20355:15x16 15 16 // 𠍕
 // ⿰ han-4ebb han-5d11 // ⿰亻崑
 
-glyph han-20356-($han-regions):15x16 15 16 // 𠍖
-⿲ han-4ebb:3x16 han-91d2:7x16 han-52fa-($-1):5x16 // ⿲亻釒勺
+glyph han-20356:15x16 15 16 // 𠍖
+⿲ han-4ebb:3x16 han-91d2:7x16 han-52fa-t:5x16 // ⿲亻釒勺
 
 glyph han-2035f:15x16 15 16 // 𠍟
 ⿲ -3 han-4ebb:3x16 han-540c:7x16 1 han-5f17:7x16 // ⿲亻同弗

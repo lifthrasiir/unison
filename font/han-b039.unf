@@ -158,8 +158,8 @@ glyph han-21960:15x16 15 16 // 𡥠
 glyph han-21961:15x16 15 16 // 𡥡
 ⿰ han-5b50.0:7x16-l 1 han-4ea4:7x16 // ⿰子交
 
-glyph han-21965-($han-regions):15x16 15 16 // 𡥥
-⿰ han-5b50-($-1):5x16-l 1 han-591a:9x16 // ⿰子多
+glyph han-21965:15x16 15 16 // 𡥥
+⿰ han-5b50-v:5x16-l 1 han-591a:9x16 // ⿰子多
 
 glyph han-21966:15x5 15 5 // 𡥦
 ⿲ han-5b50:5x5 han-5b50:5x5 han-5b50:5x5 // ⿲子子子
