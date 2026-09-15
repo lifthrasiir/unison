@@ -27,6 +27,14 @@
 // glyph han-2d815:15x16 15 16 // 𭠕
 // ⿰ han-624b han-5348 // ⿰手午
 
+// glyph han-2d816-($han-regions):15x16 15 16 // 𭠖
+// ⿰ han-624b han-4e11-($-1) // ⿰手丑
+
+## 64.5
+
+// glyph han-2d819:15x16 15 16 // 𭠙
+// ⿰ han-624c han-4e1a // ⿰扌业
+
 ## 64.6
 
 // glyph han-2d822:15x16 15 16 // 𭠢
@@ -479,6 +487,9 @@ glyph han-2da25:15x16 15 16 // 𭨥
 
 ## 74.3
 
+// glyph han-2da26:15x16 15 16 // 𭨦
+// ⿰ han-6708 han-4e2a // ⿰月个
+
 glyph han-2da27:15x16 15 16 // 𭨧
 ⿰ han-6708:5x16-l 1 han-5f13:9x16 // ⿰月弓
 
@@ -551,6 +562,9 @@ glyph han-2da5b:15x16 15 16 // 𭩛
 
 glyph han-2da5c:15x16 15 16 // 𭩜
 ⿱ han-6728:15x9 han-738b:15x7 // ⿱木王
+
+// glyph han-2da60:15x16 15 16 // 𭩠
+// ⿱ han-2000d han-6728 // ⿱𠀍木
 
 ## 75.5
 

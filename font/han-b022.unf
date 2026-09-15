@@ -578,6 +578,9 @@ glyph han-20b0c:15x16 15 16 // 𠬌
 // glyph han-20b1f-($han-regions):15x16 15 16 // 𠬟
 // ⿱ han-53c8-($-1) han-53b6 // ⿱又厶
 
+// glyph han-20b20-($han-regions):15x16 15 16 // 𠬠
+// ⿱ han-4e37 han-53c8-($-1) // ⿱丷又
+
 ## 29.3
 
 // glyph han-20b24-($han-regions):15x16 15 16 // 𠬤

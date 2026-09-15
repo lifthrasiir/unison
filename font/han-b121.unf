@@ -403,6 +403,9 @@ glyph han-262fa:15x16 15 16 // 𦋺
 // glyph han-2634b:15x16 15 16 // 𦍋
 // ⿱ han-535d han-30001 // ⿱卝𰀁
 
+// glyph han-2634c:15x16 15 16 // 𦍌
+// ⿱ han-4e37 han-738b // ⿱丷王
+
 ## 123.2
 
 glyph han-2634f:15x16 15 16 // 𦍏
@@ -424,6 +427,9 @@ glyph han-26358:15x16 15 16 // 𦍘
 // glyph han-2635a:15x16 15 16 // 𦍚
 // ⿳ han-535d han-571f han-706b // ⿳卝土火
 
+// glyph han-2635f-($han-regions):15x16 15 16 // 𦍟
+// ⿳ han-535d han-5e72 han-4e11-($-1) // ⿳卝干丑 <- ⿱⿱卝干丑
+
 // glyph han-26360:15x16 15 16 // 𦍠
 // ⿰ han-7f8a han-5386 // ⿰羊历
 
@@ -432,6 +438,9 @@ glyph han-26362:15x16 15 16 // 𦍢
 
 glyph han-26364:15x16 15 16 // 𦍤
 ⿰ han-7f8a:7x16 1 han-6708:7x16 // ⿰羊月
+
+// glyph han-2636e-($han-regions):15x16 15 16 // 𦍮
+// ⿳ han-535d han-571f han-4e11-($-1) // ⿳卝土丑
 
 ## 123.5
 

@@ -31,6 +31,9 @@ ref 5x1p7r8-ys0p7r8 2 12
 // glyph han-5f63:15x16 15 16 // 彣
 // ⿺ han-6587 han-5f61 // ⿺文彡
 
+// glyph han-5f64:15x16 15 16 // 彤
+// ⿰ han-4e39 han-5f61 // ⿰丹彡
+
 ## 59.7
 
 // glyph han-5f67:15x16 15 16 // 彧
@@ -498,6 +501,9 @@ glyph han-5ff4:15x16 15 16 // 忴
 // glyph han-5ff6:15x16 15 16 // 忶
 // ⿰ han-5fc4 han-4e91 // ⿰忄云
 
+// glyph han-5ff8-($han-regions):15x16 15 16 // 忸
+// ⿰ han-5fc4 han-4e11-($-1) // ⿰忄丑
+
 glyph han-5ff9:15x16 15 16 // 忹
 ⿰ han-5fc4:5x16 1 han-738b:9x16 // ⿰忄王
 
@@ -540,6 +546,12 @@ glyph han-600a:15x16 15 16 // 怊
 
 // glyph han-600c:15x16 15 16 // 怌
 // ⿰ han-5fc4 han-4e15 // ⿰忄丕
+
+// glyph han-600d:15x16 15 16 // 怍
+// ⿰ han-5fc4 han-4e4d // ⿰忄乍
+
+// glyph han-600e:15x16 15 16 // 怎
+// ⿱ han-4e4d han-5fc3 // ⿱乍心
 
 // glyph han-600f:15x16 15 16 // 怏
 // ⿰ han-5fc4 han-592e // ⿰忄央

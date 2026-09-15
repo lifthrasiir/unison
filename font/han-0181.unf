@@ -464,6 +464,9 @@ glyph han-98f2:15x16 15 16 // 飲
 glyph han-98f4:15x16 15 16 // 飴
 ⿰ han-98e0:7x16 1 han-53f0:7x16 // ⿰飠台
 
+// glyph han-98f5:15x16 15 16 // 飵
+// ⿰ han-98e0 han-4e4d // ⿰飠乍
+
 // glyph han-98f6:15x16 15 16 // 飶
 // ⿰ han-98e0 han-5fc5 // ⿰飠必
 
@@ -761,6 +764,9 @@ glyph han-99bc:15x16 15 16 // 馼
 // ⿰ han-99ac han-592a // ⿰馬太
 
 ## 187.5
+
+// glyph han-99c8:15x16 15 16 // 駈
+// ⿰ han-99ac han-4e18 // ⿰馬丘
 
 // glyph han-99c9:15x16 15 16 // 駉
 // ⿰ han-99ac han-518b // ⿰馬冋

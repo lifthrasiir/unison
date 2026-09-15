@@ -124,6 +124,11 @@ glyph han-316b1:15x16 15 16 // 𱚱
 glyph han-316b2:15x16 15 16 // 𱚲
 ⿸ han-5c38:15x16.11x12 han-4e0b:9x10 6 6 // ⿸尸下
 
+## 44.4
+
+// glyph han-316b4-($han-regions):15x16 15 16 // 𱚴
+// ⿸ han-5c38 han-4e11-($-1) // ⿸尸丑
+
 ## 44.5
 
 // glyph han-316b5:15x16 15 16 // 𱚵
@@ -173,6 +178,9 @@ glyph han-316d6:15x16 15 16 // 𱛖
 
 glyph han-316d7:15x16 15 16 // 𱛗
 ⿰ -1 han-5c71:5x16 1 han-51f9:10x16 // ⿰山凹
+
+// glyph han-316db:15x16 15 16 // 𱛛
+// ⿰ han-4e18 han-5c71 // ⿰丘山
 
 ## 46.6
 
@@ -231,6 +239,11 @@ glyph han-3170a:15x16 15 16 // 𱜊
 ⿰ han-5c71:7x16 1 han-9b5a:7x16 // ⿰山魚
 
 # CJK unified ideographs extension H: 巾 (50)
+
+## 50.3
+
+// glyph han-31722:15x16 15 16 // 𱜢
+// ⿱ han-4e37 han-5e00 // ⿱丷帀
 
 ## 50.5
 
@@ -371,6 +384,9 @@ glyph han-31782:15x16 15 16 // 𱞂
 
 // glyph han-31784:15x16 15 16 // 𱞄
 // ⿳ han-5315 han-5315 han-5fc3 // ⿳匕匕心 <- ⿱𫧇心
+
+// glyph han-31786-($han-regions):15x16 15 16 // 𱞆
+// ⿱ han-4e11-($-1) han-5fc3 // ⿱丑心
 
 ## 61.5
 
@@ -671,6 +687,9 @@ glyph han-318be:15x16 15 16 // 𱢾
 // glyph han-318c6:15x16 15 16 // 𱣆
 // ⿱ han-6728 han-77f3 // ⿱木石
 
+// glyph han-318c7:15x16 15 16 // 𱣇
+// ⿰ han-6728 han-4e1a // ⿰木业
+
 // glyph han-318c9:15x16 15 16 // 𱣉
 // ⿰ han-6728 han-4e1b // ⿰木丛
 
@@ -883,6 +902,11 @@ glyph han-3193c:15x16 15 16 // 𱤼
 
 glyph han-3193d:15x16 15 16 // 𱤽
 ⿸ han-5382:15x16.11x15 han-6b62:10x13 5 3 // ⿸厂止
+
+## 77.4
+
+// glyph han-3193f:15x16 15 16 // 𱤿
+// ⿱ han-4e4b han-6b62 // ⿱之止
 
 ## 77.5
 

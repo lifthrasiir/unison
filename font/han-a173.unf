@@ -118,6 +118,9 @@ glyph han-4a43-($han-regions):15x16 15 16 // 䩃
 glyph han-4a45:15x16 15 16 // 䩅
 ⿰ han-9762:7x16 han-76ae:8x16 // ⿰面皮
 
+// glyph han-4a46:15x16 15 16 // 䩆
+// ⿰ han-9762 han-4e4d // ⿰面乍
+
 glyph han-4a47:15x16 15 16 // 䩇
 ⿰ han-9762:7x16 1 han-5360:7x16 // ⿰面占
 

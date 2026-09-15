@@ -127,6 +127,9 @@ glyph han-77ff:15x16 15 16 // 矿
 // glyph han-6cf5:15x16 15 16 // 泵
 // ⿱ han-77f3 han-6c34 // ⿱石水
 
+// glyph han-7803:15x16 15 16 // 砃
+// ⿰ han-77f3 han-4e39 // ⿰石丹
+
 // glyph han-7804:15x16 15 16 // 砄
 // ⿰ han-77f3 han-592c // ⿰石夬
 
@@ -163,6 +166,9 @@ glyph han-7812-($han-regions):15x16 15 16 // 砒
 glyph han-7814:15x16 15 16 // 研
 ⿰ han-77f3:5x16 1 han-5f00:9x16 // ⿰石开
 
+// glyph han-7816:15x16 15 16 // 砖
+// ⿰ han-77f3 han-4e13 // ⿰石专
+
 glyph han-7817:15x16 15 16 // 砗
 ⿰ han-77f3:5x16 1 han-8f66:9x16 // ⿰石车
 
@@ -176,6 +182,9 @@ glyph han-781b:15x16 15 16 // 砛
 
 glyph han-781e:15x16 15 16 // 砞
 ⿰ han-77f3:5x16 1 han-672b:9x16 // ⿰石末
+
+// glyph han-781f:15x16 15 16 // 砟
+// ⿰ han-77f3 han-4e4d // ⿰石乍
 
 glyph han-7820:15x16 15 16 // 砠
 ⿰ han-77f3:7x16 1 han-4e14:7x16 // ⿰石且
@@ -604,6 +613,11 @@ ref han-793b:7x16
 glyph han-793c:15x16 15 16 // 礼
 ⿰ han-793b:5x16 1 han-4e5a:9x16 // ⿰礻乚
 
+## 113.2
+
+// glyph han-793d:15x16 15 16 // 礽
+// ⿰ han-793b han-4e43 // ⿰礻乃
+
 ## 113.3
 
 glyph han-793e-(g|h|t|j|v):15x16 15 16 // 社
@@ -694,6 +708,9 @@ glyph han-7958:15x16 15 16 // 祘
 
 glyph han-7959:15x16 15 16 // 祙
 ⿰ han-793b:5x16 1 han-672a:9x16 // ⿰礻未
+
+// glyph han-795a:15x16 15 16 // 祚
+// ⿰ han-793b han-4e4d // ⿰礻乍
 
 // glyph han-795b:15x16 15 16 // 祛
 // ⿰ han-793b han-53bb // ⿰礻去
@@ -1103,6 +1120,9 @@ $$......@@......$$
 // glyph han-79bf:15x16 15 16 // 禿
 // ⿱ han-79be han-513f // ⿱禾儿
 
+// glyph han-79c0:15x16 15 16 // 秀
+// ⿱ han-79be han-4e43 // ⿱禾乃
+
 // glyph han-79c1:15x16 15 16 // 私
 // ⿰ han-79be han-53b6 // ⿰禾厶
 
@@ -1207,6 +1227,9 @@ glyph han-79e5:15x16 15 16 // 秥
 
 // glyph han-79e7:15x16 15 16 // 秧
 // ⿰ han-79be han-592e // ⿰禾央
+
+// glyph han-79e8:15x16 15 16 // 秨
+// ⿰ han-79be han-4e4d // ⿰禾乍
 
 glyph han-79e9:15x13 15 13 // 秩
 ⿰ han-79be:5x13 1 han-5931:9x13 // ⿰禾失

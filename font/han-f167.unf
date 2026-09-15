@@ -309,6 +309,9 @@ glyph han-2e96a:15x16 15 16 // 𮥪
 glyph han-2e977:15x16 15 16 // 𮥷
 ⿰ han-6587:7x16 1 han-96b9:7x16 // ⿰文隹
 
+// glyph han-2e978:15x16 15 16 // 𮥸
+// ⿱ han-5020 han-4e43 // ⿱倠乃
+
 ## 172.5
 
 // glyph han-2e97b:15x16 15 16 // 𮥻
@@ -571,6 +574,9 @@ glyph han-2ea02:15x16 15 16 // 𮨂
 // glyph han-2ea03:15x16 15 16 // 𮨃
 // ⿰ han-56da han-9801 // ⿰囚頁
 
+// glyph han-2ea06:15x16 15 16 // 𮨆
+// ⿰ han-4e18 han-9801 // ⿰丘頁
+
 ## 181.8
 
 glyph han-2ea12:15x16 15 16 // 𮨒
@@ -625,6 +631,9 @@ glyph han-2ea27:15x16 15 16 // 𮨧
 
 glyph han-2ea37:15x16 15 16 // 𮨷
 ⿰ han-98e0:7x16 1 han-5de5:7x16 // ⿰飠工
+
+// glyph han-2ea38:15x16 15 16 // 𮨸
+// ⿰ han-98e0 han-4e2b // ⿰飠丫
 
 ## 184.5
 
@@ -829,6 +838,9 @@ glyph han-2eb04:15x16 15 16 // 𮬄
 
 // glyph han-2eb26:15x16 15 16 // 𮬦
 // ⿰ han-9ce5 han-5140 // ⿰鳥兀
+
+// glyph han-2eb28:15x16 15 16 // 𮬨
+// ⿰ han-4e2b han-9ce5 // ⿰丫鳥
 
 glyph han-2eb29:15x16 15 16 // 𮬩
 ⿰ han-5fc4:5x16 1 han-9ce5:9x16 // ⿰忄鳥

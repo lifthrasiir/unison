@@ -2,6 +2,9 @@
 
 ## 81.3
 
+// glyph han-200b1-($han-regions):15x16 15 16 // 𠂱
+// ⿱ han-6b64-($-1) han-4e43 // ⿱此乃
+
 glyph han-23b02-($han-regions):15x16 15 16 // 𣬂
 ⿱ han-6bd4-($-1):15x7 1 han-5e72:15x8 // ⿱比干
 
@@ -134,6 +137,9 @@ glyph han-23b3a:15x16 15 16 // 𣬺
 
 // glyph han-23b3e:15x16 15 16 // 𣬾
 // ⿰ han-4e15 han-6bdb // ⿰丕毛
+
+// glyph han-23b3f:15x16 15 16 // 𣬿
+// ⿺ han-6bdb han-4e4d // ⿺毛乍
 
 glyph han-23b40:15x16 15 16 // 𣭀
 ⿰ han-5305:7x16 1 han-6bdb:7x16 // ⿰包毛

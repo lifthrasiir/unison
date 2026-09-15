@@ -1,5 +1,10 @@
 # CJK unified ideographs extension F: 虫 (142)
 
+## 142.0
+
+// glyph han-2e4f0:15x16 15 16 // 𮓰
+// ⿷ han-20010 han-4e36 // ⿷𠀐丶
+
 ## 142.3
 
 glyph han-2e4f3:15x16 15 16 // 𮓳
@@ -296,6 +301,9 @@ glyph han-2e5d4:15x16 15 16 // 𮗔
 // glyph han-2e5e6-($han-regions):15x16 15 16 // 𮗦
 // ⿰ han-89d2-($-1) han-6b20 // ⿰角欠
 
+// glyph han-2e5e7-($han-regions):15x16 15 16 // 𮗧
+// ⿰ han-89d2-($-1) han-4e4b // ⿰角之
+
 ## 148.5
 
 // glyph han-2e5ea-($han-regions):15x16 15 16 // 𮗪
@@ -444,6 +452,9 @@ glyph han-2e670:15x16 15 16 // 𮙰
 
 glyph han-2e673:15x16 15 16 // 𮙳
 ⿰ han-8c9d:6x16 han-592b:9x16 // ⿰貝夫
+
+// glyph han-2e674-($han-regions):15x16 15 16 // 𮙴
+// ⿰ han-8c9d han-4e10-($-1) // ⿰貝丐
 
 ## 154.5
 

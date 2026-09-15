@@ -27,6 +27,9 @@ glyph han-2c355-($han-regions):15x16 15 16 // 𬍕
 
 ## 96.5
 
+// glyph han-2c35a:15x16 15 16 // 𬍚
+// ⿰ han-248e9 han-4e4d // ⿰𤣩乍
+
 // glyph han-2c35c:15x16 15 16 // 𬍜
 // ⿰ han-248e9 han-5b81 // ⿰𤣩宁
 
@@ -134,10 +137,20 @@ glyph han-2c3b9:15x16 15 16 // 𬎹
 
 # CJK unified ideographs extension E: 田 (102)
 
+## 102.2
+
+// glyph han-2c3bf:15x16 15 16 // 𬎿
+// ⿱ han-4e37 han-7530 // ⿱丷田
+
 ## 102.3
 
 glyph han-2c3c0-($han-regions):15x16 15 16 // 𬏀
 ⿰ han-7530:7x16-l 1 han-52fa-($-1):7x16 // ⿰田勺
+
+## 102.5
+
+// glyph han-2c3c3:15x16 15 16 // 𬏃
+// ⿰ han-7530 han-4e4e // ⿰田乎
 
 ## 102.6
 
@@ -383,6 +396,9 @@ glyph han-2c484:15x16 15 16 // 𬒄
 // glyph han-2c485:15x16 15 16 // 𬒅
 // ⿰ han-77f3 han-56d8 // ⿰石囘
 
+// glyph han-2c486:15x16 15 16 // 𬒆
+// ⿰ han-77f3 han-4e1a // ⿰石业
+
 ## 112.6
 
 // glyph han-2c48b:15x16 15 16 // 𬒋
@@ -434,6 +450,9 @@ glyph han-2c4ac:15x16 15 16 // 𬒬
 
 // glyph han-2c4ae:15x16 15 16 // 𬒮
 // ⿰ han-793b han-592c // ⿰礻夬
+
+// glyph han-2c4b0-($han-regions):15x16 15 16 // 𬒰
+// ⿰ han-793b han-4e11-($-1) // ⿰礻丑
 
 ## 113.5
 
@@ -516,6 +535,11 @@ glyph han-2c4e2:15x16 15 16 // 𬓢
 
 # CJK unified ideographs extension E: 穴 (116)
 
+## 116.2
+
+// glyph han-2c505-($han-regions):15x16 15 16 // 𬔅
+// ⿱ han-7a74-($-1) han-4e29 // ⿱穴丩
+
 ## 116.4
 
 // glyph han-2c506:15x16 15 16 // 𬔆
@@ -545,6 +569,11 @@ glyph han-2c4e2:15x16 15 16 // 𬓢
 // ⿳ han-7a74-($-1) han-7531 han-5efe // ⿳穴由廾
 
 # CJK unified ideographs extension E: 立 (117)
+
+## 117.1
+
+// glyph han-2c516:15x16 15 16 // 𬔖
+// ⿳ han-4ea0 han-4e37 han-4e02 // ⿳亠丷丂
 
 ## 117.3
 
@@ -582,6 +611,11 @@ glyph han-2c51c:15x16 15 16 // 𬔜
 
 # CJK unified ideographs extension E: 竹 (118)
 
+## 118.2
+
+// glyph han-2c52c:15x16 15 16 // 𬔬
+// ⿱ han-25ad7 han-4e43 // ⿱𥫗乃
+
 ## 118.3
 
 // glyph han-2c52d:15x16 15 16 // 𬔭
@@ -594,6 +628,9 @@ glyph han-2c51c:15x16 15 16 // 𬔜
 
 glyph han-2c530:15x16 15 16 // 𬔰
 ⿱ han-25ad7:15x5 -1 han-5fc3:15x12 // ⿱𥫗心
+
+// glyph han-2c531:15x16 15 16 // 𬔱
+// ⿱ han-25ad7 han-4e4b // ⿱𥫗之
 
 glyph han-2c532:15x16 15 16 // 𬔲
 ⿱ han-25ad7:15x5 -1 han-706b:15x12 // ⿱𥫗火

@@ -1152,6 +1152,9 @@ glyph han-6624-($han-regions):15x16 15 16 // 昤
 glyph han-6627:15x16 15 16 // 昧
 ⿰ han-65e5:6x16 han-672a:9x16 // ⿰日未
 
+// glyph han-6628:15x16 15 16 // 昨
+// ⿰ han-65e5 han-4e4d // ⿰日乍
+
 glyph han-6629:15x16 15 16 // 昩
 ⿰ han-65e5:6x16 han-672b:9x16 // ⿰日末
 
@@ -1243,6 +1246,9 @@ glyph han-6637:15x16 15 16 // 昷
 
 // glyph han-663b:15x16 15 16 // 昻
 // ⿱ han-65e5 han-536d // ⿱日卭
+
+// glyph han-663e:15x16 15 16 // 显
+// ⿱ han-65e5 han-4e1a // ⿱日业
 
 // glyph han-663f:15x16 15 16 // 昿
 // ⿰ han-65e5 han-5e83 // ⿰日広

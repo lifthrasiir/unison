@@ -104,6 +104,9 @@ glyph han-91e0:15x16 15 16 // 釠
 // glyph han-91e1:15x16 15 16 // 釡
 // ⿱ han-516b han-91d1 // ⿱八金
 
+// glyph han-91e2:15x16 15 16 // 釢
+// ⿰ han-91d2 han-4e43 // ⿰釒乃
+
 ## 167.3
 
 glyph han-91e3-(g|h|t|j|p|v):15x16 15 16 // 釣
@@ -212,6 +215,9 @@ glyph han-920b-($han-regions):15x16 15 16 // 鈋
 glyph han-9210:15x16 15 16 // 鈐
 ⿰ han-91d2:7x16 1 han-4eca:7x16 // ⿰釒今
 
+// glyph han-9215-($han-regions):15x16 15 16 // 鈕
+// ⿰ han-91d2 han-4e11-($-1) // ⿰釒丑
+
 glyph han-9216:15x16 15 16 // 鈖
 ⿰ han-91d2:7x16 1 han-5206:7x16 // ⿰釒分
 
@@ -232,6 +238,9 @@ glyph han-9221:15x16 15 16 // 鈡
 
 glyph han-9222:15x16 15 16 // 鈢
 ⿰ han-91d2:5x16-l 1 han-6728:9x16 // ⿰釒木
+
+// glyph han-9223-($han-regions):15x16 15 16 // 鈣
+// ⿰ han-91d2 han-4e10-($-1) // ⿰釒丐
 
 glyph han-9224:15x16 15 16 // 鈤
 ⿰ han-91d2:7x16 1 han-65e5:7x16 // ⿰釒日
@@ -288,6 +297,9 @@ glyph han-9239:15x16 15 16 // 鈹
 
 // glyph han-923a:15x16 15 16 // 鈺
 // ⿰ han-91d2 han-7389 // ⿰釒玉
+
+// glyph han-923c:15x16 15 16 // 鈼
+// ⿰ han-91d2 han-4e4d // ⿰釒乍
 
 glyph han-923e:15x16 15 16 // 鈾
 ⿰ han-91d2:5x16-l 1 han-7531:9x16 // ⿰釒由
@@ -1024,6 +1036,9 @@ glyph han-9495:15x16 15 16 // 钕
 glyph han-9498:15x16 15 16 // 钘
 ⿰ han-9485:6x16 han-5f00:9x16 // ⿰钅开
 
+// glyph han-9499-($han-regions):15x16 15 16 // 钙
+// ⿰ han-9485 han-4e10-($-1) // ⿰钅丐
+
 glyph han-949a:15x16 15 16 // 钚
 ⿰ han-9485:6x16 han-4e0d:9x16 // ⿰钅不
 
@@ -1056,6 +1071,9 @@ glyph han-94ab:15x16 15 16 // 钫
 
 glyph han-94ac:15x16 15 16 // 钬
 ⿰ han-9485:6x16 han-706b:9x16 // ⿰钅火
+
+// glyph han-94ae-($han-regions):15x16 15 16 // 钮
+// ⿰ han-9485 han-4e11-($-1) // ⿰钅丑
 
 glyph han-94af:15x16 15 16 // 钯
 ⿰ han-9485:6x16 han-5df4:9x16 // ⿰钅巴

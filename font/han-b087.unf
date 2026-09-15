@@ -356,6 +356,9 @@ glyph han-24625-($han-regions):15x16 15 16 // 𤘥
 // glyph han-24628:15x16 15 16 // 𤘨
 // ⿰ han-4eca han-725b // ⿰今牛
 
+// glyph han-2462a:15x16 15 16 // 𤘪
+// ⿰ han-725c han-4e39 // ⿰牜丹
+
 glyph han-2462c:15x16 15 16 // 𤘬
 ⿰ han-725c:6x16 han-6728:9x16 // ⿰牜木
 

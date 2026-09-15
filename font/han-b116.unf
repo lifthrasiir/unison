@@ -50,6 +50,9 @@ glyph han-25931:15x16 15 16 // 𥤱
 // glyph han-25934-($han-regions):15x16 15 16 // 𥤴
 // ⿳ han-7a74-($-1) han-4e00 han-5efe // ⿳穴一廾
 
+// glyph han-25935-($han-regions):15x16 15 16 // 𥤵
+// ⿱ han-7a74-($-1) han-4e0f // ⿱穴丏
+
 glyph han-25938:15x16 15 16 // 𥤸
 ⿱ han-7a74.2:15x6 1 han-5143:15x9 // ⿱穴元
 

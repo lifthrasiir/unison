@@ -148,6 +148,9 @@ glyph han-3036a:15x16 15 16 // 𰍪
 
 ## 44.4
 
+// glyph han-30371:15x16 15 16 // 𰍱
+// ⿸ han-5c38 han-4e13 // ⿸尸专
+
 // glyph han-30372:15x16 15 16 // 𰍲
 // ⿸ han-5c38 han-516d // ⿸尸六
 
@@ -200,6 +203,9 @@ glyph han-3038c:15x16 15 16 // 𰎌
 // glyph han-3038f:15x16 15 16 // 𰎏
 // ⿰ han-5c71 han-4e1c // ⿰山东
 
+// glyph han-30391:15x16 15 16 // 𰎑
+// ⿱ han-5c71 han-4e1a // ⿱山业
+
 glyph han-30392:15x16 15 16 // 𰎒
 ⿱ han-5c71:15x5 han-767d:15x11 // ⿱山白
 
@@ -231,6 +237,9 @@ glyph han-303a1:15x16 15 16 // 𰎡
 
 glyph han-303ae:15x16 15 16 // 𰎮
 ⿳ han-5c71:15x4 1 han-8980:15x5 han-5fc3:15x6 // ⿳山覀心
+
+// glyph han-303af:15x16 15 16 // 𰎯
+// ⿱ han-21e50 han-4e43 // ⿱𡹐乃
 
 ## 46.11
 
@@ -461,6 +470,9 @@ glyph han-3043e:15x16 15 16 // 𰐾
 
 ## 61.4
 
+// glyph han-30441:15x16 15 16 // 𰑁
+// ⿰ han-5fc4 han-4e13 // ⿰忄专
+
 glyph han-30443:15x16 15 16 // 𰑃
 ⿰ han-5fc4:7x16 1 han-65e5:7x16 // ⿰忄日
 
@@ -486,6 +498,9 @@ glyph han-3044b:15x16 15 16 // 𰑋
 
 // glyph han-3044e:15x16 15 16 // 𰑎
 // ⿱ han-5165 han-5fd7 // ⿱入志
+
+// glyph han-30451:15x16 15 16 // 𰑑
+// ⿳ han-4e37 han-2b739 han-5fc3 // ⿳丷𫜹心
 
 // glyph han-30452:15x16 15 16 // 𰑒
 // ⿱ han-5fc5 han-5fc3 // ⿱必心
@@ -600,6 +615,9 @@ glyph han-304bd:15x16 15 16 // 𰒽
 
 glyph han-304c1:15x16 15 16 // 𰓁
 ⿰ -4 han-624b:11x16 han-6bd4-g:8x16 // ⿰手比
+
+// glyph han-304c7:15x16 15 16 // 𰓇
+// ⿰ han-624b han-4e4b // ⿰手之
 
 // glyph han-304c8:15x16 15 16 // 𰓈
 // ⿰ han-624b han-6237 // ⿰手户
@@ -799,6 +817,9 @@ glyph han-3057c:15x16 15 16 // 𰕼
 
 // glyph han-3057f:15x16 15 16 // 𰕿
 // ⿱ han-65e5 han-897f // ⿱日西
+
+// glyph han-30580-($han-regions):15x16 15 16 // 𰖀
+// ⿰ han-65e9 han-4e11-($-1) // ⿰早丑
 
 ## 72.7
 

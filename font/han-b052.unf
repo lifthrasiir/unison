@@ -64,6 +64,9 @@ glyph han-221f6:15x16 15 16 // 𢇶
 glyph han-221f8:15x16 15 16 // 𢇸
 ⿸ han-5e7f:15x16.11x13 han-4e16:9x12 5 4 // ⿸广世
 
+// glyph han-221f9:15x16 15 16 // 𢇹
+// ⿸ han-5e7f han-4e18 // ⿸广丘
+
 // glyph han-221fa:15x16 15 16 // 𢇺
 // ⿸ han-5e7f han-518b // ⿸广冋
 
@@ -72,6 +75,9 @@ glyph han-221f8:15x16 15 16 // 𢇸
 
 glyph han-221ff:15x16 15 16 // 𢇿
 ⿸ han-5e7f:15x16.11x13 han-51fa:9x13 6 3 // ⿸广出
+
+// glyph han-22200:15x16 15 16 // 𢈀
+// ⿸ han-5e7f han-4e1a // ⿸广业
 
 // glyph han-22206:15x16 15 16 // 𢈆
 // ⿸ han-5e7f han-53ec // ⿸广召

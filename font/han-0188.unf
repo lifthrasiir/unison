@@ -650,6 +650,9 @@ glyph han-9b91:15x16 15 16 // 鮑
 glyph han-9b92:15x16 15 16 // 鮒
 ⿲ -1 han-9b5a:7x16 han-4ebb:3x16 han-5bf8:6x16 // ⿲魚亻寸
 
+// glyph han-9b93:15x16 15 16 // 鮓
+// ⿰ han-9b5a han-4e4d // ⿰魚乍
+
 glyph han-9b94-g:15x16 15 16 // 鮔
 ⿰ han-9b5a:7x16 1 han-5de8.0:7x16 // ⿰魚巨
 glyph han-9b94-(t|j):15x16 15 16 // 鮔

@@ -113,6 +113,9 @@ ref han-5c0f:15x16
 // glyph han-21b57:15x16 15 16 // 𡭗
 // ⿱ han-5165 han-5c0f // ⿱入小
 
+// glyph han-21b58:15x16 15 16 // 𡭘
+// ⿵ han-4e43 han-5c0f // ⿵乃小
+
 ## 42.3
 
 // glyph han-21b5a:15x16 15 16 // 𡭚
@@ -259,6 +262,9 @@ glyph han-21b82:15x16 15 16 // 𡮂
 
 ## 44.2
 
+// glyph han-21c24:15x16 15 16 // 𡰤
+// ⿱ han-4e37 han-5c38 // ⿱丷尸
+
 // glyph han-21c25:15x16 15 16 // 𡰥
 // ⿸ han-5c38 han-4e8c // ⿸尸二
 
@@ -372,6 +378,9 @@ glyph han-21c7b:15x16 15 16 // 𡱻
 
 // glyph han-21c80:15x16 15 16 // 𡲀
 // ⿸ han-5c38 han-7a7a // ⿸尸空
+
+// glyph han-21c8c:15x16 15 16 // 𡲌
+// ⿰ han-21c31 han-4e18 // ⿰𡰱丘
 
 // glyph han-21c8e:15x16 15 16 // 𡲎
 // ⿸ han-5c38 han-5351 // ⿸尸卑

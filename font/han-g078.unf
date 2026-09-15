@@ -262,6 +262,9 @@ glyph han-30727:15x16 15 16 // 𰜧
 // glyph han-30743-($han-regions):15x16 15 16 // 𰝃
 // ⿰ han-6c35 han-96f1-($-1) // ⿰氵雱
 
+// glyph han-30744:15x16 15 16 // 𰝄
+// ⿱ han-6ea4 han-4e43 // ⿱溤乃
+
 ## 85.13
 
 glyph han-30752:15x16 15 16 // 𰝒
@@ -313,6 +316,9 @@ glyph han-3077c:15x16 15 16 // 𰝼
 
 glyph han-3077f:15x16 15 16 // 𰝿
 ⿰ han-706b:5x16-l 1 han-5348:9x16 // ⿰火午
+
+// glyph han-30780:15x16 15 16 // 𰞀
+// ⿱ han-4e4b han-706c // ⿱之灬
 
 ## 86.5
 
@@ -737,6 +743,11 @@ glyph han-308a7:15x16 15 16 // 𰢧
 glyph han-308a8:15x16 15 16 // 𰢨
 ⿰ han-7518:7x16 han-6708:8x16 // ⿰甘月
 
+## 99.7
+
+// glyph han-308aa:15x16 15 16 // 𰢪
+// ⿱ han-5176 han-4e4b // ⿱其之
+
 # CJK unified ideographs extension G: 生 (100)
 
 ## 100.6
@@ -831,6 +842,9 @@ glyph han-308c6:15x16 15 16 // 𰣆
 
 glyph han-308e3:15x16 15 16 // 𰣣
 ⿸ han-7592:15x16.11x13 han-4e2d:9x12 6 4 // ⿸疒中
+
+// glyph han-308e4:15x16 15 16 // 𰣤
+// ⿸ han-7592 han-4e39 // ⿸疒丹
 
 // glyph han-308e5:15x16 15 16 // 𰣥
 // ⿸ han-7592 han-4ec7 // ⿸疒仇
@@ -936,6 +950,11 @@ glyph han-3091c:15x16 15 16 // 𰤜
 ⿱ han-670b:15x8 han-767d:15x8 // ⿱朋白
 
 # CJK unified ideographs extension G: 皮 (107)
+
+## 107.2
+
+// glyph han-3091e:15x16 15 16 // 𰤞
+// ⿰ han-76ae han-4e29 // ⿰皮丩
 
 ## 107.5
 
