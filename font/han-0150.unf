@@ -685,6 +685,9 @@ glyph han-8dd1:15x16 15 16 // 跑
 glyph han-8dd2:15x16 15 16 // 跒
 ⿰ han-27fb7:5x16 han-53ef:10x16 // ⿰𧾷可
 
+// glyph han-8dd3:15x16 15 16 // 跓
+// ⿰ han-27fb7 han-4e3b // ⿰𧾷主
+
 glyph han-8dd4:15x16 15 16 // 跔
 ⿰ han-27fb7:5x16 1 han-53e5:9x16 // ⿰𧾷句
 

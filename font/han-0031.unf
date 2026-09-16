@@ -1092,7 +1092,7 @@ glyph han-574a:15x16 15 16 // 坊
 ⿰ han-571f:5x16-l 1 han-65b9:9x16 // ⿰土方
 
 glyph han-574b:15x16 15 16 // 坋
-⿰ han-571f:7x16 1 han-5206:7x16 // ⿰土分
+⿰ han-571f:5x16-l 1 han-5206:9x16 // ⿰土分
 
 // glyph han-574c:15x16 15 16 // 坌
 // ⿱ han-5206 han-571f // ⿱分土
@@ -1169,8 +1169,14 @@ glyph han-5767:15x16 15 16 // 坧
 glyph han-5769:15x16 15 16 // 坩
 ⿰ han-571f:5x16-l 1 han-7518:9x16 // ⿰土甘
 
-// glyph han-576a-($han-regions):15x16 15 16 // 坪
-// ⿰ han-571f han-5e73-($-1) // ⿰土平
+glyph han-576a.0:15x16 15 16 // 坪
+⿰ han-571f:5x16-l 1 han-5e73.0:9x16 // ⿰土平
+glyph han-576a.1:15x16 15 16 // 坪
+⿰ han-571f:5x16-l 1 han-5e73.1:9x16 // ⿰土平
+glyph han-576a.2:* = han-576a.0:*
+glyph han-576a.3:* = han-576a.1:*
+glyph han-576a-(g|h|t|j):* = han-576a.0:*
+glyph han-576a-(k|p):* = han-576a.1:*
 
 glyph han-576b:15x16 15 16 // 坫
 ⿰ han-571f:7x16 1 han-5360:7x16 // ⿰土占
@@ -1196,8 +1202,9 @@ glyph han-5772:15x16 15 16 // 坲
 glyph han-5774:15x16 15 16 // 坴
 ⿳ han-571f:15x6 han-513f:15x5 -1 han-571f:15x6 // ⿳土儿土
 
-// glyph han-5775:15x16 15 16 // 坵
-// ⿰ han-571f han-4e18 // ⿰土丘
+glyph han-5775:15x16 15 16 // 坵
+⿰ han-571f:5x16-l han-4e18:10x16 // ⿰土丘
+glyph han-5775.0:* = han-5775:*
 
 glyph han-5777:15x16 15 16 // 坷
 ⿰ han-571f:7x16 han-53ef:8x16 // ⿰土可

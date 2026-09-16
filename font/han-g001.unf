@@ -172,6 +172,13 @@ glyph han-30023:15x16 15 16 // 𰀣
 glyph han-30027:15x16 15 16 // 𰀧
 ⿰ han-4e29:5x16 han-5468:10x16 // ⿰丩周
 
+# CJK unified ideographs extension G: 丶 (3)
+
+## 3.9
+
+// glyph han-30029:15x16 15 16 // 𰀩
+// ⿰ han-4e3b han-4e3b // ⿰主主
+
 # CJK unified ideographs extension G: 丿 (4)
 
 ## 4.11

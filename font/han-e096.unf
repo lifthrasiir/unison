@@ -327,8 +327,8 @@ glyph han-2c423:15x16 15 16 // 𬐣
 
 ## 109.5
 
-// glyph han-2c448-($han-regions):15x16 15 16 // 𬑈
-// ⿰ han-76ee han-5e73-($-1) // ⿰目平
+glyph han-2c448:15x16 15 16 // 𬑈
+⿰ han-76ee:5x16-l 1 han-5e73.1:9x16 // ⿰目平
 
 glyph han-2c449:15x16 15 16 // 𬑉
 ⿰ han-672b:9x16 han-76ee:6x16 // ⿰末目
@@ -694,6 +694,9 @@ glyph han-2c554:15x16 15 16 // 𬕔
 // glyph han-2c557:15x16 15 16 // 𬕗
 // ⿱ han-25ad7 han-2abf2 // ⿱𥫗𪯲
 
+// glyph han-2c558-($han-regions):15x16 15 16 // 𬕘
+// ⿱ han-25ad7 han-6cd9-($-1) // ⿱𥫗泙
+
 // glyph han-2c559:15x16 15 16 // 𬕙
 // ⿱ han-25ad7 han-6ccd // ⿱𥫗泍
 
@@ -717,6 +720,11 @@ glyph han-2c554:15x16 15 16 // 𬕔
 
 // glyph han-2c56b:15x16 15 16 // 𬕫
 // ⿰ han-7b1b han-8840 // ⿰笛血
+
+## 118.12
+
+// glyph han-2c571-($han-regions):15x16 15 16 // 𬕱
+// ⿱ han-25ad7 han-8a55-($-1) // ⿱𥫗評
 
 ## 118.13
 
@@ -1092,6 +1100,9 @@ glyph han-2c6af:15x16 15 16 // 𬚯
 
 // glyph han-2c6b4:15x16 15 16 // 𬚴
 // ⿰ han-8089 han-531d // ⿰肉匝
+
+// glyph han-2c6b6:15x16 15 16 // 𬚶
+// ⿰ han-8089 han-4e3b // ⿰肉主
 
 ## 130.6
 

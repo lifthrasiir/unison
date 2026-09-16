@@ -667,8 +667,8 @@ glyph han-2ed6c:15x16 15 16 // 𮵬
 
 ## 118.7
 
-// glyph han-2ed73:15x16 15 16 // 𮵳
-// ⿳ han-25ad7 han-5196 han-7389 // ⿳𥫗冖玉
+glyph han-2ed73:15x16 15 16 // 𮵳
+⿳ han-25ad7:15x5 han-5196:15x3 han-7389:15x8 // ⿳𥫗冖玉
 
 ## 118.8
 
@@ -676,7 +676,7 @@ glyph han-2ed75:15x16 15 16 // 𮵵
 ⿳ han-25ad7:15x5 -1 han-5927:15x5 han-7530:15x7 // ⿳𥫗大田
 
 glyph han-2ed76:15x16 15 16 // 𮵶
-⿳ -2 han-25ad7:15x5 -1 han-5b80:15x3 han-7389:15x11 // ⿳𥫗宀玉
+⿳ han-25ad7:15x5 -1 han-5b80:15x3 han-7389:15x9 // ⿳𥫗宀玉
 
 ## 118.12
 
@@ -871,7 +871,7 @@ glyph han-2edca:15x16 15 16 // 𮷊
 ## 159'.2
 
 glyph han-2edd6:15x16 15 16 // 𮷖
-⿰ han-8f66:4x16-l 1 han-51e0:10x16 // ⿰车几
+⿰ han-8f66:6x16-l -1 han-51e0:10x16 // ⿰车几
 
 ## 159'.4
 
@@ -883,7 +883,7 @@ glyph han-2edd6:15x16 15 16 // 𮷖
 ## 162.5
 
 glyph han-2eddf:15x16 15 16 // 𮷟
-⿺ han-8fb6-g:15x16.11x14 han-79be:9x13 6 0 // ⿺辶禾
+⿺ han-8fb6-g:15x16.11x14 han-79be:9x13 5 1 // ⿺辶禾
 
 ## 162.8
 
@@ -932,7 +932,7 @@ glyph han-2edf1:15x16 15 16 // 𮷱
 ## 167'.3
 
 glyph han-2edf5:15x16 15 16 // 𮷵
-⿰ han-9485:6x16 han-5df1:9x16 // ⿰钅己
+⿰ han-9485:6x16 1 han-5df1:8x16 // ⿰钅己
 
 ## 167'.4
 
@@ -1034,8 +1034,8 @@ glyph han-2ee29:15x16 15 16 // 𮸩
 
 ## 173.5
 
-// glyph han-2ee2c:15x16 15 16 // 𮸬
-// ⿱ han-96e8 han-7389 // ⿱雨玉
+glyph han-2ee2c:15x16 15 16 // 𮸬
+⿱ han-96e8:15x6 1 han-7389:15x9 // ⿱雨玉
 
 # CJK unified ideographs extension I: 食 (184)
 

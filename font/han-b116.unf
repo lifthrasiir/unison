@@ -396,6 +396,9 @@ glyph han-25a60:15x16 15 16 // 𥩠
 glyph han-25a62:15x16 15 16 // 𥩢
 ⿰ han-7acb:7x16 han-4e14:8x16 // ⿰立且
 
+// glyph han-25a63:15x16 15 16 // 𥩣
+// ⿰ han-7acb han-4e3b // ⿰立主
+
 glyph han-25a64:15x16 15 16 // 𥩤
 ⿰ han-7acb:7x16 han-53ef:8x16 // ⿰立可
 

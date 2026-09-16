@@ -146,6 +146,9 @@ glyph han-5f7e-($han-regions):15x16 15 16 // 彾
 glyph han-5f7f:15x16 15 16 // 彿
 ⿰ han-5f73:5x16 1 han-5f17:9x16 // ⿰彳弗
 
+// glyph han-5f80:15x16 15 16 // 往
+// ⿰ han-5f73 han-4e3b // ⿰彳主
+
 glyph han-5f81:15x16 15 16 // 征
 ⿰ han-5f73:5x16 han-6b63:10x16 // ⿰彳正
 
@@ -613,8 +616,13 @@ glyph han-6022:15x16 15 16 // 怢
 glyph han-6024:15x16 15 16 // 怤
 ⿱ han-4ed8:15x11 han-5fc3:15x5 // ⿱付心
 
-// glyph han-6026-($han-regions):15x16 15 16 // 怦
-// ⿰ han-5fc4 han-5e73-($-1) // ⿰忄平
+glyph han-6026.0:15x16 15 16 // 怦
+⿰ han-5fc4:5x16 1 han-5e73.1:9x16 // ⿰忄平
+glyph han-6026.1:* = han-6026.0:*
+glyph han-6026.2:15x16 15 16 // 怦
+⿰ han-5fc4:5x16 1 han-5e73.0:9x16 // ⿰忄平
+glyph han-6026-(j|k|p):* = han-6026.0:*
+glyph han-6026-(g|h|t|v):* = han-6026.1:*
 
 glyph han-6027:15x16 15 16 // 性
 ⿰ han-5fc4:5x16 1 han-751f:9x16 // ⿰忄生

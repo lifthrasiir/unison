@@ -294,8 +294,8 @@ glyph han-303e2:15x16 15 16 // 𰏢
 
 ## 51.4
 
-// glyph han-303e3-($han-regions):15x16 15 16 // 𰏣
-// ⿰ han-4e01 han-5e73-($-1) // ⿰丁平
+glyph han-303e3:15x16 15 16 // 𰏣
+⿰ han-4e01:5x16 1 han-5e73-g:9x16 // ⿰丁平
 
 ## 51.5
 

@@ -321,8 +321,8 @@ glyph han-2cbbc:15x16 15 16 // 𬮼
 
 ## 170.5
 
-// glyph han-2cbbe:15x16 15 16 // 𬮾
-// ⿰ han-961d han-4e18 // ⿰阝丘
+glyph han-2cbbe:15x16 15 16 // 𬮾
+⿰ han-961d:5x16-l han-4e18:10x16 // ⿰阝丘
 
 ## 170.6
 
@@ -458,8 +458,8 @@ glyph han-2cbff:15x16 15 16 // 𬯿
 
 ## 174.5
 
-// glyph han-2cc18-($han-regions):15x16 15 16 // 𬰘
-// ⿰ han-9752-($-1) han-4e18 // ⿰青丘
+glyph han-2cc18:15x16 15 16 // 𬰘
+⿰ han-9752-v:7x16 han-4e18:8x16 // ⿰青丘
 
 # CJK unified ideographs extension E: 非 (175)
 

@@ -374,7 +374,7 @@ glyph han-3cb8:15x16 15 16 // 㲸
 ## 85.2
 
 glyph han-3cb9:15x16 15 16 // 㲹
-⿰ han-6c35:5x16 1 han-51e0:9x16 // ⿰氵几
+⿰ han-6c35:5x16 han-51e0:10x16 // ⿰氵几
 
 glyph han-3cba.0:15x16 15 16 // 㲺
 ⿰ han-6c35:5x16 1 han-4e03:8x16 // ⿰氵七
@@ -419,8 +419,8 @@ glyph han-3cc9:15x16 15 16 // 㳉
 
 ## 85.5
 
-// glyph han-3ccb:15x16 15 16 // 㳋
-// ⿰ han-6c35 han-4e18 // ⿰氵丘
+glyph han-3ccb:15x16 15 16 // 㳋
+⿰ han-6c35:5x16 han-4e18:10x16 // ⿰氵丘
 
 glyph han-3ccc:15x16 15 16 // 㳌
 ⿰ han-6c35:5x16 1 han-7532:9x16 // ⿰氵甲
@@ -490,6 +490,9 @@ glyph han-3cf9:15x16 15 16 // 㳹
 
 // glyph han-3d07:15x16 15 16 // 㴇
 // ⿲ han-6c34 han-6c34 han-6c34 // ⿲水水水
+
+// glyph han-3d08:15x16 15 16 // 㴈
+// ⿰ han-6c35 han-5cb3 // ⿰氵岳
 
 glyph han-3d0c:15x16 15 16 // 㴌
 ⿲ han-6c35:3x16 han-5973:5x16 han-53e4:7x16 // ⿲氵女古
@@ -891,6 +894,9 @@ glyph han-3e62:15x16 15 16 // 㹢
 
 // glyph han-3e64:15x16 15 16 // 㹤
 // ⿰ han-72ad han-53bb // ⿰犭去
+
+// glyph han-3e65:15x16 15 16 // 㹥
+// ⿰ han-72ad han-4e3b // ⿰犭主
 
 glyph han-3e66:15x16 15 16 // 㹦
 ⿰ han-72ad:6x16 1 han-53ec:8x16 // ⿰犭召

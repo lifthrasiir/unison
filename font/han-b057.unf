@@ -88,8 +88,8 @@ glyph han-223c6:15x16 15 16 // 𢏆
 // glyph han-223c7:15x16 15 16 // 𢏇
 // ⿱ han-5f17 han-5f13 // ⿱弗弓
 
-// glyph han-223ca-($han-regions):15x16 15 16 // 𢏊
-// ⿰ han-5f13 han-5e73-($-1) // ⿰弓平
+glyph han-223ca:15x16 15 16 // 𢏊
+⿰ han-5f13:6x16 han-5e73-g:9x16 // ⿰弓平
 
 glyph han-223ce:15x16 15 16 // 𢏎
 ⿰ han-5f13:4x16 1 han-56db:10x16 // ⿰弓四

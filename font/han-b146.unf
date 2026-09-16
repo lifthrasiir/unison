@@ -35,13 +35,13 @@
 ## 146.5
 
 glyph han-277ea:15x16 15 16 // 𧟪
-⿱ -1 han-8980:15x5 1 han-7389:15x11 // ⿱覀玉
+⿱ han-8980:15x5 1 han-7389:15x10 // ⿱覀玉
 
 glyph han-277eb:15x16 15 16 // 𧟫
 ⿰ han-897f:7x16 1 han-53ef:7x16 // ⿰西可
 
-// glyph han-277ec:15x16 15 16 // 𧟬
-// ⿱ han-8980 han-4e18 // ⿱覀丘
+glyph han-277ec:15x16 15 16 // 𧟬
+⿱ han-8980:15x7 han-4e18:15x9 // ⿱覀丘
 
 ## 146.8
 
@@ -351,6 +351,9 @@ glyph han-278ac:15x16 15 16 // 𧢬
 
 // glyph han-278d2-($han-regions):15x16 15 16 // 𧣒
 // ⿰ han-89d2-($-1) han-5de8-($-1) // ⿰角巨
+
+// glyph han-278d3-($han-regions):15x16 15 16 // 𧣓
+// ⿰ han-89d2-($-1) han-4e3b // ⿰角主
 
 // glyph han-278d4-($han-regions):15x16 15 16 // 𧣔
 // ⿰ han-89d2-($-1) han-77f3 // ⿰角石

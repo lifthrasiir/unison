@@ -461,6 +461,9 @@ glyph han-98f2:15x16 15 16 // 飲
 
 ## 184.5
 
+// glyph han-98f3:15x16 15 16 // 飳
+// ⿰ han-98e0 han-4e3b // ⿰飠主
+
 glyph han-98f4:15x16 15 16 // 飴
 ⿰ han-98e0:7x16 1 han-53f0:7x16 // ⿰飠台
 
@@ -765,8 +768,9 @@ glyph han-99bc:15x16 15 16 // 馼
 
 ## 187.5
 
-// glyph han-99c8:15x16 15 16 // 駈
-// ⿰ han-99ac han-4e18 // ⿰馬丘
+glyph han-99c8:15x16 15 16 // 駈
+⿰ han-99ac:7x16 1 han-4e18:7x16 // ⿰馬丘
+glyph han-99c8.0:* = han-99c8:*
 
 // glyph han-99c9:15x16 15 16 // 駉
 // ⿰ han-99ac han-518b // ⿰馬冋
@@ -787,6 +791,9 @@ glyph han-99cf-(g|k|p):15x16 15 16 // 駏
 ⿰ han-99ac:7x16 1 han-5de8.0:7x16 // ⿰馬巨
 glyph han-99cf-(h|t|j):15x16 15 16 // 駏
 ⿰ han-99ac:7x16 1 han-5de8.1:7x16 // ⿰馬巨
+
+// glyph han-99d0:15x16 15 16 // 駐
+// ⿰ han-99ac han-4e3b // ⿰馬主
 
 glyph han-99d2:15x16 15 16 // 駒
 ⿰ han-99ac:7x16 1 han-53e5:7x16 // ⿰馬句

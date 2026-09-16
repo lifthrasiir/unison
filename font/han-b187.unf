@@ -411,8 +411,11 @@ glyph han-29a38-($han-regions):15x16 15 16 // 𩨸
 glyph han-29a39-($han-regions):15x16 15 16 // 𩨹
 ⿰ han-9aa8-($-1):7x16 1 han-7532:7x16 // ⿰骨甲
 
-// glyph han-29a3c-($han-regions):15x16 15 16 // 𩨼
-// ⿰ han-9aa8-($-1) han-4e18 // ⿰骨丘
+// glyph han-29a3b-($han-regions):15x16 15 16 // 𩨻
+// ⿰ han-9aa8-($-1) han-4e3b // ⿰骨主
+
+glyph han-29a3c:15x16 15 16 // 𩨼
+⿰ han-9aa8-v:7x16 han-4e18:8x16 // ⿰骨丘
 
 ## 188.6
 

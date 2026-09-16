@@ -392,8 +392,8 @@ glyph han-212a1:15x16 15 16 // 𡊡
 glyph han-212a2:15x16 15 16 // 𡊢
 ⿰ han-571f:3x16-l han-518c.x:12x16 // ⿰土册
 
-// glyph han-212a3:15x16 15 16 // 𡊣
-// ⿱ han-4e18 han-571f // ⿱丘土
+glyph han-212a3:15x16 15 16 // 𡊣
+⿱ han-4e18:15x9 han-571f:15x7 // ⿱丘土
 
 glyph han-212a4:15x16 15 16 // 𡊤
 ⿰ han-571f:7x16 han-7528:8x16 // ⿰土用
@@ -415,6 +415,9 @@ glyph han-212b0:15x16 15 16 // 𡊰
 
 glyph han-212b1:15x16 15 16 // 𡊱
 ⿰ han-571f:7x16 han-53ec:8x16 // ⿰土召
+
+// glyph han-212b2:15x16 15 16 // 𡊲
+// ⿰ han-571f han-4e3b // ⿰土主
 
 glyph han-212b3:15x16 15 16 // 𡊳
 ⿰ han-571f:5x16-l 1 han-751f:9x16 // ⿰土生

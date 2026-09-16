@@ -224,6 +224,9 @@ glyph han-4a7b:15x16 15 16 // 䩻
 // glyph han-4a90:15x16 15 16 // 䪐
 // ⿰ han-97cb han-5fc5 // ⿰韋必
 
+// glyph han-4a92:15x16 15 16 // 䪒
+// ⿰ han-97cb han-4e3b // ⿰韋主
+
 glyph han-4a93:15x16 15 16 // 䪓
 ⿰ han-97cb:9x16 1 han-5360:5x16 // ⿰韋占
 

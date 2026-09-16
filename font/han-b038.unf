@@ -17,7 +17,7 @@ glyph han-216a7-($han-regions):15x16 15 16 // 𡚧
 // ⿺ han-4e5d han-5973 // ⿺九女
 
 glyph han-216ab:15x16 15 16 // 𡚫
-⿰ han-5973:5x16-l 1 han-51e0:9x16 // ⿰女几
+⿰ han-5973:6x16-l -1 han-51e0:10x16 // ⿰女几
 
 glyph han-216ac:15x16 15 16 // 𡚬
 ⿱ han-4e8c:15x6 1 han-5973:15x9 // ⿱二女

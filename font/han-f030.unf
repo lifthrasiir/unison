@@ -88,8 +88,8 @@ glyph han-2d1d6:15x16 15 16 // 𭇖
 // glyph han-2d1e4:15x16 15 16 // 𭇤
 // ⿱ han-725b han-20b9f // ⿱牛𠮟
 
-// glyph han-2d1eb:15x16 15 16 // 𭇫
-// ⿱ han-53e3 han-5dde // ⿱口州
+glyph han-2d1eb:15x16 15 16 // 𭇫
+⿱ han-53e3:15x4 han-5dde.0:15x12 // ⿱口州
 
 // glyph han-2d1ec:15x16 15 16 // 𭇬
 // ⿰ han-53e3 han-5b57 // ⿰口字

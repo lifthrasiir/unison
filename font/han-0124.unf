@@ -1199,7 +1199,7 @@ glyph han-808b:15x16 15 16 // 肋
 ⿰ han-6708:5x16-l 1 han-529b:9x16 // ⿰月力
 
 glyph han-808c:15x16 15 16 // 肌
-⿰ han-6708:5x16-l 1 han-51e0:9x16 // ⿰月几
+⿰ han-6708:5x16-l han-51e0:10x16 // ⿰月几
 
 glyph han-808d:15x16 15 16 // 肍
 ⿰ han-6708:5x16-l 1 han-4e5d:9x16 // ⿰月九
@@ -1364,8 +1364,12 @@ glyph han-80d0:15x16 15 16 // 胐
 glyph han-80d2-($han-regions):15x16 15 16 // 胒
 ⿰ han-6708:5x16-l han-5c3c-($-1):10x16 // ⿰月尼
 
-// glyph han-80d3-($han-regions):15x16 15 16 // 胓
-// ⿰ han-6708 han-5e73-($-1) // ⿰月平
+glyph han-80d3.0:15x16 15 16 // 胓
+⿰ han-6708:5x16-l 1 han-5e73.1:9x16 // ⿰月平
+glyph han-80d3.1:15x16 15 16 // 胓
+⿰ han-6708:5x16-l 1 han-5e73.0:9x16 // ⿰月平
+glyph han-80d3-(j|k|p):* = han-80d3.0:*
+glyph han-80d3-(g|t):* = han-80d3.1:*
 
 // glyph han-80d4:15x16 15 16 // 胔
 // ⿱ han-6b64 han-8089 // ⿱此肉

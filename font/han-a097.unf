@@ -536,8 +536,8 @@ glyph han-409c-($han-regions):15x16 15 16 // 䂜
 // glyph han-409f:15x16 15 16 // 䂟
 // ⿱ han-52a0 han-77f3 // ⿱加石
 
-// glyph han-40a1:15x16 15 16 // 䂡
-// ⿰ han-77f3 han-4e18 // ⿰石丘
+glyph han-40a1:15x16 15 16 // 䂡
+⿰ han-77f3:6x16 han-4e18:9x16 // ⿰石丘
 
 glyph han-40a3-($han-regions):15x16 15 16 // 䂣
 ⿰ han-77f3:5x16 han-6b64-($-1):10x16 // ⿰石此

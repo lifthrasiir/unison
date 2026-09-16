@@ -135,8 +135,8 @@ glyph han-241c5:15x16 15 16 // 𤇅
 // glyph han-241c8:15x16 15 16 // 𤇈
 // ⿱ han-77f3 han-706b // ⿱石火
 
-// glyph han-241ca-($han-regions):15x16 15 16 // 𤇊
-// ⿰ han-706b han-5e73-($-1) // ⿰火平
+glyph han-241ca:15x16 15 16 // 𤇊
+⿰ han-706b:5x16-l 1 han-5e73.0:9x16 // ⿰火平
 
 glyph han-241cb:15x16 15 16 // 𤇋
 ⿰ han-706b:7x16 1 han-793a:7x16 // ⿰火示

@@ -99,7 +99,7 @@ glyph han-91dd:15x16 15 16 // 針
 // ⿰ han-91d2 han-516b // ⿰釒八
 
 glyph han-91e0:15x16 15 16 // 釠
-⿰ han-91d2:5x16-l 1 han-51e0:9x16 // ⿰釒几
+⿰ han-91d2:5x16-l han-51e0:10x16 // ⿰釒几
 
 // glyph han-91e1:15x16 15 16 // 釡
 // ⿱ han-516b han-91d1 // ⿱八金
@@ -373,6 +373,9 @@ glyph han-9250:15x16 15 16 // 鉐
 
 glyph han-9251:15x16 15 16 // 鉑
 ⿰ han-91d2:7x16 han-767d:8x16 // ⿰釒白
+
+// glyph han-9252:15x16 15 16 // 鉒
+// ⿰ han-91d2 han-4e3b // ⿰釒主
 
 // glyph han-9254:15x16 15 16 // 鉔
 // ⿰ han-91d2 han-531d // ⿰釒匝

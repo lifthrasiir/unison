@@ -141,8 +141,9 @@ glyph han-25b25:15x16 15 16 // 𥬥
 // glyph han-25b27:15x16 15 16 // 𥬧
 // ⿳ han-25ad7 han-516b han-4e0a // ⿳𥫗八上
 
-// glyph han-25b28:15x16 15 16 // 𥬨
-// ⿱ han-25ad7 han-4e18 // ⿱𥫗丘
+glyph han-25b28:15x16 15 16 // 𥬨
+ref han-25ad7:15x5 0 0 // ⿱𥫗丘
+ref han-4e18:15x12 0 4
 
 // glyph han-25b29:15x16 15 16 // 𥬩
 // ⿱ han-25ad7 han-5c3c // ⿱𥫗尼

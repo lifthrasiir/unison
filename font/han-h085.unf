@@ -356,8 +356,8 @@ glyph han-31b69:15x16 15 16 // 𱭩
 glyph han-31b6b:15x16 15 16 // 𱭫
 ⿰ han-725c:6x16 1 han-7528:8x16 // ⿰牜用
 
-// glyph han-31b6c:15x16 15 16 // 𱭬
-// ⿰ han-725c han-4e18 // ⿰牜丘
+glyph han-31b6c:15x16 15 16 // 𱭬
+⿰ han-725c:6x16 han-4e18:9x16 // ⿰牜丘
 
 ## 93.6
 

@@ -507,6 +507,9 @@ glyph han-70b2:15x16 15 16 // 炲
 glyph han-70b6:15x16 15 16 // 炶
 ⿰ han-706b:7x16 1 han-5360:7x16 // ⿰火占
 
+// glyph han-70b7:15x16 15 16 // 炷
+// ⿰ han-706b han-4e3b // ⿰火主
+
 // glyph han-70b8:15x16 15 16 // 炸
 // ⿰ han-706b han-4e4d // ⿰火乍
 

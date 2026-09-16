@@ -1327,7 +1327,7 @@ glyph han-53fb:15x16 15 16 // 叻
 ⿰ han-53e3:7x16 han-529b:8x16 // ⿰口力
 
 glyph han-53fd:15x16 15 16 // 叽
-⿰ han-53e3:5x16-l 1 han-51e0:9x16 // ⿰口几
+⿰ han-53e3:5x16-l han-51e0:10x16 // ⿰口几
 
 // glyph han-53fe:15x16 15 16 // 叾
 // ⿳ han-4e5b han-4e85 han-53e3 // ⿳乛亅口 <- ⿱了口
@@ -2392,8 +2392,10 @@ glyph han-546d:15x16 15 16 // 呭
 ⿰ han-53e3:5x16-l 1 han-4e16:9x16 // ⿰口世
 glyph han-546d.0:* = han-546d:*
 
-// glyph han-546f-($han-regions):15x16 15 16 // 呯
-// ⿰ han-53e3 han-5e73-($-1) // ⿰口平
+glyph han-546f-(g|h|t):15x16 15 16 // 呯
+⿰ han-53e3:5x16-l 1 han-5e73.0:9x16 // ⿰口平
+glyph han-546f-(j|p):15x16 15 16 // 呯
+⿰ han-53e3:5x16-l 1 han-5e73.1:9x16 // ⿰口平
 
 // glyph han-5470:15x16 15 16 // 呰
 // ⿱ han-6b64 han-53e3 // ⿱此口

@@ -369,8 +369,8 @@ glyph han-8304:15x16 15 16 // 茄
 // glyph han-8309:15x16 15 16 // 茉
 // ⿱ han-8279 han-672b // ⿱艹末
 
-// glyph han-830a:15x16 15 16 // 茊
-// ⿱ han-8279 han-4e18 // ⿱艹丘
+glyph han-830a:15x16 15 16 // 茊
+⿱ han-8279:15x3 1 han-4e18:15x12 // ⿱艹丘
 
 // glyph han-830b:15x16 15 16 // 茋
 // ⿱ han-8279 han-6c10 // ⿱艹氐
@@ -759,6 +759,9 @@ glyph han-8402:15x16 15 16 // 萂
 
 glyph han-840c:15x16 15 16 // 萌
 ⿱ han-8279:15x3 1 han-660e:15x12 // ⿱艹明
+
+// glyph han-840d-($han-regions):15x16 15 16 // 萍
+// ⿱ han-8279 han-6cd9-($-1) // ⿱艹泙
 
 // glyph han-840e:15x16 15 16 // 萎
 // ⿳ han-8279 han-79be han-5973 // ⿳艹禾女 <- ⿱艹委

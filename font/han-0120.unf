@@ -184,6 +184,9 @@ glyph han-7d34:15x16 15 16 // 紴
 glyph han-7d37-($han-regions):15x16 15 16 // 紷
 ⿰ han-7cf9:5x16 1 han-4ee4-($-1):9x16 // ⿰糹令
 
+// glyph han-7d38:15x16 15 16 // 紸
+// ⿰ han-7cf9 han-4e3b // ⿰糹主
+
 glyph han-7d39:15x16 15 16 // 紹
 ⿰ han-7cf9:5x16 han-53ec:10x16 // ⿰糹召
 

@@ -308,8 +308,8 @@ glyph han-2a7cb:15x16 15 16 // 𪟋
 glyph han-2a7d7:15x16 15 16 // 𪟗
 ⿱ han-52a0:15x8 1 han-4e01:15x7 // ⿱加丁
 
-// glyph han-2a7d8:15x16 15 16 // 𪟘
-// ⿰ han-4e18 han-529b // ⿰丘力
+glyph han-2a7d8:15x16 15 16 // 𪟘
+⿰ han-4e18:7x16-l han-529b:8x16 // ⿰丘力
 
 ## 19.6
 

@@ -80,8 +80,8 @@ glyph han-296a6:15x16 15 16 // 𩚦
 
 ## 184.5
 
-// glyph han-296a8:15x16 15 16 // 𩚨
-// ⿰ han-98e0 han-4e18 // ⿰飠丘
+glyph han-296a8:15x16 15 16 // 𩚨
+⿰ han-98e0:7x16 han-4e18:8x16 // ⿰飠丘
 
 glyph han-296a9:15x16 15 16 // 𩚩
 ⿰ han-98e0:7x16 1 han-53e4:7x16 // ⿰飠古
@@ -189,6 +189,9 @@ glyph han-29718:15x16 15 16 // 𩜘
 
 glyph han-2971b:15x16 15 16 // 𩜛
 ⿲ -1 han-98e0:7x16 han-7acb:5x16 han-961d:4x16-r // ⿲飠立阝
+
+// glyph han-2971e:15x16 15 16 // 𩜞
+// ⿰ han-98e0 han-90b1 // ⿰飠邱
 
 glyph han-29724:15x16 15 16 // 𩜤
 ⿲ -3 han-98e0:7x16 han-6c35:3x16 han-76ae:8x16 // ⿲飠氵皮

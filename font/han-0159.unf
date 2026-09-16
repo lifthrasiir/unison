@@ -349,14 +349,19 @@ glyph han-8ee9:15x16 15 16 // 軩
 // glyph han-8eee:15x16 15 16 // 軮
 // ⿰ han-8eca han-592e // ⿰車央
 
-// glyph han-8eef-($han-regions):15x16 15 16 // 軯
-// ⿰ han-8eca han-5e73-($-1) // ⿰車平
+glyph han-8eef-(g|h|t):15x16 15 16 // 軯
+⿰ han-8eca:5x16 1 han-5e73.0:9x16 // ⿰車平
+glyph han-8eef-(j|k|p):15x16 15 16 // 軯
+⿰ han-8eca:5x16 1 han-5e73.1:9x16 // ⿰車平
 
 glyph han-8ef2:15x16 15 16 // 軲
 ⿰ han-8eca:5x16 1 han-53e4:9x16 // ⿰車古
 
 glyph han-8ef3:15x16 15 16 // 軳
 ⿰ han-8eca:7x16 1 han-5305:7x16 // ⿰車包
+
+// glyph han-8ef4:15x16 15 16 // 軴
+// ⿰ han-8eca han-4e3b // ⿰車主
 
 glyph han-8ef5:15x16 15 16 // 軵
 ⿲ han-8eca:5x16 han-4ebb:3x16 han-5bf8:7x16 // ⿲車亻寸
@@ -553,8 +558,8 @@ $$....@@..$$
 $$....@@/h~H
 $$../h@@H_h/
 /h~HH_@@..$$
-H_h/..@@..$$
-$$....@@..$$
+H_h/..@@$$..
+$$....@@$$..
 glyph han-8f66:9x16 9 16 // 车
 ......../Vv'......
 .......vV/........
@@ -956,6 +961,9 @@ glyph han-8fdc-($han-regions):15x16 15 16 // 远
 // glyph han-8fde-($han-regions):15x16 15 16 // 连
 // ⿺ han-8fb6-($-1) han-8f66 // ⿺辶车
 
+// glyph han-8fec-($han-regions):15x16 15 16 // 迬
+// ⿺ han-8fb6-($-1) han-4e3b // ⿺辶主
+
 ## 162.5
 
 glyph han-8fe0-($han-regions):15x16 15 16 // 迠
@@ -1286,8 +1294,8 @@ glyph han-90af:15x16 15 16 // 邯
 glyph han-90b0:15x16 15 16 // 邰
 ⿰ han-53f0:9x16 1 han-961d:5x16-r // ⿰台阝
 
-// glyph han-90b1:15x16 15 16 // 邱
-// ⿰ han-4e18 han-961d // ⿰丘阝
+glyph han-90b1:15x16 15 16 // 邱
+⿰ han-4e18:9x16-l 1 han-961d:5x16-r // ⿰丘阝
 
 // glyph han-90b2:15x16 15 16 // 邲
 // ⿰ han-5fc5 han-961d // ⿰必阝
