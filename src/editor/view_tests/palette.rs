@@ -136,6 +136,29 @@ fn a_second_row_palette_cell_can_be_picked() {
     assert_eq!(selected_shape(&h), palette_shapes()[cell]);
 }
 
+/// A palette cell is taken the moment the button goes down, not when it comes
+/// back up: the cells are 16 points across, so a press that drifts the few
+/// pixels egui needs to call the gesture a drag would otherwise be swallowed
+/// whole — no click is ever reported for it.
+#[test]
+fn a_palette_cell_is_picked_on_press_even_if_the_pointer_drifts() {
+    use crate::editor::glyph_widget::{palette_shapes, shape_orbit};
+    use crate::pixel::{PX_HOUSE2, PixelShape};
+
+    let mut h = palette_harness();
+    let (cell, _) = shape_orbit(PixelShape::new(PX_HOUSE2, true)).unwrap();
+    let pos = h.palette_cell_pos(cell);
+    // Further than `max_click_dist`, but still inside the same cell.
+    let drift = pos + egui::vec2(7.0, 0.0);
+
+    h.press_at(pos);
+    h.move_pointer(drift);
+    h.release_at(drift);
+    h.frame();
+
+    assert_eq!(selected_shape(&h), palette_shapes()[cell]);
+}
+
 /// Clicking the cell that is already selected is not a no-op: it flips the
 /// fill, so the shape and its complement are one click apart.
 #[test]

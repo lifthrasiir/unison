@@ -960,3 +960,43 @@ map U+0063 = missing
     let i = state.entries.iter().position(|e| e.cp == 0x63).unwrap();
     assert_eq!(state.flag_for(Item::Char(i)), Some(GlyphFlag::Error));
 }
+
+/// A held Ctrl/Cmd+C copies once. The repeats it emits carry no flag saying so
+/// (see [`CopyKey`]), and letting them through means the clipboard ends up with
+/// whatever cell the pointer drifted onto before the key came up.
+#[test]
+fn a_held_copy_shortcut_copies_once() {
+    use std::time::{Duration, Instant};
+
+    let t0 = Instant::now();
+    let mut key = CopyKey::default();
+
+    assert!(key.accept(true, false, t0), "the press itself copies");
+    for i in 1..20 {
+        let t = t0 + Duration::from_millis(30 * i);
+        assert!(!key.accept(true, false, t), "repeat {i} should not copy");
+        assert!(!key.accept(false, false, t), "and neither should idling");
+    }
+
+    // The key comes up; the next press is a copy of its own.
+    let t = t0 + Duration::from_millis(700);
+    assert!(!key.accept(false, true, t));
+    assert!(key.accept(true, false, t + Duration::from_millis(10)));
+}
+
+/// macOS does not always deliver the key-up while the command modifier is held,
+/// so a run also ends on its own once the repeats stop.
+#[test]
+fn a_copy_run_ends_without_a_key_up() {
+    use std::time::{Duration, Instant};
+
+    let t0 = Instant::now();
+    let mut key = CopyKey::default();
+
+    assert!(key.accept(true, false, t0));
+    assert!(!key.accept(true, false, t0 + Duration::from_millis(30)));
+    assert!(
+        key.accept(true, false, t0 + Duration::from_millis(2000)),
+        "a second press long after the last repeat is a new copy"
+    );
+}

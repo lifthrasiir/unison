@@ -89,6 +89,10 @@ pub(crate) fn draw_inline_tools_panel(
     name_parts: &NamePartsMap,
     shadow: Option<&crate::editor::shadow::Shadow>,
     click_pos: Option<egui::Pos2>,
+    // Where the primary button went down this frame, if it did. The shape
+    // palette acts on this rather than on `click_pos`; see
+    // `draw_inline_palette`.
+    press_pos: Option<egui::Pos2>,
     zoom_level: u32,
 ) -> InlineToolsResult {
     let no_action = InlineToolsResult {
@@ -376,7 +380,7 @@ pub(crate) fn draw_inline_tools_panel(
             palette_y,
             selected_shape,
             &mut state.shape_rotation,
-            click_pos,
+            press_pos,
             palette_cell,
             &pal,
             shift_held,
@@ -449,6 +453,14 @@ pub(crate) fn draw_inline_tools_panel(
 /// editor's current rotation. A plain wheel notch turns the whole palette (and
 /// with it the shape under the cursor); shift+wheel walks the cells, which is
 /// why the rotation lives in [`EditorState`] and not in the selected shape.
+///
+/// A cell is taken on `press_pos` — where the button went *down* — and never on
+/// the click that a release would report. The cells are one 16-point square
+/// each, small enough that a press drifting past egui's `max_click_dist`
+/// happens routinely; that gesture is a drag, reports no click, and picking the
+/// shape only on the release would drop it on the floor. Taking the press also
+/// keeps the cell that is already selected toggling its fill exactly once,
+/// since the click that follows is not looked at.
 #[expect(clippy::too_many_arguments)]
 fn draw_inline_palette(
     ui: &egui::Ui,
@@ -458,7 +470,7 @@ fn draw_inline_palette(
     y: f32,
     selected_shape: &mut pixel::PixelShape,
     rotation: &mut u32,
-    click_pos: Option<egui::Pos2>,
+    press_pos: Option<egui::Pos2>,
     cell_size: f32,
     pal: &Palette,
     shift_held: bool,
@@ -542,10 +554,10 @@ fn draw_inline_palette(
             );
         }
 
-        if let Some(cp) = click_pos
+        if let Some(cp) = press_pos
             && cell_rect.contains(cp)
         {
-            // Clicking the cell that is already selected flips the fill instead
+            // Pressing the cell that is already selected flips the fill instead
             // of re-selecting it: a shape and its complement are then one click
             // apart, without holding shift. Any other cell arrives with the
             // fill the palette draws it with (shift inverts that, as on the grid).

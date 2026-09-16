@@ -248,6 +248,16 @@ pub(super) fn paint_document_area(
         }
     });
 
+    // The inline tools panel acts on the *press*, not on the click: its shape
+    // palette is a grid of 16-point cells, and a press that drifts the few
+    // pixels egui needs to call the gesture a drag reports no click at all —
+    // the cell would simply swallow it. Nothing the panel does is worth
+    // holding back for a release.
+    let press_pos = ui
+        .input(|i| i.pointer.primary_pressed())
+        .then(|| response.interact_pointer_pos())
+        .flatten();
+
     // A right-click has to put the caret where it landed before the context
     // menu opens: the menu's own items read the caret's line (*Inline once*
     // and the flatten beside it go through `inline_target_at_line`), so a menu
@@ -1051,6 +1061,7 @@ pub(super) fn paint_document_area(
             &crate::editor::item_bindings::item_bindings(doc, edit_idx, name_parts, exists_matches),
             shadow.filter(|(idx, _)| *idx == edit_idx).map(|(_, s)| s),
             click_pos,
+            press_pos,
             zoom_level,
         );
         if panel_result.click_consumed {

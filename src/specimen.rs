@@ -310,6 +310,47 @@ impl GridLayout {
     }
 }
 
+/// Tells a fresh Ctrl/Cmd+C from the auto-repeat of one still held down.
+///
+/// `egui-winit` turns every copy keystroke into a bare [`egui::Event::Copy`],
+/// the repeats a held key emits included — and swallows the `Key::C` event that
+/// would have carried the `repeat` flag, so nothing downstream can tell them
+/// apart. Left alone, holding the shortcut copies the cell under the pointer
+/// several times a second, and the character that ends up on the clipboard is
+/// the one the pointer happened to rest on when the key came back *up*. Only
+/// the first copy of a run counts.
+#[derive(Default)]
+struct CopyKey {
+    /// A copy has been made and nothing has ended the run yet.
+    held: bool,
+    /// When the last trigger arrived. macOS does not reliably deliver a key-up
+    /// while the command modifier is down, so a run that never sees one has to
+    /// end on its own; a repeat arrives far sooner than anyone presses the
+    /// shortcut twice.
+    last: Option<std::time::Instant>,
+}
+
+impl CopyKey {
+    const REPEAT_GAP: std::time::Duration = std::time::Duration::from_millis(500);
+
+    /// Whether this frame's `trigger` should copy. `key_up` is the run ending:
+    /// C, or the modifier that made it a copy, seen going up.
+    fn accept(&mut self, trigger: bool, key_up: bool, now: std::time::Instant) -> bool {
+        if key_up
+            || self
+                .last
+                .is_some_and(|t| now.duration_since(t) > Self::REPEAT_GAP)
+        {
+            self.held = false;
+        }
+        if !trigger {
+            return false;
+        }
+        self.last = Some(now);
+        !std::mem::replace(&mut self.held, true)
+    }
+}
+
 pub struct SpecimenState {
     pub options: SpecimenOptions,
     entries: Vec<CharEntry>,
@@ -358,6 +399,8 @@ pub struct SpecimenState {
     /// than borrowed for the frame.
     glyph_flags: GlyphFlags,
     pub hover_status: Option<String>,
+    /// Keeps a held Ctrl/Cmd+C from copying once per key repeat.
+    copy_key: CopyKey,
     /// What steps 2 and 3 cost in the frame that last re-ran them, for the
     /// rebuild report; `None` in a frame that reused them. Read and cleared by
     /// the panel that drew this.
@@ -384,6 +427,7 @@ impl SpecimenState {
             char_props: crate::ucd::CharProps::default(),
             glyph_flags: GlyphFlags::default(),
             hover_status: None,
+            copy_key: CopyKey::default(),
             relayout_took: None,
         }
     }
@@ -1201,10 +1245,17 @@ impl SpecimenState {
         );
 
         let hover_pointer = ui.input(|i| i.pointer.hover_pos());
-        let ctrl_c = ui.input(|i| {
-            i.events.iter().any(|e| matches!(e, egui::Event::Copy))
-                || (i.modifiers.command && i.key_pressed(egui::Key::C))
+        // The cell that was under the pointer when the shortcut was *pressed*
+        // is the one to copy, so a run of key repeats counts once: see
+        // [`CopyKey`].
+        let (ctrl_c, copy_key_up) = ui.input(|i| {
+            let trigger = i.events.iter().any(|e| matches!(e, egui::Event::Copy))
+                || (i.modifiers.command && i.key_pressed(egui::Key::C));
+            (trigger, !i.modifiers.command || i.key_released(egui::Key::C))
         });
+        let ctrl_c = self
+            .copy_key
+            .accept(ctrl_c, copy_key_up, std::time::Instant::now());
 
         egui::ScrollArea::vertical()
             .id_salt("specimen_scroll")
