@@ -409,8 +409,8 @@ glyph han-205b6:15x16 15 16 // 𠖶
 
 ## 15.5
 
-// glyph han-205b7:15x16 15 16 // 𠖷
-// ⿰ han-51ab han-518b // ⿰冫冋
+glyph han-205b7:15x16 15 16 // 𠖷
+⿰ han-51ab:5x16 1 han-518b:9x16 // ⿰冫冋
 
 glyph han-205b9:15x16 15 16 // 𠖹
 ⿰ han-51ab:5x16 1 han-7532:9x16 // ⿰冫甲

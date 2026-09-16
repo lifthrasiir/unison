@@ -192,8 +192,8 @@ glyph han-781e:15x16 15 16 // 砞
 glyph han-7820:15x16 15 16 // 砠
 ⿰ han-77f3:7x16 1 han-4e14:7x16 // ⿰石且
 
-// glyph han-7821:15x16 15 16 // 砡
-// ⿰ han-77f3 han-7389 // ⿰石玉
+glyph han-7821:15x16 15 16 // 砡
+⿰ han-77f3:6x16 han-7389:9x16 // ⿰石玉
 
 glyph han-7822:15x16 15 16 // 砢
 ⿰ han-77f3:5x16 han-53ef:10x16 // ⿰石可

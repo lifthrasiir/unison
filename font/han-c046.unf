@@ -267,8 +267,8 @@ glyph han-2aae7:15x16 15 16 // 𪫧
 glyph han-2aae9:15x16 15 16 // 𪫩
 ⿱ han-76ee:15x9 1 han-5fc3:15x6 // ⿱目心
 
-// glyph han-2aaea:15x16 15 16 // 𪫪
-// ⿰ han-5fc4 han-518b // ⿰忄冋
+glyph han-2aaea:15x16 15 16 // 𪫪
+⿰ han-5fc4:5x16 1 han-518b:9x16 // ⿰忄冋
 
 // glyph han-2aaeb:15x16 15 16 // 𪫫
 // ⿱ han-4ede han-5fc3 // ⿱仞心

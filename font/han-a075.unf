@@ -975,8 +975,8 @@ glyph han-3eaf:15x16 15 16 // 㺯
 
 ## 96.4
 
-// glyph han-3eb0:15x16 15 16 // 㺰
-// ⿰ han-248e9 han-5e00 // ⿰𤣩帀
+glyph han-3eb0:15x16 15 16 // 㺰
+⿰ han-248e9:5x16 1 han-5e00:9x16 // ⿰𤣩帀
 
 // glyph han-3eb2-($han-regions):15x16 15 16 // 㺲
 // ⿰ han-248e9 han-4e11-($-1) // ⿰𤣩丑
@@ -1004,8 +1004,8 @@ glyph han-3eba:15x16 15 16 // 㺺
 // glyph han-3ebd:15x16 15 16 // 㺽
 // ⿰ han-248e9 han-4e15 // ⿰𤣩丕
 
-// glyph han-3ebe:15x16 15 16 // 㺾
-// ⿰ han-248e9 han-518b // ⿰𤣩冋
+glyph han-3ebe:15x16 15 16 // 㺾
+⿰ han-248e9:5x16 1 han-518b:9x16 // ⿰𤣩冋
 
 ## 96.6
 

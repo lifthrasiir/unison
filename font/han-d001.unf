@@ -100,8 +100,8 @@ glyph han-2b77b:15x16 15 16 // 𫝻
 
 ## 72.5
 
-// glyph han-2b782:15x16 15 16 // 𫞂
-// ⿰ han-65e5 han-7389 // ⿰日玉
+glyph han-2b782:15x16 15 16 // 𫞂
+⿰ han-65e5:4x16-l han-7389:11x16 // ⿰日玉
 
 # CJK unified ideographs extension D: 月 (74)
 

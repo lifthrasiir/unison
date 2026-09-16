@@ -206,8 +206,8 @@ glyph han-6c44:15x16 15 16 // 汄
 // glyph han-6c46:15x16 15 16 // 汆
 // ⿱ han-5165 han-6c34 // ⿱入水
 
-// glyph han-6c47:15x16 15 16 // 汇
-// ⿰ han-6c35 han-531a // ⿰氵匚
+glyph han-6c47:15x16 15 16 // 汇
+⿰ han-6c35:5x16 1 han-531a:9x16.8x14 // ⿰氵匚
 
 // glyph han-6c49-($han-regions):15x16 15 16 // 汉
 // ⿰ han-6c35 han-53c8-($-1) // ⿰氵又
@@ -249,8 +249,8 @@ glyph han-6c56:15x16 15 16 // 汖
 glyph han-6c57:15x16 15 16 // 汗
 ⿰ han-6c35:5x16 1 han-5e72:9x16 // ⿰氵干
 
-// glyph han-6c59:15x16 15 16 // 汙
-// ⿰ han-6c35 han-4e8e // ⿰氵于
+glyph han-6c59:15x16 15 16 // 汙
+⿰ han-6c35:5x16 1 han-4e8e:9x16 // ⿰氵于
 
 glyph han-6c5c:15x16 15 16 // 汜
 ⿰ han-6c35:5x16 1 han-5df3:9x16 // ⿰氵巳
@@ -394,8 +394,8 @@ glyph han-6c9c.0:* = han-6c9c-j:*
 // glyph han-6c9d:15x16 15 16 // 沝
 // ⿰ han-6c34 han-6c34 // ⿰水水
 
-// glyph han-6c9e:15x16 15 16 // 沞
-// ⿰ han-6c35 han-5e00 // ⿰氵帀
+glyph han-6c9e:15x16 15 16 // 沞
+⿰ han-6c35:5x16 1 han-5e00:9x16 // ⿰氵帀
 
 // glyph han-6ca0:15x16 15 16 // 沠
 // ⿰ han-6c35 han-722a // ⿰氵爪
@@ -463,8 +463,8 @@ glyph han-6cbe:15x16 15 16 // 沾
 // glyph han-6cc1:15x16 15 16 // 況
 // ⿰ han-6c35 han-5144 // ⿰氵兄
 
-// glyph han-6cc2:15x16 15 16 // 泂
-// ⿰ han-6c35 han-518b // ⿰氵冋
+glyph han-6cc2:15x16 15 16 // 泂
+⿰ han-6c35:5x16 1 han-518b:9x16 // ⿰氵冋
 
 glyph han-6cc3:15x16 15 16 // 泃
 ⿰ han-6c35:5x16 1 han-53e5:9x16 // ⿰氵句
@@ -474,8 +474,8 @@ glyph han-6cc4:15x12 15 12 // 泄
 glyph han-6cc4:15x16 15 16 // 泄
 ⿰ han-6c35:5x16 1 han-4e16:9x16 // ⿰氵世
 
-// glyph han-6cc5:15x16 15 16 // 泅
-// ⿰ han-6c35 han-56da // ⿰氵囚
+glyph han-6cc5:15x16 15 16 // 泅
+⿰ 1 han-6c35:5x16 1 han-56da:7x16 // ⿰氵囚
 
 glyph han-6cc6:15x16 15 16 // 泆
 ⿰ han-6c35:5x16 1 han-5931:9x16 // ⿰氵失
@@ -637,8 +637,8 @@ glyph han-6d2a:15x16 15 16 // 洪
 glyph han-6d2b:15x16 15 16 // 洫
 ⿰ han-6c35:5x16 1 han-8840:9x16 // ⿰氵血
 
-// glyph han-6d2d:15x16 15 16 // 洭
-// ⿰ han-6c35 han-5321 // ⿰氵匡
+glyph han-6d2d:15x16 15 16 // 洭
+⿰ han-6c35:5x16 1 han-5321:9x16 // ⿰氵匡
 
 glyph han-6d2e:15x16 15 16 // 洮
 ⿰ han-6c35:5x16 1 han-5146:9x16 // ⿰氵兆

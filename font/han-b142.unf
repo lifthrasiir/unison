@@ -151,8 +151,8 @@ glyph han-2725f:15x16 15 16 // 𧉟
 // glyph han-27262-($han-regions):15x16 15 16 // 𧉢
 // ⿰ han-866b han-7a74-($-1) // ⿰虫穴
 
-// glyph han-27263:15x16 15 16 // 𧉣
-// ⿰ han-866b han-7389 // ⿰虫玉
+glyph han-27263:15x16 15 16 // 𧉣
+⿰ han-866b:5x16 1 han-7389:9x16 // ⿰虫玉
 
 // glyph han-27267:15x16 15 16 // 𧉧
 // ⿰ han-866b han-53bb // ⿰虫去
@@ -281,6 +281,9 @@ glyph han-272be:15x16 15 16 // 𧊾
 
 // glyph han-272c0:15x16 15 16 // 𧋀
 // ⿰ han-866b han-5dde // ⿰虫州
+
+// glyph han-272c2:15x16 15 16 // 𧋂
+// ⿰ han-866b han-6c59 // ⿰虫汙
 
 glyph han-272c4:15x16 15 16 // 𧋄
 ⿰ han-866b:5x16 1 han-5171:9x16 // ⿰虫共

@@ -45,8 +45,8 @@ glyph han-201bb:15x16 15 16 // 𠆻
 // glyph han-201c1:15x16 15 16 // 𠇁
 // ⿲ han-4ebb han-5f13 han-4e28 // ⿲亻弓丨 <- ⿰亻引
 
-// glyph han-201c6:15x16 15 16 // 𠇆
-// ⿰ han-4ebb han-5e00 // ⿰亻帀
+glyph han-201c6:15x16 15 16 // 𠇆
+⿰ han-4ebb:5x16 1 han-5e00:9x16 // ⿰亻帀
 
 glyph han-201c8:15x16 15 16 // 𠇈
 ⿰ han-4ebb:5x16 han-6b62:10x16 // ⿰亻止
@@ -71,8 +71,8 @@ glyph han-201d5:15x16 15 16 // 𠇕
 glyph han-201e3:15x16 15 16 // 𠇣
 ⿰ 1 han-4ebb:5x16 1 han-793a:7x16 // ⿰亻示
 
-// glyph han-201e4:15x16 15 16 // 𠇤
-// ⿰ han-4ebb han-7389 // ⿰亻玉
+glyph han-201e4:15x16 15 16 // 𠇤
+⿰ han-4ebb:5x16 1 han-7389:9x16 // ⿰亻玉
 
 // glyph han-201e5:15x16 15 16 // 𠇥
 // ⿲ han-4ebb han-4e28 han-6587 // ⿲亻丨文
@@ -86,8 +86,8 @@ glyph han-201f1:15x16 15 16 // 𠇱
 // glyph han-201f4:15x16 15 16 // 𠇴
 // ⿰ han-4ebb han-592f // ⿰亻夯
 
-// glyph han-201f6:15x16 15 16 // 𠇶
-// ⿰ han-4ebb han-518b // ⿰亻冋
+glyph han-201f6:15x16 15 16 // 𠇶
+⿰ han-4ebb:5x16 1 han-518b:9x16 // ⿰亻冋
 
 glyph han-201f7:15x16 15 16 // 𠇷
 ⿰ han-4ebb:5x16 1 han-751f:9x16 // ⿰亻生

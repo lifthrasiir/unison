@@ -165,8 +165,8 @@ glyph han-2669a-($han-regions):15x16 15 16 // 𦚚
 // glyph han-2669d:15x16 15 16 // 𦚝
 // ⿲ han-6708 han-51ab han-6c34 // ⿲月冫水 <- ⿰月冰
 
-// glyph han-2669e:15x16 15 16 // 𦚞
-// ⿰ han-6708 han-5321 // ⿰月匡
+glyph han-2669e:15x16 15 16 // 𦚞
+⿰ han-6708:5x16-l 1 han-5321:9x16 // ⿰月匡
 
 glyph han-266a0:15x16 15 16 // 𦚠
 ⿰ han-6708:5x16-l 1 han-81e3:9x16 // ⿰月臣

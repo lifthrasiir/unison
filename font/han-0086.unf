@@ -486,8 +486,8 @@ glyph han-70ac-($han-regions):15x16 15 16 // 炬
 glyph han-70ae:15x16 15 16 // 炮
 ⿰ han-706b:7x16 1 han-5305:7x16 // ⿰火包
 
-// glyph han-70af:15x16 15 16 // 炯
-// ⿰ han-706b han-518b // ⿰火冋
+glyph han-70af:15x16 15 16 // 炯
+⿰ han-706b:5x16-l 1 han-518b:9x16 // ⿰火冋
 
 // glyph han-70b0:15x16 15 16 // 炰
 // ⿱ han-5305 han-706c // ⿱包灬

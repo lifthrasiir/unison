@@ -189,6 +189,9 @@ glyph han-25139:15x16 15 16 // 𥄹
 glyph han-25143:15x16 15 16 // 𥅃
 ⿰ han-76ee:4x16-l 1 han-65e6:10x16 // ⿰目旦
 
+// glyph han-25145:15x16 15 16 // 𥅅
+// ⿰ han-76ee han-51fb // ⿰目击
+
 glyph han-25147:15x16 15 16 // 𥅇
 ⿲ han-76ee:3x16-l han-5f73:3x16 han-529b:9x16 // ⿲目彳力 <- ⿰目⿰彳力
 

@@ -907,8 +907,8 @@ glyph han-8a0e-($han-regions):15x16 15 16 // 討
 ⿰ han-8a01-($-1):5x16 1 han-5bf8:9x16 // ⿰訁寸
 glyph han-8a0e.0:* = han-8a0e-j:*
 
-// glyph han-8a0f:15x16 15 16 // 訏
-// ⿰ han-8a01 han-4e8e // ⿰訁于
+glyph han-8a0f-($han-regions):15x16 15 16 // 訏
+⿰ han-8a01-($-1):5x16 1 han-4e8e:9x16 // ⿰訁于
 
 glyph han-8a10-($han-regions):15x16 15 16 // 訐
 ⿰ han-8a01-($-1):5x16 1 han-5e72:9x16 // ⿰訁干
@@ -1109,8 +1109,8 @@ glyph han-8a56-($han-regions):15x16 15 16 // 詖
 ⿰ han-8a01-($-1):5x16 1 han-76ae:9x16 // ⿰訁皮
 glyph han-8a56.0:* = han-8a56-j:*
 
-// glyph han-8a57:15x16 15 16 // 詗
-// ⿰ han-8a01 han-518b // ⿰訁冋
+glyph han-8a57-($han-regions):15x16 15 16 // 詗
+⿰ han-8a01-($-1):5x16 1 han-518b:9x16 // ⿰訁冋
 
 glyph han-8a58-($han-regions):15x16 15 16 // 詘
 ⿰ han-8a01-($-1):5x16 1 han-51fa:9x16 // ⿰訁出
@@ -1196,8 +1196,8 @@ glyph han-8a83-($han-regions):15x16 15 16 // 誃
 ⿰ han-8a01-($-1):5x16 1 han-591a:9x16 // ⿰訁多
 glyph han-8a83.0:* = han-8a83-j:*
 
-// glyph han-8a86:15x16 15 16 // 誆
-// ⿰ han-8a01 han-5321 // ⿰訁匡
+glyph han-8a86-($han-regions):15x16 15 16 // 誆
+⿰ han-8a01-($-1):5x16 1 han-5321:9x16 // ⿰訁匡
 
 glyph han-8a88-($han-regions):15x16 15 16 // 誈
 ⿰ han-8a01-($-1):5x16 1 han-81f3:9x16 // ⿰訁至
@@ -1700,8 +1700,8 @@ glyph han-8bc3:15x16 15 16 // 诃
 glyph han-8bc5:15x16 15 16 // 诅
 ⿰ han-8ba0:5x16 1 han-4e14:9x16 // ⿰讠且
 
-// glyph han-8bc7:15x16 15 16 // 诇
-// ⿰ han-8ba0 han-518b // ⿰讠冋
+glyph han-8bc7:15x16 15 16 // 诇
+⿰ han-8ba0:5x16 1 han-518b:9x16 // ⿰讠冋
 
 // glyph han-8bc8:15x16 15 16 // 诈
 // ⿰ han-8ba0 han-4e4d // ⿰讠乍
@@ -1723,8 +1723,8 @@ glyph han-8bd2:15x16 15 16 // 诒
 
 ## 149'.6
 
-// glyph han-8bd3:15x16 15 16 // 诓
-// ⿰ han-8ba0 han-5321 // ⿰讠匡
+glyph han-8bd3:15x16 15 16 // 诓
+⿰ han-8ba0:5x16 1 han-5321:9x16 // ⿰讠匡
 
 glyph han-8bd6:15x16 15 16 // 诖
 ⿰ han-8ba0:5x16 1 han-572d:9x16 // ⿰讠圭

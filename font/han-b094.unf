@@ -60,8 +60,8 @@ glyph han-24731:15x16 15 16 // 𤜱
 // glyph han-24732:15x16 15 16 // 𤜲
 // ⿰ han-5dff han-72ac // ⿰巿犬
 
-// glyph han-24733:15x16 15 16 // 𤜳
-// ⿰ han-72ad han-5e00 // ⿰犭帀
+glyph han-24733:15x16 15 16 // 𤜳
+⿰ han-72ad:6x16 han-5e00:9x16 // ⿰犭帀
 
 glyph han-24735:15x16 15 16 // 𤜵
 ⿰ han-72ad:6x16 han-5f00:9x16 // ⿰犭开
@@ -189,8 +189,8 @@ glyph han-24778:15x16 15 16 // 𤝸
 glyph han-2477b:15x16 15 16 // 𤝻
 ⿰ han-72ad:6x16 han-591a:9x16 // ⿰犭多
 
-// glyph han-2477f:15x16 15 16 // 𤝿
-// ⿰ han-72ad han-5321 // ⿰犭匡
+glyph han-2477f:15x16 15 16 // 𤝿
+⿰ han-72ad:6x16 han-5321:9x16 // ⿰犭匡
 
 glyph han-24782:15x16 15 16 // 𤞂
 ⿰ han-72ad:6x16 han-81f3:9x16 // ⿰犭至

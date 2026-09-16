@@ -770,8 +770,8 @@ glyph han-2a8ee:15x16 15 16 // 𪣮
 
 ## 32.9
 
-// glyph han-2a8f2:15x16 15 16 // 𪣲
-// ⿰ han-571f han-82d7 // ⿰土苗
+glyph han-2a8f2:15x16 15 16 // 𪣲
+⿰ han-571f:5x16-l 1 han-82d7:9x16 // ⿰土苗
 
 // glyph han-2a8f3:15x16 15 16 // 𪣳
 // ⿰ han-571f han-316a0 // ⿰土𱚠

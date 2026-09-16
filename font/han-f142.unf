@@ -853,8 +853,8 @@ glyph han-2e7ac:15x16 15 16 // 𮞬
 glyph han-2e7f0:15x16 15 16 // 𮟰
 ⿰ han-518a:9x16 1 han-961d:5x16-r // ⿰冊阝
 
-// glyph han-2e7f1:15x16 15 16 // 𮟱
-// ⿰ han-518b han-961d // ⿰冋阝
+glyph han-2e7f1:15x16 15 16 // 𮟱
+⿰ han-518b:9x16 1 han-961d:5x16-r // ⿰冋阝
 
 glyph han-2e7f3:15x16 15 16 // 𮟳
 ⿰ han-7528:10x16 1 han-961d:4x16-r // ⿰用阝

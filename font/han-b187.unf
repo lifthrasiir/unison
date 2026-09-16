@@ -122,6 +122,9 @@ glyph han-298a0:15x16 15 16 // 𩢠
 glyph han-298a8:15x16 15 16 // 𩢨
 ⿰ han-99ac:7x16 1 han-7518:7x16 // ⿰馬甘
 
+// glyph han-298a9:15x16 15 16 // 𩢩
+// ⿰ han-99ac han-3400 // ⿰馬㐀
+
 glyph han-298aa:15x16 15 16 // 𩢪
 ⿰ han-99ac:7x16 1 han-53e4:7x16 // ⿰馬古
 

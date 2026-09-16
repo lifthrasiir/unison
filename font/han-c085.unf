@@ -201,11 +201,11 @@ glyph han-2ae16:15x16 15 16 // 𪸖
 glyph han-2ae19:15x16 15 16 // 𪸙
 ⿰ han-706b:5x16-l 1 han-672a:9x16 // ⿰火未
 
-// glyph han-2ae1b:15x16 15 16 // 𪸛
-// ⿰ han-706b han-7389 // ⿰火玉
+glyph han-2ae1b:15x16 15 16 // 𪸛
+⿰ han-706b:5x16-l 1 han-7389:9x16 // ⿰火玉
 
-// glyph han-2ae1c:15x16 15 16 // 𪸜
-// ⿰ han-706b han-56da // ⿰火囚
+glyph han-2ae1c:15x16 15 16 // 𪸜
+⿰ han-706b:7x16 1 han-56da:7x16 // ⿰火囚
 
 // glyph han-2ae1d:15x16 15 16 // 𪸝
 // ⿰ han-706b han-53e6 // ⿰火另

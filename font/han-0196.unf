@@ -404,8 +404,8 @@ glyph han-9d84-(j|k):15x16 15 16 // 鶄
 glyph han-9d92:15x16 15 16 // 鶒
 ⿲ -7 han-675f:9x16 han-529b:5x16 1 han-9ce5:7x16 // ⿲束力鳥
 
-// glyph han-9d93:15x16 15 16 // 鶓
-// ⿰ han-82d7 han-9ce5 // ⿰苗鳥
+glyph han-9d93:15x16 15 16 // 鶓
+⿰ han-82d7:7x16 1 han-9ce5:7x16 // ⿰苗鳥
 
 glyph han-9d95:15x16 15 16 // 鶕
 ⿰ han-97f3:7x16 1 han-9ce5:7x16 // ⿰音鳥

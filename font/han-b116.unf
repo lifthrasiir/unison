@@ -402,8 +402,8 @@ glyph han-25a64:15x16 15 16 // 𥩤
 glyph han-25a65-($han-regions):15x16 15 16 // 𥩥
 ⿰ han-7acb:5x16 1 han-5c3c-($-1):9x16 // ⿰立尼
 
-// glyph han-25a68:15x16 15 16 // 𥩨
-// ⿰ han-7acb han-7389 // ⿰立玉
+glyph han-25a68:15x16 15 16 // 𥩨
+⿰ han-7acb:5x16 1 han-7389:9x16 // ⿰立玉
 
 glyph han-25a69:15x16 15 16 // 𥩩
 ⿰ han-7acb:5x16 1 han-7518:9x16 // ⿰立甘

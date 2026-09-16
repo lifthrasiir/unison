@@ -454,8 +454,8 @@ glyph han-30ad9:15x16 15 16 // 𰫙
 
 ## 120.4
 
-// glyph han-30ada:15x16 15 16 // 𰫚
-// ⿰ han-7cf8 han-5e00 // ⿰糸帀
+glyph han-30ada:15x16 15 16 // 𰫚
+⿰ han-7cf9:5x16 1 han-5e00:9x16 // ⿰糹帀
 
 glyph han-30adc:15x16 15 16 // 𰫜
 ⿲ -2 han-7cf9:5x16 han-4ebb:3x16 han-4e5d:9x16 // ⿲糹亻九

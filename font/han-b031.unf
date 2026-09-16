@@ -401,8 +401,8 @@ glyph han-212a4:15x16 15 16 // 𡊤
 // glyph han-212a6:15x16 15 16 // 𡊦
 // ⿱ han-571f han-53e5 // ⿱土句
 
-// glyph han-212a9:15x16 15 16 // 𡊩
-// ⿰ han-571f han-7389 // ⿰土玉
+glyph han-212a9:15x16 15 16 // 𡊩
+⿰ han-571f:3x16-l 1 han-7389:11x16 // ⿰土玉
 
 // glyph han-212ab:15x16 15 16 // 𡊫
 // ⿰ han-571f han-5b82 // ⿰土宂

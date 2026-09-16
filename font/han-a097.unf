@@ -729,8 +729,8 @@ glyph han-4126:15x16 15 16 // 䄦
 
 ## 115.3
 
-// glyph han-4128:15x16 15 16 // 䄨
-// ⿰ han-79be han-4e8e // ⿰禾于
+glyph han-4128:15x16 15 16 // 䄨
+⿰ han-79be:5x16 1 han-4e8e:9x16 // ⿰禾于
 
 glyph han-412a-($han-regions):15x16 15 16 // 䄪
 ⿰ han-79be:7x16 1 han-52fa-($-1):7x16 // ⿰禾勺
@@ -840,8 +840,8 @@ glyph han-4163:15x16 15 16 // 䅣
 glyph han-4165:15x16 15 16 // 䅥
 ⿰ han-79be:5x16 1 han-66f7:9x16 // ⿰禾曷
 
-// glyph han-4166:15x16 15 16 // 䅦
-// ⿰ han-79be han-82d7 // ⿰禾苗
+glyph han-4166:15x16 15 16 // 䅦
+⿰ han-79be:5x16 1 han-82d7:9x16 // ⿰禾苗
 
 glyph han-4167:15x16 15 16 // 䅧
 ⿰ han-79be:5x16 1 han-97f3:9x16 // ⿰禾音

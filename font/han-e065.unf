@@ -237,8 +237,8 @@ glyph han-2c0cd:15x16 15 16 // 𬃍
 // glyph han-2c0da:15x16 15 16 // 𬃚
 // ⿱ han-6797 han-53bb // ⿱林去
 
-// glyph han-2c0dd:15x16 15 16 // 𬃝
-// ⿰ han-6728 han-82d7 // ⿰木苗
+glyph han-2c0dd:15x16 15 16 // 𬃝
+⿰ han-6728:5x16 1 han-82d7:9x16 // ⿰木苗
 
 glyph han-2c0de:15x16 15 16 // 𬃞
 ⿲ han-6728:5x16 han-76ee:4x16 han-65a4:6x16 // ⿲木目斤
@@ -539,6 +539,9 @@ glyph han-2c1de:15x16 15 16 // 𬇞
 // ⿰ han-6c35 han-6c37 // ⿰氵氷
 
 ## 85.6
+
+// glyph han-2c1e2:15x16 15 16 // 𬇢
+// ⿰ han-6c35 han-5401 // ⿰氵吁
 
 // glyph han-2c1e4:15x16 15 16 // 𬇤
 // ⿰ han-6c35 han-5b57 // ⿰氵字

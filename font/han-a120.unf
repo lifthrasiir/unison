@@ -444,8 +444,8 @@ glyph han-43c7:15x16 15 16 // 䏇
 glyph han-43ce:15x16 15 16 // 䏎
 ⿰ han-6708:5x16-l han-51e1:10x16 // ⿰月凡
 
-// glyph han-43cf:15x16 15 16 // 䏏
-// ⿰ han-6708 han-4e8e // ⿰月于
+glyph han-43cf:15x16 15 16 // 䏏
+⿰ han-6708:5x16-l 1 han-4e8e:9x16 // ⿰月于
 
 ## 130.4
 
@@ -1100,8 +1100,8 @@ glyph han-45ac:15x16 15 16 // 䖬
 glyph han-45af:15x16 15 16 // 䖯
 ⿳ han-571f:15x4 han-571f:15x4 han-866b:15x8 // ⿳土土虫
 
-// glyph han-45b1:15x16 15 16 // 䖱
-// ⿰ han-866b han-5321 // ⿰虫匡
+glyph han-45b1:15x16 15 16 // 䖱
+⿰ han-866b:5x16 1 han-5321:9x16 // ⿰虫匡
 
 glyph han-45b4:15x16 15 16 // 䖴
 ⿰ han-866b:7x16 1 han-5146:7x16 // ⿰虫兆

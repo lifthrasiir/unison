@@ -467,8 +467,8 @@ glyph han-242c2:15x16 15 16 // 𤋂
 // glyph han-242d8:15x16 15 16 // 𤋘
 // ⿰ han-706b han-601d // ⿰火思
 
-// glyph han-242d9:15x16 15 16 // 𤋙
-// ⿰ han-706b han-82d7 // ⿰火苗
+glyph han-242d9:15x16 15 16 // 𤋙
+⿰ han-706b:5x16-l 1 han-82d7:9x16 // ⿰火苗
 
 // glyph han-242dc:15x16 15 16 // 𤋜
 // ⿱ han-662d han-706b // ⿱昭火

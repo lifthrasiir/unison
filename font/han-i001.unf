@@ -407,8 +407,8 @@ glyph han-2ecd7:15x16 15 16 // 𮳗
 
 ## 86.3
 
-// glyph han-2ecda:15x16 15 16 // 𮳚
-// ⿰ han-706b han-4e8e // ⿰火于
+glyph han-2ecda:15x16 15 16 // 𮳚
+⿰ han-706b:5x16-l 1 han-4e8e:9x16 // ⿰火于
 
 ## 86.4
 
@@ -616,8 +616,8 @@ glyph han-2ed58:15x16 15 16 // 𮵘
 
 ## 113.9
 
-// glyph han-2ed5d:15x16 15 16 // 𮵝
-// ⿰ han-793b han-82d7 // ⿰礻苗
+glyph han-2ed5d:15x16 15 16 // 𮵝
+⿰ han-793b:5x16 1 han-82d7:9x16 // ⿰礻苗
 
 ## 113.13
 
@@ -730,8 +730,8 @@ glyph han-2ed8d:15x16 15 16 // 𮶍
 glyph han-2ed90:15x16 15 16 // 𮶐
 ⿰ han-8033:6x16-l han-7531:9x16 // ⿰耳由
 
-// glyph han-2ed91:15x16 15 16 // 𮶑
-// ⿰ han-8033 han-7389 // ⿰耳玉
+glyph han-2ed91:15x16 15 16 // 𮶑
+⿰ han-8033:6x16-l han-7389:9x16 // ⿰耳玉
 
 ## 128.6
 
@@ -819,8 +819,8 @@ glyph han-2edbc:15x16 15 16 // 𮶼
 
 ## 145.5
 
-// glyph han-2edc0:15x16 15 16 // 𮷀
-// ⿰ han-8864 han-7389 // ⿰衤玉
+glyph han-2edc0:15x16 15 16 // 𮷀
+⿰ han-8864:5x16 1 han-7389:9x16 // ⿰衤玉
 
 # CJK unified ideographs extension I: 讠 (149')
 

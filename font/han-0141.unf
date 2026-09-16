@@ -196,8 +196,8 @@ glyph han-8672:15x16 15 16 // 虲
 glyph han-8673-($han-regions):15x16 15 16 // 虳
 ⿰ han-866b:7x16 1 han-52fa-($-1):7x16 // ⿰虫勺
 
-// glyph han-8676:15x16 15 16 // 虶
-// ⿰ han-866b han-4e8e // ⿰虫于
+glyph han-8676:15x16 15 16 // 虶
+⿰ han-866b:5x16 1 han-4e8e:9x16 // ⿰虫于
 
 glyph han-8677:15x16 15 16 // 虷
 ⿰ han-866b:7x16 1 han-5e72:7x16 // ⿰虫干
@@ -924,8 +924,8 @@ glyph han-8865:15x16 15 16 // 补
 glyph han-8866:15x16 15 16 // 衦
 ⿰ han-8864:7x16 1 han-5e72:7x16 // ⿰衤干
 
-// glyph han-8867:15x16 15 16 // 衧
-// ⿰ han-8864 han-4e8e // ⿰衤于
+glyph han-8867:15x16 15 16 // 衧
+⿰ han-8864:5x16 1 han-4e8e:9x16 // ⿰衤于
 
 // glyph han-886b:15x16 15 16 // 衫
 // ⿰ han-8864 han-5f61 // ⿰衤彡

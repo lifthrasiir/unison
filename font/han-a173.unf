@@ -22,6 +22,9 @@ glyph han-4a12-($han-regions):15x16 15 16 // 䨒
 // glyph han-4a13:15x16 15 16 // 䨓
 // ⿱ han-96e8 han-56de // ⿱雨回
 
+// glyph han-4a15-($han-regions):15x16 15 16 // 䨕
+// ⿱ han-96e8-($-1) han-6c59 // ⿱雨汙
+
 ## 173.7
 
 glyph han-4a18:15x16 15 16 // 䨘

@@ -208,8 +208,8 @@ glyph han-2d55b:15x16 15 16 // 𭕛
 glyph han-2d581:15x16 15 16 // 𭖁
 ⿰ han-5c71:5x16 han-4e09:10x16 // ⿰山三
 
-// glyph han-2d582:15x16 15 16 // 𭖂
-// ⿰ han-5c71 han-4e8e // ⿰山于
+glyph han-2d582:15x16 15 16 // 𭖂
+⿰ han-5c71:5x16-l 1 han-4e8e:9x16 // ⿰山于
 
 glyph han-2d584:15x16 15 16 // 𭖄
 ⿰ han-5c71:5x16 1 han-4e0b:9x16 // ⿰山下
@@ -657,11 +657,11 @@ glyph han-2d6bd:15x16 15 16 // 𭚽
 // glyph han-2d6df:15x16 15 16 // 𭛟
 // ⿰ han-5f73 han-53bb // ⿰彳去
 
-// glyph han-2d6e1:15x16 15 16 // 𭛡
-// ⿰ han-5f73 han-518b // ⿰彳冋
+glyph han-2d6e1:15x16 15 16 // 𭛡
+⿰ han-5f73:5x16 1 han-518b:9x16 // ⿰彳冋
 
-// glyph han-2d6e2:15x16 15 16 // 𭛢
-// ⿰ han-5f73 han-56da // ⿰彳囚
+glyph han-2d6e2:15x16 15 16 // 𭛢
+⿰ 1 han-5f73:5x16 1 han-56da:7x16 // ⿰彳囚
 
 glyph han-2d6e4:15x16 15 16 // 𭛤
 ⿰ han-5f73:5x16 han-53ec:10x16 // ⿰彳召

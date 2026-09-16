@@ -71,6 +71,9 @@ glyph han-216bb:15x16 15 16 // 𡚻
 // glyph han-216ca:15x16 15 16 // 𡛊
 // ⿰ han-5973 han-624b // ⿰女手
 
+// glyph han-216cb:15x16 15 16 // 𡛋
+// ⿰ han-5973 han-23b1b // ⿰女𣬛
+
 // glyph han-216cc:15x16 15 16 // 𡛌
 // ⿳ han-4e00 han-5927 han-5973 // ⿳一大女 <- ⿱天女
 
@@ -145,8 +148,8 @@ glyph han-216f5:15x16 15 16 // 𡛵
 glyph han-216f6:15x16 15 16 // 𡛶
 ⿰ han-5973:5x16-l 1 han-4e16:9x16 // ⿰女世
 
-// glyph han-216fc:15x16 15 16 // 𡛼
-// ⿰ han-5973 han-7389 // ⿰女玉
+glyph han-216fc:15x16 15 16 // 𡛼
+⿰ han-5973:6x16-l han-7389:9x16 // ⿰女玉
 
 glyph han-216fd:15x16 15 16 // 𡛽
 ⿱ han-7531:15x6 1 han-5973:15x9 // ⿱由女
@@ -188,6 +191,9 @@ glyph han-2171a:15x16 15 16 // 𡜚
 
 glyph han-2171d:15x16 15 16 // 𡜝
 ⿰ han-540c:7x16 1 han-5973:7x16 // ⿰同女
+
+// glyph han-21721:15x16 15 16 // 𡜡
+// ⿱ han-6c59 han-5973 // ⿱汙女
 
 glyph han-21722:15x16 15 16 // 𡜢
 ⿲ -7 han-5973:5x16-l han-5c38:9x16.6x12 -1 han-5c38:9x16.6x12 // ⿲女尸尸

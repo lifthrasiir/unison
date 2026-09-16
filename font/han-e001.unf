@@ -325,8 +325,8 @@ glyph han-2b93e:15x16 15 16 // 𫤾
 
 ## 15.3
 
-// glyph han-2b93f:15x16 15 16 // 𫤿
-// ⿰ han-51ab han-4e8e // ⿰冫于
+glyph han-2b93f:15x16 15 16 // 𫤿
+⿰ han-51ab:5x16 1 han-4e8e:9x16 // ⿰冫于
 
 ## 15.4
 
@@ -674,6 +674,9 @@ glyph han-2ba05:15x16 15 16 // 𫨅
 
 // glyph han-2ba1a:15x16 15 16 // 𫨚
 // ⿸ han-5382 han-90e8 // ⿸厂部
+
+// glyph han-2ba1b:15x16 15 16 // 𫨛
+// ⿸ han-5382 han-7d45 // ⿸厂絅
 
 ## 27.12
 
