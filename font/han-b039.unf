@@ -203,6 +203,9 @@ glyph han-21971:15x16 15 16 // 𡥱
 // glyph han-21977:15x16 15 16 // 𡥷
 // ⿰ han-378c han-378c // ⿰㞌㞌
 
+// glyph han-21979-($han-regions):15x16 15 16 // 𡥹
+// ⿰ han-4eab-($-1) han-592c // ⿰享夬
+
 // glyph han-2197b:15x16 15 16 // 𡥻
 // ⿱ han-79cb han-5b50 // ⿱秋子
 
@@ -242,13 +245,22 @@ glyph han-2198f:15x16 15 16 // 𡦏
 // glyph han-21999:15x16 15 16 // 𡦙
 // ⿳ han-5c71 han-5c7e han-5b57 // ⿳山屾字 <- ⿱𡷈字
 
+// glyph han-2199a-($han-regions):15x16 15 16 // 𡦚
+// ⿰ han-4eab-($-1) han-675f // ⿰享束
+
 // glyph han-2199c-($han-regions):15x16 15 16 // 𡦜
 // ⿰ han-5b50-($-1) han-7ae5 // ⿰子童
 
 ## 39.13
 
+// glyph han-2199f-($han-regions):15x16 15 16 // 𡦟
+// ⿰ han-4eab-($-1) han-5351-($-1) // ⿰享卑
+
 // glyph han-219a0:15x16 15 16 // 𡦠
 // ⿱ han-7a1a han-5b50 // ⿱稚子
+
+// glyph han-219a1-($han-regions):15x16 15 16 // 𡦡
+// ⿰ han-4eab-($-1) han-8005-($-1) // ⿰享者
 
 // glyph han-219a3:15x16 15 16 // 𡦣
 // ⿳ han-5c71 han-2cbc1 han-5b50 // ⿳山𬯁子
@@ -445,6 +457,9 @@ glyph han-21a1d:15x16 15 16 // 𡨝
 
 // glyph han-21a27:15x16 15 16 // 𡨧
 // ⿱ han-5b80 han-5352 // ⿱宀卒
+
+// glyph han-21a28:15x16 15 16 // 𡨨
+// ⿳ han-5b80 han-215dc han-5915 // ⿳宀𡗜夕
 
 // glyph han-21a2a:15x16 15 16 // 𡨪
 // ⿳ han-5b80 han-5fc3 han-6708 // ⿳宀心月 <- ⿱𫲽月

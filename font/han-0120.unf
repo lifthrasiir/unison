@@ -261,6 +261,9 @@ glyph han-7d58:15x16 15 16 // 絘
 glyph han-7d5e:15x16 15 16 // 絞
 ⿰ han-7cf9:5x16 1 han-4ea4:9x16 // ⿰糹交
 
+// glyph han-7d5f:15x16 15 16 // 絟
+// ⿰ han-7cf9 han-5168 // ⿰糹全
+
 glyph han-7d61:15x16 15 16 // 絡
 ⿰ 1 han-7cf9:5x16 1 han-5404:7x16 // ⿰糹各
 
@@ -324,6 +327,9 @@ glyph han-7d80:15x16 15 16 // 綀
 // glyph han-7d81:15x16 15 16 // 綁
 // ⿲ han-7cf9 han-4e30 han-961d // ⿲糹丰阝
 
+// glyph han-7d82:15x16 15 16 // 綂
+// ⿰ han-7cf9 han-2047d // ⿰糹𠑽
+
 glyph han-7d83:15x16 15 16 // 綃
 ⿰ han-7cf9:5x16 1 han-8096:9x16 // ⿰糹肖
 
@@ -358,6 +364,9 @@ glyph han-7da2:15x16 15 16 // 綢
 
 // glyph han-7da6:15x16 15 16 // 綦
 // ⿱ han-5176 han-7cf8 // ⿱其糸
+
+// glyph han-7da7-($han-regions):15x16 15 16 // 綧
+// ⿰ han-7cf9 han-4eab-($-1) // ⿰糹享
 
 glyph han-7da8:15x16 15 16 // 綨
 ⿰ han-7cf9:5x16 1 han-5176:9x16 // ⿰糹其
@@ -731,6 +740,9 @@ glyph han-7f58:15x16 15 16 // 罘
 // ⿱ han-34c1 han-6728 // ⿱㓁木
 
 ## 122.5
+
+// glyph han-7f5b-($han-regions):15x16 15 16 // 罛
+// ⿱ han-7f52 han-74dc-($-1) // ⿱罒瓜
 
 // glyph han-7f5c:15x16 15 16 // 罜
 // ⿳ han-7f52 han-4e36 han-738b // ⿳罒丶王 <- ⿱罒主

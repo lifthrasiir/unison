@@ -116,6 +116,9 @@ glyph han-7a85:15x16 15 16 // 窅
 // glyph han-7a89:15x16 15 16 // 窉
 // ⿳ han-5b80 han-513f han-4e19 // ⿳宀儿丙
 
+// glyph han-7a8a-($han-regions):15x16 15 16 // 窊
+// ⿱ han-7a74-($-1) han-74dc-($-1) // ⿱穴瓜
+
 glyph han-7a8b:15x16 15 16 // 窋
 ⿱ han-7a74.2:15x6 han-51fa:15x10 // ⿱穴出
 
@@ -694,6 +697,9 @@ glyph han-7b1c:15x16 15 16 // 笜
 // glyph han-7b1e:15x16 15 16 // 笞
 // ⿱ han-25ad7 han-53f0 // ⿱𥫗台
 
+// glyph han-7b1f-($han-regions):15x16 15 16 // 笟
+// ⿱ han-25ad7 han-74dc-($-1) // ⿱𥫗瓜
+
 glyph han-7b20:15x16 15 16 // 笠
 ⿱ han-25ad7:15x5 -1 han-7acb:15x12 // ⿱𥫗立
 
@@ -782,6 +788,9 @@ glyph han-7b49:15x16 15 16 // 等
 
 glyph han-7b4b:15x16 15 16 // 筋
 ⿱ han-25ad7:15x5 han-808b:15x11 // ⿱𥫗肋
+
+// glyph han-7b4c:15x16 15 16 // 筌
+// ⿱ han-25ad7 han-5168 // ⿱𥫗全
 
 // glyph han-7b4e:15x16 15 16 // 筎
 // ⿱ han-25ad7 han-5982 // ⿱𥫗如

@@ -1355,6 +1355,9 @@ glyph han-80ca:15x16 15 16 // 胊
 glyph han-80cb:15x16 15 16 // 胋
 ⿰ han-6708:5x16-l 1 han-5360:9x16 // ⿰月占
 
+// glyph han-80cd-($han-regions):15x16 15 16 // 胍
+// ⿰ han-6708 han-74dc-($-1) // ⿰月瓜
+
 glyph han-80ce:15x16 15 16 // 胎
 ⿰ han-6708:5x16-l 1 han-53f0:9x16 // ⿰月台
 
@@ -1898,6 +1901,12 @@ glyph han-820c-t:* = han-820c.1:*
 
 ## 135.2
 
+glyph han-820d:15x16 15 16 // 舍
+⿳ han-201a2:15x6 han-5e72:15x5 han-53e3:15x5 // ⿳𠆢干口 <- ⿱𠆢⿱干口
+
+// glyph han-820e:15x16 15 16 // 舎
+// ⿱ han-201a2 han-20bb7 // ⿱𠆢𠮷
+
 // glyph han-820f-($han-regions):15x16 15 16 // 舏
 // ⿰ han-820c-($-1) han-4e29 // ⿰舌丩
 
@@ -1905,6 +1914,11 @@ glyph han-820c-t:* = han-820c.1:*
 
 // glyph han-8215:15x16 15 16 // 舕
 // ⿰ han-820c han-708e // ⿰舌炎
+
+## 135.9
+
+// glyph han-8216:15x16 15 16 // 舖
+// ⿰ han-820d han-752b // ⿰舍甫
 
 # CJK unified ideographs: 舛 (136)
 

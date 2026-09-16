@@ -5,6 +5,9 @@
 glyph han-25415:15x16 15 16 // 𥐕
 ⿰ han-77f3:7x16 1 han-4e5a:7x16 // ⿰石乚
 
+// glyph han-25416:15x16 15 16 // 𥐖
+// ⿸ han-4e06 han-20b9b // ⿸丆𠮛
+
 ## 112.2
 
 // glyph han-25419:15x16 15 16 // 𥐙
@@ -108,6 +111,12 @@ glyph han-2544e:15x16 15 16 // 𥑎
 
 glyph han-25450:15x16 15 16 // 𥑐
 ⿰ han-77f3:5x16 1 han-7532:9x16 // ⿰石甲
+
+// glyph han-25452:15x16 15 16 // 𥑒
+// ⿰ han-77f3 han-5c12 // ⿰石尒
+
+// glyph han-25454-($han-regions):15x16 15 16 // 𥑔
+// ⿰ han-77f3 han-74dc-($-1) // ⿰石瓜
 
 // glyph han-25456:15x16 15 16 // 𥑖
 // ⿰ han-77f3 han-5fc5 // ⿰石必

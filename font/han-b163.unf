@@ -165,6 +165,9 @@ glyph han-286c5:15x16 15 16 // 𨛅
 // glyph han-286c7:15x16 15 16 // 𨛇
 // ⿰ han-8089 han-961d // ⿰肉阝
 
+// glyph han-286c8:15x16 15 16 // 𨛈
+// ⿰ han-5168 han-961d // ⿰全阝
+
 // glyph han-286c9:15x16 15 16 // 𨛉
 // ⿰ han-8272 han-961d // ⿰色阝
 
@@ -210,6 +213,9 @@ glyph han-286e9:15x16 15 16 // 𨛩
 
 // glyph han-286ec:15x16 15 16 // 𨛬
 // ⿱ han-975e han-9091 // ⿱非邑
+
+// glyph han-286ed:15x16 15 16 // 𨛭
+// ⿰ han-820d han-961d // ⿰舍阝
 
 // glyph han-286ee:15x16 15 16 // 𨛮
 // ⿰ han-5c45 han-961d // ⿰居阝
@@ -324,6 +330,9 @@ glyph han-287b2:15x16 15 16 // 𨞲
 glyph han-287da:15x16 15 16 // 𨟚
 ⿰ han-8944:9x16 1 han-961d:5x16-r // ⿰襄阝
 
+// glyph han-287de-($han-regions):15x16 15 16 // 𨟞
+// ⿰ han-4eab-($-1) han-90fd-($-1) // ⿰享都
+
 # CJK unified ideographs extension B: 酉 (164)
 
 ## 164.3
@@ -379,6 +388,9 @@ glyph han-28807:15x16 15 16 // 𨠇
 // ⿱ han-9149 han-6c34 // ⿱酉水
 
 ## 164.5
+
+// glyph han-2880b-($han-regions):15x16 15 16 // 𨠋
+// ⿰ han-9149 han-74dc-($-1) // ⿰酉瓜
 
 glyph han-2880e-($han-regions):15x16 15 16 // 𨠎
 ⿰ han-9149:7x16 1 han-4ee4-($-1):7x16 // ⿰酉令
@@ -537,6 +549,9 @@ glyph han-28872:15x16 15 16 // 𨡲
 glyph han-28893:15x16 15 16 // 𨢓
 ⿰ han-9149:7x16 1 han-9ad8:7x16 // ⿰酉高
 
+// glyph han-28895:15x16 15 16 // 𨢕
+// ⿰ han-9149 han-8336 // ⿰酉茶
+
 ## 164.11
 
 // glyph han-288a1:15x16 15 16 // 𨢡
@@ -623,6 +638,9 @@ glyph han-288fa:15x16 15 16 // 𨣺
 
 // glyph han-2892a:15x16 15 16 // 𨤪
 // ⿳ han-5c71 han-5927 han-91cc // ⿳山大里
+
+// glyph han-2892b:15x16 15 16 // 𨤫
+// ⿱ han-20143 han-91cc // ⿱𠅃里
 
 ## 166.8
 

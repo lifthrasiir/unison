@@ -466,6 +466,9 @@ glyph han-25c14:15x16 15 16 // 𥰔
 glyph han-25c15:15x16 15 16 // 𥰕
 ⿳ han-25ad7:15x5 han-7f52:15x4 han-6bd4-t:15x7 // ⿳𥫗罒比
 
+// glyph han-25c16:15x16 15 16 // 𥰖
+// ⿳ han-25ad7 han-201a2 han-898b // ⿳𥫗𠆢見
+
 // glyph han-25c17:15x16 15 16 // 𥰗
 // ⿱ han-25ad7 han-7685 // ⿱𥫗皅
 
@@ -575,6 +578,9 @@ glyph han-25c75:15x16 15 16 // 𥱵
 // glyph han-25c84:15x16 15 16 // 𥲄
 // ⿱ han-25ad7 han-6de1 // ⿱𥫗淡
 
+// glyph han-25c94:15x16 15 16 // 𥲔
+// ⿳ han-25ad7 han-20b9b han-91cc // ⿳𥫗𠮛里
+
 // glyph han-25c95:15x16 15 16 // 𥲕
 // ⿳ han-25ad7 han-6b64 han-7cf8 // ⿳𥫗此糸 <- ⿱𥫗紫
 
@@ -592,6 +598,9 @@ glyph han-25c75:15x16 15 16 // 𥱵
 
 // glyph han-25ca5:15x16 15 16 // 𥲥
 // ⿳ han-25ad7 han-5408 han-76bf // ⿳𥫗合皿 <- ⿱𥫗盒
+
+// glyph han-25ca6:15x16 15 16 // 𥲦
+// ⿳ han-25ad7 han-8980 han-215dc // ⿳𥫗覀𡗜
 
 glyph han-25ca7:15x16 15 16 // 𥲧
 ⿳ -7 han-25ad7:15x5 han-5229:15x11 han-6728:15x7 // ⿳𥫗利木
@@ -658,6 +667,12 @@ glyph han-25ca7:15x16 15 16 // 𥲧
 // glyph han-25cf3:15x16 15 16 // 𥳳
 // ⿱ han-25ad7 han-63d0 // ⿱𥫗提
 
+// glyph han-25cf8:15x16 15 16 // 𥳸
+// ⿳ han-25ad7 han-4edd han-898b // ⿳𥫗仝見
+
+// glyph han-25cf9:15x16 15 16 // 𥳹
+// ⿳ han-25ad7 han-4edd han-8c9d // ⿳𥫗仝貝
+
 // glyph han-25cfd:15x16 15 16 // 𥳽
 // ⿱ han-25ad7 han-6b3a // ⿱𥫗欺
 
@@ -713,6 +728,9 @@ glyph han-25ca7:15x16 15 16 // 𥲧
 
 glyph han-25d49:15x16 15 16 // 𥵉
 ⿳ -1 han-25ad7:15x5 han-96e8:15x6 1 han-7530:15x5 // ⿳𥫗雨田
+
+// glyph han-25d4c:15x16 15 16 // 𥵌
+// ⿳ han-25ad7 han-201a2 han-9ce5 // ⿳𥫗𠆢鳥
 
 // glyph han-25d54:15x16 15 16 // 𥵔
 // ⿱ han-25ad7 han-7891 // ⿱𥫗碑

@@ -2413,6 +2413,9 @@ glyph han-979e:15x16 15 16 // 鞞
 ⿰ han-9769:7x16 han-5351.0:8x16 // ⿰革卑
 glyph han-979e.0:* = han-979e:*
 
+// glyph han-979f-($han-regions):15x16 15 16 // 鞟
+// ⿰ han-9769 han-4eab-($-1) // ⿰革享
+
 glyph han-97a1:15x16 15 16 // 鞡
 ⿲ han-9769:7x16 han-624c:3x16 han-7acb:5x16 // ⿲革扌立
 
@@ -2648,6 +2651,9 @@ glyph han-97d3:15x16 15 16 // 韓
 
 // glyph han-97d4:15x16 15 16 // 韔
 // ⿰ han-97cb han-9577 // ⿰韋長
+
+// glyph han-97d5-($han-regions):15x16 15 16 // 韕
+// ⿰ han-97cb han-4eab-($-1) // ⿰韋享
 
 ## 178.9
 

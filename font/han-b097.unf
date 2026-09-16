@@ -1,3 +1,89 @@
+# CJK unified ideographs extension B: 瓜 (97)
+
+## 97.4
+
+// glyph han-24aeb-($han-regions):15x16 15 16 // 𤫫
+// ⿰ han-5206 han-74dc-($-1) // ⿰分瓜
+
+// glyph han-24aec-($han-regions):15x16 15 16 // 𤫬
+// ⿰ han-74dc-($-1) han-4e30-($-1) // ⿰瓜丰
+
+// glyph han-24aee-($han-regions):15x16 15 16 // 𤫮
+// ⿺ han-74dc-($-1) han-6708 // ⿺瓜月
+
+## 97.5
+
+// glyph han-24af0-($han-regions):15x16 15 16 // 𤫰
+// ⿺ han-74dc-($-1) han-5f17 // ⿺瓜弗
+
+// glyph han-24af1-($han-regions):15x16 15 16 // 𤫱
+// ⿰ han-53e5 han-74dc-($-1) // ⿰句瓜
+
+// glyph han-24af2-($han-regions):15x16 15 16 // 𤫲
+// ⿰ han-4ee4-($-1) han-74dc-($-1) // ⿰令瓜
+
+// glyph han-24af3-($han-regions):15x16 15 16 // 𤫳
+// ⿺ han-74dc-($-1) han-53f0 // ⿺瓜台
+
+// glyph han-24af4-($han-regions):15x16 15 16 // 𤫴
+// ⿰ han-5931 han-74dc-($-1) // ⿰失瓜
+
+## 97.6
+
+// glyph han-24af5-($han-regions):15x16 15 16 // 𤫵
+// ⿺ han-74dc-($-1) han-820c-($-1) // ⿺瓜舌
+
+// glyph han-24af6-($han-regions):15x16 15 16 // 𤫶
+// ⿰ han-5409 han-74dc-($-1) // ⿰吉瓜
+
+// glyph han-24af9-($han-regions):15x16 15 16 // 𤫹
+// ⿳ han-516d han-201a2 han-74dc-($-1) // ⿳六𠆢瓜
+
+## 97.7
+
+// glyph han-24afd-($han-regions):15x16 15 16 // 𤫽
+// ⿺ han-74dc-($-1) han-898b // ⿺瓜見
+
+// glyph han-24afe-($han-regions):15x16 15 16 // 𤫾
+// ⿺ han-74dc-($-1) han-8096 // ⿺瓜肖
+
+## 97.8
+
+// glyph han-24b01-($han-regions):15x16 15 16 // 𤬁
+// ⿰ han-679c han-74dc-($-1) // ⿰果瓜
+
+// glyph han-24b03-($han-regions):15x16 15 16 // 𤬃
+// ⿰ han-5485 han-74dc-($-1) // ⿰咅瓜
+
+// glyph han-24b05-($han-regions):15x16 15 16 // 𤬅
+// ⿰ han-74dc-($-1) han-9577 // ⿰瓜長
+
+// glyph han-24b06-($han-regions):15x16 15 16 // 𤬆
+// ⿰ han-660c han-74dc-($-1) // ⿰昌瓜
+
+## 97.9
+
+// glyph han-24b09-($han-regions):15x16 15 16 // 𤬉
+// ⿰ han-7678 han-74dc-($-1) // ⿰癸瓜
+
+## 97.10
+
+// glyph han-24b10-($han-regions):15x16 15 16 // 𤬐
+// ⿱ han-241fe han-74dc-($-1) // ⿱𤇾瓜
+
+// glyph han-24b12-($han-regions):15x16 15 16 // 𤬒
+// ⿺ han-74dc-($-1) han-6637 // ⿺瓜昷
+
+## 97.17
+
+// glyph han-24b1e-($han-regions):15x16 15 16 // 𤬞
+// ⿰ han-74dc-($-1) han-8944 // ⿰瓜襄
+
+## 97.18
+
+// glyph han-24b20-($han-regions):15x16 15 16 // 𤬠
+// ⿰ han-74dc-($-1) han-96da // ⿰瓜雚
+
 # CJK unified ideographs extension B: 甘 (99)
 
 ## 99.0
@@ -49,6 +135,11 @@ glyph han-24bc7:15x16 15 16 // 𤯇
 
 glyph han-24bc8-($han-regions):15x16 15 16 // 𤯈
 ⿰ han-7518:7x16 1 han-8005-($-1):7x16 // ⿰甘者
+
+## 99.10
+
+// glyph han-24bca:15x16 15 16 // 𤯊
+// ⿰ han-8336 han-7518 // ⿰茶甘
 
 ## 99.11
 
@@ -235,6 +326,9 @@ glyph han-24c28:15x16 15 16 // 𤰨
 glyph han-24c2a:15x16 15 16 // 𤰪
 ⿰ han-7530:7x16-l 1 han-5206:7x16 // ⿰田分
 
+// glyph han-24c2b:15x16 15 16 // 𤰫
+// ⿱ han-37a2 han-7530 // ⿱㞢田
+
 // glyph han-24c2e:15x16 15 16 // 𤰮
 // ⿰ han-7530 han-592c // ⿰田夬
 
@@ -254,8 +348,8 @@ glyph han-24c33:15x16 15 16 // 𤰳
 glyph han-24c37:15x16 15 16 // 𤰷
 ⿰ han-7533:7x16 1 han-5df4:7x16 // ⿰申巴
 
-// glyph han-24c38:15x16 15 16 // 𤰸
-// ⿳ han-4ea0 han-53b6 han-7530 // ⿳亠厶田
+glyph han-24c38:15x16 15 16 // 𤰸
+⿳ han-4ea0:15x2 han-53b6:15x5 han-7530:15x9 // ⿳亠厶田
 
 glyph han-24c39:15x16 15 16 // 𤰹
 ⿰ han-7530:7x16-l 1 han-706b:7x16 // ⿰田火
@@ -289,6 +383,9 @@ glyph han-24c43:15x16 15 16 // 𤱃
 
 // glyph han-24c45:15x16 15 16 // 𤱅
 // ⿰ han-7530 han-5185 // ⿰田内
+
+// glyph han-24c48:15x16 15 16 // 𤱈
+// ⿰ han-4ea9 han-535c // ⿰亩卜
 
 // glyph han-24c49:15x16 15 16 // 𤱉
 // ⿰ han-7531 han-592c // ⿰由夬
@@ -358,6 +455,9 @@ glyph han-24c69:15x16 15 16 // 𤱩
 // glyph han-24c6d:15x16 15 16 // 𤱭
 // ⿳ han-5165 han-6587 han-7530 // ⿳入文田
 
+// glyph han-24c76:15x16 15 16 // 𤱶
+// ⿰ han-4ea9 han-72ac // ⿰亩犬
+
 // glyph han-24c78:15x16 15 16 // 𤱸
 // ⿰ han-2ad68 han-7530 // ⿰𪵨田
 
@@ -401,6 +501,9 @@ glyph han-24c92:15x16 15 16 // 𤲒
 // glyph han-24c9d:15x16 15 16 // 𤲝
 // ⿱ han-4f86 han-7530 // ⿱來田
 
+// glyph han-24c9e:15x16 15 16 // 𤲞
+// ⿱ han-201a2 han-7568 // ⿱𠆢畨
+
 glyph han-24c9f:15x16 15 16 // 𤲟
 ⿰ han-7530:7x16-l 1 han-9752-h:7x16 // ⿰田青
 
@@ -437,6 +540,9 @@ glyph han-24cad:15x16 15 16 // 𤲭
 // ⿰ han-7537 han-7537 // ⿰男男
 
 ## 102.10
+
+// glyph han-24cbe:15x16 15 16 // 𤲾
+// ⿰ han-4e9e han-4ea9 // ⿰亞亩
 
 // glyph han-24cc2:15x16 15 16 // 𤳂
 // ⿱ han-7530 han-79dd // ⿱田秝

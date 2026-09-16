@@ -737,6 +737,9 @@ glyph han-606b:15x16 15 16 // 恫
 // glyph han-606c:15x16 15 16 // 恬
 // ⿰ han-5fc4 han-820c // ⿰忄舌
 
+// glyph han-606e:15x16 15 16 // 恮
+// ⿰ han-5fc4 han-5168 // ⿰忄全
+
 glyph han-6070:15x16 15 16 // 恰
 ⿰ han-5fc4:7x16 1 han-5408:7x16 // ⿰忄合
 
@@ -871,6 +874,9 @@ glyph han-60c5-(k|p):15x16 15 16 // 情
 
 glyph han-60c6:15x16 15 16 // 惆
 ⿰ han-5fc4:7x16 han-5468:8x16 // ⿰忄周
+
+// glyph han-60c7-($han-regions):15x16 15 16 // 惇
+// ⿰ han-5fc4 han-4eab-($-1) // ⿰忄享
 
 glyph han-60c8:15x16 15 16 // 惈
 ⿰ han-5fc4:7x16 1 han-679c:7x16 // ⿰忄果
@@ -1183,6 +1189,9 @@ glyph han-6238:15x16 = han-6238:15x16.11x9
 // ⿰ han-6236 han-65a4 // ⿰戶斤
 
 ## 63.5
+
+// glyph han-6241:15x16 15 16 // 扁
+// ⿸ han-6237 han-20541 // ⿸户𠕁
 
 // glyph han-6242:15x16 15 16 // 扂
 // ⿸ han-6237 han-5360 // ⿸户占

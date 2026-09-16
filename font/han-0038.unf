@@ -420,6 +420,9 @@ glyph han-59f8:15x16 15 16 // 姸
 glyph han-59fc:15x16 15 16 // 姼
 ⿰ han-5973:5x16-l 1 han-591a:9x16 // ⿰女多
 
+// glyph han-59fe:15x16 15 16 // 姾
+// ⿰ han-5973 han-5168 // ⿰女全
+
 // glyph han-59ff:15x16 15 16 // 姿
 // ⿱ han-6b21 han-5973 // ⿱次女
 
@@ -1235,6 +1238,9 @@ glyph han-5b62:15x16 15 16 // 孢
 // glyph han-5b63:15x16 15 16 // 季
 // ⿱ han-79be han-5b50 // ⿱禾子
 
+// glyph han-5b64-($han-regions):15x16 15 16 // 孤
+// ⿰ han-5b50-($-1) han-74dc-($-1) // ⿰子瓜
+
 ## 39.6
 
 // glyph han-5b68:15x16 15 16 // 孨
@@ -1249,6 +1255,9 @@ glyph han-5b6d:15x16 15 16 // 孭
 ⿰ han-5b50.0:7x16-l han-8c9d:8x16 // ⿰子貝
 
 ## 39.8
+
+// glyph han-5b70-($han-regions):15x16 15 16 // 孰
+// ⿰ han-4eab-($-1) han-4e38-($-1) // ⿰享丸
 
 glyph han-5b72:15x16 15 16 // 孲
 ⿰ han-5b50.0:5x16-l han-4e9e:10x16 // ⿰子亞
@@ -1426,6 +1435,9 @@ glyph han-5bb2:15x16 15 16 // 宲
 
 // glyph han-5bb7:15x16 15 16 // 宷
 // ⿱ han-5b80 han-91c6 // ⿱宀釆
+
+// glyph han-5bb9-($han-regions):15x16 15 16 // 容
+// ⿳ han-7a74-($-1) han-201a2 han-53e3 // ⿳穴𠆢口
 
 ## 40.8
 
@@ -1738,8 +1750,8 @@ ref han-5c0f.2:15x5
 
 ## 42.2
 
-// glyph han-5c12:15x16 15 16 // 尒
-// ⿱ han-5165 han-5c0f // ⿱入小
+glyph han-5c12:15x16 15 16 // 尒
+⿱ han-201a2:15x8 -1 han-5c0f:15x9 // ⿱𠆢小
 
 // glyph han-5c15:15x16 15 16 // 尕
 // ⿱ han-4e43 han-5c0f // ⿱乃小
@@ -1754,6 +1766,11 @@ glyph han-5c17:15x16 15 16 // 尗
 
 glyph han-5c18:15x16 15 16 // 尘
 ⿱ han-5c0f:15x9 han-571f:15x7 // ⿱小土
+
+## 42.5
+
+// glyph han-5c19:15x16 15 16 // 尙
+// ⿱ han-21b54 han-518b // ⿱𡭔冋
 
 ## 42.6
 

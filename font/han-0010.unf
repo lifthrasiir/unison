@@ -517,6 +517,11 @@ glyph han-5165:15x16 15 16 // 入
 ref han-4eba:15x16
 glyph han-5165.0:* = han-5165:*
 
+## 11.1
+
+// glyph han-5166:15x16 15 16 // 兦
+// ⿺ han-200ca han-5165 // ⿺𠃊入
+
 ## 11.2
 
 glyph han-5167:15x16 15 16 // 內
@@ -539,8 +544,11 @@ glyph han-5167:15x16 15 16 // 內
 
 ## 11.4
 
-// glyph han-5168:15x16 15 16 // 全
-// ⿱ han-5165 han-738b // ⿱入王
+glyph han-5168:15x16 15 16 // 全
+⿱ han-201a2:15x6 han-738b:15x10 // ⿱𠆢王
+
+glyph han-6c3d:15x16 15 16 // 氽
+⿱ han-201a2:15x8 han-6c34:15x8 // ⿱𠆢水
 
 ## 11.6
 
@@ -2412,13 +2420,13 @@ $$../0V/..../hd@0/$$........$$
 @@@@H_/.....H_h/..$$........$$
 
 glyph han-5206:7x16 7 16 // 分
-ref han-4eba:7x7 0 0
+ref han-201a2:7x7 0 0
 ref han-5200:5x9 1 7
 glyph han-5206:9x16 9 16 // 分
-ref han-4eba:9x8 0 0
+ref han-201a2:9x8 0 0
 ref han-5200:5x9 2 7
 glyph han-5206:15x16 15 16 // 分
-ref han-4eba:15x6 0 0
+ref han-201a2:15x6 0 0
 ref han-5200:11x9 2 7
 
 glyph han-5207:15x16 15 16 // 切
@@ -2572,6 +2580,9 @@ glyph han-524a:15x16 15 16 // 削
 
 glyph han-524c:15x16 15 16 // 剌
 ⿰ han-675f:9x16 1 han-5202:5x16 // ⿰束刂
+
+// glyph han-524d:15x16 15 16 // 前
+// ⿱ han-4491 han-5216 // ⿱䒑刖
 
 // glyph han-524f:15x16 15 16 // 剏
 // ⿰ han-5e76 han-5203 // ⿰并刃

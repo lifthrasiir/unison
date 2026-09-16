@@ -619,6 +619,9 @@ glyph han-3084c:15x16 15 16 // 𰡌
 
 ## 94.7
 
+// glyph han-30851:15x16 15 16 // 𰡑
+// ⿰ han-72ad han-4ea9 // ⿰犭亩
+
 glyph han-30852:15x16 15 16 // 𰡒
 ⿰ han-72ad:4x16 han-8f9b:11x16 // ⿰犭辛
 
@@ -707,6 +710,9 @@ glyph han-30874:15x16 15 16 // 𰡴
 // glyph han-30886:15x16 15 16 // 𰢆
 // ⿳ han-73a8 han-4eba han-4e0b // ⿳玨人下 <- ⿱珡下
 
+// glyph han-30887:15x16 15 16 // 𰢇
+// ⿱ han-73a8 han-5c12 // ⿱玨尒
+
 // glyph han-30888:15x16 15 16 // 𰢈
 // ⿰ han-248e9 han-91cd // ⿰𤣩重
 
@@ -741,6 +747,21 @@ glyph han-30890:15x16 15 16 // 𰢐
 // glyph han-3089b:15x16 15 16 // 𰢛
 // ref han-722a // ⿻爪𠄌
 // ref han-2010c
+
+## 97.5
+
+// glyph han-3089c-($han-regions):15x16 15 16 // 𰢜
+// ⿱ han-74dc-($-1) han-5305 // ⿱瓜包
+
+## 97.7
+
+// glyph han-3089d-($han-regions):15x16 15 16 // 𰢝
+// ⿺ han-74dc-($-1) han-826f // ⿺瓜良
+
+## 97.8
+
+// glyph han-3089e-($han-regions):15x16 15 16 // 𰢞
+// ⿺ han-74dc-($-1) han-91d1 // ⿺瓜金
 
 # CJK unified ideographs extension G: 甘 (99)
 
@@ -1026,6 +1047,9 @@ glyph han-30934:15x16 15 16 // 𰤴
 
 ## 108.5
 
+// glyph han-30936:15x16 15 16 // 𰤶
+// ⿱ han-215dc han-76bf // ⿱𡗜皿
+
 glyph han-30937:15x16 15 16 // 𰤷
 ⿱ han-7530:15x5 2 han-76bf:15x9 // ⿱田皿
 
@@ -1141,6 +1165,9 @@ glyph han-30975:15x16 15 16 // 𰥵
 // ⿰ han-76ee han-219f1 // ⿰目𡧱
 
 ## 109.10
+
+// glyph han-30978:15x16 15 16 // 𰥸
+// ⿰ han-76ee han-8336 // ⿰目茶
 
 // glyph han-3097b:15x16 15 16 // 𰥻
 // ⿰ han-76ee han-5bb0 // ⿰目宰

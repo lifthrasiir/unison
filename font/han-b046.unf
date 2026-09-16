@@ -181,6 +181,9 @@ glyph han-21d84:15x16 15 16 // 𡶄
 glyph han-21d8c:15x16 15 16 // 𡶌
 ⿰ han-5c71:7x16 han-77f3:8x16 // ⿰山石
 
+glyph han-21d8d-($han-regions):15x16 15 16 // 𡶍
+⿳ -1 han-5c71:15x4 han-201a2:15x6 -1 han-4ea1-($-1):15x8 // ⿳山𠆢亡 <- ⿱山⿱𠆢亡
+
 glyph han-21d8e:15x16 15 16 // 𡶎
 ⿰ han-5c71:5x16 1 han-672a:9x16 // ⿰山未
 
@@ -344,6 +347,9 @@ glyph han-21e09:15x16 15 16 // 𡸉
 // glyph han-21e0f:15x16 15 16 // 𡸏
 // ⿱ han-5c71 han-4f4d // ⿱山位
 
+// glyph han-21e10:15x16 15 16 // 𡸐
+// ⿳ han-5c71 han-4db9 han-5206 // ⿳山䶹分
+
 ## 46.8
 
 // glyph han-21e13:15x16 15 16 // 𡸓
@@ -456,6 +462,9 @@ glyph han-21e79:15x16 15 16 // 𡹹
 
 glyph han-21e88:15x16 15 16 // 𡺈
 ⿰ han-5c71:5x16 1 han-97f3:9x16 // ⿰山音
+
+// glyph han-21e8a-($han-regions):15x16 15 16 // 𡺊
+// ⿳ han-5c71 han-516b-($-1) han-250e6 // ⿳山八𥃦 <- ⿱山⿱八𥃦
 
 // glyph han-21e8b:15x16 15 16 // 𡺋
 // ⿱ han-5c71 han-9801 // ⿱山頁

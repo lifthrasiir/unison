@@ -50,8 +50,8 @@ glyph han-2a715:15x16 15 16 // 𪜕
 
 ## 8.3
 
-// glyph han-2a720:15x16 15 16 // 𪜠
-// ⿱ han-4ea0 han-51e1 // ⿱亠凡
+glyph han-2a720:15x16 15 16 // 𪜠
+⿱ han-4ea0:15x3 1 han-51e1:15x12 // ⿱亠凡
 
 ## 8.10
 
@@ -72,6 +72,9 @@ glyph han-2a715:15x16 15 16 // 𪜕
 
 ## 9.5
 
+// glyph han-2a72c:15x16 15 16 // 𪜬
+// ⿱ han-201a2 han-672a // ⿱𠆢未
+
 glyph han-2a72e:15x16 15 16 // 𪜮
 ⿰ han-4ebb:5x16 1 han-76ee:9x16 // ⿰亻目
 
@@ -80,6 +83,9 @@ glyph han-2a72e:15x16 15 16 // 𪜮
 
 glyph han-2a730:15x16 15 16 // 𪜰
 ⿰ han-4ebb:5x16 han-79be:9x16 // ⿰亻禾
+
+// glyph han-2a731:15x16 15 16 // 𪜱
+// ⿱ han-201a2 han-79be // ⿱𠆢禾
 
 ## 9.6
 
@@ -96,6 +102,9 @@ glyph han-2a739:15x16 15 16 // 𪜹
 
 // glyph han-2a73b:15x16 15 16 // 𪜻
 // ⿰ han-4ebb han-8d64 // ⿰亻赤
+
+glyph han-2a73d:15x16 15 16 // 𪜽
+⿱ han-201a2:15x7 han-91cc:15x9 // ⿱𠆢里
 
 glyph han-2a73e:15x16 15 16 // 𪜾
 ⿲ han-4ebb:3x16 han-4e14:7x16 han-529b:5x16 // ⿲亻且力
@@ -166,6 +175,13 @@ glyph han-2a770:15x16 15 16 // 𪝰
 
 // glyph han-2a77b:15x16 15 16 // 𪝻
 // ⿱ han-5012 han-6d12 // ⿱倒洒
+
+# CJK unified ideographs extension C: 入 (11)
+
+## 11.8
+
+// glyph han-2a787:15x16 15 16 // 𪞇
+// ⿰ han-5168 han-5206 // ⿰全分
 
 # CJK unified ideographs extension C: 八 (12)
 
@@ -1000,6 +1016,9 @@ glyph han-2a98f:15x16 15 16 // 𪦏
 glyph han-2a99c:15x16 15 16 // 𪦜
 ⿲ han-5973:5x16-l han-6c35:3x16 han-8005-v:7x16 // ⿲女氵者
 
+// glyph han-2a99d-($han-regions):15x16 15 16 // 𪦝
+// ⿲ han-5973 han-4eab-($-1) han-4e38-($-1) // ⿲女享丸 <- ⿰女⿰享丸
+
 // glyph han-2a99e-($han-regions):15x16 15 16 // 𪦞
 // ⿰ han-5973 han-7fd2-($-1) // ⿰女習
 
@@ -1037,6 +1056,11 @@ glyph han-2a9ba:15x16 15 16 // 𪦺
 
 glyph han-2a9bc:15x16 15 16 // 𪦼
 ⿲ han-5b50.0:5x16-l han-767d:4x16 1 han-52fa-v:5x16 // ⿲子白勺
+
+## 39.14
+
+// glyph han-2a9c3-($han-regions):15x16 15 16 // 𪧃
+// ⿰ han-4eab-($-1) han-91cd // ⿰享重
 
 # CJK unified ideographs extension C: 宀 (40)
 
@@ -1084,6 +1108,9 @@ glyph han-2a9d3:15x16 15 16 // 𪧓
 
 glyph han-2a9d6:15x16 15 16 // 𪧖
 ⿳ han-5b80:15x5 -1 han-767d:15x6 han-706b:15x6 // ⿳宀白火
+
+// glyph han-2a9d7-($han-regions):15x16 15 16 // 𪧗
+// ⿳ han-7a74-($-1) han-201a2 han-7530 // ⿳穴𠆢田
 
 // glyph han-2a9d8:15x16 15 16 // 𪧘
 // ⿳ han-5b80 han-7c73 han-5973 // ⿳宀米女 <- ⿱宀娄

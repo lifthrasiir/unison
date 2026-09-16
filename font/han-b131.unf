@@ -79,6 +79,9 @@ glyph han-26938:15x16 15 16 // 𦤸
 
 ## 133.5
 
+// glyph han-2693b-($han-regions):15x16 15 16 // 𦤻
+// ⿺ han-74dc-($-1) han-81f3 // ⿺瓜至
+
 // glyph han-2693c:15x16 15 16 // 𦤼
 // ⿳ han-58eb han-5196 han-81f3 // ⿳士冖至 <- ⿱⿱士冖至
 
@@ -177,6 +180,9 @@ glyph han-2693e:15x16 15 16 // 𦤾
 
 // glyph han-269d2:15x16 15 16 // 𦧒
 // ⿰ han-820c han-53e4 // ⿰舌古
+
+// glyph han-269d4-($han-regions):15x16 15 16 // 𦧔
+// ⿰ han-820c-($-1) han-74dc-($-1) // ⿰舌瓜
 
 ## 135.6
 

@@ -35,6 +35,9 @@ glyph han-2c355:15x16 15 16 // 𬍕
 
 ## 96.6
 
+// glyph han-2c35f:15x16 15 16 // 𬍟
+// ⿰ han-5168 han-7389 // ⿰全玉
+
 // glyph han-2c360:15x16 15 16 // 𬍠
 // ⿰ han-248e9 han-8863 // ⿰𤣩衣
 
@@ -65,6 +68,9 @@ glyph han-2c368:15x16 15 16 // 𬍨
 
 glyph han-2c36f:15x16 15 16 // 𬍯
 ⿰ han-248e9:7x16 1 han-679c:7x16 // ⿰𤣩果
+
+// glyph han-2c373-($han-regions):15x16 15 16 // 𬍳
+// ⿰ han-248e9 han-4eab-($-1) // ⿰𤣩享
 
 ## 96.9
 
@@ -99,6 +105,13 @@ glyph han-2c394:15x16 15 16 // 𬎔
 
 // glyph han-2c396:15x16 15 16 // 𬎖
 // ⿲ han-248e9 han-4eb2 han-65a4 // ⿲𤣩亲斤 <- ⿰𤣩新
+
+# CJK unified ideographs extension E: 瓜 (97)
+
+## 97.5
+
+// glyph han-2c3a2-($han-regions):15x16 15 16 // 𬎢
+// ⿺ han-74dc-($-1) han-5144 // ⿺瓜兄
 
 # CJK unified ideographs extension E: 生 (100)
 
@@ -1095,6 +1108,9 @@ glyph han-2c6af:15x16 15 16 // 𬚯
 
 // glyph han-2c6b2:15x16 15 16 // 𬚲
 // ⿰ han-8089 han-5fc3 // ⿰肉心
+
+// glyph han-2c6b3:15x16 15 16 // 𬚳
+// ⿸ han-200dc han-6708 // ⿸𠃜月
 
 ## 130.5
 

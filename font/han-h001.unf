@@ -79,6 +79,11 @@ glyph han-31369:15x16 15 16 // 𱍩
 
 # CJK unified ideographs extension H: 乙 (5)
 
+## 5.4
+
+// glyph han-31381:15x16 15 16 // 𱎁
+// ⿺ han-200ca han-4e0d // ⿺𠃊不
+
 ## 5.5
 
 // glyph han-31382:15x16 15 16 // 𱎂
@@ -121,6 +126,12 @@ glyph han-31369:15x16 15 16 // 𱍩
 
 ## 9.3
 
+glyph han-3139b:15x16 15 16 // 𱎛
+⿱ han-201a2:15x6 -1 han-571f:15x11 // ⿱𠆢土
+
+glyph han-3139c:15x16 15 16 // 𱎜
+⿱ han-201a2:15x7 han-4e0b:15x9 // ⿱𠆢下
+
 glyph han-3139d:15x16 15 16 // 𱎝
 ⿰ han-4ebb:5x16 1 han-4ea1-g:9x16 // ⿰亻亡
 
@@ -133,8 +144,16 @@ ref han-4eba:5x5 5 5
 // glyph han-313a3:15x16 15 16 // 𱎣
 // ⿺ han-4ecc han-4eba // ⿺仌人
 
+// glyph han-313a5:15x16 15 16 // 𱎥
+// ⿱ han-201a2 han-65a4 // ⿱𠆢斤
+
 glyph han-313a7:15x16 15 16 // 𱎧
 ⿲ han-4ebb:3x16 han-5b50.0:7x16-l han-4e5a:5x16 // ⿲亻子乚
+
+## 9.5
+
+// glyph han-313a8:15x16 15 16 // 𱎨
+// ⿰ han-4ebb han-4edd // ⿰亻仝
 
 ## 9.6
 
@@ -209,6 +228,11 @@ glyph han-313d2:15x16 15 16 // 𱏒
 
 // glyph han-313f3:15x16 15 16 // 𱏳
 // ⿰ han-516d han-535c // ⿰六卜
+
+## 12.7
+
+// glyph han-313f4:15x16 15 16 // 𱏴
+// ⿱ han-4491 han-5171 // ⿱䒑共
 
 # CJK unified ideographs extension H: 冂 (13)
 
@@ -756,6 +780,12 @@ glyph han-31593:15x16 15 16 // 𱖓
 glyph han-31596:15x16 15 16 // 𱖖
 ⿰ han-571f:5x16-l han-51f8:10x16 // ⿰土凸
 
+// glyph han-31599:15x16 15 16 // 𱖙
+// ⿰ han-571f han-4eda // ⿰土仚
+
+// glyph han-3159b:15x16 15 16 // 𱖛
+// ⿰ han-571f han-201b3 // ⿰土𠆳
+
 ## 32.6
 
 glyph han-3159f:15x16 15 16 // 𱖟
@@ -809,6 +839,9 @@ glyph han-315be:15x16 15 16 // 𱖾
 
 // glyph han-315c0:15x16 15 16 // 𱗀
 // ⿰ han-571f han-5cb3 // ⿰土岳
+
+// glyph han-315c2:15x16 15 16 // 𱗂
+// ⿰ han-571f han-820d // ⿰土舍
 
 // glyph han-315c7:15x16 15 16 // 𱗇
 // ⿱ han-793e han-571f // ⿱社土
@@ -1001,6 +1034,9 @@ glyph han-3164c:15x16 15 16 // 𱙌
 
 ## 38.8
 
+// glyph han-3165b-($han-regions):15x16 15 16 // 𱙛
+// ⿰ han-5973 han-4eab-($-1) // ⿰女享
+
 // glyph han-3165c:15x16 15 16 // 𱙜
 // ⿺ han-5c3c han-597d // ⿺尼好
 
@@ -1008,6 +1044,11 @@ glyph han-3164c:15x16 15 16 // 𱙌
 
 glyph han-3165d:15x16 15 16 // 𱙝
 ⿰ han-5973:5x16-l han-54a0:10x16 // ⿰女咠
+
+## 38.10
+
+// glyph han-31664:15x16 15 16 // 𱙤
+// ⿰ han-5973 han-8336 // ⿰女茶
 
 ## 38.11
 

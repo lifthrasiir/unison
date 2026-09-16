@@ -39,6 +39,9 @@ glyph han-2388f:15x16 15 16 // 𣢏
 glyph han-23890:15x16 15 16 // 𣢐
 ⿰ han-6b20:7x16 1 han-6b20:7x16 // ⿰欠欠
 
+// glyph han-23891:15x16 15 16 // 𣢑
+// ⿰ han-37a2 han-6b20 // ⿰㞢欠
+
 // glyph han-23893:15x16 15 16 // 𣢓
 // ⿰ han-5eff han-6b20 // ⿰廿欠
 
@@ -55,6 +58,9 @@ glyph han-23898:15x16 15 16 // 𣢘
 
 // glyph han-23899:15x16 15 16 // 𣢙
 // ⿱ han-6b64 han-6b20 // ⿱此欠
+
+// glyph han-2389a-($han-regions):15x16 15 16 // 𣢚
+// ⿰ han-74dc-($-1) han-6b20 // ⿰瓜欠
 
 glyph han-2389d-($han-regions):15x16 15 16 // 𣢝
 ⿰ han-4ee4-($-1):7x16 1 han-6b20:7x16 // ⿰令欠
@@ -95,6 +101,9 @@ glyph han-238b7:15x16 15 16 // 𣢷
 ⿰ han-5404:7x16 1 han-6b20:7x16 // ⿰各欠
 
 ## 76.7
+
+// glyph han-238bf:15x16 15 16 // 𣢿
+// ⿰ han-4ea9 han-6b20 // ⿰亩欠
 
 // glyph han-238c1:15x16 15 16 // 𣣁
 // ⿲ han-5df1 han-65a4 han-6b20 // ⿲己斤欠

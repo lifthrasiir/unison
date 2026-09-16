@@ -378,6 +378,9 @@ $$@@@@@@@@0/......@@@@@@@@@@$$
 
 ## 147.3
 
+// glyph han-898d:15x16 15 16 // 覍
+// ⿱ han-21b54 han-898b // ⿱𡭔見
+
 // glyph han-898e:15x16 15 16 // 覎
 // ⿺ han-898b han-5b50 // ⿺見子
 
@@ -542,6 +545,9 @@ glyph han-89d2-(h|t|j|k|p|v):* = han-89d2.1:*
 // ⿰ han-89d2-($-1) han-592c // ⿰角夬
 
 ## 148.5
+
+// glyph han-89da-($han-regions):15x16 15 16 // 觚
+// ⿰ han-89d2-($-1) han-74dc-($-1) // ⿰角瓜
 
 // glyph han-89db-($han-regions):15x16 15 16 // 觛
 // ⿰ han-89d2-($-1) han-65e6 // ⿰角旦
@@ -1157,6 +1163,9 @@ glyph han-8a68-($han-regions):15x16 15 16 // 詨
 // glyph han-8a69:15x16 15 16 // 詩
 // ⿰ han-8a01 han-5bfa // ⿰訁寺
 
+// glyph han-8a6e-($han-regions):15x16 15 16 // 詮
+// ⿰ han-8a01-($-1) han-5168 // ⿰訁全
+
 glyph han-8a70-($han-regions):15x16 15 16 // 詰
 ⿰ han-8a01-($-1):5x16 1 han-5409:9x16 // ⿰訁吉
 glyph han-8a70.0:* = han-8a70-j:*
@@ -1353,6 +1362,9 @@ glyph han-8ac0-($han-regions):15x16 15 16 // 諀
 glyph han-8ac3-($han-regions):15x16 15 16 // 諃
 ⿲ han-8a01-($-1):5x16 han-6728:5x16 han-6728:5x16 // ⿲訁木木
 glyph han-8ac3.0:* = han-8ac3-j:*
+
+// glyph han-8ac4-($han-regions):15x16 15 16 // 諄
+// ⿰ han-8a01-($-1) han-4eab-($-1) // ⿰訁享
 
 // glyph han-8ac5:15x16 15 16 // 諅
 // ⿱ han-5176 han-8a00 // ⿱其言
@@ -1756,6 +1768,9 @@ glyph han-8bd8:15x16 15 16 // 诘
 // glyph han-8bdd:15x16 15 16 // 话
 // ⿰ han-8ba0 han-820c // ⿰讠舌
 
+// glyph han-8be0:15x16 15 16 // 诠
+// ⿰ han-8ba0 han-5168 // ⿰讠全
+
 glyph han-8be6:15x16 15 16 // 详
 ⿰ han-8ba0:5x16 1 han-7f8a:9x16 // ⿰讠羊
 
@@ -1795,6 +1810,9 @@ glyph han-8c01:15x16 15 16 // 谁
 
 glyph han-8c03:15x16 15 16 // 调
 ⿰ han-8ba0:5x16 han-5468:10x16 // ⿰讠周
+
+// glyph han-8c06-($han-regions):15x16 15 16 // 谆
+// ⿰ han-8ba0 han-4eab-($-1) // ⿰讠享
 
 glyph han-8c07:15x16 15 16 // 谇
 ⿰ han-8ba0:5x16 1 han-5352:9x16 // ⿰讠卒

@@ -414,6 +414,9 @@ ref han-98a8:11x16 4 0
 
 ## 184.0
 
+// glyph han-98df:15x16 15 16 // 食
+// ⿱ han-201a2 han-826f // ⿱𠆢良
+
 glyph han-98e0:7x16 7 16 // 飠
 $$.../^1\...$$
 $$./d@P0@b\.$$
@@ -848,6 +851,9 @@ glyph han-99e4:15x16 15 16 // 駤
 glyph han-99e7:15x16 15 16 // 駧
 ⿰ han-99ac:7x16 1 han-540c:7x16 // ⿰馬同
 
+// glyph han-99e9:15x16 15 16 // 駩
+// ⿰ han-99ac han-5168 // ⿰馬全
+
 glyph han-99ec:15x16 15 16 // 駬
 ⿰ han-99ac:7x16 1 han-8033:7x16 // ⿰馬耳
 
@@ -888,6 +894,9 @@ glyph han-9a05:15x16 15 16 // 騅
 
 glyph han-9a06:15x16 15 16 // 騆
 ⿰ han-99ac:7x16 han-5468:8x16 // ⿰馬周
+
+// glyph han-9a07:15x16 15 16 // 騇
+// ⿰ han-99ac han-820d // ⿰馬舍
 
 // glyph han-9a09:15x16 15 16 // 騉
 // ⿰ han-99ac han-6606 // ⿰馬昆

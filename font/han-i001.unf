@@ -9,8 +9,8 @@
 
 ## 8.12
 
-// glyph han-2ebf3:15x16 15 16 // 𮯳
-// ⿳ han-4ea0 han-708f han-706b // ⿳亠炏火 <- ⿱亠⿱炏火
+glyph han-2ebf3:15x16 15 16 // 𮯳
+⿳ han-4ea0:15x2 han-708f:15x8 han-706b:15x6 // ⿳亠炏火 <- ⿱亠⿱炏火
 
 # CJK unified ideographs extension I: 人 (9)
 
@@ -93,6 +93,11 @@ glyph han-2ec06:15x16 15 16 // 𮰆
 // ⿴ han-56d7 han-5404 // ⿴囗各
 
 # CJK unified ideographs extension I: 土 (32)
+
+## 32.1
+
+// glyph han-2ec19:15x16 15 16 // 𮰙
+// ⿺ han-200ca han-571f // ⿺𠃊土
 
 ## 32.4
 
@@ -222,6 +227,11 @@ glyph han-2ec43:15x16 15 16 // 𮱃
 glyph han-2ec61:15x16 15 16 // 𮱡
 ⿱ han-5c0f:15x7 han-5b50-g:15x9 // ⿱小子
 
+## 42.5
+
+// glyph han-2ec62:15x16 15 16 // 𮱢
+// ⿱ han-21b54 han-77f3 // ⿱𡭔石
+
 # CJK unified ideographs extension I: 山 (46)
 
 ## 46.4
@@ -249,6 +259,9 @@ glyph han-2ec68:15x16 15 16 // 𮱨
 # CJK unified ideographs extension I: 弓 (57)
 
 ## 57.6
+
+// glyph han-2ec76:15x16 15 16 // 𮱶
+// ⿰ han-5f13 han-5168 // ⿰弓全
 
 // glyph han-2ec77:15x16 15 16 // 𮱷
 // ⿰ han-5f13 han-5b89 // ⿰弓安
@@ -338,6 +351,13 @@ glyph han-2ec9a:15x16 15 16 // 𮲚
 // glyph han-2eca4:15x16 15 16 // 𮲤
 // ⿱ han-65e5 han-91d1 // ⿱日金
 
+# CJK unified ideographs extension I: 月 (74)
+
+## 74.5
+
+// glyph han-2ecaa:15x16 15 16 // 𮲪
+// ⿰ han-6708 han-2b889 // ⿰月𫢉
+
 # CJK unified ideographs extension I: 木 (75)
 
 ## 75.4
@@ -374,6 +394,13 @@ glyph han-2ecad:15x16 15 16 // 𮲭
 
 // glyph han-2ecbf:15x16 15 16 // 𮲿
 // ⿱ han-6b63 han-30664 // ⿱正𰙤
+
+# CJK unified ideographs extension I: 毛 (82)
+
+## 82.6
+
+// glyph han-2ecc1:15x16 15 16 // 𮳁
+// ⿺ han-6bdb han-5168 // ⿺毛全
 
 # CJK unified ideographs extension I: 水 (85)
 
@@ -552,7 +579,19 @@ glyph han-2ed35:15x16 15 16 // 𮴵
 glyph han-2ed37:15x16 15 16 // 𮴷
 ⿲ han-248e9:3x16 han-7cf9:5x16 han-96b9:7x16 // ⿲𤣩糹隹
 
+# CJK unified ideographs extension I: 瓜 (97)
+
+## 97.5
+
+// glyph han-2ed3b-($han-regions):15x16 15 16 // 𮴻
+// ⿺ han-74dc-($-1) han-767d // ⿺瓜白
+
 # CJK unified ideographs extension I: 田 (102)
+
+## 102.1
+
+// glyph han-2ed3d:15x16 15 16 // 𮴽
+// ⿺ han-200ca han-7530 // ⿺𠃊田
 
 ## 102.5
 

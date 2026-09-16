@@ -163,6 +163,9 @@ glyph han-4a5a:15x16 15 16 // 䩚
 glyph han-4a5c:15x16 15 16 // 䩜
 ⿰ han-9769:7x16 1 han-7531:7x16 // ⿰革由
 
+// glyph han-4a5d-($han-regions):15x16 15 16 // 䩝
+// ⿰ han-9769 han-74dc-($-1) // ⿰革瓜
+
 glyph han-4a5e:15x16 15 16 // 䩞
 ⿰ han-9769:7x16 1 han-5360:7x16 // ⿰革占
 
@@ -701,6 +704,9 @@ glyph han-4bca.0:* = han-4bca-j:*
 glyph han-4bcd-($han-regions):15x16 15 16 // 䯍
 ⿰ han-9aa8-($-1):7x16 1 han-4ee4-($-1):7x16 // ⿰骨令
 
+// glyph han-4bce-($han-regions):15x16 15 16 // 䯎
+// ⿰ han-9aa8-($-1) han-2b889 // ⿰骨𫢉
+
 ## 188.6
 
 // glyph han-4bcf:15x16 15 16 // 䯏
@@ -812,6 +818,9 @@ glyph han-4c3e:15x16 15 16 // 䰾
 
 glyph han-4c43:15x16 15 16 // 䱃
 ⿰ han-9b5a:7x16 1 han-5931:7x16 // ⿰魚失
+
+// glyph han-4c44-($han-regions):15x16 15 16 // 䱄
+// ⿰ han-9b5a han-74dc-($-1) // ⿰魚瓜
 
 // glyph han-4c45:15x16 15 16 // 䱅
 // ⿰ han-9b5a han-672b // ⿰魚末

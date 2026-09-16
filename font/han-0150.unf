@@ -1,3 +1,10 @@
+# CJK unified ideographs: 谷 (150)
+
+## 150.0
+
+// glyph han-8c37-($han-regions):15x16 15 16 // 谷
+// ⿳ han-516b-($-1) han-201a2 han-53e3 // ⿳八𠆢口
+
 # CJK unified ideographs: 豆 (151)
 
 ## 151.0
@@ -728,6 +735,9 @@ glyph han-8de2:15x16 15 16 // 跢
 
 glyph han-8de4:15x16 15 16 // 跤
 ⿰ han-27fb7:5x16 1 han-4ea4:9x16 // ⿰𧾷交
+
+// glyph han-8de7:15x16 15 16 // 跧
+// ⿰ han-27fb7 han-5168 // ⿰𧾷全
 
 // glyph han-8deb:15x16 15 16 // 跫
 // ⿱ han-5de9 han-8db3 // ⿱巩足

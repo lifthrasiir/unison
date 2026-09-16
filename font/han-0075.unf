@@ -974,6 +974,9 @@ glyph han-67e5:15x16 15 16 // 查
 glyph han-67e6:15x16 15 16 // 柦
 ⿰ han-6728:7x16 1 han-65e6:7x16 // ⿰木旦
 
+// glyph han-67e7-($han-regions):15x16 15 16 // 柧
+// ⿰ han-6728 han-74dc-($-1) // ⿰木瓜
+
 glyph han-67eb:15x16 15 16 // 柫
 ⿰ han-6728:5x16 1 han-5f17:9x16 // ⿰木弗
 
@@ -1039,6 +1042,9 @@ glyph han-680d:15x16 15 16 // 栍
 ⿰ han-6728:7x16 1 han-751f:7x16 // ⿰木生
 
 ## 75.6
+
+// glyph han-6813:15x16 15 16 // 栓
+// ⿰ han-6728 han-5168 // ⿰木全
 
 // glyph han-6814-($han-regions):15x16 15 16 // 栔
 // ⿱ han-34de-($-1) han-6728 // ⿱㓞木
@@ -1352,6 +1358,9 @@ glyph han-68f5:15x16 15 16 // 棵
 
 // glyph han-68fe:15x16 15 16 // 棾
 // ⿱ han-6797 han-5197 // ⿱林冗
+
+// glyph han-6901-($han-regions):15x16 15 16 // 椁
+// ⿰ han-6728 han-4eab-($-1) // ⿰木享
 
 // glyph han-6904:15x16 15 16 // 椄
 // ⿰ han-6728 han-59be // ⿰木妾

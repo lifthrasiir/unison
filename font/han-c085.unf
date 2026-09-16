@@ -465,6 +465,9 @@ glyph han-2aeee:15x16 15 16 // 𪻮
 
 ## 96.10
 
+// glyph han-2af08:15x16 15 16 // 𪼈
+// ⿱ han-5168 han-73a8 // ⿱全玨
+
 // glyph han-2af09:15x16 15 16 // 𪼉
 // ⿱ han-5408 han-73a8 // ⿱合玨
 
@@ -493,6 +496,13 @@ glyph han-2af19:15x16 15 16 // 𪼙
 
 // glyph han-2af2c-($han-regions):15x16 15 16 // 𪼬
 // ⿰ han-248e9 han-9716-($-1) // ⿰𤣩霖
+
+# CJK unified ideographs extension C: 瓜 (97)
+
+## 97.3
+
+// glyph han-2af33-($han-regions):15x16 15 16 // 𪼳
+// ⿰ han-74dc-($-1) han-5927 // ⿰瓜大
 
 # CJK unified ideographs extension C: 甘 (99)
 

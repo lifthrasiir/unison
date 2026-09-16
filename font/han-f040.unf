@@ -236,6 +236,9 @@ glyph han-2d58d:15x16 15 16 // 𭖍
 glyph han-2d58e:15x16 15 16 // 𭖎
 ⿰ han-5c71:7x16 han-7247.2:8x16 // ⿰山片
 
+glyph han-2d58f:15x16 15 16 // 𭖏
+⿳ han-5c71:15x4 han-201a2:15x6 -1 han-571f:15x7 // ⿳山𠆢土
+
 // glyph han-2d590:15x16 15 16 // 𭖐
 // ⿳ han-5c71 han-4ea0 han-5dfe // ⿳山亠巾 <- ⿱山市
 
@@ -261,6 +264,9 @@ glyph han-2d596:15x16 15 16 // 𭖖
 
 // glyph han-2d59b:15x16 15 16 // 𭖛
 // ⿳ han-5c71 han-6c34 han-51f5 // ⿳山水凵 <- ⿱汖凵
+
+// glyph han-2d59c:15x16 15 16 // 𭖜
+// ⿱ han-6c34 han-4eda // ⿱水仚
 
 glyph han-2d59d:15x16 15 16 // 𭖝
 ⿲ han-5c71:5x16 han-5973:5x16 han-5b50.0:5x16 // ⿲山女子
@@ -737,6 +743,9 @@ glyph han-2d715:15x16 15 16 // 𭜕
 
 // glyph han-2d717:15x16 15 16 // 𭜗
 // ⿰ han-5fc4 han-4e39 // ⿰忄丹
+
+// glyph han-2d718:15x16 15 16 // 𭜘
+// ⿱ han-20ad3 han-5fc3 // ⿱𠫓心
 
 ## 61.5
 
