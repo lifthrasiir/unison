@@ -79,7 +79,11 @@ font maps, and a menu entry. What is typed matches by subsequence — its letter
 between, case ignored — and rows it starts come first, then rows it appears in unbroken, then the
 rest. `U+` or `uni` followed by hex digits lists characters instead, the digits matched against the
 start or the end of the code point written with at least four digits: `U+123` finds U+0123, U+1234
-and U+12345 (and, after those, U+A123). The keys are completion's — ↑/↓ or Ctrl+J/K, PgUp/PgDn,
+and U+12345 (and, after those, U+A123). The character itself does the same where the font maps it:
+`王` lists U+738B, and the variation sequences built on it under it, while a base and a variation
+selector together list that one sequence. The rule is `map`'s own — one character, or two where the
+second is a selector — so a longer query is still a name; and a character the font does not map
+leaves the query an ordinary one. The keys are completion's — ↑/↓ or Ctrl+J/K, PgUp/PgDn,
 Home/End, Enter or Tab to take a row, Escape to dismiss — and dismissing returns the keyboard to
 wherever it was. A file opens; a glyph or a character goes to the glyph, as a jump Ctrl+T comes back
 from; a menu entry runs as if it had been clicked, and only the entries that could do something are

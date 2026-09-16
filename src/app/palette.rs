@@ -6,7 +6,8 @@
 //! The files the sidebar lists; every menu entry that is enabled when the
 //! palette opens, as its [`Command`]; the resolved glyph names completion would
 //! offer ([`crate::editor::autocomplete::offers_glyph_name`]); and every
-//! character the built font's cmap maps. The last two are a whole font's worth
+//! character the built font's cmap maps, the variation sequences its format 14
+//! subtable adds among them. The last two are a whole font's worth
 //! of rows, so they are kept in [`PaletteCache`] and rebuilt only when a
 //! rebuild replaced what they were made from — out of memory, never out of a
 //! file, since this runs on the UI thread.
@@ -20,11 +21,20 @@
 //! kind, each kind in its own order. The grouping is a bucket fill, not a sort:
 //! a query is narrowed over a font's worth of glyph names on every keystroke.
 //!
-//! A character is matched only by a query spelled like a code point — `U+` or
-//! `uni` and up to six hex digits ([`codepoint_query`]) — and then the digits
-//! are matched against the code point written with at least four of them, as a
-//! prefix *or* a suffix ([`codepoint_fit`]). The suffix is what makes `U+123`
-//! list U+0123 alongside U+123x and U+123xx. Such a query puts characters first.
+//! A character is matched only by a query that asks for a character, in either
+//! of the two ways one is written. Spelled like a code point — `U+` or `uni`
+//! and up to six hex digits ([`codepoint_query`]) — the digits are matched
+//! against the code point written with at least four of them, as a prefix *or*
+//! a suffix ([`codepoint_fit`]). The suffix is what makes `U+123` list U+0123
+//! alongside U+123x and U+123xx. Spelled as the character itself — `王` for
+//! U+738B, or a base and a variation selector together ([`literal_char_query`])
+//! — that character is matched exactly, and a plain base brings the sequences
+//! built on it with it.
+//!
+//! Either way the characters are listed first. The exception is a literal query
+//! that matched no character at all: one or two characters is also what the
+//! start of a name looks like, so it is left to be an ordinary query over
+//! everything else rather than emptying the list.
 //!
 //! # The keyboard
 //!
@@ -147,6 +157,30 @@ pub(super) fn codepoint_query(query: &str) -> Option<&str> {
     (digits.len() <= 6 && digits.bytes().all(|b| b.is_ascii_hexdigit())).then_some(digits)
 }
 
+/// The code point a query spells *literally*, and the variation selector after
+/// it: `王` is U+738B, and `王` followed by U+E0100 is that sequence. `None` for
+/// anything else.
+///
+/// The rule is the one a `map`'s first token is read by
+/// (`crate::document_io`'s `split_written_uvs_pair`, over a single character):
+/// one character is that character, and two are a base and a selector only when
+/// the second is a variation selector and the first is not. Anything longer is
+/// a name rather than a character, so it is left alone.
+pub(super) fn literal_char_query(query: &str) -> Option<(u32, Option<u32>)> {
+    let mut chars = query.chars();
+    let base = chars.next()?;
+    match (chars.next(), chars.next()) {
+        (None, _) => Some((base as u32, None)),
+        (Some(selector), None)
+            if crate::ucd::is_variation_selector(selector as u32)
+                && !crate::ucd::is_variation_selector(base as u32) =>
+        {
+            Some((base as u32, Some(selector as u32)))
+        }
+        _ => None,
+    }
+}
+
 /// How the typed `digits` match code point `cp`, written with at least four
 /// digits: a prefix (or the very same value) is [`Fit::Prefix`], a suffix is
 /// [`Fit::Substring`]. `value` is the digits parsed, passed in so that a whole
@@ -191,14 +225,23 @@ pub(super) struct PaletteCommand {
     pub shortcut: String,
 }
 
+/// One character the built font maps: a code point on its own, or a variation
+/// sequence, with the name of the glyph it maps to.
+pub(super) struct PaletteChar {
+    pub cp: u32,
+    /// The variation selector that follows `cp`, for a cmap format 14 sequence.
+    pub selector: Option<u32>,
+    pub glyph: String,
+}
+
 /// Everything one opening of the palette can list.
 pub(super) struct PaletteItems {
     pub files: Vec<PaletteFile>,
     pub commands: Vec<PaletteCommand>,
     /// Sorted.
     pub glyphs: Arc<[String]>,
-    /// `(code point, glyph name)`, by code point.
-    pub chars: Arc<[(u32, String)]>,
+    /// By code point, each character before the sequences built on it.
+    pub chars: Arc<[PaletteChar]>,
 }
 
 /// One listed row, by index into its kind's list in [`PaletteItems`].
@@ -213,12 +256,35 @@ pub(super) enum Row {
 /// The rows `query` leaves, in the order they are listed; see the module note.
 pub(super) fn narrow(items: &PaletteItems, query: &str) -> Vec<Row> {
     const KINDS: usize = 4;
-    let codepoint = codepoint_query(query);
-    // Kinds are numbered files, commands, glyphs, characters; a code point
-    // query rotates characters to the front.
-    let rank = |kind: usize| match codepoint {
-        Some(_) => (kind + 1) % KINDS,
-        None => kind,
+    let digits = codepoint_query(query);
+    // The characters come out first, since whether a literal query is one at
+    // all is whether it found one.
+    let mut chars: Vec<(Fit, Row)> = Vec::new();
+    if let Some(digits) = digits {
+        let value = u32::from_str_radix(digits, 16).ok();
+        for (i, c) in items.chars.iter().enumerate() {
+            if let Some(fit) = codepoint_fit(c.cp, digits, value) {
+                chars.push((fit, Row::Char(i)));
+            }
+        }
+    } else if let Some((cp, selector)) = literal_char_query(query) {
+        for (i, c) in items.chars.iter().enumerate() {
+            // A base alone takes the sequences built on it too; a base and a
+            // selector take that one sequence.
+            if c.cp == cp && (selector.is_none() || c.selector == selector) {
+                chars.push((Fit::Prefix, Row::Char(i)));
+            }
+        }
+    }
+    // Kinds are numbered files, commands, glyphs, characters; a query asking
+    // for a character rotates characters to the front.
+    let chars_first = digits.is_some() || !chars.is_empty();
+    let rank = |kind: usize| {
+        if chars_first {
+            (kind + 1) % KINDS
+        } else {
+            kind
+        }
     };
     let mut buckets: [Vec<Row>; 3 * KINDS] = Default::default();
     let mut put = |fit: Fit, kind: usize, row: Row| {
@@ -239,23 +305,20 @@ pub(super) fn narrow(items: &PaletteItems, query: &str) -> Vec<Row> {
             put(fit, 2, Row::Glyph(i));
         }
     }
-    if let Some(digits) = codepoint {
-        let value = u32::from_str_radix(digits, 16).ok();
-        for (i, &(cp, _)) in items.chars.iter().enumerate() {
-            if let Some(fit) = codepoint_fit(cp, digits, value) {
-                put(fit, 3, Row::Char(i));
-            }
-        }
+    for (fit, row) in chars {
+        put(fit, 3, row);
     }
     buckets.into_iter().flatten().collect()
 }
 
-/// Every character `font`'s cmap maps, with the name of the glyph it maps to,
-/// by code point. `name_to_gid` is the build's own table; where several names
-/// share a glyph (an alias), the smallest is taken, so the listing is the same
-/// on every build.
-pub(super) fn mapped_chars(font: &[u8], name_to_gid: &HashMap<String, u16>) -> Vec<(u32, String)> {
+/// Every character `font`'s cmap maps — every variation sequence its format 14
+/// subtable maps included — with the name of the glyph it maps to, by code
+/// point. `name_to_gid` is the build's own table; where several names share a
+/// glyph (an alias), the smallest is taken, so the listing is the same on every
+/// build.
+pub(super) fn mapped_chars(font: &[u8], name_to_gid: &HashMap<String, u16>) -> Vec<PaletteChar> {
     use skrifa::MetadataProvider;
+    use skrifa::charmap::MapVariant;
     let Ok(font) = skrifa::FontRef::new(font) else {
         return Vec::new();
     };
@@ -269,16 +332,37 @@ pub(super) fn mapped_chars(font: &[u8], name_to_gid: &HashMap<String, u16>) -> V
             names[gid] = Some(name);
         }
     }
-    let mut chars: Vec<(u32, String)> = font
-        .charmap()
+    let charmap = font.charmap();
+    let name_of = |gid: skrifa::GlyphId| names.get(gid.to_u32() as usize).copied().flatten();
+    let mut chars: Vec<PaletteChar> = charmap
         .mappings()
         .filter_map(|(cp, gid)| {
-            let name = names.get(gid.to_u32() as usize).copied().flatten()?;
-            Some((cp, name.to_string()))
+            Some(PaletteChar {
+                cp,
+                selector: None,
+                glyph: name_of(gid)?.to_string(),
+            })
         })
         .collect();
-    chars.sort_unstable_by_key(|&(cp, _)| cp);
-    chars.dedup_by_key(|(cp, _)| *cp);
+    // A "use default" sequence carries no glyph of its own — it says only that
+    // the pair is one the font knows — so it is listed under the base's.
+    chars.extend(
+        charmap
+            .variant_mappings()
+            .filter_map(|(cp, selector, variant)| {
+                let gid = match variant {
+                    MapVariant::UseDefault => charmap.map(cp)?,
+                    MapVariant::Variant(gid) => gid,
+                };
+                Some(PaletteChar {
+                    cp,
+                    selector: Some(selector),
+                    glyph: name_of(gid)?.to_string(),
+                })
+            }),
+    );
+    chars.sort_unstable_by_key(|c| (c.cp, c.selector));
+    chars.dedup_by_key(|c| (c.cp, c.selector));
     chars
 }
 
@@ -305,8 +389,8 @@ pub(super) enum PaletteJump {
     Glyph(String),
 }
 
-/// `(code point, glyph name)` for every mapped character, by code point.
-type MappedChars = Arc<[(u32, String)]>;
+/// Every mapped character, by code point.
+type MappedChars = Arc<[PaletteChar]>;
 
 /// The palette's big listings between openings, each with the generation it
 /// was made from.
@@ -362,11 +446,28 @@ fn palette_row(
         }
         Row::Glyph(i) => ("G", items.glyphs[i].clone(), String::new()),
         Row::Char(i) => {
-            let (cp, glyph) = &items.chars[i];
+            let PaletteChar {
+                cp,
+                selector,
+                glyph,
+            } = &items.chars[i];
             let shown = char::from_u32(*cp)
                 .filter(|c| !c.is_control())
                 .map_or_else(String::new, String::from);
-            ("U", format!("U+{cp:04X}"), format!("{shown}  {glyph}"))
+            match *selector {
+                None => ("U", format!("U+{cp:04X}"), format!("{shown}  {glyph}")),
+                // The selector itself is invisible, so it is the short name of
+                // it that is written after the base, as the specimen writes it.
+                Some(sel) => {
+                    let name = crate::ucd::variation_selector_label(sel)
+                        .unwrap_or_else(|| format!("U+{sel:04X}"));
+                    (
+                        "U",
+                        format!("U+{cp:04X} U+{sel:04X}"),
+                        format!("{shown} +{name}  {glyph}"),
+                    )
+                }
+            }
         }
     };
     let height = ui.spacing().interact_size.y;
@@ -480,7 +581,7 @@ impl UniformApp {
                                 // move; see the module note.
                                 .lock_focus(true)
                                 .desired_width(f32::INFINITY)
-                                .hint_text("File, glyph, U+code point or menu entry"),
+                                .hint_text("File, glyph, character, U+code point or menu entry"),
                         );
                         if !palette.focus_set {
                             field.request_focus();
@@ -571,7 +672,7 @@ impl UniformApp {
             }
             Row::File(i) => PaletteJump::File(palette.items.files[i].path.clone()),
             Row::Glyph(i) => PaletteJump::Glyph(palette.items.glyphs[i].clone()),
-            Row::Char(i) => PaletteJump::Glyph(palette.items.chars[i].1.clone()),
+            Row::Char(i) => PaletteJump::Glyph(palette.items.chars[i].glyph.clone()),
         };
         // The jump gives the keyboard to the editor it lands in; until then the
         // field it was in is gone.
@@ -648,13 +749,13 @@ impl UniformApp {
         names
     }
 
-    fn palette_mapped_chars(&mut self) -> Arc<[(u32, String)]> {
+    fn palette_mapped_chars(&mut self) -> MappedChars {
         if let Some((generation, chars)) = &self.palette_cache.chars
             && *generation == self.font_data_gen
         {
             return Arc::clone(chars);
         }
-        let chars: Arc<[(u32, String)]> = self
+        let chars: MappedChars = self
             .font_data
             .as_ref()
             .map(|(_, vector)| mapped_chars(vector, &self.font_name_to_gid))

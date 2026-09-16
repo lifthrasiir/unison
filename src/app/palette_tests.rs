@@ -34,10 +34,29 @@ fn items(
             .into(),
         chars: chars
             .iter()
-            .map(|&(cp, g)| (cp, g.to_string()))
+            .map(|&(cp, g)| PaletteChar {
+                cp,
+                selector: None,
+                glyph: g.to_string(),
+            })
             .collect::<Vec<_>>()
             .into(),
     }
+}
+
+/// The same, with a variation selector on every character.
+fn items_with_sequences(chars: &[(u32, Option<u32>, &str)]) -> PaletteItems {
+    let mut items = items(&[], &[], &[], &[]);
+    items.chars = chars
+        .iter()
+        .map(|&(cp, selector, g)| PaletteChar {
+            cp,
+            selector,
+            glyph: g.to_string(),
+        })
+        .collect::<Vec<_>>()
+        .into();
+    items
 }
 
 fn labels(items: &PaletteItems, rows: &[Row]) -> Vec<String> {
@@ -46,7 +65,10 @@ fn labels(items: &PaletteItems, rows: &[Row]) -> Vec<String> {
             Row::File(i) => items.files[i].name.clone(),
             Row::Command(i) => items.commands[i].title.clone(),
             Row::Glyph(i) => items.glyphs[i].clone(),
-            Row::Char(i) => format!("U+{:04X}", items.chars[i].0),
+            Row::Char(i) => match items.chars[i].selector {
+                None => format!("U+{:04X}", items.chars[i].cp),
+                Some(sel) => format!("U+{:04X} U+{sel:04X}", items.chars[i].cp),
+            },
         })
         .collect()
 }
@@ -146,6 +168,107 @@ fn a_code_point_query_lists_characters_first() {
     assert_eq!(
         labels(&items, &narrow(&items, "U+")),
         ["U+0041", "U+0123", "U+1230", "U+A123"],
+    );
+}
+
+/// One or two characters are read as the character itself — the rule `map`'s
+/// own first token is read by — and anything longer is a name.
+#[test]
+fn a_literal_character_query_is_one_character_or_a_pair_with_a_selector() {
+    assert_eq!(literal_char_query("\u{738B}"), Some((0x738B, None)));
+    assert_eq!(literal_char_query("a"), Some((0x61, None)));
+    assert_eq!(
+        literal_char_query("\u{738B}\u{E0100}"),
+        Some((0x738B, Some(0xE0100))),
+    );
+    assert_eq!(literal_char_query("0\u{FE0F}"), Some((0x30, Some(0xFE0F))));
+    assert_eq!(literal_char_query(""), None);
+    assert_eq!(literal_char_query("ab"), None, "no selector");
+    assert_eq!(
+        literal_char_query("\u{FE0F}\u{FE0F}"),
+        None,
+        "a selector is not a base",
+    );
+    assert_eq!(literal_char_query("\u{738B}\u{E0100}a"), None, "too long");
+}
+
+/// Typing the character asks for that character, and puts it first as a code
+/// point query does; the sequences built on it come with it.
+#[test]
+fn a_literal_character_query_lists_that_character_first() {
+    let items = items_with_sequences(&[
+        (0x738A, None, "wang-ish"),
+        (0x738B, None, "wang"),
+        (0x738B, Some(0xE0100), "wang-alt"),
+        (0x738C, None, "wang-other"),
+    ]);
+    assert_eq!(
+        labels(&items, &narrow(&items, "\u{738B}")),
+        ["U+738B", "U+738B U+E0100"],
+    );
+    assert_eq!(
+        labels(&items, &narrow(&items, "\u{738B}\u{E0100}")),
+        ["U+738B U+E0100"],
+    );
+    // The selector's own code point is not a character the font maps.
+    assert!(narrow(&items, "\u{E0100}").is_empty());
+}
+
+/// A character the font does not map leaves the query an ordinary one, since
+/// one or two characters is also what a short name looks like.
+#[test]
+fn a_literal_character_the_font_does_not_map_stays_an_ordinary_query() {
+    let unmapped = items(&["a.unf"], &[], &["alpha"], &[(0x62, "b")]);
+    assert_eq!(
+        labels(&unmapped, &narrow(&unmapped, "a")),
+        ["a.unf", "alpha"]
+    );
+    let mapped = items(&["a.unf"], &[], &["alpha"], &[(0x61, "a-glyph")]);
+    assert_eq!(
+        labels(&mapped, &narrow(&mapped, "a")),
+        ["U+0061", "a.unf", "alpha"],
+    );
+}
+
+/// What the listing is made of: the built font's cmap, the format 14 variation
+/// sequences included. A "use default" sequence carries no glyph of its own and
+/// is listed under the base's.
+#[test]
+fn the_listing_carries_the_fonts_variation_sequences() {
+    let src = "\
+meta height 4
+meta ascent 3
+meta descent 1
+
+glyph zero 2 2
+@@
+@.
+
+glyph zero-emoji 2 2
+@@
+@@
+
+map U+0030 = zero
+map U+0030 U+FE0E = zero
+map U+0030 U+FE0F = zero-emoji
+";
+    let doc = crate::document_io::parse_document_from_str(src, "test.unf".into()).unwrap();
+    let built = crate::render::ttf_builder::build_font_with_gid_map(&[&doc]).expect("it builds");
+    let name_to_gid: HashMap<String, u16> = built
+        .gid_to_name
+        .iter()
+        .map(|(&gid, name)| (name.clone(), gid))
+        .collect();
+    let chars = mapped_chars(&built.ttf, &name_to_gid);
+    let listed: Vec<(u32, Option<u32>, &str)> = chars
+        .iter()
+        .map(|c| (c.cp, c.selector, c.glyph.as_str()))
+        .collect();
+    assert!(listed.contains(&(0x30, None, "zero")), "{listed:?}");
+    assert!(listed.contains(&(0x30, Some(0xFE0E), "zero")), "{listed:?}");
+    assert!(
+        listed.contains(&(0x30, Some(0xFE0F), "zero-emoji")),
+        "{listed:?}"
     );
 }
 
