@@ -1115,7 +1115,7 @@ impl SpecimenState {
                     .iter()
                     .map(|item| match item {
                         Item::Char(i) => format!("{:04X}", self.entries[*i].cp),
-                        Item::Uvs(i) => uvs_label(&self.uvs_entries[*i]),
+                        Item::Uvs(i) => uvs_label(&self.char_props, &self.uvs_entries[*i]),
                         Item::Remap(ri) => self.remap_entries[*ri].glyph_name.clone(),
                     })
                     .collect::<Vec<_>>()
@@ -1393,7 +1393,7 @@ impl SpecimenState {
                     // of its own.
                     let wide_label = match item {
                         Item::Char(_) => None,
-                        Item::Uvs(i) => Some(uvs_label(&self.uvs_entries[i])),
+                        Item::Uvs(i) => Some(uvs_label(&self.char_props, &self.uvs_entries[i])),
                         Item::Remap(ri) => Some(self.remap_entries[ri].label.clone()),
                     };
                     if let Some(text) = wide_label {
@@ -1597,12 +1597,12 @@ impl SpecimenState {
                     .filter_map(|cp| char::from_u32(*cp))
                     .collect();
                 format!(
-                    "U+{:04X} U+{:04X} {} {} + {} ({})",
+                    "U+{:04X} U+{:04X} {} {} {} ({})",
                     entry.base,
                     entry.selector,
                     text,
                     base_name,
-                    selector_name(entry.selector),
+                    selector_suffix(&self.char_props, entry.selector),
                     entry.glyph_name
                 )
             }
@@ -1769,7 +1769,7 @@ impl SpecimenState {
     ) {
         let cell_rect = style.cell_rect(cell_min);
         let entry = &self.uvs_entries[uvs_idx];
-        let label_text = uvs_label(entry);
+        let label_text = uvs_label(&self.char_props, entry);
         let (base, selector) = (entry.base, entry.selector);
 
         let font = style.raster_font.and_then(|b| FontRef::new(b).ok());
@@ -1949,8 +1949,31 @@ impl SpecimenState {
 /// screen, and the short form is the one that fits a cell. Where there is no
 /// such neighbour to read it against — the status bar, the tooltip — the pair
 /// is spelled out in full instead (`status_body`).
-fn uvs_label(entry: &UvsEntry) -> String {
-    format!("+{}", selector_name(entry.selector))
+///
+/// A `prop … label` line replaces the whole token, leading `+` or `-` included
+/// ([`CharProps::selector_label`](crate::ucd::CharProps::selector_label)): what
+/// the source wrote is what the cell says, since the point of stating one is
+/// that `+VS16` was not the name this font's reader wanted.
+fn uvs_label(char_props: &crate::ucd::CharProps, entry: &UvsEntry) -> String {
+    match char_props.selector_label(entry.selector) {
+        Some(label) => label.to_string(),
+        None => format!("+{}", selector_name(entry.selector)),
+    }
+}
+
+/// What `status_body` writes between the base's name and the glyph's:
+/// `+ VS17`, the selector spelled apart from the `+` that says it is something
+/// to type after the base.
+///
+/// A stated label is written whole and attached instead — `+EP`, `-EP` — since
+/// its first character is part of what it says (`-EP` for the text
+/// presentation selector against `+EP` for the emoji one), and prising a `+`
+/// off the front would make the two read alike.
+fn selector_suffix(char_props: &crate::ucd::CharProps, selector: u32) -> String {
+    match char_props.selector_label(selector) {
+        Some(label) => label.to_string(),
+        None => format!("+ {}", selector_name(selector)),
+    }
 }
 
 fn selector_name(selector: u32) -> String {

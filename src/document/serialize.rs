@@ -187,6 +187,7 @@ impl DocumentItem {
                 "gc" => values.gc = Some(value.clone()),
                 "ccc" => values.ccc = Some(value.parse().ok()?),
                 "eaw" => values.eaw = Some(value.clone()),
+                "label" => values.label = Some(value.clone()),
                 _ => return None,
             }
             idx += 2;
@@ -648,6 +649,9 @@ impl DocumentItem {
                 }
                 if let Some(eaw) = &values.eaw {
                     line.push_str(&format!(" eaw {}", quote_token(eaw)));
+                }
+                if let Some(label) = &values.label {
+                    line.push_str(&format!(" label {}", quote_token(label)));
                 }
                 Some(format!("{line}{}", serialize_comment_suffix(comment)))
             }

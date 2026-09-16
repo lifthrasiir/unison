@@ -268,7 +268,7 @@ pub enum DocumentItem {
         end: u32,
         comment: Option<String>,
     },
-    /// `prop CHAR [= NAME] [gc GC] [ccc N] [eaw EAW]` — Unicode character
+    /// `prop CHAR [= NAME] [gc GC] [ccc N] [eaw EAW] [label LABEL]` — Unicode character
     /// properties a source states for characters the UCD leaves blank (Private
     /// Use, mostly). `char_repr` is the same character spelling a
     /// [`Map`](DocumentItem::Map) takes and `name` the pattern expanded against

@@ -903,7 +903,7 @@ and the average character width from the glyphs, and the default and break chara
 ### `prop`: Character properties the UCD does not have
 
 ```
-prop CHAR [= NAME] [gc GC] [ccc N] [eaw EAW]
+prop CHAR [= NAME] [gc GC] [ccc N] [eaw EAW] [label LABEL]
 prop block NAME = U+XXXX[..YYYY]
 ```
 
@@ -933,6 +933,23 @@ outside those sets is an error: the line exists to be read, and a value nothing 
 against is worse than none. A `ccc` that is not a number in 0–255 makes the line malformed, as an
 unknown keyword or a keyword without a value does; a malformed line is kept verbatim and reported as
 an unrecognized directive rather than half-read.
+
+`label` is not a Unicode property but a name for a **variation selector**, and it replaces the
+`+VS16` a variation sequence's cell is labelled by. It is written whole wherever it is written —
+its first character is part of it, which is what lets one pair of labels say two things:
+
+```
+prop U+FE0E label -EP        // `一 -EP` rather than `一 +VS15`
+prop U+FE0F label +EP        // `一 +EP` rather than `一 +VS16`
+```
+
+The label is stated on the selector, not on the pair, since a selector means the same thing after
+every base it follows. The specimen panel writes it in the cell and in the hover line, where an
+unlabelled selector keeps its `+ VS16` spelling instead; the demo page writes it in the sequence
+cell and keeps the selector's own name in that label's tooltip (`VS16 (+EP)`), so a reader who
+knows the numbers and not this font's names is not left without one. A `label` on anything that is
+not a variation selector is ignored in silence — the field is a hint about how to write a sequence,
+and a character with a cell of its own already shows its name there.
 
 Each property is independent, and **a line changes only what it states**. Where several lines cover
 one character, each field comes from the last line that states it, so the properties of an area and

@@ -297,3 +297,22 @@ map U+E0030..E0039 = tag-($0..9)
 map U+E0061..E007A = tag-($a-z)
 map U+E007F = tag-cancel
 
+## variation selectors
+
+// emoji presentation
+prop U+FE0E label `-EP`
+prop U+FE0F label `+EP`
+
+// PanCJKV extensions
+prop U+E01EF label `@XK` // Kangxi
+prop U+E01EE label `@CN`
+prop U+E01EB label `@HK`
+prop U+E01EC label `@TW`
+prop U+E01E8 label `@JP`
+prop U+E01E7 label `@KR`
+prop U+E01E6 label `@KP`
+prop U+E01E5 label `@VN`
+prop U+E01ED label `@SG`
+prop U+E01EA label `@MO`
+prop U+E01E9 label `@MY`
+

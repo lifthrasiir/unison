@@ -744,6 +744,28 @@ fn a_variation_sequence_is_joined_to_its_base_by_an_open_border() {
     );
 }
 
+/// A `prop … label` line renames the selector in the cell and in the hover
+/// line, and in both it is written exactly as stated: its first character is
+/// part of it, so a label is never taken apart the way `+ VS17` is.
+#[test]
+fn a_stated_label_replaces_the_selectors_number() {
+    let mut state = state(&format!("{UVS_SRC}prop U+E0100 label -EP\n"));
+    state.options.group_by_block = false;
+    assert_eq!(state.row_summaries(8), vec!["4E00 -EP +VS18 4E01 +VS1"]);
+    state.rebuild_sections();
+    let item = state.items[1];
+    assert_eq!(
+        state.status_body(item),
+        "U+4E00 U+E0100 \u{4E00}\u{E0100} CJK UNIFIED IDEOGRAPH-4E00 -EP (var-a)"
+    );
+    // A selector no line labels keeps the `+ VS18` spelling, space and all.
+    let item = state.items[2];
+    assert_eq!(
+        state.status_body(item),
+        "U+4E00 U+E0101 \u{4E00}\u{E0101} CJK UNIFIED IDEOGRAPH-4E00 + VS18 (var-b)"
+    );
+}
+
 /// The hover line names both halves of the sequence and the glyph it picks.
 #[test]
 fn a_variation_sequence_cell_states_the_pair_it_stands_for() {

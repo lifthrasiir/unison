@@ -161,9 +161,10 @@ prop block `Unison Symbols` = U+F0000..F00FF
 prop U+F0000 = `UNISON LOGO` gc So eaw W // the mark
 prop U+F0010..F001F eaw W gc So ccc 230
 prop 한 = `HANGUL SYLLABLE HAN`
+prop U+FE0F label +EP
 ";
     let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
-    assert_eq!(doc.items.len(), 4);
+    assert_eq!(doc.items.len(), 5);
 
     let DocumentItem::PropBlock {
         name, start, end, ..
@@ -192,6 +193,12 @@ prop 한 = `HANGUL SYLLABLE HAN`
     assert_eq!(values.ccc, None);
     assert_eq!(comment.as_deref(), Some("the mark"));
 
+    // A label is a property like any other: on its own it makes a whole line.
+    let DocumentItem::PropChar { values, .. } = &doc.items[4] else {
+        panic!("expected PropChar, got {:?}", doc.items[4]);
+    };
+    assert_eq!(values.label.as_deref(), Some("+EP"));
+
     let mut output = Vec::new();
     serialize_document(&doc, &mut output).unwrap();
     assert_eq!(
@@ -201,6 +208,7 @@ prop block `Unison Symbols` = U+F0000..F00FF
 prop U+F0000 = `UNISON LOGO` gc So eaw W // the mark
 prop U+F0010..F001F gc So ccc 230 eaw W
 prop 한 = `HANGUL SYLLABLE HAN`
+prop U+FE0F label +EP
 ",
     );
 }

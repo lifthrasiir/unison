@@ -238,12 +238,30 @@
     return "";
   }
 
+  /* The labels a `prop … label` line states for a selector, which replace the
+     `+VS16` above wholesale — leading `+` or `-` included, since what the
+     source wrote is the whole of what the cell says, and `-EP` against `+EP` is
+     the two presentations of one character
+     (`ucd::CharProps::selector_label`). */
+  var vsStated = new Map(data.vs_labels || []);
+
   /* What a sequence is called under its glyph: what has to be typed *after* the
      cell's own character, `+` before each. A selector is named rather than
      numbered, since `+VS1` says what `+FE00` does not. */
   function seqLabel(tail) {
-    if (tail.length === 1 && vsLabel(tail[0])) return "+" + vsLabel(tail[0]);
+    if (tail.length === 1 && vsLabel(tail[0])) {
+      return vsStated.get(tail[0]) || "+" + vsLabel(tail[0]);
+    }
     return tail.map(function (cp) { return "+" + hex(cp, 4); }).join("");
+  }
+
+  /* What a stated label is hiding: the selector's own name, with the label
+     beside it. A reader who knows the VS numbers and not this font's names
+     needs the one the source replaced, and the cell has nowhere to put it but a
+     tooltip. Empty for every label the rule above produced by itself. */
+  function seqLabelTitle(tail) {
+    if (tail.length !== 1 || !vsLabel(tail[0]) || !vsStated.has(tail[0])) return "";
+    return vsLabel(tail[0]) + " (" + vsStated.get(tail[0]) + ")";
   }
 
   function seqTitle(cps) {
@@ -318,14 +336,17 @@
      sequence and lets the browser shape it — which is the only honest way to
      show it, and is why a sequence whose glyph needs a neighbour (a lone half
      of a flag) draws that neighbour too. The label is what to type past the
-     cell the row hangs off; the title is the sequence entire. */
+     cell the row hangs off; the title is the sequence entire, and a label the
+     source replaced carries the name it replaced as a title of its own. */
   function seqCellHtml(first, tail) {
     var cps = [first].concat(tail);
     var text = cps.map(function (cp) { return String.fromCodePoint(cp); }).join("");
+    var lt = seqLabelTitle(tail);
+    var labelTitle = lt ? ' title="' + esc(lt) + '"' : "";
     return (
       '<div class="cell" title="' + esc(seqTitle(cps)) + '">' +
       '<span class="g">' + esc(text) + "</span>" +
-      '<span class="n">' + esc(seqLabel(tail)) + "</span>" +
+      '<span class="n"' + labelTitle + ">" + esc(seqLabel(tail)) + "</span>" +
       "</div>"
     );
   }

@@ -214,6 +214,12 @@ struct DemoData {
     /// The multi-character sequences each cell can offer; see
     /// [`collect_sequences`].
     seqs: String,
+    /// `[selector, label]` — what a `prop … label` line states to write in
+    /// place of the `+VS16` a variation sequence would be labelled by
+    /// ([`CharProps::selector_label`](crate::ucd::CharProps::selector_label)).
+    /// Omitted entirely when the source states none, which is the usual case.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    vs_labels: Vec<(u32, String)>,
 }
 
 /// One heading's worth of ready-made sample texts.
@@ -523,6 +529,10 @@ fn collect(
         name_runs,
         samples: collect_samples(src, data_dir),
         seqs: collect_sequences(docs, face, expansion, bitmap_ttf),
+        vs_labels: props
+            .selector_labels()
+            .map(|(cp, label)| (cp, label.to_string()))
+            .collect(),
     }
 }
 
@@ -603,7 +613,8 @@ fn gap_len_runs(cps: &[u32]) -> String {
 /// they are the ones the cell's own character *is*: `A +VS1` varies what the
 /// cell already draws, where the rest begin something else. The label a
 /// selector wears (`+VS1` rather than `+FE00`) is `demo.js`'s, on the same rule
-/// as the editor's.
+/// as the editor's — including the `prop … label` line that replaces it, which
+/// travels beside this blob as [`DemoData::vs_labels`].
 ///
 /// Only sequences of two code points or more. A one-code-point answer is a
 /// character the font *already* draws that way, so its own cell shows it and

@@ -64,6 +64,11 @@ pub struct CharPropValues {
     pub gc: Option<String>,
     pub ccc: Option<u8>,
     pub eaw: Option<String>,
+    /// What to write in place of the `+VS16` a variation selector is labelled
+    /// by; see [`CharProps::selector_label`]. Not a Unicode property at all —
+    /// it is a name this font's reader is better served by — which is why
+    /// nothing validates it against anything, its leading `+` or `-` included.
+    pub label: Option<String>,
 }
 
 impl CharPropValues {
@@ -83,6 +88,9 @@ impl CharPropValues {
         }
         if other.eaw.is_some() {
             self.eaw = other.eaw.clone();
+        }
+        if other.label.is_some() {
+            self.label = other.label.clone();
         }
     }
 }
@@ -186,6 +194,39 @@ impl CharProps {
             return stated.is_some();
         }
         is_assigned(cp)
+    }
+
+    /// What a `prop … label` line states to write in place of the `+VS16` a
+    /// variation sequence's cell is labelled by — `-EP` and `+EP` for a source
+    /// that would rather say which presentation `U+FE0E` and `U+FE0F` select
+    /// than which number each is.
+    ///
+    /// Written whole wherever it is written, first character and all: that
+    /// character is the half of `-EP` against `+EP` that carries the meaning,
+    /// and nothing may take it for the `+` of a selector's own spelling.
+    ///
+    /// Stated *on the selector*, not on the pair: a selector means the same
+    /// thing after every base it follows, and a per-pair label would have to be
+    /// repeated once per character that takes it.
+    ///
+    /// `None` for a code point that is not a variation selector, whatever the
+    /// line said. The label only has somewhere to go where one is written, and
+    /// a character with a cell of its own already shows its name there; a line
+    /// that labels anything else is ignored in silence rather than reported,
+    /// since the field is a hint and not a claim about the character.
+    pub fn selector_label(&self, cp: u32) -> Option<&str> {
+        if !is_variation_selector(cp) {
+            return None;
+        }
+        self.stated(cp)?.values.label.as_deref()
+    }
+
+    /// Every stated selector label, in code point order — what the demo page is
+    /// handed, since it labels its cells itself.
+    pub fn selector_labels(&self) -> impl Iterator<Item = (u32, &str)> {
+        self.by_cp.iter().filter_map(|(&cp, stated)| {
+            is_variation_selector(cp).then(|| Some((cp, stated.values.label.as_deref()?)))?
+        })
     }
 
     /// The brace group for `ch`, e.g. `{gc=Lo eaw=W}`, with any `prop`
@@ -506,6 +547,40 @@ mod tests {
         // U+1E5D0, Tolong Siki — assigned in 16.0, so a *downgrade* past 16
         // fails here rather than passing the check above by accident.
         assert_eq!(property_summary('\u{1E5D0}'), "{gc=Lo eaw=N}");
+    }
+
+    /// A label belongs to a variation selector and to nothing else: a line may
+    /// state one anywhere, and only a selector has anywhere to write it.
+    #[test]
+    fn a_label_is_read_back_for_a_variation_selector_alone() {
+        let p = props(concat!(
+            "prop U+FE0F label +EP\n",
+            "prop U+E0100 label `+form A`\n",
+            "prop U+0041 label +NOPE\n",
+        ));
+        assert_eq!(p.selector_label(0xFE0F), Some("+EP"));
+        assert_eq!(p.selector_label(0xE0100), Some("+form A"));
+        // Not a selector, so nothing reads it — and no error says so either.
+        assert_eq!(p.selector_label(0x0041), None);
+        // A selector no line labels keeps its `VS` number.
+        assert_eq!(p.selector_label(0xFE00), None);
+        assert_eq!(
+            p.selector_labels().collect::<Vec<_>>(),
+            vec![(0xFE0F, "+EP"), (0xE0100, "+form A")]
+        );
+    }
+
+    /// `label` is one more independent field: a later line replaces it and
+    /// leaves the rest alone, exactly as `gc` does.
+    #[test]
+    fn a_later_line_replaces_only_the_label() {
+        let p = props(concat!(
+            "prop U+FE0F gc Mn label +EP\n",
+            "prop U+FE0F label +EMOJI\n",
+        ));
+        let s = p.stated(0xFE0F).unwrap();
+        assert_eq!(s.values.label.as_deref(), Some("+EMOJI"));
+        assert_eq!(s.values.gc.as_deref(), Some("Mn"));
     }
 
     #[test]
