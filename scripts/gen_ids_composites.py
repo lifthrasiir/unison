@@ -1198,10 +1198,28 @@ HEADING_RE = re.compile(r"^##\s+(\d+)('?)\.(-?\d+)\s*$")
 
 
 @dataclass
+class Block:
+    """One run of non-blank lines, with the blank run that precedes it.
+
+    Nothing about a block is understood beyond the code point `block_cp` may
+    find in it, which is what lets a file keep whatever a hand put in it: a
+    group of comment-only lines, an `assert distinct` standing on its own, a
+    heading this script has no rule for. `lead` is why a rewrite is a pure
+    insertion -- the blank runs come back exactly as they were read, so the
+    round-trip check below fails only for a file this script would really
+    reshuffle.
+    """
+
+    lines: list[str]
+    lead: int = 1
+
+
+@dataclass
 class Section:
     heading: str
     key: tuple  # (radical, prime, strokes)
-    blocks: list[list[str]]
+    blocks: list[Block]
+    lead: int = 1
 
 
 @dataclass
@@ -1211,6 +1229,21 @@ class Group:
     heading: str
     key: tuple  # (radical, prime)
     sections: list[Section]
+    # whatever sits between the radical heading and its first `## R.S`
+    blocks: list[Block] = field(default_factory=list)
+    lead: int = 1
+
+
+def splice(items: list, pos: int, item) -> None:
+    """Insert, leaving the blank run that opens the list where it was.
+
+    The first element of a file carries no blank run of its own (`leading`
+    holds it), so an insertion in front of it has to take that over and hand
+    the old first element an ordinary blank line.
+    """
+    if pos == 0 and items:
+        item.lead, items[0].lead = items[0].lead, max(item.lead, 1)
+    items.insert(pos, item)
 
 
 @dataclass
@@ -1220,11 +1253,11 @@ class SliceFile:
     # (radical, prime) -> the character a heading names it by
     rad_chars: dict[tuple[int, int], str]
     groups: list[Group]
-    # anything before the first `## R.S`, kept verbatim: a file that has any
-    # fails the round-trip check below and is left alone rather than reshuffled
-    stray: list[list[str]]
-    # blank lines a file happens to end with, kept so a rewrite is a pure
-    # insertion rather than a whitespace tidy-up
+    # anything before the first heading of any kind, kept verbatim
+    stray: list[Block] = field(default_factory=list)
+    # blank lines the file opens and ends with, kept so that a rewrite adds
+    # nothing but the blocks it meant to add
+    leading: int = 0
     trailing: int = 0
 
     @classmethod
@@ -1237,27 +1270,46 @@ class SliceFile:
             lines.pop()
             trailing += 1
         groups: list[Group] = []
-        stray: list[list[str]] = []
+        stray: list[Block] = []
         cur_group: Group | None = None
         cur_sec: Section | None = None
         block: list[str] = []
+        blanks = 0  # blank lines seen since the last non-blank one
+        block_lead = 0
+        leading = 0
+        first = True
+
+        def lead() -> int:
+            """The blank run that precedes what is about to be read."""
+            nonlocal blanks, leading, first
+            n, blanks = blanks, 0
+            if first:
+                # the file's own opening blank run belongs to no element
+                first, leading, n = False, n, 0
+            return n
 
         def flush():
             nonlocal block
             if block:
-                (cur_sec.blocks if cur_sec else stray).append(block)
+                target = stray if cur_group is None else cur_group.blocks
+                (cur_sec.blocks if cur_sec is not None else target).append(
+                    Block(block, block_lead))
                 block = []
 
         for line in lines:
+            if not line.strip():
+                flush()
+                blanks += 1
+                continue
             m = HEADING_RE.match(line)
             if m:
                 flush()
                 key = (int(m.group(1)), 1 if m.group(2) else 0, int(m.group(3)))
-                cur_sec = Section(line.rstrip(), key, [])
+                cur_sec = Section(line, key, [], lead())
                 if cur_group is None or cur_group.key != key[:2]:
                     # a section under no heading of its own: leave it where it
-                    # is (the round-trip check will skip the file)
-                    cur_group = Group("", key[:2], [])
+                    # is, in a group that writes no heading back
+                    cur_group = Group("", key[:2], [], lead=0)
                     groups.append(cur_group)
                 cur_group.sections.append(cur_sec)
                 continue
@@ -1266,40 +1318,44 @@ class SliceFile:
                 flush()
                 cur_sec = None
                 cur_group = Group(
-                    line.rstrip(),
+                    line,
                     (int(m.group("radical")), 1 if m.group("prime") else 0),
                     [],
+                    lead=lead(),
                 )
                 groups.append(cur_group)
                 continue
-            if not line.strip():
-                flush()
-                continue
+            if not block:
+                block_lead = lead()
             block.append(line)
         flush()
-        return cls(path, letter, rad_chars, groups, stray, max(0, trailing - 1))
+        return cls(path, letter, rad_chars, groups, stray, leading,
+                   max(0, trailing - 1))
 
     def dumps(self) -> str:
         out: list[str] = []
+
+        def emit(item, lines: list[str]):
+            out.extend([""] * item.lead)
+            out.extend(lines)
+
         for b in self.stray:
-            if out:
-                out.append("")
-            out.extend(b)
+            emit(b, b.lines)
         for g in self.groups:
             if g.heading:
-                if out:
-                    out.append("")
-                out.append(g.heading)
+                emit(g, [g.heading])
+            for b in g.blocks:
+                emit(b, b.lines)
             for sec in g.sections:
-                if out:
-                    out.append("")
-                out.append(sec.heading)
+                emit(sec, [sec.heading])
                 for b in sec.blocks:
-                    out.append("")
-                    out.extend(b)
+                    emit(b, b.lines)
+        while out and out[0] == "":
+            # a file this script opened itself: no blank line before its head
+            out.pop(0)
         if not out:
             return ""
-        return "\n".join(out) + "\n" * (1 + self.trailing)
+        return "\n".join([""] * self.leading + out) + "\n" * (1 + self.trailing)
 
     def group_for(self, key: tuple) -> Group:
         for g in self.groups:
@@ -1315,7 +1371,7 @@ class SliceFile:
             if other.key > key:
                 pos = i
                 break
-        self.groups.insert(pos, g)
+        splice(self.groups, pos, g)
         return g
 
     def section_for(self, key: tuple) -> Section:
@@ -1331,29 +1387,38 @@ class SliceFile:
             if s.key > key:
                 pos = i
                 break
-        group.sections.insert(pos, sec)
+        splice(group.sections, pos, sec)
         return sec
 
 
 BLOCK_CP_RE = re.compile(r"^(?://\s*)?glyph\s+han-([0-9a-f]{4,5})")
 
 
-def block_cp(block: list[str]) -> int | None:
-    for line in block:
+def block_cp(block: Block) -> int | None:
+    for line in block.lines:
         m = BLOCK_CP_RE.match(line.strip())
         if m:
             return int(m.group(1), 16)
     return None
 
 
-def insert_block(sec: Section, cp: int, block: list[str]) -> None:
+def insert_block(sec: Section, cp: int, block: Block) -> None:
+    """Put a block in code-point order, disturbing nothing around it.
+
+    A block with no code point to read -- a group of comment-only lines, an
+    `assert distinct`, anything a hand wrote -- *trails* the block above it:
+    it is taken to say something about that glyph, so an insertion lands after
+    it rather than between the two. One that opens a section, having no glyph
+    above it, keeps the head of the section for the same reason.
+    """
     pos = len(sec.blocks)
+    above = None
     for i, b in enumerate(sec.blocks):
-        other = block_cp(b)
-        if other is not None and other > cp:
+        above = block_cp(b) if block_cp(b) is not None else above
+        if above is not None and above > cp:
             pos = i
             break
-    sec.blocks.insert(pos, block)
+    splice(sec.blocks, pos, block)
 
 
 # --------------------------------------------------------------------------
@@ -1896,10 +1961,11 @@ def main() -> int:
                 for sec in g.sections:
                     sec.blocks = [
                         b for b in sec.blocks
-                        if not (block_cp(b) in drop and b[0].lstrip().startswith("//"))
+                        if not (block_cp(b) in drop
+                                and b.lines[0].lstrip().startswith("//"))
                     ]
         for key, cp, block in sorted(items, key=lambda it: (it[0], it[1])):
-            insert_block(sf.section_for(key), cp, block)
+            insert_block(sf.section_for(key), cp, Block(block))
         if not args.dry_run:
             with open(path, "w", encoding="utf-8") as f:
                 f.write(sf.dumps())
