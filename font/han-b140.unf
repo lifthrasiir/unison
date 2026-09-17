@@ -24,8 +24,7 @@ ref han-4ebb:5x12 5 4
 // ⿳ han-8279 han-4e5b han-4e85 // ⿳艹乛亅 <- ⿱艹了
 
 glyph han-26afd:15x16 15 16 // 𦫽
-ref han-8279:15x3 0 0 // ⿱艹二
-ref han-4e8c:15x10 0 6
+assume ⿱ han-8279:15x3 3 han-4e8c:15x10 // ⿱艹二
 
 // glyph han-26aff-($han-regions):15x16 15 16 // 𦫿
 // ⿱ han-8279 han-53c8-($-1) // ⿱艹又

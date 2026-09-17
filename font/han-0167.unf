@@ -213,8 +213,7 @@ glyph han-920b-($han-regions):15x16 15 16 // 鈋
 // ⿲ han-91d2 han-5f13 han-4e28 // ⿲釒弓丨 <- ⿰釒引
 
 glyph han-9210.0:15x16 15 16 // 鈐
-ref han-91d2:7x16 0 0 // ⿰釒今
-ref han-4eca.0:9x16 6 0
+assume ⿰ han-91d2:7x16 -1 han-4eca.0:9x16 // ⿰釒今
 glyph han-9210.1:* = han-9210.0:*
 glyph han-9210.2:15x16 15 16 // 鈐
 ..............................
@@ -236,8 +235,7 @@ glyph han-9210.2:15x16 15 16 // 鈐
 ref han-91d2:7x16 0 0 // ⿰釒今
 ref han-201a2:9x8 6 0
 glyph han-9210.x:15x16 15 16 // 鈐
-ref han-91d2:7x16 0 0 // ⿰釒今
-ref han-4eca.x:9x16 6 0
+assume ⿰ han-91d2:7x16 -1 han-4eca.x:9x16 // ⿰釒今
 glyph han-9210-(h|t|j|k|v):* = han-9210.0:*
 glyph han-9210-(g|p):* = han-9210.x:*
 

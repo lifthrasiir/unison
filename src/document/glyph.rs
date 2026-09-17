@@ -354,6 +354,9 @@ pub enum ComposeItem {
 pub struct GlyphCompose {
     pub op: crate::compose::IdcOp,
     pub items: Vec<ComposeItem>,
+    /// Written `assume ⿰ …`: the layout is the author's, and what the audit
+    /// would say about it is not asked. See [`crate::compose`].
+    pub assumed: bool,
     /// Trailing `// …` comment of the line, without its marker.
     pub comment: Option<String>,
 }
@@ -372,7 +375,11 @@ impl GlyphCompose {
     // lines and is a headless command.
     pub fn format_line(&self) -> String {
         use crate::document_io::quote_token;
-        let mut parts = vec![self.op.as_char().to_string()];
+        let mut parts = Vec::with_capacity(self.items.len() + 2);
+        if self.assumed {
+            parts.push(crate::compose::ASSUME.to_string());
+        }
+        parts.push(self.op.as_char().to_string());
         for item in &self.items {
             parts.push(match item {
                 ComposeItem::Gap(g) => g.to_string(),

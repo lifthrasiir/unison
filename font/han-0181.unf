@@ -339,8 +339,7 @@ glyph han-98ad:15x16 15 16 // 颭
 // ⿺ han-98a8 han-5305 // ⿺風包
 
 glyph han-98af:15x16 15 16 // 颯
-ref han-7acb:5x16 0 0 // ⿰立風
-ref han-98a8:11x16 4 0
+assume ⿰ han-7acb:5x16 -1 han-98a8:11x16 // ⿰立風
 
 // glyph han-98b1:15x16 15 16 // 颱
 // ⿺ han-98a8 han-53f0 // ⿺風台

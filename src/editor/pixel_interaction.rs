@@ -302,25 +302,27 @@ pub(crate) fn layer_doc_line(
     header_line: usize,
     layer_idx: usize,
 ) -> usize {
-    // The IDC lines a block writes come before its `ref`s (`serialize_glyph`),
-    // and are neither a ref nor a point — so they are skipped over here rather
-    // than counted among the layers.
-    let base = header_line + 1 + usize::from(body.pixels.is_some()) + body.compose.len();
+    // IDC lines are neither a ref nor a point, so they are stepped over rather
+    // than counted among the layers — wherever the block writes them, since
+    // the serializer puts them first but the parser takes them anywhere.
+    let base = header_line + 1 + usize::from(body.pixels.is_some());
     let total = body.refs.len() + body.points.len();
     let (want_ref, ordinal) = if layer_idx < body.refs.len() {
         (true, layer_idx)
     } else {
         (false, layer_idx - body.refs.len())
     };
+    let fallback = base + body.compose.len() + layer_idx;
     let mut seen = 0usize;
-    for i in 0..total {
+    for i in 0..total + body.compose.len() {
         let is_ref = match lines.get(base + i) {
             Some(DocLine::Text(t)) => match t.split_whitespace().next() {
                 Some("ref") => true,
                 Some("anchor") => false,
-                _ => return base + layer_idx,
+                _ if crate::compose::IdcOp::of_line(t.split_whitespace()).is_some() => continue,
+                _ => return fallback,
             },
-            _ => return base + layer_idx,
+            _ => return fallback,
         };
         if is_ref == want_ref && layer_idx < total {
             if seen == ordinal {
@@ -329,7 +331,7 @@ pub(crate) fn layer_doc_line(
             seen += 1;
         }
     }
-    base + total
+    base + body.compose.len() + total
 }
 
 /// Drag a `ref` or `anchor` layer by whole grid cells, rewriting its body line.

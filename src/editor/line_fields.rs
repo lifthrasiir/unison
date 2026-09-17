@@ -199,9 +199,14 @@ pub(crate) fn classify_line(line: &str) -> Vec<LineField> {
     let Ok(spans) = tokenize_with_spans(trimmed) else {
         return Vec::new();
     };
-    let Some((keyword_span, rest)) = spans.split_first() else {
+    let Some((mut keyword_span, mut rest)) = spans.split_first() else {
         return Vec::new();
     };
+    // An `assume`d IDC line is read as the line after the keyword.
+    if let Some((_, true)) = crate::compose::IdcOp::of_line(spans.iter().map(|s| s.value.as_str()))
+    {
+        (keyword_span, rest) = (&rest[0], &rest[1..]);
+    }
 
     let mut fields = Vec::new();
     match keyword_span.value.as_str() {
@@ -476,6 +481,14 @@ mod tests {
     fn idc_components_are_glyph_references() {
         assert_eq!(
             roles("\u{2FF0} a:4x16 -1 b:12x16"),
+            vec![
+                (FieldRole::GlyphRef, "a:4x16".to_string()),
+                (FieldRole::GlyphRef, "b:12x16".to_string()),
+            ]
+        );
+        // `assume` is a keyword of the line, not a component of it.
+        assert_eq!(
+            roles("assume \u{2FF0} a:4x16 -1 b:12x16"),
             vec![
                 (FieldRole::GlyphRef, "a:4x16".to_string()),
                 (FieldRole::GlyphRef, "b:12x16".to_string()),

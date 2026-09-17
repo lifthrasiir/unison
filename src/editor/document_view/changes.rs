@@ -32,7 +32,7 @@ pub(super) fn apply_pending_rederive(
                 // resolves to nothing.
                 Some(DocLine::Text(t)) if t.trim_start().starts_with("ref ")
                     || t.trim_start().starts_with("anchor ")
-                    || t.split_whitespace().next().and_then(crate::compose::IdcOp::from_token).is_some()
+                    || crate::compose::IdcOp::of_line(t.split_whitespace()).is_some()
             );
             let on_glyph_header = matches!(
                 lines.get(state.cursor.line),
@@ -263,7 +263,7 @@ pub(crate) fn inline_target_at_line(
     let kind_of = |idx: usize| match lines.get(idx) {
         Some(DocLine::Text(t)) => match t.split_whitespace().next() {
             Some("ref") => Some(Kind::Ref),
-            Some(tok) => crate::compose::IdcOp::from_token(tok).map(|_| Kind::Compose),
+            Some(_) => crate::compose::IdcOp::of_line(t.split_whitespace()).map(|_| Kind::Compose),
             None => None,
         },
         _ => None,
@@ -696,7 +696,7 @@ fn compose_doc_line(
     (body_start..end)
         .filter(|&i| {
             matches!(lines.get(i), Some(DocLine::Text(t))
-                if t.split_whitespace().next().and_then(crate::compose::IdcOp::from_token).is_some())
+                if crate::compose::IdcOp::of_line(t.split_whitespace()).is_some())
         })
         .nth(compose_idx)
 }

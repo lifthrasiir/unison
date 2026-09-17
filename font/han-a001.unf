@@ -330,9 +330,7 @@ glyph han-345c:15x16 15 16 // 㑜
 ## 9.8
 
 glyph han-3463:15x16 15 16 // 㑣
-ref han-4ebb:3x16 0 0 // ⿲亻木木
-ref han-6728:5x16 4 0
-ref han-6728:5x16 10 0
+assume ⿲ han-4ebb:3x16 1 han-6728:5x16 1 han-6728:5x16 // ⿲亻木木
 
 // glyph han-3469:15x16 15 16 // 㑩
 // ⿰ han-4ebb han-7f57 // ⿰亻罗

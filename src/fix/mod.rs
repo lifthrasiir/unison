@@ -73,10 +73,7 @@ pub fn nth_compose_line<'t>(
     let mut seen = 0usize;
     for line in range {
         let Some(content) = text(line) else { continue };
-        let Some(first) = content.split_whitespace().next() else {
-            continue;
-        };
-        if crate::compose::IdcOp::from_token(first).is_none() {
+        if crate::compose::IdcOp::of_line(content.split_whitespace()).is_none() {
             continue;
         }
         if seen == n {
@@ -164,10 +161,11 @@ mod tests {
             "ref a",
             "\u{2FF0} a:4x4 b:4x4",
             "anchor top 0 0",
-            "\u{2FF1} c:8x2 d:8x2",
+            "assume \u{2FF1} c:8x2 d:8x2",
         ];
         let text = |i: usize| lines.get(i).copied();
         assert_eq!(nth_compose_line(&text, 1..5, 0), Some(2));
+        // An `assume`d line is an IDC line like any other.
         assert_eq!(nth_compose_line(&text, 1..5, 1), Some(4));
         assert_eq!(nth_compose_line(&text, 1..5, 2), None);
         assert_eq!(nth_compose_line(&text, 3..5, 0), Some(4));

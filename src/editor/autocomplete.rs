@@ -532,8 +532,8 @@ fn idc_op_and_slot(line: &str, col: usize) -> Option<(IdcOp, usize)> {
     let trimmed = line.trim_start();
     let leading = line.chars().count() - trimmed.chars().count();
     let spans = tokenize_with_spans(trimmed).ok()?;
-    let (keyword, rest) = spans.split_first()?;
-    let op = IdcOp::from_token(&keyword.value)?;
+    let (op, assumed) = IdcOp::of_line(spans.iter().map(|s| s.value.as_str()))?;
+    let rest = &spans[1 + usize::from(assumed)..];
     let adj_col = col.saturating_sub(leading);
     let before = rest
         .iter()
@@ -692,8 +692,13 @@ fn detect_context(line: &str, col: usize) -> Option<CompletionContext> {
         });
     }
 
-    let keyword = spans[0].value.as_str();
-    let rest = &spans[1..];
+    // An `assume`d IDC line completes as the line after the keyword.
+    let assumed = matches!(
+        IdcOp::of_line(spans.iter().map(|s| s.value.as_str())),
+        Some((_, true))
+    );
+    let keyword = spans[usize::from(assumed)].value.as_str();
+    let rest = &spans[1 + usize::from(assumed)..];
     let adj_col = col.saturating_sub(leading);
 
     let ctx = |kind: CompletionKind| {
@@ -1368,6 +1373,11 @@ mod tests {
         );
         // A gap is not a slot: the component after it is still the right one.
         assert_eq!(order("⿰ q:8x16 -1 p:4", 15)[0], "p:5x16-r".to_string());
+        // An `assume`d line is the same line: the keyword is not a slot.
+        assert_eq!(
+            order("assume ⿰ p:4 q:8x16", 12),
+            vec!["p:4x16-l", "p:4x16", "p:5x16-d", "p:5x16-r"],
+        );
         // A three-part split's middle slot claims no direction, so it promotes
         // nothing and the listing stays lexicographic — a part drawn for either
         // side is equally right there.

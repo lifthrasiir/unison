@@ -558,9 +558,7 @@ glyph han-21a58:15x16 15 16 // 𡩘
 // ⿰ han-5b81 han-8005-($-1) // ⿰宁者
 
 glyph han-21a88:15x16 15 16 // 𡪈
-ref han-5b80:15x3 0 0 // ⿳宀其土
-ref han-5176:15x10 0 3
-ref han-571f:15x4 0 12
+assume ⿳ han-5b80:15x3 han-5176:15x10 -1 han-571f:15x4 // ⿳宀其土
 
 // glyph han-21a8d:15x16 15 16 // 𡪍
 // ⿳ han-5b80 han-250ed han-706c // ⿳宀𥃭灬

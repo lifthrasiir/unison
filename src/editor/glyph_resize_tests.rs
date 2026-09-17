@@ -494,6 +494,66 @@ fn scale_is_counted_on_both_sides_of_a_box_drag() {
     );
 }
 
+/// A block's IDC line is one of its lines, wherever the block writes it: the
+/// `ref` after it is still the glyph's and still moves with the grid, and the
+/// resize takes the whole block with it rather than stopping at the IDC line.
+#[test]
+fn a_canvas_resize_reaches_past_an_idc_line() {
+    let mut f = Fixture::new(
+        "\
+glyph part:1x2 1 2
+@@
+@@
+
+glyph dot 1 1
+@@
+
+glyph comp 2 2
+@@..
+....
+\u{2FF0} part:1x2 part:1x2
+ref dot 1 1
+anchor +above 0 0
+",
+    );
+    let ink = |f: &Fixture| {
+        let grid = &f.named_glyphs["comp"].grid;
+        (0..grid.height)
+            .flat_map(|r| (0..grid.width).map(move |c| (r, c)))
+            .filter(|&(r, c)| grid.get(r, c).is_bitmap_filled())
+            .collect::<Vec<_>>()
+    };
+    let before = ink(&f);
+    f.resize(
+        "comp",
+        ResizeDeltas {
+            left: 1,
+            ..Default::default()
+        },
+    );
+    // Every piece of the drawing — the grid's, the split's and the ref's —
+    // moved the one column the grid grew by, and none of it moved apart.
+    let shifted: Vec<_> = before.iter().map(|&(r, c)| (r, c + 1)).collect();
+    assert_eq!(ink(&f), shifted);
+    let rendered = f.rendered();
+    let block: Vec<&str> = rendered
+        .iter()
+        .map(String::as_str)
+        .skip_while(|l| !l.starts_with("glyph comp"))
+        .collect();
+    assert_eq!(
+        block,
+        vec![
+            "glyph comp 3 2 origin 1 0 advance 2",
+            "..@@..",
+            "......",
+            "\u{2FF0} part:1x2 part:1x2",
+            "ref dot 2 1",
+            "anchor +above 1 0",
+        ],
+    );
+}
+
 /// A resize is one edit per file however many lines it moved, so the whole of
 /// it undoes at once.
 #[test]

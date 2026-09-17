@@ -357,8 +357,7 @@ glyph han-2a7e1:15x16 15 16 // 𪟡
 ## 21.1
 
 glyph han-2a7e8:15x16 15 16 // 𪟨
-ref han-4e5a:15x16.13x14 0 0 // ⿺乚匕
-ref han-5315-k:10x13 3 0
+assume ⿺ han-4e5a:15x16.13x14 han-5315-k:10x13 3 0 // ⿺乚匕
 
 ## 21.4
 
@@ -681,8 +680,7 @@ glyph han-2a8ab:15x16 15 16 // 𪢫
 ## 32.3
 
 glyph han-2a8b4:15x16 15 16 // 𪢴
-ref han-571f:7x16-l 0 0 // ⿰土土
-ref han-571f:9x16 6 0
+assume ⿰ han-571f:7x16-l -1 han-571f:9x16 // ⿰土土
 
 glyph han-2a8b5:15x16 15 16 // 𪢵
 ⿰ han-571f:5x16-l han-51e1:10x16 // ⿰土凡

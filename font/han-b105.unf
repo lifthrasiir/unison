@@ -164,9 +164,7 @@ glyph han-24f79:15x16 15 16 // 𤽹
 ⿰ han-767d:4x16 1 han-5351.0:10x16 // ⿰白卑
 
 glyph han-24f7b:15x16 15 16 // 𤽻
-ref han-767d:15x6 0 0 // ⿳白大由
-ref han-5927:15x5 0 6
-ref han-7531:15x6 0 10
+assume ⿳ han-767d:15x6 han-5927:15x5 -1 han-7531:15x6 // ⿳白大由
 
 glyph han-24f7c:15x16 15 16 // 𤽼
 ⿰ han-767d:6x16 han-96b9:9x16 // ⿰白隹

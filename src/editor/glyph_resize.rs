@@ -245,23 +245,22 @@ fn anchor_placed_refs(body: &GlyphBody, env: ResolveEnv<'_>) -> Vec<bool> {
 }
 
 /// The lines one glyph owns: its header, its grid (when it has one) and the
-/// `ref`/`anchor` lines that follow, which the parser accepts in any order but
-/// never interleaved with anything else.
+/// `ref`, `anchor` and IDC lines that follow, which the parser accepts in any
+/// order but never interleaved with anything else.
 pub(crate) fn glyph_block_len(lines: &[DocLine], body: &GlyphBody, header_line: usize) -> usize {
     let base =
         header_line + 1 + usize::from(matches!(lines.get(header_line + 1), Some(DocLine::Grid(_))));
-    let total = body.refs.len() + body.points.len();
-    let mut n = 0usize;
-    while n < total {
-        match lines.get(base + n) {
-            Some(DocLine::Text(t)) => match t.split_whitespace().next() {
-                Some("ref") | Some("anchor") => n += 1,
-                _ => break,
-            },
-            _ => break,
-        }
-    }
+    let total = body.refs.len() + body.points.len() + body.compose.len();
+    let n = (0..total)
+        .take_while(|&i| matches!(lines.get(base + i), Some(DocLine::Text(t)) if is_body_line(t)))
+        .count();
     base + n - header_line
+}
+
+/// Whether a text line is one of a glyph block's `ref`, `anchor` or IDC lines.
+fn is_body_line(text: &str) -> bool {
+    matches!(text.split_whitespace().next(), Some("ref" | "anchor"))
+        || crate::compose::IdcOp::of_line(text.split_whitespace()).is_some()
 }
 
 /// The declared box a glyph starts a drag from, in logical pixels.
@@ -460,6 +459,9 @@ pub(crate) fn resize_block(
                             DocLine::text(point.shifted(dcol, drow).format_line()).with_id_of(line);
                     }
                 }
+                // An IDC line states no position of its own: its parts are
+                // placed against the box, which the header keeps where it was.
+                _ if is_body_line(text) => {}
                 _ => break,
             }
         }

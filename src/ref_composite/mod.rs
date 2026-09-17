@@ -571,7 +571,7 @@ fn derive_compose_body<'b>(
     let (mut refs, issues) = crate::compose::expand_compose(
         name,
         body.declared_extent(),
-        body.scale,
+        crate::compose::Raster::of(body),
         compose,
         &dims,
         None,

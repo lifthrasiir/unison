@@ -320,8 +320,7 @@ glyph han-8edf:15x16 15 16 // 軟
 ⿰ han-8eca:7x16 1 han-6b20:7x16 // ⿰車欠
 
 glyph han-8ee1-($han-regions):15x16 15 16 // 軡
-ref han-8eca:7x16 0 0 // ⿰車今
-ref han-4eca-($-1):9x16 6 0
+assume ⿰ han-8eca:7x16 -1 han-4eca-($-1):9x16 // ⿰車今
 
 // glyph han-8ee2:15x16 15 16 // 転
 // ⿰ han-8eca han-4e91 // ⿰車云

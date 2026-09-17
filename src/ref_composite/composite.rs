@@ -434,9 +434,17 @@ fn compose_refs_for_view(
         .flat_map(|c| {
             // No family and no clearance rule: the check reports, and the
             // view only draws.
-            crate::compose::expand_compose("", parent, body.scale, c, &dims, None, None)
-                .0
-                .into_iter()
+            crate::compose::expand_compose(
+                "",
+                parent,
+                crate::compose::Raster::of(body),
+                c,
+                &dims,
+                None,
+                None,
+            )
+            .0
+            .into_iter()
         })
         .collect()
 }
@@ -468,7 +476,7 @@ pub fn compose_refs_for_one(
     let (refs, issues) = crate::compose::expand_compose(
         "",
         body.declared_extent(),
-        body.scale,
+        crate::compose::Raster::of(body),
         compose,
         &dims,
         None,

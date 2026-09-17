@@ -58,6 +58,24 @@
 //! one is; the difference is that a build, a `uniform test` run and CI do not
 //! fail over it.
 //!
+//! # An assumed line
+//!
+//! `assume ⿰ …` is the same line with its clearances taken on trust: the
+//! [`Severity::Chore`]s the band reports are dropped, and `uniform fix` leaves
+//! the line alone. It exists for the layout that is right although the band
+//! says otherwise — two parts meant to overlap by a cell, a part with a canyon
+//! beside it on purpose — which would otherwise be written as the `ref`s it
+//! derives, and then no longer move when a part is redrawn or check that the
+//! parts still fit.
+//!
+//! Exactly the chores and nothing else, because a clearance is the one finding
+//! that is a matter of taste line by line: the band is a font-wide default.
+//! Everything else stays: an error is a line that cannot be laid out (a part
+//! that does not span the box, a size its name lies about), a todo is a
+//! decision nobody made, and a warning — a part drawn for the other slot, a
+//! cavity not promised or not kept — is a claim a *name* makes, answered by
+//! picking the right name rather than by overruling the check.
+//!
 //! # Clearance
 //!
 //! A box says nothing about where the ink inside it stops, so the check reads
@@ -170,6 +188,28 @@ impl Walls {
     }
 }
 
+/// Where an IDC line's parent lays its parts out: the `scale` a `ref` offset
+/// is counted in, and the declared `origin` its box's corner sits at. A split
+/// fills the *box*, and a `ref` is placed against the *grid*, so the two meet
+/// only when nothing moves the box off the grid's corner.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Raster {
+    pub scale: u8,
+    pub origin: (i16, i16),
+}
+
+impl Raster {
+    pub fn of(body: &crate::document::GlyphBody) -> Self {
+        Raster {
+            scale: body.scale,
+            origin: body.declared_origin(),
+        }
+    }
+}
+
+/// The keyword in front of an [assumed](crate::compose#an-assumed-line) IDC line.
+pub const ASSUME: &str = "assume";
+
 /// The IDCs a source may write: the four one-dimensional splits and the nine
 /// enclosures.
 ///
@@ -233,6 +273,17 @@ impl IdcOp {
         let mut chars = token.chars();
         let op = Self::from_char(chars.next()?)?;
         chars.next().is_none().then_some(op)
+    }
+
+    /// The operator a line's leading tokens start an IDC line with, and whether
+    /// the line is [`assume`d](crate::compose#an-assumed-line) — `None` for every other
+    /// line. The one place that knows `assume` may stand in front of the
+    /// operator, so that nothing reading a line by its first token has to.
+    pub fn of_line<'a>(mut tokens: impl Iterator<Item = &'a str>) -> Option<(Self, bool)> {
+        match tokens.next()? {
+            ASSUME => Some((Self::from_token(tokens.next()?)?, true)),
+            first => Some((Self::from_token(first)?, false)),
+        }
     }
 
     pub fn as_char(self) -> char {
@@ -1413,12 +1464,46 @@ const MAX_LISTED_VARIANTS: usize = 4;
 /// Every length here is in *declared* units, the ones the `glyph` header
 /// writes: the layout is the same at any `scale`, and a component drawn at a
 /// different scale than its parent still fills the same box. Only the derived
-/// offsets leave in the parent's raster units, multiplied by `scale` on the way
-/// out, because that is what a `ref` offset means.
+/// offsets leave in the parent's raster units ([`Raster`]), because that is
+/// what a `ref` offset means.
 pub fn expand_compose(
     glyph_name: &str,
     parent: Option<(u16, u16)>,
-    scale: u8,
+    raster: Raster,
+    compose: &GlyphCompose,
+    dims: &dyn Fn(&str) -> PartDims,
+    family: Option<&FamilyLookup>,
+    clearance: Option<&ClearanceRule>,
+) -> ComposeExpansion {
+    let scale = raster.scale.max(1) as i32;
+    let (mut refs, mut issues) =
+        expand_line(glyph_name, parent, scale, compose, dims, family, clearance);
+    // The layout is worked out in the box; a `ref` offset is counted from the
+    // grid's corner, which is the box's only when no `origin` moves it.
+    let (col, row) = raster.origin;
+    if (col, row) != (0, 0) {
+        for r in &mut refs {
+            let (c, w) = r.offset.unwrap_or((0, 0));
+            r.offset = Some((
+                clamp_offset(c as i32 + col as i32 * scale),
+                clamp_offset(w as i32 + row as i32 * scale),
+            ));
+        }
+    }
+    // What `assume` takes on trust is the clearances and nothing else. See the
+    // module docs.
+    if compose.assumed {
+        issues.retain(|(severity, _)| *severity != Severity::Chore);
+    }
+    (refs, issues)
+}
+
+/// [`expand_compose`] in the parent's box, before an `origin` moves what it
+/// places and an `assume` what it reports; `scale` is at least 1.
+fn expand_line(
+    glyph_name: &str,
+    parent: Option<(u16, u16)>,
+    scale: i32,
     compose: &GlyphCompose,
     dims: &dyn Fn(&str) -> PartDims,
     family: Option<&FamilyLookup>,
@@ -1549,7 +1634,7 @@ pub fn expand_compose(
             ));
         }
         placed_parts.push((name.as_str(), cursor));
-        let placed = cursor * scale.max(1) as i32;
+        let placed = cursor * scale;
         let (col, row) = if op.horizontal() {
             (placed, 0)
         } else {
@@ -1665,7 +1750,7 @@ pub fn expand_compose(
 fn expand_enclosure(
     walls: Walls,
     parent: (u16, u16),
-    scale: u8,
+    scale: i32,
     compose: &GlyphCompose,
     dims: &dyn Fn(&str) -> PartDims,
     family: Option<&FamilyLookup>,
@@ -1839,7 +1924,7 @@ fn expand_enclosure(
     for (slot, &(name, raw_name)) in names.iter().enumerate() {
         let (col, row) = match slot {
             0 => (0, 0),
-            _ => (p * scale.max(1) as i32, q * scale.max(1) as i32),
+            _ => (p * scale, q * scale),
         };
         refs.push(GlyphRef {
             name: name.clone(),

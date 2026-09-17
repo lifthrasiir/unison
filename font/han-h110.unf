@@ -549,8 +549,7 @@ glyph han-31edb:15x16 15 16 // 𱻛
 ## 126.2
 
 glyph han-31ef0:15x16 15 16 // 𱻰
-ref han-800c:15x6 0 0 // ⿱而二
-ref han-4e8c:15x8 0 8
+assume ⿱ han-800c:15x6 2 han-4e8c:15x8 // ⿱而二
 
 # CJK unified ideographs extension H: 耳 (128)
 

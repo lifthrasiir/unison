@@ -357,7 +357,7 @@ fn build_ref_vlines(
             // Passed through like an `anchor`: an IDC line stands for refs the
             // body does not list, so it pairs with none of them.
             Some("anchor") => {}
-            Some(tok) if crate::compose::IdcOp::from_token(tok).is_some() => {}
+            Some(_) if crate::compose::IdcOp::of_line(s.split_whitespace()).is_some() => {}
             // The lines no longer match the parsed body; stop and let the
             // caller's catch-up loop display the rest.
             _ => break,
@@ -430,11 +430,7 @@ pub(crate) fn build_visual_lines(
             header_color
         } else if trimmed.starts_with("ref ")
             || trimmed.starts_with("anchor ")
-            || trimmed
-                .split_whitespace()
-                .next()
-                .and_then(crate::compose::IdcOp::from_token)
-                .is_some()
+            || crate::compose::IdcOp::of_line(trimmed.split_whitespace()).is_some()
         {
             ref_color
         } else if trimmed.starts_with("meta ")

@@ -1088,8 +1088,7 @@ glyph han-518b:9x16 9 16 // 冋
 ref han-5182:9x16.7x14 0 0 // ⿵冂口
 ref han-53e3:5x11 2 3
 glyph han-518b:15x16 15 16 // 冋
-ref han-5182:15x16.11x14 0 0 // ⿵冂口
-ref han-53e3:9x11 3 3
+assume ⿵ han-5182:15x16.11x14 han-53e3:9x11 3 3 // ⿵冂口
 glyph han-518b.0:* = han-518b:*
 
 glyph han-518c.0:9x16 9 16 // 册
@@ -1198,8 +1197,7 @@ glyph han-518c-(g|j|k|p|v):* = han-518c.0:*
 glyph han-518c-t:* = han-518c.x:*
 
 glyph han-56d8:15x16 15 16 // 囘
-ref han-5182:15x16.11x14 0 0 // ⿵冂巳
-ref han-5df3:9x11 3 3
+assume ⿵ han-5182:15x16.11x14 han-5df3:9x11 3 3 // ⿵冂巳
 glyph han-56d8.0:* = han-56d8:*
 
 ## 13.6

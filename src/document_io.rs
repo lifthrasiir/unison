@@ -121,7 +121,8 @@
 //! flag no build stage reads, see `GlyphRef::goto`), `anchor`
 //! ([`crate::ref_composite`] and `gpos.rs`), and the IDC lines
 //! ([`crate::compose`] — each token a gap if it reads as a number, else a
-//! component name, except on an enclosure where the two numbers are offsets).
+//! component name, except on an enclosure where the two numbers are offsets;
+//! `assume` in front of the operator is part of the line, not a directive).
 //! `glyph NAME = TARGET` is an alias ([`crate::alias`]), takes no flags and no
 //! body; `glyph NAME* = PREFIX*` is a multi-alias, read as the alias an
 //! `exists PREFIX(.*)` would scope. NAME accepts the patterns of [`crate::pattern`], and a block expands
@@ -570,6 +571,7 @@ fn parse_ref_line(
 /// in force, as for a `ref`.
 fn parse_compose_line(
     op: crate::compose::IdcOp,
+    assumed: bool,
     parts: &[String],
     comment: Option<String>,
     base: Option<&str>,
@@ -585,7 +587,12 @@ fn parse_compose_line(
             }
         })
         .collect();
-    GlyphCompose { op, items, comment }
+    GlyphCompose {
+        op,
+        items,
+        assumed,
+        comment,
+    }
 }
 
 /// Parse a range token like `3` (single value) or `3..5` (inclusive range).
@@ -1563,7 +1570,10 @@ impl std::error::Error for ParseError {}
 ///
 /// A line starting with one of these ends whatever block came before it; a line
 /// starting with anything else — `ref`, `anchor`, an IDC operator, a pixel row —
-/// belongs to the glyph block above. The editor's text-only passes (search,
+/// belongs to the glyph block above. `assume` is the one keyword that is both:
+/// in front of an IDC operator it is that line's
+/// ([`IdcOp::of_line`](crate::compose::IdcOp::of_line)), so a caller holding
+/// more than the first token asks that first. The editor's text-only passes (search,
 /// navigation) need that boundary without parsing the file, so it is stated
 /// here, beside the dispatch it has to agree with, rather than re-listed there.
 pub fn starts_item(token: &str) -> bool {
@@ -1909,13 +1919,13 @@ pub fn derive_document(
                                 body.refs.push(parsed_ref);
                                 i += 1;
                                 continue;
-                            } else if let Some(op) = sub_tokens
-                                .first()
-                                .and_then(|t| crate::compose::IdcOp::from_token(t))
-                            {
+                            } else if let Some((op, assumed)) = crate::compose::IdcOp::of_line(
+                                sub_tokens.iter().map(String::as_str),
+                            ) {
                                 body.compose.push(parse_compose_line(
                                     op,
-                                    &sub_tokens[1..],
+                                    assumed,
+                                    &sub_tokens[1 + usize::from(assumed)..],
                                     sub_comment,
                                     at_base.as_deref(),
                                 ));

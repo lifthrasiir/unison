@@ -391,8 +391,7 @@ glyph han-2d607:15x16 15 16 // 𭘇
 ⿰ han-5de5:7x16 1 han-5404:7x16 // ⿰工各
 
 glyph han-2d608:15x16 15 16 // 𭘈
-ref han-5de8-g:7x16 0 0 // ⿰巨今
-ref han-4eca-g:9x16 6 0
+assume ⿰ han-5de8-g:7x16 -1 han-4eca-g:9x16 // ⿰巨今
 
 # CJK unified ideographs extension F: 巴 (49)
 

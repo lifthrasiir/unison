@@ -306,11 +306,13 @@ def scan(files: dict[str, list[str]], rule: Rule, ids: dict) -> list[Site]:
 
 def parse_idc(body: str) -> tuple[str, list[tuple[str, int]], int] | None:
     """`⿲ X 1 Y Z` as its operator, its `(token, gap before it)` list and the
-    gap after the last one."""
+    gap after the last one. An `assume`d line reads the same; `idc_prefix` is
+    what keeps the keyword through a rewrite."""
     head, _ = split_comment(body)
-    toks = head.split()
-    if not toks or toks[0] not in G.IDC_ARITY:
+    idc = G.idc_tokens(head.split())
+    if idc is None:
         return None
+    toks, _ = idc
     items: list[tuple[str, int]] = []
     gap = 0
     for tok in toks[1:]:
@@ -320,6 +322,12 @@ def parse_idc(body: str) -> tuple[str, list[tuple[str, int]], int] | None:
             items.append((tok, gap))
             gap = 0
     return toks[0], items, gap
+
+
+def idc_prefix(body: str) -> str:
+    """The keyword an IDC line is written behind, with its space, or `""`."""
+    idc = G.idc_tokens(split_comment(body)[0].split())
+    return "" if idc is None else idc[1]
 
 
 def naming_of(tok: str) -> str:
@@ -512,7 +520,7 @@ def rewrite_idc(line: str, rule: Rule, plan: Plan) -> str:
     if gaps[-1]:
         out.append(str(gaps[-1]))
     comps = "".join(chr(token_cp(t)) for t in merged)
-    text = " ".join(out) + f" // {IDC_OPS[op]}{comps}"
+    text = idc_prefix(uncomment(line)) + " ".join(out) + f" // {IDC_OPS[op]}{comps}"
     if site.commented:
         text += f" {G.NO_INLINE_MARK}"
         return "// " + text

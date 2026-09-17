@@ -724,8 +724,7 @@ glyph han-6786:15x16 15 16 // 枆
 ⿰ han-6728:5x16 1 han-6bdb:9x16 // ⿰木毛
 
 glyph han-6787-($han-regions):15x16 15 16 // 枇
-ref han-6728:5x16 0 0 // ⿰木比
-ref han-6bd4-($-1):9x16 6 0
+⿰ han-6728:5x16 1 han-6bd4-($-1):9x16 // ⿰木比
 
 glyph han-6788-($han-regions):15x16 15 16 // 枈
 ⿱ han-6bd4-($-1):15x7 han-6728:15x9 // ⿱比木

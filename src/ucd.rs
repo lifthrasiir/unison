@@ -214,6 +214,7 @@ impl CharProps {
     /// a character with a cell of its own already shows its name there; a line
     /// that labels anything else is ignored in silence rather than reported,
     /// since the field is a hint and not a claim about the character.
+    #[cfg_attr(all(not(feature = "editor"), not(test)), expect(dead_code))]
     pub fn selector_label(&self, cp: u32) -> Option<&str> {
         if !is_variation_selector(cp) {
             return None;

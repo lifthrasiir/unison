@@ -1537,6 +1537,30 @@ extents, so it does not depend on the gaps at all: a source that only had to sat
 never fix a failing line by moving anything. The per-part bound is what an author can act on, and the
 total is what catches parts that are simply too fat for the box together, however they are shuffled.
 
+#### `assume`: A layout taken on trust
+
+```
+assume ⿰ TOKEN...
+assume ⿴ OUTER INNER P Q
+```
+
+Some layouts are right although the [clearance](#clearance) band says otherwise: two parts meant to
+overlap by a cell, a canyon left on purpose. Written as `ref`s they would be quiet, but they would
+also stop being a layout — the offsets no longer follow a part that is redrawn, and nothing checks
+that the parts still fit the box. `assume` in front of the operator keeps the line and takes its
+clearances on trust:
+
+```
+glyph han-54c1:15x16 15 16 // 品
+assume ⿱ han-53e3:15x7 -1 han-5405:15x10 // ⿱口吅
+```
+
+Its clearance [chores](#diagnostics-and-exit-status) are not reported, and
+[`uniform fix`](#rewriting-the-source) leaves the line alone. Nothing else changes: an error (a part
+that does not span the box, a name that lies about its size) is still an error, a part drawn for the
+other slot or an outer part that promises no cavity is still a warning, and an unpicked variant is
+still a todo. The glyph is built the same with or without the keyword.
+
 #### Undecided components
 
 A component written without a `:` suffix has not picked its variant yet. That is the initial state of

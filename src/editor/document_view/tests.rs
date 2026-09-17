@@ -505,6 +505,91 @@ fn inline_target_follows_the_caret_line() {
     assert!(changes::inline_target_at_line(&doc, &lines, 3).is_none());
 }
 
+/// An `assume`d IDC line is the same line to the inline commands: the caret
+/// finds it, and inlining it writes the same `ref`s.
+#[test]
+fn inline_once_of_an_assumed_idc_line_writes_its_refs() {
+    let source = compose_fixture().replace("⿰ left", "assume ⿰ left");
+    let (mut lines, doc, env) = inline_fixture(&source);
+    let comp = glyph_idx(&doc, "comp");
+    let idc_line = lines
+        .iter()
+        .position(|l| matches!(l, DocLine::Text(t) if t.starts_with("assume ")))
+        .unwrap();
+    assert!(matches!(
+        changes::inline_target_at_line(&doc, &lines, idc_line),
+        Some(changes::InlineTarget::Compose { edit_idx, compose_idx: 0 }) if edit_idx == comp
+    ));
+
+    let mut state = EditorState::new();
+    assert!(changes::inline_compose_once(
+        &mut lines,
+        &doc,
+        &mut state,
+        comp,
+        0,
+        &env.named,
+        &env.name_parts,
+    ));
+    let texts = text_lines(&lines);
+    assert_eq!(
+        texts
+            .iter()
+            .filter(|t| t.starts_with("ref ") || t.starts_with("assume "))
+            .collect::<Vec<_>>(),
+        vec![&"ref left 0 0 // both halves", &"ref right 4 0"],
+        "lines: {texts:?}"
+    );
+}
+
+/// A layer's line is found wherever the block writes its IDC line: before the
+/// `ref`s, as the serializer puts it, or among them, as the parser accepts.
+#[test]
+fn a_layer_line_is_found_around_an_idc_line_anywhere_in_the_block() {
+    for source in [
+        "glyph comp 8 8\n⿰ left right\nref left 0 0\nanchor top 0 0\n",
+        "glyph comp 8 8\nref left 0 0\n⿰ left right\nanchor top 0 0\n",
+        "glyph comp 8 8\nref left 0 0\nanchor top 0 0\nassume ⿰ left right\n",
+    ] {
+        let source = format!(
+            "{}\n{source}",
+            compose_fixture().split("glyph comp").next().unwrap()
+        );
+        let (lines, doc, _env) = inline_fixture(&source);
+        let comp = glyph_idx(&doc, "comp");
+        let crate::document::DocumentItem::Glyph { body, .. } = &doc.items[comp] else {
+            unreachable!()
+        };
+        let header = doc.item_line_starts[comp];
+        let at = |prefix: &str| {
+            header
+                + lines[header..]
+                    .iter()
+                    .position(|l| matches!(l, DocLine::Text(t) if t.starts_with(prefix)))
+                    .unwrap()
+        };
+        assert_eq!(
+            pixel_interaction::layer_doc_line(&lines, body, header, 0),
+            at("ref "),
+            "{source}"
+        );
+        assert_eq!(
+            pixel_interaction::layer_doc_line(&lines, body, header, 1),
+            at("anchor "),
+            "{source}"
+        );
+        assert_eq!(
+            pixel_interaction::layer_doc_line(&lines, body, header, 2),
+            lines
+                .iter()
+                .rposition(|l| matches!(l, DocLine::Text(t) if !t.is_empty()))
+                .unwrap()
+                + 1,
+            "one past the block: {source}"
+        );
+    }
+}
+
 /// "Inline once" on an IDC line writes the `ref`s it stood for, in its place.
 /// Its own comment belongs to the line as a whole, so it moves onto the first
 /// of them rather than being dropped.

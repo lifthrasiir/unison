@@ -671,7 +671,7 @@ fn expand_compose_lines(
             let (refs, issues) = crate::compose::expand_compose(
                 &glyph_name,
                 parent,
-                body.scale,
+                crate::compose::Raster::of(body),
                 compose,
                 &dims,
                 Some(&family),

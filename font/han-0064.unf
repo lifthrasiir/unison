@@ -313,8 +313,7 @@ glyph han-6298:15x16 15 16 // 折
 ⿰ han-624c:5x16 1 han-65a4:9x16 // ⿰扌斤
 
 glyph han-6299:15x16 15 16 // 抙
-ref han-624c:5x16 0 0 // ⿰扌手
-ref han-624b:11x16 4 0
+assume ⿰ han-624c:5x16 -1 han-624b:11x16 // ⿰扌手
 glyph han-6299.0:* = han-6299:*
 
 // glyph han-629f:15x16 15 16 // 抟

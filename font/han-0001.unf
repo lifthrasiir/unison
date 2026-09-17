@@ -3975,8 +3975,7 @@ glyph han-4e96.0:* = han-4e96:*
 ## 7.3
 
 glyph han-4e97:15x16 15 16 // 亗
-ref han-5c71:15x8 0 0 // ⿱山二
-ref han-4e8c:15x6 0 10
+⿱ han-5c71:15x8 2 han-4e8c:15x6 // ⿱山二
 glyph han-4e97.0:* = han-4e97:*
 
 ## 7.4
@@ -5095,8 +5094,7 @@ glyph han-4ec4:15x16 15 16 // 仄
 // ⿰ han-4ebb han-53c8-($-1) // ⿰亻又
 
 glyph han-4ec6:15x16 15 16 // 仆
-ref han-4ebb:5x16 0 0 // ⿰亻卜
-ref han-535c:5x16 10 0
+assume ⿰ han-4ebb:5x16 5 han-535c:5x16 // ⿰亻卜
 glyph han-4ec6.0:* = han-4ec6:*
 
 glyph han-4ec7:15x16 15 16 // 仇
@@ -6216,8 +6214,7 @@ glyph han-4fe1:15x16 15 16 // 信
 // ⿰ han-4ebb han-5434 // ⿰亻吴
 
 glyph han-4fe5:15x16 15 16 // 俥
-ref han-4ebb:5x16 0 0 // ⿰亻車
-ref han-8eca:11x16 4 0
+assume ⿰ han-4ebb:5x16 -1 han-8eca:11x16 // ⿰亻車
 glyph han-4fe5.0:* = han-4fe5:*
 
 // glyph han-4fe7:15x16 15 16 // 俧
@@ -6289,8 +6286,7 @@ glyph han-501c:15x16 15 16 // 倜
 ⿰ han-4ebb:5x16 han-5468:10x16 // ⿰亻周
 
 glyph han-501d:15x16 15 16 // 倝
-ref han-2099d:7x16 0 0 // ⿰𠦝人
-ref han-4eba:9x16 6 0
+assume ⿰ han-2099d:7x16 -1 han-4eba:9x16 // ⿰𠦝人
 
 glyph han-5020:15x16 15 16 // 倠
 ⿰ han-4ebb:5x16 1 han-96b9:9x16 // ⿰亻隹

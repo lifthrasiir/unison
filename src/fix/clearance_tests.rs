@@ -206,6 +206,15 @@ fn a_long_contact_is_worth_the_spare_cell() {
     assert!(plan(&none).is_empty(), "no rule, nothing measured");
 }
 
+/// An `assume`d line is a layout the author has taken out of the audit's hands,
+/// so the fixer has nothing to improve on it either: moving its parts would
+/// undo exactly the decision the keyword records.
+#[test]
+fn an_assumed_line_is_left_alone() {
+    let assumed = TWO_PARTS.replace("\u{2FF0} a:4x4 b:4x4", "assume \u{2FF0} a:4x4 b:4x4");
+    assert!(plan(&assumed).is_empty());
+}
+
 #[test]
 fn a_line_inside_the_range_is_left_alone() {
     let wide = TWO_PARTS.replace("ideal-clearance test-* 0 1", "ideal-clearance test-* 0 3");

@@ -183,6 +183,26 @@ IDC_ARITY = {**SPLIT_ARITY, **ENCLOSE_ARITY}
 OTHER_ARITY = {"⿻": 2, "㇯": 2, "⿾": 1, "⿿": 1}
 ARITY = {**IDC_ARITY, **OTHER_ARITY}
 
+# The keyword an IDC line may be written behind (`assume ⿰ ...`), which takes the
+# line's clearances on trust. To everything here it is the same line: it lays
+# out the same parts, and only `uniform fix` tells the two apart.
+ASSUME = "assume"
+
+
+def idc_tokens(toks: list[str]) -> tuple[list[str], str] | None:
+    """An IDC line's tokens from its operator on, and the prefix they were
+    written behind (`"assume "` or `""`); `None` for any other line.
+
+    The one reader of the keyword, as `IdcOp::of_line` is in `compose.rs`, so
+    that nothing that asks whether a line is an IDC line can forget it.
+    """
+    prefix = ""
+    if toks[:1] == [ASSUME]:
+        toks, prefix = toks[1:], ASSUME + " "
+    if not toks or toks[0] not in IDC_ARITY:
+        return None
+    return toks, prefix
+
 # Of the splits, the two that divide the box left to right; the other two divide
 # it top to bottom. An *enclosure* has no split axis at all and is asked a
 # different question entirely -- see `feasible`.
@@ -541,7 +561,11 @@ def load_inventory(font_dir: str, parts: dict[str, list[str]]) -> Inventory:
                     continue
                 body = s
                 break
-            handdrawn = bool(body) and body[0] not in IDC_ARITY and not body.startswith("ref ")
+            handdrawn = (
+                bool(body)
+                and idc_tokens(body.split()) is None
+                and not body.startswith("ref ")
+            )
             for expanded in expand_pattern(name, parts):
                 hn = parse_han_name(expanded)
                 if hn is None:
@@ -1696,9 +1720,10 @@ def script_block_idc(block: list[str]) -> tuple[Line, str | None, bool] | None:
         no_inline = note.strip() == NO_INLINE_MARK[3:]
         if not no_inline:
             rest = rest + "--" + note
-    toks = head.split()
-    if not toks or toks[0] not in IDC_ARITY:
+    idc = idc_tokens(head.split())
+    if idc is None:
         return None
+    toks, _ = idc
     comps: list[int] = []
     regional: list[bool] = []
     for tok in toks[1:]:

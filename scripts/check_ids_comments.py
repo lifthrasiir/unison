@@ -17,7 +17,7 @@ What it holds a line to:
 
   * a `glyph han-XXXX…` header (commented out or not, alias or not) whose
     comment begins with han characters: they have to be exactly `chr(0xXXXX)`;
-  * an IDC line (`⿰⿱⿲⿳` and the nine enclosures) whose components are all han
+  * an IDC line (`⿰⿱⿲⿳` and the nine enclosures, `assume`d or not) whose components are all han
     names: the comment has to begin with the operator followed by each
     component's own character, in written order -- `⿰片卑` for the line above.
 
@@ -188,7 +188,9 @@ def expected(body: str) -> list[list[str]] | None:
             return None
         chars = chars_for(toks[1])
         return None if chars is None else [chars]
-    if toks[0] in G.IDC_ARITY:
+    idc = G.idc_tokens(toks)
+    if idc is not None:
+        toks, _ = idc
         parts = [[toks[0]]]
         for tok in toks[1:]:
             if NUM_RE.match(tok):  # a gap, or an enclosure's offset

@@ -157,9 +157,7 @@ glyph han-26de2:15x16 15 16 // 𦷢
 ## 140.11
 
 glyph han-26e00:15x16 15 16 // 𦸀
-ref han-8279:15x3 0 0 // ⿳艹其土
-ref han-5176:15x10 0 3
-ref han-571f:15x4 0 12
+assume ⿳ han-8279:15x3 han-5176:15x10 -1 han-571f:15x4 // ⿳艹其土
 
 glyph han-26e01:15x16 15 16 // 𦸁
 ⿱ han-8279:15x3 1 han-6de1:15x12 // ⿱艹淡

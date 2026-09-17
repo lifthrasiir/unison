@@ -255,6 +255,11 @@ pub fn optimize_clearance(docs: &[&Document]) -> Vec<DocumentFixes> {
                 continue;
             };
             for (compose_idx, compose) in body.compose.iter().enumerate() {
+                // An `assume`d layout is the author's call, and the one thing
+                // a rewrite would do to it is undo that. See `crate::compose`.
+                if compose.assumed {
+                    continue;
+                }
                 // A pattern block is one line over a family, and what its
                 // glyphs share is the gaps; a plain one is a layout of its own.
                 let planned: Option<PlannedLine> = match (is_plain_name(&glyph), compose.op.walls())
@@ -1761,6 +1766,7 @@ fn write_pattern_line(
         GlyphCompose {
             op: compose.op,
             items,
+            assumed: compose.assumed,
             comment: compose.comment.clone(),
         }
         .format_line(),
@@ -1882,6 +1888,7 @@ fn write_line(compose: &GlyphCompose, chosen: &[&Candidate], positions: &[i32]) 
         GlyphCompose {
             op: compose.op,
             items,
+            assumed: compose.assumed,
             // A rewrite picks variants and moves gaps; whether the line is
             // conditional is not its business.
             comment: compose.comment.clone(),
@@ -2734,6 +2741,7 @@ fn write_pattern_enclosure_line(
         GlyphCompose {
             op: compose.op,
             items,
+            assumed: compose.assumed,
             comment: compose.comment.clone(),
         }
         .format_line(),
@@ -2816,6 +2824,7 @@ fn write_enclosure_line(
         GlyphCompose {
             op: compose.op,
             items,
+            assumed: compose.assumed,
             comment: compose.comment.clone(),
         }
         .format_line(),

@@ -37,6 +37,19 @@ fn demand(a: &InkProfile, b: &InkProfile, horizontal: bool, max: u16) -> Option<
     contact_demand(GapSide::linear(a), GapSide::linear(b), horizontal, max)
 }
 
+/// A parent with no `scale` and no `origin`.
+const UNIT: Raster = Raster {
+    scale: 1,
+    origin: (0, 0),
+};
+
+fn scaled(scale: u8) -> Raster {
+    Raster {
+        scale,
+        origin: (0, 0),
+    }
+}
+
 fn part(name: &str) -> ComposeItem {
     ComposeItem::Part {
         name: name.to_string(),
@@ -56,6 +69,7 @@ fn line(op: IdcOp, items: Vec<ComposeItem>) -> GlyphCompose {
     GlyphCompose {
         op,
         items,
+        assumed: false,
         comment: None,
     }
 }
@@ -75,7 +89,7 @@ fn expand(
     compose: &GlyphCompose,
     dims: &dyn Fn(&str) -> PartDims,
 ) -> (Vec<GlyphRef>, Vec<(Severity, String)>) {
-    expand_compose("test", parent, 1, compose, dims, None, None)
+    expand_compose("test", parent, UNIT, compose, dims, None, None)
 }
 
 fn of_severity(issues: &[(Severity, String)], want: Severity) -> Vec<&str> {
@@ -347,7 +361,7 @@ fn an_undecided_part_whose_family_cannot_fit_the_slot_is_a_warning() {
     let (_, issues) = expand_compose(
         "test",
         Some((15, 16)),
-        1,
+        UNIT,
         &line(IdcOp::LeftRight, vec![part("a"), part("b")]),
         &dims,
         Some(&family),
@@ -381,7 +395,7 @@ fn an_undecided_part_whose_family_fits_is_still_a_todo() {
         let (_, issues) = expand_compose(
             "test",
             Some((15, 16)),
-            1,
+            UNIT,
             &line(IdcOp::LeftRight, vec![part("a"), part("b")]),
             &dims,
             Some(&family),
@@ -395,7 +409,7 @@ fn an_undecided_part_whose_family_fits_is_still_a_todo() {
     let (_, issues) = expand_compose(
         "test",
         Some((15, 16)),
-        1,
+        UNIT,
         &line(IdcOp::LeftRight, vec![part("a"), part("b")]),
         &dims,
         Some(&family),
@@ -416,7 +430,7 @@ fn a_vertical_split_measures_the_family_along_its_own_axis() {
     let (_, issues) = expand_compose(
         "test",
         Some((16, 16)),
-        1,
+        UNIT,
         &line(IdcOp::AboveBelow, vec![part("a"), part("b")]),
         &dims,
         Some(&family),
@@ -714,6 +728,34 @@ fn two_idc_lines_in_one_glyph_are_an_error() {
     );
 }
 
+/// A split fills the glyph's *box*, and a box with an `origin` does not start at
+/// the grid's corner: the parts start where the box does, exactly as the
+/// grid's own ink and every written `ref` are measured from the grid.
+#[test]
+fn an_idc_line_fills_the_box_where_the_origin_puts_it() {
+    let src = source("\u{2FF0} part:2x4-l part:2x4-r\nref part:2x4-l 0 0").replace(
+        "glyph whole 4 4",
+        "glyph whole 5 4 origin 1 0 extent 4 4\n..........\n..........\n..........\n@@........",
+    );
+    let doc = crate::document_io::parse_document_from_str(&src, "test.unf".into()).unwrap();
+    let msgs = messages(&doc);
+    assert!(!msgs.iter().any(|m| m.starts_with("Error")), "{msgs:?}");
+    let (resolved, _) = crate::ref_composite::resolve_named_glyphs_with_parts(
+        &[&doc],
+        &crate::document::NamePartsMap::default(),
+    );
+    let whole = resolved.get("whole").expect("whole should resolve");
+    let on = |row: u16| -> Vec<u16> {
+        (0..whole.grid.width)
+            .filter(|c| whole.grid.get(row, *c).is_bitmap_filled())
+            .collect()
+    };
+    // The written `ref` and the grid's own cell sit at grid column 0; the
+    // split's halves draw box columns 0 and 3, which are grid columns 1 and 4.
+    assert_eq!(on(0), vec![0, 1, 4]);
+    assert_eq!(on(3), vec![0, 1, 4]);
+}
+
 #[test]
 fn an_idc_line_round_trips_through_the_serializer() {
     let input = source("\u{2FF0} part:2x4-l -1 part:2x4-r // a note");
@@ -721,6 +763,135 @@ fn an_idc_line_round_trips_through_the_serializer() {
     let mut out = Vec::new();
     crate::document_io::serialize_document(&doc, &mut out).unwrap();
     assert_eq!(String::from_utf8(out).unwrap(), input);
+}
+
+#[test]
+fn an_assumed_idc_line_round_trips_through_the_serializer() {
+    let input = source("assume \u{2FF0} part:2x4-l -1 part:2x4-r // a note");
+    let doc = crate::document_io::parse_document_from_str(&input, "test.unf".into()).unwrap();
+    let mut out = Vec::new();
+    crate::document_io::serialize_document(&doc, &mut out).unwrap();
+    assert_eq!(String::from_utf8(out).unwrap(), input);
+}
+
+/// [`source`] with `line` in it, held to a band of `1..1` that its halves,
+/// ink flush against both edges, do not meet.
+fn assumed_source(line: &str) -> String {
+    format!("audit ideal-clearance whole 1 1\n{}", source(line))
+}
+
+fn findings(src: &str) -> Vec<(Severity, String)> {
+    let doc = crate::document_io::parse_document_from_str(src, "test.unf".into()).unwrap();
+    crate::issues::collect_issues(&[&doc])
+        .into_iter()
+        .map(|i| (i.severity, i.message))
+        .collect()
+}
+
+/// `assume` takes the clearances on trust and nothing else: the chores go, and
+/// the glyph is built exactly as the plain line builds it.
+#[test]
+fn an_assumed_line_drops_its_clearance_chores() {
+    let plain = assumed_source("\u{2FF0} part:2x4-l part:2x4-r");
+    let loud = findings(&plain);
+    assert!(loud.iter().any(|(s, _)| *s == Severity::Chore), "{loud:?}");
+
+    let assumed = assumed_source("assume \u{2FF0} part:2x4-l part:2x4-r");
+    let quiet = findings(&assumed);
+    assert!(quiet.is_empty(), "{quiet:?}");
+
+    let name_parts = crate::document::NamePartsMap::default();
+    let ink = |src: &str| {
+        let doc = crate::document_io::parse_document_from_str(src, "test.unf".into()).unwrap();
+        let (resolved, _) =
+            crate::ref_composite::resolve_named_glyphs_with_parts(&[&doc], &name_parts);
+        let whole = resolved.get("whole").expect("whole should resolve");
+        (0..4)
+            .filter(|c| whole.grid.get(0, *c).is_bitmap_filled())
+            .collect::<Vec<u16>>()
+    };
+    assert_eq!(ink(&assumed), vec![0, 3]);
+    assert_eq!(ink(&assumed), ink(&plain));
+}
+
+/// A position a name claims is not a clearance: a part drawn for the other side
+/// still warns on an `assume`d line.
+#[test]
+fn an_assumed_line_still_warns_about_positions() {
+    let found = findings(&assumed_source("assume \u{2FF0} part:2x4-r part:2x4-l"));
+    assert_eq!(
+        found
+            .iter()
+            .filter(|(s, m)| *s == Severity::Warning && m.contains("sits in the"))
+            .count(),
+        2,
+        "{found:?}"
+    );
+    assert!(
+        !found.iter().any(|(s, _)| *s == Severity::Chore),
+        "{found:?}"
+    );
+}
+
+/// Whether the parts fit is not a matter of taste: a part that does not span
+/// the other axis is as much an error as ever.
+#[test]
+fn an_assumed_line_still_reports_its_errors() {
+    let src = source("assume \u{2FF0} part:2x4-l part:2x4-r")
+        .replace("glyph whole 4 4", "glyph whole 4 5");
+    let found = findings(&src);
+    assert!(
+        found
+            .iter()
+            .any(|(s, m)| *s == Severity::Error && m.contains("not the glyph's 5")),
+        "{found:?}"
+    );
+}
+
+/// On an enclosure too, only the chores go: the cavity an outer part does not
+/// promise is still a warning, and an unwritten placement still a todo.
+#[test]
+fn an_assumed_enclosure_drops_only_its_chores() {
+    const SRC: &str = "\
+audit ideal-clearance test-* 0 0
+
+glyph ring:6x6 6 6
+@@@@@@@@@@@@
+@@........@@
+@@........@@
+@@........@@
+@@........@@
+@@@@@@@@@@@@
+
+glyph seed:2x2 2 2
+@@@@
+@@@@
+
+glyph test-x 6 6
+$LINE
+";
+    let found = |line: &str| findings(&SRC.replace("$LINE", line));
+    let promises_nothing = |f: &[(Severity, String)]| {
+        f.iter()
+            .any(|(s, m)| *s == Severity::Warning && m.contains("promises no cavity"))
+    };
+
+    let loud = found("\u{2FF4} ring:6x6 seed:2x2 1 1");
+    assert!(promises_nothing(&loud), "{loud:?}");
+    assert!(loud.iter().any(|(s, _)| *s == Severity::Chore), "{loud:?}");
+
+    let quiet = found("assume \u{2FF4} ring:6x6 seed:2x2 1 1");
+    assert!(promises_nothing(&quiet), "{quiet:?}");
+    assert!(
+        !quiet.iter().any(|(s, _)| *s == Severity::Chore),
+        "{quiet:?}"
+    );
+
+    let unplaced = found("assume \u{2FF4} ring:6x6 seed:2x2");
+    assert!(
+        unplaced.iter().any(|(s, _)| *s == Severity::Todo),
+        "{unplaced:?}"
+    );
 }
 
 #[test]
@@ -766,7 +937,7 @@ fn offsets_leave_in_the_parents_raster_units() {
     let (refs, issues) = expand_compose(
         "test",
         Some((15, 16)),
-        2,
+        scaled(2),
         &line(IdcOp::LeftRight, vec![part("a:4x16"), part("b:11x16")]),
         &dims,
         None,
@@ -899,7 +1070,7 @@ fn with_clearance(
         max_contact_run: None,
         contact_written: "test*",
     };
-    let (_, issues) = expand_compose("test", Some(parent), 1, compose, dims, None, Some(&rule));
+    let (_, issues) = expand_compose("test", Some(parent), UNIT, compose, dims, None, Some(&rule));
     assert!(errors(&issues).is_empty(), "{issues:?}");
     // A clearance finding is a `Severity::Chore`, not a warning: it says the
     // same thing, and it is only a build's *log* that is spared it.
@@ -1315,7 +1486,7 @@ fn with_contact_run(
         max_contact_run,
         contact_written: "test*",
     };
-    let (_, issues) = expand_compose("test", Some(parent), 1, compose, dims, None, Some(&rule));
+    let (_, issues) = expand_compose("test", Some(parent), UNIT, compose, dims, None, Some(&rule));
     assert!(errors(&issues).is_empty(), "{issues:?}");
     of_severity(&issues, Severity::Chore)
         .into_iter()
@@ -1382,6 +1553,7 @@ fn a_long_contact_run_costs_a_clearance() {
                 raw_name: None,
             },
         ],
+        assumed: false,
         comment: None,
     };
     assert!(with_contact_run((10, 4), &given, &dims, &ink, Some(2)).is_empty());
@@ -1405,7 +1577,7 @@ fn an_undecided_line_is_not_measured() {
     let (_, issues) = expand_compose(
         "test",
         Some((8, 4)),
-        1,
+        UNIT,
         &line(IdcOp::LeftRight, vec![part("a"), part("b:4x4")]),
         &dims,
         None,
@@ -1623,7 +1795,7 @@ fn an_enclosure_offset_is_scaled_like_every_other_derived_ref() {
         IdcOp::Surround,
         vec![part("o:6x6.4x4"), part("i:2x2"), at(2), at(3)],
     );
-    let (refs, _) = expand_compose("test", Some((6, 6)), 2, &compose, &dims, None, None);
+    let (refs, _) = expand_compose("test", Some((6, 6)), scaled(2), &compose, &dims, None, None);
     assert_eq!(refs[1].offset, Some((4, 6)));
 }
 
@@ -1886,7 +2058,7 @@ fn an_outer_part_that_cannot_keep_its_cavity_promise_warns() {
     let (_, issues) = expand_compose(
         "test",
         Some((6, 6)),
-        1,
+        UNIT,
         &line(
             IdcOp::SurroundUpperLeft,
             vec![part("o:6x6.5x5"), part("i:2x2"), at(3), at(3)],

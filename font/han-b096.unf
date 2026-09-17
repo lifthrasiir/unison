@@ -373,8 +373,7 @@ glyph han-249d0:15x16 15 16 // 𤧐
 ⿲ han-248e9:3x16 han-79be:5x16 han-706b:7x16 // ⿲𤣩禾火
 
 glyph han-249d1:15x16 15 16 // 𤧑
-ref han-248e9:5x16 0 0 // ⿰𤣩風
-ref han-98a8:11x16 4 0
+assume ⿰ han-248e9:5x16 -1 han-98a8:11x16 // ⿰𤣩風
 
 // glyph han-249d5:15x16 15 16 // 𤧕
 // ⿰ han-248e9 han-5794 // ⿰𤣩垔

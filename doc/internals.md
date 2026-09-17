@@ -89,6 +89,8 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Why an anchor error drops the glyph (and its cmap entry), like a missing ref | `render/glyph_cache.rs` (`resolve_pending`) |
 | Why a glyph the build drops silently is still accounted for, and the test that pins it | `issues/anchors.rs` (`check_anchor_derivation`), `issues/issues_tests.rs` |
 | `⿰⿱⿲⿳`: the split, the gap term, why the offsets are derived rather than written | `compose.rs` |
+| Why a split fills the box and not the grid, and so moves with a declared `origin` | `compose.rs` (`Raster`, `expand_compose`) |
+| `assume ⿰ …`: why an assumed line drops its clearance chores and nothing else, and the one reader of the keyword | `compose.rs` (`# An assumed line`, `IdcOp::of_line`) |
 | `⿴⿵⿶⿷⿸⿹⿺⿼⿽`: which sides an enclosure fills, and why its two numbers are offsets rather than gaps | `compose.rs` (`Walls`, `expand_enclosure`) |
 | The four boundaries of one line, and the one type every gap is measured between | `compose.rs` (`InkLine`, `Face`, `GapSide`) |
 | Which run of a line is the wall a cavity sees | `compose.rs` (`WallFace`) |

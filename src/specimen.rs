@@ -1251,7 +1251,10 @@ impl SpecimenState {
         let (ctrl_c, copy_key_up) = ui.input(|i| {
             let trigger = i.events.iter().any(|e| matches!(e, egui::Event::Copy))
                 || (i.modifiers.command && i.key_pressed(egui::Key::C));
-            (trigger, !i.modifiers.command || i.key_released(egui::Key::C))
+            (
+                trigger,
+                !i.modifiers.command || i.key_released(egui::Key::C),
+            )
         });
         let ctrl_c = self
             .copy_key
