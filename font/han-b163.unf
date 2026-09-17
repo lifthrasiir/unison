@@ -209,6 +209,9 @@ glyph han-286d7:15x16 15 16 // 𨛗
 glyph han-286e9:15x16 15 16 // 𨛩
 ⿰ han-8eca:9x16 1 han-961d:5x16-r // ⿰車阝
 
+// glyph han-286ea:15x16 15 16 // 𨛪
+// ⿰ han-5175 han-961d // ⿰兵阝
+
 ## 163.8
 
 // glyph han-286ec:15x16 15 16 // 𨛬
@@ -366,6 +369,9 @@ glyph han-287fc:15x16 15 16 // 𨟼
 glyph han-287fd:15x16 15 16 // 𨟽
 ⿰ han-706b:7x16 1 han-9149:7x16 // ⿰火酉
 
+glyph han-287fe:15x16 15 16 // 𨟾
+⿰ han-9149:7x16 han-6c0f:8x16 // ⿰酉氏
+
 // glyph han-287ff-($han-regions):15x16 15 16 // 𨟿
 // ⿰ han-9149 han-723b-($-1) // ⿰酉爻
 
@@ -395,8 +401,8 @@ glyph han-28807:15x16 15 16 // 𨠇
 glyph han-2880e-($han-regions):15x16 15 16 // 𨠎
 ⿰ han-9149:7x16 1 han-4ee4-($-1):7x16 // ⿰酉令
 
-glyph han-2880f:15x16 15 16 // 𨠏
-⿰ han-9149:7x16 han-6c10:8x16 // ⿰酉氐
+glyph han-2880f-($han-regions):15x16 15 16 // 𨠏
+⿰ han-9149:7x16 han-6c10-($-1):8x16 // ⿰酉氐
 
 glyph han-28810-($han-regions):15x16 15 16 // 𨠐
 ⿰ -2 han-9149:7x16 han-6b64-($-1):10x16 // ⿰酉此

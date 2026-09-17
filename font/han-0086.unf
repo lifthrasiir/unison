@@ -1448,8 +1448,9 @@ glyph han-7271:15x16 15 16 // 牱
 glyph han-7272:15x16 15 16 // 牲
 ⿰ han-725c:6x16 han-751f:9x16 // ⿰牜生
 
-glyph han-7274:15x16 15 16 // 牴
-⿰ han-725c:6x16 1 han-6c10:8x16 // ⿰牜氐
+glyph han-7274-($han-regions):15x16 15 16 // 牴
+⿰ han-725c:6x16 1 han-6c10-($-1):8x16 // ⿰牜氐
+glyph han-7274.0:* = han-7274-j:*
 
 // glyph han-7275:15x16 15 16 // 牵
 // ⿳ han-5927 han-5196 han-725b // ⿳大冖牛

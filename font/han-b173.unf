@@ -124,6 +124,9 @@ glyph han-290af:15x16 15 16 // 𩂯
 // glyph han-290b1:15x16 15 16 // 𩂱
 // ⿱ han-96e8 han-8863 // ⿱雨衣
 
+// glyph han-290b3-($han-regions):15x16 15 16 // 𩂳
+// ⿱ han-96e8-($-1) han-4e9a // ⿱雨亚
+
 ## 173.7
 
 // glyph han-290b7:15x16 15 16 // 𩂷

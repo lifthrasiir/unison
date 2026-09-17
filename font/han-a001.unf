@@ -324,6 +324,9 @@ glyph han-345b:15x16 15 16 // 㑛
 glyph han-345c:15x16 15 16 // 㑜
 ⿲ han-4ebb:3x16 han-624c:3x16 han-65a4:9x16 // ⿲亻扌斤
 
+// glyph han-345f:15x16 15 16 // 㑟
+// ⿰ han-4ebb han-5175 // ⿰亻兵
+
 ## 9.8
 
 glyph han-3463:15x16 15 16 // 㑣
@@ -1016,6 +1019,9 @@ glyph han-363f:15x16 15 16 // 㘿
 
 // glyph han-3640:15x16 15 16 // 㙀
 // ⿰ han-571f han-7a76 // ⿰土究
+
+// glyph han-3643:15x16 15 16 // 㙃
+// ⿰ han-571f han-5175 // ⿰土兵
 
 // glyph han-3644:15x16 15 16 // 㙄
 // ⿰ han-571f han-5752 // ⿰土坒

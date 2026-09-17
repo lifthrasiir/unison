@@ -157,6 +157,9 @@ glyph han-313a7:15x16 15 16 // 𱎧
 
 ## 9.6
 
+// glyph han-313ab:15x16 15 16 // 𱎫
+// ⿰ han-4ebb han-4e9a // ⿰亻亚
+
 // glyph han-313ac:15x16 15 16 // 𱎬
 // ⿰ han-4ebb han-7f36 // ⿰亻缶
 
@@ -567,6 +570,9 @@ glyph han-314bd:15x16 15 16 // 𱒽
 
 // glyph han-314be:15x16 15 16 // 𱒾
 // ⿰ han-53e3 han-6770 // ⿰口杰
+
+// glyph han-314bf:15x16 15 16 // 𱒿
+// ⿰ han-53e3 han-233da // ⿰口𣏚
 
 glyph han-314c2:15x16 15 16 // 𱓂
 ⿰ han-54c1:9x16 -1 han-4e01:7x16 // ⿰品丁
@@ -1014,6 +1020,9 @@ glyph han-3164c:15x16 15 16 // 𱙌
 ⿰ han-5973:5x16-l 1 han-56db:9x16 // ⿰女四
 
 ## 38.6
+
+// glyph han-3164e:15x16 15 16 // 𱙎
+// ⿱ han-4e9a han-5973 // ⿱亚女
 
 // glyph han-31652:15x16 15 16 // 𱙒
 // ⿰ han-5973 han-28e00 // ⿰女𨸀

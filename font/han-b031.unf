@@ -104,6 +104,9 @@ $$0P......................0P$$
 // glyph han-211ba:15x16 15 16 // 𡆺
 // ⿴ han-56d7 han-624b // ⿴囗手
 
+// glyph han-211bf:15x16 15 16 // 𡆿
+// ⿴ han-56d7 han-6c0f // ⿴囗氏
+
 glyph han-211c2:15x16 15 16 // 𡇂
 ⿴ han-56d7:15x16.11x12 han-706b:11x12 2 2 // ⿴囗火
 
@@ -166,6 +169,9 @@ glyph han-211cc:15x16 15 16 // 𡇌
 
 // glyph han-211e4:15x16 15 16 // 𡇤
 // ⿱ han-4e37 han-56fa // ⿱丷固
+
+// glyph han-211e5:15x16 15 16 // 𡇥
+// ⿴ han-56d7 han-5175 // ⿴囗兵
 
 // glyph han-211e7:15x16 15 16 // 𡇧
 // ⿴ han-56d7 han-8c46 // ⿴囗豆
@@ -620,7 +626,7 @@ glyph han-21314:15x16 15 16 // 𡌔
 // ⿰ han-571f han-7683 // ⿰土皃
 
 glyph han-21320:15x16 15 16 // 𡌠
-⿲ han-571f:3x16-l han-4ebb:3x16 1 han-6c10:8x16 // ⿲土亻氐
+⿲ han-571f:3x16-l han-4ebb:3x16 1 han-6c10-v:8x16 // ⿲土亻氐
 
 // glyph han-21324:15x16 15 16 // 𡌤
 // ⿰ han-572d han-72ac // ⿰圭犬

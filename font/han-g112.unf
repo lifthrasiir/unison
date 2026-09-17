@@ -18,6 +18,9 @@ glyph han-309a4:15x16 15 16 // 𰦤
 glyph han-309b3:15x16 15 16 // 𰦳
 ⿰ han-77f3:7x16 1 han-8033:7x16 // ⿰石耳
 
+// glyph han-309b4:15x16 15 16 // 𰦴
+// ⿰ han-77f3 han-4e9a // ⿰石亚
+
 // glyph han-309b5:15x16 15 16 // 𰦵
 // ⿰ han-77f3 han-593a // ⿰石夺
 
@@ -981,6 +984,9 @@ glyph han-30caf:15x16 15 16 // 𰲯
 // ⿳ han-4e36 han-4e07 han-866b // ⿳丶万虫 <- ⿱方虫
 
 ## 142.6
+
+// glyph han-30cb8:15x16 15 16 // 𰲸
+// ⿱ han-4e9a han-866b // ⿱亚虫
 
 // glyph han-30cb9:15x16 15 16 // 𰲹
 // ⿰ han-866b han-5c82 // ⿰虫岂

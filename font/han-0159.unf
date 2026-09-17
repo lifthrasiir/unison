@@ -310,6 +310,9 @@ glyph han-8ed6:15x16 15 16 // 軖
 // glyph han-8edc:15x16 15 16 // 軜
 // ⿰ han-8eca han-5185 // ⿰車内
 
+glyph han-8edd:15x16 15 16 // 軝
+⿰ han-8eca:5x16 han-6c0f:10x16 // ⿰車氏
+
 glyph han-8ede:15x16 15 16 // 軞
 ⿰ han-8eca:5x16 1 han-6bdb:9x16 // ⿰車毛
 
@@ -334,8 +337,8 @@ glyph han-8ee5:15x16 15 16 // 軥
 // glyph han-8ee6:15x16 15 16 // 軦
 // ⿰ han-8eca han-5144 // ⿰車兄
 
-glyph han-8ee7:15x16 15 16 // 軧
-⿰ han-8eca:7x16 han-6c10:8x16 // ⿰車氐
+glyph han-8ee7-($han-regions):15x16 15 16 // 軧
+⿰ han-8eca:7x16 han-6c10-($-1):8x16 // ⿰車氐
 
 glyph han-8ee8-($han-regions):15x16 15 16 // 軨
 ⿰ han-8eca:7x16 1 han-4ee4-($-1):7x16 // ⿰車令
@@ -1321,8 +1324,13 @@ glyph han-90b4:15x16 15 16 // 邴
 glyph han-90b5:15x16 15 16 // 邵
 ⿰ han-53ec:10x16 1 han-961d:4x16-r // ⿰召阝
 
-glyph han-90b8:15x16 15 16 // 邸
-⿰ han-6c10:8x16 han-961d:7x16-r // ⿰氐阝
+glyph han-90b8.0:15x16 15 16 // 邸
+⿰ han-6c10.0:8x16 han-961d:7x16-r // ⿰氐阝
+glyph han-90b8.1:* = han-90b8.0:*
+glyph han-90b8.2:15x16 15 16 // 邸
+⿰ han-6c10.x:8x16 han-961d:7x16-r // ⿰氐阝
+glyph han-90b8-(h|t|j|k|p):* = han-90b8.0:*
+glyph han-90b8-g:* = han-90b8.2:*
 
 // glyph han-90ba:15x16 15 16 // 邺
 // ⿰ han-4e1a han-961d // ⿰业阝

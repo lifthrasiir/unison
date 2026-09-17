@@ -255,6 +255,9 @@ glyph han-2b496:15x16 15 16 // 𫒖
 
 ## 167.7
 
+// glyph han-2b4a3:15x16 15 16 // 𫒣
+// ⿳ han-4e36 han-4e9a han-91d1 // ⿳丶亚金
+
 // glyph han-2b4a5-($han-regions):15x16 15 16 // 𫒥
 // ⿰ han-91d2 han-5fd8-($-1) // ⿰釒忘
 
@@ -738,6 +741,11 @@ glyph han-2b60f:15x16 15 16 // 𫘏
 
 // glyph han-2b610:15x16 15 16 // 𫘐
 // ⿰ han-99ac han-91cd // ⿰馬重
+
+## 187.10
+
+// glyph han-2b616:15x16 15 16 // 𫘖
+// ⿱ han-7d19 han-99ac // ⿱紙馬
 
 ## 187.13
 

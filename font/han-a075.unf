@@ -361,8 +361,8 @@ glyph han-3c9e:15x16 15 16 // 㲞
 
 ## 83.6
 
-glyph han-3cb3:15x16 15 16 // 㲳
-⿰ han-6c10:8x16 han-5931:7x16 // ⿰氐失
+glyph han-3cb3-($han-regions):15x16 15 16 // 㲳
+⿰ han-6c10-($-1):8x16 han-5931:7x16 // ⿰氐失
 
 # CJK unified ideographs extension A: 水 (85)
 
@@ -886,6 +886,9 @@ glyph han-3e58:15x16 15 16 // 㹘
 
 // glyph han-3e5c:15x16 15 16 // 㹜
 // ⿰ han-72ac han-72ac // ⿰犬犬
+
+glyph han-3e5d:15x16 15 16 // 㹝
+⿰ han-72ad:4x16 1 han-6c0f:10x16 // ⿰犭氏
 
 glyph han-3e5e:15x16 15 16 // 㹞
 ⿰ han-72ad:6x16 han-65a4:9x16 // ⿰犭斤

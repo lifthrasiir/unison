@@ -307,6 +307,11 @@ glyph han-303e3:15x16 15 16 // 𰏣
 // glyph han-303e6-($han-regions):15x16 15 16 // 𰏦
 // ⿰ han-5e73-($-1) han-5e73-($-1) // ⿰平平
 
+## 51.8
+
+// glyph han-303e8-($han-regions):15x16 15 16 // 𰏨
+// ⿰ han-5e73-($-1) han-4e52 // ⿰平乒
+
 ## 51.9
 
 // glyph han-303ea:15x16 15 16 // 𰏪
@@ -618,6 +623,9 @@ glyph han-304bd:15x16 15 16 // 𰒽
 
 glyph han-304c1:15x16 15 16 // 𰓁
 ⿰ -4 han-624b:11x16 han-6bd4-g:8x16 // ⿰手比
+
+// glyph han-304c5:15x16 15 16 // 𰓅
+// ⿱ han-6c0f han-624b // ⿱氏手
 
 // glyph han-304c7:15x16 15 16 // 𰓇
 // ⿰ han-624b han-4e4b // ⿰手之

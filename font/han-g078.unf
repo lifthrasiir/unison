@@ -89,6 +89,11 @@ glyph han-306af:15x16 15 16 // 𰚯
 // ref han-5df1 // ⿻己土
 // ref han-571f
 
+## 83.13
+
+// glyph han-306ba:15x16 15 16 // 𰚺
+// ⿱ han-4854 han-6c0f // ⿱䡔氏
+
 # CJK unified ideographs extension G: 水 (85)
 
 ## 85.-1
@@ -610,6 +615,9 @@ glyph han-30846:15x16 15 16 // 𰡆
 // ⿰ han-72ac han-4e14 // ⿰犬且
 
 ## 94.6
+
+// glyph han-30849:15x16 15 16 // 𰡉
+// ⿰ han-72ad han-4e9a // ⿰犭亚
 
 glyph han-3084c:15x16 15 16 // 𰡌
 ⿰ han-72ad:6x16 han-821f:9x16 // ⿰犭舟

@@ -125,8 +125,8 @@ glyph han-25fc1:15x16 15 16 // 𥿁
 // glyph han-25fc3:15x16 15 16 // 𥿃
 // ⿱ han-52a0 han-7cf8 // ⿱加糸
 
-glyph han-25fc4:15x16 15 16 // 𥿄
-⿰ han-7cf9:5x16 han-6c10:10x16 // ⿰糹氐
+glyph han-25fc4-($han-regions):15x16 15 16 // 𥿄
+⿰ han-7cf9:5x16 han-6c10-($-1):10x16 // ⿰糹氐
 
 glyph han-25fc9:15x16 15 16 // 𥿉
 ⿰ han-7cf9:5x16 1 han-672b:9x16 // ⿰糹末

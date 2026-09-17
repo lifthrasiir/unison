@@ -111,6 +111,9 @@ glyph han-7d15-($han-regions):15x16 15 16 // 紕
 // glyph han-7d16:15x16 15 16 // 紖
 // ⿲ han-7cf9 han-5f13 han-4e28 // ⿲糹弓丨 <- ⿰糹引
 
+glyph han-7d19:15x16 15 16 // 紙
+⿰ han-7cf9:5x16 han-6c0f:10x16 // ⿰糹氏
+
 glyph han-7d1b:15x16 15 16 // 紛
 ⿰ han-7cf9:5x16 1 han-5206:9x16 // ⿰糹分
 
@@ -915,8 +918,9 @@ glyph han-7f9a-($han-regions):15x16 15 16 // 羚
 // glyph han-7f9c:15x16 15 16 // 羜
 // ⿰ han-7f8a han-5b81 // ⿰羊宁
 
-glyph han-7f9d:15x16 15 16 // 羝
-⿰ han-7f8a:7x16 han-6c10:8x16 // ⿰羊氐
+glyph han-7f9d-($han-regions):15x16 15 16 // 羝
+⿰ han-7f8a:7x16 han-6c10-($-1):8x16 // ⿰羊氐
+glyph han-7f9d.0:* = han-7f9d-j:*
 
 ## 123.7
 

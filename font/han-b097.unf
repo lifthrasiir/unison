@@ -110,11 +110,17 @@ glyph han-24bc0:15x16 15 16 // 𤯀
 
 ## 99.4
 
+// glyph han-24bc1:15x16 15 16 // 𤯁
+// ⿱ han-6c0f han-7518 // ⿱氏甘
+
 // glyph han-24bc2:15x16 15 16 // 𤯂
 // ⿰ han-7518 han-72ac // ⿰甘犬
 
 glyph han-24bc3:15x16 15 16 // 𤯃
 ⿱ han-6728:15x7 han-7518:15x9 // ⿱木甘
+
+glyph han-24bc4:15x16 15 16 // 𤯄
+⿰ han-7518:7x16 han-6c0f:8x16 // ⿰甘氏
 
 ## 99.5
 

@@ -1089,6 +1089,9 @@ glyph han-660e:15x12 15 12 // 明
 glyph han-660e:15x16 15 16 // 明
 ⿰ han-65e5:7x16 1 han-6708:7x16 // ⿰日月
 
+// glyph han-660f:15x16 15 16 // 昏
+// ⿱ han-6c0f han-65e5 // ⿱氏日
+
 glyph han-6610:15x16 15 16 // 昐
 ⿰ han-65e5:7x16 1 han-5206:7x16 // ⿰日分
 
@@ -1303,6 +1306,9 @@ glyph han-6648:15x16 15 16 // 晈
 
 glyph han-664a:15x16 15 16 // 晊
 ⿰ han-65e5:7x16 1 han-81f3:7x16 // ⿰日至
+
+// glyph han-664b:15x16 15 16 // 晋
+// ⿱ han-4e9a han-65e5 // ⿱亚日
 
 glyph han-664d:15x16 15 16 // 晍
 ⿰ han-65e5:7x16 1 han-540c:7x16 // ⿰日同

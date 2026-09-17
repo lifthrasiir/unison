@@ -280,6 +280,9 @@ glyph han-245be-(g|j):15x16 15 16 // 𤖾
 glyph han-245be-t:15x16 15 16 // 𤖾
 ⿰ han-7247.x:6x16 1 han-540c:8x16 // ⿰片同
 
+glyph han-245bf-($han-regions):15x16 15 16 // 𤖿
+⿲ -1 han-7247-($-1):6x16 han-4ebb:3x16 han-6c0f:8x16 // ⿲片亻氏 <- ⿰片⿰亻氏
+
 ## 91.7
 
 glyph han-245c0-(g|j):15x16 15 16 // 𤗀

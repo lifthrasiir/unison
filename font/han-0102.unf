@@ -936,6 +936,9 @@ glyph han-75a4:15x16 15 16 // 疤
 // glyph han-75a6:15x16 15 16 // 疦
 // ⿸ han-7592 han-592c // ⿸疒夬
 
+// glyph han-75a7:15x16 15 16 // 疧
+// ⿸ han-7592 han-6c0f // ⿸疒氏
+
 // glyph han-75a9:15x16 15 16 // 疩
 // ⿸ han-7592 han-5346 // ⿸疒卆
 
@@ -1032,6 +1035,9 @@ glyph han-75d0:15x16 15 16 // 痐
 
 // glyph han-75d4:15x16 15 16 // 痔
 // ⿸ han-7592 han-5bfa // ⿸疒寺
+
+// glyph han-75d6:15x16 15 16 // 痖
+// ⿸ han-7592 han-4e9a // ⿸疒亚
 
 ## 104.7
 
@@ -2508,6 +2514,9 @@ glyph han-76ff:15x16 15 16 // 盿
 glyph han-7700:15x16 15 16 // 眀
 ⿰ han-76ee:7x16 1 han-6708:7x16 // ⿰目月
 
+glyph han-7702:15x16 15 16 // 眂
+⿰ han-76ee:5x16-l han-6c0f:10x16 // ⿰目氏
+
 // glyph han-7703:15x16 15 16 // 眃
 // ⿰ han-76ee han-4e91 // ⿰目云
 
@@ -2566,8 +2575,8 @@ glyph han-771c:15x16 15 16 // 眜
 // glyph han-771f:15x16 15 16 // 真
 // ⿳ han-250ed han-4e00 han-516b // ⿳𥃭一八
 
-glyph han-7721:15x16 15 16 // 眡
-⿰ han-76ee:6x16 1 han-6c10:8x16 // ⿰目氐
+glyph han-7721-($han-regions):15x16 15 16 // 眡
+⿰ han-76ee:6x16 1 han-6c10-($-1):8x16 // ⿰目氐
 
 glyph han-7723:15x16 15 16 // 眣
 ⿰ han-76ee:7x16 1 han-5931:7x16 // ⿰目失

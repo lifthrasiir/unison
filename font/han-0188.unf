@@ -239,7 +239,7 @@ glyph han-9ab4.0:* = han-9ab4-j:*
 // ⿰ han-9aa8 han-672c // ⿰骨本
 
 glyph han-9ab6-($han-regions):15x16 15 16 // 骶
-⿰ han-9aa8-($-1):7x16 han-6c10:8x16 // ⿰骨氐
+⿰ han-9aa8-($-1):7x16 han-6c10-($-1):8x16 // ⿰骨氐
 glyph han-9ab6.0:* = han-9ab6-j:*
 
 glyph han-9ab7-($han-regions):15x16 15 16 // 骷

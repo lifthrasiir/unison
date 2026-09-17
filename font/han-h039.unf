@@ -192,6 +192,9 @@ glyph han-316db:15x16 15 16 // 𱛛
 
 ## 46.6
 
+// glyph han-316dd:15x16 15 16 // 𱛝
+// ⿰ han-5c71 han-4e9a // ⿰山亚
+
 // glyph han-316de:15x16 15 16 // 𱛞
 // ⿱ han-5c71 han-5de9 // ⿱山巩
 
@@ -636,6 +639,9 @@ glyph han-31882:15x16 15 16 // 𱢂
 // glyph han-31883:15x16 15 16 // 𱢃
 // ⿱ han-65e5 han-72c4 // ⿱日狄
 
+// glyph han-31884:15x16 15 16 // 𱢄
+// ⿰ han-65e5 han-5175 // ⿰日兵
+
 ## 72.8
 
 glyph han-3188a:15x16 15 16 // 𱢊
@@ -729,6 +735,9 @@ glyph han-318cd:15x16 15 16 // 𱣍
 
 // glyph han-318d2:15x16 15 16 // 𱣒
 // ⿱ han-884c han-6728 // ⿱行木
+
+// glyph han-318d3:15x16 15 16 // 𱣓
+// ⿰ han-6728 han-4e52 // ⿰木乒
 
 // glyph han-318d5:15x16 15 16 // 𱣕
 // ⿰ han-6728 han-4f01 // ⿰木企

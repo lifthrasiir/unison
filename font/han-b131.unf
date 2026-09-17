@@ -288,8 +288,8 @@ glyph han-26a1e:15x16 15 16 // 𦨞
 glyph han-26a21:15x16 15 16 // 𦨡
 ⿰ han-821f:7x16 1 han-5f17:7x16 // ⿰舟弗
 
-glyph han-26a22:15x16 15 16 // 𦨢
-⿰ han-821f:7x16 han-6c10:8x16 // ⿰舟氐
+glyph han-26a22-($han-regions):15x16 15 16 // 𦨢
+⿰ han-821f:7x16 han-6c10-($-1):8x16 // ⿰舟氐
 
 glyph han-26a23:15x16 15 16 // 𦨣
 ⿰ han-821f:7x16 han-53ec:8x16 // ⿰舟召

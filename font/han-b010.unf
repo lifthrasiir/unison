@@ -94,6 +94,11 @@ glyph han-2048c:15x16 15 16 // 𠒌
 // glyph han-204e8:15x16 15 16 // 𠓨
 // ⿺ han-5305 han-5165 // ⿺包入
 
+## 11.7
+
+// glyph han-204eb:15x16 15 16 // 𠓫
+// ⿱ han-5165 han-5175 // ⿱入兵
+
 ## 11.8
 
 // glyph han-204ed:15x16 15 16 // 𠓭
@@ -137,6 +142,9 @@ glyph han-2048c:15x16 15 16 // 𠒌
 // glyph han-20505:15x16 15 16 // 𠔅
 // ⿱ han-516b han-5c38 // ⿱八尸
 
+// glyph han-20506-($han-regions):15x16 15 16 // 𠔆
+// ⿱ han-516b-($-1) han-21c23 // ⿱八𡰣
+
 ## 12.4
 
 // glyph han-20508:15x16 15 16 // 𠔈
@@ -156,6 +164,9 @@ glyph han-2048c:15x16 15 16 // 𠒌
 // glyph han-2050d:15x16 15 16 // 𠔍
 // ⿱ han-516b han-7531 // ⿱八由
 
+// glyph han-2050e-($han-regions):15x16 15 16 // 𠔎
+// ⿳ han-516b-($-1) han-201a2 han-30001 // ⿳八𠆢𰀁
+
 // glyph han-2050f-($han-regions):15x16 15 16 // 𠔏
 // ⿳ han-5eff han-4e00 han-516b-($-1) // ⿳廿一八
 
@@ -168,6 +179,9 @@ glyph han-2048c:15x16 15 16 // 𠒌
 
 glyph han-20514:15x16 15 16 // 𠔔
 ⿱ han-7531:15x9 han-516d:15x7 // ⿱由六
+
+// glyph han-20515:15x16 15 16 // 𠔕
+// ⿱ han-5206 han-20541 // ⿱分𠕁
 
 // glyph han-20516:15x16 15 16 // 𠔖
 // ⿳ han-8278 han-4e00 han-516b // ⿳艸一八
@@ -190,6 +204,9 @@ glyph han-20521:15x16 15 16 // 𠔡
 
 // glyph han-20524:15x16 15 16 // 𠔤
 // ⿱ han-5408 han-5171 // ⿱合共
+
+// glyph han-20526:15x16 15 16 // 𠔦
+// ⿰ han-53e6 han-5175 // ⿰另兵
 
 ## 12.11
 
@@ -513,6 +530,9 @@ glyph han-20584:15x16 15 16 // 𠖄
 // glyph han-2058c:15x16 15 16 // 𠖌
 // ⿱ han-5196 han-886c // ⿱冖衬
 
+// glyph han-2058d:15x16 15 16 // 𠖍
+// ⿳ han-5196 han-20b9b han-5197 // ⿳冖𠮛冗
+
 // glyph han-2058f:15x16 15 16 // 𠖏
 // ⿱ han-5196 han-5947 // ⿱冖奇
 
@@ -601,6 +621,9 @@ glyph han-205ca:15x16 15 16 // 𠗊
 
 // glyph han-205cc:15x16 15 16 // 𠗌
 // ⿰ han-51ab han-514b // ⿰冫克
+
+// glyph han-205ce:15x16 15 16 // 𠗎
+// ⿲ han-51ab han-4e3f han-5168 // ⿲冫丿全
 
 glyph han-205cf:15x16 15 16 // 𠗏
 ⿰ han-51ab:5x16 1 han-8eab:9x16 // ⿰冫身
@@ -787,6 +810,9 @@ glyph han-20633:15x16 15 16 // 𠘳
 glyph han-20636:15x16 15 16 // 𠘶
 ⿱ han-4e0d:15x8 han-51e0:15x8 // ⿱不几
 
+// glyph han-2063a:15x16 15 16 // 𠘺
+// ⿱ han-20ad3 han-51e0 // ⿱𠫓几
+
 // glyph han-2063b:15x16 15 16 // 𠘻
 // ⿱ han-51e1 han-51e1 // ⿱凡凡
 
@@ -842,6 +868,11 @@ glyph han-20649:15x16 15 16 // 𠙉
 
 // glyph han-2065e:15x16 15 16 // 𠙞
 // ⿰ han-8981 han-51e0 // ⿰要几
+
+## 16.10
+
+// glyph han-20660:15x16 15 16 // 𠙠
+// ⿳ han-201a2 han-2020c han-51e0 // ⿳𠆢𠈌几
 
 ## 16.11
 

@@ -84,6 +84,9 @@ glyph han-233d4:15x16 15 16 // 𣏔
 // glyph han-233d6:15x16 15 16 // 𣏖
 // ⿲ han-6728 han-5f13 han-4e28 // ⿲木弓丨 <- ⿰木引
 
+glyph han-233da:15x16 15 16 // 𣏚
+⿰ han-6728:5x16 han-6c0f:10x16 // ⿰木氏
+
 // glyph han-233dc:15x16 15 16 // 𣏜
 // ⿰ han-6728 han-4e0f // ⿰木丏
 

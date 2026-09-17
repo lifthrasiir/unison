@@ -64,6 +64,9 @@ glyph han-27979-($han-regions):15x16 15 16 // 𧥹
 // glyph han-2797f:15x16 15 16 // 𧥿
 // ⿱ han-6c34 han-8a00 // ⿱水言
 
+glyph han-27984-($han-regions):15x16 15 16 // 𧦄
+⿰ han-8a01-($-1):5x16 han-6c0f:10x16 // ⿰訁氏
+
 // glyph han-27988:15x16 15 16 // 𧦈
 // ⿰ han-8a01 han-6236 // ⿰訁戶
 

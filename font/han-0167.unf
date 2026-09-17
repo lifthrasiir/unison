@@ -633,6 +633,9 @@ glyph han-92ef-h:15x16 15 16 // 鋯
 glyph han-92f0:15x16 15 16 // 鋰
 ⿰ han-91d2:5x16-l 1 han-91cc:9x16 // ⿰釒里
 
+// glyph han-92f2:15x16 15 16 // 鋲
+// ⿰ han-91d2 han-5175 // ⿰釒兵
+
 // glyph han-92f4:15x16 15 16 // 鋴
 // ⿰ han-91d2 han-514b // ⿰釒克
 
@@ -1197,6 +1200,9 @@ glyph han-94d2:15x16 15 16 // 铒
 
 // glyph han-94d3-($han-regions):15x16 15 16 // 铓
 // ⿰ han-9485 han-8292-($-1) // ⿰钅芒
+
+// glyph han-94d4:15x16 15 16 // 铔
+// ⿰ han-9485 han-4e9a // ⿰钅亚
 
 // glyph han-94d7:15x16 15 16 // 铗
 // ⿰ han-9485 han-5939 // ⿰钅夹

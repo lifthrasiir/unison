@@ -235,8 +235,8 @@ glyph han-8cbc:15x16 15 16 // 貼
 glyph han-8cbd:15x16 15 16 // 貽
 ⿰ han-8c9d:8x16 han-53f0:7x16 // ⿰貝台
 
-glyph han-8cbe:15x16 15 16 // 貾
-⿰ han-8c9d:6x16 1 han-6c10:8x16 // ⿰貝氐
+glyph han-8cbe-($han-regions):15x16 15 16 // 貾
+⿰ han-8c9d:6x16 1 han-6c10-($-1):8x16 // ⿰貝氐
 
 // glyph han-8cc0:15x16 15 16 // 賀
 // ⿱ han-52a0 han-8c9d // ⿱加貝
@@ -455,6 +455,9 @@ ref han-9fb0:15x16
 
 // glyph han-8d7e:15x16 15 16 // 赾
 // ⿺ han-8d70 han-65a4 // ⿺走斤
+
+// glyph han-8d7f:15x16 15 16 // 赿
+// ⿺ han-8d70 han-6c0f // ⿺走氏
 
 ## 156.5
 

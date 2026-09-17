@@ -72,6 +72,9 @@ glyph han-27d42:15x16 15 16 // 𧵂
 // glyph han-27d43:15x16 15 16 // 𧵃
 // ⿰ han-8c9d han-624b // ⿰貝手
 
+glyph han-27d44:15x16 15 16 // 𧵄
+⿰ han-8c9d:5x16 han-6c0f:10x16 // ⿰貝氏
+
 glyph han-27d45:15x16 15 16 // 𧵅
 ⿰ han-8c9d:5x16 1 han-5df4:9x16 // ⿰貝巴
 
@@ -237,6 +240,9 @@ glyph han-27dc2:15x16 15 16 // 𧷂
 
 // glyph han-27dcf:15x16 15 16 // 𧷏
 // ⿳ han-5725 han-7f52 han-8c9d // ⿳圥罒貝 <- ⿱圥買
+
+// glyph han-27dd1:15x16 15 16 // 𧷑
+// ⿱ han-8694 han-8c9d // ⿱蚔貝
 
 // glyph han-27dd3:15x16 15 16 // 𧷓
 // ⿳ han-51fa han-7f52 han-8c9d // ⿳出罒貝 <- ⿱出買

@@ -260,8 +260,8 @@ glyph han-2a00a:15x16 15 16 // 𪀊
 glyph han-2a00c:15x16 15 16 // 𪀌
 ⿰ han-9ce5:7x16 1 han-7532:7x16 // ⿰鳥甲
 
-glyph han-2a00d:15x16 15 16 // 𪀍
-⿰ han-9ce5:7x16 han-6c10:8x16 // ⿰鳥氐
+glyph han-2a00d-($han-regions):15x16 15 16 // 𪀍
+⿰ han-9ce5:7x16 han-6c10-($-1):8x16 // ⿰鳥氐
 
 // glyph han-2a00e-($han-regions):15x16 15 16 // 𪀎
 // ⿰ han-53f2-($-1) han-9ce5 // ⿰史鳥

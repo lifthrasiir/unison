@@ -882,6 +882,9 @@ glyph han-44c1:15x16 15 16 // 䓁
 // glyph han-44ca:15x16 15 16 // 䓊
 // ⿳ han-8279 han-4e94 han-53e3 // ⿳艹五口 <- ⿱艹吾
 
+// glyph han-44cb:15x16 15 16 // 䓋
+// ⿱ han-8279 han-6c66 // ⿱艹汦
+
 glyph han-44cc:15x16 15 16 // 䓌
 ⿳ han-8279:15x3 han-58eb:15x8 han-5fc3:15x5 // ⿳艹士心
 

@@ -143,6 +143,11 @@ glyph han-2c070:15x16 15 16 // 𬁰
 glyph han-2c076:15x16 15 16 // 𬁶
 ⿰ han-4e94:9x16 han-6708:6x16 // ⿰五月
 
+## 74.6
+
+// glyph han-2c07a:15x16 15 16 // 𬁺
+// ⿰ han-6708 han-4e9a // ⿰月亚
+
 ## 74.7
 
 // glyph han-2c080:15x16 15 16 // 𬂀
@@ -285,6 +290,9 @@ glyph han-2c0f4:15x16 15 16 // 𬃴
 // ⿲ han-6728 han-6c35 han-2d950 // ⿲木氵𭥐
 
 ## 75.11
+
+// glyph han-2c109:15x16 15 16 // 𬄉
+// ⿰ han-6728 han-8edd // ⿰木軝
 
 // glyph han-2c10b:15x16 15 16 // 𬄋
 // ⿰ han-6728 han-8377 // ⿰木荷
@@ -516,7 +524,25 @@ glyph han-2c1c0:15x16 15 16 // 𬇀
 ## 83.3
 
 glyph han-2c1c9:15x16 15 16 // 𬇉
-⿰ han-6c10:10x16 han-5200:5x16 // ⿰氐刀
+⿰ han-6c10-v:10x16 han-5200:5x16 // ⿰氐刀
+
+## 83.4
+
+// glyph han-2c1ca:15x16 15 16 // 𬇊
+// ⿰ han-6c0f han-6c0f // ⿰氏氏
+
+// glyph han-2c1cb:15x16 15 16 // 𬇋
+// ⿸ han-6237 han-6c0f // ⿸户氏
+
+## 83.5
+
+// glyph han-2c1cc:15x16 15 16 // 𬇌
+// ⿱ han-6c0f han-53ef // ⿱氏可
+
+## 83.6
+
+// glyph han-2c1cd:15x16 15 16 // 𬇍
+// ⿱ han-4ea4 han-6c0f // ⿱交氏
 
 # CJK unified ideographs extension E: 水 (85)
 

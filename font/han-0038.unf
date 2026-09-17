@@ -432,6 +432,9 @@ glyph han-5a02:15x16 15 16 // 娂
 glyph han-5a03:15x16 15 16 // 娃
 ⿰ han-5973:7x16 1 han-572d:7x16 // ⿰女圭
 
+// glyph han-5a05:15x16 15 16 // 娅
+// ⿰ han-5973 han-4e9a // ⿰女亚
+
 ## 38.7
 
 glyph han-5a0a:15x16 15 16 // 娊
@@ -472,6 +475,9 @@ glyph han-5a1a:15x16 15 16 // 娚
 
 // glyph han-5a24:15x16 15 16 // 娤
 // ⿱ han-58ef han-5973 // ⿱壯女
+
+// glyph han-5a26:15x16 15 16 // 娦
+// ⿰ han-5973 han-5175 // ⿰女兵
 
 // glyph han-5a28:15x16 15 16 // 娨
 // ⿰ han-5973 han-65f1 // ⿰女旱
@@ -1438,6 +1444,9 @@ glyph han-5bb2:15x16 15 16 // 宲
 
 // glyph han-5bb9-($han-regions):15x16 15 16 // 容
 // ⿳ han-7a74-($-1) han-201a2 han-53e3 // ⿳穴𠆢口
+
+// glyph han-5bbe:15x16 15 16 // 宾
+// ⿱ han-5b80 han-5175 // ⿱宀兵
 
 ## 40.8
 

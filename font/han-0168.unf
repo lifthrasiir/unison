@@ -785,8 +785,9 @@ glyph han-9637:15x16 15 16 // 阷
 // glyph han-9639:15x16 15 16 // 阹
 // ⿰ han-961d han-53bb // ⿰阝去
 
-glyph han-963a:15x16 15 16 // 阺
-⿰ han-961d:5x16-l han-6c10:10x16 // ⿰阝氐
+glyph han-963a-($han-regions):15x16 15 16 // 阺
+⿰ han-961d:5x16-l han-6c10-($-1):10x16 // ⿰阝氐
+glyph han-963a.0:* = han-963a-j:*
 
 glyph han-963b:15x16 15 16 // 阻
 ⿰ han-961d:5x16-l 1 han-4e14:9x16 // ⿰阝且
@@ -1524,6 +1525,9 @@ glyph han-9700:15x16 15 16 // 需
 
 // glyph han-9708-($han-regions):15x16 15 16 // 霈
 // ⿱ han-96e8-($-1) han-6c9b // ⿱雨沛
+
+// glyph han-970a-($han-regions):15x16 15 16 // 霊
+// ⿳ han-96e8-($-1) han-4e00 han-4e9a // ⿳雨一亚 <- ⿱雨⿱一亚
 
 ## 173.8
 

@@ -38,6 +38,9 @@ glyph han-30cf7:15x16 15 16 // 𰳷
 glyph han-30cfe:15x16 15 16 // 𰳾
 ⿲ -1 han-8864:5x16 han-4e14:6x16 han-529b:5x16 // ⿲衤且力
 
+// glyph han-30d00:15x16 15 16 // 𰴀
+// ⿰ han-8864 han-5175 // ⿰衤兵
+
 ## 145.10
 
 // glyph han-30d03:15x16 15 16 // 𰴃
@@ -561,7 +564,7 @@ glyph han-30e7f:15x16 15 16 // 𰹿
 ⿲ han-8f66:4x16-l han-4ebb:5x16 han-5bf8:6x16 // ⿲车亻寸
 
 glyph han-30e80:15x16 15 16 // 𰺀
-⿰ han-8f66:4x16-l 1 han-6c10:10x16 // ⿰车氐
+⿰ han-8f66:4x16-l 1 han-6c10-g:10x16 // ⿰车氐
 
 glyph han-30e81:15x16 15 16 // 𰺁
 ⿰ han-8f66:6x16-l han-53e5:9x16 // ⿰车句

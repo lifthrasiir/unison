@@ -55,6 +55,9 @@ glyph han-2dbca:15x16 15 16 // 𭯊
 
 ## 81.6
 
+// glyph han-2dbcb-($han-regions):15x16 15 16 // 𭯋
+// ⿱ han-4e9a han-6bd4-($-1) // ⿱亚比
+
 // glyph han-2dbcc:15x16 15 16 // 𭯌
 // ⿰ han-6bd4 han-5e74 // ⿰比年 -- no-inline
 
@@ -120,7 +123,7 @@ glyph han-2dbd8:15x16 15 16 // 𭯘
 ## 83.7
 
 glyph han-2dbf1:15x16 15 16 // 𭯱
-⿰ -1 han-5e76:8x16 han-6c10:8x16 // ⿰并氐
+⿰ -1 han-5e76:8x16 han-6c10-j:8x16 // ⿰并氐
 
 # CJK unified ideographs extension F: 水 (85)
 
@@ -731,6 +734,9 @@ glyph han-2de36:15x16 15 16 // 𭸶
 glyph han-2de39:15x16 15 16 // 𭸹
 ⿲ han-248e9:3x16 han-4ebb:3x16 han-4e8c:9x16 // ⿲𤣩亻二
 
+glyph han-2de3b:15x16 15 16 // 𭸻
+⿰ han-248e9:5x16 han-6c0f:10x16 // ⿰𤣩氏
+
 ## 96.5
 
 // glyph han-2de3d:15x16 15 16 // 𭸽
@@ -743,7 +749,7 @@ glyph han-2de3e:15x16 15 16 // 𭸾
 // ⿰ han-248e9 han-5c12 // ⿰𤣩尒
 
 glyph han-2de41:15x16 15 16 // 𭹁
-⿰ han-248e9:7x16 han-6c10:8x16 // ⿰𤣩氐
+⿰ han-248e9:7x16 han-6c10-j:8x16 // ⿰𤣩氐
 
 ## 96.6
 

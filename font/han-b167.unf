@@ -33,6 +33,9 @@ glyph han-28949:15x16 15 16 // 𨥉
 // glyph han-2894b:15x16 15 16 // 𨥋
 // ⿰ han-91d2 han-624b // ⿰釒手
 
+glyph han-2894c:15x16 15 16 // 𨥌
+⿰ han-91d2:5x16-l han-6c0f:10x16 // ⿰釒氏
+
 glyph han-2894e:15x16 15 16 // 𨥎
 ⿲ han-91d2:5x16-l han-4eba:5x16 han-4eba:5x16 // ⿲釒人人
 

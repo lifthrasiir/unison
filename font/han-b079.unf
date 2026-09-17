@@ -419,6 +419,16 @@ glyph han-23c3b:15x16 15 16 // 𣰻
 
 # CJK unified ideographs extension B: 氏 (83)
 
+## 83.4
+
+// glyph han-23c46:15x16 15 16 // 𣱆
+// ⿰ han-6237 han-6c0f // ⿰户氏
+
+## 83.7
+
+// glyph han-23c4c:15x16 15 16 // 𣱌
+// ⿰ han-4e9c han-6c0f // ⿰亜氏
+
 ## 83.10
 
 // glyph han-23c50:15x16 15 16 // 𣱐
