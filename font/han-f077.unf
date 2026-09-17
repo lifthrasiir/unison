@@ -81,6 +81,9 @@ glyph han-2dbd2:15x16 15 16 // 𭯒
 // glyph han-2dbd3:15x16 15 16 // 𭯓
 // ⿺ han-6bdb han-672c // ⿺毛本
 
+// glyph han-2dbd4:15x16 15 16 // 𭯔
+// ⿺ han-6bdb han-5349 // ⿺毛卉
+
 glyph han-2dbd5:15x16 15 16 // 𭯕
 ⿺ han-6bdb:15x16.10x14 han-7528:10x13 5 0 // ⿺毛用
 

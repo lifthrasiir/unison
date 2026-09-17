@@ -241,7 +241,7 @@ glyph han-31acd:15x16 15 16 // 𱫍
 ## 86.11
 
 glyph han-31b00:15x16 15 16 // 𱬀
-⿲ -2 han-706b:5x16 han-9769:7x16 han-529b:5x16 // ⿲火革力
+⿲ han-706b:5x16-l han-9769:5x16 han-529b:5x16 // ⿲火革力
 
 // glyph han-31b01:15x16 15 16 // 𱬁
 // ⿰ han-5774 han-2c279 // ⿰坴𬉹
@@ -402,6 +402,9 @@ glyph han-31b8b:15x16 15 16 // 𱮋
 // glyph han-31b8f:15x16 15 16 // 𱮏
 // ⿲ han-72ad han-6c35 han-820c // ⿲犭氵舌 <- ⿰犭活
 
+// glyph han-31b91-($han-regions):15x16 15 16 // 𱮑
+// ⿰ han-72ad han-7fbf-($-1) // ⿰犭羿
+
 ## 94.10
 
 // glyph han-31b92:15x16 15 16 // 𱮒
@@ -497,6 +500,11 @@ glyph han-31c18:15x16 15 16 // 𱰘
 
 // glyph han-31c1d-($han-regions):15x16 15 16 // 𱰝
 // ⿰ han-7528 han-540f-($-1) // ⿰用吏
+
+## 101.7
+
+// glyph han-31c1f:15x16 15 16 // 𱰟
+// ⿰ han-5f04 han-7528 // ⿰弄用
 
 ## 101.11
 

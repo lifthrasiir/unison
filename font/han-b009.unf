@@ -2,6 +2,12 @@
 
 ## 9.0
 
+glyph han-201a2:5x5 5 5 // 𠆢
+....@@....
+$$.v@@v.$$
+$$/VP2V\$$
+.vV/..\Vv.
+/Vv'..`vV\
 glyph han-201a2:7x7 7 7 // 𠆢
 ....$$@@$$....
 $$$$.v@@v.$$$$
@@ -335,6 +341,9 @@ glyph han-2024d:15x16 15 16 // 𠉍
 // glyph han-20274:15x16 15 16 // 𠉴
 // ⿰ han-4ebb han-96e8 // ⿰亻雨
 
+// glyph han-20276:15x16 15 16 // 𠉶
+// ⿰ han-4ebb han-2233f // ⿰亻𢌿
+
 // glyph han-2027c:15x16 15 16 // 𠉼
 // ⿱ han-5408 han-5316 // ⿱合化
 
@@ -381,6 +390,9 @@ glyph han-2029c:15x16 15 16 // 𠊜
 
 glyph han-202ba:15x16 15 16 // 𠊺
 ⿳ -1 han-201a2:15x6 han-7acb:15x5 han-6c34:15x6 // ⿳𠆢立水 <- ⿱𠆢⿱立水
+
+// glyph han-202bc:15x16 15 16 // 𠊼
+// ⿰ han-4ebb han-277e5 // ⿰亻𧟥
 
 // glyph han-202be:15x16 15 16 // 𠊾
 // ⿰ han-4ebb han-7678 // ⿰亻癸

@@ -310,8 +310,8 @@ glyph han-219bd-($han-regions):15x16 15 16 // 𡦽
 // glyph han-219c4-($han-regions):15x16 15 16 // 𡧄
 // ⿱ han-5b80 han-4e38-($-1) // ⿱宀丸
 
-// glyph han-219c5:15x16 15 16 // 𡧅
-// ⿱ han-5b80 han-5efe // ⿱宀廾
+glyph han-219c5:15x16 15 16 // 𡧅
+⿱ han-5b80:15x5 1 han-5efe:15x9 // ⿱宀廾
 
 // glyph han-219c6:15x16 15 16 // 𡧆
 // ⿳ han-5b80 han-4e00 han-516b // ⿳宀一八

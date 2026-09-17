@@ -146,7 +146,7 @@ glyph han-46ae-($han-regions):15x16 15 16 // 䚮
 ⿰ han-8a01-($-1):5x16 1 han-4e43:9x16 // ⿰訁乃
 
 glyph han-46af-($han-regions):15x16 15 16 // 䚯
-⿰ 1 han-8a01-($-1):5x16 3 han-5202:5x16 // ⿰訁刂
+⿰ 1 han-8a01-($-1):5x16 2 han-5202:6x16 // ⿰訁刂
 glyph han-46af.0:* = han-46af-j:*
 
 glyph han-46b0-($han-regions):15x16 15 16 // 䚰
@@ -820,6 +820,9 @@ glyph han-489d-($han-regions):15x16 15 16 // 䢝
 glyph han-489e-($han-regions):15x16 15 16 // 䢞
 ⿺ han-8fb6-($-1):15x16.11x14 han-6797:11x12 4 1 // ⿺辶林
 
+// glyph han-48a0-($han-regions):15x16 15 16 // 䢠
+// ⿺ han-8fb6-($-1) han-7077 // ⿺辶灷
+
 ## 162.9
 
 // glyph han-48a1:15x16 15 16 // 䢡
@@ -946,6 +949,9 @@ glyph han-48f0-($han-regions):15x16 15 16 // 䣰
 
 glyph han-48f1:15x16 15 16 // 䣱
 ⿰ han-9149:7x16 1 han-53e5:7x16 // ⿰酉句
+
+// glyph han-48f2:15x16 15 16 // 䣲
+// ⿰ han-9149 han-5f01 // ⿰酉弁
 
 ## 164.6
 
@@ -1089,7 +1095,7 @@ glyph han-495f:15x16 15 16 // 䥟
 ## 167.16
 
 glyph han-4975:15x16 15 16 // 䥵
-⿲ -1 han-91d2:5x16-l 1 han-65e5:3x16 han-582f:7x16 // ⿲釒日堯
+⿲ han-91d2:5x16-l han-65e5:3x16 han-582f:7x16 // ⿲釒日堯
 
 # CJK unified ideographs extension A: 钅 (167')
 

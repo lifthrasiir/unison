@@ -497,7 +497,7 @@ glyph han-2c178:15x16 15 16 // 𬅸
 ## 82.5
 
 glyph han-2c1c0:15x16 15 16 // 𬇀
-⿺ han-6bdb:15x16.10x14 han-65e6:9x10 6 2 // ⿺毛旦
+⿺ han-6bdb:15x16.10x14 han-65e6:9x11 6 1 // ⿺毛旦
 
 ## 82.9
 
@@ -746,6 +746,9 @@ glyph han-2c280:15x16 15 16 // 𬊀
 
 // glyph han-2c289-($han-regions):15x16 15 16 // 𬊉
 // ⿰ han-706b han-8fbe-($-1) // ⿰火达
+
+// glyph han-2c28a:15x16 15 16 // 𬊊
+// ⿰ han-706b han-5f04 // ⿰火弄
 
 // glyph han-2c28c:15x16 15 16 // 𬊌
 // ⿰ han-706b han-5fd7 // ⿰火志

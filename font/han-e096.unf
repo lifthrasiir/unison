@@ -101,7 +101,7 @@ glyph han-2c389:15x16 15 16 // 𬎉
 ## 96.13
 
 glyph han-2c394:15x16 15 16 // 𬎔
-⿲ -1 han-248e9:3x16 han-9769:7x16 han-65a4:6x16 // ⿲𤣩革斤
+⿲ han-248e9:3x16 han-9769:5x16 han-65a4:7x16 // ⿲𤣩革斤
 
 // glyph han-2c396:15x16 15 16 // 𬎖
 // ⿲ han-248e9 han-4eb2 han-65a4 // ⿲𤣩亲斤 <- ⿰𤣩新
@@ -171,6 +171,9 @@ glyph han-2c3c0:15x16 15 16 // 𬏀
 // ⿱ han-5211 han-7530 // ⿱刑田
 
 ## 102.7
+
+// glyph han-2c3c7:15x16 15 16 // 𬏇
+// ⿰ han-7530 han-5f04 // ⿰田弄
 
 // glyph han-2c3c8:15x16 15 16 // 𬏈
 // ⿱ han-7530 han-753a // ⿱田町
@@ -444,7 +447,7 @@ glyph han-2c491:15x16 15 16 // 𬒑
 ## 112.8
 
 glyph han-2c492:15x16 15 16 // 𬒒
-⿲ -2 han-77f3:5x16 1 han-8eca:5x16 1 han-4e5a:5x16 // ⿲石車乚
+⿲ -1 han-77f3:5x16 1 han-8eca:5x16 1 han-4e5a:4x16 // ⿲石車乚
 
 // glyph han-2c493:15x16 15 16 // 𬒓
 // ⿰ han-77f3 han-7f57 // ⿰石罗
@@ -1142,6 +1145,9 @@ glyph han-2c6af:15x16 15 16 // 𬚯
 // ⿲ han-8089 han-51ab han-6b20 // ⿲肉冫欠 <- ⿰肉次
 
 ## 130.7
+
+// glyph han-2c6bc:15x16 15 16 // 𬚼
+// ⿰ han-6708 han-5f04 // ⿰月弄
 
 // glyph han-2c6bf:15x16 15 16 // 𬚿
 // ⿰ han-8089 han-95f2 // ⿰肉闲

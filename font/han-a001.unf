@@ -324,6 +324,12 @@ glyph han-345b:15x16 15 16 // 㑛
 glyph han-345c:15x16 15 16 // 㑜
 ⿲ han-4ebb:3x16 han-624c:3x16 han-65a4:9x16 // ⿲亻扌斤
 
+// glyph han-345d:15x16 15 16 // 㑝
+// ⿰ han-4ebb han-5f04 // ⿰亻弄
+
+// glyph han-345e:15x16 15 16 // 㑞
+// ⿰ han-4ebb han-7077 // ⿰亻灷
+
 // glyph han-345f:15x16 15 16 // 㑟
 // ⿰ han-4ebb han-5175 // ⿰亻兵
 
@@ -530,7 +536,7 @@ glyph han-34e0:15x16 15 16 // 㓠
 // ⿰ han-7f36 han-5202 // ⿰缶刂
 
 glyph han-34e2:15x16 15 16 // 㓢
-⿰ 1 han-5404:7x16 1 han-5202:5x16 // ⿰各刂
+⿰ han-5404:7x16 1 han-5202:6x16 // ⿰各刂
 
 glyph han-34e3:15x16 15 16 // 㓣
 ⿰ han-5408:9x16 1 han-5202:5x16 // ⿰合刂
@@ -1106,8 +1112,8 @@ glyph han-368c:15x16 15 16 // 㚌
 
 ## 37.3
 
-// glyph han-368f:15x16 15 16 // 㚏
-// ⿱ han-5927 han-5efe // ⿱大廾
+glyph han-368f:15x16 15 16 // 㚏
+⿱ han-5927:15x7 han-5efe:15x9 // ⿱大廾
 
 glyph han-3690:15x16 15 16 // 㚐
 ⿱ han-5927:15x8 han-5927:15x8 // ⿱大大
@@ -1272,6 +1278,9 @@ glyph han-36db:15x16 15 16 // 㛛
 
 glyph han-36dd:15x16 15 16 // 㛝
 ⿰ han-5973:7x16 han-8c9d:8x16 // ⿰女貝
+
+// glyph han-36de:15x16 15 16 // 㛞
+// ⿰ han-5973 han-5f04 // ⿰女弄
 
 glyph han-36e1:15x16 15 16 // 㛡
 ⿰ han-5973:5x16-l 1 han-5b8c:9x16 // ⿰女完

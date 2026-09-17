@@ -296,6 +296,9 @@ glyph han-21dd7:15x16 15 16 // 𡷗
 // glyph han-21dde:15x16 15 16 // 𡷞
 // ⿰ han-5c71 han-5fcc // ⿰山忌
 
+// glyph han-21ddf:15x16 15 16 // 𡷟
+// ⿰ han-5c71 han-5f04 // ⿰山弄
+
 glyph han-21de2-($han-regions):15x16 15 16 // 𡷢
 ⿳ -1 han-5c71:15x4 han-4ea1-($-1):15x8 han-5fc3:15x5 // ⿳山亡心
 
@@ -360,7 +363,7 @@ glyph han-21e16:15x16 15 16 // 𡸖
 ⿰ han-5c71:7x16 1 han-679c:7x16 // ⿰山果
 
 glyph han-21e17:15x16 15 16 // 𡸗
-⿲ -2 han-5c71:5x16 1 han-8eca:5x16 1 han-4e5a:5x16 // ⿲山車乚
+⿲ -1 han-5c71:5x16-l 1 han-8eca:5x16 1 han-4e5a:4x16 // ⿲山車乚
 
 // glyph han-21e19:15x16 15 16 // 𡸙
 // ⿰ han-5c71 han-56f7 // ⿰山囷

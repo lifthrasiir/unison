@@ -145,8 +145,8 @@ ref han-5c0f:15x16
 // glyph han-21b5a:15x16 15 16 // 𡭚
 // ⿱ han-4e09 han-5c0f // ⿱三小
 
-// glyph han-21b5b:15x16 15 16 // 𡭛
-// ⿱ han-5c0f han-5efe // ⿱小廾
+glyph han-21b5b:15x16 15 16 // 𡭛
+⿱ han-5c0f:15x7 han-5efe:15x9 // ⿱小廾
 
 // glyph han-21b5c:15x16 15 16 // 𡭜
 // ⿰ han-95e8 han-5c0f // ⿰门小
@@ -197,8 +197,14 @@ glyph han-21b68:15x16 15 16 // 𡭨
 
 ## 42.8
 
+// glyph han-21b81:15x16 15 16 // 𡮁
+// ⿱ han-21b54 han-2233f // ⿱𡭔𢌿
+
 glyph han-21b82:15x16 15 16 // 𡮂
 ⿳ -4 han-5c0f:15x7 han-767d:15x6 han-5c0f:15x7 // ⿳小白小 <- ⿱小⿱白小
+
+// glyph han-21b83:15x16 15 16 // 𡮃
+// ⿱ han-5349 han-31483 // ⿱卉𱒃
 
 // glyph han-21b86:15x16 15 16 // 𡮆
 // ⿱ han-5c0f han-9580 // ⿱小門
@@ -424,6 +430,9 @@ glyph han-21c61:15x16 15 16 // 𡱡
 
 // glyph han-21c66-($han-regions):15x16 15 16 // 𡱦
 // ⿸ han-5c38 han-2846d-($-1) // ⿸尸𨑭
+
+// glyph han-21c6f:15x16 15 16 // 𡱯
+// ⿸ han-5c38 han-5f04 // ⿸尸弄
 
 glyph han-21c76:15x16 15 16 // 𡱶
 ⿸ han-5c38:15x16.11x12 han-5415.x:10x11 5 5 // ⿸尸吕

@@ -130,6 +130,9 @@ glyph han-22aae:15x16 15 16 // 𢪮
 
 ## 64.5
 
+// glyph han-22ab4:15x16 15 16 // 𢪴
+// ⿰ han-624c han-2232e // ⿰扌𢌮
+
 glyph han-22ab7:15x16 15 16 // 𢪷
 ⿰ han-624c:5x16 1 han-76ee:9x16 // ⿰扌目
 
@@ -378,6 +381,9 @@ glyph han-22b80:15x16 15 16 // 𢮀
 
 // glyph han-22b84:15x16 15 16 // 𢮄
 // ⿰ han-624c han-39bf // ⿰扌㦿
+
+// glyph han-22b85:15x16 15 16 // 𢮅
+// ⿰ han-624c han-2233f // ⿰扌𢌿
 
 glyph han-22b8a:15x16 15 16 // 𢮊
 ⿲ han-624c:3x16 han-8eca:5x16 1 han-4e5a:6x16 // ⿲扌車乚

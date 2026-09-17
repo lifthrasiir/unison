@@ -342,6 +342,9 @@ glyph han-26a4b-($han-regions):15x16 15 16 // 𦩋
 glyph han-26a4d:15x16 15 16 // 𦩍
 ⿰ han-821f:7x16 han-5468:8x16 // ⿰舟周
 
+// glyph han-26a4e:15x16 15 16 // 𦩎
+// ⿰ han-821f han-7077 // ⿰舟灷
+
 glyph han-26a4f:15x16 15 16 // 𦩏
 ⿰ han-821f:7x16 1 han-96b9:7x16 // ⿰舟隹
 

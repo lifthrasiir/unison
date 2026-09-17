@@ -457,6 +457,9 @@ glyph han-62d9:15x16 15 16 // 拙
 ⿰ han-624c:5x16 1 han-51fa:9x16 // ⿰扌出
 glyph han-62d9.0:* = han-62d9:*
 
+// glyph han-62da:15x16 15 16 // 拚
+// ⿰ han-624c han-5f01 // ⿰扌弁
+
 glyph han-62db:15x16 15 16 // 招
 ⿰ han-624c:5x16 han-53ec:10x16 // ⿰扌召
 
@@ -586,6 +589,9 @@ glyph han-6330:15x16 15 16 // 挰
 
 glyph han-6333:15x16 15 16 // 挳
 ⿰ han-624c:5x16 1 han-5de0:9x16 // ⿰扌巠
+
+// glyph han-6335:15x16 15 16 // 挵
+// ⿰ han-624c han-5f04 // ⿰扌弄
 
 // glyph han-6337:15x16 15 16 // 挷
 // ⿲ han-624c han-4e30 han-961d // ⿲扌丰阝

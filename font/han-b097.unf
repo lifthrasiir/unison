@@ -200,6 +200,12 @@ glyph han-24be4:15x16 15 16 // 𤯤
 // glyph han-24be6:15x16 15 16 // 𤯦
 // ⿱ han-521d han-751f // ⿱初生
 
+// glyph han-24be8:15x16 15 16 // 𤯨
+// ⿰ han-751f han-5f04 // ⿰生弄
+
+// glyph han-24be9:15x16 15 16 // 𤯩
+// ⿰ han-5f04 han-751f // ⿰弄生
+
 ## 100.8
 
 // glyph han-24bef:15x16 15 16 // 𤯯
@@ -489,6 +495,9 @@ glyph han-24c89:15x16 15 16 // 𤲉
 
 glyph han-24c8a:15x16 15 16 // 𤲊
 ⿱ han-7530:15x5 1 han-8db3:15x10 // ⿱田足
+
+// glyph han-24c8c:15x16 15 16 // 𤲌
+// ⿰ han-5f04 han-7530 // ⿰弄田
 
 // glyph han-24c8f:15x16 15 16 // 𤲏
 // ⿰ han-7530 han-7a76 // ⿰田究

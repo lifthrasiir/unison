@@ -101,11 +101,17 @@ glyph han-296ad:15x16 15 16 // 𩚭
 // glyph han-296af:15x16 15 16 // 𩚯
 // ⿰ han-98e0 han-5c3c // ⿰飠尼
 
+// glyph han-296b0:15x16 15 16 // 𩚰
+// ⿰ han-98e0 han-5349 // ⿰飠卉
+
 // glyph han-296b1:15x16 15 16 // 𩚱
 // ⿰ han-98e0 han-518b // ⿰飠冋
 
 glyph han-296b2:15x16 15 16 // 𩚲
 ⿰ han-98e0:7x16 1 han-7532:7x16 // ⿰飠甲
+
+// glyph han-296b3:15x16 15 16 // 𩚳
+// ⿰ han-98e0 han-5f01 // ⿰飠弁
 
 glyph han-296b5:15x16 15 16 // 𩚵
 ⿰ han-98e0:7x16 1 han-7518:7x16 // ⿰飠甘

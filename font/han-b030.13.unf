@@ -187,7 +187,7 @@ glyph han-2112a:15x16 15 16 // 𡄪
 // ⿱ han-5982 han-563c // ⿱如嘼
 
 glyph han-21137:15x16 15 16 // 𡄷
-⿲ -2 han-53e3:3x16-l han-9769:7x16 han-662f:7x16 // ⿲口革是
+⿲ -1 han-53e3:3x16-l 1 han-9769:5x16 han-662f:7x16 // ⿲口革是
 
 glyph han-2114d:15x16 15 16 // 𡅍
 ⿲ han-53e3:3x16-l han-7cf9:5x16 han-582f:7x16 // ⿲口糹堯

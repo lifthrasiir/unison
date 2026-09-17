@@ -18,8 +18,8 @@
 // glyph han-277e4:15x16 15 16 // 𧟤
 // ⿱ han-897e han-5efe // ⿱襾廾
 
-// glyph han-277e5:15x16 15 16 // 𧟥
-// ⿱ han-8980 han-5efe // ⿱覀廾
+glyph han-277e5:15x16 15 16 // 𧟥
+⿱ han-8980:15x7 han-5efe:15x9 // ⿱覀廾
 
 // glyph han-277e6:15x16 15 16 // 𧟦
 // ⿱ han-8980 han-4e0c // ⿱覀丌

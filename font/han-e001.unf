@@ -44,6 +44,9 @@ glyph han-2b82e:15x16 15 16 // 𫠮
 
 ## 1.9
 
+// glyph han-2b82f:15x16 15 16 // 𫠯
+// ⿰ han-5f04 han-4e0b // ⿰弄下
+
 // glyph han-2b831:15x16 15 16 // 𫠱
 // ⿳ han-4e00 han-65e5 han-6b63 // ⿳一日正 <- ⿱𣄼正
 
@@ -369,6 +372,11 @@ glyph han-2b944:15x16 15 16 // 𫥄
 glyph han-2b948:15x16 15 16 // 𫥈
 ⿰ han-51ab:5x16 han-53ec:10x16 // ⿰冫召
 
+## 15.7
+
+// glyph han-2b94c:15x16 15 16 // 𫥌
+// ⿰ han-51ab han-5f04 // ⿰冫弄
+
 ## 15.8
 
 // glyph han-2b950:15x16 15 16 // 𫥐
@@ -665,6 +673,9 @@ glyph han-2ba02:15x16 15 16 // 𫨂
 // glyph han-2ba03:15x16 15 16 // 𫨃
 // ⿸ han-5382 han-672a // ⿸厂未
 
+// glyph han-2ba04:15x16 15 16 // 𫨄
+// ⿸ han-5382 han-5f01 // ⿸厂弁
+
 ## 27.6
 
 glyph han-2ba05:15x16 15 16 // 𫨅
@@ -919,6 +930,9 @@ glyph han-2bab2:15x16 15 16 // 𫪲
 
 glyph han-2bab7:15x16 15 16 // 𫪷
 ⿲ han-53e3:5x16-l han-624c:3x16 han-7c73:7x16 // ⿲口扌米
+
+// glyph han-2bab9:15x16 15 16 // 𫪹
+// ⿰ han-5f04 han-53e4 // ⿰弄古
 
 // glyph han-2babc:15x16 15 16 // 𫪼
 // ⿰ han-53e3 han-8feb // ⿰口迫

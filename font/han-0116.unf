@@ -499,8 +499,8 @@ glyph han-7acd:15x16 15 16 // 竍
 
 ## 117.3
 
-// glyph han-7ace:15x16 15 16 // 竎
-// ⿱ han-7acb han-5efe // ⿱立廾
+glyph han-7ace:15x16 15 16 // 竎
+⿱ han-7acb:15x7 han-5efe:15x9 // ⿱立廾
 
 ## 117.4
 
@@ -732,6 +732,9 @@ glyph han-7b2a:15x16 15 16 // 笪
 
 // glyph han-7b31:15x16 15 16 // 笱
 // ⿱ han-25ad7 han-53e5 // ⿱𥫗句
+
+// glyph han-7b32:15x16 15 16 // 笲
+// ⿱ han-25ad7 han-5f01 // ⿱𥫗弁
 
 glyph han-7b33:15x16 15 16 // 笳
 ⿱ han-25ad7:15x5 han-52a0:15x11 // ⿱𥫗加

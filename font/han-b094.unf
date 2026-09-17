@@ -122,6 +122,9 @@ glyph han-2474d:15x16 15 16 // 𤝍
 
 ## 94.5
 
+// glyph han-2474f:15x16 15 16 // 𤝏
+// ⿰ han-72ad han-5f01 // ⿰犭弁
+
 glyph han-24752:15x16 15 16 // 𤝒
 ⿰ han-72ad:6x16 han-51fa:9x16 // ⿰犭出
 
@@ -262,6 +265,9 @@ glyph han-247a9:15x16 15 16 // 𤞩
 
 glyph han-247aa:15x16 15 16 // 𤞪
 ⿰ han-72ad:4x16 han-5415.x:11x16 // ⿰犭吕
+
+// glyph han-247ac:15x16 15 16 // 𤞬
+// ⿰ han-72ad han-5f04 // ⿰犭弄
 
 glyph han-247ad:15x16 15 16 // 𤞭
 ⿰ han-72ad:6x16 1 han-898b:8x16 // ⿰犭見

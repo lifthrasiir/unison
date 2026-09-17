@@ -136,8 +136,8 @@ glyph han-2ec1e:15x16 15 16 // 𮰞
 
 ## 33.3
 
-// glyph han-2ec30:15x16 15 16 // 𮰰
-// ⿱ han-58eb han-5efe // ⿱士廾
+glyph han-2ec30:15x16 15 16 // 𮰰
+⿱ han-58eb:15x7 han-5efe:15x9 // ⿱士廾
 
 ## 33.6
 

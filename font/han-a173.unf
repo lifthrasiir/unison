@@ -144,8 +144,8 @@ glyph han-4a49:15x16 15 16 // 䩉
 glyph han-4a51:15x16 15 16 // 䩑
 ⿰ han-9769:7x16 1 han-5f13:7x16 // ⿰革弓
 
-// glyph han-4a52:15x16 15 16 // 䩒
-// ⿰ han-9769 han-4e8e // ⿰革于
+glyph han-4a52:15x16 15 16 // 䩒
+⿰ han-9769:5x16 1 han-4e8e:9x16 // ⿰革于
 
 ## 177.4
 
@@ -172,7 +172,7 @@ glyph han-4a5e:15x16 15 16 // 䩞
 ## 177.7
 
 glyph han-4a62:15x16 15 16 // 䩢
-⿲ -1 han-9769:7x16 han-624c:3x16 han-65a4:6x16 // ⿲革扌斤
+⿲ han-9769:5x16 han-624c:3x16 han-65a4:7x16 // ⿲革扌斤
 
 glyph han-4a64:15x16 15 16 // 䩤
 ⿰ han-9769:7x16 1 han-898b:7x16 // ⿰革見
@@ -190,14 +190,14 @@ glyph han-4a67:15x16 15 16 // 䩧
 
 ## 177.9
 
-// glyph han-4a70:15x16 15 16 // 䩰
-// ⿰ han-9769 han-54a0 // ⿰革咠
+glyph han-4a70:15x16 15 16 // 䩰
+⿰ han-9769:5x16 han-54a0:10x16 // ⿰革咠
 
 glyph han-4a71:15x16 15 16 // 䩱
 ⿰ han-9769:7x16 1 han-4fde:7x16 // ⿰革俞
 
 glyph han-4a74:15x16 15 16 // 䩴
-⿲ -2 han-9769:7x16 han-53e4:5x16 han-6708:5x16 // ⿲革古月
+⿲ -1 han-9769:5x16 1 han-53e4:5x16 han-6708:5x16 // ⿲革古月
 
 glyph han-4a75:15x16 15 16 // 䩵
 ⿰ han-9769:7x16 1 han-8ecd:7x16 // ⿰革軍
@@ -330,6 +330,9 @@ glyph han-4ab7:15x16 15 16 // 䪷
 
 // glyph han-4aba:15x16 15 16 // 䪺
 // ⿰ han-53bb han-9801 // ⿰去頁
+
+// glyph han-4abb:15x16 15 16 // 䪻
+// ⿰ han-5f01 han-9801 // ⿰弁頁
 
 glyph han-4abc:15x16 15 16 // 䪼
 ⿰ han-51fa:9x16 1 han-9801:5x16 // ⿰出頁
@@ -604,6 +607,9 @@ glyph han-4b7f:15x16 15 16 // 䭿
 
 glyph han-4b80:15x16 15 16 // 䮀
 ⿰ han-99ac:7x16 1 han-5305:7x16 // ⿰馬包
+
+// glyph han-4b81:15x16 15 16 // 䮁
+// ⿰ han-99ac han-5f01 // ⿰馬弁
 
 // glyph han-4b83:15x16 15 16 // 䮃
 // ⿰ han-99ac han-53bb // ⿰馬去

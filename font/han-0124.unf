@@ -314,8 +314,8 @@ glyph han-7fbd-(g|h|t|j|v):* = han-7fbd.1:*
 glyph han-7fbe-($han-regions):15x16 15 16 // 羾
 ⿰ han-7fbd-($-1):9x16 1 han-5de5:5x16 // ⿰羽工
 
-// glyph han-7fbf-($han-regions):15x16 15 16 // 羿
-// ⿱ han-7fbd-($-1) han-5efe // ⿱羽廾
+glyph han-7fbf-($han-regions):15x16 15 16 // 羿
+⿱ han-7fbd-($-1):15x6 1 han-5efe:15x9 // ⿱羽廾
 
 ## 124.4
 
