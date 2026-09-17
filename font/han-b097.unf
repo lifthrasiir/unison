@@ -347,6 +347,9 @@ glyph han-24c2a:15x16 15 16 // 𤰪
 glyph han-24c33:15x16 15 16 // 𤰳
 ⿱ han-5929:15x8 1 han-7530:15x7 // ⿱天田
 
+// glyph han-24c35:15x16 15 16 // 𤰵
+// ⿳ han-7530 han-4e00 han-4ebe // ⿳田一亾
+
 // glyph han-24c36:15x16 15 16 // 𤰶
 // ref han-660c // ⿻昌丨
 // ref han-4e28

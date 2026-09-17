@@ -169,8 +169,8 @@ glyph han-6253:15x16 15 16 // 打
 ⿰ han-624c:5x16 -1 han-4e01:11x16 // ⿰扌丁
 glyph han-6253.0:* = han-6253:*
 
-// glyph han-6254:15x16 15 16 // 扔
-// ⿰ han-624c han-4e43 // ⿰扌乃
+glyph han-6254:15x16 15 16 // 扔
+⿰ han-624c:5x16 1 han-4e43:9x16 // ⿰扌乃
 
 // glyph han-6255:15x16 15 16 // 払
 // ⿰ han-624c han-53b6 // ⿰扌厶
@@ -318,6 +318,9 @@ glyph han-6299.0:* = han-6299:*
 
 // glyph han-629f:15x16 15 16 // 抟
 // ⿰ han-624c han-4e13 // ⿰扌专
+
+// glyph han-62a1:15x16 15 16 // 抡
+// ⿰ han-624c han-4ed1 // ⿰扌仑
 
 // glyph han-62a4:15x16 15 16 // 护
 // ⿰ han-624c han-6237 // ⿰扌户

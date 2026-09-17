@@ -357,6 +357,11 @@ glyph han-2ae9e:15x16 15 16 // 𪺞
 
 # CJK unified ideographs extension C: 牛 (93)
 
+## 93.5
+
+// glyph han-2aeab:15x16 15 16 // 𪺫
+// ⿱ han-5976 han-725b // ⿱奶牛
+
 ## 93.8
 
 glyph han-2aeaf:15x16 15 16 // 𪺯
@@ -574,6 +579,9 @@ glyph han-2af61:15x16 15 16 // 𪽡
 # CJK unified ideographs extension C: 疒 (104)
 
 ## 104.4
+
+// glyph han-2af69:15x16 15 16 // 𪽩
+// ⿸ han-7592 han-4ecd // ⿸疒仍
 
 // glyph han-2af6b:15x16 15 16 // 𪽫
 // ⿸ han-7592 han-722a // ⿸疒爪

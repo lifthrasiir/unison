@@ -38,8 +38,8 @@ glyph han-2471d:15x16 15 16 // 𤜝
 glyph han-2471f:15x16 15 16 // 𤜟
 ⿰ han-72ad:6x16 1 han-4e29:7x16 // ⿰犭丩
 
-// glyph han-24720:15x16 15 16 // 𤜠
-// ⿰ han-72ad han-4e43 // ⿰犭乃
+glyph han-24720:15x16 15 16 // 𤜠
+⿰ han-72ad:6x16 han-4e43:9x16 // ⿰犭乃
 
 ## 94.3
 

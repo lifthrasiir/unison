@@ -521,6 +521,9 @@ glyph han-2ed00:15x16 15 16 // 𮴀
 glyph han-2ed04:15x16 15 16 // 𮴄
 ⿰ han-248e9:5x16 1 han-4e2d:9x16 // ⿰𤣩中
 
+// glyph han-2ed05:15x16 15 16 // 𮴅
+// ⿰ han-248e9 han-4ed1 // ⿰𤣩仑
+
 ## 96.5
 
 glyph han-2ed0b:15x16 15 16 // 𮴋
@@ -665,6 +668,9 @@ glyph han-2ed4c:15x16 15 16 // 𮵌
 
 glyph han-2ed58:15x16 15 16 // 𮵘
 ⿲ han-793b:5x16 han-4ebb:3x16 han-4e8c:7x16 // ⿲礻亻二
+
+// glyph han-2ed59:15x16 15 16 // 𮵙
+// ⿰ han-793b han-4ed1 // ⿰礻仑
 
 ## 113.9
 

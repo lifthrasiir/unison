@@ -36,8 +36,8 @@ glyph han-23c7b:15x16 15 16 // 𣱻
 glyph han-23c7c:15x16 15 16 // 𣱼
 ⿰ han-6c35:5x16 1 han-5200:9x16 // ⿰氵刀
 
-// glyph han-23c7d:15x16 15 16 // 𣱽
-// ⿰ han-6c35 han-4e43 // ⿰氵乃
+glyph han-23c7d:15x16 15 16 // 𣱽
+⿰ han-6c35:5x16 1 han-4e43:9x16 // ⿰氵乃
 
 glyph han-23c7e-($han-regions):15x16 15 16 // 𣱾
 ⿰ han-6c35:5x16 1 han-4e86-($-1):9x16 // ⿰氵了

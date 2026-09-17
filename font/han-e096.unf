@@ -302,6 +302,11 @@ glyph han-2c40d:15x16 15 16 // 𬐍
 
 # CJK unified ideographs extension E: 皿 (108)
 
+## 108.3
+
+// glyph han-2c417:15x16 15 16 // 𬐗
+// ⿱ han-4ebe han-76bf // ⿱亾皿
+
 ## 108.4
 
 glyph han-2c418:15x16 15 16 // 𬐘
@@ -337,6 +342,11 @@ glyph han-2c423:15x16 15 16 // 𬐣
 // ⿱ han-5668 han-76bf // ⿱器皿
 
 # CJK unified ideographs extension E: 目 (109)
+
+## 109.4
+
+// glyph han-2c446:15x16 15 16 // 𬑆
+// ⿰ han-76ee han-4ed1 // ⿰目仑
 
 ## 109.5
 

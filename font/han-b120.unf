@@ -17,8 +17,8 @@ glyph han-25f89:15x16 15 16 // 𥾉
 glyph han-25f8a:15x16 15 16 // 𥾊
 ⿰ han-7cf9:5x16 han-51e0:10x16 // ⿰糹几
 
-// glyph han-25f8b:15x16 15 16 // 𥾋
-// ⿰ han-7cf9 han-4e43 // ⿰糹乃
+glyph han-25f8b:15x16 15 16 // 𥾋
+⿰ han-7cf9:5x16 1 han-4e43:9x16 // ⿰糹乃
 
 ## 120.3
 

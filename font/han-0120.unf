@@ -731,6 +731,9 @@ ref han-7f52:15x4
 // glyph han-7f55:15x16 15 16 // 罕
 // ⿱ han-34c1 han-5e72 // ⿱㓁干
 
+// glyph han-7f56:15x16 15 16 // 罖
+// ⿱ han-7f52 han-4ebd // ⿱罒亽
+
 glyph han-7f57:15x16 15 16 // 罗
 ⿱ han-7f52:15x7 1 han-5915:15x8 // ⿱罒夕
 

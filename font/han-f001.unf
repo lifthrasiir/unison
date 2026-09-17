@@ -415,7 +415,7 @@ glyph han-2cf75:15x16 15 16 // 𬽵
 // ⿰ han-4ebb han-4f17 // ⿰亻众
 
 glyph han-2cf82:15x16 15 16 // 𬾂
-⿰ han-4ee4-g:7x16 1 han-4e0b:7x16 // ⿰令下
+⿰ han-4ee4-g:7x16 -1 han-4e0b:9x16 // ⿰令下
 
 ## 9.7
 

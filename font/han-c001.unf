@@ -115,6 +115,9 @@ glyph han-2a73e:15x16 15 16 // 𪜾
 // glyph han-2a740-($han-regions):15x16 15 16 // 𪝀
 // ⿰ han-4ebb han-89d2-($-1) // ⿰亻角
 
+// glyph han-2a741:15x16 15 16 // 𪝁
+// ⿱ han-4ecd han-20b9f // ⿱仍𠮟
+
 ## 9.8
 
 // glyph han-2a746:15x16 15 16 // 𪝆
@@ -503,6 +506,9 @@ glyph han-2b738-($han-regions):15x16 15 16 // 𫜸
 
 glyph han-2a833:15x16 15 16 // 𪠳
 ⿰ han-53e3:5x16-l 1 han-8f66:9x16 // ⿰口车
+
+// glyph han-2a835:15x16 15 16 // 𪠵
+// ⿰ han-53e3 han-4ed1 // ⿰口仑
 
 ## 30.5
 

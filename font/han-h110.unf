@@ -25,6 +25,9 @@ glyph han-31ce8:15x16 15 16 // 𱳨
 glyph han-31cee:15x16 15 16 // 𱳮
 ⿰ han-77f3:7x16 1 han-6708:7x16 // ⿰石月
 
+// glyph han-31cef:15x16 15 16 // 𱳯
+// ⿰ han-77f3 han-4ed1 // ⿰石仑
+
 // glyph han-31cf0:15x16 15 16 // 𱳰
 // ⿰ han-77f3 han-624b // ⿰石手
 
@@ -289,7 +292,7 @@ glyph han-31dfd:15x16 15 16 // 𱷽
 // ⿱ han-25ad7 han-6cb9 // ⿱𥫗油
 
 glyph han-31e0b:15x16 15 16 // 𱸋
-⿳ -1 han-25ad7:15x5 han-5b50.0:15x9 han-76bf:15x3 // ⿳𥫗子皿
+⿳ han-25ad7:15x5 han-5b50.0:15x7 1 han-76bf:15x3 // ⿳𥫗子皿
 
 // glyph han-31e0c:15x16 15 16 // 𱸌
 // ⿱ han-25ad7 han-9644 // ⿱𥫗附
@@ -573,8 +576,8 @@ assume ⿱ han-800c:15x6 2 han-4e8c:15x8 // ⿱而二
 
 ## 130.2
 
-// glyph han-31f01:15x16 15 16 // 𱼁
-// ⿰ han-6708 han-4e43 // ⿰月乃
+glyph han-31f01:15x16 15 16 // 𱼁
+⿰ han-6708:5x16-l 1 han-4e43:9x16 // ⿰月乃
 
 ## 130.3
 

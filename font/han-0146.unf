@@ -1707,6 +1707,9 @@ glyph han-8bb8:15x16 15 16 // 许
 glyph han-8bb9:15x16 15 16 // 讹
 ⿰ han-8ba0:3x16 han-5316-g:12x16 // ⿰讠化
 
+// glyph han-8bba:15x16 15 16 // 论
+// ⿰ han-8ba0 han-4ed1 // ⿰讠仑
+
 glyph han-8bbf:15x16 15 16 // 访
 ⿰ han-8ba0:5x16 1 han-65b9:9x16 // ⿰讠方
 

@@ -167,6 +167,12 @@ glyph han-316b2:15x16 15 16 // 𱚲
 // glyph han-316cb:15x16 15 16 // 𱛋
 // ⿰ han-5c71 han-5185 // ⿰山内
 
+// glyph han-316cc:15x16 15 16 // 𱛌
+// ⿱ han-5c71 han-4ecd // ⿱山仍
+
+// glyph han-316cd:15x16 15 16 // 𱛍
+// ⿰ han-5c71 han-4ed1 // ⿰山仑
+
 // glyph han-316d1:15x16 15 16 // 𱛑
 // ⿰ han-5c71 han-592c // ⿰山夬
 
@@ -627,6 +633,9 @@ glyph han-31862:15x16 15 16 // 𱡢
 
 glyph han-3187f:15x16 15 16 // 𱡿
 ⿰ han-65e5:6x16 1 han-767e:8x16 // ⿰日百
+
+// glyph han-31880:15x16 15 16 // 𱢀
+// ⿱ han-65e6 han-225b1 // ⿱旦𢖱
 
 // glyph han-31881:15x16 15 16 // 𱢁
 // ⿰ han-65e5 han-5c81 // ⿰日岁

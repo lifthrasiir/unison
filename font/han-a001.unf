@@ -452,6 +452,11 @@ glyph han-34c1:15x16 15 16 // 㓁
 glyph han-34c5:15x16 15 16 // 㓅
 ⿰ han-51ab:5x16 1 han-4e01:9x16 // ⿰冫丁
 
+## 15.4
+
+// glyph han-34c6:15x16 15 16 // 㓆
+// ⿰ han-51ab han-4ed1 // ⿰冫仑
+
 ## 15.5
 
 glyph han-34c8:15x16 15 16 // 㓈
@@ -608,6 +613,11 @@ glyph han-3520:15x16 15 16 // 㔠
 ⿰ han-66f7:9x16 han-529b:6x16 // ⿰曷力
 
 # CJK unified ideographs extension A: 匕 (21)
+
+## 21.2
+
+// glyph han-352b-($han-regions):15x16 15 16 // 㔫
+// ⿸ han-20087 han-5315-($-1) // ⿸𠂇匕
 
 ## 21.6
 

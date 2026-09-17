@@ -142,8 +142,8 @@ glyph han-468f:15x16 15 16 // 䚏
 
 ## 149.2
 
-// glyph han-46ae-($han-regions):15x16 15 16 // 䚮
-// ⿰ han-8a01-($-1) han-4e43 // ⿰訁乃
+glyph han-46ae-($han-regions):15x16 15 16 // 䚮
+⿰ han-8a01-($-1):5x16 1 han-4e43:9x16 // ⿰訁乃
 
 glyph han-46af-($han-regions):15x16 15 16 // 䚯
 ⿰ 1 han-8a01-($-1):5x16 3 han-5202:5x16 // ⿰訁刂

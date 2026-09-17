@@ -104,8 +104,8 @@ glyph han-91e0:15x16 15 16 // 釠
 // glyph han-91e1:15x16 15 16 // 釡
 // ⿱ han-516b han-91d1 // ⿱八金
 
-// glyph han-91e2:15x16 15 16 // 釢
-// ⿰ han-91d2 han-4e43 // ⿰釒乃
+glyph han-91e2:15x16 15 16 // 釢
+⿰ han-91d2:5x16-l 1 han-4e43:9x16 // ⿰釒乃
 
 ## 167.3
 
