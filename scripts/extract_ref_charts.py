@@ -17,7 +17,7 @@ fold into one cell: UTS #37 does not guarantee that two collections show the
 same representative glyph, so Hanyo-Denshi and Moji_Joho — which overlap almost
 entirely — each keep their own cell.
 
-The charts themselves are downloaded on first run (about 270 MB) into
+The charts themselves are downloaded on first run (about 300 MB) into
 `data/ref/` and checked against the checksums in `MANIFEST` below; nothing is
 read until its checksum matches.  Only PyMuPDF and Pillow are needed — no
 Ghostscript, no platform-specific tooling:
@@ -70,13 +70,13 @@ two rules:
     subset with private mappings — but their boxes are all that is wanted.
 
 Only pages carrying source references are read, which is what makes scanning one
-3156-page archival chart affordable: the ordinary chart layout (a code point
+3371-page archival chart affordable: the ordinary chart layout (a code point
 grid and a name list, which is what every block set that way — Kangxi Radicals,
 Hangul, everything non-ideographic — uses) typesets no `UnihanInfo` at all, so
 those pages are skipped whole and contribute nothing.  What is read is therefore
 decided by the *layout*, not by a list of blocks: besides the IRG blocks that
-answers the Tangut and Nushu charts too, which are set the same way and come out
-right for free (`L2008-1940`, `N1966-039-096`).
+answers the Tangut, Nushu and Seal charts too, which are set the same way and come
+out right for free (`L2008-1940`, `N1966-039-096`, `TH-01128`).
 
 The two families differ only in what a drawing *is*: the code charts typeset one
 at 20–21 pt from an embedded font, so the em box is cut out of a rendering of
@@ -125,7 +125,7 @@ class ChartSource:
     collection: str = ""  # IVD only
 
 
-UNICODE_VERSION = "17.0.0"
+UNICODE_VERSION = "18.0.0"
 IVD_VERSION = "2026-08-03"
 _CHARTS = f"https://www.unicode.org/Public/{UNICODE_VERSION}/charts"
 _IVD = f"https://www.unicode.org/ivd/data/{IVD_VERSION}"
@@ -135,7 +135,7 @@ MANIFEST = [
     ChartSource(
         "CodeCharts.pdf",
         f"{_CHARTS}/CodeCharts.pdf",
-        "51cf23dc65420012bd090003b3ad4d7f89b7c3ab9c34e510969055639c53d727",
+        "2d0220e2a717bffccc9505515078b74635ac071f1e0069cd31a265a586299b68",
         "unicode",
     ),
     ChartSource(

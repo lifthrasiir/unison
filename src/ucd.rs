@@ -545,7 +545,7 @@ mod tests {
         // U+323B0, the first of CJK Unified Ideographs Extension J — assigned
         // in Unicode 17.0 and unassigned in 16.0.
         assert_eq!(property_summary('\u{323B0}'), "{gc=Lo eaw=W}");
-        // U+1E5D0, Tolong Siki — assigned in 16.0, so a *downgrade* past 16
+        // U+1E5D0, Ol Onal — assigned in 16.0, so a *downgrade* past 16
         // fails here rather than passing the check above by accident.
         assert_eq!(property_summary('\u{1E5D0}'), "{gc=Lo eaw=N}");
     }

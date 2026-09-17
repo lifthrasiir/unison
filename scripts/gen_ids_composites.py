@@ -158,7 +158,7 @@ from dataclasses import dataclass, field
 # refresh them by hand rather than from the script.
 UNIHAN_URL = "https://www.unicode.org/Public/UCD/latest/ucd/Unihan.zip"
 IDS_URL = "https://babelstone.co.uk/CJK/IDS.TXT"
-UNIHAN_PATH = os.path.join("data", "Unihan_IRCSources-17.0.0.txt.gz")
+UNIHAN_PATH = os.path.join("data", "Unihan_IRGSources-18.0.0.txt.gz")
 IDS_PATH = os.path.join("data", "IDS.TXT.gz")
 
 
