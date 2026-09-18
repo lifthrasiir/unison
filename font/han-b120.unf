@@ -425,8 +425,10 @@ glyph han-2610b:15x16 15 16 // 𦄋
 // glyph han-2610c-($han-regions):15x16 15 16 // 𦄌
 // ⿲ han-7cf9 han-5774 han-4e38-($-1) // ⿲糹坴丸 <- ⿰糹埶
 
-glyph han-2610f:15x16 15 16 // 𦄏
-⿲ -2 han-7cf9:5x16 han-6728:5x16 han-8096:7x16 // ⿲糹木肖
+glyph han-2610f-(g|t):15x16 15 16 // 𦄏
+⿲ -2 han-7cf9:5x16 han-6728:5x16 han-8096.0:7x16 // ⿲糹木肖
+glyph han-2610f-j:15x16 15 16 // 𦄏
+⿲ -2 han-7cf9:5x16 han-6728:5x16 han-8096.1:7x16 // ⿲糹木肖
 
 // glyph han-26119:15x16 15 16 // 𦄙
 // ⿰ han-7cf9 han-41e5 // ⿰糹䇥

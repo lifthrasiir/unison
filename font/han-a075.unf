@@ -330,8 +330,10 @@ glyph han-3c92:15x16 15 16 // 㲒
 glyph han-3c94:15x16 15 16 // 㲔
 ⿰ han-8f9b:7x16 1 han-6bdb:7x16 // ⿰辛毛
 
-glyph han-3c96:15x16 15 16 // 㲖
-⿰ han-8096:7x16 1 han-6bdb:7x16 // ⿰肖毛
+glyph han-3c96-(g|t):15x16 15 16 // 㲖
+⿰ han-8096.0:7x16 1 han-6bdb:7x16 // ⿰肖毛
+glyph han-3c96-(j|p):15x16 15 16 // 㲖
+⿰ han-8096.1:7x16 1 han-6bdb:7x16 // ⿰肖毛
 
 glyph han-3c98:15x16 15 16 // 㲘
 ⿰ han-8c9d:6x16 han-6bdb:9x16 // ⿰貝毛
@@ -528,8 +530,10 @@ glyph han-3d16:15x16 15 16 // 㴖
 
 ## 85.10
 
-glyph han-3d25:15x16 15 16 // 㴥
-⿲ han-6c35:3x16 han-5c71:5x16 han-8096:7x16 // ⿲氵山肖
+glyph han-3d25-(g|t):15x16 15 16 // 㴥
+⿲ han-6c35:3x16 han-5c71:5x16 han-8096.0:7x16 // ⿲氵山肖
+glyph han-3d25-(j|p|v):15x16 15 16 // 㴥
+⿲ han-6c35:3x16 han-5c71:5x16 han-8096.1:7x16 // ⿲氵山肖
 
 // glyph han-3d26:15x16 15 16 // 㴦
 // ⿰ han-6c35 han-5bab // ⿰氵宫

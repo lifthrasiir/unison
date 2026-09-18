@@ -735,8 +735,14 @@ glyph han-9bb4.0:* = han-9bb4:*
 
 ## 195.7
 
-glyph han-9bb9:15x16 15 16 // 鮹
-⿰ han-9b5a:7x16 1 han-8096:7x16 // ⿰魚肖
+glyph han-9bb9.0:15x16 15 16 // 鮹
+⿰ han-9b5a:7x16 1 han-8096.1:7x16 // ⿰魚肖
+glyph han-9bb9.1:15x16 15 16 // 鮹
+⿰ han-9b5a:7x16 1 han-8096.0:7x16 // ⿰魚肖
+glyph han-9bb9.2:* = han-9bb9.0:*
+glyph han-9bb9.3:* = han-9bb9.1:*
+glyph han-9bb9-(j|k|p|v):* = han-9bb9.0:*
+glyph han-9bb9-(g|h|t):* = han-9bb9.1:*
 
 glyph han-9bbb:15x16 15 16 // 鮻
 ⿰ han-9b5a:7x16 1 han-590b:7x16 // ⿰魚夋

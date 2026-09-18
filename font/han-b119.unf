@@ -144,8 +144,10 @@ glyph han-25e73:15x16 15 16 // 𥹳
 glyph han-25e75:15x16 15 16 // 𥹵
 ⿰ han-7c73:5x16 1 han-675f:9x16 // ⿰米束
 
-glyph han-25e76:15x16 15 16 // 𥹶
-⿰ han-7c73:5x16 1 han-8096:9x16 // ⿰米肖
+glyph han-25e76-(g|t):15x16 15 16 // 𥹶
+⿰ han-7c73:5x16 1 han-8096.0:9x16 // ⿰米肖
+glyph han-25e76-(j|p):15x16 15 16 // 𥹶
+⿰ han-7c73:5x16 1 han-8096.1:9x16 // ⿰米肖
 
 // glyph han-25e7b:15x16 15 16 // 𥹻
 // ⿳ han-7c73 han-20ad3 han-5efe // ⿳米𠫓廾

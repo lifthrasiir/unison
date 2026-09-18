@@ -416,6 +416,9 @@ glyph han-4014:15x16 15 16 // 䀔
 
 glyph han-4018:15x16 15 16 // 䀘
 ⿰ han-76ee:6x16 han-5f00:9x16 // ⿰目开
+glyph han-4018.0:* = han-4018:*
+glyph han-4018.1:15x16 15 16 // 䀘
+⿰ han-76ee:5x16-l han-5e75.2:10x16 // ⿰目幵
 
 glyph han-4019:15x16 15 16 // 䀙
 ⿲ -1 han-76ee:3x16-l han-4e03:8x16 han-5200:5x16 // ⿲目七刀
@@ -776,6 +779,9 @@ glyph han-412e:15x16 15 16 // 䄮
 
 glyph han-412f:15x16 15 16 // 䄯
 ⿰ han-79be:5x16 1 han-5f00:9x16 // ⿰禾开
+glyph han-412f.0:* = han-412f:*
+glyph han-412f.1:15x16 15 16 // 䄯
+⿰ han-79be:5x16 han-5e75.2:10x16 // ⿰禾幵
 
 glyph han-4131:15x16 15 16 // 䄱
 ⿰ han-79be:5x16 1 han-65b9:9x16 // ⿰禾方
@@ -1030,8 +1036,12 @@ glyph han-41cb:15x16 15 16 // 䇋
 
 ## 117.7
 
-glyph han-41cc:15x16 15 16 // 䇌
-⿰ han-7acb:7x16 1 han-8096:7x16 // ⿰立肖
+glyph han-41cc.0:15x16 15 16 // 䇌
+⿰ han-7acb:7x16 1 han-8096.1:7x16 // ⿰立肖
+glyph han-41cc.1:15x16 15 16 // 䇌
+⿰ han-7acb:7x16 1 han-8096.0:7x16 // ⿰立肖
+glyph han-41cc-(j|p):* = han-41cc.0:*
+glyph han-41cc-(g|t):* = han-41cc.1:*
 
 // glyph han-41cd:15x16 15 16 // 䇍
 // ⿰ han-7acb han-8db3 // ⿰立足

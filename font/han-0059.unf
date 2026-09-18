@@ -777,8 +777,13 @@ glyph han-6077:15x16 15 16 // 恷
 glyph han-6083:15x16 15 16 // 悃
 ⿰ han-5fc4:5x16 1 han-56f0:9x16 // ⿰忄困
 
-glyph han-6084:15x16 15 16 // 悄
-⿰ han-5fc4:7x16 1 han-8096:7x16 // ⿰忄肖
+glyph han-6084.0:15x16 15 16 // 悄
+⿰ han-5fc4:7x16 1 han-8096.1:7x16 // ⿰忄肖
+glyph han-6084.1:* = han-6084.0:*
+glyph han-6084.2:15x16 15 16 // 悄
+⿰ han-5fc4:7x16 1 han-8096.0:7x16 // ⿰忄肖
+glyph han-6084-(j|k|p|v):* = han-6084.0:*
+glyph han-6084-(g|h|t):* = han-6084.2:*
 
 // glyph han-6089:15x16 15 16 // 悉
 // ⿱ han-91c6 han-5fc3 // ⿱釆心

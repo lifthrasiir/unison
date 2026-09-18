@@ -371,7 +371,7 @@ glyph han-2ec9a:15x16 15 16 // 𮲚
 // ⿰ han-6728 han-592a // ⿰木太
 
 glyph han-2ecad:15x16 15 16 // 𮲭
-⿱ han-6728:15x10 1 han-4ece:15x5 // ⿱木从
+⿱ han-6728:15x10 han-4ece:15x6 // ⿱木从
 
 ## 75.6
 
@@ -433,7 +433,7 @@ glyph han-2ecca:15x16 15 16 // 𮳊
 // ⿰ han-6c35 han-2d55b // ⿰氵𭕛
 
 glyph han-2eccc:15x16 15 16 // 𮳌
-⿲ han-6c35:3x16 han-248e9:3x16 1 han-53ef:8x16 // ⿲氵𤣩可
+⿲ han-6c35:3x16 han-248e9:5x16 han-53ef:7x16 // ⿲氵𤣩可
 
 ## 85.13
 

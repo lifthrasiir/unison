@@ -623,8 +623,13 @@ glyph han-6346:15x16 15 16 // 捆
 // glyph han-634d:15x16 15 16 // 捍
 // ⿰ han-624c han-65f1 // ⿰扌旱
 
-glyph han-634e:15x16 15 16 // 捎
-⿰ han-624c:5x16 1 han-8096:9x16 // ⿰扌肖
+glyph han-634e.0:15x16 15 16 // 捎
+⿰ han-624c:5x16 1 han-8096.1:9x16 // ⿰扌肖
+glyph han-634e.1:* = han-634e.0:*
+glyph han-634e.2:15x16 15 16 // 捎
+⿰ han-624c:5x16 1 han-8096.0:9x16 // ⿰扌肖
+glyph han-634e-(j|k|p):* = han-634e.0:*
+glyph han-634e-(g|h|t):* = han-634e.2:*
 
 glyph han-634f:15x16 15 16 // 捏
 ⿰ han-624c:3x16 1 han-573c:11x16 // ⿰扌圼

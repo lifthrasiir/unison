@@ -449,7 +449,7 @@ glyph han-29a45:15x16 15 16 // 𩩅
 // ⿰ han-9aa8 han-5de0 // ⿰骨巠
 
 glyph han-29a53-($han-regions):15x16 15 16 // 𩩓
-⿰ han-9aa8-($-1):7x16 1 han-8096:7x16 // ⿰骨肖
+⿰ han-9aa8-($-1):7x16 1 han-8096.0:7x16 // ⿰骨肖
 
 // glyph han-29a54:15x16 15 16 // 𩩔
 // ⿰ han-9aa8 han-8db3 // ⿰骨足

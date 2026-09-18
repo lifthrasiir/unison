@@ -80,6 +80,9 @@ glyph han-24733:15x16 15 16 // 𤜳
 
 glyph han-24735:15x16 15 16 // 𤜵
 ⿰ han-72ad:6x16 han-5f00:9x16 // ⿰犭开
+glyph han-24735.0:* = han-24735:*
+glyph han-24735.1:15x16 15 16 // 𤜵
+assume ⿰ han-72ad:6x16 -1 han-5e75.2:10x16 // ⿰犭幵
 
 // glyph han-24736:15x16 15 16 // 𤜶
 // ⿰ han-72ad han-722a // ⿰犭爪
@@ -236,8 +239,10 @@ glyph han-24792:15x16 15 16 // 𤞒
 
 ## 94.7
 
-glyph han-2479a:15x16 15 16 // 𤞚
-⿰ han-72ad:6x16 han-8096:9x16 // ⿰犭肖
+glyph han-2479a-(g|t):15x16 15 16 // 𤞚
+⿰ han-72ad:6x16 han-8096.0:9x16 // ⿰犭肖
+glyph han-2479a-(j|p):15x16 15 16 // 𤞚
+⿰ han-72ad:6x16 han-8096.1:9x16 // ⿰犭肖
 
 // glyph han-2479b:15x16 15 16 // 𤞛
 // ⿱ han-58ef han-72ac // ⿱壯犬

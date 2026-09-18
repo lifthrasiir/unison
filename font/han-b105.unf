@@ -340,8 +340,10 @@ glyph han-24fe6:15x16 15 16 // 𤿦
 // glyph han-24fe7:15x16 15 16 // 𤿧
 // ⿰ han-65f1 han-76ae // ⿰旱皮
 
-glyph han-24fe8:15x16 15 16 // 𤿨
-⿰ han-8096:7x16 han-76ae:8x16 // ⿰肖皮
+glyph han-24fe8-(g|t):15x16 15 16 // 𤿨
+⿰ han-8096.0:7x16 han-76ae:8x16 // ⿰肖皮
+glyph han-24fe8-j:15x16 15 16 // 𤿨
+⿰ han-8096.1:7x16 han-76ae:8x16 // ⿰肖皮
 
 glyph han-24fe9:15x16 15 16 // 𤿩
 ⿰ han-544a:7x16 han-76ae:8x16 // ⿰告皮

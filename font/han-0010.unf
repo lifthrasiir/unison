@@ -2515,6 +2515,7 @@ glyph han-520c:15x16 15 16 // 刌
 
 glyph han-5211:15x16 15 16 // 刑
 ⿰ han-5f00:9x16 1 han-5202:5x16 // ⿰开刂
+glyph han-5211.0:* = han-5211:*
 
 glyph han-5213:15x16 15 16 // 刓
 ⿰ han-5143:9x16 1 han-5202:5x16 // ⿰元刂
@@ -2639,8 +2640,12 @@ glyph han-5247:15x12 15 12 // 則
 glyph han-5247:15x16 15 16 // 則
 ⿰ han-8c9d:9x16 2 han-5202:4x16 // ⿰貝刂
 
-glyph han-524a:15x16 15 16 // 削
-⿰ han-8096:9x16 1 han-5202:5x16 // ⿰肖刂
+glyph han-524a-($han-regions):15x16 15 16 // 削
+⿰ han-8096-($-1):9x16 1 han-5202:5x16 // ⿰肖刂
+glyph han-524a.0:* = han-524a-j:*
+glyph han-524a.1:* = han-524a-k:*
+glyph han-524a.2:* = han-524a-j:*
+glyph han-524a.3:* = han-524a-k:*
 
 // glyph han-524b:15x16 15 16 // 剋
 // ⿺ han-514b han-5202 // ⿺克刂

@@ -1283,8 +1283,18 @@ glyph han-8a99.2:15x16 15 16 // 誙
 ............@@@@@@@@@@@@@@@@@@
 ref han-8a01.0:5x16 0 0 // ⿰訁巠
 
-glyph han-8a9a-($han-regions):15x16 15 16 // 誚
-⿰ han-8a01-($-1):5x16 1 han-8096:9x16 // ⿰訁肖
+glyph han-8a9a.0:15x16 15 16 // 誚
+⿰ han-8a01.0:5x16 1 han-8096.1:9x16 // ⿰訁肖
+glyph han-8a9a.1:* = han-8a9a.0:*
+glyph han-8a9a.2:15x16 15 16 // 誚
+⿰ han-8a01.0:5x16 1 han-8096.0:9x16 // ⿰訁肖
+glyph han-8a9a.x:15x16 15 16 // 誚
+⿰ han-8a01.x:5x16 1 han-8096.0:9x16 // ⿰訁肖
+glyph han-8a9a.y:15x16 15 16 // 誚
+⿰ han-8a01.x:5x16 1 han-8096.1:9x16 // ⿰訁肖
+glyph han-8a9a-(j|k):* = han-8a9a.0:*
+glyph han-8a9a-(g|h|t):* = han-8a9a.x:*
+glyph han-8a9a-p:* = han-8a9a.y:*
 
 glyph han-8a9c-($han-regions):15x16 15 16 // 誜
 ⿰ 1 han-8a01-($-1):5x16 1 han-590b:7x16 // ⿰訁夋
@@ -1786,7 +1796,7 @@ glyph han-8be9-($han-regions):15x16 15 16 // 诩
 ## 149'.7
 
 glyph han-8bee:15x16 15 16 // 诮
-⿰ han-8ba0:5x16 1 han-8096:9x16 // ⿰讠肖
+⿰ han-8ba0:5x16 1 han-8096.0:9x16 // ⿰讠肖
 
 // glyph han-8bef:15x16 15 16 // 误
 // ⿰ han-8ba0 han-5434 // ⿰讠吴

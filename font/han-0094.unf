@@ -1181,8 +1181,12 @@ glyph han-7406.0:* = han-7406:*
 glyph han-740d:15x16 15 16 // 琍
 ⿲ han-248e9:3x16 han-79be:7x16 han-5202:5x16 // ⿲𤣩禾刂
 
-glyph han-7411:15x16 15 16 // 琑
-⿰ han-248e9:7x16 1 han-8096:7x16 // ⿰𤣩肖
+glyph han-7411.0:15x16 15 16 // 琑
+⿰ han-248e9:7x16 1 han-8096.1:7x16 // ⿰𤣩肖
+glyph han-7411.x:15x16 15 16 // 琑
+⿰ han-248e9:7x16 1 han-8096.0:7x16 // ⿰𤣩肖
+glyph han-7411-(j|k):* = han-7411.0:*
+glyph han-7411-(g|h):* = han-7411.x:*
 
 glyph han-7413:15x16 15 16 // 琓
 ⿰ han-248e9:5x16 1 han-5b8c:9x16 // ⿰𤣩完

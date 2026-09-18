@@ -618,8 +618,13 @@ glyph han-92a4.0:* = han-92a4:*
 glyph han-92b5:15x16 15 16 // 銵
 ⿰ han-91d2:5x16-l 1 han-8eab:9x16 // ⿰釒身
 
-glyph han-92b7:15x16 15 16 // 銷
-⿰ han-91d2:7x16 1 han-8096:7x16 // ⿰釒肖
+glyph han-92b7.0:15x16 15 16 // 銷
+⿰ han-91d2:7x16 1 han-8096.1:7x16 // ⿰釒肖
+glyph han-92b7.1:* = han-92b7.0:*
+glyph han-92b7.2:15x16 15 16 // 銷
+⿰ han-91d2:7x16 1 han-8096.0:7x16 // ⿰釒肖
+glyph han-92b7-(j|k|p|v):* = han-92b7.0:*
+glyph han-92b7-(g|h|t):* = han-92b7.2:*
 
 // glyph han-92ba:15x16 15 16 // 銺
 // ⿱ han-58ef han-91d1 // ⿱壯金
@@ -1342,7 +1347,7 @@ glyph han-94fa:15x16 15 16 // 铺
 ⿰ han-9485:6x16 han-752b:9x16 // ⿰钅甫
 
 glyph han-9500:15x16 15 16 // 销
-⿰ han-9485:6x16 han-8096:9x16 // ⿰钅肖
+⿰ han-9485:6x16 han-8096.0:9x16 // ⿰钅肖
 
 glyph han-9502:15x16 15 16 // 锂
 ⿰ han-9485:6x16 han-91cc:9x16 // ⿰钅里

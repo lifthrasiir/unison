@@ -462,8 +462,14 @@ glyph han-86ed:15x16 15 16 // 蛭
 glyph han-86f5:15x16 15 16 // 蛵
 ⿰ han-866b:5x16 1 han-5de0:9x16 // ⿰虫巠
 
-glyph han-86f8:15x16 15 16 // 蛸
-⿰ han-866b:7x16 1 han-8096:7x16 // ⿰虫肖
+glyph han-86f8.0:15x16 15 16 // 蛸
+⿰ han-866b:7x16 1 han-8096.0:7x16 // ⿰虫肖
+glyph han-86f8.1:15x16 15 16 // 蛸
+⿰ han-866b:7x16 1 han-8096.1:7x16 // ⿰虫肖
+glyph han-86f8.2:* = han-86f8.0:*
+glyph han-86f8.3:* = han-86f8.1:*
+glyph han-86f8-(g|h|t):* = han-86f8.0:*
+glyph han-86f8-(j|k|p):* = han-86f8.1:*
 
 glyph han-86fc:15x16 15 16 // 蛼
 ⿰ han-866b:5x16 1 han-8eca:9x16 // ⿰虫車

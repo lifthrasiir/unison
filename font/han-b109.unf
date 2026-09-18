@@ -341,7 +341,7 @@ glyph han-251a4:15x16 15 16 // 𥆤
 // ⿰ han-76ee han-674f // ⿰目杏
 
 glyph han-251ab:15x16 15 16 // 𥆫
-⿰ han-76ee:4x16-l 2 han-5446:9x16 // ⿰目呆
+⿰ han-76ee:5x16-l 1 han-5446:9x16 // ⿰目呆
 
 glyph han-251ad:15x16 15 16 // 𥆭
 ⿲ han-76ee:3x16-l han-624c:3x16 han-592b:9x16 // ⿲目扌夫

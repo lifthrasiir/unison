@@ -221,8 +221,10 @@ glyph han-231a7:15x16 15 16 // 𣆧
 // glyph han-231b9:15x16 15 16 // 𣆹
 // ⿱ han-65e5 han-519d // ⿱日冝
 
-glyph han-231ba:15x16 15 16 // 𣆺
-⿰ han-65e5:7x16 1 han-8096:7x16 // ⿰日肖
+glyph han-231ba-(g|t):15x16 15 16 // 𣆺
+⿰ han-65e5:7x16 1 han-8096.0:7x16 // ⿰日肖
+glyph han-231ba-j:15x16 15 16 // 𣆺
+⿰ han-65e5:7x16 1 han-8096.1:7x16 // ⿰日肖
 
 // glyph han-231bd:15x16 15 16 // 𣆽
 // ⿱ han-65e6 han-24616 // ⿱旦𤘖

@@ -272,7 +272,7 @@ glyph han-31df3:15x16 15 16 // 𱷳
 // ⿳ han-25ad7 han-2b739 han-5dfe // ⿳𥫗𫜹巾 <- ⿱𥫗𭘒
 
 glyph han-31dfd:15x16 15 16 // 𱷽
-⿳ -3 han-25ad7:15x5 han-5f50-g:15x5 han-5bf8:15x9 // ⿳𥫗𫜹寸
+⿳ han-25ad7:15x5 han-5f50-g:15x5 han-5bf8:15x6 // ⿳𥫗𫜹寸
 
 ## 118.8
 

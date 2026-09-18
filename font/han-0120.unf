@@ -333,8 +333,13 @@ glyph han-7d80:15x16 15 16 // 綀
 // glyph han-7d82:15x16 15 16 // 綂
 // ⿰ han-7cf9 han-2047d // ⿰糹𠑽
 
-glyph han-7d83:15x16 15 16 // 綃
-⿰ han-7cf9:5x16 1 han-8096:9x16 // ⿰糹肖
+glyph han-7d83.0:15x16 15 16 // 綃
+⿰ han-7cf9:5x16 1 han-8096.1:9x16 // ⿰糹肖
+glyph han-7d83.1:* = han-7d83.0:*
+glyph han-7d83.2:15x16 15 16 // 綃
+⿰ han-7cf9:5x16 1 han-8096.0:9x16 // ⿰糹肖
+glyph han-7d83-(j|k|p):* = han-7d83.0:*
+glyph han-7d83-(g|h|t):* = han-7d83.2:*
 
 glyph han-7d84:15x16 15 16 // 綄
 ⿰ han-7cf9:5x16 1 han-5b8c:9x16 // ⿰糹完

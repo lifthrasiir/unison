@@ -169,7 +169,7 @@ glyph han-296e1:15x16 15 16 // 𩛡
 // ⿰ han-98e0 han-7683 // ⿰飠皃
 
 glyph han-296f1:15x16 15 16 // 𩛱
-⿰ han-98e0:7x16 1 han-8096:7x16 // ⿰飠肖
+⿰ han-98e0:7x16 1 han-8096.0:7x16 // ⿰飠肖
 
 // glyph han-296f2-($han-regions):15x16 15 16 // 𩛲
 // ⿰ han-98e0 han-8292-($-1) // ⿰飠芒

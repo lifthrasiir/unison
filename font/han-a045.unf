@@ -624,7 +624,7 @@ glyph han-38db:15x16 15 16 // 㣛
 ⿰ han-5f73:5x16 1 han-5408:9x16 // ⿰彳合
 
 glyph han-38dc:15x16 15 16 // 㣜
-⿲ han-5f73:3x16 han-5f00:9x16 han-5202:3x16 // ⿲彳开刂
+⿲ han-5f73:5x16 han-5f00:7x16 han-5202:3x16 // ⿲彳开刂
 
 glyph han-38df:15x16 15 16 // 㣟
 ⿰ han-5f73:5x16 1 han-5409:9x16 // ⿰彳吉
@@ -1191,7 +1191,7 @@ glyph han-3ae7:15x16 15 16 // 㫧
 // ⿱ han-65e5 han-4e9a // ⿱日亚
 
 glyph han-3aed:15x16 15 16 // 㫭
-⿳ -2 han-65e5:15x5 han-571f:15x4 han-5bf8:15x9 // ⿳日土寸
+⿳ han-65e5:15x5 han-571f:15x5 han-5bf8:15x6 // ⿳日土寸
 
 // glyph han-3aee:15x16 15 16 // 㫮
 // ⿱ han-6b64 han-65e5 // ⿱此日

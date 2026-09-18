@@ -798,8 +798,12 @@ glyph han-6d86:15x16 15 16 // 涆
 glyph han-6d87:15x16 15 16 // 涇
 ⿰ han-6c35:5x16 1 han-5de0:9x16 // ⿰氵巠
 
-glyph han-6d88:15x16 15 16 // 消
-⿰ han-6c35:5x16 1 han-8096:9x16 // ⿰氵肖
+glyph han-6d88-($han-regions):15x16 15 16 // 消
+⿰ han-6c35:5x16 1 han-8096-($-1):9x16 // ⿰氵肖
+glyph han-6d88.0:* = han-6d88-j:*
+glyph han-6d88.1:* = han-6d88-k:*
+glyph han-6d88.2:* = han-6d88-j:*
+glyph han-6d88.3:* = han-6d88-k:*
 
 // glyph han-6d8b:15x16 15 16 // 涋
 // ⿰ han-6c35 han-5b8a // ⿰氵宊

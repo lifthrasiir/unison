@@ -453,8 +453,10 @@ glyph han-224eb:15x16 15 16 // 𢓫
 glyph han-224ed:15x16 15 16 // 𢓭
 ⿰ 1 han-5f73:5x16 1 han-590b:7x16 // ⿰彳夋
 
-glyph han-224ee:15x16 15 16 // 𢓮
-⿰ han-5f73:5x16 1 han-8096:9x16 // ⿰彳肖
+glyph han-224ee-(g|t):15x16 15 16 // 𢓮
+⿰ han-5f73:5x16 1 han-8096.0:9x16 // ⿰彳肖
+glyph han-224ee-j:15x16 15 16 // 𢓮
+⿰ han-5f73:5x16 1 han-8096.1:9x16 // ⿰彳肖
 
 glyph han-224ef:15x16 15 16 // 𢓯
 ⿲ han-5f73:3x16 han-72ad:4x16 1 han-738b:7x16 // ⿲彳犭王
@@ -497,6 +499,9 @@ glyph han-2252f:15x16 15 16 // 𢔯
 ⿲ han-5f73:3x16 han-675f:9x16 han-5202:3x16 // ⿲彳束刂
 
 ## 60.10
+
+// glyph han-22536:15x16 15 16 // 𢔶
+// ⿰ han-5f73 han-4677 // ⿰彳䙷
 
 // glyph han-2253d:15x16 15 16 // 𢔽
 // ⿰ han-5f73 han-3aed // ⿰彳㫭

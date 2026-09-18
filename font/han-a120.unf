@@ -139,8 +139,10 @@ glyph han-42fd:15x16 15 16 // 䋽
 // glyph han-4301:15x16 15 16 // 䌁
 // ⿰ han-7cf9 han-8981 // ⿰糹要
 
-glyph han-4303:15x16 15 16 // 䌃
-⿲ han-7cf9:5x16 han-8096:7x16 han-5202:3x16 // ⿲糹肖刂
+glyph han-4303-(g|t):15x16 15 16 // 䌃
+⿲ han-7cf9:5x16 han-8096.0:7x16 han-5202:3x16 // ⿲糹肖刂
+glyph han-4303-j:15x16 15 16 // 䌃
+⿲ han-7cf9:5x16 han-8096.1:7x16 han-5202:3x16 // ⿲糹肖刂
 
 ## 120.10
 
@@ -332,7 +334,7 @@ glyph han-4377:15x16 15 16 // 䍷
 ## 124.4
 
 glyph han-437e-($han-regions):15x16 15 16 // 䍾
-⿰ han-5f00:9x16 han-7fbd-($-1):6x16 // ⿰开羽
+⿰ han-5f00:7x16 han-7fbd-($-1):8x16 // ⿰开羽
 
 glyph han-437f-($han-regions):15x16 15 16 // 䍿
 ⿱ han-7fbd-($-1):15x8 1 han-738b:15x7 // ⿱羽王
@@ -554,8 +556,10 @@ glyph han-43eb:15x16 15 16 // 䏫
 glyph han-43f3:15x16 15 16 // 䏳
 ⿲ han-6708:5x16-l han-624c:3x16 han-65a4:7x16 // ⿲月扌斤
 
-glyph han-43f4:15x16 15 16 // 䏴
-⿰ han-6708:5x16-l 1 han-8096:9x16 // ⿰月肖
+glyph han-43f4-(g|t):15x16 15 16 // 䏴
+⿰ han-6708:5x16-l 1 han-8096.0:9x16 // ⿰月肖
+glyph han-43f4-(j|k|p):15x16 15 16 // 䏴
+⿰ han-6708:5x16-l 1 han-8096.1:9x16 // ⿰月肖
 
 // glyph han-43f6:15x16 15 16 // 䏶
 // ⿰ han-6708 han-5752 // ⿰月坒
@@ -1339,8 +1343,12 @@ glyph han-462d:15x16 15 16 // 䘭
 
 ## 145.7
 
-glyph han-462f:15x16 15 16 // 䘯
-⿰ han-8864:7x16 1 han-8096:7x16 // ⿰衤肖
+glyph han-462f.0:15x16 15 16 // 䘯
+⿰ han-8864:7x16 1 han-8096.1:7x16 // ⿰衤肖
+glyph han-462f.1:15x16 15 16 // 䘯
+⿰ han-8864:7x16 1 han-8096.0:7x16 // ⿰衤肖
+glyph han-462f-(j|p):* = han-462f.0:*
+glyph han-462f-(g|t):* = han-462f.1:*
 
 ## 145.8
 

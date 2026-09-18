@@ -430,7 +430,7 @@ glyph han-219f6:15x16 15 16 // 𡧶
 // ⿰ han-5b88 han-4e2d // ⿰守中
 
 glyph han-21a0e:15x16 15 16 // 𡨎
-⿳ -1 han-5b80:15x3 han-706b:15x5 han-5bf8:15x9 // ⿳宀火寸
+⿳ han-5b80:15x3 han-706b:15x5 han-5bf8:15x8 // ⿳宀火寸
 
 glyph han-21a10:15x16 15 16 // 𡨐
 ⿳ han-5b80:15x4 -1 han-706b:15x6 han-53e3:15x7 // ⿳宀火口
