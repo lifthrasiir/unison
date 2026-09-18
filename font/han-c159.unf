@@ -144,9 +144,12 @@ glyph han-2b45c:15x16 15 16 // 𫑜
 ## 163.7
 
 glyph han-2b45f:15x16 15 16 // 𫑟
-⿰ han-8a01.x:5x16 2 han-961d:7x16-r // ⿰訁阝
+⿰ han-8a01.x:7x16 1 han-961d:7x16-r // ⿰訁阝
 
 ## 163.8
+
+// glyph han-2b461:15x16 15 16 // 𫑡
+// ⿰ han-9efe han-961d // ⿰黾阝
 
 // glyph han-2b462-($han-regions):15x16 15 16 // 𫑢
 // ⿱ han-90a6-($-1) han-4e2d // ⿱邦中

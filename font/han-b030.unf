@@ -202,7 +202,7 @@ glyph han-20be4:15x16 15 16 // 𠯤
 // ⿰ han-53e3 han-5346 // ⿰口卆
 
 glyph han-20be6:15x16 15 16 // 𠯦
-⿲ -1 han-53e3:3x16-l han-4e03:8x16 han-5200:5x16 // ⿲口七刀
+⿲ han-53e3:3x16-l han-4e03:5x16 han-5200:7x16 // ⿲口七刀
 
 // glyph han-20be8:15x16 15 16 // 𠯨
 // ⿱ han-5206 han-53e3 // ⿱分口

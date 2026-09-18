@@ -550,7 +550,7 @@ glyph han-30e77:15x16 15 16 // 𰹷
 ⿰ han-8f66:6x16-l han-5143:9x16 // ⿰车元
 
 glyph han-30e79:15x16 15 16 // 𰹹
-⿲ -2 han-8f66:4x16-l han-4e03:8x16 han-5200:5x16 // ⿲车七刀
+⿲ han-8f66:4x16-l han-4e03:5x16 1 han-5200:5x16 // ⿲车七刀
 
 glyph han-30e7b:15x16 15 16 // 𰹻
 ⿰ han-8f66:6x16-l han-5df4:9x16 // ⿰车巴
@@ -663,6 +663,9 @@ glyph han-30eb1:15x16 15 16 // 𰺱
 
 ## 162.8
 
+// glyph han-30ebe-($han-regions):15x16 15 16 // 𰺾
+// ⿺ han-8fb6-($-1) han-5944 // ⿺辶奄
+
 // glyph han-30ec0-($han-regions):15x16 15 16 // 𰻀
 // ⿺ han-8fb6-($-1) han-5366 // ⿺辶卦
 
@@ -701,6 +704,9 @@ glyph han-30ee0:15x16 15 16 // 𰻠
 ⿰ han-5df3:7x16 1 han-961d:7x16-r // ⿰巳阝
 
 ## 163.4
+
+// glyph han-30ee1:15x16 15 16 // 𰻡
+// ⿰ han-65e0 han-961d // ⿰无阝
 
 // glyph han-30ee2-($han-regions):15x16 15 16 // 𰻢
 // ⿰ han-4e10-($-1) han-961d // ⿰丐阝

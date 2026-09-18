@@ -53,6 +53,9 @@ glyph han-31988:15x16 15 16 // 𱦈
 // glyph han-3198f:15x16 15 16 // 𱦏
 // ⿰ han-6c35 han-4f17 // ⿰氵众
 
+// glyph han-31994:15x16 15 16 // 𱦔
+// ⿰ han-6c35 han-6c46 // ⿰氵汆
+
 // glyph han-31995:15x16 15 16 // 𱦕
 // ⿱ han-5408 han-6c34 // ⿱合水
 
@@ -692,6 +695,9 @@ glyph han-31ca4:15x16 15 16 // 𱲤
 ⿰ han-529b:8x16 1 han-76ee:6x16 // ⿰力目
 
 ## 109.4
+
+// glyph han-31ca6:15x16 15 16 // 𱲦
+// ⿰ han-76ee han-65e0 // ⿰目无
 
 // glyph han-31ca7:15x16 15 16 // 𱲧
 // ⿳ han-53e3 han-4e00 han-76ee // ⿳口一目

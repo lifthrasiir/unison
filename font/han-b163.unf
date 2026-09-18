@@ -240,6 +240,9 @@ glyph han-286e9:15x16 15 16 // 𨛩
 glyph han-286fa:15x16 15 16 // 𨛺
 ⿰ han-5176:9x16 1 han-961d:5x16-r // ⿰其阝
 
+// glyph han-28700:15x16 15 16 // 𨜀
+// ⿰ han-5944 han-9091 // ⿰奄邑
+
 // glyph han-28701:15x16 15 16 // 𨜁
 // ⿰ han-23950 han-9091 // ⿰𣥐邑
 
@@ -614,6 +617,9 @@ glyph han-288fa:15x16 15 16 // 𨣺
 # CJK unified ideographs extension B: 釆 (165)
 
 ## 165.8
+
+// glyph han-28915:15x16 15 16 // 𨤕
+// ⿰ han-91c6 han-5944 // ⿰釆奄
 
 // glyph han-28917:15x16 15 16 // 𨤗
 // ⿳ han-91c6 han-5927 han-76ee // ⿳釆大目

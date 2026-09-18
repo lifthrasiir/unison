@@ -427,6 +427,9 @@ glyph han-2d60d:15x16 15 16 // 𭘍
 
 ## 50.4
 
+// glyph han-2d613:15x16 15 16 // 𭘓
+// ⿰ han-5dfe han-65e0 // ⿰巾无
+
 glyph han-2d614:15x16 15 16 // 𭘔
 ⿰ han-5dfe:5x16 1 han-5348:9x16 // ⿰巾午
 
@@ -623,6 +626,11 @@ glyph han-2d6b0:15x16 15 16 // 𭚰
 
 glyph han-2d6b2:15x16 15 16 // 𭚲
 ⿰ han-5f13:5x16 1 han-56f0:9x16 // ⿰弓困
+
+## 57.8
+
+// glyph han-2d6b7:15x16 15 16 // 𭚷
+// ⿰ han-5f13 han-9efe // ⿰弓黾
 
 ## 57.9
 

@@ -716,6 +716,8 @@ glyph han-8f9b:5x16 5 16 // 辛
 ⿱ han-7acb:5x8 han-5341:5x8 // ⿱立十
 glyph han-8f9b:7x16 7 16 // 辛
 ⿱ han-7acb:7x8 han-5341:7x8 // ⿱立十
+glyph han-8f9b:9x16 9 16 // 辛
+⿱ han-7acb:9x8 han-5341:9x8 // ⿱立十
 glyph han-8f9b:11x16 11 16 // 辛
 ⿱ han-7acb:11x8 han-5341:11x8 // ⿱立十
 glyph han-8f9b:15x16 15 16 // 辛
@@ -1752,6 +1754,9 @@ glyph han-9180:15x16 15 16 // 醀
 
 glyph han-9182:15x16 15 16 // 醂
 ⿲ -2 han-9149:7x16 han-6728:5x16 han-6728:5x16 // ⿲酉木木
+
+// glyph han-9183:15x16 15 16 // 醃
+// ⿰ han-9149 han-5944 // ⿰酉奄
 
 // glyph han-9185:15x16 15 16 // 醅
 // ⿰ han-9149 han-5485 // ⿰酉咅

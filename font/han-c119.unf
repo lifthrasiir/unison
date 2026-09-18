@@ -615,7 +615,7 @@ glyph han-2b2a5:15x16 15 16 // 𫊥
 ## 142.4
 
 glyph han-2b2a7:15x16 15 16 // 𫊧
-⿲ -3 han-866b:5x16 han-4e03:8x16 han-5200:5x16 // ⿲虫七刀
+⿲ han-866b:5x16 han-4e03:5x16 han-5200:5x16 // ⿲虫七刀
 
 ## 142.5
 
@@ -888,6 +888,9 @@ glyph han-2b365:15x16 15 16 // 𫍥
 // ⿰ han-8ba0 han-5fcc // ⿰讠忌
 
 ## 149'.8
+
+// glyph han-2b36b:15x16 15 16 // 𫍫
+// ⿰ han-8ba0 han-5944 // ⿰讠奄
 
 // glyph han-2b36d:15x16 15 16 // 𫍭
 // ⿰ han-8ba0 han-59be // ⿰讠妾

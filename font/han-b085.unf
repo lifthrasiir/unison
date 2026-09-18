@@ -24,8 +24,8 @@ glyph han-23c76:15x16 15 16 // 𣱶
 // glyph han-23c77:15x16 15 16 // 𣱷
 // ⿸ han-5382 han-6c34 // ⿸厂水
 
-// glyph han-23c78:15x16 15 16 // 𣱸
-// ⿱ han-6c34 han-5165 // ⿱水入
+glyph han-23c78:15x16 15 16 // 𣱸
+⿱ han-6c34:15x6 han-5165:15x10 // ⿱水入
 
 // glyph han-23c7a:15x16 15 16 // 𣱺
 // ⿰ han-6c34 han-516b // ⿰水八
@@ -87,6 +87,9 @@ glyph han-23c92:15x16 15 16 // 𣲒
 
 // glyph han-23c97:15x16 15 16 // 𣲗
 // ⿰ han-6c35 han-97e6 // ⿰氵韦
+
+// glyph han-23c98:15x16 15 16 // 𣲘
+// ⿰ han-6c35 han-65e0 // ⿰氵无
 
 // glyph han-23c99:15x16 15 16 // 𣲙
 // ⿰ han-6c35 han-6c34 // ⿰氵水

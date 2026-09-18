@@ -103,6 +103,9 @@ glyph han-3b77:15x16 15 16 // 㭷
 // glyph han-3b76:15x16 15 16 // 㭶
 // ⿰ han-6728 han-82b3 // ⿰木芳
 
+// glyph han-3b7a:15x16 15 16 // 㭺
+// ⿰ han-6728 han-5944 // ⿰木奄
+
 // glyph han-3b7c:15x16 15 16 // 㭼
 // ⿰ han-6728 han-6c93 // ⿰木沓
 
@@ -701,6 +704,9 @@ glyph han-3dc4:15x16 15 16 // 㷄
 
 // glyph han-3dc7:15x16 15 16 // 㷇
 // ⿰ han-591a han-7070 // ⿰多灰
+
+// glyph han-3dc8:15x16 15 16 // 㷈
+// ⿰ han-706b han-5944 // ⿰火奄
 
 glyph han-3dca:15x16 15 16 // 㷊
 ⿱ han-6797:15x12 han-706c:15x4 // ⿱林灬

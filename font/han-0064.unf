@@ -316,6 +316,9 @@ glyph han-6299:15x16 15 16 // 抙
 assume ⿰ han-624c:5x16 -1 han-624b:11x16 // ⿰扌手
 glyph han-6299.0:* = han-6299:*
 
+// glyph han-629a:15x16 15 16 // 抚
+// ⿰ han-624c han-65e0 // ⿰扌无
+
 // glyph han-629f:15x16 15 16 // 抟
 // ⿰ han-624c han-4e13 // ⿰扌专
 
@@ -756,6 +759,9 @@ glyph han-63a8:15x13 15 13 // 推
 ⿰ han-624c:5x13 1 han-96b9:9x13 // ⿰扌隹
 glyph han-63a8:15x16 15 16 // 推
 ⿰ han-624c:5x16 1 han-96b9:9x16 // ⿰扌隹
+
+// glyph han-63a9:15x16 15 16 // 掩
+// ⿰ han-624c han-5944 // ⿰扌奄
 
 // glyph han-63b0:15x16 15 16 // 掰
 // ⿲ han-624b han-5206 han-624b // ⿲手分手

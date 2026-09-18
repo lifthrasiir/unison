@@ -565,6 +565,9 @@ glyph han-2e02d:15x16 15 16 // 𮀭
 
 ## 112.13
 
+// glyph han-2e04b-($han-regions):15x16 15 16 // 𮁋
+// ⿰ han-77f3 han-96fb-($-1) // ⿰石電
+
 // glyph han-2e04d:15x16 15 16 // 𮁍
 // ⿰ han-77f3 han-6e96 // ⿰石準
 
@@ -959,7 +962,7 @@ glyph han-2e16c:15x16 15 16 // 𮅬
 ⿳ han-25ad7:15x5 -1 han-5b80:15x5 han-81e3:15x7 // ⿳𥫗宀臣
 
 glyph han-2e16d:15x16 15 16 // 𮅭
-⿳ -4 han-25ad7:15x5 han-52a0:15x8 han-6728:15x7 // ⿳𥫗加木
+⿳ -1 han-25ad7:15x5 han-52a0:15x5 han-6728:15x7 // ⿳𥫗加木
 
 ## 118.10
 

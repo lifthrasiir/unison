@@ -274,6 +274,11 @@ glyph han-2a7b2:15x16 15 16 // 𪞲
 
 # CJK unified ideographs extension C: 凵 (17)
 
+## 17.3
+
+// glyph han-2a7b6:15x16 15 16 // 𪞶
+// ⿶ han-51f5 han-204db // ⿶凵𠓛
+
 ## 17.6
 
 // glyph han-2a7b7:15x16 15 16 // 𪞷
@@ -703,6 +708,9 @@ glyph han-2a8b7:15x16 15 16 // 𪢷
 ⿰ han-571f:5x16-l 1 han-4ea1-v:9x16 // ⿰土亡
 
 ## 32.4
+
+// glyph han-2a8b8:15x16 15 16 // 𪢸
+// ⿰ han-571f han-65e0 // ⿰土无
 
 glyph han-2a8bb:15x16 15 16 // 𪢻
 ⿰ han-571f:5x16-l 1 han-6708:9x16 // ⿰土月

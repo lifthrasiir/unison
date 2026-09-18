@@ -156,6 +156,9 @@ glyph han-8298-($han-regions):15x16 15 16 // 芘
 glyph han-8299:15x16 15 16 // 芙
 ⿱ han-8279:15x3 han-592b:15x13 // ⿱艹夫
 
+// glyph han-829c:15x16 15 16 // 芜
+// ⿱ han-8279 han-65e0 // ⿱艹无
+
 // glyph han-829d:15x16 15 16 // 芝
 // ⿱ han-8279 han-4e4b // ⿱艹之
 

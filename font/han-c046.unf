@@ -137,6 +137,11 @@ glyph han-2aa82:15x16 15 16 // 𪪂
 // glyph han-2aa83:15x16 15 16 // 𪪃
 // ⿰ han-5e76 han-4e19 // ⿰并丙
 
+## 51.10
+
+// glyph han-2aa85-($han-regions):15x16 15 16 // 𪪅
+// ⿰ han-5e73-($-1) han-5944 // ⿰平奄
+
 # CJK unified ideographs extension C: 广 (53)
 
 ## 53.4

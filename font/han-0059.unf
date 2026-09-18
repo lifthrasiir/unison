@@ -127,7 +127,7 @@ glyph han-5f7a:15x16 15 16 // 彺
 ⿰ han-5f73:5x16 1 han-738b:9x16 // ⿰彳王
 
 glyph han-5f7b:15x16 15 16 // 彻
-⿲ -1 han-5f73:3x16 han-4e03:8x16 han-5200:5x16 // ⿲彳七刀
+⿲ han-5f73:3x16 han-4e03:5x16 han-5200:7x16 // ⿲彳七刀
 
 glyph han-9fc9:15x16 15 16 // 鿉
 ⿰ han-5f73:5x16 1 han-4e94:9x16 // ⿰彳五
@@ -537,6 +537,9 @@ glyph han-6000:15x16 15 16 // 怀
 
 glyph han-6002:15x16 15 16 // 怂
 ⿱ han-4ece:15x9 han-5fc3:15x7 // ⿱从心
+
+// glyph han-6003:15x16 15 16 // 怃
+// ⿰ han-5fc4 han-65e0 // ⿰忄无
 
 ## 61.5
 

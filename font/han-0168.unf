@@ -342,6 +342,9 @@ glyph han-95b6:15x16 15 16 // 閶
 glyph han-95b8:15x16 15 16 // 閸
 ⿵ han-9580:15x16.13x11 han-4e9e:9x10 3 6 // ⿵門亞
 
+// glyph han-95b9:15x16 15 16 // 閹
+// ⿵ han-9580 han-5944 // ⿵門奄
+
 glyph han-95c1:15x16 15 16 // 闁
 ⿵ han-9580:15x16.13x11 han-9580:11x10 2 6 // ⿵門門
 
@@ -603,6 +606,9 @@ glyph han-9603:15x16 15 16 // 阃
 
 // glyph han-9607-($han-regions):15x16 15 16 // 阇
 // ⿵ han-95e8 han-8005-($-1) // ⿵门者
+
+// glyph han-9609:15x16 15 16 // 阉
+// ⿵ han-95e8 han-5944 // ⿵门奄
 
 glyph han-960a:15x16 15 16 // 阊
 ref han-95e8:15x16.11x15 // ⿵门昌
@@ -1499,8 +1505,8 @@ glyph han-96f8:15x16 15 16 // 雸
 // glyph han-96f9:15x16 15 16 // 雹
 // ⿱ han-96e8 han-5305 // ⿱雨包
 
-// glyph han-96fb:15x16 15 16 // 電
-// ⿱ han-96e8 han-7535 // ⿱雨电
+glyph han-96fb-($han-regions):15x16 15 16 // 電
+⿱ han-96e8-($-1):15x6 han-7535:15x10 // ⿱雨电
 
 // glyph han-96fc:15x16 15 16 // 雼
 // ⿱ han-96e8 han-77f3 // ⿱雨石

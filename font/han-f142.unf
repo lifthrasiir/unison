@@ -332,7 +332,7 @@ glyph han-2e5d4:15x16 15 16 // 𮗔
 ## 149.2
 
 glyph han-2e5f7:15x16 15 16 // 𮗷
-⿰ han-8a01.0:5x16 2 han-5369:7x16 // ⿰訁卩
+⿰ han-8a01.0:7x16 1 han-5369:7x16 // ⿰訁卩
 
 glyph han-2e5f8:15x16 15 16 // 𮗸
 ⿰ han-8a01.0:5x16 han-51e0:10x16 // ⿰訁几
@@ -577,7 +577,7 @@ glyph han-2e6c7:15x16 15 16 // 𮛇
 ⿰ han-27fb7:5x16 1 han-4ea1-j:9x16 // ⿰𧾷亡
 
 glyph han-2e6c8:15x16 15 16 // 𮛈
-⿰ han-27fb7:5x16 2 han-961d:7x16-r // ⿰𧾷阝
+⿰ han-27fb7:7x16 1 han-961d:7x16-r // ⿰𧾷阝
 
 ## 157.4
 
@@ -706,6 +706,9 @@ glyph han-2e718:15x16 15 16 // 𮜘
 glyph han-2e741:15x16 15 16 // 𮝁
 ⿰ han-6708:5x16-l 1 han-8eca:9x16 // ⿰月車
 
+// glyph han-2e742:15x16 15 16 // 𮝂
+// ⿰ han-8eca han-204dd // ⿰車𠓝
+
 // glyph han-2e743:15x16 15 16 // 𮝃
 // ⿱ han-706b han-8eca // ⿱火車
 
@@ -816,6 +819,9 @@ glyph han-2e781:15x16 15 16 // 𮞁
 
 // glyph han-2e78a-($han-regions):15x16 15 16 // 𮞊
 // ⿺ han-8fb6-($-1) han-4ee4-($-1) // ⿺辶令
+
+// glyph han-2e78b-($han-regions):15x16 15 16 // 𮞋
+// ⿺ han-8fb6-($-1) han-2d37a // ⿺辶𭍺
 
 ## 162.6
 

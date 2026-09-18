@@ -301,8 +301,8 @@ glyph han-30a6d:15x16 15 16 // 𰩭
 
 ## 118.5
 
-// glyph han-30a73:15x16 15 16 // 𰩳
-// ⿱ han-25ad7 han-7535 // ⿱𥫗电
+glyph han-30a73:15x16 15 16 // 𰩳
+⿱ han-25ad7:15x5 han-7535:15x10 // ⿱𥫗电
 
 glyph han-30a74:15x16 15 16 // 𰩴
 ⿳ han-25ad7:15x5 han-53e3:15x7 han-513f:15x4 // ⿳𥫗口儿
@@ -669,6 +669,9 @@ glyph han-30b81:15x16 15 16 // 𰮁
 
 ## 130.4
 
+// glyph han-30b87:15x16 15 16 // 𰮇
+// ⿰ han-6708 han-65e0 // ⿰月无
+
 // glyph han-30b88:15x16 15 16 // 𰮈
 // ⿰ han-8089 han-5dff // ⿰肉巿
 
@@ -726,6 +729,9 @@ glyph han-30b92-t:15x16 15 16 // 𰮒
 
 // glyph han-30bab:15x16 15 16 // 𰮫
 // ⿱ han-6797 han-8089 // ⿱林肉
+
+// glyph han-30bad:15x16 15 16 // 𰮭
+// ⿰ han-6708 han-9efe // ⿰月黾
 
 // glyph han-30bb3:15x16 15 16 // 𰮳
 // ⿰ han-6708 han-5b5f // ⿰月孟
@@ -984,6 +990,9 @@ glyph han-30ca9:15x16 15 16 // 𰲩
 ⿰ han-866b:5x16 1 han-4e5d:9x16 // ⿰虫九
 
 ## 142.4
+
+// glyph han-30cab:15x16 15 16 // 𰲫
+// ⿰ han-866b han-65e0 // ⿰虫无
 
 glyph han-30cac:15x16 15 16 // 𰲬
 ⿰ han-866b:5x16 1 han-8f66:9x16 // ⿰虫车
