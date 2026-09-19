@@ -198,6 +198,51 @@ enum SelectDrag {
     },
 }
 
+/// A run of Ctrl-drag whole-glyph shifts, kept in [`EditorState`] rather than
+/// in the per-gesture drag slot.
+///
+/// Each step of a shift re-clips the grid to its own size, so a pixel dragged
+/// off an edge and back would be gone: the step that took it out dropped it,
+/// and the step that came back only moved emptiness in. A run therefore keeps
+/// `base`, the grid as it stood when the run began, and the total `applied`
+/// offset since; every step rewrites the grid as `base.shifted(applied)`, so
+/// nothing is clipped until the run ends.
+///
+/// A run spans consecutive Ctrl-drags, since releasing the button between two
+/// of them is not a decision about the pixels. It ends when the user does
+/// anything else: leaving the mode ([`reconcile`]), framing a new selection,
+/// or any edit that leaves the grid other than where the run left it — which
+/// [`shift_run_base`] checks for, so an undo or a repaint cannot resurrect
+/// pixels from a run that no longer describes the document.
+#[derive(Clone, Debug)]
+pub(crate) struct GlyphShiftRun {
+    item_idx: usize,
+    base: PixelGrid,
+    applied: (i16, i16),
+}
+
+/// The base grid a Ctrl-drag about to start should shift from: the running
+/// one when the run is still live, or the grid as it is now, which begins a
+/// new run. `None` when the line is not a grid.
+fn shift_run_base(
+    lines: &[DocLine],
+    state: &EditorState,
+    item_idx: usize,
+    grid_doc_line: usize,
+) -> Option<GlyphShiftRun> {
+    let DocLine::Grid(grid) = lines.get(grid_doc_line)? else {
+        return None;
+    };
+    let live = state.glyph_shift_run.as_ref().filter(|run| {
+        run.item_idx == item_idx && run.base.shifted(run.applied.0, run.applied.1) == **grid
+    });
+    Some(live.cloned().unwrap_or_else(|| GlyphShiftRun {
+        item_idx,
+        base: (**grid).clone(),
+        applied: (0, 0),
+    }))
+}
+
 /// Where a selection of `size` cells may sit along one axis of a grid `extent`
 /// cells long. A selection that fits is held inside the grid; one that does not
 /// — a paste is free to be larger than the grid it lands on — is held the other
@@ -352,7 +397,18 @@ pub(crate) fn handle_pixel_select_interaction(
                     });
                     let dcol = target.0.saturating_sub(applied.0);
                     let drow = target.1.saturating_sub(applied.1);
-                    if shift_all_layers(doc, lines, state, item_idx, composite, dcol, drow) {
+                    // The refs and anchors take the step; the grid is redrawn
+                    // from the run's pristine base, so nothing it carried off
+                    // an edge is lost on the way back (see [`GlyphShiftRun`]).
+                    let grid = state.glyph_shift_run.as_mut().map(|run| {
+                        run.applied = (
+                            run.applied.0.saturating_add(dcol),
+                            run.applied.1.saturating_add(drow),
+                        );
+                        run.base.shifted(run.applied.0, run.applied.1)
+                    });
+                    if shift_all_layers(doc, lines, state, item_idx, composite, (dcol, drow), grid)
+                    {
                         *needs_rederive = true;
                         ui.ctx().request_repaint();
                     }
@@ -433,6 +489,7 @@ pub(crate) fn handle_pixel_select_interaction(
                 commit_and_clear(doc, lines, state, &sel);
                 *needs_rederive = true;
             }
+            state.glyph_shift_run = shift_run_base(lines, state, item_idx, grid_doc_line);
             ui.data_mut(|d| {
                 d.insert_temp(
                     sel_drag_id,
@@ -452,6 +509,8 @@ pub(crate) fn handle_pixel_select_interaction(
                 commit_floating(doc, lines, state, &sel);
                 *needs_rederive = true;
             }
+            // Framing something new is the user moving on from a shift run.
+            state.glyph_shift_run = None;
             state.pixel_selection = Some(PixelSelection {
                 item_idx,
                 row: hover_row,
@@ -495,8 +554,11 @@ pub(crate) fn handle_pixel_select_interaction(
 /// Move everything the glyph draws by `(dcol, drow)` whole cells: its own
 /// pixels, every `ref`, and every `anchor`.
 ///
-/// The pixel grid keeps its size, so pixels pushed past an edge are dropped —
-/// undo is what brings them back.
+/// `grid` replaces the glyph's own grid outright, for a caller that has a
+/// better one than `(dcol, drow)` applied to what is there — a Ctrl-drag run
+/// shifts from its pristine base instead (see [`GlyphShiftRun`]). With `None`
+/// the grid keeps its size and pixels pushed past an edge are dropped; undo is
+/// what brings those back.
 ///
 /// A `ref` with no offset line moves from where the composite actually placed
 /// it and gains an explicit offset, exactly as dragging that single layer does.
@@ -511,8 +573,8 @@ pub(crate) fn shift_all_layers(
     state: &mut EditorState,
     item_idx: usize,
     composite: Option<&crate::editor::ref_composite::GlyphComposite>,
-    dcol: i16,
-    drow: i16,
+    (dcol, drow): (i16, i16),
+    grid: Option<PixelGrid>,
 ) -> bool {
     let Some(DocumentItem::Glyph { body, .. }) = doc.items.get(item_idx) else {
         return false;
@@ -548,8 +610,9 @@ pub(crate) fn shift_all_layers(
         put_text(line, point.shifted(dcol, drow).format_line());
     }
     // The glyph's own grid is the line right after the header.
-    if let Some(DocLine::Grid(grid)) = new_lines.get(1) {
-        new_lines[1] = DocLine::grid(grid.shifted(dcol, drow)).with_id_of(&new_lines[1]);
+    if let Some(DocLine::Grid(old)) = new_lines.get(1) {
+        let moved = grid.unwrap_or_else(|| old.shifted(dcol, drow));
+        new_lines[1] = DocLine::grid(moved).with_id_of(&new_lines[1]);
     }
 
     if new_lines == old_lines {
@@ -1402,6 +1465,16 @@ pub(crate) fn reconcile(
     state: &mut EditorState,
     menu_open: bool,
 ) -> bool {
+    // A shift run belongs to the mode it started in, and unlike a selection it
+    // outlives the gesture, so it is dropped here rather than on release.
+    if !matches!(
+        &state.mode,
+        EditMode::PixelSelect { item_idx, .. }
+            if state.glyph_shift_run.as_ref().is_some_and(|r| r.item_idx == *item_idx)
+    ) {
+        state.glyph_shift_run = None;
+    }
+
     let sel = match &state.pixel_selection {
         Some(s) => s.clone(),
         None => return false,

@@ -731,3 +731,83 @@ fn a_bare_letter_transforms_the_selection() {
     h.key_mod(Key::M, Modifiers::COMMAND);
     assert!(mirrored(&h), "the Ctrl/Cmd chord still mirrors");
 }
+
+/// A run of Ctrl-drags is one move: pixels pushed past an edge on the way out
+/// are still there when a later drag in the same run brings them back. Only
+/// the grid the run started from is ever clipped.
+#[test]
+fn cmd_drag_out_and_back_keeps_the_pixels() {
+    let mut h = make_move_all_harness();
+    let before = h.grid(6).clone();
+
+    // Three cells right, off a 4-wide grid: all but one column falls off.
+    h.drag_grid_mod(6, (2, 0), (2, 3), Modifiers::COMMAND);
+    assert!(h.grid(6).get(0, 0).is_clear());
+    assert!(h.grid(6).get(0, 3).is_bitmap_filled());
+
+    // A separate gesture, but still nothing but Ctrl-drag in between.
+    h.drag_grid_mod(6, (2, 3), (2, 0), Modifiers::COMMAND);
+    assert_eq!(
+        h.grid(6).pixels,
+        before.pixels,
+        "every pixel that went off the edge should have come back"
+    );
+}
+
+/// Within one gesture too — the pointer swings out and back before release.
+#[test]
+fn cmd_drag_keeps_pixels_across_one_gesture() {
+    let mut h = make_move_all_harness();
+    let before = h.grid(6).clone();
+    let cell = h.snap().grid_cell;
+    let start = h.grid_cell_pos(6, 2, 0);
+
+    h.frame_with(
+        vec![
+            egui::Event::PointerMoved(start),
+            egui::Event::PointerButton {
+                pos: start,
+                button: egui::PointerButton::Primary,
+                pressed: true,
+                modifiers: Modifiers::COMMAND,
+            },
+        ],
+        Modifiers::COMMAND,
+    );
+    for dx in [3.0, 0.0] {
+        let pos = egui::pos2(start.x + cell * dx, start.y);
+        h.frame_with(vec![egui::Event::PointerMoved(pos)], Modifiers::COMMAND);
+    }
+    h.frame_with(
+        vec![egui::Event::PointerButton {
+            pos: start,
+            button: egui::PointerButton::Primary,
+            pressed: false,
+            modifiers: Modifiers::COMMAND,
+        }],
+        Modifiers::COMMAND,
+    );
+    h.frame();
+
+    assert_eq!(h.grid(6).pixels, before.pixels);
+}
+
+/// Leaving the mode ends the run: what fell off the edge is gone for good, and
+/// a later Ctrl-drag back moves an empty column in instead.
+#[test]
+fn leaving_the_mode_ends_the_shift_run() {
+    let mut h = make_move_all_harness();
+    h.drag_grid_mod(6, (2, 0), (2, 3), Modifiers::COMMAND);
+
+    h.key(Key::Escape);
+    h.click_grid_cell(6, 2, 0);
+    h.key(Key::Backtick);
+    h.drag_grid_mod(6, (2, 3), (2, 0), Modifiers::COMMAND);
+
+    let grid = h.grid(6);
+    assert!(grid.get(0, 0).is_bitmap_filled(), "the survivor comes back");
+    assert!(
+        grid.get(0, 1).is_clear() && grid.get(0, 2).is_clear(),
+        "the pixels dropped before the mode change stay dropped"
+    );
+}

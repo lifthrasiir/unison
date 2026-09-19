@@ -265,6 +265,9 @@ pub struct EditorState {
     /// `None` means "no pinned corner" — a moved or pasted selection — and
     /// extension then falls back to the rectangle's top-left.
     pub(crate) pixel_select_anchor: Option<(i16, i16)>,
+    /// The run of Ctrl-drag whole-glyph shifts in progress, if any. See
+    /// [`pixel_selection::GlyphShiftRun`].
+    pub(crate) glyph_shift_run: Option<pixel_selection::GlyphShiftRun>,
     /// Cached per-frame view data (composites, visual lines, source offsets);
     /// rebuilt only when the document or layout inputs change.
     pub(crate) view_cache: Option<document_view::ViewCache>,
@@ -344,6 +347,7 @@ impl EditorState {
             resize: None,
             pixel_selection: None,
             pixel_select_anchor: None,
+            glyph_shift_run: None,
             view_cache: None,
             pixel_paint_dirty: None,
             suppress_font_rebuild: false,
@@ -478,6 +482,7 @@ impl EditorState {
         self.resize = None;
         self.pixel_selection = None;
         self.pixel_select_anchor = None;
+        self.glyph_shift_run = None;
         self.autocomplete = None;
         self.popup = PopupState::None;
         self.folds.clear();

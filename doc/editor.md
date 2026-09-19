@@ -133,6 +133,11 @@ order — for moving with the mouse or the arrows. **Escape** returns to the tex
 mirrored (M), flipped (I), rotated (J/K/L), inverted to the opposite shapes (O) or the opposite
 bitmap spellings (Shift+O). With nothing framed the whole grid is the selection.
 
+**Ctrl+drag** outside the framed rectangle moves everything the glyph draws at once — its pixels,
+its `ref`s and its `anchor`s. Pixels pushed past the grid's edge come back if a later drag brings
+them in again; they are dropped for good only once the run of drags ends, which framing a new
+selection or leaving the mode does.
+
 While a layer is selected, the glyphs that could attach at that anchor are drawn underneath the
 grid (the **anchor shadow**), placed where they would land. A second **`` ` ``** inside selection
 mode draws instead every glyph that refers to this one, each placed so that its copy of this glyph
