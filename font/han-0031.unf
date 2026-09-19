@@ -516,6 +516,9 @@ glyph han-56fd:15x16 15 16 // 国
 ⿴ han-56d7:15x16.11x12 han-7389:9x10 3 3 // ⿴囗玉
 glyph han-56fd.0:* = han-56fd:*
 
+// glyph han-56fe-($han-regions):15x16 15 16 // 图
+// ⿴ han-56d7 han-51ac-($-1) // ⿴囗冬
+
 ## 31.6
 
 // glyph han-5700:15x16 15 16 // 圀

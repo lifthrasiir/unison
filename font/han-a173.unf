@@ -1013,6 +1013,9 @@ glyph han-4cc6:15x16 15 16 // 䳆
 glyph han-4cc8:15x16 15 16 // 䳈
 ⿰ han-9ce5:7x16 1 han-5305:7x16 // ⿰鳥包
 
+// glyph han-4cc9-($han-regions):15x16 15 16 // 䳉
+// ⿰ han-51ac-($-1) han-9ce5 // ⿰冬鳥
+
 ## 196.6
 
 glyph han-4ccb:15x16 15 16 // 䳋

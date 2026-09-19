@@ -432,6 +432,9 @@ glyph han-9251.0:* = han-9251:*
 // glyph han-9255:15x16 15 16 // 鉕
 // ⿰ han-91d2 han-53f5 // ⿰釒叵
 
+// glyph han-9256-($han-regions):15x16 15 16 // 鉖
+// ⿰ han-91d2 han-51ac-($-1) // ⿰釒冬
+
 glyph han-9257:15x16 15 16 // 鉗
 ⿰ han-91d2:7x16 1 han-7518:7x16 // ⿰釒甘
 glyph han-9257.0:* = han-9257:*
@@ -979,10 +982,10 @@ glyph han-93e9:15x16 15 16 // 鏩
 // ⿰ han-91d2 han-7ae0 // ⿰釒章
 
 glyph han-93f9.0:15x16 15 16 // 鏹
-⿲ -1 han-91d2:5x16-l han-5f13:4x16 han-27227:7x16 // ⿲釒弓𧈧
+⿲ han-91d2:5x16-l han-5f13:5x16 han-27227:5x16 // ⿲釒弓𧈧
 glyph han-93f9.1:* = han-93f9.0:*
 glyph han-93f9.2:15x16 15 16 // 鏹
-⿲ -1 han-91d2:5x16-l han-5f13:4x16 han-867d:7x16 // ⿲釒弓虽
+⿲ han-91d2:5x16-l han-5f13:4x16 1 han-867d:5x16 // ⿲釒弓虽
 glyph han-93f9-(h|t|j):* = han-93f9.0:*
 glyph han-93f9-(g|k|p):* = han-93f9.2:*
 
@@ -1468,7 +1471,7 @@ glyph han-9560:15x16 15 16 // 镠
 ## 167'.12
 
 glyph han-956a:15x16 15 16 // 镪
-⿲ -1 han-9485:5x16 han-5f13:4x16 han-867d:7x16 // ⿲钅弓虽
+⿲ han-9485:5x16 han-5f13:4x16 1 han-867d:5x16 // ⿲钅弓虽
 
 ## 167'.13
 

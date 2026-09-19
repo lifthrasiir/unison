@@ -481,6 +481,9 @@ glyph han-5cbe:15x16 15 16 // 岾
 glyph han-5cc0:15x16 15 16 // 峀
 ⿱ han-5c71:15x4 han-7531:15x12 // ⿱山由
 
+// glyph han-5cc2-($han-regions):15x16 15 16 // 峂
+// ⿰ han-5c71 han-51ac-($-1) // ⿰山冬
+
 // glyph han-5cc5:15x16 15 16 // 峅
 // ⿰ han-5c71 han-5f01 // ⿰山弁
 
@@ -3154,6 +3157,9 @@ glyph han-5e99.0:* = han-5e99:*
 
 // glyph han-5e9c:15x16 15 16 // 府
 // ⿸ han-5e7f han-4ed8 // ⿸广付
+
+// glyph han-5e9d-($han-regions):15x16 15 16 // 庝
+// ⿸ han-5e7f han-51ac-($-1) // ⿸广冬
 
 ## 53.6
 

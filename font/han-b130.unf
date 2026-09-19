@@ -100,6 +100,9 @@ glyph han-26668:15x16 15 16 // 𦙨
 glyph han-2666b:15x16 15 16 // 𦙫
 ⿰ han-6708:5x16-l han-6b63:10x16 // ⿰月正
 
+// glyph han-2666d-($han-regions):15x16 15 16 // 𦙭
+// ⿰ han-6708 han-51ac-($-1) // ⿰月冬
+
 // glyph han-2666e-($han-regions):15x16 15 16 // 𦙮
 // ⿰ han-6708 han-7a74-($-1) // ⿰月穴
 

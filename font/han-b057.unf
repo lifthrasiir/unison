@@ -223,8 +223,8 @@ glyph han-22430:15x16 15 16 // 𢐰
 glyph han-22432:15x16 15 16 // 𢐲
 ⿲ han-5f13:4x16 han-756a:7x16 han-5f13:4x16 // ⿲弓番弓
 
-// glyph han-22435:15x16 15 16 // 𢐵
-// ⿲ han-5f13 han-8a00 han-27227 // ⿲弓言𧈧
+glyph han-22435-($han-regions):15x16 15 16 // 𢐵
+⿲ han-5f13:5x16 han-8a00-($-1):5x16 han-27227:5x16 // ⿲弓言𧈧
 
 ## 57.17
 
@@ -241,7 +241,7 @@ glyph han-22446:15x16 15 16 // 𢑆
 ## 58.3
 
 glyph han-22451:15x16 15 16 // 𢑑
-⿱ han-5f50.1:15x7 2 han-5f50.1:15x7 // ⿱𫜹𫜹
+⿱ han-5f50.4:15x7 2 han-5f50.4:15x7 // ⿱𫜹𫜹
 
 // glyph han-22452:15x16 15 16 // 𢑒
 // ⿰ han-2b739 han-5973 // ⿰𫜹女
@@ -337,7 +337,7 @@ glyph han-22451:15x16 15 16 // 𢑑
 ## 59.10
 
 glyph han-224a5:15x16 15 16 // 𢒥
-⿰ han-7fcf:7x16 1 han-4e29:7x16 // ⿰翏丩
+⿰ han-7fcf:9x16 1 han-4e29:5x16 // ⿰翏丩
 
 ## 59.11
 
@@ -365,7 +365,7 @@ glyph han-224c1:15x16 15 16 // 𢓁
 ⿰ han-5f73:5x16 1 han-5de5:9x16 // ⿰彳工
 
 glyph han-224c2:15x16 15 16 // 𢓂
-⿰ han-5f73:3x16 1 han-571f:11x16 // ⿰彳土
+assume ⿰ han-5f73:5x16 -1 han-571f:11x16 // ⿰彳土
 
 // glyph han-224c3-($han-regions):15x16 15 16 // 𢓃
 // ⿰ han-5f73 han-4e38-($-1) // ⿰彳丸
@@ -418,6 +418,9 @@ glyph han-224d5:15x16 15 16 // 𢓕
 
 glyph han-224d7-($han-regions):15x16 15 16 // 𢓗
 ⿰ han-5f73:3x16 han-6b64-($-1):12x16 // ⿰彳此
+
+// glyph han-224d8-($han-regions):15x16 15 16 // 𢓘
+// ⿰ han-5f73 han-51ac-($-1) // ⿰彳冬
 
 glyph han-224d9:15x16 15 16 // 𢓙
 ⿲ han-5f73:3x16 han-5f13:7x16 han-4eba:5x16 // ⿲彳弓人

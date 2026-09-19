@@ -529,6 +529,9 @@ glyph han-3123e:15x16 15 16 // 𱈾
 // glyph han-31301:15x16 15 16 // 𱌁
 // ⿰ han-53e5 han-9efe // ⿰句黾
 
+// glyph han-31302-($han-regions):15x16 15 16 // 𱌂
+// ⿺ han-9efe han-51ac-($-1) // ⿺黾冬
+
 ## 205'.6
 
 // glyph han-31303:15x16 15 16 // 𱌃

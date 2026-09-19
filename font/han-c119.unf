@@ -687,7 +687,7 @@ glyph han-2b2d8:15x16 15 16 // 𫋘
 ⿲ -1 han-866b:5x16 han-7cf9:5x16 1 han-7530:5x16 // ⿲虫糹田
 
 glyph han-2b2d9:15x16 15 16 // 𫋙
-⿲ -2 han-866b:5x16 1 han-5f13:4x16 han-27227:7x16 // ⿲虫弓𧈧
+⿲ han-866b:5x16 1 han-5f13:4x16 han-27227:5x16 // ⿲虫弓𧈧
 
 # CJK unified ideographs extension C: 血 (143)
 

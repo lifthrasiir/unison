@@ -256,6 +256,9 @@ glyph han-9d21:15x16 15 16 // 鴡
 glyph han-9d23:15x16 15 16 // 鴣
 ⿰ han-53e4:7x16 1 han-9ce5:7x16 // ⿰古鳥
 
+// glyph han-9d24-($han-regions):15x16 15 16 // 鴤
+// ⿰ han-9ce5 han-51ac-($-1) // ⿰鳥冬
+
 // glyph han-9d25-($han-regions):15x16 15 16 // 鴥
 // ⿰ han-9ce5 han-7a74-($-1) // ⿰鳥穴
 

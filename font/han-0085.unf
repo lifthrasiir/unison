@@ -489,6 +489,9 @@ glyph han-6cc6:15x16 15 16 // 泆
 glyph han-6cc7:15x16 15 16 // 泇
 ⿲ han-6c35:3x16 1 han-529b:6x16 1 han-53e3:4x16 // ⿲氵力口
 
+// glyph han-6cc8-($han-regions):15x16 15 16 // 泈
+// ⿰ han-6c35 han-51ac-($-1) // ⿰氵冬
+
 glyph han-6cc9:15x16 15 16 // 泉
 ⿱ han-767d:15x6 1 han-6c34:15x9 // ⿱白水
 

@@ -504,6 +504,9 @@ glyph han-70b2:15x16 15 16 // 炲
 // glyph han-70b4:15x16 15 16 // 炴
 // ⿰ han-706b han-592e // ⿰火央
 
+// glyph han-70b5-($han-regions):15x16 15 16 // 炵
+// ⿰ han-706b han-51ac-($-1) // ⿰火冬
+
 glyph han-70b6:15x16 15 16 // 炶
 ⿰ han-706b:7x16 1 han-5360:7x16 // ⿰火占
 

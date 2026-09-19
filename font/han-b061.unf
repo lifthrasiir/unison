@@ -707,7 +707,7 @@ glyph han-22807:15x16 15 16 // 𢠇
 ⿲ -2 han-5fc4:5x16 han-8a01.x:5x16 han-5348:7x16 // ⿲忄訁午
 
 glyph han-2280c:15x16 15 16 // 𢠌
-⿲ -1 han-5fc4:5x16 han-5f13:4x16 han-27227:7x16 // ⿲忄弓𧈧
+⿲ han-5fc4:5x16 han-5f13:5x16 han-27227:5x16 // ⿲忄弓𧈧
 
 // glyph han-2280e:15x16 15 16 // 𢠎
 // ⿰ han-5fc4 han-5d11 // ⿰忄崑

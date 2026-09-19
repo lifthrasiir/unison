@@ -153,6 +153,9 @@ glyph han-340b:15x16 15 16 // 㐋
 
 ## 5.5
 
+// glyph han-3411-($han-regions):15x16 15 16 // 㐑
+// ⿱ han-51ac-($-1) han-4e59 // ⿱冬乙
+
 // glyph han-3412:15x16 15 16 // 㐒
 // ⿱ han-53ec han-4e59 // ⿱召乙
 
@@ -1213,6 +1216,9 @@ glyph han-36b2:15x16 15 16 // 㚲
 
 glyph han-36b3:15x16 15 16 // 㚳
 ⿲ han-5973:5x16-l han-529b:5x16 1 han-53e3:4x16 // ⿲女力口
+
+// glyph han-36b5-($han-regions):15x16 15 16 // 㚵
+// ⿰ han-5973 han-51ac-($-1) // ⿰女冬
 
 // glyph han-36b7:15x16 15 16 // 㚷
 // ⿰ han-5973 han-5c12 // ⿰女尒

@@ -675,6 +675,9 @@ glyph han-9b96:15x16 15 16 // 鮖
 ⿰ han-9b5a:7x16 1 han-77f3:7x16 // ⿰魚石
 glyph han-9b96.0:* = han-9b96:*
 
+// glyph han-9b97-($han-regions):15x16 15 16 // 鮗
+// ⿰ han-9b5a han-51ac-($-1) // ⿰魚冬
+
 ## 195.6
 
 glyph han-9b99-($han-regions):15x16 15 16 // 鮙

@@ -187,6 +187,9 @@ glyph han-22adb:15x16 15 16 // 𢫛
 // glyph han-22adc:15x16 15 16 // 𢫜
 // ⿰ han-624c han-201b3 // ⿰扌𠆳
 
+// glyph han-22add-($han-regions):15x16 15 16 // 𢫝
+// ⿰ han-624c han-51ac-($-1) // ⿰扌冬
+
 glyph han-22adf:15x16 15 16 // 𢫟
 ⿲ han-624c:3x16 han-4ebb:3x16 han-58eb:9x16 // ⿲扌亻士
 

@@ -341,6 +341,9 @@ glyph han-383c:15x16 15 16 // 㠼
 
 ## 50.5
 
+// glyph han-383d-($han-regions):15x16 15 16 // 㠽
+// ⿰ han-5dfe han-51ac-($-1) // ⿰巾冬
+
 // glyph han-383f:15x16 15 16 // 㠿
 // ⿱ han-6b64 han-5dfe // ⿱此巾
 
@@ -632,6 +635,9 @@ glyph han-38dc:15x16 15 16 // 㣜
 glyph han-38df:15x16 15 16 // 㣟
 ⿰ han-5f73:5x16 1 han-5409:9x16 // ⿰彳吉
 
+// glyph han-38e0-($han-regions):15x16 15 16 // 㣠
+// ⿲ han-5f73 han-4e28 han-51ac-($-1) // ⿲彳丨冬
+
 glyph han-38e1:15x16 15 16 // 㣡
 ⿲ han-5f73:3x16 han-4ebb:3x16 han-4e2d:9x16 // ⿲彳亻中
 
@@ -725,6 +731,9 @@ glyph han-390c:15x16 15 16 // 㤌
 
 glyph han-390e:15x16 15 16 // 㤎
 ⿱ han-52a0:15x11 han-5fc3:15x5 // ⿱加心
+
+// glyph han-390f-($han-regions):15x16 15 16 // 㤏
+// ⿰ han-5fc4 han-51ac-($-1) // ⿰忄冬
 
 glyph han-3910:15x16 15 16 // 㤐
 ⿱ han-5360:15x9 1 han-5fc3:15x6 // ⿱占心
@@ -1172,6 +1181,9 @@ glyph han-3add-($han-regions):15x16 15 16 // 㫝
 
 // glyph han-3ae0-($han-regions):15x16 15 16 // 㫠
 // ⿰ han-65e5 han-534a-($-1) // ⿰日半
+
+// glyph han-3ae1-($han-regions):15x16 15 16 // 㫡
+// ⿱ han-65e5 han-51ac-($-1) // ⿱日冬
 
 // glyph han-3ae2:15x16 15 16 // 㫢
 // ⿰ han-65e5 han-53bb // ⿰日去

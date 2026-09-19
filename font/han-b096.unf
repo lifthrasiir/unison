@@ -190,6 +190,9 @@ glyph han-2492a:15x16 15 16 // 𤤪
 // glyph han-2492d-($han-regions):15x16 15 16 // 𤤭
 // ⿰ han-248e9 han-53f2-($-1) // ⿰𤣩史
 
+// glyph han-2492e-($han-regions):15x16 15 16 // 𤤮
+// ⿰ han-248e9 han-51ac-($-1) // ⿰𤣩冬
+
 glyph han-24932:15x16 15 16 // 𤤲
 ⿲ han-248e9:3x16 han-5de5:3x16-l han-51e0:9x16 // ⿲𤣩工几
 

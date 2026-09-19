@@ -97,6 +97,9 @@ glyph han-28698:15x16 15 16 // 𨚘
 glyph han-2869d:15x16 15 16 // 𨚝
 ⿰ han-7389:11x16 han-961d:4x16-r // ⿰玉阝
 
+// glyph han-2869f-($han-regions):15x16 15 16 // 𨚟
+// ⿰ han-51ac-($-1) han-961d // ⿰冬阝
+
 // glyph han-286a0:15x16 15 16 // 𨚠
 // ⿰ han-7518 han-9091 // ⿰甘邑
 
@@ -408,6 +411,9 @@ glyph han-28807:15x16 15 16 // 𨠇
 
 // glyph han-2880b-($han-regions):15x16 15 16 // 𨠋
 // ⿰ han-9149 han-74dc-($-1) // ⿰酉瓜
+
+// glyph han-2880c-($han-regions):15x16 15 16 // 𨠌
+// ⿰ han-9149 han-51ac-($-1) // ⿰酉冬
 
 glyph han-2880e-($han-regions):15x16 15 16 // 𨠎
 ⿰ han-9149:7x16 1 han-4ee4-($-1):7x16 // ⿰酉令

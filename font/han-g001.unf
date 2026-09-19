@@ -534,6 +534,9 @@ glyph han-30100:15x16 15 16 // 𰄀
 
 ## 17.8
 
+// glyph han-30113-($han-regions):15x16 15 16 // 𰄓
+// ⿰ han-51f8 han-51ac-($-1) // ⿰凸冬
+
 glyph han-30114:15x16 15 16 // 𰄔
 ⿰ han-51fa:7x16 1 han-51fa:7x16 // ⿰出出
 
@@ -1077,6 +1080,9 @@ glyph han-3025d:15x16 15 16 // 𰉝
 // ⿲ han-571f han-5f13 han-4e28 // ⿲土弓丨 <- ⿰土引
 
 ## 32.5
+
+// glyph han-30261-($han-regions):15x16 15 16 // 𰉡
+// ⿰ han-571f han-51ac-($-1) // ⿰土冬
 
 glyph han-30262:15x16 15 16 // 𰉢
 ⿱ han-7acb:15x8 han-571f:15x8 // ⿱立土

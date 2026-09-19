@@ -701,6 +701,11 @@ glyph han-2ed61:15x16 15 16 // 𮵡
 
 # CJK unified ideographs extension I: 立 (117)
 
+## 117.5
+
+// glyph han-2ed66-($han-regions):15x16 15 16 // 𮵦
+// ⿰ han-7acb han-51ac-($-1) // ⿰立冬
+
 ## 117.11
 
 // glyph han-2ed6a-($han-regions):15x16 15 16 // 𮵪

@@ -417,6 +417,9 @@ glyph han-2b51d:15x16 15 16 // 𫔝
 glyph han-2b51e:15x16 15 16 // 𫔞
 ⿵ han-9580:15x16.13x11 han-7531:9x11 3 5 // ⿵門由
 
+// glyph han-2b520-($han-regions):15x16 15 16 // 𫔠
+// ⿵ han-9580 han-51ac-($-1) // ⿵門冬
+
 ## 169.7
 
 // glyph han-2b521:15x16 15 16 // 𫔡

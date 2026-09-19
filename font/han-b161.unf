@@ -150,6 +150,9 @@ glyph han-2849a-($han-regions):15x16 15 16 // 𨒚
 glyph han-2849e-($han-regions):15x16 15 16 // 𨒞
 ⿺ han-8fb6-($-1):15x16.11x14 han-51fa:9x13 5 0 // ⿺辶出
 
+// glyph han-2849f-($han-regions):15x16 15 16 // 𨒟
+// ⿺ han-8fb6-($-1) han-51ac-($-1) // ⿺辶冬
+
 glyph han-284a1-($han-regions):15x16 15 16 // 𨒡
 ⿺ han-8fb6-($-1):15x16.11x14 han-53e5:11x14 4 0 // ⿺辶句
 

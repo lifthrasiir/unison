@@ -619,8 +619,8 @@ glyph han-2ea27:15x16 15 16 // 𮨧
 
 ## 182.6
 
-// glyph han-2ea29:15x16 15 16 // 𮨩
-// ⿺ han-98a8 han-866b // ⿺風虫
+glyph han-2ea29:15x16 15 16 // 𮨩
+⿺ han-98a8:15x16.5x15 han-866b:5x11 10 2 // ⿺風虫
 
 // glyph han-2ea2a:15x16 15 16 // 𮨪
 // ⿺ han-98a8 han-5b89 // ⿺風安

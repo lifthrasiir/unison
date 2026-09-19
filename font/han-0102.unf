@@ -1107,6 +1107,9 @@ glyph han-75b8:15x16 15 16 // 疸
 ⿸ han-7592:15x16.11x13 han-65e6:9x11 5 5 // ⿸疒旦
 glyph han-75b8.0:* = han-75b8:*
 
+// glyph han-75bc-($han-regions):15x16 15 16 // 疼
+// ⿸ han-7592 han-51ac-($-1) // ⿸疒冬
+
 glyph han-75bd:15x16 15 16 // 疽
 ⿸ han-7592:15x16.11x13 han-4e14:9x12 5 4 // ⿸疒且
 

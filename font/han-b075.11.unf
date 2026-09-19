@@ -98,9 +98,9 @@ glyph han-2366f:15x16 15 16 // 𣙯
 // ⿲ han-6728 han-5190 han-72ac // ⿲木冐犬
 
 glyph han-236a6-(g|t|j):15x16 15 16 // 𣚦
-⿲ -1 han-6728:5x16 han-5f13:4x16 han-867d:7x16 // ⿲木弓虽
+⿲ han-6728:5x16 han-5f13:4x16 1 han-867d:5x16 // ⿲木弓虽
 glyph han-236a6-h:15x16 15 16 // 𣚦
-⿲ -1 han-6728:5x16 han-5f13:4x16 han-27227:7x16 // ⿲木弓𧈧
+⿲ han-6728:5x16 han-5f13:5x16 han-27227:5x16 // ⿲木弓𧈧
 
 glyph han-236ab:15x16 15 16 // 𣚫
 ⿲ han-6728:5x16 han-6c35:3x16 han-8005-g:7x16 // ⿲木氵者

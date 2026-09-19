@@ -128,6 +128,9 @@ glyph han-298a0:15x16 15 16 // 𩢠
 // glyph han-298a5:15x16 15 16 // 𩢥
 // ⿱ han-592e han-99ac // ⿱央馬
 
+// glyph han-298a6-($han-regions):15x16 15 16 // 𩢦
+// ⿰ han-99ac han-51ac-($-1) // ⿰馬冬
+
 // glyph han-298a7:15x16 15 16 // 𩢧
 // ⿱ han-99ac han-53bb // ⿱馬去
 

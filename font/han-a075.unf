@@ -920,6 +920,9 @@ glyph han-3e5e:15x16 15 16 // 㹞
 glyph han-3e62:15x16 15 16 // 㹢
 ⿲ han-72ad:4x16 han-529b:6x16 1 han-53e3:4x16 // ⿲犭力口
 
+// glyph han-3e63-($han-regions):15x16 15 16 // 㹣
+// ⿰ han-72ad han-51ac-($-1) // ⿰犭冬
+
 // glyph han-3e64:15x16 15 16 // 㹤
 // ⿰ han-72ad han-53bb // ⿰犭去
 

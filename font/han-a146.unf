@@ -1308,6 +1308,9 @@ glyph han-49f3:15x16 15 16 // 䧳
 
 ## 172.5
 
+// glyph han-49f7-($han-regions):15x16 15 16 // 䧷
+// ⿰ han-51ac-($-1) han-96b9 // ⿰冬隹
+
 glyph han-49f8:15x16 15 16 // 䧸
 ⿰ han-53e4:7x16 1 han-96b9:7x16 // ⿰古隹
 
