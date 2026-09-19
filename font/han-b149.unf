@@ -291,7 +291,7 @@ glyph han-27a6c-($han-regions):15x16 15 16 // 𧩬
 ⿰ han-8a01-($-1):5x16 1 han-9801:9x16 // ⿰訁頁
 
 glyph han-27a72-($han-regions):15x16 15 16 // 𧩲
-⿲ -2 han-8a01-($-1):5x16 han-675f:9x16 han-5202:3x16 // ⿲訁束刂
+⿲ -1 han-8a01-($-1):5x16 han-675f:7x16 1 han-5202:3x16 // ⿲訁束刂
 
 glyph han-27a84-($han-regions):15x16 15 16 // 𧪄
 ⿲ han-8a01-($-1):5x16 han-4ebb:3x16 han-8a00-($-1):7x16 // ⿲訁亻言
@@ -360,6 +360,9 @@ glyph han-27ac2:15x16 15 16 // 𧫂
 
 // glyph han-27af1:15x16 15 16 // 𧫱
 // ⿰ han-8a01 han-7ae0 // ⿰訁章
+
+// glyph han-27af7-($han-regions):15x16 15 16 // 𧫷
+// ⿱ han-6b36 han-8a00-($-1) // ⿱欶言
 
 // glyph han-27afc:15x16 15 16 // 𧫼
 // ⿰ han-8a01 han-9ebb // ⿰訁麻

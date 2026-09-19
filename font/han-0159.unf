@@ -1081,7 +1081,7 @@ glyph han-900e-($han-regions):15x16 15 16 // 逎
 // ⿺ han-8fb6-($-1) han-8c46 // ⿺辶豆
 
 glyph han-9019-($han-regions):15x16 15 16 // 這
-⿺ han-8fb6-($-1):15x16.11x14 han-8a00.0:11x11 4 1 // ⿺辶言
+⿺ han-8fb6-($-1):15x16.11x14 han-8a00.0:11x12 4 0 // ⿺辶言
 
 // glyph han-901b:15x16 15 16 // 逛
 // ⿺ han-8fb6 han-72c2 // ⿺辶狂
@@ -1162,6 +1162,9 @@ glyph han-9055-($han-regions):15x16 15 16 // 違
 
 // glyph han-9067-($han-regions):15x16 15 16 // 遧
 // ⿺ han-8fb6-($-1) han-7ae0 // ⿺辶章
+
+// glyph han-906c-($han-regions):15x16 15 16 // 遬
+// ⿺ han-8fb6-($-1) han-6b36 // ⿺辶欶
 
 ## 162.12
 

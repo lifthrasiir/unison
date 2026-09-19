@@ -269,7 +269,7 @@ glyph han-24fca:15x16 15 16 // 𤿊
 ## 107.4
 
 glyph han-24fce-($han-regions):15x16 15 16 // 𤿎
-⿰ -1 han-6bd4-($-1):8x16 han-76ae:8x16 // ⿰比皮
+⿰ han-6bd4-($-1):6x16 han-76ae:9x16 // ⿰比皮
 
 // glyph han-24fcf:15x16 15 16 // 𤿏
 // ⿰ han-5185 han-76ae // ⿰内皮

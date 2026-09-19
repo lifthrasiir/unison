@@ -1343,30 +1343,43 @@ ref han-65e5:9x7 1 0 // ⿱日生
 ref han-751f:11x9 0 7
 glyph han-661f:15x16 15 16 // 星
 ⿱ han-65e5:15x7 han-751f:15x9 // ⿱日生
+glyph han-661f.0:* = han-661f:*
 
 // glyph han-6620:15x16 15 16 // 映
 // ⿰ han-65e5 han-592e // ⿰日央
 
 glyph han-6622:15x16 15 16 // 昢
-⿰ han-65e5:5x16 1 han-51fa:9x16 // ⿰日出
+⿰ han-65e5:5x16-l 1 han-51fa:9x16 // ⿰日出
+glyph han-6622.0:* = han-6622:*
 
-glyph han-6624-($han-regions):15x16 15 16 // 昤
-⿰ han-65e5:7x16 1 han-4ee4-($-1):7x16 // ⿰日令
+glyph han-6624.0:15x16 15 16 // 昤
+⿰ han-65e5:5x16-l 1 han-4ee4.0:9x16 // ⿰日令
+glyph han-6624.1:* = han-6624.0:*
+glyph han-6624.2:15x16 15 16 // 昤
+⿰ han-65e5:5x16-l 1 han-4ee4.2:9x16 // ⿰日令
+glyph han-6624.x:15x16 15 16 // 昤
+⿰ han-65e5:5x16-l 1 han-4ee4.x:9x16 // ⿰日令
+glyph han-6624-(j|k):* = han-6624.0:*
+glyph han-6624-(g|p):* = han-6624.2:*
+glyph han-6624-(h|t):* = han-6624.x:*
 
 glyph han-6627:15x16 15 16 // 昧
 ⿰ han-65e5:6x16 han-672a:9x16 // ⿰日未
+glyph han-6627.0:* = han-6627:*
 
 // glyph han-6628:15x16 15 16 // 昨
 // ⿰ han-65e5 han-4e4d // ⿰日乍
 
 glyph han-6629:15x16 15 16 // 昩
 ⿰ han-65e5:6x16 han-672b:9x16 // ⿰日末
+glyph han-6629.0:* = han-6629:*
 
 // glyph han-662a:15x16 15 16 // 昪
 // ⿱ han-65e5 han-5f01 // ⿱日弁
 
 glyph han-662b:15x16 15 16 // 昫
-⿰ han-65e5:7x16 1 han-53e5:7x16 // ⿰日句
+⿰ han-65e5:5x16-l 1 han-53e5:9x16 // ⿰日句
+glyph han-662b.0:* = han-662b:*
 
 glyph han-662d:15x16 15 16 // 昭
 ⿰ han-65e5:7x16 han-53ec:8x16 // ⿰日召
@@ -1609,6 +1622,9 @@ glyph han-6690:15x16 15 16 // 暐
 glyph han-6692:15x16 15 16 // 暒
 ⿰ han-65e5:4x16-l han-661f:11x16 // ⿰日星
 
+// glyph han-6695:15x16 15 16 // 暕
+// ⿰ han-65e5 han-67ec // ⿰日柬
+
 glyph han-6697:15x16 15 16 // 暗
 ⿰ han-65e5:6x16 han-97f3:9x16 // ⿰日音
 
@@ -1807,6 +1823,9 @@ $$..@@...v@@v...@@
 // ⿳ han-65e5 han-7f52 han-53c8-($-1) // ⿳日罒又
 
 ## 73.10
+
+// glyph han-6704:15x16 15 16 // 朄
+// ⿰ han-7533 han-67ec // ⿰申柬
 
 // glyph han-6705:15x16 15 16 // 朅
 // ⿰ han-53bb han-66f7 // ⿰去曷

@@ -161,6 +161,9 @@ glyph han-2a766:15x16 15 16 // 𪝦
 glyph han-2a767:15x16 15 16 // 𪝧
 ⿲ han-4ebb:3x16 han-65e5:5x16 han-708e:7x16 // ⿲亻日炎
 
+// glyph han-2a769:15x16 15 16 // 𪝩
+// ⿰ han-4f6f han-211ab // ⿰佯𡆫
+
 ## 9.13
 
 glyph han-2a76c:15x16 15 16 // 𪝬
@@ -636,7 +639,7 @@ glyph han-2a88d:15x16 15 16 // 𪢍
 ## 30.14
 
 glyph han-2a898:15x16 15 16 // 𪢘
-⿲ -2 han-53e3:3x16-l han-8f9b:5x16 han-675f:9x16 // ⿲口辛束
+⿲ han-53e3:3x16-l han-8f9b:5x16 han-675f:7x16 // ⿲口辛束
 
 ## 30.15
 
@@ -1152,6 +1155,11 @@ glyph han-2a9d6:15x16 15 16 // 𪧖
 
 // glyph han-2a9eb:15x16 15 16 // 𪧫
 // ⿳ han-5b80 han-5927 han-99ac // ⿳宀大馬 <- ⿱宀𩡱
+
+## 40.21
+
+// glyph han-2a9f6:15x16 15 16 // 𪧶
+// ⿳ han-5b80 han-67ec han-9593 // ⿳宀柬間
 
 # CJK unified ideographs extension C: 寸 (41)
 

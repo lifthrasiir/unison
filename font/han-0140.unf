@@ -653,6 +653,9 @@ glyph han-83af:15x16 15 16 // 莯
 // glyph han-83b0:15x16 15 16 // 莰
 // ⿱ han-8279 han-574e // ⿱艹坎
 
+// glyph han-83b1:15x16 15 16 // 莱
+// ⿱ han-8279 han-6765 // ⿱艹来
+
 glyph han-83b3:15x16 15 16 // 莳
 ⿱ han-8279:15x3 1 han-65f6:15x12 // ⿱艹时
 
@@ -681,6 +684,9 @@ glyph han-9fca:15x16 15 16 // 鿊
 
 // glyph han-83c3:15x16 15 16 // 菃
 // ⿱ han-8279 han-6d30 // ⿱艹洰
+
+// glyph han-83c4:15x16 15 16 // 菄
+// ⿱ han-8279 han-6771 // ⿱艹東
 
 // glyph han-83c7:15x16 15 16 // 菇
 // ⿱ han-8279 han-59d1 // ⿱艹姑
@@ -860,6 +866,9 @@ glyph han-8429:15x16 15 16 // 萩
 
 // glyph han-842e:15x16 15 16 // 萮
 // ⿱ han-8279 han-4fde // ⿱艹俞
+
+// glyph han-8430:15x16 15 16 // 萰
+// ⿱ han-8279 han-67ec // ⿱艹柬
 
 // glyph han-8431:15x16 15 16 // 萱
 // ⿳ han-8279 han-5b80 han-4e98 // ⿳艹宀亘
@@ -1119,6 +1128,9 @@ glyph han-8504:15x16 15 16 // 蔄
 
 // glyph han-8508:15x16 15 16 // 蔈
 // ⿱ han-8279 han-7968 // ⿱艹票
+
+// glyph han-850c:15x16 15 16 // 蔌
+// ⿱ han-8279 han-6b36 // ⿱艹欶
 
 // glyph han-851d:15x16 15 16 // 蔝
 // ⿱ han-8279 han-772f // ⿱艹眯

@@ -377,6 +377,11 @@ glyph han-2aeaf:15x16 15 16 // 𪺯
 
 # CJK unified ideographs extension C: 犬 (94)
 
+## 94.7
+
+// glyph han-2aebd:15x16 15 16 // 𪺽
+// ⿰ han-6765 han-72ac // ⿰来犬
+
 ## 94.8
 
 // glyph han-2aebe:15x16 15 16 // 𪺾
@@ -1048,6 +1053,11 @@ glyph han-2b08b:15x16 15 16 // 𫂋
 
 // glyph han-2b0a3:15x16 15 16 // 𫂣
 // ⿱ han-25ad7 han-671f // ⿱𥫗期
+
+## 118.14
+
+// glyph han-2b0a7:15x16 15 16 // 𫂧
+// ⿱ han-25ad7 han-235e5 // ⿱𥫗𣗥
 
 ## 118.18
 

@@ -465,6 +465,9 @@ glyph han-7def:15x16 15 16 // 緯
 glyph han-7df0:15x16 15 16 // 緰
 ⿰ han-7cf9:5x16 1 han-4fde:9x16 // ⿰糹俞
 
+// glyph han-7df4:15x16 15 16 // 練
+// ⿰ han-7cf9 han-67ec // ⿰糹柬
+
 glyph han-7df7:15x16 15 16 // 緷
 ⿰ han-7cf9:5x16 1 han-8ecd:9x16 // ⿰糹軍
 

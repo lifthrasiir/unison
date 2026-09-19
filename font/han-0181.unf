@@ -547,8 +547,8 @@ glyph han-9915:15x16 15 16 // 餕
 // glyph han-9916:15x16 15 16 // 餖
 // ⿰ han-98e0 han-8c46 // ⿰飠豆
 
-// glyph han-9917:15x16 15 16 // 餗
-// ⿰ han-98e0 han-675f // ⿰飠束
+glyph han-9917:15x16 15 16 // 餗
+⿰ han-98e0:7x16 1 han-675f:7x16 // ⿰飠束
 
 // glyph han-991d:15x16 15 16 // 餝
 // ⿰ han-98e0 han-82b3 // ⿰飠芳
@@ -897,8 +897,8 @@ glyph han-99f1.0:* = han-99f1:*
 
 ## 187.7
 
-// glyph han-99f7:15x16 15 16 // 駷
-// ⿰ han-99ac han-675f // ⿰馬束
+glyph han-99f7:15x16 15 16 // 駷
+⿰ han-99ac:7x16 1 han-675f:7x16 // ⿰馬束
 
 glyph han-99fa:15x16 15 16 // 駺
 ⿰ han-99ac:7x16 1 han-826f:7x16 // ⿰馬良

@@ -18,6 +18,11 @@ glyph han-31675:15x16 15 16 // 𱙵
 glyph han-31679:15x16 15 16 // 𱙹
 ⿰ han-5b50-v:7x16 1 han-51fa:7x16 // ⿰子出
 
+## 39.7
+
+// glyph han-3167b-($han-regions):15x16 15 16 // 𱙻
+// ⿰ han-6765 han-5b50-($-1) // ⿰来子
+
 ## 39.13
 
 // glyph han-31680:15x16 15 16 // 𱚀
@@ -446,6 +451,9 @@ glyph han-31799:15x16 15 16 // 𱞙
 // ⿲ han-5fc4 han-4ebb han-8863 // ⿲忄亻衣 <- ⿰忄依
 
 ## 61.9
+
+// glyph han-317ab:15x16 15 16 // 𱞫
+// ⿰ han-5fc4 han-67ec // ⿰忄柬
 
 // glyph han-317ac:15x16 15 16 // 𱞬
 // ⿰ han-5fc4 han-67e5 // ⿰忄查

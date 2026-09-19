@@ -518,6 +518,9 @@ glyph han-220f8:15x16 15 16 // 𢃸
 // glyph han-220fe:15x16 15 16 // 𢃾
 // ⿰ han-5dfe han-800e // ⿰巾耎
 
+// glyph han-220ff:15x16 15 16 // 𢃿
+// ⿰ han-5dfe han-67ec // ⿰巾柬
+
 // glyph han-22101:15x16 15 16 // 𢄁
 // ⿳ han-4e1a han-4491 han-5dff // ⿳业䒑巿
 
@@ -645,3 +648,8 @@ glyph han-2219f:15x16 15 16 // 𢆟
 
 // glyph han-221a0-($han-regions):15x16 15 16 // 𢆠
 // ⿰ han-4f86 han-5e73-($-1) // ⿰來平
+
+## 51.13
+
+// glyph han-221a6:15x16 15 16 // 𢆦
+// ⿰ han-4350 han-6771 // ⿰䍐東

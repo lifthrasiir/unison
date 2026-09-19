@@ -40,6 +40,9 @@ glyph han-30697:15x16 15 16 // 𰚗
 
 ## 82.7
 
+// glyph han-30699:15x16 15 16 // 𰚙
+// ⿺ han-6bdb han-6765 // ⿺毛来
+
 // glyph han-3069a:15x16 15 16 // 𰚚
 // ⿺ han-6bdb han-4f55 // ⿺毛何
 
@@ -627,6 +630,9 @@ glyph han-3084c:15x16 15 16 // 𰡌
 
 ## 94.7
 
+// glyph han-3084e:15x16 15 16 // 𰡎
+// ⿰ han-72ad han-6765 // ⿰犭来
+
 // glyph han-30851:15x16 15 16 // 𰡑
 // ⿰ han-72ad han-4ea9 // ⿰犭亩
 
@@ -797,6 +803,11 @@ glyph han-308ad:15x16 15 16 // 𰢭
 
 glyph han-308ae:15x16 15 16 // 𰢮
 ⿰ han-91cc:7x16 1 han-751f:7x16 // ⿰里生
+
+## 100.9
+
+// glyph han-308af:15x16 15 16 // 𰢯
+// ⿰ han-751f han-67ec // ⿰生柬
 
 # CJK unified ideographs extension G: 用 (101)
 

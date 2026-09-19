@@ -187,6 +187,9 @@ glyph han-5f91:15x16 15 16 // 徑
 // glyph han-5f92:15x16 15 16 // 徒
 // ⿰ han-5f73 han-8d70 // ⿰彳走
 
+// glyph han-5f95:15x16 15 16 // 徕
+// ⿰ han-5f73 han-6765 // ⿰彳来
+
 ## 60.8
 
 // glyph han-5f97:15x16 15 16 // 得
@@ -212,6 +215,9 @@ glyph han-5f9f:15x16 15 16 // 徟
 // ⿰ han-5f73 han-4f86 // ⿰彳來
 
 ## 60.9
+
+// glyph han-5f9a:15x16 15 16 // 徚
+// ⿰ han-5f73 han-67ec // ⿰彳柬
 
 glyph han-5fa5:15x16 15 16 // 徥
 ⿰ han-5f73:5x16 1 han-662f:9x16 // ⿰彳是

@@ -638,6 +638,11 @@ glyph han-2ed44:15x16 15 16 // 𮵄
 // glyph han-2ed46:15x16 15 16 // 𮵆
 // ⿰ han-76ee han-97e6 // ⿰目韦
 
+## 109.8
+
+// glyph han-2ed47:15x16 15 16 // 𮵇
+// ⿰ han-76ee han-6771 // ⿰目東
+
 # CJK unified ideographs extension I: 石 (112)
 
 ## 112.4
@@ -729,6 +734,9 @@ glyph han-2ed6c:15x16 15 16 // 𮵬
 // ⿱ han-25ad7 han-5dde // ⿱𥫗州
 
 ## 118.7
+
+// glyph han-2ed71:15x16 15 16 // 𮵱
+// ⿱ han-25ad7 han-6765 // ⿱𥫗来
 
 glyph han-2ed73:15x16 15 16 // 𮵳
 ⿳ han-25ad7:15x5 han-5196:15x3 han-7389:15x8 // ⿳𥫗冖玉

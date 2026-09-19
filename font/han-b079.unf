@@ -231,7 +231,7 @@ glyph han-23b5e:15x16 15 16 // 𣭞
 // ⿺ han-6bdb han-6bd5 // ⿺毛毕
 
 glyph han-23b66:15x16 15 16 // 𣭦
-⿺ han-6bdb:15x16.10x14 han-866b:7x11 7 1 // ⿺毛虫
+⿺ han-6bdb:15x16.10x14 han-866b:9x11 6 1 // ⿺毛虫
 
 // glyph han-23b67:15x16 15 16 // 𣭧
 // ⿺ han-6bdb han-591a // ⿺毛多
@@ -253,8 +253,8 @@ glyph han-23b66:15x16 15 16 // 𣭦
 // glyph han-23b74:15x16 15 16 // 𣭴
 // ⿺ han-6bdb han-675f // ⿺毛束
 
-// glyph han-23b75:15x16 15 16 // 𣭵
-// ⿰ han-675f han-6bdb // ⿰束毛
+glyph han-23b75:15x16 15 16 // 𣭵
+⿰ han-675f:7x16 1 han-6bdb:7x16 // ⿰束毛
 
 // glyph han-23b78:15x16 15 16 // 𣭸
 // ⿰ han-65f1 han-6bdb // ⿰旱毛

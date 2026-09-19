@@ -1306,6 +1306,9 @@ glyph han-760b.0:* = han-760b:*
 // glyph han-7634:15x16 15 16 // 瘴
 // ⿸ han-7592 han-7ae0 // ⿸疒章
 
+// glyph han-7636:15x16 15 16 // 瘶
+// ⿸ han-7592 han-6b36 // ⿸疒欶
+
 // glyph han-7639-($han-regions):15x16 15 16 // 瘹
 // ⿸ han-7592 han-91e3-($-1) // ⿸疒釣
 
@@ -2856,6 +2859,9 @@ glyph han-774d:15x16 15 16 // 睍
 
 glyph han-774f:15x16 15 16 // 睏
 ⿰ han-76ee:3x16-l 1 han-56f0:11x16 // ⿰目困
+
+// glyph han-7750:15x16 15 16 // 睐
+// ⿰ han-76ee han-6765 // ⿰目来
 
 ## 109.8
 

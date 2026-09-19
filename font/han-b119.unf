@@ -84,7 +84,7 @@ glyph han-25e4b:15x16 15 16 // 𥹋
 ⿰ han-7c73:7x16 1 han-53f0:7x16 // ⿰米台
 
 glyph han-25e4c:15x16 15 16 // 𥹌
-⿱ han-52a0:15x5 1 han-7c73:15x9 // ⿱加米
+⿱ han-52a0:15x7 han-7c73:15x9 // ⿱加米
 
 // glyph han-25e4d:15x16 15 16 // 𥹍
 // ⿰ han-7c73 han-5b81 // ⿰米宁
@@ -240,8 +240,11 @@ glyph han-25ebc:15x16 15 16 // 𥺼
 // glyph han-25ec1:15x16 15 16 // 𥻁
 // ⿰ han-7c73 han-8011 // ⿰米耑
 
+// glyph han-25ec2:15x16 15 16 // 𥻂
+// ⿰ han-7c73 han-67ec // ⿰米柬
+
 glyph han-25ec3:15x16 15 16 // 𥻃
-⿲ -2 han-7c73:5x16 han-675f:9x16 han-5202:3x16 // ⿲米束刂
+⿲ -1 han-7c73:5x16 han-675f:7x16 1 han-5202:3x16 // ⿲米束刂
 
 // glyph han-25ec4:15x16 15 16 // 𥻄
 // ⿰ han-7c73 han-7686 // ⿰米皆

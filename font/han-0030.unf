@@ -3094,7 +3094,7 @@ glyph han-55f0:15x16 15 16 // 嗰
 // ⿰ han-53e3 han-83ab // ⿰口莫
 
 glyph han-55fd:15x16 15 16 // 嗽
-⿲ -4 han-53e3:3x16-l han-675f:9x16 han-6b20:7x16 // ⿲口束欠
+⿲ -3 han-53e3:3x16-l 1 han-675f:7x16 han-6b20:7x16 // ⿲口束欠
 
 // glyph han-5602:15x16 15 16 // 嘂
 // ⿲ han-5415 han-4e29 han-5415 // ⿲吕丩吕

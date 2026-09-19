@@ -1001,6 +1001,9 @@ glyph han-39f6:15x16 15 16 // 㧶
 glyph han-39fd:15x16 15 16 // 㧽
 ⿰ han-624c:3x16 han-56fa:13x16 // ⿰扌固
 
+// glyph han-3a02:15x16 15 16 // 㨂
+// ⿰ han-624c han-6771 // ⿰扌東
+
 // glyph han-3a03-($han-regions):15x16 15 16 // 㨃
 // ⿰ han-624c han-4eab-($-1) // ⿰扌享
 

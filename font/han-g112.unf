@@ -326,6 +326,9 @@ glyph han-30a74:15x16 15 16 // 𰩴
 // glyph han-30a7f:15x16 15 16 // 𰩿
 // ⿱ han-25ad7 han-5778 // ⿱𥫗坸
 
+// glyph han-30a80:15x16 15 16 // 𰪀
+// ⿱ han-25ad7 han-6771 // ⿱𥫗東
+
 // glyph han-30a81:15x16 15 16 // 𰪁
 // ⿱ han-25ad7 han-5e15 // ⿱𥫗帕
 
@@ -1077,7 +1080,7 @@ glyph han-30cdf:15x16 15 16 // 𰳟
 ## 142.14
 
 glyph han-30ce1:15x16 15 16 // 𰳡
-⿲ -4 han-866b:5x16 han-8f9b:5x16 han-675f:9x16 // ⿲虫辛束
+⿲ -2 han-866b:5x16 han-8f9b:5x16 han-675f:7x16 // ⿲虫辛束
 
 ## 142.15
 

@@ -306,6 +306,9 @@ glyph han-247ba:15x16 15 16 // 𤞺
 glyph han-247c7:15x16 15 16 // 𤟇
 ⿰ han-72ad:6x16 han-708e:9x16 // ⿰犭炎
 
+// glyph han-247c8:15x16 15 16 // 𤟈
+// ⿰ han-72ad han-6771 // ⿰犭東
+
 glyph han-247cb:15x16 15 16 // 𤟋
 ⿲ -1 han-72ad:4x16 han-4ea4:7x16 han-529b:5x16 // ⿲犭交力
 
@@ -345,7 +348,7 @@ glyph han-247ef:15x16 15 16 // 𤟯
 ⿰ han-72ad:4x16 1 han-9762:10x16 // ⿰犭面
 
 glyph han-247f0:15x16 15 16 // 𤟰
-⿲ -1 han-72ad:4x16 han-675f:9x16 han-5202:3x16 // ⿲犭束刂
+⿲ han-72ad:4x16 han-675f:7x16 1 han-5202:3x16 // ⿲犭束刂
 
 // glyph han-247f3:15x16 15 16 // 𤟳
 // ⿱ han-72d7 han-5206 // ⿱狗分
@@ -400,7 +403,7 @@ glyph han-24834:15x16 15 16 // 𤠴
 // ⿰ han-72ad han-5340 // ⿰犭區
 
 glyph han-24843:15x16 15 16 // 𤡃
-⿲ -5 han-72ad:4x16 han-675f:9x16 han-6b20:7x16 // ⿲犭束欠
+⿲ -3 han-72ad:4x16 han-675f:7x16 han-6b20:7x16 // ⿲犭束欠
 
 glyph han-24848:15x16 15 16 // 𤡈
 ⿲ -1 han-72ad:4x16 han-8a01.x:5x16 han-5348:7x16 // ⿲犭訁午
@@ -436,6 +439,9 @@ glyph han-24865:15x16 15 16 // 𤡥
 
 // glyph han-24869:15x16 15 16 // 𤡩
 // ⿰ han-7ca6 han-72ac // ⿰粦犬
+
+// glyph han-2487b:15x16 15 16 // 𤡻
+// ⿲ han-72ad han-6771 han-6b20 // ⿲犭東欠
 
 // glyph han-2487e:15x16 15 16 // 𤡾
 // ⿰ han-60e1 han-72ac // ⿰惡犬

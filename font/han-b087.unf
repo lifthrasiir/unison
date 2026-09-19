@@ -318,12 +318,18 @@ glyph han-245cf-($han-regions):15x16 15 16 // 𤗏
 // glyph han-245d6-($han-regions):15x16 15 16 // 𤗖
 // ⿰ han-7247 han-5b5f-($-1) // ⿰片孟
 
+// glyph han-245d7-($han-regions):15x16 15 16 // 𤗗
+// ⿰ han-7247-($-1) han-6771 // ⿰片東
+
 ## 91.9
 
 glyph han-245d8-(g|j|p):15x16 15 16 // 𤗘
 ⿰ han-7247.0:8x16 han-662f:7x16 // ⿰片是
 glyph han-245d8-t:15x16 15 16 // 𤗘
 ⿰ han-7247.x:6x16 han-662f:9x16 // ⿰片是
+
+// glyph han-245db-($han-regions):15x16 15 16 // 𤗛
+// ⿰ han-7247-($-1) han-67ec // ⿰片柬
 
 // glyph han-245df:15x16 15 16 // 𤗟
 // ⿰ han-4eb2 han-7247 // ⿰亲片
