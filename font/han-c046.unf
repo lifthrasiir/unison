@@ -431,7 +431,7 @@ glyph han-2ab7c:15x16 15 16 // 𪭼
 // ⿰ han-624c han-2b52e // ⿰扌𫔮
 
 glyph han-2ab7f:15x16 15 16 // 𪭿
-⿲ -1 han-624c:3x16 han-723f:6x16 han-58eb:7x16 // ⿲扌爿士
+⿲ han-624c:3x16 han-723f:5x16 han-58eb:7x16 // ⿲扌爿士
 
 glyph han-2ab80:15x16 15 16 // 𪮀
 ⿲ -6 han-624b:11x16 han-961d:4x16-r han-5143:6x16 // ⿲手阝元

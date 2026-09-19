@@ -498,8 +498,8 @@ glyph han-20ca9:15x16 15 16 // 𠲩
 glyph han-20cae:15x16 15 16 // 𠲮
 ⿰ han-53e3:5x16-l 1 han-5de0:9x16 // ⿰口巠
 
-// glyph han-20cb1:15x16 15 16 // 𠲱
-// ⿰ han-4e30 han-5404 // ⿰丰各
+glyph han-20cb1-($han-regions):15x16 15 16 // 𠲱
+⿰ han-4e30-($-1):7x16 1 han-5404:7x16 // ⿰丰各
 
 glyph han-20cb3:15x16 15 16 // 𠲳
 ⿰ han-53e3:5x16-l 1 han-8eab:9x16 // ⿰口身

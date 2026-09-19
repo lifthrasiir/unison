@@ -701,6 +701,9 @@ glyph han-200f2:15x16 15 16 // 𠃲
 // glyph han-200f3:15x16 15 16 // 𠃳
 // ⿺ han-4e5d han-5415 // ⿺九吕
 
+glyph han-200f5:15x16 15 16 // 𠃵
+⿰ han-5353:5x16 1 han-4e5a:9x16 // ⿰卓乚
+
 ## 5.9
 
 // glyph han-200fa:15x16 15 16 // 𠃺

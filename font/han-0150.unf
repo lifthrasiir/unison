@@ -541,6 +541,9 @@ ref han-9fb0:15x16
 // glyph han-8d9b:15x16 15 16 // 趛
 // ⿺ han-8d70 han-91d1 // ⿺走金
 
+// glyph han-8da0:15x16 15 16 // 趠
+// ⿺ han-8d70 han-5353 // ⿺走卓
+
 // glyph han-8da1:15x16 15 16 // 趡
 // ⿺ han-8d70 han-96b9 // ⿺走隹
 
@@ -840,6 +843,9 @@ glyph han-8e11:15x16 15 16 // 踑
 
 glyph han-8e13:15x16 15 16 // 踓
 ⿰ han-27fb7:5x16 1 han-96b9:9x16 // ⿰𧾷隹
+
+glyph han-8e14:15x16 15 16 // 踔
+⿰ han-27fb7:7x16 1 han-5353:7x16 // ⿰𧾷卓
 
 // glyph han-8e1b:15x16 15 16 // 踛
 // ⿰ han-27fb7 han-5774 // ⿰𧾷坴

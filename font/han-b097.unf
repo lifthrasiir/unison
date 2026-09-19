@@ -540,6 +540,9 @@ glyph han-24ca0:15x16 15 16 // 𤲠
 glyph han-24ca2:15x16 15 16 // 𤲢
 ⿱ han-4e9e:15x10 1 han-7530:15x5 // ⿱亞田
 
+glyph han-24ca4:15x16 15 16 // 𤲤
+⿰ han-7530:7x16-l 1 han-5353:7x16 // ⿰田卓
+
 // glyph han-24ca5:15x16 15 16 // 𤲥
 // ⿻⿳日⿱冖冂⺝丨
 

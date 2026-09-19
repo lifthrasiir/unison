@@ -557,6 +557,9 @@ glyph han-5a62.0:* = han-5a62:*
 glyph han-5a64:15x16 15 16 // 婤
 ⿰ han-5973:5x16-l han-5468:10x16 // ⿰女周
 
+glyph han-5a65:15x16 15 16 // 婥
+⿰ han-5973:6x16-l 2 han-5353:7x16 // ⿰女卓
+
 glyph han-5a67-(g|h|t):15x16 15 16 // 婧
 ⿰ han-5973:5x16-l 1 han-9752-($-1):9x16 // ⿰女青
 glyph han-5a67-(j|k|p):15x16 15 16 // 婧

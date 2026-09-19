@@ -1115,6 +1115,9 @@ glyph han-9023-($han-regions):15x16 15 16 // 連
 glyph han-9032-($han-regions):15x16 15 16 // 進
 ⿺ han-8fb6-($-1):15x16.11x14 han-96b9:11x13 4 0 // ⿺辶隹
 
+// glyph han-9034-($han-regions):15x16 15 16 // 逴
+// ⿺ han-8fb6-($-1) han-5353 // ⿺辶卓
+
 // glyph han-9035:15x16 15 16 // 逵
 // ⿺ han-8fb6 han-5774 // ⿺辶坴
 

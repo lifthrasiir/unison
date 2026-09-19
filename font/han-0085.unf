@@ -967,6 +967,9 @@ glyph han-6dd0:15x16 15 16 // 淐
 // glyph han-6dd5:15x16 15 16 // 淕
 // ⿰ han-6c35 han-5774 // ⿰氵坴
 
+glyph han-6dd6:15x16 15 16 // 淖
+⿰ 1 han-6c35:5x16 1 han-5353:7x16 // ⿰氵卓
+
 glyph han-6ddc:15x16 15 16 // 淜
 ⿲ han-6c35:3x16 han-6708:5x16 han-6708:7x16 // ⿲氵月月
 

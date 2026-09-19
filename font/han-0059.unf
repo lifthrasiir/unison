@@ -880,6 +880,9 @@ glyph han-60b4:15x16 15 16 // 悴
 // glyph han-60b6:15x16 15 16 // 悶
 // ⿵ han-9580 han-5fc3 // ⿵門心
 
+glyph han-60bc:15x16 15 16 // 悼
+⿰ han-5fc4:7x16 1 han-5353:7x16 // ⿰忄卓
+
 // glyph han-60be:15x16 15 16 // 悾
 // ⿰ han-5fc4 han-7a7a // ⿰忄空
 

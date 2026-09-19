@@ -345,7 +345,7 @@ glyph han-22672-(t|j|v):* = han-22672.0:*
 glyph han-22672-g:* = han-22672.1:*
 
 glyph han-22673:15x16 15 16 // 𢙳
-⿲ -3 han-5fc4:5x16 han-723f:6x16 han-58eb:7x16 // ⿲忄爿士
+⿲ han-5fc4:5x16 han-723f:5x16 han-58eb:5x16 // ⿲忄爿士
 
 glyph han-22676:15x16 15 16 // 𢙶
 ⿳ han-65e5:15x5 1 han-5e72:15x5 han-5fc3:15x5 // ⿳日干心
@@ -426,6 +426,9 @@ glyph han-226b7:15x16 15 16 // 𢚷
 // ⿰ han-5fc4 han-541e // ⿰忄吞
 
 ## 61.8
+
+// glyph han-226c2:15x16 15 16 // 𢛂
+// ⿱ han-5353 han-5fc3 // ⿱卓心
 
 // glyph han-226c4:15x16 15 16 // 𢛄
 // ⿰ han-5fc4 han-5393 // ⿰忄厓

@@ -387,6 +387,9 @@ glyph han-9d67:15x16 15 16 // 鵧
 // glyph han-9d6a:15x16 15 16 // 鵪
 // ⿰ han-5944 han-9ce5 // ⿰奄鳥
 
+glyph han-9d6b:15x16 15 16 // 鵫
+⿰ han-5353:5x16 1 han-9ce5:9x16 // ⿰卓鳥
+
 glyph han-9d6c:15x16 15 16 // 鵬
 ⿲ -3 han-6708:5x16-l han-6708:5x16 1 han-9ce5:7x16 // ⿲月月鳥
 

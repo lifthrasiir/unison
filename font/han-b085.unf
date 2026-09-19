@@ -252,7 +252,7 @@ glyph han-23d19:15x16 15 16 // 𣴙
 // ⿰ han-6c35 han-7681 // ⿰氵皁
 
 glyph han-23d23:15x16 15 16 // 𣴣
-⿲ -1 han-6c35:3x16 han-723f:6x16 han-58eb:7x16 // ⿲氵爿士
+⿲ han-6c35:3x16 han-723f:5x16 han-58eb:7x16 // ⿲氵爿士
 
 glyph han-23d25:15x16 15 16 // 𣴥
 ⿲ han-6c35:3x16 han-72ad:4x16 1 han-738b:7x16 // ⿲氵犭王

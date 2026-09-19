@@ -426,6 +426,11 @@ glyph han-2a7fa:15x16 15 16 // 𪟺
 // glyph han-2a7fe:15x16 15 16 // 𪟾
 // ⿺ han-672a han-535c // ⿺未卜
 
+## 25.8
+
+glyph han-2a7ff:15x16 15 16 // 𪟿
+⿰ han-5353:7x16 2 han-535c:5x16 // ⿰卓卜
+
 # CJK unified ideographs extension C: 卩 (26)
 
 ## 26.6

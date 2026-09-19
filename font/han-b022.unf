@@ -260,6 +260,9 @@ glyph han-209b0:15x16 15 16 // 𠦰
 // glyph han-209b4:15x16 15 16 // 𠦴
 // ⿻𰀁⿰世世
 
+// glyph han-209b7:15x16 15 16 // 𠦷
+// ⿰ han-5353 han-5f01 // ⿰卓弁
+
 ## 24.12
 
 // glyph han-209be:15x16 15 16 // 𠦾
@@ -272,6 +275,9 @@ glyph han-209b0:15x16 15 16 // 𠦰
 
 glyph han-209c3:15x16 15 16 // 𠧃
 ⿰ han-752b:7x16 han-5351.0:8x16 // ⿰甫卑
+
+// glyph han-209c4:15x16 15 16 // 𠧄
+// ⿰ han-5353 han-65f1 // ⿰卓旱
 
 # CJK unified ideographs extension B: 卜 (25)
 

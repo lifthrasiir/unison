@@ -164,6 +164,9 @@ glyph han-7a91:15x16 15 16 // 窑
 // glyph han-7aa4:15x16 15 16 // 窤
 // ⿳ han-5b80 han-513f han-6606 // ⿳宀儿昆
 
+// glyph han-7aa7-($han-regions):15x16 15 16 // 窧
+// ⿱ han-7a74-($-1) han-5353 // ⿱穴卓
+
 ## 116.9
 
 // glyph han-7aa8:15x16 15 16 // 窨
@@ -561,6 +564,9 @@ glyph han-7ae7:15x16 15 16 // 竧
 ⿰ han-7acb:5x16 1 han-8eab:9x16 // ⿰立身
 
 ## 117.8
+
+glyph han-7ae8:15x16 15 16 // 竨
+⿰ han-7acb:7x16 1 han-5353:7x16 // ⿰立卓
 
 // glyph han-7ae9:15x16 15 16 // 竩
 // ⿰ han-7acb han-5b9c // ⿰立宜

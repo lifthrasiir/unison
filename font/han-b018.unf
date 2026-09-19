@@ -607,6 +607,9 @@ glyph han-208eb:15x16 15 16 // 𠣫
 // glyph han-208f0-($han-regions):15x16 15 16 // 𠣰
 // ⿹ han-52f9 han-8005-($-1) // ⿹勹者
 
+glyph han-208f3-($han-regions):15x16 15 16 // 𠣳
+⿰ han-5353:5x16 1 han-52fa-($-1):9x16 // ⿰卓勺
+
 ## 20.18
 
 // glyph han-2090d:15x16 15 16 // 𠤍

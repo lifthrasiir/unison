@@ -695,6 +695,9 @@ glyph han-25ca7:15x16 15 16 // 𥲧
 // glyph han-25d16:15x16 15 16 // 𥴖
 // ⿱ han-25ad7 han-6911 // ⿱𥫗椑
 
+// glyph han-25d19:15x16 15 16 // 𥴙
+// ⿱ han-25ad7 han-68f9 // ⿱𥫗棹
+
 // glyph han-25d1b:15x16 15 16 // 𥴛
 // ⿱ han-25ad7 han-690e // ⿱𥫗椎
 
@@ -749,6 +752,9 @@ glyph han-25d49:15x16 15 16 // 𥵉
 
 // glyph han-25d5f-($han-regions):15x16 15 16 // 𥵟
 // ⿳ han-25ad7 han-7f52 han-8005-($-1) // ⿳𥫗罒者 <- ⿱𥫗署
+
+// glyph han-25d64:15x16 15 16 // 𥵤
+// ⿱ han-25ad7 han-7dbd // ⿱𥫗綽
 
 // glyph han-25d72:15x16 15 16 // 𥵲
 // ⿳ han-25ad7 han-34c1 han-5261 // ⿳𥫗㓁剡

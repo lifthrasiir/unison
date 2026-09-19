@@ -734,6 +734,9 @@ glyph han-927c:15x16 15 16 // 鉼
 // glyph han-92f9:15x16 15 16 // 鋹
 // ⿰ han-91d2 han-9577 // ⿰釒長
 
+glyph han-92fd:15x16 15 16 // 鋽
+⿰ han-91d2:7x16 1 han-5353:7x16 // ⿰釒卓
+
 glyph han-9301:15x16 15 16 // 錁
 ⿰ han-91d2:7x16 1 han-679c:7x16 // ⿰釒果
 

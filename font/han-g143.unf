@@ -235,6 +235,9 @@ glyph han-30d71:15x16 15 16 // 𰵱
 glyph han-30d72:15x16 15 16 // 𰵲
 ⿰ han-8ba0:5x16 1 han-5176:9x16 // ⿰讠其
 
+glyph han-30d73:15x16 15 16 // 𰵳
+⿰ 1 han-8ba0:5x16 1 han-5353:7x16 // ⿰讠卓
+
 // glyph han-30d78:15x16 15 16 // 𰵸
 // ⿰ han-8ba0 han-6c93 // ⿰讠沓
 

@@ -246,7 +246,7 @@ glyph han-2a004:15x16 15 16 // 𪀄
 // ⿰ han-74dc-($-1) han-9ce5 // ⿰瓜鳥
 
 glyph han-2a006:15x16 15 16 // 𪀆
-⿲ -2 han-4ebb:3x16 han-58eb:7x16 han-9ce5:7x16 // ⿲亻士鳥
+⿲ han-4ebb:3x16 han-58eb:5x16 han-9ce5:7x16 // ⿲亻士鳥
 
 // glyph han-2a007:15x16 15 16 // 𪀇
 // ⿰ han-9ce5 han-4e15 // ⿰鳥丕
@@ -482,6 +482,9 @@ glyph han-2a0a0:15x16 15 16 // 𪂠
 
 glyph han-2a0af:15x16 15 16 // 𪂯
 ⿲ -2 han-9ce5:7x16 han-5973:5x16 han-53e4:5x16 // ⿲鳥女古
+
+glyph han-2a0b1:15x16 15 16 // 𪂱
+⿰ han-9ce5:7x16 1 han-5353:7x16 // ⿰鳥卓
 
 // glyph han-2a0b3:15x16 15 16 // 𪂳
 // ⿰ han-9ce5 han-6606 // ⿰鳥昆
