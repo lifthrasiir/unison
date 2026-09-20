@@ -365,6 +365,9 @@ glyph han-3078a:15x16 15 16 // 𰞊
 glyph han-30794:15x16 15 16 // 𰞔
 ⿰ han-706b:5x16-l 1 han-540d:9x16 // ⿰火名
 
+// glyph han-30797:15x16 15 16 // 𰞗
+// ⿰ han-706b han-6742 // ⿰火杂
+
 // glyph han-30798:15x16 15 16 // 𰞘
 // ⿱ han-884c han-706b // ⿱行火
 
@@ -460,6 +463,9 @@ glyph han-307c1:15x16 15 16 // 𰟁
 // ⿰ han-706b han-277ea // ⿰火𧟪
 
 ## 86.12
+
+// glyph han-307d9:15x16 15 16 // 𰟙
+// ⿰ han-706b han-68ca // ⿰火棊
 
 // glyph han-307dd:15x16 15 16 // 𰟝
 // ⿳ han-52d2 han-4e00 han-706b // ⿳勒一火 <- ⿱勒灭

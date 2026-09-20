@@ -1028,7 +1028,7 @@ glyph han-2b081:15x16 15 16 // 𫂁
 // ⿱ han-25ad7 han-67fe // ⿱𥫗柾
 
 glyph han-2b08b:15x16 15 16 // 𫂋
-⿳ -2 han-25ad7:15x5 han-7518:15x6 han-6728:15x7 // ⿳𥫗甘木
+⿳ han-25ad7:15x5 han-7518:15x6 han-6728:15x5 // ⿳𥫗甘木
 
 // glyph han-2b08c:15x16 15 16 // 𫂌
 // ⿳ han-25ad7 han-56da han-6bdb // ⿳𥫗囚毛

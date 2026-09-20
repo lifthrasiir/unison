@@ -604,7 +604,7 @@ glyph han-25c75:15x16 15 16 // 𥱵
 // ⿳ han-25ad7 han-8980 han-215dc // ⿳𥫗覀𡗜
 
 glyph han-25ca7:15x16 15 16 // 𥲧
-⿳ -7 han-25ad7:15x5 han-5229:15x11 han-6728:15x7 // ⿳𥫗利木
+⿳ -5 han-25ad7:15x5 han-5229:15x11 han-6728:15x5 // ⿳𥫗利木
 
 // glyph han-25ca8:15x16 15 16 // 𥲨
 // ⿱ han-25ad7 han-3c98 // ⿱𥫗㲘

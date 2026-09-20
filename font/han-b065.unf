@@ -125,8 +125,8 @@ glyph han-230a4:15x16 15 16 // 𣂤
 // glyph han-230a6:15x16 15 16 // 𣂦
 // ⿰ han-5947 han-65a4 // ⿰奇斤
 
-// glyph han-230aa:15x16 15 16 // 𣂪
-// ⿰ han-4e9e han-65a4 // ⿰亞斤
+glyph han-230aa:15x16 15 16 // 𣂪
+⿰ han-4e9e:9x16 han-65a4:6x16 // ⿰亞斤
 
 ## 69.9
 

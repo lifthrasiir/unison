@@ -141,20 +141,25 @@ ref han-5973:5x16-l 5 0
 
 glyph han-5975:15x16 15 16 // 奵
 ⿰ han-5973:5x16-l -1 han-4e01:11x16 // ⿰女丁
+glyph han-5975.0:* = han-5975:*
 
 glyph han-5976:15x16 15 16 // 奶
 ⿰ han-5973:6x16-l han-4e43:9x16 // ⿰女乃
+glyph han-5976.0:* = han-5976:*
 
 ## 38.3
 
 glyph han-5978:15x16 15 16 // 奸
 ⿰ han-5973:5x16-l 1 han-5e72:9x16 // ⿰女干
+glyph han-5978.0:* = han-5978:*
 
 glyph han-597b:15x16 15 16 // 奻
 ⿰ han-5973:7x16 1 han-5973:7x16 // ⿰女女
+glyph han-597b.0:* = han-597b:*
 
 glyph han-597d-($han-regions):15x16 15 16 // 好
 ⿰ han-5973:5x16-l 1 han-5b50-($-1):9x16 // ⿰女子
+glyph han-597d.0:* = han-597d-j:*
 
 glyph han-597e:15x16 15 16 // 奾
 ⿰ han-5973:5x16-l 1 han-5c71:9x16 // ⿰女山
@@ -165,20 +170,38 @@ glyph han-597e:15x16 15 16 // 奾
 glyph han-5980:15x16 15 16 // 妀
 ⿰ han-5df1:7x16 1 han-5973:7x16 // ⿰己女
 
-glyph han-5981-($han-regions):15x16 15 16 // 妁
-⿰ han-5973:7x16 1 han-52fa-($-1):7x16 // ⿰女勺
+glyph han-5981.0:15x16 15 16 // 妁
+⿰ han-5973:7x16 1 han-52fa.1:7x16 // ⿰女勺
+glyph han-5981.1:* = han-5981.0:*
+glyph han-5981.2:15x16 15 16 // 妁
+⿰ han-5973:7x16 1 han-52fa.0:7x16 // ⿰女勺
+glyph han-5981-(g|h|t|j|p):* = han-5981.0:*
+glyph han-5981-k:* = han-5981.2:*
 
 glyph han-5982:15x16 15 16 // 如
 ⿰ han-5973:7x16 1 han-53e3:7x16 // ⿰女口
+glyph han-5982.0:* = han-5982:*
 
 glyph han-5983:15x16 15 16 // 妃
 ⿰ han-5973:5x16-l 1 han-5df1:9x16 // ⿰女己
+glyph han-5983.0:* = han-5983:*
+glyph han-5983.1:* = han-5983:*
+glyph han-5983.2:15x16 15 16 // 妃
+⿰ han-5973:5x16-l 1 han-5df2:9x16 // ⿰女已
 
-// glyph han-5984-($han-regions):15x16 15 16 // 妄
-// ⿱ han-4ea1-($-1) han-5973 // ⿱亡女
+glyph han-5984.0:15x16 15 16 // 妄
+⿱ han-4ea1.0:15x7 han-5973:15x9 // ⿱亡女
+glyph han-5984.1:* = han-5984.0:*
+glyph han-5984.2:* = han-5984.0:*
+glyph han-5984.3:15x16 15 16 // 妄
+⿱ han-4ea1.1:15x7 han-5973:15x9 // ⿱亡女
+glyph han-5984.x:15x16 15 16 // 妄
+⿱ han-4ea1.x:15x7 han-5973:15x9 // ⿱亡女
+glyph han-5984-(h|t|j|k):* = han-5984.0:*
+glyph han-5984-(g|p|v):* = han-5984.x:*
 
 glyph han-5985:15x16 15 16 // 妅
-⿰ han-5973:5x16-l 1 han-5de5:9x16 // ⿰女工
+⿰ han-5973:6x16-l han-5de5:9x16 // ⿰女工
 
 // glyph han-5986:15x16 15 16 // 妆
 // ⿲ han-51ab han-4e28 han-5973 // ⿲冫丨女 <- ⿰丬女
@@ -190,9 +213,11 @@ glyph han-5985:15x16 15 16 // 妅
 
 glyph han-598b:15x16 15 16 // 妋
 ⿰ han-5973:5x16-l 1 han-592b:9x16 // ⿰女夫
+glyph han-598b.0:* = han-598b:*
 
 glyph han-598c:15x16 15 16 // 妌
 ⿰ han-5973:5x16-l 1 han-4e95:9x16 // ⿰女井
+glyph han-598c.0:* = han-598c:*
 
 glyph han-598f:15x16 15 16 // 妏
 ⿰ han-5973:5x16-l 1 han-6587:9x16 // ⿰女文
@@ -208,6 +233,7 @@ glyph han-5994:15x16 15 16 // 妔
 
 glyph han-5995:15x16 15 16 // 妕
 ⿰ han-5973:5x16-l 1 han-4e2d:9x16 // ⿰女中
+glyph han-5995.0:* = han-5995:*
 
 glyph han-5997.0:15x16 15 16 // 妗
 ⿰ han-5973:5x16-l 1 han-4eca.0:9x16 // ⿰女今
@@ -220,7 +246,7 @@ glyph han-5997-(g|p):* = han-5997.x:*
 // ⿰ han-5973 han-4e91 // ⿰女云
 
 glyph han-599a:15x16 15 16 // 妚
-⿰ han-5973:5x16-l 1 han-4e0d:9x16 // ⿰女不
+⿰ han-5973:6x16-l han-4e0d:9x16 // ⿰女不
 
 // glyph han-599b:15x16 15 16 // 妛
 // ⿳ han-5c71 han-4e00 han-5973 // ⿳山一女
@@ -230,12 +256,14 @@ glyph han-599a:15x16 15 16 // 妚
 
 glyph han-599d:15x16 15 16 // 妝
 ⿰ han-723f:6x16 han-5973:9x16 // ⿰爿女
+glyph han-599d.0:* = han-599d:*
 
 // glyph han-599e-($han-regions):15x16 15 16 // 妞
 // ⿰ han-5973 han-4e11-($-1) // ⿰女丑
 
 glyph han-599f:15x16 15 16 // 妟
 ⿱ han-65e5:15x7 han-5973:15x9 // ⿱日女
+glyph han-599f.0:* = han-599f:*
 
 // glyph han-59a0:15x16 15 16 // 妠
 // ⿰ han-5973 han-5185 // ⿰女内
@@ -248,15 +276,20 @@ glyph han-59a2:15x16 15 16 // 妢
 
 glyph han-59a3-($han-regions):15x16 15 16 // 妣
 ⿰ han-5973:5x16-l 1 han-6bd4-($-1):9x16 // ⿰女比
+glyph han-59a3.0:* = han-59a3-j:*
 
-glyph han-59a6-($han-regions):15x16 15 16 // 妦
-⿰ han-5973:6x16-l han-4e30-($-1):9x16 // ⿰女丰
+glyph han-59a6-(g|j):15x16 15 16 // 妦
+⿰ han-5973:6x16-l han-4e30.0:9x16 // ⿰女丰
+glyph han-59a6-(h|t|k):15x16 15 16 // 妦
+⿰ han-5973:6x16-l han-4e30.1:9x16 // ⿰女丰
 
 glyph han-59a7:15x16 15 16 // 妧
 ⿰ han-5973:7x16 han-5143:8x16 // ⿰女元
+glyph han-59a7.0:* = han-59a7:*
 
 glyph han-59a8:15x16 15 16 // 妨
 ⿰ han-5973:6x16-l han-65b9:9x16 // ⿰女方
+glyph han-59a8.0:* = han-59a8:*
 
 // glyph han-59a9:15x16 15 16 // 妩
 // ⿰ han-5973 han-65e0 // ⿰女无
@@ -265,12 +298,15 @@ glyph han-59a8:15x16 15 16 // 妨
 
 glyph han-59ac:15x16 15 16 // 妬
 ⿰ han-5973:6x16-l 1 han-77f3:8x16 // ⿰女石
+glyph han-59ac.0:* = han-59ac:*
 
 glyph han-59ae-($han-regions):15x16 15 16 // 妮
 ⿰ han-5973:6x16-l han-5c3c-($-1):9x16 // ⿰女尼
+glyph han-59ae.0:* = han-59ae-j:*
 
 glyph han-59af:15x16 15 16 // 妯
 ⿰ han-5973:5x16-l 1 han-7531:9x16 // ⿰女由
+glyph han-59af.0:* = han-59af:*
 
 // glyph han-59b0:15x16 15 16 // 妰
 // ⿰ han-5973 han-4e4d // ⿰女乍
@@ -279,22 +315,26 @@ glyph han-59b1:15x16 15 16 // 妱
 ⿰ han-5973:7x16 han-53ec:8x16 // ⿰女召
 
 glyph han-59b2:15x16 15 16 // 妲
-⿰ han-5973:5x16-l 1 han-65e6:9x16 // ⿰女旦
+⿰ han-5973:6x16-l han-65e6:9x16 // ⿰女旦
+glyph han-59b2.0:* = han-59b2:*
 
 // glyph han-59b5:15x16 15 16 // 妵
 // ⿰ han-5973 han-4e3b // ⿰女主
 
 glyph han-59b7:15x16 15 16 // 妷
 ⿰ han-5973:5x16-l 1 han-5931:9x16 // ⿰女失
+glyph han-59b7.0:* = han-59b7:*
 
 glyph han-59b8:15x16 15 16 // 妸
-⿰ han-5973:5x16-l han-53ef:10x16 // ⿰女可
+⿰ han-5973:6x16-l han-53ef:9x16 // ⿰女可
 
 glyph han-59b9:15x16 15 16 // 妹
 ⿰ han-5973:5x16-l 1 han-672a:9x16 // ⿰女未
+glyph han-59b9.0:* = han-59b9:*
 
 glyph han-59ba:15x16 15 16 // 妺
 ⿰ han-5973:5x16-l 1 han-672b:9x16 // ⿰女末
+glyph han-59ba.0:* = han-59ba:*
 
 // glyph han-59bc:15x16 15 16 // 妼
 // ⿰ han-5973 han-5fc5 // ⿰女必
@@ -304,6 +344,7 @@ glyph han-59bd:15x16 15 16 // 妽
 
 glyph han-59be:15x16 15 16 // 妾
 ⿱ han-7acb:15x7 han-5973:15x9 // ⿱立女
+glyph han-59be.0:* = han-59be:*
 
 glyph han-59bf:15x16 15 16 // 妿
 ⿱ han-52a0:15x7 han-5973:15x9 // ⿱加女
@@ -312,10 +353,12 @@ glyph han-59c0:15x16 15 16 // 姀
 ⿰ han-5973:7x16 1 han-79be:7x16 // ⿰女禾
 
 glyph han-59c1:15x16 15 16 // 姁
-⿰ han-5973:5x16-l 1 han-53e5:9x16 // ⿰女句
+⿰ han-5973:6x16-l han-53e5:9x16 // ⿰女句
+glyph han-59c1.0:* = han-59c1:*
 
 glyph han-59c3:15x16 15 16 // 姃
 ⿰ han-5973:5x16-l han-6b63:10x16 // ⿰女正
+glyph han-59c3.0:* = han-59c3:*
 
 // glyph han-59c5-($han-regions):15x16 15 16 // 姅
 // ⿰ han-5973 han-534a-($-1) // ⿰女半
@@ -325,12 +368,16 @@ glyph han-59c3:15x16 15 16 // 姃
 
 glyph han-59c8-($han-regions):15x16 15 16 // 姈
 ⿰ han-5973:5x16-l 1 han-4ee4-($-1):9x16 // ⿰女令
+glyph han-59c8.0:* = han-59c8-j:*
 
 glyph han-59c9:15x16 15 16 // 姉
 ⿰ han-5973:5x16-l 1 han-5e02:9x16 // ⿰女市
+glyph han-59c9.0:* = han-59c9:*
+glyph han-59c9.1:* = han-59c9:*
 
 glyph han-59cb:15x16 15 16 // 始
 ⿰ han-5973:7x16 1 han-53f0:7x16 // ⿰女台
+glyph han-59cb.0:* = han-59cb:*
 
 glyph han-59cd:15x16 15 16 // 姍
 ⿰ han-5973:5x16-l 1 han-518a:9x16 // ⿰女冊
@@ -342,13 +389,16 @@ glyph han-59cf:15x16 15 16 // 姏
 ⿰ han-5973:5x16-l 1 han-7518:9x16 // ⿰女甘
 
 glyph han-59d0:15x16 15 16 // 姐
-⿰ han-5973:7x16 1 han-4e14:7x16 // ⿰女且
+⿰ han-5973:7x16 han-4e14:8x16 // ⿰女且
+glyph han-59d0.0:* = han-59d0:*
 
 glyph han-59d1:15x16 15 16 // 姑
 ⿰ han-5973:5x16-l 1 han-53e4:9x16 // ⿰女古
+glyph han-59d1.0:* = han-59d1:*
 
 glyph han-59d3:15x16 15 16 // 姓
-⿰ han-5973:5x16-l 1 han-751f:9x16 // ⿰女生
+⿰ han-5973:6x16-l han-751f:9x16 // ⿰女生
+glyph han-59d3.0:* = han-59d3:*
 
 // glyph han-59d4:15x16 15 16 // 委
 // ⿱ han-79be han-5973 // ⿱禾女
@@ -359,7 +409,7 @@ glyph han-59d3:15x16 15 16 // 姓
 glyph han-59d6-(g|k):15x16 15 16 // 姖
 ⿰ han-5973:5x16-l 1 han-5de8.0:9x16 // ⿰女巨
 glyph han-59d6-(h|t|j):15x16 15 16 // 姖
-⿰ han-5973:5x16-l 1 han-5de8.1:9x16 // ⿰女巨
+⿰ han-5973:5x16-l han-5de8.1:10x16 // ⿰女巨
 
 glyph han-59d7:15x16 15 16 // 姗
 ⿰ han-5973:6x16-l han-518c.0:9x16 // ⿰女册
@@ -380,7 +430,8 @@ glyph han-59db:15x16 15 16 // 姛
 ⿰ han-5973:7x16 1 han-540c:7x16 // ⿰女同
 
 glyph han-59de:15x16 15 16 // 姞
-⿰ han-5973:5x16-l 1 han-5409:9x16 // ⿰女吉
+⿰ han-5973:6x16-l han-5409:9x16 // ⿰女吉
+glyph han-59de.0:* = han-59de:*
 
 // glyph han-59e1:15x16 15 16 // 姡
 // ⿰ han-5973 han-820c // ⿰女舌
@@ -396,9 +447,11 @@ glyph han-59e3:15x16 15 16 // 姣
 
 glyph han-59ea:15x16 15 16 // 姪
 ⿰ han-5973:7x16 1 han-81f3:7x16 // ⿰女至
+glyph han-59ea.0:* = han-59ea:*
 
 glyph han-59eb:15x16 15 16 // 姫
 ⿰ han-5973:5x16-l 1 han-81e3:9x16 // ⿰女臣
+glyph han-59eb.0:* = han-59eb:*
 
 // glyph han-59ed:15x16 15 16 // 姭
 // ⿳ han-529b han-20834 han-5973 // ⿳力𠠴女 <- ⿱劦女
@@ -414,6 +467,7 @@ glyph han-59f3:15x16 15 16 // 姳
 
 glyph han-59f6:15x16 15 16 // 姶
 ⿰ han-5973:5x16-l 1 han-5408:9x16 // ⿰女合
+glyph han-59f6.0:* = han-59f6:*
 
 glyph han-59f8:15x16 15 16 // 姸
 ⿲ han-5973:5x16-l han-5e72:5x16 han-5e72:5x16 // ⿲女干干
@@ -442,7 +496,7 @@ glyph han-5a03:15x16 15 16 // 娃
 ## 38.7
 
 glyph han-5a0a:15x16 15 16 // 娊
-⿰ han-5973:7x16 1 han-898b:7x16 // ⿰女見
+⿰ han-5973:7x16 han-898b:8x16 // ⿰女見
 
 glyph han-5a0b-(g|h|t):15x16 15 16 // 娋
 ⿰ han-5973:7x16 1 han-8096.0:7x16 // ⿰女肖
@@ -450,7 +504,8 @@ glyph han-5a0b-j:15x16 15 16 // 娋
 ⿰ han-5973:7x16 1 han-8096.1:7x16 // ⿰女肖
 
 glyph han-5a0c:15x16 15 16 // 娌
-⿰ han-5973:5x16-l 1 han-91cc:9x16 // ⿰女里
+⿰ han-5973:6x16-l han-91cc:9x16 // ⿰女里
+glyph han-5a0c.0:* = han-5a0c:*
 
 // glyph han-5a0e:15x16 15 16 // 娎
 // ⿱ han-6298 han-5973 // ⿱折女
@@ -459,7 +514,7 @@ glyph han-5a0c:15x16 15 16 // 娌
 // ⿰ han-5973 han-514b // ⿰女克
 
 glyph han-5a15:15x16 15 16 // 娕
-⿰ han-5973:5x16-l 1 han-675f:9x16 // ⿰女束
+⿰ han-5973:6x16-l han-675f:9x16 // ⿰女束
 
 // glyph han-5a16:15x16 15 16 // 娖
 // ⿰ han-5973 han-8db3 // ⿰女足
@@ -472,6 +527,7 @@ glyph han-5a19:15x16 15 16 // 娙
 
 glyph han-5a1a:15x16 15 16 // 娚
 ⿰ han-5973:5x16-l 1 han-7537:9x16 // ⿰女男
+glyph han-5a1a.0:* = han-5a1a:*
 
 // glyph han-5a1d:15x16 15 16 // 娝
 // ⿰ han-5973 han-5426 // ⿰女否
@@ -488,8 +544,8 @@ glyph han-5a1a:15x16 15 16 // 娚
 // glyph han-5a28:15x16 15 16 // 娨
 // ⿰ han-5973 han-65f1 // ⿰女旱
 
-glyph han-5a2e:15x16 15 16 // 娮
-⿰ han-5973:5x16-l 1 han-8a00.0:9x16 // ⿰女言
+glyph han-5a2e-($han-regions):15x16 15 16 // 娮
+⿰ han-5973:5x16-l 1 han-8a00-($-1):9x16 // ⿰女言
 
 // glyph han-5a31:15x16 15 16 // 娱
 // ⿰ han-5973 han-5434 // ⿰女吴
@@ -510,6 +566,7 @@ glyph han-5a38:15x16 15 16 // 娸
 
 glyph han-5a3c:15x16 15 16 // 娼
 ⿰ han-5973:5x16-l 1 han-660c:9x16 // ⿰女昌
+glyph han-5a3c.0:* = han-5a3c:*
 
 // glyph han-5a3e:15x16 15 16 // 娾
 // ⿰ han-5973 han-5393 // ⿰女厓
@@ -519,9 +576,11 @@ glyph han-5a3c:15x16 15 16 // 娼
 
 glyph han-5a40:15x16 15 16 // 婀
 ⿲ han-5973:5x16-l han-961d:4x16-r han-53ef:6x16 // ⿲女阝可
+glyph han-5a40.0:* = han-5a40:*
 
 glyph han-5a44:15x16 15 16 // 婄
 ⿰ han-5973:5x16-l 1 han-5485:9x16 // ⿰女咅
+glyph han-5a44.0:* = han-5a44:*
 
 // glyph han-5a46:15x16 15 16 // 婆
 // ⿱ han-6ce2 han-5973 // ⿱波女
@@ -534,6 +593,7 @@ glyph han-5a4e:15x16 15 16 // 婎
 
 glyph han-5a50:15x16 15 16 // 婐
 ⿰ han-5973:7x16 1 han-679c:7x16 // ⿰女果
+glyph han-5a50.0:* = han-5a50:*
 
 glyph han-5a52:15x16 15 16 // 婒
 ⿰ han-5973:7x16 1 han-708e:7x16 // ⿰女炎
@@ -558,21 +618,27 @@ glyph han-5a64:15x16 15 16 // 婤
 ⿰ han-5973:5x16-l han-5468:10x16 // ⿰女周
 
 glyph han-5a65:15x16 15 16 // 婥
-⿰ han-5973:6x16-l 2 han-5353:7x16 // ⿰女卓
+⿰ han-5973:7x16 1 han-5353:7x16 // ⿰女卓
+glyph han-5a65.0:* = han-5a65:*
 
-glyph han-5a67-(g|h|t):15x16 15 16 // 婧
-⿰ han-5973:5x16-l 1 han-9752-($-1):9x16 // ⿰女青
-glyph han-5a67-(j|k|p):15x16 15 16 // 婧
-⿰ han-5973:5x16-l 1 han-9751-($-1):9x16 // ⿰女靑
+glyph han-5a67.0:15x16 15 16 // 婧
+⿰ han-5973:6x16-l han-9751.0:9x16 // ⿰女靑
+glyph han-5a67.1:* = han-5a67.0:*
+glyph han-5a67.2:15x16 15 16 // 婧
+⿰ han-5973:6x16-l han-9752.0:9x16 // ⿰女青
+glyph han-5a67-(j|k|p):* = han-5a67.0:*
+glyph han-5a67-(g|h|t):* = han-5a67.1:*
 
 glyph han-5a6a:15x16 15 16 // 婪
 ⿱ han-6797:15x7 han-5973:15x9 // ⿱林女
+glyph han-5a6a.0:* = han-5a6a:*
 
 // glyph han-5a6b:15x16 15 16 // 婫
 // ⿰ han-5973 han-6606 // ⿰女昆
 
 glyph han-5a6d:15x16 15 16 // 婭
-⿰ han-5973:5x16-l han-4e9e:10x16 // ⿰女亞
+⿰ han-5973:5x16-l 1 han-4e9e:9x16 // ⿰女亞
+glyph han-5a6d.0:* = han-5a6d:*
 
 // glyph han-5a6e:15x16 15 16 // 婮
 // ⿰ han-5973 han-5c45 // ⿰女居
@@ -600,8 +666,10 @@ glyph han-5a88:15x16 15 16 // 媈
 glyph han-5a8c:15x16 15 16 // 媌
 ⿰ han-5973:5x16-l 1 han-82d7:9x16 // ⿰女苗
 
-glyph han-5a8e-($han-regions):15x16 15 16 // 媎
-⿰ han-5973:7x16 1 han-8005-($-1):7x16 // ⿰女者
+glyph han-5a8e-(g|h|t|v):15x16 15 16 // 媎
+⿰ han-5973:7x16 1 han-8005.0:7x16 // ⿰女者
+glyph han-5a8e-j:15x16 15 16 // 媎
+⿰ han-5973:7x16 1 han-8005.1:7x16 // ⿰女者
 
 // glyph han-5a8f:15x16 15 16 // 媏
 // ⿰ han-5973 han-8011 // ⿰女耑
@@ -614,9 +682,10 @@ glyph han-5a8e-($han-regions):15x16 15 16 // 媎
 
 glyph han-5a93:15x16 15 16 // 媓
 ⿰ han-5973:5x16-l 1 han-7687:9x16 // ⿰女皇
+glyph han-5a93.0:* = han-5a93:*
 
 glyph han-5a94:15x16 15 16 // 媔
-⿰ han-5973:6x16-l 2 han-9762:7x16 // ⿰女面
+⿰ han-5973:7x16 1 han-9762:7x16 // ⿰女面
 
 // glyph han-5a98:15x16 15 16 // 媘
 // ⿰ han-5973 han-7686 // ⿰女皆
@@ -626,6 +695,7 @@ glyph han-5a94:15x16 15 16 // 媔
 
 glyph han-5a9e:15x16 15 16 // 媞
 ⿰ han-5973:5x16-l 1 han-662f:9x16 // ⿰女是
+glyph han-5a9e.0:* = han-5a9e:*
 
 // glyph han-5a9f:15x16 15 16 // 媟
 // ⿰ han-5973 han-67bc // ⿰女枼
@@ -661,6 +731,7 @@ glyph han-5acf:15x16 15 16 // 嫏
 
 glyph han-5abd:15x16 15 16 // 媽
 ⿰ han-5973:5x16-l 1 han-99ac:9x16 // ⿰女馬
+glyph han-5abd.0:* = han-5abd:*
 
 // glyph han-5ac8:15x16 15 16 // 嫈
 // ⿱ han-241fe han-5973 // ⿱𤇾女
@@ -675,6 +746,7 @@ glyph han-5abd:15x16 15 16 // 媽
 
 glyph han-5ad6:15x16 15 16 // 嫖
 ⿰ han-5973:7x16 1 han-7968:7x16 // ⿰女票
+glyph han-5ad6.0:* = han-5ad6:*
 
 // glyph han-5ad7:15x16 15 16 // 嫗
 // ⿰ han-5973 han-5340 // ⿰女區
@@ -687,6 +759,7 @@ glyph han-5ad6:15x16 15 16 // 嫖
 
 glyph han-5aea:15x16 15 16 // 嫪
 ⿰ han-5973:5x16-l 1 han-7fcf:9x16 // ⿰女翏
+glyph han-5aea.0:* = han-5aea:*
 
 // glyph han-5aeb:15x16 15 16 // 嫫
 // ⿰ han-5973 han-83ab // ⿰女莫
@@ -713,9 +786,11 @@ glyph han-5afe:15x16 15 16 // 嫾
 
 glyph han-5b08:15x16 15 16 // 嬈
 ⿰ han-5973:7x16 1 han-582f:7x16 // ⿰女堯
+glyph han-5b08.0:* = han-5b08:*
 
 glyph han-5b0c:15x16 15 16 // 嬌
 ⿰ han-5973:5x16-l 1 han-55ac:9x16 // ⿰女喬
+glyph han-5b0c.0:* = han-5b0c:*
 
 glyph han-5b0f:15x16 15 16 // 嬏
 ⿰ han-5973:7x16 1 han-756a:7x16 // ⿰女番
@@ -735,6 +810,7 @@ glyph han-5b0f:15x16 15 16 // 嬏
 
 glyph han-5b2c:15x16 15 16 // 嬬
 ⿰ han-5973:5x16-l 1 han-9700:9x16 // ⿰女需
+glyph han-5b2c.0:* = han-5b2c:*
 
 // glyph han-5b30:15x16 15 16 // 嬰
 // ⿱ han-8ccf han-5973 // ⿱賏女
@@ -752,6 +828,7 @@ glyph han-5b2c:15x16 15 16 // 嬬
 
 glyph han-5b43:15x16 15 16 // 孃
 ⿰ han-5973:5x16-l 1 han-8944:9x16 // ⿰女襄
+glyph han-5b43.0:* = han-5b43:*
 
 ## 38.18
 

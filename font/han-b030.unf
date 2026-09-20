@@ -407,6 +407,9 @@ glyph han-20c51:15x16 15 16 // 𠱑
 glyph han-20c5a:15x16 15 16 // 𠱚
 ⿰ han-53e3:8x16 han-209d7:7x16 // ⿰口𠧗
 
+// glyph han-20c5e:15x16 15 16 // 𠱞
+// ⿰ han-53e3 han-6742 // ⿰口杂
+
 glyph han-20c60:15x16 15 16 // 𠱠
 ⿲ han-53e3:5x16-l 1 han-53e3:4x16 1 han-53e3:4x16 // ⿲口口口
 

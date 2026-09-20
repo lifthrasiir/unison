@@ -181,6 +181,9 @@ glyph han-25feb:15x16 15 16 // 𥿫
 glyph han-25ff6:15x16 15 16 // 𥿶
 ⿰ han-7cf9:5x16 1 han-800c:9x16 // ⿰糹而
 
+// glyph han-25ffa-($han-regions):15x16 15 16 // 𥿺
+// ⿰ han-7cf9 han-5984-($-1) // ⿰糹妄
+
 // glyph han-25ffd:15x16 15 16 // 𥿽
 // ⿰ han-7cf9 han-5b89 // ⿰糹安
 

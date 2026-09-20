@@ -142,6 +142,9 @@ glyph han-289a1:15x16 15 16 // 𨦡
 // glyph han-289a7:15x16 15 16 // 𨦧
 // ⿰ han-91d2 han-5e74 // ⿰釒年
 
+// glyph han-289a9-($han-regions):15x16 15 16 // 𨦩
+// ⿰ han-91d2 han-5984-($-1) // ⿰釒妄
+
 glyph han-289ab-($han-regions):15x16 15 16 // 𨦫
 ⿰ han-91d2:5x16-l 1 han-7fbd-($-1):9x16 // ⿰釒羽
 

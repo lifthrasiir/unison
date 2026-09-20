@@ -419,6 +419,9 @@ glyph han-2dfa8:15x16 15 16 // 𭾨
 // glyph han-2dfae:15x16 15 16 // 𭾮
 // ⿰ han-76ee han-5e74 // ⿰目年
 
+// glyph han-2dfb0-($han-regions):15x16 15 16 // 𭾰
+// ⿰ han-76ee han-5984-($-1) // ⿰目妄
+
 // glyph han-2dfb1:15x16 15 16 // 𭾱
 // ⿱ han-7f52 han-8863 // ⿱罒衣
 
@@ -968,7 +971,7 @@ glyph han-2e16c:15x16 15 16 // 𮅬
 ⿳ han-25ad7:15x5 -1 han-5b80:15x5 han-81e3:15x7 // ⿳𥫗宀臣
 
 glyph han-2e16d:15x16 15 16 // 𮅭
-⿳ -1 han-25ad7:15x5 han-52a0:15x5 han-6728:15x7 // ⿳𥫗加木
+⿳ han-25ad7:15x5 han-52a0:15x5 1 han-6728:15x5 // ⿳𥫗加木
 
 ## 118.10
 
@@ -1029,7 +1032,7 @@ glyph han-2e18a:15x16 15 16 // 𮆊
 // ⿰ han-7b49 han-793e-($-1) // ⿰等社
 
 glyph han-2e1a5:15x16 15 16 // 𮆥
-⿳ -4 han-25ad7:15x5 -1 han-9ad8:15x9 han-6728:15x7 // ⿳𥫗高木
+⿳ -2 han-25ad7:15x5 -1 han-9ad8:15x9 han-6728:15x5 // ⿳𥫗高木
 
 ## 118.15
 

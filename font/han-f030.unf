@@ -103,6 +103,9 @@ glyph han-2d1eb:15x16 15 16 // 𭇫
 // glyph han-2d1ec:15x16 15 16 // 𭇬
 // ⿰ han-53e3 han-5b57 // ⿰口字
 
+// glyph han-2d1ed-($han-regions):15x16 15 16 // 𭇭
+// ⿰ han-53e3 han-5984-($-1) // ⿰口妄
+
 glyph han-2d1ee:15x16 15 16 // 𭇮
 ⿲ han-53e3:5x16-l han-6c35:3x16 han-5de5:7x16 // ⿲口氵工
 

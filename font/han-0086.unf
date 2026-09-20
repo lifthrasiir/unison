@@ -861,7 +861,7 @@ glyph han-71c6:15x16 15 16 // 燆
 ⿰ han-706b:5x16 han-55ac:9x16 // ⿰火喬
 
 glyph han-71ca:15x16 15 16 // 燊
-⿳ -4 han-706b:15x5 han-708f:15x8 han-6728:15x7 // ⿳火炏木
+⿳ -2 han-706b:15x5 han-708f:15x8 han-6728:15x5 // ⿳火炏木
 
 glyph han-71cd:15x16 15 16 // 燍
 ⿲ -2 han-706b:5x16 han-5176:6x16 han-65a4:6x16 // ⿲火其斤
