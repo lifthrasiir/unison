@@ -563,8 +563,12 @@ glyph han-34ea:15x16 15 16 // 㓪
 glyph han-34ed:15x16 15 16 // 㓭
 ⿰ han-66f7:9x16 1 han-5202:5x16 // ⿰曷刂
 
-glyph han-34ee:15x16 15 16 // 㓮
-⿰ han-5468:10x16 1 han-5202:4x16 // ⿰周刂
+glyph han-34ee.0:15x16 15 16 // 㓮
+⿰ han-5468.0:10x16 1 han-5202:4x16 // ⿰周刂
+glyph han-34ee.1:15x16 15 16 // 㓮
+⿰ han-5468.1:10x16 1 han-5202:4x16 // ⿰周刂
+glyph han-34ee-j:* = han-34ee.0:*
+glyph han-34ee-(g|t):* = han-34ee.1:*
 
 ## 18.9
 
@@ -1103,8 +1107,10 @@ glyph han-3681:15x16 15 16 // 㚁
 
 ## 36.11
 
-glyph han-368b:15x16 15 16 // 㚋
-⿰ han-591a:7x16 han-5468:8x16 // ⿰多周
+glyph han-368b-(g|t):15x16 15 16 // 㚋
+⿰ han-591a:7x16 han-5468.1:8x16 // ⿰多周
+glyph han-368b-j:15x16 15 16 // 㚋
+⿰ han-591a:7x16 han-5468.0:8x16 // ⿰多周
 
 glyph han-368c:15x16 15 16 // 㚌
 ⿰ han-591a:7x16 1 han-679c:7x16 // ⿰多果
@@ -1236,7 +1242,7 @@ glyph han-36bc:15x16 15 16 // 㚼
 // ⿰ han-5973 han-5144 // ⿰女兄
 
 glyph han-36bf:15x16 15 16 // 㚿
-⿰ han-5973:7x16 1 han-5305:7x16 // ⿰女包
+⿰ han-5973:7x16 1 han-5305.1:7x16 // ⿰女包
 
 glyph han-36c1-(g|h|t):15x16 15 16 // 㛁
 ⿰ han-5973:6x16-l han-5e73.0:9x16 // ⿰女平

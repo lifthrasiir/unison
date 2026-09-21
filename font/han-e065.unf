@@ -313,7 +313,7 @@ glyph han-2c0f4:15x16 15 16 // 𬃴
 // ⿱ han-6dee han-6728 // ⿱淮木
 
 glyph han-2c117:15x16 15 16 // 𬄗
-⿲ -1 han-6728:5x16 han-7cf9:5x16 han-4e14:6x16 // ⿲木糹且
+⿲ -1 han-6728:5x16 han-7cf9-j:5x16 han-4e14:6x16 // ⿲木糹且
 
 // glyph han-2c118-($han-regions):15x16 15 16 // 𬄘
 // ⿰ han-6728 han-7fcc-($-1) // ⿰木翌

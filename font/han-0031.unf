@@ -1274,7 +1274,11 @@ glyph han-5787:15x16 15 16 // 垇
 ⿰ han-571f:5x16-l han-51f9:10x16 // ⿰土凹
 
 glyph han-5789:15x16 15 16 // 垉
-⿰ han-571f:7x16 1 han-5305:7x16 // ⿰土包
+assume ⿰ han-571f:7x16 -1 han-5305.1:9x16 // ⿰土包
+glyph han-5789.0:* = han-5789:*
+glyph han-5789.1:* = han-5789:*
+glyph han-5789.2:15x16 15 16 // 垉
+assume ⿰ han-571f:7x16 -1 han-5305.0:9x16 // ⿰土包
 
 ## 32.6
 
@@ -1613,7 +1617,14 @@ glyph han-583c:15x16 15 16 // 堼
 // ⿲ han-571f han-65e5 han-5bfa // ⿲土日寺
 
 glyph han-5859:15x16 15 16 // 塙
-⿰ han-571f:7x16 1 han-9ad8:7x16 // ⿰土高
+⿰ han-571f:5x16-l 1 han-9ad8:9x16 // ⿰土高
+glyph han-5859.0:* = han-5859:*
+glyph han-5859.1:15x16 15 16 // 塙
+⿰ han-571f:5x16-l 1 han-9ad8.x:9x16 // ⿰土高
+glyph han-5859.2:* = han-5859.0:*
+glyph han-5859.3:15x16 15 16 // 塙
+⿰ han-571f:5x16-l 1 han-9ad8.y:9x16 // ⿰土高
+glyph han-5859.4:* = han-5859.1:*
 
 glyph han-585b:15x16 15 16 // 塛
 ⿰ han-571f:5x16-l 1 han-6817:9x16 // ⿰土栗
@@ -2680,6 +2691,8 @@ glyph han-5931:15x16 15 16 // 失
 ..............................
 ref han-592b:15x16
 
+glyph han-5932:9x16 9 16 // 夲
+⿱ han-5927:9x10 -1 han-5341:9x7 // ⿱大十
 glyph han-5932:15x16 15 16 // 夲
 ⿱ han-5927:15x10 -1 han-5341:15x7 // ⿱大十
 glyph han-5932.0:* = han-5932:*

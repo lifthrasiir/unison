@@ -471,8 +471,10 @@ glyph han-220d4:15x16 15 16 // 𢃔
 // glyph han-220d5:15x16 15 16 // 𢃕
 // ⿰ han-5dfe han-6c93 // ⿰巾沓
 
-glyph han-220d6:15x16 15 16 // 𢃖
-⿰ han-5dfe:7x16 han-5468:8x16 // ⿰巾周
+glyph han-220d6-(g|t):15x16 15 16 // 𢃖
+⿰ han-5dfe:5x16 han-5468.1:10x16 // ⿰巾周
+glyph han-220d6-j:15x16 15 16 // 𢃖
+⿰ han-5dfe:5x16 han-5468.0:10x16 // ⿰巾周
 
 // glyph han-220da:15x16 15 16 // 𢃚
 // ⿰ han-5dfe han-6606 // ⿰巾昆

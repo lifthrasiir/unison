@@ -1157,7 +1157,7 @@ glyph han-2bb77:15x16 15 16 // 𫭷
 // ⿰ han-571f han-91d1 // ⿰土金
 
 glyph han-2bb80:15x16 15 16 // 𫮀
-⿰ han-571f:7x16 han-5468:8x16 // ⿰土周
+⿰ han-571f:5x16-l han-5468.1:10x16 // ⿰土周
 
 // glyph han-2bb82:15x16 15 16 // 𫮂
 // ⿰ han-571f han-5e99 // ⿰土庙

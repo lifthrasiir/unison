@@ -592,8 +592,8 @@ glyph han-2ed35:15x16 15 16 // 𮴵
 
 ## 96.14
 
-glyph han-2ed37:15x16 15 16 // 𮴷
-⿲ han-248e9:3x16 han-7cf9:5x16 han-96b9:7x16 // ⿲𤣩糹隹
+glyph han-2ed37-($han-regions):15x16 15 16 // 𮴷
+⿲ han-248e9:3x16 han-7cf9-($-1):5x16 han-96b9:7x16 // ⿲𤣩糹隹
 
 # CJK unified ideographs extension I: 瓜 (97)
 

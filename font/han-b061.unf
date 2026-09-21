@@ -494,7 +494,7 @@ glyph han-226df:15x16 15 16 // 𢛟
 // ⿱ han-81e5 han-5fc3 // ⿱臥心
 
 glyph han-226fa:15x16 15 16 // 𢛺
-⿲ han-5fc4:5x16 han-624c:3x16 han-5305:7x16 // ⿲忄扌包
+⿲ han-5fc4:5x16 han-624c:3x16 han-5305.1:7x16 // ⿲忄扌包
 
 glyph han-226fd:15x16 15 16 // 𢛽
 ⿰ han-5fc4:5x16 1 han-660c:9x16 // ⿰忄昌
@@ -634,7 +634,7 @@ glyph han-2276e:15x16 15 16 // 𢝮
 // ⿰ han-5fc4 han-98a8 // ⿰忄風
 
 glyph han-22783:15x16 15 16 // 𢞃
-⿲ han-5fc4:5x16 han-7cf9:5x16 han-5de5:5x16 // ⿲忄糹工
+⿲ han-5fc4:5x16 han-7cf9-v:5x16 han-5de5:5x16 // ⿲忄糹工
 
 // glyph han-22785:15x16 15 16 // 𢞅
 // ⿰ han-5fc4 han-8981 // ⿰忄要
@@ -687,7 +687,7 @@ glyph han-227d1:15x16 15 16 // 𢟑
 // ⿰ han-5fc4 han-5bb0 // ⿰忄宰
 
 glyph han-227d5:15x16 15 16 // 𢟕
-⿲ -7 han-5fc4:5x16 han-7cf9:5x16 1 han-5185:11x16 // ⿲忄糹内
+⿲ -7 han-5fc4:5x16 han-7cf9-v:5x16 1 han-5185:11x16 // ⿲忄糹内
 
 glyph han-227d7:15x16 15 16 // 𢟗
 ⿲ -4 han-5fc4:5x16 han-6c35:3x16 han-573c:11x16 // ⿲忄氵圼
@@ -807,8 +807,8 @@ glyph han-22875:15x16 15 16 // 𢡵
 // glyph han-22880:15x16 15 16 // 𢢀
 // ⿰ han-5fc4 han-9593 // ⿰忄間
 
-glyph han-22882:15x16 15 16 // 𢢂
-⿲ han-5fc4:5x16 han-7cf9:5x16 han-5409:5x16 // ⿲忄糹吉
+glyph han-22882-($han-regions):15x16 15 16 // 𢢂
+⿲ han-5fc4:5x16 han-7cf9-($-1):5x16 han-5409:5x16 // ⿲忄糹吉
 
 glyph han-22885:15x16 15 16 // 𢢅
 ⿲ han-5fc4:5x16 han-2099d:5x16 han-6708:5x16 // ⿲忄𠦝月

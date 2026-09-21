@@ -426,8 +426,14 @@ glyph han-7fd7-($han-regions):15x16 15 16 // 翗
 // glyph han-7fe1-($han-regions):15x16 15 16 // 翡
 // ⿱ han-975e han-7fbd-($-1) // ⿱非羽
 
-glyph han-7fe2-($han-regions):15x16 15 16 // 翢
-⿰ han-5468:8x16 1 han-7fbd-($-1):6x16 // ⿰周羽
+glyph han-7fe2-(g|t):15x16 15 16 // 翢
+⿰ han-5468.1:8x16 1 han-7fbd.1:6x16 // ⿰周羽
+glyph han-7fe2-h:15x16 15 16 // 翢
+⿰ han-5468.0:8x16 1 han-7fbd.1:6x16 // ⿰周羽
+glyph han-7fe2-j:15x16 15 16 // 翢
+⿰ han-5468.0:8x16 1 han-7fbd.0:6x16 // ⿰周羽
+glyph han-7fe2-p:15x16 15 16 // 翢
+⿰ han-5468.1:8x16 1 han-7fbd.0:6x16 // ⿰周羽
 
 // glyph han-7fe3-($han-regions):15x16 15 16 // 翣
 // ⿳ han-7fbd-($-1) han-7acb han-5973 // ⿳羽立女
@@ -450,6 +456,7 @@ glyph han-7fe2-($han-regions):15x16 15 16 // 翢
 
 glyph han-7fef-($han-regions):15x16 15 16 // 翯
 ⿱ han-7fbd-($-1):15x6 han-9ad8:15x10 // ⿱羽高
+glyph han-7fef.0:* = han-7fef-j:*
 
 // glyph han-7ff1-($han-regions):15x16 15 16 // 翱
 // ⿰ han-768b han-7fbd-($-1) // ⿰皋羽
@@ -1508,8 +1515,14 @@ glyph han-80dd-($han-regions):15x16 15 16 // 胝
 ⿰ han-6708:7x16 han-6c10-($-1):8x16 // ⿰月氐
 glyph han-80dd.0:* = han-80dd-j:*
 
-glyph han-80de:15x16 15 16 // 胞
-⿰ han-6708:5x16-l 1 han-5305:9x16 // ⿰月包
+glyph han-80de.0:15x16 15 16 // 胞
+⿰ han-6708:5x16-l 1 han-5305.0:9x16 // ⿰月包
+glyph han-80de.1:15x16 15 16 // 胞
+⿰ han-6708:5x16-l 1 han-5305.1:9x16 // ⿰月包
+glyph han-80de.2:* = han-80de.0:*
+glyph han-80de.3:* = han-80de.1:*
+glyph han-80de-j:* = han-80de.0:*
+glyph han-80de-(g|h|t|k|p|v):* = han-80de.1:*
 
 // glyph han-80e0:15x16 15 16 // 胠
 // ⿰ han-6708 han-53bb // ⿰月去
@@ -1593,6 +1606,7 @@ glyph han-8118:15x16 15 16 // 脘
 
 glyph han-811b:15x16 15 16 // 脛
 ⿰ han-6708:5x16-l 1 han-5de0:9x16 // ⿰月巠
+glyph han-811b.0:* = han-811b:*
 
 glyph han-8127:15x16 15 16 // 脧
 ⿰ han-6708:8x16 han-590b:7x16 // ⿰月夋
@@ -1632,6 +1646,9 @@ glyph han-813d:15x16 15 16 // 脽
 glyph han-813e:15x16 15 16 // 脾
 ⿰ han-6708:5x16 han-5351.0:10x16 // ⿰月卑
 glyph han-813e.0:* = han-813e:*
+
+glyph han-8141:15x16 15 16 // 腁
+⿰ han-6708:5x16-l han-5e77:10x16 // ⿰月幷
 
 glyph han-8142:15x16 15 16 // 腂
 ⿰ han-6708:5x16-l 1 han-679c:9x16 // ⿰月果

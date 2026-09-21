@@ -524,7 +524,7 @@ glyph han-30811:15x16 15 16 // 𰠑
 ## 90.11
 
 glyph han-30816:15x16 15 16 // 𰠖
-⿰ han-723f:6x16 1 han-9ad8:7x16 // ⿰爿高
+⿰ han-723f:5x16 1 han-9ad8.x:9x16 // ⿰爿高
 
 # CJK unified ideographs extension G: 丬 (90')
 
@@ -1017,7 +1017,7 @@ glyph han-3091e:15x16 15 16 // 𰤞
 // ⿰ han-76ae han-53bb // ⿰皮去
 
 glyph han-30921:15x16 15 16 // 𰤡
-⿰ han-5305:7x16 han-76ae:8x16 // ⿰包皮
+⿰ han-5305.1:7x16 han-76ae:8x16 // ⿰包皮
 
 glyph han-30922:15x16 15 16 // 𰤢
 ⿰ han-76ae:8x16 han-751f:7x16 // ⿰皮生

@@ -158,6 +158,7 @@ glyph han-6ec8:15x13 15 13 // 滈
 ⿰ han-6c35:5x13 1 han-9ad8:9x13 // ⿰氵高
 glyph han-6ec8:15x16 15 16 // 滈
 ⿰ han-6c35:5x16 1 han-9ad8:9x16 // ⿰氵高
+glyph han-6ec8.0:* = han-6ec8:*
 
 // glyph han-6ece:15x16 15 16 // 滎
 // ⿱ han-241fe han-6c34 // ⿱𤇾水
@@ -344,8 +345,9 @@ glyph han-6fc9:15x16 15 16 // 濉
 glyph han-6fe1:15x16 15 16 // 濡
 ⿰ han-6c35:5x16 1 han-9700:9x16 // ⿰氵需
 
-glyph han-6ff0:15x16 15 16 // 濰
-⿲ han-6c35:3x16 han-7cf9:5x16 han-96b9:7x16 // ⿲氵糹隹
+glyph han-6ff0-($han-regions):15x16 15 16 // 濰
+⿲ han-6c35:3x16 han-7cf9-($-1):5x16 han-96b9:7x16 // ⿲氵糹隹
+glyph han-6ff0.0:* = han-6ff0-j:*
 
 ## 85.16
 

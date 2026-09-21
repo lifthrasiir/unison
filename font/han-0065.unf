@@ -1553,8 +1553,13 @@ glyph han-666b:15x16 15 16 // 晫
 glyph han-666c:15x16 15 16 // 晬
 ⿰ han-65e5:7x16 1 han-5352:7x16 // ⿰日卒
 
-glyph han-666d:15x16 15 16 // 晭
-⿰ han-65e5:5x16 han-5468:10x16 // ⿰日周
+glyph han-666d.0:15x16 15 16 // 晭
+⿰ han-65e5:5x16-l han-5468.0:10x16 // ⿰日周
+glyph han-666d.1:* = han-666d.0:*
+glyph han-666d.2:15x16 15 16 // 晭
+⿰ han-65e5:5x16-l han-5468.1:10x16 // ⿰日周
+glyph han-666d-j:* = han-666d.0:*
+glyph han-666d-(g|t):* = han-666d.2:*
 
 glyph han-6670:15x16 15 16 // 晰
 ⿲ han-65e5:4x16-l han-6728:5x16 han-65a4:6x16 // ⿲日木斤
@@ -1640,7 +1645,11 @@ glyph han-669c:15x16 15 16 // 暜
 ⿱ han-7add:15x8 1 han-65e5:15x7 // ⿱竝日
 
 glyph han-66a0:15x16 15 16 // 暠
-⿱ han-65e5:15x7 han-9ad8:15x9 // ⿱日高
+⿱ han-65e5:15x5 han-9ad8:15x11 // ⿱日高
+glyph han-66a0.0:* = han-66a0:*
+glyph han-66a0.1:* = han-66a0:*
+glyph han-66a0.2:15x16 15 16 // 暠
+⿱ han-65e5:15x5 han-9ad8.x:15x11 // ⿱日高
 
 glyph han-66a2:15x16 15 16 // 暢
 ⿰ han-7533:7x16 1 han-661c:7x16 // ⿰申昜

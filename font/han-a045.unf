@@ -132,8 +132,10 @@ glyph han-37cd:15x16 15 16 // 㟍
 // glyph han-37d7:15x16 15 16 // 㟗
 // ⿻山⿰分分
 
-glyph han-37d8:15x16 15 16 // 㟘
-⿰ han-5c71:5x16 han-5468:10x16 // ⿰山周
+glyph han-37d8-(g|t):15x16 15 16 // 㟘
+⿰ han-5c71:5x16-l han-5468.1:10x16 // ⿰山周
+glyph han-37d8-j:15x16 15 16 // 㟘
+⿰ han-5c71:5x16-l han-5468.0:10x16 // ⿰山周
 
 // glyph han-37db:15x16 15 16 // 㟛
 // ⿱ han-5c71 han-62d1 // ⿱山拑
@@ -738,8 +740,8 @@ glyph han-390e:15x16 15 16 // 㤎
 glyph han-3910:15x16 15 16 // 㤐
 ⿱ han-5360:15x9 1 han-5fc3:15x6 // ⿱占心
 
-// glyph han-3912:15x16 15 16 // 㤒
-// ⿰ han-5fc4 han-5932 // ⿰忄夲
+glyph han-3912:15x16 15 16 // 㤒
+⿰ han-5fc4:5x16 1 han-5932:9x16 // ⿰忄夲
 
 glyph han-3913:15x16 15 16 // 㤓
 ⿰ han-5fc4:5x16 1 han-672c:9x16 // ⿰忄本
@@ -1007,8 +1009,10 @@ glyph han-39fd:15x16 15 16 // 㧽
 // glyph han-3a03-($han-regions):15x16 15 16 // 㨃
 // ⿰ han-624c han-4eab-($-1) // ⿰扌享
 
-glyph han-3a04:15x16 15 16 // 㨄
-⿰ han-624c:5x16 han-5468:10x16 // ⿰扌周
+glyph han-3a04-(g|t|k|v):15x16 15 16 // 㨄
+⿰ han-624c:5x16 han-5468.1:10x16 // ⿰扌周
+glyph han-3a04-j:15x16 15 16 // 㨄
+⿰ han-624c:5x16 han-5468.0:10x16 // ⿰扌周
 
 glyph han-3a06:15x16 15 16 // 㨆
 ⿲ han-624c:5x16 han-6728:5x16 han-6728:5x16 // ⿲扌木木
@@ -1043,8 +1047,8 @@ glyph han-3a1b:15x16 15 16 // 㨛
 // glyph han-3a24:15x16 15 16 // 㨤
 // ⿰ han-624c han-9fa8 // ⿰扌龨
 
-glyph han-3a25:15x16 15 16 // 㨥
-⿲ -5 han-624c:3x16 han-7cf9:5x16 1 han-5185:11x16 // ⿲扌糹内
+glyph han-3a25-($han-regions):15x16 15 16 // 㨥
+⿲ -4 han-624c:3x16 han-7cf9-($-1):5x16 han-5185:11x16 // ⿲扌糹内
 
 // glyph han-3a27:15x16 15 16 // 㨧
 // ⿰ han-624c han-755a // ⿰扌畚
@@ -1079,8 +1083,8 @@ glyph han-3a36:15x16 15 16 // 㨶
 
 ## 64.15
 
-glyph han-3a6a:15x16 15 16 // 㩪
-⿲ han-624c:3x16 han-7cf9:5x16 han-9801:7x16 // ⿲扌糹頁
+glyph han-3a6a-($han-regions):15x16 15 16 // 㩪
+⿲ han-624c:3x16 han-7cf9-($-1):5x16 han-9801:7x16 // ⿲扌糹頁
 
 ## 64.18
 

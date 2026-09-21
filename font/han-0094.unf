@@ -173,7 +173,7 @@ glyph han-72cc:15x16 15 16 // 狌
 glyph han-72cc.0:* = han-72cc:*
 
 glyph han-72cd:15x16 15 16 // 狍
-⿰ han-72ad:6x16 han-5305:9x16 // ⿰犭包
+⿰ han-72ad:6x16 han-5305.1:9x16 // ⿰犭包
 
 glyph han-72ce:15x16 15 16 // 狎
 ⿰ han-72ad:6x16 han-7532:9x16 // ⿰犭甲
@@ -1066,7 +1066,7 @@ glyph han-73b7:15x16 15 16 // 玷
 glyph han-73b7.0:* = han-73b7:*
 
 glyph han-73b8:15x16 15 16 // 玸
-⿰ han-248e9:7x16 1 han-5305:7x16 // ⿰𤣩包
+assume ⿰ han-248e9:7x16 -1 han-5305.1:9x16 // ⿰𤣩包
 
 glyph han-73bb:15x16 15 16 // 玻
 ⿰ han-248e9:5x16 1 han-76ae:9x16 // ⿰𤣩皮
@@ -1295,8 +1295,13 @@ glyph han-7430:15x16 15 16 // 琰
 ⿰ han-248e9:5x16 1 han-708e:9x16 // ⿰𤣩炎
 glyph han-7430.0:* = han-7430:*
 
-glyph han-7431:15x16 15 16 // 琱
-⿰ han-248e9:5x16 han-5468:10x16 // ⿰𤣩周
+glyph han-7431.0:15x16 15 16 // 琱
+⿰ han-248e9:5x16 han-5468.0:10x16 // ⿰𤣩周
+glyph han-7431.1:* = han-7431.0:*
+glyph han-7431.2:15x16 15 16 // 琱
+⿰ han-248e9:5x16 han-5468.1:10x16 // ⿰𤣩周
+glyph han-7431-(h|j):* = han-7431.0:*
+glyph han-7431-(g|t|k|p):* = han-7431.2:*
 
 glyph han-7432-($han-regions):15x16 15 16 // 琲
 ⿰ han-248e9:5x16 1 han-975e-($-1):9x16 // ⿰𤣩非

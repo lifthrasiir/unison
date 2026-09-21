@@ -465,7 +465,7 @@ glyph han-317ad:15x16 15 16 // 𱞭
 // ⿰ han-5fc4 han-6631 // ⿰忄昱
 
 glyph han-317ba:15x16 15 16 // 𱞺
-⿲ han-5fc4:5x16 han-7cf9:5x16 han-52fa-g:5x16 // ⿲忄糹勺
+⿲ han-5fc4:5x16 han-7cf9-g:5x16 han-52fa-g:5x16 // ⿲忄糹勺
 
 ## 61.10
 
@@ -795,7 +795,7 @@ glyph han-318dd:15x16 15 16 // 𱣝
 // ⿲ han-6728 han-65b9 han-6728 // ⿲木方木
 
 glyph han-318ee:15x16 15 16 // 𱣮
-⿲ han-6728:5x16 han-6c35:3x16 han-5305:7x16 // ⿲木氵包
+⿲ han-6728:5x16 han-6c35:3x16 han-5305.1:7x16 // ⿲木氵包
 
 // glyph han-318ef:15x16 15 16 // 𱣯
 // ⿰ han-6728 han-5b99 // ⿰木宙

@@ -593,7 +593,7 @@ glyph han-23eb8:15x16 15 16 // 𣺸
 // ⿲ han-6c35 han-5f73 han-8d70 // ⿲氵彳走 <- ⿰氵徒
 
 glyph han-23ec0:15x16 15 16 // 𣻀
-⿲ -5 han-6c35:3x16 han-7cf9:5x16 1 han-5185:11x16 // ⿲氵糹内
+⿲ -5 han-6c35:3x16 han-7cf9-v:5x16 1 han-5185:11x16 // ⿲氵糹内
 
 glyph han-23ec1:15x16 15 16 // 𣻁
 ⿲ han-6c35:3x16 han-91d2:5x16-l han-5341:7x16 // ⿲氵釒十

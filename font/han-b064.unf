@@ -526,7 +526,7 @@ glyph han-22c2e:15x16 15 16 // 𢰮
 // ⿰ han-624c han-70b9 // ⿰扌点
 
 glyph han-22c39:15x16 15 16 // 𢰹
-⿲ han-624c:3x16 han-7cf9:5x16 han-52fa.1:7x16 // ⿲扌糹勺
+⿲ han-624c:3x16 han-7cf9.x:5x16 han-52fa.1:7x16 // ⿲扌糹勺
 
 // glyph han-22c40:15x16 15 16 // 𢱀
 // ⿱ han-79cc han-624b // ⿱秌手

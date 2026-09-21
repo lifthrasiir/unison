@@ -1060,6 +1060,13 @@ glyph han-84b2:15x16 15 16 // 蒲
 
 glyph han-84bf:15x16 15 16 // 蒿
 ⿱ han-8279:15x3 han-9ad8:15x13 // ⿱艹高
+glyph han-84bf.0:* = han-84bf:*
+glyph han-84bf.1:* = han-84bf:*
+glyph han-84bf.2:* = han-84bf:*
+glyph han-84bf.3:15x16 15 16 // 蒿
+⿱ han-8279:15x3 han-9ad8.x:15x13 // ⿱艹高
+glyph han-84bf.4:* = han-84bf.0:*
+glyph han-84bf.5:* = han-84bf.3:*
 
 glyph han-84c7-($han-regions):15x16 15 16 // 蓇
 ⿱ han-8279:15x3 han-9aa8-($-1):15x13 // ⿱艹骨
@@ -1266,6 +1273,12 @@ glyph han-85b7:15x16 15 16 // 薷
 
 glyph han-85c1:15x16 15 16 // 藁
 ⿳ -1 han-8279:15x3 han-9ad8:15x9 han-6728:15x5 // ⿳艹高木
+glyph han-85c1.0:* = han-85c1:*
+glyph han-85c1.1:* = han-85c1:*
+glyph han-85c1.2:* = han-85c1:*
+glyph han-85c1.3:15x16 15 16 // 藁
+⿳ -2 han-8279:15x3 -1 han-9ad8.x:15x11 han-6728:15x5 // ⿳艹高木
+glyph han-85c1.4:* = han-85c1.3:*
 
 // glyph han-85c3:15x16 15 16 // 藃
 // ⿱ han-8279 han-6b4a // ⿱艹歊

@@ -473,26 +473,26 @@ glyph han-30ad4:15x16 15 16 // 𰫔
 ## 120.3
 
 glyph han-30ad8:15x16 15 16 // 𰫘
-⿰ han-7cf9:5x16 1 han-4ea1-g:9x16 // ⿰糹亡
+⿰ han-7cf9-g:5x16 1 han-4ea1-g:9x16 // ⿰糹亡
 
 glyph han-30ad9:15x16 15 16 // 𰫙
-⿰ han-7cf9:5x16 1 han-5b50.0:9x16 // ⿰糹子
+⿰ han-7cf9-g:5x16 1 han-5b50.0:9x16 // ⿰糹子
 
 ## 120.4
 
 glyph han-30ada:15x16 15 16 // 𰫚
-⿰ han-7cf9:5x16 1 han-5e00:9x16 // ⿰糹帀
+⿰ han-7cf9-j:5x16 1 han-5e00:9x16 // ⿰糹帀
 
 glyph han-30adc:15x16 15 16 // 𰫜
-⿲ -2 han-7cf9:5x16 han-4ebb:3x16 han-4e5d:9x16 // ⿲糹亻九
+⿲ -2 han-7cf9-g:5x16 han-4ebb:3x16 han-4e5d:9x16 // ⿲糹亻九
 
 ## 120.5
 
 glyph han-30ae0:15x16 15 16 // 𰫠
-⿰ han-7cf9:5x16 1 han-7532:9x16 // ⿰糹甲
+⿰ han-7cf9-g:5x16 1 han-7532:9x16 // ⿰糹甲
 
 glyph han-30ae1:15x16 15 16 // 𰫡
-⿰ han-7cf9:5x16 1 han-751f:9x16 // ⿰糹生
+⿰ han-7cf9-g:5x16 1 han-751f:9x16 // ⿰糹生
 
 ## 120.6
 
@@ -502,7 +502,7 @@ glyph han-30ae1:15x16 15 16 // 𰫡
 ## 120.7
 
 glyph han-30ae7:15x16 15 16 // 𰫧
-⿰ han-7cf9:5x16 1 han-5b8b:9x16 // ⿰糹宋
+⿰ han-7cf9-g:5x16 1 han-5b8b:9x16 // ⿰糹宋
 
 ## 120.8
 
@@ -517,7 +517,7 @@ glyph han-30ae7:15x16 15 16 // 𰫧
 ## 120.12
 
 glyph han-30af4:15x16 15 16 // 𰫴
-⿲ -5 han-7cf9:5x16 1 han-56f0:9x16 han-7acb:5x16 // ⿲糹困立
+⿲ -5 han-7cf9-g:5x16 1 han-56f0:9x16 han-7acb:5x16 // ⿲糹困立
 
 ## 120.16
 

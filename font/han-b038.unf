@@ -382,7 +382,7 @@ glyph han-217b8:15x16 15 16 // 𡞸
 // ⿰ han-5973 han-6631 // ⿰女昱
 
 glyph han-217c5:15x16 15 16 // 𡟅
-⿲ han-5973:5x16-l han-7cf9:5x16 han-52fa-t:5x16 // ⿲女糹勺
+⿲ han-5973:5x16-l han-7cf9-t:5x16 han-52fa-t:5x16 // ⿲女糹勺
 
 glyph han-217ca:15x16 15 16 // 𡟊
 ⿲ han-5973:5x16-l han-79be:5x16 han-706b:5x16 // ⿲女禾火
@@ -418,6 +418,9 @@ glyph han-217f5:15x16 15 16 // 𡟵
 
 glyph han-21800:15x16 15 16 // 𡠀
 ⿰ han-5973:5x16-l 1 han-9ad8:9x16 // ⿰女高
+glyph han-21800.0:* = han-21800:*
+glyph han-21800.1:15x16 15 16 // 𡠀
+⿰ han-5973:5x16-l 1 han-9ad8.x:9x16 // ⿰女高
 
 // glyph han-21807:15x16 15 16 // 𡠇
 // ⿰ han-5973 han-22663 // ⿰女𢙣

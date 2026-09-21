@@ -205,8 +205,12 @@ glyph han-25e9a:15x16 15 16 // 𥺚
 // glyph han-25e9c:15x16 15 16 // 𥺜
 // ⿱ han-6ce5 han-7c73 // ⿱泥米
 
-glyph han-25e9d:15x16 15 16 // 𥺝
-⿰ han-7c73:7x16 han-5468:8x16 // ⿰米周
+glyph han-25e9d.0:15x16 15 16 // 𥺝
+⿰ han-7c73:5x16 han-5468.0:10x16 // ⿰米周
+glyph han-25e9d.1:15x16 15 16 // 𥺝
+⿰ han-7c73:5x16 han-5468.1:10x16 // ⿰米周
+glyph han-25e9d-(j|p):* = han-25e9d.0:*
+glyph han-25e9d-(g|t):* = han-25e9d.1:*
 
 // glyph han-25e9f:15x16 15 16 // 𥺟
 // ⿱ han-975e han-7c73 // ⿱非米
@@ -306,7 +310,7 @@ glyph han-25eda:15x16 15 16 // 𥻚
 // ⿰ han-7c73 han-8336 // ⿰米茶
 
 glyph han-25efb:15x16 15 16 // 𥻻
-⿲ -7 han-7c73:5x16 han-7cf9:5x16 1 han-5185:11x16 // ⿲米糹内
+⿲ -7 han-7c73:5x16 han-7cf9-v:5x16 1 han-5185:11x16 // ⿲米糹内
 
 ## 119.11
 
@@ -380,7 +384,7 @@ glyph han-25f6c:15x16 15 16 // 𥽬
 ## 119.18
 
 glyph han-25f75:15x16 15 16 // 𥽵
-⿲ -2 han-7c73:5x16 han-7cf9:5x16 han-582f:7x16 // ⿲米糹堯
+⿲ -2 han-7c73:5x16 han-7cf9-v:5x16 han-582f:7x16 // ⿲米糹堯
 
 ## 119.19
 

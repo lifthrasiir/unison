@@ -606,7 +606,7 @@ glyph han-4b7f:15x16 15 16 // 䭿
 ⿰ han-99ac:7x16 1 han-5931:7x16 // ⿰馬失
 
 glyph han-4b80:15x16 15 16 // 䮀
-⿰ han-99ac:7x16 1 han-5305:7x16 // ⿰馬包
+⿰ han-99ac:7x16 1 han-5305.1:7x16 // ⿰馬包
 
 // glyph han-4b81:15x16 15 16 // 䮁
 // ⿰ han-99ac han-5f01 // ⿰馬弁
@@ -760,6 +760,7 @@ glyph han-4bd9-($han-regions):15x16 15 16 // 䯙
 
 glyph han-4be8:15x16 15 16 // 䯨
 ⿱ han-9ad8:15x9 han-5927:15x7 // ⿱高大
+glyph han-4be8.0:* = han-4be8:*
 
 ## 189.4
 
@@ -1014,7 +1015,7 @@ glyph han-4cc6:15x16 15 16 // 䳆
 ⿰ han-767d:6x16 1 han-9ce5:7x16 // ⿰白鳥
 
 glyph han-4cc8:15x16 15 16 // 䳈
-⿰ han-9ce5:7x16 1 han-5305:7x16 // ⿰鳥包
+⿰ han-9ce5:7x16 1 han-5305.1:7x16 // ⿰鳥包
 
 // glyph han-4cc9-($han-regions):15x16 15 16 // 䳉
 // ⿰ han-51ac-($-1) han-9ce5 // ⿰冬鳥

@@ -126,6 +126,7 @@ glyph han-6b48:15x16 15 16 // 歈
 
 glyph han-6b4a:15x16 15 16 // 歊
 ⿰ han-9ad8:7x16 1 han-6b20:7x16 // ⿰高欠
+glyph han-6b4a.0:* = han-6b4a:*
 
 glyph han-6b4c:15x16 15 16 // 歌
 ⿰ han-54e5:7x16 1 han-6b20:7x16 // ⿰哥欠
