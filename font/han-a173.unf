@@ -193,8 +193,10 @@ glyph han-4a67-($han-regions):15x16 15 16 // 䩧
 glyph han-4a70:15x16 15 16 // 䩰
 ⿰ han-9769:5x16 han-54a0:10x16 // ⿰革咠
 
-glyph han-4a71:15x16 15 16 // 䩱
-⿰ han-9769:7x16 1 han-4fde:7x16 // ⿰革俞
+glyph han-4a71-(g|t):15x16 15 16 // 䩱
+⿰ han-9769:7x16 1 han-4fde.0:7x16 // ⿰革俞
+glyph han-4a71-(j|p):15x16 15 16 // 䩱
+⿰ han-9769:7x16 1 han-4fde.y:7x16 // ⿰革俞
 
 glyph han-4a74:15x16 15 16 // 䩴
 ⿲ -1 han-9769:5x16 1 han-53e4:5x16 han-6708:5x16 // ⿲革古月

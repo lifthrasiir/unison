@@ -521,8 +521,10 @@ glyph han-2a0bf:15x16 15 16 // 𪂿
 glyph han-2a0cc:15x16 15 16 // 𪃌
 ⿰ han-661c:7x16 1 han-9ce5:7x16 // ⿰昜鳥
 
-glyph han-2a0ce:15x16 15 16 // 𪃎
-⿰ han-4fde:7x16 1 han-9ce5:7x16 // ⿰俞鳥
+glyph han-2a0ce-(g|t):15x16 15 16 // 𪃎
+⿰ han-4fde.0:7x16 1 han-9ce5:7x16 // ⿰俞鳥
+glyph han-2a0ce-j:15x16 15 16 // 𪃎
+⿰ han-4fde.y:7x16 1 han-9ce5:7x16 // ⿰俞鳥
 
 // glyph han-2a0cf:15x16 15 16 // 𪃏
 // ⿰ han-67d0 han-9ce5 // ⿰某鳥

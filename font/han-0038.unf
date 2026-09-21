@@ -725,8 +725,10 @@ glyph han-5aaa:15x16 15 16 // 媪
 // glyph han-5aac:15x16 15 16 // 媬
 // ⿲ han-5973 han-4ebb han-5446 // ⿲女亻呆 <- ⿰女保
 
-glyph han-5aae:15x16 15 16 // 媮
-⿰ han-5973:7x16 1 han-4fde:7x16 // ⿰女俞
+glyph han-5aae-(g|h|t):15x16 15 16 // 媮
+⿰ han-5973:5x16-l 1 han-4fde.0:9x16 // ⿰女俞
+glyph han-5aae-p:15x16 15 16 // 媮
+⿰ han-5973:5x16-l 1 han-4fde.2:9x16 // ⿰女俞
 
 glyph han-5acf:15x16 15 16 // 嫏
 ⿲ -1 han-5973:5x16-l han-826f:7x16 han-961d:4x16-r // ⿲女良阝

@@ -20,7 +20,7 @@ glyph han-263f9-($han-regions):15x16 15 16 // 𦏹
 ⿰ han-7fbd-($-1):9x16 1 han-5e72:5x16 // ⿰羽干
 
 glyph han-263fa-($han-regions):15x16 15 16 // 𦏺
-⿱ han-5de5:15x8 2 han-7fbd-($-1):15x6 // ⿱工羽
+⿱ han-5de5:15x5 1 han-7fbd-($-1):15x10 // ⿱工羽
 
 glyph han-263fc-($han-regions):15x16 15 16 // 𦏼
 ⿰ han-5de5:5x16-l 1 han-7fbd-($-1):9x16 // ⿰工羽
@@ -476,7 +476,7 @@ glyph han-265a6:15x16 15 16 // 𦖦
 // ⿰ han-800e han-8033 // ⿰耎耳
 
 glyph han-265ad:15x16 15 16 // 𦖭
-⿰ han-8033:7x16 1 han-4fde:7x16 // ⿰耳俞
+⿰ han-8033:7x16 1 han-4fde-h:7x16 // ⿰耳俞
 
 // glyph han-265b7:15x16 15 16 // 𦖷
 // ⿰ han-601d han-8033 // ⿰思耳

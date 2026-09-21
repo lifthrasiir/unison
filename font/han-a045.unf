@@ -367,8 +367,10 @@ glyph han-3845:15x16 15 16 // 㡅
 
 ## 50.9
 
-glyph han-384f:15x16 15 16 // 㡏
-⿰ han-5dfe:7x16 1 han-4fde:7x16 // ⿰巾俞
+glyph han-384f-(g|t):15x16 15 16 // 㡏
+⿰ han-5dfe:5x16 1 han-4fde.0:9x16 // ⿰巾俞
+glyph han-384f-(j|k|p):15x16 15 16 // 㡏
+⿰ han-5dfe:5x16 1 han-4fde.y:9x16 // ⿰巾俞
 
 // glyph han-3851:15x16 15 16 // 㡑
 // ⿱ han-79cb han-5dfe // ⿱秋巾

@@ -572,8 +572,10 @@ glyph han-34ee-(g|t):* = han-34ee.1:*
 
 ## 18.9
 
-glyph han-34f1:15x16 15 16 // 㓱
-⿰ han-4fde:9x16 1 han-5202:5x16 // ⿰俞刂
+glyph han-34f1-(g|t):15x16 15 16 // 㓱
+⿰ han-4fde.0:9x16 1 han-5202:5x16 // ⿰俞刂
+glyph han-34f1-j:15x16 15 16 // 㓱
+⿰ han-4fde.y:9x16 1 han-5202:5x16 // ⿰俞刂
 
 // glyph han-34f3:15x16 15 16 // 㓳
 // ⿺ han-662f han-5202 // ⿺是刂

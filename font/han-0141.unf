@@ -639,8 +639,16 @@ glyph han-874e:15x16 15 16 // 蝎
 glyph han-8752:15x16 15 16 // 蝒
 ⿰ han-866b:7x16 1 han-9762:7x16 // ⿰虫面
 
-glyph han-8753:15x16 15 16 // 蝓
-⿰ han-866b:7x16 1 han-4fde:7x16 // ⿰虫俞
+glyph han-8753.0:15x16 15 16 // 蝓
+⿰ han-866b:5x16 1 han-4fde.y:9x16 // ⿰虫俞
+glyph han-8753.1:* = han-8753.0:*
+glyph han-8753.2:15x16 15 16 // 蝓
+⿰ han-866b:5x16 1 han-4fde.0:9x16 // ⿰虫俞
+glyph han-8753.x:15x16 15 16 // 蝓
+⿰ han-866b:5x16 1 han-4fde.2:9x16 // ⿰虫俞
+glyph han-8753-(j|k):* = han-8753.0:*
+glyph han-8753-(g|h|t):* = han-8753.2:*
+glyph han-8753-p:* = han-8753.x:*
 
 // glyph han-8754:15x16 15 16 // 蝔
 // ⿰ han-866b han-7686 // ⿰虫皆
@@ -1296,8 +1304,15 @@ glyph han-8910:15x16 15 16 // 褐
 // glyph han-8913:15x16 15 16 // 褓
 // ⿲ han-8864 han-4ebb han-5446 // ⿲衤亻呆 <- ⿰衤保
 
-glyph han-8915:15x16 15 16 // 褕
-⿰ han-8864:7x16 1 han-4fde:7x16 // ⿰衤俞
+glyph han-8915.0:15x16 15 16 // 褕
+⿰ han-8864:5x16 1 han-4fde.y:9x16 // ⿰衤俞
+glyph han-8915.x:15x16 15 16 // 褕
+⿰ han-8864:5x16 1 han-4fde.0:9x16 // ⿰衤俞
+glyph han-8915.y:15x16 15 16 // 褕
+⿰ han-8864:5x16 1 han-4fde.2:9x16 // ⿰衤俞
+glyph han-8915-(j|k):* = han-8915.0:*
+glyph han-8915-(g|h|t):* = han-8915.x:*
+glyph han-8915-p:* = han-8915.y:*
 
 glyph han-8918:15x16 15 16 // 褘
 ⿰ han-8864:5x16 1 han-97cb:9x16 // ⿰衤韋

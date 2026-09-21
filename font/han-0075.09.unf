@@ -103,8 +103,13 @@ glyph han-6983:15x16 15 16 // 榃
 glyph han-6985:15x16 15 16 // 榅
 ⿰ han-6728:5x16 1 han-6637:9x16 // ⿰木昷
 
-glyph han-6986:15x16 15 16 // 榆
-⿰ han-6728:7x16 1 han-4fde:7x16 // ⿰木俞
+glyph han-6986.0:15x16 15 16 // 榆
+⿰ han-6728:5x16 1 han-4fde.0:9x16 // ⿰木俞
+glyph han-6986.1:* = han-6986.0:*
+glyph han-6986.2:15x16 15 16 // 榆
+⿰ han-6728:5x16 1 han-4fde.2:9x16 // ⿰木俞
+glyph han-6986-(g|h|t|j):* = han-6986.0:*
+glyph han-6986-p:* = han-6986.2:*
 
 // glyph han-6987:15x16 15 16 // 榇
 // ⿰ han-6728 han-4eb2 // ⿰木亲

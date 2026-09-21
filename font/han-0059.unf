@@ -998,8 +998,14 @@ glyph han-6107:15x16 15 16 // 愇
 // glyph han-6108:15x16 15 16 // 愈
 // ⿱ han-4fde han-5fc3 // ⿱俞心
 
-glyph han-6109:15x16 15 16 // 愉
-⿰ han-5fc4:7x16 1 han-4fde:7x16 // ⿰忄俞
+glyph han-6109.0:15x16 15 16 // 愉
+⿰ han-5fc4:5x16 1 han-4fde.0:9x16 // ⿰忄俞
+glyph han-6109.1:15x16 15 16 // 愉
+⿰ han-5fc4:5x16 1 han-4fde.y:9x16 // ⿰忄俞
+glyph han-6109.2:* = han-6109.0:*
+glyph han-6109.3:* = han-6109.1:*
+glyph han-6109-(g|h|t|j):* = han-6109.0:*
+glyph han-6109-(k|p):* = han-6109.1:*
 
 glyph han-610f:15x16 15 16 // 意
 ⿳ han-7acb:15x5 1 han-65e5:15x5 han-5fc3:15x5 // ⿳立日心

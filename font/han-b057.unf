@@ -504,8 +504,10 @@ glyph han-22519:15x16 15 16 // 𢔙
 // glyph han-22521:15x16 15 16 // 𢔡
 // ⿰ han-5f73 han-7686 // ⿰彳皆
 
-glyph han-22522:15x16 15 16 // 𢔢
-⿰ han-5f73:5x16 1 han-4fde:9x16 // ⿰彳俞
+glyph han-22522-(g|t):15x16 15 16 // 𢔢
+⿰ han-5f73:5x16 1 han-4fde.0:9x16 // ⿰彳俞
+glyph han-22522-j:15x16 15 16 // 𢔢
+⿰ han-5f73:5x16 1 han-4fde.y:9x16 // ⿰彳俞
 
 glyph han-2252a-($han-regions):15x16 15 16 // 𢔪
 ⿰ han-5f73:5x16 1 han-8005-($-1):9x16 // ⿰彳者

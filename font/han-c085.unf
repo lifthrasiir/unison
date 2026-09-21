@@ -269,8 +269,10 @@ glyph han-2ae45:15x16 15 16 // 𪹅
 // glyph han-2ae48:15x16 15 16 // 𪹈
 // ⿰ han-706b han-6630 // ⿰火昰
 
-glyph han-2ae4a:15x16 15 16 // 𪹊
-⿰ han-706b:7x16 1 han-4fde:7x16 // ⿰火俞
+glyph han-2ae4a-(g|t):15x16 15 16 // 𪹊
+⿰ han-706b:5x16-l 1 han-4fde.0:9x16 // ⿰火俞
+glyph han-2ae4a-k:15x16 15 16 // 𪹊
+⿰ han-706b:5x16-l 1 han-4fde.y:9x16 // ⿰火俞
 
 glyph han-2ae51:15x16 15 16 // 𪹑
 ⿰ han-53ec:6x16 han-708e:9x16 // ⿰召炎

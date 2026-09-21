@@ -1381,8 +1381,14 @@ glyph han-7458:15x16 15 16 // 瑘
 glyph han-745a:15x16 15 16 // 瑚
 ⿲ han-248e9:3x16 han-53e4:7x16 han-6708:5x16 // ⿲𤣩古月
 
-glyph han-745c:15x16 15 16 // 瑜
-⿰ han-248e9:7x16 1 han-4fde:7x16 // ⿰𤣩俞
+glyph han-745c.0:15x16 15 16 // 瑜
+⿰ han-248e9:5x16 1 han-4fde.y:9x16 // ⿰𤣩俞
+glyph han-745c.1:* = han-745c.0:*
+glyph han-745c.2:15x16 15 16 // 瑜
+⿰ han-248e9:5x16 1 han-4fde.0:9x16 // ⿰𤣩俞
+glyph han-745c.3:* = han-745c.2:*
+glyph han-745c-(j|k|p):* = han-745c.0:*
+glyph han-745c-(g|h|t):* = han-745c.2:*
 
 glyph han-745d:15x16 15 16 // 瑝
 ⿰ han-248e9:5x16 1 han-7687:9x16 // ⿰𤣩皇

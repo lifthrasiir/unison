@@ -5,8 +5,16 @@
 // glyph han-6e1c:15x16 15 16 // 渜
 // ⿰ han-6c35 han-800e // ⿰氵耎
 
-glyph han-6e1d:15x16 15 16 // 渝
-⿰ han-6c35:5x16 1 han-4fde:9x16 // ⿰氵俞
+glyph han-6e1d.0:15x16 15 16 // 渝
+⿰ han-6c35:5x16 1 han-4fde.y:9x16 // ⿰氵俞
+glyph han-6e1d.1:* = han-6e1d.0:*
+glyph han-6e1d.2:15x16 15 16 // 渝
+⿰ han-6c35:5x16 1 han-4fde.0:9x16 // ⿰氵俞
+glyph han-6e1d.x:15x16 15 16 // 渝
+⿰ han-6c35:5x16 1 han-4fde.2:9x16 // ⿰氵俞
+glyph han-6e1d-(j|k):* = han-6e1d.0:*
+glyph han-6e1d-(g|h|t):* = han-6e1d.2:*
+glyph han-6e1d-p:* = han-6e1d.x:*
 
 // glyph han-6e1e:15x16 15 16 // 渞
 // ⿰ han-6c35 han-9996 // ⿰氵首
@@ -361,7 +369,7 @@ glyph han-702c:15x16 15 16 // 瀬
 ⿲ -1 han-6c35:3x16 han-675f:7x16 1 han-9801:5x16 // ⿲氵束頁
 
 glyph han-702d:15x16 15 16 // 瀭
-⿲ han-6c35:3x16 han-8eca:5x16 han-4fde:7x16 // ⿲氵車俞
+⿲ han-6c35:3x16 han-8eca:5x16 han-4fde.0:7x16 // ⿲氵車俞
 
 // glyph han-702e-($han-regions):15x16 15 16 // 瀮
 // ⿰ han-6c35 han-9716-($-1) // ⿰氵霖

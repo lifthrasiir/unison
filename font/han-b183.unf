@@ -219,8 +219,10 @@ glyph han-29724:15x16 15 16 // 𩜤
 // glyph han-29735:15x16 15 16 // 𩜵
 // ⿰ han-98e0 han-8011 // ⿰飠耑
 
-glyph han-29736:15x16 15 16 // 𩜶
-⿰ han-98e0:7x16 1 han-4fde:7x16 // ⿰飠俞
+glyph han-29736-(g|t):15x16 15 16 // 𩜶
+⿰ han-98e0:7x16 1 han-4fde.0:7x16 // ⿰飠俞
+glyph han-29736-(j|k|p):15x16 15 16 // 𩜶
+⿰ han-98e0:7x16 1 han-4fde.y:7x16 // ⿰飠俞
 
 glyph han-2973c-g:15x16 15 16 // 𩜼
 ⿰ han-98e0:7x16 1 han-8005-g:7x16 // ⿰飠者

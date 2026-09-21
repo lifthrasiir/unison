@@ -883,8 +883,13 @@ glyph han-8e24:15x16 15 16 // 踤
 
 ## 157.9
 
-glyph han-8e30:15x16 15 16 // 踰
-⿰ han-27fb7:5x16 1 han-4fde:9x16 // ⿰𧾷俞
+glyph han-8e30.0:15x16 15 16 // 踰
+⿰ han-27fb7:5x16 1 han-4fde.y:9x16 // ⿰𧾷俞
+glyph han-8e30.1:* = han-8e30.0:*
+glyph han-8e30.2:15x16 15 16 // 踰
+⿰ han-27fb7:5x16 1 han-4fde.0:9x16 // ⿰𧾷俞
+glyph han-8e30-(j|k|p):* = han-8e30.0:*
+glyph han-8e30-(g|h|t):* = han-8e30.2:*
 
 // glyph han-8e35:15x16 15 16 // 踵
 // ⿰ han-27fb7 han-91cd // ⿰𧾷重

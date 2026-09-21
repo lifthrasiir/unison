@@ -710,8 +710,10 @@ glyph han-40c6:15x16 15 16 // 䃆
 // glyph han-40ca:15x16 15 16 // 䃊
 // ⿰ han-77f3 han-82f4 // ⿰石苴
 
-glyph han-40cb:15x16 15 16 // 䃋
-⿰ han-77f3:7x16 1 han-4fde:7x16 // ⿰石俞
+glyph han-40cb-(g|t):15x16 15 16 // 䃋
+⿰ han-77f3:5x16 1 han-4fde.0:9x16 // ⿰石俞
+glyph han-40cb-j:15x16 15 16 // 䃋
+⿰ han-77f3:5x16 1 han-4fde.y:9x16 // ⿰石俞
 
 // glyph han-40cc:15x16 15 16 // 䃌
 // ⿰ han-77f3 han-5794 // ⿰石垔
@@ -837,9 +839,9 @@ glyph han-4113-(g|t):* = han-4113.1:*
 // ⿰ han-793b han-7553 // ⿰礻畓
 
 glyph han-4116-g:15x16 15 16 // 䄖
-⿰ han-793b:7x16 1 han-4fde:7x16 // ⿰礻俞
+⿰ han-793b:5x16 1 han-4fde.0:9x16 // ⿰礻俞
 glyph han-4116-k:15x16 15 16 // 䄖
-⿰ han-793a:7x16 1 han-4fde:7x16 // ⿰示俞
+⿰ han-793a:5x16 1 han-4fde.y:9x16 // ⿰示俞
 
 ## 113.12
 

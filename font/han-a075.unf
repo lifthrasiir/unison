@@ -979,8 +979,10 @@ glyph han-3e7f:15x16 15 16 // 㹿
 
 ## 94.9
 
-glyph han-3e84:15x16 15 16 // 㺄
-⿰ han-72ad:6x16 han-4fde:9x16 // ⿰犭俞
+glyph han-3e84-(g|t):15x16 15 16 // 㺄
+⿰ han-72ad:6x16 han-4fde.0:9x16 // ⿰犭俞
+glyph han-3e84-(j|k):15x16 15 16 // 㺄
+⿰ han-72ad:6x16 han-4fde.y:9x16 // ⿰犭俞
 
 ## 94.11
 

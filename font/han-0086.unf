@@ -1372,13 +1372,15 @@ glyph han-724c-(h|t):* = han-724c.x:*
 
 ## 91.9
 
-glyph han-724f-g:15x16 15 16 // 牏
-⿰ han-7247.0:8x16 han-4fde:7x16 // ⿰片俞
-glyph han-724f-(j|k|p):15x16 15 16 // 牏
-⿰ han-7247.0:8x16 han-4fde:7x16 // ⿰片俞
-glyph han-724f-(h|t):15x16 15 16 // 牏
-⿰ han-7247.x:6x16 2 han-4fde:7x16 // ⿰片俞
-glyph han-724f.0:* = han-724f-j:*
+glyph han-724f.0:15x16 15 16 // 牏
+⿰ han-7247.0:8x16 han-4fde.y:7x16 // ⿰片俞
+glyph han-724f.x:15x16 15 16 // 牏
+⿰ han-7247.0:8x16 han-4fde.0:7x16 // ⿰片俞
+glyph han-724f.y:15x16 15 16 // 牏
+⿰ han-7247.x:6x16 2 han-4fde.0:7x16 // ⿰片俞
+glyph han-724f-(j|k|p):* = han-724f.0:*
+glyph han-724f-g:* = han-724f.x:*
+glyph han-724f-(h|t):* = han-724f.y:*
 
 // glyph han-7252:15x16 15 16 // 牒
 // ⿰ han-7247 han-67bc // ⿰片枼

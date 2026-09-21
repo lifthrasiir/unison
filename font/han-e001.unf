@@ -388,7 +388,7 @@ glyph han-2b951:15x16 15 16 // 𫥑
 ⿲ han-51ab:3x16 han-675f:9x16 han-5202:3x16 // ⿲冫束刂
 
 glyph han-2b953:15x16 15 16 // 𫥓
-⿰ han-51ab:5x16 1 han-4fde:9x16 // ⿰冫俞
+⿰ han-51ab:5x16 1 han-4fde.0:9x16 // ⿰冫俞
 
 // glyph han-2b954:15x16 15 16 // 𫥔
 // ⿰ han-51ab han-4eb2 // ⿰冫亲

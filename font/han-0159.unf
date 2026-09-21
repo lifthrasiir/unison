@@ -500,11 +500,19 @@ glyph han-8f30:15x16 15 16 // 輰
 glyph han-8f35:15x16 15 16 // 輵
 ⿰ han-8eca:5x16 1 han-66f7:9x16 // ⿰車曷
 
-glyph han-8f38:15x16 15 16 // 輸
-⿰ han-8eca:7x16 1 han-4fde:7x16 // ⿰車俞
+glyph han-8f38.0:15x16 15 16 // 輸
+⿰ han-8eca:7x16 1 han-4fde.0:7x16 // ⿰車俞
+glyph han-8f38.1:15x16 15 16 // 輸
+⿰ han-8eca:7x16 1 han-4fde.y:7x16 // ⿰車俞
+glyph han-8f38.2:* = han-8f38.0:*
+glyph han-8f38.3:* = han-8f38.1:*
+glyph han-8f38.4:15x16 15 16 // 輸
+⿰ han-8eca:7x16 1 han-4fde.x:7x16 // ⿰車俞
+glyph han-8f38-(g|h|t|j|v):* = han-8f38.0:*
+glyph han-8f38-(k|p):* = han-8f38.1:*
 
 glyph han-8f3c:15x16 15 16 // 輼
-⿰ han-8eca:5x16 1 han-6637:9x16 // ⿰車昷
+⿰ han-8eca:7x16 -1 han-6637:9x16 // ⿰車昷
 
 ## 159.10
 
@@ -710,7 +718,7 @@ glyph han-8f92:15x16 15 16 // 辒
 ⿰ han-8f66:6x16-l han-6637:9x16 // ⿰车昷
 
 glyph han-8f93:15x16 15 16 // 输
-⿰ han-8f66:6x16-l han-4fde:9x16 // ⿰车俞
+⿰ han-8f66:6x16-l han-4fde.0:9x16 // ⿰车俞
 
 ## 159'.12
 
@@ -1481,8 +1489,10 @@ glyph han-90fc:15x16 15 16 // 郼
 glyph han-90fd-($han-regions):15x16 15 16 // 都
 ⿰ han-8005-($-1):9x16 1 han-961d:5x16-r // ⿰者阝
 
-glyph han-9103:15x16 15 16 // 鄃
-⿰ han-4fde:7x16 1 han-961d:7x16-r // ⿰俞阝
+glyph han-9103-(g|h|t):15x16 15 16 // 鄃
+⿰ han-4fde.0:9x16 1 han-961d:5x16-r // ⿰俞阝
+glyph han-9103-(j|k|p):15x16 15 16 // 鄃
+⿰ han-4fde.y:9x16 1 han-961d:5x16-r // ⿰俞阝
 
 // glyph han-9104:15x16 15 16 // 鄄
 // ⿰ han-5794 han-961d // ⿰垔阝

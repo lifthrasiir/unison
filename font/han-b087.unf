@@ -555,8 +555,10 @@ glyph han-2467e:15x16 15 16 // 𤙾
 
 ## 93.9
 
-glyph han-2468e:15x16 15 16 // 𤚎
-⿰ han-725c:6x16 han-4fde:9x16 // ⿰牜俞
+glyph han-2468e-(g|t):15x16 15 16 // 𤚎
+⿰ han-725c:6x16 han-4fde.0:9x16 // ⿰牜俞
+glyph han-2468e-(j|p):15x16 15 16 // 𤚎
+⿰ han-725c:6x16 han-4fde.y:9x16 // ⿰牜俞
 
 // glyph han-2468f:15x16 15 16 // 𤚏
 // ⿰ han-725c han-91cd // ⿰牜重

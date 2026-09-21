@@ -454,9 +454,9 @@ glyph han-7fe2-p:15x16 15 16 // 翢
 
 ## 124.10
 
-glyph han-7fef-($han-regions):15x16 15 16 // 翯
-⿱ han-7fbd-($-1):15x6 han-9ad8:15x10 // ⿱羽高
-glyph han-7fef.0:* = han-7fef-j:*
+glyph han-7fef:15x16 15 16 // 翯
+⿱ han-7fbd:15x6 han-9ad8:15x10 // ⿱羽高
+glyph han-7fef.0:* = han-7fef:*
 
 // glyph han-7ff1-($han-regions):15x16 15 16 // 翱
 // ⿰ han-768b han-7fbd-($-1) // ⿰皋羽
@@ -1697,8 +1697,15 @@ glyph han-8164:15x16 15 16 // 腤
 // glyph han-8165:15x16 15 16 // 腥
 // ⿰ han-6708 han-661f // ⿰月星
 
-glyph han-8167:15x16 15 16 // 腧
-⿰ han-6708:7x16 1 han-4fde:7x16 // ⿰月俞
+glyph han-8167.0:15x16 15 16 // 腧
+⿰ han-6708:6x16 han-4fde.y:9x16 // ⿰月俞
+glyph han-8167.x:15x16 15 16 // 腧
+⿰ han-6708:6x16 han-4fde.2:9x16 // ⿰月俞
+glyph han-8167.y:15x16 15 16 // 腧
+⿰ han-6708:6x16 han-4fde.0:9x16 // ⿰月俞
+glyph han-8167-(j|k):* = han-8167.0:*
+glyph han-8167-p:* = han-8167.x:*
+glyph han-8167-(g|h|t):* = han-8167.y:*
 
 // glyph han-8168:15x16 15 16 // 腨
 // ⿰ han-6708 han-8011 // ⿰月耑

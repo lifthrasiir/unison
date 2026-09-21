@@ -970,8 +970,12 @@ glyph han-9a14:15x16 15 16 // 騔
 glyph han-9a1c:15x16 15 16 // 騜
 ⿰ han-99ac:7x16 1 han-7687:7x16 // ⿰馬皇
 
-glyph han-9a1f:15x16 15 16 // 騟
-⿰ han-99ac:7x16 1 han-4fde:7x16 // ⿰馬俞
+glyph han-9a1f-(g|h|t|k):15x16 15 16 // 騟
+⿰ han-99ac:7x16 1 han-4fde.0:7x16 // ⿰馬俞
+glyph han-9a1f-j:15x16 15 16 // 騟
+⿰ han-99ac:7x16 1 han-4fde.y:7x16 // ⿰馬俞
+glyph han-9a1f-p:15x16 15 16 // 騟
+⿰ han-99ac:7x16 1 han-4fde.2:7x16 // ⿰馬俞
 
 glyph han-9a20:15x16 15 16 // 騠
 ⿰ han-99ac:7x16 1 han-662f:7x16 // ⿰馬是

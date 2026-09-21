@@ -1538,8 +1538,12 @@ glyph han-5824:15x16 15 16 // 堤
 glyph han-5828:15x16 15 16 // 堨
 ⿰ han-571f:5x16-l 1 han-66f7:9x16 // ⿰土曷
 
-glyph han-582c:15x16 15 16 // 堬
-⿰ han-571f:7x16 1 han-4fde:7x16 // ⿰土俞
+glyph han-582c-(g|h|t):15x16 15 16 // 堬
+⿰ han-571f:5x16-l 1 han-4fde.0:9x16 // ⿰土俞
+glyph han-582c-(j|k):15x16 15 16 // 堬
+⿰ han-571f:5x16-l 1 han-4fde.y:9x16 // ⿰土俞
+glyph han-582c-p:15x16 15 16 // 堬
+⿰ han-571f:5x16-l 1 han-4fde.2:9x16 // ⿰土俞
 
 glyph han-582d:15x16 15 16 // 堭
 ⿰ han-571f:5x16-l 1 han-7687:9x16 // ⿰土皇

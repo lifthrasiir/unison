@@ -119,8 +119,10 @@ glyph han-6b46:15x16 15 16 // 歆
 glyph han-6b47:15x16 15 16 // 歇
 ⿰ han-66f7:8x16 han-6b20:7x16 // ⿰曷欠
 
-glyph han-6b48:15x16 15 16 // 歈
-⿰ han-4fde:7x16 1 han-6b20:7x16 // ⿰俞欠
+glyph han-6b48-(g|h|t):15x16 15 16 // 歈
+⿰ han-4fde.0:7x16 1 han-6b20:7x16 // ⿰俞欠
+glyph han-6b48-(j|k|p):15x16 15 16 // 歈
+⿰ han-4fde.y:7x16 1 han-6b20:7x16 // ⿰俞欠
 
 ## 76.10
 
@@ -1177,8 +1179,12 @@ glyph han-6bef:15x16 15 16 // 毯
 // glyph han-6bf8:15x16 15 16 // 毸
 // ⿺ han-6bdb han-601d // ⿺毛思
 
-glyph han-6bf9:15x16 15 16 // 毹
-⿰ han-4fde:7x16 1 han-6bdb:7x16 // ⿰俞毛
+glyph han-6bf9.0:15x16 15 16 // 毹
+⿰ han-4fde.y:7x16 1 han-6bdb:7x16 // ⿰俞毛
+glyph han-6bf9.x:15x16 15 16 // 毹
+⿰ han-4fde.0:7x16 1 han-6bdb:7x16 // ⿰俞毛
+glyph han-6bf9-(j|k|p):* = han-6bf9.0:*
+glyph han-6bf9-(g|h|t):* = han-6bf9.x:*
 
 // glyph han-6bfa:15x16 15 16 // 毺
 // ⿺ han-6bdb han-4fde // ⿺毛俞

@@ -638,7 +638,7 @@ glyph han-2580b:15x16 15 16 // 𥠋
 // ⿰ han-79be han-67bc // ⿰禾枼
 
 glyph han-25815:15x16 15 16 // 𥠕
-⿰ han-79be:7x16 1 han-4fde:7x16 // ⿰禾俞
+⿰ han-79be:5x16 1 han-4fde-t:9x16 // ⿰禾俞
 
 // glyph han-25818:15x16 15 16 // 𥠘
 // ⿰ han-79be han-6cc9 // ⿰禾泉

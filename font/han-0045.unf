@@ -703,8 +703,10 @@ glyph han-5d31:15x16 15 16 // 崱
 glyph han-5d32:15x16 15 16 // 崲
 ⿰ han-5c71:5x16 1 han-7687:9x16 // ⿰山皇
 
-glyph han-5d33:15x16 15 16 // 崳
-⿰ han-5c71:7x16 1 han-4fde:7x16 // ⿰山俞
+glyph han-5d33-(g|h|t):15x16 15 16 // 崳
+⿰ han-5c71:5x16-l 1 han-4fde.0:9x16 // ⿰山俞
+glyph han-5d33-(j|k):15x16 15 16 // 崳
+⿰ han-5c71:5x16-l 1 han-4fde.y:9x16 // ⿰山俞
 
 glyph han-5d35:15x16 15 16 // 崵
 ⿰ han-5c71:5x16 1 han-661c:9x16 // ⿰山昜
