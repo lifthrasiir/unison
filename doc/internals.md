@@ -261,4 +261,5 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Why a character the built font lacks must not keep the glyph id Core Text hands back | `preview/coretext.rs` (`run_is_font`) |
 | How tall a preview row is; why the editor's preedit box cannot crop a glyph but the preview's could | `preview/metrics.rs` (`VMetrics`), `editor/document_view/paint.rs` |
 | The text-editing keys, and the state both the editor and the preview edit through | `editor/doc_input.rs` (`TextEdit`) |
+| Who answers Ctrl/Cmd+C, and why the last surface of the frame is the one the clipboard keeps | `clipboard.rs` (`release_label_selection`), `editor/doc_input.rs` (`copy_range`), `specimen.rs` (`CopyKey`) |
 | Where a `sample` reaches the reader: the demo's panel and the editor's *Use* button | `render/demo/mod.rs` (`collect_samples`), `editor/document_view/paint.rs` (`sample_use_rect`), `app/mod.rs` |

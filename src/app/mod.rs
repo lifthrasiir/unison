@@ -893,6 +893,15 @@ impl eframe::App for UniformApp {
         self.sync_window_title(ctx);
         self.ensure_ref_images(ctx);
 
+        // Before any panel draws, and so before any label: a copy keystroke
+        // belongs to whatever holds the keyboard, not to a label a stray drag
+        // left a text selection in. Both flags are last frame's, which is the
+        // state the keystroke was aimed at. See
+        // [`crate::clipboard::release_label_selection`].
+        let typing_surface_has_focus = self.shaped_preview.is_focused()
+            || self.active_doc().is_some_and(|d| d.editor_state.is_active());
+        crate::clipboard::release_label_selection(ctx, typing_surface_has_focus);
+
         let mut menu = MenuActions::default();
         // First of all the input: while the palette is open it owns the list
         // keys, Escape included, and takes them out of the queue.

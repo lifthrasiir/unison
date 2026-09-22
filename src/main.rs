@@ -3,6 +3,8 @@ mod alias;
 mod app;
 mod audit;
 mod cancel;
+#[cfg(feature = "editor")]
+mod clipboard;
 mod compose;
 mod detail;
 mod document;
@@ -1290,6 +1292,11 @@ fn main() {
                 .with_app_id("org.mearie.Uniform"),
             ..Default::default()
         };
+
+        // `egui-winit` reports a clipboard it could not open or write to
+        // through `log`, and nothing else in this binary installs a sink for
+        // it. See `clipboard.rs`.
+        clipboard::install_log_sink();
 
         // The marks bracket eframe's own window + wgpu setup, which is the one
         // startup cost that is neither ours nor the loader's.
