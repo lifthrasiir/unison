@@ -38,9 +38,10 @@
 //! `glyph b-(g|j|k)` with `ref a-(g|j|k)` is one glyph exactly when the three
 //! `a-*` are. So the comparison is over the merge relation σ itself, computed
 //! as a least fixpoint: start from the declared aliases, and repeatedly group
-//! each block's expansions by their slots mapped through σ. Merges are only
-//! ever added, never taken back, so this terminates, and it needs no
-//! topological order over the `ref` graph — a chain of depth *n* settles in
+//! each block's expansions by their slots mapped through σ. A round only ever
+//! *joins* two groups of σ — see [`Merged`], which is what makes that true
+//! however contradictory the blocks are — so this terminates, and it needs no
+//! topological order over the `ref` graph: a chain of depth *n* settles in
 //! *n* rounds, and a reference cycle (already an error) merely stops merging
 //! rather than spinning.
 //!
@@ -123,10 +124,7 @@ pub fn implicit_merges(
     }
     let matched = remap_inputs(docs, name_parts, aliases);
 
-    // Name → the glyph it has been merged into. Values are never keys: a
-    // representative is canonicalized before it is stored, so `canon` is one
-    // lookup and not a walk.
-    let mut merged: HashMap<String, String> = HashMap::default();
+    let mut merged = Merged::default();
 
     loop {
         let mut changed = false;
@@ -157,20 +155,14 @@ pub fn implicit_merges(
                         first_with_key.insert(key.as_slice(), i);
                     }
                     Some(&first) => {
-                        let name = &block.members[i];
-                        let rep = canon(&block.members[first], &merged, aliases).to_string();
-                        // A name that already stands for the representative —
-                        // this round or an earlier one — is not a change, and
-                        // saying so is what ends the loop.
-                        if *name != rep && canon(name, &merged, aliases) != rep {
-                            new_merges.push((name.clone(), rep));
-                        }
+                        new_merges.push((block.members[i].clone(), block.members[first].clone()));
                     }
                 }
             }
-            for (name, rep) in new_merges {
-                merged.insert(name, rep);
-                changed = true;
+            // Joining two groups that are already one is not a change, and
+            // saying so is what ends the loop.
+            for (name, first) in new_merges {
+                changed |= merged.join(&name, &first, aliases);
             }
         }
         if !changed {
@@ -178,17 +170,77 @@ pub fn implicit_merges(
         }
     }
 
-    let mut out: Vec<(String, String)> = merged.into_iter().collect();
-    out.sort();
-    out
+    merged.into_pairs()
+}
+
+/// σ under construction: every merged name with the name it was merged into,
+/// as a forest whose roots are the representatives.
+///
+/// # Why this is not a flat map
+///
+/// It was one, with the representative canonicalized before it was stored so
+/// that a lookup was one hop and not a walk — which holds only while each name
+/// belongs to one block, and so has one opinion about what it stands for. Two
+/// blocks declaring the same name (a duplicate declaration, which the report
+/// warns about — from a stage that runs after this one) each want that name
+/// merged into their own first expansion, and a flat map let the second
+/// overwrite the first every round, forever: `uniform build` spun at full tilt
+/// having printed nothing at all.
+///
+/// A join only ever points the root of one group at the root of another, so
+/// the number of groups falls with every change the loop reports and the
+/// fixpoint cannot run longer than there are names — whatever the blocks say.
+/// Roots are never rewritten in place, which is also what keeps the pairs this
+/// hands out flat: [`crate::alias::AliasMap::collect_with_merges`] follows a
+/// merge target exactly one step.
+#[derive(Default)]
+struct Merged {
+    parent: HashMap<String, String>,
+}
+
+impl Merged {
+    /// The representative `name` has been merged into, or `name` itself.
+    /// Cycle-free by construction — [`Self::join`] never points a root at its
+    /// own group — so the walk terminates.
+    fn find<'a>(&'a self, mut name: &'a str) -> &'a str {
+        while let Some(parent) = self.parent.get(name) {
+            name = parent.as_str();
+        }
+        name
+    }
+
+    /// Merge `name`'s group into `first`'s, and say whether that joined two
+    /// groups that were not already one. `first`'s representative wins, so the
+    /// name a block's first expansion settles on is the one the font keeps.
+    fn join(&mut self, name: &str, first: &str, aliases: &AliasMap) -> bool {
+        let root = canon(name, self, aliases).to_string();
+        let into = canon(first, self, aliases).to_string();
+        if root == into {
+            return false;
+        }
+        self.parent.insert(root, into);
+        true
+    }
+
+    /// Every merged name with the representative it ends at — the shape a
+    /// declared alias has, which is what this module produces instead of a
+    /// mechanism of its own.
+    fn into_pairs(self) -> Vec<(String, String)> {
+        let mut out: Vec<(String, String)> = self
+            .parent
+            .keys()
+            .map(|name| (name.clone(), self.find(name).to_string()))
+            .collect();
+        out.sort();
+        out
+    }
 }
 
 /// The glyph `name` stands for under the merges found so far and the declared
 /// aliases — the declared alias first, since that is the name a block's slot
 /// was written with.
-fn canon<'a>(name: &'a str, merged: &'a HashMap<String, String>, aliases: &'a AliasMap) -> &'a str {
-    let name = aliases.resolved_target(name).unwrap_or(name);
-    merged.get(name).map_or(name, |target| target.as_str())
+fn canon<'a>(name: &'a str, merged: &'a Merged, aliases: &'a AliasMap) -> &'a str {
+    merged.find(aliases.resolved_target(name).unwrap_or(name))
 }
 
 /// Every glyph name a `remap` rule *matches on*: a source, a lookbehind or a
@@ -477,6 +529,24 @@ remap g : a-alias -> x
 ",
         );
         assert!(m.is_empty(), "{m:?}");
+    }
+
+    /// Two blocks declaring one name between them — a duplicate declaration,
+    /// which is an error the report names, but one the fixpoint has to survive
+    /// rather than spin on. `x-n` is the second expansion of both blocks, so
+    /// each block wants it merged into its *own* first expansion; a σ that let
+    /// a name change representative flipped it between the two forever, and
+    /// the build hung before it had printed a word.
+    #[test]
+    fn a_name_two_blocks_declare_settles_instead_of_flipping() {
+        let m = merges("glyph x-(a|n) 1 1\n@@\nglyph x-(b|n) 1 1\n@@\n");
+        // Whichever representative wins, every name lands on one of them and
+        // no name is left pointing at a name that was merged on.
+        let reps: Vec<&str> = m.iter().map(|(_, rep)| rep.as_str()).collect();
+        for (name, _) in &m {
+            assert!(!reps.contains(&name.as_str()), "{m:?}");
+        }
+        assert!(m.iter().any(|(name, _)| name == "x-n"), "{m:?}");
     }
 
     /// `$name-parts` are substituted before anything is compared, exactly as
