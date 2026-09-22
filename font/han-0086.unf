@@ -627,10 +627,12 @@ glyph han-70fe:15x16 15 16 // 烾
 // glyph han-7103:15x16 15 16 // 焃
 // ⿰ han-706b han-8d64 // ⿰火赤
 
-glyph han-7105-(g|t|k|p):15x16 15 16 // 焅
-⿰ han-706b:7x16 han-544a:8x16 // ⿰火告
-glyph han-7105-(h|j):15x16 15 16 // 焅
+glyph han-7105.0:15x16 15 16 // 焅
 ⿰ han-706b:7x16 han-543f:8x16 // ⿰火吿
+glyph han-7105.x:15x16 15 16 // 焅
+⿰ han-706b:7x16 han-544a:8x16 // ⿰火告
+glyph han-7105-(h|j):* = han-7105.0:*
+glyph han-7105-(g|t|k|p):* = han-7105.x:*
 
 glyph han-7107.0:15x16 15 16 // 焇
 ⿰ han-706b:7x16 1 han-8096.1:7x16 // ⿰火肖

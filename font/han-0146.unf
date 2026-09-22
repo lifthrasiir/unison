@@ -1374,14 +1374,19 @@ glyph han-8aa2-($han-regions):15x16 15 16 // 誢
 // glyph han-8aa4:15x16 15 16 // 誤
 // ⿰ han-8a01 han-5434 // ⿰訁吴
 
-glyph han-8aa5-(g|t|k|p):15x16 15 16 // 誥
-⿰ han-8a01-($-1):5x16 han-544a:10x16 // ⿰訁告
-glyph han-8aa5-(h|j):15x16 15 16 // 誥
-⿰ han-8a01-($-1):5x16 han-543f:10x16 // ⿰訁吿
-glyph han-8aa5.0:* = han-8aa5-j:*
-glyph han-8aa5.1:* = han-8aa5-j:*
-glyph han-8aa5.2:* = han-8aa5-k:*
-glyph han-8aa5.3:* = han-8aa5-g:*
+glyph han-8aa5.0:15x16 15 16 // 誥
+⿰ han-8a01.0:5x16 han-543f:10x16 // ⿰訁吿
+glyph han-8aa5.1:* = han-8aa5.0:*
+glyph han-8aa5.2:15x16 15 16 // 誥
+⿰ han-8a01.0:5x16 han-544a:10x16 // ⿰訁告
+glyph han-8aa5.3:15x16 15 16 // 誥
+⿰ han-8a01.x:5x16 han-544a:10x16 // ⿰訁告
+glyph han-8aa5.x:15x16 15 16 // 誥
+⿰ han-8a01.x:5x16 han-543f:10x16 // ⿰訁吿
+glyph han-8aa5-j:* = han-8aa5.0:*
+glyph han-8aa5-k:* = han-8aa5.2:*
+glyph han-8aa5-(g|t|p):* = han-8aa5.3:*
+glyph han-8aa5-h:* = han-8aa5.x:*
 
 glyph han-8aa7-($han-regions):15x16 15 16 // 誧
 ⿰ han-8a01-($-1):5x16 1 han-752b:9x16 // ⿰訁甫

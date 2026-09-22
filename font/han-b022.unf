@@ -342,6 +342,9 @@ glyph han-20a11:15x16 15 16 // 𠨑
 glyph han-20a12-($han-regions):15x16 15 16 // 𠨒
 ⿰ han-6bd4-($-1):8x16 han-5369:7x16 // ⿰比卩
 
+// glyph han-20a13:15x16 15 16 // 𠨓
+// ⿰ han-2239f han-2239f // ⿰𢎟𢎟
+
 glyph han-20a16:15x16 15 16 // 𠨖
 ⿰ han-536a:7x16 1 han-536a:7x16 // ⿰卪卪
 

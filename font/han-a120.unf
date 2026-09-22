@@ -374,8 +374,10 @@ glyph han-438a-($han-regions):15x16 15 16 // 䎊
 
 ## 124.7
 
-glyph han-438b-($han-regions):15x16 15 16 // 䎋
-⿰ han-544a:7x16 han-7fbd-($-1):8x16 // ⿰告羽
+glyph han-438b-(g|t):15x16 15 16 // 䎋
+⿰ han-544a:7x16 han-7fbd.1:8x16 // ⿰告羽
+glyph han-438b-j:15x16 15 16 // 䎋
+⿰ han-543f:7x16 han-7fbd.0:8x16 // ⿰吿羽
 
 // glyph han-438c-($han-regions):15x16 15 16 // 䎌
 // ⿰ han-7fbd-($-1) han-8db3 // ⿰羽足

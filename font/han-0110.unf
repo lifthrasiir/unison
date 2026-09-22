@@ -380,10 +380,13 @@ glyph han-785d.1:* = han-785d-k:*
 glyph han-785d.2:* = han-785d-j:*
 glyph han-785d.3:* = han-785d-k:*
 
-glyph han-785e-(g|t|k|p):15x16 15 16 // 硞
-⿰ han-77f3:7x16 han-544a:8x16 // ⿰石告
-glyph han-785e-(h|j):15x16 15 16 // 硞
+glyph han-785e.0:15x16 15 16 // 硞
 ⿰ han-77f3:7x16 han-543f:8x16 // ⿰石吿
+glyph han-785e.1:* = han-785e.0:*
+glyph han-785e.2:15x16 15 16 // 硞
+⿰ han-77f3:7x16 han-544a:8x16 // ⿰石告
+glyph han-785e-(h|j):* = han-785e.0:*
+glyph han-785e-(g|t|k|p):* = han-785e.2:*
 
 glyph han-7860:15x16 15 16 // 硠
 ⿰ han-77f3:7x16 1 han-826f:7x16 // ⿰石良
@@ -923,12 +926,18 @@ glyph han-796e:15x16 15 16 // 祮
 // glyph han-7966:15x16 15 16 // 祦
 // ⿰ han-793b han-5434 // ⿰礻吴
 
-glyph han-7970-(g|t):15x16 15 16 // 祰
-⿰ han-793b:7x16 han-544a:8x16 // ⿰礻告
-glyph han-7970-h:15x16 15 16 // 祰
+glyph han-7970.0:15x16 15 16 // 祰
+⿰ han-793a:7x16 han-543f:8x16 // ⿰礻告
+glyph han-7970.1:15x16 15 16 // 祰
 ⿰ han-793b:7x16 han-543f:8x16 // ⿰礻吿
-glyph han-7970-(k|p):15x16 15 16 // 祰
+glyph han-7970.2:15x16 15 16 // 祰
+⿰ han-793b:7x16 han-544a:8x16 // ⿰礻告
+glyph han-7970.3:15x16 15 16 // 祰
 ⿰ han-793a:7x16 han-544a:8x16 // ⿰示告
+glyph han-7970-j:* = han-7970.0:*
+glyph han-7970-h:* = han-7970.1:*
+glyph han-7970-(g|t):* = han-7970.2:*
+glyph han-7970-(k|p):* = han-7970.3:*
 
 glyph han-7975:15x16 15 16 // 祵
 ⿰ han-793b:5x16 1 han-56f0:9x16 // ⿰礻困

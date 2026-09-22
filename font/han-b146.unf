@@ -170,8 +170,12 @@ glyph han-27839:15x16 15 16 // 𧠹
 // glyph han-2783b:15x16 15 16 // 𧠻
 // ⿺ han-898b han-8a00 // ⿺見言
 
-glyph han-2783c:15x16 15 16 // 𧠼
+glyph han-2783c.0:15x16 15 16 // 𧠼
+⿰ han-543f:8x16 han-898b:7x16 // ⿰吿見
+glyph han-2783c.1:15x16 15 16 // 𧠼
 ⿰ han-544a:8x16 han-898b:7x16 // ⿰告見
+glyph han-2783c-j:* = han-2783c.0:*
+glyph han-2783c-(g|t|p):* = han-2783c.1:*
 
 // glyph han-2783f:15x16 15 16 // 𧠿
 // ⿲ han-6708 han-5f61 han-898b // ⿲月彡見

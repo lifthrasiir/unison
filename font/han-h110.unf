@@ -440,6 +440,11 @@ glyph han-31e5e:15x16 15 16 // 𱹞
 glyph han-31e6a:15x16 15 16 // 𱹪
 ⿰ 1 han-7cf9-v:5x16 4 han-4e3f:4x16 // ⿰糹丿
 
+## 120.2
+
+// glyph han-31e6b-($han-regions):15x16 15 16 // 𱹫
+// ⿰ han-7cf9-($-1) han-2010f // ⿰糹𠄏
+
 ## 120.5
 
 glyph han-31e6f:15x16 15 16 // 𱹯

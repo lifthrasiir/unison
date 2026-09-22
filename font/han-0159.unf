@@ -1430,10 +1430,12 @@ glyph han-90d8-g:* = han-90d8.x:*
 glyph han-90d9:15x16 15 16 // 郙
 ⿰ han-752b:9x16 1 han-961d:4x16-r // ⿰甫阝
 
-glyph han-90dc-(g|t|k|p):15x16 15 16 // 郜
-⿰ han-544a:10x16 han-961d:5x16-r // ⿰告阝
-glyph han-90dc-(h|j):15x16 15 16 // 郜
+glyph han-90dc.0:15x16 15 16 // 郜
 ⿰ han-543f:10x16 han-961d:5x16-r // ⿰吿阝
+glyph han-90dc.x:15x16 15 16 // 郜
+⿰ han-544a:10x16 han-961d:5x16-r // ⿰告阝
+glyph han-90dc-(h|j):* = han-90dc.0:*
+glyph han-90dc-(g|t|k|p):* = han-90dc.x:*
 
 // glyph han-90dd:15x16 15 16 // 郝
 // ⿰ han-8d64 han-961d // ⿰赤阝
@@ -1776,10 +1778,14 @@ glyph han-916e:15x16 15 16 // 酮
 // glyph han-9172:15x16 15 16 // 酲
 // ⿰ han-9149 han-5448 // ⿰酉呈
 
-glyph han-9177-(g|t|j|k|p|v):15x16 15 16 // 酷
+glyph han-9177.0:15x16 15 16 // 酷
 ⿰ han-9149:7x16 han-544a:8x16 // ⿰酉告
-glyph han-9177-h:15x16 15 16 // 酷
+glyph han-9177.1:15x16 15 16 // 酷
 ⿰ han-9149:7x16 han-543f:8x16 // ⿰酉吿
+glyph han-9177.2:* = han-9177.0:*
+glyph han-9177.3:* = han-9177.1:*
+glyph han-9177-(g|t|j|k|p|v):* = han-9177.0:*
+glyph han-9177-h:* = han-9177.1:*
 
 glyph han-9178:15x16 15 16 // 酸
 ⿰ han-9149:7x16 1 han-590b:7x16 // ⿰酉夋

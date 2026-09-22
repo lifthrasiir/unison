@@ -167,8 +167,10 @@ glyph han-25e88:15x16 15 16 // 𥺈
 // glyph han-25e89:15x16 15 16 // 𥺉
 // ⿰ han-7c73 han-8c46 // ⿰米豆
 
-glyph han-25e8a:15x16 15 16 // 𥺊
+glyph han-25e8a-(g|v):15x16 15 16 // 𥺊
 ⿰ han-7c73:7x16 han-544a:8x16 // ⿰米告
+glyph han-25e8a-j:15x16 15 16 // 𥺊
+⿰ han-7c73:7x16 han-543f:8x16 // ⿰米吿
 
 glyph han-25e8b:15x16 15 16 // 𥺋
 ⿳ -7 han-51fa:15x8 han-201a2:15x6 han-7c73:15x9 // ⿳出𠆢米 <- ⿱出⿱𠆢米

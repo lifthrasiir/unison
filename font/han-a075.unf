@@ -561,8 +561,10 @@ glyph han-3d38:15x16 15 16 // 㴸
 glyph han-3d3f:15x16 15 16 // 㴿
 ⿲ han-6c35:3x16 -1 han-4e01:7x16 1 han-9801:5x16 // ⿲氵丁頁
 
-glyph han-3d46:15x16 15 16 // 㵆
-⿲ han-6c35:3x16 han-65e5:5x16 han-544a:7x16 // ⿲氵日告
+glyph han-3d46-(g|k):15x16 15 16 // 㵆
+⿲ han-6c35:3x16 han-65e5:5x16-l han-544a:7x16 // ⿲氵日告
+glyph han-3d46-(h|t|j):15x16 15 16 // 㵆
+⿲ han-6c35:3x16 han-65e5:5x16-l han-543f:7x16 // ⿲氵日吿
 
 // glyph han-3d47:15x16 15 16 // 㵇
 // ⿲ han-6c35 han-820c han-7518 // ⿲氵舌甘

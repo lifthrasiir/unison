@@ -1320,10 +1320,12 @@ glyph han-3b35:15x16 15 16 // 㬵
 
 ## 74.7
 
-glyph han-3b36-(g|t):15x16 15 16 // 㬶
-⿰ han-6708:7x16 han-544a:8x16 // ⿰月告
-glyph han-3b36-j:15x16 15 16 // 㬶
+glyph han-3b36.0:15x16 15 16 // 㬶
 ⿰ han-6708:7x16 han-543f:8x16 // ⿰月吿
+glyph han-3b36.1:15x16 15 16 // 㬶
+⿰ han-6708:7x16 han-544a:8x16 // ⿰月告
+glyph han-3b36-j:* = han-3b36.0:*
+glyph han-3b36-(g|t):* = han-3b36.1:*
 
 glyph han-3b37:15x16 15 16 // 㬷
 ⿰ han-6708:5x16-l 1 han-56f0:9x16 // ⿰月困

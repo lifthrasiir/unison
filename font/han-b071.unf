@@ -653,6 +653,14 @@ glyph han-23189:15x16 15 16 // 𣆉
 glyph han-23330:15x16 15 16 // 𣌰
 ⿱ -1 han-65e5:15x5 1 han-808b:15x11 // ⿱日肋
 
+## 73.8
+
+// glyph han-2333c-($han-regions):15x16 15 16 // 𣌼
+// ⿳ han-24c14 han-516b-($-1) han-65e5 // ⿳𤰔八日
+
+// glyph han-2333d:15x16 15 16 // 𣌽
+// ⿱ han-24c14 han-4e9a // ⿱𤰔亚
+
 ## 73.9
 
 // glyph han-2333e:15x16 15 16 // 𣌾

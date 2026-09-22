@@ -333,8 +333,10 @@ glyph han-272d0:15x16 15 16 // 𧋐
 // glyph han-272d2:15x16 15 16 // 𧋒
 // ⿰ han-866b han-8d64 // ⿰虫赤
 
-glyph han-272d3:15x16 15 16 // 𧋓
+glyph han-272d3-(g|t):15x16 15 16 // 𧋓
 ⿰ han-866b:7x16 han-544a:8x16 // ⿰虫告
+glyph han-272d3-j:15x16 15 16 // 𧋓
+⿰ han-866b:7x16 han-543f:8x16 // ⿰虫吿
 
 glyph han-272d4:15x16 15 16 // 𧋔
 ⿳ -2 han-5de5:15x4 han-6c34:15x6 han-866b:15x8 // ⿳工水虫

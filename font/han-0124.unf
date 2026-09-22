@@ -1141,8 +1141,12 @@ glyph han-8060:15x16 15 16 // 聠
 
 ## 128.7
 
-glyph han-8055:15x16 15 16 // 聕
+glyph han-8055.0:15x16 15 16 // 聕
+⿰ han-8033:7x16 han-543f:8x16 // ⿰耳吿
+glyph han-8055.1:15x16 15 16 // 聕
 ⿰ han-8033:7x16 han-544a:8x16 // ⿰耳告
+glyph han-8055-j:* = han-8055.0:*
+glyph han-8055-(g|t|k|p):* = han-8055.1:*
 
 // glyph han-8056:15x16 15 16 // 聖
 // ⿱ han-2653b han-738b // ⿱𦔻王
@@ -2201,8 +2205,10 @@ glyph han-823e:15x16 15 16 // 舾
 
 ## 137.7
 
-glyph han-8241:15x16 15 16 // 艁
+glyph han-8241-(g|t|p):15x16 15 16 // 艁
 ⿰ han-821f:7x16 han-544a:8x16 // ⿰舟告
+glyph han-8241-j:15x16 15 16 // 艁
+⿰ han-821f:7x16 han-543f:8x16 // ⿰舟吿
 
 glyph han-8243:15x16 15 16 // 艃
 ⿰ han-821f:7x16 1 han-91cc:7x16 // ⿰舟里

@@ -849,10 +849,14 @@ glyph han-6d67-p:* = han-6d67.y:*
 glyph han-6d68:15x16 15 16 // 浨
 ⿰ han-6c35:5x16 1 han-5b8b:9x16 // ⿰氵宋
 
-glyph han-6d69-(g|t|j|k|p|v):15x16 15 16 // 浩
+glyph han-6d69.0:15x16 15 16 // 浩
 ⿰ han-6c35:5x16 han-544a:10x16 // ⿰氵告
-glyph han-6d69-h:15x16 15 16 // 浩
+glyph han-6d69.1:15x16 15 16 // 浩
 ⿰ han-6c35:5x16 han-543f:10x16 // ⿰氵吿
+glyph han-6d69.2:* = han-6d69.0:*
+glyph han-6d69.3:* = han-6d69.1:*
+glyph han-6d69-(g|t|j|k|p|v):* = han-6d69.0:*
+glyph han-6d69-h:* = han-6d69.1:*
 
 glyph han-6d6a:15x16 15 16 // 浪
 ⿰ han-6c35:5x16 1 han-826f:9x16 // ⿰氵良

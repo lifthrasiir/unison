@@ -279,8 +279,10 @@ glyph han-2804e-(t|j):15x16 15 16 // 𨁎
 glyph han-2804f:15x16 15 16 // 𨁏
 ⿰ han-27fb7:5x16 1 han-752b:9x16 // ⿰𧾷甫
 
-glyph han-28052:15x16 15 16 // 𨁒
+glyph han-28052-(g|t):15x16 15 16 // 𨁒
 ⿰ han-27fb7:5x16 han-544a:10x16 // ⿰𧾷告
+glyph han-28052-j:15x16 15 16 // 𨁒
+⿰ han-27fb7:5x16 han-543f:10x16 // ⿰𧾷吿
 
 // glyph han-28058:15x16 15 16 // 𨁘
 // ⿱ han-626f han-8db3 // ⿱扯足

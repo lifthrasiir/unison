@@ -313,8 +313,13 @@ glyph han-6f8c:15x16 15 16 // 澌
 glyph han-6f92:15x16 15 16 // 澒
 ⿲ han-6c35:3x16 han-5de5:5x16-l han-9801:7x16 // ⿲氵工頁
 
-glyph han-6f94:15x16 15 16 // 澔
+glyph han-6f94.0:15x16 15 16 // 澔
+⿲ han-6c35:3x16 han-767d:4x16 han-543f:8x16 // ⿲氵白吿
+glyph han-6f94.1:* = han-6f94.0:*
+glyph han-6f94.2:15x16 15 16 // 澔
 ⿲ han-6c35:3x16 han-767d:4x16 han-544a:8x16 // ⿲氵白告
+glyph han-6f94-(h|j):* = han-6f94.0:*
+glyph han-6f94-(g|t|k|p):* = han-6f94.2:*
 
 // glyph han-6f96:15x16 15 16 // 澖
 // ⿰ han-6c35 han-9591 // ⿰氵閑
