@@ -1445,7 +1445,8 @@ glyph han-6891:15x16 15 16 // 梑
 ⿲ han-6728:5x16 han-72ad:4x16 1 han-706b:5x16 // ⿲木犭火
 
 glyph han-6893:15x16 15 16 // 梓
-⿰ han-6728:7x16 1 han-8f9b:7x16 // ⿰木辛
+⿰ han-6728:5x16 1 han-8f9b:9x16 // ⿰木辛
+glyph han-6893.0:* = han-6893:*
 
 glyph han-6896:15x13 15 13 // 梖
 ⿰ han-6728:7x13 han-8c9d:8x13 // ⿰木貝

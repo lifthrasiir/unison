@@ -886,7 +886,7 @@ glyph han-2d73d:15x16 15 16 // 𭜽
 // ⿰ han-5fc4 han-7a76 // ⿰忄究
 
 glyph han-2d745:15x16 15 16 // 𭝅
-⿰ han-5fc4:7x16 1 han-8f9b:7x16 // ⿰忄辛
+⿰ han-5fc4:5x16 1 han-8f9b:9x16 // ⿰忄辛
 
 // glyph han-2d746:15x16 15 16 // 𭝆
 // ⿱ han-2bc11 han-5fc3 // ⿱𫰑心

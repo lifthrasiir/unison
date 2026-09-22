@@ -135,8 +135,12 @@ glyph han-26435:15x16 15 16 // 𦐵
 // glyph han-26438-($han-regions):15x16 15 16 // 𦐸
 // ⿰ han-5426 han-7fbd-($-1) // ⿰否羽
 
-glyph han-26439-($han-regions):15x16 15 16 // 𦐹
-⿰ han-7fbd-($-1):8x16 han-8f9b:7x16 // ⿰羽辛
+glyph han-26439.0:15x16 15 16 // 𦐹
+⿰ han-7fbd.1:8x16 han-8f9b:7x16 // ⿰羽辛
+glyph han-26439.1:15x16 15 16 // 𦐹
+⿰ han-7fbd.0:8x16 han-8f9b:7x16 // ⿰羽辛
+glyph han-26439-(g|t):* = han-26439.0:*
+glyph han-26439-j:* = han-26439.1:*
 
 glyph han-2643a-(g|t):15x16 15 16 // 𦐺
 ⿰ han-8096.0:7x16 han-7fbd.1:8x16 // ⿰肖羽

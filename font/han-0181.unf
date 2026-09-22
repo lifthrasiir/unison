@@ -928,6 +928,7 @@ glyph han-99ff:15x16 15 16 // 駿
 
 glyph han-9a02:15x16 15 16 // 騂
 ⿰ han-99ac:7x16 1 han-8f9b:7x16 // ⿰馬辛
+glyph han-9a02.0:* = han-9a02:*
 
 ## 187.8
 

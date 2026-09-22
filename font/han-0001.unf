@@ -3583,6 +3583,10 @@ glyph han-4e6c-k:15x16 15 16 // 乬
 
 glyph han-4e75:15x16 15 16 // 乵
 ⿰ han-8f9b:7x16 1 han-4e5a:7x16 // ⿰辛乚
+glyph han-4e75.0:* = han-4e75:*
+glyph han-4e75.1:* = han-4e75:*
+glyph han-4e75.2:15x16 15 16 // 乵
+⿰ han-8f9b:7x16-l 1 han-4e5a:7x16 // ⿰辛乚
 
 // glyph han-4e76:15x16 15 16 // 乶
 // ⿱ han-752b han-4e59 // ⿱甫乙

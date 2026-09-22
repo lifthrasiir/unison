@@ -644,7 +644,7 @@ glyph han-2a88d-($han-regions):15x16 15 16 // 𪢍
 ## 30.14
 
 glyph han-2a898:15x16 15 16 // 𪢘
-⿲ han-53e3:3x16 han-8f9b:5x16 han-675f:7x16 // ⿲口辛束
+⿲ han-53e3:3x16 han-8f9b:5x16-l han-675f:7x16 // ⿲口辛束
 
 ## 30.15
 

@@ -582,7 +582,7 @@ glyph han-232d7:15x16 15 16 // 𣋗
 // ⿲ han-65e5 han-514b han-514b // ⿲日克克 <- ⿰日兢
 
 glyph han-232e9:15x16 15 16 // 𣋩
-⿲ han-65e5:3x16-l han-8f9b:5x16 han-675f:7x16 // ⿲日辛束
+⿲ han-65e5:3x16-l han-8f9b:5x16-l han-675f:7x16 // ⿲日辛束
 
 // glyph han-232eb:15x16 15 16 // 𣋫
 // ⿱ han-6f38 han-65e5 // ⿱漸日

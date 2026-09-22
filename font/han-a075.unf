@@ -336,8 +336,10 @@ glyph han-3c92:15x16 15 16 // 㲒
 
 ## 82.7
 
-glyph han-3c94:15x16 15 16 // 㲔
+glyph han-3c94-(g|p):15x16 15 16 // 㲔
 ⿰ han-8f9b:7x16 1 han-6bdb:7x16 // ⿰辛毛
+glyph han-3c94-(t|j):15x16 15 16 // 㲔
+⿰ han-8f9b:7x16-l 1 han-6bdb:7x16 // ⿰辛毛
 
 glyph han-3c96-(g|t):15x16 15 16 // 㲖
 ⿰ han-8096.0:7x16 1 han-6bdb:7x16 // ⿰肖毛
@@ -603,7 +605,7 @@ glyph han-3d71:15x16 15 16 // 㵱
 ⿲ -1 han-6c35:3x16 han-7968:7x16 han-5bf8:6x16 // ⿲氵票寸
 
 glyph han-3d77:15x16 15 16 // 㵷
-⿲ han-8f9b:5x16 han-6c35:3x16 han-8f9b:7x16 // ⿲辛氵辛
+⿲ han-8f9b:5x16-l han-6c35:3x16 han-8f9b:7x16 // ⿲辛氵辛
 
 // glyph han-3d79:15x16 15 16 // 㵹
 // ⿲ han-6c35 han-5c71 han-83ab // ⿲氵山莫 <- ⿰氵𡻟

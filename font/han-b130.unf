@@ -230,7 +230,7 @@ glyph han-266d7-(t|j|p|v):15x16 15 16 // 𦛗
 // ⿰ han-6708 han-8d64 // ⿰月赤
 
 glyph han-266db:15x16 15 16 // 𦛛
-⿰ han-6708:8x16 han-8f9b:7x16 // ⿰月辛
+⿰ han-6708:6x16 han-8f9b:9x16 // ⿰月辛
 
 glyph han-266de:15x16 15 16 // 𦛞
 ⿰ -1 han-6708:5x16-l 1 han-9091:10x16 // ⿰月邑
