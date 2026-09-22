@@ -172,9 +172,9 @@ glyph han-294ba:15x16 15 16 // 𩒺
 ⿰ han-752b:7x16 1 han-9801:7x16 // ⿰甫頁
 
 glyph han-294bb-(t|j):15x16 15 16 // 𩒻
-⿲ han-53e3:3x16-l han-4eca.0:7x16 han-9801:5x16 // ⿲口今頁
+⿲ han-53e3:3x16 han-4eca.0:7x16 han-9801:5x16 // ⿲口今頁
 glyph han-294bb-(g|p):15x16 15 16 // 𩒻
-⿲ han-53e3:3x16-l han-4eca.x:7x16 han-9801:5x16 // ⿲口今頁
+⿲ han-53e3:3x16 han-4eca.x:7x16 han-9801:5x16 // ⿲口今頁
 
 glyph han-294c0:15x16 15 16 // 𩓀
 ⿰ han-590b:7x16 1 han-9801:7x16 // ⿰夋頁

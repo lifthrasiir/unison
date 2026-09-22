@@ -147,7 +147,7 @@ glyph han-29d98:15x16 15 16 // 𩶘
 ⿰ han-9b5a:7x16 1 han-7acb:7x16 // ⿰魚立
 
 glyph han-29d9b:15x16 15 16 // 𩶛
-⿲ -2 han-9b5a:7x16 han-529b:5x16 1 han-53e3:4x16 // ⿲魚力口
+⿲ -1 han-9b5a:7x16 han-529b:5x16 1 han-53e3:3x16 // ⿲魚力口
 
 glyph han-29d9d:15x16 15 16 // 𩶝
 ⿰ han-9b5a:7x16 han-6b63:8x16 // ⿰魚正

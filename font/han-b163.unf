@@ -163,7 +163,7 @@ glyph han-286af:15x16 15 16 // 𨚯
 // ⿰ han-65e9 han-961d // ⿰早阝
 
 glyph han-286b4:15x16 15 16 // 𨚴
-⿲ han-5973:5x16-l 1 han-53e3:3x16-l 1 han-961d:5x16-r // ⿲女口阝
+⿲ han-5973:5x16-l 1 han-53e3:3x16 1 han-961d:5x16-r // ⿲女口阝
 
 // glyph han-286b6:15x16 15 16 // 𨚶
 // ⿰ han-5e74 han-961d // ⿰年阝

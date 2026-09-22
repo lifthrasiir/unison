@@ -622,7 +622,7 @@ glyph han-2da62:15x16 15 16 // 𭩢
 ## 75.6
 
 glyph han-2da78:15x16 15 16 // 𭩸
-⿱ -1 han-5405:15x5 han-6728:15x12 // ⿱吅木
+⿱ han-5405:15x3 1 han-6728:15x12 // ⿱吅木
 
 glyph han-2da79:15x16 15 16 // 𭩹
 ⿰ han-6728:5x16 1 han-540d:9x16 // ⿰木名
@@ -767,7 +767,7 @@ glyph han-2dae4:15x16 15 16 // 𭫤
 ## 75.14
 
 glyph han-2db16:15x16 15 16 // 𭬖
-⿲ han-6728:5x16 han-53e3:3x16-l han-9ce5:7x16 // ⿲木口鳥
+⿲ han-6728:5x16 han-53e3:3x16 han-9ce5:7x16 // ⿲木口鳥
 
 # CJK unified ideographs extension F: 欠 (76)
 

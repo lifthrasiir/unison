@@ -87,7 +87,7 @@ glyph han-23b22:15x16 15 16 // 𣬢
 ⿺ han-6bdb:15x16.10x14 han-5dfe:7x14 7 0 // ⿺毛巾
 
 glyph han-23b23:15x16 15 16 // 𣬣
-⿺ han-6bdb:15x16.10x14 han-53e3:9x14 6 0 // ⿺毛口
+⿺ han-6bdb:15x16.10x14 han-53e3:9x12 6 1 // ⿺毛口
 
 // glyph han-23b24:15x16 15 16 // 𣬤
 // ⿺ han-6bdb han-961d // ⿺毛阝

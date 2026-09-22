@@ -743,10 +743,10 @@ ref han-53e3:7x3 2 0 // ⿳口吅山
 ref han-5405:11x3 0 4
 ref han-5c71:11x4 0 8
 glyph han-5d52:15x16 15 16 // 嵒
-⿳ han-53e3:15x4 han-5405:15x7 han-5c71:15x5 // ⿳口吅山
+⿳ han-53e3:15x4 1 han-5405:15x5 1 han-5c71:15x5 // ⿳口吅山
 
 glyph han-5d53:15x16 15 16 // 嵓
-⿳ han-5c71:15x4 1 han-53e3:15x4 han-5405:15x7 // ⿳山口吅
+⿳ han-5c71:15x4 1 han-53e3:15x4 1 han-5405:15x5 // ⿳山口吅
 
 // glyph han-5d56:15x16 15 16 // 嵖
 // ⿰ han-5c71 han-67e5 // ⿰山查

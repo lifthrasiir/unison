@@ -1164,9 +1164,9 @@ glyph han-518a.0:* = han-518a:*
 
 glyph han-518b:9x16 9 16 // 冋
 ref han-5182:9x16.7x14 0 0 // ⿵冂口
-ref han-53e3:5x11 2 3
+ref han-53e3:5x9 2 4
 glyph han-518b:15x16 15 16 // 冋
-assume ⿵ han-5182:15x16.11x14 han-53e3:9x11 3 3 // ⿵冂口
+assume ⿵ han-5182:15x16.11x14 han-53e3:9x9 3 4 // ⿵冂口
 glyph han-518b.0:* = han-518b:*
 
 glyph han-518c.0:9x16 9 16 // 册
@@ -3232,7 +3232,7 @@ glyph han-52a0:15x8 15 8 // 加
 glyph han-52a0:15x11 15 11 // 加
 ⿰ han-529b:6x11 1 han-53e3:8x11 // ⿰力口
 glyph han-52a0:15x12 15 12 // 加
-⿰ han-529b:6x12 1 han-53e3:8x12 // ⿰力口
+⿰ han-529b:6x12 1 han-53e3:8x12-r // ⿰力口
 glyph han-52a0:15x16 15 16 // 加
 ⿰ han-529b:6x16 1 han-53e3:8x16 // ⿰力口
 
@@ -4857,11 +4857,11 @@ glyph han-5339-(h|t):* = han-5339.1:*
 ## 23.9
 
 glyph han-5340.0:15x16 15 16 // 區
-⿷ han-531a:15x16.14x14 han-54c1:13x13 2 2 // ⿷匚品
+⿷ han-531a:15x16.14x14 han-54c1:13x12 2 2 // ⿷匚品
 glyph han-5340.1:* = han-5340.0:*
 glyph han-5340.2:* = han-5340.0:*
 glyph han-5340.3:15x16 15 16 // 區
-⿷ han-5338:15x16.12x12 han-54c1:11x12 3 2 // ⿷匸品
+⿷ han-5338:15x16.12x12 han-54c1:11x11 3 2 // ⿷匸品
 glyph han-5340-(g|j|k|p|v):* = han-5340.0:*
 glyph han-5340-(h|t):* = han-5340.3:*
 

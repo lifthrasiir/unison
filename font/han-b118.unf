@@ -465,7 +465,7 @@ assume ⿱ han-25ad7:15x5 -1 han-8ecd:15x12 // ⿱𥫗軍
 // ⿳ han-25ad7 han-4e19 han-6bd4 // ⿳𥫗丙比
 
 glyph han-25c14:15x16 15 16 // 𥰔
-⿳ han-25ad7:15x5 han-53e3:15x4 han-5405:15x7 // ⿳𥫗口吅
+⿳ han-25ad7:15x5 han-53e3:15x4 1 han-5405:15x5 // ⿳𥫗口吅
 
 glyph han-25c15:15x16 15 16 // 𥰕
 ⿳ han-25ad7:15x5 han-7f52:15x4 han-6bd4-t:15x7 // ⿳𥫗罒比

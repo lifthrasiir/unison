@@ -112,7 +112,7 @@ glyph han-29099-($han-regions):15x16 15 16 // 𩂙
 // ⿱ han-96e8 han-5e76 // ⿱雨并
 
 glyph han-290a9:15x16 15 16 // 𩂩
-⿱ han-96e8:15x7 han-5405:15x9 // ⿱雨吅
+⿱ han-96e8:15x7 1 han-5405:15x7 // ⿱雨吅
 
 // glyph han-290ac:15x16 15 16 // 𩂬
 // ref han-96fb // ⿻電一
@@ -297,7 +297,7 @@ glyph han-29133:15x16 15 16 // 𩄳
 // ⿳ han-96e8 han-7acb han-65e9 // ⿳雨立早 <- ⿱雨章
 
 glyph han-29151:15x16 15 16 // 𩅑
-⿳ han-96e8:15x6 han-5405:15x5 han-7530:15x5 // ⿳雨吅田
+⿳ han-96e8:15x6 1 han-5405:15x3 1 han-7530:15x5 // ⿳雨吅田
 
 // glyph han-29154:15x16 15 16 // 𩅔
 // ⿱ han-96e8 han-9b5a // ⿱雨魚

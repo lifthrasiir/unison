@@ -302,7 +302,7 @@ glyph han-2ae51:15x16 15 16 // 𪹑
 // ⿰ han-706b han-60e1 // ⿰火惡
 
 glyph han-2ae6c:15x16 15 16 // 𪹬
-⿳ -1 han-5405:15x6 han-81e3:15x7 han-706c:15x4 // ⿳吅臣灬
+⿳ han-5405:15x4 1 han-81e3:15x7 han-706c:15x4 // ⿳吅臣灬
 
 // glyph han-2ae6d:15x16 15 16 // 𪹭
 // ⿱ han-8cbc han-706c // ⿱貼灬

@@ -287,7 +287,7 @@ glyph han-2263e:15x16 15 16 // 𢘾
 // ⿰ han-5fc4 han-8863 // ⿰忄衣
 
 glyph han-22648:15x16 15 16 // 𢙈
-⿱ han-5fc3:15x7 han-5405:15x9 // ⿱心吅
+⿱ han-5fc3:15x7 1 han-5405:15x7 // ⿱心吅
 
 glyph han-2264a:15x16 15 16 // 𢙊
 ⿲ han-5fc4:5x16 han-51ab:3x16 han-6b20:7x16 // ⿲忄冫欠
