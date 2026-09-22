@@ -1060,6 +1060,95 @@ fn multi_alias_search_on_line(line: &str) -> Option<String> {
 /// pattern, or a `$N` past the groups it has.
 #[cfg_attr(all(not(feature = "editor"), not(test)), expect(dead_code))]
 pub fn template_denotes(pattern: &str, template: &str, name: &str) -> Option<bool> {
+    let (re, _) = template_regex(pattern, template)?;
+    Some(re.is_match(name))
+}
+
+/// The `$N` slots the header `template` under `exists pattern` binds where it
+/// declares `name` — `[$0, $1, …]`, `None` for a slot the header does not write
+/// and the pattern does not pin down.
+///
+/// The inverse of the expansion, for the one caller that has a declared name and
+/// wants the match behind it: navigation, following the `goto` ref of a
+/// pattern-written block (`glyph han-($1)` over `ref ($0)`). Where the build
+/// knows the match and derives the name, this knows the name and derives the
+/// match, so the two agree without navigation waiting on a resolve.
+///
+/// `$0` — the whole matched name, which is what a `ref ($0)` stands for — is
+/// rarely written on the header, and is then rebuilt from the pattern with the
+/// slots the header *did* write: `han-` + `$1` + `:15x16`. That is exact when
+/// everything the pattern writes outside its groups is literal text; where it is
+/// not, `$0` is the one slot left unbound, there being nothing to rebuild the
+/// rest of the name from.
+///
+/// `None` where [`template_denotes`] is `None`, and where the header does not
+/// declare `name` at all.
+#[cfg_attr(all(not(feature = "editor"), not(test)), expect(dead_code))]
+pub fn template_captures(pattern: &str, template: &str, name: &str) -> Option<Vec<Option<String>>> {
+    let (re, groups) = template_regex(pattern, template)?;
+    let caps = re.captures(name)?;
+    let mut values: Vec<Option<String>> = (0..groups.len())
+        .map(|slot| caps.name(&slot_group(slot)).map(|m| m.as_str().to_string()))
+        .collect();
+    if values.first().is_some_and(Option::is_none) {
+        let mut whole = String::new();
+        // A pattern this cannot rebuild leaves `$0` unbound rather than
+        // failing: a block whose `ref` never writes `$0` does not need it.
+        if render_match(&restricted_hir(pattern).ok()?, &values, &mut whole).is_some() {
+            values[0] = Some(whole);
+        }
+    }
+    Some(values)
+}
+
+/// The name a match produced, rebuilt from the slot values the header bound.
+/// `None` where the pattern writes anything but literal text and capture groups
+/// at its top level, which no slot value can stand in for.
+fn render_match(hir: &Hir, values: &[Option<String>], out: &mut String) -> Option<()> {
+    match hir.kind() {
+        HirKind::Empty => {}
+        HirKind::Literal(lit) => out.push_str(std::str::from_utf8(&lit.0).ok()?),
+        // The outermost group wins: its value is the text of everything inside
+        // it, nested groups included.
+        HirKind::Capture(cap) => {
+            out.push_str(values.get(usize::try_from(cap.index).ok()?)?.as_deref()?)
+        }
+        HirKind::Concat(subs) => {
+            for sub in subs {
+                render_match(sub, values, out)?;
+            }
+        }
+        _ => return None,
+    }
+    Some(())
+}
+
+/// The regex name the first appearance of slot `N` on a header is captured as.
+fn slot_group(slot: usize) -> String {
+    format!("s{slot}")
+}
+
+/// The header `template`, read under `exists pattern`, as one regular
+/// expression over glyph names, together with the pattern's group sub-patterns
+/// by index (`[0]` is the whole pattern).
+///
+/// Each `($N)` on the header becomes the sub-pattern of that capture group, and
+/// everything around it becomes a literal. What the regex accepts is exactly
+/// the set of names the header can produce over *all* strings the search could
+/// match — so it is an over-approximation of what this source declares, since
+/// only the names actually drawn are searched.
+///
+/// Over-approximating is the right side to err on here: a search that lists a
+/// line which turns out to declare nothing costs a click, where one that hides
+/// the only line declaring a name costs the name.
+///
+/// The first appearance of each slot is a group named [`slot_group`], so a
+/// caller can read back what it matched; a repeated slot is not, the regex
+/// crate having no back-reference to hold the two together.
+///
+/// `None` when the two lines do not combine into a test at all — an unparsable
+/// pattern, or a `$N` past the groups it has.
+fn template_regex(pattern: &str, template: &str) -> Option<(Regex, Vec<String>)> {
     let hir = restricted_hir(pattern).ok()?;
     // `$0` is the whole pattern; `$N` is the group the regex parser gave index
     // `N`, which is the one the author counted opening parentheses to.
@@ -1075,6 +1164,7 @@ pub fn template_denotes(pattern: &str, template: &str, name: &str) -> Option<boo
     }
 
     let mut out = String::from(r"\A");
+    let mut named = vec![false; groups.len()];
     let bytes = template.as_bytes();
     let mut i = 0;
     let mut literal = String::new();
@@ -1100,14 +1190,17 @@ pub fn template_denotes(pattern: &str, template: &str, name: &str) -> Option<boo
         };
         out.push_str(&literal_regex(&literal));
         literal.clear();
-        out.push_str("(?:");
-        out.push_str(groups.get(slot)?);
-        out.push(')');
+        let sub = groups.get(slot)?;
+        if std::mem::replace(named.get_mut(slot)?, true) {
+            out.push_str(&format!("(?:{sub})"));
+        } else {
+            out.push_str(&format!("(?<{}>{sub})", slot_group(slot)));
+        }
         i += width;
     }
     out.push_str(&literal_regex(&literal));
     out.push_str(r"\z");
-    Some(Regex::new(&out).ok()?.is_match(name))
+    Some((Regex::new(&out).ok()?, groups))
 }
 
 /// What the written text *between* two capture slots accepts.

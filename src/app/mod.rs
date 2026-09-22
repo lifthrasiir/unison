@@ -23,6 +23,7 @@ mod commands;
 mod docs;
 mod fix;
 mod goto_pattern;
+mod goto_redirect;
 mod history;
 mod menus;
 mod palette;
@@ -628,7 +629,7 @@ impl UniformApp {
             NavTarget::Local { line, glyph } => {
                 let mut hops = vec![NavLoc::new(from_doc, line, 0)];
                 if let Some(name) = glyph {
-                    hops.extend(self.follow_goto_chain(ctx, &name));
+                    hops.extend(self.follow_goto_chain(ctx, &name, (from_doc, line)));
                 }
                 hops
             }
@@ -713,7 +714,7 @@ impl UniformApp {
         };
         let mut hops = vec![NavLoc::new(doc_idx, line, 0)];
         if kind == LinkTargetKind::Glyph {
-            hops.extend(self.follow_goto_chain(ctx, name));
+            hops.extend(self.follow_goto_chain(ctx, name, (doc_idx, line)));
         }
         self.record_nav_chain(from, hops);
         true
@@ -747,70 +748,6 @@ impl UniformApp {
             }
             prev = Some(to);
         }
-    }
-
-    /// Where a jump that has landed on `name` really belongs: the target of
-    /// `name`'s `goto` ref, and then of *that* glyph's, for as long as the
-    /// chain runs. Reports each further landing, in order, having already
-    /// carried them out.
-    ///
-    /// The redirect is read off the **resolved** glyph rather than off the
-    /// source line, and that is the whole trick. The wrapper this exists for is
-    /// written `glyph han-($1)` over `ref ($0)` under an `exists`: the ref's
-    /// written name says nothing about where a jump to `han-4e00` should go,
-    /// and re-deriving the binding from the header would be re-implementing the
-    /// expansion. `named_glyphs` already holds the expansion's answer — the
-    /// *effective* refs, with `($0)` resolved to `han-4e00:15x16` — so this
-    /// only has to look it up.
-    ///
-    /// The price is that a redirect needs a current resolve. There is none
-    /// while a rebuild is in flight, and none for a glyph the resolve dropped;
-    /// both simply leave the jump where it landed, which is where it went
-    /// before this flag existed.
-    fn follow_goto_chain(&mut self, ctx: &egui::Context, name: &str) -> Vec<NavLoc> {
-        /// Bounds a chain that is merely long, so that one gesture cannot
-        /// fill the history.
-        const MAX_HOPS: usize = 8;
-
-        let mut landed = Vec::new();
-        let mut seen: Vec<String> = vec![name.to_string()];
-        while landed.len() < MAX_HOPS {
-            let Some(next) = self.goto_redirect(seen.last().expect("seeded above")) else {
-                break;
-            };
-            // Defensive, not a case a source can write today: `goto` rides on
-            // a `ref`, a ref cycle never resolves, and this reads the resolve.
-            // Stopping at the second visit leaves the jump on the last new
-            // glyph rather than looping.
-            if seen.contains(&next) {
-                break;
-            }
-            // A target nothing declares stops the chain rather than opening
-            // the Search pane: the reader asked for the glyph they clicked,
-            // and it is the *source* that is inconsistent, which the issue
-            // report is the place to say.
-            let Some((doc_idx, line)) = self.goto_glyph(ctx, &next, &LinkTargetKind::Glyph) else {
-                break;
-            };
-            landed.push(NavLoc::new(doc_idx, line, 0));
-            seen.push(next);
-        }
-        landed
-    }
-
-    /// The name `name`'s `goto` ref points at, if it has one. See
-    /// [`Self::follow_goto_chain`] for why this reads the resolve.
-    fn goto_redirect(&self, name: &str) -> Option<String> {
-        // The resolve behind `named_glyphs` is one build behind while a
-        // rebuild is in flight, and a stale answer would send the reader to
-        // the glyph a since-edited ref used to name.
-        if self.named_glyphs_gen != self.font_build_gen {
-            return None;
-        }
-        let refs = &self.named_glyphs.get(name)?.inline_source.as_ref()?.refs;
-        // The first, where a source wrote more than one; `issues::flags`
-        // reports that so the two agree on which one wins.
-        refs.iter().find(|r| r.goto).map(|r| r.name.clone())
     }
 
     /// Walks the navigation history one step and moves the caret there.

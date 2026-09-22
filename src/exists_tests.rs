@@ -757,6 +757,96 @@ fn slots_are_numbered_by_the_groups_the_author_counted() {
     assert_eq!(template_denotes(p, "x-($3)", "x-1"), None);
 }
 
+/// The inverse of the expansion: from a name a header declares back to the
+/// slots the match bound, which is what navigation substitutes into the block's
+/// `ref ($0)`.
+#[test]
+fn a_template_recovers_the_slots_behind_a_name_it_declares() {
+    let p = "han-([0-9a-f]{4,5}(?:-[ghtjkpv])?):15x16";
+    let caps = |name| template_captures(p, "han-($1)", name);
+    assert_eq!(
+        caps("han-2001c"),
+        Some(vec![
+            Some("han-2001c:15x16".to_string()),
+            Some("2001c".to_string())
+        ]),
+        "`$0` is the name the search matched, rebuilt from the slot the header wrote"
+    );
+    assert_eq!(
+        caps("han-4e00-k"),
+        Some(vec![
+            Some("han-4e00-k:15x16".to_string()),
+            Some("4e00-k".to_string())
+        ]),
+        "the region rides inside the group, so it rides into `$0`"
+    );
+    // The same names `template_denotes` says no to have no slots either.
+    assert_eq!(caps("han-zzzz"), None);
+    assert_eq!(caps("han-4e00:15x16"), None);
+}
+
+/// Two slots, rebuilt into one name in the order the pattern writes them —
+/// `font/han.unf`'s variation-selector block.
+#[test]
+fn a_rebuilt_name_puts_every_slot_back_where_the_pattern_has_it() {
+    let p = r"han-([0-9a-f]{4,5})\.([0-1]?[0-9a-f]):15x16";
+    assert_eq!(
+        template_captures(p, "han-($1).($2)", "han-4e00.01"),
+        Some(vec![
+            Some("han-4e00.01:15x16".to_string()),
+            Some("4e00".to_string()),
+            Some("01".to_string())
+        ])
+    );
+    // Written the other way round on the header, and still rebuilt the
+    // pattern's way.
+    assert_eq!(
+        template_captures(p, "han-($2)-($1)", "han-01-4e00"),
+        Some(vec![
+            Some("han-4e00.01:15x16".to_string()),
+            Some("4e00".to_string()),
+            Some("01".to_string())
+        ])
+    );
+}
+
+/// A header that writes `($0)` itself needs nothing rebuilt, and one whose
+/// pattern has text no slot names cannot rebuild it at all.
+#[test]
+fn a_whole_name_is_taken_where_it_is_written_and_missing_where_it_cannot_be_built() {
+    let p = "han-([0-9a-f]{4,5}):15x16";
+    assert_eq!(
+        template_captures(p, "copy-($0)", "copy-han-4e00:15x16"),
+        Some(vec![
+            Some("han-4e00:15x16".to_string()),
+            // The header says nothing about `$1`, and `$0` was read whole.
+            None
+        ])
+    );
+    // `[0-9]` sits outside every group, so which character it matched is not
+    // something the header's slot says.
+    assert_eq!(
+        template_captures("han-([a-z]+)[0-9]", "han-($1)", "han-abc"),
+        Some(vec![None, Some("abc".to_string())])
+    );
+}
+
+/// A slot written twice is matched twice and read once: the regex crate has no
+/// back-reference, so the second appearance is not the first one's group.
+#[test]
+fn a_repeated_slot_is_read_from_its_first_appearance() {
+    let p = "([a-z]+)";
+    assert_eq!(
+        template_captures(p, "x-($1)-($1)", "x-ab-ab"),
+        Some(vec![Some("ab".to_string()), Some("ab".to_string())])
+    );
+    assert_eq!(
+        template_denotes(p, "x-($1)-($1)", "x-ab-cd"),
+        Some(true),
+        "the two are independent, which over-approximates as everything here does"
+    );
+}
+
 #[test]
 fn a_pattern_that_is_not_a_pattern_denotes_nothing() {
     assert_eq!(template_denotes("han-(", "han-($1)", "han-4e00"), None);
