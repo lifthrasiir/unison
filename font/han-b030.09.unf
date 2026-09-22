@@ -443,7 +443,7 @@ glyph han-20fc0:15x16 15 16 // 𠿀
 ⿲ han-53e3:3x16-l han-79be:5x16 han-8096.0:7x16 // ⿲口禾肖
 
 glyph han-20fc1:15x16 15 16 // 𠿁
-⿲ -1 han-53e3:3x16-l han-5176:6x16 han-6b20:7x16 // ⿲口其欠
+⿲ han-53e3:4x16-l han-5176:6x16 han-6b20:5x16 // ⿲口其欠
 
 // glyph han-20fc3:15x16 15 16 // 𠿃
 // ⿲ han-53e3 han-5973 han-67d0 // ⿲口女某

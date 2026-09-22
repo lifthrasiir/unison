@@ -800,7 +800,7 @@ glyph han-20da2:15x16 15 16 // 𠶢
 // ⿰ han-53e3 han-5e97 // ⿰口店
 
 glyph han-20dae:15x16 15 16 // 𠶮
-⿳ han-58eb:15x4 1 han-53e3:15x5 han-53e4:15x6 // ⿳士口古
+⿳ han-58eb:15x4 1 han-53e3:15x4 han-53e4:15x7 // ⿳士口古
 
 glyph han-20daf:15x16 15 16 // 𠶯
 ⿲ han-53e3:3x16-l han-624c:3x16 han-51fa:9x16 // ⿲口扌出

@@ -697,7 +697,7 @@ glyph han-7129:15x16 15 16 // 焩
 // ⿱ han-241fe han-51e0 // ⿱𤇾几
 
 glyph han-712e:15x16 15 16 // 焮
-⿲ -3 han-706b:5x16 han-65a4:6x16 han-6b20:7x16 // ⿲火斤欠
+⿲ -1 han-706b:5x16-l han-65a4:6x16 han-6b20:5x16 // ⿲火斤欠
 
 glyph han-712f:15x16 15 16 // 焯
 ⿰ han-706b:7x16 1 han-5353:7x16 // ⿰火卓

@@ -361,7 +361,7 @@ glyph han-2d5ad:15x16 15 16 // 𭖭
 ## 46.9
 
 glyph han-2d5b3:15x16 15 16 // 𭖳
-⿲ -4 han-5c71:5x16 han-7518:7x16 han-6b20:7x16 // ⿲山甘欠
+⿲ -2 han-5c71:5x16-l han-7518:7x16 han-6b20:5x16 // ⿲山甘欠
 
 // glyph han-2d5b4:15x16 15 16 // 𭖴
 // ⿰ han-5c71 han-2c659 // ⿰山𬙙

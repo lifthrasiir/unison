@@ -506,7 +506,7 @@ glyph han-232c7:15x16 15 16 // 𣋇
 ## 72.12
 
 glyph han-2329e:15x16 15 16 // 𣊞
-⿲ -2 han-65e5:3x16 han-708e:7x16 han-6b20:7x16 // ⿲日炎欠
+⿲ han-65e5:3x16-l han-708e:7x16 han-6b20:5x16 // ⿲日炎欠
 
 // glyph han-232a6:15x16 15 16 // 𣊦
 // ⿳ han-4ece han-4ece han-660c // ⿳从从昌 <- ⿱𠈌昌

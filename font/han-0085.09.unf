@@ -247,7 +247,7 @@ glyph han-6f12-(h|t|j|k):15x16 15 16 // 漒
 // ⿰ han-6c35 han-5d29 // ⿰氵崩
 
 glyph han-6f31:15x16 15 16 // 漱
-⿲ -2 han-6c35:3x16 han-675f:7x16 han-6b20:7x16 // ⿲氵束欠
+⿲ han-6c35:3x16 han-675f:7x16 han-6b20:5x16 // ⿲氵束欠
 
 // glyph han-6f33:15x16 15 16 // 漳
 // ⿰ han-6c35 han-7ae0 // ⿰氵章

@@ -762,7 +762,7 @@ glyph han-637d:15x16 15 16 // 捽
 ⿰ han-624c:5x16 1 han-5352:9x16 // ⿰扌卒
 
 glyph han-6380:15x16 15 16 // 掀
-⿲ -1 han-624c:3x16 han-65a4:6x16 han-6b20:7x16 // ⿲扌斤欠
+⿲ han-624c:3x16 han-65a4:7x16 han-6b20:5x16 // ⿲扌斤欠
 
 // glyph han-6381:15x16 15 16 // 掁
 // ⿰ han-624c han-9577 // ⿰扌長
@@ -960,7 +960,7 @@ glyph han-644e:15x16 15 16 // 摎
 ⿰ han-624c:5x16 1 han-7fcf:9x16 // ⿰扌翏
 
 glyph han-6457:15x16 15 16 // 摗
-⿲ -2 han-624c:3x16 han-675f:7x16 han-6b20:7x16 // ⿲扌束欠
+⿲ han-624c:3x16 han-675f:7x16 han-6b20:5x16 // ⿲扌束欠
 
 // glyph han-6459:15x16 15 16 // 摙
 // ⿰ han-624c han-9023 // ⿰扌連

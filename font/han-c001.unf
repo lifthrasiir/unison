@@ -583,7 +583,7 @@ glyph han-2a848:15x16 15 16 // 𪡈
 // ⿰ han-53f2-($-1) han-56e0 // ⿰史因
 
 glyph han-2a857:15x16 15 16 // 𪡗
-⿲ -1 han-53e3:3x16-l han-65a4:6x16 han-6b20:7x16 // ⿲口斤欠
+⿲ han-53e3:3x16-l han-65a4:7x16 han-6b20:5x16 // ⿲口斤欠
 
 // glyph han-2a85b:15x16 15 16 // 𪡛
 // ⿰ han-53e3 han-2cba0 // ⿰口𬮠

@@ -845,7 +845,7 @@ glyph han-9337.0:* = han-9337:*
 // ⿰ han-91d2 han-3775 // ⿰釒㝵
 
 glyph han-9341:15x16 15 16 // 鍁
-⿲ -3 han-91d2:5x16-l han-65a4:6x16 han-6b20:7x16 // ⿲釒斤欠
+⿲ -1 han-91d2:5x16-l han-65a4:6x16 han-6b20:5x16 // ⿲釒斤欠
 
 // glyph han-9342:15x16 15 16 // 鍂
 // ⿰ han-91d2 han-91d1 // ⿰釒金
@@ -989,7 +989,7 @@ glyph han-93be:15x16 15 16 // 鎾
 // ⿰ han-91d2 han-9023 // ⿰釒連
 
 glyph han-93c9:15x16 15 16 // 鏉
-⿲ -4 han-91d2:5x16-l han-675f:7x16 han-6b20:7x16 // ⿲釒束欠
+⿲ -2 han-91d2:5x16-l han-675f:7x16 han-6b20:5x16 // ⿲釒束欠
 
 // glyph han-93cc:15x16 15 16 // 鏌
 // ⿰ han-91d2 han-83ab // ⿰釒莫
@@ -1455,7 +1455,7 @@ glyph han-9525:15x16 15 16 // 锥
 ⿰ han-9485:5x16 1 han-96b9:9x16 // ⿰钅隹
 
 glyph han-9528:15x16 15 16 // 锨
-⿲ -3 han-9485:5x16 han-65a4:6x16 han-6b20:7x16 // ⿲钅斤欠
+⿲ -1 han-9485:5x16 han-65a4:6x16 han-6b20:5x16 // ⿲钅斤欠
 
 glyph han-952b:15x16 15 16 // 锫
 ⿰ han-9485:6x16 han-5485:9x16 // ⿰钅咅

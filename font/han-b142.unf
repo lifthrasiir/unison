@@ -641,7 +641,7 @@ glyph han-273f6:15x16 15 16 // 𧏶
 // ⿳ han-4e36 han-738b han-45b5 // ⿳丶王䖵 <- ⿱主䖵
 
 glyph han-27401:15x16 15 16 // 𧐁
-⿲ -5 han-866b:5x16 1 han-675f:7x16 han-6b20:7x16 // ⿲虫束欠
+⿲ -3 han-866b:5x16 1 han-675f:7x16 han-6b20:5x16 // ⿲虫束欠
 
 // glyph han-27407:15x16 15 16 // 𧐇
 // ⿲ han-866b han-2bd56 han-5bf8 // ⿲虫𫵖寸 <- ⿰虫尉

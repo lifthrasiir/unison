@@ -6905,7 +6905,7 @@ glyph han-4ff9:15x16 15 16 // 俹
 // ⿰ han-4ebb han-5944 // ⿰亻奄
 
 glyph han-4ffd:15x16 15 16 // 俽
-⿲ -1 han-4ebb:3x16 han-65a4:6x16 han-6b20:7x16 // ⿲亻斤欠
+⿲ han-4ebb:3x16 han-65a4:7x16 han-6b20:5x16 // ⿲亻斤欠
 
 glyph han-4ffe:15x16 15 16 // 俾
 ⿰ han-4ebb:5x16 han-5351.0:10x16 // ⿰亻卑
@@ -7152,7 +7152,7 @@ glyph han-50d1:15x16 15 16 // 僑
 ⿰ han-4ebb:5x16 1 han-55ac:9x16 // ⿰亻喬
 
 glyph han-50db:15x16 15 16 // 僛
-⿲ -1 han-4ebb:3x16 han-5176:6x16 han-6b20:7x16 // ⿲亻其欠
+⿲ han-4ebb:3x16 han-5176:6x16 1 han-6b20:5x16 // ⿲亻其欠
 
 glyph han-50e0:15x16 15 16 // 僠
 ⿰ han-4ebb:5x16 1 han-756a:9x16 // ⿰亻番

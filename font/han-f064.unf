@@ -417,7 +417,7 @@ glyph han-2d998:15x16 15 16 // 𭦘
 // ⿳ han-65e5 han-7f52 han-4e07 // ⿳日罒万
 
 glyph han-2d9a1:15x16 15 16 // 𭦡
-⿲ -1 han-65e5:3x16 han-65a4:6x16 han-6b20:7x16 // ⿲日斤欠
+⿲ han-65e5:3x16-l han-65a4:7x16 han-6b20:5x16 // ⿲日斤欠
 
 ## 72.9
 
@@ -496,7 +496,7 @@ glyph han-2d9d8:15x16 15 16 // 𭧘
 // ⿳ han-65e5 han-8005-($-1) han-706c // ⿳日者灬 <- ⿱日煮
 
 glyph han-2d9f8:15x16 15 16 // 𭧸
-⿲ -2 han-65e5:3x16 han-66f7:7x16 han-6b20:7x16 // ⿲日曷欠
+⿲ han-65e5:3x16-l han-66f7:7x16 han-6b20:5x16 // ⿲日曷欠
 
 // glyph han-2d9fc:15x16 15 16 // 𭧼
 // ⿰ han-661f han-95f9 // ⿰星闹

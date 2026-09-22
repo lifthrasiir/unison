@@ -213,7 +213,7 @@ glyph han-6a03:15x16 15 16 // 樃
 // ⿰ han-6728 han-7adf // ⿰木竟
 
 glyph han-6a15:15x16 15 16 // 樕
-⿲ -4 han-6728:5x16 han-675f:7x16 han-6b20:7x16 // ⿲木束欠
+⿲ -2 han-6728:5x16 han-675f:7x16 han-6b20:5x16 // ⿲木束欠
 
 // glyph han-6a16:15x16 15 16 // 樖
 // ⿱ han-5408 han-67ef // ⿱合柯

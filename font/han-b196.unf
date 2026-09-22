@@ -666,7 +666,7 @@ glyph han-2a16f:15x16 15 16 // 𪅯
 // ⿰ han-60e1 han-9ce5 // ⿰惡鳥
 
 glyph han-2a17e:15x16 15 16 // 𪅾
-⿲ -5 han-5176:6x16 han-6b20:7x16 han-9ce5:7x16 // ⿲其欠鳥
+⿲ -3 han-5176:6x16 han-6b20:5x16 han-9ce5:7x16 // ⿲其欠鳥
 
 // glyph han-2a180:15x16 15 16 // 𪆀
 // ⿱ han-7ca5 han-9ce5 // ⿱粥鳥

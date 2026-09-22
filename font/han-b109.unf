@@ -583,7 +583,7 @@ glyph han-25297:15x16 15 16 // 𥊗
 // ⿲ han-76ee han-8a01 han-592c // ⿲目訁夬 <- ⿰目訣
 
 glyph han-252a1:15x16 15 16 // 𥊡
-⿲ -1 han-76ee:3x16-l 1 han-8eca:5x16 han-6b20:7x16 // ⿲目車欠
+⿲ han-76ee:3x16-l han-8eca:7x16 han-6b20:5x16 // ⿲目車欠
 
 // glyph han-252a4:15x16 15 16 // 𥊤
 // ⿲ han-76ee han-5f73 han-3775 // ⿲目彳㝵
@@ -623,7 +623,7 @@ glyph han-252e0:15x16 15 16 // 𥋠
 // ⿳ han-4020 han-5196 han-5f1c // ⿳䀠冖弜
 
 glyph han-252f5:15x16 15 16 // 𥋵
-⿲ -2 han-76ee:3x16-l han-97f3:7x16 han-6b20:7x16 // ⿲目音欠
+⿲ han-76ee:3x16-l han-97f3:7x16 han-6b20:5x16 // ⿲目音欠
 
 // glyph han-252f8:15x16 15 16 // 𥋸
 // ⿰ han-76ee han-96f7 // ⿰目雷

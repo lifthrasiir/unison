@@ -949,7 +949,7 @@ glyph han-2d113:15x16 15 16 // 𭄓
 ## 18.22
 
 glyph han-2d11d:15x16 15 16 // 𭄝
-⿲ -4 han-5200:5x16 han-96da:7x16 han-6b20:7x16 // ⿲刀雚欠
+⿲ -3 han-5200:5x16 han-96da:7x16 1 han-6b20:5x16 // ⿲刀雚欠
 
 # CJK unified ideographs extension F: 力 (19)
 
@@ -1084,7 +1084,7 @@ glyph han-2d156-j:15x16 15 16 // 𭅖
 ## 22.5
 
 glyph han-2d157:15x16 15 16 // 𭅗
-⿷ han-531a:15x16.14x14 han-7530:9x10 3 3 // ⿷匚田
+⿷ han-531a:15x16.14x14 han-7530:9x12 4 2 // ⿷匚田
 
 // glyph han-2d158:15x16 15 16 // 𭅘
 // ⿷ han-531a han-4e3b // ⿷匚主

@@ -264,7 +264,7 @@ glyph han-28a1b:15x16 15 16 // 𨨛
 // ⿰ han-91d2 han-820d // ⿰釒舍
 
 glyph han-28a22:15x16 15 16 // 𨨢
-⿲ -2 han-91d2:5x16-l han-706b:5x16 han-6b20:7x16 // ⿲釒火欠
+⿲ han-91d2:5x16-l han-706b:5x16 han-6b20:5x16 // ⿲釒火欠
 
 // glyph han-28a27:15x16 15 16 // 𨨧
 // ⿰ han-91d2 han-59be // ⿰釒妾
@@ -457,7 +457,7 @@ glyph han-28b60:15x16 15 16 // 𨭠
 // ⿲ han-91d2 han-4eb2 han-65a4 // ⿲釒亲斤 <- ⿰釒新
 
 glyph han-28b88:15x16 15 16 // 𨮈
-⿲ -4 han-91d2:5x16-l han-97f3:7x16 han-6b20:7x16 // ⿲釒音欠
+⿲ -2 han-91d2:5x16-l han-97f3:7x16 han-6b20:5x16 // ⿲釒音欠
 
 ## 167.14
 
@@ -525,4 +525,4 @@ glyph han-28c4e:15x16 15 16 // 𨱎
 // ⿰ han-9485 han-5c5a-($-1) // ⿰钅屚
 
 glyph han-28c52:15x16 15 16 // 𨱒
-⿲ -4 han-9485:5x16 han-675f:7x16 han-6b20:7x16 // ⿲钅束欠
+⿲ -2 han-9485:5x16 han-675f:7x16 han-6b20:5x16 // ⿲钅束欠

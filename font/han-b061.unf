@@ -827,7 +827,7 @@ glyph han-22885:15x16 15 16 // 𢢅
 // ⿰ han-5fc4 han-3b05 // ⿰忄㬅
 
 glyph han-2289a:15x16 15 16 // 𢢚
-⿲ -4 han-5fc4:5x16 han-66f7:7x16 han-6b20:7x16 // ⿲忄曷欠
+⿲ -2 han-5fc4:5x16 han-66f7:7x16 han-6b20:5x16 // ⿲忄曷欠
 
 glyph han-228a4:15x16 15 16 // 𢢤
 ⿳ -2 han-660e:15x7 han-53e4:15x6 han-5fc3:15x5 // ⿳明古心
@@ -854,7 +854,7 @@ glyph han-228c3:15x16 15 16 // 𢣃
 // ⿰ han-5fc4 han-5d69 // ⿰忄嵩
 
 glyph han-228c7:15x16 15 16 // 𢣇
-⿲ -4 han-5fc4:5x16 han-97f3:7x16 han-6b20:7x16 // ⿲忄音欠
+⿲ -2 han-5fc4:5x16 han-97f3:7x16 han-6b20:5x16 // ⿲忄音欠
 
 // glyph han-26857:15x16 15 16 // 𦡗
 // ⿰ han-6708 han-6101 // ⿰月愁

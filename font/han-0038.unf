@@ -777,7 +777,7 @@ glyph han-5aea.0:* = han-5aea:*
 // ⿰ han-5973 han-83ab // ⿰女莫
 
 glyph han-5af0:15x16 15 16 // 嫰
-⿲ -4 han-5973:5x16-l han-675f:7x16 han-6b20:7x16 // ⿲女束欠
+⿲ -2 han-5973:5x16-l han-675f:7x16 han-6b20:5x16 // ⿲女束欠
 
 // glyph han-5af2:15x16 15 16 // 嫲
 // ⿰ han-5973 han-9ebb // ⿰女麻

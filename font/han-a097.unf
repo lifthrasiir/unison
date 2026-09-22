@@ -740,7 +740,7 @@ glyph han-40cb-j:15x16 15 16 // 䃋
 ## 112.12
 
 glyph han-40e2:15x16 15 16 // 䃢
-⿲ -2 han-77f3:5x16 han-91d2:5x16-l han-6b20:7x16 // ⿲石釒欠
+⿲ han-77f3:5x16 han-91d2:5x16-l han-6b20:5x16 // ⿲石釒欠
 
 // glyph han-40e5:15x16 15 16 // 䃥
 // ⿰ han-77f3 han-7ae5 // ⿰石童
