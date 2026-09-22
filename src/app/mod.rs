@@ -194,10 +194,16 @@ pub struct UniformApp {
     rebuild_log: timing::RebuildLog,
     /// *View → Rebuild timing…* is showing.
     rebuild_timing_open: bool,
-    /// The generations the specimen's data was last *asked* for. Opening the
-    /// tab asks for a rebuild, and this is what keeps it to one ask rather than
-    /// one per frame.
-    specimen_asked_for: Option<(u64, u64)>,
+    /// The [`font_build_gen`](Self::font_build_gen) the specimen's data was
+    /// last *asked* for. Opening the tab asks for a rebuild, and this is what
+    /// keeps it to one ask rather than one per frame.
+    ///
+    /// The *build* generation, not the pair the specimen's own staleness is
+    /// keyed on: a specimen ask does not step it, so one ask per document set
+    /// is exactly one rebuild that knew the tab was open — and a rebuild that
+    /// came back without the data has therefore already had its turn. See the
+    /// ask itself in [`super::background`].
+    specimen_asked_for: Option<u64>,
     font_build_rx: mpsc::Receiver<FontBuildMessage>,
     font_build_tx: mpsc::Sender<FontBuildMessage>,
     font_build_gen: u64,

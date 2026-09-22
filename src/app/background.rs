@@ -880,20 +880,32 @@ impl UniformApp {
         // than one per frame, and so a collection that somehow produces nothing
         // cannot loop.
         //
-        // *After* the derived result above, not before it. Both generations
-        // this compares against are stepped by results the pump applies, and
-        // the derived one is applied here — asking any earlier means asking
+        // What the ask is recorded *against* is the build generation, not the
+        // generation pair the staleness above is keyed on. The pair is stepped
+        // by every rebuild, so a guard written against it never saw a
+        // generation it had already asked for: a rebuild that came back with no
+        // specimen — a font build that returns no font (`meta height 0`, or a
+        // worker that died) leaves the collection nothing to read — was asked
+        // for again the moment it landed, and the editor rebuilt the whole
+        // document set at full tilt for as long as the tab stayed open. A
+        // specimen ask does not step `font_build_gen`, so one ask per document
+        // set is one rebuild that knew the tab was open, and the next ask waits
+        // for the next edit.
+        //
+        // *After* the derived result above, not before it. Both generations the
+        // staleness compares against are stepped by results the pump applies,
+        // and the derived one is applied here — asking any earlier means asking
         // against a generation that is about to change in this very frame,
         // which is a second rebuild of what the first one already delivered.
         let want_specimen = self.bottom_panel_tab == Some(super::panels::SPECIMEN_TAB);
         let gens = (self.font_data_gen, self.derived_gen);
         if want_specimen
             && self.specimen.needs_rebuild(gens.0, gens.1)
-            && self.specimen_asked_for != Some(gens)
+            && self.specimen_asked_for != Some(self.font_build_gen)
             && !self.rebuild_inflight
             && self.rebuild_at.is_none()
         {
-            self.specimen_asked_for = Some(gens);
+            self.specimen_asked_for = Some(self.font_build_gen);
             // Its own request, so its own clock: what the report measures is
             // the wait after whatever asked for the rebuild.
             self.rebuild_log.requested();
@@ -1443,6 +1455,50 @@ pub(crate) mod startup_tests {
                 .needs_rebuild(app.font_data_gen, app.derived_gen),
             "the rebuild that knew the tab was open collected it"
         );
+    }
+
+    /// A rebuild the specimen tab asked for that comes back without specimen
+    /// data must not ask for another one.
+    ///
+    /// The ask is guarded by `specimen_asked_for`, which remembers the
+    /// generation pair it asked against — but *every* rebuild steps that pair,
+    /// so the guard only ever sees a generation it has not asked for yet. When
+    /// the rebuild does bring the data the second ask never happens, because
+    /// the specimen is no longer stale; when it cannot — a font build that
+    /// returns no font, which `meta height 0` is the cheapest way to force —
+    /// the tab asked again, and again, and the editor rebuilt the whole font
+    /// set at full tilt for as long as the tab stayed open.
+    #[test]
+    fn a_rebuild_that_brings_no_specimen_does_not_ask_for_another() {
+        let dir = TempDir::new("specimen-loop");
+        // `meta height 0` is refused by the font build (`collect::
+        // compute_face_input`), so the rebuild has no glyph set to collect the
+        // specimen against.
+        std::fs::write(
+            dir.0.join("a.unf"),
+            "meta height 0\n\nglyph a 2 2\n@@\n.@\n\nmap A = a\n",
+        )
+        .unwrap();
+
+        let ctx = egui::Context::default();
+        let mut app = UniformApp::with_settings(&ctx, Settings::default(), Some(dir.0.clone()));
+        app.bottom_panel_tab = Some(super::super::panels::SPECIMEN_TAB);
+
+        // Long enough to cover the debounce each ask arms, and then some:
+        // what this counts is the asks themselves, and the loop this pins made
+        // its third within a sixth of a second.
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(2);
+        let mut asks = 0;
+        let mut last = app.specimen_asked_for;
+        while std::time::Instant::now() < deadline {
+            app.pump_background_pipeline(&ctx);
+            if app.specimen_asked_for != last {
+                last = app.specimen_asked_for;
+                asks += 1;
+                assert!(asks <= 2, "the specimen tab asked for a rebuild forever");
+            }
+            std::thread::sleep(std::time::Duration::from_millis(5));
+        }
     }
 
     /// Opening a file the directory snapshot already holds must not rebuild the
