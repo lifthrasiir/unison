@@ -122,6 +122,9 @@ glyph han-22aab:15x16 15 16 // 𢪫
 glyph han-22aac:15x16 15 16 // 𢪬
 ⿲ han-624c:5x16 han-5b50.0:5x16-l han-4e5a:5x16 // ⿲扌子乚
 
+// glyph han-22aad-($han-regions):15x16 15 16 // 𢪭
+// ⿰ han-624c han-58ec-($-1) // ⿰扌壬
+
 glyph han-22aae:15x16 15 16 // 𢪮
 ⿰ han-624c:5x16 1 han-6728:9x16 // ⿰扌木
 

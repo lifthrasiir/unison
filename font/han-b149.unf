@@ -226,6 +226,9 @@ glyph han-27a02-($han-regions):15x16 15 16 // 𧨂
 // glyph han-27a07:15x16 15 16 // 𧨇
 // ⿰ han-8a01 han-6758 // ⿰訁杘
 
+// glyph han-27a09-($han-regions):15x16 15 16 // 𧨉
+// ⿰ han-8a01-($-1) han-2151e-($-1) // ⿰訁𡔞
+
 glyph han-27a0e:15x16 15 16 // 𧨎
 ⿰ han-8a01.x:5x16 1 han-5b8c:9x16 // ⿰訁完
 

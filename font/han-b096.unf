@@ -454,7 +454,7 @@ glyph han-24a4e:15x16 15 16 // 𤩎
 ⿰ han-248e9:3x16 1 han-9593:11x16 // ⿰𤣩間
 
 glyph han-24a4f:15x16 15 16 // 𤩏
-⿲ -4 han-248e9:3x16 han-79be:5x16 han-5448:11x16 // ⿲𤣩禾呈
+⿲ -2 han-248e9:3x16 han-79be:5x16 han-5448.1:9x16 // ⿲𤣩禾呈
 
 glyph han-24a50:15x16 15 16 // 𤩐
 ⿲ han-248e9:3x16 han-5176:6x16 han-65a4:6x16 // ⿲𤣩其斤

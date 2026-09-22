@@ -809,8 +809,18 @@ glyph han-4102.1:15x16 15 16 // 䄂
 
 ## 113.7
 
-// glyph han-4107:15x16 15 16 // 䄇
-// ⿰ han-793b han-5448 // ⿰礻呈
+glyph han-4107.0:15x16 15 16 // 䄇
+⿰ han-793a:5x16 1 han-5448.3:9x16 // ⿰礻呈
+glyph han-4107.1:15x16 15 16 // 䄇
+⿰ han-793b:5x16 1 han-5448.0:9x16 // ⿰礻呈
+glyph han-4107.2:15x16 15 16 // 䄇
+⿰ han-793a:5x16 1 han-5448.1:9x16 // ⿰礻呈
+glyph han-4107.x:15x16 15 16 // 䄇
+⿰ han-793b:5x16 1 han-5448.1:9x16 // ⿰礻呈
+glyph han-4107-j:* = han-4107.0:*
+glyph han-4107-(g|v):* = han-4107.1:*
+glyph han-4107-k:* = han-4107.2:*
+glyph han-4107-t:* = han-4107.x:*
 
 // glyph han-4108:15x16 15 16 // 䄈
 // ⿰ han-793b han-8c46 // ⿰礻豆

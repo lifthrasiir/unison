@@ -640,8 +640,12 @@ glyph han-6327-($han-regions):15x16 15 16 // 挧
 
 ## 64.7
 
-glyph han-6330:15x16 15 16 // 挰
-⿰ han-624c:3x16 1 han-5448:11x16 // ⿰扌呈
+glyph han-6330-(g|v):15x16 15 16 // 挰
+assume ⿰ han-624c:5x16 -1 han-5448.0:11x16 // ⿰扌呈
+glyph han-6330-(t|j|k):15x16 15 16 // 挰
+assume ⿰ han-624c:5x16 -1 han-5448.1:11x16 // ⿰扌呈
+glyph han-6330-p:15x16 15 16 // 挰
+assume ⿰ han-624c:5x16 -1 han-5448.3:11x16 // ⿰扌呈
 
 glyph han-6333:15x16 15 16 // 挳
 ⿰ han-624c:5x16 1 han-5de0:9x16 // ⿰扌巠

@@ -754,6 +754,9 @@ glyph han-794c-(g|h|t):15x16 15 16 // 祌
 glyph han-794c-(k|p):15x16 15 16 // 祌
 ⿰ han-793a:5x16 1 han-4e2d:9x16 // ⿰示中
 
+// glyph han-794d-($han-regions):15x16 15 16 // 祍
+// ⿰ han-793b han-58ec-($-1) // ⿰礻壬
+
 // glyph han-794e:15x16 15 16 // 祎
 // ⿰ han-793b han-97e6 // ⿰礻韦
 
@@ -1445,8 +1448,17 @@ glyph han-7a07:15x16 15 16 // 稇
 // glyph han-7a08:15x16 15 16 // 稈
 // ⿰ han-79be han-65f1 // ⿰禾旱
 
-// glyph han-7a0b:15x16 15 16 // 程
-// ⿰ han-79be han-5448 // ⿰禾呈
+glyph han-7a0b.0:15x16 15 16 // 程
+⿰ han-79be:5x16 1 han-5448.0:9x16 // ⿰禾呈
+glyph han-7a0b.1:15x16 15 16 // 程
+⿰ han-79be:5x16 1 han-5448.1:9x16 // ⿰禾呈
+glyph han-7a0b.2:* = han-7a0b.0:*
+glyph han-7a0b.3:* = han-7a0b.1:*
+glyph han-7a0b.x:15x16 15 16 // 程
+⿰ han-79be:5x16 1 han-5448.3:9x16 // ⿰禾呈
+glyph han-7a0b-(g|j|v):* = han-7a0b.0:*
+glyph han-7a0b-(h|t|k):* = han-7a0b.1:*
+glyph han-7a0b-p:* = han-7a0b.x:*
 
 glyph han-7a0d.0:15x16 15 16 // 稍
 ⿰ han-79be:7x16 1 han-8096.1:7x16 // ⿰禾肖

@@ -366,8 +366,8 @@ glyph han-272f5:15x16 15 16 // 𧋵
 // glyph han-272f7:15x16 15 16 // 𧋷
 // ⿰ han-866b han-5fcc // ⿰虫忌
 
-// glyph han-272f8:15x16 15 16 // 𧋸
-// ⿰ han-866b han-5448 // ⿰虫呈
+glyph han-272f8:15x16 15 16 // 𧋸
+⿰ han-866b:5x16 1 han-5448-v:9x16 // ⿰虫呈
 
 // glyph han-272f9:15x16 15 16 // 𧋹
 // ⿰ han-866b han-215f6 // ⿰虫𡗶

@@ -47,6 +47,9 @@ glyph han-28677:15x16 15 16 // 𨙷
 // glyph han-2867b:15x16 15 16 // 𨙻
 // ⿰ han-5184 han-961d // ⿰冄阝
 
+// glyph han-2867c-($han-regions):15x16 15 16 // 𨙼
+// ⿰ han-58ec-($-1) han-961d // ⿰壬阝
+
 glyph han-2867d-($han-regions):15x16 15 16 // 𨙽
 ⿰ han-4eca-($-1):9x16 1 han-961d:5x16-r // ⿰今阝
 

@@ -466,8 +466,8 @@ glyph han-2d61e:15x16 15 16 // 𭘞
 glyph han-2d620:15x16 15 16 // 𭘠
 ⿰ han-5dfe:7x16 han-898b:8x16 // ⿰巾見
 
-// glyph han-2d621:15x16 15 16 // 𭘡
-// ⿰ han-5dfe han-5448 // ⿰巾呈
+glyph han-2d621:15x16 15 16 // 𭘡
+⿰ han-5dfe:5x16 1 han-5448-k:9x16 // ⿰巾呈
 
 // glyph han-2d622:15x16 15 16 // 𭘢
 // ⿱ han-5229 han-5dfe // ⿱利巾

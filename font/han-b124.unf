@@ -285,7 +285,7 @@ glyph han-264d4:15x16 15 16 // 𦓔
 ## 126.11
 
 glyph han-264e1:15x16 15 16 // 𦓡
-⿸ han-9ebb:15x16.11x7 han-800c:9x7 6 9 // ⿸麻而
+⿸ han-9ebb.0:15x16.11x7 han-800c:9x7 5 9 // ⿸麻而
 
 # CJK unified ideographs extension B: 耳 (128)
 
@@ -329,6 +329,9 @@ glyph han-2653b:15x16 15 16 // 𦔻
 ⿰ han-8033:6x16-l 1 han-53e3:8x16 // ⿰耳口
 
 ## 128.4
+
+// glyph han-2653d:15x16 15 16 // 𦔽
+// ⿰ han-8033 han-2123c // ⿰耳𡈼
 
 glyph han-2653e:15x16 15 16 // 𦔾
 ⿰ han-8033:6x16-l han-592b:9x16 // ⿰耳夫

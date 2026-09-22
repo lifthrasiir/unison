@@ -399,6 +399,9 @@ glyph han-30aa9:15x16 15 16 // 𰪩
 glyph han-30aac:15x16 15 16 // 𰪬
 ⿰ han-7c73:5x16 1 han-738b:9x16 // ⿰米王
 
+// glyph han-30aaf-($han-regions):15x16 15 16 // 𰪯
+// ⿰ han-7c73 han-58ec-($-1) // ⿰米壬
+
 // glyph han-30ab0:15x16 15 16 // 𰪰
 // ⿸ han-200dc han-7c73 // ⿸𠃜米
 

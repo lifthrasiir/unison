@@ -267,6 +267,9 @@ glyph han-9210.x:15x16 15 16 // 鈐
 glyph han-9210-(h|t|j|k|v):* = han-9210.0:*
 glyph han-9210-(g|p):* = han-9210.x:*
 
+// glyph han-9213-($han-regions):15x16 15 16 // 鈓
+// ⿰ han-91d2 han-58ec-($-1) // ⿰釒壬
+
 // glyph han-9215-($han-regions):15x16 15 16 // 鈕
 // ⿰ han-91d2 han-4e11-($-1) // ⿰釒丑
 
@@ -693,8 +696,15 @@ glyph han-92e4:15x16 15 16 // 鋤
 assume ⿲ han-91d2:5x16-l han-4e14:6x16 -1 han-529b:5x16 // ⿲釒且力
 glyph han-92e4.0:* = han-92e4:*
 
-// glyph han-92e5:15x16 15 16 // 鋥
-// ⿰ han-91d2 han-5448 // ⿰釒呈
+glyph han-92e5.0:15x16 15 16 // 鋥
+⿰ han-91d2:5x16-l 1 han-5448.1:9x16 // ⿰釒呈
+glyph han-92e5.x:15x16 15 16 // 鋥
+⿰ han-91d2:5x16-l 1 han-5448.0:9x16 // ⿰釒呈
+glyph han-92e5.y:15x16 15 16 // 鋥
+⿰ han-91d2:5x16-l 1 han-5448.3:9x16 // ⿰釒呈
+glyph han-92e5-(h|t|j|k):* = han-92e5.0:*
+glyph han-92e5-(g|v):* = han-92e5.x:*
+glyph han-92e5-p:* = han-92e5.y:*
 
 glyph han-92e7:15x16 15 16 // 鋧
 ⿰ han-91d2:7x16 han-898b:8x16 // ⿰釒見
@@ -1388,8 +1398,8 @@ glyph han-9500:15x16 15 16 // 销
 glyph han-9502:15x16 15 16 // 锂
 ⿰ han-9485:6x16 han-91cc:9x16 // ⿰钅里
 
-// glyph han-9503:15x16 15 16 // 锃
-// ⿰ han-9485 han-5448 // ⿰钅呈
+glyph han-9503:15x16 15 16 // 锃
+⿰ han-9485:6x16 han-5448-g:9x16 // ⿰钅呈
 
 glyph han-9504:15x16 15 16 // 锄
 ⿲ -1 han-9485:5x16 han-4e14:6x16 han-529b:5x16 // ⿲钅且力

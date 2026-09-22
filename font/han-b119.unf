@@ -158,8 +158,8 @@ glyph han-25e76-(j|p):15x16 15 16 // 𥹶
 // glyph han-25e83:15x16 15 16 // 𥺃
 // ⿰ han-7c73 han-5fd7 // ⿰米志
 
-// glyph han-25e86:15x16 15 16 // 𥺆
-// ⿰ han-7c73 han-5448 // ⿰米呈
+glyph han-25e86:15x16 15 16 // 𥺆
+⿰ han-7c73:5x16 1 han-5448.1:9x16 // ⿰米呈
 
 glyph han-25e88:15x16 15 16 // 𥺈
 ⿲ han-7c73:5x16 han-624c:3x16 han-65a4:7x16 // ⿲米扌斤

@@ -76,6 +76,9 @@ glyph han-28cd5:15x16 15 16 // 𨳕
 // glyph han-28cdc:15x16 15 16 // 𨳜
 // ⿵ han-9580 han-65a4 // ⿵門斤
 
+// glyph han-28cdd-($han-regions):15x16 15 16 // 𨳝
+// ⿵ han-9580 han-58ec-($-1) // ⿵門壬
+
 // glyph han-28cde-($han-regions):15x16 15 16 // 𨳞
 // ⿵ han-9580 han-4e11-($-1) // ⿵門丑
 

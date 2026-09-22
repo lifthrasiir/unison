@@ -836,8 +836,15 @@ glyph han-6d66:15x13 15 13 // 浦
 glyph han-6d66:15x16 15 16 // 浦
 ⿰ han-6c35:5x16 1 han-752b:9x16 // ⿰氵甫
 
-glyph han-6d67:15x16 15 16 // 浧
-⿰ han-6c35:3x16 1 han-5448:11x16 // ⿰氵呈
+glyph han-6d67.0:15x16 15 16 // 浧
+⿰ han-6c35:3x16 1 han-5448.1:11x16 // ⿰氵呈
+glyph han-6d67.x:15x16 15 16 // 浧
+⿰ han-6c35:3x16 1 han-5448.0:11x16 // ⿰氵呈
+glyph han-6d67.y:15x16 15 16 // 浧
+⿰ han-6c35:3x16 1 han-5448.3:11x16 // ⿰氵呈
+glyph han-6d67-(h|t|j|k):* = han-6d67.0:*
+glyph han-6d67-(g|v):* = han-6d67.x:*
+glyph han-6d67-p:* = han-6d67.y:*
 
 glyph han-6d68:15x16 15 16 // 浨
 ⿰ han-6c35:5x16 1 han-5b8b:9x16 // ⿰氵宋

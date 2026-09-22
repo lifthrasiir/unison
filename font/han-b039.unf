@@ -578,6 +578,9 @@ assume ⿳ han-5b80:15x3 han-5176:15x10 -1 han-571f:15x4 // ⿳宀其土
 // glyph han-21a92:15x16 15 16 // 𡪒
 // ⿳ han-5b80 han-303d2 han-7530 // ⿳宀𰏒田
 
+// glyph han-21a93-($han-regions):15x16 15 16 // 𡪓
+// ⿳ han-5b80 han-58ec-($-1) han-8c9d // ⿳宀壬貝
+
 // glyph han-21a94:15x16 15 16 // 𡪔
 // ⿱ han-5b80 han-234c0 // ⿱宀𣓀
 

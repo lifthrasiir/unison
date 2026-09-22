@@ -258,6 +258,9 @@ glyph han-7d1b-($han-regions):15x16 15 16 // 紛
 // glyph han-7d1c:15x16 15 16 // 紜
 // ⿰ han-7cf9 han-4e91 // ⿰糹云
 
+// glyph han-7d1d-($han-regions):15x16 15 16 // 紝
+// ⿰ han-7cf9-($-1) han-58ec-($-1) // ⿰糹壬
+
 glyph han-7d1f-(h|t):15x16 15 16 // 紟
 ⿰ han-7cf9.x:5x16 1 han-4eca.0:9x16 // ⿰糹今
 glyph han-7d1f-g:15x16 15 16 // 紟

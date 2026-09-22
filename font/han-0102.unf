@@ -2886,8 +2886,12 @@ glyph han-7744-(j|k|p):15x16 15 16 // 睄
 glyph han-7746:15x16 15 16 // 睆
 ⿰ han-76ee:4x16-l 2 han-5b8c:9x16 // ⿰目完
 
-glyph han-7748:15x16 15 16 // 睈
-⿰ han-76ee:3x16-l 1 han-5448:11x16 // ⿰目呈
+glyph han-7748-(g|v):15x16 15 16 // 睈
+⿰ han-76ee:3x16-l 1 han-5448.0:11x16 // ⿰目呈
+glyph han-7748-(t|j):15x16 15 16 // 睈
+⿰ han-76ee:3x16-l 1 han-5448.1:11x16 // ⿰目呈
+glyph han-7748-p:15x16 15 16 // 睈
+⿰ han-76ee:3x16-l 1 han-5448.3:11x16 // ⿰目呈
 
 glyph han-774d:15x16 15 16 // 睍
 ⿰ han-76ee:4x16-l 1 han-898b:10x16 // ⿰目見
@@ -2940,9 +2944,9 @@ glyph han-776d-(g|t|j|k|p):* = han-776d.2:*
 ## 109.9
 
 glyph han-776e-(g|h|t):15x16 15 16 // 睮
-⿰ han-76ee:6x16 1 han-4fde.0:9x16 // ⿰目俞
+⿰ han-76ee:5x16-l 1 han-4fde.0:9x16 // ⿰目俞
 glyph han-776e-(j|k|p):15x16 15 16 // 睮
-⿰ han-76ee:6x16 1 han-4fde.y:9x16 // ⿰目俞
+⿰ han-76ee:5x16-l 1 han-4fde.y:9x16 // ⿰目俞
 
 glyph han-7772:15x16 15 16 // 睲
 ⿰ han-76ee:4x16-l han-661f:11x16 // ⿰目星

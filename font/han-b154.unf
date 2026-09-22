@@ -180,8 +180,8 @@ glyph han-27d88-j:15x16 15 16 // 𧶈
 // ref han-54e1 // ⿻員戈
 // ref han-6208
 
-// glyph han-27d94:15x16 15 16 // 𧶔
-// ⿰ han-8c9d han-5448 // ⿰貝呈
+glyph han-27d94:15x16 15 16 // 𧶔
+⿰ han-8c9d:6x16 han-5448-g:9x16 // ⿰貝呈
 
 // glyph han-27d9a:15x16 15 16 // 𧶚
 // ⿳ han-5349 han-4e00 han-8c9d // ⿳卉一貝

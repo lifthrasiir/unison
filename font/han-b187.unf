@@ -52,7 +52,7 @@ glyph han-29876:15x16 15 16 // 𩡶
 // ⿰ han-99ac han-535e-($-1) // ⿰馬卞
 
 glyph han-2987d:15x16 15 16 // 𩡽
-⿰ han-723f:6x16 1 han-99ac:7x16 // ⿰爿馬
+⿰ han-723f:5x16 1 han-99ac:9x16 // ⿰爿馬
 
 glyph han-29884:15x16 15 16 // 𩢄
 ⿰ han-99ac:7x16 han-5143:8x16 // ⿰馬元

@@ -211,6 +211,9 @@ glyph han-5985:15x16 15 16 // 妅
 
 ## 38.4
 
+// glyph han-598a-($han-regions):15x16 15 16 // 妊
+// ⿰ han-5973 han-58ec-($-1) // ⿰女壬
+
 glyph han-598b:15x16 15 16 // 妋
 ⿰ han-5973:5x16-l 1 han-592b:9x16 // ⿰女夫
 glyph han-598b.0:* = han-598b:*

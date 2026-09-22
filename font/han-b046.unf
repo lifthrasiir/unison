@@ -566,8 +566,12 @@ glyph han-21ecb-($han-regions):15x16 15 16 // 𡻋
 // glyph han-21ee3:15x16 15 16 // 𡻣
 // ⿱ han-5c71 han-79fb // ⿱山移
 
-glyph han-21ee4:15x16 15 16 // 𡻤
-⿸ han-9ebb:15x16.11x7 han-5c71:11x7 4 9 // ⿸麻山
+glyph han-21ee4.0:15x16 15 16 // 𡻤
+⿸ han-9ebb.1:15x16.11x7 han-5c71:11x7 4 9 // ⿸麻山
+glyph han-21ee4.1:15x16 15 16 // 𡻤
+⿸ han-9ebb.0:15x16.11x7 han-5c71:11x7 4 9 // ⿸麻山
+glyph han-21ee4-(t|j):* = han-21ee4.0:*
+glyph han-21ee4-g:* = han-21ee4.1:*
 
 // glyph han-21ee5:15x16 15 16 // 𡻥
 // ⿰ han-5c71 han-9ebb // ⿰山麻

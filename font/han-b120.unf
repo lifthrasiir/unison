@@ -234,8 +234,14 @@ glyph han-26015-($han-regions):15x16 15 16 // 𦀕
 // glyph han-26018:15x16 15 16 // 𦀘
 // ⿰ han-7cf9 han-5752 // ⿰糹坒
 
-// glyph han-2601a:15x16 15 16 // 𦀚
-// ⿰ han-7cf9 han-5448 // ⿰糹呈
+glyph han-2601a-g:15x16 15 16 // 𦀚
+⿰ han-7cf9.x:5x16 1 han-5448.0:9x16 // ⿰糹呈
+glyph han-2601a-(t|v):15x16 15 16 // 𦀚
+⿰ han-7cf9.x:5x16 1 han-5448.1:9x16 // ⿰糹呈
+glyph han-2601a-j:15x16 15 16 // 𦀚
+⿰ han-7cf9.z:5x16 1 han-5448.1:9x16 // ⿰糹呈
+glyph han-2601a-p:15x16 15 16 // 𦀚
+⿰ han-7cf9.y:5x16 1 han-5448.3:9x16 // ⿰糹呈
 
 glyph han-2601c-($han-regions):15x16 15 16 // 𦀜
 ⿲ han-7cf9-($-1):5x16 han-723f:5x16 han-58eb:5x16 // ⿲糹爿士

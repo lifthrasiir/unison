@@ -101,6 +101,11 @@ glyph han-2b847:15x16 15 16 // 𫡇
 // ref han-5c14 // ⿻尔㇒
 // ref han-31d2
 
+## 4.7
+
+// glyph han-2b858-($han-regions):15x16 15 16 // 𫡘
+// ⿰ han-58ec-($-1) han-592c // ⿰壬夬
+
 ## 4.8
 
 // glyph han-2b859:15x16 15 16 // 𫡙
@@ -665,6 +670,11 @@ glyph han-2b9ec:15x16 15 16 // 𫧬
 
 // glyph han-2b9f9:15x16 15 16 // 𫧹
 // ⿰ han-4e05 han-5369 // ⿰丅卩
+
+## 26.4
+
+// glyph han-2b9fa-($han-regions):15x16 15 16 // 𫧺
+// ⿰ han-58ec-($-1) han-5369 // ⿰壬卩
 
 # CJK unified ideographs extension E: 厂 (27)
 

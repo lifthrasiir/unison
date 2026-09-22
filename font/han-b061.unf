@@ -112,6 +112,9 @@ glyph han-225d2-($han-regions):15x16 15 16 // 𢗒
 // glyph han-225d4:15x16 15 16 // 𢗔
 // ⿰ han-5fc4 han-4e0f // ⿰忄丏
 
+// glyph han-225d6-($han-regions):15x16 15 16 // 𢗖
+// ⿰ han-5fc4 han-58ec-($-1) // ⿰忄壬
+
 // glyph han-225d7:15x16 15 16 // 𢗗
 // ⿰ han-5fc4 han-72ac // ⿰忄犬
 
@@ -135,6 +138,9 @@ glyph han-225e6:15x16 15 16 // 𢗦
 
 glyph han-225e8:15x16 15 16 // 𢗨
 ⿱ han-6c34:15x9 1 han-5fc3:15x6 // ⿱水心
+
+glyph han-225e9:15x16 15 16 // 𢗩
+⿱ han-2123c:15x8 1 han-5fc3:15x7 // ⿱𡈼心
 
 // glyph han-225ea:15x16 15 16 // 𢗪
 // ⿱ han-6c0f han-5fc3 // ⿱氏心

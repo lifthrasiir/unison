@@ -92,6 +92,9 @@ glyph han-277ec:15x16 15 16 // 𧟬
 // glyph han-27811:15x16 15 16 // 𧠑
 // ⿺ han-898b han-6bdb // ⿺見毛
 
+// glyph han-27812-($han-regions):15x16 15 16 // 𧠒
+// ⿰ han-58ec-($-1) han-898b // ⿰壬見
+
 // glyph han-27813:15x16 15 16 // 𧠓
 // ⿱ han-2053f han-898b // ⿱𠔿見
 
@@ -185,8 +188,10 @@ glyph han-27846:15x16 15 16 // 𧡆
 // glyph han-27847:15x16 15 16 // 𧡇
 // ⿺ han-898b han-7537 // ⿺見男
 
-// glyph han-27848:15x16 15 16 // 𧡈
-// ⿰ han-5448 han-898b // ⿰呈見
+glyph han-27848-g:15x16 15 16 // 𧡈
+⿰ han-5448.0:9x16 1 han-898b:5x16 // ⿰呈見
+glyph han-27848-(t|j):15x16 15 16 // 𧡈
+⿰ han-5448.1:9x16 1 han-898b:5x16 // ⿰呈見
 
 // glyph han-2784a:15x16 15 16 // 𧡊
 // ⿱ han-4f53 han-898b // ⿱体見

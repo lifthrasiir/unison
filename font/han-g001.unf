@@ -465,6 +465,13 @@ glyph han-300a9:15x16 15 16 // 𰂩
 // glyph han-300e5:15x16 15 16 // 𰃥
 // ⿰ han-516d han-8981 // ⿰六要
 
+# CJK unified ideographs extension G: 冂 (13)
+
+## 13.4
+
+// glyph han-300e7-($han-regions):15x16 15 16 // 𰃧
+// ⿵ han-5182 han-58ec-($-1) // ⿵冂壬
+
 # CJK unified ideographs extension G: 冖 (14)
 
 ## 14.5
