@@ -469,6 +469,9 @@ glyph han-265a1:15x16 15 16 // 𦖡
 
 glyph han-265a2:15x16 15 16 // 𦖢
 ⿰ han-8033:6x16-l han-97f3:9x16 // ⿰耳音
+glyph han-265a2.0:* = han-265a2:*
+glyph han-265a2.1:15x16 15 16 // 𦖢
+⿰ han-8033:6x16-l han-97f3.1:9x16 // ⿰耳音
 
 // glyph han-265a4:15x16 15 16 // 𦖤
 // ⿰ han-8033 han-661f // ⿰耳星

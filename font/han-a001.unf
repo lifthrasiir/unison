@@ -1323,6 +1323,9 @@ glyph han-36f2:15x16 15 16 // 㛲
 
 glyph han-36fa:15x16 15 16 // 㛺
 ⿰ han-5973:5x16-l 1 han-97f3:9x16 // ⿰女音
+glyph han-36fa.0:* = han-36fa:*
+glyph han-36fa.1:15x16 15 16 // 㛺
+⿰ han-5973:5x16-l 1 han-97f3.1:9x16 // ⿰女音
 
 // glyph han-36fb:15x16 15 16 // 㛻
 // ⿰ han-5973 han-594e // ⿰女奎

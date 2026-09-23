@@ -718,7 +718,10 @@ glyph han-2afaf:15x16 15 16 // 𪾯
 ## 109.9
 
 glyph han-2afb2:15x16 15 16 // 𪾲
-⿰ han-76ee:6x16 han-97f3:9x16 // ⿰目音
+⿰ han-76ee:5x16-l 1 han-97f3:9x16 // ⿰目音
+glyph han-2afb2.0:* = han-2afb2:*
+glyph han-2afb2.1:15x16 15 16 // 𪾲
+⿰ han-76ee:5x16-l 1 han-97f3.1:9x16 // ⿰目音
 
 glyph han-2afb3:15x16 15 16 // 𪾳
 ⿰ han-76ee:6x16 han-97cb:9x16 // ⿰目韋

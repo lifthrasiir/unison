@@ -280,7 +280,7 @@ glyph han-284fd.0:15x16 15 16 // 𨓽
 glyph han-284fd.1:15x16 15 16 // 𨓽
 ⿺ han-8fb6.1:15x16.11x14 han-9752.0:11x14 4 0 // ⿺辶青
 glyph han-284fd.x:15x16 15 16 // 𨓽
-⿺ han-8fb6.4:15x16.11x14 han-9752-t:11x14 4 0 // ⿺辶青
+⿺ han-8fb6.4:15x16.11x14 han-9752.x:11x14 4 0 // ⿺辶青
 glyph han-284fd-j:* = han-284fd.0:*
 glyph han-284fd-g:* = han-284fd.1:*
 glyph han-284fd-t:* = han-284fd.x:*

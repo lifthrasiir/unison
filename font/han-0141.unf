@@ -241,17 +241,13 @@ glyph han-867b-($han-regions):15x16 15 16 // 虻
 ⿰ han-866b:7x16 1 han-4ea1-($-1):7x16 // ⿰虫亡
 
 glyph han-867d:5x16 5 16 // 虽
-ref han-53e3:5x5 0 0 // ⿱口虫
-ref han-866b:5x11 0 5
+⿱ han-53e3:5x5 han-866b:5x11 // ⿱口虫
 glyph han-867d:7x16 7 16 // 虽
-ref han-53e3:5x5 1 0 // ⿱口虫
-ref han-866b:7x11 0 5
+⿱ 1|han-53e3:5x5|1 han-866b:7x11 // ⿱口虫
 glyph han-867d:9x16 9 16 // 虽
-ref han-53e3:7x5 1 0 // ⿱口虫
-ref han-866b:9x11 0 5
+⿱ 1|han-53e3:7x5|1 han-866b:9x11 // ⿱口虫
 glyph han-867d:11x16 11 16 // 虽
-ref han-53e3:9x5 1 0 // ⿱口虫
-ref han-866b:11x11 0 5
+⿱ 1|han-53e3:9x5|1 han-866b:11x11 // ⿱口虫
 glyph han-867d:15x16 15 16 // 虽
 ⿱ han-53e3:15x5 han-866b:15x11 // ⿱口虫
 

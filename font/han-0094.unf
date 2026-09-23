@@ -341,8 +341,11 @@ glyph han-731c.1:15x16 15 16 // 猜
 ⿰ han-72ad:6x16 han-9752.0:9x16 // ⿰犭青
 glyph han-731c.2:* = han-731c.0:*
 glyph han-731c.3:* = han-731c.1:*
+glyph han-731c.x:15x16 15 16 // 猜
+⿰ han-72ad:6x16 han-9752.x:9x16 // ⿰犭青
 glyph han-731c-(j|k|p):* = han-731c.0:*
-glyph han-731c-(g|h|t):* = han-731c.1:*
+glyph han-731c-(g|h):* = han-731c.1:*
+glyph han-731c-t:* = han-731c.x:*
 
 glyph han-731d:15x16 15 16 // 猝
 ⿰ han-72ad:6x16 han-5352:9x16 // ⿰犭卒

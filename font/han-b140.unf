@@ -17,8 +17,7 @@ glyph han-26af8:15x16 15 16 // 𦫸
 // ⿳ han-8279 han-4e00 han-4e3f // ⿳艹一丿 <- ⿱艹丆
 
 glyph han-26afb:15x16 15 16 // 𦫻
-ref han-8279:15x3 0 0 // ⿱艹亻
-ref han-4ebb:5x12 5 4
+⿱ han-8279:15x3 1 5|han-4ebb:5x12|5 // ⿱艹亻
 
 // glyph han-26afc:15x16 15 16 // 𦫼
 // ⿳ han-8279 han-4e5b han-4e85 // ⿳艹乛亅 <- ⿱艹了

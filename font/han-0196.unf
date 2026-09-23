@@ -110,8 +110,7 @@ glyph han-9ce6.1:15x16 15 16 // 鳦
 ..............................
 ..............................
 ..............................
-ref han-9ce5:7x16 0 0 // ⿰鳥乙
-ref han-4e59:7x12 8 4
+⿰ han-9ce5:7x16 1 4|han-4e59:7x12 // ⿰鳥乙
 glyph han-9ce6.2:* = han-9ce6.1:*
 glyph han-9ce6.3:* = han-9ce6.0:*
 glyph han-9ce6-(g|h|t|j|p):* = han-9ce6.0:*
@@ -463,6 +462,7 @@ glyph han-9d93:15x16 15 16 // 鶓
 
 glyph han-9d95:15x16 15 16 // 鶕
 ⿰ han-97f3:7x16 1 han-9ce5:7x16 // ⿰音鳥
+glyph han-9d95.0:* = han-9d95:*
 
 // glyph han-9d96:15x16 15 16 // 鶖
 // ⿱ han-79cb han-9ce5 // ⿱秋鳥

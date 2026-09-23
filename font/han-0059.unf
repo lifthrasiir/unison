@@ -1030,6 +1030,9 @@ glyph han-6113:15x16 15 16 // 愓
 
 glyph han-6114:15x16 15 16 // 愔
 ⿰ han-5fc4:5x16 1 han-97f3:9x16 // ⿰忄音
+glyph han-6114.0:* = han-6114:*
+glyph han-6114.1:15x16 15 16 // 愔
+⿰ han-5fc4:5x16 1 han-97f3.1:9x16 // ⿰忄音
 
 // glyph han-6119:15x16 15 16 // 愙
 // ⿳ han-5b80 han-5404 han-5fc3 // ⿳宀各心 <- ⿱客心

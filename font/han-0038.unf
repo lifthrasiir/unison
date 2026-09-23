@@ -636,8 +636,11 @@ glyph han-5a67.0:15x16 15 16 // 婧
 glyph han-5a67.1:* = han-5a67.0:*
 glyph han-5a67.2:15x16 15 16 // 婧
 ⿰ han-5973:6x16-l han-9752.0:9x16 // ⿰女青
+glyph han-5a67.x:15x16 15 16 // 婧
+⿰ han-5973:6x16-l han-9752.x:9x16 // ⿰女青
 glyph han-5a67-(j|k|p):* = han-5a67.0:*
-glyph han-5a67-(g|h|t):* = han-5a67.1:*
+glyph han-5a67-(g|h):* = han-5a67.1:*
+glyph han-5a67-t:* = han-5a67.x:*
 
 glyph han-5a6a:15x16 15 16 // 婪
 ⿱ han-6797:15x7 han-5973:15x9 // ⿱林女

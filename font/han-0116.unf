@@ -1085,9 +1085,7 @@ glyph han-7be5:15x16 15 16 // 篥
 // ⿳ han-25ad7 han-6587 han-30198 // ⿳𥫗文𰆘
 
 glyph han-7c0a:15x16 15 16 // 簊
-ref han-25ad7:15x5 0 0 // ⿳𥫗其土
-ref han-5176:15x10 0 4
-ref han-571f:11x4 2 12
+assume ⿳ han-25ad7:15x5 -1 han-5176:15x10 -2 2|han-571f:11x4|2 // ⿳𥫗其土
 
 // glyph han-7c0c:15x16 15 16 // 簌
 // ⿱ han-25ad7 han-6b36 // ⿱𥫗欶
