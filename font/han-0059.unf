@@ -173,6 +173,9 @@ glyph han-5f89:15x16 15 16 // 徉
 glyph han-5f8a:15x16 15 16 // 徊
 ⿰ han-5f73:5x16 1 han-56de:9x16 // ⿰彳回
 
+// glyph han-5f8b:15x16 15 16 // 律
+// ⿰ han-5f73 han-807f // ⿰彳聿
+
 glyph han-5f8d:15x16 15 16 // 徍
 ⿰ han-5f73:5x16 1 han-572d:9x16 // ⿰彳圭
 

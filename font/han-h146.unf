@@ -20,7 +20,7 @@
 ## 147.6
 
 glyph han-3204e:15x16 15 16 // 𲁎
-⿳ -1 han-5b80:15x3 han-5bf8:15x5 han-898b:15x9 // ⿳宀寸見
+assume ⿳ han-5b80:15x3 -1 2|han-5bf8:11x5|2 han-898b:15x9 // ⿳宀寸見
 
 # CJK unified ideographs extension H: 角 (148)
 
@@ -45,7 +45,7 @@ glyph han-3204e:15x16 15 16 // 𲁎
 // ⿰ han-8a01 han-624d // ⿰訁才
 
 glyph han-32063:15x16 15 16 // 𲁣
-⿰ han-8a01.x:5x16 1 han-4ea1-g:9x16 // ⿰訁亡
+⿰ han-8a01-g:5x16 1 han-4ea1-g:9x16 // ⿰訁亡
 
 ## 149.6
 
@@ -61,10 +61,10 @@ glyph han-32063:15x16 15 16 // 𲁣
 ## 149.8
 
 glyph han-3206a:15x16 15 16 // 𲁪
-⿲ han-8a01.x:5x16 han-81f3:7x16 han-5202:3x16 // ⿲訁至刂
+⿲ han-8a01-v:5x16 han-81f3:7x16 han-5202:3x16 // ⿲訁至刂
 
 glyph han-3206c:15x16 15 16 // 𲁬
-⿲ han-8a01.x:5x16 han-5f73:3x16 han-751f:7x16 // ⿲訁彳生
+⿲ han-8a01-k:5x16 han-5f73:3x16 han-751f:7x16 // ⿲訁彳生
 
 ## 149.9
 
@@ -74,7 +74,7 @@ glyph han-3206c:15x16 15 16 // 𲁬
 ## 149.14
 
 glyph han-3207b:15x16 15 16 // 𲁻
-⿲ -2 han-8a01.0:5x16 han-2099d:5x16 han-821f:7x16 // ⿲訁𠦝舟
+⿲ -2 han-8a01-j:5x16 han-2099d:5x16 han-821f:7x16 // ⿲訁𠦝舟
 
 # CJK unified ideographs extension H: 讠 (149')
 
@@ -110,7 +110,7 @@ glyph han-3208b:15x16 15 16 // 𲂋
 ⿰ han-8ba0:3x16 han-56f0:13x16 // ⿰讠困
 
 glyph han-3208d:15x16 15 16 // 𲂍
-⿰ han-8ba0:5x16 1 han-8a00.0:9x16 // ⿰讠言
+⿰ han-8ba0:5x16 1 han-8a00-g:9x16 // ⿰讠言
 
 ## 149'.9
 
@@ -434,7 +434,7 @@ glyph han-32152:15x16 15 16 // 𲅒
 ## 163.3
 
 glyph han-3218f:15x16 15 16 // 𲆏
-⿰ han-52fa-g:9x16 1 han-961d:4x16-r // ⿰勺阝
+⿰ han-52fa-g:9x16 1 han-961d:5x16-r // ⿰勺阝
 
 ## 163.7
 
@@ -662,7 +662,7 @@ glyph han-32221:15x16 15 16 // 𲈡
 ## 169.5
 
 glyph han-32228:15x16 15 16 // 𲈨
-⿵ han-9580:15x16.13x11 han-76bf:12x8 1 8 // ⿵門皿
+⿵ han-9580:15x16.13x11 han-76bf:11x8 2 7 // ⿵門皿
 
 ## 169.6
 
@@ -736,6 +736,9 @@ glyph han-3224d:15x16 15 16 // 𲉍
 
 // glyph han-3224e:15x16 15 16 // 𲉎
 // ⿰ han-961d han-4e98 // ⿰阝亘
+
+// glyph han-3224f:15x16 15 16 // 𲉏
+// ⿰ han-961d han-807f // ⿰阝聿
 
 ## 170.9
 
@@ -879,8 +882,8 @@ glyph han-322ac:15x16 15 16 // 𲊬
 
 ## 181.7
 
-// glyph han-322af:15x16 15 16 // 𲊯
-// ⿰ han-56ef han-9801 // ⿰囯頁
+glyph han-322af:15x16 15 16 // 𲊯
+⿰ han-56ef:9x16 1 han-9801:5x16 // ⿰囯頁
 
 ## 181.8
 

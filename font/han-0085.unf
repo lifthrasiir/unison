@@ -725,6 +725,9 @@ glyph han-6d23:15x16 15 16 // 洣
 // glyph han-6d24:15x16 15 16 // 洤
 // ⿰ han-6c35 han-5168 // ⿰氵全
 
+// glyph han-6d25:15x16 15 16 // 津
+// ⿰ han-6c35 han-807f // ⿰氵聿
+
 glyph han-6d26:15x16 15 16 // 洦
 ⿰ han-6c35:5x16 1 han-767e:9x16 // ⿰氵百
 glyph han-6d26.0:* = han-6d26:*

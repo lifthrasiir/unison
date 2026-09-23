@@ -160,8 +160,8 @@ glyph han-313a7:15x16 15 16 // 𱎧
 // glyph han-313ab:15x16 15 16 // 𱎫
 // ⿰ han-4ebb han-4e9a // ⿰亻亚
 
-// glyph han-313ac:15x16 15 16 // 𱎬
-// ⿰ han-4ebb han-7f36 // ⿰亻缶
+glyph han-313ac:15x16 15 16 // 𱎬
+⿰ han-4ebb:5x16 1 han-7f36:9x16 // ⿰亻缶
 
 glyph han-313ad:15x16 15 16 // 𱎭
 ⿲ han-4ebb:3x16 han-5973:5x16 han-5b50.0:7x16 // ⿲亻女子

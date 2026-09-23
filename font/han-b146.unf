@@ -215,7 +215,7 @@ glyph han-27856:15x16 15 16 // 𧡖
 // ⿱ han-4f86 han-898b // ⿱來見
 
 glyph han-2785c:15x16 15 16 // 𧡜
-⿱ -1 han-660e:15x7 1 han-898b:15x9 // ⿱明見
+assume ⿱ han-660e:15x7 han-898b:15x9 // ⿱明見
 
 glyph han-2785e:15x16 15 16 // 𧡞
 ⿲ han-4ebb:3x16 han-572d:5x16 han-898b:7x16 // ⿲亻圭見

@@ -1053,8 +1053,8 @@ glyph han-2ca79:15x16 15 16 // 𬩹
 
 ## 163.6
 
-// glyph han-2ca7a:15x16 15 16 // 𬩺
-// ⿰ han-5171 han-9091 // ⿰共邑
+glyph han-2ca7a:15x16 15 16 // 𬩺
+⿰ han-5171:7x16 han-9091:8x16 // ⿰共邑
 
 // glyph han-2ca7d:15x16 15 16 // 𬩽
 // ⿰ han-5bfb han-961d // ⿰寻阝

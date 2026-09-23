@@ -539,7 +539,7 @@ glyph han-2465c-(j|p):15x16 15 16 // 𤙜
 ⿰ han-725c:6x16 han-8096.1:9x16 // ⿰牜肖
 
 glyph han-2465d:15x16 15 16 // 𤙝
-⿰ han-725c:6x16 han-9091:10x16 // ⿰牜邑
+⿰ han-725c:6x16 1 han-9091:8x16 // ⿰牜邑
 
 // glyph han-2465e-($han-regions):15x16 15 16 // 𤙞
 // ⿰ han-725c han-5752-($-1) // ⿰牜坒

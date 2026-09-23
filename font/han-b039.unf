@@ -543,6 +543,9 @@ glyph han-21a58:15x16 15 16 // 𡩘
 
 ## 40.10
 
+// glyph han-21a67:15x16 15 16 // 𡩧
+// ⿱ han-5b80 han-73e4 // ⿱宀珤
+
 // glyph han-21a6e:15x16 15 16 // 𡩮
 // ⿱ han-5b80 han-57b7 // ⿱宀垷
 
@@ -650,6 +653,11 @@ assume ⿳ han-5b80:15x3 han-5176:15x10 -1 han-571f:15x4 // ⿳宀其土
 
 // glyph han-21af1:15x16 15 16 // 𡫱
 // ⿱ han-5b80 han-78df // ⿱宀磟
+
+## 40.18
+
+// glyph han-21aff:15x16 15 16 // 𡫿
+// ⿳ han-5b80 han-73e4 han-91d1 // ⿳宀珤金
 
 ## 40.22
 

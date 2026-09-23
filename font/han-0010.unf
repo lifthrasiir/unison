@@ -1626,6 +1626,9 @@ glyph han-51be:15x16 15 16 // 冾
 ⿰ han-51ab:3x16 1 han-5408:11x16 // ⿰冫合
 glyph han-51be.0:* = han-51be:*
 
+// glyph han-51bf:15x16 15 16 // 冿
+// ⿰ han-51ab han-807f // ⿰冫聿
+
 ## 15.7
 
 glyph han-51c1:15x16 15 16 // 凁

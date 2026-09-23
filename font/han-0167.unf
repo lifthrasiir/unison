@@ -558,6 +558,9 @@ glyph han-9288:15x16 15 16 // 銈
 ⿰ han-91d2:7x16 1 han-572d:7x16 // ⿰釒圭
 glyph han-9288.0:* = han-9288:*
 
+// glyph han-9289:15x16 15 16 // 銉
+// ⿰ han-91d2 han-807f // ⿰釒聿
+
 glyph han-928d:15x16 15 16 // 銍
 ⿰ han-91d2:7x16 1 han-81f3:7x16 // ⿰釒至
 glyph han-928d.0:* = han-928d:*

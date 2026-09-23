@@ -476,6 +476,8 @@ glyph han-56ee.1:* = han-56ee-g:*
 glyph han-56ee.2:* = han-56ee-j:*
 glyph han-56ee.3:* = han-56ee-g:*
 
+glyph han-56ef:9x16 9 16 // 囯
+⿴ han-56d7:9x16.7x14 han-738b:5x12 2 2 // ⿴囗王
 glyph han-56ef:15x16 15 16 // 囯
 ⿴ han-56d7:15x16.11x12 han-738b:9x10 3 3 // ⿴囗王
 
@@ -1408,6 +1410,9 @@ glyph han-578c.0:* = han-578c:*
 
 glyph han-578e:15x16 15 16 // 垎
 ⿰ han-571f:7x16 1 han-5404:7x16 // ⿰土各
+
+// glyph han-578f:15x16 15 16 // 垏
+// ⿰ han-571f han-807f // ⿰土聿
 
 // glyph han-5790:15x16 15 16 // 垐
 // ⿱ han-6b21 han-571f // ⿱次土

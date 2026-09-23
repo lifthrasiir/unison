@@ -530,6 +530,9 @@ glyph han-5cc8:15x16 15 16 // 峈
 glyph han-5ccc:15x16 15 16 // 峌
 ⿰ han-5c71:7x16 1 han-81f3:7x16 // ⿰山至
 
+// glyph han-5ccd:15x16 15 16 // 峍
+// ⿰ han-5c71 han-807f // ⿰山聿
+
 glyph han-5ccf:15x16 15 16 // 峏
 ⿰ han-5c71:5x16 1 han-800c:9x16 // ⿰山而
 

@@ -30,8 +30,8 @@ glyph han-2a704:15x16 15 16 // 𪜄
 
 ## 2.8
 
-// glyph han-2a709-($han-regions):15x16 15 16 // 𪜉
-// ⿰ han-4e2d han-5e73-($-1) // ⿰中平
+glyph han-2a709-($han-regions):15x16 15 16 // 𪜉
+⿰ han-4e2d:5x16 1 han-5e73-($-1):9x16 // ⿰中平
 
 # CJK unified ideographs extension C: 丿 (4)
 
@@ -1161,6 +1161,9 @@ glyph han-2a9d3:15x16 15 16 // 𪧓
 
 ## 40.9
 
+// glyph han-2a9d5:15x16 15 16 // 𪧕
+// ⿱ han-5b80 han-2d398 // ⿱宀𭎘
+
 glyph han-2a9d6:15x16 15 16 // 𪧖
 ⿳ han-5b80:15x5 -1 han-767d:15x6 han-706b:15x6 // ⿳宀白火
 
@@ -1180,6 +1183,11 @@ glyph han-2a9d6:15x16 15 16 // 𪧖
 
 // glyph han-2a9e0:15x16 15 16 // 𪧠
 // ⿳ han-5b80 han-5fc5 han-4e14 // ⿳宀必且
+
+## 40.11
+
+// glyph han-2a9e5:15x16 15 16 // 𪧥
+// ⿱ han-5b80 han-2c4b4 // ⿱宀𬒴
 
 ## 40.12
 

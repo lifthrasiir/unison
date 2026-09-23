@@ -163,6 +163,11 @@ glyph han-32def:15x16 15 16 // 𲷯
 
 # CJK unified ideographs extension J: 网 (122)
 
+## 122.8
+
+// glyph han-32e3f:15x16 15 16 // 𲸿
+// ⿱ han-7f52 han-34e1 // ⿱罒㓡
+
 ## 122.9
 
 glyph han-32e40:15x16 15 16 // 𲹀
@@ -339,7 +344,7 @@ glyph han-32eea:15x16 15 16 // 𲻪
 ## 140.3
 
 glyph han-32eef:15x16 15 16 // 𲻯
-⿱ 1 han-8279:15x3 1 han-95e8:15x10 // ⿱艹门
+⿱ han-8279:15x3 1 han-95e8:15x12 // ⿱艹门
 
 ## 140.4
 

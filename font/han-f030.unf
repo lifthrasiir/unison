@@ -522,8 +522,8 @@ glyph han-2d38f:15x16 15 16 // 𭎏
 glyph han-2d394:15x16 15 16 // 𭎔
 ⿰ han-571f:5x16-l han-6b64-j:10x16 // ⿰土此
 
-// glyph han-2d398:15x16 15 16 // 𭎘
-// ⿰ han-571f han-7f36 // ⿰土缶
+glyph han-2d398:15x16 15 16 // 𭎘
+⿰ han-571f:5x16-l 1 han-7f36:9x16 // ⿰土缶
 
 // glyph han-2d399:15x16 15 16 // 𭎙
 // ⿳ han-4491 han-53e3 han-571f // ⿳䒑口土
