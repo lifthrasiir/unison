@@ -76,7 +76,7 @@ def collect(inv, ids, allow_ivi, inline, splits):
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("-i", "--font-dir", default="font")
-    ap.add_argument("--ids", default=G.IDS_PATH)
+    ap.add_argument("--ids", action="append", help=G.IDS_HELP)
     ap.add_argument("-n", type=int, default=40, help="rows per table")
     ap.add_argument("--greedy", type=int, default=30, help="batch size, 0 to skip")
     ap.add_argument("--allow-ivi", action="store_true",
@@ -90,7 +90,7 @@ def main() -> int:
 
     parts = G.load_name_parts(args.font_dir)
     inv = G.load_inventory(args.font_dir, parts)
-    ids = G.load_ids(args.ids)
+    ids = G.load_ids(args.ids or G.IDS_PATHS)
     inline = not args.no_inline
     splits = G.build_split_index(ids, args.allow_ivi) if inline and args.inline else None
     todo = collect(inv, ids, args.allow_ivi, inline, splits)

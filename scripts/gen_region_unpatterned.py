@@ -5,7 +5,7 @@
 A character with a region difference is drawn once per region in Unison -- as a
 `glyph han-XXXX-($han-regions):15x16` block whose components pick the region up
 (`han-4ee4-($-1)`), or as an explicit `han-XXXX-k` and friends. A character that
-BabelStone's IDS.TXT gives more than one region-tagged sequence for, and that
+BabelStone's IDS.TXT (with `data/ids-extj.txt` for Extension J) gives more than one region-tagged sequence for, and that
 `font/` draws with a plain `han-XXXX:15x16` name and no region-suffixed sibling
 at all, is one of two things: a region difference nobody has noticed yet, or one
 the drawing happens not to need. This script lists them, grouped by *what*
@@ -29,7 +29,7 @@ import re
 import sys
 from collections import Counter, defaultdict
 
-IDS_PATH = os.path.join("data", "IDS.TXT.gz")
+IDS_PATHS = [os.path.join("data", "IDS.TXT.gz"), os.path.join("data", "ids-extj.txt")]
 FONT_DIR = "font"
 
 # The seven region tags `$han-regions` names. Every other tag in the file
@@ -57,8 +57,8 @@ SEQ_RE = re.compile(r"\^(.*?)\$(?:\(([^)]*)\))?")
 
 def open_text(path: str):
     if path.endswith(".gz"):
-        return gzip.open(path, "rt", encoding="utf-8")
-    return open(path, encoding="utf-8")
+        return gzip.open(path, "rt", encoding="utf-8-sig")
+    return open(path, encoding="utf-8-sig")
 
 
 def scan_font() -> tuple[set[int], set[int]]:
@@ -115,23 +115,24 @@ def spell(text: str) -> str:
 def read_ids(wanted: set[int]) -> dict[int, list[tuple[str, str]]]:
     """`cp -> [(sequence, its region tags)]`, only where two or more differ."""
     out: dict[int, list[tuple[str, str]]] = {}
-    with open_text(IDS_PATH) as f:
-        for line in f:
-            if line.startswith("#"):
-                continue
-            m = IDS_LINE_RE.match(line.rstrip("\r\n"))
-            if not m:
-                continue
-            cp = int(m.group(1), 16)
-            if cp not in wanted:
-                continue
-            variants: list[tuple[str, str]] = []
-            for seq, tags in SEQ_RE.findall(m.group(3)):
-                tags = "".join(t for t in (tags or "") if t in REGIONS)
-                if tags:
-                    variants.append((seq, tags))
-            if len(variants) > 1 and len({s for s, _ in variants}) > 1:
-                out[cp] = variants
+    for path in IDS_PATHS:
+        with open_text(path) as f:
+            for line in f:
+                if line.startswith("#"):
+                    continue
+                m = IDS_LINE_RE.match(line.rstrip("\r\n"))
+                if not m:
+                    continue
+                cp = int(m.group(1), 16)
+                if cp not in wanted:
+                    continue
+                variants: list[tuple[str, str]] = []
+                for seq, tags in SEQ_RE.findall(m.group(3)):
+                    tags = "".join(t for t in (tags or "") if t in REGIONS)
+                    if tags:
+                        variants.append((seq, tags))
+                if len(variants) > 1 and len({s for s, _ in variants}) > 1:
+                    out[cp] = variants
     return out
 
 
@@ -158,12 +159,14 @@ def main() -> int:
     for cp, variants in ids.items():
         groups[group_key(variants)].append(cp)
 
-    version = "?"
-    with open_text(IDS_PATH) as f:
-        for line in f:
-            if line.startswith("# Unicode Version:"):
-                version = line.split(":", 1)[1].strip().split(" ")[0]
-                break
+    versions = []
+    for path in IDS_PATHS:
+        with open_text(path) as f:
+            for line in f:
+                if line.startswith("# Unicode Version:"):
+                    versions.append(line.split(":", 1)[1].strip().split(" ")[0])
+                    break
+    version = " + ".join(versions) or "?"
 
     lines = [
         f"Drawn han characters with a GHTJKPV difference in IDS.TXT ({version}) "

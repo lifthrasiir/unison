@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Populate `font/han-*.unf` with IDC composites that the existing parts allow.
 
-Reads BabelStone's `IDS.TXT` (the decompositions) and Unihan's `kRSUnicode` (the
+Reads BabelStone's `IDS.TXT` and its Extension J supplement `data/ids-extj.txt`
+(the decompositions) and Unihan's `kRSUnicode` (the
 radical-stroke that decides which slice file and which `## R.S` heading a glyph
 goes under), and writes one glyph block per character that
 
@@ -154,12 +155,14 @@ from collections import defaultdict
 from collections.abc import Iterator
 from dataclasses import dataclass, field
 
-# The two inputs, kept in `data/` as gzipped copies of what these URLs serve;
-# refresh them by hand rather than from the script.
+# The inputs, kept in `data/` as gzipped copies of what these URLs serve;
+# refresh them by hand rather than from the script. `IDS.TXT` stops short of
+# Extension J, which `ids-extj.txt` supplies in the same format; it is
+# maintained here, so it has no URL and is not gzipped.
 UNIHAN_URL = "https://www.unicode.org/Public/UCD/latest/ucd/Unihan.zip"
 IDS_URL = "https://babelstone.co.uk/CJK/IDS.TXT"
 UNIHAN_PATH = os.path.join("data", "Unihan_IRGSources-18.0.0.txt.gz")
-IDS_PATH = os.path.join("data", "IDS.TXT.gz")
+IDS_PATHS = [os.path.join("data", "IDS.TXT.gz"), os.path.join("data", "ids-extj.txt")]
 
 
 def open_text(path: str, encoding: str):
@@ -799,25 +802,34 @@ class IdsEntry:
 
 SEQ_RE = re.compile(r"^\^(.*)\$\((.*)\)$")
 
+IDS_HELP = f"an IDS file, repeatable (default: {' '.join(IDS_PATHS)})"
 
-def load_ids(path: str) -> dict[int, IdsEntry]:
+
+def load_ids(paths: list[str]) -> dict[int, IdsEntry]:
+    """Every file's entries; one a later file repeats adds its sequences after
+    the earlier ones, which keep their precedence."""
     out: dict[int, IdsEntry] = {}
-    with open_text(path, "utf-8-sig") as f:
-        for line in f:
-            line = line.rstrip("\r\n")
-            if not line or line.startswith("#"):
-                continue
-            fields = line.split("\t")
-            if len(fields) < 3 or not fields[0].startswith("U+"):
-                continue
-            cp = int(fields[0][2:], 16)
-            seqs = []
-            for raw in fields[2:]:
-                m = SEQ_RE.match(raw.strip())
-                if m:
-                    seqs.append((m.group(1), m.group(2)))
-            if seqs:
-                out[cp] = IdsEntry(cp, fields[1], seqs)
+    for path in paths:
+        with open_text(path, "utf-8-sig") as f:
+            for line in f:
+                line = line.rstrip("\r\n")
+                if not line or line.startswith("#"):
+                    continue
+                fields = line.split("\t")
+                if len(fields) < 3 or not fields[0].startswith("U+"):
+                    continue
+                cp = int(fields[0][2:], 16)
+                seqs = []
+                for raw in fields[2:]:
+                    m = SEQ_RE.match(raw.strip())
+                    if m:
+                        seqs.append((m.group(1), m.group(2)))
+                if not seqs:
+                    continue
+                if cp in out:
+                    out[cp].seqs.extend(s for s in seqs if s not in out[cp].seqs)
+                else:
+                    out[cp] = IdsEntry(cp, fields[1], seqs)
     return out
 
 
@@ -1741,7 +1753,7 @@ def script_block_idc(block: list[str]) -> tuple[Line, str | None, bool] | None:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("-i", "--font-dir", default="font")
-    ap.add_argument("--ids", default=IDS_PATH)
+    ap.add_argument("--ids", action="append", help=IDS_HELP)
     ap.add_argument("--unihan", default=UNIHAN_PATH)
     ap.add_argument("--dry-run", action="store_true", help="report only; write nothing")
     ap.add_argument("--limit", type=int, default=0, help="stop after N new glyphs")
@@ -1766,9 +1778,12 @@ def main() -> int:
         print(f"error: {args.unihan} not found; it is Unihan_IRGSources.txt out of\n"
               f"       {UNIHAN_URL}, gzipped", file=sys.stderr)
         return 1
-    if not os.path.exists(args.ids):
-        print(f"error: {args.ids} not found; it is {IDS_URL}, gzipped", file=sys.stderr)
-        return 1
+    args.ids = args.ids or IDS_PATHS
+    for path in args.ids:
+        if not os.path.exists(path):
+            hint = f"; it is {IDS_URL}, gzipped" if path == IDS_PATHS[0] else ""
+            print(f"error: {path} not found{hint}", file=sys.stderr)
+            return 1
 
     parts = load_name_parts(args.font_dir)
     inv = load_inventory(args.font_dir, parts)

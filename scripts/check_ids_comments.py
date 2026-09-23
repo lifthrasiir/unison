@@ -85,7 +85,7 @@ IDS_RANGES = [
     (0x3400, 0x4DBF),    # extension A
     (0x4E00, 0x9FFF),    # URO
     (0xF900, 0xFAFF),    # compatibility ideographs
-    (0x20000, 0x323AF),  # extensions B..J, compatibility supplement
+    (0x20000, 0x323AF),  # extensions B..I, compatibility supplement
     (0x323B0, 0x3347F),  # extension J
 ]
 

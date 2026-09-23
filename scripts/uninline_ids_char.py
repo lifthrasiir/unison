@@ -766,7 +766,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("-i", "--font-dir", default="font")
-    ap.add_argument("--ids", default=G.IDS_PATH)
+    ap.add_argument("--ids", action="append", help=G.IDS_HELP)
     ap.add_argument("--dry-run", action="store_true", help="report only; write nothing")
     ap.add_argument("chars", nargs="*", default=None,
                     help=f"characters to un-inline (default: {' '.join(RULES)})")
@@ -777,7 +777,7 @@ def main() -> int:
         if c not in RULES:
             raise SystemExit(f"no rule for {c}; known: {' '.join(RULES)}")
 
-    ids = G.load_ids(args.ids)
+    ids = G.load_ids(args.ids or G.IDS_PATHS)
     files = load_files(args.font_dir)
     before = {p: list(l) for p, l in files.items()}
     REGIONAL_PARTS.update(load_regional_parts(files))
