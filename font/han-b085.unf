@@ -220,6 +220,9 @@ glyph han-23cf3:15x16 15 16 // 𣳳
 glyph han-23d06:15x16 15 16 // 𣴆
 ⿰ han-6c35:3x16 1 han-7fbd-t:11x16 // ⿰氵羽
 
+// glyph han-23d07:15x16 15 16 // 𣴇
+// ⿰ han-6c35 han-538c // ⿰氵厌
+
 // glyph han-23d0a:15x16 15 16 // 𣴊
 // ⿰ han-6c35 han-8272 // ⿰氵色
 
@@ -414,6 +417,9 @@ glyph han-23db7:15x16 15 16 // 𣶷
 
 // glyph han-23dba:15x16 15 16 // 𣶺
 // ⿰ han-6c35 han-5b9c // ⿰氵宜
+
+// glyph han-23dbd:15x16 15 16 // 𣶽
+// ⿰ han-6c35 han-82b8 // ⿰氵芸
 
 // glyph han-23dc0:15x16 15 16 // 𣷀
 // ⿰ han-6c35 han-5e97 // ⿰氵店

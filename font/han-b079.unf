@@ -156,8 +156,8 @@ assume ⿰ han-751f:9x16 -1 han-6bdb:7x16 // ⿰生毛
 // glyph han-23b3e:15x16 15 16 // 𣬾
 // ⿰ han-4e15 han-6bdb // ⿰丕毛
 
-// glyph han-23b3f:15x16 15 16 // 𣬿
-// ⿺ han-6bdb han-4e4d // ⿺毛乍
+glyph han-23b3f:15x16 15 16 // 𣬿
+⿺ han-6bdb:15x16.10x14 han-4e4d:10x14 5 0 // ⿺毛乍
 
 glyph han-23b40:15x16 15 16 // 𣭀
 ⿰ han-5305.1:7x16 1 han-6bdb:7x16 // ⿰包毛

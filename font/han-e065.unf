@@ -273,6 +273,9 @@ glyph han-2c0cd:15x16 15 16 // 𬃍
 // glyph han-2c0d5:15x16 15 16 // 𬃕
 // ⿱ han-6797 han-20575 // ⿱林𠕵
 
+// glyph han-2c0d7:15x16 15 16 // 𬃗
+// ⿰ han-6728 han-5398 // ⿰木厘
+
 // glyph han-2c0d9:15x16 15 16 // 𬃙
 // ⿲ han-6728 han-5426 han-5202 // ⿲木否刂
 
@@ -525,7 +528,7 @@ glyph han-2c178:15x16 15 16 // 𬅸
 ## 82.5
 
 glyph han-2c1c0:15x16 15 16 // 𬇀
-⿺ han-6bdb:15x16.10x14 han-65e6:9x11 6 1 // ⿺毛旦
+assume ⿺ han-6bdb:15x16.10x14 han-65e6:9x11 6 1 // ⿺毛旦
 
 ## 82.9
 
@@ -796,7 +799,7 @@ glyph han-2c297:15x16 15 16 // 𬊗
 ⿲ han-706b:5x16-l han-8f66:4x16-l han-65a4:6x16 // ⿲火车斤
 
 glyph han-2c298:15x16 15 16 // 𬊘
-⿱ han-660d:15x10 1 han-706c:15x4 // ⿱昍灬
+⿱ han-660d:15x12 han-706c:15x4 // ⿱昍灬
 
 glyph han-2c29a:15x16 15 16 // 𬊚
 ⿱ han-660e:15x12 han-706c:15x4 // ⿱明灬

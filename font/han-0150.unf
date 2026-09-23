@@ -320,6 +320,9 @@ glyph han-8cd0:15x16 15 16 // 賐
 // glyph han-8cd7:15x16 15 16 // 賗
 // ⿰ han-8c9d han-4e32 // ⿰貝串
 
+// glyph han-8cd8:15x16 15 16 // 賘
+// ⿰ han-8c9d han-5e92 // ⿰貝庒
+
 ## 154.8
 
 glyph han-8cd9.0:15x16 15 16 // 賙
@@ -783,8 +786,13 @@ glyph han-8ddd-($han-regions):15x16 15 16 // 距
 
 ## 157.6
 
-glyph han-8dbc:15x16 15 16 // 趼
-⿲ han-27fb7:5x16 han-5e72:5x16 han-5e72:5x16 // ⿲𧾷干干
+glyph han-8dbc.0:15x16 15 16 // 趼
+⿰ han-27fb7:5x16 han-5e75.2:10x16 // ⿰𧾷幵
+glyph han-8dbc.1:* = han-8dbc.0:*
+glyph han-8dbc.2:15x16 15 16 // 趼
+⿰ han-27fb7:5x16 1 han-5f00:9x16 // ⿰𧾷开
+glyph han-8dbc-j:* = han-8dbc.0:*
+glyph han-8dbc-(g|h|t|k|p):* = han-8dbc.2:*
 
 glyph han-8de2:15x16 15 16 // 跢
 ⿰ han-27fb7:5x16 1 han-591a:9x16 // ⿰𧾷多

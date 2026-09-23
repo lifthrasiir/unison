@@ -38,6 +38,9 @@ glyph han-2cad3:15x16 15 16 // 𬫓
 // glyph han-2cad5:15x16 15 16 // 𬫕
 // ⿲ han-91d2 han-6728 han-5f61 // ⿲釒木彡
 
+// glyph han-2cadd:15x16 15 16 // 𬫝
+// ⿰ han-91d2 han-5e92 // ⿰釒庒
+
 // glyph han-2cade:15x16 15 16 // 𬫞
 // ⿰ han-91d2 han-7077 // ⿰釒灷
 
@@ -56,6 +59,9 @@ glyph han-2cad3:15x16 15 16 // 𬫓
 // ⿰ han-91d2 han-342d // ⿰釒㐭
 
 ## 167.9
+
+// glyph han-2caed:15x16 15 16 // 𬫭
+// ⿰ han-91d2 han-5398 // ⿰釒厘
 
 // glyph han-2caf0:15x16 15 16 // 𬫰
 // ⿰ han-91d2 han-82fb // ⿰釒苻
@@ -136,6 +142,9 @@ glyph han-2cb3f:15x16 15 16 // 𬬿
 
 glyph han-2cb40:15x16 15 16 // 𬭀
 ⿰ han-9485:6x16 han-53f0:9x16 // ⿰钅台
+
+// glyph han-2cb42:15x16 15 16 // 𬭂
+// ⿰ han-9485 han-5f18 // ⿰钅弘
 
 ## 167'.6
 
@@ -244,8 +253,8 @@ glyph han-2cb98:15x16 15 16 // 𬮘
 
 ## 169'.3
 
-// glyph han-2cb99:15x16 15 16 // 𬮙
-// ⿵ han-95e8 han-4e07 // ⿵门万
+glyph han-2cb99:15x16 15 16 // 𬮙
+⿵ han-95e8:15x16.11x15 han-4e07:10x14 2 2 // ⿵门万
 
 glyph han-2cb9a:15x16 15 16 // 𬮚
 ⿵ han-95e8:15x16.11x15 han-5de5:11x12 2 4 // ⿵门工
@@ -258,8 +267,8 @@ glyph han-2cb9b:15x16 15 16 // 𬮛
 // glyph han-2cb9c:15x16 15 16 // 𬮜
 // ⿵ han-95e8 han-5929 // ⿵门天
 
-// glyph han-2cb9d:15x16 15 16 // 𬮝
-// ⿵ han-95e8 han-72ac // ⿵门犬
+glyph han-2cb9d:15x16 15 16 // 𬮝
+⿵ han-95e8:15x16.11x15 han-72ac:11x14 2 2 // ⿵门犬
 
 // glyph han-2cb9e:15x16 15 16 // 𬮞
 // ⿵ han-95e8 han-4eca // ⿵门今

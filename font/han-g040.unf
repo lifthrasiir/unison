@@ -549,6 +549,9 @@ glyph han-3044b:15x16 15 16 // 𰑋
 
 ## 61.6
 
+// glyph han-30455:15x16 15 16 // 𰑕
+// ⿸ han-538c han-5fc3 // ⿸厌心
+
 // glyph han-30456:15x16 15 16 // 𰑖
 // ⿰ han-5fc4 han-5e74 // ⿰忄年
 
@@ -718,8 +721,14 @@ glyph han-304c1:15x16 15 16 // 𰓁
 
 ## 64.6
 
+// glyph han-304d7:15x16 15 16 // 𰓗
+// ⿰ han-624c han-538b // ⿰扌压
+
 glyph han-304d8:15x16 15 16 // 𰓘
 ⿲ han-624c:3x16 han-5de5:3x16-l han-51e1:9x16 // ⿲扌工凡
+
+// glyph han-304d9:15x16 15 16 // 𰓙
+// ⿸ han-538c han-624b // ⿸厌手
 
 glyph han-304de:15x16 15 16 // 𰓞
 ⿰ han-624c:5x16 1 han-821f:9x16 // ⿰扌舟
@@ -1009,6 +1018,9 @@ glyph han-305d3:15x16 15 16 // 𰗓
 // ⿰ han-6728 han-4ecd // ⿰木仍
 
 ## 75.6
+
+// glyph han-305dc:15x16 15 16 // 𰗜
+// ⿸ han-538c han-6728 // ⿸厌木
 
 // glyph han-305e3:15x16 15 16 // 𰗣
 // ⿳ han-4ea0 han-4ece han-6728 // ⿳亠从木 <- ⿱𠅃木

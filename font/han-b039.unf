@@ -112,8 +112,8 @@ glyph han-21945:15x16 15 16 // 𡥅
 
 ## 39.4
 
-// glyph han-21946-($han-regions):15x16 15 16 // 𡥆
-// ⿰ han-4e11-($-1) han-5b50-($-1) // ⿰丑子
+glyph han-21946-($han-regions):15x16 15 16 // 𡥆
+⿰ han-4e11-($-1):10x16 han-5b50.0:5x16 // ⿰丑子
 
 // glyph han-21948-($han-regions):15x16 15 16 // 𡥈
 // ⿱ han-723b-($-1) han-5b50-($-1) // ⿱爻子
@@ -615,6 +615,9 @@ assume ⿳ han-5b80:15x3 han-5176:15x10 -1 han-571f:15x4 // ⿳宀其土
 
 // glyph han-21ab4:15x16 15 16 // 𡪴
 // ⿳ han-5b80 han-4f70 han-516d // ⿳宀佰六
+
+// glyph han-21ab8:15x16 15 16 // 𡪸
+// ⿰ han-5b89 han-5398 // ⿰安厘
 
 ## 40.13
 

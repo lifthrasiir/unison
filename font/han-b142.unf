@@ -28,8 +28,8 @@ glyph han-27223:15x16 15 16 // 𧈣
 // glyph han-27224:15x16 15 16 // 𧈤
 // ⿺ han-4e5d han-866b // ⿺九虫
 
-// glyph han-27225:15x16 15 16 // 𧈥
-// ⿰ han-866b han-53b6 // ⿰虫厶
+glyph han-27225:15x16 15 16 // 𧈥
+⿰ han-866b:5x16 1 han-53b6:9x16 // ⿰虫厶
 
 // glyph han-27226:15x16 15 16 // 𧈦
 // ⿱ han-4e43 han-866b // ⿱乃虫

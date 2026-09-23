@@ -347,6 +347,9 @@ glyph han-245cb-t:15x16 15 16 // 𤗋
 glyph han-245cf-($han-regions):15x16 15 16 // 𤗏
 ⿰ han-7247-($-1):6x16 han-5485:9x16 // ⿰片咅
 
+// glyph han-245d4-($han-regions):15x16 15 16 // 𤗔
+// ⿰ han-2840c han-7247-($-1) // ⿰𨐌片
+
 // glyph han-245d6-($han-regions):15x16 15 16 // 𤗖
 // ⿰ han-7247 han-5b5f-($-1) // ⿰片孟
 

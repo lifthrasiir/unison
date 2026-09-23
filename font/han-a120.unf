@@ -513,8 +513,8 @@ glyph han-43d2-t:15x16 15 16 // 䏒
 glyph han-43d3:15x16 15 16 // 䏓
 ⿰ han-6708:7x16 han-5143:8x16 // ⿰月元
 
-// glyph han-43d4-($han-regions):15x16 15 16 // 䏔
-// ⿰ han-6708 han-4e11-($-1) // ⿰月丑
+glyph han-43d4-($han-regions):15x16 15 16 // 䏔
+⿰ han-6708:5x16 han-4e11-($-1):10x16 // ⿰月丑
 
 glyph han-43d5:15x16 15 16 // 䏕
 ⿰ han-6708:5x16-l 1 han-738b:9x16 // ⿰月王
@@ -1151,8 +1151,8 @@ glyph han-45a0:15x16 15 16 // 䖠
 
 ## 142.4
 
-// glyph han-45a1-($han-regions):15x16 15 16 // 䖡
-// ⿰ han-866b han-4e11-($-1) // ⿰虫丑
+glyph han-45a1-($han-regions):15x16 15 16 // 䖡
+⿰ han-866b:5x16 han-4e11-($-1):10x16 // ⿰虫丑
 
 // glyph han-45a3:15x16 15 16 // 䖣
 // ⿰ han-866b han-722a // ⿰虫爪

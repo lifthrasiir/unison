@@ -16,6 +16,9 @@ glyph han-2e868:15x16 15 16 // 𮡨
 // glyph han-2e869:15x16 15 16 // 𮡩
 // ⿰ han-91d2 han-2bd71 // ⿰釒𫵱
 
+// glyph han-2e86b:15x16 15 16 // 𮡫
+// ⿰ han-91d2 han-4ecf // ⿰釒仏
+
 // glyph han-2e86c-($han-regions):15x16 15 16 // 𮡬
 // ⿰ han-91d2 han-535e-($-1) // ⿰釒卞
 
@@ -159,6 +162,9 @@ glyph han-2e907:15x16 15 16 // 𮤇
 // ⿵ han-9580 han-82ad // ⿵門芭
 
 ## 169.9
+
+// glyph han-2e917:15x16 15 16 // 𮤗
+// ⿵ han-9580 han-5398 // ⿵門厘
 
 // glyph han-2e919:15x16 15 16 // 𮤙
 // ⿵ han-9580 han-82e6 // ⿵門苦
@@ -359,8 +365,8 @@ glyph han-2e983:15x16 15 16 // 𮦃
 
 ## 173.3
 
-// glyph han-2e985-($han-regions):15x16 15 16 // 𮦅
-// ⿱ han-96e8-($-1) han-95e8 // ⿱雨门
+glyph han-2e985-($han-regions):15x16 15 16 // 𮦅
+⿱ -1 han-96e8-($-1):15x6 1 han-95e8:15x10 // ⿱雨门
 
 ## 173.4
 

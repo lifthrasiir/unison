@@ -180,6 +180,9 @@ glyph han-22240:15x16 15 16 // 𢉀
 // glyph han-22245:15x16 15 16 // 𢉅
 // ⿸ han-5e7f han-91d1 // ⿸广金
 
+// glyph han-22248:15x16 15 16 // 𢉈
+// ⿸ han-5e7f han-2068c // ⿸广𠚌
+
 // glyph han-22250:15x16 15 16 // 𢉐
 // ⿸ han-5e7f han-241ac // ⿸广𤆬
 
@@ -345,6 +348,9 @@ glyph han-22336:15x16 15 16 // 𢌶
 
 glyph han-22338:15x16 15 16 // 𢌸
 ⿱ han-516d:15x7 han-5efe:15x9 // ⿱六廾
+
+// glyph han-22339:15x16 15 16 // 𢌹
+// ⿱ han-53b8 han-5efe // ⿱厸廾
 
 // glyph han-2233a:15x16 15 16 // 𢌺
 // ⿱ han-2053f han-5efe // ⿱𠔿廾

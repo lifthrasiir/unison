@@ -1306,8 +1306,10 @@ glyph han-8a7b.0:* = han-8a7b-j:*
 // glyph han-8a7c:15x16 15 16 // 詼
 // ⿰ han-8a01 han-7070 // ⿰訁灰
 
-glyph han-8a7d-($han-regions):15x16 15 16 // 詽
-⿲ han-8a01-($-1):5x16 han-5e72:5x16 han-5e72:5x16 // ⿲訁干干
+glyph han-8a7d-(g|t|p):15x16 15 16 // 詽
+⿰ han-8a01.x:5x16 1 han-5e75.0:9x16 // ⿰訁幵
+glyph han-8a7d-j:15x16 15 16 // 詽
+⿰ han-8a01.0:5x16 han-5e75.2:10x16 // ⿰訁幵
 
 glyph han-8a7f-($han-regions):15x16 15 16 // 詿
 ⿰ han-8a01-($-1):5x16 1 han-572d:9x16 // ⿰訁圭

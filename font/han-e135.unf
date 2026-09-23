@@ -600,8 +600,14 @@ glyph han-2c8f2:15x16 15 16 // 𬣲
 
 ## 149'.7
 
+// glyph han-2c8f4-($han-regions):15x16 15 16 // 𬣴
+// ⿰ han-8ba0 han-8fc8-($-1) // ⿰讠迈
+
 // glyph han-2c8f5-($han-regions):15x16 15 16 // 𬣵
 // ⿰ han-8ba0 han-8fbe-($-1) // ⿰讠达
+
+// glyph han-2c8f6:15x16 15 16 // 𬣶
+// ⿰ han-8ba0 han-538f // ⿰讠厏
 
 glyph han-2c8f7:15x16 15 16 // 𬣷
 ⿰ han-8ba0:5x16 1 han-675f:9x16 // ⿰讠束
@@ -1134,3 +1140,8 @@ glyph han-2caae:15x16 15 16 // 𬪮
 
 // glyph han-2cabc:15x16 15 16 // 𬪼
 // ⿰ han-91cd han-5915 // ⿰重夕
+
+## 166.10
+
+// glyph han-2cabf:15x16 15 16 // 𬪿
+// ⿰ han-4e9e han-5398 // ⿰亞厘

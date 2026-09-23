@@ -22,8 +22,8 @@ ref 4x1 10 0 negated
 // glyph han-211a4:15x16 15 16 // 𡆤
 // ⿴ han-56d7 han-4e8c // ⿴囗二
 
-// glyph han-211a5:15x16 15 16 // 𡆥
-// ⿴ han-56d7 han-535c // ⿴囗卜
+glyph han-211a5:15x16 15 16 // 𡆥
+⿴ han-56d7:15x16.11x12 han-535c:5x12 5 2 // ⿴囗卜
 
 // glyph han-211a6:15x16 15 16 // 𡆦
 // ⿴ han-56d7 han-516b // ⿴囗八
@@ -45,8 +45,8 @@ glyph han-211ab:15x16 15 16 // 𡆫
 glyph han-211ac:15x16 15 16 // 𡆬
 ⿴ han-56d7:15x16.11x12 han-5de5:9x10 3 3 // ⿴囗工
 
-// glyph han-211ad:15x16 15 16 // 𡆭
-// ⿴ han-56d7 han-4e07 // ⿴囗万
+glyph han-211ad:15x16 15 16 // 𡆭
+⿴ han-56d7:15x16.11x14 han-4e07:10x14 2 1 // ⿴囗万
 
 glyph han-211ae:15x16 15 16 // 𡆮
 ⿴ han-56d7:15x16.11x12 han-571f:9x10 3 3 // ⿴囗土
@@ -588,6 +588,9 @@ glyph han-212b9:15x16 15 16 // 𡊹
 
 // glyph han-212bc:15x16 15 16 // 𡊼
 // ⿱ han-5de9 han-571f // ⿱巩土
+
+// glyph han-212bd:15x16 15 16 // 𡊽
+// ⿰ han-21d44 han-571f // ⿰𡵄土
 
 glyph han-212c0:15x16 15 16 // 𡋀
 ⿲ han-571f:3x16-l han-793b:5x16 han-4e5a:7x16 // ⿲土礻乚

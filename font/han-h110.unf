@@ -37,7 +37,7 @@ glyph han-31cee:15x16 15 16 // 𱳮
 // ⿰ han-77f3 han-4e19 // ⿰石丙
 
 glyph han-31cf5:15x16 15 16 // 𱳵
-⿲ -1 han-77f3:5x16 1 han-53e3:3x16 han-5341:7x16 // ⿲石口十
+⿲ han-77f3:5x16 1 han-53e3:6x16 han-5341:3x16 // ⿲石口十
 
 ## 112.6
 
@@ -140,6 +140,9 @@ glyph han-31d52:15x16 15 16 // 𱵒
 // ⿰ han-79be han-6237 // ⿰禾户
 
 ## 115.6
+
+// glyph han-31d82:15x16 15 16 // 𱶂
+// ⿰ han-79be han-538c // ⿰禾厌
 
 // glyph han-31d85:15x16 15 16 // 𱶅
 // ⿰ han-79be han-8272 // ⿰禾色
@@ -307,6 +310,9 @@ glyph han-31e0b:15x16 15 16 // 𱸋
 
 // glyph han-31e0d:15x16 15 16 // 𱸍
 // ⿳ han-25ad7 han-8980 han-5973 // ⿳𥫗覀女
+
+// glyph han-31e11:15x16 15 16 // 𱸑
+// ⿱ han-25ad7 han-5398 // ⿱𥫗厘
 
 // glyph han-31e13-($han-regions):15x16 15 16 // 𱸓
 // ⿱ han-25ad7 han-7956-($-1) // ⿱𥫗祖

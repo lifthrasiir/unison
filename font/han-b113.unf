@@ -418,8 +418,10 @@ glyph han-2575f:15x16 15 16 // 𥝟
 glyph han-25763:15x16 15 16 // 𥝣
 ⿰ han-79be:5x16 1 han-4e0d:9x16 // ⿰禾不
 
-// glyph han-25766-($han-regions):15x16 15 16 // 𥝦
-// ⿰ han-79be han-4e11-($-1) // ⿰禾丑
+glyph han-25766-(g|p):15x16 15 16 // 𥝦
+⿰ han-79be:5x16 han-4e11.3:10x16 // ⿰禾丑
+glyph han-25766-(t|j):15x16 15 16 // 𥝦
+⿰ han-79be:5x16 han-4e11.0:10x16 // ⿰禾丑
 
 glyph han-25767:15x16 15 16 // 𥝧
 ⿰ han-79be:5x16 1 han-5df4:9x16 // ⿰禾巴

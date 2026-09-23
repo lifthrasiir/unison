@@ -448,16 +448,26 @@ glyph han-86ca:15x16 15 16 // 蛊
 // glyph han-86cc-($han-regions):15x16 15 16 // 蛌
 // ⿰ han-866b han-74dc-($-1) // ⿰虫瓜
 
+// glyph han-86ce:15x16 15 16 // 蛎
+// ⿰ han-866b han-5389 // ⿰虫厉
+
 ## 142.6
 
-glyph han-8688:15x16 15 16 // 蚈
-⿲ han-866b:5x16 han-5e72:5x16 han-5e72:5x16 // ⿲虫干干
+glyph han-8688.0:15x16 15 16 // 蚈
+⿰ han-866b:5x16 han-5e75.2:10x16 // ⿰虫幵
+glyph han-8688.1:* = han-8688.0:*
+glyph han-8688.2:15x16 15 16 // 蚈
+⿰ han-866b:5x16 1 han-5f00:9x16 // ⿰虫开
+glyph han-8688-j:* = han-8688.0:*
+glyph han-8688-(g|t|k|p):* = han-8688.2:*
 
 glyph han-86d2:15x16 15 16 // 蛒
 ⿰ han-866b:7x16 1 han-5404:7x16 // ⿰虫各
+glyph han-86d2.0:* = han-86d2:*
 
 glyph han-86d4:15x16 15 16 // 蛔
 ⿰ han-866b:5x16 1 han-56de:9x16 // ⿰虫回
+glyph han-86d4.0:* = han-86d4:*
 
 glyph han-86d8:15x16 15 16 // 蛘
 ⿰ han-866b:7x16 1 han-7f8a:7x16 // ⿰虫羊

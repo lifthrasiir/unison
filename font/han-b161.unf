@@ -261,8 +261,8 @@ glyph han-284c5-t:* = han-284c5.x:*
 // glyph han-284e3-($han-regions):15x16 15 16 // 𨓣
 // ⿺ han-8fb6-($-1) han-2c09d // ⿺辶𬂝
 
-// glyph han-284e6-($han-regions):15x16 15 16 // 𨓦
-// ⿺ han-8fb6-($-1) han-91cc // ⿺辶里
+glyph han-284e6-($han-regions):15x16 15 16 // 𨓦
+⿺ han-8fb6-($-1):15x16.11x14 han-91cc:11x14 4 0 // ⿺辶里
 
 // glyph han-284e8-($han-regions):15x16 15 16 // 𨓨
 // ⿺ han-8fb6-($-1) han-89d2-($-1) // ⿺辶角

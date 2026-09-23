@@ -1121,8 +1121,8 @@ glyph han-8fc7-(j|p|v):* = han-8fc7.0:*
 glyph han-8fc7-g:* = han-8fc7.1:*
 glyph han-8fc7-t:* = han-8fc7.x:*
 
-// glyph han-8fc8-($han-regions):15x16 15 16 // 迈
-// ⿺ han-8fb6-($-1) han-4e07 // ⿺辶万
+glyph han-8fc8-($han-regions):15x16 15 16 // 迈
+⿺ han-8fb6-($-1):15x16.11x14 han-4e07:10x14 5 0 // ⿺辶万
 
 glyph han-8fc9-($han-regions):15x16 15 16 // 迉
 ⿺ han-8fb6-($-1):15x16.11x14 han-5c38:11x14 4 0 // ⿺辶尸
@@ -1169,8 +1169,8 @@ glyph han-8fd5-(j|k|p):* = han-8fd5.0:*
 glyph han-8fd5-g:* = han-8fd5.2:*
 glyph han-8fd5-(h|t):* = han-8fd5.x:*
 
-// glyph han-8fd6-($han-regions):15x16 15 16 // 迖
-// ⿺ han-8fb6-($-1) han-72ac // ⿺辶犬
+glyph han-8fd6-($han-regions):15x16 15 16 // 迖
+⿺ han-8fb6-($-1):15x16.11x14 han-72ac:11x14 4 0 // ⿺辶犬
 
 // glyph han-8fd7:15x16 15 16 // 迗
 // ⿺ han-8fb6 han-5929 // ⿺辶天
@@ -1302,8 +1302,8 @@ glyph han-8fed-(g|j):* = han-8fed.0:*
 glyph han-8fed-(k|p|v):* = han-8fed.1:*
 glyph han-8fed-(h|t):* = han-8fed.x:*
 
-// glyph han-8fee-($han-regions):15x16 15 16 // 迮
-// ⿺ han-8fb6-($-1) han-4e4d // ⿺辶乍
+glyph han-8fee-($han-regions):15x16 15 16 // 迮
+⿺ han-8fb6-($-1):15x16.11x14 han-4e4d:10x14 5 0 // ⿺辶乍
 
 // glyph han-8ff0-($han-regions):15x16 15 16 // 述
 // ⿺ han-8fb6-($-1) han-672f // ⿺辶术
@@ -1339,8 +1339,8 @@ glyph han-8ff4-(h|t):* = han-8ff4.x:*
 // glyph han-8ffb-($han-regions):15x16 15 16 // 迻
 // ⿺ han-8fb6-($-1) han-591a // ⿺辶多
 
-// glyph han-8ffc:15x16 15 16 // 迼
-// ⿺ han-8fb6 han-5409 // ⿺辶吉
+glyph han-8ffc-($han-regions):15x16 15 16 // 迼
+⿺ han-8fb6-($-1):15x16.11x14 han-5409:9x14 6 0 // ⿺辶吉
 
 // glyph han-9002:15x16 15 16 // 适
 // ⿺ han-8fb6 han-820c // ⿺辶舌
@@ -1733,8 +1733,12 @@ glyph han-90c5:15x16 15 16 // 郅
 glyph han-90c6:15x16 15 16 // 郆
 ⿰ han-5409:9x16 1 han-961d:5x16-r // ⿰吉阝
 
-glyph han-90c9:15x16 15 16 // 郉
-⿲ han-5e72:5x16 han-5e72:5x16 han-961d:5x16-r // ⿲干干阝
+glyph han-90c9.0:15x16 15 16 // 郉
+⿰ han-5e75.2:10x16 han-961d:5x16-r // ⿰幵阝
+glyph han-90c9.x:15x16 15 16 // 郉
+⿰ han-5e75.0:9x16 1 han-961d:5x16-r // ⿰幵阝
+glyph han-90c9-j:* = han-90c9.0:*
+glyph han-90c9-(g|t|p):* = han-90c9.x:*
 
 glyph han-90ca:15x16 15 16 // 郊
 ⿰ han-4ea4:9x16 1 han-961d:5x16-r // ⿰交阝
@@ -2280,6 +2284,21 @@ $$......@@......$$
 $$......@@......$$
 $$......@@......$$
 @@@@@@@@@@@@@@@@@@
+glyph han-91cc:11x14 11 14 // 里
+$$@@@@@@@@@@@@@@@@@@$$
+$$@@......@@......@@$$
+$$@@......@@......@@$$
+$$@@@@@@@@@@@@@@@@@@$$
+$$@@......@@......@@$$
+$$@@......@@......@@$$
+$$@@@@@@@@@@@@@@@@@@$$
+$$........@@........$$
+$$........@@........$$
+$$@@@@@@@@@@@@@@@@@@$$
+$$........@@........$$
+$$........@@........$$
+$$........@@........$$
+@@@@@@@@@@@@@@@@@@@@@@
 glyph han-91cc:15x9 15 9 // 里
 $$$$@@@@@@@@@@@@@@@@@@@@@@$$$$
 $$..@@........@@........@@..$$

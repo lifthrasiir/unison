@@ -211,8 +211,8 @@ glyph han-6253.0:* = han-6253:*
 glyph han-6254:15x16 15 16 // 扔
 ⿰ han-624c:5x16 1 han-4e43:9x16 // ⿰扌乃
 
-// glyph han-6255:15x16 15 16 // 払
-// ⿰ han-624c han-53b6 // ⿰扌厶
+glyph han-6255:15x16 15 16 // 払
+⿰ han-624c:5x16 1 han-53b6:9x16 // ⿰扌厶
 
 // glyph han-6256:15x16 15 16 // 扖
 // ⿰ han-624c han-5165 // ⿰扌入
@@ -274,8 +274,9 @@ glyph han-626a:15x16 15 16 // 扪
 
 ## 64.4
 
-// glyph han-626d-($han-regions):15x16 15 16 // 扭
-// ⿰ han-624c han-4e11-($-1) // ⿰扌丑
+glyph han-626d-($han-regions):15x16 15 16 // 扭
+⿰ han-624c:5x16 han-4e11-($-1):10x16 // ⿰扌丑
+glyph han-626d.0:* = han-626d-j:*
 
 glyph han-626e:15x16 15 16 // 扮
 ⿰ han-624c:5x16 1 han-5206:9x16 // ⿰扌分

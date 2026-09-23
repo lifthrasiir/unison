@@ -146,8 +146,8 @@ glyph han-25126:15x16 15 16 // 𥄦
 glyph han-25127:15x16 15 16 // 𥄧
 ⿱ han-76ee:15x12 han-706c:15x4 // ⿱目灬
 
-// glyph han-25128-($han-regions):15x16 15 16 // 𥄨
-// ⿰ han-76ee han-4e11-($-1) // ⿰目丑
+glyph han-25128:15x16 15 16 // 𥄨
+⿰ han-76ee:5x16-l han-4e11.3:10x16 // ⿰目丑
 
 // glyph han-2512a:15x16 15 16 // 𥄪
 // ⿱ han-4e94 han-76ee // ⿱五目
