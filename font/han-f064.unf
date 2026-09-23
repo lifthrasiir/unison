@@ -279,6 +279,11 @@ glyph han-2d93d:15x16 15 16 // 𭤽
 
 # CJK unified ideographs extension F: 日 (72)
 
+## 72.1
+
+// glyph han-2d94b:15x16 15 16 // 𭥋
+// ⿱ han-65e5 han-200cd // ⿱日𠃍
+
 ## 72.2
 
 glyph han-2d94c:15x16 15 16 // 𭥌
@@ -592,6 +597,11 @@ glyph han-2da46:15x16 15 16 // 𭩆
 
 # CJK unified ideographs extension F: 木 (75)
 
+## 75.1
+
+// glyph han-2da58:15x16 15 16 // 𭩘
+// ⿱ han-6728 han-200cd // ⿱木𠃍
+
 ## 75.3
 
 glyph han-2da59:15x16 15 16 // 𭩙
@@ -792,8 +802,8 @@ glyph han-2db45:15x16 15 16 // 𭭅
 glyph han-2db49:15x16 15 16 // 𭭉
 ⿰ han-4ea4:7x16 1 han-6b20:7x16 // ⿰交欠
 
-// glyph han-2db4a:15x16 15 16 // 𭭊
-// ⿰ han-540d han-6b20 // ⿰名欠
+glyph han-2db4a:15x16 15 16 // 𭭊
+⿰ han-540d:9x16 1 han-6b20:5x16 // ⿰名欠
 
 glyph han-2db4b:15x16 15 16 // 𭭋
 ⿰ han-7f8a:7x16 1 han-6b20:7x16 // ⿰羊欠
@@ -803,5 +813,5 @@ glyph han-2db4b:15x16 15 16 // 𭭋
 glyph han-2db50:15x16 15 16 // 𭭐
 ⿰ han-661c:7x16 1 han-6b20:7x16 // ⿰昜欠
 
-// glyph han-2db51:15x16 15 16 // 𭭑
-// ⿰ han-6637 han-6b20 // ⿰昷欠
+glyph han-2db51:15x16 15 16 // 𭭑
+⿰ han-6637:9x16 1 han-6b20:5x16 // ⿰昷欠

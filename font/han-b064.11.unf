@@ -18,7 +18,7 @@
 // ⿲ han-624c han-5774 han-4e38-($-1) // ⿲扌坴丸 <- ⿰扌埶
 
 glyph han-22ccf-($han-regions):15x16 15 16 // 𢳏
-⿲ han-624c:3x16 han-7cf9-($-1):5x16 han-7531:7x16 // ⿲扌糹由
+⿲ han-624c:3x16 1 han-7cf9-($-1):5x16 1 han-7531:5x16 // ⿲扌糹由
 
 // glyph han-22cd0:15x16 15 16 // 𢳐
 // ⿲ han-624c han-8011 han-5202 // ⿲扌耑刂 <- ⿰扌剬

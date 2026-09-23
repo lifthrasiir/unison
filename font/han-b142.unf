@@ -516,8 +516,8 @@ glyph han-27363:15x16 15 16 // 𧍣
 // glyph han-27366:15x16 15 16 // 𧍦
 // ⿳ han-5fc5 han-5929 han-866b // ⿳必天虫
 
-// glyph han-27368:15x16 15 16 // 𧍨
-// ⿳ han-5405 han-5927 han-866b // ⿳吅大虫
+glyph han-27368:15x16 15 16 // 𧍨
+⿳ han-5405:15x3 han-5927:15x5 han-866b:15x8 // ⿳吅大虫
 
 glyph han-2736b:15x16 15 16 // 𧍫
 ⿰ han-866b:5x16 1 han-97cb:9x16 // ⿰虫韋

@@ -1256,6 +1256,9 @@ glyph han-7406.0:* = han-7406:*
 glyph han-740d:15x16 15 16 // 琍
 ⿲ han-248e9:3x16 han-79be:7x16 han-5202:5x16 // ⿲𤣩禾刂
 
+// glyph han-740e-($han-regions):15x16 15 16 // 琎
+// ⿰ han-248e9 han-8fdb-($-1) // ⿰𤣩进
+
 glyph han-7411.0:15x16 15 16 // 琑
 ⿰ han-248e9:7x16 1 han-8096.1:7x16 // ⿰𤣩肖
 glyph han-7411.x:15x16 15 16 // 琑

@@ -120,8 +120,8 @@ glyph han-6b2a:15x16 15 16 // 欪
 glyph han-6b2f:15x16 15 16 // 欯
 ⿰ han-5409:7x16 1 han-6b20:7x16 // ⿰吉欠
 
-// glyph han-6b30:15x16 15 16 // 欰
-// ⿰ han-8840 han-6b20 // ⿰血欠
+glyph han-6b30:15x16 15 16 // 欰
+⿰ han-8840:9x16 1 han-6b20:5x16 // ⿰血欠
 
 glyph han-6b31:15x16 15 16 // 欱
 ⿰ han-5408:7x16 1 han-6b20:7x16 // ⿰合欠

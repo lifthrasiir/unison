@@ -476,6 +476,9 @@ glyph han-86e1-($han-regions):15x16 15 16 // 蛡
 
 glyph han-86e2:15x16 15 16 // 蛢
 ⿰ han-866b:5x16 1 han-5e76:9x16 // ⿰虫并
+glyph han-86e2.0:* = han-86e2:*
+glyph han-86e2.1:15x16 15 16 // 蛢
+⿰ han-866b:5x16 han-5e77:10x16 // ⿰虫幷
 
 glyph han-86e3:15x16 15 16 // 蛣
 ⿰ han-866b:7x16 1 han-5409:7x16 // ⿰虫吉

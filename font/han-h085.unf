@@ -218,8 +218,8 @@ glyph han-31acd:15x16 15 16 // 𱫍
 
 ## 86.8
 
-// glyph han-31ad4:15x16 15 16 // 𱫔
-// ⿳ han-897f han-4e8c han-706c // ⿳西二灬
+glyph han-31ad4:15x16 15 16 // 𱫔
+⿳ han-897f:15x9 1 han-4e8c:15x3 han-706c:15x3 // ⿳西二灬
 
 // glyph han-31ad5-($han-regions):15x16 15 16 // 𱫕
 // ⿳ han-65e5 han-4e11-($-1) han-706c // ⿳日丑灬

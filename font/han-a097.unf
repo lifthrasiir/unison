@@ -1223,8 +1223,8 @@ glyph han-41ef:15x16 15 16 // 䇯
 // glyph han-41f2:15x16 15 16 // 䇲
 // ⿱ han-25ad7 han-5939 // ⿱𥫗夹
 
-// glyph han-41f4:15x16 15 16 // 䇴
-// ⿱ han-25ad7 han-897f // ⿱𥫗西
+glyph han-41f4:15x16 15 16 // 䇴
+⿱ han-25ad7:15x5 1 han-897f:15x9 // ⿱𥫗西
 
 ## 118.7
 

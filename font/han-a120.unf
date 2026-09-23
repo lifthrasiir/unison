@@ -403,6 +403,13 @@ glyph han-4390-($han-regions):15x16 15 16 // 䎐
 glyph han-4397-($han-regions):15x16 15 16 // 䎗
 ⿰ han-55ac:7x16 han-7fbd-($-1):8x16 // ⿰喬羽
 
+# CJK unified ideographs extension A: 老 (125)
+
+## 125.6
+
+// glyph han-439e-($han-regions):15x16 15 16 // 䎞
+// ⿱ han-8005-($-1) han-200cd // ⿱者𠃍
+
 # CJK unified ideographs extension A: 而 (126)
 
 ## 126.3

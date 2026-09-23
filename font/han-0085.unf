@@ -753,8 +753,13 @@ glyph han-6d33:15x16 15 16 // 洳
 ⿲ han-6c35:3x16 han-5973:5x16 1 han-53e3:6x16 // ⿲氵女口
 glyph han-6d33.0:* = han-6d33:*
 
-glyph han-6d34:15x16 15 16 // 洴
+glyph han-6d34.0:15x16 15 16 // 洴
+⿰ han-6c35:5x16 han-5e77:10x16 // ⿰氵幷
+glyph han-6d34.1:* = han-6d34.0:*
+glyph han-6d34.2:15x16 15 16 // 洴
 ⿰ han-6c35:5x16 1 han-5e76:9x16 // ⿰氵并
+glyph han-6d34-(j|k):* = han-6d34.0:*
+glyph han-6d34-(g|h|t|p):* = han-6d34.2:*
 
 glyph han-6d37:15x16 15 16 // 洷
 ⿰ han-6c35:5x16 1 han-81f3:9x16 // ⿰氵至

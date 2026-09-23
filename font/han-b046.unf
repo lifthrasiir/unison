@@ -383,8 +383,10 @@ glyph han-21e17:15x16 15 16 // 𡸗
 // glyph han-21e21:15x16 15 16 // 𡸡
 // ⿸ han-5382 han-21dc7 // ⿸厂𡷇
 
-glyph han-21e2b:15x16 15 16 // 𡸫
-⿰ han-5c71:5x16 1 han-5e76:9x16 // ⿰山并
+glyph han-21e2b-(g|v):15x16 15 16 // 𡸫
+⿰ han-5c71:5x16-l 1 han-5e76:9x16 // ⿰山并
+glyph han-21e2b-j:15x16 15 16 // 𡸫
+⿰ han-5c71:5x16-l han-5e77:10x16 // ⿰山幷
 
 glyph han-21e31:15x16 15 16 // 𡸱
 ⿳ han-5c71:15x5 han-706b:15x6 han-65e5:15x5 // ⿳山火日 <- ⿱山⿱火日

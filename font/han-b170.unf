@@ -283,6 +283,9 @@ glyph han-28f94:15x16 15 16 // 𨾔
 glyph han-28f96:15x16 15 16 // 𨾖
 ⿰ han-6b63:8x16 han-96b9:7x16 // ⿰正隹
 
+// glyph han-28f97:15x16 15 16 // 𨾗
+// ⿳ han-96b9 han-200cd han-5927 // ⿳隹𠃍大 <- ⿱隹⿱𠃍大
+
 // glyph han-28f9a:15x16 15 16 // 𨾚
 // ⿰ han-592b han-96b9 // ⿰夫隹
 

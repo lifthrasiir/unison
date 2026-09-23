@@ -267,8 +267,31 @@ glyph han-8cc2:15x16 15 16 // 賂
 ⿰ han-8c9d:8x16 han-5404:7x16 // ⿰貝各
 glyph han-8cc2.0:* = han-8cc2:*
 
-glyph han-8cc6:15x16 15 16 // 賆
-⿰ han-8c9d:6x16 1 han-5e76:8x16 // ⿰貝并
+glyph han-8cc6.0:15x16 15 16 // 賆
+⿰ han-8c9d:5x16 1 han-5e76:9x16 // ⿰貝并
+glyph han-8cc6.1:* = han-8cc6.0:*
+glyph han-8cc6.2:15x16 15 16 // 賆
+..................../Vv'../Vv'
+...................vV/...vV/$$
+................../Vv'../Vv'$$
+.................vV/...vV/..$$
+..............@@@@@@@@@@@@@@$$
+................@@......@@..$$
+................@@......@@..$$
+................@@......@@..$$
+................@@......@@..$$
+................@@......@@..$$
+............@@@@@@@@@@@@@@@@@@
+................@@......@@..$$
+................@@......@@..$$
+...............vV/......@@..$$
+............../Vv'......@@..$$
+.............vV/........@@..$$
+ref han-8c9d:5x16 0 0 // ⿰貝并
+glyph han-8cc6.x:15x16 15 16 // 賆
+⿰ han-8c9d:5x16 han-5e77:10x16 // ⿰貝幷
+glyph han-8cc6-(g|t|j|p):* = han-8cc6.0:*
+glyph han-8cc6-k:* = han-8cc6.x:*
 
 // glyph han-8cc7:15x16 15 16 // 資
 // ⿱ han-6b21 han-8c9d // ⿱次貝
@@ -278,6 +301,7 @@ glyph han-8cc6:15x16 15 16 // 賆
 
 glyph han-8cc9:15x16 15 16 // 賉
 ⿰ han-8c9d:6x16 han-8840:9x16 // ⿰貝血
+glyph han-8cc9.0:* = han-8cc9:*
 
 glyph han-8ccb:15x16 15 16 // 賋
 ⿰ han-8c9d:6x16 han-4ea4:9x16 // ⿰貝交
@@ -786,18 +810,28 @@ glyph han-8def.0:* = han-8def:*
 
 glyph han-8df0:15x16 15 16 // 跰
 ⿰ han-27fb7:5x16 1 han-5e76:9x16 // ⿰𧾷并
+glyph han-8df0.0:* = han-8df0:*
+glyph han-8df0.1:* = han-8df0:*
+glyph han-8df0.2:15x16 15 16 // 跰
+⿰ han-27fb7:5x16 han-5e77:10x16 // ⿰𧾷幷
 
 // glyph han-8df1:15x16 15 16 // 跱
 // ⿰ han-27fb7 han-5bfa // ⿰𧾷寺
 
 glyph han-8df2:15x16 15 16 // 跲
 ⿰ han-27fb7:5x16 1 han-5408:9x16 // ⿰𧾷合
+glyph han-8df2.0:* = han-8df2:*
 
 glyph han-8df3:15x16 15 16 // 跳
 ⿰ han-27fb7:5x16 1 han-5146:9x16 // ⿰𧾷兆
+glyph han-8df3.0:* = han-8df3:*
+glyph han-8df3.1:* = han-8df3:* // not distinguished
+glyph han-8df3.2:* = han-8df3.0:*
+glyph han-8df3.3:* = han-8df3.1:*
 
 glyph han-8df4:15x16 15 16 // 跴
 ⿰ han-27fb7:7x16 1 han-897f:7x16 // ⿰𧾷西
+glyph han-8df4.0:* = han-8df4:*
 
 // glyph han-8df6-($han-regions):15x16 15 16 // 跶
 // ⿰ han-27fb7 han-8fbe-($-1) // ⿰𧾷达

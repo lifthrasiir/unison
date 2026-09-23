@@ -562,6 +562,10 @@ glyph han-62f8:15x16 15 16 // 拸
 
 glyph han-62fc:15x16 15 16 // 拼
 ⿰ han-624c:5x16 1 han-5e76:9x16 // ⿰扌并
+glyph han-62fc.0:* = han-62fc:*
+glyph han-62fc.1:* = han-62fc:*
+glyph han-62fc.2:15x16 15 16 // 拼
+⿰ han-624c:5x16 han-5e77:10x16 // ⿰扌幷
 
 glyph han-62fe:15x16 15 16 // 拾
 ⿰ han-624c:5x16 1 han-5408:9x16 // ⿰扌合

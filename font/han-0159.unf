@@ -1192,8 +1192,8 @@ glyph han-8fda-(j|k):* = han-8fda.0:*
 glyph han-8fda-g:* = han-8fda.2:*
 glyph han-8fda-h:* = han-8fda.x:*
 
-// glyph han-8fdb-($han-regions):15x16 15 16 // 进
-// ⿺ han-8fb6-($-1) han-4e95 // ⿺辶井
+glyph han-8fdb-($han-regions):15x16 15 16 // 进
+⿺ han-8fb6-($-1):15x16.11x14 han-4e95:9x10 6 2 // ⿺辶井
 
 glyph han-8fdc-($han-regions):15x16 15 16 // 远
 ⿺ han-8fb6-($-1):15x16.11x14 han-5143:11x12 4 1 // ⿺辶元
@@ -1818,8 +1818,12 @@ glyph han-90ee-j:15x16 15 16 // 郮
 glyph han-90ef:15x16 15 16 // 郯
 ⿰ han-708e:9x16 1 han-961d:5x16-r // ⿰炎阝
 
-glyph han-90f1:15x16 15 16 // 郱
+glyph han-90f1.0:15x16 15 16 // 郱
+⿰ han-5e77:10x16 han-961d:5x16-r // ⿰幷阝
+glyph han-90f1.1:15x16 15 16 // 郱
 ⿰ han-5e76:9x16 1 han-961d:5x16-r // ⿰并阝
+glyph han-90f1-p:* = han-90f1.0:*
+glyph han-90f1-(g|h|t|j):* = han-90f1.1:*
 
 // glyph han-90f2:15x16 15 16 // 郲
 // ⿰ han-4f86 han-961d // ⿰來阝

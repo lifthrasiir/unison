@@ -53,6 +53,9 @@ glyph han-2a715:15x16 15 16 // 𪜕
 glyph han-2a720:15x16 15 16 // 𪜠
 ⿱ han-4ea0:15x3 1 han-51e1:15x12 // ⿱亠凡
 
+// glyph han-2a721-($han-regions):15x16 15 16 // 𪜡
+// ⿰ han-20088 han-4ea1-($-1) // ⿰𠂈亡
+
 ## 8.10
 
 // glyph han-2a724:15x16 15 16 // 𪜤
@@ -702,6 +705,9 @@ glyph han-2a8ab:15x16 15 16 // 𪢫
 // ⿰ han-571f han-53c8-($-1) // ⿰土又
 
 ## 32.3
+
+// glyph han-2a8b3:15x16 15 16 // 𪢳
+// ⿱ han-53bb han-200cd // ⿱去𠃍
 
 glyph han-2a8b4:15x16 15 16 // 𪢴
 assume ⿰ han-571f:7x16-l -1 han-571f:9x16 // ⿰土土

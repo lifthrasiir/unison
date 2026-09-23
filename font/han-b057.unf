@@ -238,8 +238,10 @@ glyph han-223e4:15x16 15 16 // 𢏤
 
 ## 57.8
 
-glyph han-223f3:15x16 15 16 // 𢏳
-⿰ han-5f13:7x16 han-5e76:8x16 // ⿰弓并
+glyph han-223f3-(g|t):15x16 15 16 // 𢏳
+⿰ han-5f13:5x16 1 han-5e76:9x16 // ⿰弓并
+glyph han-223f3-(j|k):15x16 15 16 // 𢏳
+⿰ han-5f13:5x16 han-5e77:10x16 // ⿰弓幷
 
 // glyph han-223fa:15x16 15 16 // 𢏺
 // ⿲ han-5f13 han-4e19 han-5f13 // ⿲弓丙弓

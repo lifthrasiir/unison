@@ -3068,8 +3068,8 @@ glyph han-5587.0:* = han-5587:*
 // glyph han-558b:15x16 15 16 // 喋
 // ⿰ han-53e3 han-67bc // ⿰口枼
 
-// glyph han-558c:15x16 15 16 // 喌
-// ⿱ han-5405 han-5dde // ⿱吅州
+glyph han-558c-($han-regions):15x16 15 16 // 喌
+⿱ han-5405:15x4 han-5dde-($-1):15x12 // ⿱吅州
 
 glyph han-5591:15x16 15 16 // 喑
 ⿰ han-53e3:5x16 1 han-97f3:9x16 // ⿰口音

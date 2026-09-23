@@ -1667,6 +1667,9 @@ glyph han-5de8-(h|t):* = han-5de8.1:*
 glyph han-5de9:15x16 15 16 // 巩
 ⿰ han-5de5:5x16 han-51e1:10x16 // ⿰工凡
 
+// glyph han-5dea-($han-regions):15x16 15 16 // 巪
+// ⿱ han-5de8-($-1) han-200cd // ⿱巨𠃍
+
 ## 48.4
 
 // glyph han-5deb:15x16 15 16 // 巫
@@ -2545,7 +2548,7 @@ glyph han-5e1e:15x16 15 16 // 帞
 ⿰ han-5dfe:5x16 2 han-767e:8x16 // ⿰巾百
 
 glyph han-5e21:15x16 15 16 // 帡
-⿰ han-5dfe:7x16 han-5e76:8x16 // ⿰巾并
+⿰ han-5dfe:5x16 1 han-5e76:9x16 // ⿰巾并
 
 glyph han-5e22:15x16 15 16 // 帢
 ⿰ han-5dfe:7x16 1 han-5408:7x16 // ⿰巾合

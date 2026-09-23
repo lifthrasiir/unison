@@ -880,6 +880,7 @@ glyph han-99df:15x16 15 16 // 駟
 
 glyph han-99e2:15x16 15 16 // 駢
 ⿰ han-99ac:7x16 han-5e76:8x16 // ⿰馬并
+glyph han-99e2.0:* = han-99e2:*
 
 glyph han-99e3:15x16 15 16 // 駣
 ⿰ han-99ac:7x16 1 han-5146:7x16 // ⿰馬兆

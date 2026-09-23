@@ -448,6 +448,11 @@ glyph han-20042:15x16 15 16 // 𠁂
 
 # CJK unified ideographs extension B: 丨 (2)
 
+## 2.1
+
+// glyph han-20061:15x16 15 16 // 𠁡
+// ⿰ han-4e28 han-200cd // ⿰丨𠃍
+
 ## 2.3
 
 glyph han-20063:15x16 15 16 // 𠁣 (see also han-200db)
@@ -489,6 +494,9 @@ $$............@@............$$
 $$............@@............$$
 
 ## 2.7
+
+// glyph han-20069:15x16 15 16 // 𠁩
+// ⿽ han-20066 han-20120 // ⿽𠁦𠄠
 
 // glyph han-2006a-($han-regions):15x16 15 16 // 𠁪
 // ⿰ han-58ec-($-1) han-4e2d // ⿰壬中
@@ -839,7 +847,13 @@ glyph han-200d0:15x16 15 16 // 𠃐
 // ref han-31c4 // ⿻㇄十
 // ref han-5341
 
+// glyph han-200d4:15x16 15 16 // 𠃔
+// ⿰ han-20088 han-4e5a // ⿰𠂈乚
+
 ## 5.3
+
+// glyph han-200d5:15x16 15 16 // 𠃕
+// ⿲ han-4e3f han-20088 han-4e5a // ⿲丿𠂈乚
 
 glyph han-200d6:15x16 15 16 // 𠃖
 ⿰ han-5de5:5x16-l 1 han-4e5a:9x16 // ⿰工乚

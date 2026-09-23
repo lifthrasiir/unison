@@ -42,6 +42,11 @@ glyph han-2c00e:15x16 15 16 // 𬀎
 
 # CJK unified ideographs extension E: 日 (72)
 
+## 72.2
+
+// glyph han-2c026:15x16 15 16 // 𬀦
+// ⿹ han-20001 han-65e5 // ⿹𠀁日
+
 ## 72.3
 
 glyph han-2c027:15x16 15 16 // 𬀧
@@ -404,8 +409,8 @@ glyph han-2c141:15x16 15 16 // 𬅁
 // glyph han-2c15d:15x16 15 16 // 𬅝
 // ⿱ han-6b20 han-5efe // ⿱欠廾
 
-// glyph han-2c15e:15x16 15 16 // 𬅞
-// ⿰ han-4e8e han-6b20 // ⿰于欠
+glyph han-2c15e:15x16 15 16 // 𬅞
+⿰ han-4e8e:9x16 1 han-6b20:5x16 // ⿰于欠
 
 ## 76.4
 

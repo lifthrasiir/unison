@@ -260,11 +260,11 @@ glyph han-3c2a:15x16 15 16 // 㰪
 
 ## 76.8
 
-// glyph han-3c33:15x16 15 16 // 㰳
-// ⿰ han-4e9e han-6b20 // ⿰亞欠
+glyph han-3c33:15x16 15 16 // 㰳
+⿰ han-4e9e:10x16 han-6b20:5x16 // ⿰亞欠
 
-// glyph han-3c34:15x16 15 16 // 㰴
-// ⿰ han-5485 han-6b20 // ⿰咅欠
+glyph han-3c34:15x16 15 16 // 㰴
+⿰ han-5485:9x16 1 han-6b20:5x16 // ⿰咅欠
 
 glyph han-3c35:15x16 15 16 // 㰵
 ⿰ han-5352:7x16 1 han-6b20:7x16 // ⿰卒欠
