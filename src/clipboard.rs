@@ -70,7 +70,12 @@ pub(crate) fn install_log_sink() {
             if !self.enabled(record.metadata()) {
                 return;
             }
-            eprintln!("[{}] {}: {}", record.level(), record.target(), record.args());
+            eprintln!(
+                "[{}] {}: {}",
+                record.level(),
+                record.target(),
+                record.args()
+            );
         }
         fn flush(&self) {}
     }

@@ -899,7 +899,9 @@ impl eframe::App for UniformApp {
         // state the keystroke was aimed at. See
         // [`crate::clipboard::release_label_selection`].
         let typing_surface_has_focus = self.shaped_preview.is_focused()
-            || self.active_doc().is_some_and(|d| d.editor_state.is_active());
+            || self
+                .active_doc()
+                .is_some_and(|d| d.editor_state.is_active());
         crate::clipboard::release_label_selection(ctx, typing_surface_has_focus);
 
         let mut menu = MenuActions::default();
