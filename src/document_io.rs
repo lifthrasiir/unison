@@ -569,30 +569,47 @@ fn parse_ref_line(
 /// number *means*: a gap on a split and an offset on an enclosure, which is a
 /// question about the operator and not about the token. `base` is the `@` base
 /// in force, as for a `ref`.
+///
+/// A token with a `|` outside any parentheses is a
+/// [`ComposeItem::Nested`], read piece by piece the same way; `(a|b)` is still
+/// the one pattern component it always was. A nested split with an empty piece
+/// (`a||b`, `|a`) is the one thing here that does not read, and the line is
+/// then unread like a `ref` that does not parse.
 fn parse_compose_line(
     op: crate::compose::IdcOp,
     assumed: bool,
     parts: &[String],
     comment: Option<String>,
     base: Option<&str>,
-) -> GlyphCompose {
+) -> Option<GlyphCompose> {
+    let item = |token: &str| match token.parse::<i16>() {
+        Ok(gap) => ComposeItem::Gap(gap),
+        Err(_) => {
+            let name = crate::document::expand_at_name(token, base);
+            let raw_name = crate::document::written_form(token, &name);
+            ComposeItem::Part { name, raw_name }
+        }
+    };
     let items = parts
         .iter()
-        .map(|token| match token.parse::<i16>() {
-            Ok(gap) => ComposeItem::Gap(gap),
-            Err(_) => {
-                let name = crate::document::expand_at_name(token, base);
-                let raw_name = crate::document::written_form(token, &name);
-                ComposeItem::Part { name, raw_name }
+        .map(|token| {
+            if token.chars().count() > 1 && crate::pattern::has_top_level_pipe(token) {
+                let pieces = crate::pattern::split_top_level_pipes(token);
+                if pieces.iter().any(|p| p.is_empty()) {
+                    return None;
+                }
+                Some(ComposeItem::Nested(pieces.into_iter().map(item).collect()))
+            } else {
+                Some(item(token))
             }
         })
-        .collect();
-    GlyphCompose {
+        .collect::<Option<Vec<_>>>()?;
+    Some(GlyphCompose {
         op,
         items,
         assumed,
         comment,
-    }
+    })
 }
 
 /// Parse a range token like `3` (single value) or `3..5` (inclusive range).
@@ -1922,13 +1939,16 @@ pub fn derive_document(
                             } else if let Some((op, assumed)) = crate::compose::IdcOp::of_line(
                                 sub_tokens.iter().map(String::as_str),
                             ) {
-                                body.compose.push(parse_compose_line(
+                                let Some(line) = parse_compose_line(
                                     op,
                                     assumed,
                                     &sub_tokens[1 + usize::from(assumed)..],
                                     sub_comment,
                                     at_base.as_deref(),
-                                ));
+                                ) else {
+                                    break;
+                                };
+                                body.compose.push(line);
                                 i += 1;
                                 continue;
                             } else if sub_tokens.first().is_some_and(|t| t == "anchor") {

@@ -1427,6 +1427,50 @@ error for the same reason.
 `⿻`, `⿾` and `⿿` are deliberately absent: the first says nothing about placement, and the other
 two transform one drawing rather than composing two. This is not a general IDS layout engine.
 
+#### Nested splits: `1|foo|1|bar|1`
+
+A slot of a split may hold a **nested split** in place of a component name: gaps and components
+written as one token with `|` between them. It splits across the line's axis — a ⿱ inside a ⿰ or
+⿲, a ⿰ inside a ⿱ or ⿳ — and takes two components or three, as those operators do, or one:
+
+```
+glyph han-xxxx:16x16 16 16
+⿰ 2 1|han-a:6x7|1|han-b:6x6|1 1 han-c:7x16
+```
+
+reads exactly as if a glyph `1-a-1-b-1` declared `⿱ 1 han-a:6x7 1 han-b:6x6 1` and the line wrote
+`⿰ 2 1-a-1-b-1 1 han-c:7x16`: the parts land where that glyph's would, and everything that glyph's
+line would be checked for is checked, with its messages naming the nested split — except its own
+[clearances](#clearance), which are not measured, since `uniform fix` does not go inside a nested
+split to put them right. The line around it measures the nested split by the ink of everything in
+it, as it would the glyph.
+
+The one difference is the box. A glyph *declares* its size, so `⿱ 1 han-a:6x7 1 han-b:6x6` passes
+in a 16-tall header even though the line does not say where the last cell goes. A nested split has
+no header: its length along its own axis is the sum of its gaps and parts, and across it the parts'
+width, which they have to agree on. So the same split written `1|han-a:6x7|1|han-b:6x6` is 15 tall,
+and in a 16-tall slot that is an error.
+
+A nested split of **one** component pads it across the axis, which no glyph's own line could say:
+
+```
+glyph han-5446:9x16 9 16 // 呆
+⿱ 1|han-53e3:7x6|1 han-6728:9x10 // ⿱口木
+```
+
+sits the 7-wide 口 one cell in from either side of a 9-wide slot. A lone component is at both ends
+of its axis at once, so it claims no [position](#variant-names-wxh-l) and a name drawn for either
+side sits there without a warning. Four or more components are an error.
+
+Only a `|` outside parentheses separates: `(a|b):6x7` is still one component, a
+[name pattern](#name-pattern)'s alternation, and the members of a nested split may be patterns in a
+pattern block like any other component. A nested split does not nest again and an
+[enclosure](#enclosures-) takes none. [`uniform fix`](#rewriting-the-source) treats one as a single
+part of the line it is in — the gaps around it move and the other slots' variants are chosen as
+usual — but never goes inside it: its members and its own gaps stay as written. A part that needs
+any of those is a glyph of its own. One with an empty piece (`a||b`)
+is a line that does not parse.
+
 #### Enclosures: `⿴⿵⿶⿷⿸⿹⿺⿼⿽`
 
 ```
@@ -2070,7 +2114,10 @@ It also plans two more kinds of line:
 
 What cannot be measured after a choice either is skipped: a part with no ink of its own, a
 composite the pass cannot flatten, and a component — undecided or erroring — whose family draws
-nothing that could fill the slot.
+nothing that could fill the slot. So is an [`assume`d](#assume-a-layout-taken-on-trust) line. A
+[nested split](#nested-splits-1foo1bar1) is one part with exactly one candidate, itself: the pass
+moves what is around it and nothing inside it, so a layout it should work on there is written as a
+glyph of its own.
 
 For each slot the candidates are the variants of the component's base name — `A:4x16`, `A:5x16`, …
 for a component written `A:x` — filtered to those that could go there at all: the box must fit the

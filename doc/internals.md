@@ -90,6 +90,7 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Why a glyph the build drops silently is still accounted for, and the test that pins it | `issues/anchors.rs` (`check_anchor_derivation`), `issues/issues_tests.rs` |
 | `⿰⿱⿲⿳`: the split, the gap term, why the offsets are derived rather than written | `compose.rs` |
 | Why a split fills the box and not the grid, and so moves with a declared `origin` | `compose.rs` (`Raster`, `expand_compose`) |
+| `1\|foo\|1\|bar\|1`: a nested split in a slot, the glyph it stands for, why its box is inferred rather than declared, where its ink comes from, and why the fixer lays it out as one part without going inside | `compose.rs` (`# Nested splits`, `nested_line`, `nested_key`), `render/ttf_builder/expand.rs` (`ink_profiles`), `fix/clearance.rs` (`slot_names`, `Inventory::register_nested`), `document/glyph.rs` (`ComposeItem::Nested`) |
 | `assume ⿰ …`: why an assumed line drops its clearance chores and nothing else, and the one reader of the keyword | `compose.rs` (`# An assumed line`, `IdcOp::of_line`) |
 | `⿴⿵⿶⿷⿸⿹⿺⿼⿽`: which sides an enclosure fills, and why its two numbers are offsets rather than gaps | `compose.rs` (`Walls`, `expand_enclosure`) |
 | The four boundaries of one line, and the one type every gap is measured between | `compose.rs` (`InkLine`, `Face`, `GapSide`) |

@@ -146,14 +146,8 @@ fn expand_glyph_item(
         for gref in &mut subst_body.refs {
             gref.name = substitute_name_parts(&gref.name, name_parts);
         }
-        for item in subst_body
-            .compose
-            .iter_mut()
-            .flat_map(|c| c.items.iter_mut())
-        {
-            if let crate::document::ComposeItem::Part { name, .. } = item {
-                *name = substitute_name_parts(name, name_parts);
-            }
+        for (name, _) in subst_body.compose.iter_mut().flat_map(|c| c.parts_mut()) {
+            *name = substitute_name_parts(name, name_parts);
         }
         match expand_glyph_block(&subst_name, &subst_body) {
             Ok(expanded) if expanded.is_empty() => {
@@ -196,10 +190,8 @@ fn expand_glyph_item(
         for gref in &mut body.refs {
             gref.name = substitute_name_parts(&gref.name, name_parts);
         }
-        for item in body.compose.iter_mut().flat_map(|c| c.items.iter_mut()) {
-            if let crate::document::ComposeItem::Part { name, .. } = item {
-                *name = substitute_name_parts(name, name_parts);
-            }
+        for (name, _) in body.compose.iter_mut().flat_map(|c| c.parts_mut()) {
+            *name = substitute_name_parts(name, name_parts);
         }
         all_items.push(ExpandedItem {
             item: DocumentItem::Glyph {
@@ -425,7 +417,7 @@ fn expand_inner(
                 for gref in &mut body.refs {
                     aliases.canonicalize(&mut gref.name);
                 }
-                for item in body.compose.iter_mut().flat_map(|c| c.items.iter_mut()) {
+                for (name, raw_name) in body.compose.iter_mut().flat_map(|c| c.parts_mut()) {
                     // A component keeps the name it was written with beside
                     // the one it resolves to. The two say different things: the
                     // resolved name is the drawing, and the written one is
@@ -433,12 +425,10 @@ fn expand_inner(
                     // 阝:4x16-r` is a source saying that the right-hand drawing
                     // is what a `⿲`'s middle slot uses, and dropping the `-c`
                     // would leave `compose` ranking it as the wrong slot.
-                    if let crate::document::ComposeItem::Part { name, raw_name } = item {
-                        let written = name.clone();
-                        aliases.canonicalize(name);
-                        if raw_name.is_none() && *name != written {
-                            *raw_name = Some(written);
-                        }
+                    let written = name.clone();
+                    aliases.canonicalize(name);
+                    if raw_name.is_none() && *name != written {
+                        *raw_name = Some(written);
                     }
                 }
             }
@@ -744,6 +734,48 @@ fn ink_profiles(
         if let DocumentItem::Glyph { name, body } = &e.item {
             bodies.entry(name.0.as_str()).or_insert(body);
         }
+    }
+    // A nested split is measured as the glyph it stands for, so that glyph is
+    // made up here ([`crate::compose::nested_body`]) under the key the line
+    // around it looks its ink up by, and flattened with the composites below.
+    // See `crate::compose` (`# Nested splits`).
+    let nested: Vec<(String, GlyphBody)> = {
+        let dims = |name: &str| match bodies.get(name) {
+            None => crate::compose::PartDims::Unknown,
+            Some(body) => match body.declared_extent() {
+                Some((w, h)) => crate::compose::PartDims::Size(w, h),
+                None => crate::compose::PartDims::Undeclared,
+            },
+        };
+        let mut nested: Vec<(String, GlyphBody)> = Vec::new();
+        let mut seen: HashSet<String> = HashSet::default();
+        for e in all_items {
+            let DocumentItem::Glyph { name, body } = &e.item else {
+                continue;
+            };
+            if clearances.for_glyph(&name.display()).is_none() {
+                continue;
+            }
+            for c in body.compose.iter().filter(|c| !c.op.enclosing()) {
+                for item in &c.items {
+                    let crate::document::ComposeItem::Nested(members) = item else {
+                        continue;
+                    };
+                    let key = crate::compose::nested_key(c.op, members);
+                    if bodies.contains_key(key.as_str()) || !seen.insert(key.clone()) {
+                        continue;
+                    }
+                    if let Some(body) = crate::compose::nested_body(c.op, members, &dims) {
+                        nested.push((key, body));
+                    }
+                }
+            }
+        }
+        nested
+    };
+    for (key, body) in &nested {
+        bodies.insert(key.as_str(), body);
+        wanted.insert(key.as_str());
     }
     let profile_of = |body: &GlyphBody, pixels: &PixelGrid, raster: (i32, i32), scale: u8| {
         let extent = body.declared_extent().unwrap_or_else(|| {

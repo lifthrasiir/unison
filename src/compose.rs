@@ -47,6 +47,39 @@
 //! share a box and nothing about where; the other two transform one drawing
 //! rather than composing two. This is not a general IDS layout engine.
 //!
+//! # Nested splits
+//!
+//! A slot of a split may be written `1|foo|1|bar|1`: a *nested split*, which is the
+//! glyph `⿱ 1 foo 1 bar 1` would be, standing in the slot without a name of
+//! its own. It is the perpendicular split — ⿱ or ⿳ inside ⿰ and ⿲, ⿰ or ⿲
+//! inside ⿱ and ⿳ — by how many parts it writes ([`nested_op`]), and it is
+//! laid out, checked and measured as that glyph would be ([`nested_line`],
+//! [`nested_body`]),
+//! with one difference: a glyph *declares* its box, and a nested split's is
+//! **inferred** from its members — along its axis the sum of its gaps and
+//! parts, across it the parts' extent ([`NestedSize`]). So `⿱ 1 foo 1 bar`
+//! written as a glyph passes when its header says what the sum leaves out,
+//! and the same nested split does not: the sum has to fill the slot by itself.
+//!
+//! It may also be **one** part, which no glyph's line could be: `1|foo|1` is
+//! `foo` padded across the axis, the one layout a part shorter than its slot
+//! needs and that would otherwise take a glyph of its own to write. A lone
+//! member is at both ends of its axis at once, so it claims no direction.
+//!
+//! Only a split takes one, since a nested split divides one axis's share further and
+//! an enclosure hands out no share of an axis; and it does not nest again,
+//! since a nested split inside a nested split is the same axis as the line around both. A
+//! part that has to be both is a glyph of its own.
+//!
+//! Its ink is kept under [`nested_key`] for the line around it to measure
+//! against, but its **own** clearances are not measured. `uniform fix` lays a
+//! line holding one out with the nested split as one fixed part and does not
+//! look inside it (`fix::clearance::slot_names`) — the inside is the nested
+//! glyph's own line, and one the optimizer is meant to work on is written as a
+//! glyph — so a chore about the inside would be a finding nothing answers. A
+//! one-part nested split makes that plain: its total is the padding the source
+//! wrote, and it could never be moved into the band.
+//!
 //! # An undecided line is not a wrong one
 //!
 //! A component written without a `:` suffix has not picked its variant yet.
@@ -1407,6 +1440,131 @@ pub fn is_undecided(component_name: &str) -> bool {
     !component_name.contains(':')
 }
 
+/// The operator a [nested split](crate::compose#nested-splits) inside a line of `outer`
+/// splits its box with: the one across `outer`'s axis, taking as many parts as
+/// the nested split writes. One part is the two-part operator's, since a single
+/// member only pads its slot across the axis, and so is a count of four or
+/// more, which [`expand_compose`] then reports.
+pub fn nested_op(outer: IdcOp, parts: usize) -> IdcOp {
+    match (outer.horizontal(), parts == 3) {
+        (true, false) => IdcOp::AboveBelow,
+        (true, true) => IdcOp::AboveMiddleBelow,
+        (false, false) => IdcOp::LeftRight,
+        (false, true) => IdcOp::LeftMiddleRight,
+    }
+}
+
+/// The name a nested split's ink is kept under: its operator and its members'
+/// resolved names. No glyph can be called this — a `|` outside parentheses in
+/// a block's name makes it a list of names — and the operator keeps the same
+/// token apart in a ⿰ line and a ⿱ one, where it stands for two different
+/// shapes.
+pub fn nested_key(outer: IdcOp, members: &[ComposeItem]) -> String {
+    let parts = members
+        .iter()
+        .filter(|it| matches!(it, ComposeItem::Part { .. }))
+        .count();
+    format!(
+        "{}{}",
+        nested_op(outer, parts).as_char(),
+        ComposeItem::nested_token(members, true)
+    )
+}
+
+/// The box a nested split's glyph would declare, inferred from its members.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct NestedSize {
+    /// `(width, height)`: along the nested split's own axis, the sum of its gaps and
+    /// its members' extents; across it, the first sized member's extent. A
+    /// member with no size contributes nothing.
+    pub box_: (u16, u16),
+    /// Whether every member has a size, so that `box_` is the box and not a
+    /// lower bound on it.
+    pub complete: bool,
+}
+
+/// The IDC line a nested split of a line of `outer` stands for, and the box its glyph
+/// would declare. See the module docs (`# Nested splits`).
+pub fn nested_line(
+    outer: IdcOp,
+    members: &[ComposeItem],
+    dims: &dyn Fn(&str) -> PartDims,
+) -> (GlyphCompose, NestedSize) {
+    let parts = members
+        .iter()
+        .filter(|it| matches!(it, ComposeItem::Part { .. }))
+        .count();
+    let op = nested_op(outer, parts);
+    let mut along: i32 = 0;
+    let mut across: Option<u16> = None;
+    let mut complete = true;
+    for item in members {
+        match item {
+            ComposeItem::Gap(gap) => along += *gap as i32,
+            ComposeItem::Part { name, .. } => match dims(name) {
+                PartDims::Size(w, h) => {
+                    let (a, c) = if op.horizontal() { (w, h) } else { (h, w) };
+                    along += a as i32;
+                    across.get_or_insert(c);
+                }
+                PartDims::Unknown | PartDims::Undeclared => complete = false,
+            },
+            // A nested split does not nest again; the parser writes none.
+            ComposeItem::Nested(_) => complete = false,
+        }
+    }
+    let along = along.clamp(0, u16::MAX as i32) as u16;
+    let across = across.unwrap_or_else(|| {
+        complete = false;
+        0
+    });
+    let box_ = if op.horizontal() {
+        (along, across)
+    } else {
+        (across, along)
+    };
+    let line = GlyphCompose {
+        op,
+        items: members.to_vec(),
+        assumed: false,
+        comment: None,
+    };
+    (line, NestedSize { box_, complete })
+}
+
+/// The glyph a nested split stands for, as a body the resolution can flatten:
+/// the refs its line derives, in a box of the size [`nested_line`] infers. It
+/// is the refs and not the line because the line of a one-part nested split
+/// is not one a glyph could write ([`nested_op`]).
+///
+/// `None` where the flattening would not be the shape the source means — a
+/// member undecided, a box that cannot be inferred, a line that errors — for
+/// the reason `ref_composite::derive_compose_body` gives: half a part's ink
+/// measured is worse than none.
+pub fn nested_body(
+    outer: IdcOp,
+    members: &[ComposeItem],
+    dims: &dyn Fn(&str) -> PartDims,
+) -> Option<crate::document::GlyphBody> {
+    let (line, size) = nested_line(outer, members, dims);
+    if !size.complete || line.part_names().any(is_undecided) {
+        return None;
+    }
+    let frame = Frame {
+        context: String::new(),
+        nested: true,
+    };
+    let (refs, issues) = expand_line(&frame, Some(size.box_), 1, &line, dims, None, None);
+    if issues.iter().any(|(s, _)| *s == Severity::Error) {
+        return None;
+    }
+    Some(crate::document::GlyphBody {
+        refs,
+        extent: Some(size.box_),
+        ..crate::document::GlyphBody::new()
+    })
+}
+
 /// What an undecided component's family draws when *none* of it fits the slot,
 /// as a list for the message — or `None` when the caller offered no family, the
 /// family is empty, or something in it fits.
@@ -1476,8 +1634,12 @@ pub fn expand_compose(
     clearance: Option<&ClearanceRule>,
 ) -> ComposeExpansion {
     let scale = raster.scale.max(1) as i32;
+    let frame = Frame {
+        context: format!("glyph '{glyph_name}'"),
+        nested: false,
+    };
     let (mut refs, mut issues) =
-        expand_line(glyph_name, parent, scale, compose, dims, family, clearance);
+        expand_line(&frame, parent, scale, compose, dims, family, clearance);
     // The layout is worked out in the box; a `ref` offset is counted from the
     // grid's corner, which is the box's only when no `origin` moves it.
     let (col, row) = raster.origin;
@@ -1498,10 +1660,30 @@ pub fn expand_compose(
     (refs, issues)
 }
 
+/// Where a line being laid out sits, for its messages: the glyph's own line,
+/// or the line a [nested split](crate::compose#nested-splits) stands for inside it.
+struct Frame {
+    /// What a message is prefixed with, up to the operator.
+    context: String,
+    /// Whether the line is a nested split's, whose box is inferred rather than
+    /// declared.
+    nested: bool,
+}
+
+impl Frame {
+    /// What the line's box belongs to, as a message names it.
+    fn whole(&self) -> &'static str {
+        match self.nested {
+            true => "nested split",
+            false => "glyph",
+        }
+    }
+}
+
 /// [`expand_compose`] in the parent's box, before an `origin` moves what it
 /// places and an `assume` what it reports; `scale` is at least 1.
 fn expand_line(
-    glyph_name: &str,
+    frame: &Frame,
     parent: Option<(u16, u16)>,
     scale: i32,
     compose: &GlyphCompose,
@@ -1512,15 +1694,30 @@ fn expand_line(
     let op = compose.op;
     let mut issues: Vec<(Severity, String)> = Vec::new();
     let mut refs: Vec<GlyphRef> = Vec::new();
-    let at = |msg: String| format!("glyph '{glyph_name}': `{}` {msg}", op.as_char());
+    let here = format!("{}: `{}`", frame.context, op.as_char());
+    let at = |msg: String| format!("{here} {msg}");
+    let whole = frame.whole();
 
-    let parts = compose.part_names().count();
-    if parts != op.arity() {
-        issues.push((
+    let parts = compose.slot_count();
+    // A nested split may also be one part: gaps on either side of a member
+    // shorter than the slot, which is how a part is padded across the axis
+    // without a glyph of its own to do it.
+    match frame.nested {
+        false if parts != op.arity() => issues.push((
             Severity::Error,
             at(format!("takes {} components, not {parts}", op.arity())),
-        ));
+        )),
+        true if !(1..=3).contains(&parts) => issues.push((
+            Severity::Error,
+            at(format!("takes 1 to 3 components, not {parts}")),
+        )),
+        _ => {}
     }
+    // A lone member is at both ends of its axis at once, so it claims neither.
+    let slot_direction = |slot| match parts {
+        1 if frame.nested => None,
+        _ => op.slot_direction(slot),
+    };
 
     let Some((parent_w, parent_h)) = parent else {
         issues.push((
@@ -1570,7 +1767,9 @@ fn expand_line(
     let mut slot = 0usize;
     // Where each component landed along the axis, for the clearance check
     // below. Collected on the way through because that walk is what knows it.
-    let mut placed_parts: Vec<(&str, i32)> = Vec::new();
+    let mut placed_parts: Vec<(String, i32)> = Vec::new();
+    // Each nested split's written token and its `nested_key`.
+    let mut nested_keys: Vec<(String, String)> = Vec::new();
     for item in &compose.items {
         let (name, raw_name) = match item {
             ComposeItem::Gap(gap) => {
@@ -1578,6 +1777,62 @@ fn expand_line(
                 continue;
             }
             ComposeItem::Part { name, raw_name } => (name, raw_name),
+            ComposeItem::Nested(members) => {
+                let (line, size) = nested_line(op, members, dims);
+                let inner = Frame {
+                    context: format!(
+                        "{here} nested split '{}'",
+                        ComposeItem::nested_token(members, false)
+                    ),
+                    nested: true,
+                };
+                // Laid out in a box of its own and moved into the slot, as the
+                // glyph it stands for would be. Its own clearances are not
+                // measured: see the module docs.
+                let (nested_refs, nested_issues) = expand_line(
+                    &inner,
+                    Some(size.box_),
+                    scale,
+                    &line,
+                    dims,
+                    // What a member could be is a question about the nested split's
+                    // box, which is only inferred from the members themselves.
+                    None,
+                    None,
+                );
+                issues.extend(nested_issues);
+                let placed = cursor * scale;
+                refs.extend(nested_refs.into_iter().map(|mut r| {
+                    let (c, w) = r.offset.unwrap_or((0, 0));
+                    let (dc, dr) = if op.horizontal() {
+                        (placed, 0)
+                    } else {
+                        (0, placed)
+                    };
+                    r.offset = Some((clamp_offset(c as i32 + dc), clamp_offset(w as i32 + dr)));
+                    r
+                }));
+                // Named as written in what the line says about it, and looked
+                // up under the key its ink is kept by.
+                let written = ComposeItem::nested_token(members, false);
+                nested_keys.push((written.clone(), nested_key(op, members)));
+                placed_parts.push((written, cursor));
+                slot += 1;
+                let (w, h) = size.box_;
+                let (along, across) = if op.horizontal() { (w, h) } else { (h, w) };
+                if size.complete && across != cross_extent {
+                    issues.push((
+                        Severity::Error,
+                        at(format!(
+                            "nested split '{}' adds up to {across} {}, not the {whole}'s {cross_extent}",
+                            ComposeItem::nested_token(members, false),
+                            if op.horizontal() { "tall" } else { "wide" },
+                        )),
+                    ));
+                }
+                cursor += along as i32;
+                continue;
+            }
         };
         // The size and the position a name states are claims the *author*
         // made, so they are read off the name as written: a component named
@@ -1590,10 +1845,12 @@ fn expand_line(
         let spec = VariantSpec::parse(raw_name.as_deref().unwrap_or(name));
         let unpicked = is_undecided(name);
         if unpicked {
-            let slot_size = if op.horizontal() {
-                format!("{axis_extent}x{cross_extent}")
-            } else {
-                format!("{cross_extent}x{axis_extent}")
+            // A nested split's box is inferred from its members, so it says nothing
+            // about what size one of them should be.
+            let slot_size = match (frame.nested, op.horizontal()) {
+                (true, _) => "WxH".to_string(),
+                (false, true) => format!("{axis_extent}x{cross_extent}"),
+                (false, false) => format!("{cross_extent}x{axis_extent}"),
             };
             // A family that draws nothing this slot could hold is not a
             // decision waiting to be made: whatever is picked, the line cannot
@@ -1620,7 +1877,7 @@ fn expand_line(
                 )),
             }
         }
-        if let Some(slot_dir) = op.slot_direction(slot)
+        if let Some(slot_dir) = slot_direction(slot)
             && let Some(dir) = spec.direction
             && dir != slot_dir
         {
@@ -1633,7 +1890,7 @@ fn expand_line(
                 )),
             ));
         }
-        placed_parts.push((name.as_str(), cursor));
+        placed_parts.push((name.clone(), cursor));
         let placed = cursor * scale;
         let (col, row) = if op.horizontal() {
             (placed, 0)
@@ -1697,7 +1954,7 @@ fn expand_line(
                     issues.push((
                         Severity::Error,
                         at(format!(
-                            "component '{name}' is {} {across}, not the glyph's {cross_extent}",
+                            "component '{name}' is {} {across}, not the {whole}'s {cross_extent}",
                             if op.horizontal() { "tall" } else { "wide" },
                         )),
                     ));
@@ -1715,8 +1972,17 @@ fn expand_line(
         && !unresolved
         && !issues.iter().any(|(s, _)| *s == Severity::Error)
     {
+        let placed_parts: Vec<(&str, i32)> = placed_parts
+            .iter()
+            .map(|(n, at)| (n.as_str(), *at))
+            .collect();
+        let ink = |name: &str| match nested_keys.iter().find(|(written, _)| written == name) {
+            Some((_, key)) => (rule.ink)(key),
+            None => (rule.ink)(name),
+        };
+        let rule = ClearanceRule { ink: &ink, ..*rule };
         issues.extend(
-            check_clearances(op, axis_extent, &placed_parts, rule)
+            check_clearances(op, axis_extent, &placed_parts, &rule)
                 .into_iter()
                 .map(|(severity, message)| (severity, at(message))),
         );
@@ -1771,6 +2037,16 @@ fn expand_enclosure(
                 number_before_part |= !offsets.is_empty();
                 names.push((name, raw_name.as_ref()));
             }
+            // Only a split's slot is one axis's share, which is what a nested split
+            // divides further; see the module docs.
+            ComposeItem::Nested(members) => issues.push((
+                Severity::Error,
+                format!(
+                    "writes the nested split '{}', but only a split takes one: an enclosure's parts \
+                     are one glyph each",
+                    ComposeItem::nested_token(members, false),
+                ),
+            )),
         }
     }
     if number_before_part {
@@ -2373,7 +2649,7 @@ fn report_clearances(
     out
 }
 
-/// The axes an operator's clearances are grouped by, each with the word a
+/// The axes an operator's clearances are nested by, each with the word a
 /// message names it by. A one-dimensional line has one and names it nothing —
 /// there is no other axis for it to be told apart from.
 fn axes_of(op: IdcOp) -> Vec<(bool, &'static str)> {
@@ -2393,3 +2669,7 @@ fn clamp_offset(v: i32) -> i16 {
 #[cfg(test)]
 #[path = "compose_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+#[path = "compose_nested_tests.rs"]
+mod nested_tests;

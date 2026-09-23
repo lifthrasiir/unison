@@ -342,6 +342,58 @@ pub enum ComposeItem {
         name: String,
         raw_name: Option<String>,
     },
+    /// `1|foo|1|bar|1`: a slot of a split filled by a *nested* split across it,
+    /// its gaps and components written in one token with `|` between them.
+    /// Only [`Gap`](Self::Gap)s and [`Part`](Self::Part)s are inside — a
+    /// nested split does not nest again — and only a split writes one; what it
+    /// stands for is [`crate::compose`]'s (`# Nested splits`).
+    Nested(Vec<ComposeItem>),
+}
+
+impl ComposeItem {
+    /// The components this item names, in written order: itself, or a
+    /// nested split's members.
+    pub fn parts(&self) -> impl Iterator<Item = (&String, Option<&String>)> {
+        let items: &[ComposeItem] = match self {
+            Self::Nested(items) => items,
+            one => std::slice::from_ref(one),
+        };
+        items.iter().filter_map(|it| match it {
+            Self::Part { name, raw_name } => Some((name, raw_name.as_ref())),
+            _ => None,
+        })
+    }
+
+    /// [`Self::parts`], mutably.
+    pub fn parts_mut(&mut self) -> impl Iterator<Item = (&mut String, &mut Option<String>)> {
+        let items: &mut [ComposeItem] = match self {
+            Self::Nested(items) => items,
+            one => std::slice::from_mut(one),
+        };
+        items.iter_mut().filter_map(|it| match it {
+            Self::Part { name, raw_name } => Some((name, raw_name)),
+            _ => None,
+        })
+    }
+
+    /// The token a nested split is written as, with each component under its
+    /// resolved `name` when `resolved` and as written otherwise. The resolved
+    /// form doubles as the name the nested split's ink is kept under
+    /// ([`crate::compose::nested_key`]).
+    pub fn nested_token(items: &[ComposeItem], resolved: bool) -> String {
+        items
+            .iter()
+            .map(|it| match it {
+                Self::Gap(g) => g.to_string(),
+                Self::Part { name, raw_name } => match resolved {
+                    true => name.clone(),
+                    false => raw_name.clone().unwrap_or_else(|| name.clone()),
+                },
+                Self::Nested(inner) => Self::nested_token(inner, resolved),
+            })
+            .collect::<Vec<_>>()
+            .join("|")
+    }
 }
 
 /// An IDC line: the glyph's box split along one axis (`⿰⿱⿲⿳`) or filled by one
@@ -362,12 +414,26 @@ pub struct GlyphCompose {
 }
 
 impl GlyphCompose {
-    /// The component names, in written order.
+    /// The component names, in written order, a nested split's members included.
     pub fn part_names(&self) -> impl Iterator<Item = &str> {
-        self.items.iter().filter_map(|it| match it {
-            ComposeItem::Part { name, .. } => Some(name.as_str()),
-            ComposeItem::Gap(_) => None,
-        })
+        self.items
+            .iter()
+            .flat_map(|it| it.parts().map(|(name, _)| name.as_str()))
+    }
+
+    /// Every component, a nested split's members included, for a pass that rewrites
+    /// names: `(name, raw_name)`.
+    pub fn parts_mut(&mut self) -> impl Iterator<Item = (&mut String, &mut Option<String>)> {
+        self.items.iter_mut().flat_map(ComposeItem::parts_mut)
+    }
+
+    /// How many slots the line fills: its components, a nested split counting once.
+    /// What an operator's arity is checked against.
+    pub fn slot_count(&self) -> usize {
+        self.items
+            .iter()
+            .filter(|it| !matches!(it, ComposeItem::Gap(_)))
+            .count()
     }
 
     /// Format as an IDC line, the way [`GlyphRef::format_line`] formats a `ref`.
@@ -386,6 +452,7 @@ impl GlyphCompose {
                 ComposeItem::Part { name, raw_name } => {
                     quote_token(raw_name.as_deref().unwrap_or(name))
                 }
+                ComposeItem::Nested(items) => quote_token(&ComposeItem::nested_token(items, false)),
             });
         }
         format!(

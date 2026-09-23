@@ -228,9 +228,31 @@ pub(crate) fn classify_line(line: &str) -> Vec<LineField> {
         // An IDC line's tokens are components (glyph names) and gaps (numbers),
         // told apart exactly as the parser tells them apart, so a rename of a
         // component reaches the line that uses it.
+        //
+        // A nested split (`1|foo|1|bar|1`) is one token holding several of them, and
+        // each member is a field of its own, split where the parser splits it.
+        // A backquoted token has no columns to split by and stays whole.
         kw if crate::compose::IdcOp::from_token(kw).is_some() => {
             for span in rest {
-                if !span.value.is_empty() && span.value.parse::<i16>().is_err() {
+                let quoted = span.raw_end - span.raw_start != span.value.chars().count();
+                if !quoted
+                    && span.value.chars().count() > 1
+                    && crate::pattern::has_top_level_pipe(&span.value)
+                {
+                    let mut col = span.raw_start;
+                    for piece in crate::pattern::split_top_level_pipes(&span.value) {
+                        let len = piece.chars().count();
+                        if !piece.is_empty() && piece.parse::<i16>().is_err() {
+                            fields.push(LineField {
+                                role: FieldRole::GlyphRef,
+                                token: piece.to_string(),
+                                col_start: leading + col,
+                                col_end: leading + col + len,
+                            });
+                        }
+                        col += len + 1;
+                    }
+                } else if !span.value.is_empty() && span.value.parse::<i16>().is_err() {
                     fields.push(field(FieldRole::GlyphRef, leading, span));
                 }
             }
@@ -493,6 +515,30 @@ mod tests {
                 (FieldRole::GlyphRef, "a:4x16".to_string()),
                 (FieldRole::GlyphRef, "b:12x16".to_string()),
             ]
+        );
+    }
+
+    /// Each member of a nested split is a field of its own, at its own columns, so
+    /// a link or a rename lands on the one name and not the whole token; a
+    /// `|` inside parentheses is a pattern's, and the token stays whole.
+    #[test]
+    fn a_nested_split_on_an_idc_line_is_one_field_per_member() {
+        let line = "  \u{2FF0} 2 1|a:4x3|1|b:4x2|1 (c|d):4x8";
+        let fields: Vec<(String, String)> = classify_line(line)
+            .into_iter()
+            .map(|f| {
+                let cols: String = line
+                    .chars()
+                    .skip(f.col_start)
+                    .take(f.col_end - f.col_start)
+                    .collect();
+                (f.token, cols)
+            })
+            .collect();
+        let pair = |a: &str| (a.to_string(), a.to_string());
+        assert_eq!(
+            fields,
+            vec![pair("a:4x3"), pair("b:4x2"), pair("(c|d):4x8")]
         );
     }
 

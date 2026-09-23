@@ -428,13 +428,35 @@ fn rewrite_as_at_names(
 /// stopping at the caret would narrow the listing by nothing and then splice a
 /// candidate in front of what is already spelled out. Only a caret in
 /// whitespace (or at the end of the line) is on no word and stays put.
+///
+/// On an IDC line a nested split's member is a word of its own, as it is to
+/// `detect_context`: a `|` outside parentheses ends it.
 fn word_end(line: &str, col: usize) -> usize {
     let chars: Vec<char> = line.chars().collect();
     if col > chars.len() {
         return col;
     }
+    let idc = crate::compose::IdcOp::of_line(line.split_whitespace()).is_some();
+    let mut start = col;
+    while start > 0 && !chars[start - 1].is_whitespace() {
+        start -= 1;
+    }
+    let mut depth = 0i32;
+    for &c in &chars[start..col] {
+        match c {
+            '(' => depth += 1,
+            ')' => depth -= 1,
+            _ => {}
+        }
+    }
     let mut end = col;
     while end < chars.len() && !chars[end].is_whitespace() {
+        match chars[end] {
+            '|' if idc && depth == 0 => break,
+            '(' => depth += 1,
+            ')' => depth -= 1,
+            _ => {}
+        }
         end += 1;
     }
     end
@@ -535,11 +557,25 @@ fn idc_op_and_slot(line: &str, col: usize) -> Option<(IdcOp, usize)> {
     let (op, assumed) = IdcOp::of_line(spans.iter().map(|s| s.value.as_str()))?;
     let rest = &spans[1 + usize::from(assumed)..];
     let adj_col = col.saturating_sub(leading);
+    // A nested split's member fills a share of its box, which is inferred
+    // from the members themselves, so neither the slot's direction nor its
+    // size says anything about it.
+    if rest
+        .iter()
+        .any(|s| s.raw_start <= adj_col && adj_col <= s.raw_end && is_idc_nested(s))
+    {
+        return None;
+    }
     let before = rest
         .iter()
         .filter(|s| s.raw_end < adj_col && is_idc_part(s))
         .count();
     Some((op, before))
+}
+
+/// Whether an IDC line's token is a nested split, told apart as the parser tells it.
+fn is_idc_nested(span: &TokenSpan) -> bool {
+    span.value.chars().count() > 1 && crate::pattern::has_top_level_pipe(&span.value)
 }
 
 fn is_idc_part(span: &TokenSpan) -> bool {
@@ -652,6 +688,17 @@ fn detect_context(line: &str, col: usize) -> Option<CompletionContext> {
     let mut word_start = col;
     while word_start > 0 && !chars[word_start - 1].is_whitespace() {
         word_start -= 1;
+    }
+    // Inside a nested split on an IDC line the word is the member being
+    // written: the members are split where the parser splits them.
+    if crate::compose::IdcOp::of_line(line.split_whitespace()).is_some() {
+        let written: String = chars[word_start..col].iter().collect();
+        let pieces = crate::pattern::split_top_level_pipes(&written);
+        if let Some(last) = pieces.last()
+            && pieces.len() > 1
+        {
+            word_start = col - last.chars().count();
+        }
     }
     let word: String = chars[word_start..col].iter().collect();
     let slot = idc_slot(line, col);

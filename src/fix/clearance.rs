@@ -335,6 +335,79 @@ fn is_plain_name(name: &str) -> bool {
     !crate::pattern::is_name_pattern(name) && !name.contains('$')
 }
 
+/// One name per slot of a split, in written order: a component's own, and for
+/// a nested split the name its glyph is kept under
+/// ([`crate::compose::nested_key`]).
+///
+/// # A nested split is one part
+///
+/// This pass lays out the line it is given and goes no further in: a nested
+/// split is a part of that line like any other, drawn by a glyph the
+/// inventory makes up for it ([`Inventory::register_nested`]), but a part with
+/// exactly one candidate — itself, as written. Its members and its own gaps are
+/// the inside of that glyph, so choosing among their variants or moving them is
+/// optimizing a different line; a layout that wants that is written as a glyph
+/// of its own. What moves is what is around it: the gaps beside it and the
+/// other slots' variants.
+fn slot_names(compose: &GlyphCompose) -> Vec<String> {
+    compose
+        .items
+        .iter()
+        .filter_map(|item| match item {
+            ComposeItem::Gap(_) => None,
+            ComposeItem::Part { name, .. } => Some(name.clone()),
+            ComposeItem::Nested(members) => Some(crate::compose::nested_key(compose.op, members)),
+        })
+        .collect()
+}
+
+/// Whether a slot name is a nested split's ([`slot_names`]). No glyph can be
+/// named like one: it opens with an operator and has a `|` outside
+/// parentheses, which in a block's name makes it a list.
+fn is_nested_slot(name: &str) -> bool {
+    name.chars()
+        .next()
+        .is_some_and(|c| crate::compose::IdcOp::from_char(c).is_some())
+        && crate::pattern::has_top_level_pipe(name)
+}
+
+/// The members of a nested slot's name, gaps left out.
+fn nested_members(name: &str) -> impl Iterator<Item = &str> {
+    let mut chars = name.chars();
+    chars.next();
+    crate::pattern::split_top_level_pipes(chars.as_str())
+        .into_iter()
+        .filter(|piece| piece.parse::<i16>().is_err())
+}
+
+/// [`is_plain_name`] for a slot: a nested split is plain when its members are.
+fn is_plain_slot(name: &str) -> bool {
+    match is_nested_slot(name) {
+        true => nested_members(name).all(is_plain_name),
+        false => is_plain_name(name),
+    }
+}
+
+/// [`crate::compose::is_undecided`] for a slot: a nested split is undecided
+/// when a member is, and then it has no layout this pass could supply — the
+/// member is the inside of it.
+fn is_undecided_slot(name: &str) -> bool {
+    match is_nested_slot(name) {
+        true => nested_members(name).any(crate::compose::is_undecided),
+        false => crate::compose::is_undecided(name),
+    }
+}
+
+/// [`crate::compose::direction_rank`] for a slot. A nested split claims no
+/// direction: it has no name, and its members' names are about the slots of
+/// its own line.
+fn slot_rank(name: &str, slot: Option<Direction>) -> u8 {
+    match is_nested_slot(name) {
+        true => 1,
+        false => crate::compose::direction_rank(name, slot),
+    }
+}
+
 /// Every glyph a `glyph` block declares, as a part this pass could measure.
 ///
 /// A block whose name is a pattern draws all of them with the one grid it
@@ -518,9 +591,14 @@ impl<'a> Inventory<'a> {
             return;
         }
 
+        let nested = self.register_nested(docs, name_parts);
         // Every plain block's body, for the walk to follow refs through.
-        let mut bodies: HashMap<String, &'a crate::document::GlyphBody> = HashMap::default();
+        let mut bodies: HashMap<String, &crate::document::GlyphBody> = HashMap::default();
         let mut roots: Vec<String> = Vec::new();
+        for (key, body) in &nested {
+            bodies.insert(key.clone(), body);
+            roots.push(key.clone());
+        }
         for doc in docs {
             for item in &doc.items {
                 let DocumentItem::Glyph { name, body } = item else {
@@ -569,6 +647,80 @@ impl<'a> Inventory<'a> {
                 },
             );
         }
+    }
+
+    /// Make up the glyph every nested split of a split line stands for, as
+    /// the build does (`expand.rs::ink_profiles`): its box inferred from its
+    /// members, recorded here under its slot name ([`slot_names`]), and its
+    /// body ([`crate::compose::nested_body`]) handed back for
+    /// [`Self::flatten_composites`] to flatten. A pattern block's lines are
+    /// expanded first, since each glyph of it has a nested split of its own;
+    /// one whose box cannot be inferred is not recorded and so cannot be
+    /// measured, exactly as the check cannot measure it.
+    fn register_nested(
+        &mut self,
+        docs: &[&Document],
+        name_parts: &crate::document::NamePartsMap,
+    ) -> Vec<(String, GlyphBody)> {
+        let mut out: Vec<(String, GlyphBody)> = Vec::new();
+        let mut seen: crate::hash::HashSet<String> = crate::hash::HashSet::default();
+        for doc in docs {
+            for item in &doc.items {
+                let DocumentItem::Glyph { name, body } = item else {
+                    continue;
+                };
+                for compose in &body.compose {
+                    if compose.op.enclosing()
+                        || !compose
+                            .items
+                            .iter()
+                            .any(|it| matches!(it, ComposeItem::Nested(_)))
+                    {
+                        continue;
+                    }
+                    let glyph = name.display();
+                    let lines: Vec<GlyphCompose> = match is_plain_name(&glyph) {
+                        true => vec![compose.clone()],
+                        false => expand_block_lines(name_parts, &glyph, body.scale, compose)
+                            .into_iter()
+                            .flatten()
+                            .map(|(_, line)| line)
+                            .collect(),
+                    };
+                    for line in &lines {
+                        for it in &line.items {
+                            let ComposeItem::Nested(members) = it else {
+                                continue;
+                            };
+                            let key = crate::compose::nested_key(line.op, members);
+                            if !seen.insert(key.clone()) {
+                                continue;
+                            }
+                            let dims = |n: &str| match self.boxes.get(&self.canonical(n)) {
+                                None => crate::compose::PartDims::Unknown,
+                                Some(None) => crate::compose::PartDims::Undeclared,
+                                Some(Some((w, h))) => crate::compose::PartDims::Size(*w, *h),
+                            };
+                            let Some(mut body) =
+                                crate::compose::nested_body(line.op, members, &dims)
+                            else {
+                                continue;
+                            };
+                            // The walk expects canonical names, as the
+                            // expansion's bodies carry.
+                            for r in &mut body.refs {
+                                r.name = self.canonical(&r.name);
+                            }
+                            out.push((key, body));
+                        }
+                    }
+                }
+            }
+        }
+        for (key, body) in &out {
+            self.boxes.insert(key.clone(), body.extent);
+        }
+        out
     }
 
     fn canonical(&self, name: &str) -> String {
@@ -632,8 +784,13 @@ impl<'a> Inventory<'a> {
         if across != cross {
             return SlotState::Faulty;
         }
-        let spec = VariantSpec::parse(&canonical);
-        if spec.size.is_some_and(|size| size != (w, h)) {
+        // A nested split's name states no size; its box is what its members
+        // add up to ([`Inventory::register_nested`]).
+        if !is_nested_slot(&canonical)
+            && VariantSpec::parse(&canonical)
+                .size
+                .is_some_and(|size| size != (w, h))
+        {
             return SlotState::Faulty;
         }
         // Past here the name is sound and the *drawing* is what is missing:
@@ -649,7 +806,7 @@ impl<'a> Inventory<'a> {
             frontier,
             // Ranked on the name as *written*, which is the name the check
             // reads when it decides whether to warn.
-            rank: crate::compose::direction_rank(written, slot),
+            rank: slot_rank(written, slot),
             name: written.to_string(),
             extent: along as i32,
             profile,
@@ -672,6 +829,11 @@ impl<'a> Inventory<'a> {
         horizontal: bool,
     ) -> Vec<Candidate> {
         let mut out = Vec::new();
+        // One part with one candidate; see [`slot_names`].
+        if is_nested_slot(current) {
+            out.extend(self.candidate(current, slot, cross, horizontal));
+            return out;
+        }
         let canonical = self.canonical(current);
         let base = if crate::compose::is_undecided(&canonical) {
             canonical.clone()
@@ -807,11 +969,12 @@ fn optimize_line(
         true => (parent.0 as i32, parent.1),
         false => (parent.1 as i32, parent.0),
     };
-    let written: Vec<&str> = compose.part_names().collect();
+    let written = slot_names(compose);
+    let written: Vec<&str> = written.iter().map(String::as_str).collect();
     if written.len() != op.arity() {
         return None;
     }
-    if written.iter().any(|n| !is_plain_name(n)) {
+    if written.iter().any(|n| !is_plain_slot(n)) {
         return None;
     }
     // An undecided component has not chosen a width, so the line has no layout
@@ -820,7 +983,7 @@ fn optimize_line(
     // exactly what the TODO asks for, so the line is optimized *towards* a
     // decision rather than away from a warning. Its `before` is `None`, and the
     // "must lower the score" rule below has nothing to compare against.
-    let undecided = written.iter().any(|n| crate::compose::is_undecided(n));
+    let undecided = written.iter().any(|n| is_undecided_slot(n));
 
     // A component the check *errors* on — a name nothing defines, a box that
     // does not fill the slot — is the other way a line comes to have no layout
@@ -843,8 +1006,9 @@ fn optimize_line(
                     SlotState::Ok(candidate) => parts.push(*candidate),
                     SlotState::Faulty => {
                         faulty = true;
-                        asked[slot] = VariantSpec::parse(name)
-                            .size
+                        asked[slot] = (!is_nested_slot(name))
+                            .then(|| VariantSpec::parse(name).size)
+                            .flatten()
                             .map(|(w, h)| i32::from(if horizontal { w } else { h }));
                     }
                     // Nothing this pass could measure after a choice either.
@@ -1123,11 +1287,40 @@ fn expand_members(
     compose: &GlyphCompose,
     arity: usize,
 ) -> Option<Vec<ExpandedMember>> {
-    let mut substituted = compose.clone();
-    for item in &mut substituted.items {
-        if let ComposeItem::Part { name, .. } = item {
-            *name = crate::document::substitute_name_parts(name, name_parts);
+    let expanded = expand_block_lines(name_parts, glyph, scale, compose)?;
+
+    let mut out: Vec<ExpandedMember> = Vec::new();
+    for (member_name, line) in &expanded {
+        let Some((_, band)) = audit.ideal_clearance.for_glyph(member_name) else {
+            continue;
+        };
+        let (lo, hi) = band.range(line.op.enclosing());
+        let names = slot_names(line);
+        if names.len() != arity {
+            continue;
         }
+        out.push(ExpandedMember {
+            lo: lo as i32,
+            hi: hi as i32,
+            contact: audit.max_contact_run.for_glyph(member_name).map(|(_, m)| m),
+            names,
+        });
+    }
+    Some(out)
+}
+
+/// Every glyph a pattern block's IDC line stands for and the line it writes,
+/// expanded exactly as the build expands it; `None` when the block does not
+/// expand at all.
+fn expand_block_lines(
+    name_parts: &crate::document::NamePartsMap,
+    glyph: &str,
+    scale: u8,
+    compose: &GlyphCompose,
+) -> Option<Vec<(String, GlyphCompose)>> {
+    let mut substituted = compose.clone();
+    for (name, _) in substituted.parts_mut() {
+        *name = crate::document::substitute_name_parts(name, name_parts);
     }
     let body = GlyphBody {
         compose: vec![substituted],
@@ -1139,35 +1332,17 @@ fn expand_members(
         &body,
     )
     .ok()?;
-
-    let mut out: Vec<ExpandedMember> = Vec::new();
-    for item in &expanded {
-        let DocumentItem::Glyph { name, body } = item else {
-            continue;
-        };
-        let member_name = name.display();
-        let Some((_, band)) = audit.ideal_clearance.for_glyph(&member_name) else {
-            continue;
-        };
-        let Some(line) = body.compose.first() else {
-            continue;
-        };
-        let (lo, hi) = band.range(line.op.enclosing());
-        let names: Vec<String> = line.part_names().map(str::to_string).collect();
-        if names.len() != arity {
-            continue;
-        }
-        out.push(ExpandedMember {
-            lo: lo as i32,
-            hi: hi as i32,
-            contact: audit
-                .max_contact_run
-                .for_glyph(&member_name)
-                .map(|(_, m)| m),
-            names,
-        });
-    }
-    Some(out)
+    Some(
+        expanded
+            .into_iter()
+            .filter_map(|item| match item {
+                DocumentItem::Glyph { name, mut body } if !body.compose.is_empty() => {
+                    Some((name.display(), body.compose.swap_remove(0)))
+                }
+                _ => None,
+            })
+            .collect(),
+    )
 }
 
 fn optimize_pattern_line(
@@ -1185,7 +1360,8 @@ fn optimize_pattern_line(
         true => (parent.0 as i32, parent.1),
         false => (parent.1 as i32, parent.0),
     };
-    let written: Vec<&str> = compose.part_names().collect();
+    let written = slot_names(compose);
+    let written: Vec<&str> = written.iter().map(String::as_str).collect();
     if written.len() != op.arity() {
         return None;
     }
@@ -1215,9 +1391,15 @@ fn optimize_pattern_line(
             // declares it, so this glyph has no part here — the same state a
             // name the check errors on leaves the slot in, and planned the same
             // way, since picking from the family is what the TODO asks for.
-            if crate::compose::is_undecided(n) {
+            if crate::compose::is_undecided(n) && !is_nested_slot(n) {
                 faulty = true;
                 parts.push(None);
+                continue;
+            }
+            // A nested split with an undecided member is the inside of it
+            // waiting on a decision, which no label of this line answers.
+            if is_undecided_slot(n) {
+                unmeasurable = true;
                 continue;
             }
             match inv.candidate_state(n, op.slot_direction(slot), cross_extent, horizontal) {
@@ -1283,7 +1465,7 @@ fn optimize_pattern_line(
     for item in &compose.items {
         match item {
             ComposeItem::Gap(gap) => pending += *gap as i32,
-            ComposeItem::Part { .. } => {
+            ComposeItem::Part { .. } | ComposeItem::Nested(_) => {
                 written_gaps.push(std::mem::take(&mut pending));
             }
         }
@@ -1519,11 +1701,15 @@ fn slot_choices(
         relabel: None,
         // Ranked on the name as *written*, which is the name the check reads
         // when it decides whether to warn.
-        rank: crate::compose::direction_rank(written, dir),
+        rank: slot_rank(written, dir),
         // A glyph the line as written errors on *at this slot* has no part
         // here to keep; one that errors at another slot keeps this one.
         parts: as_written.iter().map(|p| p[slot].clone()).collect(),
     }];
+    // A nested split is one part with one candidate; see [`slot_names`].
+    if is_nested_slot(written) {
+        return out;
+    }
     let Some(family) = slot_family(inv, members, written, slot) else {
         return out; // the family shares no label this slot could carry
     };
@@ -1826,7 +2012,7 @@ fn walk(compose: &GlyphCompose, parts: &[Candidate]) -> Vec<i32> {
     for item in &compose.items {
         match item {
             ComposeItem::Gap(gap) => at += *gap as i32,
-            ComposeItem::Part { .. } => {
+            ComposeItem::Part { .. } | ComposeItem::Nested(_) => {
                 out.push(at);
                 at += parts[out.len() - 1].extent;
             }
@@ -1871,6 +2057,20 @@ fn write_line(compose: &GlyphCompose, chosen: &[&Candidate], positions: &[i32]) 
         let gap = positions[i] - cursor;
         if gap != 0 {
             items.push(ComposeItem::Gap(i16::try_from(gap).ok()?));
+        }
+        // A nested split is written back exactly as it was: it is one part
+        // here, and its inside is not this line's to change.
+        if is_nested_slot(&part.name) {
+            items.push(compose.items.iter().find_map(|item| match item {
+                ComposeItem::Nested(members)
+                    if crate::compose::nested_key(compose.op, members) == part.name =>
+                {
+                    Some(item.clone())
+                }
+                _ => None,
+            })?);
+            cursor = positions[i] + part.extent;
+            continue;
         }
         // A component that did not change keeps how it was written, `@` form
         // and all; a new one is written out as the glyph it names.
@@ -2243,6 +2443,7 @@ fn optimize_enclosure_line(
                 offsets.push(*n as i32);
             }
             ComposeItem::Part { .. } => seen_parts += 1,
+            ComposeItem::Nested(_) => return None,
         }
     }
     if !matches!(offsets.len(), 0 | 2) {
@@ -2561,6 +2762,7 @@ fn optimize_pattern_enclosure_line(
                 offsets.push(*n as i32);
             }
             ComposeItem::Part { .. } => seen_parts += 1,
+            ComposeItem::Nested(_) => return None,
         }
     }
     if !matches!(offsets.len(), 0 | 2) {
@@ -2760,12 +2962,18 @@ fn relabelled_parts(
     let mut parts = compose
         .items
         .iter()
-        .filter(|i| matches!(i, ComposeItem::Part { .. }));
+        .filter(|i| !matches!(i, ComposeItem::Gap(_)));
     let mut out = Vec::with_capacity(relabel.len());
     for chosen in relabel {
         let part = parts.next()?;
-        let ComposeItem::Part { raw_name, .. } = part else {
-            return None;
+        let raw_name = match part {
+            ComposeItem::Part { raw_name, .. } => raw_name,
+            // Never relabelled; see [`slot_names`].
+            ComposeItem::Nested(_) if chosen.is_none() => {
+                out.push(part.clone());
+                continue;
+            }
+            _ => return None,
         };
         out.push(match chosen {
             // The block's own component, untouched: the `@` form and all.

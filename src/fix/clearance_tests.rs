@@ -215,6 +215,72 @@ fn an_assumed_line_is_left_alone() {
     assert!(plan(&assumed).is_empty());
 }
 
+/// [`TWO_PARTS`] with `a:4x4` written as a nested split of two halves that
+/// draw what it draws.
+fn two_parts_nested(line: &str) -> String {
+    TWO_PARTS.replace("\u{2FF0} a:4x4 b:4x4", line)
+        + "\nglyph h:4x2 4 2\n@@@@....\n@@@@....\nglyph h:3x2 3 2\n@@....\n@@....\n"
+}
+
+/// A nested split is one part of the line it is in: the gaps around it move
+/// exactly as around the glyph it stands for, and it is written back as it
+/// was. See `slot_names`.
+#[test]
+fn a_nested_split_is_laid_out_as_one_part() {
+    let fixes = plan(&two_parts_nested("\u{2FF0} h:4x2|h:4x2 b:4x4"));
+    assert_eq!(fixes.len(), 1, "{fixes:?}");
+    let fix = &fixes[0];
+    // The numbers of `a_line_that_warns_is_rewritten_by_its_gaps_alone`.
+    assert_eq!((fix.before, fix.after), (Some(4), 2));
+    assert_eq!(fix.new_line, "\u{2FF0} 1 h:4x2|h:4x2 -2 b:4x4");
+
+    // The same in a pattern block, where the gaps are the family's.
+    let family = two_parts_nested("\u{2FF0} h:4x2|h:4x2 b:4x4")
+        .replace("glyph test-x 8 4", "glyph test-(x|y) 8 4");
+    let fixes = plan(&family);
+    assert_eq!(fixes.len(), 1, "{fixes:?}");
+    assert_eq!(fixes[0].new_line, "\u{2FF0} 1 h:4x2|h:4x2 -2 b:4x4");
+}
+
+/// What is inside a nested split is not this line's to change: its members'
+/// variants are not searched (`h:3x2` above is never offered) and its own gaps
+/// do not move, even where that is all that would help. A line whose only
+/// findings are inside one is left alone.
+#[test]
+fn the_inside_of_a_nested_split_is_left_alone() {
+    // Everything outside is already in range, so there is nothing to plan,
+    // however far apart the members sit inside.
+    const INSIDE_ONLY: &str = "\
+audit ideal-clearance test-* 0 0
+
+glyph e:4x2 4 2
+@@@@@@@@
+........
+
+glyph f:4x4 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph test-y 8 4
+\u{2FF0} e:4x2|e:4x2 f:4x4
+";
+    let doc = parse_document_from_str(INSIDE_ONLY, "test.unf".into()).unwrap();
+    let docs = vec![&doc];
+    let name_parts = crate::document::collect_name_parts(&docs);
+    let expansion = crate::render::ttf_builder::expand_documents(&docs, &name_parts);
+    let chores: Vec<&str> = expansion
+        .diagnostics
+        .iter()
+        .filter(|d| d.severity == crate::issues::Severity::Chore)
+        .map(|d| d.message.as_str())
+        .collect();
+    // Nor does the check measure it, since nothing here would answer it.
+    assert!(chores.is_empty(), "{chores:?}");
+    assert!(plan(INSIDE_ONLY).is_empty());
+}
+
 #[test]
 fn a_line_inside_the_range_is_left_alone() {
     let wide = TWO_PARTS.replace("ideal-clearance test-* 0 1", "ideal-clearance test-* 0 3");

@@ -204,6 +204,36 @@ fn autocomplete_drops_variants_that_do_not_fit_the_slot() {
     assert_eq!(labels(&h), vec!["part:15x4"]);
 }
 
+/// A member of a nested split (`1|part|1`) is completed on its own: the prefix and
+/// the text replaced are that member's, and the rest of the nested split stays. Its
+/// box is a share of the nested split's, which the members themselves decide, so the
+/// slot's size does not filter it — a `4x10` is offered where a plain
+/// component of the same ⿰ would have to be 16 tall.
+#[test]
+fn autocomplete_completes_one_member_of_a_nested_split() {
+    let mut h = EditorHarness::new(
+        "glyph part:4x16 4 16\n\
+         glyph part:4x10 4 10\n\
+         glyph whole 15 16\n\
+         ⿰ 1|part:4x1|1 x",
+    );
+    // Caret at the end of `part:4x1`.
+    h.click_text(6, 12);
+    ctrl_j(&mut h);
+    let ac = h.state.autocomplete.as_ref().unwrap();
+    assert_eq!(ac.replace_start, 4);
+    let mut labels: Vec<&str> = ac.candidates.iter().map(|c| c.label.as_str()).collect();
+    labels.sort_unstable();
+    assert_eq!(labels, vec!["part:4x10", "part:4x16"]);
+
+    h.key(Key::Enter);
+    let text = h.text(6);
+    assert!(
+        text == "⿰ 1|part:4x10|1 x" || text == "⿰ 1|part:4x16|1 x",
+        "{text}"
+    );
+}
+
 /// Ctrl+J/Ctrl+K walk the open popup like Down/Up. The trigger itself is the
 /// first step down from a virtual item before the list, so the popup opens on
 /// item 0 and Ctrl+K there stays put rather than closing it — there is nothing

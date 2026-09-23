@@ -4,8 +4,8 @@
 use crate::hash::HashMap;
 
 use super::{
-    ComposeItem, Document, DocumentItem, GlyphBody, GlyphName, MAX_EXPANSION,
-    find_invalid_inline_ranges, parse_glyph_name, split_top_level_pipes,
+    Document, DocumentItem, GlyphBody, GlyphName, MAX_EXPANSION, find_invalid_inline_ranges,
+    parse_glyph_name, split_top_level_pipes,
 };
 use crate::pattern::{
     NamePartsMap, NamePattern, capture_groups, substitute_captures, substitute_name_parts,
@@ -181,13 +181,11 @@ pub fn expand_glyph_block(name: &GlyphName, body: &GlyphBody) -> Result<Vec<Docu
     let mut compose_patterns: Vec<Vec<NamePattern>> = Vec::new();
     for c in &body.compose {
         let mut patterns = Vec::new();
-        for item in &c.items {
-            if let ComposeItem::Part { name, .. } = item {
-                patterns.push(
-                    NamePattern::parse_segments(&substitute_captures(name, &captures))
-                        .map_err(|e| e.to_string())?,
-                );
-            }
+        for name in c.part_names() {
+            patterns.push(
+                NamePattern::parse_segments(&substitute_captures(name, &captures))
+                    .map_err(|e| e.to_string())?,
+            );
         }
         compose_patterns.push(patterns);
     }
@@ -213,10 +211,8 @@ pub fn expand_glyph_block(name: &GlyphName, body: &GlyphBody) -> Result<Vec<Docu
         }
         for (c, patterns) in expanded_body.compose.iter_mut().zip(&compose_patterns) {
             let mut patterns = patterns.iter();
-            for item in &mut c.items {
-                if let ComposeItem::Part { name, .. } = item {
-                    *name = patterns.next().expect("one pattern per part").get(i);
-                }
+            for (name, _) in c.parts_mut() {
+                *name = patterns.next().expect("one pattern per part").get(i);
             }
             c.comment = None;
         }
