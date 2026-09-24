@@ -578,7 +578,7 @@ glyph han-30458:15x16 15 16 // 𰑘
 ⿰ han-5fc4:7x16 1 han-7f8a:7x16 // ⿰忄羊
 
 glyph han-30459:15x16 15 16 // 𰑙
-⿲ han-5fc4:5x16 han-6587:7x16 han-5202:3x16 // ⿲忄文刂
+⿲ han-5fc4:5x16 han-6587-g:7x16 han-5202:3x16 // ⿲忄文刂
 
 // glyph han-3045a:15x16 15 16 // 𰑚
 // ⿰ han-5fc4 han-5b88 // ⿰忄守
@@ -846,7 +846,7 @@ glyph han-30521:15x16 15 16 // 𰔡
 ## 67.5
 
 glyph han-3055a:15x16 15 16 // 𰕚
-⿰ han-751f:7x16 1 han-6587:7x16 // ⿰生文
+⿰ han-751f:7x16 1 han-6587-g:7x16 // ⿰生文
 
 # CJK unified ideographs extension G: 斤 (69)
 

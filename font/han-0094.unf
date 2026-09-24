@@ -1031,8 +1031,11 @@ glyph han-739d:15x16 15 16 // 玝
 glyph han-739e:15x16 15 16 // 玞
 ⿰ han-248e9:5x16 1 han-592b:9x16 // ⿰𤣩夫
 
-glyph han-739f:15x16 15 16 // 玟
-⿰ han-248e9:5x16 1 han-6587:9x16 // ⿰𤣩文
+glyph han-739f-($han-regions):15x16 15 16 // 玟
+⿰ han-248e9:5x16 1 han-6587-($-1):9x16 // ⿰𤣩文
+glyph han-739f.0:* = han-739f-j:*
+glyph han-739f.1:* = han-739f-j:*
+glyph han-739f.2:* = han-739f-g:*
 
 glyph han-73a2:15x16 15 16 // 玢
 ⿰ han-248e9:7x16 1 han-5206:7x16 // ⿰𤣩分

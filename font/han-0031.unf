@@ -1277,9 +1277,9 @@ glyph han-575b:15x16 15 16 // 坛
 // glyph han-575c:15x16 15 16 // 坜
 // ⿰ han-571f han-5386 // ⿰土历
 
-glyph han-575f:15x16 15 16 // 坟
-⿰ han-571f:5x16-l 1 han-6587:9x16 // ⿰土文
-glyph han-575f.0:* = han-575f:*
+glyph han-575f-($han-regions):15x16 15 16 // 坟
+⿰ han-571f:5x16-l 1 han-6587-($-1):9x16 // ⿰土文
+glyph han-575f.0:* = han-575f-g:*
 
 // glyph han-5760:15x16 15 16 // 坠
 // ⿱ han-961f han-571f // ⿱队土

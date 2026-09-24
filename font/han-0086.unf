@@ -390,8 +390,9 @@ glyph han-7084-($han-regions):15x16 15 16 // 炄
 glyph han-7085:15x16 15 16 // 炅
 ⿱ han-65e5:15x5 1 han-706b:15x10 // ⿱日火
 
-glyph han-7086:15x16 15 16 // 炆
-⿰ han-706b:5x16-l 1 han-6587:9x16 // ⿰火文
+glyph han-7086-($han-regions):15x16 15 16 // 炆
+⿰ han-706b:5x16-l 1 han-6587-($-1):9x16 // ⿰火文
+glyph han-7086.0:* = han-7086-j:*
 
 // glyph han-7089:15x16 15 16 // 炉 ⿰火户(GHP) ⿰火戶(TK) ⿰火戸(J)
 // ⿰ han-706b han-6237 // ⿰火户

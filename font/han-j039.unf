@@ -633,10 +633,10 @@ glyph han-32887:15x16 15 16 // 𲢇
 ## 67.6
 
 glyph han-328f4:15x16 15 16 // 𲣴
-⿰ han-81e3:6x16 han-6587:9x16 // ⿰臣文
+⿰ han-81e3:6x16 han-6587-t:9x16 // ⿰臣文
 
 glyph han-328f5:15x16 15 16 // 𲣵
-⿰ han-6587:7x16 han-81e3:8x16 // ⿰文臣
+⿰ han-6587-t:7x16 han-81e3:8x16 // ⿰文臣
 
 ## 67.7
 
@@ -646,7 +646,7 @@ glyph han-328f5:15x16 15 16 // 𲣵
 ## 67.12
 
 glyph han-328fa:15x16 15 16 // 𲣺
-⿰ han-6587:7x16 han-7ca6:8x16 // ⿰文粦
+⿰ han-6587-g:7x16 han-7ca6:8x16 // ⿰文粦
 
 # CJK unified ideographs extension J: 斤 (69)
 
@@ -837,7 +837,7 @@ glyph han-32982:15x16 15 16 // 𲦂
 // ⿱ han-62cd han-6728 // ⿱拍木
 
 glyph han-32989:15x16 15 16 // 𲦉
-⿰ han-679c:7x16 1 han-6587:7x16 // ⿰果文
+⿰ han-679c:7x16 1 han-6587-g:7x16 // ⿰果文
 
 // glyph han-3298b:15x16 15 16 // 𲦋
 // ⿰ han-6728 han-80a5 // ⿰木肥

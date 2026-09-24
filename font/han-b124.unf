@@ -70,7 +70,7 @@ glyph han-2640a-($han-regions):15x16 15 16 // 𦐊
 // ⿱ han-7fbd-($-1) han-6587 // ⿱羽文
 
 glyph han-26411:15x16 15 16 // 𦐑
-⿰ han-6587:7x16 han-7fbd.1:8x16 // ⿰文羽
+⿰ han-6587.0:7x16 han-7fbd.1:8x16 // ⿰文羽
 
 glyph han-26414:15x16 15 16 // 𦐔
 ⿰ han-7fbd-t:9x16 1 han-6728:5x16 // ⿰羽木

@@ -2365,8 +2365,8 @@ ref han-544a:15x16
 // glyph han-5444:15x16 15 16 // 呄
 // ⿱ han-4e43 han-53e4 // ⿱乃古
 
-glyph han-5445:15x16 15 16 // 呅
-⿰ han-53e3:5x16 1 han-6587:9x16 // ⿰口文
+glyph han-5445-($han-regions):15x16 15 16 // 呅
+⿰ han-53e3:5x16 1 han-6587-($-1):9x16 // ⿰口文
 
 glyph han-5446:9x16 9 16 // 呆
 ⿱ 1|han-53e3:7x6|1 han-6728:9x10 // ⿱口木

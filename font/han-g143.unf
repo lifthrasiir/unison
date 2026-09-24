@@ -346,7 +346,7 @@ glyph han-30db7:15x16 15 16 // 𰶷
 // ⿱ han-4e4b han-8c9d // ⿱之貝
 
 glyph han-30db9:15x16 15 16 // 𰶹
-⿰ han-8c9d:6x16 han-6587:9x16 // ⿰貝文
+⿰ han-8c9d:6x16 han-6587-t:9x16 // ⿰貝文
 
 // glyph han-30dbb:15x16 15 16 // 𰶻
 // ⿲ han-8c9d han-5f13 han-4e28 // ⿲貝弓丨 <- ⿰貝引

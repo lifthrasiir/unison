@@ -341,7 +341,7 @@ glyph han-22663:15x16 15 16 // 𢙣
 // ⿲ han-5fc4 han-4e28 han-5725 // ⿲忄丨圥
 
 glyph han-2266a:15x16 15 16 // 𢙪
-⿲ -3 han-5fc4:5x16 han-6587:7x16 han-5bf8:6x16 // ⿲忄文寸
+⿲ -3 han-5fc4:5x16 han-6587.0:7x16 han-5bf8:6x16 // ⿲忄文寸
 
 // glyph han-2266b:15x16 15 16 // 𢙫
 // ⿰ han-5fc4 han-56e0 // ⿰忄因

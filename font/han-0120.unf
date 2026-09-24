@@ -217,8 +217,23 @@ glyph han-7d06.0:* = han-7d06-j:*
 // glyph han-7d0a:15x16 15 16 // 紊
 // ⿱ han-6587 han-7cf8 // ⿱文糸
 
-glyph han-7d0b-($han-regions):15x16 15 16 // 紋 ⿰糹文(GHTV) ⿰糸文(JKP)
-⿰ han-7cf9-($-1):5x16 1 han-6587:9x16 // ⿰糹文
+glyph han-7d0b.0:15x16 15 16 // 紋
+⿰ han-7cf9.z:5x16 1 han-6587.0:9x16 // ⿰糹文
+glyph han-7d0b.1:15x16 15 16 // 紋
+⿰ han-7cf9.z:5x16 1 han-6587.1:9x16 // ⿰糹文
+glyph han-7d0b.2:* = han-7d0b.0:*
+glyph han-7d0b.3:* = han-7d0b.1:*
+glyph han-7d0b.x:15x16 15 16 // 紋
+⿰ han-7cf9.x:5x16 1 han-6587.0:9x16 // ⿰糹文
+glyph han-7d0b.y:15x16 15 16 // 紋
+⿰ han-7cf9.y:5x16 1 han-6587.0:9x16 // ⿰糹文
+glyph han-7d0b.z:15x16 15 16 // 紋
+⿰ han-7cf9.x:5x16 1 han-6587.1:9x16 // ⿰糹文
+glyph han-7d0b-j:* = han-7d0b.0:*
+glyph han-7d0b-k:* = han-7d0b.1:*
+glyph han-7d0b-(g|h|t):* = han-7d0b.x:*
+glyph han-7d0b-p:* = han-7d0b.y:*
+glyph han-7d0b-v:* = han-7d0b.z:*
 
 // glyph han-7d0d:15x16 15 16 // 納 ⿰糹内(GV) ⿰糹內(HT) ⿰糸内(J) ⿰糸內(KP)
 // ⿰ han-7cf9 han-5185 // ⿰糹内
@@ -1069,7 +1084,7 @@ glyph han-7eb8:15x16 15 16 // 纸
 ⿰ han-7e9f:5x16 han-6c0f:10x16 // ⿰纟氏
 
 glyph han-7eb9:15x16 15 16 // 纹
-⿰ han-7e9f:5x16 1 han-6587:9x16 // ⿰纟文
+⿰ han-7e9f:5x16 1 han-6587-g:9x16 // ⿰纟文
 
 glyph han-7eba:15x16 15 16 // 纺
 ⿰ han-7e9f:5x16 1 han-65b9:9x16 // ⿰纟方

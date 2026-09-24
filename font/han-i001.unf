@@ -290,7 +290,7 @@ glyph han-2ec68:15x16 15 16 // 𮱨
 ## 57.7
 
 glyph han-2ec78:15x16 15 16 // 𮱸
-⿲ han-5f13:4x16 han-5f13:4x16 han-6587:7x16 // ⿲弓弓文
+⿲ han-5f13:4x16 han-5f13:4x16 han-6587-g:7x16 // ⿲弓弓文
 
 # CJK unified ideographs extension I: 彡 (59)
 
@@ -1153,4 +1153,4 @@ glyph han-2ee2c:15x16 15 16 // 𮸬
 ## 184.4
 
 glyph han-2ee3e:15x16 15 16 // 𮸾
-⿰ han-98e0-g:7x16 1 han-6587:7x16 // ⿰飠文
+⿰ han-98e0-g:7x16 1 han-6587-g:7x16 // ⿰飠文

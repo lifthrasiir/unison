@@ -112,7 +112,7 @@ glyph han-24746:15x16 15 16 // 𤝆
 // ⿰ han-72ad han-5346 // ⿰犭卆
 
 glyph han-2474b:15x16 15 16 // 𤝋
-⿰ han-72ad:6x16 han-6587:9x16 // ⿰犭文
+⿰ han-72ad:6x16 han-6587-v:9x16 // ⿰犭文
 
 glyph han-2474c:15x16 15 16 // 𤝌
 ⿰ han-72ad:6x16 1 han-5143:8x16 // ⿰犭元

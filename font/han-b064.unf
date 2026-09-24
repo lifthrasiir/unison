@@ -310,7 +310,7 @@ glyph han-22b28:15x16 15 16 // 𢬨
 ⿲ han-624c:3x16 han-6c35:3x16 han-5973:9x16 // ⿲扌氵女
 
 glyph han-22b2d:15x16 15 16 // 𢬭
-⿲ -1 han-624c:3x16 han-6587:7x16 han-5bf8:6x16 // ⿲扌文寸
+⿲ -1 han-624c:3x16 han-6587.0:7x16 han-5bf8:6x16 // ⿲扌文寸
 
 ## 64.7
 
@@ -384,7 +384,7 @@ glyph han-22b73:15x16 15 16 // 𢭳
 // ⿲ han-624c han-5fc4 han-592c // ⿲扌忄夬 <- ⿰扌快
 
 glyph han-22b77:15x16 15 16 // 𢭷
-⿲ han-624c:3x16 han-571f:3x16-l han-6587:9x16 // ⿲扌土文
+⿲ han-624c:3x16 han-571f:3x16-l han-6587-v:9x16 // ⿲扌土文
 
 glyph han-22b7b:15x16 15 16 // 𢭻
 ⿲ han-624c:3x16 han-53e3:4x16 1 han-6b20:7x16 // ⿲扌口欠

@@ -329,10 +329,14 @@ glyph han-6282.0:* = han-6282:*
 // glyph han-6284:15x16 15 16 // 抄
 // ⿰ han-624c han-5c11 // ⿰扌少
 
-glyph han-6286:15x16 15 16 // 抆
-⿰ han-624c:5x16 1 han-6587:9x16 // ⿰扌文
+glyph han-6286.0:15x16 15 16 // 抆
+⿰ han-624c:5x16 1 han-6587.1:9x16 // ⿰扌文
+glyph han-6286.1:15x16 15 16 // 抆
+⿰ han-624c:5x16 1 han-6587.0:9x16 // ⿰扌文
+glyph han-6286-(k|v):* = han-6286.0:*
+glyph han-6286-(g|h|t|j|p):* = han-6286.1:*
 
-glyph han-6287:15x16 15 16 // 抇 ⿰扌曰(GH) ⿰扌日(TKPV)
+glyph han-6287:15x16 15 16 // 抇
 ⿰ han-624c:5x16 1 han-65e5:9x16 // ⿰扌日
 
 glyph han-6288:15x16 15 16 // 抈
@@ -354,15 +358,21 @@ glyph han-628e.0:* = han-628e:*
 
 glyph han-628f:15x16 15 16 // 抏
 ⿰ han-624c:5x16 1 han-5143:9x16 // ⿰扌元
+glyph han-628f.0:* = han-628f:*
 
-glyph han-6290:15x16 15 16 // 抐 ⿰扌内(G) ⿰扌內(HTJKP)
+glyph han-6290.0:15x16 15 16 // 抐
+⿰ han-624c:3x16 1 han-5167:11x16 // ⿰扌內
+glyph han-6290.x:15x16 15 16 // 抐
 ⿰ han-624c:3x16 1 han-5185:11x16 // ⿰扌内
+glyph han-6290-(h|t|j|k|p):* = han-6290.0:*
+glyph han-6290-g:* = han-6290.x:*
 
 // glyph han-6293:15x16 15 16 // 抓
 // ⿰ han-624c han-722a // ⿰扌爪
 
 glyph han-6294:15x16 15 16 // 抔
 ⿰ han-624c:5x16 1 han-4e0d:9x16 // ⿰扌不
+glyph han-6294.0:* = han-6294:*
 
 glyph han-6297:15x16 15 16 // 抗
 ⿰ han-624c:5x16 1 han-4ea2:9x16 // ⿰扌亢

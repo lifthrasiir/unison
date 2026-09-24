@@ -704,7 +704,7 @@ glyph han-9b6e.0:* = han-9b6e-j:*
 // ⿱ han-9b5a han-65e5 // ⿱魚日
 
 glyph han-9b70:15x16 15 16 // 魰
-⿰ han-9b5a:7x16 1 han-6587:7x16 // ⿰魚文
+⿰ han-9b5a:7x16 1 han-6587.0:7x16 // ⿰魚文
 
 // glyph han-9b72:15x16 15 16 // 魲 ⿰魚户(GP) ⿰魚戶(TJ)
 // ⿰ han-9b5a han-6237 // ⿰魚户

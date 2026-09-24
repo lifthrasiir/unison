@@ -609,7 +609,7 @@ glyph han-273ba:15x16 15 16 // 𧎺
 // ⿱ han-8279 han-45b5 // ⿱艹䖵
 
 glyph han-273ce:15x16 15 16 // 𧏎
-⿲ -2 han-866b:5x16 han-6587:7x16 han-866b:5x16 // ⿲虫文虫
+⿲ -2 han-866b:5x16 han-6587.0:7x16 han-866b:5x16 // ⿲虫文虫
 
 // glyph han-273cf:15x16 15 16 // 𧏏
 // ⿰ han-866b han-25950 // ⿰虫𥥐

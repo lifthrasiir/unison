@@ -215,7 +215,7 @@ glyph han-2d898:15x16 15 16 // 𭢘
 // ⿱ han-6b63 han-6587 // ⿱正文
 
 glyph han-2d917:15x16 15 16 // 𭤗
-⿰ han-6587:9x16 han-6b63:6x16 // ⿰文正
+⿰ han-6587-j:9x16 han-6b63:6x16 // ⿰文正
 
 // glyph han-2d918:15x16 15 16 // 𭤘
 // ⿱ han-6587 han-65e6 // ⿱文旦
@@ -451,7 +451,7 @@ glyph han-2d9b1:15x16 15 16 // 𭦱
 // ⿰ han-661f han-5185 // ⿰星内
 
 glyph han-2d9b8:15x16 15 16 // 𭦸
-⿲ han-65e5:3x16 1 han-767d:4x16 han-6587:7x16 // ⿲日白文
+⿲ han-65e5:3x16 1 han-767d:4x16 han-6587-j:7x16 // ⿲日白文
 
 // glyph han-2d9c0:15x16 15 16 // 𭧀
 // ⿳ han-2053f han-7f52 han-65e5 // ⿳𠔿罒日

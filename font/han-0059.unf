@@ -493,8 +493,12 @@ glyph han-5fdb:15x16 15 16 // 忛
 // glyph han-5fde:15x16 15 16 // 忞
 // ⿱ han-6587 han-5fc3 // ⿱文心
 
-glyph han-5fdf:15x16 15 16 // 忟
-⿰ han-5fc4:5x16 1 han-6587:9x16 // ⿰忄文
+glyph han-5fdf.0:15x16 15 16 // 忟
+⿰ han-5fc4:5x16 1 han-6587.1:9x16 // ⿰忄文
+glyph han-5fdf.1:15x16 15 16 // 忟
+⿰ han-5fc4:5x16 1 han-6587.0:9x16 // ⿰忄文
+glyph han-5fdf-k:* = han-5fdf.0:*
+glyph han-5fdf-(g|h|t|j|p):* = han-5fdf.1:*
 
 glyph han-5fe0:15x16 15 16 // 忠
 ⿱ han-4e2d:15x9 1 han-5fc3:15x6 // ⿱中心

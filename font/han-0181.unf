@@ -1133,8 +1133,13 @@ glyph han-99b9:15x16 15 16 // 馹
 // glyph han-99bb:15x16 15 16 // 馻
 // ⿰ han-99ac han-5141 // ⿰馬允
 
-glyph han-99bc:15x16 15 16 // 馼
-⿰ han-99ac:7x16 1 han-6587:7x16 // ⿰馬文
+glyph han-99bc.0:15x16 15 16 // 馼
+⿰ han-99ac:7x16 1 han-6587.1:7x16 // ⿰馬文
+glyph han-99bc.1:* = han-99bc.0:*
+glyph han-99bc.2:15x16 15 16 // 馼
+⿰ han-99ac:7x16 1 han-6587.0:7x16 // ⿰馬文
+glyph han-99bc-(j|k):* = han-99bc.0:*
+glyph han-99bc-(g|h|t|p):* = han-99bc.1:*
 
 // glyph han-99bd:15x16 15 16 // 馽
 // ⿱ han-99ac han-4e2d // ⿱馬中

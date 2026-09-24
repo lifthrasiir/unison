@@ -471,7 +471,7 @@ glyph han-202f4:15x16 15 16 // 𠋴
 // ⿺ han-4f86 han-5df4 // ⿺來巴
 
 glyph han-20312:15x16 15 16 // 𠌒
-⿲ han-4ebb:3x16 han-866b:5x16 han-6587:7x16 // ⿲亻虫文
+⿲ han-4ebb:3x16 han-866b:5x16 han-6587-t:7x16 // ⿲亻虫文
 
 // glyph han-20313:15x16 15 16 // 𠌓
 // ⿱ han-201a2 han-8349 // ⿱𠆢草

@@ -83,7 +83,7 @@ glyph han-37b4:15x16 15 16 // 㞴
 // ⿱ han-5c71 han-6587 // ⿱山文
 
 glyph han-37b6:15x16 15 16 // 㞶
-⿰ han-5c71:5x16 1 han-6587:9x16 // ⿰山文
+⿰ han-5c71:5x16-l 1 han-6587.0:9x16 // ⿰山文
 
 glyph han-37b8:15x16 15 16 // 㞸
 ⿱ han-5c71:15x7 1 han-4e0d:15x8 // ⿱山不
