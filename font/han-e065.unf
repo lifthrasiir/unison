@@ -522,8 +522,8 @@ glyph han-2c178:15x16 15 16 // 𬅸
 
 ## 82.4
 
-// glyph han-2c1bd:15x16 15 16 // 𬆽
-// ⿺ han-6bdb han-4e91 // ⿺毛云
+glyph han-2c1bd:15x16 15 16 // 𬆽
+⿺ han-6bdb:15x16.10x14 han-4e91:10x12 5 0 // ⿺毛云
 
 ## 82.5
 
@@ -954,6 +954,11 @@ glyph han-2c30c:15x16 15 16 // 𬌌
 
 glyph han-2c31a:15x16 15 16 // 𬌚
 ⿰ han-725c:6x16 han-5927:9x16 // ⿰牜大
+
+## 93.4
+
+// glyph han-2c31c:15x16 15 16 // 𬌜
+// ⿰ han-725c han-5c11 // ⿰牜少
 
 ## 93.6
 

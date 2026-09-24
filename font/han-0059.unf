@@ -830,6 +830,9 @@ glyph han-608e.2:15x16 15 16 // 悎
 glyph han-608e-(h|j):* = han-608e.0:*
 glyph han-608e-(g|t|k):* = han-608e.2:*
 
+// glyph han-608f:15x16 15 16 // 悏
+// ⿰ han-5fc4 han-593e // ⿰忄夾
+
 // glyph han-6090:15x16 15 16 // 悐
 // ⿱ han-72c4 han-5fc3 // ⿱狄心
 

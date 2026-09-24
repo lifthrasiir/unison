@@ -496,6 +496,9 @@ glyph han-2d384:15x16 15 16 // 𭎄
 // glyph han-2d386:15x16 15 16 // 𭎆
 // ⿳ han-4e00 han-53b8 han-571f // ⿳一厸土
 
+// glyph han-2d387:15x16 15 16 // 𭎇
+// ⿱ han-5c11 han-2123d // ⿱少𡈽
+
 glyph han-2d38a:15x16 15 16 // 𭎊
 ⿱ han-767d:15x11 han-571f:15x5 // ⿱白土
 
@@ -539,8 +542,8 @@ glyph han-2d39b-($han-regions):15x16 15 16 // 𭎛
 // glyph han-2d39d:15x16 15 16 // 𭎝
 // ⿰ han-571f han-541e // ⿰土吞
 
-// glyph han-2d39e:15x16 15 16 // 𭎞
-// ⿰ han-571f han-8c46 // ⿰土豆
+glyph han-2d39e:15x16 15 16 // 𭎞
+⿰ han-571f:5x16-l 1 han-8c46:9x16 // ⿰土豆
 
 // glyph han-2d39f:15x16 15 16 // 𭎟
 // ⿰ han-571f han-5426 // ⿰土否
@@ -732,6 +735,11 @@ glyph han-2d457:15x16 15 16 // 𭑗
 
 // glyph han-2d459:15x16 15 16 // 𭑙
 // ⿱ han-5929 han-9580 // ⿱天門
+
+## 37.10
+
+// glyph han-2d45d:15x16 15 16 // 𭑝
+// ⿱ han-593e han-572d // ⿱夾圭
 
 # CJK unified ideographs extension F: 女 (38)
 

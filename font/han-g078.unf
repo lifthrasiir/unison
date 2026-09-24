@@ -815,6 +815,11 @@ glyph han-308a8:15x16 15 16 // 𰢨
 
 # CJK unified ideographs extension G: 生 (100)
 
+## 100.4
+
+// glyph han-308ab:15x16 15 16 // 𰢫
+// ⿱ han-5c11 han-751f // ⿱少生
+
 ## 100.6
 
 glyph han-308ad:15x16 15 16 // 𰢭

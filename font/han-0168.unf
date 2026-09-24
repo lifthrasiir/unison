@@ -388,6 +388,9 @@ glyph han-95cf:15x16 15 16 // 闏
 // glyph han-95d6:15x16 15 16 // 闖
 // ⿵ han-9580 han-99ac // ⿵門馬
 
+// glyph han-95d8:15x16 15 16 // 闘
+// ⿵ han-9580 han-2d530 // ⿵門𭔰
+
 ## 169.11
 
 // glyph han-95da:15x16 15 16 // 闚
@@ -854,6 +857,9 @@ glyph han-9658.0:* = han-9658:*
 
 // glyph han-965b:15x16 15 16 // 陛
 // ⿰ han-961d han-5752 // ⿰阝坒
+
+// glyph han-965c:15x16 15 16 // 陜
+// ⿰ han-961d han-593e // ⿰阝夾
 
 glyph han-9660:15x16 15 16 // 陠
 ⿰ han-961d:5x16-l 1 han-752b:9x16 // ⿰阝甫

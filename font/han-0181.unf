@@ -162,8 +162,12 @@ glyph han-982b:15x16 15 16 // 頫
 // glyph han-9825:15x16 15 16 // 頥
 // ⿲ han-4e28 han-81e3 han-9801 // ⿲丨臣頁
 
-// glyph han-982d:15x16 15 16 // 頭
-// ⿰ han-8c46 han-9801 // ⿰豆頁
+glyph han-982d:15x16 15 16 // 頭
+⿰ han-8c46:9x16 1 han-9801:5x16 // ⿰豆頁
+glyph han-982d.0:* = han-982d:*
+
+// glyph han-9830:15x16 15 16 // 頰
+// ⿰ han-593e han-9801 // ⿰夾頁
 
 // glyph han-9833:15x16 15 16 // 頳
 // ⿰ han-8d64 han-9801 // ⿰赤頁

@@ -1146,11 +1146,19 @@ glyph han-8fcb-(h|t):* = han-8fcb.x:*
 glyph han-8fcc-($han-regions):15x16 15 16 // 迌
 ⿺ han-8fb6-($-1):15x16.11x14 han-6708:9x13 5 0 // ⿺辶月
 
-// glyph han-8fcf:15x16 15 16 // 迏
-// ⿺ han-8fb6 han-592a // ⿺辶太
+glyph han-8fcf:15x16 15 16 // 迏
+⿺ han-8fb6.0:15x16.11x14 han-592a:11x14 4 0 // ⿺辶太
 
-// glyph han-8fd0-($han-regions):15x16 15 16 // 运
-// ⿺ han-8fb6-($-1) han-4e91 // ⿺辶云
+glyph han-8fd0.0:15x16 15 16 // 运
+⿺ han-8fb6.0:15x16.11x14 han-4e91:10x12 4 1 // ⿺辶云
+glyph han-8fd0.1:* = han-8fd0.0:*
+glyph han-8fd0.2:15x16 15 16 // 运
+⿺ han-8fb6.1:15x16.11x14 han-4e91:10x12 4 1 // ⿺辶云
+glyph han-8fd0.x:15x16 15 16 // 运
+⿺ han-8fb6.4:15x16.11x14 han-4e91:10x12 4 1 // ⿺辶云
+glyph han-8fd0-(j|p):* = han-8fd0.0:*
+glyph han-8fd0-(g|k):* = han-8fd0.2:*
+glyph han-8fd0-(h|t):* = han-8fd0.x:*
 
 // glyph han-8fd1:15x16 15 16 // 近
 // ⿺ han-8fb6 han-65a4 // ⿺辶斤
@@ -1172,8 +1180,8 @@ glyph han-8fd5-(h|t):* = han-8fd5.x:*
 glyph han-8fd6-($han-regions):15x16 15 16 // 迖
 ⿺ han-8fb6-($-1):15x16.11x14 han-72ac:11x14 4 0 // ⿺辶犬
 
-// glyph han-8fd7:15x16 15 16 // 迗
-// ⿺ han-8fb6 han-5929 // ⿺辶天
+glyph han-8fd7:15x16 15 16 // 迗
+⿺ han-8fb6.0:15x16.11x14 han-5929:11x14 4 0 // ⿺辶天
 
 // glyph han-8fd8-($han-regions):15x16 15 16 // 还
 // ⿺ han-8fb6-($-1) han-4e0d // ⿺辶不
@@ -1774,8 +1782,8 @@ glyph han-90cd:15x16 15 16 // 郍
 glyph han-90d2:15x16 15 16 // 郒
 ⿰ han-826f:7x16 han-9091:8x16 // ⿰良邑
 
-// glyph han-90d6:15x16 15 16 // 郖
-// ⿰ han-8c46 han-961d // ⿰豆阝
+glyph han-90d6:15x16 15 16 // 郖
+⿰ han-8c46:9x16 1 han-961d:5x16-r // ⿰豆阝
 
 glyph han-90d8.0:15x16 15 16 // 郘
 ⿰ han-5415.x:10x16 1 han-961d:4x16-r // ⿰吕阝
@@ -1799,6 +1807,9 @@ glyph han-90dc-(g|t|k|p):* = han-90dc.x:*
 
 glyph han-90de:15x16 15 16 // 郞
 ⿰ han-826f:9x16 1 han-961d:5x16-r // ⿰良阝
+
+// glyph han-90df:15x16 15 16 // 郟
+// ⿰ han-593e han-961d // ⿰夾阝
 
 glyph han-90e2.0:15x16 15 16 // 郢
 ⿰ han-5448.1:11x16 han-961d:4x16-r // ⿰呈阝

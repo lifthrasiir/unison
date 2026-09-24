@@ -534,6 +534,9 @@ glyph han-86f8.3:* = han-86f8.1:*
 glyph han-86f8-(g|h|t):* = han-86f8.0:*
 glyph han-86f8-(j|k|p):* = han-86f8.1:*
 
+// glyph han-86fa:15x16 15 16 // 蛺
+// ⿰ han-866b han-593e // ⿰虫夾
+
 glyph han-86fc:15x16 15 16 // 蛼
 ⿰ han-866b:5x16 1 han-8eca:9x16 // ⿰虫車
 
@@ -1220,11 +1223,16 @@ glyph han-88c7:15x16 15 16 // 裇
 
 ## 145.7
 
-// glyph han-88cb:15x16 15 16 // 裋
-// ⿰ han-8864 han-8c46 // ⿰衤豆
+glyph han-88cb:15x16 15 16 // 裋
+⿰ han-8864:5x16 1 han-8c46:9x16 // ⿰衤豆
+glyph han-88cb.0:* = han-88cb:*
+
+// glyph han-88cc:15x16 15 16 // 裌
+// ⿰ han-8864 han-593e // ⿰衤夾
 
 glyph han-88cd:15x16 15 16 // 裍
 ⿰ han-8864:5x16 1 han-56f0:9x16 // ⿰衤困
+glyph han-88cd.0:* = han-88cd:*
 
 glyph han-88ce.0:15x16 15 16 // 裎
 ⿰ han-8864:5x16 1 han-5448.1:9x16 // ⿰衤呈
@@ -1238,6 +1246,7 @@ glyph han-88ce-p:* = han-88ce.y:*
 
 glyph han-88d1:15x16 15 16 // 裑
 ⿰ han-8864:5x16 1 han-8eab:9x16 // ⿰衤身
+glyph han-88d1.0:* = han-88d1:*
 
 // glyph han-88da:15x16 15 16 // 裚
 // ⿱ han-6298 han-8863 // ⿱折衣

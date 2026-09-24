@@ -108,8 +108,8 @@ glyph han-2dbd8:15x16 15 16 // 𭯘
 
 ## 82.9
 
-// glyph han-2dbde:15x16 15 16 // 𭯞
-// ⿺ han-6bdb han-54c1 // ⿺毛品
+glyph han-2dbde:15x16 15 16 // 𭯞
+⿺ han-6bdb:15x16.10x14 han-54c1:9x13 6 0 // ⿺毛品
 
 ## 82.12
 
@@ -418,8 +418,8 @@ glyph han-2dd21:15x16 15 16 // 𭴡
 
 ## 86.7
 
-// glyph han-2dd27:15x16 15 16 // 𭴧
-// ⿰ han-706b han-8c46 // ⿰火豆
+glyph han-2dd27:15x16 15 16 // 𭴧
+⿰ han-706b:5x16-l 1 han-8c46:9x16 // ⿰火豆
 
 // glyph han-2dd28:15x16 15 16 // 𭴨
 // ⿰ han-706b han-514b // ⿰火克
@@ -793,6 +793,9 @@ glyph han-2de4a:15x16 15 16 // 𭹊
 
 // glyph han-2de4d:15x16 15 16 // 𭹍
 // ⿰ han-248e9 han-8d64 // ⿰𤣩赤
+
+// glyph han-2de4e:15x16 15 16 // 𭹎
+// ⿱ han-593e han-7389 // ⿱夾玉
 
 // glyph han-2de4f:15x16 15 16 // 𭹏
 // ⿰ han-248e9 han-91c6 // ⿰𤣩釆

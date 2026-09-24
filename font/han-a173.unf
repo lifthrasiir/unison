@@ -154,6 +154,9 @@ glyph han-4a52:15x16 15 16 // 䩒
 
 ## 177.4
 
+// glyph han-4a56:15x16 15 16 // 䩖
+// ⿰ han-9769 han-5c11 // ⿰革少
+
 glyph han-4a57:15x16 15 16 // 䩗
 ⿰ han-9769:7x16 1 han-6708:7x16 // ⿰革月
 
@@ -175,6 +178,9 @@ glyph han-4a5e:15x16 15 16 // 䩞
 ⿰ han-9769:7x16 1 han-5360:7x16 // ⿰革占
 
 ## 177.7
+
+// glyph han-4a61:15x16 15 16 // 䩡
+// ⿰ han-9769 han-593e // ⿰革夾
 
 glyph han-4a62:15x16 15 16 // 䩢
 ⿲ han-9769:5x16 han-624c:3x16 han-65a4:7x16 // ⿲革扌斤
@@ -444,6 +450,9 @@ glyph han-4b03:15x16 15 16 // 䬃
 
 // glyph han-4b09:15x16 15 16 // 䬉
 // ⿺ han-98a8 han-8d64 // ⿺風赤
+
+// glyph han-4b0a:15x16 15 16 // 䬊
+// ⿺ han-98a8 han-593e // ⿺風夾
 
 ## 182.8
 
@@ -991,6 +1000,9 @@ glyph han-4cb3:15x16 15 16 // 䲳
 
 glyph han-4cb4:15x16 15 16 // 䲴
 ⿰ han-706b:5x16 1 han-9ce5:9x16 // ⿰火鳥
+
+// glyph han-4cb5:15x16 15 16 // 䲵
+// ⿱ han-5c11 han-9ce5 // ⿱少鳥
 
 // glyph han-4cb6:15x16 15 16 // 䲶
 // ⿱ han-5143 han-9ce5 // ⿱元鳥

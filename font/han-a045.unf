@@ -338,6 +338,9 @@ glyph han-3832-($han-regions):15x16 15 16 // 㠲
 glyph han-3838:15x16 15 16 // 㠸
 ⿰ han-5dfe:5x16 1 han-592b:9x16 // ⿰巾夫
 
+// glyph han-383a:15x16 15 16 // 㠺
+// ⿰ han-5dfe han-5c11 // ⿰巾少
+
 glyph han-383c:15x16 15 16 // 㠼
 ⿰ han-5dfe:9x16 han-65a4:6x16 // ⿰巾斤
 
@@ -785,8 +788,11 @@ glyph han-392c:15x16 15 16 // 㤬
 // glyph han-392e:15x16 15 16 // 㤮
 // ⿱ han-72c2 han-5fc3 // ⿱狂心
 
-// glyph han-3931:15x16 15 16 // 㤱
-// ⿰ han-5fc4 han-8c46 // ⿰忄豆
+glyph han-3931:15x16 15 16 // 㤱
+⿰ han-5fc4:5x16 1 han-8c46:9x16 // ⿰忄豆
+
+// glyph han-3932:15x16 15 16 // 㤲
+// ⿱ han-593e han-5fc3 // ⿱夾心
 
 // glyph han-3933:15x16 15 16 // 㤳
 // ⿰ han-5fc4 han-5426 // ⿰忄否

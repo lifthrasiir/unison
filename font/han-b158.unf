@@ -2,17 +2,23 @@
 
 ## 158.-2
 
-// glyph han-28210:15x16 15 16 // 𨈐
-// ㇯身𠄠
+glyph han-28210:15x16 15 16 // 𨈐
+ref han-8eab:15x16
+ref 7x4 4 5 negated
 
 ## 158.-1
 
-// glyph han-28211:15x16 15 16 // 𨈑
-// ㇯身㇒
+glyph han-28211:15x16 15 16 // 𨈑
+ref han-8eab:15x16
+ref 2x6 12 6 negated
+ref 9x3 2 12 negated
+ref 4x1 2 15 negated
 
 ## 158.2
 
-glyph han-28212:15x16 15 16 // 𨈒
+glyph han-28212-g:15x16 15 16 // 𨈒
+⿰ han-8eab.x:7x16 2 han-535c:5x16 // ⿰身卜
+glyph han-28212-v:15x16 15 16 // 𨈒
 ⿰ han-8eab:9x16 1 han-535c:5x16 // ⿰身卜
 
 ## 158.3
@@ -23,7 +29,9 @@ glyph han-28212:15x16 15 16 // 𨈒
 // glyph han-28214:15x16 15 16 // 𨈔
 // ⿰ han-8eab han-51e1 // ⿰身凡
 
-glyph han-28215:15x16 15 16 // 𨈕
+glyph han-28215-g:15x16 15 16 // 𨈕
+⿰ han-8eab.x:7x16 1 han-961d:7x16-r // ⿰身阝
+glyph han-28215-(t|j):15x16 15 16 // 𨈕
 ⿰ han-8eab:9x16 1 han-961d:5x16-r // ⿰身阝
 
 // glyph han-28216:15x16 15 16 // 𨈖
@@ -34,7 +42,12 @@ glyph han-28215:15x16 15 16 // 𨈕
 
 ## 158.4
 
-glyph han-2821a-($han-regions):15x16 15 16 // 𨈚
+// glyph han-28218:15x16 15 16 // 𨈘
+// ⿰ han-8eab han-5c11 // ⿰身少
+
+glyph han-2821a-(g|p):15x16 15 16 // 𨈚
+⿰ han-8eab.x:7x16 1 han-6bd4-($-1):7x16 // ⿰身比
+glyph han-2821a-(h|t|j):15x16 15 16 // 𨈚
 ⿰ han-8eab:9x16 han-6bd4-($-1):6x16 // ⿰身比
 
 // glyph han-2821c:15x16 15 16 // 𨈜
@@ -46,7 +59,9 @@ glyph han-2821a-($han-regions):15x16 15 16 // 𨈚
 // glyph han-28220-($han-regions):15x16 15 16 // 𨈠
 // ⿰ han-8eab han-723b-($-1) // ⿰身爻
 
-glyph han-28222:15x16 15 16 // 𨈢
+glyph han-28222-g:15x16 15 16 // 𨈢
+⿰ han-8eab.x:7x16 1 han-4ea2:7x16 // ⿰身亢
+glyph han-28222-(t|j):15x16 15 16 // 𨈢
 ⿰ han-8eab:9x16 1 han-4ea2:5x16 // ⿰身亢
 
 glyph han-28224:15x16 15 16 // 𨈤
@@ -70,7 +85,7 @@ glyph han-28224:15x16 15 16 // 𨈤
 // ⿰ han-8eab han-7533 // ⿰身申
 
 glyph han-28230:15x16 15 16 // 𨈰
-⿰ han-8eab:9x16 1 han-53e4:5x16 // ⿰身古
+assume ⿰ han-8eab:9x16 -1 han-53e4:7x16 // ⿰身古
 
 glyph han-28231:15x16 15 16 // 𨈱
 ⿰ han-8eab:9x16 1 han-65e6:5x16 // ⿰身旦
@@ -114,7 +129,9 @@ glyph han-28231:15x16 15 16 // 𨈱
 
 ## 158.8
 
-glyph han-28254:15x16 15 16 // 𨉔
+glyph han-28254-g:15x16 15 16 // 𨉔
+⿰ han-8eab.x:7x16 1 han-5353:7x16 // ⿰身卓
+glyph han-28254-(t|j):15x16 15 16 // 𨉔
 ⿰ han-8eab:9x16 1 han-5353:5x16 // ⿰身卓
 
 // glyph han-28256:15x16 15 16 // 𨉖

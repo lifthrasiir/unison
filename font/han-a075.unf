@@ -255,8 +255,11 @@ glyph han-3c2a:15x16 15 16 // 㰪
 
 ## 76.7
 
-// glyph han-3c2f:15x16 15 16 // 㰯
-// ⿰ han-8c46 han-6b20 // ⿰豆欠
+glyph han-3c2f:15x16 15 16 // 㰯
+⿰ han-8c46:9x16 1 han-6b20:5x16 // ⿰豆欠
+
+// glyph han-3c30:15x16 15 16 // 㰰
+// ⿰ han-593e han-6b20 // ⿰夾欠
 
 ## 76.8
 
@@ -557,6 +560,9 @@ glyph han-3d25-(j|p|v):15x16 15 16 // 㴥
 
 glyph han-3d38:15x16 15 16 // 㴸
 ⿰ han-6c35:3x16 1 han-9583:11x16 // ⿰氵閃
+
+// glyph han-3d3b:15x16 15 16 // 㴻
+// ⿰ han-6c35 han-2d530 // ⿰氵𭔰
 
 ## 85.11
 

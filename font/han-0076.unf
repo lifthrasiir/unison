@@ -857,6 +857,9 @@ glyph han-6b64-($han-regions):15x16 15 16 // 此
 glyph han-6b68:15x16 15 16 // 歨
 ⿱ han-6b62:15x7 han-9fb0:15x9 // ⿱止龰
 
+// glyph han-6b69:15x16 15 16 // 歩
+// ⿱ han-6b62 han-5c11 // ⿱止少
+
 ## 77.5
 
 glyph han-6b6a:15x16 15 16 // 歪
@@ -1211,6 +1214,9 @@ ref 13x2-ys1 1 9
 
 glyph han-6bde-($han-regions):15x16 15 16 // 毞
 ⿱ han-6bd4-($-1):15x7 han-6bdb:15x9 // ⿱比毛
+
+// glyph han-6bdf:15x16 15 16 // 毟
+// ⿱ han-5c11 han-6bdb // ⿱少毛
 
 ## 82.5
 

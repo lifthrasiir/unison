@@ -22,8 +22,8 @@ glyph han-27bab:15x16 15 16 // 𧮫
 
 ## 151.4
 
-// glyph han-27bde:15x16 15 16 // 𧯞
-// ⿰ han-8c46 han-65a4 // ⿰豆斤
+glyph han-27bde:15x16 15 16 // 𧯞
+⿰ han-8c46:9x16 han-65a4:6x16 // ⿰豆斤
 
 // glyph han-27bdf:15x16 15 16 // 𧯟
 // ⿱ han-592b han-8c46 // ⿱夫豆
@@ -51,8 +51,8 @@ glyph han-27bab:15x16 15 16 // 𧮫
 
 ## 151.8
 
-// glyph han-27bef:15x16 15 16 // 𧯯
-// ⿰ han-8c46 han-5176 // ⿰豆其
+glyph han-27bef:15x16 15 16 // 𧯯
+⿰ han-8c46:9x16 han-5176:6x16 // ⿰豆其
 
 // glyph han-27bf2:15x16 15 16 // 𧯲
 // ⿰ han-8c46 han-4f86 // ⿰豆來

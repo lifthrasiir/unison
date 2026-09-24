@@ -75,6 +75,9 @@ glyph han-323c8:15x16 15 16 // 𲏈
 // glyph han-323cb:15x16 15 16 // 𲏋
 // ⿱ han-592b han-4e59 // ⿱夫乙
 
+// glyph han-323cd:15x16 15 16 // 𲏍
+// ⿱ han-5c11 han-4e59 // ⿱少乙
+
 // glyph han-323cf:15x16 15 16 // 𲏏
 // ⿱ han-4ec7 han-4e59 // ⿱仇乙
 
@@ -853,6 +856,9 @@ glyph han-32514:15x16 15 16 // 𲔔
 // ⿰ han-53e3 han-8ab2-($-1) // ⿰口課
 
 ## 30.16
+
+// glyph han-325ea:15x16 15 16 // 𲗪
+// ⿰ han-53e3 han-982d // ⿰口頭
 
 // glyph han-325f3:15x16 15 16 // 𲗳
 // ⿱ han-96d4 han-53e3 // ⿱雔口

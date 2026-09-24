@@ -443,6 +443,11 @@ glyph han-7fd7-($han-regions):15x16 15 16 // 翗
 // glyph han-7fd9-($han-regions):15x16 15 16 // 翙
 // ⿰ han-5c81 han-7fbd-($-1) // ⿰岁羽
 
+## 124.7
+
+// glyph han-7fdc-($han-regions):15x16 15 16 // 翜
+// ⿱ han-7fbd-($-1) han-593e // ⿱羽夾
+
 ## 124.8
 
 // glyph han-7fdf-($han-regions):15x16 15 16 // 翟
@@ -1203,6 +1208,9 @@ glyph han-8055-(g|t|k|p):* = han-8055.1:*
 // glyph han-8056:15x16 15 16 // 聖
 // ⿱ han-2653b han-738b // ⿱𦔻王
 
+// glyph han-8057:15x16 15 16 // 聗
+// ⿰ han-8033 han-593e // ⿰耳夾
+
 ## 128.8
 
 glyph han-8059-(g|t|p):15x16 15 16 // 聙
@@ -1729,6 +1737,9 @@ glyph han-811b:15x16 15 16 // 脛
 ⿰ han-6708:5x16-l 1 han-5de0:9x16 // ⿰月巠
 glyph han-811b.0:* = han-811b:*
 
+// glyph han-8125:15x16 15 16 // 脥
+// ⿰ han-6708 han-593e // ⿰月夾
+
 glyph han-8127:15x16 15 16 // 脧
 ⿰ han-6708:8x16 han-590b:7x16 // ⿰月夋
 glyph han-8127.0:* = han-8127:*
@@ -1747,8 +1758,9 @@ glyph han-812f:15x16 15 16 // 脯
 ⿰ han-6708:5x16-l 1 han-752b:9x16 // ⿰月甫
 glyph han-812f.0:* = han-812f:*
 
-// glyph han-8130:15x16 15 16 // 脰
-// ⿰ han-6708 han-8c46 // ⿰月豆
+glyph han-8130:15x16 15 16 // 脰
+⿰ han-6708:5x16-l 1 han-8c46:9x16 // ⿰月豆
+glyph han-8130.0:* = han-8130:*
 
 // glyph han-8134:15x16 15 16 // 脴
 // ⿰ han-6708 han-5426 // ⿰月否

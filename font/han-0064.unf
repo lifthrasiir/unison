@@ -319,6 +319,9 @@ glyph han-6282.0:* = han-6282:*
 // glyph han-6283-($han-regions):15x16 15 16 // 抃
 // ⿰ han-624c han-535e-($-1) // ⿰扌卞
 
+// glyph han-6284:15x16 15 16 // 抄
+// ⿰ han-624c han-5c11 // ⿰扌少
+
 glyph han-6286:15x16 15 16 // 抆
 ⿰ han-624c:5x16 1 han-6587:9x16 // ⿰扌文
 
@@ -667,6 +670,9 @@ glyph han-6338:15x16 15 16 // 挸
 glyph han-6339:15x16 15 16 // 挹
 ⿰ han-624c:5x16 han-9091:10x16 // ⿰扌邑
 glyph han-6339.0:* = han-6339:*
+
+// glyph han-633e:15x16 15 16 // 挾
+// ⿰ han-624c han-593e // ⿰扌夾
 
 glyph han-6341-(g|t|k|p|v):15x16 15 16 // 捁
 ⿰ han-624c:5x16 han-544a:10x16 // ⿰扌告

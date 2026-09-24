@@ -156,11 +156,20 @@ glyph han-21b5b:15x16 15 16 // 𡭛
 
 ## 42.4
 
+// glyph han-21b5d:15x16 15 16 // 𡭝
+// ⿱ han-5c11 han-5c0f // ⿱少小
+
 glyph han-21b5e:15x16 15 16 // 𡭞
 ⿱ han-5c0f:15x7 1 han-706b:15x8 // ⿱小火
 
+// glyph han-21b5f:15x16 15 16 // 𡭟
+// ⿱ han-5c11 han-5927 // ⿱少大
+
 glyph han-21b62:15x16 15 16 // 𡭢
 ⿱ han-5c0f:15x7 han-6728:15x9 // ⿱小木
+
+// glyph han-21b63:15x16 15 16 // 𡭣
+// ⿱ han-21b54 han-5c11 // ⿱𡭔少
 
 glyph han-21b64:15x16 15 16 // 𡭤
 ⿱ han-5c0f:15x7 han-738b:15x9 // ⿱小王
@@ -193,12 +202,27 @@ glyph han-21b68:15x16 15 16 // 𡭨
 // glyph han-21b70:15x16 15 16 // 𡭰
 // ⿰ han-5146 han-5c0f // ⿰兆小
 
+// glyph han-21b71:15x16 15 16 // 𡭱
+// ⿰ han-51fa han-5c11 // ⿰出少
+
+// glyph han-21b72:15x16 15 16 // 𡭲
+// ⿱ han-5c11 han-51fa // ⿱少出
+
 ## 42.7
 
 // glyph han-21b74:15x16 15 16 // 𡭴
 // ⿳ han-21b54 han-65e5 han-5c0f // ⿳𡭔日小 <- ⿱𡭔⿱日小
 
+// glyph han-21b78:15x16 15 16 // 𡭸
+// ⿱ han-5c11 han-540c // ⿱少同
+
+// glyph han-21b7a:15x16 15 16 // 𡭺
+// ⿱ han-5c11 han-800c // ⿱少而
+
 ## 42.8
+
+// glyph han-21b7d:15x16 15 16 // 𡭽
+// ⿳ han-5c11 han-65e5 han-5c0f // ⿳少日小 <- ⿱少⿱日小
 
 // glyph han-21b81:15x16 15 16 // 𡮁
 // ⿱ han-21b54 han-2233f // ⿱𡭔𢌿
@@ -225,6 +249,9 @@ glyph han-21b82:15x16 15 16 // 𡮂
 // ⿱ han-5c0f han-62d9 // ⿱小拙
 
 ## 42.10
+
+// glyph han-21b98:15x16 15 16 // 𡮘
+// ⿰ han-67d0 han-5c11 // ⿰某少
 
 // glyph han-21b9a:15x16 15 16 // 𡮚
 // ⿳ han-5c0f han-53b6 han-5468 // ⿳小厶周

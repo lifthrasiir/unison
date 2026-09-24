@@ -934,8 +934,8 @@ glyph han-2edca:15x16 15 16 // 𮷊
 
 ## 151.2
 
-// glyph han-2edcb:15x16 15 16 // 𮷋
-// ⿰ han-8c46 han-529b // ⿰豆力
+glyph han-2edcb:15x16 15 16 // 𮷋
+⿰ han-8c46:9x16 han-529b:6x16 // ⿰豆力
 
 # CJK unified ideographs extension I: 足 (157)
 

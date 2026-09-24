@@ -284,6 +284,9 @@ glyph han-72f8:15x16 15 16 // 狸
 ⿰ han-72ad:6x16 han-91cc:9x16 // ⿰犭里
 glyph han-72f8.0:* = han-72f8:*
 
+// glyph han-72f9:15x16 15 16 // 狹
+// ⿰ han-72ad han-593e // ⿰犭夾
+
 glyph han-72fa:15x16 15 16 // 狺
 ⿰ han-72ad:6x16 han-8a00.0:9x16 // ⿰犭言
 glyph han-72fa.0:* = han-72fa:*

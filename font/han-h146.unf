@@ -296,19 +296,19 @@ glyph han-32116:15x16 15 16 // 𲄖
 
 ## 158.4
 
-// glyph han-32118:15x16 15 16 // 𲄘
-// ⿰ han-8eab han-738b // ⿰身王
+glyph han-32118:15x16 15 16 // 𲄘
+⿰ han-8eab.x:7x16 1 han-738b:7x16 // ⿰身王
 
 // glyph han-32119:15x16 15 16 // 𲄙
 // ⿰ han-8eab han-5386 // ⿰身历
 
 glyph han-3211b:15x16 15 16 // 𲄛
-⿰ han-8eab:9x16 1 han-5df4:5x16 // ⿰身巴
+⿰ han-8eab.x:7x16 1 han-5df4:7x16 // ⿰身巴
 
 ## 158.5
 
 glyph han-3211c:15x16 15 16 // 𲄜
-⿰ han-8eab:9x16 han-767d:6x16 // ⿰身白
+⿰ han-8eab.x:7x16 1 han-767d:7x16 // ⿰身白
 
 ## 158.6
 
@@ -329,7 +329,7 @@ glyph han-3211c:15x16 15 16 // 𲄜
 // ⿰ han-8eab han-4f86 // ⿰身來
 
 glyph han-32124:15x16 15 16 // 𲄤
-⿰ han-8eab:9x16 1 han-9752-g:5x16 // ⿰身青
+⿰ han-8eab.x:7x16 1 han-9752-g:7x16 // ⿰身青
 
 // glyph han-32126:15x16 15 16 // 𲄦
 // ⿰ han-8eab han-96b9 // ⿰身隹

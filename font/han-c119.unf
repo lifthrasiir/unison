@@ -625,6 +625,9 @@ glyph han-2b2a4:15x16 15 16 // 𫊤
 glyph han-2b2a5:15x16 15 16 // 𫊥
 ⿰ han-866b:5x16 1 han-571f:9x16 // ⿰虫土
 
+// glyph han-2b2a6:15x16 15 16 // 𫊦
+// ⿰ han-866b han-2cf38 // ⿰虫𬼸
+
 ## 142.4
 
 glyph han-2b2a7:15x16 15 16 // 𫊧

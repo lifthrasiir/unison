@@ -921,8 +921,8 @@ glyph han-2c5d4:15x16 15 16 // 𬗔
 
 ## 120.7
 
-// glyph han-2c5d6:15x16 15 16 // 𬗖
-// ⿰ han-7cf8 han-8c46 // ⿰糸豆
+glyph han-2c5d6:15x16 15 16 // 𬗖
+⿰ han-7cf9-j:5x16 1 han-8c46:9x16 // ⿰糹豆
 
 glyph han-2c5d7:15x16 15 16 // 𬗗
 ⿲ han-7cf9-v:5x16 han-624c:3x16 han-65a4:7x16 // ⿲糹扌斤

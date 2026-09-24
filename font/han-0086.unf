@@ -424,6 +424,9 @@ glyph han-7090-($han-regions):15x16 15 16 // 炐
 glyph han-7091:15x16 15 16 // 炑
 ⿰ han-706b:5x16 1 han-6728:9x16 // ⿰火木
 
+// glyph han-7092:15x16 15 16 // 炒
+// ⿰ han-706b han-5c11 // ⿰火少
+
 // glyph han-7094:15x16 15 16 // 炔
 // ⿰ han-706b han-592c // ⿰火夬
 

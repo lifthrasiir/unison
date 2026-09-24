@@ -110,8 +110,14 @@ glyph han-23c9e:15x16 15 16 // 𣲞
 // glyph han-23c9f:15x16 15 16 // 𣲟
 // ⿰ han-6c35 han-5eff // ⿰氵廿
 
+// glyph han-23ca1:15x16 15 16 // 𣲡
+// ⿰ han-6c35 han-5c10 // ⿰氵尐
+
 // glyph han-23ca5:15x16 15 16 // 𣲥
 // ⿰ han-6c35 han-4e39 // ⿰氵丹
+
+// glyph han-23ca6:15x16 15 16 // 𣲦
+// ⿱ han-6c34 han-5c11 // ⿱水少
 
 glyph han-23ca7:15x16 15 16 // 𣲧
 ⿰ han-6c35:5x16 1 han-706b:9x16 // ⿰氵火
@@ -139,8 +145,8 @@ glyph han-23cb1:15x16 15 16 // 𣲱
 glyph han-23cb2:15x16 15 16 // 𣲲
 ⿰ han-6c35:5x16 1 han-79be:9x16 // ⿰氵禾
 
-// glyph han-23cb3:15x16 15 16 // 𣲳
-// ⿰ han-6c35 han-53f5 // ⿰氵叵
+glyph han-23cb3:15x16 15 16 // 𣲳
+⿰ han-6c35:5x16 1 han-53f5:9x16 // ⿰氵叵
 
 // glyph han-23cb4:15x16 15 16 // 𣲴
 // ⿱ han-5f17 han-6c34 // ⿱弗水

@@ -592,6 +592,9 @@ glyph han-89d2-(h|t|j|k|p|v):* = han-89d2.1:*
 // glyph han-89d7-($han-regions):15x16 15 16 // 觗
 // ⿰ han-89d2-($-1) han-6c0f // ⿰角氏
 
+// glyph han-89d8-($han-regions):15x16 15 16 // 觘
+// ⿰ han-89d2-($-1) han-5c11 // ⿰角少
+
 ## 148.5
 
 // glyph han-89da-($han-regions):15x16 15 16 // 觚
@@ -1104,6 +1107,9 @@ glyph han-8a2a.0:* = han-8a2a-j:*
 
 // glyph han-8a2b:15x16 15 16 // 訫
 // ⿰ han-8a01 han-5fc3 // ⿰訁心
+
+// glyph han-8a2c-($han-regions):15x16 15 16 // 訬
+// ⿰ han-8a01-($-1) han-5c11 // ⿰訁少
 
 glyph han-8a2e-($han-regions):15x16 15 16 // 訮
 ⿰ han-8a01-($-1):5x16 1 han-5f00:9x16 // ⿰訁开

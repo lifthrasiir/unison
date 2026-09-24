@@ -2847,6 +2847,9 @@ glyph han-7700:15x16 15 16 // 眀
 ⿰ han-76ee:7x16 1 han-6708:7x16 // ⿰目月
 glyph han-7700.0:* = han-7700:*
 
+// glyph han-7701:15x16 15 16 // 省
+// ⿱ han-5c11 han-76ee // ⿱少目
+
 glyph han-7702:15x16 15 16 // 眂
 ⿰ han-76ee:5x16-l han-6c0f:10x16 // ⿰目氏
 
@@ -2858,6 +2861,9 @@ glyph han-7702:15x16 15 16 // 眂
 
 glyph han-7706:15x16 15 16 // 眆
 ⿰ han-76ee:6x16 han-65b9:9x16 // ⿰目方
+
+// glyph han-7707:15x16 15 16 // 眇
+// ⿰ han-76ee han-5c11 // ⿰目少
 
 // glyph han-7709:15x16 15 16 // 眉
 // ⿸ han-200dc han-76ee // ⿸𠃜目

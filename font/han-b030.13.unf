@@ -167,6 +167,9 @@ glyph han-210d8:15x16 15 16 // 𡃘
 
 ## 30.16
 
+// glyph han-210e0:15x16 15 16 // 𡃠
+// ⿱ han-3c2f han-5485 // ⿱㰯咅
+
 glyph han-210f7-($han-regions):15x16 15 16 // 𡃷
 ⿳ han-5405:15x3 1 han-96e8-($-1):15x6 1 han-7530:15x5 // ⿳吅雨田
 

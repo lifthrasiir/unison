@@ -80,7 +80,15 @@ glyph han-32720:15x16 15 16 // 𲜠
 
 # CJK unified ideographs extension J: 小 (42)
 
+## 42.5
+
+// glyph han-32728:15x16 15 16 // 𲜨
+// ⿺ han-5df4 han-5c11 // ⿺巴少
+
 ## 42.7
+
+// glyph han-32729:15x16 15 16 // 𲜩
+// ⿰ han-81f3 han-5c11 // ⿰至少
 
 // glyph han-3272a:15x16 15 16 // 𲜪
 // ⿰ han-5c0f han-6298 // ⿰小折
@@ -90,12 +98,20 @@ glyph han-32720:15x16 15 16 // 𲜠
 // glyph han-3272b:15x16 15 16 // 𲜫
 // ⿱ han-62d9 han-5c0f // ⿱拙小
 
+## 42.9
+
+// glyph han-3272d:15x16 15 16 // 𲜭
+// ⿱ han-5c11 han-62d9 // ⿱少拙
+
+// glyph han-3272e:15x16 15 16 // 𲜮
+// ⿰ han-5352 han-5c11 // ⿰卒少
+
 # CJK unified ideographs extension J: 尸 (44)
 
 ## 44.1
 
 glyph han-32732:15x16 15 16 // 𲜲
-⿸ han-5c38:15x16.11x12 han-4e59:7x12 6 4 // ⿸尸乙
+⿸ han-5c38:15x16.11x12 han-4e59:9x12 6 4 // ⿸尸乙
 
 ## 44.4
 

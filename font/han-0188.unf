@@ -601,6 +601,11 @@ glyph han-9b27.0:* = han-9b27:*
 // glyph han-9b28:15x16 15 16 // 鬨
 // ⿵ han-9b25 han-5171 // ⿵鬥共
 
+## 191.10
+
+// glyph han-9b2a:15x16 15 16 // 鬪
+// ⿵ han-9b25 han-2d530 // ⿵鬥𭔰
+
 # CJK unified ideographs: 魚 (195)
 
 ## 195.0
@@ -656,6 +661,9 @@ glyph han-9b62:15x16 15 16 // 魢
 
 glyph han-9b64-($han-regions):15x16 15 16 // 魤
 ⿰ han-9b5a:7x16 han-5316-($-1):8x16 // ⿰魚化
+
+// glyph han-9b66:15x16 15 16 // 魦
+// ⿰ han-9b5a han-5c11 // ⿰魚少
 
 glyph han-9b67:15x16 15 16 // 魧
 ⿰ han-9b5a:7x16 1 han-4ea2:7x16 // ⿰魚亢

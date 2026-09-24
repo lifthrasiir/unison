@@ -50,6 +50,9 @@ glyph han-2deb8:15x16 15 16 // 𭺸
 // ref han-7532 // ⿻甲龷
 // ref han-9fb7
 
+// glyph han-2dec2:15x16 15 16 // 𭻂
+// ⿱ han-5c11 han-7530 // ⿱少田
+
 // glyph han-2dec3:15x16 15 16 // 𭻃
 // ⿱ han-7530 han-5206 // ⿱田分
 
@@ -247,7 +250,7 @@ glyph han-2df46:15x16 15 16 // 𭽆
 // ⿱ han-767e han-4e04 // ⿱百丄
 
 glyph han-2df4a:15x16 15 16 // 𭽊
-⿱ han-767d:15x6 2 han-5df3:15x8 // ⿱白巳
+⿱ han-767d:15x7 1 han-5df3:15x8 // ⿱白巳
 
 ## 106.4
 
@@ -496,8 +499,8 @@ glyph han-2e00d:15x16 15 16 // 𮀍
 
 ## 112.5
 
-// glyph han-2e00f:15x16 15 16 // 𮀏
-// ⿰ han-77f3 han-53f5 // ⿰石叵
+glyph han-2e00f:15x16 15 16 // 𮀏
+⿰ han-77f3:5x16 1 han-53f5:9x16 // ⿰石叵
 
 // glyph han-2e012:15x16 15 16 // 𮀒
 // ⿳ han-4e36 han-738b han-77f3 // ⿳丶王石 <- ⿱主石
@@ -605,7 +608,7 @@ glyph han-2e062:15x16 15 16 // 𮁢
 glyph han-2e063-j:15x16 15 16 // 𮁣
 ⿰ han-793b:5x16 1 han-4ee4.0:9x16 // ⿰礻令
 glyph han-2e063-k:15x16 15 16 // 𮁣
-⿰ han-793a:5x16 1 han-4ee4.0:9x16 // ⿰礻令
+⿰ han-793a:5x16 1 han-4ee4.0:9x16 // ⿰示令
 
 // glyph han-2e064:15x16 15 16 // 𮁤
 // ⿱ han-672a han-793a // ⿱未示

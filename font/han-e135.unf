@@ -535,7 +535,7 @@ glyph han-2c8a1:15x16 15 16 // 𬢡
 // ⿰ han-8a01 han-2c09d // ⿰訁𬂝
 
 glyph han-2c8ad:15x16 15 16 // 𬢭
-⿰ han-8a01.x:5x16 1 han-8eab:9x16 // ⿰訁身
+⿰ han-8a01-g:5x16 1 han-8eab:9x16 // ⿰訁身
 
 ## 149.8
 
@@ -852,7 +852,9 @@ glyph han-2c9d0:15x16 15 16 // 𬧐
 
 ## 158.1
 
-glyph han-2c9e0:15x16 15 16 // 𬧠
+glyph han-2c9e0-g:15x16 15 16 // 𬧠
+⿰ han-8eab.x:7x16 1 han-4e5a:7x16 // ⿰身乚
+glyph han-2c9e0-j:15x16 15 16 // 𬧠
 ⿰ han-8eab:9x16 han-4e5a:6x16 // ⿰身乚
 
 ## 158.4
