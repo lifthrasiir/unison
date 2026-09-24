@@ -156,9 +156,11 @@ map U+4E01 = whole-j
     );
     let gids = gids_for(&built, "\u{4E00}\u{4E01}");
     assert_eq!(gids[0], gids[1]);
+    // Each part has one user once the two splits merge, so it is drawn in
+    // place (see `ttf_builder::absorb`).
     assert_eq!(
         names(&built),
-        vec![".notdef", "part-g:2x4-l", "right:2x4-r", "whole-g"],
+        vec![".notdef", "whole-g"],
         "{:?}",
         names(&built)
     );

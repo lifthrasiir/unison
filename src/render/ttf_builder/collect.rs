@@ -1249,57 +1249,64 @@ pub(super) fn collect_glyph_data_with_shared(
         });
     }
 
-    // Ensure composite component glyphs are included in the font
+    // Every glyph a composite names as a component, and every glyph *those*
+    // name in turn: a component keeps its own components rather than being
+    // flattened, so a part shared by many composites is stored once.
     let mut all_names: HashSet<String> = glyph_data.iter().map(|g| g.name.clone()).collect();
-    let mut component_extras: Vec<CollectedGlyph> = Vec::new();
-    for g in &glyph_data {
-        for cr in &g.composite_refs {
-            if !all_names.contains(&cr.component_name) {
-                all_names.insert(cr.component_name.clone());
-                let empty_cached = CachedContours::empty();
-                let resolved = cache
-                    .get(cr.component_name.as_str())
-                    .unwrap_or(&empty_cached);
-                let comp_glyph_scale = scale / resolved.scale as f32;
-                // The same box every other glyph gets. The parent placing this
-                // one has already subtracted its declared bearing
-                // (`build_composite_refs`), because a component glyph is the
-                // one that carries it; synthesizing the glyph without it put
-                // the component a whole `origin` away from where the line
-                // asked for it.
-                let (advance_width, left_offset, top_offset) = resolve_glyph_metrics(
-                    glyph_meta,
-                    cr.component_name.as_str(),
-                    resolved.width,
-                    comp_glyph_scale,
-                    scale,
-                );
-                let font_contours = scale_glyph_contours(
-                    &resolved.contours,
-                    comp_glyph_scale,
-                    meta.ascent() * resolved.scale as u16,
-                    left_offset,
-                    top_offset,
-                );
-                component_extras.push(CollectedGlyph {
-                    name: cr.component_name.clone(),
-                    codepoints: Vec::new(),
-                    advance_width,
-                    contours: font_contours,
-                    composite_refs: Vec::new(),
-                    color_layers: Vec::new(),
-                    mark: false,
-                    resolved_anchors: Vec::new(),
-                    declared_anchors: Vec::new(),
-                    left_offset,
-                    top_offset,
-                });
-            }
+    let first_component = glyph_data.len();
+    let mut next = 0;
+    while next < glyph_data.len() {
+        let wanted: Vec<String> = glyph_data[next]
+            .composite_refs
+            .iter()
+            .filter(|cr| all_names.insert(cr.component_name.clone()))
+            .map(|cr| cr.component_name.clone())
+            .collect();
+        next += 1;
+        for name in wanted {
+            let empty_cached = CachedContours::empty();
+            let resolved = cache.get(name.as_str()).unwrap_or(&empty_cached);
+            let comp_glyph_scale = scale / resolved.scale as f32;
+            // The same box every other glyph gets. The parent placing this
+            // one has already subtracted its declared bearing
+            // (`build_composite_refs`), because a component glyph is the
+            // one that carries it; synthesizing the glyph without it put
+            // the component a whole `origin` away from where the line
+            // asked for it.
+            let (advance_width, left_offset, top_offset) =
+                resolve_glyph_metrics(glyph_meta, &name, resolved.width, comp_glyph_scale, scale);
+            let font_contours = scale_glyph_contours(
+                &resolved.contours,
+                comp_glyph_scale,
+                meta.ascent() * resolved.scale as u16,
+                left_offset,
+                top_offset,
+            );
+            let composite_refs = build_composite_refs(
+                resolved,
+                inline_glyphs.contains(name.as_str()),
+                left_offset,
+                top_offset,
+                glyph_meta,
+                comp_glyph_scale,
+                scale,
+                inline_glyphs,
+            );
+            glyph_data.push(CollectedGlyph {
+                name,
+                codepoints: Vec::new(),
+                advance_width,
+                contours: font_contours,
+                composite_refs,
+                color_layers: Vec::new(),
+                mark: false,
+                resolved_anchors: Vec::new(),
+                declared_anchors: Vec::new(),
+                left_offset,
+                top_offset,
+            });
         }
     }
-    let component_names: HashSet<String> =
-        component_extras.iter().map(|g| g.name.clone()).collect();
-    glyph_data.append(&mut component_extras);
 
     if glyph_data.is_empty() {
         return None;
@@ -1474,7 +1481,10 @@ pub(super) fn collect_glyph_data_with_shared(
 
     // After the colour pass, which turns a coloured composite into a simple
     // glyph of its own and so out of the running as a host.
-    super::absorb::absorb_offset_components(&mut glyph_data, &component_names);
+    {
+        let _t = crate::startup::PerfStage::new("absorb components");
+        super::absorb::absorb_offset_components(&mut glyph_data, first_component);
+    }
 
     // TrueType reserves GID 0 for `.notdef`, so the collected order *is* the
     // GID order only once `.notdef` sits at its head. A source that draws one

@@ -1501,18 +1501,20 @@ map B = inner
 /// anchor and so the only one that reaches a `:wide` accent.
 #[test]
 fn a_synthesized_component_glyph_keeps_its_declared_bearing() {
+    // Drawn rather than a `ref`, and placed by two composites: a component
+    // that is only a `ref`, or that one glyph uses, is dissolved into its user
+    // (`ttf_builder::absorb`) and there would be no synthesized glyph to check.
     let input = "\
-glyph mark0 3 3
+glyph mk 3 3 mark advance 0 origin 6 -2
 @@@@@@
 @@@@@@
 @@@@@@
-
-glyph mk mark advance 0 origin 6 -2
-ref mark0
 anchor -above 1 1
 
-glyph mk:wide mark advance 0 origin 6 -2
-ref mark0
+glyph mk:wide 3 3 mark advance 0 origin 6 -2
+@@@@@@
+@@@@@@
+@@@@@@
 anchor -above 0..1 1
 
 glyph base-narrow 4 4
@@ -1537,9 +1539,14 @@ glyph combo-wide
 ref base-wide
 ref mk
 
+glyph combo-wide-too
+ref base-wide
+ref mk
+
 map A = combo-narrow
 map B = combo-wide
 map C = mk
+map D = combo-wide-too
 ";
     let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
     let (_, _, glyphs, _, _) = collect_glyph_data(&[&doc], false).unwrap();
@@ -1594,6 +1601,7 @@ glyph other 4 4
 ref part:3x2 0 2
 ref dot 3 0
 map C = other
+map D = dot
 ";
     let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
     for bitmap in [false, true] {
@@ -1635,4 +1643,112 @@ map C = other
         5,
         ".notdef, part, part-alt, other, dot"
     );
+}
+
+/// Everything a set of glyphs draws, checked against the fallback outline each
+/// of them carries, which is traced from the source directly and knows nothing
+/// about glyph ids.
+fn assert_draws_as_traced(glyphs: &[CollectedGlyph], names: &[&str]) {
+    for name in names {
+        let g = glyphs.iter().find(|g| g.name == *name).unwrap();
+        assert_eq!(
+            flattened_contours(glyphs, name),
+            sorted_contours(&g.contours),
+            "{name} must draw what its source draws",
+        );
+    }
+}
+
+/// A component that is itself a composite stays one, so the drawing it places
+/// is stored once however many characters reach it — but the composite part
+/// has no glyph id of its own: it is only component records, and they are
+/// spliced into each user.
+#[test]
+fn a_composite_component_is_spliced_and_its_drawings_shared() {
+    let input = "\
+glyph bar 3 1
+@@@@@@
+
+glyph box:3x3 3 3
+ref bar 0 0
+ref bar 0 2
+
+glyph dot 1 1
+@@
+
+glyph boxdot 4 3
+ref box:3x3 0 0
+ref dot 3 1
+map A = boxdot
+
+glyph dotbox 4 3
+ref dot 0 1
+ref box:3x3 1 0
+map B = dotbox
+
+glyph dots 3 1
+ref dot 0 0
+ref dot 2 0
+map C = dots
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    for bitmap in [false, true] {
+        let (_, _, glyphs, _, _) = collect_glyph_data(&[&doc], bitmap).unwrap();
+        assert_draws_as_traced(&glyphs, &["boxdot", "dotbox", "dots"]);
+        let names: Vec<&str> = glyphs.iter().map(|g| g.name.as_str()).collect();
+        assert_eq!(names, [".notdef", "boxdot", "dotbox", "dots", "dot", "bar"]);
+        let refs = |name: &str| {
+            let g = glyphs.iter().find(|g| g.name == name).unwrap();
+            let mut refs: Vec<&str> = g
+                .composite_refs
+                .iter()
+                .map(|cr| cr.component_name.as_str())
+                .collect();
+            refs.sort_unstable();
+            refs
+        };
+        assert_eq!(refs("boxdot"), ["bar", "bar", "dot"]);
+        assert_eq!(refs("dotbox"), ["bar", "bar", "dot"]);
+    }
+}
+
+/// A drawing only one glyph uses buys nothing by being a glyph of its own, so
+/// that glyph draws it in place — and a component that loses its last user that
+/// way, or to the colour pass, is not left behind.
+#[test]
+fn a_single_use_drawing_is_drawn_in_place() {
+    let input = "\
+color red = #FF0000
+
+glyph once 1 1
+@@
+
+glyph shared 1 1
+@@
+
+glyph painted 1 1
+@@
+
+glyph a 3 1
+ref once 0 0
+ref shared 2 0
+map A = a
+
+glyph b 3 1
+ref shared 0 0
+ref shared 2 0
+map B = b
+
+glyph c 2 1
+ref painted 0 0 fill red
+ref shared 1 0
+map C = c
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let (_, _, glyphs, _, _) = collect_glyph_data(&[&doc], false).unwrap();
+    assert_draws_as_traced(&glyphs, &["a", "b"]);
+    let names: Vec<&str> = glyphs.iter().map(|g| g.name.as_str()).collect();
+    assert_eq!(names, [".notdef", "a", "b", "c", "shared"]);
+    let a = glyphs.iter().find(|g| g.name == "a").unwrap();
+    assert!(a.composite_refs.is_empty(), "`a` is a simple glyph now");
 }
