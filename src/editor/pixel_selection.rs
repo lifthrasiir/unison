@@ -419,10 +419,21 @@ pub(crate) fn handle_pixel_select_interaction(
         }
     }
 
-    // Only process if pointer is on this row, inside the visible grid band.
-    if hp.y < grid_y || hp.y >= grid_y + grid_cell || !strip.accepts_pointer(hp) {
+    // Only process if pointer is on this row, inside the visible grid band. A
+    // press has to land there; a selection being stretched clips to it.
+    let stretching = !primary_pressed
+        && matches!(
+            ui.data(|d| d.get_temp::<SelectDrag>(sel_drag_id)),
+            Some(SelectDrag::New { .. })
+        );
+    let hp = if stretching {
+        strip.clip_pointer(hp)
+    } else {
+        strip.accepts_pointer(hp).then_some(hp)
+    };
+    let Some(hp) = hp.filter(|hp| hp.y >= grid_y && hp.y < grid_y + grid_cell) else {
         return;
-    }
+    };
 
     let rel_x = hp.x - grid_x;
     let gc = (rel_x / grid_cell) as i32 + extent.left as i32;

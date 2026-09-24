@@ -81,16 +81,10 @@ pub(crate) fn debounced_scroll_step(ctx: &egui::Context) -> Option<i32> {
     Some(dir)
 }
 
-/// Horizontal grid scrollbar: thickness, distance below the grid, and the
-/// width of the edge band that triggers auto-scrolling while dragging.
+/// Horizontal grid scrollbar: thickness and distance below the grid.
 pub(super) const HSCROLL_HEIGHT: f32 = 8.0;
 
 pub(super) const HSCROLL_GAP: f32 = 2.0;
-
-const HSCROLL_EDGE_ZONE: f32 = 24.0;
-
-/// Auto-scroll speed at the outer end of the edge band, in points per second.
-const HSCROLL_AUTO_SPEED: f32 = 900.0;
 
 const SCROLL_BASE_MULTIPLIER: f32 = 2.5;
 
@@ -560,60 +554,83 @@ pub(super) fn draw_grid_hscrollbars(
         .data_mut(|d| d.insert_temp(hscroll_drag_id(state.id()), dragging));
 }
 
-/// While dragging inside a grid, holding the pointer near (or past) either
-/// edge of the band scrolls it, so a selection or a layer can be dragged
-/// beyond the visible columns.
+/// While dragging inside a grid, carrying the pointer past either edge of the
+/// band scrolls it by as far as the pointer went, so a stroke, a selection or
+/// a layer can be dragged beyond the visible columns.
+///
+/// The scroll follows the pointer's movement, not the time it spends out
+/// there: holding still past the edge scrolls nothing more. Only movement
+/// *outward* counts — coming back towards the band leaves the scroll where it
+/// is — so the band is pumped along by going out, back and out again, as far
+/// as the screen allows. Meanwhile the grid reads the pointer clipped to the
+/// band ([`GridStrip::clip_pointer`]), which puts it on the column just
+/// scrolled in.
 pub(super) fn auto_scroll_grid_on_drag(
     ui: &egui::Ui,
     state: &mut EditorState,
     strip: &GridStrip,
     blocks: &[GridBlock],
     origin: egui::Pos2,
-    zoom_level: u32,
 ) {
-    if matches!(state.mode, EditMode::Normal) || !ui.input(|i| i.pointer.primary_down()) {
-        return;
-    }
-    let Some(hp) = ui.input(|i| i.pointer.hover_pos()) else {
+    let excess_id = state.key(Slot::GridAutoScrollExcess);
+    let Some((excess, overflow)) = drag_excess(ui, state, strip, blocks, origin) else {
+        ui.data_mut(|d| d.remove::<f32>(excess_id));
         return;
     };
+    let last = ui.data(|d| d.get_temp::<f32>(excess_id)).unwrap_or(0.0);
+    ui.data_mut(|d| d.insert_temp(excess_id, excess));
+    let step = if excess > 0.0 {
+        (excess - last.max(0.0)).max(0.0)
+    } else {
+        (excess - last.min(0.0)).min(0.0)
+    };
+    let next = (state.grid_scroll_x + step).clamp(0.0, overflow);
+    if (next - state.grid_scroll_x).abs() > 0.01 {
+        state.grid_scroll_x = next;
+        // The grid read the pointer against the old scroll this frame.
+        ui.ctx().request_repaint();
+    }
+}
+
+/// How far past the band's edge a drag that auto-scrolls it is (negative
+/// past the left edge, zero inside), with the overflow of the grid under it.
+/// `None` when no such drag is in flight.
+fn drag_excess(
+    ui: &egui::Ui,
+    state: &EditorState,
+    strip: &GridStrip,
+    blocks: &[GridBlock],
+    origin: egui::Pos2,
+) -> Option<(f32, f32)> {
+    if matches!(state.mode, EditMode::Normal)
+        || !ui.input(|i| i.pointer.primary_down() || i.pointer.secondary_down())
+    {
+        return None;
+    }
+    let hp = ui.input(|i| i.pointer.hover_pos())?;
     if strip.captured || strip.bars.iter().any(|r| r.contains(hp)) {
-        return;
+        return None;
     }
     // Only a gesture that started on the grid itself scrolls it. The inline
-    // tool panel sits just past the band's right edge, i.e. inside the edge
-    // zone, so a press there would otherwise be read as a drag to the edge.
+    // tool panel sits just past the band's right edge, so a press there would
+    // otherwise be read as a drag past the edge.
     let started_on_grid = ui
         .input(|i| i.pointer.press_origin())
         .is_some_and(|p| strip.contains_x(p.x));
     if !started_on_grid {
-        return;
+        return None;
     }
-    let Some(block) = blocks.iter().find(|b| {
+    let block = blocks.iter().find(|b| {
         hp.y >= origin.y + b.y0 && hp.y < origin.y + b.y1 && strip.overflow(b.content_w) > 0.0
-    }) else {
-        return;
-    };
-
-    let zoom = zoom_level as f32;
-    let edge = HSCROLL_EDGE_ZONE * zoom;
-    let past_right = hp.x - (strip.right() - edge);
-    let past_left = (strip.x + edge) - hp.x;
-    let ratio = if past_right > 0.0 {
-        (past_right / edge).min(1.0)
-    } else if past_left > 0.0 {
-        -(past_left / edge).min(1.0)
+    })?;
+    let excess = if hp.x >= strip.right() {
+        hp.x - strip.right()
+    } else if hp.x < strip.x {
+        hp.x - strip.x
     } else {
-        return;
+        0.0
     };
-
-    let dt = ui.input(|i| i.stable_dt).min(0.1);
-    let overflow = strip.overflow(block.content_w);
-    let next = (state.grid_scroll_x + ratio * HSCROLL_AUTO_SPEED * zoom * dt).clamp(0.0, overflow);
-    if (next - state.grid_scroll_x).abs() > 0.01 {
-        state.grid_scroll_x = next;
-    }
-    ui.ctx().request_repaint();
+    Some((excess, strip.overflow(block.content_w)))
 }
 
 /// Wheel acceleration for one scrollable surface. `accel_id` names the

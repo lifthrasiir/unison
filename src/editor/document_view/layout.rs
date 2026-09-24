@@ -179,6 +179,18 @@ impl GridStrip {
         !self.captured && self.contains_x(p.x) && !self.bars.iter().any(|r| r.contains(p))
     }
 
+    /// Where an in-flight grid gesture reads the pointer: clipped into the
+    /// band, so a stroke carried past either edge keeps acting on the edge
+    /// column — and auto-scroll brings the next one under it — instead of
+    /// dropping out as if the button were up. `None` while a scrollbar owns
+    /// the pointer.
+    pub(crate) fn clip_pointer(&self, p: egui::Pos2) -> Option<egui::Pos2> {
+        // `right()` itself is outside the band: stop just short of it.
+        let x = p.x.clamp(self.x, (self.right() - 1e-3).max(self.x));
+        let p = egui::pos2(x, p.y);
+        (!self.captured && !self.bars.iter().any(|r| r.contains(p))).then_some(p)
+    }
+
     /// Clip a grid-relative span to the visible band.
     pub(super) fn clip_span(&self, x0: f32, x1: f32) -> Option<(f32, f32)> {
         let lo = x0.max(self.x);

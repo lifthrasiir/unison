@@ -120,6 +120,10 @@ pub(crate) enum Slot {
     /// Whether a grid scrollbar thumb is being dragged, which suppresses the
     /// grid's own pointer handling.
     GridHscrollDrag,
+    /// How far past the band's edge the pointer was on the last frame of a
+    /// drag, signed (negative past the left edge); see
+    /// `auto_scroll_grid_on_drag`.
+    GridAutoScrollExcess,
     /// Interaction id of one grid's horizontal scrollbar, keyed by item index.
     GridHscrollBar,
 

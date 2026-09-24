@@ -193,7 +193,7 @@ pub(crate) fn handle_pixel_painting(
 
         if (primary || secondary)
             && let Some(pp) = ui.input(|i| i.pointer.hover_pos())
-            && strip.accepts_pointer(pp)
+            && let Some(pp) = strip.clip_pointer(pp)
             && pp.y >= grid_y
             && pp.y < grid_y + grid_cell
         {

@@ -1013,7 +1013,7 @@ pub(super) fn paint_document_area(
     draw_grid_hscrollbars(
         ui, &painter, state, &strip, &blocks, &hbars, zoom_level, pal,
     );
-    auto_scroll_grid_on_drag(ui, state, &strip, &blocks, origin, zoom_level);
+    auto_scroll_grid_on_drag(ui, state, &strip, &blocks, origin);
 
     // Inline tools panel to the right of the grid. A resize replaces it
     // wholesale — neither the layer row nor the shape palette acts on

@@ -125,33 +125,127 @@ fn clicks_past_the_band_do_not_paint_pixels() {
     );
 }
 
-#[test]
-fn dragging_to_the_band_edge_auto_scrolls() {
-    let mut h = EditorHarness::new(&wide_doc());
+/// Presses `button` on column 0 of the wide glyph's `row`, and returns the
+/// band's right edge and that row's y.
+fn press_on_wide_row(h: &mut EditorHarness, row: i16, button: egui::PointerButton) -> (f32, f32) {
     h.click_grid_cell(1, 0, 0);
     assert_eq!(h.state.grid_scroll_x, 0.0);
+    h.frame();
+    let start = h.grid_cell_pos(1, row, 0);
+    h.press_button_at(start, button);
+    (h.snap().strip.right(), start.y)
+}
 
+fn assert_scroll(h: &EditorHarness, expected: f32, what: &str) {
+    assert!(
+        (h.state.grid_scroll_x - expected).abs() < 0.5,
+        "{what}: scrolled {} instead of {expected}",
+        h.state.grid_scroll_x
+    );
+}
+
+/// The column the pointer is clipped to at the band's right edge.
+fn edge_col(h: &EditorHarness) -> u16 {
+    let snap = h.snap();
+    ((snap.strip.w + h.state.grid_scroll_x - 0.01) / snap.grid_cell) as u16
+}
+
+#[test]
+fn holding_a_drag_past_the_band_edge_does_not_keep_scrolling() {
+    let mut h = EditorHarness::new(&wide_doc());
+    let (right, y) = press_on_wide_row(&mut h, 0, egui::PointerButton::Primary);
+
+    h.move_pointer(egui::pos2(right + 10.0, y));
+    assert_scroll(&h, 10.0, "moving 10pt past the edge");
+    for _ in 0..5 {
+        h.advance_time(0.1);
+        h.move_pointer(egui::pos2(right + 10.0, y));
+    }
+    assert_scroll(&h, 10.0, "holding still past the edge");
+
+    h.release_at(egui::pos2(right + 10.0, y));
+    h.move_pointer(egui::pos2(right + 40.0, y));
+    assert_scroll(&h, 10.0, "after the button is released");
+}
+
+#[test]
+fn drag_past_the_band_edge_scrolls_by_how_far_it_went() {
+    let mut h = EditorHarness::new(&wide_doc());
+    let (right, y) = press_on_wide_row(&mut h, 0, egui::PointerButton::Primary);
+
+    h.move_pointer(egui::pos2(right + 10.0, y));
+    assert_scroll(&h, 10.0, "10pt past the edge");
+    h.move_pointer(egui::pos2(right + 30.0, y));
+    assert_scroll(&h, 30.0, "30pt past the edge");
+    // Coming back does not scroll back; going out again scrolls on from there.
+    h.move_pointer(egui::pos2(right + 5.0, y));
+    assert_scroll(&h, 30.0, "back to 5pt past the edge");
+    h.move_pointer(egui::pos2(right + 15.0, y));
+    assert_scroll(&h, 40.0, "out again to 15pt");
+    h.move_pointer(egui::pos2(right - 20.0, y));
+    h.move_pointer(egui::pos2(right + 10.0, y));
+    assert_scroll(&h, 50.0, "re-entering the band and out again");
+
+    // The left edge scrolls back the same way.
+    let left = h.snap().strip.x;
+    h.move_pointer(egui::pos2(left - 20.0, y));
+    assert_scroll(&h, 30.0, "20pt past the left edge");
+    h.release_at(egui::pos2(left - 20.0, y));
+}
+
+#[test]
+fn right_drag_past_the_band_edge_scrolls_and_erases_the_edge_column() {
+    let mut h = EditorHarness::new(&wide_doc());
+    let (right, y) = press_on_wide_row(&mut h, 0, egui::PointerButton::Secondary);
+
+    h.move_pointer(egui::pos2(right + 30.0, y));
+    assert_scroll(&h, 30.0, "a right-button drag 30pt past the edge");
+    h.frame();
+    let col = edge_col(&h);
+    assert!(
+        h.grid(1).get(0, col).is_clear(),
+        "the stroke must keep erasing the edge column {col} while the pointer is past it"
+    );
+    h.release_button_at(egui::pos2(right + 30.0, y), egui::PointerButton::Secondary);
+}
+
+#[test]
+fn left_drag_past_the_band_edge_keeps_painting_the_edge_column() {
+    let mut h = EditorHarness::new(&wide_doc());
+    let (right, y) = press_on_wide_row(&mut h, 1, egui::PointerButton::Primary);
+
+    h.move_pointer(egui::pos2(right + 30.0, y));
+    h.frame();
+    let col = edge_col(&h);
+    assert!(col > 0);
+    assert!(
+        !h.grid(1).get(1, col).is_clear(),
+        "the stroke must keep painting the edge column {col} while the pointer is past it"
+    );
+    h.release_at(egui::pos2(right + 30.0, y));
+}
+
+#[test]
+fn selection_stretched_past_the_band_edge_reaches_the_edge_column() {
+    let mut h = EditorHarness::new(&wide_doc());
+    h.click_grid_cell(1, 0, 0);
+    h.key(Key::Backtick);
+    assert!(matches!(h.state.mode, EditMode::PixelSelect { .. }));
     h.frame();
     let start = h.grid_cell_pos(1, 0, 0);
-    let edge_x = h.snap().strip.right() - 2.0;
-    let row_y = start.y;
-
-    // Press inside the grid, then hold at the right edge for a few frames.
+    let right = h.snap().strip.right();
     h.press_at(start);
-    for _ in 0..5 {
-        h.move_pointer(egui::pos2(edge_x, row_y));
-    }
-    assert!(
-        h.state.grid_scroll_x > 0.0,
-        "holding a drag at the right edge should scroll the band"
-    );
-    let scrolled = h.state.grid_scroll_x;
-    h.release_at(egui::pos2(edge_x, row_y));
+
+    h.move_pointer(egui::pos2(right + 30.0, start.y));
     h.frame();
+    let col = edge_col(&h);
+    let sel = h.state.pixel_selection.clone().expect("a selection");
     assert_eq!(
-        h.state.grid_scroll_x, scrolled,
-        "auto-scroll stops once the button is released"
+        (sel.col, sel.width),
+        (0, col + 1),
+        "the selection must reach the edge column {col} while the pointer is past it"
     );
+    h.release_at(egui::pos2(right + 30.0, start.y));
 }
 
 #[test]

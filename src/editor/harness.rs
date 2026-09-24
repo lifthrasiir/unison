@@ -1009,13 +1009,18 @@ impl EditorHarness {
 
     /// Press the primary button at a position and keep it held.
     pub fn press_at(&mut self, pos: egui::Pos2) {
+        self.press_button_at(pos, egui::PointerButton::Primary);
+    }
+
+    /// Press `button` at a position and keep it held.
+    pub fn press_button_at(&mut self, pos: egui::Pos2, button: egui::PointerButton) {
         self.time += 1.0;
         self.frame_with(
             vec![
                 egui::Event::PointerMoved(pos),
                 egui::Event::PointerButton {
                     pos,
-                    button: egui::PointerButton::Primary,
+                    button,
                     pressed: true,
                     modifiers: egui::Modifiers::NONE,
                 },
@@ -1031,10 +1036,15 @@ impl EditorHarness {
 
     /// Release the primary button at a position.
     pub fn release_at(&mut self, pos: egui::Pos2) {
+        self.release_button_at(pos, egui::PointerButton::Primary);
+    }
+
+    /// Release `button` at a position.
+    pub fn release_button_at(&mut self, pos: egui::Pos2, button: egui::PointerButton) {
         self.frame_with(
             vec![egui::Event::PointerButton {
                 pos,
-                button: egui::PointerButton::Primary,
+                button,
                 pressed: false,
                 modifiers: egui::Modifiers::NONE,
             }],
