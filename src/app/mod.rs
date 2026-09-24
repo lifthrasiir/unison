@@ -20,6 +20,7 @@ use crate::specimen::SpecimenState;
 
 mod background;
 mod commands;
+mod ctrl_click;
 mod docs;
 mod fix;
 mod goto_pattern;
@@ -325,6 +326,8 @@ pub struct UniformApp {
     /// through `update`, and whether its report window is open.
     first_frame_seen: bool,
     startup_timing_open: bool,
+    /// Control-click read as a right click on the Mac. See [`ctrl_click`].
+    ctrl_click: ctrl_click::CtrlClick,
 }
 
 /// The largest type size the bitmap face is drawn at. Anything above it is
@@ -597,6 +600,7 @@ impl UniformApp {
             saves: save::SaveQueue::new(egui_ctx),
             first_frame_seen: false,
             startup_timing_open: false,
+            ctrl_click: ctrl_click::CtrlClick::default(),
         };
 
         if let Some(dir) = &font_dir {
@@ -875,6 +879,11 @@ impl UniformApp {
 impl eframe::App for UniformApp {
     fn save(&mut self, storage: &mut dyn eframe::Storage) {
         self.save_settings(storage);
+    }
+
+    fn raw_input_hook(&mut self, _ctx: &egui::Context, raw_input: &mut egui::RawInput) {
+        self.ctrl_click
+            .translate(raw_input, cfg!(target_os = "macos"));
     }
 
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {

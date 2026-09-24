@@ -4,7 +4,8 @@
 the last run. Every `.unf` in the directory is read together, exactly as `uniform build` reads it,
 and the font, the diagnostics and the specimen are rebuilt in the background a moment after each
 edit. The menus list every command with its shortcut; this page is about the behaviour a menu entry
-cannot explain. `Ctrl` below is `Cmd` on macOS.
+cannot explain. `Ctrl` below is `Cmd` on macOS, where Control-click is a right click everywhere,
+the pixel grid included.
 
 ## Files
 

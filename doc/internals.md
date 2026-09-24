@@ -226,6 +226,7 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Ctrl/Cmd+`/`: which lines a toggle takes, and the grid it demotes and promotes | `editor/comment.rs` |
 | A header and its grid are one block: Enter, line-wise copy/cut, paste | `editor/editing.rs` (`insert_newline`), `editor/doc_input.rs` (`current_line_range`, `paste_text`) |
 | Why an edit on a header or `ref` line waits before it reparses | `editor/document_view/changes.rs` (`apply_pending_rederive`) |
+| Why Control-click is a right click on the Mac, and why at the raw input rather than per widget | `app/ctrl_click.rs` |
 | Why a right-click moves the caret first; why a menu action hands the keyboard back | `editor/document_view/paint.rs` (`secondary_pos`, `refocus_after_menu`), `editor/mod.rs` (`refocus`) |
 | The two rectangles a resize drags (box vs canvas), which flags and which `ref`s it writes, units | `editor/glyph_resize.rs` (`canvas_box`, `CanvasStart`, `boxed_for`), `app/resize.rs`, `document_io.rs` (`replace_glyph_box_flags`), `ref_composite/anchors.rs` (`DeriveOutcome::anchor_placed`) |
 | A resize preview: uncommitted text, and everything that has to drop it | `editor/glyph_resize.rs` (`cancel`), `app/docs.rs` (`flush_pending_changes`) |
