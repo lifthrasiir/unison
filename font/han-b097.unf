@@ -553,10 +553,12 @@ glyph han-24c8a:15x16 15 16 // 𤲊
 
 ## 102.8
 
-glyph han-24c92-g:15x16 15 16 // 𤲒 ⿰田并(G) ⿰田幷(TP)
+glyph han-24c92-g:15x16 15 16 // 𤲒
 ⿰ han-7530:5x16-l 1 han-5e76:9x16 // ⿰田并
-glyph han-24c92-(t|j|p):15x16 15 16 // 𤲒 ⿰田并(G) ⿰田幷(TP)
-⿰ han-7530:5x16-l han-5e77:10x16 // ⿰田幷
+glyph han-24c92-(t|p):15x16 15 16 // 𤲒
+⿰ han-7530:5x16-l 1 han-5e77.x:9x16 // ⿰田幷
+glyph han-24c92-j:15x16 15 16 // 𤲒
+⿰ han-7530:5x16-l han-5e77.0:10x16 // ⿰田幷
 
 // glyph han-24c93:15x16 15 16 // 𤲓
 // ⿰ han-7530 han-4f86 // ⿰田來

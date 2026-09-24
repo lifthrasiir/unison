@@ -67,7 +67,7 @@ glyph han-31d03:15x16 15 16 // 𱴃
 // glyph han-31d04:15x16 15 16 // 𱴄
 // ⿰ han-77f3 han-6765 // ⿰石来
 
-glyph han-31d07:15x16 15 16 // 𱴇 ⿰石⿱口王(U) ⿰石呈(Z)
+glyph han-31d07:15x16 15 16 // 𱴇
 ⿰ han-77f3:6x16 han-5448-g:9x16 // ⿰石呈
 
 ## 112.8
@@ -461,7 +461,7 @@ glyph han-31e6a:15x16 15 16 // 𱹪 ⿰糸丿(V) ⿰糹丿(Z)
 
 ## 120.5
 
-glyph han-31e6f:15x16 15 16 // 𱹯 ⿰糸示(K) ⿰糹示(Z)
+glyph han-31e6f:15x16 15 16 // 𱹯
 ⿰ 1 han-7cf9-k:5x16 1 han-793a:7x16 // ⿰糹示
 
 ## 120.6
@@ -489,7 +489,7 @@ glyph han-31e76:15x16 15 16 // 𱹶
 
 ## 120.11
 
-glyph han-31e7f:15x16 15 16 // 𱹿 ⿰糸斬(K) ⿰糹斬(Z)
+glyph han-31e7f:15x16 15 16 // 𱹿
 ⿲ -1 han-7cf9-k:5x16 han-8eca:5x16 han-65a4:6x16 // ⿲糹車斤
 
 ## 120.12
@@ -504,8 +504,8 @@ glyph han-31e88:15x16 15 16 // 𱺈
 glyph han-31e8f:15x16 15 16 // 𱺏
 ⿰ 1 han-7e9f:5x16 3 han-535c:5x16 // ⿰纟卜
 
-// glyph han-31e90:15x16 15 16 // 𱺐
-// ⿰ han-7e9f han-5165 // ⿰纟入
+glyph han-31e90:15x16 15 16 // 𱺐
+⿰ han-7e9f:5x16 1 han-5165:9x16 // ⿰纟入
 
 glyph han-31e91:15x16 15 16 // 𱺑
 ⿰ han-7e9f:5x16 1 han-4e86-g:9x16 // ⿰纟了

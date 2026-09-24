@@ -1978,7 +1978,7 @@ glyph han-769c:15x16 15 16 // 皜
 glyph han-769c.0:* = han-769c:*
 glyph han-769c.1:* = han-769c:*
 glyph han-769c.2:15x16 15 16 // 皜
-⿰ han-767d:5x16 1 han-9ad8.x:9x16 // ⿰白高
+⿰ han-767d:5x16 1 han-9ad9:9x16 // ⿰白髙
 
 // glyph han-769e:15x16 15 16 // 皞
 // ⿰ han-767d han-768b // ⿰白皋

@@ -453,8 +453,8 @@ glyph han-387a:15x16 15 16 // 㡺
 // glyph han-3885:15x16 15 16 // 㢅
 // ⿸ han-5e7f han-5f04 // ⿸广弄
 
-// glyph han-3886:15x16 15 16 // 㢆
-// ⿸ han-5e7f han-91cc // ⿸广里
+glyph han-3886:15x16 15 16 // 㢆
+⿸ han-5e7f:15x16.11x13 han-91cc:11x12 4 4 // ⿸广里
 
 glyph han-3887:15x16 15 16 // 㢇
 ⿸ han-5e7f:15x16.11x13 han-8a00.0:11x11 4 5 // ⿸广言

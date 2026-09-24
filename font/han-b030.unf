@@ -646,10 +646,10 @@ glyph han-20cfc:15x16 15 16 // 𠳼
 glyph han-20d09:15x16 15 16 // 𠴉
 ⿲ han-53e3:3x16 1 han-961d:5x16-r han-5143:6x16 // ⿲口阝元
 
-glyph han-20d0a-g:15x16 15 16 // 𠴊 ⿰口呂(V) ⿰口吕(Z)
-⿰ han-53e3:3x16 1 han-5415:11x16 // ⿰口吕
-glyph han-20d0a-v:15x16 15 16 // 𠴊 ⿰口呂(V) ⿰口吕(Z)
-⿰ han-53e3:3x16 1 han-5415.x:11x16 // ⿰口吕
+glyph han-20d0a-g:15x16 15 16 // 𠴊
+⿰ han-53e3:5x16 1 han-5415:9x16 // ⿰口吕
+glyph han-20d0a-v:15x16 15 16 // 𠴊
+⿰ han-53e3:5x16 1 han-5415.x:9x16 // ⿰口吕
 
 // glyph han-20d0c:15x16 15 16 // 𠴌
 // ⿰ han-53e3 han-7075 // ⿰口灵

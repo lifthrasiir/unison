@@ -298,8 +298,10 @@ glyph han-3c51:15x16 15 16 // 㱑
 glyph han-3c52:15x16 15 16 // 㱒
 ⿱ han-6b62:15x5 1 han-53ef:15x10 // ⿱止可
 
-glyph han-3c53-($han-regions):15x16 15 16 // 㱓 ⿰止⿱{88}龴(K) ⿰止令(Z)
-⿰ han-6b62:6x16-l han-4ee4-($-1):9x16 // ⿰止令
+glyph han-3c53-g:15x16 15 16 // 㱓
+⿰ han-6b62:6x16-l han-4ee4-g:9x16 // ⿰止令
+glyph han-3c53-k:15x16 15 16 // 㱓
+⿰ han-6b62:6x16-l han-4ee4.x:9x16 // ⿰止令
 
 // glyph han-3c54-($han-regions):15x16 15 16 // 㱔
 // ⿱ han-6b64-($-1) han-5915 // ⿱此夕

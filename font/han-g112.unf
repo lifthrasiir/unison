@@ -481,8 +481,8 @@ glyph han-30ad4:15x16 15 16 // 𰫔
 
 ## 120.2
 
-// glyph han-30ad7:15x16 15 16 // 𰫗
-// ⿰ han-7cf9 han-5165 // ⿰糹入
+glyph han-30ad7:15x16 15 16 // 𰫗
+⿰ han-7cf9-g:5x16 1 han-5165:9x16 // ⿰糹入
 
 ## 120.3
 
@@ -494,7 +494,7 @@ glyph han-30ad9:15x16 15 16 // 𰫙
 
 ## 120.4
 
-glyph han-30ada:15x16 15 16 // 𰫚 ⿰糸帀(S) ⿰糹帀(Z)
+glyph han-30ada:15x16 15 16 // 𰫚
 ⿰ han-7cf9-j:5x16 1 han-5e00:9x16 // ⿰糹帀
 
 glyph han-30adc:15x16 15 16 // 𰫜

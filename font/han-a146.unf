@@ -580,7 +580,7 @@ glyph han-47ec:15x16 15 16 // 䟬
 // glyph han-47f0:15x16 15 16 // 䟰
 // ⿲ han-27fb7 han-5f73 han-4e8d // ⿲𧾷彳亍
 
-glyph han-47f3:15x16 15 16 // 䟳 ⿺足羽(T) ⿰𧾷羽(Z)
+glyph han-47f3:15x16 15 16 // 䟳
 ⿰ han-27fb7:5x16 1 han-7fbd.1:9x16 // ⿰𧾷羽 (TODO: wrong! should've been ⿺足羽 instead)
 
 ## 157.7

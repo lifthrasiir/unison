@@ -197,6 +197,7 @@ glyph han-624e.0:* = han-624e:*
 
 glyph han-6250:15x16 15 16 // 扐
 ⿰ han-624c:5x16 1 han-529b:9x16 // ⿰扌力
+glyph han-6250.0:* = han-6250:*
 
 glyph han-6251:15x16 15 16 // 扑
 ⿰ 1 han-624c:5x16 3 han-535c:5x16 // ⿰扌卜
@@ -210,12 +211,15 @@ glyph han-6253.0:* = han-6253:*
 
 glyph han-6254:15x16 15 16 // 扔
 ⿰ han-624c:5x16 1 han-4e43:9x16 // ⿰扌乃
+glyph han-6254.0:* = han-6254:*
 
 glyph han-6255:15x16 15 16 // 払
 ⿰ han-624c:5x16 1 han-53b6:9x16 // ⿰扌厶
+glyph han-6255.0:* = han-6255:*
 
-// glyph han-6256:15x16 15 16 // 扖
-// ⿰ han-624c han-5165 // ⿰扌入
+glyph han-6256:15x16 15 16 // 扖
+⿰ han-624c:5x16 1 han-5165:9x16 // ⿰扌入
+glyph han-6256.0:* = han-6256:*
 
 ## 64.3
 
@@ -568,12 +572,12 @@ glyph han-62f8:15x16 15 16 // 拸
 // glyph han-62fb:15x16 15 16 // 拻
 // ⿰ han-624c han-7070 // ⿰扌灰
 
-glyph han-62fc:15x16 15 16 // 拼 ⿰扌并(GHTJKPV) ⿰扌幷(Z)
+glyph han-62fc:15x16 15 16 // 拼
 ⿰ han-624c:5x16 1 han-5e76:9x16 // ⿰扌并
 glyph han-62fc.0:* = han-62fc:*
 glyph han-62fc.1:* = han-62fc:*
-glyph han-62fc.2:15x16 15 16 // 拼 ⿰扌并(GHTJKPV) ⿰扌幷(Z)
-⿰ han-624c:5x16 han-5e77:10x16 // ⿰扌幷
+glyph han-62fc.2:15x16 15 16 // 拼
+⿰ han-624c:5x16 han-5e77.0:10x16 // ⿰扌幷
 
 glyph han-62fe:15x16 15 16 // 拾
 ⿰ han-624c:5x16 1 han-5408:9x16 // ⿰扌合

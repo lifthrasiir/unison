@@ -66,8 +66,8 @@ glyph han-2c368:15x16 15 16 // 𬍨
 
 ## 96.8
 
-// glyph han-2c36d:15x16 15 16 // 𬍭
-// ⿰ han-248e9 han-9763 // ⿰𤣩靣
+glyph han-2c36d:15x16 15 16 // 𬍭
+⿰ han-248e9:5x16 han-9763:10x16 // ⿰𤣩靣
 
 glyph han-2c36f:15x16 15 16 // 𬍯
 ⿰ han-248e9:7x16 1 han-679c:7x16 // ⿰𤣩果
@@ -930,7 +930,7 @@ glyph han-2c5d4:15x16 15 16 // 𬗔
 
 ## 120.7
 
-glyph han-2c5d6:15x16 15 16 // 𬗖 ⿰糸豆(J) ⿰糹豆(Z)
+glyph han-2c5d6:15x16 15 16 // 𬗖
 ⿰ han-7cf9-j:5x16 1 han-8c46:9x16 // ⿰糹豆
 
 glyph han-2c5d7:15x16 15 16 // 𬗗
@@ -944,8 +944,8 @@ glyph han-2c5de:15x16 15 16 // 𬗞
 
 ## 120.8
 
-// glyph han-2c5df:15x16 15 16 // 𬗟
-// ⿰ han-7cf9 han-9763 // ⿰糹靣
+glyph han-2c5df:15x16 15 16 // 𬗟
+⿰ han-7cf9.x:5x16 han-9763:10x16 // ⿰糹靣
 
 glyph han-2c5e1:15x16 15 16 // 𬗡
 ⿰ han-7cf9-t:5x16 1 han-660c:9x16 // ⿰糹昌
@@ -961,7 +961,7 @@ glyph han-2c5e5:15x16 15 16 // 𬗥
 glyph han-2c5e9:15x16 15 16 // 𬗩
 ⿲ -1 han-7cf9-v:5x16 han-77f3:5x16 han-65a4:6x16 // ⿲糹石斤
 
-glyph han-2c5ec:15x16 15 16 // 𬗬 ⿰糸皇(J) ⿰糹皇(Z)
+glyph han-2c5ec:15x16 15 16 // 𬗬
 ⿰ han-7cf9-j:5x16 1 han-7687:9x16 // ⿰糹皇
 
 ## 120.10

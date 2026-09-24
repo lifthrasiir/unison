@@ -165,8 +165,8 @@ glyph han-2b877:15x16 15 16 // 𫡷
 
 ## 8.11
 
-// glyph han-2b87d:15x16 15 16 // 𫡽 ⿰交呂(V) ⿰交吕(Z)
-// ⿰ han-4ea4 han-5415 // ⿰交吕
+glyph han-2b87d:15x16 15 16 // 𫡽 ⿰交呂(V) ⿰交吕(Z)
+⿰ han-4ea4:7x16 1 han-5415:7x16 // ⿰交吕
 
 ## 8.12
 
@@ -932,8 +932,8 @@ glyph han-2ba8d:15x16 15 16 // 𫪍
 
 ## 30.8
 
-// glyph han-2ba93:15x16 15 16 // 𫪓
-// ⿰ han-53e3 han-9763 // ⿰口靣
+glyph han-2ba93:15x16 15 16 // 𫪓
+⿰ han-53e3:4x16 1 han-9763:10x16 // ⿰口靣
 
 glyph han-2ba9a:15x16 15 16 // 𫪚
 ⿲ han-53e3:3x16 1 han-8f66:4x16-l han-65a4:7x16 // ⿲口车斤
@@ -1100,8 +1100,8 @@ glyph han-2bb4b:15x16 15 16 // 𫭋
 
 ## 31.10
 
-// glyph han-2bb50:15x16 15 16 // 𫭐 ⿰回呂(V) ⿰回吕(Z)
-// ⿰ han-56de han-5415 // ⿰回吕
+glyph han-2bb50:15x16 15 16 // 𫭐 ⿰回呂(V) ⿰回吕(Z)
+⿰ han-56de:7x16 1 han-5415:7x16 // ⿰回吕
 
 # CJK unified ideographs extension E: 土 (32)
 

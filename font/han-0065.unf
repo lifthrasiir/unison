@@ -1116,7 +1116,7 @@ glyph han-65fc:15x16 15 16 // 旼
 glyph han-65ff:15x16 15 16 // 旿
 ⿰ han-65e5:6x16 han-5348:9x16 // ⿰日午
 
-glyph han-6601:15x16 15 16 // 昁 ⿰日巿(GTK) ⿰日市(Z)
+glyph han-6601:15x16 15 16 // 昁
 ⿰ han-65e5:5x16-l 1 han-5e02:9x16 // ⿰日市
 
 // glyph han-6603:15x16 15 16 // 昃
@@ -1674,7 +1674,7 @@ glyph han-66a0:15x16 15 16 // 暠
 glyph han-66a0.0:* = han-66a0:*
 glyph han-66a0.1:* = han-66a0:*
 glyph han-66a0.2:15x16 15 16 // 暠
-⿱ han-65e5:15x5 han-9ad8.x:15x11 // ⿱日高
+⿱ han-65e5:15x5 han-9ad9:15x11 // ⿱日髙
 
 glyph han-66a2:15x16 15 16 // 暢
 ⿰ han-7533:7x16 1 han-661c:7x16 // ⿰申昜

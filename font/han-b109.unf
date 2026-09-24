@@ -40,8 +40,8 @@ glyph han-250ef:15x16 15 16 // 𥃯
 glyph han-250f0:15x16 15 16 // 𥃰
 ⿱ han-4ea0:15x3 1 han-76ee:15x12 // ⿱亠目
 
-glyph han-250f1:15x16 15 16 // 𥃱 ⿰目入(V) ⿰目人(UCS2003)
-⿰ han-76ee:6x16 han-4eba:9x16 // ⿰目人
+glyph han-250f1:15x16 15 16 // 𥃱
+⿰ han-76ee:6x16 han-5165:9x16 // ⿰目入
 
 ## 109.3
 
@@ -361,8 +361,8 @@ glyph han-251ad:15x16 15 16 // 𥆭
 glyph han-251ba:15x16 15 16 // 𥆺
 ⿰ han-76ee:7x16 1 han-9149:7x16 // ⿰目酉
 
-glyph han-251bb:15x16 15 16 // 𥆻 ⿰目呂(V) ⿰目吕(Z)
-⿰ han-76ee:3x16-l 1 han-5415.x:11x16 // ⿰目吕
+glyph han-251bb:15x16 15 16 // 𥆻
+⿰ han-76ee:5x16-l 1 han-5415.x:9x16 // ⿰目吕
 
 glyph han-251bc:15x16 15 16 // 𥆼
 ⿰ han-76ee:5x16-l 1 han-91cc:9x16 // ⿰目里

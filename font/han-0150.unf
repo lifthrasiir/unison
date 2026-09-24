@@ -287,10 +287,10 @@ glyph han-8cc2:15x16 15 16 // 賂
 ⿰ han-8c9d:8x16 han-5404:7x16 // ⿰貝各
 glyph han-8cc2.0:* = han-8cc2:*
 
-glyph han-8cc6.0:15x16 15 16 // 賆 ⿰貝并(GTJP) ⿰貝幷(K)
+glyph han-8cc6.0:15x16 15 16 // 賆
 ⿰ han-8c9d:5x16 1 han-5e76:9x16 // ⿰貝并
 glyph han-8cc6.1:* = han-8cc6.0:*
-glyph han-8cc6.2:15x16 15 16 // 賆 ⿰貝并(GTJP) ⿰貝幷(K)
+glyph han-8cc6.2:15x16 15 16 // 賆
 ..................../Vv'../Vv'
 ...................vV/...vV/$$
 ................../Vv'../Vv'$$
@@ -308,8 +308,8 @@ glyph han-8cc6.2:15x16 15 16 // 賆 ⿰貝并(GTJP) ⿰貝幷(K)
 ............../Vv'......@@..$$
 .............vV/........@@..$$
 ref han-8c9d:5x16 0 0 // ⿰貝并
-glyph han-8cc6.x:15x16 15 16 // 賆 ⿰貝并(GTJP) ⿰貝幷(K)
-⿰ han-8c9d:5x16 han-5e77:10x16 // ⿰貝幷
+glyph han-8cc6.x:15x16 15 16 // 賆
+⿰ han-8c9d:5x16 han-5e77.0:10x16 // ⿰貝幷
 glyph han-8cc6-(g|t|j|p):* = han-8cc6.0:*
 glyph han-8cc6-k:* = han-8cc6.x:*
 
@@ -783,12 +783,12 @@ glyph han-8def:15x16 15 16 // 路
 ⿰ han-27fb7:7x16 1 han-5404:7x16 // ⿰𧾷各
 glyph han-8def.0:* = han-8def:*
 
-glyph han-8df0:15x16 15 16 // 跰 ⿰𧾷并(GHTJKP) ⿰𧾷幷(Z)
+glyph han-8df0:15x16 15 16 // 跰
 ⿰ han-27fb7:5x16 1 han-5e76:9x16 // ⿰𧾷并
 glyph han-8df0.0:* = han-8df0:*
 glyph han-8df0.1:* = han-8df0:*
-glyph han-8df0.2:15x16 15 16 // 跰 ⿰𧾷并(GHTJKP) ⿰𧾷幷(Z)
-⿰ han-27fb7:5x16 han-5e77:10x16 // ⿰𧾷幷
+glyph han-8df0.2:15x16 15 16 // 跰
+⿰ han-27fb7:5x16 han-5e77.0:10x16 // ⿰𧾷幷
 
 // glyph han-8df1:15x16 15 16 // 跱
 // ⿰ han-27fb7 han-5bfa // ⿰𧾷寺

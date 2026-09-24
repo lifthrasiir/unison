@@ -387,7 +387,7 @@ glyph han-23212:15x16 15 16 // 𣈒
 // glyph han-23221-($han-regions):15x16 15 16 // 𣈡
 // ⿺ han-662f han-4e08-($-1) // ⿺是丈
 
-glyph han-23222:15x16 15 16 // 𣈢 ⿰日⿱⿱㇒⿻日丿十(V) ⿰日卑(Z)
+glyph han-23222:15x16 15 16 // 𣈢
 ⿰ han-65e5:4x16-l 1 han-5351.0:10x16 // ⿰日卑
 
 // glyph han-23223:15x16 15 16 // 𣈣
@@ -460,7 +460,7 @@ glyph han-2325e:15x16 15 16 // 𣉞
 ⿰ han-65e5:5x16-l 1 han-9ad8:9x16 // ⿰日高
 glyph han-2325e.0:* = han-2325e:*
 glyph han-2325e.1:15x16 15 16 // 𣉞
-⿰ han-65e5:5x16-l 1 han-9ad8.x:9x16 // ⿰日高
+⿰ han-65e5:5x16-l 1 han-9ad9:9x16 // ⿰日髙
 
 glyph han-23260:15x16 15 16 // 𣉠
 ⿰ han-4e18:7x16-l 1 han-661c:7x16 // ⿰丘昜

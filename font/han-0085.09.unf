@@ -84,6 +84,10 @@ glyph han-6e4b:15x16 15 16 // 湋
 
 glyph han-6e4e:15x16 15 16 // 湎
 ⿰ han-6c35:5x16 han-9762:10x16 // ⿰氵面
+glyph han-6e4e.0:* = han-6e4e:*
+glyph han-6e4e.1:* = han-6e4e:*
+glyph han-6e4e.2:15x16 15 16 // 湎
+⿰ han-6c35:5x16 han-9763:10x16 // ⿰氵靣
 
 glyph han-6e4f:15x16 15 16 // 湏
 ⿰ han-6c35:5x16 1 han-9801:9x16 // ⿰氵頁

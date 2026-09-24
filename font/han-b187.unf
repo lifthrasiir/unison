@@ -461,9 +461,9 @@ glyph han-29a3c:15x16 15 16 // 𩨼
 glyph han-29a42-($han-regions):15x16 15 16 // 𩩂
 ⿰ han-9aa8-($-1):7x16 1 han-5408:7x16 // ⿰骨合
 
-glyph han-29a44-g:15x16 15 16 // 𩩄 ⿰骨开(G) ⿰骨幵(Z)
+glyph han-29a44-g:15x16 15 16 // 𩩄
 ⿰ han-9aa8-g:7x16 han-5f00:8x16 // ⿰骨开
-glyph han-29a44-j:15x16 15 16 // 𩩄 ⿰骨开(G) ⿰骨幵(Z)
+glyph han-29a44-j:15x16 15 16 // 𩩄
 ⿰ han-9aa8-j:7x16 1 han-5e75.2:7x16 // ⿰骨幵
 
 glyph han-29a45:15x16 15 16 // 𩩅

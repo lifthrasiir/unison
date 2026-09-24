@@ -584,20 +584,20 @@ glyph han-2e02d:15x16 15 16 // 𮀭
 
 ## 113.2
 
-glyph han-2e05c:15x16 15 16 // 𮁜 ⿰示刂(S) ⿰礻刂(Z)
-⿰ han-793b:7x16 1 han-5202:6x16 // ⿰礻刂
+glyph han-2e05c:15x16 15 16 // 𮁜
+⿰ han-793a:7x16 1 han-5202:6x16 // ⿰示刂
 
 // glyph han-2e05d:15x16 15 16 // 𮁝
 // ⿺ han-4e5d han-793a // ⿺九示
 
 ## 113.3
 
-glyph han-2e05e:15x16 15 16 // 𮁞 ⿰示上(S) ⿰礻上(Z)
-⿰ han-793b:5x16 1 han-4e0a:9x16 // ⿰礻上
+glyph han-2e05e:15x16 15 16 // 𮁞
+assume ⿰ han-793a:7x16 -1 han-4e0a:9x16 // ⿰示上
 
 ## 113.4
 
-glyph han-2e060:15x16 15 16 // 𮁠 ⿰示毛(S) ⿰礻毛(Z)
+glyph han-2e060:15x16 15 16 // 𮁠
 ⿰ han-793a:5x16 1 han-6bdb:9x16 // ⿰示毛
 
 ## 113.5
@@ -605,29 +605,29 @@ glyph han-2e060:15x16 15 16 // 𮁠 ⿰示毛(S) ⿰礻毛(Z)
 glyph han-2e062:15x16 15 16 // 𮁢
 ⿰ han-793b:5x16 1 han-751f:9x16 // ⿰礻生
 
-glyph han-2e063-j:15x16 15 16 // 𮁣 ⿰礻令(J) ⿰示令(K)
+glyph han-2e063-j:15x16 15 16 // 𮁣
 ⿰ han-793b:5x16 1 han-4ee4.0:9x16 // ⿰礻令
-glyph han-2e063-k:15x16 15 16 // 𮁣 ⿰礻令(J) ⿰示令(K)
+glyph han-2e063-k:15x16 15 16 // 𮁣
 ⿰ han-793a:5x16 1 han-4ee4.0:9x16 // ⿰示令
 
 // glyph han-2e064:15x16 15 16 // 𮁤
 // ⿱ han-672a han-793a // ⿱未示
 
-glyph han-2e067:15x16 15 16 // 𮁧 ⿰示册(S) ⿰礻册(Z)
+glyph han-2e067:15x16 15 16 // 𮁧
 ⿰ han-793a:5x16 1 han-518c.0:9x16 // ⿰示册
 
 // glyph han-2e06b:15x16 15 16 // 𮁫 ⿰示宁(S) ⿰礻宁(Z)
 // ⿰ han-793a han-5b81 // ⿰示宁
 
-glyph han-2e06c:15x16 15 16 // 𮁬 ⿰示加(KS) ⿰礻加(Z)
-⿲ han-793b:5x16 han-529b:5x16 1 han-53e3:4x16 // ⿲礻力口
+glyph han-2e06c:15x16 15 16 // 𮁬
+⿲ han-793a:5x16 han-529b:5x16 1 han-53e3:4x16 // ⿲示力口
 
 ## 113.6
 
 // glyph han-2e06d:15x16 15 16 // 𮁭 ⿰示亘(S) ⿰礻亘(Z)
 // ⿰ han-793a han-4e98 // ⿰示亘
 
-glyph han-2e06e:15x16 15 16 // 𮁮 ⿰示而(J) ⿰礻而(Z)
+glyph han-2e06e:15x16 15 16 // 𮁮
 ⿰ han-793a:5x16 1 han-800c:9x16 // ⿰示而
 
 // glyph han-2e072:15x16 15 16 // 𮁲 ⿰示早(J) ⿰礻早(Z)
@@ -646,12 +646,12 @@ glyph han-2e06e:15x16 15 16 // 𮁮 ⿰示而(J) ⿰礻而(Z)
 
 ## 113.10
 
-glyph han-2e08c:15x16 15 16 // 𮂌 ⿰示栗(S) ⿰礻栗(Z)
+glyph han-2e08c:15x16 15 16 // 𮂌
 ⿰ han-793a:5x16 1 han-6817:9x16 // ⿰示栗
 
 ## 113.11
 
-glyph han-2e08f:15x16 15 16 // 𮂏 ⿰礻強(J) ⿰礻强(Z)
+glyph han-2e08f:15x16 15 16 // 𮂏
 ⿲ han-793b:5x16 han-5f13:5x16 han-27227:5x16 // ⿲礻弓𧈧
 
 // glyph han-2e093:15x16 15 16 // 𮂓 ⿰示莫(K) ⿰礻莫(Z)

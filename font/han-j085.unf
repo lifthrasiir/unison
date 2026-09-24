@@ -998,6 +998,11 @@ glyph han-32d4b:15x16 15 16 // 𲵋
 // glyph han-32d63-($han-regions):15x16 15 16 // 𲵣
 // ⿱ han-7a74-($-1) han-5c04 // ⿱穴射
 
+## 116.11
+
+// glyph han-32d64-($han-regions):15x16 15 16 // 𲵤
+// ⿱ han-7a74-($-1) han-9ad9 // ⿱穴髙
+
 # CJK unified ideographs extension J: 立 (117)
 
 ## 117.2

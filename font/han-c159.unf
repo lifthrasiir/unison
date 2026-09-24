@@ -710,7 +710,7 @@ glyph han-2b59d:15x16 15 16 // 𫖝
 
 ## 184.5
 
-glyph han-2b5ce-($han-regions):15x16 15 16 // 𫗎 ⿰𩙿巨(K) ⿰飠巨(Z)
+glyph han-2b5ce-($han-regions):15x16 15 16 // 𫗎
 ⿰ han-98e0-($-1):7x16 1 han-5de8.0:7x16 // ⿰飠巨
 
 ## 184.6
@@ -728,7 +728,7 @@ glyph han-2b5d3:15x16 15 16 // 𫗓
 
 ## 184.9
 
-glyph han-2b5d6:15x16 15 16 // 𫗖 ⿰𩙿面(K) ⿰飠面(Z)
+glyph han-2b5d6:15x16 15 16 // 𫗖
 ⿰ han-98e0-k:7x16 1 han-9762:7x16 // ⿰飠面
 
 ## 184.11

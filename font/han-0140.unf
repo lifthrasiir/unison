@@ -1091,7 +1091,7 @@ glyph han-84bf.0:* = han-84bf:*
 glyph han-84bf.1:* = han-84bf:*
 glyph han-84bf.2:* = han-84bf:*
 glyph han-84bf.3:15x16 15 16 // 蒿
-⿱ han-8279:15x3 han-9ad8.x:15x13 // ⿱艹高
+⿱ han-8279:15x3 han-9ad9:15x13 // ⿱艹髙
 glyph han-84bf.4:* = han-84bf.0:*
 glyph han-84bf.5:* = han-84bf.3:*
 
@@ -1310,7 +1310,7 @@ glyph han-85c1.0:* = han-85c1:*
 glyph han-85c1.1:* = han-85c1:*
 glyph han-85c1.2:* = han-85c1:*
 glyph han-85c1.3:15x16 15 16 // 藁 ⿱艹槀(GHTJKP) ⿱蒿木(X)
-⿳ -2 han-8279:15x3 -1 han-9ad8.x:15x11 han-6728:15x5 // ⿳艹高木
+⿳ -2 han-8279:15x3 -1 han-9ad9:15x11 han-6728:15x5 // ⿳艹髙木
 glyph han-85c1.4:* = han-85c1.3:*
 
 // glyph han-85c3:15x16 15 16 // 藃

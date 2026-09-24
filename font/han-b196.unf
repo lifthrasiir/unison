@@ -415,8 +415,8 @@ glyph han-2a06d:15x16 15 16 // 𪁭
 // glyph han-2a072:15x16 15 16 // 𪁲
 // ⿱ han-521d han-9ce5 // ⿱初鳥
 
-// glyph han-2a073:15x16 15 16 // 𪁳 ⿰呂鳥(V) ⿰吕鳥(Z)
-// ⿰ han-5415 han-9ce5 // ⿰吕鳥
+glyph han-2a073:15x16 15 16 // 𪁳
+⿰ han-5415.x:7x16 1 han-9ce5:7x16 // ⿰吕鳥
 
 // glyph han-2a076:15x16 15 16 // 𪁶
 // ⿱ han-8fc7 han-9ce5 // ⿱过鳥

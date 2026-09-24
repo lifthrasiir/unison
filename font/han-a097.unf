@@ -192,8 +192,8 @@ glyph han-3f94-(t|j|p):15x16 15 16 // 㾔 ⿸疒吕(G) ⿸疒呂(TP)
 // glyph han-3f95:15x16 15 16 // 㾕
 // ⿸ han-7592 han-8f9b // ⿸疒辛
 
-// glyph han-3f96:15x16 15 16 // 㾖
-// ⿸ han-7592 han-91cc // ⿸疒里
+glyph han-3f96:15x16 15 16 // 㾖
+⿸ han-7592:15x16.11x13 han-91cc:11x12 4 4 // ⿸疒里
 
 // glyph han-3f97:15x16 15 16 // 㾗
 // ⿸ han-7592 han-826f // ⿸疒良

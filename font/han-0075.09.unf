@@ -164,7 +164,7 @@ glyph han-69c1:15x16 15 16 // 槁
 ⿰ han-6728:5x16 1 han-9ad8:9x16 // ⿰木高
 glyph han-69c1.0:* = han-69c1:*
 glyph han-69c1.1:15x16 15 16 // 槁
-⿰ han-6728:5x16 1 han-9ad8.x:9x16 // ⿰木高
+⿰ han-6728:5x16 1 han-9ad9:9x16 // ⿰木髙
 glyph han-69c1.2:* = han-69c1.0:*
 glyph han-69c1.3:* = han-69c1.1:*
 

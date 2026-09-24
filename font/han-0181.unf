@@ -774,8 +774,18 @@ glyph han-991c.0:* = han-991c-j:*
 glyph han-991c.1:* = han-991c-j:*
 glyph han-991c.2:* = han-991c-g:*
 
-// glyph han-9920:15x16 15 16 // 餠 ⿰飠幷(GTP) ⿰𩙿幷(JK)
-// ⿰ han-98e0 han-5e77 // ⿰飠幷
+glyph han-9920.0:15x16 15 16 // 餠
+⿰ han-98e0.y:7x16 han-5e77.0:8x16 // ⿰飠幷
+glyph han-9920.1:* = han-9920.0:*
+glyph han-9920.2:15x16 15 16 // 餠
+⿰ han-98e0.0:7x16 han-5e77.0:8x16 // ⿰飠幷
+glyph han-9920.x:15x16 15 16 // 餠
+⿰ han-98e0.0:7x16 han-5e77.x:9x16 // ⿰飠幷
+glyph han-9920.y:15x16 15 16 // 餠
+⿰ han-98e0.x:7x16 han-5e77.x:9x16 // ⿰飠幷
+glyph han-9920-(j|k):* = han-9920.0:*
+glyph han-9920-(g|p):* = han-9920.x:*
+glyph han-9920-t:* = han-9920.y:*
 
 // glyph han-9922:15x16 15 16 // 餢 ⿰飠咅(GTP) ⿰𩙿咅(JK)
 // ⿰ han-98e0 han-5485 // ⿰飠咅
@@ -1273,8 +1283,12 @@ glyph han-9a06-(h|j):15x16 15 16 // 騆
 // glyph han-9a07:15x16 15 16 // 騇
 // ⿰ han-99ac han-820d // ⿰馬舍
 
-// glyph han-9a08:15x16 15 16 // 騈
-// ⿰ han-99ac han-5e77 // ⿰馬幷
+glyph han-9a08.0:15x16 15 16 // 騈
+⿰ han-99ac:7x16 han-5e77.0:8x16 // ⿰馬幷
+glyph han-9a08.x:15x16 15 16 // 騈
+⿰ -1 han-99ac:7x16 han-5e77.x:9x16 // ⿰馬幷
+glyph han-9a08-(j|k):* = han-9a08.0:*
+glyph han-9a08-(g|t|p):* = han-9a08.x:*
 
 // glyph han-9a09:15x16 15 16 // 騉
 // ⿰ han-99ac han-6606 // ⿰馬昆

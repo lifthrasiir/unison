@@ -122,7 +122,7 @@ glyph han-2a736:15x16 15 16 // 𪜶
 // glyph han-2a738:15x16 15 16 // 𪜸
 // ⿰ han-4ebb han-5b57 // ⿰亻字
 
-glyph han-2a739:15x16 15 16 // 𪜹 ⿰亻⿰⿹𠃌𰀪⿹𠃌𰀪(T) ⿰亻羽(Z)
+glyph han-2a739:15x16 15 16 // 𪜹
 ⿰ han-4ebb:3x16 1 han-7fbd.0:11x16 // ⿰亻羽
 
 // glyph han-2a73a:15x16 15 16 // 𪜺
@@ -424,8 +424,8 @@ glyph han-2a7eb:15x16 15 16 // 𪟫
 
 ## 22.7
 
-glyph han-2a7ef:15x16 15 16 // 𪟯 ⿷匸里(T) ⿷匚里(Z)
-⿷ han-531a:15x16.14x14 han-91cc:11x14 3 1 // ⿷匚里
+glyph han-2a7ef:15x16 15 16 // 𪟯
+⿷ han-5338:15x16.12x12 han-91cc:11x12 3 2 // ⿷匸里
 
 ## 22.8
 

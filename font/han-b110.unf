@@ -268,7 +268,7 @@ glyph han-254b5:15x16 15 16 // 𥒵
 glyph han-254c4:15x16 15 16 // 𥓄
 ⿰ han-77f3:6x16 han-91cc:9x16 // ⿰石里
 
-glyph han-254c5:15x16 15 16 // 𥓅 ⿰石呂(V) ⿰石吕(Z)
+glyph han-254c5:15x16 15 16 // 𥓅
 ⿰ han-77f3:5x16 1 han-5415.x:9x16 // ⿰石吕
 
 ## 112.8
@@ -435,10 +435,10 @@ glyph han-2557f:15x16 15 16 // 𥕿
 // ⿱ han-6e82 han-77f3 // ⿱溂石
 
 glyph han-25593:15x16 15 16 // 𥖓 ⿰破呂(V) ⿰破吕(Z)
-⿲ -7 han-77f3:5x16 han-76ae:8x16 han-5415.x:9x16 // ⿲石皮吕
+⿲ -5 han-77f3:5x16 han-76ae:8x16 han-5415.x:7x16 // ⿲石皮吕
 
 glyph han-25595:15x16 15 16 // 𥖕 ⿰呂破(V) ⿰吕破(Z)
-⿲ -7 han-5415.x:9x16 han-77f3:5x16 han-76ae:8x16 // ⿲吕石皮
+⿲ -5 han-5415.x:7x16 han-77f3:5x16 han-76ae:8x16 // ⿲吕石皮
 
 // glyph han-25596:15x16 15 16 // 𥖖
 // ⿲ han-7834 han-624c han-5df4 // ⿲破扌巴
