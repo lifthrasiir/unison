@@ -153,6 +153,7 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | cmap format 14, the Default/Non-default split, the GSUB fallback lookup, and where the two can disagree | `render/ttf_builder/tables.rs` (`add_uvs_subtable`), `gsub.rs` (`build_uvs_fallback_lookup`), `issues/maps.rs` (`uvs_collision_diagnostics`) |
 | Why a selector needs a plain cmap entry, and why its synthesized glyph's name is unwritable | `render/ttf_builder/collect.rs`, `mod.rs` (`vs_glyph_name`) |
 | Feature targets, `DFLT`/LangSys fallback; a remap group is one lookup and rule order is match priority | `render/ttf_builder/gsub.rs` |
+| Why a GSUB subtable is cut at 64 KiB by us and not by the packer | `render/ttf_builder/gsub.rs` (`split_by_size`) |
 | Why one LangSys names a feature tag only once | `render/ttf_builder/gpos.rs` (`merge_anchor_feature_lookups`) |
 | Lookup order, `remap group` and its stable toposort | `document/remap.rs` (`remap_group_order`) |
 | `assert shape` and why `@lang` is BCP 47; what a test run builds, and how the editor's stays fast | `render/assert.rs` (`run_assertions_inner`), `app/background.rs` (`run_shape_assertions`) |

@@ -52,6 +52,20 @@
 //! tag so an inherited tag and a redeclared one end up as one record. Left out,
 //! adding a single `locl for latn/ROM` silently costs all Latin text its
 //! `ccmp` — and every mark attachment with it.
+//!
+//! # Subtable size is ours to keep
+//!
+//! Everything under a subtable is reached through 16-bit offsets from its
+//! start, so a subtable and its children together cannot usefully exceed 64 KiB.
+//! write-fonts' packer lifts a *lookup* past that limit by promoting it to an
+//! extension, but splits subtables only for two GPOS types; a GSUB subtable
+//! that outgrows its offsets fails the build outright. So the builders whose
+//! size grows with the font — ligature and multiple substitution, the UVS
+//! fallback among them — cut their coverage into consecutive runs with
+//! [`split_by_size`], from an exact count of the bytes each entry adds. The
+//! runs cover disjoint glyphs, so which subtable a glyph lands in cannot change
+//! what matches. Single substitution costs four bytes a glyph and is left
+//! whole.
 
 use super::tables::{ScriptFeatures, build_script_records, make_tag, parse_script_lang};
 use super::*;
@@ -368,26 +382,75 @@ fn build_uvs_fallback_lookup(
         return None;
     }
 
-    let coverage = CoverageTable::format_1(by_first.keys().copied().collect());
-    let ligature_sets: Vec<LigatureSet> = by_first
-        .values()
-        .map(|entries| {
-            LigatureSet::new(
-                entries
-                    .iter()
-                    .map(|(sel, target)| Ligature::new(*target, vec![*sel]))
-                    .collect(),
-            )
+    Some(ligature_lookup(by_first.into_iter().map(
+        |(base, entries)| {
+            let ligs = entries
+                .into_iter()
+                .map(|(sel, target)| Ligature::new(target, vec![sel]))
+                .collect();
+            (base, ligs)
+        },
+    )))
+}
+
+/// The most bytes one subtable and everything below it may take: the far end
+/// of an `Offset16` from the subtable's start.
+const SUBTABLE_BUDGET: usize = u16::MAX as usize;
+
+/// `entries`, in coverage order, cut into consecutive runs each small enough to
+/// be one subtable. `header` is what a subtable costs before its first entry,
+/// `size_of` what one entry adds, both in bytes as written. An entry too large
+/// even alone still gets a run of its own; nothing smaller would pack either.
+fn split_by_size<T>(
+    entries: impl IntoIterator<Item = T>,
+    header: usize,
+    size_of: impl Fn(&T) -> usize,
+) -> Vec<Vec<T>> {
+    let mut runs: Vec<Vec<T>> = Vec::new();
+    let mut run: Vec<T> = Vec::new();
+    let mut used = header;
+    for entry in entries {
+        let size = size_of(&entry);
+        if !run.is_empty() && used + size > SUBTABLE_BUDGET {
+            runs.push(std::mem::take(&mut run));
+            used = header;
+        }
+        used += size;
+        run.push(entry);
+    }
+    if !run.is_empty() {
+        runs.push(run);
+    }
+    runs
+}
+
+/// A ligature lookup over `sets` (first glyph ascending, each set in match
+/// order), as many subtables as [`split_by_size`] needs.
+fn ligature_lookup(
+    sets: impl IntoIterator<Item = (GlyphId16, Vec<Ligature>)>,
+) -> SubstitutionLookup {
+    // Format, coverage offset and set count; the coverage's format and count.
+    const HEADER: usize = 6 + 4;
+    let set_size = |(_, ligs): &(GlyphId16, Vec<Ligature>)| {
+        // Coverage glyph and set offset; the set's count and ligature offsets;
+        // each ligature's glyph, component count and components.
+        let ligs_size: usize = ligs
+            .iter()
+            .map(|l| 4 + 2 * l.component_glyph_ids.len())
+            .sum();
+        2 + 2 + 2 + 2 * ligs.len() + ligs_size
+    };
+    let subtables = split_by_size(sets, HEADER, set_size)
+        .into_iter()
+        .map(|run| {
+            let (firsts, sets): (Vec<_>, Vec<_>) = run
+                .into_iter()
+                .map(|(first, ligs)| (first, LigatureSet::new(ligs)))
+                .unzip();
+            LigatureSubstFormat1::new(CoverageTable::format_1(firsts), sets)
         })
         .collect();
-
-    Some(SubstitutionLookup::Ligature(Lookup::new(
-        LookupFlag::empty(),
-        vec![LigatureSubstFormat1::new(
-            coverage,
-            ligature_sets.into_iter().collect(),
-        )],
-    )))
+    SubstitutionLookup::Ligature(Lookup::new(LookupFlag::empty(), subtables))
 }
 
 pub(super) fn build_gsub(
@@ -901,14 +964,22 @@ fn build_multiple_subst_from_pairs(
     pairs.sort_by_key(|(s, _)| *s);
     pairs.dedup_by_key(|p| p.0);
 
-    let coverage = CoverageTable::format_1(pairs.iter().map(|(s, _)| *s).collect());
-    let sequences: Vec<Sequence> = pairs
+    // Format, coverage offset and sequence count; the coverage's format and
+    // count. Per source: its coverage glyph, its sequence offset, and the
+    // sequence's count and glyphs.
+    const HEADER: usize = 6 + 4;
+    let subtables = split_by_size(pairs, HEADER, |(_, gids)| 2 + 2 + 2 + 2 * gids.len())
         .into_iter()
-        .map(|(_, gids)| Sequence::new(gids))
+        .map(|run| {
+            let (sources, sequences): (Vec<_>, Vec<_>) = run
+                .into_iter()
+                .map(|(s, gids)| (s, Sequence::new(gids)))
+                .unzip();
+            MultipleSubstFormat1::new(CoverageTable::format_1(sources), sequences)
+        })
         .collect();
-    let subtable = MultipleSubstFormat1::new(coverage, sequences);
 
-    SubstitutionLookup::Multiple(Lookup::new(LookupFlag::empty(), vec![subtable]))
+    SubstitutionLookup::Multiple(Lookup::new(LookupFlag::empty(), subtables))
 }
 
 fn build_multiple_subst_lookup(
@@ -958,31 +1029,17 @@ fn build_ligature_subst_lookup(
         }
     }
 
-    let coverage_gids: Vec<GlyphId16> = by_first.keys().copied().collect();
-    let coverage = CoverageTable::format_1(coverage_gids);
-
-    let ligature_sets: Vec<LigatureSet> = by_first
-        .values()
-        .map(|entries| {
-            let mut ligs: Vec<Ligature> = entries
-                .iter()
-                .map(|(components, lig_glyph)| Ligature::new(*lig_glyph, components.clone()))
-                .collect();
-            ligs.sort_by(|a, b| {
-                b.component_glyph_ids
-                    .len()
-                    .cmp(&a.component_glyph_ids.len())
-                    .then_with(|| a.component_glyph_ids.cmp(&b.component_glyph_ids))
-            });
-            LigatureSet::new(ligs)
-        })
-        .collect();
-
-    SubstitutionLookup::Ligature(Lookup::new(
-        LookupFlag::empty(),
-        vec![LigatureSubstFormat1::new(
-            coverage,
-            ligature_sets.into_iter().collect(),
-        )],
-    ))
+    ligature_lookup(by_first.into_iter().map(|(first, entries)| {
+        let mut ligs: Vec<Ligature> = entries
+            .into_iter()
+            .map(|(components, lig_glyph)| Ligature::new(lig_glyph, components))
+            .collect();
+        ligs.sort_by(|a, b| {
+            b.component_glyph_ids
+                .len()
+                .cmp(&a.component_glyph_ids.len())
+                .then_with(|| a.component_glyph_ids.cmp(&b.component_glyph_ids))
+        });
+        (first, ligs)
+    }))
 }

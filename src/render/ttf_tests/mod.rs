@@ -23,6 +23,7 @@ mod map_alts;
 mod masters;
 mod merge;
 mod misc;
+mod packing;
 mod uvs;
 mod vectoronly;
 
