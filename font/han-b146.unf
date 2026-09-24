@@ -160,7 +160,7 @@ glyph han-27832:15x16 15 16 // 𧠲
 // ⿺ han-898b han-5bfa // ⿺見寺
 
 glyph han-27837:15x16 15 16 // 𧠷
-⿰ han-4ea4:7x16 han-898b:8x16 // ⿰交見
+⿰ han-4ea4.0:7x16 han-898b:8x16 // ⿰交見
 
 glyph han-27839:15x16 15 16 // 𧠹
 ⿰ han-572d:7x16 1 han-898b:7x16 // ⿰圭見

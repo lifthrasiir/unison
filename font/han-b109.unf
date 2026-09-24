@@ -249,7 +249,7 @@ glyph han-25157:15x16 15 16 // 𥅗
 // ⿱ han-5f00 han-76ee // ⿱开目
 
 glyph han-2515f:15x16 15 16 // 𥅟
-⿰ han-76ee:6x16 han-4ea4:9x16 // ⿰目交
+⿰ han-76ee:6x16 han-4ea4.0:9x16 // ⿰目交
 
 glyph han-25161:15x16 15 16 // 𥅡
 ⿰ han-76ee:6x16 han-800c:9x16 // ⿰目而
@@ -422,7 +422,7 @@ glyph han-251cd:15x16 15 16 // 𥇍
 // ⿰ han-76ee han-4eab-($-1) // ⿰目享
 
 glyph han-251df:15x16 15 16 // 𥇟
-⿲ han-76ee:3x16-l han-4ea4:7x16 han-529b:5x16 // ⿲目交力
+⿲ han-76ee:3x16-l han-4ea4.0:7x16 han-529b:5x16 // ⿲目交力
 
 // glyph han-251e0:15x16 15 16 // 𥇠
 // ⿱ han-5902 han-4020 // ⿱夂䀠

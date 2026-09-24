@@ -335,7 +335,7 @@ glyph han-3fec:15x16 15 16 // 㿬
 // ⿱ han-5408 han-76ae // ⿱合皮
 
 glyph han-3ff0:15x16 15 16 // 㿰
-⿰ han-4ea4:7x16 han-76ae:8x16 // ⿰交皮
+⿰ han-4ea4.0:7x16 han-76ae:8x16 // ⿰交皮
 
 ## 107.7
 
@@ -674,7 +674,7 @@ glyph han-40aa:15x16 15 16 // 䂪
 // ⿱ han-5de9 han-77f3 // ⿱巩石
 
 glyph han-40ad:15x16 15 16 // 䂭
-⿰ han-77f3:5x16 1 han-4ea4:9x16 // ⿰石交
+⿰ han-77f3:5x16 1 han-4ea4.0:9x16 // ⿰石交
 
 // glyph han-40ae-($han-regions):15x16 15 16 // 䂮 ⿱㓞石(GP) ⿱⿰⿻三丨刀石(T)
 // ⿱ han-34de-($-1) han-77f3 // ⿱㓞石

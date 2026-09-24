@@ -945,7 +945,7 @@ glyph han-2c5de:15x16 15 16 // 𬗞
 ## 120.8
 
 glyph han-2c5df:15x16 15 16 // 𬗟
-⿰ han-7cf9.x:5x16 han-9763:10x16 // ⿰糹靣
+⿰ han-7cf9.x:5x16 2 han-9763:7x16 // ⿰糹靣
 
 glyph han-2c5e1:15x16 15 16 // 𬗡
 ⿰ han-7cf9-t:5x16 1 han-660c:9x16 // ⿰糹昌

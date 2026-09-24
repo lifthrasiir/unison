@@ -263,7 +263,7 @@ glyph han-30a63:15x16 15 16 // 𰩣
 ⿲ han-7acb:5x16 han-4ebb:3x16 han-6728:7x16 // ⿲立亻木
 
 glyph han-30a64:15x16 15 16 // 𰩤
-⿰ han-7acb:7x16 1 han-4ea4:7x16 // ⿰立交
+⿰ han-7acb:7x16 1 han-4ea4.0:7x16 // ⿰立交
 
 ## 117.9
 
@@ -746,6 +746,9 @@ glyph han-30b6c:15x16 15 16 // 𰭬
 
 // glyph han-30b75-($han-regions):15x16 15 16 // 𰭵 ⿰耳丐(S) ⿰耳丏(Z)
 // ⿰ han-8033 han-4e10-($-1) // ⿰耳丐
+
+// glyph han-30b76-($han-regions):15x16 15 16 // 𰭶
+// ⿱ han-7236-($-1) han-8033 // ⿱父耳
 
 glyph han-30b77:15x16 15 16 // 𰭷
 ⿰ han-8033:6x16-l han-5348:9x16 // ⿰耳午

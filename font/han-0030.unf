@@ -2792,8 +2792,14 @@ glyph han-54aa:15x16 15 16 // 咪
 ⿰ han-53e3:5x16 1 han-7c73:9x16 // ⿰口米
 glyph han-54aa.0:* = han-54aa:*
 
-glyph han-54ac:15x16 15 16 // 咬
-⿰ han-53e3:7x16 1 han-4ea4:7x16 // ⿰口交
+glyph han-54ac.0:15x16 15 16 // 咬
+⿰ han-53e3:5x16 1 han-4ea4.1:9x16 // ⿰口交
+glyph han-54ac.1:15x16 15 16 // 咬
+⿰ han-53e3:5x16 1 han-4ea4.0:9x16 // ⿰口交
+glyph han-54ac.2:* = han-54ac.0:*
+glyph han-54ac.3:* = han-54ac.1:*
+glyph han-54ac-k:* = han-54ac.0:*
+glyph han-54ac-(g|h|t|j|p):* = han-54ac.1:*
 
 glyph han-54ad:15x16 15 16 // 咭
 ⿰ han-53e3:6x16 han-5409:9x16 // ⿰口吉

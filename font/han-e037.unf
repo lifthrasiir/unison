@@ -630,6 +630,9 @@ glyph han-2bdbe:15x16 15 16 // 𫶾
 glyph han-2bdc0:15x16 15 16 // 𫷀
 ⿰ han-5dfe:7x16 1 han-6bdb:7x16 // ⿰巾毛
 
+// glyph han-2bdc1-($han-regions):15x16 15 16 // 𫷁
+// ⿱ han-7236-($-1) han-5dfe // ⿱父巾
+
 ## 50.5
 
 // glyph han-2bdc3:15x16 15 16 // 𫷃
@@ -845,7 +848,7 @@ glyph han-2be67:15x16 15 16 // 𫹧
 ⿲ han-5f73:3x16 han-5409:5x16 han-9801:7x16 // ⿲彳吉頁
 
 glyph han-2be68:15x16 15 16 // 𫹨
-⿲ han-5f73:3x16 han-4ea4:7x16 han-9801:5x16 // ⿲彳交頁
+⿲ han-5f73:3x16 han-4ea4.0:7x16 han-9801:5x16 // ⿲彳交頁
 
 ## 60.18
 

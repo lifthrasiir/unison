@@ -1008,6 +1008,13 @@ glyph han-2eb88:15x16 15 16 // 𮮈
 // glyph han-2eb91:15x16 15 16 // 𮮑
 // ⿱ han-79be han-5c12 // ⿱禾尒
 
+# CJK unified ideographs extension F: 黑 (203)
+
+## 203.4
+
+// glyph han-2eb95-($han-regions):15x16 15 16 // 𮮕
+// ⿱ han-7236-($-1) han-9ed2 // ⿱父黒
+
 # CJK unified ideographs extension F: 鼻 (209)
 
 ## 209.0

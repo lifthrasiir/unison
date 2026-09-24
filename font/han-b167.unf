@@ -39,6 +39,9 @@ glyph han-2894c:15x16 15 16 // 𨥌
 glyph han-2894e:15x16 15 16 // 𨥎
 ⿲ han-91d2:5x16-l han-4eba:5x16 han-4eba:5x16 // ⿲釒人人
 
+// glyph han-2894f-($han-regions):15x16 15 16 // 𨥏
+// ⿱ han-7236-($-1) han-91d1 // ⿱父金
+
 glyph han-28950:15x16 15 16 // 𨥐
 ⿲ -2 han-91d2:5x16-l han-4ebb:3x16 han-4e5d:9x16 // ⿲釒亻九
 

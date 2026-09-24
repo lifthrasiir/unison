@@ -577,7 +577,7 @@ glyph han-5ce0:15x16 15 16 // 峠
 // ⿰ han-5c71 han-5939 // ⿰山夹
 
 glyph han-5ce7:15x16 15 16 // 峧
-⿰ han-5c71:5x16 1 han-4ea4:9x16 // ⿰山交
+⿰ han-5c71:5x16-l 1 han-4ea4.0:9x16 // ⿰山交
 
 ## 46.7
 

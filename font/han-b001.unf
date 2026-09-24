@@ -394,6 +394,9 @@ ref 4x2 10 14 negated
 // glyph han-20030:15x16 15 16 // 𠀰
 // ⿱ han-4e0d han-5c11 // ⿱不少
 
+// glyph han-20031-($han-regions):15x16 15 16 // 𠀱
+// ⿱ han-4e0d han-7236-($-1) // ⿱不父
+
 glyph han-20032:15x16 15 16 // 𠀲
 ⿰ han-4e01:7x16 -1 han-591a:9x16 // ⿰丁多
 

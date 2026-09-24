@@ -615,8 +615,12 @@ glyph han-630b.0:* = han-630b:*
 glyph han-630c:15x16 15 16 // 挌
 ⿰ 1 han-624c:5x16 1 han-5404:7x16 // ⿰扌各
 
-glyph han-630d:15x16 15 16 // 挍
-⿰ han-624c:5x16 1 han-4ea4:9x16 // ⿰扌交
+glyph han-630d.0:15x16 15 16 // 挍
+⿰ han-624c:5x16 1 han-4ea4.1:9x16 // ⿰扌交
+glyph han-630d.x:15x16 15 16 // 挍
+⿰ han-624c:5x16 1 han-4ea4.0:9x16 // ⿰扌交
+glyph han-630d-(j|k|v):* = han-630d.0:*
+glyph han-630d-(g|h|t|p):* = han-630d.x:*
 
 glyph han-630f:15x16 15 16 // 挏
 ⿰ han-624c:5x16 1 han-540c:9x16 // ⿰扌同

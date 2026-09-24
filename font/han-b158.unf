@@ -275,6 +275,9 @@ glyph han-282ba:15x16 15 16 // 𨊺
 glyph han-282bb:15x16 15 16 // 𨊻 ⿰車开(GTP) ⿰車幵(Z)
 ⿰ han-8eca:5x16 1 han-5f00:9x16 // ⿰車开
 
+glyph han-282bd:15x16 15 16 // 𨊽
+⿰ han-8eca:5x16 1 han-7236.0:9x16 // ⿰車父
+
 glyph han-282c0-($han-regions):15x16 15 16 // 𨋀
 ⿰ han-8eca:5x16 han-4e11-($-1):10x16 // ⿰車丑
 

@@ -244,8 +244,14 @@ glyph han-72dc:15x16 15 16 // 狜
 // glyph han-72df:15x16 15 16 // 狟
 // ⿰ han-72ad han-4e98 // ⿰犭亘
 
-glyph han-72e1:15x16 15 16 // 狡
-⿰ han-72ad:6x16 han-4ea4:9x16 // ⿰犭交
+glyph han-72e1.0:15x16 15 16 // 狡
+⿰ han-72ad:6x16 han-4ea4.1:9x16 // ⿰犭交
+glyph han-72e1.1:15x16 15 16 // 狡
+⿰ han-72ad:6x16 han-4ea4.0:9x16 // ⿰犭交
+glyph han-72e1.2:* = han-72e1.0:*
+glyph han-72e1.3:* = han-72e1.1:*
+glyph han-72e1-(k|v):* = han-72e1.0:*
+glyph han-72e1-(g|h|t|j|p):* = han-72e1.1:*
 
 glyph han-72e2:15x16 15 16 // 狢
 ⿰ han-72ad:6x16 1 han-5404:7x16 // ⿰犭各
@@ -1212,8 +1218,12 @@ glyph han-73cf:15x16 15 16 // 珏
 // glyph han-73d2:15x16 15 16 // 珒
 // ⿰ han-248e9 han-807f // ⿰𤣩聿
 
-glyph han-73d3:15x16 15 16 // 珓
-⿰ han-248e9:5x16 1 han-4ea4:9x16 // ⿰𤣩交
+glyph han-73d3.0:15x16 15 16 // 珓
+⿰ han-248e9:5x16 1 han-4ea4.1:9x16 // ⿰𤣩交
+glyph han-73d3.x:15x16 15 16 // 珓
+⿰ han-248e9:5x16 1 han-4ea4.0:9x16 // ⿰𤣩交
+glyph han-73d3-(j|k):* = han-73d3.0:*
+glyph han-73d3-(g|h|t|p):* = han-73d3.x:*
 
 glyph han-73d8:15x16 15 16 // 珘
 ⿰ han-248e9:5x16 1 han-821f:9x16 // ⿰𤣩舟

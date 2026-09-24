@@ -795,6 +795,13 @@ glyph han-3569-($han-regions):15x16 15 16 // 㕩
 glyph han-356b:15x16 15 16 // 㕫
 ⿰ han-53e3:5x16 1 han-65b9:9x16 // ⿰口方
 
+glyph han-356e.0:15x16 15 16 // 㕮
+⿰ han-53e3:6x16 han-7236.1:9x16 // ⿰口父
+glyph han-356e.x:15x16 15 16 // 㕮
+⿰ han-53e3:6x16 han-7236.0:9x16 // ⿰口父
+glyph han-356e-j:* = han-356e.0:*
+glyph han-356e-(g|t|p):* = han-356e.x:*
+
 // glyph han-356f:15x16 15 16 // 㕯 ⿵内口(G) ⿵內口(TJ)
 // ⿵ han-5185 han-53e3 // ⿵内口
 
@@ -990,7 +997,7 @@ glyph han-35fe-($han-regions):15x16 15 16 // 㗾
 ## 30.16
 
 glyph han-3610:15x16 15 16 // 㘐
-⿲ -2 han-53e3:3x16 han-99ac:7x16 han-4ea4:7x16 // ⿲口馬交
+⿲ -2 han-53e3:3x16 han-99ac:7x16 han-4ea4.0:7x16 // ⿲口馬交
 
 ## 30.19
 

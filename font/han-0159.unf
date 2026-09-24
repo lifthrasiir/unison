@@ -203,11 +203,33 @@ glyph han-8eca.0:* = han-8eca:*
 
 glyph han-8ecb:15x16 15 16 // 軋
 ⿰ han-8eca:9x16 1 han-4e5a:5x16 // ⿰車乚
+glyph han-8ecb.0:* = han-8ecb:*
 
 ## 159.2
 
-glyph han-8ecc:15x16 15 16 // 軌
+glyph han-8ecc.0:15x16 15 16 // 軌
 ⿰ han-8eca:5x16 1 han-4e5d:9x16 // ⿰車九
+glyph han-8ecc.1:15x16 15 16 // 軌
+..................@@........$$
+..................@@........$$
+..................@@........$$
+..................@@........$$
+..................@@........$$
+..................@@....@@..$$
+..................@@....@@..$$
+..................@@....@@..$$
+..................@@....@@..$$
+..................@@....@@..$$
+..................@@....@@..$$
+..................@@....@@..$$
+.................vV/....@@..$$
+................/vV'....@@..$$
+............/h~h1/......@@../1
+............H_H/........\0@@@@
+ref han-8eca:5x16 0 0 // ⿰車九
+ref 7x2-ys1 6 4
+glyph han-8ecc-(g|h|t|j|k|p):* = han-8ecc.0:*
+glyph han-8ecc-v:* = han-8ecc.1:*
 
 glyph han-8ecd:7x16 7 16 // 軍
 @@@@@@@@@@@@@@
@@ -273,6 +295,7 @@ $$............@@............$$
 $$@@@@@@@@@@@@@@@@@@@@@@@@@@$$
 $$............@@............$$
 $$............@@............$$
+glyph han-8ecd.0:* = han-8ecd:*
 
 ## 159.3
 
@@ -281,14 +304,17 @@ glyph han-8ece:15x16 15 16 // 軎
 
 glyph han-8ecf:15x16 15 16 // 軏
 ⿰ han-8eca:5x16 han-5140:10x16 // ⿰車兀
+glyph han-8ecf.0:* = han-8ecf:*
 
 glyph han-8ed1:15x16 15 16 // 軑
 ⿰ han-8eca:5x16 1 han-5927:9x16 // ⿰車大
+glyph han-8ed1.0:* = han-8ed1:*
 
 glyph han-8ed2:15x12 15 12 // 軒
 ⿰ han-8eca:5x12 1 han-5e72:9x12 // ⿰車干
 glyph han-8ed2:15x16 15 16 // 軒
 ⿰ han-8eca:5x16 1 han-5e72:9x16 // ⿰車干
+glyph han-8ed2.0:* = han-8ed2:*
 
 glyph han-8ed3:15x16 15 16 // 軓
 ⿰ han-8eca:5x16 han-51e1:10x16 // ⿰車凡
@@ -318,6 +344,7 @@ glyph han-8ede:15x16 15 16 // 軞
 
 glyph han-8edf:15x16 15 16 // 軟
 ⿰ han-8eca:7x16 1 han-6b20:7x16 // ⿰車欠
+glyph han-8edf.0:* = han-8edf:*
 
 // glyph han-8ee0-($han-regions):15x16 15 16 // 軠
 // ⿰ han-8eca han-58ec-($-1) // ⿰車壬
@@ -344,7 +371,8 @@ glyph han-8ee7-($han-regions):15x16 15 16 // 軧
 ⿰ han-8eca:7x16 han-6c10-($-1):8x16 // ⿰車氐
 
 glyph han-8ee8-($han-regions):15x16 15 16 // 軨
-⿰ han-8eca:7x16 1 han-4ee4-($-1):7x16 // ⿰車令
+assume ⿰ han-8eca:7x16 -1 han-4ee4-($-1):9x16 // ⿰車令
+glyph han-8ee8.0:* = han-8ee8-j:*
 
 glyph han-8ee9:15x16 15 16 // 軩
 ⿰ han-8eca:7x16 1 han-53f0:7x16 // ⿰車台
@@ -377,15 +405,19 @@ glyph han-8ef5:15x16 15 16 // 軵
 
 glyph han-8ef8:15x16 15 16 // 軸
 ⿰ han-8eca:5x16 1 han-7531:9x16 // ⿰車由
+glyph han-8ef8.0:* = han-8ef8:*
 
 glyph han-8efa:15x16 15 16 // 軺
 ⿰ han-8eca:7x16 han-53ec:8x16 // ⿰車召
+glyph han-8efa.0:* = han-8efa:*
 
 glyph han-8efb:15x16 15 16 // 軻
 ⿰ han-8eca:7x16 han-53ef:8x16 // ⿰車可
+glyph han-8efb.0:* = han-8efb:*
 
 glyph han-8efc:15x16 15 16 // 軼
 ⿰ han-8eca:5x16 1 han-5931:9x16 // ⿰車失
+glyph han-8efc.0:* = han-8efc:*
 
 // glyph han-9fab:15x16 15 16 // 龫
 // ⿰ han-8eca han-2b889 // ⿰車𫢉
@@ -394,12 +426,14 @@ glyph han-8efc:15x16 15 16 // 軼
 
 glyph han-8eed:15x16 15 16 // 軭
 ⿰ han-8eca:5x16 1 han-5321:9x16 // ⿰車匡
+glyph han-8eed.0:* = han-8eed:*
 
 glyph han-8eff:15x16 15 16 // 軿
 ⿰ han-8eca:5x16 1 han-5e76:9x16 // ⿰車并
 
 glyph han-8f00:15x16 15 16 // 輀
 ⿰ han-8eca:5x16 1 han-800c:9x16 // ⿰車而
+glyph han-8f00.0:* = han-8f00:*
 
 glyph han-8f01:15x16 15 16 // 輁
 ⿰ han-8eca:5x16 1 han-5171:9x16 // ⿰車共
@@ -407,20 +441,29 @@ glyph han-8f01:15x16 15 16 // 輁
 // glyph han-8f02:15x16 15 16 // 輂
 // ⿱ han-5171 han-8eca // ⿱共車
 
-glyph han-8f03:15x16 15 16 // 較
-⿰ han-8eca:5x16 1 han-4ea4:9x16 // ⿰車交
+glyph han-8f03.0:15x16 15 16 // 較
+⿰ han-8eca:5x16 1 han-4ea4.0:9x16 // ⿰車交
+glyph han-8f03.1:15x16 15 16 // 較
+⿰ han-8eca:5x16 1 han-4ea4.1:9x16 // ⿰車交
+glyph han-8f03.2:* = han-8f03.0:*
+glyph han-8f03.3:* = han-8f03.1:*
+glyph han-8f03-(g|h|t|j|p):* = han-8f03.0:*
+glyph han-8f03-k:* = han-8f03.1:*
 
 glyph han-8f05:15x16 15 16 // 輅
 ⿰ han-8eca:7x16 1 han-5404:7x16 // ⿰車各
+glyph han-8f05.0:* = han-8f05:*
 
 // glyph han-8f07:15x16 15 16 // 輇
 // ⿰ han-8eca han-5168 // ⿰車全
 
 glyph han-8f08:15x16 15 16 // 輈
 ⿰ han-8eca:5x16 1 han-821f:9x16 // ⿰車舟
+glyph han-8f08.0:* = han-8f08:*
 
 glyph han-8f0a:15x16 15 16 // 輊
 ⿰ han-8eca:7x16 1 han-81f3:7x16 // ⿰車至
+glyph han-8f0a.0:* = han-8f0a:*
 
 // glyph han-8f0b:15x16 15 16 // 輋
 // ⿳ han-5c71 han-5927 han-8eca // ⿳山大車
@@ -702,7 +745,7 @@ glyph han-8f82:15x16 15 16 // 辂
 ⿰ han-8f66:6x16-l 1 han-5404:7x16 // ⿰车各
 
 glyph han-8f83:15x16 15 16 // 较
-⿰ han-8f66:6x16-l han-4ea4:9x16 // ⿰车交
+⿰ han-8f66:6x16-l han-4ea4.0:9x16 // ⿰车交
 
 ## 159'.7
 
@@ -1635,7 +1678,7 @@ glyph han-9091.0:* = han-9091:*
 ## 163.2
 
 glyph han-9092:15x16 15 16 // 邒
-⿰ han-4e01:11x16 han-961d:4x16-r // ⿰丁阝
+⿰ han-4e01:9x16 1 han-961d:5x16-r // ⿰丁阝
 
 // glyph han-9093-($han-regions):15x16 15 16 // 邓
 // ⿰ han-53c8-($-1) han-961d // ⿰又阝
@@ -1649,13 +1692,15 @@ glyph han-9094:15x16 15 16 // 邔
 // ⿱ han-5ddb han-9091 // ⿱巛邑
 
 glyph han-9096:15x16 15 16 // 邖
-⿰ han-5c71:9x16 1 han-961d:4x16-r // ⿰山阝
+⿰ han-5c71:7x16 1 han-961d:7x16-r // ⿰山阝
 
 glyph han-9097:15x16 15 16 // 邗
 ⿰ han-5e72:9x16 1 han-961d:5x16-r // ⿰干阝
+glyph han-9097.0:* = han-9097:*
 
 glyph han-9098:15x16 15 16 // 邘
 ⿰ han-4e8e:9x16 1 han-961d:5x16-r // ⿰于阝
+glyph han-9098.0:* = han-9098:*
 
 glyph han-9099-($han-regions):15x16 15 16 // 邙
 ⿰ han-4ea1-($-1):7x16 1 han-961d:7x16-r // ⿰亡阝
@@ -1664,7 +1709,8 @@ glyph han-909a:15x16 15 16 // 邚
 ⿰ han-5973:7x16 1 han-961d:7x16-r // ⿰女阝
 
 glyph han-909b:15x16 15 16 // 邛
-⿰ han-5de5:7x16 1 han-961d:7x16-r // ⿰工阝
+⿰ han-5de5:9x16 1 han-961d:5x16-r // ⿰工阝
+glyph han-909b.0:* = han-909b:*
 
 // glyph han-909c:15x16 15 16 // 邜
 // ⿰ han-5915 han-961d // ⿰夕阝
@@ -1682,9 +1728,11 @@ glyph han-909f:15x16 15 16 // 邟
 
 glyph han-90a0:15x16 15 16 // 邠
 ⿰ han-5206:9x16 1 han-961d:5x16-r // ⿰分阝
+glyph han-90a0.0:* = han-90a0:*
 
 glyph han-90a1:15x16 15 16 // 邡
-⿰ han-65b9:7x16 1 han-961d:7x16-r // ⿰方阝
+⿰ han-65b9:9x16 1 han-961d:5x16-r // ⿰方阝
+glyph han-90a1.0:* = han-90a1:*
 
 glyph han-90a2:15x16 15 16 // 邢
 ⿰ han-5f00:9x16 1 han-961d:5x16-r // ⿰开阝
@@ -1714,16 +1762,19 @@ glyph han-90ad:15x16 15 16 // 邭
 ⿰ han-53e5:9x16 1 han-961d:4x16-r // ⿰句阝
 
 glyph han-90ae:15x16 15 16 // 邮
-⿰ han-7531:7x16 1 han-961d:7x16-r // ⿰由阝
+⿰ han-7531:9x16 1 han-961d:5x16-r // ⿰由阝
 
 glyph han-90af:15x16 15 16 // 邯
 ⿰ han-7518:7x16 1 han-961d:7x16-r // ⿰甘阝
+glyph han-90af.0:* = han-90af:*
 
 glyph han-90b0:15x16 15 16 // 邰
 ⿰ han-53f0:9x16 1 han-961d:5x16-r // ⿰台阝
+glyph han-90b0.0:* = han-90b0:*
 
 glyph han-90b1:15x16 15 16 // 邱
 ⿰ han-4e18:9x16-l 1 han-961d:5x16-r // ⿰丘阝
+glyph han-90b1.0:* = han-90b1:*
 
 // glyph han-90b2:15x16 15 16 // 邲
 // ⿰ han-5fc5 han-961d // ⿰必阝
@@ -1736,6 +1787,7 @@ glyph han-90b4:15x16 15 16 // 邴
 
 glyph han-90b5:15x16 15 16 // 邵
 ⿰ han-53ec:10x16 1 han-961d:4x16-r // ⿰召阝
+glyph han-90b5.0:* = han-90b5:*
 
 glyph han-90b8.0:15x16 15 16 // 邸
 ⿰ han-6c10.0:8x16 han-961d:7x16-r // ⿰氐阝
@@ -1748,8 +1800,8 @@ glyph han-90b8-g:* = han-90b8.2:*
 // glyph han-90ba:15x16 15 16 // 邺
 // ⿰ han-4e1a han-961d // ⿰业阝
 
-glyph han-90bb-($han-regions):15x16 15 16 // 邻 ⿰令阝(G) ⿰⿱⿵𠆢丶龴阝(H)
-⿰ han-4ee4-($-1):9x16 1 han-961d:5x16-r // ⿰令阝
+glyph han-90bb-($han-regions):15x16 15 16 // 邻
+⿰ han-4ee4.2:9x16 1 han-961d:5x16-r // ⿰令阝
 
 ## 163.6
 
@@ -1758,15 +1810,18 @@ glyph han-90bc:15x16 15 16 // 邼
 
 glyph han-90bd:15x16 15 16 // 邽
 ⿰ han-572d:9x16 1 han-961d:5x16-r // ⿰圭阝
+glyph han-90bd.0:* = han-90bd:*
 
 // glyph han-90bf:15x16 15 16 // 邿
 // ⿰ han-5bfa han-961d // ⿰寺阝
 
 glyph han-90c3:15x16 15 16 // 郃
 ⿰ han-5408:9x16 1 han-961d:5x16-r // ⿰合阝
+glyph han-90c3.0:* = han-90c3:*
 
 glyph han-90c5:15x16 15 16 // 郅
 ⿰ han-81f3:9x16 1 han-961d:5x16-r // ⿰至阝
+glyph han-90c5.0:* = han-90c5:*
 
 glyph han-90c6:15x16 15 16 // 郆
 ⿰ han-5409:9x16 1 han-961d:5x16-r // ⿰吉阝
@@ -1779,10 +1834,12 @@ glyph han-90c9-j:* = han-90c9.0:*
 glyph han-90c9-(g|t|p):* = han-90c9.x:*
 
 glyph han-90ca:15x16 15 16 // 郊
-⿰ han-4ea4:9x16 1 han-961d:5x16-r // ⿰交阝
+⿰ han-4ea4.0:9x16 1 han-961d:5x16-r // ⿰交阝
+glyph han-90ca.0:* = han-90ca:*
 
 glyph han-90cc:15x16 15 16 // 郌
 ⿰ han-572d:5x16 han-9091:10x16 // ⿰圭邑
+glyph han-90cc.0:* = han-90cc:*
 
 glyph han-90cd:15x16 15 16 // 郍
 ⿰ han-821f:7x16 1 han-961d:7x16-r // ⿰舟阝

@@ -220,7 +220,7 @@ glyph han-30d65:15x16 15 16 // 𰵥
 ⿰ han-8ba0:5x16 1 han-591a:9x16 // ⿰讠多
 
 glyph han-30d66:15x16 15 16 // 𰵦
-⿰ han-8ba0:5x16 1 han-4ea4:9x16 // ⿰讠交
+⿰ han-8ba0:5x16 1 han-4ea4.0:9x16 // ⿰讠交
 
 ## 149'.7
 
@@ -828,6 +828,9 @@ glyph han-30f1d:15x16 15 16 // 𰼝
 
 // glyph han-30f21:15x16 15 16 // 𰼡
 // ⿱ han-5206 han-91d1 // ⿱分金
+
+glyph han-30f22:15x16 15 16 // 𰼢
+⿰ han-91d2:5x16-l 1 han-7236.0:9x16 // ⿰釒父
 
 // glyph han-30f23:15x16 15 16 // 𰼣
 // ⿰ han-91d2 han-3749 // ⿰釒㝉

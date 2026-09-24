@@ -677,7 +677,7 @@ glyph han-212d9:15x16 15 16 // 𡋙
 // ⿱ han-5408 han-571f // ⿱合土
 
 glyph han-212df:15x16 15 16 // 𡋟
-⿰ han-571f:5x16-l 1 han-4ea4:9x16 // ⿰土交
+⿰ han-571f:5x16-l 1 han-4ea4.0:9x16 // ⿰土交
 
 // glyph han-212e0:15x16 15 16 // 𡋠
 // ⿰ han-571f han-20ae1 // ⿰土𠫡

@@ -323,8 +323,13 @@ glyph han-8cc9:15x16 15 16 // 賉
 ⿰ han-8c9d:6x16 han-8840:9x16 // ⿰貝血
 glyph han-8cc9.0:* = han-8cc9:*
 
-glyph han-8ccb:15x16 15 16 // 賋
-⿰ han-8c9d:6x16 han-4ea4:9x16 // ⿰貝交
+glyph han-8ccb.0:15x16 15 16 // 賋
+⿰ han-8c9d:6x16 han-4ea4.1:9x16 // ⿰貝交
+glyph han-8ccb.1:* = han-8ccb.0:*
+glyph han-8ccb.2:15x16 15 16 // 賋
+⿰ han-8c9d:6x16 han-4ea4.0:9x16 // ⿰貝交
+glyph han-8ccb-j:* = han-8ccb.0:*
+glyph han-8ccb-(g|t):* = han-8ccb.2:*
 
 // glyph han-8ccd:15x16 15 16 // 賍
 // ⿰ han-8c9d han-5e84 // ⿰貝庄
@@ -764,8 +769,13 @@ glyph han-8dbc-(g|h|t|k|p):* = han-8dbc.2:*
 glyph han-8de2:15x16 15 16 // 跢
 ⿰ han-27fb7:5x16 1 han-591a:9x16 // ⿰𧾷多
 
-glyph han-8de4:15x16 15 16 // 跤
-⿰ han-27fb7:5x16 1 han-4ea4:9x16 // ⿰𧾷交
+glyph han-8de4.0:15x16 15 16 // 跤
+⿰ han-27fb7:5x16 1 han-4ea4.1:9x16 // ⿰𧾷交
+glyph han-8de4.1:* = han-8de4.0:*
+glyph han-8de4.2:15x16 15 16 // 跤
+⿰ han-27fb7:5x16 1 han-4ea4.0:9x16 // ⿰𧾷交
+glyph han-8de4-(j|k):* = han-8de4.0:*
+glyph han-8de4-(g|h|t|p):* = han-8de4.2:*
 
 // glyph han-8de7:15x16 15 16 // 跧
 // ⿰ han-27fb7 han-5168 // ⿰𧾷全

@@ -95,6 +95,36 @@ ref 2x6-xz1 11 5
 // glyph han-24528:15x16 15 16 // 𤔨
 // ⿸ han-9ebb han-722a // ⿸麻爪
 
+# CJK unified ideographs extension B: 父 (88)
+
+## 88.3
+
+// glyph han-2454e-($han-regions):15x16 15 16 // 𤕎
+// ⿱ han-7236-($-1) han-4e8e // ⿱父于
+
+glyph han-2454f:15x16 15 16 // 𤕏
+⿱ han-7236.0:15x12 han-5c71:15x4 // ⿱父山
+
+## 88.4
+
+// glyph han-24551-($han-regions):15x16 15 16 // 𤕑
+// ⿱ han-7236-($-1) han-5f00 // ⿱父开
+
+## 88.5
+
+// glyph han-24552-($han-regions):15x16 15 16 // 𤕒
+// ⿱ han-7236-($-1) han-53ef // ⿱父可
+
+## 88.7
+
+// glyph han-24555-($han-regions):15x16 15 16 // 𤕕
+// ⿱ han-7236-($-1) han-9091 // ⿱父邑
+
+## 88.10
+
+// glyph han-2455a-($han-regions):15x16 15 16 // 𤕚
+// ⿳ han-4ea0 han-96b9 han-7236-($-1) // ⿳亠隹父
+
 # CJK unified ideographs extension B: 爻 (89)
 
 ## 89.5

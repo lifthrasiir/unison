@@ -1320,8 +1320,14 @@ glyph han-681f.4:15x16 15 16 // 栟 ⿰木并(GHTJKP) ⿰木幷(Z)
 ..............................
 ref han-681f.0:15x16
 
-glyph han-6821:15x16 15 16 // 校
-⿰ han-6728:5x16 1 han-4ea4:9x16 // ⿰木交
+glyph han-6821.0:15x16 15 16 // 校
+⿰ han-6728:5x16 1 han-4ea4.0:9x16 // ⿰木交
+glyph han-6821.1:15x16 15 16 // 校
+⿰ han-6728:5x16 1 han-4ea4.1:9x16 // ⿰木交
+glyph han-6821.2:* = han-6821.0:*
+glyph han-6821.3:* = han-6821.1:*
+glyph han-6821-(g|h|t|j|p):* = han-6821.0:*
+glyph han-6821-(k|v):* = han-6821.1:*
 
 glyph han-6822:15x16 15 16 // 栢
 ⿰ han-6728:7x16 han-767e:8x16 // ⿰木百

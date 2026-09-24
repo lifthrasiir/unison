@@ -355,6 +355,13 @@ glyph han-2ae7a:15x16 15 16 // 𪹺
 // glyph han-2ae91:15x16 15 16 // 𪺑
 // ⿰ han-722a han-9577 // ⿰爪長
 
+# CJK unified ideographs extension C: 父 (88)
+
+## 88.6
+
+// glyph han-2ae9b-($han-regions):15x16 15 16 // 𪺛
+// ⿱ han-7236-($-1) han-7f36 // ⿱父缶
+
 # CJK unified ideographs extension C: 爻 (89)
 
 ## 89.4

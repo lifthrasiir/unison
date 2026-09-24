@@ -1271,8 +1271,10 @@ glyph han-8a65-($han-regions):15x16 15 16 // 詥
 ⿰ han-8a01-($-1):5x16 1 han-5408:9x16 // ⿰訁合
 glyph han-8a65.0:* = han-8a65-j:*
 
-glyph han-8a68-($han-regions):15x16 15 16 // 詨
-⿰ han-8a01-($-1):5x16 1 han-4ea4:9x16 // ⿰訁交
+glyph han-8a68-(g|h|t|j|p):15x16 15 16 // 詨
+⿰ han-8a01-($-1):5x16 1 han-4ea4.0:9x16 // ⿰訁交
+glyph han-8a68-(k):15x16 15 16 // 詨
+⿰ han-8a01-($-1):5x16 1 han-4ea4.1:9x16 // ⿰訁交
 
 // glyph han-8a69:15x16 15 16 // 詩
 // ⿰ han-8a01 han-5bfa // ⿰訁寺

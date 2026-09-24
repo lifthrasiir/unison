@@ -92,6 +92,9 @@ glyph han-21d56:15x16 15 16 // 𡵖
 // glyph han-21d58:15x16 15 16 // 𡵘 ⿰山户(G) ⿰山戶(T)
 // ⿰ han-5c71 han-6237 // ⿰山户
 
+glyph han-21d5b:15x16 15 16 // 𡵛
+⿰ han-5c71:5x16-l 1 han-7236.0:9x16 // ⿰山父
+
 // glyph han-21d5c:15x16 15 16 // 𡵜
 // ⿰ han-5c71 han-725b // ⿰山牛
 

@@ -803,7 +803,7 @@ glyph han-2db45:15x16 15 16 // 𭭅
 // ⿰ han-4e9a han-6b20 // ⿰亚欠
 
 glyph han-2db49:15x16 15 16 // 𭭉
-⿰ han-4ea4:7x16 1 han-6b20:7x16 // ⿰交欠
+⿰ han-4ea4.0:7x16 1 han-6b20:7x16 // ⿰交欠
 
 glyph han-2db4a:15x16 15 16 // 𭭊
 ⿰ han-540d:9x16 1 han-6b20:5x16 // ⿰名欠

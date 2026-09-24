@@ -125,7 +125,7 @@ glyph han-981c:15x16 15 16 // 頜
 ⿰ han-5408:7x16 1 han-9801:7x16 // ⿰合頁
 
 glyph han-981d:15x16 15 16 // 頝
-⿰ han-4ea4:7x16 1 han-9801:7x16 // ⿰交頁
+⿰ han-4ea4.0:7x16 1 han-9801:7x16 // ⿰交頁
 
 // glyph han-981e:15x16 15 16 // 頞
 // ⿰ han-5b89 han-9801 // ⿰安頁
@@ -663,15 +663,16 @@ glyph han-98ff-($han-regions):15x16 15 16 // 飿
 // glyph han-9902:15x16 15 16 // 餂 ⿰飠舌(GHTP) ⿰𩙿舌(JK)
 // ⿰ han-98e0 han-820c // ⿰飠舌
 
-glyph han-9903.0:15x16 15 16 // 餃 ⿰飠交(GHTP) ⿰𩙿交(JK)
-⿰ han-98e0.y:7x16 1 han-4ea4:7x16 // ⿰飠交
-glyph han-9903.1:15x16 15 16 // 餃 ⿰飠交(GHTP) ⿰𩙿交(JK)
-⿰ han-98e0.0:7x16 1 han-4ea4:7x16 // ⿰飠交
+glyph han-9903.0:15x16 15 16 // 餃
+⿰ han-98e0.y:7x16 1 han-4ea4.1:7x16 // ⿰飠交
+glyph han-9903.1:15x16 15 16 // 餃
+⿰ han-98e0.0:7x16 1 han-4ea4.0:7x16 // ⿰飠交
 glyph han-9903.2:* = han-9903.0:*
 glyph han-9903.3:* = han-9903.1:*
-glyph han-9903.4:* = han-9903.0:* // TODO
-glyph han-9903.x:15x16 15 16 // 餃 ⿰飠交(GHTP) ⿰𩙿交(JK)
-⿰ han-98e0.x:7x16 1 han-4ea4:7x16 // ⿰飠交
+glyph han-9903.4:15x16 15 16 // 餃
+⿰ han-98e0.y:7x16 1 han-4ea4.0:7x16 // ⿰飠交
+glyph han-9903.x:15x16 15 16 // 餃
+⿰ han-98e0.x:7x16 1 han-4ea4.0:7x16 // ⿰飠交
 glyph han-9903-(j|k):* = han-9903.0:*
 glyph han-9903-(g|p):* = han-9903.1:*
 glyph han-9903-(h|t):* = han-9903.x:*
@@ -947,7 +948,7 @@ glyph han-9979:15x16 15 16 // 饹
 ⿰ 1 han-9963:5x16 1 han-5404:7x16 // ⿰饣各
 
 glyph han-997a:15x16 15 16 // 饺
-⿰ han-9963:5x16 1 han-4ea4:9x16 // ⿰饣交
+⿰ han-9963:5x16 1 han-4ea4.0:9x16 // ⿰饣交
 
 // glyph han-997b:15x16 15 16 // 饻
 // ⿰ han-9963 han-8863 // ⿰饣衣
@@ -1239,8 +1240,13 @@ glyph han-99e7:15x16 15 16 // 駧
 glyph han-99ec:15x16 15 16 // 駬
 ⿰ han-99ac:7x16 1 han-8033:7x16 // ⿰馬耳
 
-glyph han-99ee:15x16 15 16 // 駮
-⿰ han-99ac:7x16 1 han-4ea4:7x16 // ⿰馬交
+glyph han-99ee.0:15x16 15 16 // 駮
+⿰ han-99ac:7x16 1 han-4ea4.1:7x16 // ⿰馬交
+glyph han-99ee.1:* = han-99ee.0:*
+glyph han-99ee.2:15x16 15 16 // 駮
+⿰ han-99ac:7x16 1 han-4ea4.0:7x16 // ⿰馬交
+glyph han-99ee-(j|k):* = han-99ee.0:*
+glyph han-99ee-(g|h|t|p):* = han-99ee.2:*
 
 // glyph han-99f0:15x16 15 16 // 駰
 // ⿰ han-99ac han-56e0 // ⿰馬因

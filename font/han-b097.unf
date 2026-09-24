@@ -421,6 +421,9 @@ glyph han-24c3d:15x16 15 16 // 𤰽
 glyph han-24c3e:15x16 15 16 // 𤰾
 ⿰ han-7530:7x16-l han-6708:8x16 // ⿰田月
 
+// glyph han-24c40-($han-regions):15x16 15 16 // 𤱀
+// ⿱ han-7530 han-7236-($-1) // ⿱田父
+
 glyph han-24c41:15x16 15 16 // 𤱁
 ⿰ han-7531:5x16 1 han-592b:9x16 // ⿰由夫
 
@@ -435,6 +438,9 @@ glyph han-24c43:15x16 15 16 // 𤱃
 
 // glyph han-24c45:15x16 15 16 // 𤱅 ⿰田内(G) ⿰田內(Z)
 // ⿰ han-7530 han-5185 // ⿰田内
+
+// glyph han-24c47-($han-regions):15x16 15 16 // 𤱇
+// ⿱ han-7236-($-1) han-7530 // ⿱父田
 
 // glyph han-24c48:15x16 15 16 // 𤱈
 // ⿰ han-4ea9 han-535c // ⿰亩卜

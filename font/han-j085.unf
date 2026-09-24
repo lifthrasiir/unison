@@ -304,12 +304,32 @@ glyph han-32aed:15x16 15 16 // 𲫭
 // glyph han-32b3b:15x16 15 16 // 𲬻
 // ⿺ han-722a han-572d // ⿺爪圭
 
+# CJK unified ideographs extension J: 父 (88)
+
+## 88.2
+
+glyph han-32b40:15x16 15 16 // 𲭀
+⿰ han-7236.0:9x16 1 han-535c:5x16 // ⿰父卜
+
+// glyph han-32b41-($han-regions):15x16 15 16 // 𲭁
+// ⿱ han-7236-($-1) han-4e5d // ⿱父九
+
+## 88.4
+
+// glyph han-32b42-($han-regions):15x16 15 16 // 𲭂
+// ⿱ han-7236-($-1) han-6728 // ⿱父木
+
+## 88.8
+
+// glyph han-32b44-($han-regions):15x16 15 16 // 𲭄
+// ⿱ han-7236-($-1) han-5761 // ⿱父坡
+
 # CJK unified ideographs extension J: 爿 (90)
 
 ## 90.2
 
-glyph han-32b45-($han-regions):15x16 15 16 // 𲭅
-⿰ han-723f:5x16 1 han-5315-($-1):9x16 // ⿰爿匕
+glyph han-32b45:15x16 15 16 // 𲭅
+⿰ han-723f:6x16 1 han-5315.0:8x16 // ⿰爿匕
 
 ## 90.5
 

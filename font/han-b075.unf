@@ -130,6 +130,10 @@ glyph han-233da:15x16 15 16 // 𣏚
 // glyph han-233e3-($han-regions):15x16 15 16 // 𣏣
 // ⿰ han-6728 han-535e-($-1) // ⿰木卞
 
+glyph han-233e4:15x16 15 16 // 𣏤
+⿰ han-6728:5x16 1 han-7236.1:9x16 // ⿰木父
+glyph han-233e4.0:* = han-233e4:*
+
 // glyph han-233e5:15x16 15 16 // 𣏥
 // ⿰ han-6728 han-516d // ⿰木六
 

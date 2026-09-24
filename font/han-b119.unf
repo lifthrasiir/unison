@@ -116,7 +116,7 @@ glyph han-25e59:15x16 15 16 // 𥹙
 // ⿰ han-7c73 han-4e98 // ⿰米亘
 
 glyph han-25e5c:15x16 15 16 // 𥹜
-⿰ han-7c73:5x16 1 han-4ea4:9x16 // ⿰米交
+⿰ han-7c73:5x16 1 han-4ea4.0:9x16 // ⿰米交
 
 glyph han-25e60:15x16 15 16 // 𥹠
 ⿰ han-7c73:5x16 1 han-591a:9x16 // ⿰米多

@@ -614,8 +614,13 @@ glyph han-791d:15x16 15 16 // 礝
 
 ## 112.16
 
-glyph han-792e:15x16 15 16 // 礮
-⿲ -5 han-77f3:5x16 1 han-99ac:7x16 han-4ea4:7x16 // ⿲石馬交
+glyph han-792e.0:15x16 15 16 // 礮
+⿲ -5 han-77f3:5x16 1 han-99ac:7x16 han-4ea4.1:7x16 // ⿲石馬交
+glyph han-792e.1:* = han-792e.0:*
+glyph han-792e.2:15x16 15 16 // 礮
+⿲ -5 han-77f3:5x16 1 han-99ac:7x16 han-4ea4.0:7x16 // ⿲石馬交
+glyph han-792e-j:* = han-792e.0:*
+glyph han-792e-(g|h|t|k|p):* = han-792e.2:*
 
 ## 112.18
 

@@ -221,7 +221,7 @@ glyph han-2d23b:15x16 15 16 // 𭈻
 // ⿰ han-53e3 han-6c97 // ⿰口沗
 
 glyph han-2d241:15x16 15 16 // 𭉁
-⿰ han-5408:7x16 1 han-4ea4:7x16 // ⿰合交
+⿰ han-5408:7x16 1 han-4ea4.0:7x16 // ⿰合交
 
 glyph han-2d244:15x16 15 16 // 𭉄
 ⿲ han-53e3:3x16 han-821f:7x16 han-5df3:5x16 // ⿲口舟巳
@@ -262,7 +262,7 @@ glyph han-2d26c:15x16 15 16 // 𭉬
 // ⿰ han-53e3 han-72f8 // ⿰口狸
 
 glyph han-2d26f:15x16 15 16 // 𭉯
-⿲ han-53e3:3x16 han-4ea4:7x16 han-6b20:5x16 // ⿲口交欠
+⿲ han-53e3:3x16 han-4ea4.0:7x16 han-6b20:5x16 // ⿲口交欠
 
 // glyph han-2d274:15x16 15 16 // 𭉴
 // ⿲ han-53e3 han-6c35 han-2d950 // ⿲口氵𭥐

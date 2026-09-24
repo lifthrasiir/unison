@@ -206,6 +206,9 @@ glyph han-201cc:15x16 15 16 // 𠇌
 // glyph han-201cf-($han-regions):15x16 15 16 // 𠇏
 // ⿱ han-201a2 han-4eca-($-1) // ⿱𠆢今
 
+glyph han-201d1:15x16 15 16 // 𠇑
+⿰ han-4ebb:5x16 1 han-7236.0:9x16 // ⿰亻父
+
 glyph han-201d4:15x16 15 16 // 𠇔
 ⿰ han-4ebb:5x16 -1 han-6bdb:11x16 // ⿰亻毛
 

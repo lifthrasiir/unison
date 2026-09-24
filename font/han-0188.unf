@@ -248,9 +248,15 @@ glyph han-9ab7.0:* = han-9ab7-j:*
 
 ## 188.6
 
-glyph han-9ab9-($han-regions):15x16 15 16 // 骹
-⿰ han-9aa8-($-1):7x16 1 han-4ea4:7x16 // ⿰骨交
-glyph han-9ab9.0:* = han-9ab9-j:*
+glyph han-9ab9.0:15x16 15 16 // 骹
+⿰ han-9aa8.0:7x16 1 han-4ea4.1:7x16 // ⿰骨交
+glyph han-9ab9.x:15x16 15 16 // 骹
+⿰ han-9aa8.x:7x16 1 han-4ea4.0:7x16 // ⿰骨交
+glyph han-9ab9.y:15x16 15 16 // 骹
+⿰ han-9aa8.0:7x16 1 han-4ea4.0:7x16 // ⿰骨交
+glyph han-9ab9-(j|k):* = han-9ab9.0:*
+glyph han-9ab9-g:* = han-9ab9.x:*
+glyph han-9ab9-(h|t|p):* = han-9ab9.y:*
 
 glyph han-9abc-($han-regions):15x16 15 16 // 骼
 ⿰ han-9aa8-($-1):7x16 1 han-5404:7x16 // ⿰骨各
@@ -853,14 +859,29 @@ glyph han-9ba9:15x16 15 16 // 鮩 ⿰魚并(GTJP) ⿰魚幷(Z)
 ⿰ han-9b5a:7x16 han-5e76:8x16 // ⿰魚并
 glyph han-9ba9.0:* = han-9ba9:*
 
-glyph han-9bab:15x16 15 16 // 鮫
-⿰ han-9b5a:7x16 1 han-4ea4:7x16 // ⿰魚交
+glyph han-9bab.0:15x16 15 16 // 鮫
+⿰ han-9b5a:7x16 1 han-4ea4.1:7x16 // ⿰魚交
+glyph han-9bab.1:15x16 15 16 // 鮫
+⿰ han-9b5a:7x16 1 han-4ea4.0:7x16 // ⿰魚交
+glyph han-9bab.2:* = han-9bab.0:*
+// TODO: glyph han-9bab.3
+glyph han-9bab.4:* = han-9bab.0:*
+glyph han-9bab.5:* = han-9bab.1:*
+glyph han-9bab-k:* = han-9bab.0:*
+glyph han-9bab-(g|h|t|j|p):* = han-9bab.1:*
 
 glyph han-9bad:15x16 15 16 // 鮭
 ⿰ han-9b5a:7x16 1 han-572d:7x16 // ⿰魚圭
+glyph han-9bad.0:* = han-9bad:*
+glyph han-9bad.1:* = han-9bad:*
+// TODO: glyph han-9bad.2:*
 
 glyph han-9bae:15x16 15 16 // 鮮
 ⿰ han-9b5a:7x16 1 han-7f8a:7x16 // ⿰魚羊
+glyph han-9bae.0:* = han-9bae:*
+// TODO: glyph han-9bae.1:*
+glyph han-9bae.2:* = han-9bae.0:*
+// TODO: glyph han-9bae.3:* = han-9bae.1:*
 
 glyph han-9baf:15x16 15 16 // 鮯
 ⿰ han-9b5a:7x16 1 han-5408:7x16 // ⿰魚合

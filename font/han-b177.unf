@@ -109,7 +109,7 @@ glyph han-29291:15x16 15 16 // 𩊑
 ⿰ han-9769:7x16 1 han-7f8a:7x16 // ⿰革羊
 
 glyph han-29294:15x16 15 16 // 𩊔
-⿰ han-9769:7x16 1 han-4ea4:7x16 // ⿰革交
+⿰ han-9769:7x16 1 han-4ea4.0:7x16 // ⿰革交
 
 glyph han-29296:15x16 15 16 // 𩊖 ⿰革并(GTP) ⿰革幷(Z)
 ⿰ han-9769:7x16 han-5e76:8x16 // ⿰革并
@@ -343,7 +343,7 @@ glyph han-293a3:15x16 15 16 // 𩎣
 ## 178.6
 
 glyph han-293a6:15x16 15 16 // 𩎦
-⿰ han-97cb:7x16 1 han-4ea4:7x16 // ⿰韋交
+⿰ han-97cb:7x16 1 han-4ea4.0:7x16 // ⿰韋交
 
 // glyph han-293a7:15x16 15 16 // 𩎧
 // ⿲ han-97cb han-4ebb han-72ac // ⿲韋亻犬
@@ -484,10 +484,10 @@ glyph han-2941e:15x16 15 16 // 𩐞
 ⿰ han-591a:7x16 1 han-97f3:7x16 // ⿰多音
 
 glyph han-2941f:15x16 15 16 // 𩐟
-⿰ han-97f3:7x16 1 han-4ea4:7x16 // ⿰音交
+⿰ han-97f3:7x16 1 han-4ea4.0:7x16 // ⿰音交
 glyph han-2941f.0:* = han-2941f:*
 glyph han-2941f.1:15x16 15 16 // 𩐟
-⿰ han-97f3.1:7x16 1 han-4ea4:7x16 // ⿰音交
+⿰ han-97f3.1:7x16 1 han-4ea4.0:7x16 // ⿰音交
 
 glyph han-29420:15x16 15 16 // 𩐠
 ⿰ han-97f3:7x16 1 han-5171:7x16 // ⿰音共

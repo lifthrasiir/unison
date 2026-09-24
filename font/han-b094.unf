@@ -313,7 +313,7 @@ glyph han-247c7:15x16 15 16 // 𤟇
 // ⿰ han-72ad han-6771 // ⿰犭東
 
 glyph han-247cb:15x16 15 16 // 𤟋
-⿲ -1 han-72ad:4x16 han-4ea4:7x16 han-529b:5x16 // ⿲犭交力
+⿲ -1 han-72ad:4x16 han-4ea4.0:7x16 han-529b:5x16 // ⿲犭交力
 
 // glyph han-247d4:15x16 15 16 // 𤟔
 // ⿰ han-72ad han-9577 // ⿰犭長

@@ -102,6 +102,9 @@ glyph han-29d75:15x16 15 16 // 𩵵
 // glyph han-29d76:15x16 15 16 // 𩵶
 // ⿱ han-5143 han-9b5a // ⿱元魚
 
+// glyph han-29d79-($han-regions):15x16 15 16 // 𩵹
+// ⿰ han-9b5a han-7236-($-1) // ⿰魚父
+
 glyph han-29d7a:15x16 15 16 // 𩵺
 ⿰ han-9b5a:7x16 1 han-6708:7x16 // ⿰魚月
 
