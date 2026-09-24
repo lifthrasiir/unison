@@ -28,6 +28,10 @@ map B = via-pattern
     let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
     let (_, _, glyphs, _, _) = collect_glyph_data(&[&doc], false).unwrap();
 
+    assert!(
+        !glyphs.iter().any(|g| g.name.contains('(')),
+        "a pattern `ref` reaches a glyph by the name it resolved to, not by the pattern",
+    );
     for name in ["via-parts", "via-pattern"] {
         assert!(
             glyphs
@@ -1283,7 +1287,9 @@ meta height 16
 meta ascent 12
 meta descent 4
 
-glyph part 2 2
+// `keep`, so the placement stays a component reference to read rather than
+// being absorbed into `markish` (see `ttf_builder::absorb`).
+glyph part 2 2 keep
 @@@@
 @@@@
 
@@ -1552,43 +1558,81 @@ map C = mk
     // Both bases hand the mark the same grid cell — `+above 1 3` against
     // `-above 1 1` and `+above 0..1 3` against `-above 0..1 1` are both an
     // offset of (0, 2) — so the two composites have to draw the same thing.
-    let flat = |name: &str| {
-        fn walk(
-            glyphs: &[CollectedGlyph],
-            name: &str,
-            dx: i16,
-            dy: i16,
-            out: &mut Vec<Vec<(i16, i16)>>,
-        ) {
-            let Some(g) = glyphs.iter().find(|g| g.name == name) else {
-                return;
-            };
-            if g.composite_refs.is_empty() {
-                for c in &g.contours {
-                    out.push(c.iter().map(|&(x, y)| (x + dx, y + dy)).collect());
-                }
-            }
-            // A composite keeps its own traced contours as the inline
-            // fallback; counting both would draw everything twice.
-            for cr in &g.composite_refs {
-                walk(
-                    glyphs,
-                    &cr.component_name,
-                    dx + cr.x_offset,
-                    dy + cr.y_offset,
-                    out,
-                );
-            }
-        }
-        let mut out = Vec::new();
-        walk(&glyphs, name, 0, 0, &mut out);
-        let mut out: Vec<Vec<(i16, i16)>> = out.iter().map(|c| canonicalize_contour(c)).collect();
-        out.sort();
-        out
-    };
+    let flat = |name: &str| flattened_contours(&glyphs, name);
     assert_eq!(
         flat("combo-wide"),
         flat("combo-narrow"),
         "the alternative must land where the primary would have",
+    );
+}
+
+/// The shape every Han character in `font/` has: a drawing in its own box
+/// (`han-XXXX:15x16`) that nothing maps, and the mapped glyph a `ref` to it at
+/// an offset and nothing else. Emitting both spent a glyph id on the drawing
+/// alone, which is most of what the font's glyph count was made of; the mapped
+/// glyph is the drawing moved, so it carries the outline itself and every other
+/// `ref` to the drawing points at it instead.
+#[test]
+fn a_lone_offset_ref_takes_over_the_drawing_it_points_at() {
+    let input = "\
+glyph part:3x2 3 2
+@@..@@
+@@@@@@
+
+glyph dot 1 1
+@@
+
+glyph part 4 2 advance 4
+ref part:3x2 1 0
+map A = part
+
+glyph part-alt 4 2 advance 4
+ref part:3x2 0 0
+map B = part-alt
+
+glyph other 4 4
+ref part:3x2 0 2
+ref dot 3 0
+map C = other
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    for bitmap in [false, true] {
+        // What each mapped glyph draws, from the fallback outline every
+        // composite also carries: that is traced from the source directly and
+        // knows nothing about which glyph ids the components ended up with.
+        let (_, _, glyphs, _, _) = collect_glyph_data(&[&doc], bitmap).unwrap();
+        for name in ["part", "part-alt", "other"] {
+            let g = glyphs.iter().find(|g| g.name == name).unwrap();
+            assert_eq!(
+                flattened_contours(&glyphs, name),
+                sorted_contours(&g.contours),
+                "{name} (bitmap: {bitmap}) must draw what it drew before",
+            );
+        }
+        assert!(
+            !glyphs.iter().any(|g| g.name == "part:3x2"),
+            "the drawing has to live in the glyph that moves it, not in one of its own",
+        );
+        let part = glyphs.iter().find(|g| g.name == "part").unwrap();
+        assert!(part.composite_refs.is_empty(), "part is the host now");
+        for name in ["part-alt", "other"] {
+            let g = glyphs.iter().find(|g| g.name == name).unwrap();
+            assert!(
+                g.composite_refs
+                    .iter()
+                    .any(|cr| cr.component_name == "part"),
+                "{name} has to reach the drawing through its host",
+            );
+        }
+    }
+
+    // And through a shaper, where a wrong offset or a dangling glyph id would
+    // show up as ink in the wrong place.
+    let built = build_font_with_gid_map(&[&doc]).unwrap();
+    let font = read_fonts::FontRef::new(&built.ttf).unwrap();
+    assert_eq!(
+        font.maxp().unwrap().num_glyphs(),
+        5,
+        ".notdef, part, part-alt, other, dot"
     );
 }

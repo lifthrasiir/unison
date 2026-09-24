@@ -221,3 +221,38 @@ fn recomputed_maxp(bytes: &[u8]) -> HashMap<&'static str, u16> {
     }
     m
 }
+
+/// What `name` draws once every component is followed down to its outline, in
+/// the order-independent form of [`sorted_contours`]. A composite's own
+/// `contours` are the inline fallback and are not counted, or everything would
+/// be drawn twice.
+fn flattened_contours(glyphs: &[CollectedGlyph], name: &str) -> Vec<Vec<(i16, i16)>> {
+    fn walk(
+        glyphs: &[CollectedGlyph],
+        name: &str,
+        dx: i16,
+        dy: i16,
+        out: &mut Vec<Vec<(i16, i16)>>,
+    ) {
+        let Some(g) = glyphs.iter().find(|g| g.name == name) else {
+            return;
+        };
+        if g.composite_refs.is_empty() {
+            for c in &g.contours {
+                out.push(c.iter().map(|&(x, y)| (x + dx, y + dy)).collect());
+            }
+        }
+        for cr in &g.composite_refs {
+            walk(
+                glyphs,
+                &cr.component_name,
+                dx + cr.x_offset,
+                dy + cr.y_offset,
+                out,
+            );
+        }
+    }
+    let mut out = Vec::new();
+    walk(glyphs, name, 0, 0, &mut out);
+    sorted_contours(&out)
+}

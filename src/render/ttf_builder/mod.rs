@@ -4,8 +4,9 @@
 //! holds the shared vocabulary (the collected-glyph types and the build
 //! drivers) and delegates each stage to a submodule: `expand` (pattern
 //! expansion, on-demand and decomposed-`map` item synthesis), `collect`
-//! (per-glyph refs, metrics, traced contours), `contours` (the contour cache and
-//! `CachedContours`), `color`, `gsub`, `gpos`, `hints`, `outlines`
+//! (per-glyph refs, metrics, traced contours), `absorb` (a one-component
+//! composite taking over the component it only moves), `contours` (the contour
+//! cache and `CachedContours`), `color`, `gsub`, `gpos`, `hints`, `outlines`
 //! (glyf/metrics/cmap emission) and `tables` (final table assembly). The tests
 //! are in `render/ttf_tests/`.
 //!
@@ -153,6 +154,7 @@ use crate::render::glyph_cache::{
 };
 use crate::resolve::{Diagnostic, ItemRef};
 
+mod absorb;
 mod collect;
 mod collection;
 mod color;

@@ -113,6 +113,7 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Inlining a `ref` one level vs. flattening it to pixels, and the same two commands on an IDC line | `editor/document_view/changes.rs` (`inline_ref_once`, `inline_target_at_line`, `inline_compose_once`), `ref_composite/mod.rs` (`InlineSource`) |
 | A `ref` to a coloured glyph: which colours travel up, what a `fill` claims | `render/ttf_builder/collect.rs` (`ColorPiece`, `color_pieces_for_body`) |
 | The same colours in the editor's live composite | `ref_composite/composite.rs` (`layer_cell_colors`, `target_draws_color`) |
+| Why a glyph that is one `ref` at an offset carries its component's outline itself, and which components may be absorbed | `render/ttf_builder/absorb.rs` (`absorb_offset_components`) |
 | The flattened grid a composite hands its parent, why it is unioned, and the union's fast paths | `render/ttf_builder/contours.rs` (`from_components_inner`), `document/pixel_grid.rs` (`PixelGrid::blit`) |
 
 ## The fixer

@@ -87,9 +87,11 @@ map C = b-k
     let gids = gids_for(&built, "ABC");
     assert_eq!(gids[0], gids[1], "b-g and b-j reference one glyph");
     assert_ne!(gids[1], gids[2], "b-k references a glyph of its own");
+    // `a-g` and `a-k` are drawn inside `b-g` and `b-k`, which only move them
+    // (see `ttf_builder::absorb`).
     assert_eq!(
         names(&built),
-        vec![".notdef", "a-g", "a-k", "b-g", "b-k"],
+        vec![".notdef", "b-g", "b-k"],
         "{:?}",
         names(&built)
     );
@@ -195,12 +197,8 @@ map B = a-j
     );
     let gids = gids_for(&built, "AB");
     assert_eq!(gids[0], gids[1]);
-    assert_eq!(
-        names(&built),
-        vec![".notdef", "a-g", "a-g-part"],
-        "{:?}",
-        names(&built)
-    );
+    // One part, absorbed into the one glyph that only moves it.
+    assert_eq!(names(&built), vec![".notdef", "a-g"], "{:?}", names(&built));
 }
 
 /// A merged-away name is a name for the surviving glyph, like an alias — so

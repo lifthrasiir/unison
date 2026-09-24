@@ -1297,6 +1297,8 @@ pub(super) fn collect_glyph_data_with_shared(
             }
         }
     }
+    let component_names: HashSet<String> =
+        component_extras.iter().map(|g| g.name.clone()).collect();
     glyph_data.append(&mut component_extras);
 
     if glyph_data.is_empty() {
@@ -1469,6 +1471,10 @@ pub(super) fn collect_glyph_data_with_shared(
             }
         }
     }
+
+    // After the colour pass, which turns a coloured composite into a simple
+    // glyph of its own and so out of the running as a host.
+    super::absorb::absorb_offset_components(&mut glyph_data, &component_names);
 
     // TrueType reserves GID 0 for `.notdef`, so the collected order *is* the
     // GID order only once `.notdef` sits at its head. A source that draws one

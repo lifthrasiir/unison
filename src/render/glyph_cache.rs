@@ -52,11 +52,22 @@ pub(crate) trait CachedGlyphEntry {
 /// pattern name (`digit(0|1)` resolves via `digit0` when the pattern string
 /// itself is not a cache key).
 pub(crate) fn resolve_cached<'a, V>(name: &str, cache: &'a HashMap<String, V>) -> Option<&'a V> {
-    if let Some(cached) = cache.get(name) {
-        return Some(cached);
+    resolve_cached_named(name, cache).map(|(_, cached)| cached)
+}
+
+/// [`resolve_cached`], with the key the entry was found under: the name of the
+/// glyph a `ref` to `name` actually reaches, which for a pattern is not `name`.
+pub(crate) fn resolve_cached_named<'a, V>(
+    name: &str,
+    cache: &'a HashMap<String, V>,
+) -> Option<(&'a str, &'a V)> {
+    if let Some((key, cached)) = cache.get_key_value(name) {
+        return Some((key, cached));
     }
     let expanded = crate::ref_composite::parse_ref_pattern(name)?;
-    cache.get(&expanded.get(0))
+    cache
+        .get_key_value(&expanded.get(0))
+        .map(|(key, cached)| (key.as_str(), cached))
 }
 
 /// Trim the blank margin a composite's raster grid has *before* its origin,

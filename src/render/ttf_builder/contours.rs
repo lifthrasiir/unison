@@ -4,6 +4,7 @@
 //! [`ContourCache`] is persistent: it survives across incremental rebuilds.
 
 use super::*;
+use crate::render::glyph_cache::resolve_cached_named;
 
 /// Traced contours of one glyph, in the tracer's own float coordinates.
 type TracedContours = Vec<Vec<(f32, f32)>>;
@@ -490,9 +491,9 @@ impl CachedContours {
                 Some(
                     refs.iter()
                         .filter_map(|gref| {
-                            let cached = resolve_cached_ref(&gref.name, cache)?;
+                            let (name, cached) = resolve_cached_named(&gref.name, cache)?;
                             let (dx, dy) = box_placement(gref, cached, ps);
-                            Some((gref.name.clone(), dx, dy))
+                            Some((name.to_string(), dx, dy))
                         })
                         .collect(),
                 )
@@ -535,11 +536,13 @@ impl CachedContours {
         let mut components = Vec::new();
 
         for (gref, sg) in refs.iter().zip(ref_scaled.iter()) {
-            let cached = resolve_cached_ref(&gref.name, cache)?;
+            // Under the name the pattern resolved to: a `ref stem-(a|b)` is a
+            // component `stem-a`, and there is no glyph called the pattern.
+            let (name, cached) = resolve_cached_named(&gref.name, cache)?;
             let rs = cached.scale.max(1);
             let scale_f = ps as f32 / rs as f32;
             let (dx, dy) = box_placement(gref, cached, ps);
-            components.push((gref.name.clone(), dx, dy));
+            components.push((name.to_string(), dx, dy));
             for contour in cached.contours.iter() {
                 let translated: Vec<(f32, f32)> = contour
                     .iter()

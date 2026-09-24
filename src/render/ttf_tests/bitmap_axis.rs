@@ -349,3 +349,42 @@ map A = tint
         "the surviving layer must vary into its own bitmap drawing, not another's",
     );
 }
+
+/// A component absorbed into the glyph that only moves it (see
+/// `ttf_builder::absorb`) is absorbed in *both* builds, so the host varies as
+/// a simple glyph and a composite pointing at it still varies through it.
+#[test]
+fn an_absorbed_component_varies_through_its_host() {
+    let input = "\
+meta height 4
+meta ascent 4
+meta descent 0
+meta bitmap-axis
+glyph slope:2x2 2 2
+b...
+....
+glyph slope 3 2 advance 3
+ref slope:2x2 1 0
+glyph pair 4 2
+ref slope:2x2 0 0
+ref slope:2x2 2 0
+map A = slope
+map B = pair
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let built = build_with_gid_map(collect_glyph_data(&[&doc], false).unwrap()).unwrap();
+    assert!(
+        !built.gid_to_name.values().any(|n| n == "slope:2x2"),
+        "the component has to be absorbed for this to test anything",
+    );
+    let ttf = build_font_from_documents(&[&doc]).expect("font should build");
+    let font = read_fonts::FontRef::new(&ttf).unwrap();
+    for (ch, name) in [('A', "slope"), ('B', "pair")] {
+        let gid = font.cmap().unwrap().map_codepoint(ch).unwrap().to_u32() as u16;
+        assert_eq!(
+            drawn_at(&ttf, gid, 0.0),
+            collected_points(&doc, name, false)
+        );
+        assert_eq!(drawn_at(&ttf, gid, 1.0), collected_points(&doc, name, true));
+    }
+}
