@@ -99,6 +99,9 @@ glyph han-248f0:15x16 15 16 // 𤣰
 glyph han-248f1:15x16 15 16 // 𤣱
 ⿰ han-248e9:5x16 1 han-5df2:9x16 // ⿰𤣩已
 
+glyph han-248f3:15x16 15 16 // 𤣳
+⿰ han-248e9:5x16 1 han-5343:9x16 // ⿰𤣩千
+
 glyph han-248f4-($han-regions):15x16 15 16 // 𤣴
 ⿱ han-4ea1-($-1):15x8 1 han-738b:15x7 // ⿱亡王
 

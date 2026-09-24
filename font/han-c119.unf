@@ -431,6 +431,13 @@ glyph han-2b1ce:15x16 15 16 // 𫇎
 // glyph han-2b1d5:15x16 15 16 // 𫇕
 // ⿰ han-820d han-4e3b // ⿰舍主
 
+# CJK unified ideographs extension C: 舟 (137)
+
+## 137.3
+
+glyph han-2b1da:15x16 15 16 // 𫇚
+⿰ han-821f:7x16 1 han-5343:7x16 // ⿰舟千
+
 # CJK unified ideographs extension C: 艸 (140)
 
 ## 140.2

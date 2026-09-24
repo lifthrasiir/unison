@@ -1345,8 +1345,12 @@ glyph han-53fd:15x16 15 16 // 叽
 glyph han-53ff:15x16 15 16 // 叿
 ⿰ han-53e3:4x16 han-5de5:11x16 // ⿰口工
 
+glyph han-5400:15x16 15 16 // 吀
+⿰ han-53e3:6x16 han-5343:9x16 // ⿰口千
+
 glyph han-5401:15x16 15 16 // 吁
 ⿰ han-53e3:5x16 1 han-4e8e:9x16 // ⿰口于
+glyph han-5401.0:* = han-5401:*
 
 glyph han-5402-($han-regions):15x16 15 16 // 吂
 ⿱ han-4ea1-($-1):15x8 1 han-53e3:15x7 // ⿱亡口
@@ -3277,6 +3281,9 @@ h/......@@..........@@......\h
 ..@@....................\1@@..
 ref 10x2-ys1 2 0
 glyph han-55ac.0:* = han-55ac:*
+
+// glyph han-55b0-($han-regions):15x16 15 16 // 喰
+// ⿰ han-53e3 han-98df-($-1) // ⿰口食
 
 // glyph han-55b1:15x16 15 16 // 喱
 // ⿰ han-53e3 han-5398 // ⿰口厘

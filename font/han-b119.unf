@@ -371,8 +371,8 @@ glyph han-25f31:15x16 15 16 // 𥼱
 // glyph han-25f3e:15x16 15 16 // 𥼾
 // ⿰ han-7c73 han-55bf // ⿰米喿
 
-glyph han-25f41:15x16 15 16 // 𥽁
-⿲ -2 han-7c73:5x16 han-98e0:7x16 han-6b20:5x16 // ⿲米飠欠
+glyph han-25f41-($han-regions):15x16 15 16 // 𥽁
+⿲ -2 han-7c73:5x16 han-98e0-($-1):7x16 han-6b20:5x16 // ⿲米飠欠
 
 ## 119.14
 

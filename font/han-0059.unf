@@ -449,6 +449,12 @@ glyph han-5fcc:15x16 15 16 // 忌
 // glyph han-5fcd:15x16 15 16 // 忍
 // ⿱ han-5203 han-5fc3 // ⿱刃心
 
+// glyph han-5fce:15x16 15 16 // 忎
+// ⿱ han-5343 han-5fc3 // ⿱千心
+
+glyph han-5fcf:15x16 15 16 // 忏
+⿰ han-5fc4:5x16 1 han-5343:9x16 // ⿰忄千
+
 glyph han-5fd0:15x16 15 16 // 忐
 ⿱ han-4e0a:15x9 1 han-5fc3:15x6 // ⿱上心
 

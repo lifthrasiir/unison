@@ -935,7 +935,7 @@ glyph han-2145d:15x16 15 16 // 𡑝
 // ⿰ han-571f han-3b05 // ⿰土㬅
 
 glyph han-21468:15x16 15 16 // 𡑨
-⿲ han-571f:3x16-l han-98e0:7x16 han-6b20:5x16 // ⿲土飠欠
+⿲ han-571f:3x16-l han-98e0-t:7x16 han-6b20:5x16 // ⿲土飠欠
 
 // glyph han-21480:15x16 15 16 // 𡒀
 // ⿳ han-56da han-7530 han-5736 // ⿳囚田圶

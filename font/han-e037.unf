@@ -134,6 +134,9 @@ glyph han-2bc12:15x16 15 16 // 𫰒
 glyph han-2bc18:15x16 15 16 // 𫰘
 ⿲ han-5973:5x16-l han-5e72:5x16 han-5202:5x16 // ⿲女干刂
 
+// glyph han-2bc19:15x16 15 16 // 𫰙
+// ⿰ han-5973 han-4edf // ⿰女仟
+
 ## 38.6
 
 // glyph han-2bc1c:15x16 15 16 // 𫰜
@@ -693,6 +696,9 @@ glyph han-2bde6:15x16 15 16 // 𫷦
 
 // glyph han-2bdf7:15x16 15 16 // 𫷷
 // ⿸ han-5e7f han-94a6 // ⿸广钦
+
+// glyph han-2bdf8-($han-regions):15x16 15 16 // 𫷸
+// ⿸ han-5e7f han-98df-($-1) // ⿸广食
 
 ## 53.10
 

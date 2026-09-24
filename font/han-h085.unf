@@ -172,6 +172,9 @@ glyph han-31aa4:15x16 15 16 // 𱪤
 glyph han-31aa5:15x16 15 16 // 𱪥
 ⿱ han-4e0b:15x12 han-706c:15x4 // ⿱下灬
 
+glyph han-31aa6:15x16 15 16 // 𱪦
+⿰ han-706b:5x16-l 1 han-5343:9x16 // ⿰火千
+
 // glyph han-31aa7:15x16 15 16 // 𱪧
 // ⿰ han-706b han-4e2a // ⿰火个
 

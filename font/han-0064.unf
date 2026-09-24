@@ -257,6 +257,9 @@ glyph han-6264:15x16 15 16 // 扤
 ⿰ han-624c:5x16 han-5140:10x16 // ⿰扌兀
 glyph han-6264.0:* = han-6264:*
 
+glyph han-6266:15x16 15 16 // 扦
+⿰ han-624c:5x16 1 han-5343:9x16 // ⿰扌千
+
 // glyph han-6267-($han-regions):15x16 15 16 // 执
 // ⿰ han-624c han-4e38-($-1) // ⿰扌丸
 

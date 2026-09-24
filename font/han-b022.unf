@@ -193,6 +193,9 @@ glyph han-20989:15x16 15 16 // 𠦉
 glyph han-2098a:15x16 15 16 // 𠦊
 assume ⿰ han-4e91:9x16 -1 han-5341:7x16 // ⿰云十
 
+// glyph han-2098b:15x16 15 16 // 𠦋
+// ⿱ han-4e0a han-5343 // ⿱上千
+
 // glyph han-2098c:15x16 15 16 // 𠦌
 // ⿰ han-5344 han-5344 // ⿰卄卄
 
@@ -236,6 +239,9 @@ glyph han-2099d:15x16 15 16 // 𠦝
 // glyph han-2099f:15x16 15 16 // 𠦟
 // ref han-2313c // ⿻𣄼山
 // ref han-5c71
+
+// glyph han-23965-($han-regions):15x16 15 16 // 𣥥
+// ⿱ han-6b64-($-1) han-5343 // ⿱此千
 
 ## 24.8
 
@@ -486,6 +492,9 @@ glyph han-20a75:15x16 15 16 // 𠩵
 ⿸ han-5382:15x16.11x15 han-6797:11x12 4 3 // ⿸厂林
 
 ## 27.9
+
+// glyph han-20a78-($han-regions):15x16 15 16 // 𠩸
+// ⿸ han-5382 han-98df-($-1) // ⿸厂食
 
 // glyph han-20a7e:15x16 15 16 // 𠩾
 // ⿸ han-5382 han-79cb // ⿸厂秋

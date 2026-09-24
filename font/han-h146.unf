@@ -44,6 +44,9 @@ assume ⿳ han-5b80:15x3 -1 2|han-5bf8:11x5|2 han-898b:15x9 // ⿳宀寸見
 // glyph han-32061:15x16 15 16 // 𲁡
 // ⿰ han-8a01 han-624d // ⿰訁才
 
+glyph han-32062:15x16 15 16 // 𲁢
+⿰ han-8a01-g:5x16 1 han-5343:9x16 // ⿰訁千
+
 glyph han-32063:15x16 15 16 // 𲁣
 ⿰ han-8a01-g:5x16 1 han-4ea1-g:9x16 // ⿰訁亡
 
@@ -293,7 +296,7 @@ glyph han-320f7:15x16 15 16 // 𲃷
 ## 157.20
 
 glyph han-32116:15x16 15 16 // 𲄖
-⿲ -4 han-27fb7:5x16 han-98e0:7x16 han-582f:7x16 // ⿲𧾷飠堯
+⿲ -4 han-27fb7:5x16 han-98e0.0:7x16 han-582f:7x16 // ⿲𧾷飠堯
 
 # CJK unified ideographs extension H: 身 (158)
 
@@ -920,9 +923,12 @@ glyph han-322b4:15x16 15 16 // 𲊴
 ## 184.5
 
 glyph han-322d5:15x16 15 16 // 𲋕
-⿰ han-98e0:7x16 1 han-79be:7x16 // ⿰飠禾
+⿰ han-98e0-g:7x16 1 han-79be:7x16 // ⿰飠禾
 
 ## 184.9
+
+// glyph han-322db-($han-regions):15x16 15 16 // 𲋛
+// ⿱ han-9801 han-98df-($-1) // ⿱頁食
 
 // glyph han-322dc:15x16 15 16 // 𲋜
 // ⿰ han-98e0 han-7686 // ⿰飠皆

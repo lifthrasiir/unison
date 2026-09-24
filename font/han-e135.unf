@@ -1002,6 +1002,11 @@ glyph han-2ca22:15x16 15 16 // 𬨢
 // glyph han-2ca31:15x16 15 16 // 𬨱
 // ⿺ han-8fb6 han-963b // ⿺辶阻
 
+## 162.9
+
+// glyph han-2ca37-($han-regions):15x16 15 16 // 𬨷
+// ⿺ han-8fb6-($-1) han-98df-($-1) // ⿺辶食
+
 ## 162.10
 
 // glyph han-2ca3a:15x16 15 16 // 𬨺

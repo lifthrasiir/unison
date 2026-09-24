@@ -166,6 +166,11 @@ glyph han-30d3a:15x16 15 16 // 𰴺
 glyph han-30d4a:15x16 15 16 // 𰵊
 ⿰ 1 han-8ba0:5x16 1 han-4e29:7x16 // ⿰讠丩
 
+## 149'.3
+
+glyph han-30d4b:15x16 15 16 // 𰵋
+⿰ han-8ba0:5x16 1 han-5343:9x16 // ⿰讠千
+
 ## 149'.4
 
 // glyph han-30d4f:15x16 15 16 // 𰵏

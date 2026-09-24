@@ -6101,6 +6101,10 @@ glyph han-4edd.0:* = han-4edd:*
 glyph han-4ede:15x16 15 16 // 仞
 ⿰ han-4ebb:3x16 han-5203:12x16 // ⿰亻刃
 
+glyph han-4edf:15x16 15 16 // 仟
+⿰ han-4ebb:5x16 1 han-5343:9x16 // ⿰亻千
+glyph han-4edf.0:* = han-4edf:*
+
 glyph han-4ee0:15x16 15 16 // 仠
 ⿰ han-4ebb:5x16 1 han-5e72:9x16 // ⿰亻干
 

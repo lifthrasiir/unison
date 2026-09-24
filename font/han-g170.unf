@@ -2,6 +2,9 @@
 
 ## 170.3
 
+// glyph han-31001:15x16 15 16 // 𱀁
+// ⿰ han-961c han-5343 // ⿰阜千
+
 // glyph han-31002:15x16 15 16 // 𱀂
 // ⿰ han-961c han-5b50 // ⿰阜子
 
@@ -256,12 +259,17 @@ glyph han-31082:15x16 15 16 // 𱂂
 // ⿰ han-98e0 han-4e8e // ⿰飠于
 
 glyph han-310e3:15x16 15 16 // 𱃣
-⿰ han-98e0:7x16 1 han-4e0b:7x16 // ⿰飠下
+assume ⿰ han-98e0-g:7x16 -1 han-4e0b:9x16 // ⿰飠下
+
+## 184.4
+
+// glyph han-310e4-($han-regions):15x16 15 16 // 𱃤
+// ⿱ han-98df-($-1) han-5fc3 // ⿱食心
 
 ## 184.6
 
 glyph han-310e5:15x16 15 16 // 𱃥
-⿲ -2 han-98e0:7x16 han-5f00:7x16 han-5202:3x16 // ⿲飠开刂
+⿲ -2 han-98e0-k:7x16 han-5f00:7x16 han-5202:3x16 // ⿲飠开刂
 
 // glyph han-310e6:15x16 15 16 // 𱃦
 // ⿰ han-98e0 han-800c // ⿰飠而
@@ -277,18 +285,18 @@ glyph han-310e5:15x16 15 16 // 𱃥
 ## 184.8
 
 glyph han-310ea:15x16 15 16 // 𱃪
-⿰ han-98e0:7x16 han-5176:8x16 // ⿰飠其
+⿰ han-98e0-g:7x16 han-5176:8x16 // ⿰飠其
 
 glyph han-310eb:15x16 15 16 // 𱃫
-⿲ -2 han-98e0:7x16 han-6708:5x16 han-6708:5x16 // ⿲飠月月
+⿲ -2 han-98e0-g:7x16 han-6708:5x16 han-6708:5x16 // ⿲飠月月
 
 ## 184.10
 
 glyph han-310ec:15x16 15 16 // 𱃬
-⿰ han-98e0:7x16 1 han-54e5:7x16 // ⿰飠哥
+⿰ han-98e0-g:7x16 1 han-54e5:7x16 // ⿰飠哥
 
 glyph han-310ed:15x16 15 16 // 𱃭
-⿲ -4 han-98e0:7x16 han-6728:5x16 han-4ea4:7x16 // ⿲飠木交
+⿲ -4 han-98e0-g:7x16 han-6728:5x16 han-4ea4:7x16 // ⿲飠木交
 
 # CJK unified ideographs extension G: 饣 (184')
 

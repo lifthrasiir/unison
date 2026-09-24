@@ -345,6 +345,9 @@ glyph han-24e14:15x16 15 16 // 𤸔
 // glyph han-24e20:15x16 15 16 // 𤸠
 // ⿸ han-7592 han-82d7 // ⿸疒苗
 
+// glyph han-24e24-($han-regions):15x16 15 16 // 𤸤
+// ⿸ han-7592 han-98df-($-1) // ⿸疒食
+
 ## 104.10
 
 // glyph han-24e30:15x16 15 16 // 𤸰

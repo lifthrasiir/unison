@@ -681,7 +681,7 @@ glyph han-332b3:15x16 15 16 // 𳊳
 ## 184.8
 
 glyph han-332db:15x16 15 16 // 𳋛
-⿰ han-98e0:7x16 han-5468-g:8x16 // ⿰飠周
+⿰ han-98e0-g:7x16 han-5468-g:8x16 // ⿰飠周
 
 // glyph han-332dc-($han-regions):15x16 15 16 // 𳋜
 // ⿰ han-98e0 han-5b5f-($-1) // ⿰飠孟

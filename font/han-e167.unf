@@ -19,6 +19,9 @@ glyph han-2cac4:15x16 15 16 // 𬫄
 glyph han-2cac9:15x16 15 16 // 𬫉
 ⿰ han-91d2:7x16 han-7528:8x16 // ⿰釒用
 
+// glyph han-2caca:15x16 15 16 // 𬫊
+// ⿰ han-91d2 han-4edf // ⿰釒仟
+
 glyph han-2cacc:15x16 15 16 // 𬫌
 ⿰ han-91d2:7x16 han-6c10-t:8x16 // ⿰釒氐
 
@@ -652,10 +655,15 @@ glyph han-2cc43:15x16 15 16 // 𬱃
 // ⿰ han-98e0 han-5e00 // ⿰飠帀
 
 glyph han-2cc8d:15x16 15 16 // 𬲍
-⿰ han-98e0:7x16 1 han-5206:7x16 // ⿰飠分
+⿰ han-98e0-t:7x16 1 han-5206:7x16 // ⿰飠分
 
 glyph han-2cc8e:15x16 15 16 // 𬲎
-⿰ han-98e0:7x16 1 han-6bdb:7x16 // ⿰飠毛
+⿰ han-98e0-g:7x16 1 han-6bdb:7x16 // ⿰飠毛
+
+## 184.8
+
+// glyph han-2cc95-($han-regions):15x16 15 16 // 𬲕
+// ⿱ han-65a9 han-98df-($-1) // ⿱斩食
 
 ## 184.9
 
@@ -668,7 +676,7 @@ glyph han-2cc8e:15x16 15 16 // 𬲎
 ## 184.12
 
 glyph han-2cc9b:15x16 15 16 // 𬲛
-⿲ -4 han-98e0:7x16 han-5176:6x16 han-65a4:6x16 // ⿲飠其斤
+⿲ -4 han-98e0-g:7x16 han-5176:6x16 han-65a4:6x16 // ⿲飠其斤
 
 // glyph han-2cc9e:15x16 15 16 // 𬲞
 // ⿲ han-98e0 han-5973 han-67d0 // ⿲飠女某

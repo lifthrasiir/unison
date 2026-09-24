@@ -191,6 +191,9 @@ glyph han-91f9:15x16 15 16 // 釹
 ⿰ han-91d2:7x16 1 han-5973:7x16 // ⿰釒女
 glyph han-91f9.0:* = han-91f9:*
 
+glyph han-91fa:15x16 15 16 // 釺
+⿰ han-91d2:5x16-l 1 han-5343:9x16 // ⿰釒千
+
 // glyph han-91fb-($han-regions):15x16 15 16 // 釻
 // ⿰ han-91d2 han-4e38-($-1) // ⿰釒丸
 
@@ -1210,6 +1213,9 @@ glyph han-948c:15x16 15 16 // 钌
 
 glyph han-948d:15x16 15 16 // 钍
 ⿰ han-9485:6x16 han-571f:9x16 // ⿰钅土
+
+glyph han-948e:15x16 15 16 // 钎
+⿰ han-9485:6x16 han-5343:9x16 // ⿰钅千
 
 glyph han-948f:15x16 15 16 // 钏
 ⿰ han-9485:6x16 1 han-5ddd:8x16 // ⿰钅川

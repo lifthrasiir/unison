@@ -414,6 +414,9 @@ glyph han-2c463:15x16 15 16 // 𬑣
 glyph han-2c47a:15x16 15 16 // 𬑺
 ⿰ han-77f3:8x16 han-5bf8:7x16 // ⿰石寸
 
+glyph han-2c47b:15x16 15 16 // 𬑻
+⿰ han-77f3:6x16 han-5343:9x16 // ⿰石千
+
 ## 112.4
 
 // glyph han-2c47d:15x16 15 16 // 𬑽
@@ -1158,7 +1161,7 @@ glyph han-2c664:15x16 15 16 // 𬙤
 ## 123.6
 
 glyph han-2c672:15x16 15 16 // 𬙲
-⿰ han-7f8a:7x16 han-5f00:8x16 // ⿰羊开
+assume ⿰ han-7f8a:7x16 -1 han-5e75.0:9x16 // ⿰羊幵
 
 ## 123.8
 

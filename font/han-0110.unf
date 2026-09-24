@@ -1319,6 +1319,9 @@ glyph han-79c8:15x12 15 12 // 秈
 glyph han-79c8:15x16 15 16 // 秈
 ⿰ han-79be:7x16 1 han-5c71:7x16 // ⿰禾山
 
+// glyph han-79ca:15x16 15 16 // 秊
+// ⿱ han-79be han-5343 // ⿱禾千
+
 ## 115.4
 
 glyph han-79cb:15x11 15 11 // 秋

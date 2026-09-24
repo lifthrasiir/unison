@@ -334,6 +334,9 @@ glyph han-28a65:15x16 15 16 // 𨩥
 // glyph han-28a69:15x16 15 16 // 𨩩
 // ⿰ han-91d2 han-5192 // ⿰釒冒
 
+// glyph han-28a6d-($han-regions):15x16 15 16 // 𨩭
+// ⿰ han-91d2 han-98df-($-1) // ⿰釒食
+
 // glyph han-28a80:15x16 15 16 // 𨪀
 // ⿰ han-91d2 han-67d0 // ⿰釒某
 

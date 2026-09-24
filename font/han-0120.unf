@@ -1004,6 +1004,9 @@ glyph han-7ea2:15x16 15 16 // 红
 glyph han-7ea3:15x16 15 16 // 纣
 ⿰ han-7e9f:5x16 1 han-5bf8:9x16 // ⿰纟寸
 
+glyph han-7ea4:15x16 15 16 // 纤
+⿰ han-7e9f:5x16 1 han-5343:9x16 // ⿰纟千
+
 glyph han-7ea6-($han-regions):15x16 15 16 // 约
 ⿰ han-7e9f:5x16 1 han-52fa-($-1):9x16 // ⿰纟勺
 

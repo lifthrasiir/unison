@@ -1159,6 +1159,9 @@ glyph han-572f:15x16 15 16 // 圯
 ⿰ han-571f:5x16-l 1 han-5df3:9x16 // ⿰土巳
 glyph han-572f.0:* = han-572f:*
 
+glyph han-5732:15x16 15 16 // 圲
+⿰ han-571f:5x16-l 1 han-5343:9x16 // ⿰土千
+
 glyph han-5733:15x16 15 16 // 圳
 ⿰ han-571f:7x16-l han-5ddd:8x16 // ⿰土川
 glyph han-5733.0:* = han-5733:*
@@ -1425,6 +1428,8 @@ glyph han-5794.0:15x16 15 16 // 垔
 glyph han-5794.1:* = han-5794.0:*
 glyph han-5794.2:15x16 15 16 // 垔
 ⿱ han-8980:15x9 han-571f:15x7 // ⿱覀土
+glyph han-5794-(h|t|j|k):* = han-5794.0:*
+glyph han-5794-g:* = han-5794.2:*
 
 glyph han-5797:15x16 15 16 // 垗
 ⿰ han-571f:5x16-l 1 han-5146:9x16 // ⿰土兆

@@ -668,8 +668,12 @@ glyph han-8753-p:* = han-8753.x:*
 // glyph han-8754:15x16 15 16 // 蝔
 // ⿰ han-866b han-7686 // ⿰虫皆
 
-glyph han-8755:15x16 15 16 // 蝕
-⿰ han-98e0:7x16 1 han-866b:7x16 // ⿰飠虫
+glyph han-8755-($han-regions):15x16 15 16 // 蝕
+⿰ han-98e0-($-1):7x16 1 han-866b:7x16 // ⿰飠虫
+glyph han-8755.0:* = han-8755-g:*
+glyph han-8755.1:* = han-8755-j:*
+glyph han-8755.2:* = han-8755-g:*
+glyph han-8755.3:* = han-8755-j:*
 
 glyph han-8757:15x16 15 16 // 蝗
 ⿰ han-866b:5x16 1 han-7687:9x16 // ⿰虫皇

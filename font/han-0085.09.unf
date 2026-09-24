@@ -76,6 +76,9 @@ glyph han-6e46:15x16 15 16 // 湆
 glyph han-6e4b:15x16 15 16 // 湋
 ⿰ han-6c35:5x16 1 han-97cb:9x16 // ⿰氵韋
 
+// glyph han-6e4c-($han-regions):15x16 15 16 // 湌
+// ⿰ han-6c35 han-98df-($-1) // ⿰氵食
+
 // glyph han-6e4d:15x16 15 16 // 湍
 // ⿰ han-6c35 han-8011 // ⿰氵耑
 

@@ -520,6 +520,11 @@ glyph han-2c178:15x16 15 16 // 𬅸
 
 # CJK unified ideographs extension E: 毛 (82)
 
+## 82.3
+
+// glyph han-2c1bc:15x16 15 16 // 𬆼
+// ⿺ han-6bdb han-5343 // ⿺毛千
+
 ## 82.4
 
 glyph han-2c1bd:15x16 15 16 // 𬆽

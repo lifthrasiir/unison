@@ -8,6 +8,19 @@ $$.v@@v.$$
 $$/VP2V\$$
 .vV/..\Vv.
 /Vv'..`vV\
+glyph han-201a2:7x5 7 5 // 𠆢
+$$$$.v@@v.$$$$
+$$../VP2V\..$$
+$$.vV/..\Vv.$$
+./d@v'..`v@b\.
+d@0/$$$$$$\0@b
+glyph han-201a2:7x6 7 6 // 𠆢
+....$$@@$$....
+$$$$.v@@v.$$$$
+$$../VP2V\..$$
+$$.vV/..\Vv.$$
+./d@v'..`v@b\.
+d@0/$$$$$$\0@b
 glyph han-201a2:7x7 7 7 // 𠆢
 ....$$@@$$....
 $$$$.v@@v.$$$$
@@ -349,6 +362,9 @@ glyph han-2024d:15x16 15 16 // 𠉍
 // glyph han-2025e:15x16 15 16 // 𠉞
 // ⿱ han-4eca han-5c3c // ⿱今尼
 
+// glyph han-2025f:15x16 15 16 // 𠉟
+// ⿰ han-4ebb han-6744 // ⿰亻杄
+
 ## 9.8
 
 // glyph han-20264:15x16 15 16 // 𠉤
@@ -431,6 +447,9 @@ glyph han-202c7:15x16 15 16 // 𠋇
 // glyph han-202d6:15x16 15 16 // 𠋖
 // ⿰ han-4ebb han-67ec // ⿰亻柬
 
+// glyph han-202e1-($han-regions):15x16 15 16 // 𠋡
+// ⿰ han-4ebb han-98df-($-1) // ⿰亻食
+
 // glyph han-202e6:15x16 15 16 // 𠋦
 // ⿰ han-4ebb han-67d0 // ⿰亻某
 
@@ -474,8 +493,8 @@ glyph han-20332:15x16 15 16 // 𠌲
 glyph han-20335:15x16 15 16 // 𠌵
 ⿰ han-4ebb:5x16 1 han-9ce5:9x16 // ⿰亻鳥
 
-glyph han-20343:15x16 15 16 // 𠍃
-⿲ -4 han-4ebb:3x16 han-98e0:7x16 han-51e0:9x16 // ⿲亻飠几
+glyph han-20343-($han-regions):15x16 15 16 // 𠍃
+⿲ -4 han-4ebb:3x16 han-98e0-($-1):7x16 han-51e0:9x16 // ⿲亻飠几
 
 // glyph han-20346:15x16 15 16 // 𠍆
 // ⿰ han-4ebb han-8389 // ⿰亻莉
@@ -602,5 +621,5 @@ glyph han-20467:15x16 15 16 // 𠑧
 ## 9.21
 
 glyph han-2046c:15x16 15 16 // 𠑬
-⿲ -2 han-4ebb:3x16 han-98e0:7x16 han-582f:7x16 // ⿲亻飠堯
+⿲ -2 han-4ebb:3x16 han-98e0.0:7x16 han-582f:7x16 // ⿲亻飠堯
 

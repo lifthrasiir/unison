@@ -1114,6 +1114,9 @@ glyph han-8fc0-($han-regions):15x16 15 16 // 迀
 ⿺ han-8fb6-($-1):15x16.11x14 han-5e72:11x14 4 0 // ⿺辶干
 glyph han-8fc0.0:* = han-8fc0-j:*
 
+// glyph han-8fc1-($han-regions):15x16 15 16 // 迁
+// ⿺ han-8fb6-($-1) han-5343 // ⿺辶千
+
 // glyph han-8fc2-($han-regions):15x16 15 16 // 迂
 // ⿺ han-8fb6-($-1) han-4e8e // ⿺辶于
 

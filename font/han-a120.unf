@@ -10,6 +10,9 @@ glyph han-42b5-($han-regions):15x16 15 16 // 䊵
 // glyph han-42b7:15x16 15 16 // 䊷
 // ⿰ han-7cf9 han-624d // ⿰糹才
 
+glyph han-42b9:15x16 15 16 // 䊹
+⿰ han-7cf9.x:5x16 1 han-5343:9x16 // ⿰糹千
+
 ## 120.4
 
 glyph han-42bb-($han-regions):15x16 15 16 // 䊻
@@ -1017,6 +1020,9 @@ glyph han-44f5:15x16 15 16 // 䓵
 
 // glyph han-44f6:15x16 15 16 // 䓶
 // ⿱ han-8279 han-524c // ⿱艹剌
+
+// glyph han-44f9-($han-regions):15x16 15 16 // 䓹
+// ⿱ han-8279 han-98df-($-1) // ⿱艹食
 
 ## 140.10
 

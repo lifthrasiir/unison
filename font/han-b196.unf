@@ -84,6 +84,9 @@ glyph han-29fab:15x16 15 16 // 𩾫
 glyph han-29fac:15x16 15 16 // 𩾬
 ⿰ han-9ce5:7x16 1 han-5de5:7x16 // ⿰鳥工
 
+// glyph han-29fad:15x16 15 16 // 𩾭
+// ⿱ han-5343 han-9ce5 // ⿱千鳥
+
 glyph han-29faf:15x16 15 16 // 𩾯
 ⿰ han-6c35:5x16 1 han-9ce5:9x16 // ⿰氵鳥
 
@@ -503,8 +506,8 @@ glyph han-2a0b4-($han-regions):15x16 15 16 // 𪂴
 // glyph han-2a0bc:15x16 15 16 // 𪂼
 // ⿱ han-76f8 han-9ce5 // ⿱相鳥
 
-glyph han-2a0be:15x16 15 16 // 𪂾
-⿰ han-98e0:7x16 1 han-9ce5:7x16 // ⿰飠鳥
+glyph han-2a0be-($han-regions):15x16 15 16 // 𪂾
+⿰ han-98e0-($-1):7x16 1 han-9ce5:7x16 // ⿰飠鳥 (TODO: P source differs)
 
 glyph han-2a0bf:15x16 15 16 // 𪂿
 ⿰ han-9ce5:7x16 1 han-662f:7x16 // ⿰鳥是

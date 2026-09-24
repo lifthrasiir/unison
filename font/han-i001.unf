@@ -592,6 +592,11 @@ glyph han-2ed1b:15x16 15 16 // 𮴛
 // glyph han-2ed25:15x16 15 16 // 𮴥
 // ⿲ han-248e9 han-5c82 han-51e0 // ⿲𤣩岂几
 
+## 96.9
+
+// glyph han-2ed27-($han-regions):15x16 15 16 // 𮴧
+// ⿰ han-248e9 han-98df-($-1) // ⿰𤣩食
+
 ## 96.11
 
 // glyph han-2ed2c:15x16 15 16 // 𮴬
@@ -1148,4 +1153,4 @@ glyph han-2ee2c:15x16 15 16 // 𮸬
 ## 184.4
 
 glyph han-2ee3e:15x16 15 16 // 𮸾
-⿰ han-98e0:7x16 1 han-6587:7x16 // ⿰飠文
+⿰ han-98e0-g:7x16 1 han-6587:7x16 // ⿰飠文

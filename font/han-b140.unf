@@ -169,6 +169,9 @@ glyph han-26b53:15x16 15 16 // 𦭓
 glyph han-26b56:15x16 15 16 // 𦭖
 ⿱ han-8279:15x3 1 han-7532:15x12 // ⿱艹甲
 
+// glyph han-26b5b:15x16 15 16 // 𦭛
+// ⿱ han-8279 han-4edf // ⿱艹仟
+
 // glyph han-26b5c:15x16 15 16 // 𦭜
 // ⿳ han-8279 han-53e3 han-516b // ⿳艹口八 <- ⿱艹只
 
