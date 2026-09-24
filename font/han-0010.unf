@@ -4773,7 +4773,7 @@ glyph han-5324:15x16 15 16 // 匤
 ## 22.8
 
 glyph han-532a-($han-regions):15x16 15 16 // 匪
-⿷ han-531a:15x16.14x14 han-975e-($-1):11x13 2 1 // ⿷匚非
+⿷ han-531a:15x16.14x14 han-975e-($-1):15x16 2 1 // ⿷匚非
 glyph han-532a.0:* = han-532a-j:*
 
 glyph han-9fa8:15x16 15 16 // 龨
