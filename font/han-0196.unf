@@ -91,9 +91,9 @@ $$......................\1@@$$
 
 ## 196.1
 
-glyph han-9ce6.0:15x16 15 16 // 鳦
+glyph han-9ce6.0:15x16 15 16 // 鳦 ⿰鳥乙(GHTJ) ⿰鳥𠃉(KP)
 ⿰ han-9ce5:7x16 1 han-4e59:7x16 // ⿰鳥乙
-glyph han-9ce6.1:15x16 15 16 // 鳦
+glyph han-9ce6.1:15x16 15 16 // 鳦 ⿰鳥乙(GHTJ) ⿰鳥𠃉(KP)
 ...................vV/........
 ................../Vv'........
 .................vV/..........
@@ -158,7 +158,7 @@ glyph han-9cf4:15x16 15 16 // 鳴
 
 ## 196.4
 
-// glyph han-9cf8:15x16 15 16 // 鳸
+// glyph han-9cf8:15x16 15 16 // 鳸 ⿸户鳥(GP) ⿸戶鳥(TK)
 // ⿸ han-6237 han-9ce5 // ⿸户鳥
 
 glyph han-9cf9.0:15x16 15 16 // 鳹
@@ -177,11 +177,11 @@ glyph han-9cfb:15x16 15 16 // 鳻
 glyph han-9cfc:15x16 15 16 // 鳼
 ⿰ han-6587:7x16 1 han-9ce5:7x16 // ⿰文鳥
 
-glyph han-9cfd.0:15x16 15 16 // 鳽
+glyph han-9cfd.0:15x16 15 16 // 鳽 ⿰开鳥(GHTK) ⿰幵鳥(P)
 ⿰ han-5f00:8x16 han-9ce5:7x16 // ⿰开鳥
-glyph han-9cfd.1:15x16 15 16 // 鳽
+glyph han-9cfd.1:15x16 15 16 // 鳽 ⿰开鳥(GHTK) ⿰幵鳥(P)
 ⿰ han-5e75.2:7x16 1 han-9ce5:7x16 // ⿰幵鳥
-glyph han-9cfd.x:15x16 15 16 // 鳽
+glyph han-9cfd.x:15x16 15 16 // 鳽 ⿰开鳥(GHTK) ⿰幵鳥(P)
 ⿰ han-5e75.0:7x16 1 han-9ce5:7x16 // ⿰幵鳥
 glyph han-9cfd-(g|h|t|j|k):* = han-9cfd.0:*
 glyph han-9cfd-p:* = han-9cfd.x:*
@@ -213,7 +213,7 @@ glyph han-9cff:15x16 15 16 // 鳿
 glyph han-9d0b:15x16 15 16 // 鴋
 ⿰ han-65b9:7x16 1 han-9ce5:7x16 // ⿰方鳥
 
-// glyph han-9d0c:15x16 15 16 // 鴌
+// glyph han-9d0c:15x16 15 16 // 鴌 ⿱天鳥(GTKP) ⿱夭鳥(H)
 // ⿳ han-4e00 han-5927 han-9ce5 // ⿳一大鳥 <- ⿱天鳥
 
 // glyph han-9d0d:15x16 15 16 // 鴍
@@ -270,7 +270,7 @@ glyph han-9d23:15x16 15 16 // 鴣
 // glyph han-9d26:15x16 15 16 // 鴦
 // ⿱ han-592e han-9ce5 // ⿱央鳥
 
-// glyph han-9d27:15x16 15 16 // 鴧
+// glyph han-9d27:15x16 15 16 // 鴧 ⿰宂鳥(GT) ⿰⿱宀几鳥(P)
 // ⿰ han-5b82 han-9ce5 // ⿰宂鳥
 
 glyph han-9d28:15x16 15 16 // 鴨
@@ -308,7 +308,7 @@ glyph han-9d36:15x16 15 16 // 鴶
 glyph han-9d39:15x16 15 16 // 鴹
 ⿰ han-7f8a:7x16 1 han-9ce5:7x16 // ⿰羊鳥
 
-glyph han-9d3b:15x16 15 16 // 鴻
+glyph han-9d3b:15x16 15 16 // 鴻 ⿰江鳥(GHTJKPV) ⿰氵䲨(X)
 ⿲ han-6c35:3x16 han-5de5:5x16-l han-9ce5:7x16 // ⿲氵工鳥
 
 glyph han-9d3c:15x16 15 16 // 鴼
@@ -373,9 +373,9 @@ glyph han-9d59:15x16 15 16 // 鵙
 // glyph han-9d5f:15x16 15 16 // 鵟
 // ⿱ han-72c2 han-9ce5 // ⿱狂鳥
 
-glyph han-9d60.0:15x16 15 16 // 鵠
+glyph han-9d60.0:15x16 15 16 // 鵠 ⿰告鳥(GTKPV) ⿰吿鳥(HJ)
 ⿰ han-544a:8x16 han-9ce5:7x16 // ⿰告鳥
-glyph han-9d60.1:15x16 15 16 // 鵠
+glyph han-9d60.1:15x16 15 16 // 鵠 ⿰告鳥(GTKPV) ⿰吿鳥(HJ)
 ⿰ han-543f:8x16 han-9ce5:7x16 // ⿰吿鳥
 glyph han-9d60.2:* = han-9d60.0:*
 glyph han-9d60.3:* = han-9d60.1:*
@@ -390,7 +390,7 @@ glyph han-9d63:15x16 15 16 // 鵣
 
 ## 196.8
 
-glyph han-9d67:15x16 15 16 // 鵧
+glyph han-9d67:15x16 15 16 // 鵧 ⿰并鳥(GHTK) ⿰幷鳥(P)
 ⿰ han-5e76:8x16 han-9ce5:7x16 // ⿰并鳥
 
 // glyph han-9d68:15x16 15 16 // 鵨
@@ -408,14 +408,14 @@ glyph han-9d6c:15x16 15 16 // 鵬
 glyph han-9d6d:15x16 15 16 // 鵭
 ⿰ han-91d2:5x16-l 1 han-9ce5:9x16 // ⿰釒鳥
 
-glyph han-9d6f:15x16 15 16 // 鵯
+glyph han-9d6f:15x16 15 16 // 鵯 ⿰卑鳥(GHTKP) ⿰⿱⿱㇒⿻日丿十鳥(J)
 ⿰ han-5351.0:8x16 han-9ce5:7x16 // ⿰卑鳥
 glyph han-9d6f.0:* = han-9d6f:*
 
-glyph han-9d70.0:15x16 15 16 // 鵰
+glyph han-9d70.0:15x16 15 16 // 鵰 ⿰周鳥(GHTKPV) ⿰⿵⺆⿱𰀁口鳥(J)
 ⿰ han-5468.0:8x16 han-9ce5:7x16 // ⿰周鳥
 glyph han-9d70.1:* = han-9d70.0:*
-glyph han-9d70.2:15x16 15 16 // 鵰
+glyph han-9d70.2:15x16 15 16 // 鵰 ⿰周鳥(GHTKPV) ⿰⿵⺆⿱𰀁口鳥(J)
 ⿰ han-5468.1:8x16 han-9ce5:7x16 // ⿰周鳥
 glyph han-9d70-(h|j):* = han-9d70.0:*
 glyph han-9d70-(g|t|k|p|v):* = han-9d70.2:*
@@ -441,9 +441,9 @@ glyph han-9d7b:15x16 15 16 // 鵻
 glyph han-9d80:15x16 15 16 // 鶀
 ⿰ han-9ce5:7x16 han-5176:8x16 // ⿰鳥其
 
-glyph han-9d84-(g|h|t|p):15x16 15 16 // 鶄
+glyph han-9d84-(g|h|t|p):15x16 15 16 // 鶄 ⿰青鳥(GHTP) ⿰靑鳥(JK)
 ⿰ han-9752-($-1):7x16 1 han-9ce5:7x16 // ⿰青鳥
-glyph han-9d84-(j|k):15x16 15 16 // 鶄
+glyph han-9d84-(j|k):15x16 15 16 // 鶄 ⿰青鳥(GHTP) ⿰靑鳥(JK)
 ⿰ han-9751-($-1):7x16 1 han-9ce5:7x16 // ⿰靑鳥
 
 // glyph han-9d86:15x16 15 16 // 鶆
@@ -595,7 +595,7 @@ glyph han-9e1b:15x16 15 16 // 鸛
 
 ## 200.0
 
-glyph han-9ebb.0:15x16.11x7 15 16 // 麻
+glyph han-9ebb.0:15x16.11x7 15 16 // 麻 ⿸广林(GHJPV[S][B]) ⿸广𣏟([M]TK)
 ..............................
 ..............................
 ..............................
@@ -613,7 +613,7 @@ glyph han-9ebb.0:15x16.11x7 15 16 // 麻
 ......$$......................
 ......$$......................
 assume ⿸ han-5e7f:15x16.11x13 han-6797:11x6 4 3 // ⿸广林
-glyph han-9ebb.1:15x16.11x7 15 16 // 麻
+glyph han-9ebb.1:15x16.11x7 15 16 // 麻 ⿸广林(GHJPV[S][B]) ⿸广𣏟([M]TK)
 ..............................
 ..............................
 ..............................
@@ -631,9 +631,9 @@ glyph han-9ebb.1:15x16.11x7 15 16 // 麻
 ......$$......................
 ......$$......................
 ref han-5e7f:15x16.11x13 0 0 // ⿸广林
-glyph han-9ebb.0:15x16 15 16 // 麻
+glyph han-9ebb.0:15x16 15 16 // 麻 ⿸广林(GHJPV[S][B]) ⿸广𣏟([M]TK)
 ⿸ han-5e7f:15x16.11x13 han-6797:11x12 4 4 // ⿸广林
-glyph han-9ebb.1:15x16 15 16 // 麻
+glyph han-9ebb.1:15x16 15 16 // 麻 ⿸广林(GHJPV[S][B]) ⿸广𣏟([M]TK)
 ..............................
 ..............................
 ..............................
@@ -658,18 +658,18 @@ glyph han-9ebb-(t|k):* = han-9ebb.1:*
 
 ## 200.4
 
-// glyph han-9ebe:15x16 15 16 // 麾
+// glyph han-9ebe:15x16 15 16 // 麾 ⿸麻毛(GHTKP) ⿸广⿱𣏟毛(J)
 // ⿸ han-9ebb han-6bdb // ⿸麻毛
 
 ## 200.7
 
-glyph han-9ebf.0:15x16 15 16 // 麿
+glyph han-9ebf.0:15x16 15 16 // 麿 ⿸麻吕(G) ⿸麻呂(HJK) ⿸广⿱林呂(T)
 ⿸ han-9ebb.0:15x16.11x7 han-5415.x:11x7 4 9 // ⿸麻吕
-glyph han-9ebf.1:15x16 15 16 // 麿
+glyph han-9ebf.1:15x16 15 16 // 麿 ⿸麻吕(G) ⿸麻呂(HJK) ⿸广⿱林呂(T)
 ⿸ han-9ebb.1:15x16.11x7 han-5415.x:11x7 4 9 // ⿸麻吕
 glyph han-9ebf.2:* = han-9ebf.0:*
 glyph han-9ebf.3:* = han-9ebf.1:*
-glyph han-9ebf.x:15x16 15 16 // 麿
+glyph han-9ebf.x:15x16 15 16 // 麿 ⿸麻吕(G) ⿸麻呂(HJK) ⿸广⿱林呂(T)
 ⿸ han-9ebb.0:15x16.11x7 han-5415:11x7 4 9 // ⿸麻吕
 glyph han-9ebf-(h|t|j):* = han-9ebf.0:*
 glyph han-9ebf-k:* = han-9ebf.1:*
@@ -684,7 +684,7 @@ glyph han-9ed2:15x16 15 16 // 黒
 
 ## 203.3
 
-// glyph han-58a8:15x16 15 16 // 墨
+// glyph han-58a8:15x16 15 16 // 墨 ⿱黑土(GHTKPV) ⿱黒土(J)
 // ⿱ han-9ed2 han-571f // ⿱黒土
 
 # CJK unified ideographs: 黾 (205')
@@ -706,7 +706,7 @@ glyph han-9efe:15x16 15 16 // 黾
 
 ## 205'.12
 
-// glyph han-9f0d:15x16 15 16 // 鼍
+// glyph han-9f0d:15x16 15 16 // 鼍 ⿱嘼电(G) ⿳㽞一黾(X)
 // ⿱ han-563c han-7535 // ⿱嘼电
 
 # CJK unified ideographs: 鼎 (206)

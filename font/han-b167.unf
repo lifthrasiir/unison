@@ -189,7 +189,7 @@ glyph han-289c0:15x16 15 16 // 𨧀
 // glyph han-289c9:15x16 15 16 // 𨧉
 // ⿰ han-91d2 han-599f // ⿰釒妟
 
-// glyph han-289d0:15x16 15 16 // 𨧐
+// glyph han-289d0:15x16 15 16 // 𨧐 ⿰釒吞(G) ⿰釒呑(UCS2003)
 // ⿰ han-91d2 han-541e // ⿰釒吞
 
 // glyph han-289d5:15x16 15 16 // 𨧕
@@ -213,10 +213,10 @@ glyph han-289dd:15x16 15 16 // 𨧝
 glyph han-289e0:15x16 15 16 // 𨧠
 ⿲ han-91d2:5x16-l han-6708:5x16 han-5e72:5x16 // ⿲釒月干
 
-// glyph han-289e2:15x16 15 16 // 𨧢
+// glyph han-289e2:15x16 15 16 // 𨧢 ⿰釒别(V) ⿰釒別(Z)
 // ⿲ han-91d2 han-53e6 han-5202 // ⿲釒另刂
 
-// glyph han-289e3:15x16 15 16 // 𨧣
+// glyph han-289e3:15x16 15 16 // 𨧣 ⿰釒壳(H) ⿰釒⿱士冗(V)
 // ⿰ han-91d2 han-58f3 // ⿰釒壳
 
 ## 167.8

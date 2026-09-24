@@ -10,7 +10,7 @@
 
 ## 103.1
 
-// glyph han-24d15:15x16 15 16 // 𤴕
+// glyph han-24d15:15x16 15 16 // 𤴕 ⿱一疋(GT) ⿱一𤴓(UCS2003)
 // ⿳ han-4e00 han-4e5b han-9fb0 // ⿳一乛龰 <- ⿱一疋
 
 # CJK unified ideographs extension B: 疒 (104)
@@ -71,7 +71,7 @@ glyph han-24d37:15x16 15 16 // 𤴷
 // glyph han-24d39:15x16 15 16 // 𤴹
 // ⿸ han-7592 han-5dff // ⿸疒巿
 
-// glyph han-24d3a:15x16 15 16 // 𤴺
+// glyph han-24d3a:15x16 15 16 // 𤴺 ⿸疒冗(G) ⿸疒⿱冖儿(T)
 // ⿸ han-7592 han-5197 // ⿸疒冗
 
 // glyph han-24d3b:15x16 15 16 // 𤴻
@@ -186,7 +186,7 @@ glyph han-24d79:15x16 15 16 // 𤵹
 // glyph han-24d88:15x16 15 16 // 𤶈
 // ⿸ han-7592 han-897f // ⿸疒西
 
-// glyph han-24d8a:15x16 15 16 // 𤶊
+// glyph han-24d8a:15x16 15 16 // 𤶊 ⿸疒会(GT) ⿸疒⿱亽𠫔(UCS2003)
 // ⿸ han-7592 han-4f1a // ⿸疒会
 
 // glyph han-24d8b:15x16 15 16 // 𤶋
@@ -206,7 +206,7 @@ glyph han-24d91:15x16 15 16 // 𤶑
 
 ## 104.7
 
-// glyph han-24d95:15x16 15 16 // 𤶕
+// glyph han-24d95:15x16 15 16 // 𤶕 ⿸疒吞(GT) ⿸疒呑(P)
 // ⿸ han-7592 han-541e // ⿸疒吞
 
 glyph han-24d98-($han-regions):15x16 15 16 // 𤶘
@@ -321,13 +321,13 @@ glyph han-24df1:15x16 15 16 // 𤷱
 // glyph han-24dfc:15x16 15 16 // 𤷼
 // ⿸ han-7592 han-76f8 // ⿸疒相
 
-// glyph han-24dff:15x16 15 16 // 𤷿
+// glyph han-24dff:15x16 15 16 // 𤷿 ⿸疒突(GTP) ⿸疒⿱穴犬(V)
 // ⿸ han-7592 han-7a81 // ⿸疒突
 
 // glyph han-24e02:15x16 15 16 // 𤸂
 // ⿸ han-7592 han-800e // ⿸疒耎
 
-// glyph han-24e04:15x16 15 16 // 𤸄
+// glyph han-24e04:15x16 15 16 // 𤸄 ⿸疒⿱罒水(GT) ⿸疒𥄳(Z)
 // ⿸ han-7592 han-25133 // ⿸疒𥄳
 
 glyph han-24e06:15x16 15 16 // 𤸆
@@ -371,7 +371,7 @@ glyph han-24e14:15x16 15 16 // 𤸔
 // glyph han-24e56:15x16 15 16 // 𤹖
 // ⿸ han-7592 han-8ed2 // ⿸疒軒
 
-// glyph han-24e5c:15x16 15 16 // 𤹜
+// glyph han-24e5c:15x16 15 16 // 𤹜 ⿸疒宫(G) ⿸疒宮(T)
 // ⿸ han-7592 han-5bab // ⿸疒宫
 
 ## 104.11
@@ -392,7 +392,7 @@ glyph han-24e6a-t:* = han-24e6a.x:*
 // glyph han-24e73:15x16 15 16 // 𤹳
 // ⿸ han-75f3 han-5c71 // ⿸痳山
 
-// glyph han-24e74:15x16 15 16 // 𤹴
+// glyph han-24e74:15x16 15 16 // 𤹴 ⿸痳女(G) ⿸痲女(T)
 // ⿸ han-75f3 han-5973 // ⿸痳女
 
 // glyph han-24e77:15x16 15 16 // 𤹷
@@ -467,7 +467,7 @@ glyph han-24e6a-t:* = han-24e6a.x:*
 // glyph han-24ed5:15x16 15 16 // 𤻕
 // ⿸ han-7592 han-7dad // ⿸疒維
 
-// glyph han-24eda:15x16 15 16 // 𤻚
+// glyph han-24eda:15x16 15 16 // 𤻚 ⿸痳肉(GP) ⿸痲肉(T)
 // ⿸ han-75f3 han-8089 // ⿸痳肉
 
 // glyph han-24eea:15x16 15 16 // 𤻪
@@ -494,7 +494,7 @@ glyph han-24e6a-t:* = han-24e6a.x:*
 // glyph han-24f10:15x16 15 16 // 𤼐
 // ⿸ han-7592 han-96da // ⿸疒雚
 
-// glyph han-24f11:15x16 15 16 // 𤼑
+// glyph han-24f11:15x16 15 16 // 𤼑 ⿸痳骨(GP) ⿸痳⿳𭁟冖月(T) ⿸痳⿳𭁟冖⺼(UCS2003)
 // ⿸ han-75f3 han-9aa8 // ⿸痳骨
 
 ## 104.19

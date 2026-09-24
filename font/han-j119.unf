@@ -73,7 +73,7 @@ glyph han-32de7:15x16 15 16 // 𲷧
 
 ## 120.3
 
-glyph han-32de9-($han-regions):15x16 15 16 // 𲷩
+glyph han-32de9-($han-regions):15x16 15 16 // 𲷩 ⿰糹巾(V) ⿰糸巾(S)
 ⿰ han-7cf9-($-1):5x16 1 han-5dfe:9x16 // ⿰糹巾
 
 glyph han-32dea:15x16 15 16 // 𲷪
@@ -86,7 +86,7 @@ glyph han-32dea:15x16 15 16 // 𲷪
 
 ## 120.6
 
-// glyph han-32dee-($han-regions):15x16 15 16 // 𲷮
+// glyph han-32dee-($han-regions):15x16 15 16 // 𲷮 ⿰糸灰(S) ⿰糹灰(Z)
 // ⿰ han-7cf9-($-1) han-7070 // ⿰糹灰
 
 glyph han-32def:15x16 15 16 // 𲷯
@@ -97,7 +97,7 @@ glyph han-32def:15x16 15 16 // 𲷯
 
 ## 120.7
 
-// glyph han-32dfa-($han-regions):15x16 15 16 // 𲷺
+// glyph han-32dfa-($han-regions):15x16 15 16 // 𲷺 ⿰糸狂(S) ⿰糹狂(Z)
 // ⿰ han-7cf9-($-1) han-72c2 // ⿰糹狂
 
 // glyph han-32dfc-($han-regions):15x16 15 16 // 𲷼
@@ -128,7 +128,7 @@ glyph han-32def:15x16 15 16 // 𲷯
 
 ## 120.13
 
-// glyph han-32e1b-($han-regions):15x16 15 16 // 𲸛
+// glyph han-32e1b-($han-regions):15x16 15 16 // 𲸛 ⿰糸葉(S) ⿰糹葉(Z)
 // ⿰ han-7cf9-($-1) han-8449 // ⿰糹葉
 
 ## 120.15

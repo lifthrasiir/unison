@@ -119,7 +119,7 @@ glyph han-248f7:15x16 15 16 // 𤣷
 // glyph han-248fa:15x16 15 16 // 𤣺
 // ⿰ han-248e9 han-722a // ⿰𤣩爪
 
-// glyph han-248fc:15x16 15 16 // 𤣼
+// glyph han-248fc:15x16 15 16 // 𤣼 ⿱内玉(G) ⿱內玉(T)
 // ⿱ han-5185 han-7389 // ⿱内玉
 
 // glyph han-248fd:15x16 15 16 // 𤣽
@@ -269,13 +269,13 @@ glyph han-24952:15x16 15 16 // 𤥒
 // glyph han-2495a:15x16 15 16 // 𤥚
 // ⿰ han-248e9 han-65f1 // ⿰𤣩旱
 
-glyph han-24962:15x16 15 16 // 𤥢
+glyph han-24962:15x16 15 16 // 𤥢 ⿰𤣩吿(H) ⿰𤣩告(Z)
 ⿰ han-248e9:5x16 han-543f:10x16 // ⿰𤣩吿
 
 // glyph han-24963:15x16 15 16 // 𤥣
 // ⿰ han-248e9 han-514b // ⿰𤣩克
 
-glyph han-24964:15x16 15 16 // 𤥤
+glyph han-24964:15x16 15 16 // 𤥤 ⿰𤣩⿻冖木(T) ⿰𤣩宋(UCS2003)
 ⿰ han-248e9:5x16 1 han-5b8b:9x16 // ⿰𤣩宋
 
 // glyph han-24966:15x16 15 16 // 𤥦
@@ -334,7 +334,7 @@ glyph han-24989:15x16 15 16 // 𤦉
 // glyph han-24997:15x16 15 16 // 𤦗
 // ⿱ han-73a8 han-6c34 // ⿱玨水
 
-// glyph han-2499b:15x16 15 16 // 𤦛
+// glyph han-2499b:15x16 15 16 // 𤦛 ⿰𤣩冐(T) ⿰𤣩⿱日⺝(V)
 // ⿰ han-248e9 han-5190 // ⿰𤣩冐
 
 // glyph han-2499c:15x16 15 16 // 𤦜
@@ -355,7 +355,7 @@ glyph han-249a9:15x16 15 16 // 𤦩
 // glyph han-249aa:15x16 15 16 // 𤦪
 // ⿰ han-248e9 han-6771 // ⿰𤣩東
 
-glyph han-249ad-($han-regions):15x16 15 16 // 𤦭
+glyph han-249ad-($han-regions):15x16 15 16 // 𤦭 ⿰𤣩青(HT) ⿰𤣩靑(Z)
 ⿰ han-248e9:5x16 1 han-9752-($-1):9x16 // ⿰𤣩青
 
 glyph han-249ae:15x16 15 16 // 𤦮
@@ -505,7 +505,7 @@ glyph han-24a8a:15x16 15 16 // 𤪊
 
 ## 96.17
 
-// glyph han-24aca:15x16 15 16 // 𤫊
+// glyph han-24aca:15x16 15 16 // 𤫊 ⿱霝王(GHT) ⿱霝玉(P)
 // ⿳ han-96e8 han-20c60 han-738b // ⿳雨𠱠王 <- ⿱霝王
 
 ## 96.19

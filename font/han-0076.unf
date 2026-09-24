@@ -82,7 +82,7 @@ glyph han-6b20.0:* = han-6b20:*
 
 ## 76.2
 
-glyph han-6b21:15x16 15 16 // 次
+glyph han-6b21:15x16 15 16 // 次 ⿰冫欠(GHJKPV) ⿰二欠(T)
 ⿰ han-51ab:5x16 1 han-6b20:9x16 // ⿰冫欠
 
 // glyph han-6b22-($han-regions):15x16 15 16 // 欢
@@ -128,7 +128,7 @@ glyph han-6b31:15x16 15 16 // 欱
 
 ## 76.7
 
-glyph han-6b34:15x16 15 16 // 欴
+glyph han-6b34:15x16 15 16 // 欴 ⿰{17}欠(GHTP) ⿰良欠(K)
 ⿰ han-826f:7x16 1 han-6b20:7x16 // ⿰良欠
 
 glyph han-6b36:15x16 15 16 // 欶
@@ -153,7 +153,7 @@ glyph han-6b3d:15x16 15 16 // 欽
 // glyph han-6b42:15x16 15 16 // 歂
 // ⿰ han-8011 han-6b20 // ⿰耑欠
 
-// glyph han-6b45:15x16 15 16 // 歅
+// glyph han-6b45:15x16 15 16 // 歅 ⿰垔欠(GHTK) ⿰⿱覀土欠(P)
 // ⿰ han-5794 han-6b20 // ⿰垔欠
 
 glyph han-6b46:15x16 15 16 // 歆
@@ -166,9 +166,9 @@ glyph han-6b46.2:15x16 15 16 // 歆
 glyph han-6b47:15x16 15 16 // 歇
 ⿰ han-66f7:8x16 han-6b20:7x16 // ⿰曷欠
 
-glyph han-6b48-(g|h|t):15x16 15 16 // 歈
+glyph han-6b48-(g|h|t):15x16 15 16 // 歈 ⿰俞欠(GHT) ⿰兪欠(KP)
 ⿰ han-4fde.0:7x16 1 han-6b20:7x16 // ⿰俞欠
-glyph han-6b48-(j|k|p):15x16 15 16 // 歈
+glyph han-6b48-(j|k|p):15x16 15 16 // 歈 ⿰俞欠(GHT) ⿰兪欠(KP)
 ⿰ han-4fde.y:7x16 1 han-6b20:7x16 // ⿰俞欠
 
 ## 76.10
@@ -192,7 +192,7 @@ glyph han-6b4c:15x16 15 16 // 歌
 
 ## 76.18
 
-glyph han-6b61:15x16 15 16 // 歡
+glyph han-6b61:15x16 15 16 // 歡 ⿰雚欠(GJKPV[B]) ⿰雚欠(HT)
 ⿰ han-96da:8x16 han-6b20:7x16 // ⿰雚欠
 
 # CJK unified ideographs: 止 (77)
@@ -906,7 +906,7 @@ glyph han-6b6e:15x16 15 16 // 歮
 
 ## 79.0
 
-// glyph han-6bb3-($han-regions):15x16 15 16 // 殳
+// glyph han-6bb3-($han-regions):15x16 15 16 // 殳 ⿱𠘧又(GHTP[B]) ⿱几又(JK)
 // ⿱ han-51e0 han-53c8-($-1) // ⿱几又
 
 # CJK unified ideographs: 比 (81)
@@ -957,9 +957,9 @@ glyph han-6bd4.0:15x12 15 12 // 比
 ⿰ han-5315:7x12-l 1 han-5315.0:7x12 // ⿰匕匕
 glyph han-6bd4.x:15x12 15 12 // 比
 ⿰ han-5315:7x12-l 1 han-5315.x:7x12 // ⿰匕匕
-glyph han-6bd4.0:15x16 15 16 // 比
+glyph han-6bd4.0:15x16 15 16 // 比 ⿰⿺乚一匕(GJKP) ⿰⿺乚一⿺乚一(H) ⿰匕匕(T) ⿰⿺乚一⿺乚㇒(V)
 ⿰ han-5315.x:7x16-l 1 han-5315.0:7x16 // ⿰匕匕
-glyph han-6bd4.x:15x16 15 16 // 比
+glyph han-6bd4.x:15x16 15 16 // 比 ⿰⿺乚一匕(GJKP) ⿰⿺乚一⿺乚一(H) ⿰匕匕(T) ⿰⿺乚一⿺乚㇒(V)
 ⿰ han-5315.x:7x16-l 1 han-5315.x:7x16 // ⿰匕匕
 glyph han-6bd4-(g|j|k|p|v):* = han-6bd4.0:*
 glyph han-6bd4-(h|t):* = han-6bd4.x:*
@@ -1261,20 +1261,20 @@ glyph han-6bef:15x16 15 16 // 毯
 
 ## 82.9
 
-// glyph han-6bf7:15x16 15 16 // 毷
+// glyph han-6bf7:15x16 15 16 // 毷 ⿰冒毛(GHTKP) ⿰⿱冃目毛(J)
 // ⿰ han-5192 han-6bdb // ⿰冒毛
 
 // glyph han-6bf8:15x16 15 16 // 毸
 // ⿺ han-6bdb han-601d // ⿺毛思
 
-glyph han-6bf9.0:15x16 15 16 // 毹
+glyph han-6bf9.0:15x16 15 16 // 毹 ⿰俞毛(GHT) ⿰兪毛(JKP)
 ⿰ han-4fde.y:7x16 1 han-6bdb:7x16 // ⿰俞毛
-glyph han-6bf9.x:15x16 15 16 // 毹
+glyph han-6bf9.x:15x16 15 16 // 毹 ⿰俞毛(GHT) ⿰兪毛(JKP)
 ⿰ han-4fde.0:7x16 1 han-6bdb:7x16 // ⿰俞毛
 glyph han-6bf9-(j|k|p):* = han-6bf9.0:*
 glyph han-6bf9-(g|h|t):* = han-6bf9.x:*
 
-// glyph han-6bfa:15x16 15 16 // 毺
+// glyph han-6bfa:15x16 15 16 // 毺 ⿺毛俞(GH) ⿺毛兪(TP)
 // ⿺ han-6bdb han-4fde // ⿺毛俞
 
 glyph han-6bfc:15x16 15 16 // 毼
@@ -1282,7 +1282,7 @@ glyph han-6bfc:15x16 15 16 // 毼
 
 ## 82.10
 
-// glyph han-6bfe-($han-regions):15x16 15 16 // 毾
+// glyph han-6bfe-($han-regions):15x16 15 16 // 毾 ⿰𦐇毛(GHTP) ⿰⿱日羽毛(K)
 // ⿰ han-26407-($-1) han-6bdb // ⿰𦐇毛
 
 ## 82.11
@@ -1468,7 +1468,7 @@ $$@@../h....`vV\/vv'
 $$@@~HH_`vV\..\Vv/$$
 ~HH_h/....\Vv.`Vv'$$
 ref 2x4-xz1 5 8
-glyph han-6c10.0:15x16 15 16 // 氐
+glyph han-6c10.0:15x16 15 16 // 氐 ⿱氏丶(G[V][B]) ⿱氏一(HTJKP[S])
 $$..........................$$
 $$............@@............$$
 $$@@..........@@............$$
@@ -1487,7 +1487,7 @@ $$.....................\9@0d@P
 @@@@@@@@@@@@@@@@@@@@.....\1v/.
 ref 11x3-ys2 1 0
 glyph han-6c10.1:* = han-6c10.0:*
-glyph han-6c10.2:15x16 15 16 // 氐
+glyph han-6c10.2:15x16 15 16 // 氐 ⿱氏丶(G[V][B]) ⿱氏一(HTJKP[S])
 ..............................
 ..............................
 ....................@b\.......
@@ -1505,7 +1505,7 @@ glyph han-6c10.2:15x16 15 16 // 氐
 ..............................
 ..............................
 ref han-6c10.0:15x16
-glyph han-6c10.x:15x16 15 16 // 氐
+glyph han-6c10.x:15x16 15 16 // 氐 ⿱氏丶(G[V][B]) ⿱氏一(HTJKP[S])
 ..............................
 ..............................
 ..............................

@@ -253,7 +253,7 @@ def ids_operand_seq(ids: dict, cp: int, char: str) -> str | None:
     entry = ids.get(cp)
     if entry is None:
         return None
-    for seq, tags in sorted(entry.seqs, key=lambda s: -G.tag_score(s[1])):
+    for seq, tags in sorted(entry.seqs, key=G.seq_order):
         tree, used = G.parse_ids(seq)
         if tree is None or used != len(seq) or tree.op not in G.SPLIT_ARITY:
             continue

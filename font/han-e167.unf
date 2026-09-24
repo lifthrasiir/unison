@@ -498,7 +498,7 @@ glyph han-2cbff:15x16 15 16 // 𬯿
 
 ## 174.5
 
-glyph han-2cc18:15x16 15 16 // 𬰘
+glyph han-2cc18:15x16 15 16 // 𬰘 ⿰青丘(V) ⿰靑丘(Z)
 ⿰ han-9752-v:7x16 han-4e18:8x16 // ⿰青丘
 
 # CJK unified ideographs extension E: 非 (175)
@@ -872,7 +872,7 @@ glyph han-2cd52:15x16 15 16 // 𬵒
 
 ## 195.9
 
-// glyph han-2cd5c:15x16 15 16 // 𬵜
+// glyph han-2cd5c:15x16 15 16 // 𬵜 ⿰魚⿱襾女(J) ⿰魚要(Z)
 // ⿰ han-9b5a han-8981 // ⿰魚要
 
 // glyph han-2cd5d:15x16 15 16 // 𬵝

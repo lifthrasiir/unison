@@ -7,7 +7,7 @@
 
 ## 200.3
 
-// glyph han-2a392:15x16 15 16 // 𪎒
+// glyph han-2a392:15x16 15 16 // 𪎒 ⿸麻凡(GT) ⿸广梵(X)
 // ⿸ han-9ebb han-51e1 // ⿸麻凡
 
 // glyph han-2a393:15x16 15 16 // 𪎓
@@ -18,7 +18,7 @@
 
 ## 200.4
 
-// glyph han-2a395:15x16 15 16 // 𪎕
+// glyph han-2a395:15x16 15 16 // 𪎕 ⿸麻分(GTP) ⿸广棼(X)
 // ⿸ han-9ebb han-5206 // ⿸麻分
 
 glyph han-2a396-g:15x16 15 16 // 𪎖
@@ -31,8 +31,8 @@ glyph han-2a397-g:15x16 15 16 // 𪎗
 glyph han-2a397-(t|j):15x16 15 16 // 𪎗
 ⿸ han-9ebb.1:15x16.11x7 han-65e5:11x6 4 10 // ⿸麻日
 
-// glyph han-2a399:15x16 15 16 // 𪎙
-// ⿸ han-9ebb han-5e75 // ⿸麻幵
+// glyph han-2a399-($han-regions):15x16 15 16 // 𪎙 ⿸麻开(G) ⿸麻幵(Z)
+// ⿸ han-9ebb-($-1) han-5f00 // ⿸麻开
 
 // glyph han-2a39a:15x16 15 16 // 𪎚
 // ⿰ han-9ebb han-624b // ⿰麻手
@@ -61,9 +61,9 @@ glyph han-2a39f:15x16 15 16 // 𪎟
 
 ## 200.8
 
-glyph han-2a3a6-g:15x16 15 16 // 𪎦
+glyph han-2a3a6-g:15x16 15 16 // 𪎦 ⿸麻林(GT) ⿱麻林(UCS2003)
 ⿸ han-9ebb.0:15x16.11x7 han-6797:11x6 4 10 // ⿸麻林
-glyph han-2a3a6-(t|j):15x16 15 16 // 𪎦
+glyph han-2a3a6-(t|j):15x16 15 16 // 𪎦 ⿸麻林(GT) ⿱麻林(UCS2003)
 ⿸ han-9ebb.1:15x16.11x7 han-6797:11x6 4 10 // ⿸麻林
 
 ## 200.9

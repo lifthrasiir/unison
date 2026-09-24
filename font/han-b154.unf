@@ -8,7 +8,7 @@ glyph han-27d24:15x16 15 16 // 𧴤
 // glyph han-27d25:15x16 15 16 // 𧴥
 // ⿱ han-529b han-8c9d // ⿱力貝
 
-// glyph han-27d26:15x16 15 16 // 𧴦
+// glyph han-27d26:15x16 15 16 // 𧴦 ⿱𠤎貝(G) ⿱匕貝(T)
 // ⿱ han-5315 han-8c9d // ⿱匕貝
 
 glyph han-27d27:15x16 15 16 // 𧴧
@@ -22,7 +22,7 @@ glyph han-27d27:15x16 15 16 // 𧴧
 
 ## 154.3
 
-// glyph han-27d2a:15x16 15 16 // 𧴪
+// glyph han-27d2a:15x16 15 16 // 𧴪 ⿱⺌貝(GV) ⿱𡭔貝(TP)
 // ⿱ han-21b54 han-8c9d // ⿱𡭔貝
 
 glyph han-27d2b:15x16 15 16 // 𧴫
@@ -145,7 +145,7 @@ glyph han-27d62:15x16 15 16 // 𧵢
 // glyph han-27d68:15x16 15 16 // 𧵨
 // ⿰ han-8c9d han-5b89 // ⿰貝安
 
-// glyph han-27d6d:15x16 15 16 // 𧵭
+// glyph han-27d6d:15x16 15 16 // 𧵭 ⿱开貝(G) ⿱⿰干干貝(T) ⿱幵貝(P)
 // ⿱ han-5e75 han-8c9d // ⿱幵貝
 
 // glyph han-27d73:15x16 15 16 // 𧵳
@@ -182,7 +182,7 @@ glyph han-27d88-j:15x16 15 16 // 𧶈
 // glyph han-27d8f:15x16 15 16 // 𧶏
 // ⿳ han-4e0d han-53e3 han-8c9d // ⿳不口貝
 
-// glyph han-27d92:15x16 15 16 // 𧶒
+// glyph han-27d92:15x16 15 16 // 𧶒 ⿹⿽戈口貝(T) ⿻員戈(X)
 // ref han-54e1 // ⿻員戈
 // ref han-6208
 
@@ -192,7 +192,7 @@ glyph han-27d94:15x16 15 16 // 𧶔
 // glyph han-27d98:15x16 15 16 // 𧶘
 // ⿱ han-593e han-8c9d // ⿱夾貝
 
-// glyph han-27d9a:15x16 15 16 // 𧶚
+// glyph han-27d9a:15x16 15 16 // 𧶚 ⿳卉一貝(GT) ⿳𠦄一貝(UCS2003) ⿱十𧴹(X)
 // ⿳ han-5349 han-4e00 han-8c9d // ⿳卉一貝
 
 ## 154.8
@@ -252,7 +252,7 @@ glyph han-27dc2:15x16 15 16 // 𧷂
 
 ## 154.10
 
-// glyph han-27dcf:15x16 15 16 // 𧷏
+// glyph han-27dcf:15x16 15 16 // 𧷏 ⿱{114}買(G) ⿱圥買(T)
 // ⿳ han-5725 han-7f52 han-8c9d // ⿳圥罒貝 <- ⿱圥買
 
 // glyph han-27dd1:15x16 15 16 // 𧷑
@@ -366,7 +366,7 @@ glyph han-27e30:15x16 15 16 // 𧸰
 
 ## 155.9
 
-// glyph han-27e6c:15x16 15 16 // 𧹬
+// glyph han-27e6c:15x16 15 16 // 𧹬 ⿰赤垔(GT) ⿰赤⿱覀土(P)
 // ⿰ han-8d64 han-5794 // ⿰赤垔
 
 // glyph han-27e6f:15x16 15 16 // 𧹯
@@ -485,8 +485,8 @@ glyph han-27e30:15x16 15 16 // 𧸰
 // glyph han-27eaa-($han-regions):15x16 15 16 // 𧺪
 // ⿺ han-8d70 han-4e10-($-1) // ⿺走丐
 
-// glyph han-27eac:15x16 15 16 // 𧺬
-// ⿺ han-8d70 han-5185 // ⿺走内
+// glyph han-27eac:15x16 15 16 // 𧺬 ⿺走內(T) ⿺走内(Z)
+// ⿺ han-8d70 han-5167 // ⿺走內
 
 // glyph han-27eae:15x16 15 16 // 𧺮
 // ⿺ han-8d70 han-5206 // ⿺走分
@@ -502,7 +502,7 @@ glyph han-27e30:15x16 15 16 // 𧸰
 
 ## 156.5
 
-// glyph han-27eb6:15x16 15 16 // 𧺶
+// glyph han-27eb6:15x16 15 16 // 𧺶 ⿺走术(G) ⿺走朮(TP)
 // ⿺ han-8d70 han-672f // ⿺走术
 
 // glyph han-27eb7:15x16 15 16 // 𧺷
@@ -523,7 +523,7 @@ glyph han-27e30:15x16 15 16 // 𧸰
 // glyph han-27ebf:15x16 15 16 // 𧺿
 // ⿺ han-8d70 han-4e16 // ⿺走世
 
-// glyph han-27ec0:15x16 15 16 // 𧻀
+// glyph han-27ec0:15x16 15 16 // 𧻀 ⿺走厈(GT) ⿺走⿸𠂆干(P)
 // ⿺ han-8d70 han-5388 // ⿺走厈
 
 // glyph han-27ec1:15x16 15 16 // 𧻁
@@ -555,10 +555,10 @@ glyph han-27e30:15x16 15 16 // 𧸰
 
 ## 156.6
 
-// glyph han-27ed0:15x16 15 16 // 𧻐
+// glyph han-27ed0:15x16 15 16 // 𧻐 ⿺走対(V) ⿰走対(UCS2003)
 // ⿲ han-8d70 han-6587 han-5bf8 // ⿲走文寸 <- ⿰走対
 
-// glyph han-27ed3:15x16 15 16 // 𧻓
+// glyph han-27ed3:15x16 15 16 // 𧻓 ⿺走并(GTP) ⿺走幷(Z)
 // ⿺ han-8d70 han-5e76 // ⿺走并
 
 // glyph han-27ed4:15x16 15 16 // 𧻔
@@ -567,7 +567,7 @@ glyph han-27e30:15x16 15 16 // 𧸰
 // glyph han-27ed6:15x16 15 16 // 𧻖
 // ⿺ han-8d70 han-821f // ⿺走舟
 
-// glyph han-27ed8-($han-regions):15x16 15 16 // 𧻘
+// glyph han-27ed8-($han-regions):15x16 15 16 // 𧻘 ⿺走㓞(G) ⿺走⿰⿻三丨刀(T)
 // ⿺ han-8d70 han-34de-($-1) // ⿺走㓞
 
 // glyph han-27ed9:15x16 15 16 // 𧻙
@@ -648,13 +648,13 @@ glyph han-27e30:15x16 15 16 // 𧸰
 // glyph han-27f05:15x16 15 16 // 𧼅
 // ⿺ han-8d70 han-8eab // ⿺走身
 
-// glyph han-27f08:15x16 15 16 // 𧼈
+// glyph han-27f08:15x16 15 16 // 𧼈 ⿺走𦔮(G) ⿺走耴(V)
 // ⿺ han-8d70 han-8034 // ⿺走耴
 
 // glyph han-27f0a:15x16 15 16 // 𧼊
 // ⿺ han-8d70 han-898b // ⿺走見
 
-// glyph han-27f0d:15x16 15 16 // 𧼍
+// glyph han-27f0d:15x16 15 16 // 𧼍 ⿺走灵(V) ⿰走灵(UCS2003)
 // ⿺ han-8d70 han-7075 // ⿺走灵
 
 ## 156.8
@@ -700,7 +700,7 @@ glyph han-27e30:15x16 15 16 // 𧸰
 // glyph han-27f2e:15x16 15 16 // 𧼮
 // ⿺ han-8d70 han-661c // ⿺走昜
 
-// glyph han-27f2f:15x16 15 16 // 𧼯
+// glyph han-27f2f:15x16 15 16 // 𧼯 ⿺走俞(GT) ⿺走兪(P)
 // ⿺ han-8d70 han-4fde // ⿺走俞
 
 // glyph han-27f34:15x16 15 16 // 𧼴
@@ -774,7 +774,7 @@ glyph han-27e30:15x16 15 16 // 𧸰
 
 ## 156.13
 
-// glyph han-27f93:15x16 15 16 // 𧾓
+// glyph han-27f93:15x16 15 16 // 𧾓 ⿺走䪞(G) ⿺走⿱夭韭(T)
 // ⿺ han-8d70 han-4a9e // ⿺走䪞
 
 // glyph han-27f95:15x16 15 16 // 𧾕

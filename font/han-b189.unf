@@ -2,7 +2,7 @@
 
 ## 189.3
 
-// glyph han-29abf-($han-regions):15x16 15 16 // 𩪿
+// glyph han-29abf-($han-regions):15x16 15 16 // 𩪿 ⿰高{20}(GT) ⿰高丸(UCS2003)
 // ⿰ han-9ad8 han-4e38-($-1) // ⿰高丸
 
 // glyph han-29ac0:15x16 15 16 // 𩫀
@@ -80,7 +80,7 @@ glyph han-29add:15x16 15 16 // 𩫝
 
 ## 191.-5
 
-// glyph han-29c0a:15x16 15 16 // 𩰊
+// glyph han-29c0a:15x16 15 16 // 𩰊 ⿰王丨(GT) ⿰王亅(Z)
 // ⿰ han-738b han-4e28 // ⿰王丨
 
 // glyph han-29c0b:15x16 15 16 // 𩰋

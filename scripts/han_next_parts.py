@@ -55,19 +55,24 @@ def collect(inv, ids, allow_ivi, inline, splits):
     """`[(cp, [Candidate])]` for every undrawn character some line could hold.
 
     The candidates are in the generator's own order, best-attested sequence
-    first, which is what decides the size tag a part is reported under.
+    first, which is what decides the size tag a part is reported under; and a
+    fallback sequence's only count where no attested one gives any, since that
+    is the only case in which the generator would write one.
     """
     out = []
     for cp, entry in ids.items():
         if cp in inv.covered or G.block_of(cp) is None:
             continue
-        cands = [
-            cand
-            for tree, _ in G.sequence_trees(entry, allow_ivi)
-            if tree is not None and tree.op in G.IDC_ARITY
-            for cand in G.candidates(tree, inline, splits, inv.pixel_drawn)
-            if cp not in cand.comps
-        ]
+        attested, fallback = [], []
+        for tree, _, is_fallback in G.sequence_trees(entry, allow_ivi):
+            if tree is None or tree.op not in G.IDC_ARITY:
+                continue
+            (fallback if is_fallback else attested).extend(
+                cand
+                for cand in G.candidates(tree, inline, splits, inv.pixel_drawn)
+                if cp not in cand.comps
+            )
+        cands = attested or fallback
         if cands:
             out.append((cp, cands))
     return out

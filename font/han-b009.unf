@@ -133,7 +133,7 @@ ref han-4eba.0:15x13 0 3
 // glyph han-201a4:15x16 15 16 // 𠆤
 // ⿱ han-201a2 han-4e85 // ⿱𠆢亅
 
-// glyph han-201a5:15x16 15 16 // 𠆥
+// glyph han-201a5:15x16 15 16 // 𠆥 ⿻人㇒(T) ⿻人丿(X)
 // ref han-4eba // ⿻人㇒
 // ref han-31d2
 
@@ -164,7 +164,7 @@ glyph han-201b3:15x16 15 16 // 𠆳
 
 ## 9.4
 
-// glyph han-201b4:15x16 15 16 // 𠆴
+// glyph han-201b4:15x16 15 16 // 𠆴 ⿱市人(G) ⿱巿人(T)
 // ⿳ han-4ea0 han-5dfe han-4eba // ⿳亠巾人 <- ⿱市人
 
 glyph han-201bb:15x16 15 16 // 𠆻
@@ -250,7 +250,7 @@ glyph han-201ef:15x16 15 16 // 𠇯
 glyph han-201f1:15x16 15 16 // 𠇱
 ⿰ han-4ebb:5x16 1 han-672b:9x16 // ⿰亻末
 
-// glyph han-201f2:15x16 15 16 // 𠇲
+// glyph han-201f2:15x16 15 16 // 𠇲 ⿰亻术(GHT) ⿰亻朮(Z)
 // ⿰ han-4ebb han-672f // ⿰亻术
 
 // glyph han-201f4:15x16 15 16 // 𠇴
@@ -320,7 +320,7 @@ glyph han-2020c:15x16 15 16 // 𠈌
 glyph han-2022e:15x16 15 16 // 𠈮
 ⿱ han-201a2:15x6 han-8db3:15x10 // ⿱𠆢足
 
-// glyph han-20233:15x16 15 16 // 𠈳
+// glyph han-20233:15x16 15 16 // 𠈳 ⿰亻⿱{42}火(GV) ⿰亻⿱彑火(T) ⿰亻灵(Z)
 // ⿰ han-4ebb han-7075 // ⿰亻灵
 
 // glyph han-2023a:15x16 15 16 // 𠈺
@@ -388,7 +388,7 @@ glyph han-2024d:15x16 15 16 // 𠉍
 // glyph han-20284:15x16 15 16 // 𠊄
 // ⿰ han-4ebb han-91d1 // ⿰亻金
 
-// glyph han-2028b:15x16 15 16 // 𠊋
+// glyph han-2028b:15x16 15 16 // 𠊋 ⿳𠆢䒑{46}(G) ⿳𠆢䒑电(T)
 // ⿳ han-201a2 han-4491 han-7535 // ⿳𠆢䒑电
 
 // glyph han-2028c:15x16 15 16 // 𠊌
@@ -464,7 +464,7 @@ glyph han-202c7:15x16 15 16 // 𠋇
 glyph han-202f4:15x16 15 16 // 𠋴
 ⿲ han-4ebb:3x16 han-708e:7x16 han-5202:5x16 // ⿲亻炎刂
 
-// glyph han-2030a:15x16 15 16 // 𠌊
+// glyph han-2030a:15x16 15 16 // 𠌊 ⿺來巴(H) ⿰來巴(V)
 // ⿺ han-4f86 han-5df4 // ⿺來巴
 
 glyph han-20312:15x16 15 16 // 𠌒
@@ -546,7 +546,7 @@ glyph han-2039e:15x16 15 16 // 𠎞
 // glyph han-203a5:15x16 15 16 // 𠎥
 // ⿰ han-4ebb han-3afa // ⿰亻㫺
 
-glyph han-203a6:15x16 15 16 // 𠎦
+glyph han-203a6:15x16 15 16 // 𠎦 ⿰亻强(G) ⿰亻強(Z)
 ⿲ han-4ebb:3x16 han-5f13:5x16 han-867d:7x16 // ⿲亻弓虽
 
 glyph han-203a8:15x16 15 16 // 𠎨
@@ -563,7 +563,7 @@ glyph han-203af:15x16 15 16 // 𠎯
 
 ## 9.13
 
-// glyph han-203b7:15x16 15 16 // 𠎷
+// glyph han-203b7:15x16 15 16 // 𠎷 ⿰亻䪞(GT) ⿰亻⿱夭韭(P)
 // ⿰ han-4ebb han-4a9e // ⿰亻䪞
 
 glyph han-203bc:15x16 15 16 // 𠎼

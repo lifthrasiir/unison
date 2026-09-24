@@ -5,7 +5,7 @@
 glyph han-2aa22:15x16 15 16 // 𪨢
 ⿱ han-5c71:15x4 1 han-4e0b:15x11 // ⿱山下
 
-glyph han-2aa24:15x16 15 16 // 𪨤
+glyph han-2aa24:15x16 15 16 // 𪨤 ⿱𡭔山(T) ⿱小山(Z)
 ⿱ han-5c0f:15x9 han-5c71:15x7 // ⿱小山
 
 ## 46.4
@@ -114,7 +114,7 @@ glyph han-2aa66:15x16 15 16 // 𪩦
 
 ## 50.2
 
-// glyph han-2aa72:15x16 15 16 // 𪩲
+// glyph han-2aa72:15x16 15 16 // 𪩲 ⿹巿㇒(U) ㇯朿㇏(X)
 // ㇯朿㇏
 
 ## 50.8
@@ -125,7 +125,7 @@ glyph han-2aa74:15x16 15 16 // 𪩴
 // glyph han-2aa75:15x16 15 16 // 𪩵
 // ⿱ han-884c han-5e02 // ⿱行市
 
-// glyph han-2aa76-($han-regions):15x16 15 16 // 𪩶
+// glyph han-2aa76-($han-regions):15x16 15 16 // 𪩶 ⿳⿱宀儿大巾(J) ⿳穴大巾(Z)
 // ⿳ han-7a74-($-1) han-5927 han-5dfe // ⿳穴大巾
 
 # CJK unified ideographs extension C: 干 (51)
@@ -300,7 +300,7 @@ glyph han-2aaea:15x16 15 16 // 𪫪
 glyph han-2aaee:15x16 15 16 // 𪫮
 ⿰ han-5fc4:7x16 han-767e:8x16 // ⿰忄百
 
-glyph han-2aaf0:15x16 15 16 // 𪫰
+glyph han-2aaf0:15x16 15 16 // 𪫰 ⿱吕心(G) ⿱呂心(Z)
 ⿱ han-5415:15x10 han-5fc3:15x6 // ⿱吕心
 
 // glyph han-2aaf1:15x16 15 16 // 𪫱
@@ -378,7 +378,7 @@ glyph han-2ab0d:15x16 15 16 // 𪬍
 
 ## 63.5
 
-// glyph han-2ab58:15x16 15 16 // 𪭘
+// glyph han-2ab58:15x16 15 16 // 𪭘 ⿰户巨(V) ⿰戶巨(Z)
 // ⿰ han-6237 han-5de8 // ⿰户巨
 
 # CJK unified ideographs extension C: 手 (64)
@@ -715,7 +715,7 @@ glyph han-2ac5c:15x16 15 16 // 𪱜
 
 ## 74.9
 
-glyph han-2ac66:15x16 15 16 // 𪱦
+glyph han-2ac66:15x16 15 16 // 𪱦 ⿰月皇(G) ⿰⺼皇(T)
 ⿰ han-6708:5x16-l 1 han-7687:9x16 // ⿰月皇
 
 # CJK unified ideographs extension C: 木 (75)
@@ -810,7 +810,7 @@ glyph han-2aca2:15x16 15 16 // 𪲢
 // glyph han-2acac:15x16 15 16 // 𪲬
 // ⿰ han-5e02 han-6765 // ⿰市来
 
-// glyph han-2acad:15x16 15 16 // 𪲭
+// glyph han-2acad:15x16 15 16 // 𪲭 ⿰朮阮(V) ⿰术阮(Z)
 // ⿲ han-672f han-961d han-5143 // ⿲术阝元
 
 ## 75.9

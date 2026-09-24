@@ -140,7 +140,7 @@ glyph han-20e48:15x16 15 16 // 𠹈
 // glyph han-20e4e:15x16 15 16 // 𠹎
 // ⿰ han-53e3 han-70cb // ⿰口烋
 
-// glyph han-20e52:15x16 15 16 // 𠹒
+// glyph han-20e52:15x16 15 16 // 𠹒 ⿰口宫(G) ⿰口宮(T)
 // ⿰ han-53e3 han-5bab // ⿰口宫
 
 glyph han-20e5c:15x16 15 16 // 𠹜
@@ -312,9 +312,9 @@ glyph han-20f17:15x16 15 16 // 𠼗
 // glyph han-20f1e:15x16 15 16 // 𠼞
 // ⿰ han-5408 han-4e9e // ⿰合亞
 
-glyph han-20f22-g:15x16 15 16 // 𠼢
+glyph han-20f22-g:15x16 15 16 // 𠼢 ⿰口强(G) ⿰口強(TV)
 ⿲ han-53e3:3x16 1 han-5f13:4x16 han-867d:7x16 // ⿲口弓虽
-glyph han-20f22-(t|j|v):15x16 15 16 // 𠼢
+glyph han-20f22-(t|j|v):15x16 15 16 // 𠼢 ⿰口强(G) ⿰口強(TV)
 ⿲ han-53e3:3x16 1 han-5f13:4x16 han-27227:7x16 // ⿲口弓𧈧
 
 // glyph han-20f28:15x16 15 16 // 𠼨
@@ -430,7 +430,7 @@ glyph han-20fac:15x16 15 16 // 𠾬
 // glyph han-20fb5:15x16 15 16 // 𠾵
 // ⿲ han-53e3 han-624c han-67e5 // ⿲口扌查 <- ⿰口揸
 
-// glyph han-20fb9:15x16 15 16 // 𠾹
+// glyph han-20fb9:15x16 15 16 // 𠾹 ⿰呑卒(V) ⿰吞卒(Z)
 // ⿰ han-541e han-5352 // ⿰吞卒
 
 glyph han-20fbd:15x16 15 16 // 𠾽

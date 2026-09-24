@@ -150,7 +150,7 @@ glyph han-2c3b9:15x16 15 16 // 𬎹
 
 ## 101.3
 
-// glyph han-2c3be:15x16 15 16 // 𬎾
+// glyph han-2c3be:15x16 15 16 // 𬎾 ⿻肀月(T) ⿱肀用(X)
 // ref han-8080 // ⿻肀月
 // ref han-6708
 
@@ -235,7 +235,7 @@ glyph han-2c3d7:15x16 15 16 // 𬏗
 
 ## 104.4
 
-// glyph han-2c3de:15x16 15 16 // 𬏞
+// glyph han-2c3de:15x16 15 16 // 𬏞 ⿸疒户(G) ⿸疒戶(Z)
 // ⿸ han-7592 han-6237 // ⿸疒户
 
 // glyph han-2c3df:15x16 15 16 // 𬏟
@@ -491,7 +491,7 @@ glyph han-2c4ac:15x16 15 16 // 𬒬
 
 ## 113.4
 
-glyph han-2c4ad:15x16 15 16 // 𬒭
+glyph han-2c4ad:15x16 15 16 // 𬒭 ⿰示帀(J) ⿰礻帀(Z)
 ⿰ han-793a:5x16 1 han-5e00:9x16 // ⿰示帀
 
 // glyph han-2c4ae:15x16 15 16 // 𬒮
@@ -601,7 +601,7 @@ glyph han-2c4e2-($han-regions):15x16 15 16 // 𬓢
 
 ## 116.6
 
-// glyph han-2c509:15x16 15 16 // 𬔉
+// glyph han-2c509:15x16 15 16 // 𬔉 ⿱穴吕(G) ⿱穴呂(Z)
 // ⿳ han-5b80 han-516b han-5415 // ⿳宀八吕 <- ⿱穴吕
 
 ## 116.7
@@ -826,7 +826,7 @@ glyph han-2c58f:15x16 15 16 // 𬖏
 glyph han-2c590:15x16 15 16 // 𬖐
 ⿰ han-7c73:5x16 1 han-592b:9x16 // ⿰米夫
 
-glyph han-2c592:15x16 15 16 // 𬖒
+glyph han-2c592:15x16 15 16 // 𬖒 ⿰米⿰亻𠤎(J) ⿰米化(Z)
 ⿰ han-7c73:5x16 han-5316-j:10x16 // ⿰米化
 
 ## 119.5
@@ -834,7 +834,7 @@ glyph han-2c592:15x16 15 16 // 𬖒
 glyph han-2c593:15x16 15 16 // 𬖓
 ⿰ han-7c73:5x16 1 han-672c:9x16 // ⿰米本
 
-// glyph han-2c594:15x16 15 16 // 𬖔
+// glyph han-2c594:15x16 15 16 // 𬖔 ⿰米术(G) ⿰米朮(Z)
 // ⿰ han-7c73 han-672f // ⿰米术
 
 ## 119.6
@@ -930,13 +930,13 @@ glyph han-2c5d4:15x16 15 16 // 𬗔
 
 ## 120.7
 
-glyph han-2c5d6:15x16 15 16 // 𬗖
+glyph han-2c5d6:15x16 15 16 // 𬗖 ⿰糸豆(J) ⿰糹豆(Z)
 ⿰ han-7cf9-j:5x16 1 han-8c46:9x16 // ⿰糹豆
 
 glyph han-2c5d7:15x16 15 16 // 𬗗
 ⿲ han-7cf9-v:5x16 han-624c:3x16 han-65a4:7x16 // ⿲糹扌斤
 
-// glyph han-2c5d9:15x16 15 16 // 𬗙
+// glyph han-2c5d9:15x16 15 16 // 𬗙 ⿰糹吳(G) ⿰糹吴(Z)
 // ⿰ han-7cf9 han-5434 // ⿰糹吴
 
 glyph han-2c5de:15x16 15 16 // 𬗞
@@ -961,7 +961,7 @@ glyph han-2c5e5:15x16 15 16 // 𬗥
 glyph han-2c5e9:15x16 15 16 // 𬗩
 ⿲ -1 han-7cf9-v:5x16 han-77f3:5x16 han-65a4:6x16 // ⿲糹石斤
 
-glyph han-2c5ec:15x16 15 16 // 𬗬
+glyph han-2c5ec:15x16 15 16 // 𬗬 ⿰糸皇(J) ⿰糹皇(Z)
 ⿰ han-7cf9-j:5x16 1 han-7687:9x16 // ⿰糹皇
 
 ## 120.10
@@ -1007,7 +1007,7 @@ glyph han-2c613:15x16 15 16 // 𬘓
 
 ## 120'.4
 
-// glyph han-2c614:15x16 15 16 // 𬘔
+// glyph han-2c614:15x16 15 16 // 𬘔 ⿰纟丏(G) ⿰纟丐(Z)
 // ⿰ han-7e9f han-4e0f // ⿰纟丏
 
 ## 120'.5
@@ -1160,7 +1160,7 @@ glyph han-2c664:15x16 15 16 // 𬙤
 
 ## 123.6
 
-glyph han-2c672:15x16 15 16 // 𬙲
+glyph han-2c672:15x16 15 16 // 𬙲 ⿰羊幵(G) ⿰羊开(Z)
 assume ⿰ han-7f8a:7x16 -1 han-5e75.0:9x16 // ⿰羊幵
 
 ## 123.8
@@ -1314,7 +1314,7 @@ glyph han-2c6e1:15x16 15 16 // 𬛡
 
 ## 131.7
 
-glyph han-2c6e6:15x16 15 16 // 𬛦
+glyph han-2c6e6:15x16 15 16 // 𬛦 ⿰卧立(V) ⿰臥立(Z)
 ⿲ han-81e3:5x16 han-4eba:5x16 han-7acb:5x16 // ⿲臣人立
 
 ## 131.9

@@ -40,6 +40,17 @@ draws 𫜹, not 彐. A comment on a line naming one of those may write either
 character, and `ALSO_WRITTEN` below is the list of them -- one line per name,
 which is where a newly noticed pair goes.
 
+`--listings` adds a third claim, one only a full-size (`:15x16`) header that is
+no alias makes: that the character's comment is followed by every sequence
+`IDS.TXT` gives it, as `gen_ids_composites.py` writes them (`ids_listing`) --
+
+    glyph han-47f3:15x16 15 16 // 䟳 ⿺足羽(T) ⿰𧾷羽(Z)
+
+-- or by none, for a character with a single sequence. The listing sits between
+the character and any note of a hand's (`// 吉 ⿱士口(G) … (see also …)`), and
+`--fix` rewrites it there, so a refreshed `IDS.TXT` is one run away. It is opt
+in because it is the one check here that needs `IDS.TXT` at all.
+
 `--fix` rewrites the offending run in place, note and spacing untouched, and
 adds the comment a `--missing` line lacks. Nothing else on the line moves, and
 a position the comment already had right keeps the character it had, so that
@@ -56,7 +67,7 @@ what the line meant. Everywhere else `--fix` believes the names, so read the
 report before running it.
 
 Usage:
-    python3 scripts/check_ids_comments.py [-i font] [--fix] [--missing] [FILE...]
+    python3 scripts/check_ids_comments.py [-i font] [--fix] [--missing] [--listings] [FILE...]
 """
 
 from __future__ import annotations
@@ -272,6 +283,38 @@ def fixed_line(line: str, want: str) -> str:
     return line[:at + 2 + start] + want + line[at + 2 + end:]
 
 
+LISTING_SPAN_RE = re.compile(rf"(?: {G.LISTING_ITEM})+")
+
+
+def listing_span(line: str, ids: dict) -> tuple[int, int, str] | None:
+    """`(start, end, want)`: where a header's listing is (or goes) and what it
+    should say, or `None` for a line that makes no such claim.
+
+    Only a full-size header whose comment opens with its own character makes
+    one; the span starts right after that character, and is empty where the
+    header carries no listing yet.
+    """
+    body = body_of(line)
+    toks = body.split()
+    if len(toks) < 2 or toks[0] != "glyph" or "=" in body:
+        return None
+    hn = G.parse_han_name(toks[1])
+    if hn is None or hn.label is None or G.parse_label(hn.label)[0] != (G.BOX_W, G.BOX_H):
+        return None
+    at = comment_at(line)
+    if at is None:
+        return None
+    start, end = leading_ids(line[at + 2:])
+    run = line[at + 2 + start:at + 2 + end]
+    if len(run) != 1 or run not in (chars_for(toks[1]) or []):
+        return None
+    pos = at + 2 + end
+    m = LISTING_SPAN_RE.match(line, pos)
+    entry = ids.get(hn.cp)
+    want = G.ids_listing(entry) if entry is not None else ""
+    return pos, m.end() if m else pos, want
+
+
 def unf_files(font_dir: str, given: list[str]) -> list[str]:
     if given:
         return given
@@ -292,10 +335,15 @@ def main() -> int:
                     help="also report (and with --fix, add) an absent comment")
     ap.add_argument("--dry-run", action="store_true",
                     help="with --fix, report what would change and write nothing")
+    ap.add_argument("--listings", action="store_true",
+                    help="also hold full-size headers to the IDS listing "
+                         "gen_ids_composites.py writes (reads IDS.TXT)")
+    ap.add_argument("--ids", action="append", help=G.IDS_HELP)
     ap.add_argument("files", nargs="*", help="the files to read (default: han-*.unf)")
     args = ap.parse_args()
 
-    counts = {"wrong": 0, "missing": 0, "alien": 0}
+    ids = G.load_ids(args.ids or G.IDS_PATHS) if args.listings else {}
+    counts = {"wrong": 0, "missing": 0, "alien": 0, "listing": 0}
     changed = files_changed = 0
     for path in unf_files(args.font_dir, args.files):
         with open(path, encoding="utf-8") as f:
@@ -304,6 +352,20 @@ def main() -> int:
         for i, line in enumerate(lines):
             got = check_line(line)
             if got is None:
+                if args.listings:
+                    span = listing_span(line, ids)
+                    if span is not None:
+                        start, end, want = span
+                        if line[start:end] != (f" {want}" if want else ""):
+                            counts["listing"] += 1
+                            found = line[start:end].strip() or "none"
+                            print(f"{path}:{i + 1}: IDS listing is {found}, "
+                                  f"IDS.TXT gives {want or 'one sequence'}")
+                            if args.fix:
+                                lines[i] = (line[:start] + (f" {want}" if want else "")
+                                            + line[end:])
+                                changed += 1
+                                touched = True
                 continue
             want, found, kind = got
             if kind == "missing" and not args.missing:
@@ -335,7 +397,8 @@ def main() -> int:
               + ("" if args.dry_run else f" in {files_changed} file(s)") + alien)
         return 1 if counts["alien"] else 0
     missing = f", {counts['missing']} missing" if counts["missing"] else ""
-    print(f"{counts['wrong']} wrong comment(s){missing}{alien}")
+    listing = f", {counts['listing']} IDS listing(s) off" if counts["listing"] else ""
+    print(f"{counts['wrong']} wrong comment(s){missing}{listing}{alien}")
     return 1
 
 

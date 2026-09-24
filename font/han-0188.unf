@@ -124,7 +124,7 @@ $$....@@..............@@....$$
 $$....@@@@@@@@@@@@@@@@@@....$$
 $$....@@..............@@....$$
 $$$$$$@@$$$$$$$$$$$$\1@@$$$$$$
-glyph han-9aa8.0:15x16 15 16 // 骨
+glyph han-9aa8.0:15x16 15 16 // 骨 ⿳{108}冖⺝(GV[U][B]) ⿳𭁟冖⺝(HJKP[S]) ⿳𭁟冖⺼(T)
 $$....@@@@@@@@@@@@@@@@@@....$$
 $$....@@..............@@....$$
 $$....@@......@@@@@@@@@@....$$
@@ -142,7 +142,7 @@ $$....@@@@@@@@@@@@@@@@@@....$$
 $$....@@..............@@....$$
 $$....@@............\1@@....$$
 glyph han-9aa8.1:* = han-9aa8.0:*
-glyph han-9aa8.2:15x16 15 16 // 骨
+glyph han-9aa8.2:15x16 15 16 // 骨 ⿳{108}冖⺝(GV[U][B]) ⿳𭁟冖⺝(HJKP[S]) ⿳𭁟冖⺼(T)
 $$....@@@@@@@@@@@@@@@@@@....$$
 $$....@@..../0@@0\....@@....$$
 $$....@@../0@P0W9@0\..@@....$$
@@ -159,7 +159,7 @@ $$....@@..............@@....$$
 $$....@@@@@@@@@@@@@@@@@@....$$
 $$....@@..............@@....$$
 $$....@@............\1@@....$$
-glyph han-9aa8.3:15x16 15 16 // 骨
+glyph han-9aa8.3:15x16 15 16 // 骨 ⿳{108}冖⺝(GV[U][B]) ⿳𭁟冖⺝(HJKP[S]) ⿳𭁟冖⺼(T)
 $$............@@............$$
 $$....@@@@@@@@@@@@@@@@@@....$$
 $$....@@..../0@@0\....@@....$$
@@ -176,7 +176,7 @@ $$....@@..............@@....$$
 $$....@@@@@@@@@@@@@@@@@@....$$
 $$....@@..............@@....$$
 $$....@@............\1@@....$$
-glyph han-9aa8.x:15x16 15 16 // 骨
+glyph han-9aa8.x:15x16 15 16 // 骨 ⿳{108}冖⺝(GV[U][B]) ⿳𭁟冖⺝(HJKP[S]) ⿳𭁟冖⺼(T)
 $$....@@@@@@@@@@@@@@@@@@....$$
 $$....@@..............@@....$$
 $$....@@@@@@@@@@......@@....$$
@@ -206,7 +206,7 @@ glyph han-9aa8-(g|v):* = han-9aa8.x:*
 // glyph han-9aaa:15x16 15 16 // 骪
 // ⿰ han-9aa8 han-51e1 // ⿰骨凡
 
-// glyph han-9aab-($han-regions):15x16 15 16 // 骫
+// glyph han-9aab-($han-regions):15x16 15 16 // 骫 ⿰骨{20}(GKP) ⿰骨丸(HT)
 // ⿰ han-9aa8 han-4e38-($-1) // ⿰骨丸
 
 // glyph han-9aac:15x16 15 16 // 骬
@@ -224,7 +224,7 @@ glyph han-9aaf.0:* = han-9aaf-j:*
 
 ## 188.5
 
-glyph han-9ab2-($han-regions):15x16 15 16 // 骲
+glyph han-9ab2-($han-regions):15x16 15 16 // 骲 ⿰骨包(GHTKP) ⿰骨⿹勹巳(J)
 ⿰ han-9aa8-($-1):7x16 1 han-5305.1:7x16 // ⿰骨包
 glyph han-9ab2.0:* = han-9ab2-j:*
 
@@ -258,10 +258,10 @@ glyph han-9abc.0:* = han-9abc-j:*
 
 ## 188.8
 
-glyph han-9abf-($han-regions):15x16 15 16 // 骿
+glyph han-9abf-($han-regions):15x16 15 16 // 骿 ⿰骨并(GHTK) ⿰骨幷(JP)
 ⿰ han-9aa8-($-1):7x16 han-5e76:8x16 // ⿰骨并
 
-glyph han-9ac0-($han-regions):15x16 15 16 // 髀
+glyph han-9ac0-($han-regions):15x16 15 16 // 髀 ⿰骨卑(GHTKP) ⿰骨⿱⿱㇒⿻日丿十(JV)
 ⿰ han-9aa8-($-1):7x16 han-5351.0:8x16 // ⿰骨卑
 glyph han-9ac0.0:* = han-9ac0-j:*
 
@@ -592,7 +592,7 @@ glyph han-9b25.0:* = han-9b25:*
 
 ## 191.5
 
-glyph han-9b27:15x16 15 16 // 鬧
+glyph han-9b27:15x16 15 16 // 鬧 ⿵鬥市(GHTKPV) ⿵鬥巿(J)
 ⿵ han-9b25:15x16.13x11 han-5e02:11x11 2 5 // ⿵鬥市
 glyph han-9b27.0:* = han-9b27:*
 
@@ -647,9 +647,9 @@ glyph han-9b5d:15x16 15 16 // 魝
 glyph han-9b5f:15x16 15 16 // 魟
 ⿰ han-9b5a:7x16 1 han-5de5:7x16 // ⿰魚工
 
-glyph han-9b61.0:15x16 15 16 // 魡
+glyph han-9b61.0:15x16 15 16 // 魡 ⿰魚勺(GHTKP) ⿰魚⿹勹一(J)
 ⿰ han-9b5a:7x16 1 han-52fa.0:7x16 // ⿰魚勺
-glyph han-9b61.x:15x16 15 16 // 魡
+glyph han-9b61.x:15x16 15 16 // 魡 ⿰魚勺(GHTKP) ⿰魚⿹勹一(J)
 ⿰ han-9b5a:7x16 1 han-52fa.1:7x16 // ⿰魚勺
 glyph han-9b61-(j|k):* = han-9b61.0:*
 glyph han-9b61-(g|h|t|p):* = han-9b61.x:*
@@ -659,7 +659,7 @@ glyph han-9b62:15x16 15 16 // 魢
 
 ## 195.4
 
-glyph han-9b64-($han-regions):15x16 15 16 // 魤
+glyph han-9b64-($han-regions):15x16 15 16 // 魤 ⿰魚化(GHT) ⿰魚⿰亻𠤎(K)
 ⿰ han-9b5a:7x16 han-5316-($-1):8x16 // ⿰魚化
 
 // glyph han-9b66:15x16 15 16 // 魦
@@ -675,13 +675,13 @@ glyph han-9b6e-($han-regions):15x16 15 16 // 魮
 ⿰ han-9b5a:7x16 1 han-6bd4-($-1):7x16 // ⿰魚比
 glyph han-9b6e.0:* = han-9b6e-j:*
 
-// glyph han-9b6f:15x16 15 16 // 魯
+// glyph han-9b6f:15x16 15 16 // 魯 ⿱魚日(GTJKPV) ⿱魚曰(H)
 // ⿱ han-9b5a han-65e5 // ⿱魚日
 
 glyph han-9b70:15x16 15 16 // 魰
 ⿰ han-9b5a:7x16 1 han-6587:7x16 // ⿰魚文
 
-// glyph han-9b72:15x16 15 16 // 魲
+// glyph han-9b72:15x16 15 16 // 魲 ⿰魚户(GP) ⿰魚戶(TJ)
 // ⿰ han-9b5a han-6237 // ⿰魚户
 
 // glyph han-9b73:15x16 15 16 // 魳
@@ -693,7 +693,7 @@ glyph han-9b74:15x16 15 16 // 魴
 glyph han-9b75:15x16 15 16 // 魵
 ⿰ han-9b5a:7x16 1 han-5206:7x16 // ⿰魚分
 
-// glyph han-9b76:15x16 15 16 // 魶
+// glyph han-9b76:15x16 15 16 // 魶 ⿰魚内(G) ⿰魚內(HTJKP)
 // ⿰ han-9b5a han-5185 // ⿰魚内
 
 glyph han-9b78:15x16 15 16 // 魸
@@ -768,11 +768,11 @@ glyph han-9b8f:15x16 15 16 // 鮏
 glyph han-9b90:15x16 15 16 // 鮐
 ⿰ han-9b5a:7x16 1 han-53f0:7x16 // ⿰魚台
 
-glyph han-9b91:15x16 15 16 // 鮑
+glyph han-9b91:15x16 15 16 // 鮑 ⿰魚包(GHTKP) ⿰魚⿹勹巳(J)
 ⿰ han-9b5a:7x16 1 han-5305.1:7x16 // ⿰魚包
 glyph han-9b91.0:* = han-9b91:*
 glyph han-9b91.1:* = han-9b91:*
-glyph han-9b91.2:15x16 15 16 // 鮑
+glyph han-9b91.2:15x16 15 16 // 鮑 ⿰魚包(GHTKP) ⿰魚⿹勹巳(J)
 ⿰ han-9b5a:7x16 1 han-5305.0:7x16 // ⿰魚包
 // TODO: glyph han-9b91.3
 
@@ -811,7 +811,7 @@ glyph han-9b9a.0:* = han-9b9a:*
 // glyph han-9b9b:15x16 15 16 // 鮛
 // ⿰ han-9b5a han-5c17 // ⿰魚尗
 
-// glyph han-9b9d:15x16 15 16 // 鮝
+// glyph han-9b9d:15x16 15 16 // 鮝 ⿱龹魚(GHT) ⿱𠔉魚(JKP)
 // ⿳ han-516b han-592b han-9b5a // ⿳八夫魚 <- ⿱𠔉魚
 
 // glyph han-9b9e:15x16 15 16 // 鮞
@@ -830,7 +830,7 @@ glyph han-9ba6:15x16 15 16 // 鮦
 ⿰ han-9b5a:7x16 1 han-540c:7x16 // ⿰魚同
 glyph han-9ba6.0:* = han-9ba6:*
 
-glyph han-9ba9:15x16 15 16 // 鮩
+glyph han-9ba9:15x16 15 16 // 鮩 ⿰魚并(GTJP) ⿰魚幷(Z)
 ⿰ han-9b5a:7x16 han-5e76:8x16 // ⿰魚并
 glyph han-9ba9.0:* = han-9ba9:*
 
@@ -903,12 +903,12 @@ glyph han-9bcf.0:* = han-9bcf:*
 glyph han-9bd5:15x16 15 16 // 鯕
 ⿰ han-9b5a:7x16 han-5176:8x16 // ⿰魚其
 
-glyph han-9bd6-(g|h|t|p):15x16 15 16 // 鯖
+glyph han-9bd6-(g|h|t|p):15x16 15 16 // 鯖 ⿰魚青(GHTP) ⿰魚靑(JK)
 ⿰ han-9b5a:7x16 1 han-9752-($-1):7x16 // ⿰魚青
-glyph han-9bd6-(j|k):15x16 15 16 // 鯖
+glyph han-9bd6-(j|k):15x16 15 16 // 鯖 ⿰魚青(GHTP) ⿰魚靑(JK)
 ⿰ han-9b5a:7x16 1 han-9751-($-1):7x16 // ⿰魚靑
 
-// glyph han-9bd7:15x16 15 16 // 鯗
+// glyph han-9bd7:15x16 15 16 // 鯗 ⿳䒑夫魚(GP) ⿳𦍌八魚(HTJK)
 // ⿳ han-4491 han-592b han-9b5a // ⿳䒑夫魚
 
 // glyph han-9bd9-($han-regions):15x16 15 16 // 鯙
@@ -969,9 +969,9 @@ glyph han-9bf7:15x16 15 16 // 鯷
 // glyph han-9bf9:15x16 15 16 // 鯹
 // ⿰ han-9b5a han-661f // ⿰魚星
 
-glyph han-9bfa.0:15x16 15 16 // 鯺
+glyph han-9bfa.0:15x16 15 16 // 鯺 ⿰魚者(GTKPV) ⿰魚⿻者丶(J)
 ⿰ han-9b5a:7x16 1 han-8005.1:7x16 // ⿰魚者
-glyph han-9bfa.x:15x16 15 16 // 鯺
+glyph han-9bfa.x:15x16 15 16 // 鯺 ⿰魚者(GTKPV) ⿰魚⿻者丶(J)
 ⿰ han-9b5a:7x16 1 han-8005.0:7x16 // ⿰魚者
 glyph han-9bfa-(j|k|p):* = han-9bfa.0:*
 glyph han-9bfa-(g|t|v):* = han-9bfa.x:*

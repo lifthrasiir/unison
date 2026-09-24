@@ -18,7 +18,7 @@ glyph han-23b05-($han-regions):15x16 15 16 // 𣬅
 
 ## 81.6
 
-// glyph han-23b0a:15x16 15 16 // 𣬊
+// glyph han-23b0a:15x16 15 16 // 𣬊 ⿱比开(G) ⿱比幵(T)
 // ⿱ han-6bd4 han-5e75 // ⿱比幵
 
 ## 81.9
@@ -33,7 +33,7 @@ glyph han-23b0d-($han-regions):15x16 15 16 // 𣬍
 
 ## 81.12
 
-// glyph han-23b13-($han-regions):15x16 15 16 // 𣬓
+// glyph han-23b13-($han-regions):15x16 15 16 // 𣬓 ⿳比𠈌廾(G) ⿳比𠈌⿰𠂇十(T)
 // ⿳ han-6bd4-($-1) han-2020c han-5efe // ⿳比𠈌廾
 
 # CJK unified ideographs extension B: 毛 (82)
@@ -183,7 +183,7 @@ glyph han-23b49:15x16 15 16 // 𣭉
 // glyph han-23b4b:15x16 15 16 // 𣭋
 // ⿺ han-6bdb han-52a0 // ⿺毛加
 
-// glyph han-23b4d:15x16 15 16 // 𣭍
+// glyph han-23b4d:15x16 15 16 // 𣭍 ⿺毛朮(T) ⿺毛术(Z)
 // ⿺ han-6bdb han-672f // ⿺毛术
 
 glyph han-23b4e:15x16 15 16 // 𣭎
@@ -242,7 +242,7 @@ glyph han-23b66:15x16 15 16 // 𣭦
 // glyph han-23b6a:15x16 15 16 // 𣭪
 // ⿺ han-6bdb han-820c // ⿺毛舌
 
-// glyph han-23b6d-($han-regions):15x16 15 16 // 𣭭
+// glyph han-23b6d-($han-regions):15x16 15 16 // 𣭭 ⿱㓞毛(G) ⿱⿰⿻三丨刀毛(T)
 // ⿱ han-34de-($-1) han-6bdb // ⿱㓞毛
 
 ## 82.7
@@ -280,7 +280,7 @@ glyph han-23b7e:15x16 15 16 // 𣭾
 // glyph han-23b83:15x16 15 16 // 𣮃
 // ⿺ han-6bdb han-5446 // ⿺毛呆
 
-// glyph han-23b87:15x16 15 16 // 𣮇
+// glyph han-23b87:15x16 15 16 // 𣮇 ⿰吳毛(V) ⿰吴毛(Z)
 // ⿰ han-5434 han-6bdb // ⿰吴毛
 
 ## 82.8
@@ -309,7 +309,7 @@ glyph han-23b94:15x16 15 16 // 𣮔
 // glyph han-23b97:15x16 15 16 // 𣮗
 // ⿺ han-6bdb han-9763 // ⿺毛靣
 
-// glyph han-23b9b-($han-regions):15x16 15 16 // 𣮛
+// glyph han-23b9b-($han-regions):15x16 15 16 // 𣮛 ⿺毛青(T) ⿺毛靑(Z)
 // ⿺ han-6bdb han-9752-($-1) // ⿺毛青
 
 // glyph han-23b9e:15x16 15 16 // 𣮞
@@ -352,7 +352,7 @@ glyph han-23bbf:15x16 15 16 // 𣮿
 
 ## 82.10
 
-// glyph han-23bce:15x16 15 16 // 𣯎
+// glyph han-23bce:15x16 15 16 // 𣯎 ⿰昷毛(G) ⿰𥁕毛(T)
 // ⿰ han-6637 han-6bdb // ⿰昷毛
 
 // glyph han-23bcf:15x16 15 16 // 𣯏
@@ -426,7 +426,7 @@ glyph han-23c3b:15x16 15 16 // 𣰻
 
 ## 83.4
 
-// glyph han-23c46:15x16 15 16 // 𣱆
+// glyph han-23c46:15x16 15 16 // 𣱆 ⿰户氏(V) ⿰戶氏(Z)
 // ⿰ han-6237 han-6c0f // ⿰户氏
 
 ## 83.7
@@ -436,5 +436,5 @@ glyph han-23c3b:15x16 15 16 // 𣰻
 
 ## 83.10
 
-// glyph han-23c50:15x16 15 16 // 𣱐
+// glyph han-23c50:15x16 15 16 // 𣱐 ⿰氐垔(GT) ⿰氐⿱覀土(P)
 // ⿰ han-6c10 han-5794 // ⿰氐垔

@@ -11,7 +11,7 @@ glyph han-29d4c:15x16 15 16 // 𩵌
 // glyph han-29d4e-($han-regions):15x16 15 16 // 𩵎
 // ⿰ han-9b5a han-53c8-($-1) // ⿰魚又
 
-glyph han-29d4f-($han-regions):15x16 15 16 // 𩵏
+glyph han-29d4f-($han-regions):15x16 15 16 // 𩵏 ⿰魚𠤎(G) ⿰魚匕(T)
 ⿰ han-9b5a:7x16 1 han-5315-($-1):7x16 // ⿰魚匕
 
 glyph han-29d50:15x16 15 16 // 𩵐
@@ -119,7 +119,7 @@ glyph han-29d7a:15x16 15 16 // 𩵺
 // glyph han-29d83:15x16 15 16 // 𩶃
 // ⿰ han-9b5a han-4e3b // ⿰魚主
 
-// glyph han-29d84:15x16 15 16 // 𩶄
+// glyph han-29d84:15x16 15 16 // 𩶄 ⿰魚术(G) ⿰魚朮(TP)
 // ⿰ han-9b5a han-672f // ⿰魚术
 
 glyph han-29d85-($han-regions):15x16 15 16 // 𩶅
@@ -187,7 +187,7 @@ glyph han-29daa:15x16 15 16 // 𩶪
 // glyph han-29dac:15x16 15 16 // 𩶬
 // ⿰ han-9b5a han-5bfa // ⿰魚寺
 
-// glyph han-29dad:15x16 15 16 // 𩶭
+// glyph han-29dad:15x16 15 16 // 𩶭 ⿰魚吴(G) ⿰魚⿺夨口(T) ⿰魚吳(P)
 // ⿰ han-9b5a han-5434 // ⿰魚吴
 
 // glyph han-29daf:15x16 15 16 // 𩶯
@@ -252,7 +252,7 @@ glyph han-29de0:15x16 15 16 // 𩷠
 // glyph han-29de3:15x16 15 16 // 𩷣
 // ⿰ han-9b5a han-5448 // ⿰魚呈
 
-// glyph han-29de4:15x16 15 16 // 𩷤
+// glyph han-29de4:15x16 15 16 // 𩷤 ⿰魚別(T) ⿰魚别(Z)
 // ⿲ han-9b5a han-53e6 han-5202 // ⿲魚另刂
 
 // glyph han-29de5:15x16 15 16 // 𩷥
@@ -270,7 +270,7 @@ glyph han-29dea:15x16 15 16 // 𩷪
 // glyph han-29df1:15x16 15 16 // 𩷱
 // ⿰ han-9b5a han-5fcc // ⿰魚忌
 
-// glyph han-29df5:15x16 15 16 // 𩷵
+// glyph han-29df5:15x16 15 16 // 𩷵 ⿰魚吞(GT) ⿰魚呑(Z)
 // ⿰ han-9b5a han-541e // ⿰魚吞
 
 // glyph han-29df6-($han-regions):15x16 15 16 // 𩷶
@@ -364,7 +364,7 @@ glyph han-29e3e:15x16 15 16 // 𩸾
 glyph han-29e44:15x16 15 16 // 𩹄
 ⿰ han-9b5a:7x16 han-66f7:8x16 // ⿰魚曷
 
-// glyph han-29e4c:15x16 15 16 // 𩹌
+// glyph han-29e4c:15x16 15 16 // 𩹌 ⿰魚⿱罒水(GPV) ⿰魚𥄳(T)
 // ⿰ han-9b5a han-25133 // ⿰魚𥄳
 
 // glyph han-29e4d:15x16 15 16 // 𩹍

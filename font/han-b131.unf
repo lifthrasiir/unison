@@ -39,7 +39,7 @@ glyph han-268eb:15x16 15 16 // 𦣫
 
 ## 132.1
 
-// glyph han-268fb:15x16 15 16 // 𦣻
+// glyph han-268fb:15x16 15 16 // 𦣻 ⿱一自(GTV) ⿱丆目(X)
 // ⿳ han-4e00 han-4e3f han-76ee // ⿳一丿目 <- ⿱丆目
 
 // glyph han-268fc:15x16 15 16 // 𦣼
@@ -59,7 +59,7 @@ glyph han-268eb:15x16 15 16 // 𦣫
 
 ## 133.3
 
-// glyph han-26936:15x16 15 16 // 𦤶
+// glyph han-26936:15x16 15 16 // 𦤶 ⿰至夂(GV) ⿰至攵(T)
 // ⿰ han-81f3 han-5902 // ⿰至夂
 
 glyph han-26938:15x16 15 16 // 𦤸
@@ -86,7 +86,7 @@ glyph han-2693e:15x16 15 16 // 𦤾
 
 ## 133.6
 
-// glyph han-2693f-($han-regions):15x16 15 16 // 𦤿
+// glyph han-2693f-($han-regions):15x16 15 16 // 𦤿 ⿳丰冖至(G) ⿳⿻三丨冖至(T)
 // ⿳ han-4e30-($-1) han-5196 han-81f3 // ⿳丰冖至
 
 ## 133.7
@@ -104,7 +104,7 @@ glyph han-2693e:15x16 15 16 // 𦤾
 
 ## 133.9
 
-// glyph han-26946:15x16 15 16 // 𦥆
+// glyph han-26946:15x16 15 16 // 𦥆 ⿳丰癶至(G) ⿳龶癶至(T)
 // ⿳ han-9fb6 han-7676 han-81f3 // ⿳龶癶至
 
 ## 133.12
@@ -116,7 +116,7 @@ glyph han-2693e:15x16 15 16 // 𦤾
 
 ## 134.1
 
-// glyph han-26954:15x16 15 16 // 𦥔
+// glyph han-26954:15x16 15 16 // 𦥔 ⿻臼丨(G[B]) ⿻𦥑丨(T)
 // ref han-81fc // ⿻臼丨
 // ref han-4e28
 
@@ -130,7 +130,7 @@ glyph han-2693e:15x16 15 16 // 𦤾
 
 ## 134.3
 
-// glyph han-2695b:15x16 15 16 // 𦥛
+// glyph han-2695b:15x16 15 16 // 𦥛 ⿻千臼(G) ⿻千𦥑(T)
 // ref han-5343 // ⿻千臼
 // ref han-81fc
 
@@ -453,7 +453,7 @@ glyph han-26aac:15x16 15 16 // 𦪬
 // glyph han-26ad4:15x16 15 16 // 𦫔
 // ⿱ han-7676 han-8272 // ⿱癶色
 
-// glyph han-26ad5:15x16 15 16 // 𦫕
+// glyph han-26ad5:15x16 15 16 // 𦫕 ⿰末色(GT) ⿰未色(UCS2003)
 // ⿰ han-672b han-8272 // ⿰末色
 
 // glyph han-26ad6:15x16 15 16 // 𦫖

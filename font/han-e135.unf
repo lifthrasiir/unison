@@ -150,7 +150,7 @@ glyph han-2c744:15x16 15 16 // 𬝄
 // glyph han-2c74c:15x16 15 16 // 𬝌
 // ⿱ han-8279 han-67cf // ⿱艹柏
 
-// glyph han-2c74e:15x16 15 16 // 𬝎
+// glyph han-2c74e:15x16 15 16 // 𬝎 ⿱艹𭽼(T) ⿱芮皿(Z)
 // ⿳ han-8279 han-5185 han-76bf // ⿳艹内皿
 
 glyph han-2c750:15x16 15 16 // 𬝐
@@ -208,7 +208,7 @@ glyph han-2c779:15x16 15 16 // 𬝹
 // glyph han-2c781:15x16 15 16 // 𬞁
 // ⿰ han-8349 han-5144 // ⿰草兄
 
-// glyph han-2c784:15x16 15 16 // 𬞄
+// glyph han-2c784:15x16 15 16 // 𬞄 ⿱萑土(G) ⿱雈土(Z)
 // ⿳ han-8279 han-96b9 han-571f // ⿳艹隹土 <- ⿱萑土
 
 // glyph han-2c786:15x16 15 16 // 𬞆
@@ -242,7 +242,7 @@ glyph han-2c779:15x16 15 16 // 𬝹
 // glyph han-2c7a6:15x16 15 16 // 𬞦
 // ⿳ han-8279 han-7c89 han-5efe // ⿳艹粉廾
 
-glyph han-2c7a9:15x16 15 16 // 𬞩
+glyph han-2c7a9:15x16 15 16 // 𬞩 ⿱艹㙜(G) ⿱蒿土(X)
 ⿳ han-8279:15x3 han-9ad8:15x9 han-571f:15x4 // ⿳艹高土
 
 // glyph han-2c7aa:15x16 15 16 // 𬞪
@@ -261,7 +261,7 @@ glyph han-2c7a9:15x16 15 16 // 𬞩
 
 ## 140.15
 
-// glyph han-2c7cb-($han-regions):15x16 15 16 // 𬟋
+// glyph han-2c7cb-($han-regions):15x16 15 16 // 𬟋 ⿱艹緖(J) ⿱艹緒(Z)
 // ⿱ han-8279 han-7dd2-($-1) // ⿱艹緒
 
 ## 140.16
@@ -277,7 +277,7 @@ glyph han-2c7a9:15x16 15 16 // 𬞩
 // glyph han-2c7e2:15x16 15 16 // 𬟢
 // ⿵ han-83db han-552f // ⿵菛唯
 
-// glyph han-2c7e4:15x16 15 16 // 𬟤
+// glyph han-2c7e4:15x16 15 16 // 𬟤 ⿱艹𰟳(T) ⿱𧀣灬(X)
 // ⿳ han-8279 han-8ab0 han-706c // ⿳艹誰灬 <- ⿱艹𰟳
 
 # CJK unified ideographs extension E: 虫 (142)
@@ -645,7 +645,7 @@ glyph han-2c910:15x16 15 16 // 𬤐
 
 ## 149'.12
 
-// glyph han-2c920:15x16 15 16 // 𬤠
+// glyph han-2c920:15x16 15 16 // 𬤠 ⿰讠嵒(G) ⿰讠喦(Z)
 // ⿰ han-8ba0 han-5d52 // ⿰讠嵒
 
 ## 149'.13
@@ -988,7 +988,7 @@ glyph han-2ca22:15x16 15 16 // 𬨢
 
 ## 162.7
 
-// glyph han-2ca26:15x16 15 16 // 𬨦
+// glyph han-2ca26:15x16 15 16 // 𬨦 ⿺辶吞(U) ⿺辶呑(Z)
 // ⿺ han-8fb6 han-541e // ⿺辶吞
 
 ## 162.8
@@ -1009,7 +1009,7 @@ glyph han-2ca22:15x16 15 16 // 𬨢
 
 ## 162.10
 
-// glyph han-2ca3a:15x16 15 16 // 𬨺
+// glyph han-2ca3a:15x16 15 16 // 𬨺 ⿺辶⿰車上(V) ⿺連上(X)
 // ⿺ han-9023 han-4e0a // ⿺連上
 
 ## 162.11

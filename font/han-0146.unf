@@ -217,17 +217,17 @@ glyph han-8981:15x16 15 16 // 要
 
 ## 146.6
 
-// glyph han-8983:15x16 15 16 // 覃
+// glyph han-8983:15x16 15 16 // 覃 ⿱覀早(GHTKP[V][S][B]) ⿱襾早(J)
 // ⿱ han-8980 han-65e9 // ⿱覀早
 
 ## 146.13
 
-// glyph han-8987:15x16 15 16 // 覇
+// glyph han-8987:15x16 15 16 // 覇 ⿱覀䩗(GJK) ⿱襾䩗(HTP)
 // ⿱ han-8980 han-4a57 // ⿱覀䩗
 
 ## 146.19
 
-// glyph han-898a:15x16 15 16 // 覊
+// glyph han-898a:15x16 15 16 // 覊 ⿱覀䩻(G) ⿱襾䩻(HTJK)
 // ⿱ han-897e han-4a7b // ⿱襾䩻
 
 # CJK unified ideographs: 見 (147)
@@ -471,20 +471,20 @@ glyph han-89a2:15x16 15 16 // 覢
 
 ## 147.9
 
-glyph han-89a6.0:15x16 15 16 // 覦
+glyph han-89a6.0:15x16 15 16 // 覦 ⿰俞見(GHT) ⿰兪見(JK) ⿰⿱⿵入一⿰⺝刂見(P)
 ⿰ han-4fde.y:9x16 1 han-898b:5x16 // ⿰俞見
 glyph han-89a6.1:* = han-89a6.0:*
-glyph han-89a6.2:15x16 15 16 // 覦
+glyph han-89a6.2:15x16 15 16 // 覦 ⿰俞見(GHT) ⿰兪見(JK) ⿰⿱⿵入一⿰⺝刂見(P)
 ⿰ han-4fde.0:9x16 1 han-898b:5x16 // ⿰俞見
-glyph han-89a6.x:15x16 15 16 // 覦
+glyph han-89a6.x:15x16 15 16 // 覦 ⿰俞見(GHT) ⿰兪見(JK) ⿰⿱⿵入一⿰⺝刂見(P)
 ⿰ han-4fde.2:9x16 1 han-898b:5x16 // ⿰俞見
 glyph han-89a6-(j|k):* = han-89a6.0:*
 glyph han-89a6-(g|h|t):* = han-89a6.2:*
 glyph han-89a6-p:* = han-89a6.x:*
 
-glyph han-89a9-(g|h|t|k|p|v):15x16 15 16 // 覩
+glyph han-89a9-(g|h|t|k|p|v):15x16 15 16 // 覩 ⿰者見(GHTKPV) ⿰⿻者丶見(J)
 ⿰ han-8005-($-1):7x16 1 han-898b:7x16 // ⿰者見
-glyph han-89a9-j:15x16 15 16 // 覩
+glyph han-89a9-j:15x16 15 16 // 覩 ⿰者見(GHTKPV) ⿰⿻者丶見(J)
 ⿰ han-8005.1:7x16 1 han-898b:7x16 // ⿰者見
 
 // glyph han-89aa:15x16 15 16 // 親
@@ -517,7 +517,7 @@ glyph han-89c0:15x16 15 16 // 觀
 
 ## 148.0
 
-glyph han-89d2.0:15x16 15 16 // 角
+glyph han-89d2.0:15x16 15 16 // 角 ⿱⺈用(G[B]) ⿱⺈⿵⺆土(HTJKPV)
 $$......../0@P..............$$
 $$....../0@@@@@@@@@@@@@P....$$
 $$..../0@P/......./0@P/.....$$
@@ -534,7 +534,7 @@ $$../V@@@@@@@@@@@@@@@@@@@@@@$$
 $$.vV/..........@@........@@$$
 $$/Vv'..........@@........@@$$
 /01/............@@......\1@@$$
-glyph han-89d2.1:15x16 15 16 // 角
+glyph han-89d2.1:15x16 15 16 // 角 ⿱⺈用(G[B]) ⿱⺈⿵⺆土(HTJKPV)
 $$......../0@P..............$$
 $$....../0@@@@@@@@@@@@@P....$$
 $$..../0@P/......./0@P/.....$$
@@ -552,7 +552,7 @@ $$.vV/....................@@$$
 $$/Vv'....................@@$$
 /01/....................\1@@$$
 glyph han-89d2.2:* = han-89d2.1:*
-glyph han-89d2.3:15x16 15 16 // 角
+glyph han-89d2.3:15x16 15 16 // 角 ⿱⺈用(G[B]) ⿱⺈⿵⺆土(HTJKPV)
 $$......../0@P..............$$
 $$....../0@@@@@@@@@@@@@P....$$
 $$..../0@P/......./0@P/.....$$
@@ -617,7 +617,7 @@ glyph han-89d2-(h|t|j|k|p|v):* = han-89d2.1:*
 // glyph han-89e1-($han-regions):15x16 15 16 // 觡
 // ⿰ han-89d2-($-1) han-5404 // ⿰角各
 
-// glyph han-89e2-($han-regions):15x16 15 16 // 觢
+// glyph han-89e2-($han-regions):15x16 15 16 // 觢 ⿱㓞角(GKP) ⿱⿰⿻三丨刀角(HT)
 // ⿱ han-34de-($-1) han-89d2-($-1) // ⿱㓞角
 
 // glyph han-89e6-($han-regions):15x16 15 16 // 触
@@ -1057,7 +1057,7 @@ glyph han-8a18.4:15x16 15 16 // 記
 glyph han-8a18.5:15x16 15 16 // 記
 ⿰ han-8a01.x:5x16 1 han-5df2:9x16 // ⿰訁已
 
-// glyph han-8a19-($han-regions):15x16 15 16 // 訙
+// glyph han-8a19-($han-regions):15x16 15 16 // 訙 ⿰訁{20}(GT) ⿰訁丸(Z)
 // ⿰ han-8a01 han-4e38-($-1) // ⿰訁丸
 
 glyph han-8a1a:15x16 15 16 // 訚
@@ -1065,7 +1065,7 @@ glyph han-8a1a:15x16 15 16 // 訚
 
 ## 149.4
 
-glyph han-8a1b-($han-regions):15x16 15 16 // 訛
+glyph han-8a1b-($han-regions):15x16 15 16 // 訛 ⿰訁化(GHTV) ⿰訁⿰亻𠤎(JK) ⿰訁⿰亻匕(P)
 ⿰ han-8a01-($-1):5x16 han-5316-($-1):10x16 // ⿰訁化
 
 glyph han-8a1c-($han-regions):15x16 15 16 // 訜
@@ -1094,7 +1094,7 @@ glyph han-8a22.0:* = han-8a22-j:*
 // glyph han-8a24-($han-regions):15x16 15 16 // 訤
 // ⿰ han-8a01-($-1) han-723b-($-1) // ⿰訁爻
 
-// glyph han-8a25:15x16 15 16 // 訥
+// glyph han-8a25:15x16 15 16 // 訥 ⿰訁内(GV) ⿰訁內(HTJKP)
 // ⿰ han-8a01 han-5185 // ⿰訁内
 
 glyph han-8a28-($han-regions):15x16 15 16 // 訨
@@ -1141,7 +1141,7 @@ glyph han-8a37.0:* = han-8a37-j:*
 glyph han-8a38-($han-regions):15x16 15 16 // 訸
 ⿰ han-8a01-($-1):5x16 1 han-79be:9x16 // ⿰訁禾
 
-// glyph han-8a39:15x16 15 16 // 訹
+// glyph han-8a39:15x16 15 16 // 訹 ⿰訁术(GP) ⿰訁朮(HTK)
 // ⿰ han-8a01 han-672f // ⿰訁术
 
 // glyph han-8a3b-($han-regions):15x16 15 16 // 註
@@ -1309,7 +1309,7 @@ glyph han-8a7b-($han-regions):15x16 15 16 // 詻
 ⿰ han-8a01-($-1):7x16 1 han-5404:7x16 // ⿰訁各
 glyph han-8a7b.0:* = han-8a7b-j:*
 
-// glyph han-8a7c:15x16 15 16 // 詼
+// glyph han-8a7c:15x16 15 16 // 詼 ⿰訁灰(GHTKP) ⿰訁⿸𠂇火(J)
 // ⿰ han-8a01 han-7070 // ⿰訁灰
 
 glyph han-8a7d-(g|t|p):15x16 15 16 // 詽
@@ -1325,7 +1325,7 @@ glyph han-8a80-($han-regions):15x16 15 16 // 誀
 ⿰ han-8a01-($-1):5x16 han-8033:10x16 // ⿰訁耳
 glyph han-8a80.0:* = han-8a80-j:*
 
-glyph han-8a81-($han-regions):15x16 15 16 // 誁
+glyph han-8a81-($han-regions):15x16 15 16 // 誁 ⿰訁并(GHTKP) ⿰訁幷(Z)
 ⿰ han-8a01-($-1):5x16 1 han-5e76:9x16 // ⿰訁并
 
 glyph han-8a82-($han-regions):15x16 15 16 // 誂
@@ -1399,17 +1399,17 @@ glyph han-8a9c-($han-regions):15x16 15 16 // 誜
 glyph han-8aa2-($han-regions):15x16 15 16 // 誢
 ⿰ han-8a01-($-1):5x16 han-898b:10x16 // ⿰訁見
 
-// glyph han-8aa4:15x16 15 16 // 誤
+// glyph han-8aa4:15x16 15 16 // 誤 ⿰訁吴(G) ⿰訁吳(HTKPV) ⿰訁呉(J)
 // ⿰ han-8a01 han-5434 // ⿰訁吴
 
-glyph han-8aa5.0:15x16 15 16 // 誥
+glyph han-8aa5.0:15x16 15 16 // 誥 ⿰訁告(GTKP) ⿰訁吿(HJ)
 ⿰ han-8a01.0:5x16 han-543f:10x16 // ⿰訁吿
 glyph han-8aa5.1:* = han-8aa5.0:*
-glyph han-8aa5.2:15x16 15 16 // 誥
+glyph han-8aa5.2:15x16 15 16 // 誥 ⿰訁告(GTKP) ⿰訁吿(HJ)
 ⿰ han-8a01.0:5x16 han-544a:10x16 // ⿰訁告
-glyph han-8aa5.3:15x16 15 16 // 誥
+glyph han-8aa5.3:15x16 15 16 // 誥 ⿰訁告(GTKP) ⿰訁吿(HJ)
 ⿰ han-8a01.x:5x16 han-544a:10x16 // ⿰訁告
-glyph han-8aa5.x:15x16 15 16 // 誥
+glyph han-8aa5.x:15x16 15 16 // 誥 ⿰訁告(GTKP) ⿰訁吿(HJ)
 ⿰ han-8a01.x:5x16 han-543f:10x16 // ⿰訁吿
 glyph han-8aa5-j:* = han-8aa5.0:*
 glyph han-8aa5-k:* = han-8aa5.2:*
@@ -1424,7 +1424,7 @@ glyph han-8aa9-($han-regions):15x16 15 16 // 誩
 ⿰ han-8a01-($-1):5x16 1 han-8a00-($-1):9x16 // ⿰訁言
 glyph han-8aa9.0:* = han-8aa9-j:*
 
-// glyph han-8aad:15x16 15 16 // 読
+// glyph han-8aad:15x16 15 16 // 読 ⿰訁売(GJK) ⿰訁⿱士冗(TP) ⿰訁壳(Z)
 // ⿰ han-8a01 han-58f2 // ⿰訁売
 
 ## 149.8
@@ -1503,9 +1503,9 @@ glyph han-8ac7-($han-regions):15x16 15 16 // 談
 ⿰ han-8a01-($-1):5x16 1 han-708e:9x16 // ⿰訁炎
 glyph han-8ac7.0:* = han-8ac7-j:*
 
-glyph han-8acb-(g|h|t|j|v):15x16 15 16 // 請
+glyph han-8acb-(g|h|t|j|v):15x16 15 16 // 請 ⿰訁青(GHTJV) ⿰訁靑(KP)
 ⿰ han-8a01-($-1):5x16 1 han-9752-($-1):9x16 // ⿰訁青
-glyph han-8acb-(k|p):15x16 15 16 // 請
+glyph han-8acb-(k|p):15x16 15 16 // 請 ⿰訁青(GHTJV) ⿰訁靑(KP)
 ⿰ han-8a01-($-1):5x16 1 han-9751-($-1):9x16 // ⿰訁靑
 glyph han-8acb.0:* = han-8acb-j:*
 glyph han-8acb.1:* = han-8acb-k:*
@@ -1539,17 +1539,17 @@ glyph han-8ae2.0:* = han-8ae2-j:*
 // glyph han-8aeb-($han-regions):15x16 15 16 // 諫
 // ⿰ han-8a01-($-1) han-67ec // ⿰訁柬
 
-glyph han-8aed.0:15x16 15 16 // 諭
+glyph han-8aed.0:15x16 15 16 // 諭 ⿰訁俞(GHTJV) ⿰訁兪(KP)
 ⿰ han-8a01.0:5x16 1 han-4fde.y:9x16 // ⿰訁俞
-glyph han-8aed.1:15x16 15 16 // 諭
+glyph han-8aed.1:15x16 15 16 // 諭 ⿰訁俞(GHTJV) ⿰訁兪(KP)
 ⿰ han-8a01.0:5x16 1 han-4fde.0:9x16 // ⿰訁俞
 glyph han-8aed.2:* = han-8aed.1:*
-glyph han-8aed.3:15x16 15 16 // 諭
+glyph han-8aed.3:15x16 15 16 // 諭 ⿰訁俞(GHTJV) ⿰訁兪(KP)
 ⿰ han-8a01.0:5x16 1 han-4fde.x:9x16 // ⿰訁俞
 glyph han-8aed.4:* = han-8aed.0:*
-glyph han-8aed.x:15x16 15 16 // 諭
+glyph han-8aed.x:15x16 15 16 // 諭 ⿰訁俞(GHTJV) ⿰訁兪(KP)
 ⿰ han-8a01.x:5x16 1 han-4fde.0:9x16 // ⿰訁俞
-glyph han-8aed.y:15x16 15 16 // 諭
+glyph han-8aed.y:15x16 15 16 // 諭 ⿰訁俞(GHTJV) ⿰訁兪(KP)
 ⿰ han-8a01.x:5x16 1 han-4fde.y:9x16 // ⿰訁俞
 glyph han-8aed-k:* = han-8aed.0:*
 glyph han-8aed-j:* = han-8aed.1:*
@@ -1565,7 +1565,7 @@ glyph han-8aed-p:* = han-8aed.y:*
 glyph han-8af1-($han-regions):15x16 15 16 // 諱
 ⿰ han-8a01-($-1):5x16 1 han-97cb:9x16 // ⿰訁韋
 
-// glyph han-8af2:15x16 15 16 // 諲
+// glyph han-8af2:15x16 15 16 // 諲 ⿰訁垔(GHTK) ⿰訁⿱覀土(P)
 // ⿰ han-8a01 han-5794 // ⿰訁垔
 
 glyph han-8af3-($han-regions):15x16 15 16 // 諳
@@ -1601,7 +1601,7 @@ glyph han-8aff.0:* = han-8aff-j:*
 // glyph han-8b00:15x16 15 16 // 謀
 // ⿰ han-8a01 han-67d0 // ⿰訁某
 
-glyph han-8b01-($han-regions):15x16 15 16 // 謁
+glyph han-8b01-($han-regions):15x16 15 16 // 謁 ⿰訁曷(GHTKPV) ⿰訁⿱日匂(J)
 ⿰ han-8a01-($-1):5x16 1 han-66f7:9x16 // ⿰訁曷
 
 // glyph han-8b03:15x16 15 16 // 謃
@@ -1652,7 +1652,7 @@ glyph han-8b2c-($han-regions):15x16 15 16 // 謬
 // glyph han-8b3b:15x16 15 16 // 謻
 // ⿰ han-8a01 han-79fb // ⿰訁移
 
-// glyph han-8b3d:15x16 15 16 // 謽
+// glyph han-8b3d:15x16 15 16 // 謽 ⿱强言(GK) ⿱強言(HTP)
 // ⿱ han-5f3a han-8a00 // ⿱强言
 
 ## 149.12

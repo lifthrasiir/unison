@@ -14,14 +14,14 @@ ref 13x1 1 0 negated
 
 ## 1.13
 
-// glyph han-2b743:15x16 15 16 // 𫝃
+// glyph han-2b743:15x16 15 16 // 𫝃 ⿻丅⿱丷⿵冂𠈌(J) ⿻𮦆丷(X)
 // ⿻丅⿱丷⿵冂𠈌
 
 # CJK unified ideographs extension D: 丿 (4)
 
 ## 4.2
 
-// glyph han-2b744:15x16 15 16 // 𫝄
+// glyph han-2b744:15x16 15 16 // 𫝄 ⿽人㇒(J) ㇯久一(X)
 // ㇯久一
 
 # CJK unified ideographs extension D: 亠 (8)
@@ -81,7 +81,7 @@ glyph han-2b74e:15x16 15 16 // 𫝎
 
 ## 44.3
 
-glyph han-2b772:15x16 15 16 // 𫝲
+glyph han-2b772:15x16 15 16 // 𫝲 ⿸尸⿺九丶(J) ⿷尻丶(X)
 ..............................
 ..............................
 ..............................
@@ -197,7 +197,7 @@ glyph han-2b7ae:15x16 15 16 // 𫞮
 
 ## 108.3
 
-// glyph han-2b7af:15x16 15 16 // 𫞯
+// glyph han-2b7af:15x16 15 16 // 𫞯 ⿱⿻乃丶皿(JU) ⿻盁丶(X)
 // ref han-76c1 // ⿻盁丶
 // ref han-4e36
 
@@ -257,7 +257,7 @@ glyph han-2b7be:15x16 15 16 // 𫞾
 
 ## 123.3
 
-// glyph han-2b7c8:15x16 15 16 // 𫟈
+// glyph han-2b7c8:15x16 15 16 // 𫟈 ⿻兰⿻人丷(J) ⿱𦍌⿻人丷(Z)
 // ⿻兰⿻人丷
 
 # CJK unified ideographs extension D: 耳 (128)
@@ -280,7 +280,7 @@ glyph han-2b7d1:15x16 15 16 // 𫟑
 
 ## 140.12
 
-// glyph han-2b7d6:15x16 15 16 // 𫟖
+// glyph han-2b7d6:15x16 15 16 // 𫟖 ⿱艹⿰𠃊𮍏(J) ㇯藏厂(X)
 // ㇯藏厂
 
 # CJK unified ideographs extension D: 讠 (149')
@@ -313,7 +313,7 @@ glyph han-2b7e7-($han-regions):15x16 15 16 // 𫟧
 
 ## 164.6
 
-// glyph han-2b7ee:15x16 15 16 // 𫟮
+// glyph han-2b7ee:15x16 15 16 // 𫟮 ⿰酉丟(T) ⿰酉丢(Z)
 // ⿰ han-9149 han-4e1f // ⿰酉丟
 
 # CJK unified ideographs extension D: 里 (166)

@@ -109,7 +109,7 @@ glyph han-223aa:15x16 15 16 // 𢎪
 
 ## 57.3
 
-// glyph han-223ab-($han-regions):15x16 15 16 // 𢎫
+// glyph han-223ab-($han-regions):15x16 15 16 // 𢎫 ⿰弓{20}(G) ⿰弓丸(T)
 // ⿰ han-5f13 han-4e38-($-1) // ⿰弓丸
 
 glyph han-223ad:15x16 15 16 // 𢎭
@@ -195,8 +195,8 @@ glyph han-223d5:15x16 15 16 // 𢏕
 // glyph han-223d6-($han-regions):15x16 15 16 // 𢏖
 // ⿱ han-7fbd-($-1) han-5f13 // ⿱羽弓
 
-// glyph han-223d7:15x16 15 16 // 𢏗
-// ⿱ han-5e75 han-5f13 // ⿱幵弓
+// glyph han-223d7:15x16 15 16 // 𢏗 ⿱开弓(G) ⿱⿰干干弓(HT) ⿱幵弓(Z)
+// ⿱ han-5f00 han-5f13 // ⿱开弓
 
 glyph han-223d8:15x16 15 16 // 𢏘
 ⿲ han-5e72:5x16 han-5f13:5x16 han-5e72:5x16 // ⿲干弓干
@@ -238,9 +238,9 @@ glyph han-223e4:15x16 15 16 // 𢏤
 
 ## 57.8
 
-glyph han-223f3-(g|t):15x16 15 16 // 𢏳
+glyph han-223f3-(g|t):15x16 15 16 // 𢏳 ⿰弓并(GT) ⿰弓幷(K)
 ⿰ han-5f13:5x16 1 han-5e76:9x16 // ⿰弓并
-glyph han-223f3-(j|k):15x16 15 16 // 𢏳
+glyph han-223f3-(j|k):15x16 15 16 // 𢏳 ⿰弓并(GT) ⿰弓幷(K)
 ⿰ han-5f13:5x16 han-5e77:10x16 // ⿰弓幷
 
 // glyph han-223fa:15x16 15 16 // 𢏺
@@ -254,7 +254,7 @@ glyph han-223f3-(j|k):15x16 15 16 // 𢏳
 glyph han-22402:15x16 15 16 // 𢐂
 ⿰ han-5f13:7x16 1 han-662f:7x16 // ⿰弓是
 
-// glyph han-22406:15x16 15 16 // 𢐆
+// glyph han-22406:15x16 15 16 // 𢐆 ⿲弓吕弓(GT) ⿲弓呂弓(Z)
 // ⿲ han-5f13 han-5415 han-5f13 // ⿲弓吕弓
 
 glyph han-22408:15x16 15 16 // 𢐈
@@ -276,7 +276,7 @@ glyph han-22415:15x16 15 16 // 𢐕
 glyph han-22417:15x16 15 16 // 𢐗
 ⿰ han-5f13:7x16 1 han-9b5a:7x16 // ⿰弓魚
 
-// glyph han-22418:15x16 15 16 // 𢐘
+// glyph han-22418:15x16 15 16 // 𢐘 ⿰弓張(T) ⿰弜長(X)
 // ⿰ han-5f1c han-9577 // ⿰弜長
 
 ## 57.12
@@ -346,7 +346,7 @@ glyph han-22451:15x16 15 16 // 𢑑
 
 ## 58.13
 
-// glyph han-22471:15x16 15 16 // 𢑱
+// glyph han-22471:15x16 15 16 // 𢑱 ⿱彑𡙢(H) ⿱𫜹𡙢(T)
 // ⿳ han-2b739 han-7c89 han-5927 // ⿳𫜹粉大 <- ⿱𫜹𡙢
 
 ## 58.15
@@ -453,12 +453,12 @@ glyph han-224c1:15x16 15 16 // 𢓁
 glyph han-224c2:15x16 15 16 // 𢓂
 assume ⿰ han-5f73:5x16 -1 han-571f:11x16 // ⿰彳土
 
-// glyph han-224c3-($han-regions):15x16 15 16 // 𢓃
+// glyph han-224c3-($han-regions):15x16 15 16 // 𢓃 ⿰彳{20}(G) ⿰彳丸(T)
 // ⿰ han-5f73 han-4e38-($-1) // ⿰彳丸
 
 ## 60.4
 
-glyph han-224c4:15x16 15 16 // 𢓄
+glyph han-224c4:15x16 15 16 // 𢓄 ⿰彳开(GT) ⿰彳幵(Z)
 ⿰ han-5f73:5x16 1 han-5f00:9x16 // ⿰彳开
 
 glyph han-224c5:15x16 15 16 // 𢓅
@@ -467,7 +467,7 @@ glyph han-224c5:15x16 15 16 // 𢓅
 glyph han-224c6:15x16 15 16 // 𢓆
 ⿰ han-5f73:5x16 1 han-5143:9x16 // ⿰彳元
 
-glyph han-224c7:15x16 15 16 // 𢓇
+glyph han-224c7:15x16 15 16 // 𢓇 ⿰彳内(G) ⿰彳內(T)
 ⿰ han-5f73:3x16 1 han-5185:11x16 // ⿰彳内
 
 glyph han-224ca:15x16 15 16 // 𢓊

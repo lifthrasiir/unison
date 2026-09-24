@@ -38,16 +38,16 @@
 // glyph han-26fd1:15x16 15 16 // 𦿑
 // ⿳ han-8278 han-660d han-8278 // ⿳艸昍艸
 
-glyph han-26fd7:15x16 15 16 // 𦿗
+glyph han-26fd7:15x16 15 16 // 𦿗 ⿱艹𰚫(GT) ⿱蒿毛(X)
 ⿳ -4 han-8279:15x3 han-9ad8:15x9 han-6bdb:15x8 // ⿳艹高毛
 
 // glyph han-26fd8:15x16 15 16 // 𦿘
 // ⿳ han-8279 han-4fce han-76bf // ⿳艹俎皿
 
-// glyph han-26fdb:15x16 15 16 // 𦿛
+// glyph han-26fdb:15x16 15 16 // 𦿛 ⿳⿱艹罒冖伯(G) ⿳⿱卝罒冖伯(Z) ⿳𦭝冖伯(X)
 // ⿳ han-26b5d han-5196 han-4f2f // ⿳𦭝冖伯
 
-// glyph han-26fe3:15x16 15 16 // 𦿣
+// glyph han-26fe3:15x16 15 16 // 𦿣 ⿱蒿⿰𠂇十(T) ⿱蒿廾(Z)
 // ⿳ han-8279 han-9ad8 han-5efe // ⿳艹高廾
 
 // glyph han-26fe6:15x16 15 16 // 𦿦
@@ -68,7 +68,7 @@ glyph han-26fd7:15x16 15 16 // 𦿗
 // glyph han-27004:15x16 15 16 // 𧀄
 // ⿱ han-8279 han-757c // ⿱艹畼
 
-// glyph han-27006:15x16 15 16 // 𧀆
+// glyph han-27006:15x16 15 16 // 𧀆 ⿳⿱艹罒冖豆(G) ⿳⿱卝罒冖豆(T) ⿳𦭝冖豆(X)
 // ⿳ han-26b5d han-5196 han-8c46 // ⿳𦭝冖豆
 
 // glyph han-2700c:15x16 15 16 // 𧀌
@@ -112,7 +112,7 @@ glyph han-2703d:15x16 15 16 // 𧀽
 glyph han-27054:15x16 15 16 // 𧁔
 ⿳ -3 han-8279:15x3 han-6d66:15x13 han-76bf:15x3 // ⿳艹浦皿
 
-// glyph han-27055:15x16 15 16 // 𧁕
+// glyph han-27055:15x16 15 16 // 𧁕 ⿳艹⿰氵幷⿰𠂇十(T) ⿱蓱廾(Z)
 // ⿳ han-8279 han-6d34 han-5efe // ⿳艹洴廾
 
 // glyph han-2705e:15x16 15 16 // 𧁞
@@ -121,7 +121,7 @@ glyph han-27054:15x16 15 16 // 𧁔
 // glyph han-27062:15x16 15 16 // 𧁢
 // ⿱ han-8279 han-2d9d8 // ⿱艹𭧘
 
-// glyph han-27063:15x16 15 16 // 𧁣
+// glyph han-27063:15x16 15 16 // 𧁣 ⿳⿱卝罒冖果(T) ⿳⿱艹罒冖果(Z) ⿳𦭝冖果(X)
 // ⿳ han-26b5d han-5196 han-679c // ⿳𦭝冖果
 
 // glyph han-27066:15x16 15 16 // 𧁦
@@ -147,7 +147,7 @@ glyph han-27054:15x16 15 16 // 𧁔
 
 ## 140.16
 
-// glyph han-27089:15x16 15 16 // 𧂉
+// glyph han-27089:15x16 15 16 // 𧂉 ⿱艹皤(GT) ⿱艹⿰白畨(P)
 // ⿱ han-8279 han-76a4 // ⿱艹皤
 
 // glyph han-2708b:15x16 15 16 // 𧂋
@@ -162,7 +162,7 @@ glyph han-27054:15x16 15 16 // 𧁔
 // glyph han-270ab:15x16 15 16 // 𧂫
 // ⿱ han-8279 han-9b91 // ⿱艹鮑
 
-// glyph han-270b5:15x16 15 16 // 𧂵
+// glyph han-270b5:15x16 15 16 // 𧂵 ⿱蕃⿰𠂇十(T) ⿱蕃廾(Z)
 // ⿳ han-8279 han-756a han-5efe // ⿳艹番廾
 
 // glyph han-270bc:15x16 15 16 // 𧂼

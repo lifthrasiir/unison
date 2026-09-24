@@ -15,7 +15,7 @@ glyph han-2b822:15x16 15 16 // 𫠢
 
 ## 1.5
 
-// glyph han-2b824:15x16 15 16 // 𫠤
+// glyph han-2b824:15x16 15 16 // 𫠤 ⿱龶⿰丿𠃌(G) ⿱𰀁万(X)
 // ⿱ han-30001 han-4e07 // ⿱𰀁万
 
 // glyph han-2b825:15x16 15 16 // 𫠥
@@ -165,7 +165,7 @@ glyph han-2b877:15x16 15 16 // 𫡷
 
 ## 8.11
 
-// glyph han-2b87d:15x16 15 16 // 𫡽
+// glyph han-2b87d:15x16 15 16 // 𫡽 ⿰交呂(V) ⿰交吕(Z)
 // ⿰ han-4ea4 han-5415 // ⿰交吕
 
 ## 8.12
@@ -296,7 +296,7 @@ glyph han-2b8f9:15x16 15 16 // 𫣹
 
 ## 9.18
 
-// glyph han-2b909:15x16 15 16 // 𫤉
+// glyph han-2b909:15x16 15 16 // 𫤉 ⿰傾呂(V) ⿰傾吕(Z)
 // ⿰ han-50be han-5415 // ⿰傾吕
 
 ## 9.19
@@ -519,7 +519,7 @@ glyph han-2b97f:15x16 15 16 // 𫥿
 glyph han-2b986:15x16 15 16 // 𫦆
 ⿲ -1 han-4ecc:7x16 han-4e14:6x16 han-5202:3x16 // ⿲仌且刂
 
-// glyph han-2b987-($han-regions):15x16 15 16 // 𫦇
+// glyph han-2b987-($han-regions):15x16 15 16 // 𫦇 ⿲分氵丐(V) ⿰分沔(Z)
 // ⿲ han-5206 han-6c35 han-4e10-($-1) // ⿲分氵丐
 
 // glyph han-2b988:15x16 15 16 // 𫦈
@@ -530,12 +530,12 @@ glyph han-2b98a:15x16 15 16 // 𫦊
 
 ## 18.10
 
-// glyph han-2b990:15x16 15 16 // 𫦐
+// glyph han-2b990:15x16 15 16 // 𫦐 ⿰⿱⿱宀儿{46}刂(T) ⿰𥥗刂(Z)
 // ⿰ han-25957 han-5202 // ⿰𥥗刂
 
 ## 18.12
 
-// glyph han-2b997:15x16 15 16 // 𫦗
+// glyph han-2b997:15x16 15 16 // 𫦗 ⿲多多刂(T) ⿰多𠛫(Z)
 // ⿲ han-591a han-591a han-5202 // ⿲多多刂
 
 glyph han-2b999:15x16 15 16 // 𫦙
@@ -574,7 +574,7 @@ glyph han-2b9ae:15x16 15 16 // 𫦮
 glyph han-2b9af:15x16 15 16 // 𫦯
 ⿱ han-6797:15x8 1 han-529b:15x7 // ⿱林力
 
-// glyph han-2b9b1:15x16 15 16 // 𫦱
+// glyph han-2b9b1:15x16 15 16 // 𫦱 ⿰⿱日⺼力(T) ⿰冐力(Z)
 // ⿰ han-5190 han-529b // ⿰冐力
 
 // glyph han-2b9b2:15x16 15 16 // 𫦲
@@ -669,7 +669,7 @@ glyph han-2b9e1:15x16 15 16 // 𫧡
 
 ## 24.15
 
-glyph han-2b9e9:15x16 15 16 // 𫧩
+glyph han-2b9e9:15x16 15 16 // 𫧩 ⿰𠦝昷(T) ⿰𠦝𥁕(Z)
 ⿰ han-2099d:5x16 1 han-6637:9x16 // ⿰𠦝昷
 
 ## 24.17
@@ -1100,7 +1100,7 @@ glyph han-2bb4b:15x16 15 16 // 𫭋
 
 ## 31.10
 
-// glyph han-2bb50:15x16 15 16 // 𫭐
+// glyph han-2bb50:15x16 15 16 // 𫭐 ⿰回呂(V) ⿰回吕(Z)
 // ⿰ han-56de han-5415 // ⿰回吕
 
 # CJK unified ideographs extension E: 土 (32)
@@ -1159,7 +1159,7 @@ glyph han-2bb65:15x16 15 16 // 𫭥
 
 ## 32.6
 
-// glyph han-2bb6c:15x16 15 16 // 𫭬
+// glyph han-2bb6c:15x16 15 16 // 𫭬 ⿻⺊⿱日二(T) ⿱⺊里(X)
 // ⿻⺊⿱日二
 
 // glyph han-2bb6f:15x16 15 16 // 𫭯
@@ -1237,7 +1237,7 @@ glyph han-2bba1:15x16 15 16 // 𫮡
 // glyph han-2bba8:15x16 15 16 // 𫮨
 // ⿰ han-571f han-7b49 // ⿰土等
 
-glyph han-2bbac:15x16 15 16 // 𫮬
+glyph han-2bbac:15x16 15 16 // 𫮬 ⿰土强(U) ⿰土強(Z)
 ⿲ han-571f:3x16-l han-5f13:5x16 han-867d:7x16 // ⿲土弓虽
 
 ## 32.14
@@ -1259,7 +1259,7 @@ glyph han-2bbac:15x16 15 16 // 𫮬
 
 ## 33.6
 
-// glyph han-2bbc1:15x16 15 16 // 𫯁
+// glyph han-2bbc1:15x16 15 16 // 𫯁 ⿱⿳士冖一口(G) ⿱⿱士冖𠮛(X)
 // ⿳ han-58eb han-5196 han-20b9b // ⿳士冖𠮛 <- ⿱⿱士冖𠮛
 
 # CJK unified ideographs extension E: 夕 (36)

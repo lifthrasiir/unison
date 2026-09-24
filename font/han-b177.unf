@@ -10,7 +10,7 @@ glyph han-2925c:15x16 15 16 // 𩉜
 
 ## 177.3
 
-// glyph han-2925d-($han-regions):15x16 15 16 // 𩉝
+// glyph han-2925d-($han-regions):15x16 15 16 // 𩉝 ⿰革{20}(G) ⿰革⿻九丶(T) ⿰革丸(Z)
 // ⿰ han-9769 han-4e38-($-1) // ⿰革丸
 
 ## 177.4
@@ -18,13 +18,13 @@ glyph han-2925c:15x16 15 16 // 𩉜
 glyph han-29262:15x16 15 16 // 𩉢
 ⿰ han-9769:7x16 1 han-6b20:7x16 // ⿰革欠
 
-// glyph han-29263:15x16 15 16 // 𩉣
+// glyph han-29263:15x16 15 16 // 𩉣 ⿰革丏(GT) ⿰革丐(Z)
 // ⿰ han-9769 han-4e0f // ⿰革丏
 
 // glyph han-29264-($han-regions):15x16 15 16 // 𩉤
 // ⿰ han-9769 han-723b-($-1) // ⿰革爻
 
-glyph han-29267-($han-regions):15x16 15 16 // 𩉧
+glyph han-29267-($han-regions):15x16 15 16 // 𩉧 ⿰革丰(GT) ⿰革⿻㇒𰀁(P)
 ⿰ han-9769:5x16 1 han-4e30-($-1):9x16 // ⿰革丰
 
 glyph han-2926a:15x16 15 16 // 𩉪
@@ -111,7 +111,7 @@ glyph han-29291:15x16 15 16 // 𩊑
 glyph han-29294:15x16 15 16 // 𩊔
 ⿰ han-9769:7x16 1 han-4ea4:7x16 // ⿰革交
 
-glyph han-29296:15x16 15 16 // 𩊖
+glyph han-29296:15x16 15 16 // 𩊖 ⿰革并(GTP) ⿰革幷(Z)
 ⿰ han-9769:7x16 han-5e76:8x16 // ⿰革并
 
 glyph han-29297:15x16 15 16 // 𩊗
@@ -206,7 +206,7 @@ glyph han-292e0:15x16 15 16 // 𩋠
 // glyph han-292e7:15x16 15 16 // 𩋧
 // ⿰ han-9769 han-7686 // ⿰革皆
 
-// glyph han-292e9:15x16 15 16 // 𩋩
+// glyph han-292e9:15x16 15 16 // 𩋩 ⿰革致(GT) ⿰革⿰至夂(P)
 // ⿲ han-9769 han-81f3 han-5902 // ⿲革至夂 <- ⿰革⿰至夂
 
 glyph han-292ec:15x16 15 16 // 𩋬
@@ -235,7 +235,7 @@ glyph han-292fe:15x16 15 16 // 𩋾
 // glyph han-29307-($han-regions):15x16 15 16 // 𩌇
 // ⿰ han-9769 han-26407-($-1) // ⿰革𦐇
 
-// glyph han-29310:15x16 15 16 // 𩌐
+// glyph han-29310:15x16 15 16 // 𩌐 ⿰革𥄳(G) ⿰革⿱罒⿴{11}丨(T)
 // ⿰ han-9769 han-25133 // ⿰革𥄳
 
 glyph han-29321:15x16 15 16 // 𩌡
@@ -258,9 +258,9 @@ glyph han-2932d:15x16 15 16 // 𩌭
 glyph han-29331:15x16 15 16 // 𩌱
 ⿲ -2 han-9769:5x16 han-675f:7x16 han-6b20:5x16 // ⿲革束欠
 
-glyph han-2933e-g:15x16 15 16 // 𩌾
+glyph han-2933e-g:15x16 15 16 // 𩌾 ⿰革强(G) ⿰革強(T)
 ⿲ -1 han-9769:5x16 1 han-5f13:4x16 1 han-867d:5x16 // ⿲革弓虽
-glyph han-2933e-(t|j):15x16 15 16 // 𩌾
+glyph han-2933e-(t|j):15x16 15 16 // 𩌾 ⿰革强(G) ⿰革強(T)
 ⿲ han-9769:5x16 1 han-5f13:4x16 han-27227:5x16 // ⿲革弓𧈧
 
 ## 177.12
@@ -360,7 +360,7 @@ glyph han-293a6:15x16 15 16 // 𩎦
 glyph han-293ac:15x16 15 16 // 𩎬
 ⿰ han-97cb:7x16 1 han-5404:7x16 // ⿰韋各
 
-// glyph han-293ae-($han-regions):15x16 15 16 // 𩎮
+// glyph han-293ae-($han-regions):15x16 15 16 // 𩎮 ⿳六韋又(G) ⿳六韋乂(T)
 // ⿳ han-516d han-97cb han-53c8-($-1) // ⿳六韋又
 
 ## 178.7
@@ -371,7 +371,7 @@ glyph han-293af:15x16 15 16 // 𩎯
 // glyph han-293b1:15x16 15 16 // 𩎱
 // ⿰ han-97cb han-593e // ⿰韋夾
 
-// glyph han-293b2:15x16 15 16 // 𩎲
+// glyph han-293b2:15x16 15 16 // 𩎲 ⿱⿱士{80}韋(G) ⿱売韋(T)
 // ⿱ han-58f2 han-97cb // ⿱売韋
 
 glyph han-293b5:15x16 15 16 // 𩎵
@@ -428,7 +428,7 @@ glyph han-293ed:15x16 15 16 // 𩏭
 
 ## 179.7
 
-glyph han-29404:15x16 15 16 // 𩐄
+glyph han-29404:15x16 15 16 // 𩐄 ⿱吞韭(GT) ⿱呑韭(Z)
 ⿳ -3 han-5929:15x8 han-53e3:15x3 han-97ed:15x8 // ⿳天口韭
 
 ## 179.11
@@ -504,7 +504,7 @@ glyph han-29424:15x16 15 16 // 𩐤
 glyph han-29425:15x16 15 16 // 𩐥
 ⿰ han-97f3:7x16 1 han-5408:7x16 // ⿰音合
 
-// glyph han-29426:15x16 15 16 // 𩐦
+// glyph han-29426:15x16 15 16 // 𩐦 ⿰音异(G) ⿰音⿱巳廾(T)
 // ⿰ han-97f3 han-5f02 // ⿰音异
 
 ## 180.7

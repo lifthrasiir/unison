@@ -833,31 +833,55 @@ def load_ids(paths: list[str]) -> dict[int, IdsEntry]:
     return out
 
 
-def sequence_trees(entry: IdsEntry, allow_ivi: bool) -> Iterator[tuple[Node | None, str | None]]:
-    """A character's sequences, best-attested first, each as `(tree, None)` or `(None, why)`.
+# The source tags of a sequence that describes no source's glyph. `Z` is "a
+# unifiable variant form that is not the same as any source glyph", and very
+# often the *ambiguous* spelling of a sequence a source gives decomposed (弥 in
+# ⿰虫弥(Z) against ⿰虫⿰弓尓(S)); `UCS2003` is a Unicode 13.0 chart glyph that
+# differs from every source. Either is a fallback: written only when no sequence
+# a source attests gives a line at all, however much better the fallback fits
+# today's parts -- 䟳 is ⿺足羽(T) and ⿰𧾷羽(Z), and a drawn 𧾷 is no reason to
+# draw the form no source uses. (`X`, "an alternative IDS for the same glyph
+# structure", describes a source's glyph and so is no fallback.)
+FALLBACK_TAGS = {"Z", "UCS2003"}
+
+
+def is_fallback(tags: str) -> bool:
+    return tags.strip() in FALLBACK_TAGS
+
+
+def seq_order(seq: tuple[str, str]) -> tuple[bool, int]:
+    """Sort key over `IdsEntry.seqs`: attested before fallback, then by `tag_score`."""
+    return is_fallback(seq[1]), -tag_score(seq[1])
+
+
+def sequence_trees(entry: IdsEntry, allow_ivi: bool) -> Iterator[tuple[Node | None, str | None, bool]]:
+    """A character's sequences, best-attested first, each as `(tree, None, fallback)`
+    or `(None, why, fallback)`.
 
     The one reading of `IDS.TXT` everything here agrees on -- which sequences
-    are usable at all, and what `〾` does -- so that `han_next_parts.py` asks
-    about exactly the sequences a run of this script would write from. A tree
-    comes back only for a sequence that decomposes; whether its operator is one
-    `compose.rs` lays out is the caller's question.
+    are usable at all, what `〾` does, and which are only a fallback (see
+    `FALLBACK_TAGS`) -- so that `han_next_parts.py` asks about exactly the
+    sequences a run of this script would write from. A tree comes back only for
+    a sequence that decomposes; whether its operator is one `compose.rs` lays
+    out is the caller's question, and so is what a fallback gives way to.
     """
-    for seq, _ in sorted(entry.seqs, key=lambda s: -tag_score(s[1])):
+    for seq, tags in sorted(entry.seqs, key=seq_order):
+        fallback = is_fallback(tags)
         if "？" in seq or "{" in seq:
-            yield None, "an unrepresentable component"
+            yield None, "an unrepresentable component", fallback
             continue
         if "〾" in seq:
             if not allow_ivi:
-                yield None, "marked 〾 (use --allow-ivi)"
+                yield None, "marked 〾 (use --allow-ivi)", fallback
                 continue
             seq = seq.replace("〾", "")
         tree, used = parse_ids(seq)
         if tree is None or used != len(seq):
-            yield None, "unparsable IDS"
+            yield None, "unparsable IDS", fallback
         elif tree.op is None:
-            yield None, "no decomposition at all"
+            yield None, "no decomposition at all", fallback
         else:
-            yield tree, None
+            yield tree, None, fallback
 
 
 # --------------------------------------------------------------------------
@@ -891,13 +915,19 @@ def build_split_index(ids: dict[int, "IdsEntry"], allow_ivi: bool) -> dict[int, 
 
     This is what lets an operand *named by a character* be inlined as well: `A
     = ⿰BC` where the source draws no `B`, but `B` is itself `⿰XY`, becomes
-    `⿲XYC`. A character's best-attested sequence wins, as everywhere else here.
+    `⿲XYC`. A character's best-attested sequence wins, as everywhere else here,
+    and a fallback one is not read at all once an attested one decomposes: 䟳
+    is ⿺足羽(T), and its ⿰𧾷羽(Z) is no split of 䟳 to inline.
     """
     out: dict[int, tuple[str, list[int]]] = {}
     for cp, entry in ids.items():
-        for tree, _ in sequence_trees(entry, allow_ivi):
+        attested = False
+        for tree, _, fallback in sequence_trees(entry, allow_ivi):
             if tree is None:
                 continue
+            if fallback and attested:
+                break
+            attested = attested or not fallback
             split = binary_split(tree)
             if split is None:
                 continue
@@ -1528,10 +1558,40 @@ def regional_flags(inv: Inventory, comps: list[int]) -> list[bool]:
     return [cp in inv.families and inv.families[cp].regional for cp in comps]
 
 
-def glyph_head(cp: int, char: str, patterned: bool) -> str:
+def ids_listing(entry: IdsEntry) -> str:
+    """Every sequence of a character that has more than one, as the header lists them.
+
+    The line below the header is one pick among them (`sequence_trees` and the
+    rank in `main` say which), and a pick is exactly what a hand wants to
+    second-guess: whether 䟳 was written from ⿺足羽(T) or ⿰𧾷羽(Z) is not
+    visible from the line alone. So the header carries all of them, in
+    `IDS.TXT`'s own order and spelling, tags included; a character with one
+    sequence gets nothing, the line's own comment being that sequence already.
+    """
+    if len(entry.seqs) < 2:
+        return ""
+    return " ".join(f"{seq}({tags})" for seq, tags in entry.seqs)
+
+
+# The listing above, read back off a header: nothing but `SEQ(TAGS)` items. A
+# hand's note (`(see also han-5350)`) is not one, and so still tells
+# `is_script_block` that the block is no longer this script's own.
+LISTING_ITEM = r"[^\s()]+\([^\s()]+\)"
+LISTING_RE = re.compile(rf"^{LISTING_ITEM}(?: {LISTING_ITEM})+$")
+
+
+def header_listing(header: str, char: str) -> str:
+    """The `ids_listing` a written header carries, or "" for one with none."""
+    _, _, comment = header.lstrip("/ ").partition("//")
+    rest = comment.strip().removeprefix(char).strip()
+    return rest if LISTING_RE.match(rest) else ""
+
+
+def glyph_head(cp: int, char: str, patterned: bool, listing: str = "") -> str:
     """The block's own header: a family's name where any component names one."""
     name = han_name(cp) + (f"-{REGION_GROUP}" if patterned else "")
-    return f"glyph {name}:{BOX_W}x{BOX_H} {BOX_W} {BOX_H} // {char}"
+    note = f" {listing}" if listing else ""
+    return f"glyph {name}:{BOX_W}x{BOX_H} {BOX_W} {BOX_H} // {char}{note}"
 
 
 def idc_line(line: Line) -> str:
@@ -1551,8 +1611,9 @@ NO_INLINE_MARK = "-- no-inline"
 def build_blocks(line: Line, cp: int, char: str, commented: bool,
                  origin: str | None = None,
                  alt: Line | None = None,
-                 no_inline: bool = False) -> list[str]:
-    head = glyph_head(cp, char, line.patterned)
+                 no_inline: bool = False,
+                 listing: str = "") -> list[str]:
+    head = glyph_head(cp, char, line.patterned, listing)
     mark = f" {NO_INLINE_MARK}" if no_inline else ""
     if commented:
         # an inlined line keeps the sequence it came from beside the one it
@@ -1610,9 +1671,10 @@ def unsupported_line(inv: "Inventory", tree: "Node") -> "Line":
     return Line(tree.op, (), (), False)
 
 
-def build_unsupported(line: "Line", cp: int, char: str, seq: str) -> list[str]:
+def build_unsupported(line: "Line", cp: int, char: str, seq: str,
+                      listing: str = "") -> list[str]:
     """The wholly commented-out block an unsupported IDS is written as."""
-    head = f"// {glyph_head(cp, char, line.patterned)}"
+    head = f"// {glyph_head(cp, char, line.patterned, listing)}"
     if line.op == OVERLAY and line.comps:
         # the sequence rides on the first `ref`, where an IDC line's own comment
         # would be, so that the two forms read the same way down the file
@@ -1688,12 +1750,16 @@ def is_script_block(cp: int, char: str, block: list[str]) -> bool:
     different one now is precisely what a newly drawn part does. So the block is
     regenerated from *itself* -- a block that survives that is one this script
     wrote, and so one it may rewrite; anything else is a hand edit and says
-    something this script does not know.
+    something this script does not know. The header's `ids_listing` is read
+    back off it too, which lets a block written before there was one (or since
+    `IDS.TXT` changed) still count as the script's own.
     """
+    listing = header_listing(block[0], char) if block else ""
     got = script_block_idc(block)
     if got is not None:
         line, origin, no_inline = got
-        if block == build_blocks(line, cp, char, True, origin, no_inline=no_inline):
+        if block == build_blocks(line, cp, char, True, origin, no_inline=no_inline,
+                                 listing=listing):
             return True
     # the same question of a block written for an IDS nothing here lays out: one
     # of those is this script's own output too, and a part drawn since may well
@@ -1702,7 +1768,31 @@ def is_script_block(cp: int, char: str, block: list[str]) -> bool:
     if got is None:
         return False
     line, seq = got
-    return block == build_unsupported(line, cp, char, seq)
+    return block == build_unsupported(line, cp, char, seq, listing)
+
+
+def block_pick(block: list[str]) -> tuple[str, tuple[int, ...]] | None:
+    """The operator and parts a commented-out script block was written for."""
+    got = script_block_idc(block)
+    if got is not None:
+        return got[0].op, got[0].comps
+    got = script_unsupported_idc(block)
+    if got is not None:
+        return got[0].op, got[0].comps
+    return None
+
+
+def picked_fallback(entry: IdsEntry, pick: tuple[str, tuple[int, ...]] | None) -> bool:
+    """Whether `pick` spells only sequences of `entry` that are fallbacks.
+
+    Read off the sequence text, so an inlined pick -- which spells none of them
+    -- is never one.
+    """
+    if pick is None:
+        return False
+    seq = pick[0] + "".join(chr(c) for c in pick[1])
+    tags = [t for s, t in entry.seqs if s == seq]
+    return bool(tags) and all(is_fallback(t) for t in tags)
 
 
 def script_block_idc(block: list[str]) -> tuple[Line, str | None, bool] | None:
@@ -1769,6 +1859,10 @@ def main() -> int:
                          "what keeps a later run off it. Twice (`--inline --inline`) "
                          "writes the inlined line outright instead: no un-inlined "
                          "line, no mark, and no `<- SEQ` note on any inline")
+    ap.add_argument("--reselect", action="store_true",
+                    help="also rewrite a commented-out block of this script's own that "
+                         "was written from a fallback (Z, UCS2003) sequence where this run "
+                         "picks an attested one, though the new line is still held")
     ap.add_argument("--ignore-box", action="store_true",
                     help="write a line whose parts cannot tile the 15x16 box uncommented as well")
     ap.add_argument("-v", "--verbose", action="store_true")
@@ -1828,7 +1922,7 @@ def main() -> int:
         letter, block_name = blk
         entry = ids[cp]
 
-        best: tuple[tuple[bool, bool, bool], Candidate, Verdict] | None = None
+        best: tuple[tuple[bool, bool, bool, bool], Candidate, Verdict] | None = None
         best_origin: str | None = None
         # The best-attested sequence whose operator this source lays out none
         # of, kept so that a character no line can be written for is still
@@ -1836,7 +1930,7 @@ def main() -> int:
         # `build_unsupported`.
         unsupported: Node | None = None
         why = "no decomposition at all"
-        for tree, unreadable in sequence_trees(entry, args.allow_ivi):
+        for tree, unreadable, fallback in sequence_trees(entry, args.allow_ivi):
             if tree is None:
                 why = min(why, unreadable, key=reason_rank)
                 continue
@@ -1858,16 +1952,18 @@ def main() -> int:
                 if verdict.kind is None:
                     why = min(why, verdict.reason, key=reason_rank)
                     continue
-                # A character with several sequences takes the one that can be
-                # laid out today over one that only could be later, source tags
-                # being the tie-break the sort already applied; and, all else
-                # equal, the sequence as written over one that inlined an
-                # operand into it.
-                rank = (verdict.fits, verdict.kind == "handdrawn", not cand.inlined)
+                # A character with several sequences takes an attested one over
+                # a fallback whatever either fits (`FALLBACK_TAGS`); then the one
+                # that can be laid out today over one that only could be later,
+                # source tags being the tie-break the sort already applied; and,
+                # all else equal, the sequence as written over one that inlined
+                # an operand into it.
+                rank = (not fallback, verdict.fits, verdict.kind == "handdrawn",
+                        not cand.inlined)
                 if best is None or rank > best[0]:
                     best = (rank, cand, verdict)
                     best_origin = render_ids(tree) if cand.inlined else None
-            if best is not None and best[0] == (True, True, True):
+            if best is not None and best[0] == (True, True, True, True):
                 break
         # A character already declared is not declared again, whichever of the
         # two forms the block below it would take: what is in the file is the
@@ -1892,7 +1988,8 @@ def main() -> int:
         if best is None:
             seq = render_ids(unsupported)
             block = build_unsupported(
-                unsupported_line(inv, unsupported), cp, entry.char, seq
+                unsupported_line(inv, unsupported), cp, entry.char, seq,
+                ids_listing(entry)
             )
             plan[sl.name].append((key, cp, block))
             stats[f"commented out: not an IDC this source lays out "
@@ -1936,15 +2033,31 @@ def main() -> int:
             if cand_alt is not None
             else None
         )
-        block = build_blocks(line, cp, entry.char, bool(holds), origin, alt)
+        block = build_blocks(line, cp, entry.char, bool(holds), origin, alt,
+                             listing=ids_listing(entry))
         if revive:
-            # Only a line that is now unheld is worth rewriting, and only where
-            # the block in the file is this script's own output: anything else
-            # is a hand edit, and replacing it would throw away what it says.
-            if holds:
-                stats["already declared (commented out)"] += 1
-                continue
+            # Only a line that is now unheld is worth rewriting (or, under
+            # `--reselect`, one an earlier run wrote from a fallback sequence
+            # that an attested one now beats), and only where the block in the
+            # file is this script's own output: anything else is a hand edit,
+            # and replacing it would throw away what it says.
             old = inv.declared_blocks.get(cp)
+            if holds:
+                if not (args.reselect and best[0][0] and old is not None
+                        and is_script_block(cp, entry.char, old[1])
+                        and picked_fallback(entry, block_pick(old[1]))):
+                    stats["already declared (commented out)"] += 1
+                    continue
+                removals[old[0]].add(cp)
+                stats["reselected (still commented out)"] += 1
+                plan[sl.name].append((key, cp, block))
+                made += 1
+                if args.verbose:
+                    print(f"  {entry.char} U+{cp:04X} -> {sl.name} reselected "
+                          f"{op}{''.join(chr(c) for c in comps)}", file=sys.stderr)
+                if args.limit and made >= args.limit:
+                    break
+                continue
             if old is None or not is_script_block(cp, entry.char, old[1]):
                 stats["declared, now writable, but not this script's own block"] += 1
                 continue

@@ -2,13 +2,13 @@
 
 ## 158.-2
 
-glyph han-28210:15x16 15 16 // 𨈐
+glyph han-28210:15x16 15 16 // 𨈐 𨈐(GT) ㇯身𠄠(X)
 ref han-8eab:15x16
 ref 7x4 4 5 negated
 
 ## 158.-1
 
-glyph han-28211:15x16 15 16 // 𨈑
+glyph han-28211:15x16 15 16 // 𨈑 𨈑(GT) ㇯身㇒(X)
 ref han-8eab:15x16
 ref 2x6 12 6 negated
 ref 9x3 2 12 negated
@@ -104,7 +104,7 @@ glyph han-28231:15x16 15 16 // 𨈱
 // glyph han-28239:15x16 15 16 // 𨈹
 // ⿰ han-8eab han-540c // ⿰身同
 
-// glyph han-2823e:15x16 15 16 // 𨈾
+// glyph han-2823e:15x16 15 16 // 𨈾 ⿰身并(T) ⿰身幷(Z)
 // ⿰ han-8eab han-5e76 // ⿰身并
 
 // glyph han-2823f:15x16 15 16 // 𨈿
@@ -165,7 +165,7 @@ glyph han-28254-(t|j):15x16 15 16 // 𨉔
 // glyph han-28266:15x16 15 16 // 𨉦
 // ⿰ han-8eab han-9aa8 // ⿰身骨
 
-// glyph han-28270:15x16 15 16 // 𨉰
+// glyph han-28270:15x16 15 16 // 𨉰 ⿰身郎(G) ⿰身郞(T)
 // ⿰ han-8eab han-90de // ⿰身郞
 
 // glyph han-28272:15x16 15 16 // 𨉲
@@ -182,7 +182,7 @@ glyph han-28254-(t|j):15x16 15 16 // 𨉔
 // glyph han-2827b:15x16 15 16 // 𨉻
 // ⿰ han-8eab han-8edf // ⿰身軟
 
-// glyph han-2827c:15x16 15 16 // 𨉼
+// glyph han-2827c:15x16 15 16 // 𨉼 ⿰身惡(H) ⿰身悪(T)
 // ⿰ han-8eab han-60e1 // ⿰身惡
 
 // glyph han-2827e:15x16 15 16 // 𨉾
@@ -272,7 +272,7 @@ glyph han-282b9:15x16 15 16 // 𨊹
 glyph han-282ba:15x16 15 16 // 𨊺
 ⿰ han-8eca:5x16 han-6b62:10x16 // ⿰車止
 
-glyph han-282bb:15x16 15 16 // 𨊻
+glyph han-282bb:15x16 15 16 // 𨊻 ⿰車开(GTP) ⿰車幵(Z)
 ⿰ han-8eca:5x16 1 han-5f00:9x16 // ⿰車开
 
 glyph han-282c0-($han-regions):15x16 15 16 // 𨋀
@@ -348,7 +348,7 @@ glyph han-282e5:15x16 15 16 // 𨋥
 glyph han-282eb:15x16 15 16 // 𨋫
 ⿰ han-8eca:7x16 1 han-5146:7x16 // ⿰車兆
 
-// glyph han-282ed:15x16 15 16 // 𨋭
+// glyph han-282ed:15x16 15 16 // 𨋭 ⿰車色(GT) ⿰車⿱刀巴(P)
 // ⿰ han-8eca han-8272 // ⿰車色
 
 glyph han-282f0:15x16 15 16 // 𨋰
@@ -582,12 +582,12 @@ glyph han-28406:15x16 15 16 // 𨐆
 
 ## 160.0
 
-glyph han-2840b:15x16 15 16 // 𨐋
+glyph han-2840b:15x16 15 16 // 𨐋 ⿱立十(GT) ⿱亠𢆉(X)
 ⿱ han-7acb:15x7 han-5341:15x9 // ⿱立十
 
 ## 160.1
 
-glyph han-2840c:15x16 15 16 // 𨐌
+glyph han-2840c:15x16 15 16 // 𨐌 ⿱立𰀁(GTJ) ⿱亠羊(X)
 ⿱ han-7acb:15x7 han-30001:15x9 // ⿱立𰀁
 
 ## 160.3
@@ -667,7 +667,7 @@ glyph han-28425:15x16 15 16 // 𨐥
 // glyph han-28430:15x16 15 16 // 𨐰
 // ⿲ han-8f9b han-5206 han-8f9b // ⿲辛分辛
 
-glyph han-28431:15x16 15 16 // 𨐱
+glyph han-28431:15x16 15 16 // 𨐱 ⿲辛月辛(GP) ⿲辛⺼辛(T)
 ⿲ han-8f9b:5x16-l han-6708:5x16 han-8f9b:5x16 // ⿲辛月辛
 
 ## 160.12
