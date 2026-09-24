@@ -190,8 +190,8 @@ glyph han-20980:15x16 15 16 // 𠦀
 glyph han-20989:15x16 15 16 // 𠦉
 ⿰ han-5341:9x16 han-65a4:6x16 // ⿰十斤
 
-// glyph han-2098a:15x16 15 16 // 𠦊
-// ⿰ han-4e91 han-5341 // ⿰云十
+glyph han-2098a:15x16 15 16 // 𠦊
+assume ⿰ han-4e91:9x16 -1 han-5341:7x16 // ⿰云十
 
 // glyph han-2098c:15x16 15 16 // 𠦌
 // ⿰ han-5344 han-5344 // ⿰卄卄

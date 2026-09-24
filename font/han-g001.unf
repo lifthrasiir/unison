@@ -598,8 +598,8 @@ glyph han-3011c:15x16 15 16 // 𰄜
 glyph han-3011f:15x16 15 16 // 𰄟
 ⿰ han-4e0d:9x16 1 han-5202:5x16 // ⿰不刂
 
-// glyph han-30120:15x16 15 16 // 𰄠
-// ⿰ han-4e91 han-5200 // ⿰云刀
+glyph han-30120:15x16 15 16 // 𰄠
+⿰ han-4e91:9x16 1 han-5200:5x16 // ⿰云刀
 
 glyph han-30122:15x16 15 16 // 𰄢
 ⿰ han-6587:9x16 1 han-5200:5x16 // ⿰文刀
@@ -943,6 +943,9 @@ glyph han-301d3:15x16 15 16 // 𰇓
 // glyph han-301d5:15x16 15 16 // 𰇕
 // ⿰ han-53e3 han-5939 // ⿰口夹
 
+// glyph han-301d6:15x16 15 16 // 𰇖
+// ⿰ han-53e3 han-52a8 // ⿰口动
+
 glyph han-301d7:15x16 15 16 // 𰇗
 ⿲ han-53e3:4x16 han-624c:5x16 han-53e3:6x16 // ⿲口扌口
 
@@ -1050,6 +1053,9 @@ glyph han-3021d:15x16 15 16 // 𰈝
 
 // glyph han-30229:15x16 15 16 // 𰈩
 // ⿰ han-541e han-5492 // ⿰吞咒
+
+// glyph han-3022e:15x16 15 16 // 𰈮
+// ⿰ han-53e3 han-7f02 // ⿰口缂
 
 ## 30.13
 
@@ -1424,8 +1430,8 @@ glyph han-3030f:15x16 15 16 // 𰌏
 // glyph han-3031e:15x16 15 16 // 𰌞
 // ⿳ han-4e8c han-516b han-5b50 // ⿳二八子
 
-// glyph han-3031f-($han-regions):15x16 15 16 // 𰌟
-// ⿰ han-5b50-($-1) han-4e91 // ⿰子云
+glyph han-3031f-($han-regions):15x16 15 16 // 𰌟
+⿰ han-5b50-($-1):5x16-l 1 han-4e91:9x16 // ⿰子云
 
 glyph han-30320:15x16 15 16 // 𰌠
 ⿱ han-5b50.0:15x9 han-6b62:15x7 // ⿱子止

@@ -51,8 +51,8 @@ glyph han-28950:15x16 15 16 // 𨥐
 glyph han-28954:15x16 15 16 // 𨥔
 ⿲ han-91d2:5x16-l han-4e03:5x16 han-5200:5x16 // ⿲釒七刀
 
-// glyph han-28955:15x16 15 16 // 𨥕
-// ⿰ han-91d2 han-4e91 // ⿰釒云
+glyph han-28955:15x16 15 16 // 𨥕
+⿰ han-91d2:5x16-l 1 han-4e91:9x16 // ⿰釒云
 
 // glyph han-28957:15x16 15 16 // 𨥗
 // ⿱ han-6c34 han-91d1 // ⿱水金

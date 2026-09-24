@@ -2834,6 +2834,9 @@ glyph han-5235:15x16 15 16 // 刵
 // glyph han-523c:15x16 15 16 // 刼
 // ⿰ han-53bb han-5203 // ⿰去刃
 
+// glyph han-523d:15x16 15 16 // 刽
+// ⿰ han-4f1a han-5202 // ⿰会刂
+
 // glyph han-523e:15x16 15 16 // 刾
 // ⿰ han-5939 han-5202 // ⿰夹刂
 
@@ -3290,8 +3293,8 @@ glyph han-52a5:15x16 15 16 // 劥
 // glyph han-52a7:15x16 15 16 // 劧
 // ⿰ han-624b han-529b // ⿰手力
 
-// glyph han-52a8:15x16 15 16 // 动
-// ⿰ han-4e91 han-529b // ⿰云力
+glyph han-52a8:15x16 15 16 // 动
+⿰ han-4e91:9x16 han-529b:6x16 // ⿰云力
 
 ## 19.5
 

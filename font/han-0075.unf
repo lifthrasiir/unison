@@ -957,8 +957,8 @@ glyph han-679c.0:* = han-679c:*
 glyph han-679e:15x16 15 16 // 枞
 ⿲ han-6728:5x16 han-4eba:5x16 han-4eba:5x16 // ⿲木人人
 
-// glyph han-679f:15x16 15 16 // 枟
-// ⿰ han-6728 han-4e91 // ⿰木云
+glyph han-679f:15x16 15 16 // 枟
+⿰ han-6728:5x16 1 han-4e91:9x16 // ⿰木云
 
 // glyph han-67a0:15x16 15 16 // 枠
 // ⿰ han-6728 han-5346 // ⿰木卆
@@ -1412,6 +1412,9 @@ glyph han-685b:15x16 15 16 // 桛
 
 // glyph han-6864:15x16 15 16 // 桤
 // ⿰ han-6728 han-5c82 // ⿰木岂
+
+// glyph han-6867:15x16 15 16 // 桧
+// ⿰ han-6728 han-4f1a // ⿰木会
 
 // glyph han-6869:15x16 15 16 // 桩
 // ⿰ han-6728 han-5e84 // ⿰木庄

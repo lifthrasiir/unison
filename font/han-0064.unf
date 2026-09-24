@@ -341,8 +341,9 @@ glyph han-628a.0:* = han-628a:*
 glyph han-628b:15x16 15 16 // 抋
 ⿰ han-624c:3x16 1 han-5fc3:11x16 // ⿰扌心
 
-// glyph han-628e:15x16 15 16 // 抎
-// ⿰ han-624c han-4e91 // ⿰扌云
+glyph han-628e:15x16 15 16 // 抎
+⿰ han-624c:5x16 1 han-4e91:9x16 // ⿰扌云
+glyph han-628e.0:* = han-628e:*
 
 glyph han-628f:15x16 15 16 // 抏
 ⿰ han-624c:5x16 1 han-5143:9x16 // ⿰扌元

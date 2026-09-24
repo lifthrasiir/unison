@@ -1267,8 +1267,8 @@ glyph han-5756:15x16 15 16 // 坖
 // glyph han-5759:15x16 15 16 // 坙
 // ⿳ han-4e00 han-5ddb han-571f // ⿳一巛土
 
-// glyph han-575b:15x16 15 16 // 坛
-// ⿰ han-571f han-4e91 // ⿰土云
+glyph han-575b:15x16 15 16 // 坛
+⿰ han-571f:5x16-l 1 han-4e91:9x16 // ⿰土云
 
 // glyph han-575c:15x16 15 16 // 坜
 // ⿰ han-571f han-5386 // ⿰土历
@@ -1913,6 +1913,9 @@ glyph han-58a6.0:* = han-58a6:*
 
 glyph han-58a7:15x16 15 16 // 墧
 ⿰ han-571f:5x16-l 1 han-55ac:9x16 // ⿰土喬
+
+// glyph han-58b5:15x16 15 16 // 墵
+// ⿰ han-571f han-96f2 // ⿰土雲
 
 glyph han-58b9:15x16 15 16 // 墹
 ⿰ han-571f:3x16-l 1 han-9593:11x16 // ⿰土間
@@ -3130,8 +3133,9 @@ glyph han-593b:15x16 15 16 // 夻
 
 ## 37.4
 
-// glyph han-593d:15x16 15 16 // 夽
-// ⿱ han-5927 han-4e91 // ⿱大云
+glyph han-593d:15x16 15 16 // 夽
+⿱ han-5927:15x8 han-4e91:15x8 // ⿱大云
+glyph han-593d.0:* = han-593d:*
 
 glyph han-593e:15x16 15 16 // 夾
 ..............................

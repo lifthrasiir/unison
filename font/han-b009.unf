@@ -184,8 +184,8 @@ glyph han-201c8:15x16 15 16 // 𠇈
 // glyph han-201cb:15x16 15 16 // 𠇋
 // ⿱ han-201a2 han-5f00 // ⿱𠆢开
 
-// glyph han-201cc:15x16 15 16 // 𠇌
-// ⿰ han-4e91 han-4eba // ⿰云人
+glyph han-201cc:15x16 15 16 // 𠇌
+⿰ han-4e91:9x16 1 han-4eba:5x16 // ⿰云人
 
 // glyph han-201ce:15x16 15 16 // 𠇎
 // ⿱ han-201a2 han-535d // ⿱𠆢卝
@@ -502,6 +502,9 @@ glyph han-20363:15x16 15 16 // 𠍣
 
 // glyph han-20370:15x16 15 16 // 𠍰
 // ⿲ han-4ebb han-27fb7 han-5bfa // ⿲亻𧾷寺
+
+// glyph han-20389:15x16 15 16 // 𠎉
+// ⿰ han-4ebb han-96f2 // ⿰亻雲
 
 // glyph han-2038a:15x16 15 16 // 𠎊
 // ⿰ han-4ebb han-68ee // ⿰亻森

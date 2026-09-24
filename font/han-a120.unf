@@ -187,6 +187,34 @@ glyph han-4303-j:15x16 15 16 // 䌃
 glyph han-432f-($han-regions):15x16 15 16 // 䌯
 ⿰ han-7cf9-($-1):5x16 1 han-96da:9x16 // ⿰糹雚
 
+# CJK unified ideographs extension A: 纟 (120')
+
+## 120'.3
+
+// glyph han-4336-($han-regions):15x16 15 16 // 䌶
+// ⿰ han-7e9f han-624d-($-1) // ⿰纟才
+
+## 120'.4
+
+// glyph han-4338:15x16 15 16 // 䌸
+// ⿰ han-7e9f han-4e13 // ⿰纟专
+
+## 120'.5
+
+glyph han-4337:15x16 15 16 // 䌷
+⿰ han-7e9f:5x16 1 han-7531:9x16 // ⿰纟由
+
+glyph han-4339:15x16 15 16 // 䌹
+⿰ han-7e9f:5x16 1 han-518b:9x16 // ⿰纟冋
+
+## 120'.6
+
+glyph han-433a:15x16 15 16 // 䌺
+⿰ han-7e9f:5x16 han-8033:10x16 // ⿰纟耳
+
+glyph han-433b:15x16 15 16 // 䌻
+⿰ han-7e9f:5x16 1 han-7fbd-g:9x16 // ⿰纟羽
+
 # CJK unified ideographs extension A: 缶 (121)
 
 ## 121.3

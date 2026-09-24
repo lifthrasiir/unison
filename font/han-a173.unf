@@ -76,6 +76,9 @@ glyph han-4a1c-($han-regions):15x16 15 16 // 䨜
 // glyph han-4a2c:15x16 15 16 // 䨬
 // ⿱ han-96e8 han-6dcb // ⿱雨淋
 
+// glyph han-4a2d-($han-regions):15x16 15 16 // 䨭
+// ⿰ han-96f2 han-8096-($-1) // ⿰雲肖
+
 ## 173.12
 
 // glyph han-4a30:15x16 15 16 // 䨰
@@ -576,6 +579,13 @@ glyph han-4b42:15x16 15 16 // 䭂
 
 // glyph han-4b5f:15x16 15 16 // 䭟
 // ⿰ han-98e0 han-8449 // ⿰飠葉
+
+# CJK unified ideographs extension A: 饣 (184')
+
+## 184'.12
+
+// glyph han-4b6a:15x16 15 16 // 䭪
+// ⿰ han-9963 han-91cf // ⿰饣量
 
 # CJK unified ideographs extension A: 首 (185)
 

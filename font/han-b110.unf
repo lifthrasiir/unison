@@ -56,8 +56,8 @@ glyph han-25426:15x16 15 16 // 𥐦
 glyph han-2542d:15x16 15 16 // 𥐭
 ⿰ han-77f3:5x16 1 han-5348:9x16 // ⿰石午
 
-// glyph han-2542f:15x16 15 16 // 𥐯
-// ⿰ han-77f3 han-4e91 // ⿰石云
+glyph han-2542f:15x16 15 16 // 𥐯
+⿰ han-77f3:6x16 han-4e91:9x16 // ⿰石云
 
 // glyph han-25431:15x16 15 16 // 𥐱
 // ⿰ han-77f3 han-5197 // ⿰石冗
@@ -424,6 +424,9 @@ glyph han-25576:15x16 15 16 // 𥕶
 
 glyph han-2557f:15x16 15 16 // 𥕿
 ⿰ han-756a:7x16 1 han-77f3:7x16 // ⿰番石
+
+// glyph han-25585:15x16 15 16 // 𥖅
+// ⿰ han-77f3 han-96f2 // ⿰石雲
 
 // glyph han-2558b:15x16 15 16 // 𥖋
 // ⿰ han-77f3 han-6b6e // ⿰石歮

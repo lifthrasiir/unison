@@ -41,6 +41,11 @@ glyph han-2b74e:15x16 15 16 // 𫝎
 
 # CJK unified ideographs extension D: 口 (30)
 
+## 30.11
+
+// glyph han-2b75a:15x16 15 16 // 𫝚
+// ⿰ han-53e3 han-8ee2 // ⿰口転
+
 ## 30.12
 
 // glyph han-2b75b:15x16 15 16 // 𫝛
@@ -217,6 +222,11 @@ glyph han-2b7ae:15x16 15 16 // 𫞮
 
 # CJK unified ideographs extension D: 禾 (115)
 
+## 115.6
+
+// glyph han-2b7b7:15x16 15 16 // 𫞷
+// ⿰ han-79be han-4f1a // ⿰禾会
+
 ## 115.8
 
 // glyph han-2b7b8:15x16 15 16 // 𫞸
@@ -235,6 +245,13 @@ glyph han-2b7bb:15x16 15 16 // 𫞻
 
 glyph han-2b7be:15x16 15 16 // 𫞾
 ⿳ han-25ad7:15x5 han-7530:15x7 han-6bd4-j:15x4 // ⿳𥫗田比
+
+# CJK unified ideographs extension D: 纟 (120')
+
+## 120'.9
+
+// glyph han-2b7c6:15x16 15 16 // 𫟆
+// ⿰ han-7e9f han-91cd // ⿰纟重
 
 # CJK unified ideographs extension D: 羊 (123)
 

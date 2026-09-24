@@ -520,3 +520,31 @@ glyph han-261eb-($han-regions):15x16 15 16 // 𦇫
 
 glyph han-26202:15x16 15 16 // 𦈂
 ⿲ -4 han-7cf9-v:5x16 han-98e0:7x16 han-582f:7x16 // ⿲糹飠堯
+
+# CJK unified ideographs extension B: 纟 (120')
+
+## 120'.7
+
+glyph han-2620b:15x16 15 16 // 𦈋
+⿰ han-7e9f:5x16 1 han-9149:9x16 // ⿰纟酉
+
+glyph han-2620c:15x16 15 16 // 𦈌
+⿰ han-7e9f:5x16 1 han-675f:9x16 // ⿰纟束
+
+## 120'.9
+
+glyph han-26214:15x16 15 16 // 𦈔
+⿰ han-7e9f:5x16 1 han-9aa8-g:9x16 // ⿰纟骨
+
+## 120'.10
+
+// glyph han-26216-($han-regions):15x16 15 16 // 𦈖
+// ⿰ han-7e9f han-26407-($-1) // ⿰纟𦐇
+
+// glyph han-26217-($han-regions):15x16 15 16 // 𦈗
+// ⿰ han-7e9f han-532a-($-1) // ⿰纟匪
+
+## 120'.14
+
+glyph han-26221:15x16 15 16 // 𦈡
+⿰ han-7e9f:5x16 1 han-9700:9x16 // ⿰纟需

@@ -188,6 +188,9 @@ glyph han-290d9:15x16 15 16 // 𩃙
 // glyph han-290df:15x16 15 16 // 𩃟
 // ⿱ han-96e8 han-6615 // ⿱雨昕
 
+// glyph han-290e0:15x16 15 16 // 𩃠
+// ⿰ han-96f2 han-5167 // ⿰雲內
+
 // glyph han-290e3:15x16 15 16 // 𩃣
 // ⿱ han-96e8 han-5352 // ⿱雨卒
 
@@ -219,6 +222,9 @@ glyph han-290ef:15x16 15 16 // 𩃯
 
 // glyph han-290f5-($han-regions):15x16 15 16 // 𩃵
 // ⿳ han-96e8-($-1) han-6c3f han-6728 // ⿳雨氿木
+
+// glyph han-290f8:15x16 15 16 // 𩃸
+// ⿰ han-96f2 han-5f17 // ⿰雲弗
 
 // glyph han-290fc:15x16 15 16 // 𩃼
 // ⿱ han-96e8 han-780f // ⿱雨砏
@@ -309,6 +315,9 @@ glyph han-29151:15x16 15 16 // 𩅑
 // ⿱ han-96e8 han-6717 // ⿱雨朗
 
 ## 173.12
+
+// glyph han-2915d:15x16 15 16 // 𩅝
+// ⿰ han-96f2 han-5944 // ⿰雲奄
 
 glyph han-2915f:15x16 15 16 // 𩅟
 ⿳ -1 han-96e8:15x6 1 han-65e5:15x5 1 han-660d:15x5 // ⿳雨日昍

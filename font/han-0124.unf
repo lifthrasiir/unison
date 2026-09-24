@@ -1132,8 +1132,9 @@ assume ⿰ han-8033:7x16 -1 han-4eca.x:9x16 // ⿰耳今
 glyph han-8039-(h|t|j|k):* = han-8039.0:*
 glyph han-8039-(g|p):* = han-8039.x:*
 
-// glyph han-803a:15x16 15 16 // 耺
-// ⿰ han-8033 han-4e91 // ⿰耳云
+glyph han-803a:15x16 15 16 // 耺
+⿰ han-8033:6x16-l han-4e91:9x16 // ⿰耳云
+glyph han-803a.0:* = han-803a:*
 
 glyph han-803b:15x16 15 16 // 耻
 assume ⿰ han-8033:6x16-l -1 han-6b62:10x16 // ⿰耳止
@@ -1720,6 +1721,9 @@ glyph han-8101:15x16 15 16 // 脁
 
 // glyph han-810c:15x16 15 16 // 脌
 // ⿰ han-6708 han-5e74 // ⿰月年
+
+// glyph han-810d:15x16 15 16 // 脍
+// ⿰ han-6708 han-4f1a // ⿰月会
 
 // glyph han-810f:15x16 15 16 // 脏
 // ⿰ han-6708 han-5e84 // ⿰月庄

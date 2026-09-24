@@ -1082,6 +1082,9 @@ glyph han-3ec1:15x16 15 16 // 㻁
 glyph han-3ec2:15x16 15 16 // 㻂
 ⿰ han-248e9:5x16 1 han-5e76:9x16 // ⿰𤣩并
 
+// glyph han-3ec5:15x16 15 16 // 㻅
+// ⿰ han-248e9 han-4f1a // ⿰𤣩会
+
 // glyph han-3ec7:15x16 15 16 // 㻇
 // ⿰ han-248e9 han-5168 // ⿰𤣩全
 

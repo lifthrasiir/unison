@@ -18,8 +18,8 @@ glyph han-32db8:15x16 15 16 // 𲶸
 
 ## 119.4
 
-// glyph han-32dba:15x16 15 16 // 𲶺
-// ⿰ han-7c73 han-4e91 // ⿰米云
+glyph han-32dba:15x16 15 16 // 𲶺
+⿰ han-7c73:5x16 1 han-4e91:9x16 // ⿰米云
 
 // glyph han-32dbb:15x16 15 16 // 𲶻
 // ⿰ han-7c73 han-5167 // ⿰米內
@@ -135,6 +135,21 @@ glyph han-32def:15x16 15 16 // 𲷯
 
 // glyph han-32e25-($han-regions):15x16 15 16 // 𲸥
 // ⿰ han-7cf9-($-1) han-64ad // ⿰糹播
+
+# CJK unified ideographs extension J: 纟 (120')
+
+## 120'.4
+
+glyph han-32e2f:15x16 15 16 // 𲸯
+⿰ han-7e9f:5x16 1 han-8f66:9x16 // ⿰纟车
+
+// glyph han-32e30:15x16 15 16 // 𲸰
+// ⿰ han-7e9f han-592a // ⿰纟太
+
+## 120'.8
+
+// glyph han-32e31:15x16 15 16 // 𲸱
+// ⿰ han-7e9f han-7f57 // ⿰纟罗
 
 # CJK unified ideographs extension J: 缶 (121)
 
@@ -640,6 +655,9 @@ glyph han-3301b:15x16 15 16 // 𳀛
 
 // glyph han-3301d:15x16 15 16 // 𳀝
 // ⿲ han-5f73 han-7070 han-4e8d // ⿲彳灰亍
+
+// glyph han-3301e:15x16 15 16 // 𳀞
+// ⿲ han-5f73 han-7ea2 han-4e8d // ⿲彳红亍
 
 ## 144.12
 

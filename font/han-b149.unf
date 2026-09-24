@@ -58,8 +58,8 @@ glyph han-27976-($han-regions):15x16 15 16 // 𧥶
 glyph han-27979-($han-regions):15x16 15 16 // 𧥹
 ⿰ han-8a01-($-1):5x16 1 han-4e30-($-1):9x16 // ⿰訁丰
 
-// glyph han-2797c:15x16 15 16 // 𧥼
-// ⿰ han-8a01 han-4e91 // ⿰訁云
+glyph han-2797c-($han-regions):15x16 15 16 // 𧥼
+⿰ han-8a01-($-1):5x16 1 han-4e91:9x16 // ⿰訁云
 
 // glyph han-2797d:15x16 15 16 // 𧥽
 // ⿳ han-4e8c han-516b han-8a00 // ⿳二八言
@@ -413,6 +413,9 @@ glyph han-27ac2:15x16 15 16 // 𧫂
 
 glyph han-27b1c-($han-regions):15x16 15 16 // 𧬜
 ⿲ -2 han-8a01-($-1):5x16 han-5176:6x16 han-65a4:6x16 // ⿲訁其斤
+
+// glyph han-27b1e-($han-regions):15x16 15 16 // 𧬞
+// ⿰ han-8a01-($-1) han-96f2 // ⿰訁雲
 
 // glyph han-27b22:15x16 15 16 // 𧬢
 // ⿰ han-8a01 han-3afa // ⿰訁㫺

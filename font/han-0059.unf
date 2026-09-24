@@ -526,8 +526,9 @@ glyph han-5ff4-($han-regions):15x16 15 16 // 忴
 // glyph han-5ff5:15x16 15 16 // 念
 // ⿱ han-4eca han-5fc3 // ⿱今心
 
-// glyph han-5ff6:15x16 15 16 // 忶
-// ⿰ han-5fc4 han-4e91 // ⿰忄云
+glyph han-5ff6:15x16 15 16 // 忶
+⿰ han-5fc4:5x16 1 han-4e91:9x16 // ⿰忄云
+glyph han-5ff6.0:* = han-5ff6:*
 
 glyph han-5ff8-($han-regions):15x16 15 16 // 忸
 ⿰ han-5fc4:5x16 han-4e11-($-1):10x16 // ⿰忄丑
@@ -784,6 +785,9 @@ glyph han-6072:15x16 15 16 // 恲
 
 glyph han-6077:15x16 15 16 // 恷
 ⿱ han-4f11:15x9 han-5fc3:15x7 // ⿱休心
+
+// glyph han-6078:15x16 15 16 // 恸
+// ⿰ han-5fc4 han-52a8 // ⿰忄动
 
 // glyph han-6079:15x16 15 16 // 恹
 // ⿰ han-5fc4 han-538c // ⿰忄厌

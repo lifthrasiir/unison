@@ -86,8 +86,8 @@ glyph han-24f4a-($han-regions):15x16 15 16 // 𤽊
 // glyph han-24f4c:15x16 15 16 // 𤽌
 // ⿰ han-767d han-5dff // ⿰白巿
 
-// glyph han-24f4e:15x16 15 16 // 𤽎
-// ⿱ han-767d han-4e91 // ⿱白云
+glyph han-24f4e:15x16 15 16 // 𤽎
+⿱ han-767d:15x7 1 han-4e91:15x8 // ⿱白云
 
 glyph han-24f4f:15x16 15 16 // 𤽏
 ⿱ han-767d:15x9 han-6bd4-g:15x7 // ⿱白比
@@ -498,6 +498,9 @@ glyph han-25045:15x16 15 16 // 𥁅
 
 // glyph han-25064:15x16 15 16 // 𥁤
 // ⿱ han-3cbd han-76bf // ⿱㲽皿
+
+// glyph han-25067:15x16 15 16 // 𥁧
+// ⿱ han-4f1a han-76bf // ⿱会皿
 
 // glyph han-25068:15x16 15 16 // 𥁨
 // ⿱ han-597d han-76bf // ⿱好皿

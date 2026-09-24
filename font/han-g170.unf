@@ -290,6 +290,49 @@ glyph han-310ec:15x16 15 16 // 𱃬
 glyph han-310ed:15x16 15 16 // 𱃭
 ⿲ -4 han-98e0:7x16 han-6728:5x16 han-4ea4:7x16 // ⿲飠木交
 
+# CJK unified ideographs extension G: 饣 (184')
+
+## 184'.4
+
+glyph han-310f3:15x16 15 16 // 𱃳
+⿰ han-9963:5x16 1 han-4e0d:9x16 // ⿰饣不
+
+// glyph han-310f4-($han-regions):15x16 15 16 // 𱃴
+// ⿰ han-9963 han-535e-($-1) // ⿰饣卞
+
+## 184'.5
+
+// glyph han-310f5:15x16 15 16 // 𱃵
+// ⿰ han-9963 han-592e // ⿰饣央
+
+glyph han-310f6:15x16 15 16 // 𱃶
+⿰ han-9963:5x16 1 han-56da:9x16 // ⿰饣囚
+
+// glyph han-310f7-($han-regions):15x16 15 16 // 𱃷
+// ⿰ han-9963 han-534a-($-1) // ⿰饣半
+
+## 184'.6
+
+glyph han-310f8:15x16 15 16 // 𱃸
+⿰ han-9963:5x16 1 han-81f3:9x16 // ⿰饣至
+
+// glyph han-310f9:15x16 15 16 // 𱃹
+// ⿰ han-9963 han-5c82 // ⿰饣岂
+
+// glyph han-310fa-($han-regions):15x16 15 16 // 𱃺
+// ⿰ han-9963 han-820c-($-1) // ⿰饣舌
+
+// glyph han-310fb-($han-regions):15x16 15 16 // 𱃻
+// ⿰ han-9963 han-7ea6-($-1) // ⿰饣约
+
+## 184'.8
+
+glyph han-310fe:15x16 15 16 // 𱃾
+⿰ han-9963:5x16 1 han-5485:9x16 // ⿰饣咅
+
+glyph han-310ff:15x16 15 16 // 𱃿
+⿰ han-9963:5x16 1 han-708e:9x16 // ⿰饣炎
+
 # CJK unified ideographs extension G: 馬 (187)
 
 ## 187.2

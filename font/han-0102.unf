@@ -2853,8 +2853,8 @@ glyph han-7700.0:* = han-7700:*
 glyph han-7702:15x16 15 16 // 眂
 ⿰ han-76ee:5x16-l han-6c0f:10x16 // ⿰目氏
 
-// glyph han-7703:15x16 15 16 // 眃
-// ⿰ han-76ee han-4e91 // ⿰目云
+glyph han-7703:15x16 15 16 // 眃
+⿰ han-76ee:5x16-l 1 han-4e91:9x16 // ⿰目云
 
 // glyph han-7704:15x16 15 16 // 眄
 // ⿰ han-76ee han-4e0f // ⿰目丏

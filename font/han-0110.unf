@@ -1340,8 +1340,8 @@ glyph han-79ce:15x16 15 16 // 秎
 glyph han-79cf:15x16 15 16 // 秏
 ⿰ han-79be:5x16 1 han-6bdb:9x16 // ⿰禾毛
 
-// glyph han-79d0:15x16 15 16 // 秐
-// ⿰ han-79be han-4e91 // ⿰禾云
+glyph han-79d0:15x16 15 16 // 秐
+⿰ han-79be:5x16 1 han-4e91:9x16 // ⿰禾云
 
 // glyph han-79d2:15x16 15 16 // 秒
 // ⿰ han-79be han-5c11 // ⿰禾少

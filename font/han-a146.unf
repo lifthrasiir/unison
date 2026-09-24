@@ -881,8 +881,9 @@ glyph han-48b3:15x16 15 16 // 䢳
 
 ## 163.4
 
-// glyph han-48b5:15x16 15 16 // 䢵
-// ⿰ han-4e91 han-961d // ⿰云阝
+glyph han-48b5:15x16 15 16 // 䢵
+⿰ han-4e91:9x16 1 han-961d:5x16-r // ⿰云阝
+glyph han-48b5.0:* = han-48b5:*
 
 glyph han-48b6:15x16 15 16 // 䢶
 ⿰ han-6728:9x16 1 han-961d:5x16-r // ⿰木阝

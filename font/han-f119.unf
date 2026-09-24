@@ -197,6 +197,39 @@ glyph han-2e22c:15x16 15 16 // 𮈬
 glyph han-2e258:15x16 15 16 // 𮉘
 ⿲ han-7cf9-j:5x16 han-8a01.0:5x16 han-8005.1:5x16 // ⿲糹訁者
 
+# CJK unified ideographs extension F: 纟 (120')
+
+## 120'.2
+
+glyph han-2e260:15x16 15 16 // 𮉠
+⿰ han-7e9f:5x16 1 han-4e5d:9x16 // ⿰纟九
+
+## 120'.5
+
+glyph han-2e262:15x16 15 16 // 𮉢
+⿰ han-7e9f:5x16 1 han-5931:9x16 // ⿰纟失
+
+// glyph han-2e263:15x16 15 16 // 𮉣
+// ⿰ han-7e9f han-4e4d // ⿰纟乍
+
+## 120'.6
+
+glyph han-2e264:15x16 15 16 // 𮉤
+⿰ han-7e9f:5x16 1 han-572d:9x16 // ⿰纟圭
+
+// glyph han-2e266:15x16 15 16 // 𮉦
+// ⿰ han-7e9f han-7f51 // ⿰纟网
+
+## 120'.7
+
+// glyph han-2e269:15x16 15 16 // 𮉩
+// ⿰ han-7e9f han-8db3 // ⿰纟足
+
+## 120'.8
+
+glyph han-2e26c:15x16 15 16 // 𮉬
+⿰ han-7e9f:5x16 1 han-5352:9x16 // ⿰纟卒
+
 # CJK unified ideographs extension F: 缶 (121)
 
 ## 121.3
@@ -423,6 +456,9 @@ glyph han-2e2f7:15x16 15 16 // 𮋷
 // ⿰ han-6708 han-5d11 // ⿰月崑
 
 ## 130.12
+
+// glyph han-2e33b:15x16 15 16 // 𮌻
+// ⿰ han-6708 han-96f2 // ⿰月雲
 
 // glyph han-2e33f:15x16 15 16 // 𮌿
 // ⿱ han-7ca5 han-8089 // ⿱粥肉

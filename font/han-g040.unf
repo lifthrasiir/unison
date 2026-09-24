@@ -240,6 +240,9 @@ glyph han-30392:15x16 15 16 // 𰎒
 // glyph han-30397:15x16 15 16 // 𰎗
 // ⿱ han-5c71 han-5216 // ⿱山刖
 
+// glyph han-3039b:15x16 15 16 // 𰎛
+// ⿰ han-5c71 han-4f1a // ⿰山会
+
 // glyph han-3039c:15x16 15 16 // 𰎜
 // ⿱ han-5c71 han-4ea4 // ⿱山交
 
@@ -357,6 +360,11 @@ glyph han-303e3:15x16 15 16 // 𰏣
 
 // glyph han-303f3:15x16 15 16 // 𰏳
 // ⿸ han-5e7f han-7533 // ⿸广申
+
+## 53.6
+
+// glyph han-303f6:15x16 15 16 // 𰏶
+// ⿸ han-5e7f han-4f1a // ⿸广会
 
 ## 53.7
 
@@ -744,6 +752,9 @@ glyph han-304de:15x16 15 16 // 𰓞
 // glyph han-304df:15x16 15 16 // 𰓟
 // ⿰ han-624c han-6742 // ⿰扌杂
 
+// glyph han-304e0:15x16 15 16 // 𰓠
+// ⿰ han-624c han-4f1d // ⿰扌伝
+
 glyph han-304e4:15x16 15 16 // 𰓤
 ⿲ han-624c:3x16 han-8ba0:3x16 han-5348:9x16 // ⿲扌讠午
 
@@ -1077,6 +1088,9 @@ glyph han-305f3:15x16 15 16 // 𰗳
 
 // glyph han-30602:15x16 15 16 // 𰘂
 // ⿰ han-6728 han-7c7b // ⿰木类
+
+// glyph han-30605:15x16 15 16 // 𰘅
+// ⿰ han-6728 han-7edc // ⿰木络
 
 ## 75.10
 

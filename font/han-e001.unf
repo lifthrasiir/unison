@@ -50,6 +50,11 @@ glyph han-2b82e:15x16 15 16 // 𫠮
 // glyph han-2b831:15x16 15 16 // 𫠱
 // ⿳ han-4e00 han-65e5 han-6b63 // ⿳一日正 <- ⿱𣄼正
 
+## 1.10
+
+// glyph han-2b834:15x16 15 16 // 𫠴
+// ⿰ han-4e18 han-4f1a // ⿰丘会
+
 ## 1.12
 
 // glyph han-2b838:15x16 15 16 // 𫠸
@@ -215,6 +220,11 @@ glyph han-2b88d:15x16 15 16 // 𫢍
 
 // glyph han-2b893-($han-regions):15x16 15 16 // 𫢓
 // ⿰ han-4ebb han-53f2-($-1) // ⿰亻史
+
+## 9.6
+
+// glyph han-2b899:15x16 15 16 // 𫢙
+// ⿰ han-4ebb han-52a8 // ⿰亻动
 
 ## 9.7
 

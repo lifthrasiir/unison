@@ -418,6 +418,9 @@ glyph han-2ab6b:15x16 15 16 // 𪭫
 // glyph han-2ab6e:15x16 15 16 // 𪭮
 // ⿰ han-624c han-4f17 // ⿰扌众
 
+// glyph han-2ab6f:15x16 15 16 // 𪭯
+// ⿰ han-624c han-4f1a // ⿰扌会
+
 glyph han-2ab70:15x16 15 16 // 𪭰
 ⿰ han-624c:5x16 1 han-7f8a:9x16 // ⿰扌羊
 
@@ -792,8 +795,8 @@ glyph han-2ac9a:15x16 15 16 // 𪲚
 
 ## 75.8
 
-// glyph han-2aca1:15x16 15 16 // 𪲡
-// ⿱ han-6797 han-4e91 // ⿱林云
+glyph han-2aca1:15x16 15 16 // 𪲡
+⿱ han-6797:15x8 han-4e91:15x8 // ⿱林云
 
 glyph han-2aca2:15x16 15 16 // 𪲢
 ⿲ han-6728:5x16 han-793b:5x16 han-5df3:5x16 // ⿲木礻巳

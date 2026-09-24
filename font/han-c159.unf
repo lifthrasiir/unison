@@ -731,6 +731,69 @@ glyph han-2b5d6:15x16 15 16 // 𫗖
 glyph han-2b5dc:15x16 15 16 // 𫗜
 ⿰ han-98e0:7x16 1 han-9700:7x16 // ⿰飠需
 
+# CJK unified ideographs extension C: 饣 (184')
+
+## 184'.3
+
+glyph han-2b5de:15x16 15 16 // 𫗞
+⿰ han-9963:5x16 1 han-5e72:9x16 // ⿰饣干
+
+## 184'.4
+
+glyph han-2b5df:15x16 15 16 // 𫗟
+⿰ han-9963:5x16 1 han-5143:9x16 // ⿰饣元
+
+## 184'.5
+
+glyph han-2b5e1:15x16 15 16 // 𫗡
+⿰ han-9963:5x16 1 han-53e4:9x16 // ⿰饣古
+
+// glyph han-2b5e2:15x16 15 16 // 𫗢
+// ⿰ han-9963 han-4e4d // ⿰饣乍
+
+// glyph han-2b5e3:15x16 15 16 // 𫗣
+// ⿰ han-9963 han-5fc5 // ⿰饣必
+
+## 184'.7
+
+glyph han-2b5e6:15x16 15 16 // 𫗦
+⿰ han-9963:5x16 1 han-752b:9x16 // ⿰饣甫
+
+glyph han-2b5e7:15x16 15 16 // 𫗧
+⿰ han-9963:5x16 1 han-675f:9x16 // ⿰饣束
+
+glyph han-2b5e8:15x16 15 16 // 𫗨
+⿰ han-9963:5x16 1 han-826f:9x16 // ⿰饣良
+
+## 184'.8
+
+// glyph han-2b5e9:15x16 15 16 // 𫗩
+// ⿰ han-9963 han-7f57 // ⿰饣罗
+
+## 184'.9
+
+// glyph han-2b5eb:15x16 15 16 // 𫗫
+// ⿰ han-9963 han-80e1 // ⿰饣胡
+
+// glyph han-2b5ec:15x16 15 16 // 𫗬
+// ⿰ han-9963 han-800e // ⿰饣耎
+
+glyph han-2b5ee:15x16 15 16 // 𫗮
+⿰ han-9963:5x16 1 han-7687:9x16 // ⿰饣皇
+
+## 184'.12
+
+// glyph han-2b5f2:15x16 15 16 // 𫗲
+// ⿰ han-9963 han-65af // ⿰饣斯
+
+// glyph han-2b5f3:15x16 15 16 // 𫗳
+// ⿰ han-9963 han-5f3a // ⿰饣强
+
+## 184'.17
+
+glyph han-2b5f5:15x16 15 16 // 𫗵
+⿰ han-9963:5x16 1 han-8944:9x16 // ⿰饣襄
+
 # CJK unified ideographs extension C: 首 (185)
 
 ## 185.5

@@ -395,6 +395,11 @@ glyph han-31e37:15x16 15 16 // 𱸷
 glyph han-31e39:15x16 15 16 // 𱸹
 ⿰ han-7c73:5x16 1 han-5305.1:9x16 // ⿰米包
 
+## 119.6
+
+// glyph han-31e3e:15x16 15 16 // 𱸾
+// ⿰ han-7c73 han-4f1a // ⿰米会
+
 ## 119.7
 
 glyph han-31e44:15x16 15 16 // 𱹄
@@ -491,6 +496,77 @@ glyph han-31e7f:15x16 15 16 // 𱹿
 
 glyph han-31e88:15x16 15 16 // 𱺈
 ⿲ -3 han-7cf9-v:5x16 1 han-8a01.x:5x16 1 han-53ec:6x16 // ⿲糹訁召
+
+# CJK unified ideographs extension H: 纟 (120')
+
+## 120'.2
+
+glyph han-31e8f:15x16 15 16 // 𱺏
+⿰ 1 han-7e9f:5x16 3 han-535c:5x16 // ⿰纟卜
+
+// glyph han-31e90:15x16 15 16 // 𱺐
+// ⿰ han-7e9f han-5165 // ⿰纟入
+
+glyph han-31e91:15x16 15 16 // 𱺑
+⿰ han-7e9f:5x16 1 han-4e86-g:9x16 // ⿰纟了
+
+## 120'.3
+
+glyph han-31e92:15x16 15 16 // 𱺒
+⿰ han-7e9f:5x16 1 han-5dfe:9x16 // ⿰纟巾
+
+## 120'.4
+
+glyph han-31e93:15x16 15 16 // 𱺓
+⿰ han-7e9f:5x16 1 han-65a4:9x16 // ⿰纟斤
+
+## 120'.5
+
+// glyph han-31e96:15x16 15 16 // 𱺖
+// ⿰ han-7e9f han-5b81 // ⿰纟宁
+
+// glyph han-31e97:15x16 15 16 // 𱺗
+// ⿱ han-7ea2 han-4e01 // ⿱红丁
+
+glyph han-31e99:15x16 15 16 // 𱺙
+⿰ han-7e9f:5x16 han-5c3c-g:10x16 // ⿰纟尼
+
+## 120'.6
+
+// glyph han-31e9a:15x16 15 16 // 𱺚
+// ⿰ han-7e9f han-6263 // ⿰纟扣
+
+## 120'.7
+
+// glyph han-31e9c:15x16 15 16 // 𱺜
+// ⿰ han-7e9f han-6765 // ⿰纟来
+
+// glyph han-31e9d:15x16 15 16 // 𱺝
+// ⿰ han-7e9f han-8d64 // ⿰纟赤
+
+glyph han-31e9e:15x16 15 16 // 𱺞
+⿰ han-7e9f:5x16 han-544a:10x16 // ⿰纟告
+
+glyph han-31ea1:15x16 15 16 // 𱺡
+⿰ han-7e9f:5x16 1 han-826f:9x16 // ⿰纟良
+
+## 120'.9
+
+// glyph han-31ea6:15x16 15 16 // 𱺦
+// ⿰ han-7e9f han-5398 // ⿰纟厘
+
+// glyph han-31ea7:15x16 15 16 // 𱺧
+// ⿰ han-7e9f han-67ec // ⿰纟柬
+
+## 120'.12
+
+// glyph han-31eac:15x16 15 16 // 𱺬
+// ⿰ han-7e9f han-7b49 // ⿰纟等
+
+## 120'.13
+
+// glyph han-31ead:15x16 15 16 // 𱺭
+// ⿰ han-7e9f han-96f7 // ⿰纟雷
 
 # CJK unified ideographs extension H: 缶 (121)
 

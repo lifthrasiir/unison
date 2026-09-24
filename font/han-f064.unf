@@ -64,6 +64,9 @@ glyph han-2d82c:15x16 15 16 // 𭠬
 glyph han-2d82f:15x16 15 16 // 𭠯
 ⿲ han-624c:3x16 han-961d:4x16-r 1 han-5bf8:7x16 // ⿲扌阝寸
 
+// glyph han-2d832:15x16 15 16 // 𭠲
+// ⿰ han-624b han-7ea2 // ⿰手红
+
 ## 64.7
 
 // glyph han-2d833:15x16 15 16 // 𭠳
@@ -305,8 +308,8 @@ glyph han-2d950:15x16 15 16 // 𭥐
 
 ## 72.4
 
-// glyph han-2d953:15x16 15 16 // 𭥓
-// ⿰ han-65e5 han-4e91 // ⿰日云
+glyph han-2d953:15x16 15 16 // 𭥓
+⿰ han-65e5:5x16-l 1 han-4e91:9x16 // ⿰日云
 
 // glyph han-2d954:15x16 15 16 // 𭥔
 // ⿰ han-65e5 han-5929 // ⿰日天
@@ -536,8 +539,8 @@ glyph han-2da27:15x16 15 16 // 𭨧
 
 ## 74.4
 
-// glyph han-2da28:15x16 15 16 // 𭨨
-// ⿰ han-4e91 han-6708 // ⿰云月
+glyph han-2da28:15x16 15 16 // 𭨨
+⿰ han-4e91:9x16 han-6708:6x16 // ⿰云月
 
 glyph han-2da29:15x16 15 16 // 𭨩
 ⿰ han-6708:5x16-l 1 han-5f00:9x16 // ⿰月开

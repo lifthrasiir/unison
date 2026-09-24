@@ -466,6 +466,9 @@ glyph han-29a44-j:15x16 15 16 // 𩩄
 glyph han-29a45:15x16 15 16 // 𩩅
 ⿰ han-9aa8-g:7x16 1 han-540c:7x16 // ⿰骨同
 
+// glyph han-29a48-($han-regions):15x16 15 16 // 𩩈
+// ⿰ han-9aa8-($-1) han-4f1a // ⿰骨会
+
 ## 188.7
 
 // glyph han-29a4b:15x16 15 16 // 𩩋

@@ -1303,8 +1303,8 @@ glyph han-6617:15x16 15 16 // 昗
 glyph han-6618:15x16 15 16 // 昘
 ⿱ han-65e5:15x5 1 han-65b9:15x10 // ⿱日方
 
-// glyph han-6619:15x16 15 16 // 昙
-// ⿱ han-65e5 han-4e91 // ⿱日云
+glyph han-6619:15x16 15 16 // 昙
+⿱ han-65e5:15x7 1 han-4e91:15x8 // ⿱日云
 
 ## 72.5
 
@@ -1703,6 +1703,9 @@ glyph han-66a2:15x16 15 16 // 暢
 
 glyph han-66bd:15x16 15 16 // 暽
 ⿰ han-65e5:6x16 han-7ca6:9x16 // ⿰日粦
+
+// glyph han-66c7:15x16 15 16 // 曇
+// ⿱ han-65e5 han-96f2 // ⿱日雲
 
 // glyph han-66c8:15x16 15 16 // 曈
 // ⿰ han-65e5 han-7ae5 // ⿰日童

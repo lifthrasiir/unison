@@ -245,8 +245,8 @@ glyph han-5997.x:15x16 15 16 // 妗
 glyph han-5997-(h|t|j|k):* = han-5997.0:*
 glyph han-5997-(g|p):* = han-5997.x:*
 
-// glyph han-5998:15x16 15 16 // 妘
-// ⿰ han-5973 han-4e91 // ⿰女云
+glyph han-5998:15x16 15 16 // 妘
+⿰ han-5973:6x16-l han-4e91:9x16 // ⿰女云
 
 // glyph han-5999:15x16 15 16 // 妙
 // ⿰ han-5973 han-5c11 // ⿰女少
