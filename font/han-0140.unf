@@ -1050,7 +1050,12 @@ glyph han-8488-($han-regions):15x16 15 16 // 蒈
 // ⿳ han-8279 han-5982 han-624b // ⿳艹如手 <- ⿱艹挐
 
 glyph han-849c:15x16 15 16 // 蒜
-⿱ han-8279:15x3 1 han-7958:15x12 // ⿱艹祘
+⿱ han-8279:15x3 1 han-7958.0:15x12 // ⿱艹祘
+glyph han-849c.0:* = han-849c:*
+glyph han-849c.1:* = han-849c:*
+glyph han-849c.2:* = han-849c.0:* // not distinguished
+glyph han-849c.3:15x16 15 16 // 蒜
+⿱ han-8279:15x3 1 han-7958.2:15x12 // ⿱艹祘
 
 // glyph han-849e:15x16 15 16 // 蒞
 // ⿱ han-8279 han-6d96 // ⿱艹涖

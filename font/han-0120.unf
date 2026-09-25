@@ -463,7 +463,7 @@ glyph han-7d50.0:15x16 15 16 // 結
 ⿰ han-7cf9.z:5x16 1 han-5409:9x16 // ⿰糹吉
 glyph han-7d50.1:* = han-7d50.0:*
 glyph han-7d50.2:15x16 15 16 // 結
-⿰ han-7cf9.w:5x16 1 han-20bb7:9x16 // ⿰糹吉
+⿰ han-7cf9.w:5x16 1 han-20bb7:9x16 // ⿰糹𠮷
 glyph han-7d50.x:15x16 15 16 // 結
 ⿰ han-7cf9.x:5x16 1 han-5409:9x16 // ⿰糹吉
 glyph han-7d50.y:15x16 15 16 // 結
