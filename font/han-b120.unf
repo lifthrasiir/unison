@@ -256,7 +256,7 @@ glyph han-2602a:15x16 15 16 // 𦀪
 ⿲ han-7cf9-v:5x16 han-4ebb:3x16 1 han-767d:6x16 // ⿲糹亻白
 
 glyph han-2602c:15x16 15 16 // 𦀬
-⿰ han-7cf9.x:5x16 1 han-826f:9x16 // ⿰糹良
+⿰ han-7cf9.x:5x16 1 han-826f.0:9x16 // ⿰糹良
 
 // glyph han-2602d:15x16 15 16 // 𦀭
 // ⿰ han-7cf9 han-2c278 // ⿰糹𬉸
@@ -465,7 +465,7 @@ glyph han-2610f-j:15x16 15 16 // 𦄏
 // ⿰ han-7cf9 han-6389 // ⿰糹掉
 
 glyph han-2613a:15x16 15 16 // 𦄺
-⿲ -2 han-7cf9-v:5x16 han-826f:7x16 han-6708:5x16 // ⿲糹良月
+⿲ -2 han-7cf9-v:5x16 han-826f-v:7x16 han-6708:5x16 // ⿲糹良月
 
 ## 120.12
 

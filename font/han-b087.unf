@@ -348,9 +348,9 @@ glyph han-245bf-($han-regions):15x16 15 16 // 𤖿
 ## 91.7
 
 glyph han-245c0-(g|j):15x16 15 16 // 𤗀
-⿰ han-7247.0:8x16 han-826f:7x16 // ⿰片良
+⿰ han-7247.0:8x16 han-826f.0:7x16 // ⿰片良
 glyph han-245c0-t:15x16 15 16 // 𤗀
-⿰ han-7247.x:6x16 han-826f:9x16 // ⿰片良
+⿰ han-7247.x:6x16 han-826f.0:9x16 // ⿰片良
 
 // glyph han-245c1:15x16 15 16 // 𤗁
 // ⿰ han-7247 han-8db3 // ⿰片足

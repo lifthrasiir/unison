@@ -876,7 +876,7 @@ glyph han-30569:15x16 15 16 // 𰕩
 ⿰ han-65b9:7x16 1 han-8096.1:7x16 // ⿰方肖
 
 glyph han-3056b:15x16 15 16 // 𰕫
-⿰ han-65b9:7x16 1 han-826f:7x16 // ⿰方良
+⿰ han-65b9:7x16 1 han-826f-g:7x16 // ⿰方良
 
 # CJK unified ideographs extension G: 日 (72)
 
@@ -966,7 +966,7 @@ glyph han-3059b:15x16 15 16 // 𰖛
 ⿰ han-65e5:5x16 1 han-99ac:9x16 // ⿰日馬
 
 glyph han-3059f:15x16 15 16 // 𰖟
-⿲ han-65e5:4x16-l han-6c35:3x16 1 han-826f:7x16 // ⿲日氵良
+⿲ han-65e5:4x16-l han-6c35:3x16 1 han-826f-g:7x16 // ⿲日氵良
 
 ## 72.11
 

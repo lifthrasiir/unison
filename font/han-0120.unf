@@ -1648,7 +1648,8 @@ glyph han-7fa7:15x16 15 16 // 羧
 ⿰ han-7f8a:7x16 1 han-590b:7x16 // ⿰羊夋
 
 glyph han-7faa:15x16 15 16 // 羪
-⿰ han-7f8a:7x16 1 han-826f:7x16 // ⿰羊良
+⿰ han-7f8a:7x16 1 han-826f.0:7x16 // ⿰羊良
+glyph han-7faa.0:* = han-7faa:*
 
 ## 123.8
 
@@ -1657,14 +1658,14 @@ glyph han-7faa:15x16 15 16 // 羪
 
 ## 123.9
 
-glyph han-7fad.0:15x16 15 16 // 羭 ⿰羊俞(GHT) ⿰羊兪(JK) ⿰羊⿱⿵入一⿰⺝刂(P)
+glyph han-7fad.0:15x16 15 16 // 羭
 assume ⿰ han-7f8a:7x16 -1 han-4fde.y:9x16 // ⿰羊俞
 glyph han-7fad.1:* = han-7fad.0:*
-glyph han-7fad.2:15x16 15 16 // 羭 ⿰羊俞(GHT) ⿰羊兪(JK) ⿰羊⿱⿵入一⿰⺝刂(P)
+glyph han-7fad.2:15x16 15 16 // 羭
 assume ⿰ han-7f8a:7x16 -1 han-4fde.x:9x16 // ⿰羊俞
-glyph han-7fad.x:15x16 15 16 // 羭 ⿰羊俞(GHT) ⿰羊兪(JK) ⿰羊⿱⿵入一⿰⺝刂(P)
+glyph han-7fad.x:15x16 15 16 // 羭
 assume ⿰ han-7f8a:7x16 -1 han-4fde.0:9x16 // ⿰羊俞
-glyph han-7fad.y:15x16 15 16 // 羭 ⿰羊俞(GHT) ⿰羊兪(JK) ⿰羊⿱⿵入一⿰⺝刂(P)
+glyph han-7fad.y:15x16 15 16 // 羭
 assume ⿰ han-7f8a:7x16 -1 han-4fde.2:9x16 // ⿰羊俞
 glyph han-7fad-(j|k):* = han-7fad.0:*
 glyph han-7fad-(g|h|t):* = han-7fad.x:*

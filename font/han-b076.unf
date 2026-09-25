@@ -126,7 +126,7 @@ glyph han-238d2:15x16 15 16 // 𣣒
 // ⿱ han-6b20 han-23890 // ⿱欠𣢐
 
 glyph han-238d8:15x16 15 16 // 𣣘
-⿰ han-660c:10x16 han-6b20:5x16 // ⿰昌欠
+⿰ han-660c-t:10x16 han-6b20:5x16 // ⿰昌欠
 
 // glyph han-238da:15x16 15 16 // 𣣚
 // ⿰ han-5944 han-6b20 // ⿰奄欠

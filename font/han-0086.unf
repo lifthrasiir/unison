@@ -623,7 +623,8 @@ glyph han-70f7:15x16 15 16 // 烷
 ⿰ han-706b:5x16-l 1 han-5b8c:9x16 // ⿰火完
 
 glyph han-70fa:15x16 15 16 // 烺
-⿰ han-706b:7x16 1 han-826f:7x16 // ⿰火良
+⿰ han-706b:7x16 1 han-826f.0:7x16 // ⿰火良
+glyph han-70fa.0:* = han-70fa:*
 
 glyph han-70fe:15x16 15 16 // 烾
 ⿳ han-706b:15x6 han-706b:15x6 han-571f:15x4 // ⿳火火土
@@ -721,8 +722,8 @@ glyph han-7137:15x16 15 16 // 焷
 glyph han-7138:15x16 15 16 // 焸
 ⿱ han-660d:15x10 han-706b:15x6 // ⿱昍火
 
-glyph han-713b:15x16 15 16 // 焻
-⿰ han-706b:5x16-l 1 han-660c:9x16 // ⿰火昌
+glyph han-713b-($han-regions):15x16 15 16 // 焻
+⿰ han-706b:5x16-l 1 han-660c-($-1):9x16 // ⿰火昌
 
 glyph han-713d:15x16 15 16 // 焽
 ⿱ han-660e:15x10 han-706b:15x6 // ⿱明火

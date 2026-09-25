@@ -195,8 +195,8 @@ glyph han-313bc:15x16 15 16 // 𱎼
 
 ## 9.10
 
-glyph han-313c3:15x16 15 16 // 𱏃
-⿲ han-4ebb:3x16 han-826f:7x16 han-6708:5x16 // ⿲亻良月
+glyph han-313c3-($han-regions):15x16 15 16 // 𱏃
+⿲ han-4ebb:3x16 han-826f-($-1):7x16 han-6708:5x16 // ⿲亻良月
 
 ## 9.11
 

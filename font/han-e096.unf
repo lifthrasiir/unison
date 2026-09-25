@@ -188,7 +188,7 @@ glyph han-2c3c9:15x16 15 16 // 𬏉
 ⿰ han-7530:5x16-l 1 han-5b8c:9x16 // ⿰田完
 
 glyph han-2c3ca:15x16 15 16 // 𬏊
-⿰ han-7530:7x16-l 1 han-826f:7x16 // ⿰田良
+⿰ han-7530:7x16-l 1 han-826f.0:7x16 // ⿰田良
 
 ## 102.10
 
@@ -948,7 +948,7 @@ glyph han-2c5df:15x16 15 16 // 𬗟
 ⿰ han-7cf9.x:5x16 2 han-9763:7x16 // ⿰糹靣
 
 glyph han-2c5e1:15x16 15 16 // 𬗡
-⿰ han-7cf9-t:5x16 1 han-660c:9x16 // ⿰糹昌
+⿰ han-7cf9-t:5x16 1 han-660c-t:9x16 // ⿰糹昌
 
 glyph han-2c5e5:15x16 15 16 // 𬗥
 ⿲ han-7cf9-v:5x16 han-5fc4:5x16 han-65e6:5x16 // ⿲糹忄旦

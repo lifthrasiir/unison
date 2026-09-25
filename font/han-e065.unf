@@ -254,7 +254,7 @@ glyph han-2c0c2:15x16 15 16 // 𬃂
 // ⿰ han-6728 han-820d // ⿰木舍
 
 glyph han-2c0cc:15x16 15 16 // 𬃌
-⿲ -2 han-6728:5x16 han-826f:7x16 han-529b:5x16 // ⿲木良力
+⿲ -2 han-6728:5x16 han-826f-t:7x16 han-529b:5x16 // ⿲木良力
 
 glyph han-2c0cd:15x16 15 16 // 𬃍
 ⿲ han-6728:5x16 han-6c35:3x16 1 han-767d:6x16 // ⿲木氵白

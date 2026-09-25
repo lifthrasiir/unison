@@ -117,8 +117,8 @@ glyph han-6986-p:* = han-6986.2:*
 // glyph han-6988:15x16 15 16 // 榈
 // ⿰ han-6728 han-95fe // ⿰木闾
 
-glyph han-6994:15x16 15 16 // 榔 ⿰木郎(GHTV) ⿰木郞(JKP)
-⿲ -1 han-6728:5x16 han-826f:7x16 han-961d:4x16-r // ⿲木良阝
+glyph han-6994-($han-regions):15x16 15 16 // 榔 ⿰木郎(GHTV) ⿰木郞(JKP)
+⿲ -1 han-6728:5x16 han-826f-($-1):7x16 han-961d:4x16-r // ⿲木良阝
 
 ## 75.10
 
@@ -207,7 +207,7 @@ glyph han-69fb:15x16 15 16 // 槻
 // ⿱ han-898f han-6728 // ⿱規木
 
 glyph han-6a03:15x16 15 16 // 樃 ⿰木朗(GHKP) ⿰木⿰良月(TJ)
-⿲ -2 han-6728:5x16 han-826f:7x16 han-6708:5x16 // ⿲木良月
+⿲ -2 han-6728:5x16 han-826f.0:7x16 han-6708:5x16 // ⿲木良月
 
 // glyph han-6a08:15x16 15 16 // 樈
 // ⿰ han-6728 han-7adf // ⿰木竟

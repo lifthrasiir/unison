@@ -1260,7 +1260,7 @@ glyph han-45be:15x16 15 16 // 䖾
 // ⿰ han-866b han-76f2-($-1) // ⿰虫盲
 
 glyph han-45c9:15x16 15 16 // 䗉
-⿰ han-866b:5x16 1 han-660c:9x16 // ⿰虫昌
+⿰ han-866b:5x16 1 han-660c.0:9x16 // ⿰虫昌
 
 glyph han-45ca:15x16 15 16 // 䗊
 ⿰ han-866b:7x16 1 han-708e:7x16 // ⿰虫炎

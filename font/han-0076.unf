@@ -92,6 +92,7 @@ glyph han-6b21:15x16 15 16 // 次 ⿰冫欠(GHJKPV) ⿰二欠(T)
 
 glyph han-6b23:15x16 15 16 // 欣
 ⿰ han-65a4:7x16 1 han-6b20:7x16 // ⿰斤欠
+glyph han-6b23.0:* = han-6b23:*
 
 glyph han-6b25:15x16 15 16 // 欥
 ⿰ han-65e5:7x16 1 han-6b20:7x16 // ⿰日欠
@@ -105,6 +106,7 @@ glyph han-6b26-(g|p):15x16 15 16 // 欦
 
 glyph han-6b28:15x16 15 16 // 欨
 ⿰ han-53e5:7x16 1 han-6b20:7x16 // ⿰句欠
+glyph han-6b28.0:* = han-6b28:*
 
 glyph han-6b29:15x16 15 16 // 欩
 ⿰ han-53ec:6x16 han-6b20:9x16 // ⿰召欠
@@ -119,6 +121,7 @@ glyph han-6b2a:15x16 15 16 // 欪
 
 glyph han-6b2f:15x16 15 16 // 欯
 ⿰ han-5409:7x16 1 han-6b20:7x16 // ⿰吉欠
+glyph han-6b2f.0:* = han-6b2f:*
 
 glyph han-6b30:15x16 15 16 // 欰
 ⿰ han-8840:9x16 1 han-6b20:5x16 // ⿰血欠
@@ -129,10 +132,11 @@ glyph han-6b31:15x16 15 16 // 欱
 ## 76.7
 
 glyph han-6b34:15x16 15 16 // 欴 ⿰{17}欠(GHTP) ⿰良欠(K)
-⿰ han-826f:7x16 1 han-6b20:7x16 // ⿰良欠
+⿰ han-826f.0:7x16 1 han-6b20:7x16 // ⿰良欠
 
 glyph han-6b36:15x16 15 16 // 欶
 ⿰ han-675f:7x16 1 han-6b20:7x16 // ⿰束欠
+glyph han-6b36.0:* = han-6b36:*
 
 ## 76.8
 
@@ -141,12 +145,15 @@ glyph han-6b36:15x16 15 16 // 欶
 
 glyph han-6b3a:15x16 15 16 // 欺
 ⿰ han-5176:8x16 han-6b20:7x16 // ⿰其欠
+glyph han-6b3a.0:* = han-6b3a:*
 
 glyph han-6b3b:15x16 15 16 // 欻
 ⿰ han-708e:7x16 1 han-6b20:7x16 // ⿰炎欠
+glyph han-6b3b.0:* = han-6b3b:*
 
 glyph han-6b3d:15x16 15 16 // 欽
 ⿰ han-91d2:7x16 1 han-6b20:7x16 // ⿰釒欠
+glyph han-6b3d.0:* = han-6b3d:*
 
 ## 76.9
 
@@ -166,9 +173,9 @@ glyph han-6b46.2:15x16 15 16 // 歆
 glyph han-6b47:15x16 15 16 // 歇
 ⿰ han-66f7:8x16 han-6b20:7x16 // ⿰曷欠
 
-glyph han-6b48-(g|h|t):15x16 15 16 // 歈 ⿰俞欠(GHT) ⿰兪欠(KP)
+glyph han-6b48-(g|h|t):15x16 15 16 // 歈
 ⿰ han-4fde.0:7x16 1 han-6b20:7x16 // ⿰俞欠
-glyph han-6b48-(j|k|p):15x16 15 16 // 歈 ⿰俞欠(GHT) ⿰兪欠(KP)
+glyph han-6b48-(j|k|p):15x16 15 16 // 歈
 ⿰ han-4fde.y:7x16 1 han-6b20:7x16 // ⿰俞欠
 
 ## 76.10
@@ -179,6 +186,7 @@ glyph han-6b4a.0:* = han-6b4a:*
 
 glyph han-6b4c:15x16 15 16 // 歌
 ⿰ han-54e5:7x16 1 han-6b20:7x16 // ⿰哥欠
+glyph han-6b4c.0:* = han-6b4c:*
 
 ## 76.11
 
@@ -864,11 +872,13 @@ glyph han-6b68:15x16 15 16 // 歨
 
 glyph han-6b6a:15x16 15 16 // 歪
 ⿱ han-4e0d:15x8 han-6b63:15x8 // ⿱不正
+glyph han-6b6a.0:* = han-6b6a:*
 
 glyph han-6b6b-(g|k|p):15x16 15 16 // 歫
 ⿰ han-6b62:6x16-l han-5de8.0:9x16 // ⿰止巨
 glyph han-6b6b-(t|j):15x16 15 16 // 歫
 ⿰ han-6b62:6x16-l han-5de8.1:9x16 // ⿰止巨
+glyph han-6b6b.0:* = han-6b6b-j:*
 
 ## 77.6
 
@@ -884,6 +894,7 @@ glyph han-6b6e:11x16 11 16 // 歮
 ⿱ han-6b62:11x8 han-23956:11x8 // ⿱止𣥖
 glyph han-6b6e:15x16 15 16 // 歮
 ⿱ han-6b62:15x8 han-23956:15x8 // ⿱止𣥖
+glyph han-6b6e.0:* = han-6b6e:*
 
 ## 77.9
 
@@ -957,9 +968,9 @@ glyph han-6bd4.0:15x12 15 12 // 比
 ⿰ han-5315:7x12-l 1 han-5315.0:7x12 // ⿰匕匕
 glyph han-6bd4.x:15x12 15 12 // 比
 ⿰ han-5315:7x12-l 1 han-5315.x:7x12 // ⿰匕匕
-glyph han-6bd4.0:15x16 15 16 // 比 ⿰⿺乚一匕(GJKP) ⿰⿺乚一⿺乚一(H) ⿰匕匕(T) ⿰⿺乚一⿺乚㇒(V)
+glyph han-6bd4.0:15x16 15 16 // 比
 ⿰ han-5315.x:7x16-l 1 han-5315.0:7x16 // ⿰匕匕
-glyph han-6bd4.x:15x16 15 16 // 比 ⿰⿺乚一匕(GJKP) ⿰⿺乚一⿺乚一(H) ⿰匕匕(T) ⿰⿺乚一⿺乚㇒(V)
+glyph han-6bd4.x:15x16 15 16 // 比
 ⿰ han-5315.x:7x16-l 1 han-5315.x:7x16 // ⿰匕匕
 glyph han-6bd4-(g|j|k|p|v):* = han-6bd4.0:*
 glyph han-6bd4-(h|t):* = han-6bd4.x:*
@@ -976,9 +987,11 @@ glyph han-6bd5:15x16 15 16 // 毕
 
 glyph han-6bd7-($han-regions):15x16 15 16 // 毗
 ⿰ han-7530:5x16-l 1 han-6bd4-($-1):9x16 // ⿰田比
+glyph han-6bd7.0:* = han-6bd7-j:*
 
 glyph han-6bd8-($han-regions):15x16 15 16 // 毘
 ⿱ han-7530:15x9 han-6bd4-($-1):15x7 // ⿱田比
+glyph han-6bd8.0:* = han-6bd8-j:*
 
 # CJK unified ideographs: 毛 (82)
 
@@ -1201,6 +1214,7 @@ $$..........................$$
 ref 9x2-ys1 3 1
 ref 11x2-ys1 2 5
 ref 13x2-ys1 1 9
+glyph han-6bdb.0:* = han-6bdb:*
 
 ## 82.3
 
@@ -1225,6 +1239,7 @@ glyph han-6be0:15x16 15 16 // 毠
 
 glyph han-6be1:15x16 15 16 // 毡
 ⿺ han-6bdb:15x16.10x14 han-5360:9x13 6 0 // ⿺毛占
+glyph han-6be1.0:* = han-6be1:*
 
 ## 82.6
 
@@ -1233,9 +1248,11 @@ glyph han-6be1:15x16 15 16 // 毡
 
 glyph han-6be3-($han-regions):15x16 15 16 // 毣
 ⿱ han-7fbd-($-1):15x8 han-6bdb:15x8 // ⿱羽毛
+glyph han-6be3.0:* = han-6be3-j:*
 
 glyph han-6be6:15x16 15 16 // 毦
 ⿰ han-8033:6x16-l han-6bdb:9x16 // ⿰耳毛
+glyph han-6be6.0:* = han-6be6:*
 
 // glyph han-6be9:15x16 15 16 // 毩
 // ⿺ han-6bdb han-7c73 // ⿺毛米
@@ -1249,6 +1266,7 @@ glyph han-6be6:15x16 15 16 // 毦
 
 glyph han-6bef:15x16 15 16 // 毯
 ⿺ han-6bdb:15x16.10x14 han-708e:9x12 6 1 // ⿺毛炎
+glyph han-6bef.0:* = han-6bef:*
 
 // glyph han-6bf0:15x16 15 16 // 毰
 // ⿺ han-6bdb han-5485 // ⿺毛咅
@@ -1468,7 +1486,7 @@ $$@@../h....`vV\/vv'
 $$@@~HH_`vV\..\Vv/$$
 ~HH_h/....\Vv.`Vv'$$
 ref 2x4-xz1 5 8
-glyph han-6c10.0:15x16 15 16 // 氐 ⿱氏丶(G[V][B]) ⿱氏一(HTJKP[S])
+glyph han-6c10.0:15x16 15 16 // 氐
 $$..........................$$
 $$............@@............$$
 $$@@..........@@............$$
@@ -1487,7 +1505,7 @@ $$.....................\9@0d@P
 @@@@@@@@@@@@@@@@@@@@.....\1v/.
 ref 11x3-ys2 1 0
 glyph han-6c10.1:* = han-6c10.0:*
-glyph han-6c10.2:15x16 15 16 // 氐 ⿱氏丶(G[V][B]) ⿱氏一(HTJKP[S])
+glyph han-6c10.2:15x16 15 16 // 氐
 ..............................
 ..............................
 ....................@b\.......
@@ -1505,7 +1523,7 @@ glyph han-6c10.2:15x16 15 16 // 氐 ⿱氏丶(G[V][B]) ⿱氏一(HTJKP[S])
 ..............................
 ..............................
 ref han-6c10.0:15x16
-glyph han-6c10.x:15x16 15 16 // 氐 ⿱氏丶(G[V][B]) ⿱氏一(HTJKP[S])
+glyph han-6c10.x:15x16 15 16 // 氐
 ..............................
 ..............................
 ..............................

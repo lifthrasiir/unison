@@ -292,7 +292,7 @@ glyph han-254c5:15x16 15 16 // 𥓅
 // ⿰ han-77f3 han-6b68 // ⿰石歨
 
 glyph han-254e5:15x16 15 16 // 𥓥
-⿰ han-77f3:5x16 1 han-660c:9x16 // ⿰石昌
+⿰ han-77f3:5x16 1 han-660c-t:9x16 // ⿰石昌
 
 // glyph han-254e8:15x16 15 16 // 𥓨
 // ⿳ han-77f3 han-5f00 han-624b // ⿳石开手

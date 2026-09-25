@@ -498,7 +498,7 @@ glyph han-220cd:15x16 15 16 // 𢃍
 // ⿰ han-5dfe han-7a7a // ⿰巾空
 
 glyph han-220d1:15x16 15 16 // 𢃑
-⿰ han-5dfe:5x16 1 han-660c:9x16 // ⿰巾昌
+⿰ han-5dfe:5x16 1 han-660c.0:9x16 // ⿰巾昌
 
 glyph han-220d2:15x16 15 16 // 𢃒
 ⿰ han-5dfe:7x16 1 han-5352:7x16 // ⿰巾卒

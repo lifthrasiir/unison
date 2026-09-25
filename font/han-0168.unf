@@ -336,8 +336,9 @@ glyph han-95b3:15x16 15 16 // 閳
 // glyph han-95b5:15x16 15 16 // 閵
 // ⿵ han-9580 han-96b9 // ⿵門隹
 
-glyph han-95b6:15x16 15 16 // 閶
-⿵ han-9580:15x16.13x11 han-660c:11x10 2 6 // ⿵門昌
+glyph han-95b6-($han-regions):15x16 15 16 // 閶
+⿵ han-9580:15x16.13x11 han-660c-($-1):11x10 2 6 // ⿵門昌
+glyph han-95b6.0:* = han-95b6-j:*
 
 glyph han-95b8:15x16 15 16 // 閸
 ⿵ han-9580:15x16.13x11 han-4e9e:9x10 3 6 // ⿵門亞
@@ -602,7 +603,7 @@ glyph han-9603:15x16 15 16 // 阃
 
 glyph han-960a:15x16 15 16 // 阊
 ref han-95e8:15x16.11x15 // ⿵门昌
-ref han-660c:11x11 2 3
+ref han-660c.0:11x11 2 3
 
 ## 169'.9
 

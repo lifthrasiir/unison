@@ -216,7 +216,7 @@ glyph han-27d94:15x16 15 16 // 𧶔
 // ⿱ han-7676 han-2be33 // ⿱癶𫸳
 
 glyph han-27da7:15x16 15 16 // 𧶧
-⿰ han-8c9d:5x16 1 han-660c:9x16 // ⿰貝昌
+⿰ han-8c9d:5x16 1 han-660c.0:9x16 // ⿰貝昌
 
 // glyph han-27da8:15x16 15 16 // 𧶨
 // ⿰ han-8c9d han-2dd0b // ⿰貝𭴋

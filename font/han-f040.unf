@@ -565,7 +565,7 @@ glyph han-2d640:15x16 15 16 // 𭙀
 // ⿰ han-5e74 han-6bd4 // ⿰年比 -- no-inline
 
 glyph han-2d643:15x16 15 16 // 𭙃
-⿰ han-5e72:7x16 1 han-826f:7x16 // ⿰干良
+assume ⿰ han-5e72:7x16 -1 han-826f-g:9x16 // ⿰干良
 
 ## 51.11
 

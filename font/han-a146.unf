@@ -730,7 +730,7 @@ glyph han-4854:15x16 15 16 // 䡔
 ## 159.7
 
 glyph han-4859:15x16 15 16 // 䡙
-⿰ han-8eca:7x16 1 han-826f:7x16 // ⿰車良
+⿰ han-8eca:7x16 1 han-826f.0:7x16 // ⿰車良
 
 // glyph han-485a:15x16 15 16 // 䡚
 // ⿰ han-8eca han-7683 // ⿰車皃

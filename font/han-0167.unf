@@ -675,7 +675,7 @@ glyph han-92c1-(h|t|j|k|p):* = han-92c1.0:*
 glyph han-92c1-g:* = han-92c1.x:*
 
 glyph han-92c3:15x16 15 16 // 鋃
-⿰ han-91d2:7x16 1 han-826f:7x16 // ⿰釒良
+⿰ han-91d2:7x16 1 han-826f.0:7x16 // ⿰釒良
 glyph han-92c3.0:* = han-92c3:*
 
 glyph han-92c5:15x16 15 16 // 鋅
@@ -789,10 +789,17 @@ glyph han-9301:15x16 15 16 // 錁
 // glyph han-9303:15x16 15 16 // 錃
 // ⿱ han-6ce2 han-91d1 // ⿱波金
 
-glyph han-9306-(g|h|t|v):15x16 15 16 // 錆 ⿰釒青(GHTV) ⿰釒靑(JKP)
-⿰ han-91d2:7x16 1 han-9752-($-1):7x16 // ⿰釒青
-glyph han-9306-(j|k|p):15x16 15 16 // 錆 ⿰釒青(GHTV) ⿰釒靑(JKP)
-⿰ han-91d2:7x16 1 han-9751-($-1):7x16 // ⿰釒靑
+glyph han-9306.0:15x16 15 16 // 錆
+⿰ han-91d2:7x16 1 han-9752.0:7x16 // ⿰釒青
+glyph han-9306.1:15x16 15 16 // 錆
+⿰ han-91d2:7x16 1 han-9751.0:7x16 // ⿰釒靑
+glyph han-9306.2:* = han-9306.0:*
+glyph han-9306.3:* = han-9306.1:*
+glyph han-9306.x:15x16 15 16 // 錆
+⿰ han-91d2:7x16 1 han-9752.x:7x16 // ⿰釒青
+glyph han-9306-(g|h|v):* = han-9306.0:*
+glyph han-9306-(j|k|p):* = han-9306.1:*
+glyph han-9306-t:* = han-9306.x:*
 
 glyph han-9307:15x16 15 16 // 錇
 ⿰ han-91d2:5x16-l 1 han-5485:9x16 // ⿰釒咅
@@ -802,6 +809,8 @@ glyph han-930a:15x16 15 16 // 錊
 
 glyph han-930b:15x16 15 16 // 錋
 ⿲ han-91d2:5x16-l han-6708:5x16 han-6708:5x16 // ⿲釒月月
+glyph han-930b.0:* = han-930b:* // not distinguished
+glyph han-930b.1:* = han-930b:*
 
 glyph han-930d:15x16 15 16 // 錍 ⿰釒卑(GHTKP) ⿰釒⿱⿱㇒⿻日丿十(J)
 ⿰ han-91d2:7x16 han-5351.0:8x16 // ⿰釒卑
@@ -809,9 +818,11 @@ glyph han-930d.0:* = han-930d:*
 
 glyph han-930f:15x16 15 16 // 錏
 ⿰ han-91d2:5x16-l han-4e9e:10x16 // ⿰釒亞
+glyph han-930f.0:* = han-930f:*
 
 glyph han-9310:15x16 15 16 // 錐
 ⿰ han-91d2:5x16-l 1 han-96b9:9x16 // ⿰釒隹
+glyph han-9310.0:* = han-9310:*
 
 glyph han-9312:15x16 15 16 // 錒
 ⿲ han-91d2:5x16-l han-961d:4x16-r han-53ef:6x16 // ⿲釒阝可
@@ -827,15 +838,18 @@ glyph han-9312:15x16 15 16 // 錒
 
 glyph han-931f:15x16 15 16 // 錟
 ⿰ han-91d2:7x16 1 han-708e:7x16 // ⿰釒炎
+glyph han-931f.0:* = han-931f:*
 
 // glyph han-9321:15x16 15 16 // 錡
 // ⿰ han-91d2 han-5947 // ⿰釒奇
 
 glyph han-9324:15x16 15 16 // 錤
 ⿰ han-91d2:7x16 han-5176:8x16 // ⿰釒其
+glyph han-9324.0:* = han-9324:*
 
-glyph han-9329:15x16 15 16 // 錩
-⿰ han-91d2:5x16-l 1 han-660c:9x16 // ⿰釒昌
+glyph han-9329-($han-regions):15x16 15 16 // 錩
+⿰ han-91d2:5x16-l 1 han-660c-($-1):9x16 // ⿰釒昌
+glyph han-9329.0:* = han-9329-j:*
 
 // glyph han-932c:15x16 15 16 // 錬
 // ⿰ han-91d2 han-6771 // ⿰釒東
@@ -847,6 +861,7 @@ glyph han-932d-(h|j):15x16 15 16 // 錭
 
 glyph han-932e:15x16 15 16 // 錮
 ⿰ han-91d2:5x16-l 1 han-56fa:9x16 // ⿰釒固
+glyph han-932e.0:* = han-932e:*
 
 // glyph han-9330:15x16 15 16 // 錰
 // ⿰ han-91d2 han-6770 // ⿰釒杰
@@ -993,8 +1008,10 @@ glyph han-93ac.1:* = han-93ac:*
 glyph han-93ac.2:15x16 15 16 // 鎬
 ⿰ han-91d2:5x16-l 1 han-9ad9:9x16 // ⿰釒髙
 
-glyph han-93af:15x16 15 16 // 鎯 ⿰釒郎(GHTP) ⿰釒郞(K)
-⿲ -1 han-91d2:5x16-l han-826f:7x16 han-961d:4x16-r // ⿲釒良阝
+glyph han-93af:15x16 15 16 // 鎯
+⿲ -1 han-91d2:5x16-l han-826f.0:7x16 han-961d:4x16-r // ⿲釒良阝
+glyph han-93af.0:* = han-93af:*
+glyph han-93af.1:* = han-93af:* // not distinguished
 
 glyph han-93b6:15x16 15 16 // 鎶
 ⿰ han-91d2:7x16 1 han-54e5:7x16 // ⿰釒哥
@@ -1003,10 +1020,15 @@ glyph han-93b6.0:* = han-93b6:*
 glyph han-93b7:15x16 15 16 // 鎷
 ⿰ han-91d2:5x16-l 1 han-99ac:9x16 // ⿰釒馬
 
-glyph han-93ba:15x16 15 16 // 鎺
+glyph han-93ba.0:15x16 15 16 // 鎺
+assume ⿲ han-91d2:5x16-l han-793a:5x16 -1 han-4e14:6x16 // ⿲釒示且
+glyph han-93ba.1:* = han-93ba.0:*
+glyph han-93ba.2:15x16 15 16 // 鎺
 assume ⿲ han-91d2:5x16-l han-793b:5x16 -1 han-4e14:6x16 // ⿲釒礻且
+glyph han-93ba-j:* = han-93ba.0:*
+glyph han-93ba-g:* = han-93ba.2:*
 
-glyph han-93be:15x16 15 16 // 鎾 ⿰釒昷(GT) ⿰釒𥁕(Z)
+glyph han-93be:15x16 15 16 // 鎾
 ⿰ han-91d2:5x16-l 1 han-6637:9x16 // ⿰釒昷
 
 // glyph han-9fb2:15x16 15 16 // 龲
@@ -1022,6 +1044,7 @@ glyph han-93be:15x16 15 16 // 鎾 ⿰釒昷(GT) ⿰釒𥁕(Z)
 
 glyph han-93c9:15x16 15 16 // 鏉
 ⿲ -2 han-91d2:5x16-l han-675f:7x16 han-6b20:5x16 // ⿲釒束欠
+glyph han-93c9.0:* = han-93c9:*
 
 // glyph han-93cc:15x16 15 16 // 鏌
 // ⿰ han-91d2 han-83ab // ⿰釒莫
@@ -1037,6 +1060,7 @@ glyph han-93d0:15x16 15 16 // 鏐
 
 glyph han-93e2:15x16 15 16 // 鏢
 ⿰ han-91d2:7x16 1 han-7968:7x16 // ⿰釒票
+glyph han-93e2.0:* = han-93e2:*
 
 // glyph han-93e8:15x16 15 16 // 鏨
 // ⿱ han-65ac han-91d1 // ⿱斬金
@@ -1053,10 +1077,10 @@ glyph han-93e9:15x16 15 16 // 鏩
 // glyph han-93f1:15x16 15 16 // 鏱
 // ⿰ han-91d2 han-7ae0 // ⿰釒章
 
-glyph han-93f9.0:15x16 15 16 // 鏹 ⿰釒强(GKP) ⿰釒強(HTJ)
+glyph han-93f9.0:15x16 15 16 // 鏹
 ⿲ han-91d2:5x16-l han-5f13:5x16 han-27227:5x16 // ⿲釒弓𧈧
 glyph han-93f9.1:* = han-93f9.0:*
-glyph han-93f9.2:15x16 15 16 // 鏹 ⿰釒强(GKP) ⿰釒強(HTJ)
+glyph han-93f9.2:15x16 15 16 // 鏹
 ⿲ han-91d2:5x16-l han-5f13:4x16 1 han-867d:5x16 // ⿲釒弓虽
 glyph han-93f9-(h|t|j):* = han-93f9.0:*
 glyph han-93f9-(g|k|p):* = han-93f9.2:*
@@ -1068,15 +1092,19 @@ glyph han-93fb:15x16 15 16 // 鏻
 
 glyph han-9401:15x16 15 16 // 鐁
 ⿲ -2 han-91d2:5x16-l han-5176:6x16 han-65a4:6x16 // ⿲釒其斤
+glyph han-9401.0:* = han-9401:*
 
 glyph han-9403:15x16 15 16 // 鐃
 ⿰ han-91d2:7x16 1 han-582f:7x16 // ⿰釒堯
+glyph han-9403.0:* = han-9403:*
 
 glyph han-9407:15x16 15 16 // 鐇
 ⿰ han-91d2:7x16 1 han-756a:7x16 // ⿰釒番
+glyph han-9407.0:* = han-9407:*
 
 glyph han-9408:15x16 15 16 // 鐈
 ⿰ han-91d2:5x16-l 1 han-55ac:9x16 // ⿰釒喬
+glyph han-9408.0:* = han-9408:*
 
 glyph han-940a:15x16 15 16 // 鐊
 ⿲ -1 han-91d2:5x16-l han-961d:4x16-r han-661c:7x16 // ⿲釒阝昜
@@ -1139,6 +1167,7 @@ glyph han-9450:15x16 15 16 // 鑐
 
 glyph han-9472:15x16 15 16 // 鑲
 ⿰ han-91d2:5x16-l 1 han-8944:9x16 // ⿰釒襄
+glyph han-9472.0:* = han-9472:*
 
 ## 167.18
 
@@ -1452,7 +1481,7 @@ glyph han-950c:15x16 15 16 // 锌
 // ⿰ han-9485 han-95f4 // ⿰钅间
 
 glyph han-9512:15x16 15 16 // 锒
-⿰ han-9485:6x16 han-826f:9x16 // ⿰钅良
+⿰ han-9485:6x16 han-826f.0:9x16 // ⿰钅良
 
 glyph han-9515:15x16 15 16 // 锕
 ⿲ han-9485:5x16 han-961d:4x16-r han-53ef:6x16 // ⿲钅阝可
@@ -1481,7 +1510,7 @@ glyph han-951e:15x16 15 16 // 锞
 // ⿰ han-9485 han-6606 // ⿰钅昆
 
 glyph han-9520:15x16 15 16 // 锠
-⿰ han-9485:6x16 han-660c:9x16 // ⿰钅昌
+⿰ han-9485:6x16 han-660c.0:9x16 // ⿰钅昌
 
 glyph han-9522:15x16 15 16 // 锢
 ⿰ han-9485:6x16 han-56fa:9x16 // ⿰钅固

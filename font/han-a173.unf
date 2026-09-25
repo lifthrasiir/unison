@@ -801,7 +801,7 @@ glyph han-4bd3-($han-regions):15x16 15 16 // 䯓
 ## 188.7
 
 glyph han-4bd6-($han-regions):15x16 15 16 // 䯖
-⿰ han-9aa8-($-1):7x16 1 han-826f:7x16 // ⿰骨良
+⿰ han-9aa8-($-1):7x16 1 han-826f.0:7x16 // ⿰骨良
 
 // glyph han-4bd7:15x16 15 16 // 䯗
 // ⿰ han-9aa8 han-5752 // ⿰骨坒
@@ -968,7 +968,7 @@ glyph han-4c66:15x16 15 16 // 䱦
 ## 195.10
 
 glyph han-4c76:15x16 15 16 // 䱶 ⿰魚郎(G) ⿰魚郞(TJK)
-⿲ -3 han-9b5a:7x16 han-826f:7x16 han-961d:4x16-r // ⿲魚良阝
+⿲ -3 han-9b5a:7x16 han-826f.0:7x16 han-961d:4x16-r // ⿲魚良阝
 
 glyph han-4c7b-($han-regions):15x16 15 16 // 䱻
 ⿰ han-9b5a:7x16 1 han-9aa8-($-1):7x16 // ⿰魚骨

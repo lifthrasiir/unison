@@ -663,8 +663,8 @@ glyph han-2437e:15x16 15 16 // 𤍾
 // glyph han-2439a:15x16 15 16 // 𤎚
 // ⿳ han-5c71 han-706b han-7085 // ⿳山火炅
 
-glyph han-2439c:15x16 15 16 // 𤎜
-⿲ -2 han-706b:5x16 han-826f:7x16 han-6708:5x16 // ⿲火良月
+glyph han-2439c-($han-regions):15x16 15 16 // 𤎜
+⿲ -2 han-706b:5x16 han-826f-($-1):7x16 han-6708:5x16 // ⿲火良月
 
 ## 86.12
 

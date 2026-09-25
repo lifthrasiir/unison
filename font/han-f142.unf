@@ -652,7 +652,7 @@ glyph han-2e6dd:15x16 15 16 // 𮛝
 // ⿲ han-27fb7 han-624c han-53e6 // ⿲𧾷扌另
 
 glyph han-2e6e4:15x16 15 16 // 𮛤
-⿰ han-27fb7:5x16 1 han-660c:9x16 // ⿰𧾷昌
+⿰ han-27fb7:5x16 1 han-660c-k:9x16 // ⿰𧾷昌
 
 // glyph han-2e6e5:15x16 15 16 // 𮛥 ⿰𧾷⿱冃⺝(K) ⿰𧾷冐(Z)
 // ⿰ han-27fb7 han-5190 // ⿰𧾷冐

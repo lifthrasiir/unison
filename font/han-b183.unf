@@ -222,7 +222,7 @@ glyph han-296dc:15x16 15 16 // 𩛜
 ## 184.7
 
 glyph han-296e1-($han-regions):15x16 15 16 // 𩛡
-⿰ han-98e0-($-1):7x16 1 han-826f:7x16 // ⿰飠良
+⿰ han-98e0-($-1):7x16 1 han-826f.0:7x16 // ⿰飠良
 
 // glyph han-296e3:15x16 15 16 // 𩛣
 // ⿰ han-98e0 han-5fd7 // ⿰飠志

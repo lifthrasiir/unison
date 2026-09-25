@@ -1540,7 +1540,7 @@ glyph han-57cb:15x16 15 16 // 埋
 glyph han-57cb.0:* = han-57cb:*
 
 glyph han-57cc:15x16 15 16 // 埌
-⿰ han-571f:5x16-l 1 han-826f:9x16 // ⿰土良
+⿰ han-571f:5x16-l 1 han-826f.0:9x16 // ⿰土良
 glyph han-57cc.0:* = han-57cc:*
 
 // glyph han-57d1:15x16 15 16 // 埑

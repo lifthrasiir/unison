@@ -245,8 +245,8 @@ glyph han-25683:15x16 15 16 // 𥚃
 // glyph han-25692:15x16 15 16 // 𥚒
 // ⿰ han-793b han-4f86 // ⿰礻來
 
-glyph han-25695:15x16 15 16 // 𥚕
-⿰ han-793b:5x16 1 han-660c:9x16 // ⿰礻昌
+glyph han-25695-($han-regions):15x16 15 16 // 𥚕
+⿰ han-793b:5x16 1 han-660c-($-1):9x16 // ⿰礻昌
 
 // glyph han-2569b:15x16 15 16 // 𥚛
 // ⿰ han-793b han-6606 // ⿰礻昆

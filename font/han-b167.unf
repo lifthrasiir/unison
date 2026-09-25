@@ -408,7 +408,7 @@ glyph han-28afb:15x16 15 16 // 𨫻
 // ⿰ han-91d2 han-21a3c // ⿰釒𡨼
 
 glyph han-28b05:15x16 15 16 // 𨬅
-⿲ -3 han-91d2:5x16-l han-826f:7x16 han-65a4:6x16 // ⿲釒良斤
+⿲ -3 han-91d2:5x16-l han-826f.0:7x16 han-65a4:6x16 // ⿲釒良斤
 
 // glyph han-28b08:15x16 15 16 // 𨬈
 // ⿰ han-91d2 han-9ebb // ⿰釒麻

@@ -1269,7 +1269,7 @@ glyph han-99f7:15x16 15 16 // 駷
 ⿰ han-99ac:7x16 1 han-675f:7x16 // ⿰馬束
 
 glyph han-99fa:15x16 15 16 // 駺
-⿰ han-99ac:7x16 1 han-826f:7x16 // ⿰馬良
+⿰ han-99ac:7x16 1 han-826f.0:7x16 // ⿰馬良
 
 // glyph han-99fb:15x16 15 16 // 駻
 // ⿰ han-99ac han-65f1 // ⿰馬旱

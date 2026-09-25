@@ -1527,8 +1527,12 @@ glyph han-7cad:15x16 15 16 // 粭
 
 ## 119.7
 
-glyph han-7cae:15x16 15 16 // 粮
-⿰ han-7c73:7x16 1 han-826f:7x16 // ⿰米良
+glyph han-7cae-($han-regions):15x16 15 16 // 粮
+⿰ han-7c73:7x16 1 han-826f-($-1):7x16 // ⿰米良
+glyph han-7cae.0:* = han-7cae-j:*
+glyph han-7cae.1:* = han-7cae-v:*
+glyph han-7cae.2:* = han-7cae-j:*
+glyph han-7cae.3:* = han-7cae-v:*
 
 glyph han-7caf:15x16 15 16 // 粯
 ⿰ han-7c73:7x16 han-898b:8x16 // ⿰米見

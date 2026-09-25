@@ -884,7 +884,8 @@ glyph han-60a1:15x16 15 16 // 悡
 ⿱ han-5229:15x11 han-5fc3:15x5 // ⿱利心
 
 glyph han-60a2:15x16 15 16 // 悢
-⿰ han-5fc4:7x16 1 han-826f:7x16 // ⿰忄良
+⿰ han-5fc4:5x16 1 han-826f.0:9x16 // ⿰忄良
+glyph han-60a2.0:* = han-60a2:*
 
 // glyph han-60a3:15x16 15 16 // 患
 // ⿱ han-4e32 han-5fc3 // ⿱串心

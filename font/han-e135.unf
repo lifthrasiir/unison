@@ -457,7 +457,7 @@ glyph han-2c863:15x16 15 16 // 𬡣
 ## 145.10
 
 glyph han-2c868:15x16 15 16 // 𬡨
-⿲ -2 han-8864:5x16 han-826f:7x16 han-6708:5x16 // ⿲衤良月
+⿲ -2 han-8864:5x16 han-826f-g:7x16 han-6708:5x16 // ⿲衤良月
 
 // glyph han-2c869:15x16 15 16 // 𬡩
 // ⿱ han-88ab han-672c // ⿱被本
@@ -622,7 +622,7 @@ glyph han-2c8f7:15x16 15 16 // 𬣷
 // ⿰ han-8ba0 han-8db3 // ⿰讠足
 
 glyph han-2c8fc:15x16 15 16 // 𬣼
-⿰ han-8ba0:5x16 1 han-826f:9x16 // ⿰讠良
+⿰ han-8ba0:5x16 1 han-826f-g:9x16 // ⿰讠良
 
 ## 149'.9
 

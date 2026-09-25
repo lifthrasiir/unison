@@ -443,7 +443,7 @@ glyph han-24a18:15x16 15 16 // 𤨘
 // ⿱ han-52d2 han-7389 // ⿱勒玉
 
 glyph han-24a21:15x16 15 16 // 𤨡
-⿲ han-248e9:3x16 han-826f:7x16 han-6708:5x16 // ⿲𤣩良月
+⿲ han-248e9:3x16 han-826f-h:7x16 han-6708:5x16 // ⿲𤣩良月
 
 // glyph han-24a25:15x16 15 16 // 𤨥
 // ⿰ han-248e9 han-5bc4 // ⿰𤣩寄
