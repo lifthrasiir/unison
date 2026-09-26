@@ -478,3 +478,37 @@ fn clicking_the_minimap_focuses_the_editor() {
     h.click_at(egui::pos2(screen.right() - 8.0 - 3.0, screen.center().y));
     assert!(h.editor_has_focus());
 }
+
+/// The minimap's strip is a texture as tall as its panel, and a panel can be
+/// taller than the largest texture the renderer takes: egui assumes 2048 until
+/// a backend says otherwise, and a portrait 4K display at 2× is 3840 pixels
+/// tall. Such a strip is cut into tiles at its full resolution — every cell is
+/// a pixel decision — rather than panicking in `load_texture` on every frame.
+#[test]
+fn a_minimap_taller_than_the_largest_texture_is_drawn_in_tiles() {
+    let mut h = EditorHarness::new(&tall_doc());
+    h.frame();
+    let max_side = h.ctx.input(|i| i.max_texture_side);
+    let ppp = h.ctx.pixels_per_point();
+    let screen = h.ctx.screen_rect().height() * ppp;
+    assert!(
+        screen > max_side as f32,
+        "the panel has to be taller than {max_side} pixels for this to test anything"
+    );
+    let tiles: Vec<[usize; 2]> = h
+        .ctx
+        .tex_manager()
+        .read()
+        .allocated()
+        .filter(|(_, meta)| meta.name == crate::editor::minimap::TEXTURE_NAME)
+        .map(|(_, meta)| meta.size)
+        .collect();
+    assert!(tiles.len() > 1, "{tiles:?}");
+    assert!(
+        tiles.iter().all(|t| t[0] <= max_side && t[1] <= max_side),
+        "{tiles:?}"
+    );
+    // At the screen's own resolution, and not shrunk to fit one texture.
+    let height: usize = tiles.iter().map(|t| t[1]).sum();
+    assert!(height > max_side, "{height} vs {max_side}");
+}

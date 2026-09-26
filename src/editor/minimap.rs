@@ -182,6 +182,12 @@ fn strip_scroll(
 /// thousands of quads, which cost the tessellator more than the rest of the
 /// editor put together, and whose buffers were large enough that the allocator
 /// handed them back to the OS every frame, a stall of its own.
+///
+/// The image is cut into tiles no larger than the renderer's
+/// `max_texture_side`, since a panel can be taller than one texture may be:
+/// egui assumes 2048 until a backend says otherwise, and a portrait 4K display
+/// at 2× is 3840 pixels. Each cell is a pixel decision, so the strip is never
+/// drawn at a lower resolution to fit.
 #[derive(Default)]
 pub(crate) struct MinimapCache {
     map: Option<(u64, [u32; 4], Arc<MinimapMap>)>,
@@ -189,12 +195,13 @@ pub(crate) struct MinimapCache {
     marks: Option<MarksCache>,
 }
 
-/// The strip as last drawn: which view, drawn how, the texture, and where the
+/// The strip as last drawn: which view, drawn how, the textures, and where the
 /// landmark labels go (as indices into the view's lines).
 struct StripCache {
     serial: u64,
     key: StripKey,
-    texture: egui::TextureHandle,
+    /// The tiles, each with the part of the panel it covers.
+    tiles: Vec<(egui::Rect, egui::TextureHandle)>,
     labels: Vec<(egui::Pos2, usize)>,
 }
 
@@ -219,6 +226,7 @@ struct StripKey {
     pixel_gen: u64,
     dark_mode: bool,
     ppp_bits: u32,
+    max_texture_side: usize,
     rect: [u32; 4],
     mm_scroll_bits: u32,
     cell_bits: u32,
@@ -299,6 +307,7 @@ pub(crate) fn draw_minimap(
         pixel_gen: doc.pixel_gen,
         dark_mode: ui.visuals().dark_mode,
         ppp_bits: ppp.to_bits(),
+        max_texture_side: ui.ctx().input(|i| i.max_texture_side),
         rect: rect_bits(available),
         mm_scroll_bits: mm_scroll.to_bits(),
         cell_bits: cell.to_bits(),
@@ -311,31 +320,55 @@ pub(crate) fn draw_minimap(
         let (image, labels) = build_strip_image(
             vlines, doc, composites, &map, &themed, &pal, available, ppp, x0, y0, cell, &snap,
         );
-        let texture = match cache.strip.take() {
-            Some(StripCache { mut texture, .. }) => {
-                texture.set(image, egui::TextureOptions::NEAREST);
-                texture
-            }
-            None => ui
-                .ctx()
-                .load_texture(TEXTURE_NAME, image, egui::TextureOptions::NEAREST),
+        // The handles of the last strip are reused in order, so a strip that
+        // fits in one texture keeps updating the same one.
+        let mut old = cache
+            .strip
+            .take()
+            .map(|c| c.tiles)
+            .unwrap_or_default()
+            .into_iter();
+        // A tile covers the part of the panel its pixels are of the whole
+        // image, which puts every one of them where it was rasterized for.
+        let size = image.size;
+        let at = |px: [usize; 2]| {
+            let t = egui::vec2(px[0] as f32 / size[0] as f32, px[1] as f32 / size[1] as f32);
+            available.min + t * available.size()
         };
+        let tiles = split_tiles(image, strip_key.max_texture_side)
+            .into_iter()
+            .map(|([x, y], tile)| {
+                let rect =
+                    egui::Rect::from_min_max(at([x, y]), at([x + tile.size[0], y + tile.size[1]]));
+                let texture = match old.next() {
+                    Some((_, mut texture)) => {
+                        texture.set(tile, egui::TextureOptions::NEAREST);
+                        texture
+                    }
+                    None => {
+                        ui.ctx()
+                            .load_texture(TEXTURE_NAME, tile, egui::TextureOptions::NEAREST)
+                    }
+                };
+                (rect, texture)
+            })
+            .collect();
         cache.strip = Some(StripCache {
             serial: view.serial,
             key: strip_key,
-            texture,
+            tiles,
             labels,
         });
     }
-    let StripCache {
-        texture, labels, ..
-    } = cache.strip.as_ref().expect("built above");
-    painter.image(
-        texture.id(),
-        available,
-        egui::Rect::from_min_max(egui::pos2(0.0, 0.0), egui::pos2(1.0, 1.0)),
-        egui::Color32::WHITE,
-    );
+    let StripCache { tiles, labels, .. } = cache.strip.as_ref().expect("built above");
+    for (rect, texture) in tiles {
+        painter.image(
+            texture.id(),
+            *rect,
+            egui::Rect::from_min_max(egui::pos2(0.0, 0.0), egui::pos2(1.0, 1.0)),
+            egui::Color32::WHITE,
+        );
+    }
 
     // After the texture, which covers every other line.
     for &(pos, i) in labels {
@@ -423,6 +456,30 @@ pub(crate) fn draw_minimap(
     }
 
     None
+}
+
+/// `image` cut into tiles no side of which is longer than `max_side`, each with
+/// the pixel it starts at, in row-major order. An image that fits is one tile.
+fn split_tiles(image: egui::ColorImage, max_side: usize) -> Vec<([usize; 2], egui::ColorImage)> {
+    let max_side = max_side.max(1);
+    let [w, h] = image.size;
+    if w <= max_side && h <= max_side {
+        return vec![([0, 0], image)];
+    }
+    let mut out = Vec::new();
+    for y in (0..h).step_by(max_side) {
+        for x in (0..w).step_by(max_side) {
+            let size = [max_side.min(w - x), max_side.min(h - y)];
+            let mut tile = egui::ColorImage::new(size, egui::Color32::TRANSPARENT);
+            for r in 0..size[1] {
+                let from = (y + r) * w + x;
+                tile.pixels[r * size[0]..(r + 1) * size[0]]
+                    .copy_from_slice(&image.pixels[from..from + size[0]]);
+            }
+            out.push(([x, y], tile));
+        }
+    }
+    out
 }
 
 /// The strip's texture for the rows `available` shows, at `ppp` pixels to the
@@ -836,5 +893,35 @@ mod tests {
         let bottom = pointer_scroll_target(MM_H, MM_H, &map, TOTAL, VIEWPORT);
         assert_eq!(top, 0.0);
         assert_eq!(bottom, TOTAL - VIEWPORT);
+    }
+
+    #[test]
+    fn tiles_put_back_together_are_the_image() {
+        let (w, h) = (5, 7);
+        let mut image = egui::ColorImage::new([w, h], egui::Color32::TRANSPARENT);
+        for (i, p) in image.pixels.iter_mut().enumerate() {
+            *p = egui::Color32::from_rgb(i as u8, (i / w) as u8, (i % w) as u8);
+        }
+        for max_side in [1, 2, 3, 5, 7, 100] {
+            let tiles = split_tiles(image.clone(), max_side);
+            let mut back = egui::ColorImage::new([w, h], egui::Color32::TRANSPARENT);
+            let mut covered = 0;
+            for ([x, y], tile) in &tiles {
+                assert!(tile.size[0] <= max_side && tile.size[1] <= max_side);
+                for r in 0..tile.size[1] {
+                    for c in 0..tile.size[0] {
+                        back.pixels[(y + r) * w + x + c] = tile.pixels[r * tile.size[0] + c];
+                    }
+                }
+                covered += tile.size[0] * tile.size[1];
+            }
+            assert_eq!(covered, w * h, "max_side {max_side}");
+            assert_eq!(back.pixels, image.pixels, "max_side {max_side}");
+        }
+        assert_eq!(
+            split_tiles(image, 7).len(),
+            1,
+            "an image that fits is one tile"
+        );
     }
 }

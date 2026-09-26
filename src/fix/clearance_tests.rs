@@ -1562,7 +1562,6 @@ fn an_undecided_pattern_line_no_label_can_clear_is_still_decided() {
     assert_eq!(fix.new_line, "\u{2FF0} -1 l:4x4 r-($-1):4x4");
 }
 
-
 /// Both components undecided, with the pattern component's variants drawn the
 /// way a Han source draws a regional one: each label composed by a pattern
 /// block of its own (`glyph han-5c3c-($han-regions):10x16` over `⿸尸匕`). The

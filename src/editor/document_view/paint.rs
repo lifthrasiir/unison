@@ -1036,9 +1036,7 @@ pub(super) fn paint_document_area(
     #[cfg(not(test))]
     let _ = change_rects;
 
-    draw_grid_hscrollbars(
-        ui, &painter, state, &strip, blocks, &hbars, zoom_level, pal,
-    );
+    draw_grid_hscrollbars(ui, &painter, state, &strip, blocks, &hbars, zoom_level, pal);
     auto_scroll_grid_on_drag(ui, state, &strip, blocks, origin);
 
     // Inline tools panel to the right of the grid. A resize replaces it
