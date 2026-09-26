@@ -564,27 +564,60 @@ impl<'a> Inventory<'a> {
     ///
     /// The same walk the clearance *check* makes, deliberately: the fixer may
     /// only touch a line the check reports, so a part it can measure and the
-    /// check cannot would let it rewrite a line nothing complained about. Two
-    /// things narrow it further, both in the safe direction — a block whose
-    /// name is a pattern is left out, since its `ref` names expand per glyph and
-    /// the block holds only the unexpanded ones; and only the families some IDC
-    /// line actually names are flattened, since nothing else can be chosen.
+    /// check cannot would let it rewrite a line nothing complained about. The
+    /// check reads the *expanded* source, so a block whose name is a pattern is
+    /// expanded here first ([`expand_block`]) — both the ones that compose,
+    /// since a Han source draws a regional family as one such block per size
+    /// (`glyph han-5c3c-($han-regions):10x16` over `⿸尸匕`), and the lines
+    /// that name one, since `han-5c3c-($-1)` names the family only once it is
+    /// expanded. One thing narrows it, in the safe direction: only the families
+    /// some IDC line actually names are flattened, since nothing else can be
+    /// chosen.
     fn flatten_composites(
         &mut self,
         docs: &[&'a Document],
         name_parts: &crate::document::NamePartsMap,
     ) {
-        let mut families: crate::hash::HashSet<String> = crate::hash::HashSet::default();
+        // Every glyph block's body in document order, a pattern block's once per
+        // glyph it declares. Only the ones that compose are expanded: a drawn
+        // one is in `grids` under every name already, and has no line to name
+        // a family with. A composite's names are canonicalized, as the
+        // expansion's are: the walk follows a ref by the name it carries, so
+        // `han-5315-j:6x16` has to have become the `han-5315.0:6x16` that is
+        // declared before the glyph drawn from it can be flattened.
+        let mut blocks: Vec<(String, std::borrow::Cow<'_, GlyphBody>)> = Vec::new();
         for doc in docs {
             for item in &doc.items {
-                let DocumentItem::Glyph { body, .. } = item else {
+                let DocumentItem::Glyph { name, body } = item else {
                     continue;
                 };
-                for part in body.compose.iter().flat_map(|c| c.part_names()) {
-                    let canonical = self.canonical(part);
-                    let base = canonical.split_once(':').map_or(&canonical[..], |(b, _)| b);
-                    families.insert(base.to_string());
+                let name = name.display();
+                if body.refs.is_empty() && body.compose.is_empty() {
+                    if is_plain_name(&name) {
+                        blocks.push((name, std::borrow::Cow::Borrowed(body)));
+                    }
+                    continue;
                 }
+                let expanded = match is_plain_name(&name) {
+                    true => vec![(name, body.clone())],
+                    false => expand_block(name_parts, &name, body).unwrap_or_default(),
+                };
+                for (name, mut body) in expanded {
+                    for gref in &mut body.refs {
+                        self.aliases.canonicalize(&mut gref.name);
+                    }
+                    for (part, _) in body.compose.iter_mut().flat_map(|c| c.parts_mut()) {
+                        self.aliases.canonicalize(part);
+                    }
+                    blocks.push((name, std::borrow::Cow::Owned(body)));
+                }
+            }
+        }
+        let mut families: crate::hash::HashSet<String> = crate::hash::HashSet::default();
+        for (_, body) in &blocks {
+            for part in body.compose.iter().flat_map(|c| c.part_names()) {
+                let base = part.split_once(':').map_or(part, |(b, _)| b);
+                families.insert(base.to_string());
             }
         }
         if families.is_empty() {
@@ -592,30 +625,24 @@ impl<'a> Inventory<'a> {
         }
 
         let nested = self.register_nested(docs, name_parts);
-        // Every plain block's body, for the walk to follow refs through.
+        // Every block's body, for the walk to follow refs through.
         let mut bodies: HashMap<String, &crate::document::GlyphBody> = HashMap::default();
         let mut roots: Vec<String> = Vec::new();
         for (key, body) in &nested {
             bodies.insert(key.clone(), body);
             roots.push(key.clone());
         }
-        for doc in docs {
-            for item in &doc.items {
-                let DocumentItem::Glyph { name, body } = item else {
-                    continue;
-                };
-                let name = name.display();
-                if !is_plain_name(&name) || bodies.contains_key(&name) {
-                    continue;
-                }
-                if !body.refs.is_empty() || !body.compose.is_empty() {
-                    let base = name.split_once(':').map_or(&name[..], |(b, _)| b);
-                    if families.contains(base) {
-                        roots.push(name.clone());
-                    }
-                }
-                bodies.insert(name, body);
+        for (name, body) in &blocks {
+            if !is_plain_name(name) || bodies.contains_key(name) {
+                continue;
             }
+            if !body.refs.is_empty() || !body.compose.is_empty() {
+                let base = name.split_once(':').map_or(&name[..], |(b, _)| b);
+                if families.contains(base) {
+                    roots.push(name.clone());
+                }
+            }
+            bodies.insert(name.clone(), body);
         }
         if roots.is_empty() {
             return;
@@ -1318,27 +1345,47 @@ fn expand_block_lines(
     scale: u8,
     compose: &GlyphCompose,
 ) -> Option<Vec<(String, GlyphCompose)>> {
-    let mut substituted = compose.clone();
-    for (name, _) in substituted.parts_mut() {
-        *name = crate::document::substitute_name_parts(name, name_parts);
-    }
     let body = GlyphBody {
-        compose: vec![substituted],
+        compose: vec![compose.clone()],
         scale,
         ..GlyphBody::new()
     };
+    Some(
+        expand_block(name_parts, glyph, &body)?
+            .into_iter()
+            .filter_map(|(name, mut body)| {
+                (!body.compose.is_empty()).then(|| (name, body.compose.swap_remove(0)))
+            })
+            .collect(),
+    )
+}
+
+/// Every glyph a pattern block declares and the body it has, with the names
+/// in its refs and IDC lines substituted and expanded exactly as the build
+/// does (`expand.rs::expand_glyph_item`); `None` when the block does not
+/// expand at all.
+fn expand_block(
+    name_parts: &crate::document::NamePartsMap,
+    glyph: &str,
+    body: &GlyphBody,
+) -> Option<Vec<(String, GlyphBody)>> {
+    let mut substituted = body.clone();
+    for gref in &mut substituted.refs {
+        gref.name = crate::document::substitute_name_parts(&gref.name, name_parts);
+    }
+    for (name, _) in substituted.compose.iter_mut().flat_map(|c| c.parts_mut()) {
+        *name = crate::document::substitute_name_parts(name, name_parts);
+    }
     let expanded = crate::document::expand_glyph_block(
         &crate::document::GlyphName(crate::document::substitute_name_parts(glyph, name_parts)),
-        &body,
+        &substituted,
     )
     .ok()?;
     Some(
         expanded
             .into_iter()
             .filter_map(|item| match item {
-                DocumentItem::Glyph { name, mut body } if !body.compose.is_empty() => {
-                    Some((name.display(), body.compose.swap_remove(0)))
-                }
+                DocumentItem::Glyph { name, body } => Some((name.display(), body)),
                 _ => None,
             })
             .collect(),

@@ -1561,3 +1561,78 @@ fn an_undecided_pattern_line_no_label_can_clear_is_still_decided() {
     assert!(fix.after > 0, "no label clears the warning");
     assert_eq!(fix.new_line, "\u{2FF0} -1 l:4x4 r-($-1):4x4");
 }
+
+
+/// Both components undecided, with the pattern component's variants drawn the
+/// way a Han source draws a regional one: each label composed by a pattern
+/// block of its own (`glyph han-5c3c-($han-regions):10x16` over `⿸尸匕`). The
+/// check expands those blocks and measures every glyph they declare, so the
+/// fixer has to flatten them too, or `⿰ han-4ebb han-5c3c-($-1)` finds no
+/// variant that could fill the slot and stays a TODO forever.
+const COMPOSED_BACKREF_PARTS: &str = "\
+audit ideal-clearance test-* 0 1
+
+glyph l:4x4 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph h:2x4 2 4
+@@@@
+@@@@
+@@@@
+@@@@
+
+glyph r-(x|y):5x4 5 4
+@@@@@@@@@@
+@@@@@@@@@@
+@@@@@@@@@@
+@@@@@@@@@@
+
+glyph r-(x|y):4x4 4 4
+\u{2FF0} h:2x4 h:2x4
+
+glyph test-(x|y) 8 4
+\u{2FF0} l r-($-1)
+";
+
+#[test]
+fn a_family_composed_by_a_pattern_block_is_searched() {
+    let fixes = plan(COMPOSED_BACKREF_PARTS);
+    assert_eq!(fixes.len(), 1, "{fixes:?}");
+    assert_eq!((fixes[0].before, fixes[0].after), (None, 0));
+    assert_eq!(fixes[0].new_line, "\u{2FF0} l:4x4 r-($-1):4x4");
+}
+
+/// The same with the composed variants' own line naming an alias, as `⿰亻匕`
+/// names `han-5315-($-1):6x16` for a drawing declared as `han-5315.0:6x16`.
+/// The walk that flattens them follows a ref by the name it carries, so the
+/// names have to be canonical first, as the expansion's are.
+fn composed_through_an_alias(src: &str) -> String {
+    src.replace("glyph h:2x4 2 4", "glyph h0:2x4 2 4")
+        .replace("glyph test-(x|y)", "glyph h:* = h0:*\n\nglyph test-(x|y)")
+}
+
+#[test]
+fn a_family_composed_through_an_alias_is_searched() {
+    let fixes = plan(&composed_through_an_alias(COMPOSED_BACKREF_PARTS));
+    assert_eq!(fixes.len(), 1, "{fixes:?}");
+    assert_eq!((fixes[0].before, fixes[0].after), (None, 0));
+    assert_eq!(fixes[0].new_line, "\u{2FF0} l:4x4 r-($-1):4x4");
+}
+
+/// Nothing about that is particular to a pattern block: a variant composed
+/// under a plain name through an alias was just as unmeasurable.
+#[test]
+fn a_plain_variant_composed_through_an_alias_is_searched() {
+    let src = composed_through_an_alias(COMPOSED_BACKREF_PARTS).replace(
+        "glyph r-(x|y):4x4 4 4\n\u{2FF0} h:2x4 h:2x4\n",
+        "glyph r-x:4x4 4 4\n\u{2FF0} h:2x4 h:2x4\n\nglyph r-y:4x4 4 4\n\u{2FF0} h:2x4 h:2x4\n",
+    );
+    assert!(src.contains("glyph r-y:4x4"));
+    let fixes = plan(&src);
+    assert_eq!(fixes.len(), 1, "{fixes:?}");
+    assert_eq!((fixes[0].before, fixes[0].after), (None, 0));
+    assert_eq!(fixes[0].new_line, "\u{2FF0} l:4x4 r-($-1):4x4");
+}
