@@ -311,7 +311,7 @@ glyph han-331f7:15x16 15 16 // 𳇷
 ## 169.4
 
 glyph han-331f8:15x16 15 16 // 𳇸
-⿵ han-9580:15x16.13x11 han-5df4:9x11 3 5 // ⿵門巴
+⿵ han-9580:15x16.13x11 han-5df4:9x10 3 6 // ⿵門巴
 
 ## 169.5
 
@@ -601,7 +601,7 @@ glyph han-3329e:15x16 15 16 // 𳊞
 ## 177.9
 
 glyph han-332a1:15x16 15 16 // 𳊡
-⿰ han-9769:5x16 1 han-9769:9x16 // ⿰革革
+⿰ han-9769:7x16 1 han-9769:7x16 // ⿰革革
 
 // glyph han-332a2:15x16 15 16 // 𳊢
 // ⿺ han-662f han-9769 // ⿺是革
@@ -790,7 +790,7 @@ glyph han-33308:15x16 15 16 // 𳌈
 
 ## 189.4
 
-glyph han-3331e:15x16 15 16 // 𳌞 ⿱高龰(T) ⿱⿳亠口冖足(U)
+glyph han-3331e:15x16 15 16 // 𳌞
 ⿱ han-9ad8:15x10 han-9fb0:15x6 // ⿱高龰
 
 # CJK unified ideographs extension J: 魚 (195)

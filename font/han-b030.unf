@@ -762,6 +762,9 @@ glyph han-20d31:15x16 15 16 // 𠴱
 // glyph han-20d32:15x16 15 16 // 𠴲
 // ⿰ han-53e3 han-6c93 // ⿰口沓
 
+// glyph han-20d34-($han-regions):15x16 15 16 // 𠴴
+// ⿰ han-53e3 han-8fca-($-1) // ⿰口迊
+
 // glyph han-20d38:15x16 15 16 // 𠴸
 // ⿱ han-6ce2 han-53e3 // ⿱波口
 

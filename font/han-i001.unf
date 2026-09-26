@@ -871,8 +871,8 @@ glyph han-2ed97:15x16 15 16 // 𮶗
 
 ## 137.4
 
-// glyph han-2ed98:15x16 15 16 // 𮶘
-// ⿰ han-821f han-4e91 // ⿰舟云
+glyph han-2ed98:15x16 15 16 // 𮶘
+⿰ han-821f:7x16 1 han-4e91:7x16 // ⿰舟云
 
 # CJK unified ideographs extension I: 艸 (140)
 

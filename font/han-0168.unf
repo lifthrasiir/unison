@@ -698,6 +698,8 @@ glyph han-95f2:15x16 15 16 // 闲
 // glyph han-95f3:15x16 15 16 // 闳
 // ⿵ han-95e8 han-53b7 // ⿵门厷
 
+glyph han-95f4:10x16 10 16 // 间
+⿵ han-95e8:10x16.6x15 han-65e5:6x12 2 3 // ⿵门日
 glyph han-95f4:15x16 15 16 // 间
 ⿵ han-95e8:15x16.11x15 han-65e5:9x12 3 3 // ⿵门日
 

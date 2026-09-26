@@ -1428,8 +1428,8 @@ glyph han-88e1:15x16 15 16 // 裡
 ⿰ han-8864.0:5x16 1 han-91cc:9x16 // ⿰衤里
 glyph han-88e1.0:* = han-88e1:*
 
-// glyph han-88e5:15x16 15 16 // 裥
-// ⿰ han-8864 han-95f4 // ⿰衤间
+glyph han-88e5:15x16 15 16 // 裥
+⿰ han-8864-g:5x16 han-95f4:10x16 // ⿰衤间
 
 ## 145.8
 

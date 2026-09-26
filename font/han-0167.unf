@@ -1563,8 +1563,8 @@ glyph han-9506:15x16 15 16 // 锆
 glyph han-950c:15x16 15 16 // 锌
 ⿰ han-9485:6x16 han-8f9b:9x16 // ⿰钅辛
 
-// glyph han-950f:15x16 15 16 // 锏
-// ⿰ han-9485 han-95f4 // ⿰钅间
+glyph han-950f:15x16 15 16 // 锏
+⿰ han-9485:5x16 han-95f4:10x16 // ⿰钅间
 
 glyph han-9512:15x16 15 16 // 锒
 ⿰ han-9485:6x16 han-826f-g:9x16 // ⿰钅良

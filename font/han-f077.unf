@@ -436,12 +436,12 @@ glyph han-2dd2c:15x16 15 16 // 𭴬
 // glyph han-2dd30-($han-regions):15x16 15 16 // 𭴰
 // ⿱ han-707c-($-1) han-706c // ⿱灼灬
 
-// glyph han-2dd33:15x16 15 16 // 𭴳
-// ⿰ han-706b han-95f4 // ⿰火间
+glyph han-2dd33:15x16 15 16 // 𭴳
+⿰ -1 han-706b:5x16-l 1 han-95f4:10x16 // ⿰火间
 
 ## 86.8
 
-glyph han-2dd3c:15x16 15 16 // 𭴼 ⿰火青(K) ⿰火靑(Z)
+glyph han-2dd3c:15x16 15 16 // 𭴼
 ⿰ han-706b:7x16 1 han-9752-k:7x16 // ⿰火青
 
 // glyph han-2dd3d:15x16 15 16 // 𭴽

@@ -112,8 +112,8 @@ glyph han-3f6d:15x16 15 16 // 㽭
 
 ## 104.3
 
-// glyph han-3f73:15x16 15 16 // 㽳
-// ⿸ han-7592 han-4e8e // ⿸疒于
+glyph han-3f73:15x16 15 16 // 㽳
+⿸ han-7592:15x16.11x13 han-4e8e:11x10 4 6 // ⿸疒于
 
 // glyph han-3f74-($han-regions):15x16 15 16 // 㽴
 // ⿸ han-7592 han-4e08-($-1) // ⿸疒丈

@@ -973,8 +973,8 @@ glyph han-31fdf:15x16 15 16 // 𱿟
 glyph han-31fe4:15x16 15 16 // 𱿤
 ⿰ han-866b:5x16 han-5415:10x16 // ⿰虫吕
 
-// glyph han-31fe7:15x16 15 16 // 𱿧
-// ⿰ han-866b han-95f4 // ⿰虫间
+glyph han-31fe7:15x16 15 16 // 𱿧
+⿰ -1 han-866b:5x16 1 han-95f4:10x16 // ⿰虫间
 
 ## 142.8
 

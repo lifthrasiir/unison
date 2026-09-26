@@ -231,7 +231,7 @@ glyph han-3c22:15x16 15 16 // 㰢
 ## 76.5
 
 glyph han-3c23-($han-regions):15x16 15 16 // 㰣
-⿰ -2 han-6b64-($-1):10x16-l han-6b20:7x16 // ⿰此欠
+⿰ han-6b64-($-1):10x16-l han-6b20:5x16 // ⿰此欠
 
 glyph han-3c24:15x16 15 16 // 㰤
 ⿰ han-53ef:8x16 han-6b20:7x16 // ⿰可欠

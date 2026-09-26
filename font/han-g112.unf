@@ -44,8 +44,8 @@ glyph han-309b3:15x16 15 16 // 𰦳
 // glyph han-309c1:15x16 15 16 // 𰧁
 // ⿰ han-77f3 han-4e32 // ⿰石串
 
-// glyph han-309c3:15x16 15 16 // 𰧃
-// ⿰ han-77f3 han-95f4 // ⿰石间
+glyph han-309c3:15x16 15 16 // 𰧃
+⿰ -1 han-77f3:5x16 1 han-95f4:10x16 // ⿰石间
 
 // glyph han-309c5:15x16 15 16 // 𰧅
 // ⿰ han-7834 han-535c // ⿰破卜
@@ -603,8 +603,8 @@ glyph han-30b14:15x16 15 16 // 𰬔
 
 ## 120'.7
 
-// glyph han-30b1d:15x16 15 16 // 𰬝
-// ⿰ han-7e9f han-95f4 // ⿰纟间
+glyph han-30b1d:15x16 15 16 // 𰬝
+⿰ han-7e9f:5x16 han-95f4:10x16 // ⿰纟间
 
 ## 120'.8
 

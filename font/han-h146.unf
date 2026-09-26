@@ -556,8 +556,8 @@ glyph han-321cb:15x16 15 16 // 𲇋
 // glyph han-321ce:15x16 15 16 // 𲇎
 // ⿰ han-91d2 han-5f04 // ⿰釒弄
 
-// glyph han-321cf:15x16 15 16 // 𲇏
-// ⿰ han-91d2 han-95f4 // ⿰釒间
+glyph han-321cf:15x16 15 16 // 𲇏
+⿰ han-91d2:5x16-l han-95f4:10x16 // ⿰釒间
 
 ## 167.9
 

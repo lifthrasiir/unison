@@ -949,8 +949,8 @@ glyph han-2be88:15x16 15 16 // 𫺈
 // glyph han-2be91:15x16 15 16 // 𫺑
 // ⿱ han-201e4 han-5fc3 // ⿱𠇤心
 
-// glyph han-2be92:15x16 15 16 // 𫺒
-// ⿰ han-5fc4 han-95f4 // ⿰忄间
+glyph han-2be92:15x16 15 16 // 𫺒
+⿰ han-5fc4:5x16 han-95f4:10x16 // ⿰忄间
 
 // glyph han-2be95:15x16 15 16 // 𫺕
 // ⿱ han-5372 han-5fc3 // ⿱卲心

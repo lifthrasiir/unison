@@ -401,8 +401,8 @@ glyph han-2c44e:15x16 15 16 // 𬑎
 // glyph han-2c456:15x16 15 16 // 𬑖
 // ⿲ han-76ee han-5f00 han-5f61 // ⿲目开彡
 
-// glyph han-2c457:15x16 15 16 // 𬑗
-// ⿰ han-76ee han-95f4 // ⿰目间
+glyph han-2c457:15x16 15 16 // 𬑗
+⿰ han-76ee:4x16-l 1 han-95f4:10x16 // ⿰目间
 
 ## 109.10
 

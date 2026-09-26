@@ -2242,7 +2242,6 @@ glyph han-5c3c-($han-regions):11x14 11 14 // 尼
 glyph han-5c3c-($han-regions):15x16 15 16 // 尼
 ⿸ han-5c38:15x16.11x12 han-5315-($-1):9x11 6 5 // ⿸尸匕
 glyph han-5c3c.0:* = han-5c3c-j:*
-glyph han-5c3c.x:* = han-5c3c-t:*
 
 ## 44.4
 
@@ -2265,9 +2264,15 @@ glyph han-5c42:15x16 15 16 // 层
 
 glyph han-5c45:15x16 15 16 // 居
 ⿸ han-5c38:15x16.11x12 han-53e4:11x12 4 4 // ⿸尸古
+glyph han-5c45.0:* = han-5c45:*
 
-// glyph han-5c46:15x16 15 16 // 屆 ⿸尸凷(GHTP) ⿸尸𠙽(JK)
-// ⿸ han-5c38 han-51f7 // ⿸尸凷
+glyph han-5c46.0:15x16 15 16 // 屆
+⿸ han-5c38:15x16.11x12 han-2067d:9x11 5 5 // ⿸尸𠙽
+glyph han-5c46.1:* = han-5c46.0:*
+glyph han-5c46.2:15x16 15 16 // 屆
+⿸ han-5c38:15x16.11x12 han-51f7:9x11 5 5 // ⿸尸凷
+glyph han-5c46-(j|k):* = han-5c46.0:*
+glyph han-5c46-(g|h|t|p):* = han-5c46.2:*
 
 glyph han-5c47:15x16 15 16 // 屇
 ⿸ han-5c38:15x16.11x12 han-7530:9x11 5 5 // ⿸尸田
@@ -2280,6 +2285,7 @@ glyph han-5c49:15x16 15 16 // 屉
 
 glyph han-5c4a:15x16 15 16 // 届
 ⿸ han-5c38:15x16.11x12 han-7531:9x12 5 4 // ⿸尸由
+glyph han-5c4a.0:* = han-5c4a:*
 
 ## 44.6
 
@@ -2311,8 +2317,9 @@ glyph han-5c53:15x16 15 16 // 屓
 // glyph han-5c59:15x16 15 16 // 屙
 // ⿸ han-5c38 han-963f // ⿸尸阿
 
-glyph han-5c5a-($han-regions):15x16 15 16 // 屚
-⿸ han-5c38:15x16.11x12 han-96e8-($-1):9x11 5 5 // ⿸尸雨
+glyph han-5c5a:15x16 15 16 // 屚
+⿸ han-5c38:15x16.11x12 han-96e8:9x11 5 5 // ⿸尸雨
+glyph han-5c5a.0:* = han-5c5a:*
 
 // glyph han-5c5b:15x16 15 16 // 屛
 // ⿸ han-5c38 han-5e77 // ⿸尸幷
