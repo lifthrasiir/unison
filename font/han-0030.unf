@@ -3058,7 +3058,7 @@ glyph han-54e0.1:* = han-54e0.0:*
 glyph han-54e0.2:15x16 15 16 // 哠
 ⿰ han-53e3:7x16 han-544a:8x16 // ⿰口告
 glyph han-54e0-(h|j):* = han-54e0.0:*
-glyph han-54d0-(g|t|k|v):* = han-54e0.2:*
+glyph han-54e0-(g|t|k|v):* = han-54e0.2:*
 
 // glyph han-54e1:15x16 15 16 // 員
 // ⿱ han-53e3 han-8c9d // ⿱口貝
