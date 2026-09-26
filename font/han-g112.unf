@@ -832,6 +832,9 @@ glyph han-30b92-(g|v):15x16 15 16 // 𰮒 ⿰⺼巨(T) ⿰月巨(V)
 glyph han-30b92-t:15x16 15 16 // 𰮒 ⿰⺼巨(T) ⿰月巨(V)
 ⿰ han-6708:5x16-l 1 han-5de8.1:9x16 // ⿰月巨
 
+// glyph han-30b94-($han-regions):15x16 15 16 // 𰮔
+// ⿱ han-5317-($-1) han-8089 // ⿱北肉
+
 // glyph han-30b95:15x16 15 16 // 𰮕
 // ⿱ han-7518 han-8089 // ⿱甘肉
 
@@ -1107,6 +1110,9 @@ glyph han-30c6b:15x16 15 16 // 𰱫
 
 // glyph han-30c6c:15x16 15 16 // 𰱬
 // ⿱ han-8279 han-634e // ⿱艹捎
+
+// glyph han-30c6f:15x16 15 16 // 𰱯
+// ⿱ han-8279 han-7f62 // ⿱艹罢
 
 // glyph han-30c70:15x16 15 16 // 𰱰
 // ⿰ han-8349 han-5c11 // ⿰草少

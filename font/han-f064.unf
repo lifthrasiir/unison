@@ -343,8 +343,11 @@ glyph han-2d95b:15x16 15 16 // 𭥛
 
 ## 72.5
 
+glyph han-2d963:15x16 15 16 // 𭥣
+⿱ han-5317-g:15x10 1 han-65e5:15x5 // ⿱北日
+
 glyph han-2d964:15x16 15 16 // 𭥤
-⿰ han-65e5:4x16-l 2 han-518b:9x16 // ⿰日冋
+⿰ han-65e5:5x16-l 1 han-518b:9x16 // ⿰日冋
 
 glyph han-2d969:15x16 15 16 // 𭥩
 ⿰ han-65e5:8x16 han-7acb:7x16 // ⿰日立
@@ -358,7 +361,7 @@ glyph han-2d96b:15x16 15 16 // 𭥫
 // ⿱ han-65e5 han-6709 // ⿱日有
 
 glyph han-2d970:15x16 15 16 // 𭥰
-⿰ han-65e5:4x16-l 2 han-5321:9x16 // ⿰日匡
+⿰ han-65e5:5x16-l 1 han-5321:9x16 // ⿰日匡
 
 // glyph han-2d971:15x16 15 16 // 𭥱
 // ⿰ han-65e5 han-593a // ⿰日夺

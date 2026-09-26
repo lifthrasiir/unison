@@ -232,6 +232,9 @@ glyph han-2260a:15x16 15 16 // 𢘊
 // glyph han-2261f:15x16 15 16 // 𢘟
 // ⿰ han-5fc3 han-53ef // ⿰心可
 
+glyph han-22620-($han-regions):15x16 15 16 // 𢘠
+⿱ han-5317-($-1):15x10 han-5fc3:15x6 // ⿱北心
+
 glyph han-22621:15x16 15 16 // 𢘡
 ⿱ han-751f:15x9 han-5fc3:15x7 // ⿱生心
 

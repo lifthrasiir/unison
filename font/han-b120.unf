@@ -430,6 +430,9 @@ glyph han-260ef:15x16 15 16 // 𦃯
 glyph han-260f8:15x16 15 16 // 𦃸
 ⿲ -1 han-7cf9.x:5x16 han-8033:6x16 han-706b:5x16 // ⿲糹耳火
 
+// glyph han-260ff-($han-regions):15x16 15 16 // 𦃿
+// ⿰ han-7cf9-($-1) han-7f62 // ⿰糹罢
+
 glyph han-26100:15x16 15 16 // 𦄀
 ⿰ han-7cf9-v:5x16 1 han-99ac:9x16 // ⿰糹馬
 

@@ -567,6 +567,9 @@ glyph han-32887:15x16 15 16 // 𲢇
 // glyph han-3288a:15x16 15 16 // 𲢊
 // ⿰ han-624c han-6652 // ⿰扌晒
 
+// glyph han-3288b:15x16 15 16 // 𲢋
+// ⿰ han-624b han-7f62 // ⿰手罢
+
 // glyph han-3288c-($han-regions):15x16 15 16 // 𲢌
 // ⿰ han-624b han-9aa8-($-1) // ⿰手骨
 

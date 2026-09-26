@@ -233,6 +233,9 @@ glyph han-29ff7-t:15x16 15 16 // 𩿷 ⿰礻鳥(G) ⿰示鳥(T)
 // glyph han-29ff9:15x16 15 16 // 𩿹
 // ⿰ han-53bb han-9ce5 // ⿰去鳥
 
+// glyph han-29ffb-($han-regions):15x16 15 16 // 𩿻
+// ⿰ han-5317-($-1) han-9ce5 // ⿰北鳥
+
 // glyph han-29ffc:15x16 15 16 // 𩿼
 // ⿱ han-9ce5 han-7532 // ⿱鳥甲
 

@@ -1,5 +1,10 @@
 # CJK unified ideographs extension C: 車 (159)
 
+## 159.3
+
+// glyph han-2b3f2:15x16 15 16 // 𫏲 ⿰車亐(J) ⿰車亏(Z)
+// ⿰ han-8eca han-4e90 // ⿰車亐
+
 ## 159.5
 
 glyph han-2b3f4:15x16 15 16 // 𫏴
@@ -64,6 +69,11 @@ glyph han-2b40d:15x16 15 16 // 𫐍
 
 glyph han-2b40f:15x16 15 16 // 𫐏
 ⿰ han-8f66:4x16-l 1 han-5468.1:10x16 // ⿰车周
+
+## 159'.10
+
+// glyph han-2b414:15x16 15 16 // 𫐔
+// ⿰ han-8f66 han-76cd // ⿰车盍
 
 ## 159'.11
 
@@ -376,6 +386,11 @@ glyph han-2b4ff:15x16 15 16 // 𫓿
 glyph han-2b502:15x16 15 16 // 𫔂
 ⿰ han-9485:5x16 1 han-662f:9x16 // ⿰钅是
 
+## 167'.10
+
+// glyph han-2b506:15x16 15 16 // 𫔆
+// ⿰ han-9485 han-7f62 // ⿰钅罢
+
 ## 167'.12
 
 glyph han-2b50d:15x16 15 16 // 𫔍
@@ -561,6 +576,11 @@ glyph han-2b55e:15x16 15 16 // 𫕞
 
 glyph han-2b560:15x16 15 16 // 𫕠
 ⿱ han-96e8:15x7 1 han-5df4:15x8 // ⿱雨巴
+
+## 173.5
+
+glyph han-2b561:15x16 15 16 // 𫕡
+⿱ han-96e8:15x6 han-5317-v:15x10 // ⿱雨北
 
 ## 173.6
 

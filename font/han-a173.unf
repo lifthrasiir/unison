@@ -396,6 +396,9 @@ glyph han-4ad8:15x16 15 16 // 䫘
 
 ## 181.10
 
+// glyph han-4ae6:15x16 15 16 // 䫦
+// ⿰ han-76cd han-9801 // ⿰盍頁
+
 // glyph han-4ae7:15x16 15 16 // 䫧
 // ⿰ han-768b han-9801 // ⿰皋頁
 
@@ -944,6 +947,9 @@ glyph han-4c51:15x16 15 16 // 䱑
 
 glyph han-4c52:15x16 15 16 // 䱒
 ⿰ -1 han-9b5a:7x16 1 han-9091:8x16 // ⿰魚邑
+
+// glyph han-4c56:15x16 15 16 // 䱖
+// ⿰ han-9b5a han-4e23 // ⿰魚丣
 
 // glyph han-4c58:15x16 15 16 // 䱘
 // ⿱ han-5229 han-9b5a // ⿱利魚

@@ -433,6 +433,9 @@ glyph han-26576:15x16 15 16 // 𦕶
 glyph han-26578:15x16 15 16 // 𦕸
 ⿰ han-8033:6x16-l han-91cc:9x16 // ⿰耳里
 
+// glyph han-2657c:15x16 15 16 // 𦕼
+// ⿰ han-8033 han-4e23 // ⿰耳丣
+
 glyph han-2657d:15x16 15 16 // 𦕽
 ⿲ -1 han-8033:6x16-l han-4ebb:3x16 han-7533:7x16 // ⿲耳亻申
 

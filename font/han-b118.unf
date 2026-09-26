@@ -56,6 +56,9 @@ glyph han-25adf:15x16 15 16 // 𥫟
 glyph han-25ae0:15x16 15 16 // 𥫠
 ⿱ han-25ad7:15x5 han-5efe:15x11 // ⿱𥫗廾
 
+// glyph han-25ae1:15x16 15 16 // 𥫡 ⿱𥫗亏(GT) ⿱𥫗亐(P)
+// ⿱ han-25ad7 han-4e90 // ⿱𥫗亐
+
 // glyph han-25ae4:15x16 15 16 // 𥫤
 // ⿱ han-25ad7 han-5f13 // ⿱𥫗弓
 
@@ -153,8 +156,8 @@ glyph han-25b08:15x16 15 16 // 𥬈
 // glyph han-25b10:15x16 15 16 // 𥬐
 // ⿱ han-25ad7 han-7533 // ⿱𥫗申
 
-// glyph han-25b14:15x16 15 16 // 𥬔
-// ⿱ han-25ad7 han-53bb // ⿱𥫗去
+glyph han-25b14:15x16 15 16 // 𥬔
+⿱ han-25ad7:15x5 han-53bb:15x11 // ⿱𥫗去
 
 glyph han-25b19-g:15x16 15 16 // 𥬙
 ⿱ han-25ad7:15x5 1 han-5de8.0:15x10 // ⿱𥫗巨

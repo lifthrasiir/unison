@@ -2437,6 +2437,9 @@ glyph han-5df6:15x16 15 16 // 巶
 // glyph han-5df7:15x16 15 16 // 巷 ⿱共巳(GHTKP) ⿱共己(J)
 // ⿱ han-5171 han-5df3 // ⿱共巳
 
+// glyph han-5df9:15x16 15 16 // 巹
+// ⿱ han-4e1e han-5df1 // ⿱丞己
+
 // glyph han-5dfb:15x16 15 16 // 巻 ⿱龹己(GTJ) ⿱𠔉己(K)
 // ⿳ han-516b han-592b han-5df1 // ⿳八夫己
 
@@ -3713,6 +3716,11 @@ glyph han-5eaf:15x16 15 16 // 庯
 
 // glyph han-5eca:15x16 15 16 // 廊 ⿸广郎(GHTJPV) ⿸广郞(K)
 // ⿸ han-5e7f han-90de // ⿸广郞
+
+## 53.10
+
+// glyph han-5ec5:15x16 15 16 // 廅
+// ⿸ han-5e7f han-76cd // ⿸广盍
 
 ## 53.11
 

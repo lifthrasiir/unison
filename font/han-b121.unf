@@ -2,6 +2,9 @@
 
 ## 121.3
 
+// glyph han-26223:15x16 15 16 // 𦈣 ⿰缶亏(G) ⿰缶亐(TPV)
+// ⿰ han-7f36 han-4e90 // ⿰缶亐
+
 glyph han-26225:15x16 15 16 // 𦈥
 ⿰ han-7f36:9x16 1 han-4e8d:5x16 // ⿰缶亍
 
@@ -140,6 +143,9 @@ glyph han-2627c:15x16 15 16 // 𦉼
 glyph han-2627e-($han-regions):15x16 15 16 // 𦉾
 ⿱ han-7f52:15x7 1 han-4ea1-($-1):15x8 // ⿱罒亡
 
+// glyph han-2627f:15x16 15 16 // 𦉿 ⿱{113}亐(G) ⿱𦉪亐(T)
+// ⿱ han-2626a han-4e90 // ⿱𦉪亐
+
 // glyph han-26280-($han-regions):15x16 15 16 // 𦊀
 // ⿱ han-2053f han-4ea1-($-1) // ⿱𠔿亡
 
@@ -268,6 +274,9 @@ glyph han-262bc-(t|j|p):15x16 15 16 // 𦊼
 
 glyph han-262be:15x16 15 16 // 𦊾
 ⿳ han-7f52:15x3 1 han-4e0d:15x8 han-53e3:15x4 // ⿳罒不口
+
+// glyph han-262bf:15x16 15 16 // 𦊿
+// ⿱ han-7f52 han-4e23 // ⿱罒丣
 
 glyph han-262c1:15x16 15 16 // 𦋁
 ⿳ han-7f52:15x4 1 han-65e5:15x5 1 han-5e72:15x5 // ⿳罒日干

@@ -517,6 +517,9 @@ glyph han-2463e-(g|t):15x16 15 16 // 𤘾
 glyph han-2463e-(j|p):15x16 15 16 // 𤘾
 ⿰ han-725c:6x16 han-5e73.1:9x16 // ⿰牜平
 
+// glyph han-2463f-($han-regions):15x16 15 16 // 𤘿
+// ⿱ han-5317-($-1) han-725b // ⿱北牛
+
 glyph han-24643:15x16 15 16 // 𤙃
 ⿰ han-725c:6x16 han-672c:9x16 // ⿰牜本
 

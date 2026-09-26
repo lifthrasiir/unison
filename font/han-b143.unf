@@ -456,6 +456,9 @@ glyph han-276de:15x16 15 16 // 𧛞
 // glyph han-276fc:15x16 15 16 // 𧛼
 // ⿰ han-8864 han-5c04 // ⿰衤射
 
+// glyph han-276fe-($han-regions):15x16 15 16 // 𧛾
+// ⿰ han-8864-($-1) han-76cd // ⿰衤盍
+
 // glyph han-27709:15x16 15 16 // 𧜉
 // ⿱ han-9ad8 han-8863 // ⿱高衣
 

@@ -176,6 +176,9 @@ glyph han-6e96:15x16 15 16 // 準
 ⿱ han-6dee:15x13 han-5341:15x3 // ⿱淮十
 glyph han-6e96.0:* = han-6e96:*
 
+// glyph han-6e98:15x16 15 16 // 溘
+// ⿰ han-6c35 han-76cd // ⿰氵盍
+
 // glyph han-6ea1:15x16 15 16 // 溡
 // ⿲ han-6c35 han-65e5 han-5bfa // ⿲氵日寺
 

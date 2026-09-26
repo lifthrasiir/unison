@@ -558,6 +558,9 @@ glyph han-78c6.0:* = han-78c6-j:*
 // glyph han-78ca:15x16 15 16 // 磊
 // ⿱ han-77f3 han-7833 // ⿱石砳
 
+// glyph han-78d5:15x16 15 16 // 磕
+// ⿰ han-77f3 han-76cd // ⿰石盍
+
 // glyph han-78d6-($han-regions):15x16 15 16 // 磖
 // ⿰ han-77f3 han-7fd2-($-1) // ⿰石習
 

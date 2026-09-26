@@ -871,6 +871,9 @@ glyph han-9936-($han-regions):15x16 15 16 // 餶 ⿰飠骨(GTP) ⿰𩙿骨(K)
 glyph han-9936.0:* = han-9936-p:*
 glyph han-9936.1:* = han-9936-j:*
 
+// glyph han-9941-($han-regions):15x16 15 16 // 饁 ⿰飠盍(GHTP) ⿰𩙿盍(JK)
+// ⿰ han-98e0-($-1) han-76cd // ⿰飠盍
+
 // glyph han-9942:15x16 15 16 // 饂 ⿰飠昷(GHT) ⿰𩙿𥁕(JK)
 // ⿰ han-98e0 han-6637 // ⿰飠昷
 
@@ -1002,6 +1005,9 @@ glyph han-9983:15x16 15 16 // 馃
 
 glyph han-9989:15x16 15 16 // 馉
 ⿰ han-9963:5x16 1 han-9aa8-g:9x16 // ⿰饣骨
+
+// glyph han-998c:15x16 15 16 // 馌
+// ⿰ han-9963 han-76cd // ⿰饣盍
 
 // glyph han-998d:15x16 15 16 // 馍
 // ⿰ han-9963 han-83ab // ⿰饣莫
@@ -1285,6 +1291,9 @@ glyph han-99f1.0:* = han-99f1:*
 // ⿰ han-99ac han-5dde // ⿰馬州
 
 ## 187.7
+
+// glyph han-99f5:15x16 15 16 // 駵
+// ⿰ han-99ac han-4e23 // ⿰馬丣
 
 glyph han-99f7:15x16 15 16 // 駷
 ⿰ han-99ac:7x16 1 han-675f:7x16 // ⿰馬束

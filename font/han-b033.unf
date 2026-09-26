@@ -117,6 +117,11 @@ glyph han-21567:15x16 15 16 // 𡕧
 glyph han-2156c:15x16 15 16 // 𡕬
 ⿰ han-590b:7x16 1 han-4ea2:7x16 // ⿰夋亢
 
+## 35.12
+
+// glyph han-21576-($han-regions):15x16 15 16 // 𡕶
+// ⿳ han-5317-($-1) han-5b80 han-590b // ⿳北宀夋 <- ⿱北⿱宀夋
+
 # CJK unified ideographs extension B: 夕 (36)
 
 ## 36.2
@@ -501,6 +506,9 @@ glyph han-2160a:15x16 15 16 // 𡘊
 
 // glyph han-2161e:15x16 15 16 // 𡘞
 // ⿱ han-53b6 han-2160a // ⿱厶𡘊
+
+// glyph han-21623:15x16 15 16 // 𡘣
+// ⿱ han-5927 han-4e23 // ⿱大丣
 
 // glyph han-21624:15x16 15 16 // 𡘤
 // ⿱ han-215dc han-7535 // ⿱𡗜电

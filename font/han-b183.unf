@@ -184,6 +184,9 @@ glyph han-296b9-t:* = han-296b9.y:*
 // glyph han-296bd:15x16 15 16 // 𩚽
 // ⿰ han-98e0 han-7389 // ⿰飠玉
 
+// glyph han-296be-($han-regions):15x16 15 16 // 𩚾
+// ⿱ han-5317-($-1) han-98df-($-1) // ⿱北食
+
 // glyph han-296c3-($han-regions):15x16 15 16 // 𩛃
 // ⿰ han-98e0 han-74dc-($-1) // ⿰飠瓜
 

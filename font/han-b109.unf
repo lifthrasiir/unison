@@ -48,6 +48,9 @@ glyph han-250f1:15x16 15 16 // 𥃱
 glyph han-250f2:15x16 15 16 // 𥃲
 ⿱ han-76ee:15x7 han-5efe:15x9 // ⿱目廾
 
+// glyph han-250f3:15x16 15 16 // 𥃳 ⿰目亏(GP) ⿰目亐(T)
+// ⿰ han-76ee han-4e90 // ⿰目亐
+
 glyph han-250f5:15x16 15 16 // 𥃵
 ⿰ han-76ee:5x16-l han-51e1:10x16 // ⿰目凡
 

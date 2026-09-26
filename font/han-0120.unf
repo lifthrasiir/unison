@@ -1478,8 +1478,8 @@ glyph han-7f61.0:* = han-7f61:*
 glyph han-7f61.1:15x16 15 16 // 罡
 assume ⿱ han-7f52:15x6 -1 han-6b63:15x11 // ⿱罒正
 
-// glyph han-7f62:15x16 15 16 // 罢
-// ⿱ han-7f52 han-53bb // ⿱罒去
+glyph han-7f62:15x16 15 16 // 罢
+⿱ han-7f52:15x5 han-53bb:15x11 // ⿱罒去
 
 ## 122.6
 
@@ -1518,6 +1518,9 @@ glyph han-7f6f:15x16 15 16 // 罯
 
 glyph han-7f73:15x16 15 16 // 罳
 ⿳ han-7f52:15x4 1 han-7530:15x5 han-5fc3:15x6 // ⿳罒田心
+
+// glyph han-7f74:15x16 15 16 // 罴
+// ⿱ han-7f62 han-706c // ⿱罢灬
 
 ## 122.10
 

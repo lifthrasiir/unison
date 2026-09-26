@@ -388,6 +388,9 @@ glyph han-8eef-(g|h|t):15x16 15 16 // 軯
 glyph han-8eef-(j|k|p):15x16 15 16 // 軯
 ⿰ han-8eca:5x16 1 han-5e73.1:9x16 // ⿰車平
 
+// glyph han-8ef0-($han-regions):15x16 15 16 // 軰
+// ⿱ han-5317-($-1) han-8eca // ⿱北車
+
 // glyph han-8ef1-($han-regions):15x16 15 16 // 軱
 // ⿰ han-8eca han-74dc-($-1) // ⿰車瓜
 
@@ -1171,6 +1174,9 @@ glyph han-8fc0.0:* = han-8fc0-j:*
 // glyph han-8fc2-($han-regions):15x16 15 16 // 迂
 // ⿺ han-8fb6-($-1) han-4e8e // ⿺辶于
 
+// glyph han-8fc3-($han-regions):15x16 15 16 // 迃 ⿺辶亏(GTK) ⿺辶亐(P)
+// ⿺ han-8fb6-($-1) han-4e90 // ⿺辶亐
+
 glyph han-8fc7.0:15x16 15 16 // 过
 ⿺ han-8fb6.0:15x16.11x14 han-5bf8:10x12 5 1 // ⿺辶寸
 glyph han-8fc7.1:15x16 15 16 // 过
@@ -1796,6 +1802,9 @@ glyph han-90b5:15x16 15 16 // 邵
 ⿰ han-53ec:10x16 1 han-961d:4x16-r // ⿰召阝
 glyph han-90b5.0:* = han-90b5:*
 
+// glyph han-90b6-($han-regions):15x16 15 16 // 邶
+// ⿰ han-5317-($-1) han-961d // ⿰北阝
+
 glyph han-90b8.0:15x16 15 16 // 邸
 ⿰ han-6c10.0:8x16 han-961d:7x16-r // ⿰氐阝
 glyph han-90b8.1:* = han-90b8.0:*
@@ -2359,6 +2368,9 @@ glyph han-9190.0:* = han-9190:*
 // ⿰ han-9149 han-6637 // ⿰酉昷
 
 ## 164.10
+
+// glyph han-9198:15x16 15 16 // 醘
+// ⿰ han-9149 han-76cd // ⿰酉盍
 
 // glyph han-919e:15x16 15 16 // 醞
 // ⿰ han-9149 han-25055 // ⿰酉𥁕

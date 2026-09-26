@@ -438,6 +438,13 @@ glyph han-2b1ce:15x16 15 16 // 𫇎
 glyph han-2b1da:15x16 15 16 // 𫇚
 ⿰ han-821f:7x16 1 han-5343:7x16 // ⿰舟千
 
+# CJK unified ideographs extension C: 色 (139)
+
+## 139.10
+
+// glyph han-2b1e4:15x16 15 16 // 𫇤
+// ⿰ han-76cd han-8272 // ⿰盍色
+
 # CJK unified ideographs extension C: 艸 (140)
 
 ## 140.2
@@ -1107,6 +1114,11 @@ glyph han-2b39e:15x16 15 16 // 𫎞
 
 // glyph han-2b3bb:15x16 15 16 // 𫎻
 // ⿺ han-8d70 han-661f // ⿺走星
+
+## 156.10
+
+// glyph han-2b3bd:15x16 15 16 // 𫎽
+// ⿺ han-8d70 han-76cd // ⿺走盍
 
 # CJK unified ideographs extension C: 足 (157)
 

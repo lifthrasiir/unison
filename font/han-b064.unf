@@ -202,6 +202,9 @@ glyph han-22adf:15x16 15 16 // 𢫟
 // glyph han-22ae0:15x16 15 16 // 𢫠
 // ⿰ han-624c han-5f18 // ⿰扌弘
 
+// glyph han-22ae3-($han-regions):15x16 15 16 // 𢫣
+// ⿰ han-624c han-5317-($-1) // ⿰扌北
+
 ## 64.6
 
 glyph han-22ae6:15x16 15 16 // 𢫦
@@ -236,6 +239,9 @@ glyph han-22ae9:15x16 15 16 // 𢫩
 
 // glyph han-22af8:15x16 15 16 // 𢫸 ⿰扌吴(G) ⿰扌吳(T)
 // ⿰ han-624c han-5434 // ⿰扌吴
+
+// glyph han-22afb:15x16 15 16 // 𢫻
+// ⿰ han-624c han-4e22 // ⿰扌丢
 
 glyph han-22afc:15x16 15 16 // 𢫼
 ⿰ han-624c:5x16 1 han-866b:9x16 // ⿰扌虫
@@ -444,6 +450,9 @@ glyph han-22bb5:15x16 15 16 // 𢮵
 
 // glyph han-22bc1:15x16 15 16 // 𢯁
 // ⿰ han-624c han-241ac // ⿰扌𤆬
+
+// glyph han-22bc3:15x16 15 16 // 𢯃
+// ⿲ han-624c han-4e22 han-5369 // ⿲扌丢卩 <- ⿰扌⿰丢卩
 
 // glyph han-22bc5:15x16 15 16 // 𢯅
 // ⿰ han-624c han-5774 // ⿰扌坴

@@ -407,6 +407,9 @@ glyph han-29a13:15x16 15 16 // 𩨓
 glyph han-29a15-($han-regions):15x16 15 16 // 𩨕
 ⿰ han-9aa8-($-1):7x16 1 han-5df2:7x16 // ⿰骨已
 
+// glyph han-29a17-($han-regions):15x16 15 16 // 𩨗 ⿰骨亏(G) ⿰骨亐(T)
+// ⿰ han-9aa8-($-1) han-4e90 // ⿰骨亐
+
 glyph han-29a19-($han-regions):15x16 15 16 // 𩨙
 ⿰ han-9aa8-($-1):7x16 1 han-5f13:7x16 // ⿰骨弓
 

@@ -366,6 +366,11 @@ glyph han-310ff:15x16 15 16 // 𱃿
 // glyph han-31117:15x16 15 16 // 𱄗
 // ⿰ han-99ac han-5b82 // ⿰馬宂
 
+## 187.6
+
+// glyph han-31119-($han-regions):15x16 15 16 // 𱄙
+// ⿰ han-99ac han-4e20-($-1) // ⿰馬丠
+
 ## 187.7
 
 // glyph han-3111d:15x16 15 16 // 𱄝

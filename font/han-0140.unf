@@ -306,6 +306,9 @@ glyph han-82db:15x16 15 16 // 苛
 glyph han-82dc:15x16 15 16 // 苜
 ⿱ han-8279:15x3 1 han-76ee:15x12 // ⿱艹目
 
+glyph han-82dd-($han-regions):15x16 15 16 // 苝
+⿱ han-8279:15x3 1 han-5317-($-1):15x12 // ⿱艹北
+
 // glyph han-82de:15x16 15 16 // 苞 ⿱艹包(GHTKPV) ⿱艹⿹勹巳(J)
 // ⿱ han-8279 han-5305 // ⿱艹包
 
@@ -926,6 +929,9 @@ glyph han-8434:15x16 15 16 // 萴
 glyph han-843b:15x16 15 16 // 萻
 ⿳ han-8279:15x3 han-7acb:15x7 1 han-65e5:15x5 // ⿳艹立日
 
+// glyph han-843c:15x16 15 16 // 萼 ⿱艹咢(GHTJK) ⿳艹吅亐(P)
+// ⿳ han-8279 han-5405 han-4e90 // ⿳艹吅亐
+
 // glyph han-843d:15x16 15 16 // 落
 // ⿱ han-8279 han-6d1b // ⿱艹洛
 
@@ -1120,6 +1126,9 @@ glyph han-84c7-($han-regions):15x16 15 16 // 蓇
 // glyph han-84c8:15x16 15 16 // 蓈 ⿱艹郎(GT) ⿱艹郞(JKP)
 // ⿱ han-8279 han-90de // ⿱艹郞
 
+// glyph han-84cb:15x16 15 16 // 蓋
+// ⿱ han-8279 han-76cd // ⿱艹盍
+
 glyph han-84d2:15x16 15 16 // 蓒
 ⿱ han-8279:15x3 1 han-8ed2:15x12 // ⿱艹軒
 
@@ -1255,6 +1264,9 @@ glyph han-854c:15x16 15 16 // 蕌
 
 // glyph han-8558:15x16 15 16 // 蕘
 // ⿱ han-8279 han-582f // ⿱艹堯
+
+// glyph han-855a:15x16 15 16 // 蕚 ⿱艹⿱品亏(GHTJK) ⿱艹⿱品亐(P) ⿱䓵亏(X)
+// ⿳ han-8279 han-54c1 han-4e90 // ⿳艹品亐 <- ⿱艹⿱品亐
 
 // glyph han-855c:15x16 15 16 // 蕜
 // ⿳ han-8279 han-975e han-5fc3 // ⿳艹非心 <- ⿱艹悲

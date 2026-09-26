@@ -296,6 +296,9 @@ glyph han-256b6:15x16 15 16 // 𥚶
 // glyph han-2059f:15x16 15 16 // 𠖟
 // ⿱ han-5196 han-527d // ⿱冖剽
 
+// glyph han-256d0:15x16 15 16 // 𥛐
+// ⿰ han-793b han-76cd // ⿰礻盍
+
 glyph han-256d4-($han-regions):15x16 15 16 // 𥛔
 ⿰ han-793b:5x16 1 han-9aa8-($-1):9x16 // ⿰礻骨
 

@@ -40,6 +40,9 @@ glyph han-2663a:15x16 15 16 // 𦘺 ⿰月巳(GV) ⿰⺼巳(T)
 // glyph han-2663b-($han-regions):15x16 15 16 // 𦘻
 // ⿱ han-4ea1-($-1) han-8089 // ⿱亡肉
 
+// glyph han-2663c:15x16 15 16 // 𦘼
+// ⿹ han-4e90 han-6708 // ⿹亐月
+
 // glyph han-2663d:15x16 15 16 // 𦘽
 // ⿰ han-8089 han-5973 // ⿰肉女
 
@@ -195,6 +198,9 @@ glyph han-266a1:15x16 15 16 // 𦚡 ⿰月血(GP) ⿰⺼血(T)
 glyph han-266a5:15x16 15 16 // 𦚥 ⿰月缶(G) ⿰⺼缶(T)
 ⿰ han-6708:5x16-l 1 han-7f36:9x16 // ⿰月缶
 
+// glyph han-266a6:15x16 15 16 // 𦚦 ⿰月丞(GP) ⿰⺼丞(T)
+// ⿰ han-6708 han-4e1e // ⿰月丞
+
 // glyph han-266a8-($han-regions):15x16 15 16 // 𦚨 ⿱㓞肉(G) ⿱⿰⿻三丨刀肉(T)
 // ⿱ han-34de-($-1) han-8089 // ⿱㓞肉
 
@@ -215,6 +221,9 @@ glyph han-266ad:15x16 15 16 // 𦚭 ⿰月虫(GV) ⿰⺼虫(T)
 
 // glyph han-266c5:15x16 15 16 // 𦛅
 // ⿰ han-8089 han-5b89 // ⿰肉安
+
+// glyph han-266c6:15x16 15 16 // 𦛆
+// ⿱ han-4e1e han-8089 // ⿱丞肉
 
 glyph han-266cb:15x16 15 16 // 𦛋
 ⿰ han-6708:5x16-l 1 han-5409:9x16 // ⿰月吉

@@ -145,6 +145,11 @@ $$............@@............$$
 // glyph han-3000c:15x16 15 16 // 𰀌
 // ⿳ han-4e00 han-53e3 han-5dfe // ⿳一口巾 <- ⿱一吊
 
+## 1.8
+
+// glyph han-30011-($han-regions):15x16 15 16 // 𰀑
+// ⿰ han-4e22 han-624d-($-1) // ⿰丢才
+
 ## 1.9
 
 // glyph han-30012:15x16 15 16 // 𰀒
@@ -606,6 +611,9 @@ glyph han-30122:15x16 15 16 // 𰄢
 
 ## 18.5
 
+// glyph han-30123-($han-regions):15x16 15 16 // 𰄣
+// ⿱ han-5317-($-1) han-5200 // ⿱北刀
+
 glyph han-30124:15x16 15 16 // 𰄤
 ⿰ han-5200:5x16 1 han-5305.1:9x16 // ⿰刀包
 
@@ -667,6 +675,9 @@ glyph han-30149:15x16 15 16 // 𰅉
 glyph han-3014a:15x16 15 16 // 𰅊
 ⿱ han-65e6:15x7 han-529b:15x9 // ⿱旦力
 
+// glyph han-3014b-($han-regions):15x16 15 16 // 𰅋
+// ⿰ han-5317-($-1) han-529b // ⿰北力
+
 ## 19.6
 
 // glyph han-3014d:15x16 15 16 // 𰅍
@@ -718,6 +729,11 @@ glyph han-3014a:15x16 15 16 // 𰅊
 
 // glyph han-30162:15x16 15 16 // 𰅢
 // ⿱ han-6bd4 han-6b20 // ⿱比欠
+
+## 21.10
+
+// glyph han-30163-($han-regions):15x16 15 16 // 𰅣
+// ⿺ han-514b han-5317-($-1) // ⿺克北
 
 # CJK unified ideographs extension G: 匚 (22)
 
@@ -1158,6 +1174,9 @@ glyph han-3025d:15x16 15 16 // 𰉝
 // ⿲ han-571f han-5f13 han-4e28 // ⿲土弓丨 <- ⿰土引
 
 ## 32.5
+
+// glyph han-3025f-($han-regions):15x16 15 16 // 𰉟
+// ⿰ han-571f han-5317-($-1) // ⿰土北
 
 // glyph han-30261-($han-regions):15x16 15 16 // 𰉡
 // ⿰ han-571f han-51ac-($-1) // ⿰土冬

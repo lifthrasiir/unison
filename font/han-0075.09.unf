@@ -156,6 +156,9 @@ glyph han-69b2.0:* = han-69b2:*
 // glyph han-69bb-($han-regions):15x16 15 16 // 榻 ⿰木𦐇(GHTP) ⿰木⿱日羽(JK)
 // ⿰ han-6728 han-26407-($-1) // ⿰木𦐇
 
+// glyph han-69bc:15x16 15 16 // 榼
+// ⿰ han-6728 han-76cd // ⿰木盍
+
 glyph han-69be-($han-regions):15x16 15 16 // 榾
 ⿰ han-6728:5x16 1 han-9aa8-($-1):9x16 // ⿰木骨
 glyph han-69be.0:* = han-69be-j:*

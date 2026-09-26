@@ -485,8 +485,8 @@ glyph han-2c178:15x16 15 16 // 𬅸
 // glyph han-2c17a:15x16 15 16 // 𬅺
 // ⿳ han-4e00 han-65e5 han-6b62 // ⿳一日止 <- ⿱𣄼止
 
-// glyph han-2c17b:15x16 15 16 // 𬅻
-// ⿱ han-53bb han-6b62 // ⿱去止
+glyph han-2c17b:15x16 15 16 // 𬅻
+⿱ han-53bb:15x10 han-6b62:15x6 // ⿱去止
 
 ## 77.7
 
@@ -848,6 +848,9 @@ glyph han-2c29a:15x16 15 16 // 𬊚
 
 // glyph han-2c2b3:15x16 15 16 // 𬊳
 // ⿰ han-706b han-8349 // ⿰火草
+
+// glyph han-2c2b4-($han-regions):15x16 15 16 // 𬊴
+// ⿰ han-7551 han-5317-($-1) // ⿰畑北
 
 // glyph han-2c2bb:15x16 15 16 // 𬊻
 // ⿱ han-3fdf han-706b // ⿱㿟火

@@ -448,6 +448,11 @@ assume ⿰ han-751f:7x16 -1 han-9751-($-1):9x16 // ⿰生靑
 glyph han-291df-($han-regions):15x16 15 16 // 𩇟
 ⿲ han-51ab:3x16 han-9752-($-1):5x16 han-898b:7x16 // ⿲冫青見
 
+## 174.10
+
+// glyph han-291e0-($han-regions):15x16 15 16 // 𩇠 ⿰青盍(GT) ⿰靑盍(Z)
+// ⿰ han-9752-($-1) han-76cd // ⿰青盍
+
 ## 174.11
 
 // glyph han-291e1-($han-regions):15x16 15 16 // 𩇡 ⿰青莘(T) ⿰靑莘(Z)

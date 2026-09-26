@@ -165,6 +165,9 @@ glyph han-289ab-($han-regions):15x16 15 16 // 𨦫
 glyph han-289ac:15x16 15 16 // 𨦬
 ⿲ han-91d2:5x16-l han-624c:3x16 han-65a4:7x16 // ⿲釒扌斤
 
+// glyph han-289b0:15x16 15 16 // 𨦰
+// ⿰ han-91d2 han-4e23 // ⿰釒丣
+
 glyph han-289b6:15x16 15 16 // 𨦶
 ⿲ -2 han-91d2:5x16-l han-624c:3x16 han-592b:9x16 // ⿲釒扌夫
 
