@@ -127,11 +127,7 @@ fn trace_own_grid(
     u64,
 ) {
     let key = hash_grid_for_cache(grid, bitmap);
-    let trace = || {
-        let flavored = flavor_grid(grid, bitmap);
-        let contours = track_contour(&flavored, PX_SUBPIXEL);
-        (std::sync::Arc::new(contours), std::sync::Arc::new(flavored))
-    };
+    let trace = || trace_fresh(grid, bitmap);
     let Some(cache) = cache else {
         let (contours, flavored) = trace();
         return (contours, flavored, key);
@@ -151,6 +147,13 @@ fn trace_own_grid(
         },
     );
     (contours, flavored, key)
+}
+
+/// A glyph's own grid traced for one flavor, with no memo in front of it.
+fn trace_fresh(grid: &PixelGrid, bitmap: bool) -> OwnGridTrace {
+    let flavored = flavor_grid(grid, bitmap);
+    let contours = track_contour(&flavored, PX_SUBPIXEL);
+    (std::sync::Arc::new(contours), std::sync::Arc::new(flavored))
 }
 
 #[derive(Clone)]
@@ -262,6 +265,58 @@ impl CachedContours {
 
     pub(super) fn from_grid(grid: &PixelGrid, bitmap: bool, cc: Option<&mut ContourCache>) -> Self {
         let (contours, flavored, grid_hash) = trace_own_grid(cc, grid, bitmap);
+        Self::from_trace(contours, flavored, grid_hash)
+    }
+
+    /// [`Self::from_grid`] over many grids at once, as `(grid, bitmap)`.
+    ///
+    /// The memo is read from every core and the misses are traced there too;
+    /// only filing them back is serial. Seeding the cache is every drawn glyph
+    /// in the font, and tracing them one after another was most of a cold
+    /// build's serial time. `None` where `cancel` stopped the run short.
+    pub(super) fn from_grids(
+        grids: &[(&PixelGrid, bool)],
+        cc: Option<&mut ContourCache>,
+        cancel: &crate::cancel::CancelToken,
+    ) -> Vec<Option<Self>> {
+        let memo = cc.as_deref();
+        let traced = crate::parallel::map_indexed(grids.len(), cancel, |i| {
+            let (grid, bitmap) = grids[i];
+            let key = hash_grid_for_cache(grid, bitmap);
+            match memo.and_then(|m| m.entries.get(&key)) {
+                Some(entry) => (key, entry.value.clone(), false),
+                None => (key, trace_fresh(grid, bitmap), true),
+            }
+        });
+        if let Some(cc) = cc {
+            let cur_gen = cc.gen_id;
+            for (key, value, fresh) in traced.iter().flatten() {
+                if *fresh {
+                    cc.entries.insert(
+                        *key,
+                        CacheEntry {
+                            value: value.clone(),
+                            gen_id: cur_gen,
+                        },
+                    );
+                } else if let Some(entry) = cc.entries.get_mut(key) {
+                    entry.gen_id = cur_gen;
+                }
+            }
+        }
+        traced
+            .into_iter()
+            .map(|slot| {
+                slot.map(|(key, (contours, flavored), _)| Self::from_trace(contours, flavored, key))
+            })
+            .collect()
+    }
+
+    fn from_trace(
+        contours: std::sync::Arc<TracedContours>,
+        flavored: std::sync::Arc<PixelGrid>,
+        grid_hash: u64,
+    ) -> Self {
         Self {
             declared_origin: (0, 0),
             width: flavored.width,
@@ -663,31 +718,28 @@ impl<'a> ContourBuilder<'a> {
 impl crate::render::glyph_cache::CompositeBuilder<CachedContours> for ContourBuilder<'_> {
     type Key = u64;
 
-    fn lookup(
-        &mut self,
+    fn key(
+        &self,
         pg: &crate::render::glyph_cache::PendingGlyph,
         refs: &[GlyphRef],
         cache: &HashMap<String, CachedContours>,
-    ) -> (u64, Option<CachedContours>) {
+    ) -> u64 {
         // With no cache — the headless build — there is nothing to look a key
         // up in or store one under, and `store` ignores it.
         if self.cache.is_none() {
-            return (0, None);
+            return 0;
         }
-        let key = CachedContours::hash_composite_key(
-            self.own_pixels(pg),
-            refs,
-            cache,
-            self.flavor(&pg.name),
-        );
-        let hit = self.cache.as_deref_mut().and_then(|cc| {
+        CachedContours::hash_composite_key(self.own_pixels(pg), refs, cache, self.flavor(&pg.name))
+    }
+
+    fn lookup(&mut self, key: &u64) -> Option<CachedContours> {
+        self.cache.as_deref_mut().and_then(|cc| {
             let cur_gen = cc.gen_id;
-            cc.composite_entries.get_mut(&key).map(|entry| {
+            cc.composite_entries.get_mut(key).map(|entry| {
                 entry.gen_id = cur_gen;
                 entry.value.clone()
             })
-        });
-        (key, hit)
+        })
     }
 
     fn build(

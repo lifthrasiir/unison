@@ -323,69 +323,101 @@ pub fn collect_issues_cancellable(
     // Duplicate alias declarations and alias cycles; see `crate::alias`.
     issues.extend(cx.docset.to_issues(&cx.aliases.diagnostics));
 
-    glyph_names::check_aliases(&cx, &mut issues);
-    slices::check_slice_qualifiers(&cx, &mut issues);
-    slices::check_name_part_bindings(&cx, &mut issues);
-    slices::check_empty_slices(&cx, &mut issues);
-    glyph_names::check_glyph_charset(&cx, &mut issues);
-    if cancel.is_cancelled() {
-        return None;
-    }
-    remap::check_glyphs_and_remaps(&cx, &mut issues);
-    directives::check_audit(&cx, &mut issues);
-    directives::check_meta(&cx, &mut issues);
-    // Built before the roots are collected, so a `map` target the walk could
-    // do nothing with is never collected as one; see `unused::GlyphGraph`.
-    let graph = unused::collect_graph(&cx);
-    if cancel.is_cancelled() {
-        return None;
-    }
-    let mapped_glyphs = maps::check_maps(&cx, &graph, &mut issues);
-    if cancel.is_cancelled() {
-        return None;
-    }
-    flags::check_vectoronly_reach(&cx, &mapped_glyphs, &mut issues);
-    flags::check_goto_refs(&cx, &mut issues);
-    unused::check_unused_glyphs(&cx, &graph, mapped_glyphs, &mut issues);
-    anchors::check_ambiguous_anchors(&cx, &mut issues);
-    anchors::check_centred_anchor_parity(&cx, &mut issues);
-    if cancel.is_cancelled() {
-        return None;
-    }
-    anchors::check_anchor_derivation(&cx, &mut issues);
-    if cancel.is_cancelled() {
-        return None;
-    }
-    colors::check_colors(&cx, &mut issues);
-    samples::check_samples(&cx, &mut issues);
-    patterns::check_props(docs, &mut issues);
-    maps::check_uvs_maps(&cx, &mut issues);
-    patterns::check_ragged_patterns(docs, cx.name_parts, &mut issues);
-    if cancel.is_cancelled() {
-        return None;
-    }
-    // Once per face, deduplicated: the check is about one font file's fallback
-    // lookup (see `uvs_collision_diagnostics`), and a source with two faces
-    // would otherwise report the same unqualified pair twice.
-    let mut seen_uvs: HashSet<(Option<crate::resolve::ItemRef>, String)> = HashSet::default();
-    for face in &cx.faces.faces {
-        for d in maps::uvs_collision_diagnostics(expansion, face) {
-            if seen_uvs.insert((d.origin, d.message.clone())) {
-                issues.push(cx.docset.to_issue(&d));
+    // The checks read `cx` and nothing another check writes, so they run at
+    // once: one thread per expensive check (or chain of checks sharing a
+    // graph), and one for everything cheap. Each writes a list of its own, and
+    // the lists are joined in the order the checks are written, so the report
+    // — sorted stably below — is exactly the one a serial run makes. Serially
+    // this was the longest stage of a rebuild, and it runs beside the font
+    // build, which is mostly serial itself.
+    let cx = &cx;
+    let run = |f: &dyn Fn(&mut Vec<Issue>)| {
+        let mut out = Vec::new();
+        f(&mut out);
+        out
+    };
+    let parts: Option<[Vec<Issue>; 7]> = std::thread::scope(|scope| {
+        let reach = scope.spawn(|| {
+            // Built before the roots are collected, so a `map` target the walk
+            // could do nothing with is never collected as one; see
+            // `unused::GlyphGraph`.
+            let graph = unused::collect_graph(cx);
+            if cancel.is_cancelled() {
+                return None;
             }
-        }
+            let mut out = Vec::new();
+            let mapped_glyphs = maps::check_maps(cx, &graph, &mut out);
+            if cancel.is_cancelled() {
+                return None;
+            }
+            flags::check_vectoronly_reach(cx, &mapped_glyphs, &mut out);
+            flags::check_goto_refs(cx, &mut out);
+            unused::check_unused_glyphs(cx, &graph, mapped_glyphs, &mut out);
+            Some(out)
+        });
+        let derivation = scope.spawn(|| run(&|out| anchors::check_anchor_derivation(cx, out)));
+        let uvs = scope.spawn(|| {
+            // Once per face, deduplicated: the check is about one font file's
+            // fallback lookup (see `uvs_collision_diagnostics`), and a source
+            // with two faces would otherwise report the same unqualified pair
+            // twice.
+            let mut out = Vec::new();
+            let mut seen: HashSet<(Option<crate::resolve::ItemRef>, String)> = HashSet::default();
+            for face in &cx.faces.faces {
+                for d in maps::uvs_collision_diagnostics(expansion, face) {
+                    if seen.insert((d.origin, d.message.clone())) {
+                        out.push(cx.docset.to_issue(&d));
+                    }
+                }
+            }
+            out
+        });
+        let names = run(&|out| {
+            glyph_names::check_aliases(cx, out);
+            slices::check_slice_qualifiers(cx, out);
+            slices::check_name_part_bindings(cx, out);
+            slices::check_empty_slices(cx, out);
+            glyph_names::check_glyph_charset(cx, out);
+            remap::check_glyphs_and_remaps(cx, out);
+            directives::check_audit(cx, out);
+            directives::check_meta(cx, out);
+        });
+        let placement = run(&|out| {
+            anchors::check_ambiguous_anchors(cx, out);
+            anchors::check_centred_anchor_parity(cx, out);
+        });
+        let sources = run(&|out| {
+            colors::check_colors(cx, out);
+            samples::check_samples(cx, out);
+            patterns::check_props(docs, out);
+            maps::check_uvs_maps(cx, out);
+            patterns::check_ragged_patterns(docs, cx.name_parts, out);
+        });
+        // A rule the GSUB builder would drop, reported from where the dropping
+        // is decided rather than reimplemented here; see
+        // `ttf_builder::shadowed_single_subst_rules`.
+        let shadowed =
+            cx.docset
+                .to_issues(&crate::render::ttf_builder::shadowed_single_subst_rules(
+                    docs,
+                    cx.name_parts,
+                    cx.aliases,
+                ));
+        let reach = reach.join().unwrap()?;
+        Some([
+            names,
+            reach,
+            placement,
+            derivation.join().unwrap(),
+            sources,
+            uvs.join().unwrap(),
+            shadowed,
+        ])
+    });
+    if cancel.is_cancelled() {
+        return None;
     }
-    // A rule the GSUB builder would drop, reported from where the dropping is
-    // decided rather than reimplemented here; see
-    // `ttf_builder::shadowed_single_subst_rules`.
-    issues.extend(
-        cx.docset
-            .to_issues(&crate::render::ttf_builder::shadowed_single_subst_rules(
-                docs,
-                cx.name_parts,
-                cx.aliases,
-            )),
-    );
+    issues.extend(parts?.into_iter().flatten());
 
     issues.sort_by(|a, b| {
         a.severity

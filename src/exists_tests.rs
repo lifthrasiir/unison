@@ -1056,3 +1056,51 @@ fn the_carry_over_an_alias_lasts_one_line() {
         ]
     );
 }
+
+/// The regex-free multi-alias search agrees with the pattern it stands for.
+#[test]
+fn a_multi_alias_search_matches_as_its_regex_does() {
+    for prefix in ["han-4e00:", "a.b", "x", ""] {
+        let fast = ExistsPattern::multi_alias(prefix).unwrap();
+        let slow = ExistsPattern::parse(&crate::alias::multi_alias_search(prefix)).unwrap();
+        assert_eq!(fast.source(), slow.source());
+        assert_eq!(fast.capture_count(), slow.capture_count());
+        for name in [
+            "han-4e00:15x16",
+            "han-4e00:",
+            "han-4e00",
+            "a.b",
+            "a.bc",
+            "axb",
+            "x",
+            "xy.z-1",
+            "",
+            "x\u{e9}",
+            "han-4e00:\n",
+        ] {
+            assert_eq!(
+                fast.capture(name),
+                slow.capture(name),
+                "{prefix:?} over {name:?}"
+            );
+        }
+    }
+}
+
+/// The suffix prefilter reads only what every match must end with.
+#[test]
+fn the_literal_suffix_is_what_every_match_ends_with() {
+    let suffix = |p: &str| literal_suffix(&restricted_hir(p).unwrap());
+    assert_eq!(suffix("han-([0-9a-f]{4,5})-v:15x16"), "-v:15x16");
+    assert_eq!(suffix("a(b(c))"), "abc");
+    assert_eq!(suffix("[ab](b(c))"), "bc");
+    assert_eq!(suffix("x(.*)"), "");
+    assert_eq!(suffix("han-(a)-x|han-(b)-y"), "");
+    assert_eq!(suffix("(?i)han-k"), "");
+    let p = ExistsPattern::parse("han-([0-9a-f]{4,5})\\.([0-1]?[0-9a-f]):15x16").unwrap();
+    assert_eq!(
+        p.capture("han-4e00.1:15x16"),
+        Some(vec!["han-4e00.1:15x16".into(), "4e00".into(), "1".into()])
+    );
+    assert_eq!(p.capture("han-4e00.1:15x1"), None);
+}

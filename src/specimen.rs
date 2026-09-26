@@ -599,6 +599,16 @@ impl SpecimenData {
                 if exists.is_directive(origin) {
                     continue;
                 }
+                // Only a `map` states a character. Asked before anything is
+                // bound: every multi-alias is a scoped item, and binding the
+                // name parts for thousands of them only to match nothing below
+                // was most of what this walk cost.
+                if !matches!(
+                    item,
+                    DocumentItem::Map { .. } | DocumentItem::MapDecomposed { .. }
+                ) {
+                    continue;
+                }
                 let scope = exists.scope(origin);
                 if scope.is_some_and(|s| s.matches.is_empty()) {
                     continue;

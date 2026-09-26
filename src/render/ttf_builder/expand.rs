@@ -203,6 +203,188 @@ fn expand_glyph_item(
     }
 }
 
+/// One source item as `face` states it: nothing for an `exists` line or an
+/// alias, once per match under a search, once per slice for a qualified line.
+///
+/// `rounds` is which matches of the search above a `glyph` block to expand,
+/// so that one block can be several units of work. Every other item is one
+/// unit, and is given `0..1`.
+#[allow(clippy::too_many_arguments)]
+fn expand_item(
+    item: &DocumentItem,
+    origin: ItemRef,
+    rounds: std::ops::Range<usize>,
+    name_parts: &NamePartsMap,
+    scoped: &crate::document::SliceNameParts,
+    exists: &crate::exists::ExistsScopes,
+    face: &crate::faces::Face,
+    all_items: &mut Vec<ExpandedItem>,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    // An `exists` states a condition on the line below it and nothing
+    // of its own.
+    if exists.is_directive(origin) {
+        return;
+    }
+    // The search above it, if there is one. Its slots are bound one
+    // match at a time below, so from here on a scoped item expands
+    // through exactly the machinery an unscoped one does.
+    let scope = exists.scope(origin);
+    if scope.is_some_and(|s| s.matches.is_empty()) {
+        // The search found nothing, so the line below it stands for
+        // nothing. Warned about at the `exists`, not here.
+        return;
+    }
+    // A qualifier lists the slices the line is stated for, one at a
+    // time; the face keeps the ones it includes. An unqualified line is
+    // the base slice, which every face includes.
+    let mut slices: Vec<Option<&str>> = match item.slice_qualifier() {
+        [] => vec![None],
+        qual => qual.iter().map(|s| Some(s.as_str())).collect(),
+    };
+    slices.retain(|s| face.includes(*s));
+    if slices.is_empty() {
+        return;
+    }
+    // An alias declares no glyph. It has already been folded into
+    // `aliases`, and the references that named it are rewritten below.
+    if matches!(item, DocumentItem::GlyphAlias { .. }) {
+        return;
+    }
+    if let DocumentItem::Glyph { name, body } = item {
+        // A scoped block runs once per match, each `$N` bound to one
+        // string, so a group written beside a slot expands the way it
+        // does on any other line; see [`crate::exists`]. The base is
+        // cloned once for the run of matches and rebound per match.
+        let mut per = scope.map(|_| name_parts.clone());
+        for round in rounds {
+            let name_parts = match (scope, &mut per) {
+                (Some(scope), Some(per)) => {
+                    scope.rebind(per, round);
+                    &*per
+                }
+                _ => name_parts,
+            };
+            expand_glyph_item(
+                name,
+                body,
+                name_parts,
+                origin,
+                round,
+                all_items,
+                diagnostics,
+            );
+        }
+    } else if let (
+        Some(scope),
+        DocumentItem::Map {
+            char_repr,
+            selector,
+            glyphs,
+            ..
+        },
+    ) = (scope, item)
+    {
+        // A scoped `map` unrolls per match like everything else, but
+        // it also *computes* its code point from the match, which is
+        // the one thing a name pattern cannot carry: a `map` line is
+        // unrolled per codepoint by `expand_map_pairs`, and there is no
+        // pattern left there for the codepoint to come out of.
+        for slice in &slices {
+            let parts = scoped.for_slice(*slice);
+            let one: Vec<String> = slice.iter().map(|s| s.to_string()).collect();
+            // Cloned once for the line rather than once per match; see
+            // [`crate::exists::Scope::rebind`].
+            let mut per = parts.clone();
+            for (i, caps) in scope.matches.iter().enumerate() {
+                let (char_repr, selector) = match (
+                    crate::exists::eval_codepoint(char_repr, caps),
+                    selector
+                        .as_deref()
+                        .map(|s| crate::exists::eval_codepoint(s, caps))
+                        .transpose(),
+                ) {
+                    (Ok(c), Ok(s)) => (c, s),
+                    (Err(e), _) | (_, Err(e)) => {
+                        // Reported once for the line rather than once
+                        // per match: the spelling is the line's, so
+                        // every match fails it the same way.
+                        if i == 0 {
+                            diagnostics.push(Diagnostic::error(origin, e));
+                        }
+                        continue;
+                    }
+                };
+                scope.rebind(&mut per, i);
+                all_items.push(ExpandedItem {
+                    item: DocumentItem::Map {
+                        slices: one.clone(),
+                        comment: None,
+                        char_repr,
+                        selector,
+                        glyphs: glyphs
+                            .iter()
+                            .map(|g| substitute_name_parts(g, &per))
+                            .collect(),
+                    },
+                    origin: Some(origin),
+                });
+            }
+        }
+    } else {
+        // Everything else is emitted once per slice it is stated for,
+        // each with that slice's name parts. Downstream never sees a
+        // multi-slice item: `slices` here is one slice or none.
+        for slice in &slices {
+            let parts = scoped.for_slice(*slice);
+            let one: Vec<String> = slice.iter().map(|s| s.to_string()).collect();
+            let item = match item {
+                DocumentItem::Map {
+                    char_repr,
+                    selector,
+                    glyphs,
+                    ..
+                } => DocumentItem::Map {
+                    slices: one,
+                    comment: None,
+                    char_repr: char_repr.clone(),
+                    selector: selector.clone(),
+                    glyphs: glyphs
+                        .iter()
+                        .map(|g| substitute_name_parts(g, parts))
+                        .collect(),
+                },
+                DocumentItem::MapDecomposed {
+                    char_repr,
+                    selector,
+                    glyph,
+                    ..
+                } => DocumentItem::MapDecomposed {
+                    slices: one,
+                    comment: None,
+                    char_repr: char_repr.clone(),
+                    selector: selector.clone(),
+                    glyph: glyph.as_ref().map(|g| substitute_name_parts(g, parts)),
+                },
+                DocumentItem::Feature { .. } | DocumentItem::FeatureAnchor { .. } => {
+                    let mut item = item.clone();
+                    match &mut item {
+                        DocumentItem::Feature { slices, .. }
+                        | DocumentItem::FeatureAnchor { slices, .. } => *slices = one,
+                        _ => unreachable!(),
+                    }
+                    item
+                }
+                other => other.clone(),
+            };
+            all_items.push(ExpandedItem {
+                item,
+                origin: Some(origin),
+            });
+        }
+    }
+}
+
 /// `cancel` is read between the stages below, and inside the one that runs on
 /// every core (settling `map` alternatives); `None` means it was set.
 fn expand_inner(
@@ -221,12 +403,17 @@ fn expand_inner(
     // declare what, and the merge candidates below rest on that. Nothing in the
     // other direction: a search reads the names as written, so it needs no
     // alias map of its own.
+    let _perf = crate::startup::PerfStage::new("expand: exists");
     let (exists, exists_diagnostics) = crate::exists::resolve_scopes(docs, name_parts);
     diagnostics.extend(exists_diagnostics);
     if cancel.is_cancelled() {
         return None;
     }
+    drop(_perf);
+    let _perf = crate::startup::PerfStage::new("expand: aliases");
     let aliases = crate::alias::AliasMap::collect_with_merges(docs, name_parts, &exists);
+    drop(_perf);
+    let _perf = crate::startup::PerfStage::new("expand: items");
     if cancel.is_cancelled() {
         return None;
     }
@@ -235,174 +422,58 @@ fn expand_inner(
     // source binds something per slice.
     let scoped = crate::document::SliceNameParts::with_base(docs, name_parts.clone());
 
-    for (doc_idx, doc) in docs.iter().enumerate() {
-        for (item_idx, item) in doc.items.iter().enumerate() {
-            let origin = ItemRef::new(doc_idx, item_idx);
-            // An `exists` states a condition on the line below it and nothing
-            // of its own.
-            if exists.is_directive(origin) {
-                continue;
-            }
-            // The search above it, if there is one. Its slots are bound one
-            // match at a time below, so from here on a scoped item expands
-            // through exactly the machinery an unscoped one does.
-            let scope = exists.scope(origin);
-            if scope.is_some_and(|s| s.matches.is_empty()) {
-                // The search found nothing, so the line below it stands for
-                // nothing. Warned about at the `exists`, not here.
-                continue;
-            }
-            // A qualifier lists the slices the line is stated for, one at a
-            // time; the face keeps the ones it includes. An unqualified line is
-            // the base slice, which every face includes.
-            let mut slices: Vec<Option<&str>> = match item.slice_qualifier() {
-                [] => vec![None],
-                qual => qual.iter().map(|s| Some(s.as_str())).collect(),
-            };
-            slices.retain(|s| face.includes(*s));
-            if slices.is_empty() {
-                continue;
-            }
-            // An alias declares no glyph. It has already been folded into
-            // `aliases`, and the references that named it are rewritten below.
-            if matches!(item, DocumentItem::GlyphAlias { .. }) {
-                continue;
-            }
-            if let DocumentItem::Glyph { name, body } = item {
-                // A scoped block runs once per match, each `$N` bound to one
-                // string, so a group written beside a slot expands the way it
-                // does on any other line; see [`crate::exists`]. The base is
-                // cloned once for the line and rebound per match.
-                let mut per = scope.map(|_| name_parts.clone());
-                for round in 0..scope.map_or(1, |s| s.len()) {
-                    let name_parts = match (scope, &mut per) {
-                        (Some(scope), Some(per)) => {
-                            scope.rebind(per, round);
-                            &*per
-                        }
-                        _ => name_parts,
-                    };
-                    expand_glyph_item(
-                        name,
-                        body,
-                        name_parts,
-                        origin,
-                        round,
-                        &mut all_items,
-                        &mut diagnostics,
-                    );
-                }
-            } else if let (
-                Some(scope),
-                DocumentItem::Map {
-                    char_repr,
-                    selector,
-                    glyphs,
-                    ..
-                },
-            ) = (scope, item)
-            {
-                // A scoped `map` unrolls per match like everything else, but
-                // it also *computes* its code point from the match, which is
-                // the one thing a name pattern cannot carry: a `map` line is
-                // unrolled per codepoint by `expand_map_pairs`, and there is no
-                // pattern left there for the codepoint to come out of.
-                for slice in &slices {
-                    let parts = scoped.for_slice(*slice);
-                    let one: Vec<String> = slice.iter().map(|s| s.to_string()).collect();
-                    // Cloned once for the line rather than once per match; see
-                    // [`crate::exists::Scope::rebind`].
-                    let mut per = parts.clone();
-                    for (i, caps) in scope.matches.iter().enumerate() {
-                        let (char_repr, selector) = match (
-                            crate::exists::eval_codepoint(char_repr, caps),
-                            selector
-                                .as_deref()
-                                .map(|s| crate::exists::eval_codepoint(s, caps))
-                                .transpose(),
-                        ) {
-                            (Ok(c), Ok(s)) => (c, s),
-                            (Err(e), _) | (_, Err(e)) => {
-                                // Reported once for the line rather than once
-                                // per match: the spelling is the line's, so
-                                // every match fails it the same way.
-                                if i == 0 {
-                                    diagnostics.push(Diagnostic::error(origin, e));
-                                }
-                                continue;
-                            }
-                        };
-                        scope.rebind(&mut per, i);
-                        all_items.push(ExpandedItem {
-                            item: DocumentItem::Map {
-                                slices: one.clone(),
-                                comment: None,
-                                char_repr,
-                                selector,
-                                glyphs: glyphs
-                                    .iter()
-                                    .map(|g| substitute_name_parts(g, &per))
-                                    .collect(),
-                            },
-                            origin: Some(origin),
-                        });
-                    }
-                }
-            } else {
-                // Everything else is emitted once per slice it is stated for,
-                // each with that slice's name parts. Downstream never sees a
-                // multi-slice item: `slices` here is one slice or none.
-                for slice in &slices {
-                    let parts = scoped.for_slice(*slice);
-                    let one: Vec<String> = slice.iter().map(|s| s.to_string()).collect();
-                    let item = match item {
-                        DocumentItem::Map {
-                            char_repr,
-                            selector,
-                            glyphs,
-                            ..
-                        } => DocumentItem::Map {
-                            slices: one,
-                            comment: None,
-                            char_repr: char_repr.clone(),
-                            selector: selector.clone(),
-                            glyphs: glyphs
-                                .iter()
-                                .map(|g| substitute_name_parts(g, parts))
-                                .collect(),
-                        },
-                        DocumentItem::MapDecomposed {
-                            char_repr,
-                            selector,
-                            glyph,
-                            ..
-                        } => DocumentItem::MapDecomposed {
-                            slices: one,
-                            comment: None,
-                            char_repr: char_repr.clone(),
-                            selector: selector.clone(),
-                            glyph: glyph.as_ref().map(|g| substitute_name_parts(g, parts)),
-                        },
-                        DocumentItem::Feature { .. } | DocumentItem::FeatureAnchor { .. } => {
-                            let mut item = item.clone();
-                            match &mut item {
-                                DocumentItem::Feature { slices, .. }
-                                | DocumentItem::FeatureAnchor { slices, .. } => *slices = one,
-                                _ => unreachable!(),
-                            }
-                            item
-                        }
-                        other => other.clone(),
-                    };
-                    all_items.push(ExpandedItem {
-                        item,
-                        origin: Some(origin),
-                    });
-                }
-            }
+    // Nothing an item expands to depends on another's, so the items run on
+    // every core and are joined in source order, which is the order a serial
+    // walk would have left them in. A glyph block under a search is cut into
+    // runs of its matches, because a single han search is thousands of them
+    // and would otherwise be one thread's work while the rest sat idle.
+    const ROUNDS_PER_UNIT: usize = 256;
+    let units: Vec<(ItemRef, std::ops::Range<usize>)> = docs
+        .iter()
+        .enumerate()
+        .flat_map(|(d, doc)| {
+            let exists = &exists;
+            doc.items.iter().enumerate().flat_map(move |(i, item)| {
+                let origin = ItemRef::new(d, i);
+                let rounds = match (item, exists.scope(origin)) {
+                    (DocumentItem::Glyph { .. }, Some(scope)) => scope.len(),
+                    _ => 1,
+                };
+                (0..rounds.div_ceil(ROUNDS_PER_UNIT).max(1)).map(move |k| {
+                    let start = k * ROUNDS_PER_UNIT;
+                    (origin, start..(start + ROUNDS_PER_UNIT).min(rounds))
+                })
+            })
+        })
+        .collect();
+    // Handed out a few dozen at a time: most items are a comment or a `map`
+    // line, which is less work than taking one from the shared counter.
+    let chunks: Vec<_> = units.chunks(64).collect();
+    let expanded = crate::parallel::map_indexed(chunks.len(), cancel, |k| {
+        let mut items = Vec::new();
+        let mut diagnostics = Vec::new();
+        for (origin, rounds) in chunks[k] {
+            expand_item(
+                &docs[origin.doc as usize].items[origin.item as usize],
+                *origin,
+                rounds.clone(),
+                name_parts,
+                &scoped,
+                &exists,
+                face,
+                &mut items,
+                &mut diagnostics,
+            );
         }
+        (items, diagnostics)
+    });
+    if cancel.is_cancelled() {
+        return None;
     }
-
+    for (items, diags) in expanded.into_iter().flatten() {
+        all_items.extend(items);
+        diagnostics.extend(diags);
+    }
     if cancel.is_cancelled() {
         return None;
     }
@@ -450,6 +521,8 @@ fn expand_inner(
     // After canonicalization, so a component named through an alias is sized by
     // the glyph it actually is, and before everything below, so nothing
     // downstream has to know an IDC line exists.
+    drop(_perf);
+    let _perf = crate::startup::PerfStage::new("expand: compose");
     let mut undecided_parts: HashSet<(Option<ItemRef>, String)> = HashSet::default();
     let audit = crate::audit::AuditRules::collect(docs);
     expand_compose_lines(
@@ -466,7 +539,11 @@ fn expand_inner(
     if cancel.is_cancelled() {
         return None;
     }
+    drop(_perf);
+    let _perf = crate::startup::PerfStage::new("expand: map alternatives");
     resolve_map_alternatives(&mut all_items, &aliases, &mut diagnostics, cancel);
+    drop(_perf);
+    let _perf = crate::startup::PerfStage::new("expand: map pairs");
     if cancel.is_cancelled() {
         return None;
     }
@@ -516,6 +593,8 @@ fn expand_inner(
         }
     }
 
+    drop(_perf);
+    let _perf = crate::startup::PerfStage::new("expand: decomposed+on-demand");
     expand_decomposed_maps(&mut all_items, &cp_to_glyph, &mut diagnostics);
     if cancel.is_cancelled() {
         return None;
@@ -616,66 +695,88 @@ fn expand_compose_lines(
     let profiles = ink_profiles(all_items, clearances, aliases, name_parts);
     let ink = |name: &str| profiles.get(name);
 
-    for e in all_items.iter_mut() {
-        let DocumentItem::Glyph { name, body } = &mut e.item else {
-            continue;
+    // Each line is solved from what the maps above say and nothing another
+    // line derives, so the lines are solved on every core and written back in
+    // item order, which keeps the diagnostics in the order a serial walk left
+    // them in.
+    let composed: Vec<usize> = (0..all_items.len())
+        .filter(|&i| has_compose(&all_items[i]))
+        .collect();
+    let solved = {
+        let all_items = &*all_items;
+        crate::parallel::map_indexed(composed.len(), &crate::cancel::CancelToken::never(), |k| {
+            let e = &all_items[composed[k]];
+            let DocumentItem::Glyph { name, body } = &e.item else {
+                unreachable!("`composed` holds glyph blocks only");
+            };
+            let glyph_name = name.display();
+            let parent = declared(body);
+            let mut diagnostics = Vec::new();
+            let mut undecided = Vec::new();
+            // A second IDC line would be a second answer to "what shape is
+            // this glyph", and there is no rule for combining them: ⿰
+            // inside ⿱ is a component that is itself a composite, written
+            // as its own glyph.
+            if body.compose.len() > 1 {
+                diagnostics.push(
+                    Diagnostic::error(
+                        e.origin,
+                        format!(
+                            "glyph '{glyph_name}' has {} IDC lines; a glyph is split once, \
+                                 and a part that is itself split is a glyph of its own",
+                            body.compose.len(),
+                        ),
+                    )
+                    .about(&glyph_name),
+                );
+            }
+            let mut derived = Vec::new();
+            for compose in &body.compose {
+                for name in compose.part_names() {
+                    if crate::compose::is_undecided(name) {
+                        undecided.push((e.origin, name.to_string()));
+                    }
+                }
+                let contact = audit.max_contact_run.for_glyph(&glyph_name);
+                let rule = clearances.for_glyph(&glyph_name).map(|(written, band)| {
+                    crate::compose::ClearanceRule {
+                        written,
+                        band,
+                        ink: &ink,
+                        max_contact_run: contact.map(|(_, max)| max),
+                        contact_written: contact.map_or("", |(w, _)| w),
+                    }
+                });
+                let (refs, issues) = crate::compose::expand_compose(
+                    &glyph_name,
+                    parent,
+                    crate::compose::Raster::of(body),
+                    compose,
+                    &dims,
+                    Some(&family),
+                    rule.as_ref(),
+                );
+                for (severity, message) in issues {
+                    // Named down to the glyph, not just to the line: one
+                    // pattern block writes the split of thousands of
+                    // glyphs, and what each of them is made of — so what
+                    // is wrong with it — is its own. See
+                    // [`crate::glyph_flags`].
+                    diagnostics
+                        .push(Diagnostic::new(severity, e.origin, message).about(&glyph_name));
+                }
+                derived.extend(refs);
+            }
+            (derived, diagnostics, undecided)
+        })
+    };
+    for (i, slot) in composed.into_iter().zip(solved) {
+        let (mut derived, diags, undecided) = slot.expect("a `never` token cannot cancel");
+        let DocumentItem::Glyph { body, .. } = &mut all_items[i].item else {
+            unreachable!("`composed` holds glyph blocks only");
         };
-        if body.compose.is_empty() {
-            continue;
-        }
-        let glyph_name = name.display();
-        let parent = declared(body);
-        // A second IDC line would be a second answer to "what shape is this
-        // glyph", and there is no rule for combining them: ⿰ inside ⿱ is a
-        // component that is itself a composite, written as its own glyph.
-        if body.compose.len() > 1 {
-            diagnostics.push(
-                Diagnostic::error(
-                    e.origin,
-                    format!(
-                        "glyph '{glyph_name}' has {} IDC lines; a glyph is split once, and a \
-                         part that is itself split is a glyph of its own",
-                        body.compose.len(),
-                    ),
-                )
-                .about(&glyph_name),
-            );
-        }
-        let mut derived = Vec::new();
-        for compose in &body.compose {
-            for name in compose.part_names() {
-                if crate::compose::is_undecided(name) {
-                    undecided_parts.insert((e.origin, name.to_string()));
-                }
-            }
-            let contact = audit.max_contact_run.for_glyph(&glyph_name);
-            let rule = clearances.for_glyph(&glyph_name).map(|(written, band)| {
-                crate::compose::ClearanceRule {
-                    written,
-                    band,
-                    ink: &ink,
-                    max_contact_run: contact.map(|(_, max)| max),
-                    contact_written: contact.map_or("", |(w, _)| w),
-                }
-            });
-            let (refs, issues) = crate::compose::expand_compose(
-                &glyph_name,
-                parent,
-                crate::compose::Raster::of(body),
-                compose,
-                &dims,
-                Some(&family),
-                rule.as_ref(),
-            );
-            for (severity, message) in issues {
-                // Named down to the glyph, not just to the line: one pattern
-                // block writes the split of thousands of glyphs, and what each
-                // of them is made of — so what is wrong with it — is its own.
-                // See [`crate::glyph_flags`].
-                diagnostics.push(Diagnostic::new(severity, e.origin, message).about(&glyph_name));
-            }
-            derived.extend(refs);
-        }
+        diagnostics.extend(diags);
+        undecided_parts.extend(undecided);
         // In front of the block's own refs, which are what is drawn *over* the
         // split, and in place of the line: an expanded body carries no IDC.
         derived.append(&mut body.refs);
@@ -785,10 +886,25 @@ fn ink_profiles(
         crate::compose::InkProfile::of(pixels, scale, raster, body.declared_origin(), extent)
     };
 
-    let mut profiles = HashMap::default();
+    // A profile is a pure function of one grid, and a source checking the
+    // clearance of every han IDC line asks for thousands of them, so they are
+    // taken on every core; the flattening between the two batches is not.
+    // A part's name, its body, and the grid it is measured on with that grid's
+    // raster origin and scale.
+    type Measured<'a> = (&'a str, &'a GlyphBody, &'a PixelGrid, (i32, i32), u8);
+    let profile_all = |grids: &[Measured]| {
+        crate::parallel::map_indexed(grids.len(), &crate::cancel::CancelToken::never(), |i| {
+            let (name, body, pixels, raster, scale) = grids[i];
+            (name.to_string(), profile_of(body, pixels, raster, scale))
+        })
+        .into_iter()
+        .flatten()
+    };
+
+    let mut direct = Vec::new();
     let mut composites: Vec<&str> = Vec::new();
     for &name in &wanted {
-        let Some(body) = bodies.get(name) else {
+        let Some(&body) = bodies.get(name) else {
             continue;
         };
         // A part split by a line of its own draws no pixels either: the walk
@@ -798,16 +914,12 @@ fn ink_profiles(
             continue;
         }
         match (body.refs.is_empty(), body.pixels.as_ref()) {
-            (true, Some(pixels)) => {
-                profiles.insert(
-                    name.to_string(),
-                    profile_of(body, pixels, (0, 0), body.scale),
-                );
-            }
+            (true, Some(pixels)) => direct.push((name, body, pixels, (0, 0), body.scale)),
             (false, _) => composites.push(name),
             (true, None) => {}
         }
     }
+    let mut profiles: HashMap<String, crate::compose::InkProfile> = profile_all(&direct).collect();
     if composites.is_empty() {
         return profiles;
     }
@@ -819,20 +931,22 @@ fn ink_profiles(
         name_parts,
         &crate::document::collect_anchor_aligns(all_items.iter().map(|e| &e.item)),
     );
-    for name in composites {
-        let (Some(body), Some(flat)) = (bodies.get(name), resolved.get(name)) else {
-            continue;
-        };
-        profiles.insert(
-            name.to_string(),
-            profile_of(
+    let flattened: Vec<_> = composites
+        .into_iter()
+        .filter_map(|name| {
+            let (Some(&body), Some(flat)) = (bodies.get(name), resolved.get(name)) else {
+                return None;
+            };
+            Some((
+                name,
                 body,
                 &flat.grid,
                 (flat.origin_col, flat.origin_row),
                 flat.scale,
-            ),
-        );
-    }
+            ))
+        })
+        .collect();
+    profiles.extend(profile_all(&flattened));
     profiles
 }
 
@@ -2014,11 +2128,28 @@ fn inject_on_demand_glyph_items(
         aliases.resolved_target(n).unwrap_or(n)
     }
 
-    for (name, origin) in unique {
-        use crate::on_demand::{OnDemandGlyph, detect_on_demand_glyph};
-        match detect_on_demand_glyph(&name, |n| defined.contains(canonical(aliases, n))) {
+    // Recognizing a name and drawing the shape it asks for read nothing but
+    // the name and `defined`, and a shape is exact geometry — a cold build
+    // draws hundreds of them — so both run on every core ahead of the walk,
+    // which then only appends in order.
+    use crate::on_demand::{OnDemandGlyph, detect_on_demand_glyph};
+    let synthesized =
+        crate::parallel::map_indexed(unique.len(), &crate::cancel::CancelToken::never(), |i| {
+            let found =
+                detect_on_demand_glyph(&unique[i].0, |n| defined.contains(canonical(aliases, n)));
+            let grid = match &found {
+                Some(OnDemandGlyph::Shape(spec)) => {
+                    Some(crate::on_demand::make_on_demand_grid(spec))
+                }
+                _ => None,
+            };
+            (found, grid)
+        });
+    for ((name, origin), slot) in unique.into_iter().zip(synthesized) {
+        let (found, grid) = slot.expect("a `never` token cannot cancel");
+        match found {
             Some(OnDemandGlyph::Shape(spec)) => {
-                let grid = crate::on_demand::make_on_demand_grid(&spec);
+                let grid = grid.expect("drawn above for every shape");
                 all_items.push(ExpandedItem {
                     item: DocumentItem::Glyph {
                         name: GlyphName(name),

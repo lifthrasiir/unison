@@ -285,8 +285,21 @@ fn collect_blocks(
     name_parts: &NamePartsMap,
     exists: &crate::exists::ExistsScopes,
 ) -> Vec<Block> {
-    let mut blocks = Vec::new();
-    let mut bindings = crate::exists::Bindings::new(name_parts);
+    // Expanding the blocks is most of this, and every block expands on its own,
+    // so it runs on every core: a block is one unit of work, or several for a
+    // block under a search, which is thousands of matches and would otherwise
+    // be one thread's work. The units come back in order, and a block's own
+    // units are gathered back into it.
+    const ROUNDS_PER_UNIT: usize = 256;
+    struct Unit<'a> {
+        at: usize,
+        name: &'a crate::document::GlyphName,
+        body: &'a crate::document::GlyphBody,
+        scope: Option<&'a crate::exists::Scope>,
+        rounds: std::ops::Range<usize>,
+    }
+    let mut units: Vec<Unit> = Vec::new();
+    let mut at = 0;
     for (doc_idx, doc) in docs.iter().enumerate() {
         for (item_idx, item) in doc.items.iter().enumerate() {
             let DocumentItem::Glyph { name, body } = item else {
@@ -296,41 +309,94 @@ fn collect_blocks(
                 continue;
             }
             let here = crate::resolve::ItemRef::new(doc_idx, item_idx);
-            let scoped = exists.scope(here).is_some();
+            // What [`crate::exists::ExistsScopes::for_each_binding`] would
+            // run: nothing for the `exists` line itself, once per match under
+            // a search, and once with the base otherwise.
+            if exists.is_directive(here) {
+                continue;
+            }
+            let scope = exists.scope(here);
             // A block whose name stands for one name has nothing to merge. The
             // question is asked before expanding because it is asked of every
             // glyph block in the font, and expanding one is not free. A scoped
             // block is past that test by construction: its header names one
             // glyph *per match*, and it is the matches that make it several.
-            if !scoped && !is_name_pattern(&substitute_name_parts(&name.display(), name_parts)) {
+            if scope.is_none()
+                && !is_name_pattern(&substitute_name_parts(&name.display(), name_parts))
+            {
                 continue;
             }
-            // A scoped block's matches gather into **one** candidate set, not
-            // one each. The rule this module rests on is that the candidates
-            // are what a single written block declares, and a search does not
-            // make a second block — it makes the one block declare more. That
-            // is what folds the two `han-XXXX` a source built from two aliases
-            // of one drawing back into one glyph id.
-            let mut members: Vec<String> = Vec::new();
-            let mut slots: Vec<Vec<String>> = Vec::new();
-            exists.for_each_binding(&mut bindings, here, |name_parts| {
-                // A block that does not expand is reported by the expansion,
-                // which is where the line is known; here it simply declares
-                // nothing to merge.
-                let Ok(expanded) = expand_glyph_block_slots(name, body, name_parts) else {
-                    return;
-                };
-                for (member, slot) in expanded {
-                    members.push(member);
-                    slots.push(slot);
-                }
-            });
-            if members.len() < 2 {
-                continue;
+            let rounds = scope.map_or(1, |s| s.len());
+            for start in (0..rounds).step_by(ROUNDS_PER_UNIT) {
+                units.push(Unit {
+                    at,
+                    name,
+                    body,
+                    scope,
+                    rounds: start..(start + ROUNDS_PER_UNIT).min(rounds),
+                });
             }
-            blocks.push(Block { members, slots });
+            at += 1;
         }
     }
+    let expanded =
+        crate::parallel::map_indexed(units.len(), &crate::cancel::CancelToken::never(), |i| {
+            let unit = &units[i];
+            // A block that does not expand is reported by the expansion, which
+            // is where the line is known; here it simply declares nothing to
+            // merge.
+            let expand = |name_parts: &NamePartsMap| {
+                expand_glyph_block_slots(unit.name, unit.body, name_parts).unwrap_or_default()
+            };
+            match unit.scope {
+                None => expand(name_parts),
+                Some(scope) => {
+                    // Cloned once for the run; see [`crate::exists::Scope::rebind`].
+                    let mut bound = name_parts.clone();
+                    unit.rounds
+                        .clone()
+                        .flat_map(|round| {
+                            scope.rebind(&mut bound, round);
+                            expand(&bound)
+                        })
+                        .collect()
+                }
+            }
+        });
+
+    // A scoped block's matches gather into **one** candidate set, not one
+    // each. The rule this module rests on is that the candidates are what a
+    // single written block declares, and a search does not make a second block
+    // — it makes the one block declare more. That is what folds the two
+    // `han-XXXX` a source built from two aliases of one drawing back into one
+    // glyph id.
+    let mut blocks = Vec::new();
+    let mut current: Option<(usize, Block)> = None;
+    let finish = |blocks: &mut Vec<Block>, block: Option<(usize, Block)>| {
+        if let Some((_, block)) = block
+            && block.members.len() >= 2
+        {
+            blocks.push(block);
+        }
+    };
+    for (unit, slot) in units.iter().zip(expanded) {
+        if current.as_ref().is_none_or(|(at, _)| *at != unit.at) {
+            finish(&mut blocks, current.take());
+            current = Some((
+                unit.at,
+                Block {
+                    members: Vec::new(),
+                    slots: Vec::new(),
+                },
+            ));
+        }
+        let (_, block) = current.as_mut().expect("just set");
+        for (member, slot) in slot.expect("a `never` token cannot cancel") {
+            block.members.push(member);
+            block.slots.push(slot);
+        }
+    }
+    finish(&mut blocks, current);
     blocks
 }
 

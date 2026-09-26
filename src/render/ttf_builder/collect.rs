@@ -238,7 +238,10 @@ pub(super) struct SharedFontInput {
     glyph_aliases: crate::alias::AliasMap,
     glyph_meta: GlyphMetaMap,
     inline_glyphs: HashSet<String>,
-    glyph_bodies: Vec<(String, GlyphBody)>,
+    /// Each glyph's first definition, as its index into `all_items`: the
+    /// bodies are already there, and a copy of each was every pixel grid in the
+    /// font cloned once more per rebuild.
+    glyph_bodies: Vec<(String, usize)>,
 }
 
 #[cfg(any(feature = "editor", test))]
@@ -294,13 +297,13 @@ pub(super) fn face_items<'a>(
     items: impl Iterator<Item = &'a DocumentItem>,
     face: &crate::faces::Face,
 ) -> Vec<DocumentItem> {
-    items
+    let kept: Vec<&DocumentItem> = items
         .filter(|item| match item.slice_qualifier() {
             [] => true,
             qual => qual.iter().any(|s| face.includes(Some(s.as_str()))),
         })
-        .cloned()
-        .collect()
+        .collect();
+    kept.into_iter().cloned().collect()
 }
 
 fn compute_face_input(
@@ -424,9 +427,9 @@ fn shared_font_input(
 
     let mut glyph_meta: GlyphMetaMap = HashMap::default();
     let mut inline_glyphs: HashSet<String> = HashSet::default();
-    let mut glyph_bodies: Vec<(String, GlyphBody)> = Vec::new();
+    let mut glyph_bodies: Vec<(String, usize)> = Vec::new();
     let mut seen_bodies: HashSet<String> = HashSet::default();
-    for item in &all_items {
+    for (at, item) in all_items.iter().enumerate() {
         if let DocumentItem::Glyph {
             name: GlyphName(n),
             body,
@@ -453,7 +456,7 @@ fn shared_font_input(
                 inline_glyphs.insert(n.clone());
             }
             if seen_bodies.insert(n.clone()) {
-                glyph_bodies.push((n.clone(), body.clone()));
+                glyph_bodies.push((n.clone(), at));
             }
         }
     }
@@ -848,23 +851,62 @@ pub(super) fn collect_glyph_data_with_shared(
     let exempt = vectoronly_closure(all_items, bitmap);
 
     let seed_timer = crate::startup::PerfStage::new("seed cache");
+    // What each drawn glyph is traced from in this face. `vectoronly` and
+    // everything it reaches is traced the way the vector build traces it,
+    // whichever face is being built. A `desync` grid is ink for the bitmap
+    // build and geometry for nobody: the vector build keeps only the
+    // dimensions it declares, so a blank grid of the same size stands in.
+    fn seed_input<'g>(
+        name: &str,
+        pixels: &'g PixelGrid,
+        desync: bool,
+        bitmap: bool,
+        exempt: &HashSet<String>,
+    ) -> (std::borrow::Cow<'g, PixelGrid>, bool) {
+        let flavor = bitmap && (exempt.is_empty() || !exempt.contains(name));
+        let grid = if desync && !flavor {
+            std::borrow::Cow::Owned(PixelGrid::new(pixels.width, pixels.height))
+        } else {
+            std::borrow::Cow::Borrowed(pixels)
+        };
+        (grid, flavor)
+    }
+    // Traced all at once and on every core, ahead of the seeding walk, which
+    // then takes each grid's trace by where the grid lives. Every drawn glyph
+    // is here, a few more than the walk seeds (a later duplicate of a name),
+    // which costs a trace and nothing else.
+    let mut seeded: HashMap<*const PixelGrid, CachedContours> = {
+        let drawn: Vec<(&PixelGrid, std::borrow::Cow<PixelGrid>, bool)> = all_items
+            .iter()
+            .filter_map(|item| match item {
+                DocumentItem::Glyph {
+                    name: GlyphName(name),
+                    body,
+                } if body.refs.is_empty() => {
+                    let pixels = body.pixels.as_ref()?;
+                    let (grid, flavor) = seed_input(name, pixels, body.desync, bitmap, &exempt);
+                    Some((pixels, grid, flavor))
+                }
+                _ => None,
+            })
+            .collect();
+        let grids: Vec<(&PixelGrid, bool)> = drawn.iter().map(|(_, g, f)| (&**g, *f)).collect();
+        let traced = CachedContours::from_grids(&grids, contour_cache.as_deref_mut(), cancel);
+        drawn
+            .iter()
+            .zip(traced)
+            .filter_map(|((pixels, ..), traced)| Some((*pixels as *const PixelGrid, traced?)))
+            .collect()
+    };
     let (mut cache, pending) = {
         let cc = &mut contour_cache;
-        let exempt = &exempt;
         crate::render::glyph_cache::seed_cache(
             all_items,
-            |name, pixels, desync| {
-                // `vectoronly` and everything it reaches is traced the way the
-                // vector build traces it, whichever face is being built.
-                let flavor = bitmap && (exempt.is_empty() || !exempt.contains(name));
-                // A `desync` grid is ink for the bitmap build and geometry for
-                // nobody: the vector build keeps only the dimensions it
-                // declares, so a blank grid of the same size stands in.
-                if desync && !flavor {
-                    let blank = PixelGrid::new(pixels.width, pixels.height);
-                    CachedContours::from_grid(&blank, flavor, cc.as_deref_mut())
-                } else {
-                    CachedContours::from_grid(pixels, flavor, cc.as_deref_mut())
+            |name, pixels, desync| match seeded.remove(&(pixels as *const PixelGrid)) {
+                Some(traced) => traced,
+                None => {
+                    let (grid, flavor) = seed_input(name, pixels, desync, bitmap, &exempt);
+                    CachedContours::from_grid(&grid, flavor, cc.as_deref_mut())
                 }
             },
             CachedContours::empty,
@@ -889,11 +931,81 @@ pub(super) fn collect_glyph_data_with_shared(
         return None;
     }
 
-    let glyph_bodies_map: HashMap<&str, &GlyphBody> =
-        glyph_bodies.iter().map(|(n, b)| (n.as_str(), b)).collect();
+    let glyph_bodies_map: HashMap<&str, &GlyphBody> = glyph_bodies
+        .iter()
+        .filter_map(|(n, at)| match &all_items[*at] {
+            DocumentItem::Glyph { body, .. } => Some((n.as_str(), body)),
+            _ => None,
+        })
+        .collect();
 
-    let mut glyph_data: Vec<CollectedGlyph> = Vec::new();
-    let mut seen_names: HashSet<String> = HashSet::default();
+    // One glyph's outline, metrics and composite refs as the resolved cache
+    // has them. A glyph reached as someone's component carries no anchors and
+    // is never a mark: it is placed by its parent, not attached by GPOS.
+    //
+    // Independent per name, so the passes below settle *which* names serially
+    // and then run this over them on every core: over a five-figure glyph set
+    // it was most of a face's serial time, and the two faces, validation and
+    // the recomposition beside it left all but two or three cores idle.
+    let collect_one = |name: &str, anchored: bool| -> CollectedGlyph {
+        let empty_cached;
+        let resolved = match cache.get(name) {
+            Some(resolved) => resolved,
+            None => {
+                empty_cached = CachedContours::empty();
+                &empty_cached
+            }
+        };
+        let glyph_scale = scale / resolved.scale as f32;
+        let (advance_width, left_offset, top_offset) =
+            resolve_glyph_metrics(glyph_meta, name, resolved.width, glyph_scale, scale);
+        let contours = scale_glyph_contours(
+            &resolved.contours,
+            glyph_scale,
+            meta.ascent() * resolved.scale as u16,
+            left_offset,
+            top_offset,
+        );
+        let composite_refs = build_composite_refs(
+            resolved,
+            inline_glyphs.contains(name),
+            left_offset,
+            top_offset,
+            glyph_meta,
+            glyph_scale,
+            scale,
+            inline_glyphs,
+        );
+        let body = anchored.then(|| glyph_bodies_map.get(name)).flatten();
+        CollectedGlyph {
+            name: name.to_string(),
+            codepoints: Vec::new(),
+            advance_width,
+            contours,
+            composite_refs,
+            color_layers: Vec::new(),
+            mark: body.is_some_and(|b| b.mark),
+            resolved_anchors: if anchored {
+                resolved.anchors.clone()
+            } else {
+                Vec::new()
+            },
+            declared_anchors: body.map(|b| b.points.clone()).unwrap_or_default(),
+            left_offset,
+            top_offset,
+        }
+    };
+    let collect_all = |names: &[String], anchored: bool| -> Option<Vec<CollectedGlyph>> {
+        crate::parallel::map_indexed(names.len(), cancel, |i| collect_one(&names[i], anchored))
+            .into_iter()
+            .collect()
+    };
+
+    // One entry per glyph *name*, carrying every character that reaches it:
+    // a fifth of the pairs name a glyph an earlier pair already did.
+    let mut mapped_names: Vec<String> = Vec::new();
+    let mut mapped_cps: Vec<Vec<u32>> = Vec::new();
+    let mut seen_names: HashMap<String, usize> = HashMap::default();
 
     for (i, item) in all_items.iter().enumerate() {
         if i.is_multiple_of(CANCEL_STRIDE) && cancel.is_cancelled() {
@@ -937,59 +1049,22 @@ pub(super) fn collect_glyph_data_with_shared(
                     .collect()
             }
         };
-        for (cp, glyph_name) in &pairs {
-            let Some(resolved) = cache.get(glyph_name.as_str()) else {
+        for (cp, glyph_name) in pairs {
+            if let Some(&k) = seen_names.get(&glyph_name) {
+                mapped_cps[k].extend(cp);
                 continue;
-            };
-
-            let glyph_scale = scale / resolved.scale as f32;
-            let (advance_width, left_offset, top_offset) =
-                resolve_glyph_metrics(glyph_meta, glyph_name, resolved.width, glyph_scale, scale);
-            let font_contours = scale_glyph_contours(
-                &resolved.contours,
-                glyph_scale,
-                meta.ascent() * resolved.scale as u16,
-                left_offset,
-                top_offset,
-            );
-            let composite_refs = build_composite_refs(
-                resolved,
-                inline_glyphs.contains(glyph_name.as_str()),
-                left_offset,
-                top_offset,
-                glyph_meta,
-                glyph_scale,
-                scale,
-                inline_glyphs,
-            );
-
-            let is_mark = glyph_bodies_map
-                .get(glyph_name.as_str())
-                .is_some_and(|b| b.mark);
-            let glyph_anchors = cache
-                .get(glyph_name.as_str())
-                .map(|c| c.anchors.clone())
-                .unwrap_or_default();
-            let declared_anchors = glyph_bodies_map
-                .get(glyph_name.as_str())
-                .map(|b| b.points.clone())
-                .unwrap_or_default();
-
-            seen_names.insert(glyph_name.clone());
-            glyph_data.push(CollectedGlyph {
-                name: glyph_name.clone(),
-                codepoints: cp.iter().copied().collect(),
-                advance_width,
-                contours: font_contours,
-                composite_refs,
-                color_layers: Vec::new(),
-                mark: is_mark,
-                resolved_anchors: glyph_anchors,
-                declared_anchors,
-                left_offset,
-                top_offset,
-            });
+            }
+            if !cache.contains_key(glyph_name.as_str()) {
+                continue;
+            }
+            seen_names.insert(glyph_name.clone(), mapped_names.len());
+            mapped_names.push(glyph_name);
+            mapped_cps.push(cp.into_iter().collect());
         }
+    }
+    let mut glyph_data = collect_all(&mapped_names, true)?;
+    for (glyph, cps) in glyph_data.iter_mut().zip(mapped_cps) {
+        glyph.codepoints = cps;
     }
 
     // The selector glyphs the fallback lookup is written against. Blank and
@@ -1003,9 +1078,10 @@ pub(super) fn collect_glyph_data_with_shared(
     // so the order stays face-independent.
     for &sel in &gsub_data.uvs_selectors {
         let name = super::vs_glyph_name(sel);
-        if !seen_names.insert(name.clone()) {
+        if seen_names.contains_key(&name) {
             continue;
         }
+        seen_names.insert(name.clone(), glyph_data.len());
         glyph_data.push(CollectedGlyph {
             name,
             codepoints: vec![sel],
@@ -1021,8 +1097,6 @@ pub(super) fn collect_glyph_data_with_shared(
         });
     }
 
-    // One entry per glyph *name*, carrying every character that reaches it.
-    //
     // The order is `(lowest codepoint, name)`, and both halves matter. Sorting
     // by codepoint keeps the runs that make a format 4 cmap compact. Falling
     // back to the name makes the order total, so it does not depend on the
@@ -1030,33 +1104,18 @@ pub(super) fn collect_glyph_data_with_shared(
     // of a collection share `glyf`, `loca` and `hmtx`. Unmapped glyphs sort
     // last, by name.
     {
-        let mut by_name: HashMap<String, usize> = HashMap::default();
-        let mut merged: Vec<CollectedGlyph> = Vec::with_capacity(glyph_data.len());
-        for glyph in glyph_data {
-            match by_name.get(&glyph.name) {
-                Some(&i) => {
-                    let existing: &mut CollectedGlyph = &mut merged[i];
-                    existing.codepoints.extend(glyph.codepoints);
-                }
-                None => {
-                    by_name.insert(glyph.name.clone(), merged.len());
-                    merged.push(glyph);
-                }
-            }
-        }
-        for glyph in &mut merged {
+        for glyph in &mut glyph_data {
             glyph.codepoints.sort_unstable();
             glyph.codepoints.dedup();
         }
         // Compared in place: a key that owns the name is an allocation per
         // comparison, which over a five-figure glyph set is most of the sort.
         let first_cp = |g: &CollectedGlyph| g.codepoints.first().copied().unwrap_or(u32::MAX);
-        merged.sort_by(|a, b| {
+        glyph_data.sort_by(|a, b| {
             first_cp(a)
                 .cmp(&first_cp(b))
                 .then_with(|| a.name.cmp(&b.name))
         });
-        glyph_data = merged;
     }
 
     let mut remap_referenced: HashSet<&str> = HashSet::default();
@@ -1087,7 +1146,7 @@ pub(super) fn collect_glyph_data_with_shared(
 
     let mut extra_name_set: HashSet<String> = remap_referenced
         .iter()
-        .filter(|n| !seen_names.contains(**n))
+        .filter(|n| !seen_names.contains_key(**n))
         .map(|n| n.to_string())
         .collect();
     for item in all_items {
@@ -1099,7 +1158,7 @@ pub(super) fn collect_glyph_data_with_shared(
             body,
         } = item
             && (body.keep || name == NOTDEF)
-            && !seen_names.contains(name)
+            && !seen_names.contains_key(name)
         {
             extra_name_set.insert(name.clone());
         }
@@ -1132,7 +1191,7 @@ pub(super) fn collect_glyph_data_with_shared(
         // maps it, which is what a ligature output is — is as real as any
         // other, and its alternatives carry the slots marks attach by. Asking
         // `seen_names` alone left every such glyph with none of them.
-        let reachable = |name: &str| seen_names.contains(name) || extras_before.contains(name);
+        let reachable = |name: &str| seen_names.contains_key(name) || extras_before.contains(name);
 
         // 1. Base alts
         for (base_name, alts) in &alt_index {
@@ -1156,7 +1215,7 @@ pub(super) fn collect_glyph_data_with_shared(
                     if own.is_some_and(|own| own.size_matches(alt_plus)) {
                         continue;
                     }
-                    if !seen_names.contains(alt_name) {
+                    if !seen_names.contains_key(alt_name) {
                         extra_name_set.insert(alt_name.clone());
                     }
                 }
@@ -1179,7 +1238,7 @@ pub(super) fn collect_glyph_data_with_shared(
                     continue;
                 };
                 for (alt_name, alt_anchors) in alts {
-                    if seen_names.contains(alt_name) || extra_name_set.contains(alt_name) {
+                    if seen_names.contains_key(alt_name) || extra_name_set.contains(alt_name) {
                         continue;
                     }
                     if let Some(alt_minus) = alt_anchors.iter().find(|p| p.position == *minus_name)
@@ -1195,117 +1254,31 @@ pub(super) fn collect_glyph_data_with_shared(
     let mut extra_names: Vec<String> = extra_name_set.into_iter().collect();
     extra_names.sort();
 
-    for (i, glyph_name) in extra_names.iter().enumerate() {
-        if i.is_multiple_of(CANCEL_STRIDE) && cancel.is_cancelled() {
-            return None;
-        }
-        let empty_cached = CachedContours::empty();
-        let resolved = cache.get(glyph_name.as_str()).unwrap_or(&empty_cached);
-        let glyph_scale = scale / resolved.scale as f32;
-        let (advance_width, left_offset, top_offset) =
-            resolve_glyph_metrics(glyph_meta, glyph_name, resolved.width, glyph_scale, scale);
-        let font_contours = scale_glyph_contours(
-            &resolved.contours,
-            glyph_scale,
-            meta.ascent() * resolved.scale as u16,
-            left_offset,
-            top_offset,
-        );
-        let composite_refs = build_composite_refs(
-            resolved,
-            inline_glyphs.contains(glyph_name.as_str()),
-            left_offset,
-            top_offset,
-            glyph_meta,
-            glyph_scale,
-            scale,
-            inline_glyphs,
-        );
-
-        let is_mark = glyph_bodies_map
-            .get(glyph_name.as_str())
-            .is_some_and(|b| b.mark);
-        let glyph_anchors = cache
-            .get(glyph_name.as_str())
-            .map(|c| c.anchors.clone())
-            .unwrap_or_default();
-        let declared_anchors = glyph_bodies_map
-            .get(glyph_name.as_str())
-            .map(|b| b.points.clone())
-            .unwrap_or_default();
-
-        glyph_data.push(CollectedGlyph {
-            name: glyph_name.clone(),
-            codepoints: Vec::new(),
-            advance_width,
-            contours: font_contours,
-            composite_refs,
-            color_layers: Vec::new(),
-            mark: is_mark,
-            resolved_anchors: glyph_anchors,
-            declared_anchors,
-            left_offset,
-            top_offset,
-        });
-    }
+    glyph_data.extend(collect_all(&extra_names, true)?);
 
     // Every glyph a composite names as a component, and every glyph *those*
     // name in turn: a component keeps its own components rather than being
     // flattened, so a part shared by many composites is stored once.
+    //
+    // A wave at a time, in the order a queue would take them: the components
+    // of every glyph added so far, then theirs.
     let mut all_names: HashSet<String> = glyph_data.iter().map(|g| g.name.clone()).collect();
     let first_component = glyph_data.len();
     let mut next = 0;
     while next < glyph_data.len() {
-        let wanted: Vec<String> = glyph_data[next]
-            .composite_refs
+        let wanted: Vec<String> = glyph_data[next..]
             .iter()
+            .flat_map(|g| &g.composite_refs)
             .filter(|cr| all_names.insert(cr.component_name.clone()))
             .map(|cr| cr.component_name.clone())
             .collect();
-        next += 1;
-        for name in wanted {
-            let empty_cached = CachedContours::empty();
-            let resolved = cache.get(name.as_str()).unwrap_or(&empty_cached);
-            let comp_glyph_scale = scale / resolved.scale as f32;
-            // The same box every other glyph gets. The parent placing this
-            // one has already subtracted its declared bearing
-            // (`build_composite_refs`), because a component glyph is the
-            // one that carries it; synthesizing the glyph without it put
-            // the component a whole `origin` away from where the line
-            // asked for it.
-            let (advance_width, left_offset, top_offset) =
-                resolve_glyph_metrics(glyph_meta, &name, resolved.width, comp_glyph_scale, scale);
-            let font_contours = scale_glyph_contours(
-                &resolved.contours,
-                comp_glyph_scale,
-                meta.ascent() * resolved.scale as u16,
-                left_offset,
-                top_offset,
-            );
-            let composite_refs = build_composite_refs(
-                resolved,
-                inline_glyphs.contains(name.as_str()),
-                left_offset,
-                top_offset,
-                glyph_meta,
-                comp_glyph_scale,
-                scale,
-                inline_glyphs,
-            );
-            glyph_data.push(CollectedGlyph {
-                name,
-                codepoints: Vec::new(),
-                advance_width,
-                contours: font_contours,
-                composite_refs,
-                color_layers: Vec::new(),
-                mark: false,
-                resolved_anchors: Vec::new(),
-                declared_anchors: Vec::new(),
-                left_offset,
-                top_offset,
-            });
-        }
+        next = glyph_data.len();
+        // The same box every other glyph gets. The parent placing this one
+        // has already subtracted its declared bearing (`build_composite_refs`),
+        // because a component glyph is the one that carries it; synthesizing
+        // the glyph without it put the component a whole `origin` away from
+        // where the line asked for it.
+        glyph_data.extend(collect_all(&wanted, false)?);
     }
 
     if glyph_data.is_empty() {

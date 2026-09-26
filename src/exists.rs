@@ -96,7 +96,11 @@ pub const MAX_CAPTURES: usize = 9;
 #[derive(Debug, Clone)]
 pub struct ExistsPattern {
     source: String,
-    re: Regex,
+    /// `None` for a multi-alias's search ([`ExistsPattern::multi_alias`]),
+    /// which is `prefix` and then any name characters at all: that needs no
+    /// automaton, and compiling one per multi-alias was most of what resolving
+    /// the searches cost once a font wrote thousands of them.
+    re: Option<Regex>,
     captures: usize,
     /// The literal text every match has to start with, read off the parsed
     /// form ([`literal_prefix`]). A necessary condition, never a sufficient
@@ -109,6 +113,11 @@ pub struct ExistsPattern {
     /// already answers. The regex engine has its own prefilter and still costs
     /// a call to reach it; `starts_with` is the same answer for a memcmp.
     prefix: String,
+    /// The literal text every match has to end with ([`literal_suffix`]), for
+    /// the same reason. The prefix of a han search is `han-`, which every han
+    /// name in the font shares, so what tells `han-4e00:15x16` from the rest
+    /// of its bucket is at the other end.
+    suffix: String,
 }
 
 impl PartialEq for ExistsPattern {
@@ -142,9 +151,29 @@ impl ExistsPattern {
             .map_err(|e| format!("invalid exists pattern `{source}`: {e}"))?;
         Ok(Self {
             source: source.to_string(),
-            re,
+            re: Some(re),
             captures,
             prefix: literal_prefix(&hir),
+            suffix: literal_suffix(&hir),
+        })
+    }
+
+    /// The search a multi-alias with this target prefix runs:
+    /// [`crate::alias::multi_alias_search`], compiled without a regex. The
+    /// same pattern as [`ExistsPattern::parse`] would make of it — `.` there
+    /// being Σ, `(.*)` is "the rest of the name" — except that a prefix
+    /// holding a character Σ lacks goes through `parse`, for its error.
+    pub fn multi_alias(prefix: &str) -> Result<Self, String> {
+        let source = crate::alias::multi_alias_search(prefix);
+        if !prefix.chars().all(crate::pattern::is_glyph_name_char) {
+            return Self::parse(&source);
+        }
+        Ok(Self {
+            source,
+            re: None,
+            captures: 1,
+            prefix: prefix.to_string(),
+            suffix: String::new(),
         })
     }
 
@@ -163,7 +192,7 @@ impl ExistsPattern {
     /// and it does not ask the question through here so far.
     #[cfg_attr(not(test), expect(dead_code))]
     pub fn is_match(&self, name: &str) -> bool {
-        name.starts_with(&self.prefix) && self.re.is_match(name)
+        self.capture(name).is_some()
     }
 
     /// `[$0, $1, …]` for a matching name, `None` otherwise.
@@ -172,10 +201,17 @@ impl ExistsPattern {
     /// rather than dropping out, so the slot count is the pattern's and a `$N`
     /// never silently shifts to another group's value.
     pub fn capture(&self, name: &str) -> Option<Vec<String>> {
-        if !name.starts_with(&self.prefix) {
+        if !name.ends_with(self.suffix.as_str()) {
             return None;
         }
-        let caps = self.re.captures(name)?;
+        let rest = name.strip_prefix(self.prefix.as_str())?;
+        let Some(re) = &self.re else {
+            return rest
+                .chars()
+                .all(crate::pattern::is_glyph_name_char)
+                .then(|| vec![name.to_string(), rest.to_string()]);
+        };
+        let caps = re.captures(name)?;
         Some(
             (0..=self.captures)
                 .map(|i| {
@@ -365,6 +401,28 @@ fn literal_prefix(hir: &Hir) -> String {
     let mut out = String::new();
     push(hir, &mut out);
     out
+}
+
+/// The literal text a match is bound to end with: [`literal_prefix`] read from
+/// the other end, through the same nodes.
+fn literal_suffix(hir: &Hir) -> String {
+    // Collected back to front, a literal's bytes reversed, and turned around
+    // once at the end. A literal is whole characters, so the result is too.
+    fn push(hir: &Hir, out: &mut Vec<u8>) -> bool {
+        match hir.kind() {
+            HirKind::Literal(lit) => {
+                out.extend(lit.0.iter().rev());
+                true
+            }
+            HirKind::Capture(cap) => push(&cap.sub, out),
+            HirKind::Concat(subs) => subs.iter().rev().all(|sub| push(sub, out)),
+            _ => false,
+        }
+    }
+    let mut out = Vec::new();
+    push(hir, &mut out);
+    out.reverse();
+    String::from_utf8(out).unwrap_or_default()
 }
 
 fn count_captures(hir: &Hir) -> usize {
@@ -605,6 +663,10 @@ impl FirstMatches {
     }
 }
 
+/// How many matches of one search are fed back per unit of work: below it the
+/// matches are expanded where they are, over the one copy of the base.
+const FEED_CHUNK: usize = 256;
+
 /// Resolve every `exists` in `docs` to its matches, and report what cannot be.
 ///
 /// The searched set is grown to a fixpoint: an `exists` may match names another
@@ -646,7 +708,7 @@ pub fn resolve_scopes(
                     ..
                 } => {
                     let multi = format!("{prefix}*");
-                    match ExistsPattern::parse(&crate::alias::multi_alias_search(prefix)) {
+                    match ExistsPattern::multi_alias(prefix) {
                         Ok(pattern) => pending.push(Pending {
                             origin,
                             target: origin,
@@ -851,17 +913,43 @@ pub fn resolve_scopes(
             // the search may go on to find is one the *build* declares, and
             // the build expands the header once for each match with the slots
             // bound to one string each.
-            for i in fed_back[k]..scopes[k].len() {
-                scopes[k].rebind(&mut bound, i);
-                for n in expand_header_names(header, &bound) {
-                    if seen.insert(n.clone()) {
-                        index.add(names.len(), &n);
-                        names.push(n);
-                        changed = true;
-                    }
+            //
+            // A han search is thousands of matches, so a long run of them is
+            // expanded on every core, a copy of the base per chunk; the names
+            // are then taken in match order, as a serial walk would.
+            let (scope, from, to) = (&scopes[k], fed_back[k], scopes[k].len());
+            let fresh: Vec<String> = if to - from <= FEED_CHUNK {
+                let mut fresh = Vec::new();
+                for i in from..to {
+                    scope.rebind(&mut bound, i);
+                    fresh.extend(expand_header_names(header, &bound));
+                }
+                scope.unbind(&mut bound, name_parts);
+                fresh
+            } else {
+                let chunks = (to - from).div_ceil(FEED_CHUNK);
+                crate::parallel::map_indexed(chunks, &crate::cancel::CancelToken::never(), |c| {
+                    let start = from + c * FEED_CHUNK;
+                    let mut per = name_parts.clone();
+                    (start..(start + FEED_CHUNK).min(to))
+                        .flat_map(|i| {
+                            scope.rebind(&mut per, i);
+                            expand_header_names(header, &per)
+                        })
+                        .collect::<Vec<_>>()
+                })
+                .into_iter()
+                .flatten()
+                .flatten()
+                .collect()
+            };
+            for n in fresh {
+                if seen.insert(n.clone()) {
+                    index.add(names.len(), &n);
+                    names.push(n);
+                    changed = true;
                 }
             }
-            scopes[k].unbind(&mut bound, name_parts);
             fed_back[k] = scopes[k].len();
         }
         if !changed {

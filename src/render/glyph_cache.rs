@@ -200,29 +200,29 @@ pub(crate) fn seed_cache<'a, V: CachedGlyphEntry>(
 ///
 /// `lookup` and `store` are the memo around the tracer — the traced-contour
 /// cache the font build carries between rebuilds — and they own a `&mut` to it,
-/// so they stay on the driving thread. [`build`](CompositeBuilder::build) is
-/// what is left once the memo is out of the way: a pure function of the glyph,
-/// its derived refs and the cache, which is why a whole wave of them can run at
-/// once.
+/// so they stay on the driving thread. [`key`](CompositeBuilder::key) and
+/// [`build`](CompositeBuilder::build) are what is left once the memo is out of
+/// the way: pure functions of the glyph, its derived refs and the cache, which
+/// is why a whole wave of them can run at once.
 ///
 /// A consumer with nothing to memoize (validation, the specimen) passes an
 /// [`FnBuilder`] and never sees the split.
 pub(crate) trait CompositeBuilder<V>: Sync {
     /// What [`store`](CompositeBuilder::store) files a freshly built value
-    /// under — the memo key `lookup` already computed, so it is not derived
+    /// under — the memo key `key` already computed, so it is not derived
     /// twice. `()` for a builder that memoizes nothing.
     ///
     /// `Sync` because it rides in the wave the tracing threads read.
     type Key: Send + Sync;
 
-    /// The memo lookup: the key for this composite, and its value when the memo
-    /// already holds it. Serial.
-    fn lookup(
-        &mut self,
-        pg: &PendingGlyph,
-        refs: &[GlyphRef],
-        cache: &HashMap<String, V>,
-    ) -> (Self::Key, Option<V>);
+    /// The memo key for this composite. A pure function of the glyph, its
+    /// derived refs and the cache, like `build`, so a wave's keys are computed
+    /// on every core: hashing every composite's ink was a fifth of a warm
+    /// rebuild's serial resolve.
+    fn key(&self, pg: &PendingGlyph, refs: &[GlyphRef], cache: &HashMap<String, V>) -> Self::Key;
+
+    /// The memo's value under `key`, when it holds one. Serial.
+    fn lookup(&mut self, key: &Self::Key) -> Option<V>;
 
     /// The tracer proper. Called only for a memo miss, on an arbitrary thread,
     /// possibly several at once.
@@ -242,13 +242,10 @@ where
 {
     type Key = ();
 
-    fn lookup(
-        &mut self,
-        _pg: &PendingGlyph,
-        _refs: &[GlyphRef],
-        _cache: &HashMap<String, V>,
-    ) -> ((), Option<V>) {
-        ((), None)
+    fn key(&self, _pg: &PendingGlyph, _refs: &[GlyphRef], _cache: &HashMap<String, V>) {}
+
+    fn lookup(&mut self, _key: &()) -> Option<V> {
+        None
     }
 
     fn build(&self, pg: &PendingGlyph, refs: &[GlyphRef], cache: &HashMap<String, V>) -> V {
@@ -500,9 +497,24 @@ pub(crate) fn resolve_pending<V, B>(
             if errored {
                 continue;
             }
-            let (key, hit) = builder.lookup(&pg, &effective_refs, cache);
-            wave.push((pg, effective_refs, anchors, key, hit));
+            wave.push((pg, effective_refs, anchors));
         }
+        let keys = crate::parallel::map_indexed(wave.len(), cancel, |i| {
+            let (pg, refs, _) = &wave[i];
+            builder.key(pg, refs, cache)
+        });
+        if cancel.is_cancelled() {
+            return;
+        }
+        let wave: Vec<WaveEntry<B::Key, V>> = wave
+            .into_iter()
+            .zip(keys)
+            .map(|((pg, refs, anchors), key)| {
+                let key = key.expect("an uncancelled run fills every slot");
+                let hit = builder.lookup(&key);
+                (pg, refs, anchors, key, hit)
+            })
+            .collect();
 
         // Only the memo misses are traced, and every one of them is filed back
         // into the memo here rather than by the tracer, which cannot reach it.

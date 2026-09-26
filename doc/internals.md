@@ -62,7 +62,8 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Why a name that is nothing but one `($-N)` is never ragged | `issues/patterns.rs` (`whole_back_reference`) |
 | Stating one line for several slices (`map wide\|narrow :`) and per-slice `name-parts` | `document/name_parts.rs` (`SliceNameParts`), `pattern.rs` |
 | `exists PATTERN`: what is searched (aliases yes, on-demand no), the one-line scope, one run per match, the fixpoint and its cycle budget, the regex subset | `exists.rs` |
-| Why the search's fixpoint scans only what a round added, and the literal prefix that rejects a name before the regex does | `exists.rs` (`resolve_scopes`, `literal_prefix`) |
+| Why the search's fixpoint scans only what a round added, and the literal prefix and suffix that reject a name before the regex does | `exists.rs` (`resolve_scopes`, `literal_prefix`, `literal_suffix`) |
+| Why a multi-alias's search compiles no regex, and why a long run of matches is fed back on every core | `exists.rs` (`ExistsPattern::multi_alias`, `FEED_CHUNK`) |
 | A `glyph … = …` under an `exists` | `exists.rs` (`resolve_scopes`), `alias.rs` (`collect_inner`) |
 | A code point computed from a match (`U+[BASE+]($N)`) | `exists.rs` (`eval_codepoint`) |
 | Where a scoped item is expanded, and why a source-side check reads a scoped `map`'s output but a scoped block's own line | `render/ttf_builder/expand.rs` (`expand_inner`), `issues/mod.rs` (`Cx::source_items`) |
@@ -248,6 +249,8 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Saving off the UI thread, the revision a write is credited to, why quitting waits, why the bytes are recorded first | `app/save.rs`, `editor/undo.rs` (`SavePoint`), `app/docs.rs` (`knows_disk_bytes`, `confirm_close_and_maybe_save`) |
 | Rebuild debouncing, generations, one build at a time, cancellation, why the font result is sent early | `app/background.rs` (`UniformApp::rebuild`, `take_current_font_build`, `arm_initial_font_build`, `set_selected_face`), `cancel.rs`, `specimen.rs` |
 | Why a rebuild sends the composites ahead of validation, and what the recomposition borrows to run beside it | `app/background.rs` (`# Three results`, `take_derived_data`), `app/mod.rs` (`ResolvedMessage`), `ref_composite/mod.rs` (`resolve_expanded_items_shared`) |
+| Which parts of the expansion and the face build run on every core, and how each keeps the serial order: items and search matches cut into units, IDC lines, ink profiles, merge candidates, own-grid traces, memo keys | `render/ttf_builder/expand.rs` (`expand_item`, `expand_compose_lines`, `ink_profiles`), `merge.rs` (`collect_blocks`), `render/ttf_builder/collect.rs` (`collect_glyph_data_with_shared`), `render/ttf_builder/contours.rs` (`CachedContours::from_grids`), `render/glyph_cache.rs` (`CompositeBuilder::key`) |
+| Why the validation checks run at once, and why the report still reads as a serial run's | `issues/mod.rs` (`collect_issues_cancellable`) |
 | Which stages notice a cancel, and why the next edit waits for the ones that do not | `issues/mod.rs` (`collect_issues_cancellable`), `render/ttf_builder/expand.rs` (`expand_documents_cancellable`), `main.rs` (`rebuild_like_the_editor`) |
 | Why the remembered face is applied before the first build | `app/mod.rs` (`with_settings`) |
 | What survives between runs, where the settings file lives | `app/settings.rs`, `main.rs` (`with_app_id`) |
