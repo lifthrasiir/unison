@@ -579,14 +579,15 @@ fn show_document(
             .max(1);
         highest.to_string().len()
     };
-    let number_width = ui.fonts(|f| {
-        f.layout_no_wrap(
-            format!(" {} ", "8".repeat(gutter_digits)),
-            font_id.clone(),
-            egui::Color32::WHITE,
-        )
-        .rect
-        .width()
+    let (number_width, space_width) = ui.fonts(|f| {
+        let width = |text: String| {
+            f.layout_no_wrap(text, font_id.clone(), egui::Color32::WHITE)
+                .rect
+                .width()
+        };
+        let digits = "8".repeat(gutter_digits);
+        let number_width = width(format!(" {digits} "));
+        (number_width, number_width - width(format!(" {digits}")))
     });
     // One column per level the *document* nests, not per level this page shows:
     // the count decides where every marker sits, and folding a group must not
@@ -615,6 +616,7 @@ fn show_document(
         },
         marker_columns,
         digits: gutter_digits,
+        space_width,
     };
 
     // Wrapping is measured against the *widest* gutter this document can ask
@@ -713,6 +715,18 @@ fn show_document(
         .map(|vl| vl.height(row_height, grid_cell))
         .sum();
 
+    // Against the lines this frame's view was built from, before this frame
+    // edits them, so the marks agree with the rows they are drawn beside.
+    let changes = state.changes.marks(
+        lines,
+        crate::editor::change_marks::BufferRevision {
+            undo: state.undo.revision(),
+            edit_gen: doc.edit_gen,
+            pixel_gen: doc.pixel_gen,
+            len: lines.len(),
+        },
+    );
+
     let inline_panel_edit_idx = editing_item_idx;
 
     // Menu actions can mutate `lines` after this view was rendered in the
@@ -762,7 +776,9 @@ fn show_document(
                 ui,
                 vlines,
                 doc,
+                lines,
                 composites,
+                &changes,
                 row_height,
                 grid_cell,
                 prev_scroll_y,
@@ -820,6 +836,7 @@ fn show_document(
             total_height,
             cursor_color,
             inline_panel_edit_idx,
+            &changes,
             &mut needs_rederive,
         );
     });

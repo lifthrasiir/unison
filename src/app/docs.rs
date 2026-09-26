@@ -204,10 +204,12 @@ pub(super) fn open_document_from_text(
     let (edit_gen, content_gen) = gens;
     doc.edit_gen = edit_gen;
     doc.content_gen = content_gen;
+    let mut editor_state = EditorState::new();
+    editor_state.changes.set_saved(lines.as_slice().into());
     Ok(OpenDocument {
         document: doc,
         lines,
-        editor_state: EditorState::new(),
+        editor_state,
         disk_hash: Some(hash),
         pending_disk_hashes: Vec::new(),
         external_change: false,
@@ -254,6 +256,9 @@ pub(super) fn apply_reloaded_lines(open: &mut OpenDocument, new_lines: Vec<DocLi
         // lines that were there stay: equal is not the same, and a report
         // locates its findings by line id (`editor::issue_marks`).
         open.lines = old_lines;
+        open.editor_state
+            .changes
+            .set_saved(open.lines.as_slice().into());
         open.disk_hash = Some(hash);
         return;
     }
@@ -263,6 +268,9 @@ pub(super) fn apply_reloaded_lines(open: &mut OpenDocument, new_lines: Vec<DocLi
         .undo
         .push_lines(0, old_lines, new_lines, caret_before, caret_after);
     open.editor_state.undo.mark_saved();
+    open.editor_state
+        .changes
+        .set_saved(open.lines.as_slice().into());
 
     open.editor_state.reset_for_external_reload(caret_after);
     open.flush_pending_changes_forced();
@@ -333,8 +341,14 @@ impl OpenDocument {
     /// `point` is the revision the write was started from, not the buffer as
     /// it stands: edits made while the write was in flight are not on disk and
     /// leave the document dirty. See [`super::save`].
-    pub(super) fn mark_written_at(&mut self, hash: u64, point: crate::editor::undo::SavePoint) {
+    pub(super) fn mark_written_at(
+        &mut self,
+        hash: u64,
+        point: crate::editor::undo::SavePoint,
+        lines: std::sync::Arc<[DocLine]>,
+    ) {
         self.editor_state.undo.mark_saved_at(point);
+        self.editor_state.changes.set_saved(lines);
         self.document.dirty = !self.editor_state.undo.is_at_saved();
         self.disk_hash = Some(hash);
         self.external_change = false;
@@ -428,6 +442,11 @@ impl UniformApp {
                     && DocLine::adopt_line_ids(&mut open.lines, &base.line_ids)
                 {
                     open.document.line_ids = std::sync::Arc::clone(&base.line_ids);
+                    // Under the ids the lines have now, or every one of them
+                    // would pair by content alone.
+                    open.editor_state
+                        .changes
+                        .set_saved(open.lines.as_slice().into());
                 }
                 open
             }),
@@ -851,7 +870,12 @@ mod reload_tests {
         open.owed_external_toast = true;
 
         let point = open.editor_state.undo.save_point();
-        open.mark_written_at(super::super::watch::hash_bytes(AFTER.as_bytes()), point);
+        let lines = open.lines.as_slice().into();
+        open.mark_written_at(
+            super::super::watch::hash_bytes(AFTER.as_bytes()),
+            point,
+            lines,
+        );
 
         assert!(!open.document.dirty);
         assert!(!open.external_change);

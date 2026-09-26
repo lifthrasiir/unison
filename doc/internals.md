@@ -224,6 +224,7 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Where a zoom leaves the page: pointer, visible caret or viewport middle, and why not a scaled offset | `document_view/zoom_anchor.rs` |
 | Why a heading draws in zoom steps and re-picks the face | `document_view/layout.rs` (`heading_font_size`, `heading_font`), `app/mod.rs` (`uniform_family_at_size`), `editor/minimap.rs` |
 | Why the minimap is not the document to scale, and how a click, the wheel and the viewport box are placed on it | `editor/minimap.rs` (module note, `MinimapMap`, `pointer_scroll_target`, `strip_scroll`) |
+| The gutter's and the minimap's marks of unsaved changes: why the diff pairs lines by id, what "saved" compares against, how a mark spans a line's rows | `editor/change_marks.rs`, `editor/undo.rs` (`UndoStack::revision`), `app/save.rs` (`SaveJob::lines`) |
 | Ctrl/Cmd+`/`: which lines a toggle takes, and the grid it demotes and promotes | `editor/comment.rs` |
 | A header and its grid are one block: Enter, line-wise copy/cut, paste | `editor/editing.rs` (`insert_newline`), `editor/doc_input.rs` (`current_line_range`, `paste_text`) |
 | Why an edit on a header or `ref` line waits before it reparses | `editor/document_view/changes.rs` (`apply_pending_rederive`) |

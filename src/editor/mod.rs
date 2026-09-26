@@ -27,6 +27,7 @@ pub mod annotations;
 pub mod autocomplete;
 pub mod backref_shadow;
 pub mod caret;
+pub(crate) mod change_marks;
 pub mod codepoint_popup;
 pub mod colors;
 pub(crate) mod comment;
@@ -276,6 +277,9 @@ pub struct EditorState {
     /// Cached per-frame view data (composites, visual lines, source offsets);
     /// rebuilt only when the document or layout inputs change.
     pub(crate) view_cache: Option<document_view::ViewCache>,
+    /// What the file holds, and the buffer's changes against it; see
+    /// [`change_marks`].
+    pub(crate) changes: change_marks::ChangeTracker,
     /// Set by pixel painting: (item_idx, grid_doc_line) of the modified grid.
     /// Consumed by the rederive path to bypass full `derive_document`.
     pub(crate) pixel_paint_dirty: Option<(usize, usize)>,
@@ -355,6 +359,7 @@ impl EditorState {
             pixel_select_anchor: None,
             glyph_shift_run: None,
             view_cache: None,
+            changes: Default::default(),
             pixel_paint_dirty: None,
             suppress_font_rebuild: false,
             pending_nav: None,

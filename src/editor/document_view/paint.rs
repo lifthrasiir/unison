@@ -34,6 +34,7 @@ pub(super) fn paint_document_area(
     total_height: f32,
     cursor_color: egui::Color32,
     inline_panel_edit_idx: Option<usize>,
+    changes: &crate::editor::change_marks::ChangeMarks,
     needs_rederive: &mut bool,
 ) {
     let EditorEnv {
@@ -1019,6 +1020,24 @@ pub(super) fn paint_document_area(
 
         y += h;
     }
+
+    // Over the rows, whose issue tint spans the gutter too.
+    let change_rects = crate::editor::change_marks::paint_gutter_marks(
+        &painter,
+        clip,
+        vlines,
+        lines,
+        changes,
+        gutter.change_gap(gutter_x),
+        origin.y,
+        total_height,
+        |_, vl| vl.height(row_height, grid_cell),
+        pal,
+    );
+    #[cfg(test)]
+    crate::editor::harness::capture_change_marks(ui.ctx(), state.id(), &change_rects);
+    #[cfg(not(test))]
+    let _ = change_rects;
 
     draw_grid_hscrollbars(
         ui, &painter, state, &strip, &blocks, &hbars, zoom_level, pal,

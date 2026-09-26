@@ -13,6 +13,11 @@ pub struct Palette {
 
     // Gutter
     pub line_num: Color32,
+    /// The marks of a line added, a line modified and lines deleted since the
+    /// file was saved; see [`crate::editor::change_marks`].
+    pub change_added: Color32,
+    pub change_modified: Color32,
+    pub change_deleted: Color32,
 
     // Syntax
     pub text_default: Color32,
@@ -100,6 +105,9 @@ impl Palette {
             grid_ext_grid: Color32::from_rgba_premultiplied(55, 57, 65, 35),
 
             line_num: Color32::from_rgb(120, 120, 135),
+            change_added: Color32::from_rgb(80, 175, 90),
+            change_modified: Color32::from_rgb(215, 165, 55),
+            change_deleted: Color32::from_rgb(225, 75, 75),
 
             text_default: Color32::from_rgb(200, 200, 200),
             text_comment: Color32::from_rgb(87, 130, 70),
@@ -167,6 +175,9 @@ impl Palette {
             grid_ext_grid: grid.grid_ext_grid,
 
             line_num: Color32::from_rgb(200, 200, 210),
+            change_added: Color32::from_rgb(45, 150, 65),
+            change_modified: Color32::from_rgb(205, 145, 20),
+            change_deleted: Color32::from_rgb(210, 50, 50),
 
             text_default: Color32::from_rgb(30, 30, 30),
             text_comment: Color32::from_rgb(55, 110, 35),

@@ -88,7 +88,6 @@ pub(crate) struct ViewSnapshot {
     /// Width the gutter reserved for fold markers, `0.0` when it reserved
     /// none. Subtract it to compare the line-number field alone.
     pub marker_width: f32,
-    #[allow(dead_code)]
     pub row_height: f32,
     pub grid_cell: f32,
     pub widget_id: egui::Id,
@@ -277,6 +276,23 @@ pub(crate) fn capture_fold_markers(
     markers: &[FoldMarkerRect],
 ) {
     ctx.data_mut(|d| d.insert_temp(fold_markers_id(editor), markers.to_vec()));
+}
+
+fn change_marks_id(editor: EditorId) -> egui::Id {
+    editor.key(Slot::TestChangeMarks)
+}
+
+/// One change mark as it was painted in the gutter.
+pub(crate) type ChangeMarkRect = (crate::editor::change_marks::MarkKind, egui::Rect);
+
+/// Called from `paint_document_area` (test builds only) with the change marks
+/// it painted, so a test can hold them against the rows they belong to.
+pub(crate) fn capture_change_marks(
+    ctx: &egui::Context,
+    editor: EditorId,
+    marks: &[ChangeMarkRect],
+) {
+    ctx.data_mut(|d| d.insert_temp(change_marks_id(editor), marks.to_vec()));
 }
 
 fn fold_marker_hover_id(editor: EditorId) -> egui::Id {
@@ -1467,6 +1483,13 @@ impl EditorHarness {
     }
 
     /// The fold markers the last frame painted, by group header line.
+    /// The change marks the last frame painted in the gutter.
+    pub fn change_marks(&self) -> Vec<ChangeMarkRect> {
+        self.ctx
+            .data(|d| d.get_temp::<Vec<ChangeMarkRect>>(change_marks_id(self.state.id())))
+            .unwrap_or_default()
+    }
+
     pub fn fold_markers(&self) -> Vec<FoldMarkerRect> {
         self.ctx
             .data(|d| d.get_temp::<Vec<FoldMarkerRect>>(fold_markers_id(self.state.id())))

@@ -522,12 +522,24 @@ pub(super) struct GutterLayout {
     pub(super) marker_columns: usize,
     /// Digits the line numbers are right-aligned in.
     pub(super) digits: usize,
+    /// Width of the space closing the number field. With the text's own
+    /// [`LEFT_PAD`](super::LEFT_PAD) it is the gap between a line's number and
+    /// its first character, where the change marks go
+    /// ([`crate::editor::change_marks`]).
+    pub(super) space_width: f32,
 }
 
 impl GutterLayout {
     /// Width of the whole marker area, every column together.
     pub(super) fn marker_area(&self) -> f32 {
         self.marker_width * self.marker_columns as f32
+    }
+
+    /// The gap between the line numbers and the text, given the gutter's left
+    /// edge, as `(left, right)`.
+    pub(super) fn change_gap(&self, gutter_x: f32) -> (f32, f32) {
+        let text_x = gutter_x + self.width;
+        (text_x - self.space_width, text_x + super::LEFT_PAD)
     }
 
     /// Left edge of the line-number field, given the gutter's left edge.

@@ -29,13 +29,21 @@
 //! two heights against each other. Everything that has to place one in the
 //! other — the viewport box, a click, the wheel — goes through [`MinimapMap`],
 //! which walks the same rows the strip is drawn from.
+//!
+//! # Change marks
+//!
+//! What the buffer changed since it was saved runs down the strip's right
+//! edge in the gutter's colors ([`super::change_marks`]), over the same rows
+//! the texture is drawn in. A deletion is a short bar there rather than the
+//! gutter's triangle, which would be a speck at this scale.
 
 use crate::hash::HashMap;
 
-use crate::document::{Document, DocumentItem, GlyphBody};
+use crate::document::{DocLine, Document, DocumentItem, GlyphBody};
 use crate::editor::colors::Palette;
 use crate::editor::ref_composite::{self, GlyphComposite, ResolvedGlyph};
 
+use super::change_marks::{self, ChangeMarks, MarkKind};
 use super::document_view::{VLineKind, VisualLine};
 use super::grid_render::{PreviewGeom, apply_opacity, blit_preview};
 
@@ -46,6 +54,9 @@ const MINIMAP_HEADING_LEVELS: u8 = 2;
 /// zoom: the minimap is a fixed-width strip, so a label that scaled with the
 /// zoom would only run out of it sooner.
 const MINIMAP_HEADING_SIZE: f32 = 16.0;
+
+/// Width of the change marks along the strip's right edge, in cells.
+const MINIMAP_CHANGE_CELLS: f32 = 3.0;
 
 /// Whether this visual line is drawn as a landmark — readable text in a row of
 /// its own — rather than as texture. See `draw_minimap`.
@@ -156,7 +167,9 @@ pub(crate) fn draw_minimap(
     ui: &mut egui::Ui,
     vlines: &[VisualLine],
     doc: &Document,
+    lines: &[DocLine],
     composites: &HashMap<usize, GlyphComposite>,
+    changes: &ChangeMarks,
     row_height: f32,
     grid_cell: f32,
     scroll_y: f32,
@@ -328,6 +341,20 @@ pub(crate) fn draw_minimap(
             egui::FontId::proportional(MINIMAP_HEADING_SIZE),
             pal.text_heading,
         );
+    }
+
+    // Under the viewport box, which is translucent and has to read over them.
+    let mark_x = snap(available.max.x - cell * MINIMAP_CHANGE_CELLS)..=available.max.x;
+    for span in change_marks::mark_spans(vlines, lines, changes, |i, _| map.mm_row(i)) {
+        let (top, bottom, color) = match span.kind {
+            MarkKind::Added => (span.y0, span.y1, pal.change_added),
+            MarkKind::Modified => (span.y0, span.y1, pal.change_modified),
+            MarkKind::Deleted => (span.y0 - cell, span.y0 + cell, pal.change_deleted),
+        };
+        let rect = egui::Rect::from_x_y_ranges(mark_x.clone(), snap(y0 + top)..=snap(y0 + bottom));
+        if rect.intersects(available) {
+            painter.rect_filled(rect, 0.0, color);
+        }
     }
 
     let vp_mm_top = map.doc_to_mm(scroll_y);

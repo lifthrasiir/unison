@@ -9,6 +9,7 @@ mod anchor_shadow;
 mod annotations;
 mod autocomplete;
 mod backref_shadow;
+mod change_marks;
 mod clipboard;
 mod comment;
 mod editing;

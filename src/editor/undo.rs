@@ -73,6 +73,10 @@ pub struct UndoStack {
     /// stack can no longer walk to, and this is how it is told apart from a
     /// position that merely moved; see [`UndoStack::mark_saved_at`].
     epoch: u64,
+    /// Stepped by every change this stack records or replays, a coalesced one
+    /// included — unlike `position`, which a run of typing leaves where it
+    /// is. See [`UndoStack::revision`].
+    revision: u64,
 }
 
 /// The state of a buffer at one moment, kept so that a write finishing later
@@ -98,7 +102,15 @@ impl UndoStack {
             last_push_time: std::time::Instant::now() - std::time::Duration::from_secs(10),
             saved_position: Some(0),
             epoch: 0,
+            revision: 0,
         }
+    }
+
+    /// A number that changes whenever the buffer this stack belongs to was
+    /// edited through it, undone or redone: what a cache over the buffer's
+    /// contents can be keyed on. See [`crate::editor::change_marks`].
+    pub fn revision(&self) -> u64 {
+        self.revision
     }
 
     pub fn mark_saved(&mut self) {
@@ -143,6 +155,7 @@ impl UndoStack {
     }
 
     fn truncate_and_invalidate(&mut self) {
+        self.revision += 1;
         if self.entries.len() > self.position {
             self.epoch = self.epoch.wrapping_add(1);
         }
@@ -311,6 +324,7 @@ impl UndoStack {
             return;
         }
 
+        self.revision += 1;
         let op = UndoOp::Lines { at, old, new };
         let entry = &mut self.entries[self.position - 1];
         match &mut entry.op {
@@ -403,6 +417,7 @@ impl UndoStack {
             && try_merge(entry)
         {
             entry.caret_after = caret_after;
+            self.revision += 1;
             return;
         }
 
@@ -512,6 +527,7 @@ impl UndoStack {
             return None;
         }
         self.position -= 1;
+        self.revision += 1;
         let entry = &self.entries[self.position];
         let caret = entry.caret_before;
         apply_op(&entry.op, lines, Direction::Undo, &mut sel);
@@ -535,6 +551,7 @@ impl UndoStack {
         let caret = entry.caret_after;
         apply_op(&entry.op, lines, Direction::Redo, &mut sel);
         self.position += 1;
+        self.revision += 1;
         self.break_coalesce();
         Some(caret)
     }

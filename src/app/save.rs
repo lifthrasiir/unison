@@ -35,11 +35,12 @@
 //! buffer still holding the work.
 
 use std::path::PathBuf;
-use std::sync::mpsc;
+use std::sync::{Arc, mpsc};
 
 use super::background::{finish, start};
 use super::docs::{confirm_overwrite, file_name_of};
 use super::{UniformApp, document_io};
+use crate::document::DocLine;
 use crate::editor::undo::SavePoint;
 
 /// One file's write, as handed to the worker.
@@ -50,6 +51,10 @@ struct SaveJob {
     /// UI thread hashing them a second time.
     hash: u64,
     point: SavePoint,
+    /// The lines `bytes` were serialized from, which become what the editor
+    /// compares against once they are on disk; see
+    /// [`crate::editor::change_marks`].
+    lines: Arc<[DocLine]>,
 }
 
 /// What became of one write, on its way back to the document it came from.
@@ -57,6 +62,7 @@ pub(super) struct SaveOutcome {
     path: PathBuf,
     hash: u64,
     point: SavePoint,
+    lines: Arc<[DocLine]>,
     error: Option<String>,
 }
 
@@ -91,6 +97,7 @@ impl SaveQueue {
                     path: job.path,
                     hash: job.hash,
                     point: job.point,
+                    lines: job.lines,
                     error,
                 };
                 if out_tx.send(outcome).is_err() {
@@ -132,6 +139,7 @@ impl SaveQueue {
             path: job.path,
             hash: job.hash,
             point: job.point,
+            lines: job.lines,
             error,
         })
     }
@@ -187,6 +195,7 @@ impl UniformApp {
             bytes,
             hash,
             point,
+            lines: doc.lines.as_slice().into(),
         };
         start(&mut self.bg_tasks.save);
         match self.saves.submit(job) {
@@ -223,7 +232,7 @@ impl UniformApp {
         }
         match outcome.error {
             None => {
-                doc.mark_written_at(outcome.hash, outcome.point);
+                doc.mark_written_at(outcome.hash, outcome.point, outcome.lines);
                 if !self.saves.batch {
                     let path = self.open_documents[idx].document.path.display().to_string();
                     self.set_status(format!("Saved {path}"));
@@ -443,6 +452,41 @@ mod tests {
         assert!(
             doc.editor_state.undo.is_at_saved(),
             "undoing back to the written revision is what makes it clean"
+        );
+    }
+
+    /// The change marks compare against what a write put on disk, and so
+    /// against the revision it carried rather than the buffer it landed in.
+    #[test]
+    fn the_change_marks_compare_against_what_the_write_carried() {
+        use crate::editor::change_marks::{BufferRevision, LineChange};
+        fn marks(app: &mut UniformApp) -> Vec<LineChange> {
+            let doc = &mut app.open_documents[0];
+            let revision = BufferRevision {
+                undo: doc.editor_state.undo.revision(),
+                edit_gen: doc.document.edit_gen,
+                pixel_gen: doc.document.pixel_gen,
+                len: doc.lines.len(),
+            };
+            let marks = doc.editor_state.changes.marks(&doc.lines, revision);
+            (0..doc.lines.len()).map(|i| marks.line(i)).collect()
+        }
+
+        let (_dir, ctx, mut app) = app_with_open_file("save-marks");
+        assert!(!marks(&mut app).contains(&LineChange::Added));
+        append_line(&mut app, "# saved");
+        assert_eq!(marks(&mut app).last(), Some(&LineChange::Added));
+
+        assert!(app.enqueue_save(0));
+        append_line(&mut app, "# typed during the write");
+        pump_until_idle(&mut app, &ctx);
+
+        let marks = marks(&mut app);
+        let n = marks.len();
+        assert_eq!(
+            marks[n - 2..],
+            [LineChange::Unchanged, LineChange::Added],
+            "the written line is saved, the one typed during the write is not"
         );
     }
 

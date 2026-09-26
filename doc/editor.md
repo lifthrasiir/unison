@@ -96,6 +96,12 @@ grid draws taller than about two lines of text (a `scale N` glyph, typically) st
 minimap beside the editor shows `#` and `##` headings as readable text, so a file can be navigated
 by section.
 
+**Unsaved changes.** Between a line's number and its text, a green bar marks a line added since the
+file was saved and a yellow bar a line changed; a pixel grid is one line, so one changed pixel marks
+the whole grid. A red triangle between two lines marks lines deleted there. The minimap repeats the
+marks down its right edge. They compare against what the file on disk holds, so saving clears them
+and undoing back to the saved text does too.
+
 ## Editing text
 
 The text is edited with the usual keys; a `glyph` header and its pixel grid are **one block** to
