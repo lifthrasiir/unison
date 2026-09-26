@@ -48,6 +48,9 @@ glyph han-2d1c7:15x16 15 16 // 𭇇
 // glyph han-2d1c8:15x16 15 16 // 𭇈
 // ⿱ han-4e2f han-53e3 // ⿱丯口
 
+glyph han-2d1c9:15x16 15 16 // 𭇉
+⿰ han-53e3:6x16 han-957f:9x16 // ⿰口长
+
 glyph han-2d1ca:15x16 15 16 // 𭇊
 ⿱ han-53e3:15x9 han-516d:15x7 // ⿱口六
 
@@ -873,8 +876,8 @@ glyph han-2d4b6:15x16 15 16 // 𭒶
 glyph han-2d4b7:15x16 15 16 // 𭒷
 ⿰ han-5b50.0:5x16-l han-513f:10x16 // ⿰子儿
 
-glyph han-2d4b8-($han-regions):15x16 15 16 // 𭒸
-⿰ han-5b50-($-1):5x16-l 1 han-53b6:9x16 // ⿰子厶
+glyph han-2d4b8:15x16 15 16 // 𭒸
+⿰ han-5b50-j:5x16-l 1 han-53b6:9x16 // ⿰子厶
 
 glyph han-2d4b9:15x16 15 16 // 𭒹
 ⿰ han-5b50.0:7x16-l han-529b:8x16 // ⿰子力

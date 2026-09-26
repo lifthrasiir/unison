@@ -946,11 +946,14 @@ glyph han-32631:15x16 15 16 // 𲘱
 
 ## 32.4
 
+glyph han-32635:15x16 15 16 // 𲘵
+⿰ han-571f:5x16-l 1 han-957f:9x16 // ⿰土长
+
 glyph han-32636:15x16 15 16 // 𲘶
 assume ⿱ han-516d:15x9 -1 han-571f:15x8 // ⿱六土
 
-glyph han-32637-($han-regions):15x16 15 16 // 𲘷
-⿰ han-571f:5x16-l han-4e11-($-1):10x16 // ⿰土丑
+glyph han-32637:15x16 15 16 // 𲘷
+⿰ han-571f:5x16-l han-4e11-g:10x16 // ⿰土丑
 
 ## 32.5
 

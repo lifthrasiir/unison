@@ -31,6 +31,9 @@ glyph han-31cee:15x16 15 16 // 𱳮
 // glyph han-31cf0:15x16 15 16 // 𱳰
 // ⿰ han-77f3 han-624b // ⿰石手
 
+glyph han-31cf1:15x16 15 16 // 𱳱
+⿰ han-77f3:6x16 han-957f:9x16 // ⿰石长
+
 ## 112.5
 
 // glyph han-31cf4:15x16 15 16 // 𱳴

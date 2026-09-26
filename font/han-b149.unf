@@ -67,8 +67,8 @@ glyph han-2797c-($han-regions):15x16 15 16 // 𧥼
 // glyph han-2797f:15x16 15 16 // 𧥿
 // ⿱ han-6c34 han-8a00 // ⿱水言
 
-glyph han-27984-($han-regions):15x16 15 16 // 𧦄
-⿰ han-8a01-($-1):5x16 han-6c0f:10x16 // ⿰訁氏
+glyph han-27984:15x16 15 16 // 𧦄
+⿰ han-8a01-g:5x16 han-6c0f:10x16 // ⿰訁氏
 
 // glyph han-27988:15x16 15 16 // 𧦈 ⿰訁戶(TV) ⿰訁户(Z)
 // ⿰ han-8a01 han-6236 // ⿰訁戶
@@ -100,7 +100,7 @@ glyph han-27993:15x16 15 16 // 𧦓
 // glyph han-27995:15x16 15 16 // 𧦕
 // ⿱ han-8a08 han-51e0 // ⿱計几
 
-glyph han-27997-($han-regions):15x16 15 16 // 𧦗 ⿰月言(G) ⿰⺼言(T)
+glyph han-27997-($han-regions):15x16 15 16 // 𧦗
 ⿰ han-6708:5x16-l 1 han-8a00-($-1):9x16 // ⿰月言
 
 ## 149.5
@@ -445,7 +445,7 @@ glyph han-27b25:15x16 15 16 // 𧬥
 // glyph han-27b58:15x16 15 16 // 𧭘
 // ⿰ han-8a01 han-669c // ⿰訁暜
 
-glyph han-27b5b-($han-regions):15x16 15 16 // 𧭛 ⿲訁言言(GT) ⿰訁誩(X)
+glyph han-27b5b-($han-regions):15x16 15 16 // 𧭛
 ⿲ han-8a00-($-1):5x16 han-8a01-($-1):5x16 han-8a00-($-1):5x16 // ⿲言訁言
 
 ## 149.16

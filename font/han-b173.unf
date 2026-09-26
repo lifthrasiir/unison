@@ -88,8 +88,8 @@ glyph han-29097:15x16 15 16 // 𩂗
 glyph han-29098:15x16 15 16 // 𩂘
 ⿱ han-96e8:15x8 1 han-7532:15x7 // ⿱雨甲
 
-glyph han-29099-($han-regions):15x16 15 16 // 𩂙
-⿳ -1 han-96e8-($-1):15x6 han-201a2:15x6 han-5915:15x8 // ⿳雨𠆢夕 <- ⿱雨⿱𠆢夕
+glyph han-29099:15x16 15 16 // 𩂙
+⿳ -1 han-96e8:15x6 han-201a2:15x6 han-5915:15x8 // ⿳雨𠆢夕 <- ⿱雨⿱𠆢夕
 
 // glyph han-2909b:15x16 15 16 // 𩂛
 // ⿱ han-96e8 han-4ed8 // ⿱雨付
@@ -433,8 +433,10 @@ glyph han-291d9:15x16 15 16 // 𩇙 ⿰青令(T) ⿰靑令(Z)
 glyph han-291da:15x16 15 16 // 𩇚 ⿰青台(T) ⿰靑台(Z)
 ⿰ han-9752-t:7x16 1 han-53f0:7x16 // ⿰青台
 
-glyph han-291db-($han-regions):15x16 15 16 // 𩇛 ⿰生青(GTV) ⿰生靑(Z)
-⿰ han-751f:7x16 1 han-9752-($-1):7x16 // ⿰生青
+glyph han-291db-(g|t|v):15x16 15 16 // 𩇛
+assume ⿰ han-751f:7x16 -1 han-9752-($-1):9x16 // ⿰生青
+glyph han-291db-(j):15x16 15 16 // 𩇛
+assume ⿰ han-751f:7x16 -1 han-9751-($-1):9x16 // ⿰生靑
 
 ## 174.8
 
@@ -443,7 +445,7 @@ glyph han-291db-($han-regions):15x16 15 16 // 𩇛 ⿰生青(GTV) ⿰生靑(Z)
 
 ## 174.9
 
-glyph han-291df-($han-regions):15x16 15 16 // 𩇟 ⿰冫靚(GT) ⿰凊見(X)
+glyph han-291df-($han-regions):15x16 15 16 // 𩇟
 ⿲ han-51ab:3x16 han-9752-($-1):5x16 han-898b:7x16 // ⿲冫青見
 
 ## 174.11

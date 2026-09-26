@@ -78,7 +78,7 @@ glyph han-2b0da:15x16 15 16 // 𫃚
 
 ## 120.3
 
-glyph han-2b0dc-($han-regions):15x16 15 16 // 𫃜 ⿰糹口(TU) ⿰糸口(KP)
+glyph han-2b0dc-($han-regions):15x16 15 16 // 𫃜
 ⿰ han-7cf9-($-1):5x16 1 han-53e3:9x16 // ⿰糹口
 
 glyph han-2b0dd:15x16 15 16 // 𫃝
@@ -694,6 +694,9 @@ glyph han-2b2a5:15x16 15 16 // 𫊥
 glyph han-2b2a7:15x16 15 16 // 𫊧
 ⿲ han-866b:5x16 han-4e03:5x16 han-5200:5x16 // ⿲虫七刀
 
+glyph han-2b2aa:15x16 15 16 // 𫊪
+⿰ han-866b:5x16 1 han-957f:9x16 // ⿰虫长
+
 ## 142.5
 
 // glyph han-2b2ac:15x16 15 16 // 𫊬
@@ -1111,6 +1114,11 @@ glyph han-2b39e:15x16 15 16 // 𫎞
 
 glyph han-2b3c0:15x16 15 16 // 𫏀
 ⿰ han-27fb7:5x16 1 han-5bf8:9x16 // ⿰𧾷寸
+
+## 157.4
+
+glyph han-2b3c3:15x16 15 16 // 𫏃
+⿰ han-27fb7:5x16 1 han-957f:9x16 // ⿰𧾷长
 
 ## 157.5
 

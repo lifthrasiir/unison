@@ -2761,6 +2761,9 @@ glyph han-5e0a:15x16 15 16 // 帊
 // glyph han-5e0f:15x16 15 16 // 帏
 // ⿰ han-5dfe han-97e6 // ⿰巾韦
 
+glyph han-5e10:15x16 15 16 // 帐
+⿰ han-5dfe:5x16 1 han-957f:9x16 // ⿰巾长
+
 ## 50.5
 
 glyph han-5e13:15x16 15 16 // 帓
@@ -4317,6 +4320,9 @@ glyph han-5f1d.0:* = han-5f1d:*
 
 glyph han-5f1e:15x16 15 16 // 弞
 ⿰ han-5f13:7x16 1 han-6b20:7x16 // ⿰弓欠
+
+glyph han-5f20:15x16 15 16 // 张
+⿰ han-5f13:6x16 han-957f:9x16 // ⿰弓长
 
 ## 57.5
 

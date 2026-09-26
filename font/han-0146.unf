@@ -423,8 +423,11 @@ $$@@@@@@@@0/......@@@@@@@@@@$$
 
 ## 147.3
 
-// glyph han-898d:15x16 15 16 // 覍
-// ⿱ han-21b54 han-898b // ⿱𡭔見
+glyph han-898d:15x16 15 16 // 覍
+⿱ han-21b54:15x7 han-898b:15x9 // ⿱𡭔見
+glyph han-898d.0:* = han-898d:*
+glyph han-898d.1:* = han-898d:*
+// TODO glyph han-898d.2:*
 
 // glyph han-898e:15x16 15 16 // 覎
 // ⿺ han-898b han-5b50 // ⿺見子

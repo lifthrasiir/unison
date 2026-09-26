@@ -1,19 +1,113 @@
 # CJK unified ideographs extension B: 長 (168)
 
+## 168.2
+
+// glyph han-28c59:15x16 15 16 // 𨱙
+// ⿰ han-9578 han-51e0 // ⿰镸几
+
 ## 168.4
+
+glyph han-28c5e:15x16 15 16 // 𨱞
+⿰ han-9578:7x16 1 han-6bdb:7x16 // ⿰镸毛
+
+glyph han-28c5f:15x16 15 16 // 𨱟
+⿰ han-9578:7x16 1 han-6b20:7x16 // ⿰镸欠
+
+glyph han-28c60:15x16 15 16 // 𨱠
+⿰ han-9578:7x16 han-6708:8x16 // ⿰镸月
+
+glyph han-28c61:15x16 15 16 // 𨱡
+⿰ han-9578:7x16 han-6c0f:8x16 // ⿰镸氏
+
+// glyph han-28c64:15x16 15 16 // 𨱤
+// ⿰ han-9578 han-5197 // ⿰镸冗
 
 // glyph han-28c65:15x16 15 16 // 𨱥
 // ⿱ han-4e0d han-9577 // ⿱不長
 
 ## 168.5
 
+glyph han-28c66:15x16 15 16 // 𨱦
+⿰ han-9578:7x16 1 han-51fa:7x16 // ⿰镸出
+
 // glyph han-28c6a:15x16 15 16 // 𨱪 ⿰長丹(V) ⿰镸⿵丹丶(UCS2003)
 // ⿰ han-9577 han-4e39 // ⿰長丹
 
+glyph han-28c6b:15x16 15 16 // 𨱫
+⿰ han-9578:7x16 1 han-7518:7x16 // ⿰镸甘
+
+glyph han-28c6c:15x16 15 16 // 𨱬
+⿰ han-9578:7x16 1 han-5360:7x16 // ⿰镸占
+
+glyph han-28c70:15x16 15 16 // 𨱰
+⿰ han-9578:7x16 1 han-5f17:7x16 // ⿰镸弗
+
+## 168.6
+
+// glyph han-28c72-($han-regions):15x16 15 16 // 𨱲
+// ⿰ han-9578 han-6b64-($-1) // ⿰镸此
+
+glyph han-28c74:15x16 15 16 // 𨱴
+⿰ han-9578:7x16 1 han-5404:7x16 // ⿰镸各
+
+glyph han-28c75:15x16 15 16 // 𨱵
+⿰ han-9578:7x16 1 han-5146:7x16 // ⿰镸兆
+
+glyph han-28c7b:15x16 15 16 // 𨱻
+⿰ han-9578:7x16 1 han-5409:7x16 // ⿰镸吉
+
+## 168.7
+
+// glyph han-28c80:15x16 15 16 // 𨲀
+// ⿰ han-9578 han-5f04 // ⿰镸弄
+
+// glyph han-28c81:15x16 15 16 // 𨲁 ⿰镸⿱夭小(GP) ⿰镸𭕇(T)
+// ⿰ han-9578 han-2d547 // ⿰镸𭕇
+
+// glyph han-28c82:15x16 15 16 // 𨲂
+// ⿰ han-9578 han-8d64 // ⿰镸赤
+
+// glyph han-28c83:15x16 15 16 // 𨲃
+// ⿰ han-9578 han-5446 // ⿰镸呆
+
+glyph han-28c86-(g|t):15x16 15 16 // 𨲆
+⿰ han-9578:7x16 1 han-8096.0:7x16 // ⿰镸肖
+glyph han-28c86-(j|p):15x16 15 16 // 𨲆
+⿰ han-9578:7x16 1 han-8096.1:7x16 // ⿰镸肖
+
 ## 168.8
+
+glyph han-28c88:15x16 15 16 // 𨲈
+⿰ han-9578:7x16 1 han-96b9:7x16 // ⿰镸隹
+
+// glyph han-28c8b-($han-regions):15x16 15 16 // 𨲋
+// ⿰ han-9578 han-5351-($-1) // ⿰镸卑
 
 // glyph han-28c8d:15x16 15 16 // 𨲍
 // ⿰ han-9577 han-9577 // ⿰長長
+
+## 168.9
+
+glyph han-28c98-g:15x16 15 16 // 𨲘
+⿰ han-9578:7x16 1 han-8005.0:7x16 // ⿰镸者
+glyph han-28c98-(t|j):15x16 15 16 // 𨲘
+⿰ han-9578:7x16 1 han-8005.1:7x16 // ⿰镸者
+
+glyph han-28c99:15x16 15 16 // 𨲙
+⿰ han-9578:7x16 1 han-9801:7x16 // ⿰镸頁
+
+// glyph han-28c9b:15x16 15 16 // 𨲛
+// ⿰ han-9578 han-9996 // ⿰镸首
+
+## 168.12
+
+glyph han-28cad:15x16 15 16 // 𨲭
+⿰ han-9578:7x16 1 han-55ac:7x16 // ⿰镸喬
+
+## 168.17
+
+glyph han-28cc3:15x16 15 16 // 𨳃
+⿰ han-9578:7x16 1 han-8944:7x16 // ⿰镸襄
 
 # CJK unified ideographs extension B: 門 (169)
 

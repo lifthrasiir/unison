@@ -662,8 +662,12 @@ glyph han-26cf1:15x16 15 16 // 𦳱
 // glyph han-26cf5:15x16 15 16 // 𦳵
 // ⿱ han-8279 han-65ab // ⿱艹斫
 
-glyph han-26cf6-($han-regions):15x16 15 16 // 𦳶 ⿱艹䖟(GT) ⿱芒虫(X)
-⿳ han-8279:15x3 han-4ea1-($-1):15x4 1 han-866b:15x8 // ⿳艹亡虫
+glyph han-26cf6-g:15x16 15 16 // 𦳶
+⿳ han-8279:15x3 han-4ea1.x:15x4 1 han-866b:15x8 // ⿳艹亡虫
+glyph han-26cf6-t:15x16 15 16 // 𦳶
+⿳ han-8279:15x3 han-4ea1.0:15x4 1 han-866b:15x8 // ⿳艹亡虫
+glyph han-26cf6-j:15x16 15 16 // 𦳶
+⿳ han-8279:15x3 han-4ea1.1:15x4 1 han-866b:15x8 // ⿳艹亡虫
 
 // glyph han-26cfb:15x16 15 16 // 𦳻
 // ⿳ han-8279 han-571f han-28670 // ⿳艹土𨙰 <- ⿱芏𨙰

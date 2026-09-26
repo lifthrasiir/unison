@@ -70,7 +70,9 @@ glyph han-225b8:15x16 15 16 // 𢖸
 glyph han-225bd:15x16 15 16 // 𢖽
 ⿱ han-571f:15x10 han-5fc3:15x6 // ⿱土心
 
-glyph han-225bf:15x16 15 16 // 𢖿 ⿱𡭔心(G) ⿱小心(UCS2003)
+glyph han-225bf-g:15x16 15 16 // 𢖿
+⿱ han-21b54:15x7 han-5fc3:15x9 // ⿱𡭔心
+glyph han-225bf-j:15x16 15 16 // 𢖿
 ⿱ han-5c0f:15x7 han-5fc3:15x9 // ⿱小心
 
 glyph han-225c0:15x16 15 16 // 𢗀

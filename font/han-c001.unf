@@ -30,8 +30,8 @@ glyph han-2a704:15x16 15 16 // 𪜄
 
 ## 2.8
 
-glyph han-2a709-($han-regions):15x16 15 16 // 𪜉
-⿰ han-4e2d:5x16 1 han-5e73-($-1):9x16 // ⿰中平
+glyph han-2a709:15x16 15 16 // 𪜉
+⿰ han-4e2d:5x16 1 han-5e73-v:9x16 // ⿰中平
 
 # CJK unified ideographs extension C: 丿 (4)
 

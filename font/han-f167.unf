@@ -122,10 +122,33 @@ glyph han-2e8f2:15x16 15 16 // 𮣲
 
 # CJK unified ideographs extension F: 長 (168)
 
+## 168.4
+
+// glyph han-2e8fa:15x16 15 16 // 𮣺
+// ⿰ han-9578 han-72ac // ⿰镸犬
+
 ## 168.5
 
 // glyph han-2e8fb:15x16 15 16 // 𮣻
 // ⿰ han-7533 han-9577 // ⿰申長
+
+## 168.7
+
+// glyph han-2e8fe-($han-regions):15x16 15 16 // 𮣾
+// ⿰ han-9578 han-89d2-($-1) // ⿰镸角
+
+## 168.8
+
+// glyph han-2e900:15x16 15 16 // 𮤀
+// ⿰ han-9578 han-82b3 // ⿰镸芳
+
+glyph han-2e901:15x16 15 16 // 𮤁
+⿰ han-9578:7x16 1 han-975e.0:7x16 // ⿰镸非
+
+## 168.11
+
+glyph han-2e903:15x16 15 16 // 𮤃
+⿰ han-9578:7x16 1 han-7968:7x16 // ⿰镸票
 
 # CJK unified ideographs extension F: 門 (169)
 
@@ -584,6 +607,13 @@ glyph han-2e9e1:15x16 15 16 // 𮧡
 
 // glyph han-2e9e6:15x16 15 16 // 𮧦
 // ⿰ han-9769 han-20dae // ⿰革𠶮
+
+# CJK unified ideographs extension F: 韦 (178')
+
+## 178'.4
+
+// glyph han-2e9f4:15x16 15 16 // 𮧴
+// ⿰ han-97e6 han-957f // ⿰韦长
 
 # CJK unified ideographs extension F: 音 (180)
 

@@ -73,7 +73,7 @@ glyph han-32de7:15x16 15 16 // 𲷧
 
 ## 120.3
 
-glyph han-32de9-($han-regions):15x16 15 16 // 𲷩 ⿰糹巾(V) ⿰糸巾(S)
+glyph han-32de9-($han-regions):15x16 15 16 // 𲷩
 ⿰ han-7cf9-($-1):5x16 1 han-5dfe:9x16 // ⿰糹巾
 
 glyph han-32dea:15x16 15 16 // 𲷪
@@ -297,6 +297,9 @@ glyph han-32e6d:15x16 15 16 // 𲹭
 # CJK unified ideographs extension J: 舌 (135)
 
 ## 135.4
+
+// glyph han-32ed0-($han-regions):15x16 15 16 // 𲻐
+// ⿰ han-820c-($-1) han-957f // ⿰舌长
 
 // glyph han-32ed1-($han-regions):15x16 15 16 // 𲻑
 // ⿰ han-820c-($-1) han-4e39 // ⿰舌丹

@@ -1296,6 +1296,9 @@ glyph han-302da:15x16 15 16 // 𰋚
 
 ## 37.4
 
+// glyph han-302db:15x16 15 16 // 𰋛
+// ⿱ han-5927 han-957f // ⿱大长
+
 // glyph han-302dc:15x16 15 16 // 𰋜
 // ⿻大⿰㐅㐅
 
@@ -1439,14 +1442,14 @@ glyph han-3030f:15x16 15 16 // 𰌏
 // glyph han-3031e:15x16 15 16 // 𰌞
 // ⿳ han-4e8c han-516b han-5b50 // ⿳二八子
 
-glyph han-3031f-($han-regions):15x16 15 16 // 𰌟
-⿰ han-5b50-($-1):5x16-l 1 han-4e91:9x16 // ⿰子云
+glyph han-3031f:15x16 15 16 // 𰌟
+⿰ han-5b50-g:5x16-l 1 han-4e91:9x16 // ⿰子云
 
 glyph han-30320:15x16 15 16 // 𰌠
 ⿱ han-5b50.0:15x9 han-6b62:15x7 // ⿱子止
 
-glyph han-30322-($han-regions):15x16 15 16 // 𰌢
-⿰ han-5b50-($-1):5x16-l han-4e11-($-1):10x16 // ⿰子丑
+glyph han-30322:15x16 15 16 // 𰌢
+⿰ han-5b50-g:5x16-l han-4e11-g:10x16 // ⿰子丑
 
 ## 39.5
 

@@ -121,8 +121,8 @@ ref 4x7 -3 4 negated
 
 ## 42.2
 
-glyph han-30369:15x16 15 16 // 𰍩 ⿱𡭔人(B) ⿱小人(Z)
-⿱ han-5c0f:15x9 han-4eba:15x7 // ⿱小人
+glyph han-30369:15x16 15 16 // 𰍩
+⿱ han-21b54:15x9 han-4eba:15x7 // ⿱𡭔人
 
 ## 42.4
 
@@ -712,6 +712,9 @@ glyph han-304bd:15x16 15 16 // 𰒽
 
 glyph han-304c1:15x16 15 16 // 𰓁
 ⿰ -2 han-624b:11x16 han-6bd4.0:6x16 // ⿰手比
+
+glyph han-304c4:15x16 15 16 // 𰓄
+⿰ han-624c:5x16 1 han-957f:9x16 // ⿰扌长
 
 // glyph han-304c5:15x16 15 16 // 𰓅
 // ⿱ han-6c0f han-624b // ⿱氏手

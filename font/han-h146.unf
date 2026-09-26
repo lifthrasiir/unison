@@ -192,8 +192,8 @@ glyph han-320b2:15x16 15 16 // 𲂲
 
 ## 157.3
 
-// glyph han-320d5:15x16 15 16 // 𲃕
-// ⿱ han-21b54 han-8db3 // ⿱𡭔足
+glyph han-320d5:15x16 15 16 // 𲃕
+⿱ han-21b54:15x7 han-8db3:15x9 // ⿱𡭔足
 
 ## 157.4
 
@@ -310,6 +310,9 @@ glyph han-32118:15x16 15 16 // 𲄘
 
 // glyph han-32119:15x16 15 16 // 𲄙
 // ⿰ han-8eab han-5386 // ⿰身历
+
+// glyph han-3211a:15x16 15 16 // 𲄚
+// ⿰ han-8eab han-957f // ⿰身长
 
 glyph han-3211b:15x16 15 16 // 𲄛
 ⿰ han-8eab.x:7x16 1 han-5df4:7x16 // ⿰身巴

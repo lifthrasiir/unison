@@ -60,7 +60,9 @@ glyph han-250f9:15x16 15 16 // 𥃹
 glyph han-250fa:15x16 15 16 // 𥃺
 ⿱ han-76ee:15x7 2 han-5140:15x7 // ⿱目兀
 
-glyph han-250fb:15x16 15 16 // 𥃻 ⿱𡭔目(GT) ⿱小目(Z)
+glyph han-250fb-(g|t):15x16 15 16 // 𥃻
+⿱ han-21b54:15x7 han-76ee:15x9 // ⿱𡭔目
+glyph han-250fb-j:15x16 15 16 // 𥃻
 ⿱ han-5c0f:15x7 han-76ee:15x9 // ⿱小目
 
 glyph han-250fd:15x16 15 16 // 𥃽

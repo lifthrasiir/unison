@@ -1168,6 +1168,21 @@ glyph han-4980:15x16 15 16 // 䦀
 // glyph han-4981:15x16 15 16 // 䦁
 // ⿲ han-9485 han-4e30 han-961d // ⿲钅丰阝
 
+# CJK unified ideographs extension A: 長 (168)
+
+## 168.5
+
+// glyph han-4988:15x16 15 16 // 䦈
+// ⿰ han-9578 han-5de6 // ⿰镸左
+
+glyph han-4989:15x16 15 16 // 䦉
+⿰ han-9578:7x16 han-56db:8x16 // ⿰镸四
+
+## 168.6
+
+// glyph han-498a:15x16 15 16 // 䦊
+// ⿰ han-9578 han-5c17 // ⿰镸尗
+
 # CJK unified ideographs extension A: 門 (169)
 
 ## 169.3

@@ -6657,6 +6657,9 @@ glyph han-4f1d.0:* = han-4f1d:*
 glyph han-4f21:15x16 15 16 // 伡
 ⿰ han-4ebb:5x16 han-8f66:9x16 // ⿰亻车
 
+glyph han-4f25:15x16 15 16 // 伥
+⿰ han-4ebb:5x16 1 han-957f:9x16 // ⿰亻长
+
 // glyph han-4f26:15x16 15 16 // 伦
 // ⿰ han-4ebb han-4ed1 // ⿰亻仑
 

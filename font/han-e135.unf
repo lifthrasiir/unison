@@ -156,6 +156,9 @@ glyph han-2c744:15x16 15 16 // 𬝄
 glyph han-2c750:15x16 15 16 // 𬝐
 ⿳ han-8279:15x3 han-5360:15x9 han-706c:15x4 // ⿳艹占灬
 
+// glyph han-2c751:15x16 15 16 // 𬝑
+// ⿳ han-8279 han-201a2 han-9578 // ⿳艹𠆢镸
+
 // glyph han-2c752:15x16 15 16 // 𬝒
 // ⿱ han-8279 han-4fd0 // ⿱艹俐
 
@@ -818,6 +821,9 @@ glyph han-2c9b0:15x16 15 16 // 𬦰
 
 glyph han-2c9b2:15x16 15 16 // 𬦲
 ⿰ han-27fb7:5x16 1 han-8eca:9x16 // ⿰𧾷車
+
+// glyph han-2c9b5:15x16 15 16 // 𬦵
+// ⿰ han-27fb7 han-5f20 // ⿰𧾷张
 
 ## 157.8
 

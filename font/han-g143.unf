@@ -1058,10 +1058,22 @@ glyph han-30fc2:15x16 15 16 // 𰿂
 
 # CJK unified ideographs extension G: 長 (168)
 
+## 168.4
+
+glyph han-30fcc:15x16 15 16 // 𰿌
+⿰ han-9578:7x16 1 han-5206:7x16 // ⿰镸分
+
 ## 168.7
 
 // glyph han-30fcf:15x16 15 16 // 𰿏
 // ⿺ han-9577 han-91cc // ⿺長里
+
+# CJK unified ideographs extension G: 长 (168')
+
+## 168'.4
+
+// glyph han-30fd6:15x16 15 16 // 𰿖
+// ⿱ han-4e0d han-957f // ⿱不长
 
 # CJK unified ideographs extension G: 門 (169)
 

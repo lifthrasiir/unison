@@ -1306,6 +1306,9 @@ glyph han-807f.0:* = han-807f:*
 // ref han-8080 // ⿻肀𣶒
 // ref han-23d92
 
+// glyph han-8086:15x16 15 16 // 肆
+// ⿰ han-9578 han-807f // ⿰镸聿
+
 # CJK unified ideographs: 肉 (130)
 
 ## 130.0
@@ -1580,6 +1583,9 @@ glyph han-80bc:15x16 15 16 // 肼
 
 glyph han-80bf:15x16 15 16 // 肿
 ⿰ han-6708:5x16-l 1 han-4e2d:9x16 // ⿰月中
+
+glyph han-80c0:15x16 15 16 // 胀
+⿰ han-6708:5x16-l 1 han-957f:9x16 // ⿰月长
 
 ## 130.5
 

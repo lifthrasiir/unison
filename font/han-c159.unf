@@ -414,7 +414,7 @@ glyph han-2b519:15x16 15 16 // 𫔙
 glyph han-2b51a:15x16 15 16 // 𫔚
 ⿵ han-9580:15x16.13x11 han-4e2d:9x11 3 5 // ⿵門中
 
-glyph han-2b51b-($han-regions):15x16 15 16 // 𫔛 ⿵門化(T) ⿵門⿰亻𠤎(J)
+glyph han-2b51b-($han-regions):15x16 15 16 // 𫔛
 ⿵ han-9580:15x16.13x11 han-5316-($-1):9x10 3 6 // ⿵門化
 
 ## 169.5
@@ -755,6 +755,9 @@ glyph han-2b5de:15x16 15 16 // 𫗞
 
 glyph han-2b5df:15x16 15 16 // 𫗟
 ⿰ han-9963:5x16 1 han-5143:9x16 // ⿰饣元
+
+glyph han-2b5e0:15x16 15 16 // 𫗠
+⿰ han-9963:5x16 1 han-957f:9x16 // ⿰饣长
 
 ## 184'.5
 
