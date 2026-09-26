@@ -222,3 +222,90 @@ fn a_strip_keeps_its_full_width_while_a_glyph_is_edited() {
     );
     assert_eq!(row_right(&h), idle, "the strip row does not");
 }
+
+/// The strip row's centre, at `dx` points into the grid band.
+fn strip_point(h: &EditorHarness, dx: f32) -> egui::Pos2 {
+    let row = h
+        .snap()
+        .vlines
+        .iter()
+        .find(|vl| matches!(vl.kind, SnapKind::RefImage { .. }))
+        .map(|vl| vl.y + vl.height / 2.0)
+        .expect("a strip row");
+    egui::pos2(h.snap().strip.x + dx, row)
+}
+
+/// A click on a strip — a press that never became a drag — puts the caret at
+/// the end of the line right before it, whether the strip has been read yet
+/// or is still a placeholder.
+#[test]
+fn clicking_a_strip_moves_the_caret_to_the_line_before_it() {
+    let comment_len = source().lines().next().expect("line 0").chars().count();
+
+    let mut h = harness_with_strips(&[0x4e00]);
+    h.state.cursor = Caret::new(9, 3);
+    let at = strip_point(&h, 40.0);
+    h.click_at(at);
+    assert_eq!(h.state.cursor, Caret::new(0, comment_len), "placeholder");
+    assert_eq!(h.state.selection_anchor, None);
+
+    let mut h = harness_with_strips(&[0x4e00]);
+    let dark = h.ctx.style().visuals.dark_mode;
+    h.ref_images
+        .clone()
+        .expect("a store")
+        .preload_for_test(0x4e00, [2000, 90], dark);
+    h.frame();
+    h.state.cursor = Caret::new(9, 3);
+    let at = strip_point(&h, 40.0);
+    h.click_at(at);
+    assert_eq!(h.state.cursor, Caret::new(0, comment_len), "read strip");
+}
+
+/// A strip above the very first line has no line before it; the click lands
+/// on the start of the line it introduces, which is the nearest place.
+#[test]
+fn clicking_a_strip_above_the_first_line_lands_on_its_start() {
+    let mut h = EditorHarness::new("glyph han-4e00 2 2\n..@@\n@@..\n");
+    h.ref_images = Some(RefImages::for_test([0x4e00].into_iter().collect()));
+    h.frame();
+    h.state.cursor = Caret::new(0, 5);
+    let at = strip_point(&h, 40.0);
+    h.click_at(at);
+    assert_eq!(h.state.cursor, Caret::new(0, 0));
+}
+
+/// A click on a strip takes the keyboard focus, the way a click on a text line
+/// does: the strip covers the editor's own response, so without this the caret
+/// moves but stays hidden and the keys go elsewhere. The empty band to the
+/// right of a narrow strip is part of the same row and does the same.
+#[test]
+fn clicking_a_strip_focuses_the_editor() {
+    let comment_len = source().lines().next().expect("line 0").chars().count();
+    let check = |label: &str, dx: fn(&EditorHarness) -> f32| {
+        let mut h = harness_with_strips(&[0x4e00]);
+        h.blur();
+        assert!(!h.editor_has_focus());
+        h.state.cursor = Caret::new(9, 3);
+        let at = strip_point(&h, dx(&h));
+        h.click_at(at);
+        assert_eq!(h.state.cursor, Caret::new(0, comment_len), "{label}");
+        assert!(h.editor_has_focus(), "{label}");
+    };
+    check("on the strip", |_| 40.0);
+    check("past its right end", |h| h.snap().strip.w - 2.0);
+}
+
+/// A drag on a strip scrolls it, and takes the focus as a drag on text does.
+#[test]
+fn dragging_a_strip_focuses_the_editor() {
+    let mut h = harness_with_strips(&[0x4e00]);
+    h.blur();
+    let from = strip_point(&h, 40.0);
+    let to = from + egui::vec2(-60.0, 0.0);
+    h.press_at(from);
+    h.move_pointer(to);
+    h.release_at(to);
+    h.frame();
+    assert!(h.editor_has_focus());
+}

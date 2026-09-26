@@ -459,3 +459,16 @@ fn scrollbar_only_shows_for_the_glyph_being_edited() {
     assert!(matches!(h.state.mode, EditMode::Normal));
     assert!(h.snap().strip.bars.is_empty());
 }
+
+/// A press on a grid's scrollbar is a press in the editor: it takes the focus
+/// like any other, though the bar takes the gesture itself.
+#[test]
+fn clicking_a_grid_scrollbar_focuses_the_editor() {
+    let mut h = EditorHarness::new(&wide_doc());
+    h.click_grid_cell(1, 0, 0);
+    h.frame();
+    let bar = *h.snap().strip.bars.first().expect("a scrollbar");
+    h.blur();
+    h.click_at(egui::pos2(bar.min.x + 20.0, bar.center().y));
+    assert!(h.editor_has_focus());
+}

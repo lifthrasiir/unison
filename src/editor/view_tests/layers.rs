@@ -735,3 +735,20 @@ ref claim 0 0 negated
         "the negated `__` cell erases nothing, so `solid`'s ink stays visible"
     );
 }
+
+/// A click on a ref thumbnail in the inline tools panel takes the focus, like
+/// a click anywhere else in the editor.
+#[test]
+fn clicking_a_thumbnail_focuses_the_editor() {
+    let mut h = EditorHarness::new(&composite_doc());
+    h.click_grid_cell(4, 0, 0);
+    let thumb = h.ref_thumbnail_rect(2, 0).center();
+    h.blur();
+    h.click_at(thumb);
+    assert!(
+        matches!(h.state.mode, EditMode::LayerMove { item_idx: 2, layer_idx: 0 }),
+        "{:?}",
+        h.state.mode
+    );
+    assert!(h.editor_has_focus());
+}

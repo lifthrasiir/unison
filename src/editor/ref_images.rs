@@ -59,6 +59,11 @@
 //! strips are 87 or 101 pixels tall — is scaled down to fit rather than
 //! cropped, since a strip from somewhere else is still worth seeing whole.
 //! Wider than the row is the normal case, and that scrolls: drag the strip.
+//!
+//! A click on a strip that does not become a drag puts the caret at the end of
+//! the line just before it, the one the strip sits under; a strip has no caret
+//! position of its own, and a click that did nothing would feel broken. It
+//! takes the focus as any press in the editor does (`show_document`).
 
 use crate::hash::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
@@ -368,8 +373,10 @@ impl RefImages {
 /// placeholder naming the code point where it has not, and the drag that
 /// scrolls a strip wider than the row.
 ///
-/// Returns whether a drag on this strip is in flight, which the caller uses to
-/// keep the same gesture from also selecting text.
+/// Returns the strip's response. The caller reads a drag in flight off it to
+/// keep the same gesture from also selecting text, and a click — a press that
+/// never became a drag — to move the caret, since the strip sits over the
+/// editor's own response and a click on it never reaches that one.
 ///
 /// The scroll offset is the caller's (one per pane, per code point) and is
 /// clamped here, since only this pass knows how far the strip actually
@@ -383,10 +390,10 @@ pub(crate) fn paint_strip(
     cp: u32,
     scroll: &mut f32,
     id: egui::Id,
-) -> bool {
+) -> egui::Response {
     let pal = crate::editor::colors::Palette::get(ui);
     painter.rect_filled(row, 0.0, pal.ref_image_bg);
-    let response = ui.interact(row, id, egui::Sense::drag());
+    let response = ui.interact(row, id, egui::Sense::click_and_drag());
     match store.image(ui.ctx(), cp, ui.visuals().dark_mode) {
         RefImage::Ready { texture, size } => {
             // Its own size, in points, unless it is taller than the row — the
@@ -430,7 +437,7 @@ pub(crate) fn paint_strip(
             );
         }
     }
-    response.dragged()
+    response
 }
 
 /// The strip of `cp`: `<root>/<name minus its last three digits>/<name>.png`,

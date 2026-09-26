@@ -736,6 +736,23 @@ fn show_document(
 
     apply_scroll_physics(ui, zoom_level, state.key(Slot::ScrollAccel));
 
+    // Any press in the editor — on the text, a strip, a grid's scrollbar, the
+    // inline panel, the minimap — makes it the focused one. The canvas takes
+    // focus from its own response, but everything drawn over it has a response
+    // of its own that swallows the press, and each one requesting focus by
+    // itself is a rule every new widget forgets. A popup drawn over the editor
+    // sits on another layer and keeps its press.
+    if let Some(pos) = ui.input(|i| {
+        i.pointer
+            .any_pressed()
+            .then(|| i.pointer.interact_pos())
+            .flatten()
+    }) && ui.max_rect().contains(pos)
+        && ui.ctx().layer_id_at(pos) == Some(ui.layer_id())
+    {
+        state.pending_focus = true;
+    }
+
     let mut minimap_scroll_target: Option<f32> = None;
     egui::SidePanel::right(state.key(Slot::MinimapPanel))
         .exact_width(MINIMAP_WIDTH * zoom_level as f32)

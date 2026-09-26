@@ -465,3 +465,16 @@ fn a_zoom_without_the_pointer_or_a_visible_caret_keeps_the_middle() {
         }
     }
 }
+
+/// The minimap is part of the editor: a click on it scrolls the view and takes
+/// the focus, so the keys go to the document just scrolled to.
+#[test]
+fn clicking_the_minimap_focuses_the_editor() {
+    let src: String = (0..200).map(|i| format!("// line {i}\n")).collect();
+    let mut h = EditorHarness::new(&src);
+    h.blur();
+    let screen = h.ctx.screen_rect();
+    // The central panel's margin is 8 points; the minimap is flush with it.
+    h.click_at(egui::pos2(screen.right() - 8.0 - 3.0, screen.center().y));
+    assert!(h.editor_has_focus());
+}

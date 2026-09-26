@@ -460,11 +460,21 @@ pub(super) fn paint_document_area(
                     );
                     let id = state.keyed(Slot::RefImageDrag, codepoint);
                     let scroll = state.ref_image_scroll.entry(*codepoint).or_default();
-                    let dragging = crate::editor::ref_images::paint_strip(
+                    let strip_response = crate::editor::ref_images::paint_strip(
                         ui, &painter, row, store, *codepoint, scroll, id,
                     );
-                    if dragging {
+                    if strip_response.dragged() {
                         state.ref_image_drag = Some(*codepoint);
+                    }
+                    // A click that never became a drag goes to the end of the
+                    // line right before the strip, the one it sits under. A
+                    // strip above the first line has none, so the click lands
+                    // on the start of the line it introduces instead.
+                    if strip_response.clicked() {
+                        click_result = Some(ClickTarget::Text(match vl.doc_line.checked_sub(1) {
+                            Some(prev) => Caret::new(prev, caret::line_char_len(lines, prev)),
+                            None => Caret::new(0, 0),
+                        }));
                     }
                 }
             }
