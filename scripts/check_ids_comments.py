@@ -30,6 +30,15 @@ prose and is not a claim about the line, so it is left alone too, and so is a
 line that names something which is not a han glyph at all (`glyph radical-1`,
 a component that is a `dia-` mark): there is no character to write for it.
 
+A nested split (`⿰ 1|han-53e3:7x6|1 han-6728:9x10`) is one position of the
+line it is in. One that holds a single component is that component padded, and
+is commented as it would be alone (`⿰口木`). One that holds two or three is a
+character of its own that no name here says, so its position takes whatever the
+comment writes there -- one character, or a whole sequence (`⿰⿱口口木`) -- and
+the rest of the line is still held to its names. Such a line's sequence cannot
+be written from its names alone, so `--fix` repairs it only where the comment
+already has something in that position, and never adds a missing one.
+
 A line with no comment whatsoever is reported only under `--missing`, and an
 alias (`glyph han-XXXX.0:15x16 = han-XXXX:15x16`) not even then -- it states the
 character twice in names already and conventionally carries no comment.
@@ -147,6 +156,36 @@ def chars_for(tok: str) -> list[str] | None:
     return out
 
 
+def nested_members(tok: str) -> list[str] | None:
+    """The components of a nested split (`1|han-a:6x7|1|han-b:6x6|1`), gaps
+    dropped, or `None` for a token that is no nested split.
+
+    Only a `|` outside parentheses separates, as in `compose.rs`: `(a|b):6x7`
+    is one component, a name pattern's alternation.
+    """
+    pieces, depth, start = [], 0, 0
+    for i, ch in enumerate(tok):
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+        elif ch == "|" and depth == 0:
+            pieces.append(tok[start:i])
+            start = i + 1
+    if not pieces:
+        return None
+    pieces.append(tok[start:])
+    return [p for p in pieces if not NUM_RE.match(p)]
+
+
+# The position of a nested split of two or more components in `expected`: the
+# character it draws is not one any name spells, so the comment may write any.
+ANY = None
+
+# How `ANY` is shown where the line's sequence has to be printed.
+ANY_SHOWN = "？"
+
+
 def comment_at(line: str) -> int | None:
     """Where the line's own comment starts, past any `//` commenting it out.
 
@@ -185,7 +224,9 @@ def expected(body: str) -> list[list[str]] | None:
     component in written order -- holding what that position may be, canonical
     first. A position has more than one entry only where the name is in
     `ALSO_WRITTEN`, and the positions are independent of each other: a line
-    naming two such parts may write either character for either of them.
+    naming two such parts may write either character for either of them. A
+    nested split of two or more components is `ANY` instead, a position the
+    comment fills with whatever it likes (see `segments`).
 
     `None` covers everything this script does not read: a directive that is
     neither a `glyph` header nor an IDC line, and a line of either kind naming
@@ -206,6 +247,12 @@ def expected(body: str) -> list[list[str]] | None:
         for tok in toks[1:]:
             if NUM_RE.match(tok):  # a gap, or an enclosure's offset
                 continue
+            members = nested_members(tok)
+            if members is not None:
+                if len(members) != 1:
+                    parts.append(ANY)
+                    continue
+                tok = members[0]
             chars = chars_for(tok)
             if chars is None:
                 return None
@@ -216,25 +263,72 @@ def expected(body: str) -> list[list[str]] | None:
     return None
 
 
-def canonical(parts: list[list[str]]) -> str:
-    """The sequence the names spell codepoint for codepoint."""
+def canonical(parts: list[list[str] | None]) -> str | None:
+    """The sequence the names spell codepoint for codepoint, or `None` where a
+    position is `ANY` and the names do not spell it."""
+    if ANY in parts:
+        return None
     return "".join(p[0] for p in parts)
 
 
-def repair(found: str, parts: list[list[str]]) -> str:
-    """The sequence to write in place of `found`, keeping what it got right.
+def shown(parts: list[list[str] | None]) -> str:
+    """The sequence as a report prints it, `ANY` standing as `ANY_SHOWN`."""
+    return "".join(ANY_SHOWN if p is ANY else p[0] for p in parts)
+
+
+def term_end(text: str, i: int) -> int | None:
+    """Where the one IDS term starting at `text[i]` ends: a character, or an
+    operator followed by as many terms as it takes. `None` if it runs out."""
+    if i >= len(text):
+        return None
+    arity = G.ARITY.get(text[i], 0)
+    i += 1
+    for _ in range(arity):
+        i = term_end(text, i)
+        if i is None:
+            return None
+    return i
+
+
+def segments(found: str, parts: list[list[str] | None]) -> list[str] | None:
+    """`found` cut into one piece per position, or `None` where it will not cut.
+
+    A named position takes one character, whatever it is; an `ANY` position
+    takes one whole term, so that a comment may write the nested split as a
+    character (`⿰吕木`) or spell it out (`⿰⿱口口木`).
+    """
+    out, i = [], 0
+    for p in parts:
+        end = term_end(found, i) if p is ANY else (i + 1 if i < len(found) else None)
+        if end is None:
+            return None
+        out.append(found[i:end])
+        i = end
+    return out if i == len(found) else None
+
+
+def repair(found: str, parts: list[list[str] | None]) -> str | None:
+    """The sequence to write in place of `found`, keeping what it got right, or
+    `None` where the names alone cannot say it.
 
     A position `found` has an accepted character in keeps it, so that fixing one
     part of a line does not quietly restate the others: a hand that deliberately
     wrote 𫜹 for `han-5f50-g` keeps its 𫜹 when the part beside it is corrected.
+    An `ANY` position keeps whatever `found` has there, which is also the only
+    way a line with one gets repaired at all.
     """
-    if len(found) != len(parts):
+    segs = segments(found, parts)
+    if segs is None:
         return canonical(parts)
-    return "".join(c if c in p else p[0] for c, p in zip(found, parts))
+    return "".join(s if p is ANY or s in p else p[0] for s, p in zip(segs, parts))
 
 
-def check_line(line: str) -> tuple[str, str | None, str] | None:
+def check_line(line: str) -> tuple[str | None, str | None, str] | None:
     """`(expected, found, kind)` where the line's comment is not what it says.
+
+    `expected` is `None` where the names alone cannot say what the comment
+    should be (a nested split of several components, see `repair`); such a line
+    is reported and `--fix` leaves it alone.
 
     `found` is `None` where the line carries no comment at all (`kind` is then
     `"missing"`, which only `--missing` reports); `kind` is `"wrong"` where the
@@ -251,22 +345,28 @@ def check_line(line: str) -> tuple[str, str | None, str] | None:
     parts = expected(body)
     if parts is None:
         return None
-    want = canonical(parts)
-    if not all(is_ids_char(c) for c in want):
-        return (want, None, "alien")
+    for p in parts:
+        if p is not ANY and not is_ids_char(p[0]):
+            return (p[0], None, "alien")
     at = comment_at(line)
     if at is None:
         # An alias (`glyph han-XXXX.0:15x16 = han-XXXX:15x16`) states the
         # character twice in names already and conventionally carries no
         # comment at all, so its not having one is not something to report.
-        return None if "=" in body else (want, None, "missing")
+        return None if "=" in body else (canonical(parts), None, "missing")
     start, end = leading_ids(line[at + 2:])
     found = line[at + 2 + start:at + 2 + end]
-    if len(found) == len(parts) and all(c in p for c, p in zip(found, parts)):
+    segs = segments(found, parts)
+    if segs is not None and all(p is ANY or s in p for s, p in zip(segs, parts)):
         return None
     if not found:
         return None  # prose; the line makes no claim to check
     return (repair(found, parts), found, "wrong")
+
+
+def reported_as(line: str) -> str:
+    """What a report says the line draws: `shown` over its own parts."""
+    return shown(expected(body_of(line)))
 
 
 def fixed_line(line: str, want: str) -> str:
@@ -344,6 +444,7 @@ def main() -> int:
 
     ids = G.load_ids(args.ids or G.IDS_PATHS) if args.listings else {}
     counts = {"wrong": 0, "missing": 0, "alien": 0, "listing": 0}
+    unwritable = 0
     changed = files_changed = 0
     for path in unf_files(args.font_dir, args.files):
         with open(path, encoding="utf-8") as f:
@@ -372,14 +473,17 @@ def main() -> int:
                 continue
             counts[kind] += 1
             where = f"{path}:{i + 1}:"
+            draws = want if want is not None else reported_as(line)
             if kind == "missing":
-                print(f"{where} no comment; the line draws {want}")
+                print(f"{where} no comment; the line draws {draws}")
             elif kind == "alien":
                 print(f"{where} the name is no han character "
-                      f"(U+{ord(want[-1]):04X}); a mistyped name?")
+                      f"(U+{ord(want):04X}); a mistyped name?")
             else:
-                print(f"{where} comment says {found}, the line draws {want}")
-            if args.fix and kind != "alien":
+                print(f"{where} comment says {found}, the line draws {draws}")
+            if want is None:
+                unwritable += 1
+            elif args.fix and kind != "alien":
                 lines[i] = fixed_line(line, want)
                 changed += 1
                 touched = True
@@ -391,11 +495,12 @@ def main() -> int:
     if not sum(counts.values()):
         print("all comments match")
         return 0
-    alien = f", {counts['alien']} left alone" if counts["alien"] else ""
+    left = counts["alien"] + (unwritable if args.fix else 0)
+    alien = f", {left} left alone" if left else ""
     if args.fix:
         print(f"{changed} comment(s) {'would be ' if args.dry_run else ''}fixed"
               + ("" if args.dry_run else f" in {files_changed} file(s)") + alien)
-        return 1 if counts["alien"] else 0
+        return 1 if left else 0
     missing = f", {counts['missing']} missing" if counts["missing"] else ""
     listing = f", {counts['listing']} IDS listing(s) off" if counts["listing"] else ""
     print(f"{counts['wrong']} wrong comment(s){missing}{listing}{alien}")
