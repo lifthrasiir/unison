@@ -329,24 +329,23 @@ pub(super) fn resolve_scroll_target(
     let zoom_scroll = zoom_anchor
         .and_then(|a| a.scroll_in(vlines, row_height, grid_cell, viewport_h, state.cursor));
 
-    // A group that just closed brings its header to the top of the viewport,
-    // but only if the header is not on screen already — a fold you can watch
-    // happen must not also jump the page under you. This outranks the caret
-    // scroll below because closing the group the caret was inside moves the
-    // caret too, and that would otherwise merely nudge the header into view
-    // from the bottom.
-    let fold_scroll: Option<f32> = state.fold_scroll.take().and_then(|req| match req {
-        crate::editor::folding::FoldScroll::Hold => Some(prev_scroll_y),
-        crate::editor::folding::FoldScroll::HeaderToTop(line) => {
-            let y = doc_line_to_y(vlines, row_height, grid_cell, line);
-            let h: f32 = vlines
-                .iter()
-                .filter(|vl| vl.doc_line == line)
-                .map(|vl| vl.height(row_height, grid_cell))
-                .sum();
-            let visible = y >= prev_scroll_y && y + h <= prev_scroll_y + viewport_h;
-            (!visible).then_some(y)
+    // A fold keeps its header where it was on the screen (see `FoldScroll`),
+    // unless it shut with the header off the top of the page. This outranks
+    // the caret scroll below because closing the group the caret was inside
+    // moves the caret too, and that would otherwise merely nudge the header
+    // into view from the bottom.
+    let content_h = total_height.max(row_height);
+    let fold_scroll: Option<f32> = state.fold_scroll.take().map(|req| {
+        use crate::editor::folding::FoldScroll;
+        let (FoldScroll::Hold(line) | FoldScroll::Shut(line)) = req;
+        // Nothing above the header changed, so this is where it was, too.
+        let y = doc_line_to_y(vlines, row_height, grid_cell, line);
+        let on_page = y >= prev_scroll_y - 0.5 && y < prev_scroll_y + viewport_h;
+        if matches!(req, FoldScroll::Shut(_)) && !on_page {
+            return y;
         }
+        state.fold_slack = state.fold_slack.max(prev_scroll_y + viewport_h - content_h);
+        prev_scroll_y
     });
 
     let goto_scroll_id = state.key(Slot::ScrollTarget);
@@ -385,7 +384,7 @@ pub(super) fn resolve_scroll_target(
     // flicker. `scroll_cursor_into_view` produces exactly such a target for
     // the last line: it asks for a half-row margin below the caret, and below
     // the last line there is none.
-    let max_offset = (total_height.max(row_height) - viewport_h).max(0.0);
+    let max_offset = (content_h + state.fold_slack - viewport_h).max(0.0);
     minimap_scroll_target
         .or(fold_scroll)
         .or(goto_scroll)

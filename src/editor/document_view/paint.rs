@@ -54,10 +54,11 @@ pub(super) fn paint_document_area(
     // that band lands is decided further down, by clamping the pointer onto
     // the last visual line. The height is taken from *this* ui, the scroll
     // area's own content ui, so it is exactly the viewport height and the
-    // scroll area still sees no reason to show a bar.
+    // scroll area still sees no reason to show a bar. A fold's slack
+    // (`folding::FoldScroll`) is more of that band.
     let desired = egui::vec2(
         avail_w,
-        total_height.max(row_height).max(ui.available_height()),
+        (total_height.max(row_height) + state.fold_slack).max(ui.available_height()),
     );
     let (rect, response) = ui.allocate_exact_size(desired, egui::Sense::click_and_drag());
 

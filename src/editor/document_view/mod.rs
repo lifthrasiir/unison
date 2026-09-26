@@ -844,6 +844,12 @@ fn show_document(
     if total_height > 0.0 {
         state.saved_scroll_frac = (scroll_output.state.offset.y + viewport_h / 2.0) / total_height;
     }
+    // The slack only ever shrinks to what the offset still needs; see
+    // `folding::FoldScroll`.
+    state.fold_slack = state
+        .fold_slack
+        .min(scroll_output.state.offset.y + viewport_h - total_height.max(row_height))
+        .max(0.0);
     ui.ctx().data_mut(|d| {
         d.insert_temp(scroll_y_id, scroll_output.state.offset.y);
         d.insert_temp(viewport_h_id, viewport_h);

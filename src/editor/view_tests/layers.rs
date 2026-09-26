@@ -746,7 +746,13 @@ fn clicking_a_thumbnail_focuses_the_editor() {
     h.blur();
     h.click_at(thumb);
     assert!(
-        matches!(h.state.mode, EditMode::LayerMove { item_idx: 2, layer_idx: 0 }),
+        matches!(
+            h.state.mode,
+            EditMode::LayerMove {
+                item_idx: 2,
+                layer_idx: 0
+            }
+        ),
         "{:?}",
         h.state.mode
     );

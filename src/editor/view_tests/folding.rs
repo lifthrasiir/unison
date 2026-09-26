@@ -149,7 +149,7 @@ fn arrows_step_over_a_shut_group_instead_of_into_it() {
 fn a_marker_below_the_viewport_does_not_shade_under_the_pointer() {
     let mut src = String::from("## section\n");
     for i in 0..20 {
-        src.push_str(&format!("glyph g{i} 2 2\n....\n....\n"));
+        src.push_str(&format!("glyph g{i} 2 2\n....\n....\nref x\n"));
     }
     let mut h = EditorHarness::new(&src);
     h.viewport_height = Some(120.0);
@@ -622,4 +622,120 @@ fn the_marker_column_does_not_flicker_on_a_page_of_wrapped_lines() {
         );
         y += 4.0;
     }
+}
+
+// ---------------------------------------------------------------------------
+// Anchoring
+// ---------------------------------------------------------------------------
+
+/// Screen y of the top edge of `doc_line`'s first visual line.
+fn line_top(h: &EditorHarness, doc_line: usize) -> f32 {
+    h.snap()
+        .vlines
+        .iter()
+        .find(|vl| vl.doc_line == doc_line)
+        .unwrap_or_else(|| panic!("line {doc_line} is not laid out"))
+        .y
+}
+
+/// `n` glyph blocks of a 2×2 grid and a `ref` line each, header `3 * i`.
+fn blocks_doc(n: usize) -> String {
+    let mut src = String::new();
+    for i in 0..n {
+        src.push_str(&format!("glyph g{i} 2 2\n....\n....\nref x\n"));
+    }
+    src
+}
+
+#[track_caller]
+fn assert_header_stays(h: &mut EditorHarness, header: usize, toggle: impl Fn(&mut EditorHarness)) {
+    let before = line_top(h, header);
+    toggle(h);
+    for _ in 0..4 {
+        h.frame();
+    }
+    let after = line_top(h, header);
+    assert!(
+        (after - before).abs() < 0.5,
+        "header {header} moved from {before} to {after}"
+    );
+}
+
+#[test]
+fn a_fold_toggled_mid_page_keeps_its_header_in_place() {
+    let mut h = EditorHarness::new(&blocks_doc(60));
+    h.viewport_height = Some(300.0);
+    h.frame();
+    h.scroll_to(600.0);
+    let header = (0..60)
+        .map(|i| 3 * i)
+        .find(|&l| (100.0..200.0).contains(&line_top(&h, l)))
+        .expect("a header in the middle of the page");
+    assert_header_stays(&mut h, header, |h| h.click_fold_marker(header));
+    assert_header_stays(&mut h, header, |h| h.click_fold_marker(header));
+}
+
+#[test]
+fn a_fold_the_caret_is_inside_keeps_its_header_in_place() {
+    let mut h = EditorHarness::new(&blocks_doc(60));
+    h.viewport_height = Some(300.0);
+    h.frame();
+    h.scroll_to(600.0);
+    let header = (0..60)
+        .map(|i| 3 * i)
+        .find(|&l| (100.0..200.0).contains(&line_top(&h, l)))
+        .expect("a header in the middle of the page");
+    h.click_text(header + 2, 1);
+    assert_header_stays(&mut h, header, |h| h.click_fold_marker(header));
+    assert_eq!(h.cursor().line, header);
+    assert_header_stays(&mut h, header, |h| h.click_fold_marker(header));
+}
+
+/// Shutting a group at the very end of the file leaves less below it than a
+/// page, which the scroll offset alone cannot absorb.
+#[test]
+fn a_fold_at_the_end_of_the_file_keeps_its_header_in_place() {
+    let mut h = EditorHarness::new(&blocks_doc(60));
+    h.viewport_height = Some(300.0);
+    h.frame();
+    h.focus();
+    h.key_mod(Key::End, Modifiers::COMMAND);
+    for _ in 0..4 {
+        h.frame();
+    }
+    let header = 3 * 58;
+    assert_header_stays(&mut h, header, |h| h.click_fold_marker(header));
+    assert_header_stays(&mut h, header, |h| h.click_fold_marker(header));
+}
+
+/// The blank band that holds the header at the end of the file is not a
+/// permanent part of the page: once the page scrolls back up, the end of the
+/// file is where it always was.
+#[test]
+fn the_room_a_fold_at_the_end_made_goes_once_the_page_scrolls_away() {
+    let mut h = EditorHarness::new(&blocks_doc(60));
+    h.viewport_height = Some(300.0);
+    h.frame();
+    h.focus();
+    h.key_mod(Key::End, Modifiers::COMMAND);
+    for _ in 0..4 {
+        h.frame();
+    }
+    let bottom = h.content_bottom();
+    let header = 3 * 58;
+    assert_header_stays(&mut h, header, |h| h.click_fold_marker(header));
+    assert!(
+        h.content_bottom() < bottom - 1.0,
+        "the shut group should leave blank room below the end ({} vs {bottom})",
+        h.content_bottom()
+    );
+
+    h.scroll_to(0.0);
+    h.scroll_to(1.0e6);
+    h.frame();
+    assert!(
+        (h.content_bottom() - bottom).abs() < 0.5,
+        "the end of the file is back at the bottom of the page ({} vs {bottom})",
+        h.content_bottom()
+    );
 }

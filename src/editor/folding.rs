@@ -644,12 +644,9 @@ fn grid_display_height(item: &DocumentItem) -> usize {
 ///   selection merely *spanning* the group is kept, hidden lines and all,
 ///   which is what makes select-all-then-fold a no-op.
 /// * A caret on a hidden line moves to the header at the same column, clamped.
-/// * The header is queued to be scrolled to the top of the viewport, which
-///   [`FoldState`]'s consumer applies only if it is off screen.
 ///
-/// Expanding moves nothing and scrolls nothing: the lines appear *below* the
-/// header, so leaving the scroll offset alone already keeps the header where
-/// it was.
+/// Either way the header is the anchor: its top edge stays where it was on the
+/// screen ([`FoldScroll`] says how, and what happens when it was off screen).
 pub(crate) fn toggle_at(
     lines: &mut Vec<DocLine>,
     state: &mut super::EditorState,
@@ -666,7 +663,7 @@ pub(crate) fn toggle_at(
     state.mode = super::EditMode::Normal;
 
     if state.folds.toggle(lines, group) != Some(true) {
-        state.fold_scroll = Some(FoldScroll::Hold);
+        state.fold_scroll = Some(FoldScroll::Hold(group.header));
         return changed_lines;
     }
 
@@ -678,7 +675,7 @@ pub(crate) fn toggle_at(
     if state.folds.is_hidden(state.cursor.line) {
         state.cursor = state.folds.snap_caret(lines, state.cursor, Snap::Up);
     }
-    state.fold_scroll = Some(FoldScroll::HeaderToTop(group.header));
+    state.fold_scroll = Some(FoldScroll::Shut(group.header));
     changed_lines
 }
 
@@ -725,16 +722,28 @@ pub(crate) fn settle_edited_header(
 }
 
 /// What a fold asks of the scroll offset on the frame after it.
+///
+/// A fold keeps its header's top edge where it was on the screen, so the rows
+/// come and go *below* the header and the marker just clicked stays under the
+/// pointer. Everything a fold adds or removes is below the header, so holding
+/// the offset exactly is all that takes — but the document just changed
+/// height, which the saved-fraction restore would otherwise read as a page
+/// that had drifted, so the offset has to be held explicitly.
+///
+/// Holding can ask for an offset the shorter document no longer reaches: a
+/// group shut near the end of the file leaves less than a page below it. The
+/// scroll area then keeps `EditorState::fold_slack` of blank height below the
+/// last line, which shrinks as the page scrolls back up and never grows again
+/// on its own, so it is gone once it is no longer holding anything.
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub(crate) enum FoldScroll {
-    /// A group opened: hold the offset exactly. The rows appear *below* the
-    /// header, so holding is all it takes to keep the header where it was —
-    /// but the document just got taller, which the saved-fraction restore
-    /// would otherwise read as a page that had drifted.
-    Hold,
-    /// A group closed: bring this line to the top of the page, but only if it
-    /// is not on the page already.
-    HeaderToTop(usize),
+    /// A group with this header opened: hold the offset.
+    Hold(usize),
+    /// A group with this header closed: hold the offset if the header's top is
+    /// on the page. If it has scrolled off the top — the group was shut from
+    /// its bar or with the caret deep inside — holding would fold it away out
+    /// of sight, so the header is brought to the top of the page instead.
+    Shut(usize),
 }
 
 /// Which way a caret was moving when it landed on a hidden line.

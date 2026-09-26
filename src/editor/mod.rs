@@ -184,6 +184,9 @@ pub struct EditorState {
     /// What the fold toggled this frame asks of the next frame's scroll
     /// offset. See `document_view::scroll::resolve_scroll_target`.
     pub(crate) fold_scroll: Option<folding::FoldScroll>,
+    /// Blank height kept below the last line so a fold shut near the end of
+    /// the file can hold the scroll offset. See `folding::FoldScroll::Hold`.
+    pub(crate) fold_slack: f32,
     pub(crate) cursor: caret::Caret,
     pub(crate) selection_anchor: Option<caret::Caret>,
     cursor_item: Option<usize>,
@@ -325,6 +328,7 @@ impl EditorState {
             ref_image_drag: None,
             folds: Default::default(),
             fold_scroll: None,
+            fold_slack: 0.0,
             cursor: caret::Caret::zero(),
             selection_anchor: None,
             cursor_item: None,
@@ -498,6 +502,7 @@ impl EditorState {
         self.popup = PopupState::None;
         self.folds.clear();
         self.fold_scroll = None;
+        self.fold_slack = 0.0;
         self.cursor = caret;
         self.cursor_item = None;
         self.view_cache = None;
