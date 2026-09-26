@@ -391,10 +391,16 @@ glyph han-32b6d:15x16 15 16 // 𲭭
 glyph han-32b6e:15x16 15 16 // 𲭮
 ⿰ han-72ad:6x16 han-4e0d:9x16 // ⿰犭不
 
+// glyph han-32b6f:15x16 15 16 // 𲭯
+// ⿰ han-72ad han-592d // ⿰犭夭
+
 glyph han-32b71:15x16 15 16 // 𲭱
 ⿰ han-72ad:6x16 han-65b9:9x16 // ⿰犭方
 
 ## 94.5
+
+// glyph han-32b72:15x16 15 16 // 𲭲
+// ⿰ han-72ad han-215d5 // ⿰犭𡗕
 
 glyph han-32b73:15x16 15 16 // 𲭳
 ⿰ han-72ad:6x16 han-53ef:9x16 // ⿰犭可

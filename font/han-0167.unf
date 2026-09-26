@@ -667,9 +667,9 @@ glyph han-92c0:15x16 15 16 // 鋀
 ⿰ han-91d2:5x16-l 1 han-8c46:9x16 // ⿰釒豆
 glyph han-92c0.0:* = han-92c0:*
 
-glyph han-92c1.0:15x16 15 16 // 鋁 ⿰釒吕(G) ⿰釒呂(HTJKP)
-⿰ han-91d2:5x16-l 1 han-5415.x:9x16 // ⿰釒吕
-glyph han-92c1.x:15x16 15 16 // 鋁 ⿰釒吕(G) ⿰釒呂(HTJKP)
+glyph han-92c1.0:15x16 15 16 // 鋁
+⿰ han-91d2:5x16-l 1 han-5442:9x16 // ⿰釒呂
+glyph han-92c1.x:15x16 15 16 // 鋁
 ⿰ han-91d2:5x16-l 1 han-5415:9x16 // ⿰釒吕
 glyph han-92c1-(h|t|j|k|p):* = han-92c1.0:*
 glyph han-92c1-g:* = han-92c1.x:*

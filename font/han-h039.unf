@@ -72,6 +72,11 @@ glyph han-31685:15x16 15 16 // 𱚅
 // glyph han-3168b:15x16 15 16 // 𱚋
 // ⿱ han-5b80 han-5351 // ⿱宀卑
 
+## 40.9
+
+// glyph han-3168d:15x16 15 16 // 𱚍
+// ⿱ han-5bae han-4e5d // ⿱宮九
+
 ## 40.10
 
 // glyph han-3168f:15x16 15 16 // 𱚏
@@ -283,6 +288,13 @@ glyph han-3170a:15x16 15 16 // 𱜊
 
 // glyph han-3170e:15x16 15 16 // 𱜎
 // ⿱ han-5c71 han-732b // ⿱山猫
+
+# CJK unified ideographs extension H: 工 (48)
+
+## 48.9
+
+glyph han-31717:15x16 15 16 // 𱜗
+⿰ han-5442:7x16 1 han-5de8-g:7x16 // ⿰呂巨
 
 # CJK unified ideographs extension H: 巾 (50)
 

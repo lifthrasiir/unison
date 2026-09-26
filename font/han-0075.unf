@@ -881,6 +881,9 @@ glyph han-6794.x:15x16 15 16 // 枔
 glyph han-6794-(h|t|j|k):* = han-6794.0:*
 glyph han-6794-(g|p):* = han-6794.x:*
 
+// glyph han-6796:15x16 15 16 // 枖
+// ⿰ han-6728 han-592d // ⿰木夭
+
 glyph han-6797:11x6 11 6 // 林
 ⿰ han-6728:5x6 1 han-6728:5x6 // ⿰木木
 glyph han-6797:11x8 11 8 // 林
@@ -1515,9 +1518,9 @@ glyph han-6898:15x16 15 16 // 梘
 // glyph han-689e:15x16 15 16 // 梞
 // ⿰ han-6728 han-5fcc // ⿰木忌
 
-glyph han-68a0.0:15x16 15 16 // 梠 ⿰木吕(G) ⿰木呂(HTJKP)
-⿰ han-6728:5x16 1 han-5415.x:9x16 // ⿰木吕
-glyph han-68a0.x:15x16 15 16 // 梠 ⿰木吕(G) ⿰木呂(HTJKP)
+glyph han-68a0.0:15x16 15 16 // 梠
+⿰ han-6728:5x16 1 han-5442:9x16 // ⿰木呂
+glyph han-68a0.x:15x16 15 16 // 梠
 ⿰ han-6728:5x16 1 han-5415:9x16 // ⿰木吕
 glyph han-68a0-(h|t|j|k|p):* = han-68a0.0:*
 glyph han-68a0-g:* = han-68a0.x:*

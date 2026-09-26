@@ -129,7 +129,7 @@ glyph han-20e2a:15x16 15 16 // 𠸪
 ## 30.10
 
 glyph han-20e36-($han-regions):15x16 15 16 // 𠸶
-⿳ -1 han-5405:15x3 han-72ac:15x10 han-4ea1-($-1):15x4 // ⿳吅犬亡
+⿳ han-5405:15x4 han-72ac:15x8 han-4ea1-($-1):15x4 // ⿳吅犬亡
 
 glyph han-20e48:15x16 15 16 // 𠹈
 ⿱ han-5405:15x6 1 han-91cc:15x9 // ⿱吅里

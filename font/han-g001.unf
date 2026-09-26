@@ -1145,6 +1145,9 @@ ref han-571f:15x16
 // glyph han-30258:15x16 15 16 // 𰉘
 // ⿰ han-571f han-97e6 // ⿰土韦
 
+// glyph han-3025b:15x16 15 16 // 𰉛
+// ⿱ han-592d han-571f // ⿱夭土
+
 // glyph han-3025c:15x16 15 16 // 𰉜
 // ⿱ han-571f han-4eca // ⿱土今
 
@@ -1228,6 +1231,9 @@ glyph han-302aa:15x16 15 16 // 𰊪
 ⿳ han-5405:15x3 1 han-81e3:15x7 han-571f:15x5 // ⿳吅臣土
 
 ## 32.13
+
+// glyph han-302b3:15x16 15 16 // 𰊳
+// ⿺ han-582f han-592d // ⿺堯夭
 
 // glyph han-302b4:15x16 15 16 // 𰊴
 // ⿰ han-96f7 han-571f // ⿰雷土

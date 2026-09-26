@@ -35,6 +35,11 @@ $$@@....................\1@@$$
 
 # CJK unified ideographs extension J: 丨 (2)
 
+## 2.4
+
+// glyph han-323ba:15x16 15 16 // 𲎺
+// ⿱ han-592d han-4e28 // ⿱夭丨
+
 ## 2.11
 
 // glyph han-323bd:15x16 15 16 // 𲎽
@@ -198,6 +203,11 @@ $$........@@......@@........$$
 
 glyph han-3240e:15x16 15 16 // 𲐎
 ⿳ han-4ea0:15x2 1 han-7f52:15x5 han-6728:15x8 // ⿳亠罒木
+
+## 8.10
+
+// glyph han-32410:15x16 15 16 // 𲐐
+// ⿱ han-4ea0 han-5bae // ⿱亠宮
 
 # CJK unified ideographs extension J: 人 (9)
 

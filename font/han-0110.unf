@@ -858,6 +858,9 @@ glyph han-7941-(j|k|p):* = han-7941.1:*
 
 ## 113.4
 
+// glyph han-7945:15x16 15 16 // 祅 ⿰礻夭(GHT) ⿰示夭(JKP)
+// ⿰ han-793b han-592d // ⿰礻夭
+
 // glyph han-7946:15x16 15 16 // 祆 ⿰礻天(GHT) ⿰示天(JKP)
 // ⿰ han-793b han-5929 // ⿰礻天
 
@@ -1611,6 +1614,9 @@ glyph han-79d6:15x16 15 16 // 秖
 ⿰ han-79be:5x16 han-6c0f:10x16 // ⿰禾氏
 glyph han-79d6.0:* = han-79d6:*
 
+// glyph han-79d7:15x16 15 16 // 秗
+// ⿰ han-79be han-592d // ⿰禾夭
+
 ## 115.5
 
 // glyph han-79d8:15x16 15 16 // 秘
@@ -1737,7 +1743,7 @@ glyph han-79fb.0:* = han-79fb:*
 glyph han-7a06-g:15x16 15 16 // 稆
 ⿰ han-79be:5x16 han-5415:10x16 // ⿰禾吕
 glyph han-7a06-(h|t|j|p):15x16 15 16 // 稆
-⿰ han-79be:5x16 han-5415.x:10x16 // ⿰禾吕
+⿰ han-79be:5x16 han-5442:10x16 // ⿰禾呂
 
 ## 115.7
 

@@ -202,10 +202,10 @@ glyph han-23ce9:15x16 15 16 // 𣳩
 glyph han-23cec:15x16 15 16 // 𣳬
 ⿰ han-6c35:5x16 1 han-7f36:9x16 // ⿰氵缶
 
-glyph han-23cee.0:15x16 15 16 // 𣳮 ⿰氵吕(GT) ⿰氵呂(V)
+glyph han-23cee.0:15x16 15 16 // 𣳮
 ⿰ han-6c35:3x16 1 han-5415:11x16 // ⿰氵吕
-glyph han-23cee.1:15x16 15 16 // 𣳮 ⿰氵吕(GT) ⿰氵呂(V)
-⿰ han-6c35:3x16 1 han-5415.x:11x16 // ⿰氵吕
+glyph han-23cee.1:15x16 15 16 // 𣳮
+⿰ han-6c35:3x16 1 han-5442:11x16 // ⿰氵呂
 glyph han-23cee-(g|t|j):* = han-23cee.0:*
 glyph han-23cee-v:* = han-23cee.1:*
 

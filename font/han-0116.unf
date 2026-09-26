@@ -97,6 +97,9 @@ glyph han-7a7c:15x16 15 16 // 穼 ⿱穴木(G) ⿱⿱宀儿木(TP)
 // glyph han-7a7d:15x16 15 16 // 穽 ⿱穴井(G) ⿱⿱宀儿井(HTJKP)
 // ⿳ han-5b80 han-513f han-4e95 // ⿳宀儿井
 
+// glyph han-7a7e-($han-regions):15x16 15 16 // 穾 ⿱穴夭(G) ⿱⿱宀儿夭(HTJKP)
+// ⿱ han-7a74-($-1) han-592d // ⿱穴夭
+
 glyph han-7a81:15x16 15 16 // 突 ⿱穴犬(G[B]) ⿱⿱宀儿犬(HTKPV) ⿱⿱宀儿大(J)
 ⿱ han-7a74.2:15x7 -1 han-5927:15x10 // ⿱穴大
 
@@ -689,6 +692,9 @@ glyph han-7b0e:15x16 15 16 // 笎
 // glyph han-7b10:15x16 15 16 // 笐
 // ⿱ han-25ad7 han-4ea2 // ⿱𥫗亢
 
+// glyph han-7b11:15x16 15 16 // 笑
+// ⿱ han-25ad7 han-592d // ⿱𥫗夭
+
 // glyph han-7b12:15x16 15 16 // 笒
 // ⿱ han-25ad7 han-4eca // ⿱𥫗今
 
@@ -866,9 +872,9 @@ glyph han-7b63:15x16 15 16 // 筣
 // glyph han-7b64:15x16 15 16 // 筤
 // ⿱ han-25ad7 han-826f // ⿱𥫗良
 
-glyph han-7b65.0:15x16 15 16 // 筥 ⿱𥫗吕(G) ⿱𥫗呂(HTJKPV)
-⿱ han-25ad7:15x5 han-5415.x:15x11 // ⿱𥫗吕
-glyph han-7b65.x:15x16 15 16 // 筥 ⿱𥫗吕(G) ⿱𥫗呂(HTJKPV)
+glyph han-7b65.0:15x16 15 16 // 筥
+⿱ han-25ad7:15x5 han-5442:15x11 // ⿱𥫗呂
+glyph han-7b65.x:15x16 15 16 // 筥
 ⿱ han-25ad7:15x5 han-5415:15x11 // ⿱𥫗吕
 glyph han-7b65-(h|t|j|k|p|v):* = han-7b65.0:*
 glyph han-7b65-g:* = han-7b65.x:*

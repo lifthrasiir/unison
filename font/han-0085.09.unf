@@ -135,6 +135,9 @@ glyph han-6e5f.0:* = han-6e5f:*
 glyph han-6e66:15x16 15 16 // 湦
 ⿰ han-6c35:3x16 1 han-661f:11x16 // ⿰氵星
 
+// glyph han-6e68:15x16 15 16 // 湨
+// ⿰ han-6c35 han-72ca // ⿰氵狊
+
 // glyph han-6e69:15x16 15 16 // 湩
 // ⿰ han-6c35 han-91cd // ⿰氵重
 

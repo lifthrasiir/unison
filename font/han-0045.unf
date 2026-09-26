@@ -372,6 +372,9 @@ glyph han-5c82:15x16 15 16 // 岂
 glyph han-5c84:15x16 15 16 // 岄
 ⿰ han-5c71:7x16 1 han-6708:7x16 // ⿰山月
 
+// glyph han-5c86:15x16 15 16 // 岆
+// ⿰ han-5c71 han-592d // ⿰山夭
+
 glyph han-5c8a:15x16 15 16 // 岊
 ⿱ han-5df4:15x8 1 han-5c71:15x7 // ⿱巴山
 
@@ -393,6 +396,9 @@ glyph han-5c93:15x16 15 16 // 岓
 
 // glyph han-5c94:15x16 15 16 // 岔
 // ⿱ han-5206 han-5c71 // ⿱分山
+
+// glyph han-5c99:15x16 15 16 // 岙
+// ⿱ han-592d han-5c71 // ⿱夭山
 
 glyph han-5c9c:15x16 15 16 // 岜
 ⿱ han-5c71:15x4 1 han-5df4:15x11 // ⿱山巴

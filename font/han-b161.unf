@@ -249,6 +249,9 @@ glyph han-284c5-t:* = han-284c5.x:*
 // glyph han-284c9-($han-regions):15x16 15 16 // 𨓉
 // ⿺ han-8fb6-($-1) han-8eab // ⿺辶身
 
+glyph han-284d0:15x16 15 16 // 𨓐
+⿺ han-8fb6-j:15x16.11x14 han-5442:10x12 5 0 // ⿺辶呂
+
 // glyph han-284d3-($han-regions):15x16 15 16 // 𨓓
 // ⿺ han-8fb6-($-1) han-39cd // ⿺辶㧍
 

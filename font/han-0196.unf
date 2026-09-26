@@ -195,6 +195,9 @@ glyph han-9cff:15x16 15 16 // 鳿
 // glyph han-9d00:15x16 15 16 // 鴀
 // ⿰ han-4e0d han-9ce5 // ⿰不鳥
 
+// glyph han-9d01:15x16 15 16 // 鴁
+// ⿰ han-592d han-9ce5 // ⿰夭鳥
+
 // glyph han-9d02:15x16 15 16 // 鴂
 // ⿰ han-592c han-9ce5 // ⿰夬鳥
 
@@ -515,6 +518,9 @@ glyph han-9da4:15x16 15 16 // 鶤
 // glyph han-9da6:15x16 15 16 // 鶦
 // ⿱ han-80e1 han-9ce5 // ⿱胡鳥
 
+// glyph han-9daa:15x16 15 16 // 鶪
+// ⿰ han-72ca han-9ce5 // ⿰狊鳥
+
 // glyph han-9dab:15x16 15 16 // 鶫
 // ⿰ han-67ec han-9ce5 // ⿰柬鳥
 
@@ -681,13 +687,13 @@ glyph han-9ebb-(t|k):* = han-9ebb.1:*
 
 ## 200.7
 
-glyph han-9ebf.0:15x16 15 16 // 麿 ⿸麻吕(G) ⿸麻呂(HJK) ⿸广⿱林呂(T)
-⿸ han-9ebb.0:15x16.11x7 han-5415.x:11x7 4 9 // ⿸麻吕
-glyph han-9ebf.1:15x16 15 16 // 麿 ⿸麻吕(G) ⿸麻呂(HJK) ⿸广⿱林呂(T)
-⿸ han-9ebb.1:15x16.11x7 han-5415.x:11x7 4 9 // ⿸麻吕
+glyph han-9ebf.0:15x16 15 16 // 麿
+⿸ han-9ebb.0:15x16.11x7 han-5442:11x7 4 9 // ⿸麻呂
+glyph han-9ebf.1:15x16 15 16 // 麿
+⿸ han-9ebb.1:15x16.11x7 han-5442:11x7 4 9 // ⿸麻呂
 glyph han-9ebf.2:* = han-9ebf.0:*
 glyph han-9ebf.3:* = han-9ebf.1:*
-glyph han-9ebf.x:15x16 15 16 // 麿 ⿸麻吕(G) ⿸麻呂(HJK) ⿸广⿱林呂(T)
+glyph han-9ebf.x:15x16 15 16 // 麿
 ⿸ han-9ebb.0:15x16.11x7 han-5415:11x7 4 9 // ⿸麻吕
 glyph han-9ebf-(h|t|j):* = han-9ebf.0:*
 glyph han-9ebf-k:* = han-9ebf.1:*

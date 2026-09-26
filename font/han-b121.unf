@@ -261,10 +261,10 @@ glyph han-262a5:15x16 15 16 // 𦊥
 
 ## 122.7
 
-glyph han-262bc-g:15x16 15 16 // 𦊼 ⿱罒吕(G) ⿱罒呂(TP)
+glyph han-262bc-g:15x16 15 16 // 𦊼
 ⿱ han-7f52:15x3 1 han-5415:15x12 // ⿱罒吕
-glyph han-262bc-(t|j|p):15x16 15 16 // 𦊼 ⿱罒吕(G) ⿱罒呂(TP)
-⿱ han-7f52:15x3 1 han-5415.x:15x12 // ⿱罒吕
+glyph han-262bc-(t|j|p):15x16 15 16 // 𦊼
+⿱ han-7f52:15x3 1 han-5442:15x12 // ⿱罒呂
 
 glyph han-262be:15x16 15 16 // 𦊾
 ⿳ han-7f52:15x3 1 han-4e0d:15x8 han-53e3:15x4 // ⿳罒不口

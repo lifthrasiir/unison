@@ -393,6 +393,11 @@ glyph han-27e30:15x16 15 16 // 𧸰
 
 # CJK unified ideographs extension B: 走 (156)
 
+## 156.0
+
+// glyph han-27e86:15x16 15 16 // 𧺆
+// ⿱ han-592d han-9fb0 // ⿱夭龰
+
 ## 156.1
 
 // glyph han-27e87:15x16 15 16 // 𧺇
@@ -723,6 +728,9 @@ glyph han-27e30:15x16 15 16 // 𧸰
 
 // glyph han-27f3f-($han-regions):15x16 15 16 // 𧼿
 // ⿺ han-8d70 han-7d04-($-1) // ⿺走約
+
+// glyph han-27f40:15x16 15 16 // 𧽀
+// ⿺ han-8d70 han-72ca // ⿺走狊
 
 // glyph han-27f45:15x16 15 16 // 𧽅
 // ⿺ han-8d70 han-67bc // ⿺走枼

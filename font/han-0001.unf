@@ -6499,6 +6499,9 @@ glyph han-4ef5.0:* = han-4ef5:*
 // glyph han-4ef6:15x16 15 16 // 件
 // ⿰ han-4ebb han-725b // ⿰亻牛
 
+// glyph han-4ef8:15x16 15 16 // 仸
+// ⿰ han-4ebb han-592d // ⿰亻夭
+
 glyph han-4ef9-($han-regions):15x16 15 16 // 仹
 ⿰ han-4ebb:5x16 1 han-4e30-($-1):9x16 // ⿰亻丰
 
@@ -7018,6 +7021,10 @@ glyph han-4fb1.1:15x16 15 16 // 侱
 ⿰ han-4ebb:5x16 -1 han-5448.1:11x16 // ⿰亻呈
 glyph han-4fb1-(g|v):* = han-4fb1.0:*
 glyph han-4fb1-(t|j|k):* = han-4fb1.1:*
+
+glyph han-4fb6:15x16 15 16 // 侶
+⿰ han-4ebb:5x16 han-5442:10x16 // ⿰亻呂
+glyph han-4fb6.0:* = han-4fb6:*
 
 glyph han-4fb8:15x16 15 16 // 侸
 ⿰ han-4ebb:5x16 1 han-8c46:9x16 // ⿰亻豆

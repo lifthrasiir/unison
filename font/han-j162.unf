@@ -743,6 +743,9 @@ glyph han-33307:15x16 15 16 // 𳌇
 
 ## 187.7
 
+glyph han-33308:15x16 15 16 // 𳌈
+⿰ han-99ac:7x16 1 han-5442:7x16 // ⿰馬呂
+
 // glyph han-33309:15x16 15 16 // 𳌉
 // ⿰ han-99ac han-2bcba // ⿰馬𫲺
 
@@ -762,6 +765,11 @@ glyph han-33307:15x16 15 16 // 𳌇
 // ⿰ han-99ac han-7131 // ⿰馬焱
 
 # CJK unified ideographs extension J: 骨 (188)
+
+## 188.4
+
+// glyph han-33319-($han-regions):15x16 15 16 // 𳌙
+// ⿰ han-9aa8-($-1) han-592d // ⿰骨夭
 
 ## 188.12
 

@@ -225,6 +225,9 @@ glyph han-82b8:15x16 15 16 // 芸
 // glyph han-82b9:15x16 15 16 // 芹
 // ⿱ han-8279 han-65a4 // ⿱艹斤
 
+// glyph han-82ba:15x16 15 16 // 芺
+// ⿱ han-8279 han-592d // ⿱艹夭
+
 glyph han-82bc:15x16 15 16 // 芼
 ⿱ han-8279:15x3 han-6bdb:15x13 // ⿱艹毛
 
@@ -619,9 +622,11 @@ glyph han-8389:15x16 15 16 // 莉
 // glyph han-838c:15x16 15 16 // 莌 ⿱艹兑(GH) ⿱艹兌(TKP)
 // ⿳ han-8279 han-516b han-5144 // ⿳艹八兄 <- ⿱艹兌
 
-glyph han-8392.0:15x16 15 16 // 莒 ⿱艹吕(G) ⿱艹呂(HTJKP)
-⿱ han-8279:15x3 1 han-5415.x:15x12 // ⿱艹吕
-glyph han-8392.x:15x16 15 16 // 莒 ⿱艹吕(G) ⿱艹呂(HTJKP)
+glyph han-8392.0:15x16 15 16 // 莒
+⿱ han-8279:15x3 1 han-5442:15x12 // ⿱艹呂
+glyph han-8392.1:* = han-8392.0:*
+glyph han-8392.2:* = han-8392.0:* // not distinguished
+glyph han-8392.x:15x16 15 16 // 莒
 ⿱ han-8279:15x3 1 han-5415:15x12 // ⿱艹吕
 glyph han-8392-(h|t|j|k|p):* = han-8392.0:*
 glyph han-8392-g:* = han-8392.x:*

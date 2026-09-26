@@ -603,6 +603,9 @@ assume ⿰ han-98e0.y:7x16 -1 han-5343:9x16 // ⿰飠千
 // glyph han-98ea-($han-regions):15x16 15 16 // 飪 ⿰飠壬(GHTP) ⿰𩙿壬(JK)
 // ⿰ han-98e0 han-58ec-($-1) // ⿰飠壬
 
+// glyph han-98eb-($han-regions):15x16 15 16 // 飫 ⿰飠夭(GHTP) ⿰𩙿夭(JK)
+// ⿰ han-98e0-($-1) han-592d // ⿰飠夭
+
 // glyph han-98ec:15x16 15 16 // 飬 ⿱龹良(GHMT) ⿱𠔉良(P)
 // ⿳ han-516b han-592b han-826f // ⿳八夫良 <- ⿱𠔉良
 
@@ -921,6 +924,9 @@ glyph han-9965:15x16 15 16 // 饥
 
 // glyph han-996a-($han-regions):15x16 15 16 // 饪
 // ⿰ han-9963 han-58ec-($-1) // ⿰饣壬
+
+// glyph han-996b:15x16 15 16 // 饫
+// ⿰ han-9963 han-592d // ⿰饣夭
 
 glyph han-996e:15x16 15 16 // 饮
 ⿰ han-9963:5x16 1 han-6b20:9x16 // ⿰饣欠

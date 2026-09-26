@@ -317,10 +317,10 @@ glyph han-95ab:15x16 15 16 // 閫
 // glyph han-95ac:15x16 15 16 // 閬
 // ⿵ han-9580 han-826f // ⿵門良
 
-glyph han-95ad.0:15x16 15 16 // 閭 ⿵門吕(G) ⿵門呂(HTJKPV)
-⿵ han-9580:15x16.13x11 han-5415.x:11x10 2 6 // ⿵門吕
+glyph han-95ad.0:15x16 15 16 // 閭
+⿵ han-9580:15x16.13x11 han-5442:11x10 2 6 // ⿵門呂
 glyph han-95ad.1:* = han-95ad.0:*
-glyph han-95ad.2:15x16 15 16 // 閭 ⿵門吕(G) ⿵門呂(HTJKPV)
+glyph han-95ad.2:15x16 15 16 // 閭
 ⿵ han-9580:15x16.13x11 han-5415:11x10 2 6 // ⿵門吕
 glyph han-95ad-(h|t|j|k|p|v):* = han-95ad.0:*
 glyph han-95ad-g:* = han-95ad.2:*
@@ -350,6 +350,9 @@ glyph han-95c1:15x16 15 16 // 闁
 ⿵ han-9580:15x16.13x11 han-9580:11x10 2 6 // ⿵門門
 
 ## 169.9
+
+// glyph han-95c3:15x16 15 16 // 闃
+// ⿵ han-9580 han-72ca // ⿵門狊
 
 // glyph han-95c4:15x16 15 16 // 闄
 // ⿵ han-9580 han-8981 // ⿵門要
@@ -609,6 +612,9 @@ ref han-660c.0:11x11 2 3
 
 // glyph han-9611:15x16 15 16 // 阑
 // ⿵ han-95e8 han-67ec // ⿵门柬
+
+// glyph han-9612:15x16 15 16 // 阒
+// ⿵ han-95e8 han-72ca // ⿵门狊
 
 // glyph han-9615:15x16 15 16 // 阕
 // ⿵ han-95e8 han-7678 // ⿵门癸

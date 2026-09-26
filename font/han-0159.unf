@@ -1862,9 +1862,9 @@ glyph han-90d2-(g|t):* = han-90d2.2:*
 glyph han-90d6:15x16 15 16 // 郖
 ⿰ han-8c46:9x16 1 han-961d:5x16-r // ⿰豆阝
 
-glyph han-90d8.0:15x16 15 16 // 郘 ⿰吕阝(G) ⿰呂阝(HTJKP)
-⿰ han-5415.x:10x16 1 han-961d:4x16-r // ⿰吕阝
-glyph han-90d8.x:15x16 15 16 // 郘 ⿰吕阝(G) ⿰呂阝(HTJKP)
+glyph han-90d8.0:15x16 15 16 // 郘
+⿰ han-5442:10x16 1 han-961d:4x16-r // ⿰呂阝
+glyph han-90d8.x:15x16 15 16 // 郘
 ⿰ han-5415:10x16 1 han-961d:4x16-r // ⿰吕阝
 glyph han-90d8-(h|t|j|k|p):* = han-90d8.0:*
 glyph han-90d8-g:* = han-90d8.x:*
@@ -1945,6 +1945,9 @@ glyph han-90f4:15x16 15 16 // 郴
 // ⿰ han-5485 han-9091 // ⿰咅邑
 
 ## 163.9
+
+// glyph han-90f9:15x16 15 16 // 郹
+// ⿰ han-72ca han-961d // ⿰狊阝
 
 glyph han-90fc:15x16 15 16 // 郼
 ⿰ han-97cb:9x16 1 han-961d:5x16-r // ⿰韋阝

@@ -2,10 +2,10 @@
 
 ## 140.10
 
-glyph han-26d61.0:15x16 15 16 // 𦵡 ⿱艹宫(G) ⿱艹宮(T)
-⿳ han-8279:15x3 han-5b80:15x3 han-5415.x:15x10 // ⿳艹宀吕
+glyph han-26d61.0:15x16 15 16 // 𦵡
+⿳ han-8279:15x3 han-5b80:15x3 han-5442:15x10 // ⿳艹宀呂
 glyph han-26d61.1:* = han-26d61.0:*
-glyph han-26d61.x:15x16 15 16 // 𦵡 ⿱艹宫(G) ⿱艹宮(T)
+glyph han-26d61.x:15x16 15 16 // 𦵡
 ⿳ han-8279:15x3 han-5b80:15x3 han-5415:15x10 // ⿳艹宀吕
 glyph han-26d61-(t|j):* = han-26d61.0:*
 glyph han-26d61-g:* = han-26d61.x:*

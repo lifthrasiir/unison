@@ -357,9 +357,9 @@ glyph han-2266a:15x16 15 16 // 𢙪
 // glyph han-22671:15x16 15 16 // 𢙱
 // ⿰ han-5fc4 han-5f04 // ⿰忄弄
 
-glyph han-22672.0:15x16 15 16 // 𢙲 ⿰忄吕(G) ⿰忄呂(TV)
-⿰ han-5fc4:5x16 han-5415.x:10x16 // ⿰忄吕
-glyph han-22672.1:15x16 15 16 // 𢙲 ⿰忄吕(G) ⿰忄呂(TV)
+glyph han-22672.0:15x16 15 16 // 𢙲
+⿰ han-5fc4:5x16 han-5442:10x16 // ⿰忄呂
+glyph han-22672.1:15x16 15 16 // 𢙲
 ⿰ han-5fc4:5x16 han-5415:10x16 // ⿰忄吕
 glyph han-22672-(t|j|v):* = han-22672.0:*
 glyph han-22672-g:* = han-22672.1:*

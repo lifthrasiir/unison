@@ -687,6 +687,9 @@ glyph han-8dc0:15x16 15 16 // 跀
 glyph han-8dc1:15x16 15 16 // 跁
 ⿰ han-27fb7:5x16 1 han-5df4:9x16 // ⿰𧾷巴
 
+// glyph han-8dc3:15x16 15 16 // 跃
+// ⿰ han-27fb7 han-592d // ⿰𧾷夭
+
 ## 157.5
 
 glyph han-8dc6:15x16 15 16 // 跆

@@ -587,13 +587,13 @@ glyph han-7d78-($han-regions):15x16 15 16 // 絸
 glyph han-7d78.0:* = han-7d78-j:*
 
 glyph han-7d7d.0:15x16 15 16 // 絽
-⿰ han-7cf9.z:5x16 1 han-5415.x:9x16 // ⿰糹吕
+⿰ han-7cf9.z:5x16 1 han-5442:9x16 // ⿰糹呂
 glyph han-7d7d.x:15x16 15 16 // 絽
 ⿰ han-7cf9.x:5x16 1 han-5415:9x16 // ⿰糹吕
 glyph han-7d7d.y:15x16 15 16 // 絽
-⿰ han-7cf9.x:5x16 1 han-5415.x:9x16 // ⿰糹吕
+⿰ han-7cf9.x:5x16 1 han-5442:9x16 // ⿰糹呂
 glyph han-7d7d.z:15x16 15 16 // 絽
-⿰ han-7cf9.y:5x16 1 han-5415.x:9x16 // ⿰糹吕
+⿰ han-7cf9.y:5x16 1 han-5442:9x16 // ⿰糹呂
 glyph han-7d7d-(j|k):* = han-7d7d.0:*
 glyph han-7d7d-g:* = han-7d7d.x:*
 glyph han-7d7d-(h|t):* = han-7d7d.y:*
