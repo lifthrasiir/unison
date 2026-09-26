@@ -239,7 +239,12 @@ pub struct EditorState {
     /// ([`document_view::NavRequest::from_offset`]), since the link is not
     /// where the caret is.
     pub(crate) caret_view_offset: f32,
-    zoom_changed_from: Option<u32>,
+    /// Set by the host when this editor's zoom level changed; the next frame
+    /// keeps an anchor in place across it (see `document_view::zoom_anchor`).
+    zoom_changed: bool,
+    /// The last frame kept a zoom anchor in place; if this one lays the page
+    /// out again, that is the zoom settling and the anchor is kept again.
+    pub(crate) zoom_settling: bool,
     pub(crate) grid_hover: bool,
     /// Quarter turns the shape palette is currently rotated by (0..4).
     ///
@@ -340,7 +345,8 @@ impl EditorState {
             scroll_intent: None,
             saved_scroll_frac: 0.0,
             caret_view_offset: 0.0,
-            zoom_changed_from: None,
+            zoom_changed: false,
+            zoom_settling: false,
             grid_hover: false,
             shape_rotation: 0,
             grid_scroll_x: 0.0,
@@ -499,12 +505,12 @@ impl EditorState {
         self.scroll_intent = Some(ScrollIntent::Center);
     }
 
-    pub fn notify_zoom_change(&mut self, old_zoom: u32) {
-        self.zoom_changed_from = Some(old_zoom);
+    pub fn notify_zoom_change(&mut self) {
+        self.zoom_changed = true;
     }
 
-    pub(crate) fn take_zoom_change(&mut self) -> Option<u32> {
-        self.zoom_changed_from.take()
+    pub(crate) fn take_zoom_change(&mut self) -> bool {
+        std::mem::take(&mut self.zoom_changed)
     }
 
     pub(crate) fn take_scroll_intent(&mut self) -> Option<ScrollIntent> {

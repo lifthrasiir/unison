@@ -2,6 +2,7 @@
 //! share.
 
 use super::*;
+use crate::editor::harness::SnapLine;
 
 #[test]
 fn scroll_position_survives_zoom_change_across_documents() {
@@ -26,7 +27,7 @@ fn scroll_position_survives_zoom_change_across_documents() {
     h.frame();
 
     h.zoom = 2;
-    h.state.notify_zoom_change(1);
+    h.state.notify_zoom_change();
     h.frame();
     h.frame();
 
@@ -239,5 +240,228 @@ fn typing_on_the_last_line_does_not_jog_the_page() {
             settled,
             "the page did not come back the frame after"
         );
+    }
+}
+
+// -- what a zoom keeps in place ----------------------------------------------
+
+/// A page mixing every kind of visual line whose height does *not* follow the
+/// zoom linearly: reference strips (fixed height), headings (stepped sizes),
+/// comments long enough to wrap differently at each level, and grids.
+fn mixed_zoom_doc() -> (String, Vec<u32>) {
+    use std::fmt::Write;
+    let mut s = String::new();
+    let mut cps = Vec::new();
+    for i in 0..30u32 {
+        if i % 8 == 0 {
+            writeln!(s, "## section {i}").unwrap();
+        }
+        writeln!(s, "// {}", "wrap me please ".repeat(12)).unwrap();
+        let cp = 0x4e00 + i;
+        cps.push(cp);
+        writeln!(s, "glyph han-{cp:x} 16 16").unwrap();
+        for _ in 0..16 {
+            s.push_str("@@..............................\n");
+        }
+        s.push('\n');
+    }
+    (s, cps)
+}
+
+fn mixed_zoom_harness() -> EditorHarness {
+    let (src, cps) = mixed_zoom_doc();
+    let mut h = EditorHarness::new(&src);
+    h.ref_images = Some(crate::editor::ref_images::RefImages::for_test(
+        cps.into_iter().collect(),
+    ));
+    h.viewport_height = Some(600.0);
+    h.frame();
+    h
+}
+
+/// Changes the zoom the way the app does: the font follows the level, and the
+/// editor is told which level it came from.
+fn zoom_to(h: &mut EditorHarness, level: u32) {
+    h.zoom = level;
+    h.font_id = egui::FontId::monospace(16.0 * level as f32);
+    h.state.notify_zoom_change();
+    h.frame();
+}
+
+/// What a point on the page is *of*: a grid row, a strip row, or somewhere
+/// down a (possibly wrapped) text line, as a fraction of that thing's height.
+#[derive(Clone, Copy, PartialEq, Debug)]
+enum PageSpot {
+    Grid(usize, i16, f32),
+    Strip(usize, f32),
+    Text(usize, f32),
+}
+
+fn spot_at(h: &EditorHarness, y: f32) -> PageSpot {
+    let snap = h.snap();
+    let vl = snap
+        .vlines
+        .iter()
+        .find(|vl| vl.y <= y && y < vl.y + vl.height)
+        .unwrap_or_else(|| panic!("nothing is laid out at y = {y}"));
+    let frac = (y - vl.y) / vl.height;
+    match &vl.kind {
+        SnapKind::GridRow { row, .. } => PageSpot::Grid(vl.doc_line, *row, frac),
+        SnapKind::RefImage { .. } => PageSpot::Strip(vl.doc_line, frac),
+        SnapKind::Text { .. } => {
+            let block: Vec<_> = snap
+                .vlines
+                .iter()
+                .filter(|v| v.doc_line == vl.doc_line && matches!(v.kind, SnapKind::Text { .. }))
+                .collect();
+            let top = block[0].y;
+            let h: f32 = block.iter().map(|v| v.height).sum();
+            PageSpot::Text(vl.doc_line, (y - top) / h)
+        }
+    }
+}
+
+fn y_of_spot(h: &EditorHarness, spot: PageSpot) -> f32 {
+    let snap = h.snap();
+    let find = |pred: &dyn Fn(&SnapLine) -> bool| -> Vec<&SnapLine> {
+        snap.vlines.iter().filter(|v| pred(v)).collect()
+    };
+    let (block, frac) = match spot {
+        PageSpot::Grid(line, row, f) => (
+            find(&|v| {
+                v.doc_line == line && matches!(v.kind, SnapKind::GridRow { row: r, .. } if r == row)
+            }),
+            f,
+        ),
+        PageSpot::Strip(line, f) => (
+            find(&|v| v.doc_line == line && matches!(v.kind, SnapKind::RefImage { .. })),
+            f,
+        ),
+        PageSpot::Text(line, f) => (
+            find(&|v| v.doc_line == line && matches!(v.kind, SnapKind::Text { .. })),
+            f,
+        ),
+    };
+    assert!(!block.is_empty(), "{spot:?} is not laid out");
+    let h: f32 = block.iter().map(|v| v.height).sum();
+    block[0].y + frac * h
+}
+
+/// Where the caret's own segment sits: the vertical middle of the visual line
+/// it is drawn on.
+fn caret_mid_y(h: &EditorHarness) -> f32 {
+    let c = h.state.cursor;
+    let vl = h
+        .snap()
+        .vlines
+        .iter()
+        .find(|vl| match &vl.kind {
+            SnapKind::Text {
+                text, col_offset, ..
+            } => {
+                vl.doc_line == c.line
+                    && c.col >= *col_offset
+                    && c.col <= col_offset + text.chars().count()
+            }
+            _ => false,
+        })
+        .expect("the caret's segment is laid out");
+    vl.y + vl.height * 0.5
+}
+
+fn viewport_mid_y(h: &EditorHarness) -> f32 {
+    // The content's top is the viewport's top less the scroll offset.
+    h.snap().vlines[0].y + h.scroll_y() + 300.0
+}
+
+const ZOOM_WALK: [u32; 9] = [2, 3, 4, 3, 1, 5, 8, 2, 1];
+
+/// With the pointer over the editor, what is under the pointer stays under it,
+/// grids, strips, headings and rewrapped lines above it notwithstanding.
+#[test]
+fn a_zoom_keeps_what_is_under_the_pointer_under_it() {
+    let mut h = mixed_zoom_harness();
+    let target = text_line_at(&h, "glyph han-4e0f");
+    h.state.goto_line(target);
+    h.frame();
+    h.frame();
+    let pointer = egui::pos2(300.0, 180.0);
+    h.move_pointer(pointer);
+    for level in ZOOM_WALK {
+        let spot = spot_at(&h, pointer.y);
+        let from = h.zoom;
+        zoom_to(&mut h, level);
+        let drift = y_of_spot(&h, spot) - pointer.y;
+        assert!(
+            drift.abs() < 1.5,
+            "{from}x -> {level}x moved {spot:?} by {drift:.1} from under the pointer"
+        );
+        h.frame();
+        h.frame();
+        let drift = y_of_spot(&h, spot) - pointer.y;
+        assert!(
+            drift.abs() < 1.5,
+            "{from}x -> {level}x: {spot:?} drifted {drift:.1} on the frames after"
+        );
+    }
+}
+
+/// With the pointer outside the window and the caret on screen, the caret's
+/// segment keeps its place on the screen.
+#[test]
+fn a_zoom_without_the_pointer_keeps_a_visible_caret_in_place() {
+    let mut h = mixed_zoom_harness();
+    // Well into a wrapped comment, so the segment it is on changes with zoom.
+    let line = (0..h.lines.len())
+        .filter(|&l| matches!(&h.lines[l], DocLine::Text(t) if t.starts_with("// wrap me")))
+        .nth(12)
+        .unwrap();
+    h.state
+        .goto_caret_with(None, line, 100, ScrollIntent::Offset(150.0));
+    h.frame();
+    h.frame();
+    h.frame_with(vec![egui::Event::PointerGone], egui::Modifiers::NONE);
+    for level in ZOOM_WALK {
+        let before = caret_mid_y(&h);
+        let from = h.zoom;
+        zoom_to(&mut h, level);
+        for settle in 0..3 {
+            let drift = caret_mid_y(&h) - before;
+            assert!(
+                drift.abs() < 1.5,
+                "{from}x -> {level}x moved the caret by {drift:.1} (frame {settle})"
+            );
+            h.frame();
+        }
+    }
+}
+
+/// With the pointer outside the editor and the caret off screen, the middle of
+/// the viewport stays the middle.
+#[test]
+fn a_zoom_without_the_pointer_or_a_visible_caret_keeps_the_middle() {
+    let mut h = mixed_zoom_harness();
+    let target = text_line_at(&h, "glyph han-4e0f");
+    h.state.goto_line(target);
+    h.frame();
+    h.frame();
+    // The caret goes back to the top without the view following it.
+    h.state.cursor = Caret::new(0, 0);
+    h.frame();
+    // Inside the window, below the editor's band: not over the editor.
+    h.move_pointer(egui::pos2(300.0, 900.0));
+    for level in ZOOM_WALK {
+        let mid = viewport_mid_y(&h);
+        let spot = spot_at(&h, mid);
+        let from = h.zoom;
+        zoom_to(&mut h, level);
+        for settle in 0..3 {
+            let drift = y_of_spot(&h, spot) - viewport_mid_y(&h);
+            assert!(
+                drift.abs() < 1.5,
+                "{from}x -> {level}x moved {spot:?} off the middle by {drift:.1} (frame {settle})"
+            );
+            h.frame();
+        }
     }
 }

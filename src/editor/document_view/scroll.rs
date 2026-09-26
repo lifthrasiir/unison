@@ -311,7 +311,7 @@ fn scroll_for_intent(
 }
 
 /// Where the scroll area should jump this frame, if anywhere: minimap click,
-/// pending goto, scroll-to-cursor request, zoom recentering, or restoring
+/// pending goto, scroll-to-cursor request, the anchor of a zoom, or restoring
 /// the saved position — in that priority order.
 #[expect(clippy::too_many_arguments)]
 pub(super) fn resolve_scroll_target(
@@ -320,34 +320,14 @@ pub(super) fn resolve_scroll_target(
     vlines: &[VisualLine],
     row_height: f32,
     grid_cell: f32,
-    zoom_level: u32,
+    zoom_anchor: Option<super::zoom_anchor::ZoomAnchor>,
     prev_scroll_y: f32,
     viewport_h: f32,
     total_height: f32,
     minimap_scroll_target: Option<f32>,
 ) -> Option<f32> {
-    // When zoom level changes, adjust scroll so the content under the mouse
-    // pointer stays at the same screen position.
-    let zoom_scroll: Option<f32> = {
-        let old_zoom: Option<u32> = state.take_zoom_change();
-        if let Some(old_z) = old_zoom {
-            let scale = zoom_level as f32 / old_z as f32;
-            let pointer_y = ui.ctx().input(|i| i.pointer.hover_pos().map(|p| p.y));
-            if let Some(py) = pointer_y {
-                let viewport_top = ui.max_rect().top();
-                let pvo = py - viewport_top;
-                let old_doc_y = prev_scroll_y + pvo;
-                Some((old_doc_y * scale - pvo).max(0.0))
-            } else {
-                let new_caret_y = doc_line_to_y(vlines, row_height, grid_cell, state.cursor.line);
-                let old_caret_y = new_caret_y / scale;
-                let visual_offset = (old_caret_y - prev_scroll_y).max(0.0);
-                Some((new_caret_y - visual_offset).max(0.0))
-            }
-        } else {
-            None
-        }
-    };
+    let zoom_scroll = zoom_anchor
+        .and_then(|a| a.scroll_in(vlines, row_height, grid_cell, viewport_h, state.cursor));
 
     // A group that just closed brings its header to the top of the viewport,
     // but only if the header is not on screen already — a fold you can watch

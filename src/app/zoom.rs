@@ -81,19 +81,18 @@ impl UniformApp {
 
     /// Sets pane `pane_idx`'s zoom level (clamped to
     /// [`MIN_ZOOM_LEVEL`]..=[`MAX_ZOOM_LEVEL`]) and lets the document in it
-    /// recenter its scroll. Returns whether the level actually moved.
+    /// keep its page in place. Returns whether the level actually moved.
     pub(super) fn set_pane_zoom_level(&mut self, pane_idx: usize, level: u32) -> bool {
         let level = level.clamp(MIN_ZOOM_LEVEL, MAX_ZOOM_LEVEL);
         let Some(pane) = self.panes.get_mut(pane_idx) else {
             return false;
         };
-        let old_zoom = pane.zoom_level;
-        if level == old_zoom {
+        if level == pane.zoom_level {
             return false;
         }
         pane.zoom_level = level;
         if let Some(doc) = self.pane_doc_mut(pane_idx) {
-            doc.editor_state.notify_zoom_change(old_zoom);
+            doc.editor_state.notify_zoom_change();
         }
         true
     }

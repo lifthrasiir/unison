@@ -34,6 +34,7 @@ pub(super) mod popups;
 mod scroll;
 #[cfg(test)]
 mod tests;
+mod zoom_anchor;
 
 use changes::{apply_pending_rederive, line_to_item_idx, source_line_count, source_line_offsets};
 use keys::handle_document_keys;
@@ -660,6 +661,38 @@ fn show_document(
         ppp_bits: ui.ctx().pixels_per_point().to_bits(),
         ref_image_gen: env.ref_images.map_or(0, |s| s.generation()),
     };
+    // Taken from the layout the previous frame painted, before this frame's
+    // replaces it in the cache. The frame after a zoom may lay the page out
+    // once more — the gutter is sized from the scroll offset, which the zoom
+    // just moved, so it can gain a digit and rewrap the text — and that
+    // relayout is still the zoom's, so it keeps the anchor too.
+    let settling = std::mem::take(&mut state.zoom_settling)
+        && state
+            .view_cache
+            .as_ref()
+            .is_some_and(|c| c.key != cache_key);
+    let zoom_anchor = if state.take_zoom_change() || settling {
+        state.view_cache.as_ref().and_then(|cache| {
+            let top = ui.max_rect().top();
+            let pointer_offset = ui
+                .input(|i| i.pointer.hover_pos())
+                .filter(|p| ui.max_rect().contains(*p))
+                .map(|p| p.y - top);
+            zoom_anchor::capture(
+                &cache.data.vlines,
+                ui.fonts(|f| f.row_height(&cache.key.font_id)),
+                GRID_CELL * cache.key.zoom_level as f32,
+                prev_scroll_y,
+                prev_viewport_h,
+                pointer_offset,
+                state.cursor,
+                matches!(state.mode, EditMode::Normal),
+            )
+        })
+    } else {
+        None
+    };
+    state.zoom_settling = zoom_anchor.is_some();
     let view = resolve_view(
         ui.ctx(),
         doc,
@@ -743,7 +776,7 @@ fn show_document(
         vlines,
         row_height,
         grid_cell,
-        zoom_level,
+        zoom_anchor,
         prev_scroll_y,
         viewport_h,
         total_height,

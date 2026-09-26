@@ -221,6 +221,7 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Completion: the `:` prefix rule, which item a listing starts on, typing on from a walked item, which keys it claims, what is never offered, what an IDC slot's listing drops | `editor/autocomplete.rs` (`effective_prefix`, `filter_candidates`, `select_for_text`, `continue_from_selection`, `handle_keys`, `collect_candidates`), `compose.rs` (`direction_rank`) |
 | Folding: what a group is, why the list rides on `edit_gen`, which blocks start folded, where the caret goes, closing vs opening scroll | `editor/folding.rs` (`fold_groups`, `apply_initial`, `toggle_at`, `snap_caret`, `FoldScroll`) |
 | The gutter's marker columns; why wrapping is measured against the widest gutter | `document_view/layout.rs` (`GutterLayout`, `page_has_fold_marker`), `document_view/mod.rs` (`wrap_width`), `editor/folding.rs` (`nesting_depth`) |
+| Where a zoom leaves the page: pointer, visible caret or viewport middle, and why not a scaled offset | `document_view/zoom_anchor.rs` |
 | Why a heading draws in zoom steps and re-picks the face | `document_view/layout.rs` (`heading_font_size`, `heading_font`), `app/mod.rs` (`uniform_family_at_size`), `editor/minimap.rs` |
 | Why the minimap is not the document to scale, and how a click, the wheel and the viewport box are placed on it | `editor/minimap.rs` (module note, `MinimapMap`, `pointer_scroll_target`, `strip_scroll`) |
 | Ctrl/Cmd+`/`: which lines a toggle takes, and the grid it demotes and promotes | `editor/comment.rs` |
