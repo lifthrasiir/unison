@@ -364,6 +364,37 @@ pub struct BuiltFontPair {
     pub vector: Vec<u8>,
     /// Glyph name → GID in the vector face.
     pub name_to_gid: HashMap<String, u16>,
+    /// [`text_layout_fingerprint`] of `bitmap`, the face the editor sets its
+    /// text in.
+    pub text_layout: u64,
+}
+
+/// A hash of everything in `ttf` that decides where text set in it *breaks*,
+/// as opposed to what the glyphs look like: which glyph a character maps to,
+/// how far each one advances, the kerning between them, the line metrics and
+/// the em they are all measured in. That is all egui's layout reads of a font.
+///
+/// Most edits change none of it — a drawing moves pixels and leaves the advance
+/// alone — so the editor keys its laid-out lines on this rather than on the
+/// font having been rebuilt at all, and a font landing after an edit costs the
+/// UI thread a repaint rather than a relayout of the whole document.
+#[cfg(feature = "editor")]
+pub fn text_layout_fingerprint(ttf: &[u8]) -> u64 {
+    use read_fonts::TableProvider;
+    let Ok(font) = read_fonts::FontRef::new(ttf) else {
+        return 0;
+    };
+    let mut hasher = rustc_hash::FxHasher::default();
+    for tag in [b"cmap", b"hmtx", b"hhea", b"OS/2", b"kern"] {
+        font.table_data(read_fonts::types::Tag::new(tag))
+            .map(|data| data.as_bytes())
+            .hash(&mut hasher);
+    }
+    font.head()
+        .ok()
+        .map(|head| head.units_per_em())
+        .hash(&mut hasher);
+    hasher.finish()
 }
 
 pub fn load_docs_from_directory_checked(dir: &Path) -> (Vec<Document>, Vec<ParseError>) {
@@ -811,10 +842,12 @@ fn build_pair_from_shared(
         (bitmap, vector)
     });
 
+    let text_layout = text_layout_fingerprint(&bitmap);
     Some(BuiltFontPair {
         bitmap,
         vector,
         name_to_gid,
+        text_layout,
     })
 }
 

@@ -206,6 +206,193 @@ fn compute_wrap_segments(
     result
 }
 
+/// What laying a line of text out produced, remembered between view builds.
+///
+/// Rebuilding the view is O(document) and happens on every edit, and nearly
+/// all of what it cost was measuring text: each line is shaped once to see
+/// whether it wraps (and again per break when it does), and each character is
+/// looked up to see whether it draws at all. None of that depends on anything
+/// but the line itself and how the fonts set it, so a line that did not change
+/// comes out of here instead — which is every line but the one being typed on.
+///
+/// A line's entry is keyed on everything [`push_wrapped_text_vlines`] reads
+/// that is not the *epoch*: its text, color, error spans and heading. The epoch
+/// is what every line shares — the font, the wrap width, the pixel density and
+/// [`EditorEnv::text_layout_gen`](super::document_view::EditorEnv) — and a new
+/// one empties the memo.
+///
+/// Two generations are kept: the lines the previous build used and the ones
+/// this build has used so far. An entry the build does not ask for is dropped
+/// with the previous generation, so the memo holds about one document's worth
+/// of lines and never grows with editing.
+#[derive(Default)]
+pub(crate) struct TextLayoutMemo {
+    epoch: Option<LayoutEpoch>,
+    previous: HashMap<u64, MemoEntry>,
+    current: HashMap<u64, MemoEntry>,
+}
+
+/// Which part of the document [`build_visual_lines`] lays out: the items in
+/// `items`, starting at `start_line` (where the first of them starts, or 0),
+/// and the lines after the last of them up to `end_line`.
+///
+/// Anything but the whole document is a *segment* the view patches in place:
+/// an item from its first line to the next item's first line. Everything a
+/// line's visual lines depend on — how an item pairs its `ref` lines, where
+/// its own lines stop and the plain lines after it begin — is decided inside
+/// that segment, which is what lets one be laid out alone. See
+/// `document_view::patchable_segment`.
+#[derive(Clone, Debug, PartialEq)]
+pub(crate) struct VlineSpan {
+    pub(crate) items: std::ops::Range<usize>,
+    pub(crate) start_line: usize,
+    pub(crate) end_line: usize,
+}
+
+impl VlineSpan {
+    pub(crate) fn whole(doc: &Document, lines: &[DocLine]) -> Self {
+        Self {
+            items: 0..doc.items.len(),
+            start_line: 0,
+            end_line: lines.len(),
+        }
+    }
+
+    /// The segment holding `line`: from the item whose lines start at or
+    /// before it up to the next item's start. Lines ahead of the first item
+    /// are a segment with no item at all.
+    pub(crate) fn segment_of(doc: &Document, lines: &[DocLine], line: usize) -> Self {
+        let starts = &doc.item_line_starts;
+        let k = starts.partition_point(|&s| s <= line);
+        let start_line = k.checked_sub(1).map_or(0, |i| starts[i]);
+        let end_line = starts.get(k).copied().unwrap_or(lines.len());
+        Self {
+            items: k.saturating_sub(1)..k.min(doc.items.len()),
+            start_line,
+            end_line,
+        }
+    }
+
+    fn is_whole(&self, doc: &Document, lines: &[DocLine]) -> bool {
+        *self == Self::whole(doc, lines)
+    }
+}
+
+#[derive(PartialEq)]
+pub(crate) struct LayoutEpoch {
+    pub(crate) font_id: egui::FontId,
+    pub(crate) wrap_width_bits: Option<u32>,
+    pub(crate) ppp_bits: u32,
+    pub(crate) text_layout_gen: u64,
+}
+
+struct MemoEntry {
+    text: String,
+    color: egui::Color32,
+    error_spans: Vec<(usize, usize, String)>,
+    heading: Option<HeadingLine>,
+    /// The line's visual lines, with `doc_line` left at 0.
+    vlines: Vec<VisualLine>,
+}
+
+impl TextLayoutMemo {
+    /// Starts a build: the entries the last one used become the ones this one
+    /// may reuse, unless the lines are now set some other way.
+    ///
+    /// A build of one segment only adds to what the last whole build used: the
+    /// rest of the document still holds its entries.
+    fn begin(&mut self, epoch: LayoutEpoch, whole: bool) {
+        if self.epoch.as_ref() == Some(&epoch) {
+            if whole {
+                self.previous = std::mem::take(&mut self.current);
+            }
+        } else {
+            self.previous.clear();
+            self.current.clear();
+            self.epoch = Some(epoch);
+        }
+    }
+
+    fn key(
+        text: &str,
+        color: egui::Color32,
+        error_spans: &[(usize, usize, String)],
+        heading: Option<HeadingLine>,
+    ) -> u64 {
+        use std::hash::{Hash, Hasher};
+        let mut h = rustc_hash::FxHasher::default();
+        text.hash(&mut h);
+        color.hash(&mut h);
+        error_spans.hash(&mut h);
+        heading
+            .map(|x| (x.level, x.font_size.to_bits(), x.row_height.to_bits()))
+            .hash(&mut h);
+        h.finish()
+    }
+
+    /// Appends the remembered layout of this line to `out`, if there is one.
+    #[allow(clippy::too_many_arguments)]
+    fn reuse(
+        &mut self,
+        key: u64,
+        text: &str,
+        color: egui::Color32,
+        error_spans: &[(usize, usize, String)],
+        heading: Option<HeadingLine>,
+        doc_line: usize,
+        out: &mut Vec<VisualLine>,
+    ) -> bool {
+        let matches = |e: &MemoEntry| {
+            e.text == text
+                && e.color == color
+                && e.error_spans == error_spans
+                && e.heading == heading
+        };
+        if !self.current.get(&key).is_some_and(matches) {
+            match self.previous.remove(&key) {
+                Some(entry) if matches(&entry) => {
+                    self.current.insert(key, entry);
+                }
+                _ => return false,
+            }
+        }
+        let entry = &self.current[&key];
+        out.extend(entry.vlines.iter().map(|vl| VisualLine {
+            doc_line,
+            ..vl.clone()
+        }));
+        true
+    }
+
+    fn remember(
+        &mut self,
+        key: u64,
+        text: &str,
+        color: egui::Color32,
+        error_spans: Vec<(usize, usize, String)>,
+        heading: Option<HeadingLine>,
+        vlines: &[VisualLine],
+    ) {
+        let vlines = vlines
+            .iter()
+            .map(|vl| VisualLine {
+                doc_line: 0,
+                ..vl.clone()
+            })
+            .collect();
+        self.current.insert(
+            key,
+            MemoEntry {
+                text: text.to_string(),
+                color,
+                error_spans,
+                heading,
+                vlines,
+            },
+        );
+    }
+}
+
 #[allow(clippy::too_many_arguments)]
 fn push_wrapped_text_vlines(
     vlines: &mut Vec<VisualLine>,
@@ -213,6 +400,38 @@ fn push_wrapped_text_vlines(
     doc_line: usize,
     color: egui::Color32,
     error_spans: Vec<(usize, usize, String)>,
+    wrap_width: Option<f32>,
+    ctx: &egui::Context,
+    font_id: &egui::FontId,
+    heading: Option<HeadingLine>,
+    memo: &mut TextLayoutMemo,
+) {
+    let key = TextLayoutMemo::key(text, color, &error_spans, heading);
+    if memo.reuse(key, text, color, &error_spans, heading, doc_line, vlines) {
+        return;
+    }
+    let first = vlines.len();
+    lay_out_text_line(
+        vlines,
+        text,
+        doc_line,
+        color,
+        &error_spans,
+        wrap_width,
+        ctx,
+        font_id,
+        heading,
+    );
+    memo.remember(key, text, color, error_spans, heading, &vlines[first..]);
+}
+
+#[allow(clippy::too_many_arguments)]
+fn lay_out_text_line(
+    vlines: &mut Vec<VisualLine>,
+    text: &str,
+    doc_line: usize,
+    color: egui::Color32,
+    error_spans: &[(usize, usize, String)],
     wrap_width: Option<f32>,
     ctx: &egui::Context,
     font_id: &egui::FontId,
@@ -264,7 +483,7 @@ fn push_wrapped_text_vlines(
             .map(|c| c.saturating_sub(col_offset));
         vlines.push(VisualLine {
             doc_line,
-            kind: VLineKind::Text(seg_text),
+            kind: VLineKind::Text(seg_text.into()),
             color,
             error_spans: seg_errors,
             col_offset,
@@ -329,6 +548,7 @@ fn build_ref_vlines(
     wrap_width: Option<f32>,
     ctx: &egui::Context,
     font_id: &egui::FontId,
+    memo: &mut TextLayoutMemo,
 ) -> Vec<VisualLine> {
     let mut ref_vlines = Vec::new();
     // The parser lets `ref` and `anchor` lines interleave, so the nth body
@@ -372,6 +592,7 @@ fn build_ref_vlines(
             ctx,
             font_id,
             None,
+            memo,
         );
         *cur += 1;
     }
@@ -383,7 +604,7 @@ pub(crate) fn build_visual_lines(
     lines: &[DocLine],
     doc: &Document,
     item_line_starts: &[usize],
-    composites: &HashMap<usize, GlyphComposite>,
+    composites: &crate::editor::grid_render::Composites,
     named_glyphs: &HashMap<String, ResolvedGlyph>,
     name_parts: &NamePartsMap,
     exists_matches: &crate::exists::FirstMatches,
@@ -396,7 +617,11 @@ pub(crate) fn build_visual_lines(
     meta: crate::meta::FontMetrics,
     show_metrics: bool,
     shadow: Option<&(usize, crate::editor::shadow::Shadow)>,
+    memo: &mut TextLayoutMemo,
+    epoch: LayoutEpoch,
+    span: VlineSpan,
 ) -> Vec<VisualLine> {
+    memo.begin(epoch, span.is_whole(doc, lines));
     let comment_color = pal.text_comment;
     let heading_color = pal.text_heading;
     let meta_color = pal.text_meta;
@@ -457,9 +682,15 @@ pub(crate) fn build_visual_lines(
     };
 
     let mut vlines: Vec<VisualLine> = Vec::new();
-    let mut line_idx = 0usize;
+    let mut line_idx = span.start_line;
 
-    for (item_idx, item) in doc.items.iter().enumerate() {
+    for (item_idx, item) in doc
+        .items
+        .iter()
+        .enumerate()
+        .take(span.items.end)
+        .skip(span.items.start)
+    {
         let item_start = if item_idx < item_line_starts.len() {
             item_line_starts[item_idx]
         } else {
@@ -477,6 +708,7 @@ pub(crate) fn build_visual_lines(
                     ctx,
                     font_id,
                     heading_of(s),
+                    memo,
                 );
             }
             line_idx += 1;
@@ -515,6 +747,7 @@ pub(crate) fn build_visual_lines(
                         ctx,
                         font_id,
                         heading_of(s),
+                        memo,
                     );
                 }
                 line_idx = item_start + 1;
@@ -538,6 +771,7 @@ pub(crate) fn build_visual_lines(
                         ctx,
                         font_id,
                         heading_of(s),
+                        memo,
                     );
                 }
                 line_idx = item_start + 1 + text.len();
@@ -587,6 +821,7 @@ pub(crate) fn build_visual_lines(
                         ctx,
                         font_id,
                         None,
+                        memo,
                     );
                 }
                 line_idx = item_start + 1;
@@ -617,24 +852,34 @@ pub(crate) fn build_visual_lines(
                         ctx,
                         font_id,
                         None,
+                        memo,
                     );
                 }
 
                 let mut cur = header_line + 1;
 
-                // The `$-N`/`$N` this block writes, so a preview and a `ref`
-                // line's own thumbnail agree with the grid.
-                let bindings = crate::editor::item_bindings::item_bindings(
-                    doc,
-                    item_idx,
-                    name_parts,
-                    exists_matches,
-                );
                 let is_editing = editing_item_idx == Some(item_idx);
                 // Only the glyph the anchor belongs to makes room for it.
                 let shadow = shadow.filter(|(idx, _)| *idx == item_idx).map(|(_, s)| s);
                 let max_ph = if is_editing {
-                    preview_max_height(body, composites.get(&item_idx), named_glyphs, &bindings)
+                    // The `$-N`/`$N` this block writes, so the preview agrees
+                    // with the grid. Only here: the `ref` lines below are
+                    // checked against the plain map, which answers the same
+                    // (a name that mentions a capture is valid whatever it is
+                    // bound to — see `ref_composite::is_ref_valid`), and
+                    // binding clones the whole map.
+                    let bindings = crate::editor::item_bindings::item_bindings(
+                        doc,
+                        item_idx,
+                        name_parts,
+                        exists_matches,
+                    );
+                    preview_max_height(
+                        body,
+                        composites.get(&item_idx).map(|c| &**c),
+                        named_glyphs,
+                        &bindings,
+                    )
                 } else {
                     0
                 };
@@ -644,14 +889,20 @@ pub(crate) fn build_visual_lines(
                     let grid_doc_line = cur;
                     let (own_w, own_h, mut extent) = compute_grid_display_extent(
                         Some(grid),
-                        composites.get(&item_idx),
+                        composites.get(&item_idx).map(|c| &**c),
                         &body.points,
                     );
                     if let Some(s) = shadow {
                         extent.include_shadow(s);
                     }
                     let metrics = show_metrics.then(|| {
-                        let m = glyph_metrics(body, composites.get(&item_idx), own_w, own_h, meta);
+                        let m = glyph_metrics(
+                            body,
+                            composites.get(&item_idx).map(|c| &**c),
+                            own_w,
+                            own_h,
+                            meta,
+                        );
                         extent.include_metrics(&m);
                         m
                     });
@@ -683,11 +934,12 @@ pub(crate) fn build_visual_lines(
                         &body.refs,
                         &mut cur,
                         named_glyphs,
-                        &bindings,
+                        name_parts,
                         &color_for_text,
                         wrap_width,
                         ctx,
                         font_id,
+                        memo,
                     );
 
                     let (own_w, own_h, mut extent) =
@@ -720,11 +972,12 @@ pub(crate) fn build_visual_lines(
                         &body.refs,
                         &mut cur,
                         named_glyphs,
-                        &bindings,
+                        name_parts,
                         &color_for_text,
                         wrap_width,
                         ctx,
                         font_id,
+                        memo,
                     );
                     vlines.append(&mut ref_vlines);
                 }
@@ -734,8 +987,10 @@ pub(crate) fn build_visual_lines(
         }
     }
 
-    // Trailing lines not covered by items
-    while line_idx < lines.len() {
+    // Trailing lines not covered by items — or, for a span that stops short
+    // of the end, the lines before the next item, which that item's own
+    // catch-up loop would have pushed exactly so.
+    while line_idx < span.end_line.min(lines.len()) {
         if let Some(DocLine::Text(s)) = lines.get(line_idx) {
             push_wrapped_text_vlines(
                 &mut vlines,
@@ -747,6 +1002,7 @@ pub(crate) fn build_visual_lines(
                 ctx,
                 font_id,
                 heading_of(s),
+                memo,
             );
         }
         line_idx += 1;
@@ -865,6 +1121,7 @@ mod tests {
             None,
             &ctx,
             &font_id,
+            &mut TextLayoutMemo::default(),
         );
         assert_eq!(cur, 3, "the scan must reach past the interleaved anchor");
         assert_eq!(vlines.len(), 3);
@@ -910,6 +1167,7 @@ mod tests {
             None,
             &ctx,
             &font_id,
+            &mut TextLayoutMemo::default(),
         );
         assert!(
             vlines[0].error_spans.is_empty(),

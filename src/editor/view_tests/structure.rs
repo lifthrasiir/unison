@@ -414,3 +414,107 @@ fn erasing_on_a_dimensionless_glyph_writes_nothing() {
 }
 
 // -- scroll persistence across zoom changes ----------------------------------
+
+/// The view as drawn, one line per visual line: where it sits and what it is.
+fn rendered(h: &EditorHarness) -> Vec<String> {
+    h.snap()
+        .vlines
+        .iter()
+        .map(|vl| {
+            format!(
+                "{} {} {} {:?} {:?}",
+                vl.doc_line, vl.y, vl.height, vl.gutter, vl.kind
+            )
+        })
+        .collect()
+}
+
+/// Typing on a line whose reparse is deferred — a `ref` line, a heading —
+/// changes the text and nothing the document was parsed into, so the view lays
+/// out that line's segment again and splices it into the view it had rather
+/// than laying out the whole file. What comes out must be the view a build from
+/// scratch lays out, a folded block later in the file included.
+#[test]
+fn a_patched_view_is_the_view_a_rebuild_lays_out() {
+    let mut h = EditorHarness::new(
+        "# section\n// a comment\nglyph foo 2 2\n@@@@\n..@@\n\nglyph bar\nref foo 0 0\nref nope 1 0\n\
+         // between\n\nglyph baz 2 2\n@@..\n..@@\n\n## tail\nx\n",
+    );
+    let line_of = |h: &EditorHarness, text: &str| {
+        (0..h.lines.len())
+            .find(|&i| h.lines[i].as_text() == Some(text))
+            .unwrap_or_else(|| panic!("no line {text:?}"))
+    };
+    h.click_fold_marker(line_of(&h, "glyph baz 2 2"));
+    h.frame();
+
+    let rebuilt = |h: &mut EditorHarness| {
+        h.state.view_cache = None;
+        h.state.stale_view = None;
+        h.frame();
+        rendered(h)
+    };
+    let check = |h: &mut EditorHarness, what: &str, edit: &dyn Fn(&mut EditorHarness)| {
+        let patches = h.state.view_patches;
+        edit(h);
+        h.frame();
+        assert!(
+            h.state.view_patches > patches,
+            "{what}: the view was rebuilt, not patched"
+        );
+        let patched = rendered(h);
+        assert_eq!(patched, rebuilt(h), "{what}");
+    };
+
+    // Undefined, so the line carries an error span, which only the glyph block
+    // it belongs to knows to give it.
+    let r = line_of(&h, "ref nope 1 0");
+    h.click_text(r, "ref nope 1 0".len());
+    check(&mut h, "a digit on a ref line", &|h| h.type_text("1"));
+    check(&mut h, "two backspaces", &|h| {
+        h.key(Key::Backspace);
+        h.key(Key::Backspace);
+    });
+    assert_eq!(h.text(r), "ref nope 1 ");
+
+    // Folded, so the segment laid out again has a line the fold must hide.
+    // From here the document reparses on every keystroke. The resolution is
+    // held, as the app's is until the rebuild behind the edit lands, so the
+    // parse is the only thing that moved.
+    h.hold_resolution = true;
+    let comment = line_of(&h, "// between");
+    h.click_text(comment, "// between".len());
+    check(&mut h, "a character in a comment", &|h| h.type_text("!"));
+    assert_eq!(h.text(comment), "// between!");
+
+    // Leaving the edited `ref` line reparses its block, whose composite moves
+    // with the offset: the block is composed again, and nothing else is.
+    h.click_text(r, "ref nope 1 ".len());
+    h.type_text("0");
+    let foo = line_of(&h, "ref foo 0 0");
+    h.click_text(foo, "ref foo ".len());
+    h.key(Key::Delete);
+    h.type_text("3");
+    check(&mut h, "the caret leaving an edited ref line", &|h| {
+        h.key(Key::ArrowUp)
+    });
+    assert_eq!(h.text(foo), "ref foo 3 0");
+
+    h.hold_resolution = false;
+    h.frame();
+    let heading = line_of(&h, "## tail");
+    h.click_fold_marker(heading);
+    h.frame();
+    assert!(
+        !rendered(&h).iter().any(|l| l.contains("\"x\"")),
+        "the section is folded: {:#?}",
+        rendered(&h)
+    );
+    h.click_text(heading, 0);
+    check(&mut h, "a heading one level deeper", &|h| h.type_text("#"));
+    assert_eq!(h.text(heading), "### tail");
+    assert!(
+        !rendered(&h).iter().any(|l| l.contains("\"x\"")),
+        "the section is still folded"
+    );
+}

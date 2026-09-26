@@ -39,8 +39,7 @@ mod zoom_anchor;
 use changes::{apply_pending_rederive, line_to_item_idx, source_line_count, source_line_offsets};
 use keys::handle_document_keys;
 use layout::{
-    GutterLayout, ViewCacheKey, ViewData, collapsed_source_lines, doc_line_to_y,
-    page_has_fold_marker,
+    GutterLayout, ViewCacheKey, collapsed_source_lines, doc_line_to_y, page_has_fold_marker,
 };
 use number_scroll::{
     alt_wheel_here, apply_number_bump, detect_number_bump, swallow_alt_arrows, swallow_wheel_delta,
@@ -58,7 +57,7 @@ use scroll::{
 // `document_view::*`, whichever submodule they now live in.
 pub(crate) use changes::flush_document_changes;
 pub(crate) use layout::{
-    GlyphMetrics, GridExtent, GridStrip, HeadingLine, VLineKind, ViewCache, VisualLine,
+    GlyphMetrics, GridExtent, GridStrip, HeadingLine, VLineKind, ViewCache, ViewData, VisualLine,
     compute_grid_display_extent, glyph_metrics, heading_font, heading_font_size,
 };
 #[cfg(test)]
@@ -193,11 +192,13 @@ pub struct EditorEnv<'a> {
     /// to a menu button rather than to another surface. A floating pixel
     /// selection survives that: the menu is how the user acts *on* it.
     pub menu_open: bool,
-    /// Generation of the derived data above; bumping it invalidates the
-    /// editor's per-frame view cache.
-    pub derived_gen: u64,
-    /// Generation of the built font, which the view cache also keys on.
-    pub font_gen: u64,
+    /// Generation of the resolved data above (the glyphs, the bindings, the
+    /// colors); bumping it invalidates the editor's per-frame view cache.
+    pub resolved_gen: u64,
+    /// Generation of how the fonts lay text out, which the view cache also
+    /// keys on: a new font that sets every line as the last one did leaves
+    /// the laid-out lines valid. See `UniformApp::text_layout_gen`.
+    pub text_layout_gen: u64,
     pub zoom_level: u32,
     pub font_id: &'a egui::FontId,
     /// The reference chart strips of the source directory, when the source
@@ -205,6 +206,9 @@ pub struct EditorEnv<'a> {
     /// directory is one directory; `None` when the source names none or the
     /// host does not offer them. See [`crate::editor::ref_images`].
     pub ref_images: Option<&'a crate::editor::ref_images::RefImages>,
+    /// This document's blocks as the rebuild behind `resolved_gen` composed
+    /// them; see [`grid_render::CompositeMemo`].
+    pub composite_seed: Option<&'a grid_render::CompositeSeed>,
 }
 
 /// One editor instance, as a widget.
@@ -276,9 +280,6 @@ fn resolve_view(
         named_glyphs,
         name_parts,
         exists_matches,
-        alt_index,
-        color_aliases,
-        anchor_aligns,
         meta,
         zoom_level,
         font_id,
@@ -298,15 +299,169 @@ fn resolve_view(
     if cache_valid {
         return std::sync::Arc::clone(&state.view_cache.as_ref().unwrap().data);
     }
-    let composites = grid_render::build_composites(
+    let previous = state.view_cache.take().or_else(|| state.stale_view.take());
+    let composites_for = (doc.edit_gen, doc.pixel_gen, cache_key.resolved_gen);
+    let line_fps = layout::line_fingerprints(lines);
+    let epoch = || visual_lines::LayoutEpoch {
+        font_id: font_id.clone(),
+        wrap_width_bits: wrap_width.map(f32::to_bits),
+        ppp_bits: ctx.pixels_per_point().to_bits(),
+        text_layout_gen: cache_key.text_layout_gen,
+    };
+
+    // Only the lines an edit changed need laying out again when nothing else
+    // the view is keyed on moved: an edit whose reparse is deferred (typing on
+    // a `ref` line), which reached nothing the parsed document holds, or one
+    // whose reparse replaced a run of items by as many others (typing on any
+    // other line), which reached those items alone. See `patchable_segment`.
+    let mut leftover: Option<std::sync::Arc<ViewData>> = None;
+    if let Some(prev) = previous {
+        let plan = patch_plan(
+            &prev,
+            &cache_key,
+            composites_for,
+            state.last_reparse.as_ref(),
+        )
+        .and_then(|recompose| {
+            let span = patchable_segment(&prev.data, &line_fps, lines, doc, recompose.as_ref())?;
+            Some((span, recompose))
+        });
+        match (plan, std::sync::Arc::try_unwrap(prev.data)) {
+            (Some((span, recompose)), Ok(mut data)) => {
+                if let Some(items) = recompose {
+                    let composites = std::sync::Arc::make_mut(&mut data.composites);
+                    for idx in items {
+                        let composite = grid_render::compose_item(
+                            doc,
+                            idx,
+                            named_glyphs,
+                            name_parts,
+                            env.alt_index,
+                            env.color_aliases,
+                            env.anchor_aligns,
+                            exists_matches,
+                            &mut state.composite_memo,
+                            env.composite_seed,
+                        );
+                        match composite {
+                            Some(c) => composites.insert(idx, c),
+                            None => composites.remove(&idx),
+                        };
+                    }
+                    data.composites_for = composites_for;
+                }
+                let segment = visual_lines::build_visual_lines(
+                    lines,
+                    doc,
+                    &doc.item_line_starts,
+                    &data.composites,
+                    named_glyphs,
+                    name_parts,
+                    exists_matches,
+                    editing_item_idx,
+                    zoom_level,
+                    pal,
+                    wrap_width,
+                    ctx,
+                    font_id,
+                    meta,
+                    show_metrics,
+                    data.shadow.as_ref(),
+                    &mut state.text_layout_memo,
+                    epoch(),
+                    span.clone(),
+                );
+                if splice_segment(&mut data.vlines, segment, &span, &state.folds, pal) {
+                    #[cfg(test)]
+                    {
+                        state.view_patches += 1;
+                    }
+                    data.serial = layout::next_view_serial();
+                    data.line_fps = line_fps;
+                    data.geometry = Default::default();
+                    let data = std::sync::Arc::new(data);
+                    state.view_cache = Some(ViewCache {
+                        key: cache_key,
+                        data: std::sync::Arc::clone(&data),
+                    });
+                    return data;
+                }
+                // The segment ran past its end; lay the whole view out.
+                leftover = Some(std::sync::Arc::new(data));
+            }
+            (_, Ok(data)) => leftover = Some(std::sync::Arc::new(data)),
+            (_, Err(data)) => leftover = Some(data),
+        }
+    }
+    let reuse = leftover
+        .as_ref()
+        .filter(|prev| prev.composites_for == composites_for)
+        .map(|prev| std::sync::Arc::clone(&prev.composites));
+    // Freed off this thread: see `crate::discard`.
+    if let Some(prev) = leftover {
+        crate::discard::discard(prev);
+    }
+    build_view(
+        ctx,
         doc,
+        lines,
+        state,
+        env,
+        cache_key,
+        editing_item_idx,
+        pal,
+        wrap_width,
+        reuse,
+        composites_for,
+        line_fps,
+    )
+}
+
+/// The whole view, laid out from scratch — but for the composites, which
+/// `previous` lends when they were built from the same parse.
+#[expect(clippy::too_many_arguments)]
+fn build_view(
+    ctx: &egui::Context,
+    doc: &Document,
+    lines: &[DocLine],
+    state: &mut EditorState,
+    env: EditorEnv<'_>,
+    cache_key: ViewCacheKey,
+    editing_item_idx: Option<usize>,
+    pal: &Palette,
+    wrap_width: Option<f32>,
+    reuse: Option<std::sync::Arc<crate::editor::grid_render::Composites>>,
+    composites_for: (u64, u64, u64),
+    line_fps: Vec<u64>,
+) -> std::sync::Arc<ViewData> {
+    let EditorEnv {
         named_glyphs,
         name_parts,
+        exists_matches,
         alt_index,
         color_aliases,
         anchor_aligns,
-        exists_matches,
-    );
+        meta,
+        zoom_level,
+        font_id,
+        ..
+    } = env;
+    let show_metrics = cache_key.show_metrics;
+    let composites = match reuse {
+        Some(composites) => composites,
+        None => std::sync::Arc::new(grid_render::build_composites_memo(
+            doc,
+            named_glyphs,
+            name_parts,
+            alt_index,
+            color_aliases,
+            anchor_aligns,
+            exists_matches,
+            &mut state.composite_memo,
+            cache_key.resolved_gen,
+            env.composite_seed,
+        )),
+    };
     // At most one shadow is live: the anchor one needs a selected anchor layer
     // and the backreference one a pixel selection, and no mode is both.
     let shadow = cache_key
@@ -336,6 +491,14 @@ fn resolve_view(
         meta,
         show_metrics,
         shadow.as_ref(),
+        &mut state.text_layout_memo,
+        visual_lines::LayoutEpoch {
+            font_id: font_id.clone(),
+            wrap_width_bits: wrap_width.map(f32::to_bits),
+            ppp_bits: ctx.pixels_per_point().to_bits(),
+            text_layout_gen: cache_key.text_layout_gen,
+        },
+        visual_lines::VlineSpan::whole(doc, lines),
     );
     // The strips are spliced into the finished list for the same reason
     // folding is applied to it: a strip belongs *above* a line, whichever kind
@@ -352,6 +515,10 @@ fn resolve_view(
     let source_offsets = source_line_offsets(lines);
     let data = std::sync::Arc::new(ViewData {
         composites,
+        composites_for,
+        serial: layout::next_view_serial(),
+        line_fps,
+        geometry: Default::default(),
         vlines,
         source_offsets,
         shadow,
@@ -361,6 +528,149 @@ fn resolve_view(
         data: std::sync::Arc::clone(&data),
     });
     data
+}
+
+/// Whether `prev` can be patched into the view `key` asks for, and if so which
+/// items have to be composed again: none, when the document was not reparsed
+/// since `prev` (the edit's reparse is deferred), or the ones `reparse`
+/// replaced, when that is the one reparse since and it kept the item count —
+/// every item after it then keeps its index, which the composites and the
+/// grid rows are keyed by.
+///
+/// A live shadow is refused: it is drawn from the document's items, and the
+/// edit may have reached the glyph it belongs to.
+fn patch_plan(
+    prev: &ViewCache,
+    key: &ViewCacheKey,
+    composites_for: (u64, u64, u64),
+    reparse: Option<&crate::editor::LastReparse>,
+) -> Option<Option<std::ops::Range<usize>>> {
+    let (edit_gen, pixel_gen, resolved_gen) = composites_for;
+    let (prev_edit, prev_pixel, prev_resolved) = prev.data.composites_for;
+    if prev.key == *key && prev.data.composites_for == composites_for {
+        return Some(None);
+    }
+    let reparse = reparse.filter(|r| {
+        r.from == prev_edit
+            && r.to == edit_gen
+            && r.items.old.len() == r.items.new.len()
+            && (prev_pixel, prev_resolved) == (pixel_gen, resolved_gen)
+            && prev.key
+                == (ViewCacheKey {
+                    edit_gen: prev.key.edit_gen,
+                    ..key.clone()
+                })
+            && key.active_point.is_none()
+            && key.backref_item.is_none()
+    })?;
+    Some(Some(reparse.items.new.clone()))
+}
+
+/// The segment ([`visual_lines::VlineSpan`]) an edit changed, when that is all
+/// it changed and `prev` can be patched there rather than rebuilt: the items
+/// `reparsed` (with the lines after them up to the next item), or when nothing
+/// was reparsed the one item holding the first changed line.
+///
+/// The lines are compared by fingerprint, which is one pass over the text and
+/// nothing else. The rebuild it saves reads every line *and* every visual line,
+/// and after the idle frames between two keystrokes that memory is cold: a warm
+/// rebuild of a large file was under a millisecond, the same rebuild a
+/// keystroke later several.
+///
+/// Refused — and the view rebuilt whole — when the lines no longer pair up one
+/// for one, when the changes fall outside the segment, or when a changed line
+/// is a grid, is a `glyph` header, or carried a reference chart strip: a grid
+/// decides the source line numbers of every line after it, and a header which
+/// chart strip the document shows where (the first header naming a code point
+/// gets it). Neither is a question one segment can answer.
+fn patchable_segment(
+    prev: &ViewData,
+    after: &[u64],
+    lines: &[DocLine],
+    doc: &Document,
+    reparsed: Option<&std::ops::Range<usize>>,
+) -> Option<visual_lines::VlineSpan> {
+    if prev.line_fps.len() != after.len() {
+        return None;
+    }
+    let changed: Vec<usize> = prev
+        .line_fps
+        .iter()
+        .zip(after)
+        .enumerate()
+        .filter(|(_, (a, b))| a != b)
+        .map(|(i, _)| i)
+        .collect();
+    let span = match (reparsed, changed.first()) {
+        (Some(items), _) => {
+            let starts = &doc.item_line_starts;
+            visual_lines::VlineSpan {
+                items: items.clone(),
+                start_line: if items.start == 0 {
+                    0
+                } else {
+                    *starts.get(items.start)?
+                },
+                end_line: starts.get(items.end).copied().unwrap_or(lines.len()),
+            }
+        }
+        (None, Some(&first)) => visual_lines::VlineSpan::segment_of(doc, lines, first),
+        // Nothing to lay out again: an edit and its undo in one frame.
+        (None, None) => visual_lines::VlineSpan {
+            items: 0..0,
+            start_line: 0,
+            end_line: 0,
+        },
+    };
+    let plain = |i: usize| {
+        (span.start_line..span.end_line).contains(&i)
+            && matches!(&lines[i], DocLine::Text(t) if !t.trim_start().starts_with("glyph "))
+    };
+    if !changed.iter().all(|&i| plain(i)) {
+        return None;
+    }
+    let lo = prev
+        .vlines
+        .partition_point(|vl| vl.doc_line < span.start_line);
+    let had_strip = prev.vlines[lo..]
+        .iter()
+        .take_while(|vl| vl.doc_line < span.end_line)
+        .any(|vl| {
+            matches!(vl.kind, VLineKind::RefImage { .. })
+                && changed.binary_search(&vl.doc_line).is_ok()
+        });
+    (!had_strip).then_some(span)
+}
+
+/// Replaces the visual lines of `span`'s source lines in `vlines` by
+/// `segment`, carrying over the reference chart strips the old ones had and
+/// dropping what the folds hide, exactly as a whole build would. Returns
+/// `false`, leaving `vlines` alone, when `segment` reaches outside `span`.
+fn splice_segment(
+    vlines: &mut Vec<VisualLine>,
+    mut segment: Vec<VisualLine>,
+    span: &visual_lines::VlineSpan,
+    folds: &crate::editor::folding::FoldState,
+    pal: &Palette,
+) -> bool {
+    let inside = |vl: &VisualLine| vl.doc_line >= span.start_line && vl.doc_line < span.end_line;
+    if !segment.iter().all(inside) {
+        return false;
+    }
+    let lo = vlines.partition_point(|vl| vl.doc_line < span.start_line);
+    let hi = vlines.partition_point(|vl| vl.doc_line < span.end_line);
+    let strips: Vec<(usize, u32)> = vlines[lo..hi]
+        .iter()
+        .filter_map(|vl| match vl.kind {
+            VLineKind::RefImage { codepoint } => Some((vl.doc_line, codepoint)),
+            _ => None,
+        })
+        .collect();
+    splice_ref_image_rows(&mut segment, strips, pal);
+    segment.retain(|vl| !folds.is_hidden(vl.doc_line));
+    let removed: Vec<VisualLine> = vlines.splice(lo..hi, segment).collect();
+    crate::discard::discard(removed);
+    true
 }
 
 /// Puts one strip row above the first visual line of each `glyph` line that
@@ -429,7 +739,7 @@ fn selected_anchor_shadow(
     item_idx: usize,
     pi: usize,
     named_glyphs: &HashMap<String, ResolvedGlyph>,
-    composites: &HashMap<usize, crate::editor::ref_composite::GlyphComposite>,
+    composites: &crate::editor::grid_render::Composites,
 ) -> Option<(usize, Shadow)> {
     let Some(DocumentItem::Glyph { name, body }) = doc.items.get(item_idx) else {
         return None;
@@ -501,8 +811,8 @@ fn show_document(
         name_parts,
         alt_index,
         anchor_aligns,
-        derived_gen,
-        font_gen,
+        resolved_gen,
+        text_layout_gen,
         zoom_level,
         font_id,
         meta,
@@ -592,7 +902,7 @@ fn show_document(
     // One column per level the *document* nests, not per level this page shows:
     // the count decides where every marker sits, and folding a group must not
     // shift its neighbours out from under the pointer.
-    let document_marker_columns = crate::editor::folding::max_nesting_depth(state.folds.groups());
+    let document_marker_columns = state.folds.max_depth();
     let marker_columns = {
         let shown = match state.view_cache.as_ref() {
             Some(cache) => page_has_fold_marker(
@@ -641,8 +951,8 @@ fn show_document(
 
     let cache_key = ViewCacheKey {
         edit_gen: doc.edit_gen,
-        derived_gen,
-        font_gen,
+        resolved_gen,
+        text_layout_gen,
         zoom_level,
         editing_item_idx,
         active_point: active_point_layer(doc, &state.mode),
@@ -710,10 +1020,8 @@ fn show_document(
     let vlines: &[VisualLine] = &view.vlines;
     let source_offsets: &[usize] = &view.source_offsets;
 
-    let total_height: f32 = vlines
-        .iter()
-        .map(|vl| vl.height(row_height, grid_cell))
-        .sum();
+    let geometry = view.geometry(&state.folds, row_height, grid_cell);
+    let total_height = geometry.total_height;
 
     // Against the lines this frame's view was built from, before this frame
     // edits them, so the marks agree with the rows they are drawn beside.
@@ -726,6 +1034,30 @@ fn show_document(
             len: lines.len(),
         },
     );
+
+    // Where the marks fall along the view, which only a new view or new marks
+    // move; see `paint_gutter_marks`.
+    let spans_key = (view.serial, [row_height.to_bits(), grid_cell.to_bits()]);
+    let change_spans = match &state.gutter_spans {
+        Some((key, marks, spans))
+            if *key == spans_key && std::sync::Arc::ptr_eq(marks, &changes) =>
+        {
+            std::sync::Arc::clone(spans)
+        }
+        _ => {
+            let spans: std::sync::Arc<[crate::editor::change_marks::MarkSpan]> =
+                crate::editor::change_marks::mark_spans(vlines, lines, &changes, |_, vl| {
+                    vl.height(row_height, grid_cell)
+                })
+                .into();
+            state.gutter_spans = Some((
+                spans_key,
+                std::sync::Arc::clone(&changes),
+                std::sync::Arc::clone(&spans),
+            ));
+            spans
+        }
+    };
 
     let inline_panel_edit_idx = editing_item_idx;
 
@@ -774,16 +1106,16 @@ fn show_document(
         .show_inside(ui, |ui| {
             minimap_scroll_target = minimap::draw_minimap(
                 ui,
-                vlines,
+                &view,
                 doc,
                 lines,
-                composites,
                 &changes,
                 row_height,
                 grid_cell,
                 prev_scroll_y,
                 prev_viewport_h,
                 zoom_level,
+                &mut state.minimap_cache,
             );
         });
 
@@ -833,10 +1165,10 @@ fn show_document(
             row_height,
             grid_cell,
             gutter,
-            total_height,
+            &geometry,
             cursor_color,
             inline_panel_edit_idx,
-            &changes,
+            &change_spans,
             &mut needs_rederive,
         );
     });

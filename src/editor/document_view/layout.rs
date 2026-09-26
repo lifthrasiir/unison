@@ -225,6 +225,7 @@ pub(crate) fn inline_panel_reserved_width(zoom: f32) -> f32 {
 /// A run of consecutive grid rows belonging to one glyph, in scroll-area
 /// coordinates. Used to place the horizontal scrollbar and to bound
 /// drag-driven auto-scrolling.
+#[derive(Clone)]
 pub(super) struct GridBlock {
     pub(super) item_idx: usize,
     pub(super) y0: f32,
@@ -324,6 +325,7 @@ pub(crate) fn compute_grid_display_extent(
     (own_w, own_h, extent)
 }
 
+#[derive(Clone)]
 pub(crate) struct VisualLine {
     pub(crate) doc_line: usize,
     pub(crate) kind: VLineKind,
@@ -394,15 +396,16 @@ impl VisualLine {
 
 #[derive(Clone)]
 pub(crate) enum VLineKind {
-    Text(String),
+    /// Shared, because a view is rebuilt on every edit from lines that mostly
+    /// did not change, and each comes out of
+    /// [`crate::editor::visual_lines::TextLayoutMemo`] as a copy.
+    Text(std::sync::Arc<str>),
     /// A reference chart strip, drawn *above* the `glyph` line whose name
     /// carries this code point. It belongs to no source line of its own —
     /// `doc_line` is the line it introduces, so a fold that hides that line
     /// hides the strip with it — and carries no text, no caret and no number
     /// in the gutter. See [`crate::editor::ref_images`].
-    RefImage {
-        codepoint: u32,
-    },
+    RefImage { codepoint: u32 },
     GridRow {
         item_idx: usize,
         row: i16,
@@ -419,7 +422,23 @@ pub(crate) enum VLineKind {
 /// needs each frame. Rebuilding it is O(document); the cache below keeps the
 /// last result so idle frames (no edits, no layout change) skip the rebuild.
 pub(crate) struct ViewData {
-    pub(crate) composites: HashMap<usize, GlyphComposite>,
+    /// Shared with the next view when that one is built from the same parsed
+    /// document and resolved data ([`ViewData::composites_for`]): composing is
+    /// the larger part of a build, and an edit the reparse defers — typing on
+    /// a `ref` line — changes the text and nothing it is composed from.
+    pub(crate) composites: std::sync::Arc<crate::editor::grid_render::Composites>,
+    /// `(edit_gen, pixel_gen, resolved_gen)` the composites were built from.
+    pub(crate) composites_for: (u64, u64, u64),
+    /// Unique to this view, for caches that key on which view they drew
+    /// (the minimap's) without holding on to it — a view nobody else holds is
+    /// one the next edit can patch in place.
+    pub(crate) serial: u64,
+    /// [`line_fingerprints`] of the lines this view was laid out from, which
+    /// is how the next build finds the lines an edit changed.
+    pub(crate) line_fps: Vec<u64>,
+    /// What the frame reads off the whole of the view, computed the first
+    /// time a frame asks; see [`ViewData::geometry`].
+    pub(crate) geometry: std::sync::OnceLock<ViewGeometry>,
     pub(crate) vlines: Vec<VisualLine>,
     pub(crate) source_offsets: Vec<usize>,
     /// The shadow drawn under one glyph — the selected anchor's attachable
@@ -432,11 +451,11 @@ pub(crate) struct ViewData {
 /// Inputs `ViewData` was computed from. `edit_gen` stands in for the document
 /// contents, so anything that mutates `lines` without an immediate rederive
 /// must drop the cache instead (see the `needs_rederive` handling below).
-#[derive(PartialEq)]
+#[derive(Clone, PartialEq)]
 pub(super) struct ViewCacheKey {
     pub(super) edit_gen: u64,
-    pub(super) derived_gen: u64,
-    pub(super) font_gen: u64,
+    pub(super) resolved_gen: u64,
+    pub(super) text_layout_gen: u64,
     pub(super) zoom_level: u32,
     pub(super) editing_item_idx: Option<usize>,
     /// The selected *anchor* layer as `(item, point index)`, which the shadow
@@ -461,6 +480,81 @@ pub(super) struct ViewCacheKey {
     /// have a reference chart strip, and so which strip rows the view holds.
     /// It changes once, when the one directory scan lands.
     pub(super) ref_image_gen: u64,
+}
+
+/// What every frame reads off the whole of a view — its height, its runs of
+/// grid rows, its fold markers — each of them a walk over every visual line.
+/// None of it changes while the view does not, so it is worked out once per
+/// view rather than once per frame: a large file is tens of thousands of
+/// visual lines, and three walks over them a frame were most of what an idle
+/// frame cost.
+#[derive(Clone)]
+pub(crate) struct ViewGeometry {
+    /// The row height and grid cell it was measured with, which the view's key
+    /// pins in practice (see [`ViewData::geometry`]).
+    key: [u32; 2],
+    pub(super) total_height: f32,
+    pub(super) blocks: Vec<GridBlock>,
+    pub(super) fold_markers: Vec<FoldMarker>,
+}
+
+impl ViewData {
+    /// This view's [`ViewGeometry`] at `row_height` and `grid_cell`. The fold
+    /// markers read which groups are collapsed, which the view is keyed on, so
+    /// the one computed for the view stays right for as long as the view does.
+    pub(super) fn geometry(
+        &self,
+        folds: &crate::editor::folding::FoldState,
+        row_height: f32,
+        grid_cell: f32,
+    ) -> std::borrow::Cow<'_, ViewGeometry> {
+        let key = [row_height.to_bits(), grid_cell.to_bits()];
+        let measure = || ViewGeometry {
+            key,
+            total_height: self
+                .vlines
+                .iter()
+                .map(|vl| vl.height(row_height, grid_cell))
+                .sum(),
+            blocks: collect_grid_blocks(&self.vlines, row_height, grid_cell),
+            fold_markers: fold_markers(&self.vlines, folds, row_height, grid_cell),
+        };
+        let geometry = self.geometry.get_or_init(measure);
+        if geometry.key == key {
+            std::borrow::Cow::Borrowed(geometry)
+        } else {
+            std::borrow::Cow::Owned(measure())
+        }
+    }
+}
+
+/// A fresh [`ViewData::serial`].
+pub(crate) fn next_view_serial() -> u64 {
+    static NEXT: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(1);
+    NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed)
+}
+
+/// A hash of each line's content, so two buffers can be compared line by line
+/// without keeping a copy of either.
+pub(crate) fn line_fingerprints(lines: &[DocLine]) -> Vec<u64> {
+    use std::hash::{Hash, Hasher};
+    lines
+        .iter()
+        .map(|line| {
+            let mut h = rustc_hash::FxHasher::default();
+            match line {
+                DocLine::Text(t) => {
+                    0u8.hash(&mut h);
+                    t.as_str().hash(&mut h);
+                }
+                DocLine::Grid(g) => {
+                    1u8.hash(&mut h);
+                    g.hash_cells_into(&mut h);
+                }
+            }
+            h.finish()
+        })
+        .collect()
 }
 
 pub(crate) struct ViewCache {
@@ -584,11 +678,12 @@ pub(super) const FOLD_MARKER_PAD: f32 = 0.1;
 /// A fold marker's place in the document's y space: where the group starts,
 /// where what is currently *shown* of it ends, and which way the triangle
 /// points.
+#[derive(Clone)]
 pub(super) struct FoldMarker {
     pub(super) group: crate::editor::folding::FoldGroup,
     pub(super) collapsed: bool,
     /// Which marker column this one belongs in; see
-    /// [`crate::editor::folding::nesting_depth`].
+    /// [`crate::editor::folding::nesting_depths`].
     pub(super) depth: usize,
     pub(super) y0: f32,
     pub(super) y1: f32,
@@ -629,12 +724,13 @@ pub(super) fn fold_markers(
     groups
         .iter()
         .zip(spans)
-        .filter_map(|(&group, span)| {
+        .enumerate()
+        .filter_map(|(i, (&group, span))| {
             let (y0, y1) = span?;
             Some(FoldMarker {
                 group,
                 collapsed: folds.is_collapsed(group.header),
-                depth: crate::editor::folding::nesting_depth(groups, group),
+                depth: folds.depth(i),
                 y0,
                 y1,
             })
@@ -674,7 +770,7 @@ pub(super) fn collapsed_source_lines(
 /// the header would drop the column out from under that bar.
 ///
 /// How *many* columns such a page reserves is not asked here but of the
-/// document as a whole ([`crate::editor::folding::max_nesting_depth`]): the
+/// document as a whole ([`crate::editor::folding::FoldState::max_depth`]): the
 /// marker of a group must not walk sideways when a fold changes how deep the
 /// page happens to be, least of all under the pointer that just folded it.
 ///

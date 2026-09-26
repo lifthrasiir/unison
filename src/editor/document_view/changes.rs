@@ -21,10 +21,10 @@ pub(super) fn apply_pending_rederive(
             // `lines` changed this frame; the cached view no longer reflects it.
             // A deferred reparse leaves `edit_gen` untouched, so the key alone
             // would not invalidate — drop the cache explicitly.
-            state.view_cache = None;
+            state.invalidate_view();
             flush_document_changes(lines, doc, state);
         } else {
-            state.view_cache = None;
+            state.invalidate_view();
             let on_ref_line = matches!(
                 lines.get(state.cursor.line),
                 // An IDC line is deferred for the same reason as a `ref`: it is
@@ -165,36 +165,36 @@ pub(crate) fn flush_document_changes(
         }
     }
 
-    rederive(lines, doc, state.undo.is_at_saved());
+    let from = doc.edit_gen;
+    let reparse = rederive(lines, doc, state.undo.is_at_saved());
+    state.last_reparse = reparse.map(|items| crate::editor::LastReparse {
+        from,
+        to: doc.edit_gen,
+        items,
+    });
     state.cursor = caret::clamp(lines, state.cursor);
     state.pending_reparse_line = None;
     state.last_reparse_line = Some(state.cursor.line);
     state.clear_document_sync_request();
 }
 
-pub(super) fn rederive(lines: &[DocLine], doc: &mut Document, is_at_saved: bool) {
-    match crate::document_io::derive_document(lines, doc.path.clone()) {
-        Ok((new_doc, _)) => {
-            let items_changed =
-                crate::document::items_changed_for_rebuild(&doc.items, &new_doc.items);
-            let next_gen = doc.edit_gen + 1;
-            let pixel_gen = doc.pixel_gen;
-            let content_gen = if items_changed {
-                doc.content_gen + 1
-            } else {
-                doc.content_gen
-            };
-            *doc = new_doc;
-            doc.dirty = !is_at_saved;
-            doc.edit_gen = next_gen;
-            doc.pixel_gen = pixel_gen;
-            doc.content_gen = content_gen;
-        }
-        Err(_) => {
-            doc.dirty = !is_at_saved;
-            doc.edit_gen += 1;
-        }
-    }
+/// Brings `doc` in line with `lines`, parsing again only what an edit reached
+/// ([`crate::document_io::rederive_document`]); returns which items that was,
+/// when it was not the whole document.
+pub(super) fn rederive(
+    lines: &[DocLine],
+    doc: &mut Document,
+    is_at_saved: bool,
+) -> Option<crate::document_io::Reparse> {
+    let old = std::mem::replace(doc, Document::new(doc.path.clone()));
+    let (edit_gen, pixel_gen, content_gen) = (old.edit_gen, old.pixel_gen, old.content_gen);
+    let (new_doc, items_changed, reparse) = crate::document_io::rederive_document(old, lines);
+    *doc = new_doc;
+    doc.dirty = !is_at_saved;
+    doc.edit_gen = edit_gen + 1;
+    doc.pixel_gen = pixel_gen;
+    doc.content_gen = content_gen + u64::from(items_changed);
+    reparse
 }
 
 /// Lightweight rederive for pixel-only changes: sync the modified grid from

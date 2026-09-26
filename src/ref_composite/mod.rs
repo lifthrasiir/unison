@@ -886,6 +886,7 @@ pub(crate) fn resolve_glyph_bodies(
     (cache, alt_index)
 }
 
+#[derive(Clone)]
 #[cfg_attr(not(feature = "editor"), expect(dead_code))]
 pub struct GlyphComposite {
     pub width: u16,
@@ -921,6 +922,7 @@ impl GlyphComposite {
     }
 }
 
+#[derive(Clone)]
 #[cfg_attr(not(feature = "editor"), expect(dead_code))]
 pub struct CompositeLayer {
     pub ref_idx: usize,

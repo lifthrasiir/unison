@@ -55,8 +55,8 @@
 //! flicker back to what was undone. A recomposition that was itself cancelled is
 //! not even sent, being partial.
 
-use super::docs::shadowed_by_open;
 use super::*;
+use crate::discard::discard;
 
 /// A background thread's result, sent when the thread ends — *however* it ends.
 ///
@@ -197,9 +197,11 @@ impl UniformApp {
     pub(super) fn current_font_gen(&self) -> u64 {
         // Order-independent combination (XOR of per-doc hashes) so the
         // effective doc set needs neither collection nor sorting per frame.
+        // Run every frame, so the path goes in as its bytes through the fast
+        // hasher rather than component by component through SipHash.
         fn doc_hash(doc: &Document) -> u64 {
-            let mut hasher = std::collections::hash_map::DefaultHasher::new();
-            doc.path.hash(&mut hasher);
+            let mut hasher = rustc_hash::FxHasher::default();
+            doc.path.as_os_str().as_encoded_bytes().hash(&mut hasher);
             doc.content_gen.hash(&mut hasher);
             doc.pixel_gen.hash(&mut hasher);
             hasher.finish()
@@ -209,7 +211,12 @@ impl UniformApp {
             combined ^= doc_hash(&open_doc.document);
         }
         for base_doc in &self.font_base_docs {
-            if !shadowed_by_open(&self.open_documents, &base_doc.path) {
+            let path = base_doc.path.as_os_str();
+            if !self
+                .open_documents
+                .iter()
+                .any(|open| open.document.path.as_os_str() == path)
+            {
                 combined ^= doc_hash(base_doc);
             }
         }
@@ -227,8 +234,9 @@ impl UniformApp {
             std::time::Instant::now(),
         ));
 
-        let all_docs: Vec<Document> = self.collect_all_docs().into_iter().cloned().collect();
-        self.assert_pending_line_ids = crate::editor::issue_marks::snapshot_line_ids(&all_docs);
+        let all_docs = self.snapshot_docs();
+        self.assert_pending_line_ids =
+            crate::editor::issue_marks::snapshot_line_ids(all_docs.iter().map(|d| &**d));
         let active_path = if current_file_only {
             self.active_doc_idx()
                 .map(|i| self.open_documents[i].document.path.clone())
@@ -260,11 +268,11 @@ impl UniformApp {
                     file_line: 0,
                 }],
             );
-            let refs: Vec<&Document> = all_docs.iter().collect();
+            let refs: Vec<&Document> = all_docs.iter().map(|d| &**d).collect();
             // Which files the assertions are *read* from; which faces exist and
             // what each contains stays a property of the whole source.
             let test_docs: Vec<&Document> = match &active_path {
-                Some(path) => all_docs.iter().filter(|d| &d.path == path).collect(),
+                Some(path) => refs.iter().copied().filter(|d| &d.path == path).collect(),
                 None => refs.clone(),
             };
 
@@ -316,7 +324,7 @@ impl UniformApp {
         start(&mut self.bg_tasks.optimize);
         self.set_status("Optimizing clearances...".to_string());
 
-        let all_docs: Vec<Document> = self.collect_all_docs().into_iter().cloned().collect();
+        let all_docs = self.snapshot_docs();
         let tx = self.fix_tx.clone();
         let ctx = ctx.clone();
         std::thread::spawn(move || {
@@ -324,7 +332,7 @@ impl UniformApp {
             // was nothing to do" — the flag it latched is cleared either way.
             let mut slot = ResultSlot::new(tx, ctx, Vec::new());
             let perf_t0 = perf_log_enabled().then(std::time::Instant::now);
-            let refs: Vec<&Document> = all_docs.iter().collect();
+            let refs: Vec<&Document> = all_docs.iter().map(|d| &**d).collect();
             let plan = crate::fix::clearance::optimize_clearance(&refs);
             if let Some(t0) = perf_t0 {
                 eprintln!("[perf] optimize clearance: {:?}", t0.elapsed());
@@ -371,7 +379,14 @@ impl UniformApp {
         start(&mut self.bg_tasks.build);
         let build_gen = self.font_build_gen;
         self.rebuild_log.started(build_gen);
-        let owned_docs: Vec<Document> = self.collect_all_docs().into_iter().cloned().collect();
+        let owned_docs = self.snapshot_docs();
+        // Composed in the background for the views to be seeded with; see
+        // `crate::editor::grid_render::CompositeMemo`.
+        let open_paths: Vec<PathBuf> = self
+            .open_documents
+            .iter()
+            .map(|d| d.document.path.clone())
+            .collect();
         let file_parse_errors = self.file_parse_errors.clone();
         let font_tx = self.font_build_tx.clone();
         let derived_tx = self.derived_data_tx.clone();
@@ -404,8 +419,9 @@ impl UniformApp {
             let mut slot = ResultSlot::new(derived_tx, ctx, DerivedDataResult::Failed);
             let t0 = std::time::Instant::now();
             let mut timing = super::timing::BackgroundTiming::default();
-            let refs: Vec<&Document> = owned_docs.iter().collect();
-            let issue_line_ids = crate::editor::issue_marks::snapshot_line_ids(&owned_docs);
+            let refs: Vec<&Document> = owned_docs.iter().map(|d| &**d).collect();
+            let issue_line_ids =
+                crate::editor::issue_marks::snapshot_line_ids(refs.iter().copied());
             let Some(resolution) = crate::resolve::Resolution::compute_cancellable(&refs, &cancel)
             else {
                 font_slot.set((build_gen, FontBuildOutcome::Cancelled));
@@ -487,6 +503,10 @@ impl UniformApp {
                     // the searches at all.
                     let exists_matches =
                         crate::exists::FirstMatches::collect(&refs, &expansion.exists);
+                    let color_aliases = crate::render::ttf_builder::collect_color_aliases(&refs);
+                    let anchor_aligns = crate::document::collect_anchor_aligns(
+                        refs.iter().flat_map(|d| d.items.iter()),
+                    );
                     // Borrowed, not consumed: the font build and validation are
                     // reading the same items right now.
                     let mut gc = grid_cache.lock().unwrap();
@@ -500,6 +520,25 @@ impl UniformApp {
                         );
                     let stats = gc.stats();
                     drop(gc);
+                    let composite_seeds = if cancel.is_cancelled() {
+                        HashMap::default()
+                    } else {
+                        refs.iter()
+                            .filter(|d| open_paths.contains(&d.path))
+                            .map(|d| {
+                                let seed = crate::editor::grid_render::seed_composites(
+                                    d,
+                                    &named_glyphs,
+                                    &resolution.name_parts,
+                                    &alt_index,
+                                    &color_aliases,
+                                    &anchor_aligns,
+                                    &exists_matches,
+                                );
+                                (d.path.clone(), seed)
+                            })
+                            .collect()
+                    };
                     // A cancelled recomposition stopped part-way, so what it
                     // holds is a partial font: it is not published, and the
                     // message that ends this rebuild says `Cancelled`.
@@ -515,6 +554,9 @@ impl UniformApp {
                                 char_props,
                                 meta: resolution.meta.metrics,
                                 face_ids,
+                                color_aliases,
+                                anchor_aligns,
+                                composite_seeds,
                             },
                         )));
                         resolved_ctx.request_repaint();
@@ -720,6 +762,11 @@ impl UniformApp {
 
         fonts.families.insert(system_family, system_fonts);
         ctx.set_fonts(fonts);
+        let text_layout = want_custom.then_some(self.font_text_layout);
+        if self.text_layout_applied != Some(text_layout) {
+            self.text_layout_applied = Some(text_layout);
+            self.text_layout_gen = self.text_layout_gen.wrapping_add(1);
+        }
 
         let mut style = (*ctx.style()).clone();
         for (_, font_id) in style.text_styles.iter_mut() {
@@ -753,13 +800,21 @@ impl UniformApp {
         if let Some(result) = build_result {
             finish(&mut self.bg_tasks.build);
             match result {
+                // The replaced font and its glyph map are freed off this
+                // thread, like everything else a result replaces; see
+                // [`crate::discard`].
                 Some(built) => {
-                    self.font_data = Some((built.bitmap, built.vector));
-                    self.font_name_to_gid = built.name_to_gid;
+                    self.font_text_layout = built.text_layout;
+                    discard((
+                        self.font_data.replace((built.bitmap, built.vector)),
+                        std::mem::replace(&mut self.font_name_to_gid, built.name_to_gid),
+                    ));
                 }
                 None => {
-                    self.font_data = None;
-                    self.font_name_to_gid.clear();
+                    discard((
+                        self.font_data.take(),
+                        std::mem::take(&mut self.font_name_to_gid),
+                    ));
                 }
             }
             self.font_data_gen = self.font_build_gen;
@@ -807,15 +862,20 @@ impl UniformApp {
                 DerivedDataResult::Resolved(data) => {
                     let data = *data;
                     self.rebuild_log.resolved_applied(data.build_gen);
-                    self.named_glyphs = std::sync::Arc::new(data.named_glyphs);
-                    self.alt_index = data.alt_index;
-                    self.name_parts = data.name_parts;
-                    self.scoped_name_parts = data.scoped_name_parts;
-                    self.exists_matches = data.exists_matches;
-                    self.char_props = data.char_props;
+                    // What these replace is the size of the whole font, and
+                    // freeing it here was most of the frame this lands in.
+                    discard((
+                        std::mem::replace(&mut self.named_glyphs, Arc::new(data.named_glyphs)),
+                        std::mem::replace(&mut self.alt_index, data.alt_index),
+                        std::mem::replace(&mut self.name_parts, data.name_parts),
+                        std::mem::replace(&mut self.scoped_name_parts, data.scoped_name_parts),
+                        std::mem::replace(&mut self.exists_matches, data.exists_matches),
+                        std::mem::replace(&mut self.char_props, data.char_props),
+                    ));
                     self.font_meta = data.meta;
                     self.named_glyphs_gen = data.build_gen;
                     self.derived_gen = self.derived_gen.wrapping_add(1);
+                    self.resolved_gen = self.resolved_gen.wrapping_add(1);
                     // The list an edit to a `face` line changes; the startup
                     // one was collected from the same directives before the
                     // first build, so a remembered face is already selected by
@@ -825,18 +885,14 @@ impl UniformApp {
                     // goes away: the build falls back to the primary on its
                     // own, and an edit that briefly breaks a `face` line must
                     // not lose the choice.
-                    let all_docs = self.collect_all_docs();
-                    let doc_refs: Vec<&Document> = all_docs.to_vec();
-                    // Both tables come off the same borrow, and it has to be
-                    // released before either is stored back on `self`.
-                    let color_aliases =
-                        crate::render::ttf_builder::collect_color_aliases(&doc_refs);
-                    let anchor_aligns = crate::document::collect_anchor_aligns(
-                        doc_refs.iter().flat_map(|d| d.items.iter()),
-                    );
-                    drop(all_docs);
-                    self.color_aliases = color_aliases;
-                    self.anchor_aligns = anchor_aligns;
+                    discard((
+                        std::mem::replace(&mut self.color_aliases, data.color_aliases),
+                        std::mem::replace(&mut self.anchor_aligns, data.anchor_aligns),
+                        std::mem::replace(
+                            &mut self.composite_seeds,
+                            Arc::new(data.composite_seeds),
+                        ),
+                    ));
                 }
                 // The previous findings stay in both of these — a stale view
                 // of the font beats none — but only a rebuild that *died* is
@@ -855,10 +911,12 @@ impl UniformApp {
                     let data = *data;
                     self.rebuild_log
                         .derived_applied(data.build_gen, data.timing);
-                    self.issues = data.issues;
-                    self.issues_line_ids = data.issue_line_ids;
+                    discard((
+                        std::mem::replace(&mut self.issues, data.issues),
+                        std::mem::replace(&mut self.issues_line_ids, data.issue_line_ids),
+                        std::mem::replace(&mut self.glyph_flags, data.glyph_flags),
+                    ));
                     self.issues_gen = data.build_gen;
-                    self.glyph_flags = data.glyph_flags;
                     // Stepped again, not only for the composites: everything
                     // keyed on the derived generation (the panes' view cache,
                     // the specimen) was keyed on findings arriving with it.
@@ -1002,6 +1060,7 @@ mod font_build_tests {
             bitmap: vec![n],
             vector: vec![n * 10],
             name_to_gid: HashMap::default(),
+            text_layout: 0,
         };
         tx.send((2, FontBuildOutcome::Done(Some(built(2)))))
             .unwrap();
@@ -1053,7 +1112,7 @@ mod font_build_tests {
         };
 
         let open = [open_b];
-        let base = [base_b, base_a];
+        let base = [Arc::new(base_b), Arc::new(base_a)];
         let docs = collect_effective_docs(&open, &base);
         assert_eq!(
             docs.iter()
@@ -1279,13 +1338,13 @@ pub(crate) mod startup_tests {
         // An edit, and the numbers that were dashes above are measured: this is
         // the wait the report exists to attribute.
         let gen_before = app.font_build_gen;
-        app.font_base_docs.push(
+        app.font_base_docs.push(Arc::new(
             crate::document_io::parse_document_from_str(
                 "glyph b 2 2\n@@\n@.\n",
                 dir.0.join("b.unf"),
             )
             .unwrap(),
-        );
+        ));
         let deadline = std::time::Instant::now() + std::time::Duration::from_secs(20);
         // The rest of the derived data follows the composites, so what ends
         // the wait is the rebuild ending, not the composites landing.
@@ -1380,6 +1439,9 @@ pub(crate) mod startup_tests {
                 char_props: Default::default(),
                 meta: Default::default(),
                 face_ids: Vec::new(),
+                color_aliases: Default::default(),
+                anchor_aligns: Default::default(),
+                composite_seeds: Default::default(),
             }))
         };
         let current = app.font_build_gen.wrapping_add(1);

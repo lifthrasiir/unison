@@ -12,6 +12,8 @@ mod doclines;
 mod lenient;
 mod maps;
 mod misc;
+#[cfg(feature = "editor")]
+mod rederive;
 mod roundtrip;
 mod samples;
 mod tokenizer;

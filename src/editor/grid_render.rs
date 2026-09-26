@@ -166,6 +166,12 @@ pub(crate) fn apply_opacity(color: egui::Color32, opacity: f32) -> egui::Color32
     egui::Color32::from_rgba_unmultiplied(r, g, b, (255.0 * opacity) as u8)
 }
 
+/// Every glyph block's composite, by item index. Shared per composite, so a
+/// view built from the same parse, or a memo seeded by the background rebuild
+/// (see [`CompositeMemo`]), hands them on without copying the layers.
+pub(crate) type Composites = HashMap<usize, std::sync::Arc<GlyphComposite>>;
+
+#[cfg(test)]
 pub(crate) fn build_composites(
     doc: &Document,
     named_glyphs: &HashMap<String, ResolvedGlyph>,
@@ -174,28 +180,190 @@ pub(crate) fn build_composites(
     color_aliases: &crate::render::ttf_builder::ColorAliasMap,
     aligns: &crate::document::AnchorAligns,
     exists: &crate::exists::FirstMatches,
-) -> HashMap<usize, GlyphComposite> {
+) -> Composites {
+    build_composites_memo(
+        doc,
+        named_glyphs,
+        name_parts,
+        alt_index,
+        color_aliases,
+        aligns,
+        exists,
+        &mut CompositeMemo::default(),
+        0,
+        None,
+    )
+}
+
+/// The composites of the last view build, so the next one recomposes only the
+/// glyphs an edit reached.
+///
+/// Every edit rebuilds the view, and the view composes every glyph of the
+/// document — thousands, for a file of ideographs — although one keystroke
+/// changes one block. What a composite is computed from is the block's own
+/// body, what its `$N`/`$-N` are bound to, and the resolved data (the other
+/// glyphs, their bindings, colors and anchor rules). The last arrives as one
+/// unit and is named by its generation, the *epoch*: a new one empties the
+/// memo. The rest is checked per block — the body compared, the search match
+/// compared — and a block's name picks the entry, since that and the body are
+/// all its bindings are made from.
+///
+/// Two generations are kept, as in [`crate::editor::visual_lines::TextLayoutMemo`]:
+/// what the last build used, and what this one has used so far.
+///
+/// # Seeded by the rebuild
+///
+/// A new epoch empties the memo, and the build after it would compose every
+/// block of the file on the UI thread — the one frame of a rebuild that the
+/// user sees stall, just as typing stops. So the background rebuild composes
+/// the open documents itself, beside the resolution it has just made
+/// ([`seed_composites`]), and sends the entries along with it: a block whose
+/// body is the one the seed was made from takes its composite from there, and
+/// only blocks edited since the rebuild started are composed here.
+#[derive(Default)]
+pub(crate) struct CompositeMemo {
+    epoch: u64,
+    previous: HashMap<String, CompositeEntry>,
+    current: HashMap<String, CompositeEntry>,
+}
+
+/// One document's blocks composed against one resolution, by block name.
+pub(crate) type CompositeSeed = HashMap<String, CompositeEntry>;
+
+#[derive(Clone)]
+pub(crate) struct CompositeEntry {
+    body: std::sync::Arc<crate::document::GlyphBody>,
+    matched: Option<Vec<String>>,
+    composite: Option<std::sync::Arc<GlyphComposite>>,
+}
+
+/// Every block's composite, through `memo`, whose entries are valid for the
+/// resolved data of generation `epoch`, as is `seed`.
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn build_composites_memo(
+    doc: &Document,
+    named_glyphs: &HashMap<String, ResolvedGlyph>,
+    name_parts: &NamePartsMap,
+    alt_index: &ref_composite::AlternativesIndex,
+    color_aliases: &crate::render::ttf_builder::ColorAliasMap,
+    aligns: &crate::document::AnchorAligns,
+    exists: &crate::exists::FirstMatches,
+    memo: &mut CompositeMemo,
+    epoch: u64,
+    seed: Option<&CompositeSeed>,
+) -> Composites {
+    if memo.epoch == epoch {
+        memo.previous = std::mem::take(&mut memo.current);
+    } else {
+        memo.previous.clear();
+        memo.current.clear();
+        memo.epoch = epoch;
+    }
     let mut composites = HashMap::default();
-    for (idx, item) in doc.items.iter().enumerate() {
-        if let DocumentItem::Glyph { body, .. } = item {
-            // What the block's own `$-N` and `$N` stand for; borrowed
-            // unchanged where it writes neither. See
-            // [`crate::editor::item_bindings`].
-            let bindings =
-                crate::editor::item_bindings::item_bindings(doc, idx, name_parts, exists);
-            if let Some(comp) = ref_composite::compute_composite(
-                body,
-                named_glyphs,
-                &bindings,
-                alt_index,
-                color_aliases,
-                aligns,
-            ) {
-                composites.insert(idx, comp);
-            }
+    for idx in 0..doc.items.len() {
+        let composite = compose_item(
+            doc,
+            idx,
+            named_glyphs,
+            name_parts,
+            alt_index,
+            color_aliases,
+            aligns,
+            exists,
+            memo,
+            seed,
+        );
+        if let Some(comp) = composite {
+            composites.insert(idx, comp);
         }
     }
     composites
+}
+
+/// The composite of item `idx` of `doc`, through `memo` and `seed`: one step of
+/// [`build_composites_memo`], which is also how a view patched after a reparse
+/// recomposes the items that reparse replaced.
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn compose_item(
+    doc: &Document,
+    idx: usize,
+    named_glyphs: &HashMap<String, ResolvedGlyph>,
+    name_parts: &NamePartsMap,
+    alt_index: &ref_composite::AlternativesIndex,
+    color_aliases: &crate::render::ttf_builder::ColorAliasMap,
+    aligns: &crate::document::AnchorAligns,
+    exists: &crate::exists::FirstMatches,
+    memo: &mut CompositeMemo,
+    seed: Option<&CompositeSeed>,
+) -> Option<std::sync::Arc<GlyphComposite>> {
+    let DocumentItem::Glyph { name, body } = doc.items.get(idx)? else {
+        return None;
+    };
+    let key = name.display();
+    let matched = exists.get(doc, idx);
+    let fits = |e: &CompositeEntry| *e.body == *body && e.matched.as_deref() == matched;
+    if !memo.current.get(&key).is_some_and(fits) {
+        let found = memo.previous.remove(&key).filter(|e| fits(e)).or_else(|| {
+            seed.and_then(|seed| seed.get(&key))
+                .filter(|e| fits(e))
+                .cloned()
+        });
+        if let Some(entry) = found {
+            memo.current.insert(key.clone(), entry);
+        }
+    }
+    if let Some(entry) = memo.current.get(&key).filter(|e| fits(e)) {
+        return entry.composite.clone();
+    }
+    // What the block's own `$-N` and `$N` stand for; borrowed unchanged where
+    // it writes neither. See [`crate::editor::item_bindings`].
+    let bindings = crate::editor::item_bindings::item_bindings(doc, idx, name_parts, exists);
+    let composite = ref_composite::compute_composite(
+        body,
+        named_glyphs,
+        &bindings,
+        alt_index,
+        color_aliases,
+        aligns,
+    )
+    .map(std::sync::Arc::new);
+    memo.current.insert(
+        key,
+        CompositeEntry {
+            body: std::sync::Arc::new(body.clone()),
+            matched: matched.map(<[String]>::to_vec),
+            composite: composite.clone(),
+        },
+    );
+    composite
+}
+
+/// Every block of `doc` composed, for [`CompositeMemo`] to be seeded with. Run
+/// by the background rebuild; see the memo's docs.
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn seed_composites(
+    doc: &Document,
+    named_glyphs: &HashMap<String, ResolvedGlyph>,
+    name_parts: &NamePartsMap,
+    alt_index: &ref_composite::AlternativesIndex,
+    color_aliases: &crate::render::ttf_builder::ColorAliasMap,
+    aligns: &crate::document::AnchorAligns,
+    exists: &crate::exists::FirstMatches,
+) -> CompositeSeed {
+    let mut memo = CompositeMemo::default();
+    build_composites_memo(
+        doc,
+        named_glyphs,
+        name_parts,
+        alt_index,
+        color_aliases,
+        aligns,
+        exists,
+        &mut memo,
+        0,
+        None,
+    );
+    memo.current
 }
 
 #[allow(clippy::too_many_arguments)]

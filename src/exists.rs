@@ -459,8 +459,6 @@ impl std::fmt::Display for ExistsCycle {
 mod exists_tests;
 
 use crate::hash::{HashMap, HashSet};
-#[cfg(feature = "editor")]
-use std::path::{Path, PathBuf};
 
 use crate::document::{Document, DocumentItem, GlyphName};
 use crate::pattern::{NamePartsMap, NamePattern, substitute_name_parts};
@@ -627,39 +625,48 @@ impl<'a> Bindings<'a> {
 /// thousands of matches into the editor's derived data would cost what
 /// [`Scope::rebind`] exists to avoid, and nothing but the drawing reads them.
 ///
-/// Keyed by path and item index rather than by [`ItemRef`] because the editor
-/// holds one document at a time and never the slice the refs were numbered
-/// against. Both halves are stale the moment the document is edited, exactly
-/// as the resolved glyphs beside them are; the next rebuild settles it.
+/// Keyed by the [`LineId`](crate::document::LineId) of the item's first line
+/// rather than by [`ItemRef`], because the editor holds one document at a time
+/// and never the slice the refs were numbered against — and rather than by the
+/// item's index, which every line opened or deleted above the item moves. A
+/// match keyed by index went to whichever block the index pointed at after an
+/// edit, until the next rebuild settled it; a line keeps its id through edits,
+/// so the block keeps its match. What the match *is* is still as stale as the
+/// resolved glyphs beside it.
 #[cfg(feature = "editor")]
 #[derive(Debug, Default, Clone)]
 pub struct FirstMatches {
-    per_file: HashMap<PathBuf, HashMap<usize, Vec<String>>>,
+    per_line: HashMap<crate::document::LineId, Vec<String>>,
 }
 
 #[cfg(feature = "editor")]
 impl FirstMatches {
     pub fn collect(docs: &[&Document], scopes: &ExistsScopes) -> Self {
-        let mut per_file: HashMap<PathBuf, HashMap<usize, Vec<String>>> = HashMap::default();
+        let mut per_line: HashMap<crate::document::LineId, Vec<String>> = HashMap::default();
         for (r, scope) in scopes.iter() {
             let Some(first) = scope.matches.first() else {
                 continue;
             };
-            let Some(doc) = docs.get(r.doc as usize) else {
+            let Some(line) = docs
+                .get(r.doc as usize)
+                .and_then(|doc| Self::item_line(doc, r.item as usize))
+            else {
                 continue;
             };
-            per_file
-                .entry(doc.path.clone())
-                .or_default()
-                .insert(r.item as usize, first.clone());
+            per_line.insert(line, first.clone());
         }
-        Self { per_file }
+        Self { per_line }
+    }
+
+    fn item_line(doc: &Document, item: usize) -> Option<crate::document::LineId> {
+        let start = *doc.item_line_starts.get(item)?;
+        doc.line_ids.get(start).copied()
     }
 
     /// `$0`…`$N` of the first match of the search scoping item `item` of
-    /// `path`, or `None` where no search does.
-    pub fn get(&self, path: &Path, item: usize) -> Option<&[String]> {
-        Some(self.per_file.get(path)?.get(&item)?.as_slice())
+    /// `doc`, or `None` where no search does.
+    pub fn get(&self, doc: &Document, item: usize) -> Option<&[String]> {
+        Some(self.per_line.get(&Self::item_line(doc, item)?)?.as_slice())
     }
 }
 

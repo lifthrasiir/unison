@@ -17,7 +17,7 @@ pub(super) fn handle_document_keys(
     name_parts: &NamePartsMap,
     alt_index: &crate::editor::ref_composite::AlternativesIndex,
     anchor_aligns: &crate::document::AnchorAligns,
-    composites: &HashMap<usize, GlyphComposite>,
+    composites: &crate::editor::grid_render::Composites,
     meta: crate::meta::FontMetrics,
     prev_cursor: Caret,
     needs_rederive: &mut bool,
@@ -390,7 +390,7 @@ pub(super) fn handle_document_keys(
 fn handle_palette_shortcuts(
     ui: &egui::Ui,
     doc: &Document,
-    composites: &HashMap<usize, GlyphComposite>,
+    composites: &crate::editor::grid_render::Composites,
     state: &mut EditorState,
 ) {
     const DIGITS: [egui::Key; 9] = [

@@ -40,6 +40,10 @@ mod toast;
 mod watch;
 mod zoom;
 
+#[cfg(test)]
+#[path = "frame_profile.rs"]
+mod frame_profile;
+
 use background::BackgroundTaskStatus;
 use docs::OpenDocument;
 use history::{NavEntry, NavHistory, NavLoc};
@@ -84,6 +88,11 @@ struct ResolvedMessage {
     /// Every face the source declares, in declaration order, for the face
     /// picker. Resolution already collects them, so nothing else has to.
     face_ids: Vec<String>,
+    /// Both walk every document, which is why they are collected here and
+    /// not on the UI thread when this lands.
+    color_aliases: crate::render::ttf_builder::ColorAliasMap,
+    anchor_aligns: crate::document::AnchorAligns,
+    composite_seeds: HashMap<PathBuf, crate::editor::grid_render::CompositeSeed>,
 }
 /// What the rest of a rebuild produces: the findings, and what is read off
 /// them.
@@ -166,7 +175,10 @@ pub struct UniformApp {
     toasts: toast::Toasts,
     escape_mode: bool,
     status_message: Option<(String, std::time::Instant)>,
-    font_base_docs: Vec<Document>,
+    /// Shared rather than owned, so a rebuild's snapshot of the directory is
+    /// a reference count per file and not a copy of every document made on the
+    /// UI thread. See [`UniformApp::snapshot_docs`].
+    font_base_docs: Vec<Arc<Document>>,
     /// The text each snapshot document was parsed from, and the hash of the
     /// bytes it came from. Written only where `font_base_docs` is, by
     /// [`UniformApp::install_font_snapshot`], so the two can never disagree
@@ -185,7 +197,17 @@ pub struct UniformApp {
     ref_images_asked: bool,
     font_data: Option<FontPair>,
     font_name_to_gid: HashMap<String, u16>,
+    /// [`crate::render::ttf_builder::text_layout_fingerprint`] of `font_data`.
+    font_text_layout: u64,
     font_applied: Option<bool>,
+    /// What the fonts egui was last given lay text out by: the built font's
+    /// fingerprint, or `None` for the system fonts alone.
+    text_layout_applied: Option<Option<u64>>,
+    /// Stepped whenever `text_layout_applied` changes, and so exactly when
+    /// text laid out before may now break differently. The panes key their
+    /// laid-out lines on this rather than on `font_data_gen`: most rebuilt
+    /// fonts set text exactly as the last one did.
+    text_layout_gen: u64,
     font_data_gen: u64,
     last_font_gen: u64,
     /// When the debounced rebuild — the font *and* the derived data, which are
@@ -267,6 +289,14 @@ pub struct UniformApp {
     // Bumped whenever named_glyphs/name_parts/alt_index/color_aliases are
     // replaced; keys the editor's per-frame view cache.
     derived_gen: u64,
+    /// Stepped with `derived_gen` when the composites land, but not when the
+    /// findings do: what a pane lays its lines out from arrives with the
+    /// former, and relaying the whole document for findings it does not read
+    /// was a full relayout per rebuild.
+    resolved_gen: u64,
+    /// The open documents' blocks, composed by the rebuild behind
+    /// `resolved_gen`; see [`crate::editor::grid_render::CompositeMemo`].
+    composite_seeds: Arc<HashMap<PathBuf, crate::editor::grid_render::CompositeSeed>>,
     derived_data_tx: mpsc::Sender<DerivedDataResult>,
     derived_data_rx: mpsc::Receiver<DerivedDataResult>,
     last_export_path: Option<PathBuf>,
@@ -531,13 +561,16 @@ impl UniformApp {
             toasts: toast::Toasts::new(),
             escape_mode,
             status_message: None,
-            font_base_docs,
+            font_base_docs: font_base_docs.into_iter().map(Arc::new).collect(),
             font_sources,
             ref_images: None,
             ref_images_asked: false,
             font_data: None,
             font_name_to_gid: HashMap::default(),
+            font_text_layout: 0,
             font_applied: None,
+            text_layout_applied: None,
+            text_layout_gen: 0,
             font_data_gen: 0,
             last_font_gen: 0,
             rebuild_at: None,
@@ -566,6 +599,8 @@ impl UniformApp {
             menu_open: false,
             named_glyphs_gen: u64::MAX,
             derived_gen: 0,
+            resolved_gen: 0,
+            composite_seeds: Arc::default(),
             derived_data_tx,
             derived_data_rx,
             last_export_path: None,
@@ -887,6 +922,14 @@ impl eframe::App for UniformApp {
     }
 
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        self.frame(ctx);
+    }
+}
+
+impl UniformApp {
+    /// One frame of [`eframe::App::update`], without the `eframe::Frame` it
+    /// never reads — so a test can drive whole frames against a bare context.
+    fn frame(&mut self, ctx: &egui::Context) {
         // The frame the user actually waited for: everything before it happened
         // with no window on screen. See `startup.rs`.
         let first_frame = !self.first_frame_seen;
@@ -1155,9 +1198,7 @@ impl eframe::App for UniformApp {
             crate::startup::log_report_once();
         }
     }
-}
 
-impl UniformApp {
     fn sync_window_title(&mut self, ctx: &egui::Context) {
         let title = if let Some(idx) = self.active_doc_idx() {
             let doc = &self.open_documents[idx];

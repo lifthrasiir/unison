@@ -23,7 +23,9 @@
 //! re-resolves the whole document set synchronously, so the resolved glyphs a
 //! scenario reads are always current. The app's are not — they come from a
 //! debounced background thread ([`crate::app::UniformApp`]), so anything about
-//! *when* a shape becomes visible has to be tested below this harness.
+//! *when* a shape becomes visible has to be tested below this harness — or with
+//! [`EditorHarness::hold_resolution`] set, which leaves the resolution where it
+//! was across edits, as the app's is until its rebuild lands.
 
 use crate::hash::HashMap;
 use std::sync::Arc;
@@ -324,6 +326,13 @@ pub(crate) fn capture_sample_use_buttons(
     ctx.data_mut(|d| d.insert_temp(sample_use_buttons_id(editor), buttons.to_vec()));
 }
 
+thread_local! {
+    /// Set by the `#[ignore]`d frame profile (`app/frame_profile.rs`), whose
+    /// numbers must not include a snapshot the release binary never takes.
+    /// Per thread, so the tests running beside it still get theirs.
+    pub(crate) static SKIP_SNAPSHOT: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+}
+
 /// Called from `show_document` (test builds only) to publish the layout the
 /// frame is about to paint.
 #[allow(clippy::too_many_arguments)]
@@ -340,17 +349,20 @@ pub(crate) fn capture_snapshot(
     strip: &GridStrip,
     marker_width: f32,
 ) {
+    if SKIP_SNAPSHOT.get() {
+        return;
+    }
     let mut y = origin.y;
     let mut snaps = Vec::with_capacity(vlines.len());
     for vl in vlines {
         let h = vl.height(row_height, grid_cell);
         let kind = match &vl.kind {
             VLineKind::Text(t) => SnapKind::Text {
-                text: t.clone(),
+                text: t.to_string(),
                 col_offset: vl.col_offset,
                 display: vl
                     .annotated_text()
-                    .map_or_else(|| t.clone(), |a| a.display_string()),
+                    .map_or_else(|| t.to_string(), |a| a.display_string()),
                 annotations: vl.annotations.clone(),
                 comment_col: vl.comment_col,
             },
@@ -417,6 +429,12 @@ pub(crate) struct EditorHarness {
     /// `exists`, which is what a search-scoped block draws.
     pub exists_matches: crate::exists::FirstMatches,
     pub meta: crate::meta::FontMetrics,
+    /// Stepped by every re-resolve, as the app steps its own when a
+    /// resolution lands.
+    pub resolved_gen: u64,
+    /// Leaves the resolved data as it is when the document rederives, which
+    /// is what the app looks like between an edit and the rebuild behind it.
+    pub hold_resolution: bool,
     /// Off by default: the metric box widens the drawn grid, and every layout
     /// assertion written before it existed expects the un-widened extents.
     pub show_metrics: bool,
@@ -481,6 +499,7 @@ pub(crate) struct Pane {
     /// `exists`, which is what a search-scoped block draws.
     pub exists_matches: crate::exists::FirstMatches,
     pub meta: crate::meta::FontMetrics,
+    pub resolved_gen: u64,
 }
 
 impl Pane {
@@ -496,6 +515,7 @@ impl Pane {
             name_parts: NamePartsMap::default(),
             exists_matches: Default::default(),
             meta: Default::default(),
+            resolved_gen: 0,
         };
         pane.rebuild_derived();
         pane
@@ -511,6 +531,7 @@ impl Pane {
         self.named_glyphs = named_glyphs;
         self.alt_index = alt_index;
         self.name_parts = name_parts;
+        self.resolved_gen += 1;
     }
 }
 
@@ -532,6 +553,8 @@ impl EditorHarness {
             name_parts: NamePartsMap::default(),
             exists_matches: Default::default(),
             meta: Default::default(),
+            resolved_gen: 0,
+            hold_resolution: false,
             show_metrics: false,
             line_issues: Default::default(),
             report: Vec::new(),
@@ -575,6 +598,7 @@ impl EditorHarness {
         self.named_glyphs = named_glyphs;
         self.alt_index = alt_index;
         self.name_parts = name_parts;
+        self.resolved_gen += 1;
     }
 
     /// What the issue list says about this document, as `(doc_line, severity,
@@ -694,9 +718,10 @@ impl EditorHarness {
                                 meta: self.meta,
                                 show_metrics: self.show_metrics,
                                 menu_open: self.menu_open,
-                                derived_gen: 0,
-                                font_gen: 0,
+                                resolved_gen: self.resolved_gen,
+                                text_layout_gen: 0,
                                 ref_images: self.ref_images.as_ref(),
+                                composite_seed: None,
                                 zoom_level: self.zoom,
                                 font_id: &self.font_id,
                             },
@@ -739,9 +764,10 @@ impl EditorHarness {
                                 meta: self.meta,
                                 show_metrics: self.show_metrics,
                                 menu_open: self.menu_open,
-                                derived_gen: 0,
-                                font_gen: 0,
+                                resolved_gen: self.resolved_gen,
+                                text_layout_gen: 0,
                                 ref_images: self.ref_images.as_ref(),
+                                composite_seed: None,
                                 zoom_level: self.zoom,
                                 font_id: &self.font_id,
                             },
@@ -767,9 +793,10 @@ impl EditorHarness {
                                 meta: second.meta,
                                 show_metrics: self.show_metrics,
                                 menu_open: self.menu_open,
-                                derived_gen: 0,
-                                font_gen: 0,
+                                resolved_gen: second.resolved_gen,
+                                text_layout_gen: 0,
                                 ref_images: self.ref_images.as_ref(),
+                                composite_seed: None,
                                 zoom_level: self.zoom,
                                 font_id: &self.font_id,
                             },
@@ -798,7 +825,7 @@ impl EditorHarness {
         }
         self.last_shapes = full_output.shapes.clone();
         self.snapshot = self.snapshot_of(&self.state);
-        if self.doc.edit_gen != prev_gen {
+        if self.doc.edit_gen != prev_gen && !self.hold_resolution {
             // The app rebuilds resolved glyphs whenever a document rederives.
             self.rebuild_derived();
         }
@@ -1269,24 +1296,39 @@ impl EditorHarness {
         out
     }
 
-    /// Every textured mesh the last frame painted — an image, and in this
-    /// editor that means a reference chart strip — as its bounding box and the
-    /// clip rect it was painted under. The clip is half the answer for a strip:
-    /// it is what keeps one wider than the band inside it.
+    /// Every textured mesh the last frame painted but the minimap's — an
+    /// image, and in this editor that means a reference chart strip — as its
+    /// bounding box and the clip rect it was painted under. The clip is half
+    /// the answer for a strip: it is what keeps one wider than the band inside
+    /// it.
     pub fn painted_images(&self) -> Vec<(egui::Rect, egui::Rect)> {
-        fn walk(shape: &egui::Shape, clip: egui::Rect, out: &mut Vec<(egui::Rect, egui::Rect)>) {
+        let minimap = |id: egui::TextureId| {
+            self.ctx
+                .tex_manager()
+                .read()
+                .meta(id)
+                .is_some_and(|meta| meta.name == crate::editor::minimap::TEXTURE_NAME)
+        };
+        fn walk(
+            shape: &egui::Shape,
+            clip: egui::Rect,
+            skip: &dyn Fn(egui::TextureId) -> bool,
+            out: &mut Vec<(egui::Rect, egui::Rect)>,
+        ) {
             match shape {
                 // Textured: everything else the editor draws — a sub-pixel
                 // shape, a selection — is painted with the font atlas's own
                 // white pixel, which is `TextureId::default()`.
                 egui::Shape::Mesh(m)
-                    if !m.indices.is_empty() && m.texture_id != egui::TextureId::default() =>
+                    if !m.indices.is_empty()
+                        && m.texture_id != egui::TextureId::default()
+                        && !skip(m.texture_id) =>
                 {
                     out.push((m.calc_bounds(), clip));
                 }
                 egui::Shape::Vec(v) => {
                     for s in v {
-                        walk(s, clip, out);
+                        walk(s, clip, skip, out);
                     }
                 }
                 _ => {}
@@ -1294,7 +1336,7 @@ impl EditorHarness {
         }
         let mut out = Vec::new();
         for cs in &self.last_shapes {
-            walk(&cs.shape, cs.clip_rect, &mut out);
+            walk(&cs.shape, cs.clip_rect, &minimap, &mut out);
         }
         out
     }

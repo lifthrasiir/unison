@@ -1619,14 +1619,178 @@ pub fn derive_document(
     path: std::path::PathBuf,
 ) -> std::result::Result<(Document, Vec<usize>), DeriveError> {
     let mut doc = Document::new(path);
+    let parsed = derive_items(lines, 0, None, &|_, _| false);
+    doc.items = parsed.items;
+    doc.item_line_starts = parsed.item_line_starts.clone();
+    doc.docline_file_lines = crate::document::compute_docline_file_lines(lines);
+    #[cfg(feature = "editor")]
+    {
+        doc.line_ids = lines.iter().map(DocLine::line_id).collect();
+        doc.at_bases = parsed.at_bases.into();
+        doc.line_fps = lines
+            .iter()
+            .map(crate::document::line_fingerprint)
+            .collect();
+    }
+    Ok((doc, parsed.item_line_starts))
+}
+
+/// Which items a [`rederive_document`] parsed afresh: `old` in the previous
+/// document were replaced by `new` in this one. Every item outside them is the
+/// previous document's, at the same index before them and shifted by the
+/// difference in length after.
+#[cfg(feature = "editor")]
+#[derive(Clone, Debug, PartialEq)]
+pub struct Reparse {
+    pub old: std::ops::Range<usize>,
+    pub new: std::ops::Range<usize>,
+}
+
+/// [`derive_document`] of `lines`, reusing what `old` — derived from the same
+/// buffer before an edit — still says about the lines the edit did not touch.
+///
+/// The changed lines are found by [`Document::line_fps`]. The parse restarts
+/// one item before the first of them (a line that stops starting an item is
+/// absorbed by the item above it) under the `@` base recorded there, and stops
+/// at the first item boundary past the last of them that `old` also had under
+/// the same base: from there on the parse would repeat `old`'s exactly (see
+/// [`derive_items`]). A buffer whose length changed is derived whole — an item
+/// boundary is a line index, and every one after the edit moved.
+///
+/// Returns the document, whether anything a rebuild reads changed (see
+/// [`crate::document::items_changed_for_rebuild`]), and which items were
+/// parsed afresh, when the parse was not whole.
+#[cfg(feature = "editor")]
+pub fn rederive_document(
+    mut old: Document,
+    lines: &[DocLine],
+) -> (Document, bool, Option<Reparse>) {
+    let fps: Vec<u64> = lines
+        .iter()
+        .map(crate::document::line_fingerprint)
+        .collect();
+    let usable = old.line_fps.len() == lines.len()
+        && old.at_bases.len() == old.items.len()
+        && old.item_line_starts.len() == old.items.len();
+    let changed = usable.then(|| {
+        let mut diff = old
+            .line_fps
+            .iter()
+            .zip(&fps)
+            .enumerate()
+            .filter(|(_, (a, b))| a != b);
+        let first = diff.next().map(|(i, _)| i)?;
+        let last = diff.next_back().map_or(first, |(i, _)| i);
+        Some((first, last))
+    });
+    let Some(changed) = changed else {
+        let (doc, _) = derive_document(lines, old.path.clone()).expect("a derive does not fail");
+        let rebuild = crate::document::items_changed_for_rebuild(&old.items, &doc.items);
+        return (doc, rebuild, None);
+    };
+    let (ks, j, parsed) = match changed {
+        // The same text line for line: nothing to parse.
+        None => (0, 0, None),
+        Some((first, last)) => {
+            let starts = &old.item_line_starts;
+            let holding = starts.partition_point(|&s| s <= first);
+            let ks = holding.saturating_sub(2);
+            let (start, base) = if holding == 0 {
+                (0, None)
+            } else {
+                (starts[ks], old.at_bases[ks].as_deref().map(str::to_string))
+            };
+            let at_bases = &old.at_bases;
+            let stop = |i: usize, base: Option<&str>| {
+                i > last
+                    && starts
+                        .binary_search(&i)
+                        .is_ok_and(|j| at_bases[j].as_deref() == base)
+            };
+            let parsed = derive_items(lines, start, base, &stop);
+            let j = if parsed.end >= lines.len() {
+                old.items.len()
+            } else {
+                starts
+                    .binary_search(&parsed.end)
+                    .expect("stopped at an old boundary")
+            };
+            (ks, j, Some(parsed))
+        }
+    };
+    let mut rebuild = false;
+    let reparse = match parsed {
+        None => Reparse {
+            old: 0..0,
+            new: 0..0,
+        },
+        Some(parsed) => {
+            let n = parsed.items.len();
+            rebuild = crate::document::items_changed_for_rebuild(&old.items[ks..j], &parsed.items);
+            let removed: Vec<DocumentItem> = old.items.splice(ks..j, parsed.items).collect();
+            drop(removed);
+            old.item_line_starts.splice(ks..j, parsed.item_line_starts);
+            let mut at_bases = old.at_bases.to_vec();
+            at_bases.splice(ks..j, parsed.at_bases);
+            old.at_bases = at_bases.into();
+            Reparse {
+                old: ks..j,
+                new: ks..ks + n,
+            }
+        }
+    };
+    old.docline_file_lines = crate::document::compute_docline_file_lines(lines);
+    old.line_ids = lines.iter().map(DocLine::line_id).collect();
+    old.line_fps = fps.into();
+    (old, rebuild, Some(reparse))
+}
+
+/// What one run of [`derive_items`] parsed.
+struct DerivedItems {
+    items: Vec<DocumentItem>,
+    item_line_starts: Vec<usize>,
+    /// The `@` base each item was parsed under; see [`Document::at_bases`].
+    #[cfg_attr(not(feature = "editor"), expect(dead_code))]
+    at_bases: Vec<Option<std::sync::Arc<str>>>,
+    /// The line the run stopped at: an item boundary, or the end.
+    #[cfg_attr(not(feature = "editor"), expect(dead_code))]
+    end: usize,
+}
+
+/// The items of `lines` from line `start` on, with `at_base` the `@` base in
+/// force there, until `stop` says so at an item boundary.
+///
+/// That is the whole of the parser's state between two items — the line it is
+/// at and the base — so a run started at an item boundary with the base
+/// recorded for it parses exactly what a run from the top would, and a run
+/// that reaches a boundary a previous derive also had, under the same base,
+/// would parse the rest exactly as that derive did.
+fn derive_items(
+    lines: &[DocLine],
+    start: usize,
+    at_base: Option<String>,
+    stop: &dyn Fn(usize, Option<&str>) -> bool,
+) -> DerivedItems {
+    let mut items: Vec<DocumentItem> = Vec::new();
     let mut item_line_starts: Vec<usize> = Vec::new();
-    let mut i = 0;
+    let mut at_bases: Vec<Option<std::sync::Arc<str>>> = Vec::new();
+    let mut i = start;
     // The `@` base: the last glyph name declared without one. Scoped to the
     // file, and carried across the lines between two glyph blocks, so a helper
     // glyph keeps expanding against its base however far below it is written.
-    let mut at_base: Option<String> = None;
+    let mut at_base = at_base;
+    let mut base_here: Option<std::sync::Arc<str>> = at_base.as_deref().map(std::sync::Arc::from);
 
     while i < lines.len() {
+        // What the items the last pass pushed were parsed under — a pass
+        // pushes at most one, and does it before `at_base` can move below.
+        at_bases.resize(items.len(), base_here.clone());
+        if stop(i, at_base.as_deref()) {
+            break;
+        }
+        if base_here.as_deref() != at_base.as_deref() {
+            base_here = at_base.as_deref().map(std::sync::Arc::from);
+        }
         match &lines[i] {
             DocLine::Grid(_) => {
                 // Orphan grid — skip (reconciliation should prevent this)
@@ -1637,14 +1801,14 @@ pub fn derive_document(
 
                 if trimmed.is_empty() {
                     item_line_starts.push(i);
-                    doc.items.push(DocumentItem::BlankLine);
+                    items.push(DocumentItem::BlankLine);
                     i += 1;
                     continue;
                 }
 
                 if let Some(comment) = trimmed.strip_prefix("//") {
                     item_line_starts.push(i);
-                    doc.items.push(DocumentItem::Comment(comment.to_string()));
+                    items.push(DocumentItem::Comment(comment.to_string()));
                     i += 1;
                     continue;
                 }
@@ -1655,7 +1819,7 @@ pub fn derive_document(
                 // `issues` can name it — see `Directive::OrphanContinuation`.
                 if continuation_text(trimmed).is_some() {
                     item_line_starts.push(i);
-                    doc.items.push(DocumentItem::Directive(trimmed.to_string()));
+                    items.push(DocumentItem::Directive(trimmed.to_string()));
                     i += 1;
                     continue;
                 }
@@ -1665,7 +1829,7 @@ pub fn derive_document(
                 // title is a backtick, not an unterminated quote.
                 if let Some((level, text)) = split_heading(trimmed) {
                     item_line_starts.push(i);
-                    doc.items.push(DocumentItem::Heading {
+                    items.push(DocumentItem::Heading {
                         level,
                         text: text.to_string(),
                     });
@@ -1692,7 +1856,7 @@ pub fn derive_document(
                 // (`tokenize_strict`) still rejects the file outright.
                 let Ok(tokens) = tokenize_tokens(body_text) else {
                     item_line_starts.push(i);
-                    doc.items.push(DocumentItem::Directive(trimmed.to_string()));
+                    items.push(DocumentItem::Directive(trimmed.to_string()));
                     i += 1;
                     continue;
                 };
@@ -1700,7 +1864,7 @@ pub fn derive_document(
                     item_line_starts.push(i);
                     // A comment-only line never reaches here: it was taken by
                     // the `//` branch above.
-                    doc.items.push(DocumentItem::BlankLine);
+                    items.push(DocumentItem::BlankLine);
                     i += 1;
                     continue;
                 }
@@ -1712,7 +1876,7 @@ pub fn derive_document(
                             tokens[1..].iter().map(|t| quote_token(t)).collect();
                         let text = rest.join(" ");
                         let text = format!("{}{comment_raw}", text.trim_end());
-                        doc.items.push(if tokens[0] == "meta" {
+                        items.push(if tokens[0] == "meta" {
                             DocumentItem::Meta(text)
                         } else {
                             DocumentItem::Audit(text)
@@ -1724,7 +1888,7 @@ pub fn derive_document(
                         let rest: Vec<String> =
                             tokens[1..].iter().map(|t| quote_token(t)).collect();
                         let text = format!("{} {}", tokens[0], rest.join(" "));
-                        doc.items.push(DocumentItem::Directive(format!(
+                        items.push(DocumentItem::Directive(format!(
                             "{}{comment_raw}",
                             text.trim_end()
                         )));
@@ -1747,7 +1911,7 @@ pub fn derive_document(
                         if tokens.len() >= 3 && tokens[1] == "=" {
                             let (char_repr, selector) = split_written_uvs_pair(&tokens[0]);
                             item_line_starts.push(i);
-                            doc.items.push(DocumentItem::Map {
+                            items.push(DocumentItem::Map {
                                 slices,
                                 char_repr,
                                 selector,
@@ -1760,7 +1924,7 @@ pub fn derive_document(
                         {
                             let (char_repr, selector) = split_written_uvs_pair(&tokens[1]);
                             item_line_starts.push(i);
-                            doc.items.push(DocumentItem::MapDecomposed {
+                            items.push(DocumentItem::MapDecomposed {
                                 slices,
                                 char_repr,
                                 selector,
@@ -1777,7 +1941,7 @@ pub fn derive_document(
                             // which is what keeps `map generate Á = a-acute`
                             // decomposed rather than read as a sequence.
                             item_line_starts.push(i);
-                            doc.items.push(DocumentItem::MapDecomposed {
+                            items.push(DocumentItem::MapDecomposed {
                                 slices,
                                 char_repr: tokens[1].clone(),
                                 selector: Some(tokens[2].clone()),
@@ -1790,7 +1954,7 @@ pub fn derive_document(
                             // (`map generate B = g`) stays decomposed above
                             // rather than becoming a variation sequence here.
                             item_line_starts.push(i);
-                            doc.items.push(DocumentItem::Map {
+                            items.push(DocumentItem::Map {
                                 slices,
                                 char_repr: tokens[0].clone(),
                                 selector: Some(tokens[1].clone()),
@@ -1800,7 +1964,7 @@ pub fn derive_document(
                             i += 1;
                         } else {
                             item_line_starts.push(i);
-                            doc.items.push(DocumentItem::Directive(trimmed.to_string()));
+                            items.push(DocumentItem::Directive(trimmed.to_string()));
                             i += 1;
                         }
                     }
@@ -1815,7 +1979,7 @@ pub fn derive_document(
                         // item, not a failed derive.
                         if parts.is_empty() {
                             item_line_starts.push(header_idx);
-                            doc.items.push(DocumentItem::Directive(trimmed.to_string()));
+                            items.push(DocumentItem::Directive(trimmed.to_string()));
                             continue;
                         }
 
@@ -1875,7 +2039,7 @@ pub fn derive_document(
                                     (expanded_target, raw_target, None)
                                 }
                             };
-                            doc.items.push(DocumentItem::GlyphAlias {
+                            items.push(DocumentItem::GlyphAlias {
                                 name,
                                 target: expanded_target,
                                 raw_name,
@@ -1972,12 +2136,11 @@ pub fn derive_document(
                         }
 
                         item_line_starts.push(header_idx);
-                        doc.items.push(DocumentItem::Glyph { name, body });
+                        items.push(DocumentItem::Glyph { name, body });
                     }
                     "name-parts" | "remap" | "feature" | "assert" | "face" | "slice" | "prop" => {
                         item_line_starts.push(i);
-                        doc.items
-                            .push(DocumentItem::parse_directive(&tokens, comment));
+                        items.push(DocumentItem::parse_directive(&tokens, comment));
                         i += 1;
                     }
                     "exists" => {
@@ -1987,12 +2150,12 @@ pub fn derive_document(
                         // is no conjunction) or a flag (there are none). Both
                         // are better said by `issues` than guessed at here.
                         if tokens.len() == 2 {
-                            doc.items.push(DocumentItem::Exists {
+                            items.push(DocumentItem::Exists {
                                 pattern: tokens[1].clone(),
                                 comment,
                             });
                         } else {
-                            doc.items.push(DocumentItem::Directive(trimmed.to_string()));
+                            items.push(DocumentItem::Directive(trimmed.to_string()));
                         }
                         i += 1;
                     }
@@ -2005,7 +2168,7 @@ pub fn derive_document(
                         // reported instead of one being folded into the other.
                         let Some((label, sublabel, mode)) = parse_sample_header(&tokens[1..])
                         else {
-                            doc.items.push(DocumentItem::Directive(trimmed.to_string()));
+                            items.push(DocumentItem::Directive(trimmed.to_string()));
                             i += 1;
                             continue;
                         };
@@ -2021,7 +2184,7 @@ pub fn derive_document(
                             raw.push(rest.to_string());
                             i += 1;
                         }
-                        doc.items.push(DocumentItem::Sample {
+                        items.push(DocumentItem::Sample {
                             label,
                             sublabel,
                             mode,
@@ -2037,20 +2200,20 @@ pub fn derive_document(
                                 Some("monoonly") => Some(LayerVisibility::MonoOnly),
                                 _ => None,
                             };
-                            doc.items.push(DocumentItem::Color {
+                            items.push(DocumentItem::Color {
                                 name: tokens[1].clone(),
                                 value: tokens[3].clone(),
                                 visibility,
                                 comment,
                             });
                         } else {
-                            doc.items.push(DocumentItem::Directive(trimmed.to_string()));
+                            items.push(DocumentItem::Directive(trimmed.to_string()));
                         }
                         i += 1;
                     }
                     _ => {
                         item_line_starts.push(i);
-                        doc.items.push(DocumentItem::Directive(trimmed.to_string()));
+                        items.push(DocumentItem::Directive(trimmed.to_string()));
                         i += 1;
                     }
                 }
@@ -2058,13 +2221,13 @@ pub fn derive_document(
         }
     }
 
-    doc.item_line_starts = item_line_starts.clone();
-    doc.docline_file_lines = crate::document::compute_docline_file_lines(lines);
-    #[cfg(feature = "editor")]
-    {
-        doc.line_ids = lines.iter().map(DocLine::line_id).collect();
+    at_bases.resize(items.len(), base_here);
+    DerivedItems {
+        items,
+        item_line_starts,
+        at_bases,
+        end: i.min(lines.len()),
     }
-    Ok((doc, item_line_starts))
 }
 
 /// Whether a directory entry is one of a font project's source documents.

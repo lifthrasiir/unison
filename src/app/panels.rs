@@ -516,7 +516,8 @@ impl UniformApp {
         // once at startup: the UI font is the Unison bitmap font itself, which
         // `apply_font` only installs once the first background build finishes,
         // so the width measured on frame 1 is measured in the wrong font.
-        self.sidebar.fit_panel_width(ctx, SIDEBAR_PANEL_ID);
+        self.sidebar
+            .fit_panel_width(ctx, SIDEBAR_PANEL_ID, self.text_layout_gen);
         let panel = egui::SidePanel::left(SIDEBAR_PANEL_ID)
             .default_width(200.0)
             .show(ctx, |ui| {
@@ -568,7 +569,7 @@ impl UniformApp {
                     }
                     for doc in &mut self.font_base_docs {
                         if doc.path == old {
-                            doc.path = new.clone();
+                            Arc::make_mut(doc).path = new.clone();
                         }
                     }
                     self.set_status(format!(
@@ -886,15 +887,21 @@ impl UniformApp {
             self.issue_marks_key = Some(key);
         }
         let (issues, asserts) = (&self.issues, &self.assert_issues);
-        let docs: crate::hash::HashMap<&std::path::Path, &Document> =
-            super::docs::collect_effective_docs(&self.open_documents, &self.font_base_docs)
-                .into_iter()
-                .map(|doc| (doc.path.as_path(), doc))
-                .collect();
+        // Run every frame, so the documents are looked up by the bytes of
+        // their paths rather than through `collect_effective_docs`, which sorts
+        // and compares them component by component. An open document shadows
+        // the snapshot's by being inserted after it.
+        let docs: crate::hash::HashMap<&std::ffi::OsStr, &Document> = self
+            .font_base_docs
+            .iter()
+            .map(|doc| &**doc)
+            .chain(self.open_documents.iter().map(|d| &d.document))
+            .map(|doc| (doc.path.as_os_str(), doc))
+            .collect();
         let filter = self.issue_filter;
         self.issue_marks.follow(
             |i| issues.get(i).unwrap_or_else(|| &asserts[i - issues.len()]),
-            |path| docs.get(path).copied(),
+            |path| docs.get(path.as_os_str()).copied(),
             |severity| filter.shows(severity),
         )
     }
@@ -963,11 +970,12 @@ impl UniformApp {
             meta: self.font_meta,
             show_metrics: self.show_metrics,
             menu_open: self.menu_open,
-            derived_gen: self.derived_gen,
-            font_gen: self.font_data_gen,
+            resolved_gen: self.resolved_gen,
+            text_layout_gen: self.text_layout_gen,
             zoom_level,
             font_id: &editor_font_id,
             ref_images: self.ref_images.as_ref(),
+            composite_seed: self.composite_seeds.get(&doc.document.path),
         };
         let result = crate::editor::document_view::DocumentEditor::new(
             &mut doc.document,

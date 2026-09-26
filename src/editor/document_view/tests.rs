@@ -856,7 +856,7 @@ fn a_heading_larger_than_the_bitmap_size_draws_with_the_vector_face() {
     let heading = |level: u8| {
         let font_size = heading_font_size(base.size, level);
         VisualLine {
-            kind: VLineKind::Text(String::new()),
+            kind: VLineKind::Text("".into()),
             doc_line: 0,
             color: egui::Color32::WHITE,
             comment_col: None,

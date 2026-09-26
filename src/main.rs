@@ -7,6 +7,8 @@ mod cancel;
 mod clipboard;
 mod compose;
 mod detail;
+#[cfg(feature = "editor")]
+mod discard;
 mod document;
 mod document_io;
 #[cfg(feature = "editor")]
@@ -20,6 +22,8 @@ mod glyph_flags;
 #[cfg(test)]
 mod golden;
 mod hash;
+#[cfg(all(feature = "editor", any(target_os = "windows", target_os = "macos")))]
+mod heap;
 mod issues;
 mod math;
 mod merge;
@@ -1297,6 +1301,9 @@ fn main() {
         // through `log`, and nothing else in this binary installs a sink for
         // it. See `clipboard.rs`.
         clipboard::install_log_sink();
+
+        #[cfg(any(target_os = "windows", target_os = "macos"))]
+        heap::purge_off_the_ui_thread();
 
         // The marks bracket eframe's own window + wgpu setup, which is the one
         // startup cost that is neither ours nor the loader's.

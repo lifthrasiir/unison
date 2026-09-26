@@ -43,8 +43,10 @@ use crate::document::{DocLine, Document, DocumentItem, GlyphBody};
 use crate::editor::colors::Palette;
 use crate::editor::ref_composite::{self, GlyphComposite, ResolvedGlyph};
 
-use super::change_marks::{self, ChangeMarks, MarkKind};
-use super::document_view::{VLineKind, VisualLine};
+use std::sync::Arc;
+
+use super::change_marks::{self, ChangeMarks, MarkKind, MarkSpan};
+use super::document_view::{VLineKind, ViewData, VisualLine};
 use super::grid_render::{PreviewGeom, apply_opacity, blit_preview};
 
 /// The deepest heading the minimap marks. See `draw_minimap`.
@@ -162,20 +164,86 @@ fn strip_scroll(
     }
 }
 
+/// What the strip drew last, kept between frames.
+///
+/// Everything the strip is drawn from is O(document) to walk — the map over
+/// every visual line, a cell per two characters and per grid pixel of a strip's
+/// worth of rows, the change marks against every line — and on nearly every
+/// frame none of it has changed: the same view, the same scroll, the same
+/// marks. Each part is keyed on the [`ViewData::serial`] it was built from —
+/// not on the view itself, which the next edit patches in place only when
+/// nothing else holds it.
+///
+/// # The texture is a texture
+///
+/// The cells are pixel art, and they are drawn as one: a [`egui::ColorImage`]
+/// at the screen's own resolution, uploaded when it changes and drawn as one
+/// rectangle. As a mesh — two triangles a cell — a page of strip was tens of
+/// thousands of quads, which cost the tessellator more than the rest of the
+/// editor put together, and whose buffers were large enough that the allocator
+/// handed them back to the OS every frame, a stall of its own.
+#[derive(Default)]
+pub(crate) struct MinimapCache {
+    map: Option<(u64, [u32; 4], Arc<MinimapMap>)>,
+    strip: Option<StripCache>,
+    marks: Option<MarksCache>,
+}
+
+/// The strip as last drawn: which view, drawn how, the texture, and where the
+/// landmark labels go (as indices into the view's lines).
+struct StripCache {
+    serial: u64,
+    key: StripKey,
+    texture: egui::TextureHandle,
+    labels: Vec<(egui::Pos2, usize)>,
+}
+
+/// The change marks as last placed, and the view, marks and map they were
+/// placed from.
+struct MarksCache {
+    serial: u64,
+    changes: Arc<ChangeMarks>,
+    map: Arc<MinimapMap>,
+    spans: Vec<MarkSpan>,
+}
+
+/// What the strip's texture is registered as.
+pub(crate) const TEXTURE_NAME: &str = "minimap";
+
+/// What besides the view the strip's texture is drawn from.
+#[derive(PartialEq)]
+struct StripKey {
+    /// A painted pixel reaches the document without a new view (see
+    /// `document_view::changes::flush_pixel_change`), so the grid is keyed on
+    /// its own.
+    pixel_gen: u64,
+    dark_mode: bool,
+    ppp_bits: u32,
+    rect: [u32; 4],
+    mm_scroll_bits: u32,
+    cell_bits: u32,
+}
+
+fn rect_bits(r: egui::Rect) -> [u32; 4] {
+    [r.min.x, r.min.y, r.max.x, r.max.y].map(f32::to_bits)
+}
+
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn draw_minimap(
     ui: &mut egui::Ui,
-    vlines: &[VisualLine],
+    view: &ViewData,
     doc: &Document,
     lines: &[DocLine],
-    composites: &HashMap<usize, GlyphComposite>,
-    changes: &ChangeMarks,
+    changes: &Arc<ChangeMarks>,
     row_height: f32,
     grid_cell: f32,
     scroll_y: f32,
     viewport_height: f32,
     zoom_level: u32,
+    cache: &mut MinimapCache,
 ) -> Option<f32> {
+    let vlines: &[VisualLine] = &view.vlines;
+    let composites = &view.composites;
     let available = ui.available_rect_before_wrap();
     let minimap_h = available.height();
     let minimap_w = available.width();
@@ -192,16 +260,24 @@ pub(crate) fn draw_minimap(
     // space of its own rather than over the rows below it — a `#` at 1× is
     // sixteen ordinary rows' worth of strip, which is the prominence it is for.
     let heading_row = snap(MINIMAP_HEADING_SIZE).max(cell);
-    let map = MinimapMap::from_rows(vlines.iter().map(|vl| {
-        let mm = match vl.kind {
-            // A chart strip is not the document, so the minimap leaves its
-            // band blank rather than inventing a mark for it.
-            VLineKind::RefImage { .. } => 0.0,
-            _ if is_landmark(vl) => heading_row,
-            _ => cell,
-        };
-        (vl.height(row_height, grid_cell), mm)
-    }));
+    let map_key = [row_height, grid_cell, cell, heading_row].map(f32::to_bits);
+    let map = match &cache.map {
+        Some((v, k, map)) if *v == view.serial && *k == map_key => Arc::clone(map),
+        _ => {
+            let map = Arc::new(MinimapMap::from_rows(vlines.iter().map(|vl| {
+                let mm = match vl.kind {
+                    // A chart strip is not the document, so the minimap leaves
+                    // its band blank rather than inventing a mark for it.
+                    VLineKind::RefImage { .. } => 0.0,
+                    _ if is_landmark(vl) => heading_row,
+                    _ => cell,
+                };
+                (vl.height(row_height, grid_cell), mm)
+            })));
+            cache.map = Some((view.serial, map_key, Arc::clone(&map)));
+            map
+        }
+    };
     let total_height = map.doc_total();
     let mm_total = map.mm_total();
     if total_height <= 0.0 {
@@ -216,136 +292,80 @@ pub(crate) fn draw_minimap(
     let pal = Palette::dark();
     painter.rect_filled(available, 0.0, pal.minimap_bg);
 
-    let mut mesh = egui::Mesh::default();
-    let uv = egui::epaint::WHITE_UV;
-    let emit = |mesh: &mut egui::Mesh, x: f32, y: f32, w: f32, h: f32, c: egui::Color32| {
-        let idx = mesh.vertices.len() as u32;
-        mesh.vertices.push(egui::epaint::Vertex {
-            pos: egui::pos2(x, y),
-            uv,
-            color: c,
-        });
-        mesh.vertices.push(egui::epaint::Vertex {
-            pos: egui::pos2(x + w, y),
-            uv,
-            color: c,
-        });
-        mesh.vertices.push(egui::epaint::Vertex {
-            pos: egui::pos2(x + w, y + h),
-            uv,
-            color: c,
-        });
-        mesh.vertices.push(egui::epaint::Vertex {
-            pos: egui::pos2(x, y + h),
-            uv,
-            color: c,
-        });
-        mesh.indices
-            .extend_from_slice(&[idx, idx + 1, idx + 2, idx, idx + 2, idx + 3]);
-    };
-
     let x0 = snap(available.min.x + 1.0);
     let y0 = available.min.y - mm_scroll;
 
-    // Landmark text, collected as the rows are walked; see the module docs.
-    let mut labels: Vec<(egui::Pos2, &str)> = Vec::new();
-
-    for (i, vl) in vlines.iter().enumerate() {
-        let h = map.mm_row(i);
-        let sy = snap(y0 + map.mm[i]);
-        if h <= 0.0 || sy + h <= available.min.y || sy >= available.max.y {
-            continue;
-        }
-
-        match &vl.kind {
-            VLineKind::Text(text) if is_landmark(vl) => {
-                labels.push((egui::pos2(x0, snap(sy + h * 0.5)), text.as_str()));
-            }
-            VLineKind::Text(text) => {
-                let chars: Vec<char> = text.chars().collect();
-                for (j, pair) in chars.chunks(2).enumerate() {
-                    let x = snap(x0 + j as f32 * cell);
-                    if x >= available.max.x {
-                        break;
-                    }
-                    let a = pair.first().is_some_and(|c| !c.is_whitespace());
-                    let b = pair.get(1).is_some_and(|c| !c.is_whitespace());
-                    if a || b {
-                        let alpha: u8 = if a && b { 180 } else { 90 };
-                        let [r, g, b, _] = themed.dark_equivalent(vl.color).to_array();
-                        emit(
-                            &mut mesh,
-                            x,
-                            sy,
-                            cell,
-                            cell,
-                            egui::Color32::from_rgba_unmultiplied(r, g, b, alpha),
-                        );
-                    }
-                }
-            }
-            VLineKind::RefImage { .. } => {}
-            VLineKind::GridRow {
-                item_idx,
-                row,
-                own_width,
-                own_height,
-                extent,
-                ..
-            } => {
-                let grid = match doc.items.get(*item_idx) {
-                    Some(DocumentItem::Glyph { body, .. }) => body.pixels.as_ref(),
-                    _ => None,
-                };
-                let comp = composites.get(item_idx);
-                let in_own_row = *row >= 0 && *row < *own_height as i16;
-                for dc in extent.left..extent.right {
-                    let disp_c = (dc - extent.left) as f32;
-                    let x = snap(x0 + disp_c * cell);
-                    if x >= available.max.x {
-                        break;
-                    }
-                    let in_own_col = dc >= 0 && dc < *own_width as i16;
-                    let own_filled = in_own_row
-                        && in_own_col
-                        && grid.is_some_and(|g| g.get(*row as u16, dc as u16).is_bitmap_filled());
-                    let ref_filled = !own_filled
-                        && comp.is_some_and(|comp| {
-                            comp.any_layer_filled_at(
-                                comp.own_offset_row + *row,
-                                comp.own_offset_col + dc,
-                            )
-                        });
-                    let in_own = in_own_row && in_own_col;
-                    let color = if own_filled || ref_filled {
-                        pal.grid_on
-                    } else if in_own {
-                        pal.grid_off
-                    } else {
-                        pal.grid_ext_off
-                    };
-                    emit(&mut mesh, x, sy, cell, cell, color);
-                }
-            }
-        }
-    }
-
-    painter.add(egui::Shape::mesh(mesh));
-
-    // After the mesh, which is one batched shape covering every other line.
-    for (pos, text) in labels {
-        painter.text(
-            pos,
-            egui::Align2::LEFT_CENTER,
-            text,
-            egui::FontId::proportional(MINIMAP_HEADING_SIZE),
-            pal.text_heading,
+    let strip_key = StripKey {
+        pixel_gen: doc.pixel_gen,
+        dark_mode: ui.visuals().dark_mode,
+        ppp_bits: ppp.to_bits(),
+        rect: rect_bits(available),
+        mm_scroll_bits: mm_scroll.to_bits(),
+        cell_bits: cell.to_bits(),
+    };
+    let reuse = cache
+        .strip
+        .as_ref()
+        .is_some_and(|c| c.serial == view.serial && c.key == strip_key);
+    if !reuse {
+        let (image, labels) = build_strip_image(
+            vlines, doc, composites, &map, &themed, &pal, available, ppp, x0, y0, cell, &snap,
         );
+        let texture = match cache.strip.take() {
+            Some(StripCache { mut texture, .. }) => {
+                texture.set(image, egui::TextureOptions::NEAREST);
+                texture
+            }
+            None => ui
+                .ctx()
+                .load_texture(TEXTURE_NAME, image, egui::TextureOptions::NEAREST),
+        };
+        cache.strip = Some(StripCache {
+            serial: view.serial,
+            key: strip_key,
+            texture,
+            labels,
+        });
+    }
+    let StripCache {
+        texture, labels, ..
+    } = cache.strip.as_ref().expect("built above");
+    painter.image(
+        texture.id(),
+        available,
+        egui::Rect::from_min_max(egui::pos2(0.0, 0.0), egui::pos2(1.0, 1.0)),
+        egui::Color32::WHITE,
+    );
+
+    // After the texture, which covers every other line.
+    for &(pos, i) in labels {
+        if let VLineKind::Text(text) = &vlines[i].kind {
+            painter.text(
+                pos,
+                egui::Align2::LEFT_CENTER,
+                text,
+                egui::FontId::proportional(MINIMAP_HEADING_SIZE),
+                pal.text_heading,
+            );
+        }
     }
 
     // Under the viewport box, which is translucent and has to read over them.
+    let spans_valid = cache.marks.as_ref().is_some_and(|m| {
+        m.serial == view.serial && Arc::ptr_eq(&m.changes, changes) && Arc::ptr_eq(&m.map, &map)
+    });
+    if !spans_valid {
+        let spans = change_marks::mark_spans(vlines, lines, changes, |i, _| map.mm_row(i));
+        cache.marks = Some(MarksCache {
+            serial: view.serial,
+            changes: Arc::clone(changes),
+            map: Arc::clone(&map),
+            spans,
+        });
+    }
+    let spans = &cache.marks.as_ref().expect("built above").spans;
     let mark_x = snap(available.max.x - cell * MINIMAP_CHANGE_CELLS)..=available.max.x;
-    for span in change_marks::mark_spans(vlines, lines, changes, |i, _| map.mm_row(i)) {
+    for span in spans {
         let (top, bottom, color) = match span.kind {
             MarkKind::Added => (span.y0, span.y1, pal.change_added),
             MarkKind::Modified => (span.y0, span.y1, pal.change_modified),
@@ -403,6 +423,134 @@ pub(crate) fn draw_minimap(
     }
 
     None
+}
+
+/// The strip's texture for the rows `available` shows, at `ppp` pixels to the
+/// point, and where the landmark labels go (as indices into `vlines`). See
+/// [`MinimapCache`] for why this is an image and not run every frame.
+///
+/// A cell lands on exactly the pixels the quad it used to be covered: the
+/// positions are snapped to pixels as they always were, and each cell fills
+/// the pixel rows and columns its snapped rectangle spans.
+#[allow(clippy::too_many_arguments)]
+fn build_strip_image(
+    vlines: &[VisualLine],
+    doc: &Document,
+    composites: &crate::editor::grid_render::Composites,
+    map: &MinimapMap,
+    themed: &Palette,
+    pal: &Palette,
+    available: egui::Rect,
+    ppp: f32,
+    x0: f32,
+    y0: f32,
+    cell: f32,
+    snap: &dyn Fn(f32) -> f32,
+) -> (egui::ColorImage, Vec<(egui::Pos2, usize)>) {
+    let size = [
+        (available.width() * ppp).round().max(1.0) as usize,
+        (available.height() * ppp).round().max(1.0) as usize,
+    ];
+    let mut image = egui::ColorImage::new(size, egui::Color32::TRANSPARENT);
+    let to_px = |v: f32, origin: f32, len: usize| {
+        ((v - origin) * ppp).round().clamp(0.0, len as f32) as usize
+    };
+    let mut emit = |x: f32, y: f32, w: f32, h: f32, c: egui::Color32| {
+        let (c0, c1) = (
+            to_px(x, available.min.x, size[0]),
+            to_px(x + w, available.min.x, size[0]),
+        );
+        let (r0, r1) = (
+            to_px(y, available.min.y, size[1]),
+            to_px(y + h, available.min.y, size[1]),
+        );
+        for r in r0..r1 {
+            image.pixels[r * size[0] + c0..r * size[0] + c1].fill(c);
+        }
+    };
+    // Landmark text, collected as the rows are walked; see the module docs.
+    let mut labels: Vec<(egui::Pos2, usize)> = Vec::new();
+
+    for (i, vl) in vlines.iter().enumerate() {
+        let h = map.mm_row(i);
+        let sy = snap(y0 + map.mm[i]);
+        if h <= 0.0 || sy + h <= available.min.y || sy >= available.max.y {
+            continue;
+        }
+
+        match &vl.kind {
+            VLineKind::Text(_) if is_landmark(vl) => {
+                labels.push((egui::pos2(x0, snap(sy + h * 0.5)), i));
+            }
+            VLineKind::Text(text) => {
+                let chars: Vec<char> = text.chars().collect();
+                for (j, pair) in chars.chunks(2).enumerate() {
+                    let x = snap(x0 + j as f32 * cell);
+                    if x >= available.max.x {
+                        break;
+                    }
+                    let a = pair.first().is_some_and(|c| !c.is_whitespace());
+                    let b = pair.get(1).is_some_and(|c| !c.is_whitespace());
+                    if a || b {
+                        let alpha: u8 = if a && b { 180 } else { 90 };
+                        let [r, g, b, _] = themed.dark_equivalent(vl.color).to_array();
+                        emit(
+                            x,
+                            sy,
+                            cell,
+                            cell,
+                            egui::Color32::from_rgba_unmultiplied(r, g, b, alpha),
+                        );
+                    }
+                }
+            }
+            VLineKind::RefImage { .. } => {}
+            VLineKind::GridRow {
+                item_idx,
+                row,
+                own_width,
+                own_height,
+                extent,
+                ..
+            } => {
+                let grid = match doc.items.get(*item_idx) {
+                    Some(DocumentItem::Glyph { body, .. }) => body.pixels.as_ref(),
+                    _ => None,
+                };
+                let comp = composites.get(item_idx);
+                let in_own_row = *row >= 0 && *row < *own_height as i16;
+                for dc in extent.left..extent.right {
+                    let disp_c = (dc - extent.left) as f32;
+                    let x = snap(x0 + disp_c * cell);
+                    if x >= available.max.x {
+                        break;
+                    }
+                    let in_own_col = dc >= 0 && dc < *own_width as i16;
+                    let own_filled = in_own_row
+                        && in_own_col
+                        && grid.is_some_and(|g| g.get(*row as u16, dc as u16).is_bitmap_filled());
+                    let ref_filled = !own_filled
+                        && comp.is_some_and(|comp| {
+                            comp.any_layer_filled_at(
+                                comp.own_offset_row + *row,
+                                comp.own_offset_col + dc,
+                            )
+                        });
+                    let in_own = in_own_row && in_own_col;
+                    let color = if own_filled || ref_filled {
+                        pal.grid_on
+                    } else if in_own {
+                        pal.grid_off
+                    } else {
+                        pal.grid_ext_off
+                    };
+                    emit(x, sy, cell, cell, color);
+                }
+            }
+        }
+    }
+
+    (image, labels)
 }
 
 /// Where a click or drag at `pointer_y` — an offset from the top of the strip —

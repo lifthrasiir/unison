@@ -3,8 +3,8 @@
 
 use super::changes::{apply_edit_action_to_editor, apply_inline_action};
 use super::layout::{
-    GridStrip, GutterLayout, VLineKind, VisualLine, collect_grid_blocks, doc_line_to_y,
-    fold_markers, gutter_line_number, inline_panel_reserved_width, visible_grid_rect,
+    GridStrip, GutterLayout, VLineKind, VisualLine, doc_line_to_y, gutter_line_number,
+    inline_panel_reserved_width, visible_grid_rect,
 };
 use super::scroll::{
     HSCROLL_GAP, HSCROLL_HEIGHT, auto_scroll_grid_on_drag, draw_grid_hscrollbars, hscroll_drag_id,
@@ -24,19 +24,20 @@ pub(super) fn paint_document_area(
     state: &mut EditorState,
     env: EditorEnv<'_>,
     vlines: &[VisualLine],
-    composites: &HashMap<usize, GlyphComposite>,
+    composites: &crate::editor::grid_render::Composites,
     shadow: Option<&(usize, Shadow)>,
     source_offsets: &[usize],
     pal: &Palette,
     row_height: f32,
     grid_cell: f32,
     gutter: GutterLayout,
-    total_height: f32,
+    geometry: &layout::ViewGeometry,
     cursor_color: egui::Color32,
     inline_panel_edit_idx: Option<usize>,
-    changes: &crate::editor::change_marks::ChangeMarks,
+    change_spans: &[crate::editor::change_marks::MarkSpan],
     needs_rederive: &mut bool,
 ) {
+    let total_height = geometry.total_height;
     let EditorEnv {
         named_glyphs,
         name_parts,
@@ -122,7 +123,7 @@ pub(super) fn paint_document_area(
     // grids that would otherwise fit. Grids wider than the band scroll
     // inside it. Only grids: everything else on a line, a reference chart
     // strip included, keeps the pane's full width.
-    let blocks = collect_grid_blocks(vlines, row_height, grid_cell);
+    let blocks = &geometry.blocks;
     let mut strip = {
         let x = origin.x + LEFT_PAD;
         let reserved = if inline_panel_edit_idx.is_some() {
@@ -326,13 +327,11 @@ pub(super) fn paint_document_area(
         &painter,
         lines,
         state,
-        vlines,
+        &geometry.fold_markers,
         pal,
         gutter,
         gutter_x,
         origin,
-        row_height,
-        grid_cell,
         click_pos,
         hover_pos,
         response.clicked(),
@@ -825,7 +824,7 @@ pub(super) fn paint_document_area(
                     *own_height,
                     *extent,
                     metrics.as_ref(),
-                    composites.get(item_idx),
+                    composites.get(item_idx).map(|c| &**c),
                     shadow.filter(|(idx, _)| idx == item_idx).map(|(_, s)| s),
                     &state.mode,
                     grid_cell,
@@ -908,7 +907,7 @@ pub(super) fn paint_document_area(
                         lines,
                         state,
                         needs_rederive,
-                        composites.get(item_idx),
+                        composites.get(item_idx).map(|c| &**c),
                         *grid_doc_line,
                         *item_idx,
                         *row,
@@ -947,7 +946,7 @@ pub(super) fn paint_document_area(
                     needs_rederive,
                     *grid_doc_line,
                     *item_idx,
-                    composites.get(item_idx),
+                    composites.get(item_idx).map(|c| &**c),
                     *row,
                     *own_width,
                     *own_height,
@@ -1026,13 +1025,10 @@ pub(super) fn paint_document_area(
     let change_rects = crate::editor::change_marks::paint_gutter_marks(
         &painter,
         clip,
-        vlines,
-        lines,
-        changes,
+        change_spans,
         gutter.change_gap(gutter_x),
         origin.y,
         total_height,
-        |_, vl| vl.height(row_height, grid_cell),
         pal,
     );
     #[cfg(test)]
@@ -1041,9 +1037,9 @@ pub(super) fn paint_document_area(
     let _ = change_rects;
 
     draw_grid_hscrollbars(
-        ui, &painter, state, &strip, &blocks, &hbars, zoom_level, pal,
+        ui, &painter, state, &strip, blocks, &hbars, zoom_level, pal,
     );
-    auto_scroll_grid_on_drag(ui, state, &strip, &blocks, origin);
+    auto_scroll_grid_on_drag(ui, state, &strip, blocks, origin);
 
     // Inline tools panel to the right of the grid. A resize replaces it
     // wholesale — neither the layer row nor the shape palette acts on
@@ -1105,7 +1101,7 @@ pub(super) fn paint_document_area(
                 doc,
                 state,
                 changes::InlineTarget::Ref { edit_idx, ref_idx },
-                composites.get(&edit_idx),
+                composites.get(&edit_idx).map(|c| &**c),
                 named_glyphs,
                 name_parts,
             ) {
@@ -1192,7 +1188,7 @@ pub(super) fn paint_document_area(
             eidx,
             layer_idx,
             &doc.item_line_starts,
-            composites.get(&eidx),
+            composites.get(&eidx).map(|c| &**c),
             grid_origin,
             grid_cell,
         );
@@ -1494,7 +1490,7 @@ pub(super) fn paint_document_area(
                 doc,
                 state,
                 changes::InlineTarget::Ref { edit_idx, ref_idx },
-                composites.get(&edit_idx),
+                composites.get(&edit_idx).map(|c| &**c),
                 named_glyphs,
                 name_parts,
             ) {
@@ -1541,7 +1537,7 @@ pub(super) fn paint_document_area(
                 doc,
                 state,
                 target,
-                composites.get(&edit_idx),
+                composites.get(&edit_idx).map(|c| &**c),
                 named_glyphs,
                 name_parts,
             ) {
@@ -1745,7 +1741,7 @@ fn draw_edit_border(
     _doc: &Document,
     origin: egui::Pos2,
     y: f32,
-    _composites: &HashMap<usize, GlyphComposite>,
+    _composites: &crate::editor::grid_render::Composites,
     strip: &GridStrip,
     grid_cell: f32,
     pal: &Palette,
@@ -2009,13 +2005,11 @@ fn paint_fold_markers(
     painter: &egui::Painter,
     lines: &mut Vec<DocLine>,
     state: &mut EditorState,
-    vlines: &[VisualLine],
+    markers: &[layout::FoldMarker],
     pal: &Palette,
     gutter: GutterLayout,
     gutter_x: f32,
     origin: egui::Pos2,
-    row_height: f32,
-    grid_cell: f32,
     click_pos: Option<egui::Pos2>,
     hover_pos: Option<egui::Pos2>,
     clicked: bool,
@@ -2040,7 +2034,7 @@ fn paint_fold_markers(
     #[cfg(test)]
     let mut captured_hover: Option<usize> = None;
 
-    for marker in fold_markers(vlines, &state.folds, row_height, grid_cell) {
+    for marker in markers {
         let Some(cell) = gutter.marker_rect(
             gutter_x,
             marker.depth,

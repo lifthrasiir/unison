@@ -13,7 +13,7 @@
 //! function tells them apart: groups are returned sorted by header with the
 //! *outer* one first at a tie, and every query here walks the list rather than
 //! indexing it. Four levels can therefore nest (`#`, `##`, `###`, glyph), and
-//! [`nesting_depth`] is all the gutter needs to stack them.
+//! [`nesting_depths`] is all the gutter needs to stack them.
 //!
 //! # Why the group list is not recomputed every frame
 //!
@@ -152,24 +152,31 @@ pub(crate) fn fold_groups(doc: &Document, lines: &[DocLine]) -> Vec<FoldGroup> {
     groups
 }
 
-/// The deepest nesting `groups` reaches, and so how many marker columns the
-/// gutter reserves for the document. `0` when there is nothing to fold.
-pub(crate) fn max_nesting_depth(groups: &[FoldGroup]) -> usize {
+/// How deeply each of `groups` is nested among them, in the same order: 1 for
+/// one nothing contains, one more for each group around it. The gutter draws a
+/// group's marker in the column this picks — see
+/// `document_view::layout::fold_markers`.
+///
+/// One pass with the groups still open held on a stack, which is exact because
+/// [`fold_groups`] returns a laminar family sorted outer-first: every group
+/// that contains another starts no later and is still open when it starts.
+/// Counting the containing groups pairwise instead was quadratic, and a file
+/// with a few thousand glyph blocks paid for it on every frame.
+pub(crate) fn nesting_depths(groups: &[FoldGroup]) -> Vec<usize> {
+    let mut open: Vec<FoldGroup> = Vec::new();
     groups
         .iter()
-        .map(|&g| nesting_depth(groups, g))
-        .max()
-        .unwrap_or(0)
-}
-
-/// How deeply `group` is nested among `groups`: 1 for one nothing contains, one
-/// more for each group around it. The gutter draws a group's marker in the
-/// column this picks — see `document_view::layout::fold_markers`.
-pub(crate) fn nesting_depth(groups: &[FoldGroup], group: FoldGroup) -> usize {
-    1 + groups
-        .iter()
-        .filter(|g| **g != group && g.header <= group.header && g.end >= group.end)
-        .count()
+        .map(|&group| {
+            while open
+                .last()
+                .is_some_and(|g| g.end < group.end || g.end <= group.header)
+            {
+                open.pop();
+            }
+            open.push(group);
+            open.len()
+        })
+        .collect()
 }
 
 #[derive(Clone)]
@@ -189,6 +196,9 @@ pub(crate) struct FoldState {
     collapsed: Vec<Collapsed>,
     /// The groups `collapsed` was last reconciled against.
     groups: Vec<FoldGroup>,
+    /// [`nesting_depths`] of `groups`, kept with them: the gutter asks for
+    /// every one of them on every frame.
+    depths: Vec<usize>,
     /// `Document::edit_gen` the group list was built from. `None` forces the
     /// next [`FoldState::sync`] to rebuild.
     synced_edit_gen: Option<u64>,
@@ -216,6 +226,7 @@ impl FoldState {
         }
         self.synced_edit_gen = Some(doc.edit_gen);
         self.groups = fold_groups(doc, lines);
+        self.depths = nesting_depths(&self.groups);
         if self.collapsed.is_empty() {
             return;
         }
@@ -288,6 +299,17 @@ impl FoldState {
     /// The groups of the document as last synced.
     pub(crate) fn groups(&self) -> &[FoldGroup] {
         &self.groups
+    }
+
+    /// How deeply `groups()[i]` is nested; see [`nesting_depths`].
+    pub(crate) fn depth(&self, i: usize) -> usize {
+        self.depths[i]
+    }
+
+    /// The deepest nesting the groups reach, and so how many marker columns
+    /// the gutter reserves for the document. `0` when there is nothing to fold.
+    pub(crate) fn max_depth(&self) -> usize {
+        self.depths.iter().copied().max().unwrap_or(0)
     }
 
     /// A counter that changes exactly when the set of visible lines does.
@@ -424,6 +446,7 @@ impl FoldState {
         }
         self.collapsed.clear();
         self.groups.clear();
+        self.depths.clear();
         self.synced_edit_gen = None;
         self.initial_applied = false;
     }
@@ -550,15 +573,39 @@ map c = c\n";
     fn nesting_runs_four_deep_through_a_glyph_block() {
         let src = format!("# one\n## two\n### three\n{}# other\n", glyph("g", 2, 2, 1));
         let (_, _, folds) = state_for(&src);
-        let depths: Vec<usize> = folds
-            .groups()
-            .iter()
-            .map(|&g| (g.header, nesting_depth(folds.groups(), g)))
-            .map(|(_, d)| d)
-            .collect();
+        let depths: Vec<usize> = (0..folds.groups().len()).map(|i| folds.depth(i)).collect();
         assert_eq!(depths, vec![1, 2, 3, 4]);
+        assert_eq!(folds.max_depth(), 4);
         // The innermost group at the glyph's grid line is the glyph's own.
         assert_eq!(folds.innermost_at(4).map(|g| g.header), Some(3));
+    }
+
+    /// The stack pass agrees with the definition — a group's depth is one
+    /// plus the groups around it — across siblings, a section that closes
+    /// several levels at once, and a glyph block at the end of the file.
+    #[test]
+    fn nesting_depths_count_the_groups_around_each_one() {
+        let src = format!(
+            "# one\n## two\n{}{}### three\n{}## four\n{}# five\nx\n{}",
+            glyph("a", 2, 2, 1),
+            glyph("b", 2, 2, 1),
+            glyph("c", 2, 2, 1),
+            glyph("d", 2, 2, 1),
+            glyph("e", 2, 2, 1),
+        );
+        let (_, _, folds) = state_for(&src);
+        let groups = folds.groups();
+        let pairwise: Vec<usize> = groups
+            .iter()
+            .map(|&g| {
+                1 + groups
+                    .iter()
+                    .filter(|o| **o != g && o.header <= g.header && o.end >= g.end)
+                    .count()
+            })
+            .collect();
+        assert!(pairwise.len() >= 8, "{groups:?}");
+        assert_eq!(nesting_depths(groups), pairwise);
     }
 
     #[test]

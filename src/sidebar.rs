@@ -50,6 +50,14 @@ pub struct Sidebar {
     /// on. Reloads after a rename or a new file leave it as it is: they must
     /// not undo a width the user dragged to.
     auto_width: bool,
+    /// Stepped whenever `files` is replaced, for `measured`.
+    files_gen: u64,
+    /// The last [`Sidebar::desired_width`], and what it was measured from:
+    /// the listing, the fonts (by their layout generation, which the host
+    /// steps when they set text differently) and the pixel density. It is
+    /// asked for every frame, and measuring every file name of a large source
+    /// directory every frame was a steady cost.
+    measured: Option<((u64, u64, u32), f32)>,
     /// Where the file list's vertical scroll bar landed last frame. Only the
     /// test that pins it to the panel's edge reads it.
     #[cfg(test)]
@@ -63,6 +71,8 @@ impl Sidebar {
             directory: None,
             edit_state: EditState::None,
             auto_width: true,
+            files_gen: 0,
+            measured: None,
             #[cfg(test)]
             last_scroll_bar_rect: None,
         }
@@ -86,7 +96,14 @@ impl Sidebar {
     /// Called before the panel is shown, so it has to go through the panel's own
     /// stored state; `SidePanel::default_width` applies on the *first* frame
     /// only, which is exactly the frame whose measurement is wrong.
-    pub fn fit_panel_width(&mut self, ctx: &egui::Context, panel_id: impl Into<egui::Id>) {
+    ///
+    /// `layout_gen` names how the fonts set text; see `measured`.
+    pub fn fit_panel_width(
+        &mut self,
+        ctx: &egui::Context,
+        panel_id: impl Into<egui::Id>,
+        layout_gen: u64,
+    ) {
         let panel_id = panel_id.into();
         // Read the drag the same way the panel does: from last frame's response,
         // before the panel reads it to move its own edge.
@@ -99,7 +116,15 @@ impl Sidebar {
         if !self.auto_width {
             return;
         }
-        let width = self.desired_width(ctx);
+        let key = (self.files_gen, layout_gen, ctx.pixels_per_point().to_bits());
+        let width = match self.measured {
+            Some((k, width)) if k == key => width,
+            _ => {
+                let width = self.desired_width(ctx);
+                self.measured = Some((key, width));
+                width
+            }
+        };
         ctx.data_mut(|d| {
             d.insert_persisted(
                 panel_id,
@@ -149,6 +174,7 @@ impl Sidebar {
     /// a round trip nobody should pay for between two frames.
     pub fn set_files(&mut self, files: Vec<PathBuf>) {
         self.files = files;
+        self.files_gen += 1;
         self.files
             .retain(|path| crate::document_io::is_source_file(path));
         Self::sort_files(&mut self.files);
@@ -162,6 +188,7 @@ impl Sidebar {
 
     fn reload_files(&mut self) {
         self.files.clear();
+        self.files_gen += 1;
         if let Some(dir) = &self.directory
             && let Ok(entries) = std::fs::read_dir(dir)
         {
@@ -549,7 +576,7 @@ mod tests {
         let mut desired = 0.0;
         for _ in 0..frames {
             let _ = ctx.run(input(), |ctx| {
-                sb.fit_panel_width(ctx, "sidebar");
+                sb.fit_panel_width(ctx, "sidebar", 0);
                 desired = sb.desired_width(ctx);
                 egui::SidePanel::left("sidebar")
                     .default_width(200.0)
@@ -710,7 +737,7 @@ mod tests {
                 raw.events.insert(0, egui::Event::PointerMoved(p));
             }
             let _ = ctx.run(raw, |ctx| {
-                sb.fit_panel_width(ctx, "sidebar");
+                sb.fit_panel_width(ctx, "sidebar", 0);
                 egui::SidePanel::left("sidebar").show(ctx, |ui| {
                     sb.show(ui, None, SidebarFiles::default(), false);
                 });

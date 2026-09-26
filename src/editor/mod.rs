@@ -172,6 +172,16 @@ pub enum PopupState {
     Codepoint(codepoint_popup::CodepointPopup),
 }
 
+/// The last reparse of the document, when it replaced only some items: the
+/// document went from `edit_gen` `from` to `to`, and `items` says which items
+/// were parsed afresh. The view uses it to lay out only those again.
+#[derive(Clone, Debug)]
+pub(crate) struct LastReparse {
+    pub(crate) from: u64,
+    pub(crate) to: u64,
+    pub(crate) items: crate::document_io::Reparse,
+}
+
 pub struct EditorState {
     /// This instance's `egui` id namespace. Every id the editor derives is
     /// salted with it, so two editors in one context keep their scroll
@@ -280,6 +290,31 @@ pub struct EditorState {
     /// Cached per-frame view data (composites, visual lines, source offsets);
     /// rebuilt only when the document or layout inputs change.
     pub(crate) view_cache: Option<document_view::ViewCache>,
+    /// The view an edit invalidated ([`EditorState::invalidate_view`]), kept
+    /// for the parts the next build can take over unchanged — the composites,
+    /// when the edit did not reach the parsed document.
+    pub(crate) stale_view: Option<document_view::ViewCache>,
+    /// Which items the last reparse replaced, for the view to patch those
+    /// alone; see [`LastReparse`].
+    pub(crate) last_reparse: Option<LastReparse>,
+    /// How many views were patched rather than rebuilt, for the tests that
+    /// have to know which path a build took.
+    #[cfg(test)]
+    pub(crate) view_patches: usize,
+    /// Text lines as last laid out, so a rebuild of the view measures only the
+    /// lines that changed; see [`visual_lines::TextLayoutMemo`].
+    pub(crate) text_layout_memo: visual_lines::TextLayoutMemo,
+    pub(crate) minimap_cache: minimap::MinimapCache,
+    /// The gutter's change marks along the view: the view they were placed
+    /// along (by serial, with the row height and grid cell), the marks, and
+    /// where they fell.
+    #[allow(clippy::type_complexity)]
+    pub(crate) gutter_spans: Option<(
+        (u64, [u32; 2]),
+        std::sync::Arc<change_marks::ChangeMarks>,
+        std::sync::Arc<[change_marks::MarkSpan]>,
+    )>,
+    pub(crate) composite_memo: grid_render::CompositeMemo,
     /// What the file holds, and the buffer's changes against it; see
     /// [`change_marks`].
     pub(crate) changes: change_marks::ChangeTracker,
@@ -363,6 +398,14 @@ impl EditorState {
             pixel_select_anchor: None,
             glyph_shift_run: None,
             view_cache: None,
+            stale_view: None,
+            last_reparse: None,
+            #[cfg(test)]
+            view_patches: 0,
+            text_layout_memo: Default::default(),
+            minimap_cache: Default::default(),
+            gutter_spans: None,
+            composite_memo: Default::default(),
             changes: Default::default(),
             pixel_paint_dirty: None,
             suppress_font_rebuild: false,
@@ -428,6 +471,14 @@ impl EditorState {
             has_selection,
             can_edit: matches!(self.mode, EditMode::Normal)
                 || self.mode.pixel_edit_item_idx().is_some(),
+        }
+    }
+
+    /// Marks the cached view out of date: `lines` changed under it in a way
+    /// its key cannot see (a deferred reparse leaves `edit_gen` where it was).
+    pub(crate) fn invalidate_view(&mut self) {
+        if let Some(cache) = self.view_cache.take() {
+            self.stale_view = Some(cache);
         }
     }
 
@@ -506,6 +557,8 @@ impl EditorState {
         self.cursor = caret;
         self.cursor_item = None;
         self.view_cache = None;
+        self.stale_view = None;
+        self.last_reparse = None;
         self.pixel_paint_dirty = None;
         self.pending_reparse_line = None;
         self.last_reparse_line = None;

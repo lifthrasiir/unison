@@ -12,7 +12,7 @@ pub(super) fn shadowed_by_open(open_documents: &[OpenDocument], path: &std::path
 
 pub(super) fn collect_effective_docs<'a>(
     open_documents: &'a [OpenDocument],
-    font_base_docs: &'a [Document],
+    font_base_docs: &'a [Arc<Document>],
 ) -> Vec<&'a Document> {
     let mut all_docs: Vec<&Document> = open_documents
         .iter()
@@ -20,7 +20,7 @@ pub(super) fn collect_effective_docs<'a>(
         .collect();
     for base_doc in font_base_docs {
         if !shadowed_by_open(open_documents, &base_doc.path) {
-            all_docs.push(base_doc);
+            all_docs.push(&**base_doc);
         }
     }
     all_docs.sort_by(|a, b| a.path.cmp(&b.path));
@@ -476,7 +476,7 @@ impl UniformApp {
         errors: Vec<crate::issues::Issue>,
         sources: Vec<(PathBuf, Vec<u8>)>,
     ) {
-        self.font_base_docs = docs;
+        self.font_base_docs = docs.into_iter().map(Arc::new).collect();
         self.file_parse_errors = errors;
         self.font_sources = font_sources_from(sources);
     }
@@ -517,6 +517,26 @@ impl UniformApp {
 
     pub(super) fn collect_all_docs(&self) -> Vec<&Document> {
         collect_effective_docs(&self.open_documents, &self.font_base_docs)
+    }
+
+    /// [`Self::collect_all_docs`], owned, for a thread to take away: the
+    /// directory snapshot by reference count and only the open documents by
+    /// copy. Copying the whole set was most of what starting a rebuild cost the
+    /// UI thread — tens of milliseconds for a directory of large files.
+    pub(super) fn snapshot_docs(&self) -> Vec<Arc<Document>> {
+        let mut docs: Vec<Arc<Document>> = self
+            .open_documents
+            .iter()
+            .map(|open| Arc::new(open.document.clone()))
+            .collect();
+        docs.extend(
+            self.font_base_docs
+                .iter()
+                .filter(|base| !shadowed_by_open(&self.open_documents, &base.path))
+                .cloned(),
+        );
+        docs.sort_by(|a, b| a.path.cmp(&b.path));
+        docs
     }
 
     fn has_unsaved_changes(&self) -> bool {
@@ -848,7 +868,7 @@ mod reload_tests {
             line: 1,
             file_line: 2,
         }];
-        app.issues_line_ids = crate::editor::issue_marks::snapshot_line_ids([base]);
+        app.issues_line_ids = crate::editor::issue_marks::snapshot_line_ids([&**base]);
         app.issues_gen = 1;
         app.refresh_issue_marks();
         assert_eq!(app.issue_marks.position(0), Some((1, 2)));

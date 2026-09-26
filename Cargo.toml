@@ -49,6 +49,9 @@ regex-syntax = { version = "0.8.11", default-features = false, features = ["std"
 # See `main.rs`: this workload is allocation-bound, and the system heap is
 # measurably slower than mimalloc at it here too.
 mimalloc = "0.1"
+# The allocator mimalloc already links, for its option and collect calls; see
+# `heap.rs`.
+libmimalloc-sys = { version = "0.1.49", features = ["extended"] }
 libc = "0.2"
 core-text = "20"
 core-graphics = "0.23"
@@ -58,6 +61,7 @@ core-foundation = "0.9"
 # See `main.rs`: this workload is allocation-bound and the platform heap is
 # where Windows loses to everything else on it.
 mimalloc = "0.1"
+libmimalloc-sys = { version = "0.1.49", features = ["extended"] }
 windows = { version = "0.58", features = [
     "Win32_Graphics_DirectWrite",
     "Win32_System_Com",

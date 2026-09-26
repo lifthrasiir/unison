@@ -44,7 +44,7 @@ pub(crate) fn item_bindings<'a>(
     let DocumentItem::Glyph { name, body } = &doc.items[idx] else {
         return Cow::Borrowed(base);
     };
-    let matched = exists.get(&doc.path, idx);
+    let matched = exists.get(doc, idx);
     let back_referenced = body
         .refs
         .iter()
@@ -168,5 +168,38 @@ mod tests {
             1,
             "the search capture resolved to nothing"
         );
+    }
+    /// A line opened above a searched block, before the rebuild that would
+    /// renumber the items, leaves the block with its own match — and hands it
+    /// to no other block. The matches used to be keyed by item index, which
+    /// the new line moved: the block lost its match to the item that took its
+    /// old index, and every composite after the edit was recomputed for it.
+    #[test]
+    fn a_line_opened_above_a_searched_block_keeps_its_match() {
+        let source = "glyph han-4e00:2x2 2 2\n\
+                      @@..\n\
+                      ..@@\n\
+                      \n\
+                      exists han-([0-9a-f]{4}):2x2\n\
+                      glyph han-($1) 2 2\n\
+                      ref ($0) 0 0\n";
+        let mut lines = parse_doclines(source);
+        let (doc, _) = derive_document(&lines, "test.unf".into()).unwrap();
+        let name_parts = crate::document::collect_name_parts(&[&doc]);
+        let (scopes, _) = crate::exists::resolve_scopes(&[&doc], &name_parts);
+        let first = crate::exists::FirstMatches::collect(&[&doc], &scopes);
+        let before = glyph_idx(&doc, "han-($1)");
+        let matched = first.get(&doc, before).map(<[String]>::to_vec);
+        assert!(matched.is_some(), "the block is under a search");
+
+        // A block opened at the top — two lines, one item, so no index of
+        // either kind stays put — as the editor does: the other lines keep
+        // their ids.
+        lines.splice(0..0, parse_doclines("glyph new 1 1\n@@\n"));
+        let (edited, _) = derive_document(&lines, "test.unf".into()).unwrap();
+        let after = glyph_idx(&edited, "han-($1)");
+        assert_ne!(before, after, "the edit moved the block");
+        assert_eq!(first.get(&edited, after).map(<[String]>::to_vec), matched);
+        assert_eq!(first.get(&edited, before), None, "no other block takes it");
     }
 }

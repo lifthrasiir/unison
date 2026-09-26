@@ -44,8 +44,8 @@ read (`app/watch.rs`, `ref_composite/`).
 - **`font/` is a consumer, not a fixture.** No automated test may read it: it changes for
   font-design reasons and is far too large to be meaningful. When `font/` turns up a bug, add a
   minimal `.unf` to `testdata/` or build the case inline. Manual runs against it (`make test`,
-  `cargo run -r -- build -i font/`) are expected. The one `#[ignore]`d profiling harness in
-  `ref_composite/` is the exception; keep any such case `#[ignore]`d.
+  `cargo run -r -- build -i font/`) are expected. The `#[ignore]`d profiling harnesses in
+  `ref_composite/` and `app/frame_profile.rs` are the exception; keep any such case `#[ignore]`d.
 - **GUI behaviour is tested through `EditorHarness`** (`editor/harness.rs`), never left to manual
   testing. Scenarios go in `editor/view_tests/`, one module per theme.
 - **Regression tests first**: write the test, observe the failure, fix, observe the pass. Prefer an

@@ -528,7 +528,7 @@ impl UniformApp {
             // startup, and for the same reason: a face applied later is a
             // second full build.
             self.face_ids = {
-                let refs: Vec<&Document> = self.font_base_docs.iter().collect();
+                let refs: Vec<&Document> = self.font_base_docs.iter().map(|d| &**d).collect();
                 crate::faces::FaceSet::collect(&refs)
                     .faces
                     .iter()
@@ -560,6 +560,8 @@ impl UniformApp {
             // The old folder's derived data is *wrong* here rather than merely
             // stale, so it is dropped rather than left to be replaced.
             self.named_glyphs = Arc::default();
+            self.resolved_gen = self.resolved_gen.wrapping_add(1);
+            self.composite_seeds = Arc::default();
             self.alt_index = Default::default();
             self.name_parts = NamePartsMap::default();
             self.char_props = Default::default();

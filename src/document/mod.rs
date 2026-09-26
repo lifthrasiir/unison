@@ -434,6 +434,34 @@ pub struct Document {
     /// every document.
     #[cfg(feature = "editor")]
     pub line_ids: std::sync::Arc<[LineId]>,
+    /// The `@` base in force before each item — the one thing the parser
+    /// carries from an item to the next — so that a reparse can start at any
+    /// item. See [`crate::document_io::rederive_document`].
+    #[cfg(feature = "editor")]
+    pub at_bases: std::sync::Arc<[Option<std::sync::Arc<str>>]>,
+    /// [`line_fingerprint`] of each DocLine this was derived from, which is how
+    /// the next derive finds the lines an edit changed.
+    #[cfg(feature = "editor")]
+    pub line_fps: std::sync::Arc<[u64]>,
+}
+
+/// A hash of one line's content, so two buffers can be compared line by line
+/// without either keeping a copy of the other.
+#[cfg(feature = "editor")]
+pub fn line_fingerprint(line: &DocLine) -> u64 {
+    use std::hash::{Hash, Hasher};
+    let mut h = rustc_hash::FxHasher::default();
+    match line {
+        DocLine::Text(t) => {
+            0u8.hash(&mut h);
+            t.as_str().hash(&mut h);
+        }
+        DocLine::Grid(g) => {
+            1u8.hash(&mut h);
+            g.hash_cells_into(&mut h);
+        }
+    }
+    h.finish()
 }
 
 impl Document {
@@ -449,6 +477,10 @@ impl Document {
             content_gen: 0,
             #[cfg(feature = "editor")]
             line_ids: std::sync::Arc::from([]),
+            #[cfg(feature = "editor")]
+            at_bases: std::sync::Arc::from([]),
+            #[cfg(feature = "editor")]
+            line_fps: std::sync::Arc::from([]),
         }
     }
 

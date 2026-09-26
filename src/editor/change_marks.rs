@@ -342,17 +342,17 @@ pub(crate) fn mark_spans(
 /// gap wide and flush with its right edge, centered on the boundary it sits
 /// on — held inside the document at either end, where half of it would
 /// otherwise be clipped away.
-#[expect(clippy::too_many_arguments)]
+///
+/// `spans` are [`mark_spans`] of the view, which the caller keeps for as long
+/// as neither the view nor the marks change: working them out walks every
+/// visual line, and this runs every frame.
 pub(crate) fn paint_gutter_marks(
     painter: &egui::Painter,
     clip: egui::Rect,
-    vlines: &[VisualLine],
-    lines: &[DocLine],
-    marks: &ChangeMarks,
+    spans: &[MarkSpan],
     (left, right): (f32, f32),
     top: f32,
     total_height: f32,
-    height: impl FnMut(usize, &VisualLine) -> f32,
     pal: &Palette,
 ) -> Vec<(MarkKind, egui::Rect)> {
     let ppp = painter.ctx().pixels_per_point();
@@ -362,7 +362,7 @@ pub(crate) fn paint_gutter_marks(
     let bar_right = bar_right.max(bar_left + 1.0 / ppp);
     let (tri_w, tri_h) = (width / 2.0, width);
     let mut painted = Vec::new();
-    for span in mark_spans(vlines, lines, marks, height) {
+    for span in spans {
         let rect = match span.kind {
             MarkKind::Added | MarkKind::Modified => egui::Rect::from_x_y_ranges(
                 bar_left..=bar_right,

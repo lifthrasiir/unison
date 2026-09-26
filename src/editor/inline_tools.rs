@@ -5,7 +5,7 @@ use crate::editor::colors::Palette;
 use crate::editor::document_view::{INLINE_PALETTE_CELL, PREVIEW_SCALE, UNFILLED_OPACITY};
 use crate::editor::grid_render;
 use crate::editor::minimap;
-use crate::editor::ref_composite::{self, GlyphComposite, ResolvedGlyph};
+use crate::editor::ref_composite::{self, ResolvedGlyph};
 use crate::editor::visual_lines::{preview_max_height, preview_row_height};
 use crate::editor::{EditMode, EditorId, EditorState, Slot};
 use crate::pixel;
@@ -84,7 +84,7 @@ pub(crate) fn draw_inline_tools_panel(
     doc: &Document,
     state: &mut EditorState,
     edit_idx: usize,
-    composites: &HashMap<usize, GlyphComposite>,
+    composites: &crate::editor::grid_render::Composites,
     named_glyphs: &HashMap<String, ResolvedGlyph>,
     name_parts: &NamePartsMap,
     shadow: Option<&crate::editor::shadow::Shadow>,
@@ -108,7 +108,7 @@ pub(crate) fn draw_inline_tools_panel(
     let ppp = ui.ctx().pixels_per_point();
     let preview_scale = PREVIEW_SCALE * zoom;
     let palette_cell = INLINE_PALETTE_CELL * zoom;
-    let composite = composites.get(&edit_idx);
+    let composite = composites.get(&edit_idx).map(|c| &**c);
     let max_ph = preview_max_height(body, composite, named_glyphs, name_parts);
     let prh = preview_row_height(zoom_level, max_ph);
 
