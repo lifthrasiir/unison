@@ -1176,6 +1176,9 @@ glyph han-67e6.0:* = han-67e6:*
 // glyph han-67e7-($han-regions):15x16 15 16 // 柧
 // ⿰ han-6728 han-74dc-($-1) // ⿰木瓜
 
+// glyph han-67e8:15x16 15 16 // 柨
+// ⿰ han-6728 han-5e03 // ⿰木布
+
 glyph han-67eb:15x16 15 16 // 柫
 ⿰ han-6728:5x16 1 han-5f17:9x16 // ⿰木弗
 
@@ -1358,6 +1361,9 @@ glyph han-682d:15x16 15 16 // 栭
 
 glyph han-682e:15x16 15 16 // 栮
 ⿰ han-6728:7x16 1 han-8033:7x16 // ⿰木耳
+
+// glyph han-682f:15x16 15 16 // 栯
+// ⿰ han-6728 han-6709 // ⿰木有
 
 glyph han-6831:15x16 15 16 // 栱
 ⿰ han-6728:5x16 1 han-5171:9x16 // ⿰木共

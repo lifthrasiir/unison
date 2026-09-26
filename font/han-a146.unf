@@ -468,6 +468,9 @@ glyph han-477c-(k|p):15x16 15 16 // 䝼 ⿰貝青(GH) ⿰貝靑(KP)
 
 ## 156.6
 
+// glyph han-47a5:15x16 15 16 // 䞥
+// ⿺ han-8d70 han-6709 // ⿺走有
+
 // glyph han-47a6:15x16 15 16 // 䞦
 // ⿺ han-8d70 han-5404 // ⿺走各
 
@@ -704,6 +707,9 @@ glyph han-4847:15x16 15 16 // 䡇
 
 glyph han-4849:15x16 15 16 // 䡉
 ⿰ han-8eca:5x16 1 han-4ea2:9x16 // ⿰車亢
+
+// glyph han-484c:15x16 15 16 // 䡌
+// ⿰ han-8eca han-53b7 // ⿰車厷
 
 glyph han-484d:15x16 15 16 // 䡍
 ⿰ han-8eca:5x16 1 han-592b:9x16 // ⿰車夫
@@ -1258,6 +1264,9 @@ glyph han-49bb:15x16 15 16 // 䦻
 glyph han-49bf:15x16 15 16 // 䦿
 ⿰ han-961d:5x16-l 1 han-4e2d:9x16 // ⿰阝中
 
+// glyph han-49c0:15x16 15 16 // 䧀
+// ⿰ han-961d han-53b7 // ⿰阝厷
+
 ## 170.5
 
 glyph han-49c1:15x16 15 16 // 䧁
@@ -1357,6 +1366,9 @@ glyph han-49f8:15x16 15 16 // 䧸
 
 // glyph han-49f9:15x16 15 16 // 䧹
 // ⿸ han-5e7f han-5020 // ⿸广倠
+
+// glyph han-49fa:15x16 15 16 // 䧺
+// ⿰ han-53f3 han-96b9 // ⿰右隹
 
 ## 172.6
 

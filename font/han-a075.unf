@@ -272,6 +272,11 @@ glyph han-3c34:15x16 15 16 // 㰴
 glyph han-3c35:15x16 15 16 // 㰵
 ⿰ han-5352:7x16 1 han-6b20:7x16 // ⿰卒欠
 
+## 76.18
+
+// glyph han-3c4c:15x16 15 16 // 㱌
+// ⿰ han-8076 han-6b20 // ⿰聶欠
+
 ## 76.19
 
 // glyph han-3c4d:15x16 15 16 // 㱍
@@ -467,6 +472,9 @@ glyph han-3ccb:15x16 15 16 // 㳋
 glyph han-3ccc:15x16 15 16 // 㳌
 ⿰ han-6c35:5x16 1 han-7532:9x16 // ⿰氵甲
 
+// glyph han-3ccd:15x16 15 16 // 㳍
+// ⿰ han-6c35 han-5e03 // ⿰氵布
+
 // glyph han-3cce:15x16 15 16 // 㳎
 // ⿰ han-6c35 han-5f01 // ⿰氵弁
 
@@ -481,6 +489,9 @@ glyph han-3cd1:15x16 15 16 // 㳑
 
 // glyph han-3cd2:15x16 15 16 // 㳒
 // ⿰ han-6c35 han-53ba // ⿰氵厺
+
+// glyph han-3cd3:15x16 15 16 // 㳓
+// ⿰ han-6c35 han-53f3 // ⿰氵右
 
 ## 85.6
 
@@ -801,6 +812,11 @@ glyph han-3de6:15x16 15 16 // 㷦
 
 // glyph han-3e08:15x16 15 16 // 㸈
 // ⿱ han-96d4 han-706b // ⿱雔火
+
+## 86.18
+
+// glyph han-3e0e:15x16 15 16 // 㸎
+// ⿰ han-706b han-8076 // ⿰火聶
 
 # CJK unified ideographs extension A: 父 (88)
 

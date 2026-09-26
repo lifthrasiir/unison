@@ -181,6 +181,9 @@ glyph han-201bb.0:15x16 15 16 // 𠆻
 ⿰ han-4ebb:5x16 han-5e75.2:10x16 // ⿰亻幵
 glyph han-201bb.1:* = han-201bb:*
 
+// glyph han-201bd:15x16 15 16 // 𠆽
+// ⿰ han-4ebb han-53b7 // ⿰亻厷
+
 // glyph han-201be:15x16 15 16 // 𠆾
 // ⿰ han-4ebb han-516d // ⿰亻六
 

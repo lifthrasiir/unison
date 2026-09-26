@@ -157,6 +157,9 @@ glyph han-25fd6:15x16 15 16 // 𥿖
 glyph han-25fd8:15x16 15 16 // 𥿘
 ⿰ han-7cf9-t:5x16 1 han-79be:9x16 // ⿰糹禾
 
+// glyph han-25fe0-($han-regions):15x16 15 16 // 𥿠 ⿰糸布(J) ⿰糹布(V)
+// ⿰ han-7cf9-($-1) han-5e03 // ⿰糹布
+
 glyph han-25fe1-($han-regions):15x16 15 16 // 𥿡
 ⿰ han-7cf9-($-1):5x16 han-5c3c-($-1):10x16 // ⿰糹尼
 
@@ -298,7 +301,7 @@ glyph han-26040:15x16 15 16 // 𦁀
 // ⿲ han-7cf9 han-4ebb han-534a-($-1) // ⿲糹亻半
 
 glyph han-26045:15x16 15 16 // 𦁅
-⿲ han-7cf9-v:5x16 han-8864:5x16 han-5200:5x16 // ⿲糹衤刀
+⿲ han-7cf9-v:5x16 han-8864.0:5x16 han-5200:5x16 // ⿲糹衤刀
 
 ## 120.8
 
@@ -347,6 +350,9 @@ glyph han-26060.0:* = han-26060:*
 
 // glyph han-26070:15x16 15 16 // 𦁰
 // ⿰ han-7cf9 han-22341 // ⿰糹𢍁
+
+// glyph han-26077-($han-regions):15x16 15 16 // 𦁷
+// ⿰ han-7d21-($-1) han-53b7 // ⿰紡厷
 
 glyph han-2607a:15x16 15 16 // 𦁺
 ⿰ han-7cf9.x:5x16 1 han-9580:9x16 // ⿰糹門
@@ -524,6 +530,9 @@ glyph han-26202:15x16 15 16 // 𦈂
 # CJK unified ideographs extension B: 纟 (120')
 
 ## 120'.7
+
+// glyph han-2620a:15x16 15 16 // 𦈊
+// ⿰ han-7e9f han-5deb // ⿰纟巫
 
 glyph han-2620b:15x16 15 16 // 𦈋
 ⿰ han-7e9f:5x16 1 han-9149:9x16 // ⿰纟酉

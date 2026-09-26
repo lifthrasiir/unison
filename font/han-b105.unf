@@ -479,8 +479,14 @@ glyph han-25045:15x16 15 16 // 𥁅
 // glyph han-25051:15x16 15 16 // 𥁑
 // ⿱ han-5fc5 han-76bf // ⿱必皿
 
-// glyph han-25055:15x16 15 16 // 𥁕
-// ⿱ han-56da han-76bf // ⿱囚皿
+// glyph han-25053:15x16 15 16 // 𥁓
+// ⿱ han-53f3 han-76bf // ⿱右皿
+
+glyph han-25055:9x16 9 16 // 𥁕
+⿱ 1|han-56da:7x7|1 1 han-76bf:9x8 // ⿱囚皿
+glyph han-25055:15x16 15 16 // 𥁕 (see also han-6637)
+⿱ han-56da:15x7 1 han-76bf:15x8 // ⿱囚皿
+glyph han-25055.0:* = han-25055:*
 
 // glyph han-25057:15x16 15 16 // 𥁗
 // ⿳ han-5b80 han-2090e han-76bf // ⿳宀𠤎皿

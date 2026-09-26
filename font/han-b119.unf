@@ -21,6 +21,7 @@ glyph han-25e2c:15x16 15 16 // 𥸬
 
 glyph han-25e2e:15x16 15 16 // 𥸮
 ⿱ han-571f:15x7 han-7c73:15x9 // ⿱土米
+glyph han-25e2e.0:* = han-25e2e:*
 
 glyph han-25e2f:15x16 15 16 // 𥸯
 ⿰ han-7c73:5x16 1 han-4e07:9x16 // ⿰米万
@@ -46,7 +47,7 @@ glyph han-25e39:15x16 15 16 // 𥸹
 ⿰ han-7c73:5x16 1 han-6587.0:9x16 // ⿰米文
 
 glyph han-25e3a:15x16 15 16 // 𥸺
-⿰ han-7c73:7x16 han-7247.x:8x16 // ⿰米片
+⿰ han-7c73:7x16 han-7247-t:8x16 // ⿰米片
 
 // glyph han-25e3b:15x16 15 16 // 𥸻 ⿱米⿻⿵⺆丨一(T) ⿻米⿻⺆一(UCS2003)
 // ⿻米⿻⺆一
@@ -103,6 +104,7 @@ glyph han-25e55-($han-regions):15x16 15 16 // 𥹕
 
 glyph han-25e56:15x16 15 16 // 𥹖
 ⿰ han-7c73:5x16 1 han-76ae:9x16 // ⿰米皮
+glyph han-25e56.0:* = han-25e56:*
 
 // glyph han-25e58:15x16 15 16 // 𥹘
 // ⿰ han-7c73 han-4e19 // ⿰米丙
@@ -164,7 +166,7 @@ glyph han-25e76-(j|p):15x16 15 16 // 𥹶
 // glyph han-25e83:15x16 15 16 // 𥺃
 // ⿰ han-7c73 han-5fd7 // ⿰米志
 
-glyph han-25e86:15x16 15 16 // 𥺆 ⿰米呈(T) ⿰米⿱口𡈼(V)
+glyph han-25e86:15x16 15 16 // 𥺆
 ⿰ han-7c73:5x16 1 han-5448.1:9x16 // ⿰米呈
 
 glyph han-25e88:15x16 15 16 // 𥺈
@@ -181,7 +183,7 @@ glyph han-25e8a-j:15x16 15 16 // 𥺊
 glyph han-25e8b:15x16 15 16 // 𥺋
 ⿳ -7 han-51fa:15x8 han-201a2:15x6 han-7c73:15x9 // ⿳出𠆢米 <- ⿱出⿱𠆢米
 
-glyph han-25e8e:15x16 15 16 // 𥺎 ⿰米貝(V) ⿰米⿱且八(UCS2003)
+glyph han-25e8e:15x16 15 16 // 𥺎
 ⿰ han-7c73:9x16 han-8c9d:6x16 // ⿰米貝
 
 glyph han-25e8f:15x16 15 16 // 𥺏

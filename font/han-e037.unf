@@ -55,8 +55,8 @@ glyph han-2bbe4:15x16 15 16 // 𫯤
 
 ## 37.12
 
-// glyph han-2bbfa:15x16 15 16 // 𫯺
-// ⿱ han-8051 han-5927 // ⿱聑大
+glyph han-2bbfa:15x16 15 16 // 𫯺
+⿱ han-8051:15x12 -1 han-5927:15x5 // ⿱聑大
 
 // glyph han-2bbfc:15x16 15 16 // 𫯼 ⿲大糸糸(G) ⿰大絲(Z)
 // ⿲ han-5927 han-7cf8 han-7cf8 // ⿲大糸糸
@@ -676,6 +676,11 @@ glyph han-2bde5:15x16 15 16 // 𫷥
 glyph han-2bde6:15x16 15 16 // 𫷦
 ⿸ han-5e7f:15x16.11x13 han-5bf8:9x12 5 4 // ⿸广寸
 
+## 53.4
+
+// glyph han-2bde7:15x16 15 16 // 𫷧
+// ⿸ han-5e7f han-53b7 // ⿸广厷
+
 ## 53.6
 
 // glyph han-2bde9:15x16 15 16 // 𫷩
@@ -755,6 +760,11 @@ glyph han-2be25:15x16 15 16 // 𫸥
 
 glyph han-2be28:15x16 15 16 // 𫸨
 ⿰ han-4e01:5x16 1 han-5f17:9x16 // ⿰丁弗
+
+## 57.5
+
+// glyph han-2be2b:15x16 15 16 // 𫸫
+// ⿰ han-5f13 han-53f3 // ⿰弓右
 
 ## 57.6
 

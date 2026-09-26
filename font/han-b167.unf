@@ -86,6 +86,9 @@ glyph han-2895a:15x16 15 16 // 𨥚
 glyph han-2896e:15x16 15 16 // 𨥮
 ⿰ han-91d2:7x16 1 han-793a:7x16 // ⿰釒示
 
+// glyph han-28970:15x16 15 16 // 𨥰
+// ⿰ han-91d2 han-53f3 // ⿰釒右
+
 glyph han-28971:15x16 15 16 // 𨥱
 ⿰ han-91d2:7x16 1 han-56da:7x16 // ⿰釒囚
 

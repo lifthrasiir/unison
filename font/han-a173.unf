@@ -30,6 +30,9 @@ glyph han-4a12-($han-regions):15x16 15 16 // 䨒
 // glyph han-4a15-($han-regions):15x16 15 16 // 䨕
 // ⿱ han-96e8-($-1) han-6c59 // ⿱雨汙
 
+// glyph han-4a16-($han-regions):15x16 15 16 // 䨖
+// ⿱ han-96e8-($-1) han-6709 // ⿱雨有
+
 ## 173.7
 
 glyph han-4a18:15x16 15 16 // 䨘
@@ -426,6 +429,9 @@ glyph han-4af8:15x16 15 16 // 䫸
 
 ## 182.4
 
+// glyph han-4afa:15x16 15 16 // 䫺
+// ⿰ han-53b7 han-98a8 // ⿰厷風
+
 glyph han-4afb:15x16 15 16 // 䫻
 ⿺ han-98a8:15x16.5x15 han-65e5:4x14 11 0 // ⿺風日
 
@@ -743,6 +749,11 @@ glyph han-4bb3:15x16 15 16 // 䮳
 
 // glyph han-4bb5:15x16 15 16 // 䮵
 // ⿰ han-99ac han-7ae5 // ⿰馬童
+
+## 187.18
+
+// glyph han-4bc0:15x16 15 16 // 䯀
+// ⿰ han-99ac han-8076 // ⿰馬聶
 
 ## 187.24
 
@@ -1107,6 +1118,9 @@ glyph han-4ccf:15x16 15 16 // 䳏
 
 // glyph han-4cd0:15x16 15 16 // 䳐
 // ⿱ han-6b21 han-9ce5 // ⿱次鳥
+
+// glyph han-4cd1:15x16 15 16 // 䳑
+// ⿰ han-6709 han-9ce5 // ⿰有鳥
 
 ## 196.7
 

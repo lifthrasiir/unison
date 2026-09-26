@@ -289,6 +289,11 @@ glyph han-32e6d:15x16 15 16 // 𲹭
 // glyph han-32e85:15x16 15 16 // 𲺅
 // ⿰ han-8089 han-5e72 // ⿰肉干
 
+## 130.5
+
+// glyph han-32e8b:15x16 15 16 // 𲺋
+// ⿱ han-5de6 han-6708 // ⿱左月
+
 # CJK unified ideographs extension J: 舌 (135)
 
 ## 135.4
@@ -307,6 +312,12 @@ glyph han-32e6d:15x16 15 16 // 𲹭
 # CJK unified ideographs extension J: 舟 (137)
 
 ## 137.5
+
+// glyph han-32edb:15x16 15 16 // 𲻛
+// ⿰ han-821f han-5de6 // ⿰舟左
+
+// glyph han-32edc:15x16 15 16 // 𲻜
+// ⿰ han-821f han-53f3 // ⿰舟右
 
 // glyph han-32edd-($han-regions):15x16 15 16 // 𲻝
 // ⿰ han-821f han-51ac-($-1) // ⿰舟冬
@@ -679,7 +690,7 @@ glyph han-3301b:15x16 15 16 // 𳀛
 ## 145.4
 
 glyph han-3302f:15x16 15 16 // 𳀯
-⿰ han-8864:5x16 1 han-6708:9x16 // ⿰衤月
+⿰ han-8864.0:5x16 1 han-6708:9x16 // ⿰衤月
 
 ## 145.6
 

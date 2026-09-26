@@ -84,7 +84,7 @@ glyph han-23b1f:15x16 15 16 // 𣬟
 // ⿱ han-5ddb han-6bdb // ⿱巛毛
 
 glyph han-23b22:15x16 15 16 // 𣬢
-⿺ han-6bdb:15x16.10x14 han-5dfe:7x14 7 0 // ⿺毛巾
+⿺ han-6bdb:15x16.10x14 han-5dfe:9x12 6 1 // ⿺毛巾
 
 glyph han-23b23:15x16 15 16 // 𣬣
 ⿺ han-6bdb:15x16.10x14 han-53e3:9x12 6 1 // ⿺毛口
@@ -179,6 +179,9 @@ glyph han-23b43:15x16 15 16 // 𣭃
 
 glyph han-23b49:15x16 15 16 // 𣭉
 ⿺ han-6bdb:15x16.10x14 han-7acb:9x14 6 0 // ⿺毛立
+
+// glyph han-23b4a:15x16 15 16 // 𣭊
+// ⿺ han-6bdb han-53f3 // ⿺毛右
 
 // glyph han-23b4b:15x16 15 16 // 𣭋
 // ⿺ han-6bdb han-52a0 // ⿺毛加
@@ -421,6 +424,9 @@ glyph han-23c36:15x16 15 16 // 𣰶
 
 glyph han-23c3b:15x16 15 16 // 𣰻
 ⿰ han-96da:8x16 han-6bdb:7x16 // ⿰雚毛
+
+// glyph han-23c3c:15x16 15 16 // 𣰼
+// ⿺ han-6bdb han-8076 // ⿺毛聶
 
 # CJK unified ideographs extension B: 氏 (83)
 

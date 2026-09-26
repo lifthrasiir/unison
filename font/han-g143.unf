@@ -15,7 +15,7 @@ glyph han-30ceb:15x16 15 16 // 𰳫
 ## 145.2
 
 glyph han-30cf0:15x16 15 16 // 𰳰
-⿰ han-8864:5x16 1 han-5315.0:9x16 // ⿰衤匕
+⿰ han-8864.0:5x16 1 han-5315.0:9x16 // ⿰衤匕
 
 ## 145.4
 
@@ -24,11 +24,14 @@ glyph han-30cf0:15x16 15 16 // 𰳰
 
 ## 145.5
 
+// glyph han-30cf3:15x16 15 16 // 𰳳
+// ⿰ han-5e03 han-8863 // ⿰布衣
+
 // glyph han-30cf5:15x16 15 16 // 𰳵
 // ⿰ han-8864 han-827a // ⿰衤艺
 
 glyph han-30cf7:15x16 15 16 // 𰳷
-⿲ han-8864:5x16 han-529b:5x16 1 han-53e3:4x16 // ⿲衤力口
+⿲ han-8864.0:5x16 han-529b:5x16 1 han-53e3:4x16 // ⿲衤力口
 
 ## 145.6
 
@@ -41,7 +44,7 @@ glyph han-30cf7:15x16 15 16 // 𰳷
 // ⿰ han-8864 han-8fbe-($-1) // ⿰衤达
 
 glyph han-30cfe:15x16 15 16 // 𰳾
-⿲ -1 han-8864:5x16 han-4e14:6x16 han-529b:5x16 // ⿲衤且力
+⿲ -1 han-8864.0:5x16 han-4e14:6x16 han-529b:5x16 // ⿲衤且力
 
 // glyph han-30d00:15x16 15 16 // 𰴀
 // ⿰ han-8864 han-5175 // ⿰衤兵
@@ -52,7 +55,7 @@ glyph han-30cfe:15x16 15 16 // 𰳾
 // ⿰ han-8864 han-7557 // ⿰衤畗
 
 glyph han-30d05:15x16 15 16 // 𰴅
-⿲ -3 han-8864:5x16 han-76ae:8x16 han-7530:5x16 // ⿲衤皮田
+⿲ -3 han-8864.0:5x16 han-76ae:8x16 han-7530:5x16 // ⿲衤皮田
 
 # CJK unified ideographs extension G: 見 (147)
 
@@ -664,7 +667,7 @@ glyph han-30e9c:15x16 15 16 // 𰺜
 // ⿺ han-8fb6 han-5140 // ⿺辶兀
 
 glyph han-30eb1:15x16 15 16 // 𰺱
-⿺ han-8fb6-j:15x16.11x14 han-5dfe:7x14 6 0 // ⿺辶巾
+⿺ han-8fb6-j:15x16.11x14 han-5dfe:11x13 4 1 // ⿺辶巾
 
 // glyph han-30eb3-($han-regions):15x16 15 16 // 𰺳
 // ⿺ han-8fb6-($-1) han-5f13 // ⿺辶弓

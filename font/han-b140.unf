@@ -49,7 +49,7 @@ glyph han-26b05:15x16 15 16 // 𦬅
 // ⿱ han-8279 han-4ebe // ⿱艹亾
 
 glyph han-26b07:15x16 15 16 // 𦬇
-⿱ 1 han-8279:15x3 2 han-5efe:15x9 // ⿱艹廾
+⿱ han-8279:15x3 1 han-5efe:15x11 // ⿱艹廾
 
 glyph han-26b0a:15x16 15 16 // 𦬊
 ⿱ han-8279:15x3 1 han-5df3:15x12 // ⿱艹巳

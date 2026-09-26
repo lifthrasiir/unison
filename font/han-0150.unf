@@ -287,6 +287,9 @@ glyph han-8cc2:15x16 15 16 // 賂
 ⿰ han-8c9d:8x16 han-5404:7x16 // ⿰貝各
 glyph han-8cc2.0:* = han-8cc2:*
 
+// glyph han-8cc4:15x16 15 16 // 賄
+// ⿰ han-8c9d han-6709 // ⿰貝有
+
 glyph han-8cc6.0:15x16 15 16 // 賆
 ⿰ han-8c9d:5x16 1 han-5e76:9x16 // ⿰貝并
 glyph han-8cc6.1:* = han-8cc6.0:*
@@ -1006,6 +1009,11 @@ glyph han-8e7b:15x16 15 16 // 蹻
 
 glyph han-8e9f:15x16 15 16 // 躟
 ⿰ han-27fb7:5x16 1 han-8944:9x16 // ⿰𧾷襄
+
+## 157.18
+
+// glyph han-8ea1:15x16 15 16 // 躡
+// ⿰ han-27fb7 han-8076 // ⿰𧾷聶
 
 # CJK unified ideographs: 身 (158)
 

@@ -859,6 +859,9 @@ glyph han-9ba9:15x16 15 16 // 鮩 ⿰魚并(GTJP) ⿰魚幷(Z)
 ⿰ han-9b5a:7x16 han-5e76:8x16 // ⿰魚并
 glyph han-9ba9.0:* = han-9ba9:*
 
+// glyph han-9baa:15x16 15 16 // 鮪
+// ⿰ han-9b5a han-6709 // ⿰魚有
+
 glyph han-9bab.0:15x16 15 16 // 鮫
 ⿰ han-9b5a:7x16 1 han-4ea4.1:7x16 // ⿰魚交
 glyph han-9bab.1:15x16 15 16 // 鮫
@@ -1063,6 +1066,9 @@ glyph han-9c22:15x16 15 16 // 鰢
 
 // glyph han-9c28-($han-regions):15x16 15 16 // 鰨
 // ⿰ han-9b5a han-26407-($-1) // ⿰魚𦐇
+
+// glyph han-9c2e:15x16 15 16 // 鰮
+// ⿰ han-9b5a han-25055 // ⿰魚𥁕
 
 glyph han-9c30:15x16 15 16 // 鰰
 ⿲ -4 han-9b5a:7x16 han-793b:5x16 han-7533:7x16 // ⿲魚礻申

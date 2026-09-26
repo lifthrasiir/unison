@@ -186,6 +186,10 @@ glyph han-6ea7:15x16 15 16 // 溧
 ⿰ han-6c35:5x16 1 han-6817:9x16 // ⿰氵栗
 glyph han-6ea7.0:* = han-6ea7:*
 
+glyph han-6eab:15x16 15 16 // 溫
+⿰ han-6c35:5x16 1 han-25055:9x16 // ⿰氵𥁕
+glyph han-6eab.0:* = han-6eab:*
+
 // glyph han-6ebb-($han-regions):15x16 15 16 // 溻
 // ⿰ han-6c35 han-26407-($-1) // ⿰氵𦐇
 
@@ -447,6 +451,9 @@ glyph han-703c:15x16 15 16 // 瀼
 glyph han-703c.0:* = han-703c:*
 
 ## 85.18
+
+// glyph han-7044:15x16 15 16 // 灄
+// ⿰ han-6c35 han-8076 // ⿰氵聶
 
 glyph han-704c:15x16 15 16 // 灌 ⿰氵雚(GJKP[B]) ⿰氵雚(HT)
 ⿰ han-6c35:5x16 1 han-96da:9x16 // ⿰氵雚

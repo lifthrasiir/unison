@@ -285,6 +285,28 @@ glyph han-303ae:15x16 15 16 // 𰎮
 // glyph han-303c4:15x16 15 16 // 𰏄
 // ⿳ han-5ddb han-65e5 han-5341 // ⿳巛日十 <- ⿱巛早
 
+# CJK unified ideographs extension G: 工 (48)
+
+## 48.3
+
+// glyph han-303c7:15x16 15 16 // 𰏇
+// ⿰ han-5de6 han-4e59 // ⿰左乙
+
+## 48.4
+
+// glyph han-303ca:15x16 15 16 // 𰏊
+// ⿰ han-5de5 han-53b7 // ⿰工厷
+
+## 48.5
+
+// glyph han-303cb:15x16 15 16 // 𰏋
+// ⿰ han-5de5 han-53f3 // ⿰工右
+
+## 48.8
+
+// glyph han-303cc:15x16 15 16 // 𰏌
+// ⿰ han-5de6 han-897f // ⿰左西
+
 # CJK unified ideographs extension G: 己 (49)
 
 ## 49.8
@@ -717,6 +739,9 @@ glyph han-304c1:15x16 15 16 // 𰓁
 // glyph han-304ce:15x16 15 16 // 𰓎
 // ⿰ han-624b han-53ef // ⿰手可
 
+// glyph han-304cf:15x16 15 16 // 𰓏
+// ⿰ han-624b han-53f3 // ⿰手右
+
 // glyph han-304d0-($han-regions):15x16 15 16 // 𰓐
 // ⿰ han-624c han-53f2-($-1) // ⿰扌史
 
@@ -995,10 +1020,20 @@ glyph han-3059f:15x16 15 16 // 𰖟
 // glyph han-305c6:15x16 15 16 // 𰗆
 // ⿰ han-5c81 han-6708 // ⿰岁月
 
+## 74.8
+
+// glyph han-305c8:15x16 15 16 // 𰗈
+// ⿰ han-6709 han-6709 // ⿰有有
+
 ## 74.11
 
 // glyph han-305cd:15x16 15 16 // 𰗍
 // ⿰ han-6708 han-7ae0 // ⿰月章
+
+## 74.14
+
+// glyph han-305cf:15x16 15 16 // 𰗏
+// ⿰ han-6709 han-582f // ⿰有堯
 
 # CJK unified ideographs extension G: 木 (75)
 

@@ -611,6 +611,9 @@ glyph han-6014:15x16 15 16 // 怔
 glyph han-6015:15x16 15 16 // 怕
 ⿰ han-5fc4:7x16 han-767d:8x16 // ⿰忄白
 
+// glyph han-6016:15x16 15 16 // 怖
+// ⿰ han-5fc4 han-5e03 // ⿰忄布
+
 glyph han-6017:15x16 15 16 // 怗
 ⿰ han-5fc4:7x16 1 han-5360:7x16 // ⿰忄占
 
@@ -1073,6 +1076,7 @@ glyph han-6114.1:15x16 15 16 // 愔
 
 glyph han-6120:15x16 15 16 // 愠
 ⿰ han-5fc4:5x16 1 han-6637:9x16 // ⿰忄昷
+glyph han-6120.0:* = han-6120:*
 
 // glyph han-6122:15x16 15 16 // 愢
 // ⿰ han-5fc4 han-601d // ⿰忄思
@@ -1093,6 +1097,10 @@ glyph han-6132-($han-regions):15x16 15 16 // 愲
 
 glyph han-6144:15x16 15 16 // 慄
 ⿰ han-5fc4:5x16 1 han-6817:9x16 // ⿰忄栗
+
+glyph han-614d:15x16 15 16 // 慍
+⿰ han-5fc4:5x16 1 han-25055:9x16 // ⿰忄𥁕
+glyph han-614d.0:* = han-614d:*
 
 // glyph han-6150:15x16 15 16 // 慐
 // ⿳ han-5de5 han-8c9d han-5fc3 // ⿳工貝心 <- ⿱貢心
@@ -1174,6 +1182,9 @@ glyph han-61f9:15x16 15 16 // 懹
 
 glyph han-61fd:15x16 15 16 // 懽
 ⿰ han-5fc4:5x16 1 han-96da:9x16 // ⿰忄雚
+
+// glyph han-61fe:15x16 15 16 // 懾
+// ⿰ han-5fc4 han-8076 // ⿰忄聶
 
 ## 61.19
 

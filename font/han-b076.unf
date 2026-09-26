@@ -308,6 +308,9 @@ glyph han-23967:15x16 15 16 // 𣥧
 glyph han-2396e:15x16 15 16 // 𣥮
 ⿳ han-6b62:15x4 han-571f:15x6 han-571f:15x6 // ⿳止土土
 
+// glyph han-2396f:15x16 15 16 // 𣥯
+// ⿱ han-6b62 han-6709 // ⿱止有
+
 // glyph han-23971-($han-regions):15x16 15 16 // 𣥱
 // ⿰ han-6b62 han-540f-($-1) // ⿰止吏
 

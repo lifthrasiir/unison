@@ -596,6 +596,9 @@ glyph han-70db:15x16 15 16 // 烛
 // glyph han-70df:15x16 15 16 // 烟
 // ⿰ han-706b han-56e0 // ⿰火因
 
+// glyph han-70e0:15x16 15 16 // 烠
+// ⿰ han-706b han-6709 // ⿰火有
+
 // glyph han-70e1:15x16 15 16 // 烡
 // ⿱ han-706b han-5171 // ⿱火共
 
@@ -824,6 +827,10 @@ glyph han-7176:15x16 15 16 // 煶
 
 // glyph han-715b:15x16 15 16 // 煛
 // ⿱ han-4020 han-706b // ⿱䀠火
+
+glyph han-7185:15x16 15 16 // 熅
+⿰ han-706b:5x16-l 1 han-25055:9x16 // ⿰火𥁕
+glyph han-7185.0:* = han-7185:*
 
 glyph han-7187:15x16 15 16 // 熇
 ⿰ han-706b:5x16-l 1 han-9ad8:9x16 // ⿰火高

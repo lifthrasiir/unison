@@ -71,6 +71,9 @@ glyph han-2867a-($han-regions):15x16 15 16 // 𨙺
 glyph han-2867d-($han-regions):15x16 15 16 // 𨙽
 ⿰ han-4eca-($-1):9x16 1 han-961d:5x16-r // ⿰今阝
 
+// glyph han-2867f:15x16 15 16 // 𨙿
+// ⿰ han-53b7 han-961d // ⿰厷阝
+
 glyph han-28680:15x16 15 16 // 𨚀
 ⿰ han-4e0d:9x16 1 han-961d:5x16-r // ⿰不阝
 
@@ -126,6 +129,9 @@ glyph han-28698:15x16 15 16 // 𨚘
 
 glyph han-2869d:15x16 15 16 // 𨚝
 ⿰ han-7389:11x16 han-961d:4x16-r // ⿰玉阝
+
+// glyph han-2869e:15x16 15 16 // 𨚞
+// ⿰ han-53f3 han-961d // ⿰右阝
 
 // glyph han-2869f-($han-regions):15x16 15 16 // 𨚟
 // ⿰ han-51ac-($-1) han-961d // ⿰冬阝
@@ -185,6 +191,12 @@ glyph han-286b7:15x16 15 16 // 𨚷
 
 glyph han-286b9:15x16 15 16 // 𨚹
 ⿰ han-897f:10x16 1 han-961d:4x16-r // ⿰西阝
+
+// glyph han-286ba:15x16 15 16 // 𨚺
+// ⿰ han-6709 han-9091 // ⿰有邑
+
+// glyph han-286bc:15x16 15 16 // 𨚼
+// ⿰ han-9091 han-6709 // ⿰邑有
 
 // glyph han-286bd:15x16 15 16 // 𨚽
 // ⿰ han-5e74 han-9091 // ⿰年邑
@@ -333,8 +345,10 @@ glyph han-28727:15x16 15 16 // 𨜧
 // glyph han-28733:15x16 15 16 // 𨜳 ⿰宫阝(G) ⿰宮阝(T)
 // ⿰ han-5bab han-961d // ⿰宫阝
 
-glyph han-28735:15x16 15 16 // 𨜵 ⿰昷阝(G) ⿰𥁕阝(T)
+glyph han-28735-g:15x16 15 16 // 𨜵
 ⿰ han-6637:9x16 1 han-961d:5x16-r // ⿰昷阝
+glyph han-28735-(t|j):15x16 15 16 // 𨜵
+⿰ han-25055:9x16 1 han-961d:5x16-r // ⿰𥁕阝
 
 glyph han-2873c:15x16 15 16 // 𨜼
 ⿰ han-6817:9x16 1 han-961d:5x16-r // ⿰栗阝

@@ -219,6 +219,9 @@ glyph han-2201b:15x16 15 16 // 𢀛
 
 ## 48.7
 
+// glyph han-22021:15x16 15 16 // 𢀡
+// ⿱ han-5de6 han-5de6 // ⿱左左
+
 glyph han-22022:15x16 15 16 // 𢀢
 ⿱ han-5de5:15x4 1 han-898b:15x11 // ⿱工見
 
@@ -389,6 +392,9 @@ glyph han-22078:15x16 15 16 // 𢁸
 
 ## 50.5
 
+// glyph han-2207b:15x16 15 16 // 𢁻
+// ⿰ han-5dfe han-5e03 // ⿰巾布
+
 // glyph han-2207c:15x16 15 16 // 𢁼
 // ⿰ han-5dfe han-5b81 // ⿰巾宁
 
@@ -442,6 +448,9 @@ glyph han-22094:15x16 15 16 // 𢂔
 // glyph han-2209a:15x16 15 16 // 𢂚
 // ⿳ han-4ea0 han-65e5 han-5dfe // ⿳亠日巾 <- ⿱𣅀巾
 
+// glyph han-2209e-($han-regions):15x16 15 16 // 𢂞
+// ⿱ han-723b-($-1) han-5e03 // ⿱爻布
+
 // glyph han-220a1:15x16 15 16 // 𢂡
 // ⿰ han-5dfe han-4e98 // ⿰巾亘
 
@@ -468,6 +477,9 @@ glyph han-220b7:15x16 15 16 // 𢂷 ⿰市合(G) ⿰巿合(T)
 // glyph han-220bf:15x16 15 16 // 𢂿
 // ⿰ han-5dfe han-593e // ⿰巾夾
 
+// glyph han-220c0:15x16 15 16 // 𢃀
+// ⿰ han-5dfe han-5deb // ⿰巾巫
+
 // glyph han-220c1:15x16 15 16 // 𢃁
 // ⿻𰃦⿵冂⿱𰀪巾
 
@@ -491,6 +503,9 @@ glyph han-220c7:15x16 15 16 // 𢃇
 
 // glyph han-220cb:15x16 15 16 // 𢃋
 // ⿳ han-5405 han-4e00 han-5dfe // ⿳吅一巾 <- ⿱吅帀
+
+// glyph han-220cc-($han-regions):15x16 15 16 // 𢃌
+// ⿱ han-6b64-($-1) han-5e03 // ⿱此布
 
 ## 50.8
 

@@ -196,6 +196,9 @@ glyph han-21b68:15x16 15 16 // 𡭨
 // glyph han-21b6d-($han-regions):15x16 15 16 // 𡭭 ⿱𡭔吏(G) ⿱小吏(Z)
 // ⿱ han-21b54 han-540f-($-1) // ⿱𡭔吏
 
+// glyph han-21b6e:15x16 15 16 // 𡭮 ⿱𡭔有(G) ⿱小有(Z)
+// ⿱ han-21b54 han-6709 // ⿱𡭔有
+
 // glyph han-21b6f:15x16 15 16 // 𡭯 ⿳𡭔𡭔小(G) ⿳小小小(T)
 // ⿳ han-5c0f han-5c0f han-5c0f // ⿳小小小
 
@@ -298,6 +301,9 @@ glyph han-21b82:15x16 15 16 // 𡮂 ⿱𡭔⿱白小(T) ⿱小⿱白小(Z)
 // glyph han-21bda:15x16 15 16 // 𡯚
 // ⿺ han-5c23 han-5305 // ⿺尣包
 
+// glyph han-21bdb:15x16 15 16 // 𡯛
+// ⿺ han-5c23 han-5de6 // ⿺尣左
+
 // glyph han-21bdd:15x16 15 16 // 𡯝
 // ⿺ han-5140 han-77f3 // ⿺兀石
 
@@ -390,8 +396,8 @@ glyph han-21c2a:15x16 15 16 // 𡰪
 // glyph han-21c2e:15x16 15 16 // 𡰮 ⿱凵尸(G) ⿱𫡃尸(T)
 // ⿱ han-51f5 han-5c38 // ⿱凵尸
 
-// glyph han-21c2f:15x16 15 16 // 𡰯
-// ⿸ han-5c38 han-5dfe // ⿸尸巾
+glyph han-21c2f:15x16 15 16 // 𡰯
+⿸ han-5c38:15x16.11x12 han-5dfe:9x12 6 4 // ⿸尸巾
 
 glyph han-21c31:15x16 15 16 // 𡰱
 ⿸ han-5c38:15x16.11x12 han-5de5:9x11 6 5 // ⿸尸工

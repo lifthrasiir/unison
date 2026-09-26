@@ -940,6 +940,9 @@ glyph han-794f.2:15x16 15 16 // 祏
 glyph han-794f-(j|k|p):* = han-794f.0:*
 glyph han-794f-(g|h|t):* = han-794f.2:*
 
+// glyph han-7950:15x16 15 16 // 祐 ⿰礻右(GHTJ) ⿰示右(KP)
+// ⿰ han-793b han-53f3 // ⿰礻右
+
 glyph han-7951.0:15x16 15 16 // 祑
 ⿰ han-793a:5x16 1 han-5931:9x16 // ⿰示失
 glyph han-7951.1:* = han-7951.0:*

@@ -162,6 +162,9 @@ glyph han-2848c-t:* = han-2848c.x:*
 // glyph han-2848f-($han-regions):15x16 15 16 // 𨒏
 // ⿺ han-8fb6-($-1) han-215dc // ⿺辶𡗜
 
+// glyph han-28490-($han-regions):15x16 15 16 // 𨒐
+// ⿺ han-8fb6-($-1) han-53f3 // ⿺辶右
+
 glyph han-28491-g:15x16 15 16 // 𨒑
 ⿺ han-8fb6.1:15x16.11x14 han-5de8.0:11x13 4 0 // ⿺辶巨
 glyph han-28491-j:15x16 15 16 // 𨒑
@@ -412,6 +415,9 @@ glyph han-285cf:15x16 15 16 // 𨗏
 // ⿺ han-8fb6-($-1) han-8aa9 // ⿺辶誩
 
 ## 162.18
+
+// glyph han-28653-($han-regions):15x16 15 16 // 𨙓
+// ⿺ han-8fb6-($-1) han-8076 // ⿺辶聶
 
 // glyph han-28655-($han-regions):15x16 15 16 // 𨙕
 // ⿺ han-8fb6-($-1) han-96da // ⿺辶雚

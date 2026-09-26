@@ -417,6 +417,9 @@ glyph han-2cf65:15x16 15 16 // 𬽥
 
 ## 9.4
 
+// glyph han-2cf69-($han-regions):15x16 15 16 // 𬽩
+// ⿰ han-4ebb han-352b-($-1) // ⿰亻㔫
+
 glyph han-2cf6a:15x16 15 16 // 𬽪
 ⿰ han-4ebb:5x16 1 han-65e5:9x16 // ⿰亻日
 
@@ -859,6 +862,11 @@ glyph han-2d0a9:15x16 15 16 // 𭂩
 
 // glyph han-2d0b0:15x16 15 16 // 𭂰
 // ⿱ han-592e han-51e0 // ⿱央几
+
+## 16.6
+
+// glyph han-2d0b1:15x16 15 16 // 𭂱
+// ⿵ han-20628 han-6709 // ⿵𠘨有
 
 ## 16.7
 

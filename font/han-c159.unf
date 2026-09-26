@@ -715,6 +715,9 @@ glyph han-2b5ce-($han-regions):15x16 15 16 // 𫗎
 
 ## 184.6
 
+// glyph han-2b5cf-($han-regions):15x16 15 16 // 𫗏
+// ⿰ han-98e0-($-1) han-6709 // ⿰飠有
+
 // glyph han-2b5d0:15x16 15 16 // 𫗐 ⿰𩙿全(K) ⿰飠全(Z)
 // ⿰ han-98e0 han-5168 // ⿰飠全
 
@@ -969,6 +972,9 @@ glyph han-2b6b4:15x16 15 16 // 𫚴
 // ⿰ han-518c han-9ce5 // ⿰册鳥
 
 ## 196.6
+
+// glyph han-2b6b8:15x16 15 16 // 𫚸
+// ⿰ han-9ce5 han-6709 // ⿰鳥有
 
 glyph han-2b6bb:15x16 15 16 // 𫚻
 ⿲ -2 han-5973:5x16-l han-5b50.0:5x16 han-9ce5:7x16 // ⿲女子鳥

@@ -81,7 +81,7 @@ glyph han-2101e:15x16 15 16 // 𡀞
 // ⿰ han-53e3 han-5d69 // ⿰口嵩
 
 glyph han-21028:15x16 15 16 // 𡀨
-⿲ han-53e3:3x16 han-8864:5x16 han-752b:7x16 // ⿲口衤甫
+⿲ han-53e3:3x16 han-8864.0:5x16 han-752b:7x16 // ⿲口衤甫
 
 // glyph han-2102a:15x16 15 16 // 𡀪
 // ⿱ han-53ec han-6392 // ⿱召排

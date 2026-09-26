@@ -397,6 +397,9 @@ glyph han-6c6b.0:* = han-6c6b:*
 glyph han-6c6d:15x16 15 16 // 汭 ⿰氵内(G) ⿰氵內(HTJKP)
 ⿰ han-6c35:3x16 1 han-5185:11x16 // ⿰氵内
 
+// glyph han-6c6f:15x16 15 16 // 汯
+// ⿰ han-6c35 han-53b7 // ⿰氵厷
+
 // glyph han-6c70:15x16 15 16 // 汰
 // ⿰ han-6c35 han-592a // ⿰氵太
 
@@ -867,6 +870,9 @@ glyph han-6d23:15x16 15 16 // 洣
 glyph han-6d26:15x16 15 16 // 洦
 ⿰ han-6c35:5x16 1 han-767e:9x16 // ⿰氵百
 glyph han-6d26.0:* = han-6d26:*
+
+// glyph han-6d27:15x16 15 16 // 洧
+// ⿰ han-6c35 han-6709 // ⿰氵有
 
 glyph han-6d28.0:15x16 15 16 // 洨
 ⿰ han-6c35:5x16 1 han-4ea4.1:9x16 // ⿰氵交
