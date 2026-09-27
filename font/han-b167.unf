@@ -151,6 +151,9 @@ glyph han-28995:15x16 15 16 // 𨦕
 glyph han-289a1:15x16 15 16 // 𨦡
 ⿰ han-91d2:7x16 1 han-7f8a:7x16 // ⿰釒羊
 
+// glyph han-289a2:15x16 15 16 // 𨦢
+// ⿰ han-91d2 han-3b30 // ⿰釒㬰
+
 // glyph han-289a7:15x16 15 16 // 𨦧
 // ⿰ han-91d2 han-5e74 // ⿰釒年
 
@@ -376,7 +379,7 @@ glyph han-28a9a:15x16 15 16 // 𨪚
 // ⿰ han-91d2 han-43a1 // ⿰釒䎡
 
 glyph han-28ab5:15x16 15 16 // 𨪵
-⿲ han-91d2:5x15-l han-76ee:3x16-l han-53e5:7x16 // ⿲釒目句
+⿲ han-91d2:5x15-l han-76ee:3x13-l han-53e5:7x16 // ⿲釒目句
 
 glyph han-28ab7-($han-regions):15x16 15 16 // 𨪷
 ⿰ han-91d2:5x15-l 1 han-9aa8-($-1):9x16 // ⿰釒骨

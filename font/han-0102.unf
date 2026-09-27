@@ -2519,8 +2519,7 @@ glyph han-76df:15x16 15 16 // 盟
 
 ## 109.0
 
-glyph han-76ee:3x16-l 3 16 // 目
-......
+glyph han-76ee:3x13-l 3 13 margin-y 1|2 // 目
 @@@@@@
 @@..@@
 @@..@@
@@ -2534,10 +2533,7 @@ glyph han-76ee:3x16-l 3 16 // 目
 @@..@@
 @@..@@
 @@@@@@
-......
-......
-glyph han-76ee:4x16-l 4 16 // 目
-........
+glyph han-76ee:4x13-l 4 13 margin-y 1|2 // 目
 @@@@@@@@
 @@....@@
 @@....@@
@@ -2551,8 +2547,6 @@ glyph han-76ee:4x16-l 4 16 // 目
 @@....@@
 @@....@@
 @@@@@@@@
-........
-........
 glyph han-76ee:4x16 4 16 // 目
 @@@@@@@@
 @@....@@
@@ -2570,8 +2564,7 @@ glyph han-76ee:4x16 4 16 // 目
 @@....@@
 @@....@@
 @@@@@@@@
-glyph han-76ee:5x16-l 5 16 // 目
-..........
+glyph han-76ee:5x13-l 5 13 margin-y 1|2 // 目
 @@@@@@@@@@
 @@......@@
 @@......@@
@@ -2585,8 +2578,6 @@ glyph han-76ee:5x16-l 5 16 // 目
 @@......@@
 @@......@@
 @@@@@@@@@@
-..........
-..........
 glyph han-76ee:6x12 6 12 scale 3 // 目
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -2855,6 +2846,14 @@ glyph han-76ee:9x16 9 16 // 目
 @@..............@@
 @@..............@@
 @@@@@@@@@@@@@@@@@@
+glyph han-76ee:11x7 11 7 margin-x 2 // 目
+@@@@@@@@@@@@@@@@@@@@@@
+@@..................@@
+@@@@@@@@@@@@@@@@@@@@@@
+@@..................@@
+@@@@@@@@@@@@@@@@@@@@@@
+@@..................@@
+@@@@@@@@@@@@@@@@@@@@@@
 glyph han-76ee:13x10 13 10 // 目
 @@@@@@@@@@@@@@@@@@@@@@@@@@
 @@......................@@
@@ -2893,18 +2892,18 @@ glyph han-76ef:15x16 15 16 // 盯
 ## 109.3
 
 glyph han-76f0:15x16 15 16 // 盰
-⿰ han-76ee:5x16-l 1 han-5e72:9x16 // ⿰目干
+⿰ han-76ee:5x13-l 1 han-5e72:9x16 // ⿰目干
 glyph han-76f0.0:* = han-76f0:*
 
 glyph han-76f1:15x16 15 16 // 盱
-⿰ han-76ee:5x16-l 1 han-4e8e:9x16 // ⿰目于
+⿰ han-76ee:5x13-l 1 han-4e8e:9x16 // ⿰目于
 glyph han-76f1.0:* = han-76f1:*
 
 glyph han-76f2-($han-regions):15x16 15 16 // 盲
 ⿱ han-4ea1-($-1):15x8 1 han-76ee:9x7 // ⿱亡目
 
 glyph han-76f3-($han-regions):15x16 15 16 // 盳
-⿰ han-76ee:5x16-l 1 han-4ea1-($-1):9x16 // ⿰目亡
+⿰ han-76ee:5x13-l 1 han-4ea1-($-1):9x16 // ⿰目亡
 
 // glyph han-76f4:15x16 15 16 // 直 ⿱十{73}(GH[M]TV) ⿺𠃊𥃭(JKP[U][S])
 // ⿺ han-200ca han-250ed // ⿺𠃊𥃭
@@ -2912,7 +2911,7 @@ glyph han-76f3-($han-regions):15x16 15 16 // 盳
 ## 109.4
 
 glyph han-76f6:15x16 15 16 // 盶
-⿰ han-76ee:5x16-l 1 han-5143:9x16 // ⿰目元
+⿰ han-76ee:5x13-l 1 han-5143:9x16 // ⿰目元
 
 glyph han-76f8:15x11 15 11 // 相
 ⿰ han-6728:7x11 1 han-76ee:7x11 // ⿰木目
@@ -2928,7 +2927,7 @@ glyph han-76fc:15x16 15 16 // 盼
 ⿰ han-76ee:6x16 han-5206:9x16 // ⿰目分
 
 glyph han-76fd-($han-regions):15x16 15 16 // 盽
-⿰ han-76ee:5x16-l 1 han-4e30-($-1):9x16 // ⿰目丰
+⿰ han-76ee:5x13-l 1 han-4e30-($-1):9x16 // ⿰目丰
 
 glyph han-76ff-($han-regions):15x16 15 16 // 盿
 ⿰ han-76ee:6x16 han-6587-($-1):9x16 // ⿰目文
@@ -2941,10 +2940,10 @@ glyph han-7700.0:* = han-7700:*
 // ⿱ han-5c11 han-76ee // ⿱少目
 
 glyph han-7702:15x16 15 16 // 眂
-⿰ han-76ee:5x16-l han-6c0f:10x16 // ⿰目氏
+⿰ han-76ee:5x13-l han-6c0f:10x16 // ⿰目氏
 
 glyph han-7703:15x16 15 16 // 眃
-⿰ han-76ee:5x16-l 1 han-4e91:9x16 // ⿰目云
+⿰ han-76ee:5x13-l 1 han-4e91:9x16 // ⿰目云
 
 // glyph han-7704:15x16 15 16 // 眄 ⿰目丏(GHTJKP) ⿰目丐(Z)
 // ⿰ han-76ee han-4e0f // ⿰目丏
@@ -2970,10 +2969,10 @@ glyph han-770e:15x16 15 16 // 眎
 // ⿰ han-76ee han-592e // ⿰目央
 
 glyph han-7710:15x16 15 16 // 眐
-⿰ han-76ee:4x16-l 1 han-6b63:10x16 // ⿰目正
+⿰ han-76ee:4x13-l 1 han-6b63:10x16 // ⿰目正
 
 glyph han-7712:15x16 15 16 // 眒
-⿰ han-76ee:5x16-l 1 han-7533:9x16 // ⿰目申
+⿰ han-76ee:5x13-l 1 han-7533:9x16 // ⿰目申
 
 // glyph han-7716:15x16 15 16 // 眖
 // ⿰ han-76ee han-5144 // ⿰目兄
@@ -3017,14 +3016,14 @@ glyph han-7724-($han-regions):15x16 15 16 // 眤
 // ⿱ han-6b64 han-76ee // ⿱此目
 
 glyph han-7726-($han-regions):15x16 15 16 // 眦
-⿰ han-76ee:4x16-l han-6b64-($-1):11x16 // ⿰目此
+⿰ han-76ee:4x13-l han-6b64-($-1):11x16 // ⿰目此
 glyph han-7726.0:* = han-7726-j:*
 
 glyph han-7727:15x16 15 16 // 眧
 ⿰ han-76ee:6x16 1 han-53ec:8x16 // ⿰目召
 
 glyph han-772a:15x16 15 16 // 眪
-⿰ han-76ee:3x16-l 1 han-4e19:11x16 // ⿰目丙
+⿰ han-76ee:3x13-l 1 han-4e19:11x16 // ⿰目丙
 
 // glyph han-772b-($han-regions):15x16 15 16 // 眫
 // ⿰ han-76ee han-534a-($-1) // ⿰目半
@@ -3053,7 +3052,7 @@ glyph han-7735:15x16 15 16 // 眵
 ⿰ han-76ee:6x16 han-591a:9x16 // ⿰目多
 
 glyph han-7736:15x16 15 16 // 眶
-⿰ han-76ee:5x16-l 1 han-5321:9x16 // ⿰目匡
+⿰ han-76ee:5x13-l 1 han-5321:9x16 // ⿰目匡
 
 // glyph han-7737:15x16 15 16 // 眷 ⿱龹目(GHT) ⿱𠔉目(JKPV)
 // ⿳ han-516b han-592b han-76ee // ⿳八夫目 <- ⿱𠔉目
@@ -3078,20 +3077,20 @@ glyph han-7744-(j|k|p):15x16 15 16 // 睄
 // ⿰ han-76ee han-65f1 // ⿰目旱
 
 glyph han-7746:15x16 15 16 // 睆
-⿰ han-76ee:4x16-l 2 han-5b8c:9x16 // ⿰目完
+⿰ han-76ee:4x13-l 2 han-5b8c:9x16 // ⿰目完
 
 glyph han-7748-(g|v):15x16 15 16 // 睈
-⿰ han-76ee:3x16-l 1 han-5448.0:11x16 // ⿰目呈
+⿰ han-76ee:3x13-l 1 han-5448.0:11x16 // ⿰目呈
 glyph han-7748-(t|j):15x16 15 16 // 睈
-⿰ han-76ee:3x16-l 1 han-5448.1:11x16 // ⿰目呈
+⿰ han-76ee:3x13-l 1 han-5448.1:11x16 // ⿰目呈
 glyph han-7748-p:15x16 15 16 // 睈
-⿰ han-76ee:3x16-l 1 han-5448.3:11x16 // ⿰目呈
+⿰ han-76ee:3x13-l 1 han-5448.3:11x16 // ⿰目呈
 
 glyph han-774d:15x16 15 16 // 睍
-⿰ han-76ee:4x16-l 1 han-898b:10x16 // ⿰目見
+⿰ han-76ee:4x13-l 1 han-898b:10x16 // ⿰目見
 
 glyph han-774f:15x16 15 16 // 睏
-⿰ han-76ee:3x16-l 1 han-56f0:11x16 // ⿰目困
+⿰ han-76ee:3x13-l 1 han-56f0:11x16 // ⿰目困
 
 // glyph han-7750:15x16 15 16 // 睐
 // ⿰ han-76ee han-6765 // ⿰目来
@@ -3128,22 +3127,22 @@ glyph han-7765.0:* = han-7765:*
 // ⿰ han-76ee han-5774 // ⿰目坴
 
 glyph han-776d.0:15x16 15 16 // 睭
-⿰ han-76ee:5x16-l han-5468.0:10x16 // ⿰目周
+⿰ han-76ee:5x13-l han-5468.0:10x16 // ⿰目周
 glyph han-776d.1:* = han-776d.0:*
 glyph han-776d.2:15x16 15 16 // 睭
-⿰ han-76ee:5x16-l han-5468.1:10x16 // ⿰目周
+⿰ han-76ee:5x13-l han-5468.1:10x16 // ⿰目周
 glyph han-776d-h:* = han-776d.0:*
 glyph han-776d-(g|t|j|k|p):* = han-776d.2:*
 
 ## 109.9
 
-glyph han-776e-(g|h|t):15x16 15 16 // 睮 ⿰目俞(GHT) ⿰目兪(KP)
-⿰ han-76ee:5x16-l 1 han-4fde.0:9x16 // ⿰目俞
-glyph han-776e-(j|k|p):15x16 15 16 // 睮 ⿰目俞(GHT) ⿰目兪(KP)
-⿰ han-76ee:5x16-l 1 han-4fde.y:9x16 // ⿰目俞
+glyph han-776e-(g|h|t):15x16 15 16 // 睮
+⿰ han-76ee:5x13-l 1 han-4fde.0:9x16 // ⿰目俞
+glyph han-776e-(j|k|p):15x16 15 16 // 睮
+⿰ han-76ee:5x13-l 1 han-516a.0:9x16 // ⿰目兪
 
 glyph han-7772:15x16 15 16 // 睲
-⿰ han-76ee:4x16-l han-661f:11x16 // ⿰目星
+⿰ han-76ee:4x13-l han-661f:11x16 // ⿰目星
 
 // glyph han-7773:15x16 15 16 // 睳
 // ⿰ han-76ee han-594e // ⿰目奎
@@ -3166,10 +3165,10 @@ glyph han-777c:15x16 15 16 // 睼
 // ⿰ han-76ee han-72ca // ⿰目狊
 
 glyph han-7784:15x16 15 16 // 瞄
-⿰ han-76ee:5x16-l 1 han-82d7:9x16 // ⿰目苗
+⿰ han-76ee:5x13-l 1 han-82d7:9x16 // ⿰目苗
 
 glyph han-7785:15x16 15 16 // 瞅
-⿲ han-76ee:4x16-l han-79be:5x16 1 han-706b:5x16 // ⿲目禾火
+⿲ han-76ee:4x13-l han-79be:5x16 1 han-706b:5x16 // ⿲目禾火
 
 ## 109.10
 
@@ -3180,7 +3179,7 @@ glyph han-7785:15x16 15 16 // 瞅
 // ⿱ han-76ee han-4020 // ⿱目䀠
 
 glyph han-7793:15x16 15 16 // 瞓
-⿲ han-76ee:3x16-l 1 han-8a01.x:5x16 han-5ddd:6x16 // ⿲目訁川
+⿲ han-76ee:3x13-l 1 han-8a01.x:5x16 han-5ddd:6x16 // ⿲目訁川
 
 ## 109.11
 
@@ -3200,7 +3199,7 @@ glyph han-779f:15x16 15 16 // 瞟
 ⿰ han-76ee:7x16 1 han-7968:7x16 // ⿰目票
 
 glyph han-77a1:15x16 15 16 // 瞡
-⿲ -2 han-76ee:3x16-l han-592b:9x16 han-898b:5x16 // ⿲目夫見
+⿲ -2 han-76ee:3x13-l han-592b:9x16 han-898b:5x16 // ⿲目夫見
 
 // glyph han-77a2:15x16 15 16 // 瞢 ⿳⿱艹罒冖目(GKP) ⿳⿱卝罒冖目(HTJ) ⿳𦭝冖目(X)
 // ⿳ han-26b5d han-5196 han-76ee // ⿳𦭝冖目
@@ -3208,10 +3207,10 @@ glyph han-77a1:15x16 15 16 // 瞡
 ## 109.12
 
 glyph han-77a4:15x16 15 16 // 瞤
-⿰ han-76ee:3x16-l 1 han-958f:11x16 // ⿰目閏
+⿰ han-76ee:3x13-l 1 han-958f:11x16 // ⿰目閏
 
 glyph han-77af:15x16 15 16 // 瞯
-⿰ han-76ee:3x16-l 1 han-9592:11x16 // ⿰目閒
+⿰ han-76ee:3x13-l 1 han-9592:11x16 // ⿰目閒
 
 // glyph han-77b3:15x16 15 16 // 瞳
 // ⿰ han-76ee han-7ae5 // ⿰目童
@@ -3220,7 +3219,7 @@ glyph han-77b5:15x16 15 16 // 瞵
 ⿰ han-76ee:6x16 han-7ca6:9x16 // ⿰目粦
 
 glyph han-77b7:15x16 15 16 // 瞷
-⿰ han-76ee:3x16-l 1 han-9593:11x16 // ⿰目間
+⿰ han-76ee:3x13-l 1 han-9593:11x16 // ⿰目間
 
 ## 109.13
 

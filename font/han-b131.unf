@@ -375,7 +375,7 @@ glyph han-2899e:15x16 15 16 // 𨦞
 glyph han-26a5e-(g|t):15x16 15 16 // 𦩞
 ⿰ han-821f:7x16 1 han-4fde.0:7x16 // ⿰舟俞
 glyph han-26a5e-j:15x16 15 16 // 𦩞
-⿰ han-821f:7x16 1 han-4fde.y:7x16 // ⿰舟俞
+⿰ han-821f:7x16 1 han-516a.0:7x16 // ⿰舟兪
 
 // glyph han-26a60:15x16 15 16 // 𦩠
 // ⿰ han-821f han-661f // ⿰舟星

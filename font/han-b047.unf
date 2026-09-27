@@ -338,7 +338,7 @@ glyph han-22057:15x16 15 16 // 𢁗
 // ⿱ han-5902 han-5dfe // ⿱夂巾
 
 glyph han-2205a:15x16 15 16 // 𢁚
-⿰ han-5dfe:5x16 han-4e09:10x16 // ⿰巾三
+⿰ han-5dfe:5x16 han-4e09:10x14 // ⿰巾三
 
 glyph han-2205c:15x16 15 16 // 𢁜
 ⿰ han-5dfe:9x16 han-5bf8:6x16 // ⿰巾寸

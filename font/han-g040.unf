@@ -697,7 +697,7 @@ glyph han-304b8:15x16 15 16 // 𰒸
 ## 64.3
 
 glyph han-304bc:15x16 15 16 // 𰒼
-⿰ han-624c:5x16 han-4e09:10x16 // ⿰扌三
+⿰ han-624c:5x16 han-4e09:10x14 // ⿰扌三
 
 glyph han-304bd:15x16 15 16 // 𰒽
 ⿰ han-624c:5x16 1 han-4e07:9x16 // ⿰扌万

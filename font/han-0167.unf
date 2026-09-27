@@ -1015,13 +1015,13 @@ glyph han-936c:15x16 15 16 // 鍬
 glyph han-936c.0:* = han-936c:*
 
 glyph han-936e.0:15x16 15 16 // 鍮
-⿰ han-91d2:5x15-l 1 han-4fde.y:9x16 // ⿰釒俞
+⿰ han-91d2:5x15-l 1 han-516a.0:9x16 // ⿰釒兪
 glyph han-936e.1:* = han-936e.0:*
 glyph han-936e.2:15x16 15 16 // 鍮
 ⿰ han-91d2:5x15-l 1 han-4fde.0:9x16 // ⿰釒俞
 glyph han-936e.3:* = han-936e.2:*
 glyph han-936e.4:15x16 15 16 // 鍮
-⿰ han-91d2:5x15-l 1 han-4fde.x:9x16 // ⿰釒俞
+⿰ han-91d2:5x15-l 1 han-516a.2:9x16 // ⿰釒兪
 glyph han-936e-(j|k|p):* = han-936e.0:*
 glyph han-936e-(g|h|t|v):* = han-936e.2:*
 

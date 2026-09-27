@@ -1533,7 +1533,7 @@ glyph han-745a:15x16 15 16 // 瑚
 glyph han-745a.0:* = han-745a:*
 
 glyph han-745c.0:15x16 15 16 // 瑜
-⿰ han-248e9:5x16 1 han-4fde.y:9x16 // ⿰𤣩俞
+⿰ han-248e9:5x16 1 han-516a.0:9x16 // ⿰𤣩兪
 glyph han-745c.1:* = han-745c.0:*
 glyph han-745c.2:15x16 15 16 // 瑜
 ⿰ han-248e9:5x16 1 han-4fde.0:9x16 // ⿰𤣩俞

@@ -155,7 +155,7 @@ glyph han-28ccc:15x16 15 16 // 𨳌
 // ⿵ han-9580 han-4e03 // ⿵門七
 
 glyph han-28cce:15x16 15 16 // 𨳎
-⿵ han-9580:15x16.13x11 han-4e8c:9x10 3 6 // ⿵門二
+⿵ han-9580:15x16.13x11 han-4e8c:10x10 2 6 // ⿵門二
 
 glyph han-28ccf:15x16 15 16 // 𨳏
 ⿱ han-4e8c:15x3 1 han-9580:15x12.13x7 // ⿱二門
