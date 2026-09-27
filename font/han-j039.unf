@@ -734,6 +734,18 @@ glyph han-32924:15x16 15 16 // 𲤤
 // glyph han-3293a:15x16 15 16 // 𲤺
 // ⿺ han-582f han-65e5 // ⿺堯日
 
+# CJK unified ideographs extension J: 曰 (73)
+
+## 73.3
+
+// glyph han-32951:15x16 15 16 // 𲥑
+// ⿱ han-66f2 han-200cd // ⿱曲𠃍
+
+## 73.5
+
+// glyph han-32952:15x16 15 16 // 𲥒
+// ⿰ han-66f2 han-5de5 // ⿰曲工
+
 # CJK unified ideographs extension J: 月 (74)
 
 ## 74.2

@@ -39,6 +39,13 @@ ref 13x1 1 0 negated
 glyph han-2b74e:15x16 15 16 // 𫝎
 ⿰ han-51ab:5x14 han-898b:10x16 // ⿰冫見
 
+# CJK unified ideographs extension D: 十 (24)
+
+## 24.5
+
+// glyph han-2b752:15x16 15 16 // 𫝒
+// ⿱ han-65e7 han-5341 // ⿱旧十
+
 # CJK unified ideographs extension D: 口 (30)
 
 ## 30.11

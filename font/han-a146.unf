@@ -845,6 +845,9 @@ glyph han-4890.1:* = han-4890-g:*
 // glyph han-4896-($han-regions):15x16 15 16 // 䢖
 // ⿺ han-8fb6-($-1) han-807f // ⿺辶聿
 
+// glyph han-4897-($han-regions):15x16 15 16 // 䢗
+// ⿺ han-8fb6-($-1) han-66f2 // ⿺辶曲
+
 // glyph han-4898-($han-regions):15x16 15 16 // 䢘
 // ⿺ han-8fb6-($-1) han-5b88 // ⿺辶守
 

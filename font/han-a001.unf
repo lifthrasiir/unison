@@ -301,6 +301,9 @@ glyph han-3442:15x16 15 16 // 㑂
 
 ## 9.6
 
+// glyph han-344b:15x16 15 16 // 㑋
+// ⿰ han-4ebb han-66f2 // ⿰亻曲
+
 glyph han-344c:15x16 15 16 // 㑌
 ⿰ han-4ebb:5x16 1 han-5321:9x16 // ⿰亻匡
 
@@ -875,6 +878,9 @@ glyph han-3578:15x16 15 16 // 㕸
 
 // glyph han-3584:15x16 15 16 // 㖄
 // ⿰ han-53e3 han-5dde // ⿰口州
+
+// glyph han-3586:15x16 15 16 // 㖆
+// ⿰ han-53e3 han-66f2 // ⿰口曲
 
 glyph han-3587:15x16 15 16 // 㖇
 ⿰ han-53e3:5x12 1 han-800c:9x16 // ⿰口而

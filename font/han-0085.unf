@@ -932,6 +932,9 @@ glyph han-6d3d:15x16 15 16 // 洽
 ⿰ han-6c35:5x16 1 han-5408:9x16 // ⿰氵合
 glyph han-6d3d.0:* = han-6d3d:*
 
+// glyph han-6d40:15x16 15 16 // 浀
+// ⿰ han-6c35 han-66f2 // ⿰氵曲
+
 // glyph han-6d43:15x16 15 16 // 浃
 // ⿰ han-6c35 han-5939 // ⿰氵夹
 

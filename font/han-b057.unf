@@ -225,6 +225,12 @@ glyph han-223dd:15x16 15 16 // 𢏝
 glyph han-223e0:15x16 15 16 // 𢏠
 ⿲ han-5f13:7x16 han-6c35:3x12 han-5de5:5x16 // ⿲弓氵工
 
+// glyph han-223e2:15x16 15 16 // 𢏢
+// ⿰ han-66f2 han-5f13 // ⿰曲弓
+
+// glyph han-223e3:15x16 15 16 // 𢏣
+// ⿰ han-5f13 han-66f2 // ⿰弓曲
+
 ## 57.7
 
 glyph han-223e4:15x16 15 16 // 𢏤

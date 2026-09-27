@@ -56,6 +56,11 @@ glyph han-8c47.0:* = han-8c47:*
 // glyph han-8c48:15x16 15 16 // 豈
 // ⿱ han-5c71 han-8c46 // ⿱山豆
 
+## 151.6
+
+// glyph han-8c4a:15x16 15 16 // 豊
+// ⿱ han-66f2 han-8c46 // ⿱曲豆
+
 ## 151.8
 
 // glyph han-8c4d-($han-regions):15x16 15 16 // 豍

@@ -219,6 +219,9 @@ glyph han-231a3:15x16 15 16 // 𣆣
 glyph han-231a7:15x16 15 16 // 𣆧 ⿱日𠀘(GT) ⿱㫕兀(X)
 ⿳ han-65e5:11x5 1 han-5140:15x4 1 han-5140:15x5 // ⿳日兀兀
 
+// glyph han-231a8:15x16 15 16 // 𣆨
+// ⿱ han-65e7 han-200a1 // ⿱旧𠂡
+
 // glyph han-231aa:15x16 15 16 // 𣆪
 // ⿳ han-65e5 han-2067c han-4e85 // ⿳日𠙼亅
 
@@ -688,6 +691,20 @@ glyph han-2332b:15x16 15 16 // 𣌫
 glyph han-23330:15x16 15 16 // 𣌰
 ⿱ -1 han-65e5:11x5 1 han-808b:15x11 // ⿱日肋
 
+// glyph han-23331:15x16 15 16 // 𣌱
+// ⿰ han-66f2 han-5c11 // ⿰曲少
+
+// glyph han-23334:15x16 15 16 // 𣌴
+// ⿰ han-66f2 han-6708 // ⿰曲月
+
+## 73.7
+
+// glyph han-23339:15x16 15 16 // 𣌹
+// ⿰ han-66f2 han-4e15 // ⿰曲丕
+
+// glyph han-2333a-($han-regions):15x16 15 16 // 𣌺
+// ⿰ han-66f2 han-53eb-($-1) // ⿰曲叫
+
 ## 73.8
 
 // glyph han-2333c-($han-regions):15x16 15 16 // 𣌼
@@ -701,10 +718,18 @@ glyph han-23330:15x16 15 16 // 𣌰
 // glyph han-2333e:15x16 15 16 // 𣌾
 // ⿰ han-7533 han-6771 // ⿰申東
 
+// glyph han-23340:15x16 15 16 // 𣍀
+// ⿰ han-66f2 han-5446 // ⿰曲呆
+
 ## 73.10
 
 // glyph han-23343:15x16 15 16 // 𣍃
 // ⿰ han-67ec han-7533 // ⿰柬申
+
+## 73.14
+
+// glyph han-23355:15x16 15 16 // 𣍕
+// ⿰ han-66f2 han-582f // ⿰曲堯
 
 # CJK unified ideographs extension B: 月 (74)
 

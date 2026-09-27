@@ -531,6 +531,13 @@ glyph han-2da07:15x16 15 16 // 𭨇
 // glyph han-2da12:15x16 15 16 // 𭨒
 // ⿳ han-65e5 han-7f52 han-7dad // ⿳日罒維 <- ⿱日羅
 
+# CJK unified ideographs extension F: 曰 (73)
+
+## 73.6
+
+// glyph han-2da1b-($han-regions):15x16 15 16 // 𭨛
+// ⿰ han-66f2 han-4eca-($-1) // ⿰曲今
+
 # CJK unified ideographs extension F: 月 (74)
 
 ## 74.2

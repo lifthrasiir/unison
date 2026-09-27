@@ -839,6 +839,9 @@ glyph han-7b3d:15x16 15 16 // 笽
 glyph han-7b40:15x16 15 16 // 筀
 ⿳ han-25ad7:13x5 -1 han-571f:15x6 han-571f:15x6 // ⿳𥫗土土
 
+// glyph han-7b41:15x16 15 16 // 筁
+// ⿱ han-25ad7 han-66f2 // ⿱𥫗曲
+
 // glyph han-7b43:15x16 15 16 // 筃
 // ⿱ han-25ad7 han-56e0 // ⿱𥫗因
 
@@ -1571,6 +1574,9 @@ glyph han-7ca8.0:* = han-7ca8:*
 glyph han-7cab:15x16 15 16 // 粫
 ⿰ han-7c73:5x16 1 han-800c:9x16 // ⿰米而
 glyph han-7cab.0:* = han-7cab:*
+
+// glyph han-7cac:15x16 15 16 // 粬
+// ⿰ han-7c73 han-66f2 // ⿰米曲
 
 glyph han-7cad:15x16 15 16 // 粭
 ⿰ han-7c73:7x16 1 han-5408:7x16 // ⿰米合

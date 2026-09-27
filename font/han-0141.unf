@@ -498,6 +498,9 @@ glyph han-8688.2:15x16 15 16 // 蚈
 glyph han-8688-j:* = han-8688.0:*
 glyph han-8688-(g|t|k|p):* = han-8688.2:*
 
+// glyph han-86d0:15x16 15 16 // 蛐
+// ⿰ han-866b han-66f2 // ⿰虫曲
+
 glyph han-86d2:15x16 15 16 // 蛒
 ⿰ han-866b:7x16 1 han-5404:7x16 // ⿰虫各
 glyph han-86d2.0:* = han-86d2:*
