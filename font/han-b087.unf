@@ -634,8 +634,8 @@ glyph han-2468e-(g|t):15x16 15 16 // 𤚎
 glyph han-2468e-(j|p):15x16 15 16 // 𤚎
 ⿰ han-725c:6x16 han-516a.0:9x16 // ⿰牜兪
 
-// glyph han-2468f:15x16 15 16 // 𤚏
-// ⿰ han-725c han-91cd // ⿰牜重
+glyph han-2468f:15x16 15 16 // 𤚏
+⿰ han-725c:6x16 han-91cd:9x16 // ⿰牜重
 
 glyph han-24690:15x16 15 16 // 𤚐
 ⿰ han-725c:6x16 han-82d7:9x16 // ⿰牜苗

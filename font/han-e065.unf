@@ -100,8 +100,8 @@ glyph han-2c02c:15x16 15 16 // 𬀬
 glyph han-2c045:15x16 15 16 // 𬁅
 ⿲ han-65e5:4x14-l 1 han-866b:5x16 han-5de5:5x16 // ⿲日虫工
 
-// glyph han-2c047:15x16 15 16 // 𬁇
-// ⿰ han-65e5 han-91cd // ⿰日重
+glyph han-2c047:15x16 15 16 // 𬁇
+⿰ han-65e5:4x14-l han-91cd:11x16 // ⿰日重
 
 ## 72.11
 
@@ -696,6 +696,9 @@ glyph han-2c224:15x16 15 16 // 𬈤
 // glyph han-2c22b:15x16 15 16 // 𬈫
 // ⿲ han-6c35 han-5f73 han-3775 // ⿲氵彳㝵
 
+// glyph han-2c22d:15x16 15 16 // 𬈭
+// ⿰ han-6c35 han-52d5 // ⿰氵動
+
 ## 85.12
 
 glyph han-2c232:15x16 15 16 // 𬈲
@@ -714,6 +717,9 @@ glyph han-2c23b:15x16 15 16 // 𬈻
 // ⿲ han-6c35 han-65b9 han-5947 // ⿲氵方奇 <- ⿰氵旑
 
 ## 85.13
+
+// glyph han-2c24e:15x16 15 16 // 𬉎
+// ⿰ han-6c35 han-816b // ⿰氵腫
 
 glyph han-2c252:15x16 15 16 // 𬉒
 ⿲ -1 han-6c35:3x12 han-706b:5x16 1 han-7687:7x16 // ⿲氵火皇

@@ -1117,8 +1117,8 @@ glyph han-967d.0:* = han-967d:*
 // glyph han-967e:15x16 15 16 // 陾
 // ⿰ han-961d han-800e // ⿰阝耎
 
-// glyph han-9680:15x16 15 16 // 隀
-// ⿰ han-961d han-91cd // ⿰阝重
+glyph han-9680:15x16 15 16 // 隀
+⿰ han-961d:4x16-l han-91cd:11x16 // ⿰阝重
 
 glyph han-9683.0:15x16 15 16 // 隃
 ⿰ han-961d:5x16-l 1 han-516a.0:9x16 // ⿰阝兪

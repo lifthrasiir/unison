@@ -329,6 +329,9 @@ glyph han-2aaf0:15x16 15 16 // 𪫰 ⿱吕心(G) ⿱呂心(Z)
 // glyph han-2aaf5:15x16 15 16 // 𪫵
 // ⿰ han-5f04 han-5fc3 // ⿰弄心
 
+glyph han-2aaf9:15x16 15 16 // 𪫹
+⿰ han-5fc4:5x16 1 han-8c37:9x16 // ⿰忄谷
+
 glyph han-2aafb:15x16 15 16 // 𪫻
 ⿰ han-5fc4:5x16 1 han-5b8c:9x16 // ⿰忄完
 

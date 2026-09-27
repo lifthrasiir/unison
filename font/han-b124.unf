@@ -199,8 +199,8 @@ glyph han-2644f-($han-regions):15x16 15 16 // 𦑏
 glyph han-2645c-($han-regions):15x16 15 16 // 𦑜
 ⿰ han-9769:7x16 han-7fbd-($-1):8x16 // ⿰革羽
 
-// glyph han-2645d-($han-regions):15x16 15 16 // 𦑝
-// ⿰ han-91cd han-7fbd-($-1) // ⿰重羽
+glyph han-2645d-($han-regions):15x16 15 16 // 𦑝
+⿰ han-91cd:9x16 han-7fbd-($-1):6x16 // ⿰重羽
 
 glyph han-26460-($han-regions):15x16 15 16 // 𦑠
 ⿰ han-7fbd-($-1):7x16 1 han-7687:7x16 // ⿰羽皇

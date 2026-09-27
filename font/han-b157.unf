@@ -327,6 +327,9 @@ glyph han-28052-(g|t):15x16 15 16 // 𨁒
 glyph han-28052-j:15x16 15 16 // 𨁒
 ⿰ han-27fb7:5x16 han-543f:10x16 // ⿰𧾷吿
 
+glyph han-28056:15x16 15 16 // 𨁖
+⿰ han-27fb7:5x16 1 han-8c37:9x16 // ⿰𧾷谷
+
 // glyph han-28058:15x16 15 16 // 𨁘
 // ⿱ han-626f han-8db3 // ⿱扯足
 

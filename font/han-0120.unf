@@ -628,6 +628,9 @@ glyph han-7d87-($han-regions):15x16 15 16 // 綇
 // glyph han-7d8a-($han-regions):15x16 15 16 // 綊 ⿰糹夾(GT) ⿰糸夾(P)
 // ⿰ han-7cf9-($-1) han-593e // ⿰糹夾
 
+// glyph han-7d8c-($han-regions):15x16 15 16 // 綌 ⿰糹谷(GHT) ⿰糸谷(JKP)
+// ⿰ han-7cf9-($-1) han-8c37 // ⿰糹谷
+
 glyph han-7d91-($han-regions):15x16 15 16 // 綑
 ⿰ han-7cf9-($-1):5x14 1 han-56f0:9x16 // ⿰糹困
 glyph han-7d91.0:* = han-7d91-j:*
@@ -1168,6 +1171,9 @@ glyph han-7ede:15x16 15 16 // 绞
 
 glyph han-7ee1:15x16 15 16 // 绡
 ⿰ han-7e9f:5x16 1 han-8096-g:9x16 // ⿰纟肖
+
+glyph han-7ee4:15x16 15 16 // 绤
+⿰ han-7e9f:5x16 1 han-8c37:9x16 // ⿰纟谷
 
 ## 120'.8
 

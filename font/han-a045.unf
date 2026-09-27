@@ -384,8 +384,8 @@ glyph han-384f-(j|k|p):15x16 15 16 // 㡏
 glyph han-3853:15x16 15 16 // 㡓
 ⿰ han-5dfe:7x16 1 han-8ecd:7x16 // ⿰巾軍
 
-// glyph han-3856:15x16 15 16 // 㡖
-// ⿰ han-5dfe han-91cd // ⿰巾重
+glyph han-3856:15x16 15 16 // 㡖
+⿰ han-5dfe:5x16 1 han-91cd:9x16 // ⿰巾重
 
 ## 50.13
 
@@ -675,8 +675,8 @@ glyph han-38e9:15x16 15 16 // 㣩
 
 ## 60.9
 
-// glyph han-38eb:15x16 15 16 // 㣫
-// ⿰ han-5f73 han-91cd // ⿰彳重
+glyph han-38eb:15x16 15 16 // 㣫
+⿰ han-5f73:3x16 1 han-91cd:11x16 // ⿰彳重
 
 glyph han-38ec:15x16 15 16 // 㣬
 ⿰ han-5f73:5x16 han-54a0:10x16 // ⿰彳咠

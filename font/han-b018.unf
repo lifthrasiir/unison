@@ -267,8 +267,8 @@ glyph han-2075c-($han-regions):15x16 15 16 // 𠝜 ⿰青刂(G) ⿰靑刂(Z)
 // glyph han-2075d:15x16 15 16 // 𠝝
 // ⿰ han-67bc han-5202 // ⿰枼刂
 
-// glyph han-20764:15x16 15 16 // 𠝤
-// ⿰ han-91cd han-5202 // ⿰重刂
+glyph han-20764:15x16 15 16 // 𠝤
+⿰ han-91cd:11x16 han-5202:4x16 // ⿰重刂
 
 // glyph han-20765:15x16 15 16 // 𠝥
 // ⿰ han-594e han-5202 // ⿰奎刂

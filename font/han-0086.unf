@@ -633,6 +633,9 @@ glyph han-70fa.0:* = han-70fa:*
 glyph han-70fe:15x16 15 16 // 烾
 ⿳ han-706b:15x6 han-706b:15x6 han-571f:15x4 // ⿳火火土
 
+glyph han-7100:15x16 15 16 // 焀
+⿰ han-706b:5x14-l 1 han-8c37:9x16 // ⿰火谷
+
 // glyph han-7101:15x16 15 16 // 焁
 // ⿱ han-5439 han-706b // ⿱吹火
 
@@ -743,8 +746,8 @@ glyph han-7142:15x16 15 16 // 煂
 // glyph han-7143:15x16 15 16 // 煃
 // ⿰ han-706b han-594e // ⿰火奎
 
-// glyph han-7144:15x16 15 16 // 煄
-// ⿰ han-706b han-91cd // ⿰火重
+glyph han-7144:15x16 15 16 // 煄
+⿰ han-706b:5x14-l 1 han-91cd:9x16 // ⿰火重
 
 glyph han-7147:15x16 15 16 // 煇
 ⿰ han-706b:7x16 1 han-8ecd:7x16 // ⿰火軍

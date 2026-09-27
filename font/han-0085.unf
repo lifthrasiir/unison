@@ -1023,6 +1023,10 @@ glyph han-6d70:15x16 15 16 // 浰
 ⿲ han-6c35:3x12 han-79be:7x16 han-5202:5x16 // ⿲氵禾刂
 glyph han-6d70.0:* = han-6d70:*
 
+glyph han-6d74:15x16 15 16 // 浴
+⿰ han-6c35:5x16 1 han-8c37:9x16 // ⿰氵谷
+glyph han-6d74.0:* = han-6d74:*
+
 // glyph han-6d79:15x16 15 16 // 浹
 // ⿰ han-6c35 han-593e // ⿰氵夾
 

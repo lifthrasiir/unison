@@ -285,6 +285,23 @@ glyph han-30d7f:15x16 15 16 // 𰵿
 glyph han-30d8c:15x16 15 16 // 𰶌
 ⿰ han-8ba0:5x14 1 han-9700:9x16 // ⿰讠需
 
+# CJK unified ideographs extension G: 谷 (150)
+
+## 150.2
+
+// glyph han-30d90:15x16 15 16 // 𰶐
+// ⿱ han-201a2 han-8c37 // ⿱𠆢谷
+
+## 150.5
+
+// glyph han-30d92-($han-regions):15x16 15 16 // 𰶒
+// ⿺ han-5305-($-1) han-8c37 // ⿺包谷
+
+## 150.9
+
+// glyph han-30d96:15x16 15 16 // 𰶖
+// ⿰ han-219f1 han-8c37 // ⿰𡧱谷
+
 # CJK unified ideographs extension G: 豆 (151)
 
 ## 151.1
@@ -1009,6 +1026,9 @@ glyph han-30f7d:15x16 15 16 // 𰽽
 
 // glyph han-30f83:15x16 15 16 // 𰾃
 // ⿰ han-9485 han-8db3 // ⿰钅足
+
+// glyph han-30f86:15x16 15 16 // 𰾆
+// ⿰ han-9485 han-8c37 // ⿰钅谷
 
 // glyph han-30f87:15x16 15 16 // 𰾇
 // ⿰ han-9485 han-541e // ⿰钅吞

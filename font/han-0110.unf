@@ -436,6 +436,10 @@ glyph han-786f.0:* = han-786f:*
 glyph han-7871:15x16 15 16 // 硱
 ⿰ han-77f3:5x16 1 han-56f0:9x16 // ⿰石困
 
+glyph han-7872:15x16 15 16 // 硲
+⿰ han-77f3:6x16 han-8c37:9x16 // ⿰石谷
+glyph han-7872.0:* = han-7872:*
+
 // glyph han-7873:15x16 15 16 // 硳
 // ⿰ han-77f3 han-8d64 // ⿰石赤
 
@@ -1872,8 +1876,9 @@ glyph han-7a26:15x16 15 16 // 稦
 // glyph han-7a2d:15x16 15 16 // 稭
 // ⿰ han-79be han-7686 // ⿰禾皆
 
-// glyph han-7a2e:15x16 15 16 // 種
-// ⿰ han-79be han-91cd // ⿰禾重
+glyph han-7a2e:15x16 15 16 // 種
+⿰ han-79be:5x16 1 han-91cd:9x16 // ⿰禾重
+glyph han-7a2e.0:* = han-7a2e:*
 
 ## 115.10
 

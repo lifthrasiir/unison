@@ -516,6 +516,9 @@ glyph han-2b1f2:15x16 15 16 // 𫇲 ⿱艹𭍺(T) ⿳艹𠆢土(K)
 // glyph han-2b203:15x16 15 16 // 𫈃
 // ⿱ han-8279 han-72c2 // ⿱艹狂
 
+// glyph han-2b205:15x16 15 16 // 𫈅
+// ⿱ han-8279 han-8c37 // ⿱艹谷
+
 // glyph han-2b206:15x16 15 16 // 𫈆
 // ⿱ han-8279 han-4f3d // ⿱艹伽
 
@@ -1015,6 +1018,18 @@ glyph han-2b365:15x16 15 16 // 𫍥
 
 // glyph han-2b37c:15x16 15 16 // 𫍼
 // ⿰ han-8ba0 han-7ae5 // ⿰讠童
+
+# CJK unified ideographs extension C: 谷 (150)
+
+## 150.2
+
+glyph han-2b380:15x16 15 16 // 𫎀
+⿰ han-8c37:9x16 1 han-4eba:5x16 // ⿰谷人
+
+## 150.4
+
+// glyph han-2b381:15x16 15 16 // 𫎁
+// ⿰ han-4e95 han-8c37 // ⿰井谷
 
 # CJK unified ideographs extension C: 貝 (154)
 

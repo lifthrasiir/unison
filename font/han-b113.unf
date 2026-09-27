@@ -222,6 +222,9 @@ glyph han-25677-k:15x16 15 16 // 𥙷 ⿰礻甫(GT) ⿰示甫(K)
 // glyph han-2567c:15x16 15 16 // 𥙼 ⿰示赤(T) ⿰礻赤(Z)
 // ⿰ han-793a han-8d64 // ⿰示赤
 
+// glyph han-2567f:15x16 15 16 // 𥙿 ⿰礻谷(G) ⿰示谷(K)
+// ⿰ han-793b han-8c37 // ⿰礻谷
+
 glyph han-25682:15x16 15 16 // 𥚂
 ⿰ han-793b:7x14 1 han-590b:7x16 // ⿰礻夋
 
@@ -710,8 +713,8 @@ glyph han-2581c:15x16 15 16 // 𥠜
 glyph han-2581f:15x16 15 16 // 𥠟
 ⿰ han-7687:9x16 1 han-79be:5x16 // ⿰皇禾
 
-// glyph han-2582d:15x16 15 16 // 𥠭
-// ⿰ han-91cd han-79be // ⿰重禾
+glyph han-2582d:15x16 15 16 // 𥠭
+⿰ han-91cd:9x16 1 han-79be:5x16 // ⿰重禾
 
 // glyph han-2582f:15x16 15 16 // 𥠯
 // ⿰ han-79be han-82eb // ⿰禾苫

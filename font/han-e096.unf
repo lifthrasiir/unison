@@ -672,8 +672,8 @@ glyph han-2c51c:15x16 15 16 // 𬔜
 
 ## 117.9
 
-// glyph han-2c525:15x16 15 16 // 𬔥
-// ⿰ han-7acb han-91cd // ⿰立重
+glyph han-2c525:15x16 15 16 // 𬔥
+⿰ han-7acb:5x16 1 han-91cd:9x16 // ⿰立重
 
 # CJK unified ideographs extension E: 竹 (118)
 

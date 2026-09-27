@@ -1000,6 +1000,9 @@ glyph han-35de:15x16 15 16 // 㗞
 
 ## 30.11
 
+// glyph han-35e2:15x16 15 16 // 㗢
+// ⿰ han-53e3 han-52d5 // ⿰口動
+
 // glyph han-35e9-($han-regions):15x16 15 16 // 㗩
 // ⿰ han-53e3 han-7fd2-($-1) // ⿰口習
 
@@ -1032,6 +1035,9 @@ glyph han-35fe-($han-regions):15x16 15 16 // 㗾
 
 glyph han-3610:15x16 15 16 // 㘐
 ⿲ -3 han-53e3:3x12 1 han-99ac:7x16 han-4ea4.0:7x16 // ⿲口馬交
+
+// glyph han-3612:15x16 15 16 // 㘒 ⿱種𠮟(K) ⿱種𫜸(Z)
+// ⿱ han-7a2e han-20b9f // ⿱種𠮟
 
 ## 30.19
 

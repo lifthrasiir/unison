@@ -5,6 +5,64 @@
 glyph han-27bab:15x16 15 16 // 𧮫
 ⿳ han-4eba:15x5 -1 han-4eba:15x5 han-53e3:11x7 // ⿳人人口
 
+## 150.3
+
+// glyph han-27bad-($han-regions):15x16 15 16 // 𧮭 ⿰谷{20}(GT) ⿰谷丸(UCS2003)
+// ⿰ han-8c37 han-4e38-($-1) // ⿰谷丸
+
+glyph han-27bae:15x16 15 16 // 𧮮
+⿰ han-8c37:9x16 1 han-5343:5x16 // ⿰谷千
+
+## 150.4
+
+// glyph han-27baf:15x16 15 16 // 𧮯
+// ⿰ han-53b7 han-8c37 // ⿰厷谷
+
+// glyph han-27bb0-($han-regions):15x16 15 16 // 𧮰
+// ⿰ han-8c37 han-4eca-($-1) // ⿰谷今
+
+// glyph han-27bb1:15x16 15 16 // 𧮱
+// ⿰ han-8c37 han-5206 // ⿰谷分
+
+## 150.5
+
+// glyph han-27bb3:15x16 15 16 // 𧮳
+// ⿰ han-8c37 han-7518 // ⿰谷甘
+
+glyph han-27bb4:15x16 15 16 // 𧮴
+⿰ han-8c37:9x16 1 han-53e4:5x16 // ⿰谷古
+
+## 150.6
+
+// glyph han-27bb5:15x16 15 16 // 𧮵
+// ⿰ han-8c37 han-5408 // ⿰谷合
+
+## 150.8
+
+// glyph han-27bbb-($han-regions):15x16 15 16 // 𧮻
+// ⿰ han-8c37 han-5468-($-1) // ⿰谷周
+
+// glyph han-27bbf:15x16 15 16 // 𧮿
+// ⿰ han-8c37 han-820d // ⿰谷舍
+
+## 150.10
+
+// glyph han-27bc8:15x16 15 16 // 𧯈
+// ⿰ han-8c37 han-21b74 // ⿰谷𡭴
+
+## 150.12
+
+// glyph han-27bce:15x16 15 16 // 𧯎
+// ⿰ han-8c37 han-9592 // ⿰谷閒
+
+// glyph han-27bd1:15x16 15 16 // 𧯑
+// ⿰ han-8c37 han-9593 // ⿰谷間
+
+## 150.13
+
+// glyph han-27bd3:15x16 15 16 // 𧯓
+// ⿰ han-8c37 han-959c // ⿰谷閜
+
 # CJK unified ideographs extension B: 豆 (151)
 
 ## 151.2

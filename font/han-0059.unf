@@ -1212,6 +1212,9 @@ glyph han-615a.0:* = han-615a:*
 // glyph han-615e:15x16 15 16 // 慞
 // ⿰ han-5fc4 han-7ae0 // ⿰忄章
 
+// glyph han-615f:15x16 15 16 // 慟
+// ⿰ han-5fc4 han-52d5 // ⿰忄動
+
 // glyph han-6169:15x16 15 16 // 慩
 // ⿰ han-5fc4 han-9023 // ⿰忄連
 
@@ -1221,9 +1224,15 @@ glyph han-615a.0:* = han-615a:*
 // glyph han-6174-($han-regions):15x16 15 16 // 慴
 // ⿰ han-5fc4 han-7fd2-($-1) // ⿰忄習
 
+// glyph han-617e:15x16 15 16 // 慾
+// ⿱ han-6b32 han-5fc3 // ⿱欲心
+
 glyph han-6180:15x16 15 16 // 憀
 ⿰ han-5fc4:5x16 1 han-7fcf:9x16 // ⿰忄翏
 glyph han-6180.0:* = han-6180:*
+
+// glyph han-6185:15x16 15 16 // 憅
+// ⿱ han-52d5 han-5fc3 // ⿱動心
 
 ## 61.12
 

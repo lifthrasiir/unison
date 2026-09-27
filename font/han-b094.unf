@@ -253,6 +253,9 @@ glyph han-2479a-(j|p):15x16 15 16 // 𤞚
 // glyph han-2479c:15x16 15 16 // 𤞜
 // ⿰ han-72ad han-5426 // ⿰犭否
 
+glyph han-2479e:15x16 15 16 // 𤞞 ⿰犭谷(GTP) ⿰犭⿳儿𠆢口(V)
+⿰ han-72ad:6x16 han-8c37:9x16 // ⿰犭谷
+
 glyph han-2479f:15x16 15 16 // 𤞟
 ⿰ han-72ad:6x16 han-8c46:9x16 // ⿰犭豆
 

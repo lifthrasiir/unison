@@ -5,6 +5,9 @@
 glyph han-20db7:15x16 15 16 // 𠶷
 ⿳ han-7acb:15x5 han-4e2d:15x6 han-53e3:11x5 // ⿳立中口
 
+// glyph han-20db8:15x16 15 16 // 𠶸
+// ⿰ han-53e3 han-537b // ⿰口卻
+
 glyph han-20dbb:15x16 15 16 // 𠶻
 ⿰ han-53e3:5x12 han-54a0:10x16 // ⿰口咠
 
@@ -89,6 +92,9 @@ glyph han-20e11:15x16 15 16 // 𠸑
 
 // glyph han-20e17:15x16 15 16 // 𠸗
 // ⿱ han-521d han-53e4 // ⿱初古
+
+// glyph han-20e18:15x16 15 16 // 𠸘
+// ⿰ han-53e3 han-4fd7 // ⿰口俗
 
 // glyph han-20e19:15x16 15 16 // 𠸙
 // ⿰ han-53e4 han-5f04 // ⿰古弄

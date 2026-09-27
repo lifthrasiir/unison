@@ -257,8 +257,8 @@ glyph han-2b7be:15x16 15 16 // 𫞾
 
 ## 120'.9
 
-// glyph han-2b7c6:15x16 15 16 // 𫟆
-// ⿰ han-7e9f han-91cd // ⿰纟重
+glyph han-2b7c6:15x16 15 16 // 𫟆
+⿰ han-7e9f:5x16 1 han-91cd:9x16 // ⿰纟重
 
 # CJK unified ideographs extension D: 羊 (123)
 

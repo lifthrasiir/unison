@@ -134,6 +134,9 @@ glyph han-32a56:15x16 15 16 // 𲩖
 // glyph han-32a7b:15x16 15 16 // 𲩻
 // ⿰ han-6d7f han-5c11 // ⿰浿少
 
+// glyph han-32a7f:15x16 15 16 // 𲩿
+// ⿰ han-6c35 han-6b32 // ⿰氵欲
+
 ## 85.12
 
 // glyph han-32a85-($han-regions):15x16 15 16 // 𲪅
@@ -466,8 +469,8 @@ glyph han-32b96:15x16 15 16 // 𲮖
 // glyph han-32b9a:15x16 15 16 // 𲮚
 // ⿰ han-72ad han-79cb // ⿰犭秋
 
-// glyph han-32b9b:15x16 15 16 // 𲮛
-// ⿰ han-72ad han-91cd // ⿰犭重
+glyph han-32b9b:15x16 15 16 // 𲮛
+⿰ han-72ad:4x16 han-91cd:11x16 // ⿰犭重
 
 ## 94.10
 

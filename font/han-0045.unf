@@ -599,6 +599,10 @@ glyph han-5ce7:15x16 15 16 // 峧
 
 ## 46.7
 
+glyph han-5cea:15x16 15 16 // 峪
+⿰ han-5c71:5x12-l 1 han-8c37:9x16 // ⿰山谷
+glyph han-5cea.0:* = han-5cea:*
+
 glyph han-5cec:15x16 15 16 // 峬
 ⿰ han-5c71:7x16 1 han-752b:7x16 // ⿰山甫
 

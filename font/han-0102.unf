@@ -1043,8 +1043,8 @@ glyph han-757c:15x16 15 16 // 畼
 ⿰ han-7530:7x14-l 1 han-661c:7x16 // ⿰田昜
 glyph han-757c.0:* = han-757c:*
 
-// glyph han-757d:15x16 15 16 // 畽
-// ⿰ han-7530 han-91cd // ⿰田重
+glyph han-757d:15x16 15 16 // 畽
+⿰ han-7530:5x14-l 1 han-91cd:9x16 // ⿰田重
 
 ## 102.10
 
@@ -1972,7 +1972,7 @@ glyph han-7686.1:* = han-7686-g:*
 glyph han-7687:7x16 7 16 // 皇
 ⿱ han-767d:7x8 1 han-738b:7x7 // ⿱白王
 glyph han-7687:9x16 9 16 // 皇
-⿱ han-767d:9x8 1 han-738b:9x7 // ⿱白王
+⿱ 1|han-767d:7x8|1 1 han-738b:9x7 // ⿱白王
 glyph han-7687:15x16 15 16 // 皇
 ⿱ han-767d:11x8 1 han-738b:15x7 // ⿱白王
 glyph han-7687.0:* = han-7687:*

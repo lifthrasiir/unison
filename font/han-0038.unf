@@ -714,8 +714,8 @@ glyph han-5a8e-j:15x16 15 16 // 媎
 // glyph han-5a8f:15x16 15 16 // 媏
 // ⿰ han-5973 han-8011 // ⿰女耑
 
-// glyph han-5a91:15x16 15 16 // 媑
-// ⿰ han-5973 han-91cd // ⿰女重
+glyph han-5a91:15x16 15 16 // 媑
+⿰ han-5973:6x14-l han-91cd:9x16 // ⿰女重
 
 // glyph han-5a92:15x16 15 16 // 媒
 // ⿰ han-5973 han-67d0 // ⿰女某

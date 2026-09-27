@@ -492,6 +492,9 @@ glyph han-402b:15x16 15 16 // 䀫
 glyph han-402f:15x16 15 16 // 䀯
 ⿰ han-76ee:5x13-l 1 han-752b:9x16 // ⿰目甫
 
+glyph han-4030:15x16 15 16 // 䀰
+⿰ han-76ee:5x13-l 1 han-8c37:9x16 // ⿰目谷
+
 glyph han-4033:15x16 15 16 // 䀳
 ⿰ han-76ee:6x16 han-675f:9x16 // ⿰目束
 
@@ -843,7 +846,7 @@ glyph han-4107-(g|v):* = han-4107.1:*
 glyph han-4107-k:* = han-4107.2:*
 glyph han-4107-t:* = han-4107.x:*
 
-glyph han-4108-(g|t):15x16 15 16 // 䄈 
+glyph han-4108-(g|t):15x16 15 16 // 䄈
 ⿰ han-793b:5x14 1 han-8c46:9x16 // ⿰礻豆
 glyph han-4108-(j|p):15x16 15 16 // 䄈
 ⿰ han-793a:5x14 1 han-8c46:9x16 // ⿰示豆

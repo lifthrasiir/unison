@@ -98,6 +98,9 @@ glyph han-33147:15x16 15 16 // 𳅇
 glyph han-33156:15x16 15 16 // 𳅖
 ⿰ han-8096-g:7x16 1 han-9149:7x16 // ⿰肖酉
 
+// glyph han-33157:15x16 15 16 // 𳅗
+// ⿰ han-9149 han-8c37 // ⿰酉谷
+
 ## 164.8
 
 // glyph han-33158:15x16 15 16 // 𳅘
@@ -119,8 +122,8 @@ glyph han-33156:15x16 15 16 // 𳅖
 
 ## 166.7
 
-// glyph han-33169:15x16 15 16 // 𳅩
-// ⿰ han-91cd han-7528 // ⿰重用
+glyph han-33169:15x16 15 16 // 𳅩
+⿰ han-91cd:9x16 1 han-7528:5x16 // ⿰重用
 
 ## 166.11
 
@@ -326,6 +329,9 @@ glyph han-331f8:15x16 15 16 // 𳇸
 // glyph han-331fd:15x16 15 16 // 𳇽
 // ⿵ han-9580 han-8db3 // ⿵門足
 
+// glyph han-331ff:15x16 15 16 // 𳇿
+// ⿵ han-9580 han-8c37 // ⿵門谷
+
 // glyph han-33200:15x16 15 16 // 𳈀
 // ⿵ han-9580 han-521d // ⿵門初
 
@@ -373,6 +379,11 @@ glyph han-331f8:15x16 15 16 // 𳇸
 
 // glyph han-33217:15x16 15 16 // 𳈗
 // ⿵ han-95e8 han-2d530 // ⿵门𭔰
+
+## 169'.11
+
+// glyph han-33218:15x16 15 16 // 𳈘
+// ⿵ han-95e8 han-6b32 // ⿵门欲
 
 # CJK unified ideographs extension J: 阜 (170)
 

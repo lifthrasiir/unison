@@ -689,6 +689,9 @@ glyph han-205d4:15x16 15 16 // 𠗔
 glyph han-205d5:15x16 15 16 // 𠗕
 ⿰ 1 han-51ab:5x14 1 han-590b:7x16 // ⿰冫夋
 
+// glyph han-205d6:15x16 15 16 // 𠗖
+// ⿰ han-51ab han-8c37 // ⿰冫谷
+
 ## 15.8
 
 glyph han-205da:15x16 15 16 // 𠗚
@@ -729,6 +732,9 @@ glyph han-20601:15x16 15 16 // 𠘁
 
 glyph han-20602:15x16 15 16 // 𠘂
 ⿲ han-51ab:3x12 han-675f:7x16 han-6b20:5x16 // ⿲冫束欠
+
+// glyph han-20603:15x16 15 16 // 𠘃
+// ⿰ han-51ab han-52d5 // ⿰冫動
 
 ## 15.12
 

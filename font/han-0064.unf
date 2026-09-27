@@ -1013,8 +1013,8 @@ glyph han-63ee:15x16 15 16 // 揮
 ⿰ han-624c:5x16 1 han-8ecd:9x16 // ⿰扌軍
 glyph han-63ee.0:* = han-63ee:*
 
-// glyph han-63f0:15x16 15 16 // 揰
-// ⿰ han-624c han-91cd // ⿰扌重
+glyph han-63f0:15x16 15 16 // 揰
+⿰ han-624c:3x16 1 han-91cd:11x16 // ⿰扌重
 
 // glyph han-63f1:15x16 15 16 // 揱
 // ⿱ han-524a han-624b // ⿱削手

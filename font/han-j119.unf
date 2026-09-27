@@ -835,6 +835,18 @@ glyph han-33079:15x16 15 16 // 𳁹
 glyph han-3307c:15x16 15 16 // 𳁼
 ⿰ han-8ba0:5x14 1 han-7533:9x16 // ⿰讠申
 
+# CJK unified ideographs extension J: 谷 (150)
+
+## 150.5
+
+glyph han-3307e:15x16 15 16 // 𳁾
+⿰ han-8c37:9x16 han-4e14:6x16 // ⿰谷且
+
+## 150.15
+
+// glyph han-33080-($han-regions):15x16 15 16 // 𳂀
+// ⿰ han-8acb-($-1) han-8c37 // ⿰請谷
+
 # CJK unified ideographs extension J: 貝 (154)
 
 ## 154.2
@@ -872,6 +884,11 @@ glyph han-33099:15x16 15 16 // 𳂙
 
 // glyph han-3309a:15x16 15 16 // 𳂚
 // ⿰ han-8c9d han-5766 // ⿰貝坦
+
+## 154.11
+
+// glyph han-330a0:15x16 15 16 // 𳂠
+// ⿰ han-8c9d han-6b32 // ⿰貝欲
 
 # CJK unified ideographs extension J: 赤 (155)
 

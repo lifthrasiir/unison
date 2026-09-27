@@ -746,6 +746,9 @@ glyph han-92c7.0:* = han-92c7:*
 glyph han-92c9:15x16 15 16 // 鋉
 ⿰ han-91d2:5x15-l 1 han-675f:9x16 // ⿰釒束
 
+// glyph han-92ca:15x16 15 16 // 鋊
+// ⿰ han-91d2 han-8c37 // ⿰釒谷
+
 glyph han-92ce:15x16 15 16 // 鋎
 ⿰ han-91d2:5x15-l 1 han-5b8c:9x16 // ⿰釒完
 glyph han-92ce.0:* = han-92ce:*

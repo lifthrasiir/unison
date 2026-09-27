@@ -86,6 +86,9 @@ glyph han-2decc:15x16 15 16 // 𭻌
 glyph han-2ded5:15x16 15 16 // 𭻕
 ⿰ han-7530:5x14-l 1 han-91cc:9x16 // ⿰田里
 
+glyph han-2ded7:15x16 15 16 // 𭻗
+⿰ han-7530:5x14-l 1 han-8c37:9x16 // ⿰田谷
+
 // glyph han-2ded9:15x16 15 16 // 𭻙
 // ⿰ han-4e3b han-7537 // ⿰主男
 
@@ -466,8 +469,8 @@ glyph han-2dfc2:15x16 15 16 // 𭿂
 
 ## 109.9
 
-// glyph han-2dfcd:15x16 15 16 // 𭿍
-// ⿰ han-76ee han-91cd // ⿰目重
+glyph han-2dfcd:15x16 15 16 // 𭿍
+⿰ han-76ee:4x13-l han-91cd:11x16 // ⿰目重
 
 // glyph han-2dfce:15x16 15 16 // 𭿎
 // ⿰ han-76ee han-7c7b // ⿰目类
@@ -785,6 +788,11 @@ glyph han-2e0e3:15x16 15 16 // 𮃣
 
 glyph han-2e0ed:15x16 15 16 // 𮃭
 ⿲ han-79be:5x16 han-5409:5x16 han-5409:5x16 // ⿲禾吉吉
+
+## 115.13
+
+// glyph han-2e0f2-($han-regions):15x16 15 16 // 𮃲
+// ⿰ han-7a2e han-4eca-($-1) // ⿰種今
 
 # CJK unified ideographs extension F: 穴 (116)
 

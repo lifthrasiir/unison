@@ -307,6 +307,12 @@ glyph han-2d27b:15x16 15 16 // 𭉻
 glyph han-2d290:15x16 15 16 // 𭊐
 ⿰ han-5468.1:8x16 han-5408:7x16 // ⿰周合
 
+// glyph han-2d292:15x16 15 16 // 𭊒
+// ⿰ han-53e3 han-6b32 // ⿰口欲
+
+// glyph han-2d296:15x16 15 16 // 𭊖
+// ⿱ han-6b32 han-53e3 // ⿱欲口
+
 glyph han-2d298:15x16 15 16 // 𭊘
 ⿲ -1 han-53e3:3x12 han-5485:9x16 han-961d:4x16-r // ⿲口咅阝
 

@@ -493,6 +493,9 @@ glyph han-25a80:15x16 15 16 // 𥪀
 glyph han-25a85:15x16 15 16 // 𥪅
 ⿲ han-7acb:5x16 han-53e3:3x12 han-6b20:7x16 // ⿲立口欠
 
+glyph han-25a89:15x16 15 16 // 𥪉
+⿰ han-7acb:5x16 1 han-8c37:9x16 // ⿰立谷
+
 ## 117.8
 
 glyph han-25a93:15x16 15 16 // 𥪓

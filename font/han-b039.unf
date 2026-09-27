@@ -215,8 +215,8 @@ glyph han-21971:15x16 15 16 // 𡥱
 // glyph han-2197b:15x16 15 16 // 𡥻
 // ⿱ han-79cb han-5b50 // ⿱秋子
 
-// glyph han-2197f-($han-regions):15x16 15 16 // 𡥿
-// ⿰ han-5b50-($-1) han-91cd // ⿰子重
+glyph han-2197f:15x16 15 16 // 𡥿
+⿰ han-5b50.0:5x16-l 1 han-91cd:9x16 // ⿰子重
 
 // glyph han-21980:15x16 15 16 // 𡦀
 // ⿱ han-5b54 han-660e // ⿱孔明

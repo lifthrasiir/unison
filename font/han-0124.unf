@@ -1896,14 +1896,18 @@ glyph han-8167-(g|h|t):* = han-8167.y:*
 glyph han-816a:15x16 15 16 // 腪
 ⿰ han-6708:5x14-l 1 han-8ecd:9x16 // ⿰月軍
 
-// glyph han-816b:15x16 15 16 // 腫 ⿰月重(GJKPV) ⿰⺼重(HT)
-// ⿰ han-6708 han-91cd // ⿰月重
+glyph han-816b:15x16 15 16 // 腫
+⿰ han-6708:5x14-l 1 han-91cd:9x16 // ⿰月重
+glyph han-816b.0:* = han-816b:*
 
 // glyph han-816e:15x16 15 16 // 腮 ⿰月思(GJKPV) ⿰⺼思(HT)
 // ⿰ han-6708 han-601d // ⿰月思
 
 // glyph han-8170:15x16 15 16 // 腰 ⿰月要(GJKPV) ⿰⺼要(HT)
 // ⿰ han-6708 han-8981 // ⿰月要
+
+// glyph han-8173:15x16 15 16 // 腳 ⿰月卻(GKP) ⿰⺼卻(HT)
+// ⿰ han-6708 han-537b // ⿰月卻
 
 glyph han-8178:15x16 15 16 // 腸
 ⿰ han-6708:5x14-l 1 han-661c:9x16 // ⿰月昜

@@ -368,8 +368,8 @@ glyph han-25513:15x16 15 16 // 𥔓
 // glyph han-25526:15x16 15 16 // 𥔦
 // ⿰ han-77f3 han-76c3 // ⿰石盃
 
-// glyph han-25527:15x16 15 16 // 𥔧
-// ⿰ han-77f3 han-91cd // ⿰石重
+glyph han-25527:15x16 15 16 // 𥔧
+⿰ han-77f3:6x16 han-91cd:9x16 // ⿰石重
 
 // glyph han-25528:15x16 15 16 // 𥔨
 // ⿲ han-77f3 han-6c34 han-77f3 // ⿲石水石 <- ⿰砅石

@@ -752,8 +752,8 @@ glyph han-8757.0:* = han-8757:*
 glyph han-8762:15x16 15 16 // 蝢
 ⿰ han-866b:7x16 1 han-9801:7x16 // ⿰虫頁
 
-// glyph han-8769:15x16 15 16 // 蝩
-// ⿰ han-866b han-91cd // ⿰虫重
+glyph han-8769:15x16 15 16 // 蝩
+⿰ han-866b:5x16 1 han-91cd:9x16 // ⿰虫重
 
 glyph han-876a:15x16 15 16 // 蝪
 ⿰ han-866b:5x16 1 han-661c:9x16 // ⿰虫昜
@@ -833,6 +833,9 @@ glyph han-87b5.0:* = han-87b5:*
 
 // glyph han-87b6:15x16 15 16 // 螶
 // ⿱ han-5de8 han-45b5 // ⿱巨䖵
+
+// glyph han-87b8:15x16 15 16 // 螸
+// ⿱ han-6b32 han-866b // ⿱欲虫
 
 glyph han-87b9:15x16 15 16 // 螹
 ⿲ -2 han-866b:5x16 1 han-8eca:5x16 han-65a4:6x16 // ⿲虫車斤
@@ -1079,8 +1082,8 @@ glyph han-885b:15x16 15 16 // 衛
 // glyph han-885c:15x16 15 16 // 衜
 // ⿲ han-5f73 han-9996 han-4e8d // ⿲彳首亍
 
-// glyph han-885d:15x16 15 16 // 衝
-// ⿲ han-5f73 han-91cd han-4e8d // ⿲彳重亍
+glyph han-885d:15x16 15 16 // 衝
+⿲ han-5f73:3x16 han-91cd:9x16 han-4e8d:3x16 // ⿲彳重亍
 
 # CJK unified ideographs: 衣 (145)
 
@@ -1406,6 +1409,9 @@ glyph han-88ce-p:* = han-88ce.y:*
 glyph han-88d1:15x16 15 16 // 裑
 ⿰ han-8864.0:5x14 1 han-8eab:9x16 // ⿰衤身
 glyph han-88d1.0:* = han-88d1:*
+
+// glyph han-88d5-($han-regions):15x16 15 16 // 裕
+// ⿰ han-8864-($-1) han-8c37 // ⿰衤谷
 
 // glyph han-88da:15x16 15 16 // 裚
 // ⿱ han-6298 han-8863 // ⿱折衣

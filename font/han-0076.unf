@@ -131,6 +131,10 @@ glyph han-6b31:15x16 15 16 // 欱
 
 ## 76.7
 
+glyph han-6b32:15x16 15 16 // 欲
+⿰ han-8c37:9x16 1 han-6b20:5x16 // ⿰谷欠
+glyph han-6b32.0:* = han-6b32:*
+
 glyph han-6b34:15x16 15 16 // 欴 ⿰{17}欠(GHTP) ⿰良欠(K)
 ⿰ han-826f.0:7x16 1 han-6b20:7x16 // ⿰良欠
 
@@ -898,8 +902,8 @@ glyph han-6b6e.0:* = han-6b6e:*
 
 ## 77.9
 
-// glyph han-6b71:15x16 15 16 // 歱
-// ⿰ han-6b62 han-91cd // ⿰止重
+glyph han-6b71:15x16 15 16 // 歱
+⿰ han-6b62:6x16-l han-91cd:9x16 // ⿰止重
 
 ## 77.10
 

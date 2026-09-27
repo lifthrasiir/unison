@@ -2911,6 +2911,8 @@ glyph han-54bd.0:* = han-54bd:*
 
 glyph han-54c1:9x8 9 8 // 品
 ⿱ 2|han-53e3:5x3|2 1 han-5405:9x4 // ⿱口吅
+glyph han-54c1:9x12 9 12 // 品
+⿱ 2|han-53e3:5x5|2 1 han-5405:9x6 // ⿱口吅
 glyph han-54c1:9x13 9 13 // 品
 ⿱ 2|han-53e3:5x6|2 1 han-5405:9x6 // ⿱口吅
 glyph han-54c1:9x16 9 16 // 品
@@ -3075,6 +3077,9 @@ glyph han-54ff.0:* = han-54ff:*
 glyph han-5501-($han-regions):15x16 15 16 // 唁
 ⿰ han-53e3:5x12 1 han-8a00-($-1):9x16 // ⿰口言
 glyph han-5501.0:* = han-5501-j:*
+
+// glyph han-5502:15x16 15 16 // 唂
+// ⿰ han-53e3 han-8c37 // ⿰口谷
 
 // glyph han-5503-($han-regions):15x16 15 16 // 唃
 // ⿰ han-53e3 han-89d2-($-1) // ⿰口角
