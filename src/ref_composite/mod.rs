@@ -255,6 +255,10 @@ pub struct ResolvedGlyph {
     /// another in the font.
     #[cfg_attr(all(not(feature = "editor"), not(test)), expect(dead_code))]
     pub declared_box: Option<(u16, u16)>,
+    /// The glyph's `margin-x` / `margin-y`, which the same placement reads
+    /// beside [`declared_box`](Self::declared_box) and for the same reason.
+    #[cfg_attr(all(not(feature = "editor"), not(test)), expect(dead_code))]
+    pub declared_margin: crate::document::Margin,
     /// Where this glyph's declared box starts inside its own grid, in declared
     /// (un-`scale`d) cells — [`GlyphBody::declared_origin`].
     ///
@@ -563,10 +567,7 @@ fn derive_compose_body<'b>(
     }
     let dims = |part: &str| match body_of(part) {
         None => crate::compose::PartDims::Unknown,
-        Some(part) => match part.declared_extent() {
-            Some((w, h)) => crate::compose::PartDims::Size(w, h),
-            None => crate::compose::PartDims::Undeclared,
-        },
+        Some(part) => crate::compose::PartDims::of(part),
     };
     let (mut refs, issues) = crate::compose::expand_compose(
         name,
@@ -624,6 +625,7 @@ pub(crate) fn resolve_glyph_bodies(
         points: Vec<GlyphPoint>,
         scale: u8,
         declared_box: Option<(u16, u16)>,
+        declared_margin: crate::document::Margin,
         declared_origin: (i16, i16),
     }
 
@@ -654,6 +656,7 @@ pub(crate) fn resolve_glyph_bodies(
                     declared_anchors: body.points,
                     scale: body.scale,
                     declared_box,
+                    declared_margin: body.margin,
                     declared_origin,
                     inline_source: None,
                 },
@@ -664,6 +667,7 @@ pub(crate) fn resolve_glyph_bodies(
             pending.push(Pending {
                 name: key,
                 declared_box: body.declared_extent(),
+                declared_margin: body.margin,
                 declared_origin,
                 pixels: body.pixels,
                 refs: body.refs,
@@ -841,6 +845,7 @@ pub(crate) fn resolve_glyph_bodies(
                     declared_anchors: pg.points,
                     scale: pg.scale,
                     declared_box: pg.declared_box,
+                    declared_margin: pg.declared_margin,
                     declared_origin: pg.declared_origin,
                     inline_source: Some(inline_source),
                 },
@@ -975,6 +980,7 @@ fn synthesized_on_demand(name: &str) -> Option<&'static ResolvedGlyph> {
         // An on-demand name states its own box, so the shape declares one the
         // way a header does — there is simply no header to read it off.
         declared_box: declared_box(Some(&grid), spec.scale),
+        declared_margin: Default::default(),
         // An on-demand shape is its own box: the name states the size and
         // there is nowhere to write an origin, so the grid's corner is it.
         declared_origin: (0, 0),

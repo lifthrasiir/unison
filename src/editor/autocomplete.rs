@@ -610,21 +610,30 @@ enum SlotFit {
 }
 
 impl SlotFit {
-    /// Whether `name`, whose header declares `declared`, may fill the slot.
+    /// Whether `name`, whose header declares `declared` and `margin`, may fill
+    /// the slot: across a split, exactly or once its margin pads it
+    /// ([`padding_across`](crate::compose::padding_across)).
     ///
     /// A name whose box nothing states — a family name, a pattern, a glyph
     /// that resolves to whatever it places — passes: the listing may only drop
     /// what it can show is wrong. A name that states a size in its own `:WxH`
     /// suffix is measured by that when it has no box of its own, since that
     /// suffix is exactly the claim the author is choosing between.
-    fn admits(self, name: &str, declared: Option<(u16, u16)>) -> bool {
+    fn admits(
+        self,
+        name: &str,
+        declared: Option<(u16, u16)>,
+        margin: crate::document::Margin,
+    ) -> bool {
         let Some(size) = declared.or_else(|| VariantSpec::parse(name).size) else {
             return true;
         };
         match self {
-            Self::Across { cells, horizontal } => cells == if horizontal { size.1 } else { size.0 },
+            Self::Across { cells, horizontal } => {
+                crate::compose::padding_across(size, margin, cells, horizontal).is_some()
+            }
             Self::Enclosure { parent, outer } => {
-                crate::compose::fits_enclosure_slot(size, parent, outer)
+                crate::compose::fits_enclosure_slot(size, margin, parent, outer)
             }
         }
     }
@@ -987,12 +996,15 @@ fn collect_candidates(
             }
         }
         CompletionKind::Glyph => {
-            let admits =
-                |name: &str, declared| cross.is_none_or(|cross| cross.admits(name, declared));
+            let admits = |name: &str, declared, margin| {
+                cross.is_none_or(|cross| cross.admits(name, declared, margin))
+            };
             let mut declared_here = HashSet::default();
             declared_glyph_names(source.doc, &mut declared_here);
             for (name, glyph) in source.named_glyphs {
-                if admits(name, glyph.declared_box) && offers_glyph_name(name, &declared_here) {
+                if admits(name, glyph.declared_box, glyph.declared_margin)
+                    && offers_glyph_name(name, &declared_here)
+                {
                     candidates.push(CompletionCandidate {
                         label: name.clone(),
                         kind: CompletionKind::Glyph,
@@ -1002,12 +1014,16 @@ fn collect_candidates(
             // Also add raw glyph names from current document that may not be
             // resolved yet (e.g. pattern names).
             for item in &source.doc.items {
-                let (name, declared) = match item {
-                    DocumentItem::Glyph { name, body } => (name.display(), body.declared_extent()),
-                    DocumentItem::GlyphAlias { name, .. } => (name.display(), None),
+                let (name, declared, margin) = match item {
+                    DocumentItem::Glyph { name, body } => {
+                        (name.display(), body.declared_extent(), body.margin)
+                    }
+                    DocumentItem::GlyphAlias { name, .. } => {
+                        (name.display(), None, Default::default())
+                    }
                     _ => continue,
                 };
-                if !source.named_glyphs.contains_key(&name) && admits(&name, declared) {
+                if !source.named_glyphs.contains_key(&name) && admits(&name, declared, margin) {
                     candidates.push(CompletionCandidate {
                         label: name,
                         kind: CompletionKind::Glyph,
@@ -1505,6 +1521,46 @@ glyph parent 15 16
         assert_eq!(shown("ref p:5", 7, idc), vec!["p:16x5", "p:5x10", "p:5x16"],);
     }
 
+    /// A name its margin makes up to the slot fills it as surely as one drawn
+    /// at the slot's size, and the listing offers it; a margin that falls short
+    /// is no help. Both the glyphs resolved elsewhere and the ones only this
+    /// document declares are measured the same way.
+    #[test]
+    fn an_idc_slot_lists_a_name_its_margin_fits() {
+        let src = "\
+glyph p:5x16 5 16
+glyph p:5x14 5 14 margin-y 1
+glyph p:5x13 5 13 margin-y 1
+glyph parent 15 16
+\u{2FF0} p:5 q:10x16
+";
+        let doc = crate::document_io::parse_document_from_str(src, "t.unf".into()).unwrap();
+        let lines = crate::document_io::parse_doclines(src);
+        let name_parts = NamePartsMap::default();
+        let idc = lines
+            .iter()
+            .position(|l| l.as_text().is_some_and(|t| t.starts_with('\u{2FF0}')))
+            .unwrap();
+        let (resolved, _) =
+            crate::ref_composite::resolve_named_glyphs_with_parts(&[&doc], &name_parts);
+        for named_glyphs in [&HashMap::default(), &resolved] {
+            let source = CompletionSource {
+                named_glyphs,
+                name_parts: &name_parts,
+                doc: &doc,
+            };
+            let line_text = "\u{2FF0} p:5 q:10x16";
+            let ctx = detect_context(line_text, 5).unwrap();
+            let cross = idc_slot_fit(line_text, 5, &lines, idc);
+            let all = collect_candidates(&ctx, &source, &None, cross);
+            let shown: Vec<String> = filter_candidates(&all, &ctx.kind, &ctx.prefix, ctx.slot)
+                .into_iter()
+                .map(|c| c.label)
+                .collect();
+            assert_eq!(shown, vec!["p:5x14", "p:5x16"]);
+        }
+    }
+
     /// An enclosure's two slots want opposite things of a name: the outer one
     /// is the glyph exactly and promises a cavity, the inner one fits inside it
     /// and promises none. Both are errors on the line when they fail, so the
@@ -1553,6 +1609,41 @@ glyph parent 15 16
             shown("\u{2FF4} p:15x16.9x10 p:1", 18),
             vec!["p:15x16", "p:9x10", "p:15x16.9x10"],
         );
+    }
+
+    /// An outer part its margin makes up to the glyph is offered for the outer
+    /// slot; one its margin leaves short is not.
+    #[test]
+    fn an_enclosure_slot_lists_an_outer_part_its_margin_fits() {
+        let src = "\
+glyph p:15x16.9x10 15 16
+glyph p:13x15.9x10 13 15 margin-x 1 margin-y 1|0
+glyph p:13x14.9x10 13 14 margin-x 1
+glyph parent 15 16
+\u{2FF4} p:1 q
+";
+        let doc = crate::document_io::parse_document_from_str(src, "t.unf".into()).unwrap();
+        let lines = crate::document_io::parse_doclines(src);
+        let named_glyphs = HashMap::default();
+        let name_parts = NamePartsMap::default();
+        let source = CompletionSource {
+            named_glyphs: &named_glyphs,
+            name_parts: &name_parts,
+            doc: &doc,
+        };
+        let idc = lines
+            .iter()
+            .position(|l| l.as_text().is_some_and(|t| t.starts_with('\u{2FF4}')))
+            .unwrap();
+        let line_text = "\u{2FF4} p:1 q";
+        let ctx = detect_context(line_text, 5).unwrap();
+        let cross = idc_slot_fit(line_text, 5, &lines, idc);
+        let all = collect_candidates(&ctx, &source, &None, cross);
+        let shown: Vec<String> = filter_candidates(&all, &ctx.kind, &ctx.prefix, ctx.slot)
+            .into_iter()
+            .map(|c| c.label)
+            .collect();
+        assert_eq!(shown, vec!["p:13x15.9x10", "p:15x16.9x10"]);
     }
 
     /// A header's own `@` stands for the base that was already in force, so the

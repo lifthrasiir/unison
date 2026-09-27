@@ -669,6 +669,7 @@ pub struct GlyphHeaderFlags {
     pub width: Option<u16>,
     pub height: Option<u16>,
     pub scale: Option<u8>,
+    pub margin: crate::document::Margin,
     /// Index of the width token *within the flag parts* (i.e. one less than
     /// its index in the whole header), and of the height token beside it.
     /// [`replace_glyph_header_dims`] rewrites exactly those two tokens rather
@@ -696,7 +697,7 @@ pub fn parse_glyph_flag_parts<S: AsRef<str>>(flag_parts: &[S]) -> GlyphHeaderFla
 /// Every keyword a `glyph` header may carry, valued flags included. The
 /// parser matches on it and the editor completes from it, so a flag added in
 /// one place cannot go missing in the other.
-pub const GLYPH_FLAG_KEYWORDS: [&str; 9] = [
+pub const GLYPH_FLAG_KEYWORDS: [&str; 11] = [
     "keep",
     "inline",
     "mark",
@@ -706,6 +707,8 @@ pub const GLYPH_FLAG_KEYWORDS: [&str; 9] = [
     "origin",
     "extent",
     "scale",
+    "margin-x",
+    "margin-y",
 ];
 
 /// The one walker behind both the lenient parse and the strict validation.
@@ -765,6 +768,23 @@ fn parse_glyph_flag_parts_impl<S: AsRef<str>>(
                 }
                 fp += 2;
             }
+            keyword @ ("margin-x" | "margin-y") => {
+                fp += 1;
+                let side = if keyword == "margin-x" {
+                    &mut flags.margin.x
+                } else {
+                    &mut flags.margin.y
+                };
+                if side.is_some() {
+                    err(format!("'{keyword}' is stated twice"));
+                }
+                *side = flag_parts.get(fp).and_then(|t| parse_margin(t.as_ref()));
+                if side.is_none() {
+                    err(format!(
+                        "'{keyword}' requires one value, or two written `N|M`"
+                    ));
+                }
+            }
             other => {
                 if flags.width.is_none()
                     && let Ok(w) = other.parse::<u16>()
@@ -806,6 +826,16 @@ fn parse_glyph_flag_parts_impl<S: AsRef<str>>(
         err("'desync' and 'vectoronly' ask for opposite things".to_string());
     }
     flags
+}
+
+/// The value of a `margin-x` or `margin-y` flag: `N` for both sides, `N|M` for
+/// each. The two sides are one token so that the flag always takes one, which
+/// is what keeps it apart from the header's `W H` wherever it stands.
+fn parse_margin(token: &str) -> Option<(u16, u16)> {
+    match token.split_once('|') {
+        None => token.parse().ok().map(|n| (n, n)),
+        Some((lo, hi)) => Some((lo.parse().ok()?, hi.parse().ok()?)),
+    }
 }
 
 /// Parse the whitespace-split tokens of a `glyph ...` header (with the glyph
@@ -1379,6 +1409,12 @@ fn format_glyph_flags(body: &GlyphBody) -> String {
     }
     if body.scale > 1 {
         flags.push_str(&format!(" scale {}", body.scale));
+    }
+    for (x_axis, margin) in [(true, body.margin.x), (false, body.margin.y)] {
+        if let Some(margin) = margin {
+            flags.push(' ');
+            flags.push_str(&crate::document::Margin::flag(x_axis, margin));
+        }
     }
     flags
 }
@@ -2063,6 +2099,7 @@ fn derive_items(
                         body.origin = flags.origin;
                         body.extent = flags.extent;
                         body.scale = flags.scale.unwrap_or(1);
+                        body.margin = flags.margin;
                         let scale = body.scale as u16;
                         let (width, height) = (
                             flags.width.and_then(|w| w.checked_mul(scale)),

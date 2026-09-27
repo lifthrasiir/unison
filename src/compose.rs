@@ -80,6 +80,44 @@
 //! one-part nested split makes that plain: its total is the padding the source
 //! wrote, and it could never be moved into the band.
 //!
+//! # A part's margin
+//!
+//! A part is drawn tight, its ink running to the edges of its box, because it
+//! is placed in slots of many sizes and a margin drawn into it would be right
+//! for one of them. Most of those slots still want one answer — 口 on top of a
+//! full-width `⿱` sits two cells in from either side — and a nested split at
+//! every use of it would write that answer out thousands of times, and fix it
+//! there: redrawing the default would move none of them. So the part states it
+//! once, as a `margin-x L|R` or `margin-y T|B` on its header
+//! ([`Margin`](crate::document::Margin)), and a line that finds the part short
+//! of the slot **across** the axis by exactly that much pads it there
+//! ([`padding_across`]).
+//!
+//! Only across, because along the axis the room between the parts is the line's
+//! gaps, and those are already stated, measured and solved by `uniform fix`; a
+//! margin there would be the same room counted twice. Only when the box falls
+//! short, because a slot the box fills needs no padding, and the part a slot
+//! of another size needs is a variant or a nested split. And only in a glyph's
+//! own line: a nested split is the written-out form of exactly this padding,
+//! and its members are taken at their boxes, so `1|口|1` means what it says
+//! whatever 口 would have asked for.
+//!
+//! An enclosure's **outer** part is the other slot a box pins, on both axes at
+//! once: its walls are the glyph's, so it has to be the glyph's size, and a
+//! tight 凵 is short of that by its margin on each side it has one
+//! ([`outer_padding`]). It is placed there and read there — its cavity
+//! ([`cavity_fits`]) and its walls ([`measure_enclosure_clearances`]) — so a
+//! margin on a side the operator opens on is room the cavity has, and a name's
+//! `.NxM` promises the room of the part as placed, which is the only room
+//! anything is ever put in. The **inner** part is placed by the offsets the
+//! line writes and takes none.
+//!
+//! The padded part is the one-part nested split it abbreviates, and everything
+//! after the layout reads it as that: its ink is measured where it sits across
+//! the slot ([`GapSide::cross`]), the family of an undecided component fits a
+//! slot its margin makes up, and the fixer and the editor's completion offer
+//! it for one.
+//!
 //! # An undecided line is not a wrong one
 //!
 //! A component written without a `:` suffix has not picked its variant yet.
@@ -179,7 +217,7 @@
 //! the component names the side whose drawing it actually wants.
 
 use crate::detail::DetailRegion;
-use crate::document::{ComposeItem, GlyphCompose, GlyphRef, PixelGrid};
+use crate::document::{ComposeItem, GlyphCompose, GlyphRef, Margin, PixelGrid};
 use crate::issues::Severity;
 
 /// Which sides of the parent's box an enclosing operator's outer part fills.
@@ -567,8 +605,44 @@ pub enum PartDims {
     /// box is whatever it happens to resolve to, which is exactly the thing a
     /// component may not be.
     Undeclared,
-    /// `(width, height)`, in the parent's own units.
-    Size(u16, u16),
+    /// `(width, height)`, in the parent's own units, and the margin the part
+    /// asks for around that box when its slot is larger across the split.
+    Size(u16, u16, Margin),
+}
+
+impl PartDims {
+    /// What a glyph body says about itself as a part: its declared box and its
+    /// margin.
+    pub fn of(body: &crate::document::GlyphBody) -> Self {
+        Self::declared(body.declared_extent(), body.margin)
+    }
+
+    /// The same from the two numbers alone, for a caller that keeps them
+    /// rather than the body.
+    pub fn declared(size: Option<(u16, u16)>, margin: Margin) -> Self {
+        match size {
+            Some((w, h)) => Self::Size(w, h, margin),
+            None => Self::Undeclared,
+        }
+    }
+}
+
+/// Where a part of `size` starts across a slot `cross_extent` across, in a line
+/// split along `horizontal`: 0 for a part as wide as the slot, the near side of
+/// its [margin](crate::compose#a-parts-margin) for one that its margin makes up
+/// to the slot, and `None` for one that does not fill the slot either way.
+pub fn padding_across(
+    size: (u16, u16),
+    margin: Margin,
+    cross_extent: u16,
+    horizontal: bool,
+) -> Option<u16> {
+    let across = if horizontal { size.1 } else { size.0 };
+    if across == cross_extent {
+        return Some(0);
+    }
+    let (lo, hi) = margin.across(horizontal)?;
+    (across as u32 + lo as u32 + hi as u32 == cross_extent as u32).then_some(lo)
 }
 
 /// Where a glyph's ink starts and stops on every line of the grid, in the
@@ -1356,7 +1430,11 @@ pub type ComposeExpansion = (Vec<GlyphRef>, Vec<(Severity, String)>);
 /// of its base name draws, which is what separates a line waiting for a
 /// decision from one whose decision cannot be made. A callback for the same
 /// reason [`InkLookup`] is one — the caller decides what a name means.
-pub type FamilyLookup<'a> = dyn Fn(&str) -> Vec<(u16, u16)> + 'a;
+pub type FamilyLookup<'a> = dyn Fn(&str) -> Vec<FamilyVariant> + 'a;
+
+/// One variant of a family, as [`FamilyLookup`] answers it: the box it
+/// declares and the margin it asks for around it.
+pub type FamilyVariant = ((u16, u16), Margin);
 
 /// How a component name is answered with the ink it draws. See
 /// [`ClearanceRule::ink`] for why this is a callback.
@@ -1402,10 +1480,18 @@ pub fn fits_axis(along: i32, axis_extent: i32) -> bool {
 
 /// Whether a glyph this size could fill one slot of a line split along
 /// `axis_extent`, in a glyph `cross_extent` across: [`fits_axis`] along the
-/// split, and the exact box the line demands across it.
-pub fn fits_slot(size: (u16, u16), axis_extent: u16, cross_extent: u16, horizontal: bool) -> bool {
-    let (along, across) = if horizontal { size } else { (size.1, size.0) };
-    across == cross_extent && fits_axis(along as i32, axis_extent as i32)
+/// split, and the exact box the line demands across it — or the box its
+/// margin makes up to it ([`padding_across`]).
+pub fn fits_slot(
+    size: (u16, u16),
+    margin: Margin,
+    axis_extent: u16,
+    cross_extent: u16,
+    horizontal: bool,
+) -> bool {
+    let along = if horizontal { size.0 } else { size.1 };
+    padding_across(size, margin, cross_extent, horizontal).is_some()
+        && fits_axis(along as i32, axis_extent as i32)
 }
 
 /// Whether a glyph this size could fill one slot of an *enclosure*.
@@ -1421,11 +1507,35 @@ pub fn fits_slot(size: (u16, u16), axis_extent: u16, cross_extent: u16, horizont
 ///   dimensions the way a split's cross axis pins one: what room there really
 ///   is, is the cavity's to say, and that is a measurement rather than a
 ///   number a box carries ([`cavity_fits`]).
-pub fn fits_enclosure_slot(size: (u16, u16), parent: (u16, u16), outer: bool) -> bool {
+pub fn fits_enclosure_slot(
+    size: (u16, u16),
+    margin: Margin,
+    parent: (u16, u16),
+    outer: bool,
+) -> bool {
     match outer {
-        true => size == parent,
+        true => outer_padding(size, margin, parent).is_some(),
         false => size.0 <= parent.0 && size.1 <= parent.1,
     }
+}
+
+/// Where an enclosure's outer part of `size` sits in the glyph: `(0, 0)` for
+/// one the glyph's size, and on each axis its box falls short of, the near
+/// side of the [margin](crate::compose#a-parts-margin) that makes it up —
+/// `None` where nothing does. The inner part is placed by the line's own
+/// offsets and takes none.
+pub fn outer_padding(size: (u16, u16), margin: Margin, parent: (u16, u16)) -> Option<(u16, u16)> {
+    let axis = |size: u16, parent: u16, margin: Option<(u16, u16)>| {
+        if size == parent {
+            return Some(0);
+        }
+        let (lo, hi) = margin?;
+        (size as u32 + lo as u32 + hi as u32 == parent as u32).then_some(lo)
+    };
+    Some((
+        axis(size.0, parent.0, margin.x)?,
+        axis(size.1, parent.1, margin.y)?,
+    ))
 }
 
 /// Whether an IDC component has yet to pick its variant — the `:` is the whole
@@ -1502,7 +1612,7 @@ pub fn nested_line(
         match item {
             ComposeItem::Gap(gap) => along += *gap as i32,
             ComposeItem::Part { name, .. } => match dims(name) {
-                PartDims::Size(w, h) => {
+                PartDims::Size(w, h, _) => {
                     let (a, c) = if op.horizontal() { (w, h) } else { (h, w) };
                     along += a as i32;
                     across.get_or_insert(c);
@@ -1576,15 +1686,16 @@ pub fn nested_body(
 fn misfit_variants(
     name: &str,
     family: Option<&FamilyLookup>,
-    fits: &dyn Fn((u16, u16)) -> bool,
+    fits: &dyn Fn((u16, u16), Margin) -> bool,
 ) -> Option<String> {
-    let sizes = family?(name);
-    if sizes.is_empty() || sizes.iter().copied().any(fits) {
+    let variants = family?(name);
+    if variants.is_empty() || variants.iter().any(|&(size, margin)| fits(size, margin)) {
         return None;
     }
     // By the numbers rather than by the text, so `5x16` comes before `15x16`.
-    let mut sizes: Vec<String> = sizes
+    let mut sizes: Vec<String> = variants
         .iter()
+        .map(|(size, _)| size)
         .collect::<std::collections::BTreeSet<_>>()
         .into_iter()
         .map(|(w, h)| format!("{w}x{h}"))
@@ -1765,9 +1876,10 @@ fn expand_line(
 
     let mut cursor: i32 = 0;
     let mut slot = 0usize;
-    // Where each component landed along the axis, for the clearance check
-    // below. Collected on the way through because that walk is what knows it.
-    let mut placed_parts: Vec<(String, i32)> = Vec::new();
+    // Where each component landed along the axis and across it, for the
+    // clearance check below. Collected on the way through because that walk is
+    // what knows it.
+    let mut placed_parts: Vec<(String, i32, i32)> = Vec::new();
     // Each nested split's written token and its `nested_key`.
     let mut nested_keys: Vec<(String, String)> = Vec::new();
     for item in &compose.items {
@@ -1816,7 +1928,7 @@ fn expand_line(
                 // up under the key its ink is kept by.
                 let written = ComposeItem::nested_token(members, false);
                 nested_keys.push((written.clone(), nested_key(op, members)));
-                placed_parts.push((written, cursor));
+                placed_parts.push((written, cursor, 0));
                 slot += 1;
                 let (w, h) = size.box_;
                 let (along, across) = if op.horizontal() { (w, h) } else { (h, w) };
@@ -1858,7 +1970,8 @@ fn expand_line(
             // yet. Saying TODO there loses it — a TODO flags no glyph and is
             // hidden by default — so it is a warning, and it names what the
             // family does draw, since that is the thing to be looked at.
-            let fits = |size| fits_slot(size, axis_extent, cross_extent, op.horizontal());
+            let fits =
+                |size, margin| fits_slot(size, margin, axis_extent, cross_extent, op.horizontal());
             match misfit_variants(name, family, &fits) {
                 Some(sizes) => issues.push((
                     Severity::Warning,
@@ -1890,12 +2003,25 @@ fn expand_line(
                 )),
             ));
         }
-        placed_parts.push((name.clone(), cursor));
-        let placed = cursor * scale;
+        let part_dims = dims(name);
+        // A nested split is the written-out form of a padding, and its members
+        // are taken at their boxes: see the module docs (`# A part's margin`).
+        let margin = match part_dims {
+            PartDims::Size(_, _, margin) if !frame.nested => margin,
+            _ => Margin::default(),
+        };
+        let cross_at = match part_dims {
+            PartDims::Size(w, h, _) => {
+                padding_across((w, h), margin, cross_extent, op.horizontal()).unwrap_or(0)
+            }
+            _ => 0,
+        } as i32;
+        placed_parts.push((name.clone(), cursor, cross_at));
+        let (placed, across_at) = (cursor * scale, cross_at * scale);
         let (col, row) = if op.horizontal() {
-            (placed, 0)
+            (placed, across_at)
         } else {
-            (0, placed)
+            (across_at, placed)
         };
         refs.push(GlyphRef {
             name: name.clone(),
@@ -1918,9 +2044,8 @@ fn expand_line(
         // decided still land where they belong and the editor can draw the
         // glyph as it is filled in — but it says nothing yet, so nothing it
         // says can be wrong.
-        let part_dims = dims(name);
         if unpicked {
-            if let PartDims::Size(w, h) = part_dims {
+            if let PartDims::Size(w, h, _) = part_dims {
                 cursor += if op.horizontal() { w } else { h } as i32;
             }
             continue;
@@ -1937,7 +2062,7 @@ fn expand_line(
                      no box to fill a slot with"
                 )),
             )),
-            PartDims::Size(w, h) => {
+            PartDims::Size(w, h, _) => {
                 if let Some(size) = spec.size
                     && size != (w, h)
                 {
@@ -1950,11 +2075,22 @@ fn expand_line(
                     ));
                 }
                 let (along, across) = if op.horizontal() { (w, h) } else { (h, w) };
-                if across != cross_extent {
+                if padding_across((w, h), margin, cross_extent, op.horizontal()).is_none() {
+                    // What the margin would have made it, where it has one: the
+                    // number to compare with the slot is then that one.
+                    let padded = margin
+                        .across(op.horizontal())
+                        .map_or_else(String::new, |m| {
+                            format!(
+                                " ({} with its `{}`)",
+                                across as u32 + m.0 as u32 + m.1 as u32,
+                                Margin::flag(!op.horizontal(), m),
+                            )
+                        });
                     issues.push((
                         Severity::Error,
                         at(format!(
-                            "component '{name}' is {} {across}, not the {whole}'s {cross_extent}",
+                            "component '{name}' is {} {across}, not the {whole}'s {cross_extent}{padded}",
                             if op.horizontal() { "tall" } else { "wide" },
                         )),
                     ));
@@ -1972,9 +2108,9 @@ fn expand_line(
         && !unresolved
         && !issues.iter().any(|(s, _)| *s == Severity::Error)
     {
-        let placed_parts: Vec<(&str, i32)> = placed_parts
+        let placed_parts: Vec<(&str, i32, i32)> = placed_parts
             .iter()
-            .map(|(n, at)| (n.as_str(), *at))
+            .map(|(n, at, across)| (n.as_str(), *at, *across))
             .collect();
         let ink = |name: &str| match nested_keys.iter().find(|(written, _)| written == name) {
             Some((_, key)) => (rule.ink)(key),
@@ -1988,6 +2124,28 @@ fn expand_line(
         );
     }
     (refs, issues)
+}
+
+/// What an outer part's margin would have made its box, for the message that
+/// says it is not the glyph's: `" (7x4 with its `margin-x 1` `margin-y 0`)"`,
+/// or nothing for a part that states no margin.
+fn padded_box(size: (u16, u16), margin: Margin) -> String {
+    if margin == Margin::default() {
+        return String::new();
+    }
+    let add = |n: u16, m: Option<(u16, u16)>| {
+        m.map_or(n as u32, |(lo, hi)| n as u32 + lo as u32 + hi as u32)
+    };
+    let flags: Vec<String> = [(true, margin.x), (false, margin.y)]
+        .into_iter()
+        .filter_map(|(x_axis, m)| Some(format!("`{}`", Margin::flag(x_axis, m?))))
+        .collect();
+    format!(
+        " ({}x{} with its {})",
+        add(size.0, margin.x),
+        add(size.1, margin.y),
+        flags.join(" "),
+    )
 }
 
 /// Turn one *enclosure* line into the `ref`s it stands for, plus what is wrong
@@ -2090,6 +2248,9 @@ fn expand_enclosure(
     // measurement below a measurement of a layout nobody meant.
     let mut unresolved = placement.is_none();
     let mut sizes: [Option<(u16, u16)>; 2] = [None, None];
+    // Where the outer part sits: off the glyph's corner only where its margin
+    // pads it.
+    let mut outer_at = (0i32, 0i32);
     for (slot, &(name, raw_name)) in names.iter().enumerate() {
         let outer = slot == 0;
         // What the name claims is what the *author* wrote, so both the size and
@@ -2099,7 +2260,7 @@ fn expand_enclosure(
         let role = if outer { "outer" } else { "inner" };
         if is_undecided(name) {
             unresolved = true;
-            let fits = |size| fits_enclosure_slot(size, parent, outer);
+            let fits = |size, margin| fits_enclosure_slot(size, margin, parent, outer);
             match misfit_variants(name, family, &fits) {
                 Some(sizes) => issues.push((
                     Severity::Warning,
@@ -2162,7 +2323,7 @@ fn expand_enclosure(
                     ),
                 ));
             }
-            PartDims::Size(w, h) => {
+            PartDims::Size(w, h, margin) => {
                 if let Some(size) = spec.size
                     && size != (w, h)
                 {
@@ -2173,14 +2334,16 @@ fn expand_enclosure(
                             size.0, size.1
                         ),
                     ));
-                } else if !fits_enclosure_slot((w, h), parent, outer) {
+                } else if !fits_enclosure_slot((w, h), margin, parent, outer) {
                     issues.push((
                         Severity::Error,
                         match outer {
                             true => format!(
-                                "component '{name}' is {w}x{h}, not the glyph's {}x{}: the outer \
+                                "component '{name}' is {w}x{h}, not the glyph's {}x{}{}: the outer \
                                  part's walls are the glyph's, so it fills the box exactly",
-                                parent.0, parent.1,
+                                parent.0,
+                                parent.1,
+                                padded_box((w, h), margin),
                             ),
                             false => format!(
                                 "component '{name}' is {w}x{h}, which does not fit the glyph's \
@@ -2191,6 +2354,9 @@ fn expand_enclosure(
                     ));
                 } else {
                     sizes[slot] = Some((w, h));
+                    if outer && let Some((x, y)) = outer_padding((w, h), margin, parent) {
+                        outer_at = (x as i32, y as i32);
+                    }
                 }
             }
         }
@@ -2199,7 +2365,7 @@ fn expand_enclosure(
     let (p, q) = placement.unwrap_or((0, 0));
     for (slot, &(name, raw_name)) in names.iter().enumerate() {
         let (col, row) = match slot {
-            0 => (0, 0),
+            0 => (outer_at.0 * scale, outer_at.1 * scale),
             _ => (p * scale, q * scale),
         };
         refs.push(GlyphRef {
@@ -2230,7 +2396,7 @@ fn expand_enclosure(
             // matters is that the promise is kept, and a drawing more generous
             // than its name is not a fault.
             if let Some(cavity) = VariantSpec::parse(names[0].1.unwrap_or(names[0].0)).inner
-                && !cavity_fits(outer, walls, parent, cavity)
+                && !cavity_fits(outer, walls, parent, cavity, outer_at)
             {
                 issues.push((
                     Severity::Warning,
@@ -2244,7 +2410,7 @@ fn expand_enclosure(
             if let Some(clearances) = measure_enclosure_clearances(
                 walls,
                 parent,
-                (outer_name, outer),
+                (outer_name, outer, outer_at),
                 (inner_name, inner),
                 (p, q),
                 rule.max_contact_run,
@@ -2263,7 +2429,9 @@ fn expand_enclosure(
 /// where the operator has one and against the parent's own edge where it does
 /// not ([`Walls`]). The outer part's relationship to the parent's edges is not
 /// measured at all, and does not need to be: it fills the box exactly, so there
-/// is nothing there for a layout to have got wrong.
+/// is nothing there for a layout to have got wrong. It sits at the third member
+/// of `outer`, which is `(0, 0)` but for a part its margin pads
+/// ([`outer_padding`]).
 ///
 /// As on a split, each axis's sum is a property of the parts alone — the
 /// placement cancels between the axis's two clearances — which is what lets
@@ -2273,26 +2441,33 @@ fn expand_enclosure(
 pub fn measure_enclosure_clearances(
     walls: Walls,
     parent: (u16, u16),
-    outer: (&str, &InkProfile),
+    outer: (&str, &InkProfile, (i32, i32)),
     inner: (&str, &InkProfile),
     at: (i32, i32),
     max_contact_run: Option<u16>,
 ) -> Option<Vec<Clearance>> {
-    let (outer_name, outer) = outer;
+    let (outer_name, outer, outer_at) = outer;
     let (inner_name, inner) = inner;
     let mut out: Vec<Clearance> = Vec::new();
     for horizontal in [true, false] {
-        let (axis_extent, pos, cross) = match horizontal {
+        let (axis_extent, at_edge_pos, cross) = match horizontal {
             true => (parent.0 as i32, at.0, at.1),
             false => (parent.1 as i32, at.1, at.0),
         };
+        let (outer_along, outer_across) = match horizontal {
+            true => outer_at,
+            false => (outer_at.1, outer_at.0),
+        };
+        // Against a wall the inner part is measured from the outer part's own
+        // origin, which is where the facing offsets are counted from.
+        let pos = at_edge_pos - outer_along;
         let (wall_lo, wall_hi) = walls.along(horizontal);
         // The outer part reads its cavity-facing side; the inner part is a
         // plain drawing and reads the ends everyone can see.
         let wall = GapSide {
             profile: outer,
             inner: true,
-            cross: 0,
+            cross: outer_across,
         };
         let held = GapSide {
             profile: inner,
@@ -2318,7 +2493,7 @@ pub fn measure_enclosure_clearances(
                 )
             }
             false => (
-                pos + inner.frontier(horizontal)?.near,
+                at_edge_pos + inner.frontier(horizontal)?.near,
                 None,
                 format!("{edge_lo} and '{inner_name}'"),
                 true,
@@ -2346,7 +2521,7 @@ pub fn measure_enclosure_clearances(
                 )
             }
             false => (
-                axis_extent - 1 - (pos + inner.frontier(horizontal)?.far),
+                axis_extent - 1 - (at_edge_pos + inner.frontier(horizontal)?.far),
                 None,
                 format!("'{inner_name}' and {edge_hi}"),
                 true,
@@ -2379,11 +2554,17 @@ pub fn measure_enclosure_clearances(
 /// inside. Anything the drawing puts *between* those two runs is invisible
 /// here, which is the price of the sum staying a property of the parts alone;
 /// see [`measure_enclosure_clearances`].
+///
+/// The drawing is read where it sits in the glyph, at `at` — off the corner only
+/// for a part its margin pads — so the room it offers is the room the glyph
+/// has: a margin on a side the operator opens on is part of the cavity, and one
+/// behind a wall is outside it.
 pub fn cavity_fits(
     profile: &InkProfile,
     walls: Walls,
     parent: (u16, u16),
     cavity: (u16, u16),
+    at: (i32, i32),
 ) -> bool {
     let (w, h) = (parent.0 as i32, parent.1 as i32);
     let (n, m) = (cavity.0 as i32, cavity.1 as i32);
@@ -2392,9 +2573,24 @@ pub fn cavity_fits(
     }
     // Per row, the columns the walls leave free. A row the drawing puts nothing
     // on is free all the way across.
+    let (ax, ay) = at;
+    let drawn = profile.rows.len() as i32;
     let free: Vec<(i32, i32)> = (0..h)
         .map(|row| {
-            let line = profile.rows.get(row as usize).copied().flatten();
+            // A row of the margin above or below the drawing is open all the
+            // way across when the operator opens on that side, and behind a
+            // wall otherwise.
+            let walled = match row - ay {
+                r if r < 0 => Some(walls.top),
+                r if r >= drawn => Some(walls.bottom),
+                _ => None,
+            };
+            match walled {
+                Some(true) => return (w, -1),
+                Some(false) => return (0, w - 1),
+                None => {}
+            }
+            let line = profile.rows.get((row - ay) as usize).copied().flatten();
             // The wall's cavity face, chosen the way every other measurement
             // chooses it ([`WallFace`]), so that the room a name promises is
             // the room the clearances will be measured in. A side the operator
@@ -2402,11 +2598,11 @@ pub fn cavity_fits(
             // does out there — a bearing at the box's rim is a claim on the
             // glyph's *neighbour*, not on what goes inside it.
             let lo = match (walls.left, line.and_then(|l| l.low_wall)) {
-                (true, Some(w)) => (w.at + 1).max(0),
+                (true, Some(w)) => (w.at + ax + 1).max(0),
                 (true, None) | (false, _) => 0,
             };
             let hi = match (walls.right, line.and_then(|l| l.high_wall)) {
-                (true, Some(f)) => (f.at - 1).min(w - 1),
+                (true, Some(f)) => (f.at + ax - 1).min(w - 1),
                 (true, None) | (false, _) => w - 1,
             };
             (lo, hi)
@@ -2442,8 +2638,9 @@ pub fn cavity_fits(
 /// Every clearance of a placed IDC line, near edge to far edge, each with what
 /// it is between; `None` when the line cannot be measured at all.
 ///
-/// `placed` is each component and where it starts along the axis, in declared
-/// units. A component with no ink to measure — see the module docs — makes the
+/// `placed` is each component, where it starts along the axis, and where it
+/// starts across it — 0 but for a part its margin pads — in declared units. A
+/// component with no ink to measure — see the module docs — makes the
 /// whole line unmeasurable, and so does a neighbouring pair that shares no line
 /// on which both draw something.
 ///
@@ -2455,7 +2652,7 @@ pub fn cavity_fits(
 pub fn measure_clearances<'a>(
     op: IdcOp,
     axis_extent: u16,
-    placed: &[(&str, i32)],
+    placed: &[(&str, i32, i32)],
     ink: &InkLookup<'a>,
     max_contact_run: Option<u16>,
 ) -> Option<Vec<Clearance>> {
@@ -2464,16 +2661,19 @@ pub fn measure_clearances<'a>(
     struct Placed<'a> {
         name: &'a str,
         offset: i32,
-        profile: &'a InkProfile,
+        side: GapSide<'a>,
     }
 
     let horizontal = op.horizontal();
     let mut parts: Vec<Placed> = Vec::new();
-    for &(name, offset) in placed {
+    for &(name, offset, cross) in placed {
         parts.push(Placed {
             name,
             offset,
-            profile: ink(name)?,
+            side: GapSide {
+                cross,
+                ..GapSide::linear(ink(name)?)
+            },
         });
     }
     let (first, last) = (parts.first()?, parts.last()?);
@@ -2484,7 +2684,7 @@ pub fn measure_clearances<'a>(
         false => ("the top edge", "the bottom edge"),
     };
     let mut clearances: Vec<Clearance> = Vec::new();
-    let near = first.profile.frontier(horizontal)?.near + first.offset;
+    let near = first.side.profile.frontier(horizontal)?.near + first.offset;
     clearances.push(Clearance {
         between: format!("{near_edge} and '{}'", first.name),
         value: near,
@@ -2494,21 +2694,11 @@ pub fn measure_clearances<'a>(
     });
     for pair in parts.windows(2) {
         let [a, b] = pair else { continue };
-        let facing = facing_offset(
-            GapSide::linear(a.profile),
-            GapSide::linear(b.profile),
-            horizontal,
-        )?;
+        let facing = facing_offset(a.side, b.side, horizontal)?;
         // Measured only where a rule asks for it: a source stating none pays
         // nothing, exactly as it pays nothing for the profiles themselves.
-        let contact = max_contact_run.and_then(|max| {
-            contact_demand(
-                GapSide::linear(a.profile),
-                GapSide::linear(b.profile),
-                horizontal,
-                max,
-            )
-        });
+        let contact =
+            max_contact_run.and_then(|max| contact_demand(a.side, b.side, horizontal, max));
         // The rule says its piece *as* a clearance: the cell it asks for is not
         // room the glyph still has, and whether what is left is worth a warning
         // is `ideal-clearance`'s answer and not a second one.
@@ -2520,7 +2710,7 @@ pub fn measure_clearances<'a>(
             at_edge: false,
         });
     }
-    let far = axis_extent as i32 - 1 - (last.offset + last.profile.frontier(horizontal)?.far);
+    let far = axis_extent as i32 - 1 - (last.offset + last.side.profile.frontier(horizontal)?.far);
     clearances.push(Clearance {
         between: format!("'{}' and {far_edge}", last.name),
         value: far,
@@ -2567,7 +2757,7 @@ pub struct Clearance {
 fn check_clearances(
     op: IdcOp,
     axis_extent: u16,
-    placed: &[(&str, i32)],
+    placed: &[(&str, i32, i32)],
     rule: &ClearanceRule,
 ) -> Vec<(Severity, String)> {
     let Some(clearances) =
@@ -2673,3 +2863,7 @@ mod tests;
 #[cfg(test)]
 #[path = "compose_nested_tests.rs"]
 mod nested_tests;
+
+#[cfg(test)]
+#[path = "compose_margin_tests.rs"]
+mod margin_tests;

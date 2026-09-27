@@ -80,7 +80,9 @@ fn table<'a>(entries: &'a [(&'a str, (u16, u16))]) -> impl Fn(&str) -> PartDims 
         entries
             .iter()
             .find(|(n, _)| *n == name)
-            .map_or(PartDims::Unknown, |(_, (w, h))| PartDims::Size(*w, *h))
+            .map_or(PartDims::Unknown, |(_, (w, h))| {
+                PartDims::Size(*w, *h, Margin::default())
+            })
     }
 }
 
@@ -341,12 +343,14 @@ fn a_part_without_a_variant_suffix_is_a_todo_and_not_an_error() {
 /// A family whose sizes come from a table, as `table` does for `dims`.
 fn family_of<'a>(
     entries: &'a [(&'a str, &'a [(u16, u16)])],
-) -> impl Fn(&str) -> Vec<(u16, u16)> + 'a {
+) -> impl Fn(&str) -> Vec<((u16, u16), Margin)> + 'a {
     move |name: &str| {
         entries
             .iter()
             .find(|(n, _)| *n == name)
-            .map_or_else(Vec::new, |(_, sizes)| sizes.to_vec())
+            .map_or_else(Vec::new, |(_, sizes)| {
+                sizes.iter().map(|&s| (s, Margin::default())).collect()
+            })
     }
 }
 
@@ -502,7 +506,7 @@ fn an_undefined_part_is_an_error_but_the_rest_still_lands() {
 fn a_part_with_no_declared_box_is_an_error() {
     let dims = |name: &str| match name {
         "a:4x16" => PartDims::Undeclared,
-        "b:11x16" => PartDims::Size(11, 16),
+        "b:11x16" => PartDims::Size(11, 16, Margin::default()),
         _ => PartDims::Unknown,
     };
     let (_, issues) = expand(
@@ -1511,7 +1515,7 @@ fn a_long_contact_run_costs_a_clearance() {
         ("a$:4x4", &["###$", "###$", "###$", "###$"]),
     ]);
     let dims = |name: &str| match name {
-        "a$:4x4" => PartDims::Size(4, 4),
+        "a$:4x4" => PartDims::Size(4, 4, Margin::default()),
         other => dims(other),
     };
     let touching = line(IdcOp::LeftRight, vec![part("a:4x4"), part("b:4x4")]);
@@ -1927,7 +1931,7 @@ fn an_enclosure_is_measured_against_the_walls_and_the_open_edges() {
         crate::compose::measure_enclosure_clearances(
             IdcOp::SurroundLeft.walls().expect("enclosing"),
             (6, 6),
-            ("o", &outer),
+            ("o", &outer, (0, 0)),
             ("i", &inner),
             at,
             None,
@@ -1971,7 +1975,7 @@ fn a_full_surround_measures_every_side_against_the_ring() {
     let c = crate::compose::measure_enclosure_clearances(
         IdcOp::Surround.walls().expect("enclosing"),
         (6, 6),
-        ("o", &outer),
+        ("o", &outer, (0, 0)),
         ("i", &inner),
         (2, 2),
         None,
@@ -1999,11 +2003,35 @@ fn a_cavity_must_be_flush_with_the_sides_the_operator_opens() {
     );
     // The cavity is the 5x5 block at the bottom right, so anything up to that
     // fits — flush against both open sides.
-    assert!(cavity_fits(&guang, walls('\u{2FF8}'), (6, 6), (5, 5)));
-    assert!(cavity_fits(&guang, walls('\u{2FF8}'), (6, 6), (3, 2)));
+    assert!(cavity_fits(
+        &guang,
+        walls('\u{2FF8}'),
+        (6, 6),
+        (5, 5),
+        (0, 0)
+    ));
+    assert!(cavity_fits(
+        &guang,
+        walls('\u{2FF8}'),
+        (6, 6),
+        (3, 2),
+        (0, 0)
+    ));
     // One cell wider or taller than the drawing leaves, and it does not.
-    assert!(!cavity_fits(&guang, walls('\u{2FF8}'), (6, 6), (6, 5)));
-    assert!(!cavity_fits(&guang, walls('\u{2FF8}'), (6, 6), (5, 6)));
+    assert!(!cavity_fits(
+        &guang,
+        walls('\u{2FF8}'),
+        (6, 6),
+        (6, 5),
+        (0, 0)
+    ));
+    assert!(!cavity_fits(
+        &guang,
+        walls('\u{2FF8}'),
+        (6, 6),
+        (5, 6),
+        (0, 0)
+    ));
 
     // 匚: walled top and bottom, open right. The rectangle is flush right but
     // free to sit anywhere down the axis, so a 5x4 fits where a 5x5 does not.
@@ -2011,8 +2039,20 @@ fn a_cavity_must_be_flush_with_the_sides_the_operator_opens() {
         &grid(&["######", "#.....", "#.....", "#.....", "#.....", "######"]),
         1,
     );
-    assert!(cavity_fits(&fang, walls('\u{2FF7}'), (6, 6), (5, 4)));
-    assert!(!cavity_fits(&fang, walls('\u{2FF7}'), (6, 6), (5, 5)));
+    assert!(cavity_fits(
+        &fang,
+        walls('\u{2FF7}'),
+        (6, 6),
+        (5, 4),
+        (0, 0)
+    ));
+    assert!(!cavity_fits(
+        &fang,
+        walls('\u{2FF7}'),
+        (6, 6),
+        (5, 5),
+        (0, 0)
+    ));
 
     // 囗: walled all round, so the rectangle is free both ways — and bounded
     // both ways.
@@ -2020,8 +2060,14 @@ fn a_cavity_must_be_flush_with_the_sides_the_operator_opens() {
         &grid(&["######", "#....#", "#....#", "#....#", "#....#", "######"]),
         1,
     );
-    assert!(cavity_fits(&wei, walls('\u{2FF4}'), (6, 6), (4, 4)));
-    assert!(!cavity_fits(&wei, walls('\u{2FF4}'), (6, 6), (5, 4)));
+    assert!(cavity_fits(&wei, walls('\u{2FF4}'), (6, 6), (4, 4), (0, 0)));
+    assert!(!cavity_fits(
+        &wei,
+        walls('\u{2FF4}'),
+        (6, 6),
+        (5, 4),
+        (0, 0)
+    ));
 
     // A hardblank is wall: it is space the source keeps clear of whatever goes
     // inside, so it takes room out of the cavity exactly as ink does.
@@ -2029,8 +2075,20 @@ fn a_cavity_must_be_flush_with_the_sides_the_operator_opens() {
         &grid(&["######", "#$....", "#$....", "#$....", "#$....", "#$...."]),
         1,
     );
-    assert!(cavity_fits(&claimed, walls('\u{2FF8}'), (6, 6), (4, 5)));
-    assert!(!cavity_fits(&claimed, walls('\u{2FF8}'), (6, 6), (5, 5)));
+    assert!(cavity_fits(
+        &claimed,
+        walls('\u{2FF8}'),
+        (6, 6),
+        (4, 5),
+        (0, 0)
+    ));
+    assert!(!cavity_fits(
+        &claimed,
+        walls('\u{2FF8}'),
+        (6, 6),
+        (5, 5),
+        (0, 0)
+    ));
 }
 
 /// The cavity a name promises is a *lower bound*: a drawing more generous than
@@ -2157,7 +2215,7 @@ fn a_wall_is_the_run_beside_the_cavity_and_not_the_side_bearing() {
         crate::compose::measure_enclosure_clearances(
             walls,
             (6, 6),
-            ("o", &guang),
+            ("o", &guang, (0, 0)),
             ("i", &seed),
             at,
             None,
@@ -2174,6 +2232,6 @@ fn a_wall_is_the_run_beside_the_cavity_and_not_the_side_bearing() {
 
     // The cavity a name may promise is bounded the same way, so the promise and
     // the measurement cannot disagree: three columns clear, not five.
-    assert!(cavity_fits(&guang, walls, (6, 6), (3, 5)));
-    assert!(!cavity_fits(&guang, walls, (6, 6), (4, 5)));
+    assert!(cavity_fits(&guang, walls, (6, 6), (3, 5), (0, 0)));
+    assert!(!cavity_fits(&guang, walls, (6, 6), (4, 5), (0, 0)));
 }

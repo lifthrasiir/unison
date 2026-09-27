@@ -463,6 +463,46 @@ impl GlyphCompose {
     }
 }
 
+/// `margin-x L|R` and `margin-y T|B`: the room a part asks for around its box
+/// when an IDC line gives it a slot larger than the box across the split.
+///
+/// A part is drawn tight, its ink running to the edges of its box, because a
+/// part is placed in slots of many sizes and a margin drawn into it is right
+/// for one of them. What most of those slots want is still one answer — 口 in
+/// the top of a full-width `⿱` sits two cells in from either side — and this
+/// is that answer, stated once on the part instead of as a
+/// [nested split](crate::compose#nested-splits) at every use. See
+/// [`crate::compose`] (`# A part's margin`) for when the line reads it.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
+pub struct Margin {
+    /// Left and right.
+    pub x: Option<(u16, u16)>,
+    /// Top and bottom.
+    pub y: Option<(u16, u16)>,
+}
+
+impl Margin {
+    /// The margin across a slot of a split along `horizontal`: the one on the
+    /// axis the parent's box pins, which is the height of a `⿰` part and the
+    /// width of a `⿱` one.
+    pub fn across(self, horizontal: bool) -> Option<(u16, u16)> {
+        match horizontal {
+            true => self.y,
+            false => self.x,
+        }
+    }
+
+    /// The header flag one axis's margin is written as, `margin-x 2` or
+    /// `margin-y 1|3`: one value when both sides agree.
+    pub fn flag(x_axis: bool, (lo, hi): (u16, u16)) -> String {
+        let axis = if x_axis { 'x' } else { 'y' };
+        match lo == hi {
+            true => format!("margin-{axis} {lo}"),
+            false => format!("margin-{axis} {lo}|{hi}"),
+        }
+    }
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct GlyphBody {
     pub pixels: Option<PixelGrid>,
@@ -519,6 +559,8 @@ pub struct GlyphBody {
     /// height; writing both is an error. See [`GlyphBody::declared_extent`].
     pub extent: Option<(u16, u16)>,
     pub scale: u8,
+    /// `margin-x` / `margin-y`: see [`Margin`].
+    pub margin: Margin,
     /// The header's name as written when that differs from the
     /// [`crate::document::names::GlyphName`] the item carries: an `@…` form. Like `comment`, this is
     /// header data the body holds so serializing the block puts the line back
@@ -635,6 +677,7 @@ impl GlyphBody {
             origin: None,
             extent: None,
             scale: 1,
+            margin: Margin::default(),
             raw_name: None,
             comment: None,
         }

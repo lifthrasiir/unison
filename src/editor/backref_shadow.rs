@@ -172,6 +172,7 @@ mod tests {
             declared_anchors: Vec::new(),
             scale: 1,
             declared_box: None,
+            declared_margin: Default::default(),
             declared_origin: (0, 0),
             inline_source: (!refs.is_empty())
                 .then(|| std::sync::Arc::new(InlineSource { refs, pixels: None })),

@@ -1204,6 +1204,10 @@ Flags may appear in any order, before or after the dimensions:
   pixels, and the rows that follow are `W × N` cells wide and `H × N` tall. Use it when a shape
   needs detail below the pixel: `glyph flag-il-david 5 6 scale 2`. Refs into and out of a scaled
   glyph are rescaled automatically.
+* `margin-x N`, `margin-x L|R`, `margin-y N`, `margin-y T|B` — the room the glyph asks for around
+  its box when an IDC line gives it a slot larger than the box across the split. One value is both
+  sides; two are written as one token with a `|` between them, left before right and top before
+  bottom. See [A part's margin](#a-parts-margin-margin-x-margin-y).
 
 A glyph needs a pixel grid, at least one `ref`, or an [IDC line](#idc-composition) to exist at all.
 `origin`, `advance`, `extent` and `anchor` do not make one buildable, and a glyph with none of the two never enters the font:
@@ -1470,6 +1474,50 @@ part of the line it is in — the gaps around it move and the other slots' varia
 usual — but never goes inside it: its members and its own gaps stay as written. A part that needs
 any of those is a glyph of its own. One with an empty piece (`a||b`)
 is a line that does not parse.
+
+#### A part's margin: `margin-x`, `margin-y`
+
+A part is best drawn tight, its ink running to the edges of its box, since it is placed in slots of
+many sizes. Most of those slots still want it padded the same way — 口 on top of a full-width ⿱
+sits two cells in from either side — and the part says so once, on its own header:
+
+```
+glyph han-53e3:11x4 11 4 margin-x 2 // 口
+...
+glyph han-xxxx:15x16 15 16
+⿱ han-53e3:11x4 1 han-yyyy:15x11
+```
+
+A component whose box is short of its slot *across* the axis by exactly its margin is padded there:
+the 11-wide 口 above is placed two cells in, as if the line had written `2|han-53e3:11x4|2`, and it is
+measured there too. Everything else about it is unchanged:
+
+* a slot the box fills already takes it as it is — the margin is what the part asks for in a larger
+  slot, not a size it always is;
+* only the margin across the axis is read, `margin-y` for a ⿰ part and `margin-x` for a ⿱ one.
+  Along the axis the room between parts is the line's own gaps;
+* a margin that does not make the box up to the slot is no help, and the error says what it would
+  have made it;
+* the members of a [nested split](#nested-splits-1foo1bar1) are taken at their boxes: a nested split
+  is how a padding other than the default is written, so `1|han-53e3:11x4|1` is 13 wide whatever the
+  part would have asked for.
+
+An [enclosure](#enclosures-)'s outer part takes its margin on both axes: its walls are the glyph's, so
+it has to be the glyph's size, and a tight drawing is that size once each margin it states is added.
+It is placed and measured there, and so is the cavity its name promises — a margin on a side the
+operator opens on is room inside it:
+
+```
+glyph han-51f5:9x15.7x14 9 15 margin-x 1 margin-y 1|0 // 凵
+```
+
+is a 9x15 drawing that stands as the 11x16 outer part of a `⿶`, offering a 7x14 cavity that runs
+through its top margin. The inner part is placed by the offsets the line writes, and takes none.
+
+The margin also counts wherever the question is what could fill a slot: an
+[undecided component](#undecided-components) whose family fits once a margin is counted is a todo
+and not a warning, and [`uniform fix`](#rewriting-the-source) and the editor's completion offer such
+a variant for the slot.
 
 #### Enclosures: `⿴⿵⿶⿷⿸⿹⿺⿼⿽`
 
@@ -2121,7 +2169,7 @@ glyph of its own.
 
 For each slot the candidates are the variants of the component's base name — `A:4x16`, `A:5x16`, …
 for a component written `A:x` — filtered to those that could go there at all: the box must fit the
-slot across the axis, a `:WxH` in the name must be true, and a name drawn for another direction is
+slot across the axis, exactly or [padded by its margin](#a-parts-margin-margin-x-margin-y), a `:WxH` in the name must be true, and a name drawn for another direction is
 not a candidate (a `-r` variant for the left slot of a ⿰). The component as currently written is
 always a candidate, whatever it says, since it is the source's own choice rather than an alternative
 being proposed.

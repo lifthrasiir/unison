@@ -423,10 +423,9 @@ fn compose_refs_for_view(
     }
     let dims = |name: &str| match resolve_ref_name_for_view(name, named_glyphs, name_parts) {
         None => crate::compose::PartDims::Unknown,
-        Some(resolved) => match resolved.declared_box {
-            Some((w, h)) => crate::compose::PartDims::Size(w, h),
-            None => crate::compose::PartDims::Undeclared,
-        },
+        Some(resolved) => {
+            crate::compose::PartDims::declared(resolved.declared_box, resolved.declared_margin)
+        }
     };
     let parent = body.declared_extent();
     body.compose
@@ -468,10 +467,9 @@ pub fn compose_refs_for_one(
 ) -> Option<Vec<GlyphRef>> {
     let dims = |name: &str| match resolve_ref_name_for_view(name, named_glyphs, name_parts) {
         None => crate::compose::PartDims::Unknown,
-        Some(resolved) => match resolved.declared_box {
-            Some((w, h)) => crate::compose::PartDims::Size(w, h),
-            None => crate::compose::PartDims::Undeclared,
-        },
+        Some(resolved) => {
+            crate::compose::PartDims::declared(resolved.declared_box, resolved.declared_margin)
+        }
     };
     let (refs, issues) = crate::compose::expand_compose(
         "",

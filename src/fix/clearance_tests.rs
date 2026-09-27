@@ -1635,3 +1635,76 @@ fn a_plain_variant_composed_through_an_alias_is_searched() {
     assert_eq!((fixes[0].before, fixes[0].after), (None, 0));
     assert_eq!(fixes[0].new_line, "\u{2FF0} l:4x4 r-($-1):4x4");
 }
+
+/// `mouth` is 4 wide with `margin-x 2`, so it fills an 8-wide `⿱` slot padded
+/// to columns 2..5; `wide` inks only its two leftmost columns on its top row.
+const PADDED: &str = "\
+audit ideal-clearance test-* 0 1
+
+glyph mouth:4x2 4 2 margin-x 2
+@@@@@@@@
+@@@@@@@@
+
+glyph wide:8x3 8 3
+@@@@............
+................
+@@@@@@@@@@@@@@@@
+
+glyph test-g 8 5
+\u{2FF1} mouth wide:8x3
+";
+
+/// A variant its margin makes up to the slot is a candidate like one drawn at
+/// the slot's width, and it is measured where the margin puts it: over columns
+/// 2..5, where `wide` starts two rows down, and not over 0..3, where it would
+/// meet `wide`'s top-left corner.
+#[test]
+fn a_variant_padded_by_its_margin_is_a_candidate_measured_where_it_sits() {
+    let fixes = plan(PADDED);
+    assert_eq!(fixes.len(), 1, "{fixes:?}");
+    assert_eq!(fixes[0].old_line, "\u{2FF1} mouth wide:8x3");
+    assert_eq!(fixes[0].new_line, "\u{2FF1} mouth:4x2 -1 wide:8x3");
+    assert_eq!(fixes[0].after, 1, "the total of 2 is one over the range");
+}
+
+/// 凵 drawn tight with its margin stated, and drawn with the margin in its
+/// pixels: the optimizer places the inner part in both the same way, since it
+/// measures the tight one where its margin puts it.
+#[test]
+fn an_outer_part_padded_by_its_margin_is_placed_like_the_drawn_one() {
+    let src = |outer: &str| {
+        format!(
+            "audit ideal-clearance test-* 0 1
+
+glyph cup:5x4.3x4 5 4 margin-x 1 margin-y 1|0
+@@......@@
+@@......@@
+@@......@@
+@@@@@@@@@@
+
+glyph cupp:7x5.3x4 7 5
+..............
+..@@......@@..
+..@@......@@..
+..@@......@@..
+..@@@@@@@@@@..
+
+glyph dot:3x2 3 2
+@@@@@@
+@@@@@@
+
+glyph test-g 7 5
+\u{2FF6} {outer} dot:3x2
+"
+        )
+    };
+    let tight = plan(&src("cup:5x4.3x4"));
+    let drawn = plan(&src("cupp:7x5.3x4"));
+    assert_eq!(tight.len(), 1, "{tight:?}");
+    assert_eq!(drawn.len(), 1, "{drawn:?}");
+    assert_eq!(
+        tight[0].new_line,
+        drawn[0].new_line.replace("cupp:7x5.3x4", "cup:5x4.3x4")
+    );
+    assert_eq!(tight[0].after, drawn[0].after);
+}

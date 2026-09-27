@@ -145,7 +145,9 @@ use std::path::PathBuf;
 use std::rc::Rc;
 
 use crate::compose::{AxisFrontier, Direction, GapSide, InkProfile, VariantSpec, effective_facing};
-use crate::document::{ComposeItem, Document, DocumentItem, GlyphBody, GlyphCompose, PixelGrid};
+use crate::document::{
+    ComposeItem, Document, DocumentItem, GlyphBody, GlyphCompose, Margin, PixelGrid,
+};
 
 /// One IDC line the optimizer would rewrite.
 #[derive(Clone, Debug, PartialEq)]
@@ -454,6 +456,8 @@ struct Inventory<'a> {
     /// Declared box per glyph name; `None` for a glyph whose header declares
     /// no `W H`, which no component may be.
     boxes: HashMap<String, Option<(u16, u16)>>,
+    /// The `margin-x` / `margin-y` of the glyphs that state one.
+    margins: HashMap<String, Margin>,
     /// The grid of every glyph that draws itself entirely with its own pixels.
     /// A composite draws ink this pass cannot see, and half a part's ink
     /// measured is worse than none — the same rule `expand.rs::ink_profiles`
@@ -479,6 +483,7 @@ impl<'a> Inventory<'a> {
     ) -> Self {
         let mut inv = Self {
             boxes: HashMap::default(),
+            margins: HashMap::default(),
             grids: HashMap::default(),
             variants: HashMap::default(),
             aliases: crate::alias::AliasMap::collect_with_merges(docs, name_parts, exists),
@@ -521,6 +526,9 @@ impl<'a> Inventory<'a> {
                             .entry(base.to_string())
                             .or_default()
                             .push(name.clone());
+                    }
+                    if body.margin != Margin::default() {
+                        inv.margins.insert(name.clone(), body.margin);
                     }
                     inv.boxes.insert(name, body.declared_extent());
                 }
@@ -723,11 +731,7 @@ impl<'a> Inventory<'a> {
                             if !seen.insert(key.clone()) {
                                 continue;
                             }
-                            let dims = |n: &str| match self.boxes.get(&self.canonical(n)) {
-                                None => crate::compose::PartDims::Unknown,
-                                Some(None) => crate::compose::PartDims::Undeclared,
-                                Some(Some((w, h))) => crate::compose::PartDims::Size(*w, *h),
-                            };
+                            let dims = |n: &str| self.dims(&self.canonical(n));
                             let Some(mut body) =
                                 crate::compose::nested_body(line.op, members, &dims)
                             else {
@@ -748,6 +752,17 @@ impl<'a> Inventory<'a> {
             self.boxes.insert(key.clone(), body.extent);
         }
         out
+    }
+
+    /// What a canonical name declares, as the IDC layout reads it.
+    fn dims(&self, canonical: &str) -> crate::compose::PartDims {
+        match self.boxes.get(canonical) {
+            None => crate::compose::PartDims::Unknown,
+            Some(&size) => crate::compose::PartDims::declared(
+                size,
+                self.margins.get(canonical).copied().unwrap_or_default(),
+            ),
+        }
     }
 
     fn canonical(&self, name: &str) -> String {
@@ -801,16 +816,15 @@ impl<'a> Inventory<'a> {
         // a component nothing defines, one whose header declares no box, one
         // that does not fill the slot across the axis, one whose name is wrong
         // about the size of the glyph it names.
-        let Some(&declared) = self.boxes.get(&canonical) else {
+        let crate::compose::PartDims::Size(w, h, margin) = self.dims(&canonical) else {
             return SlotState::Faulty;
         };
-        let Some((w, h)) = declared else {
+        let along = if horizontal { w } else { h };
+        // Padded across the slot by its margin, as the line would lay it out.
+        let Some(cross_at) = crate::compose::padding_across((w, h), margin, cross, horizontal)
+        else {
             return SlotState::Faulty;
         };
-        let (along, across) = if horizontal { (w, h) } else { (h, w) };
-        if across != cross {
-            return SlotState::Faulty;
-        }
         // A nested split's name states no size; its box is what its members
         // add up to ([`Inventory::register_nested`]).
         if !is_nested_slot(&canonical)
@@ -836,6 +850,7 @@ impl<'a> Inventory<'a> {
             rank: slot_rank(written, slot),
             name: written.to_string(),
             extent: along as i32,
+            cross: cross_at as i32,
             profile,
         }))
     }
@@ -949,6 +964,19 @@ struct Candidate {
     /// case `compose` warns about.
     rank: u8,
     profile: Rc<InkProfile>,
+    /// Where the part starts across the slot: 0, or the near side of the
+    /// margin that pads it there.
+    cross: i32,
+}
+
+impl Candidate {
+    /// The part as one side of a gap, where it sits across the slot.
+    fn side(&self) -> GapSide<'_> {
+        GapSide {
+            cross: self.cross,
+            ..GapSide::linear(&self.profile)
+        }
+    }
 }
 
 /// How the optimizer orders two answers. Derived `Ord` is the whole rule: the
@@ -1128,12 +1156,7 @@ fn optimize_line(
     let mut at = key.clearances[0] - chosen[0].frontier.near;
     positions.push(at);
     for (i, pair) in chosen.windows(2).enumerate() {
-        let facing = effective_facing(
-            GapSide::linear(&pair[0].profile),
-            GapSide::linear(&pair[1].profile),
-            horizontal,
-            contact,
-        )?;
+        let facing = effective_facing(pair[0].side(), pair[1].side(), horizontal, contact)?;
         at += key.clearances[i + 1] - facing;
         positions.push(at);
     }
@@ -1838,12 +1861,7 @@ fn affine_layout(
     let mut base = vec![parts[0].frontier.near];
     let mut total = parts[0].frontier.near + (axis_extent - 1 - parts[last].frontier.far);
     for pair in parts.windows(2) {
-        let facing = effective_facing(
-            GapSide::linear(&pair[0].profile),
-            GapSide::linear(&pair[1].profile),
-            horizontal,
-            contact,
-        )?;
+        let facing = effective_facing(pair[0].side(), pair[1].side(), horizontal, contact)?;
         base.push(pair[0].extent + facing);
         total += facing;
     }
@@ -2022,12 +2040,7 @@ fn evaluate(
     // The sum every layout of these variants has, whatever the gaps do.
     let mut total = chosen[0].frontier.near + (axis_extent - 1 - chosen[n - 2].frontier.far);
     for pair in chosen.windows(2) {
-        total += effective_facing(
-            GapSide::linear(&pair[0].profile),
-            GapSide::linear(&pair[1].profile),
-            horizontal,
-            contact,
-        )?;
+        total += effective_facing(pair[0].side(), pair[1].side(), horizontal, contact)?;
     }
     let clearances = arrange(n, total, lo, hi);
     Some(Key {
@@ -2080,12 +2093,7 @@ fn clearances_at(
     let last = parts.len() - 1;
     let mut out = vec![positions[0] + parts[0].frontier.near];
     for i in 0..last {
-        let facing = effective_facing(
-            GapSide::linear(&parts[i].profile),
-            GapSide::linear(&parts[i + 1].profile),
-            horizontal,
-            contact,
-        )?;
+        let facing = effective_facing(parts[i].side(), parts[i + 1].side(), horizontal, contact)?;
         out.push(positions[i + 1] - positions[i] + facing);
     }
     out.push(axis_extent - 1 - (positions[last] + parts[last].frontier.far));
@@ -2244,6 +2252,9 @@ struct EnclosurePart {
     /// other slot — which is exactly the case `compose` warns about.
     rank: u8,
     profile: Rc<InkProfile>,
+    /// Where the part sits when it is the outer one: `(0, 0)` but for a
+    /// drawing its margin pads ([`crate::compose::outer_padding`]).
+    at: (i32, i32),
 }
 
 /// [`SlotState`] for an enclosure slot; the three answers mean the same things.
@@ -2257,16 +2268,21 @@ impl Inventory<'_> {
     /// One name, ready to be put in an enclosure slot.
     fn enclosure_slot(&self, written: &str, parent: (u16, u16), outer: bool) -> EnclosureSlot {
         let canonical = self.canonical(written);
-        let Some(&Some((w, h))) = self.boxes.get(&canonical) else {
+        let crate::compose::PartDims::Size(w, h, margin) = self.dims(&canonical) else {
             return EnclosureSlot::Faulty;
         };
         let spec = VariantSpec::parse(&canonical);
         if spec.size.is_some_and(|size| size != (w, h)) {
             return EnclosureSlot::Faulty;
         }
-        if !crate::compose::fits_enclosure_slot((w, h), parent, outer) {
+        if !crate::compose::fits_enclosure_slot((w, h), margin, parent, outer) {
             return EnclosureSlot::Faulty;
         }
+        let at = match outer {
+            true => crate::compose::outer_padding((w, h), margin, parent)
+                .map_or((0, 0), |(x, y)| (x as i32, y as i32)),
+            false => (0, 0),
+        };
         let Some(profile) = self.profile(&canonical) else {
             return EnclosureSlot::Unmeasurable;
         };
@@ -2282,6 +2298,7 @@ impl Inventory<'_> {
             name: written.to_string(),
             size: (w, h),
             profile,
+            at,
         }))
     }
 
@@ -2407,7 +2424,7 @@ fn evaluate_enclosure(
     let clearances = crate::compose::measure_enclosure_clearances(
         walls,
         parent,
-        (&outer.name, &outer.profile),
+        (&outer.name, &outer.profile, outer.at),
         (&inner.name, &inner.profile),
         at,
         contact,
@@ -2739,7 +2756,7 @@ fn evaluate_enclosure_family(
         let clearances = crate::compose::measure_enclosure_clearances(
             walls,
             parent,
-            (&outer.name, &outer.profile),
+            (&outer.name, &outer.profile, outer.at),
             (&inner.name, &inner.profile),
             at,
             member.contact,

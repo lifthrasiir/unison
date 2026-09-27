@@ -650,22 +650,21 @@ fn expand_compose_lines(
 
     // Declared, not raster: a header's `W H` before `scale` multiplied it.
     let declared = |body: &crate::document::GlyphBody| body.declared_extent();
-    let mut boxes: HashMap<String, Option<(u16, u16)>> = HashMap::default();
+    let mut boxes: HashMap<String, crate::compose::PartDims> = HashMap::default();
     for e in all_items.iter() {
         if let DocumentItem::Glyph { name, body } = &e.item {
             // First definition wins, as everywhere else.
             boxes
                 .entry(name.display())
-                .or_insert_with(|| declared(body));
+                .or_insert_with(|| crate::compose::PartDims::of(body));
         }
     }
-    let dims_of = |boxes: &HashMap<String, Option<(u16, u16)>>, name: &str| match boxes.get(name) {
-        None => crate::compose::PartDims::Unknown,
-        Some(None) => crate::compose::PartDims::Undeclared,
-        Some(Some((w, h))) => crate::compose::PartDims::Size(*w, *h),
+    let dims = |name: &str| {
+        boxes
+            .get(name)
+            .copied()
+            .unwrap_or(crate::compose::PartDims::Unknown)
     };
-
-    let dims = |name: &str| dims_of(&boxes, name);
 
     // What every base name is drawn at, for the one question `expand_compose`
     // cannot answer from a name alone: whether an undecided component *could*
@@ -673,7 +672,7 @@ fn expand_compose_lines(
     // and only where the source has an undecided component to ask about — an
     // IDS-populated source has tens of thousands of names and nearly all of
     // them are decided.
-    let mut families: HashMap<&str, Vec<(u16, u16)>> = HashMap::default();
+    let mut families: HashMap<&str, Vec<crate::compose::FamilyVariant>> = HashMap::default();
     if all_items.iter().any(|e| match &e.item {
         DocumentItem::Glyph { body, .. } => body
             .compose
@@ -682,11 +681,11 @@ fn expand_compose_lines(
             .any(crate::compose::is_undecided),
         _ => false,
     }) {
-        for (name, size) in &boxes {
+        for (name, part) in &boxes {
             if let Some((base, _)) = name.split_once(':')
-                && let Some(size) = size
+                && let crate::compose::PartDims::Size(w, h, margin) = *part
             {
-                families.entry(base).or_default().push(*size);
+                families.entry(base).or_default().push(((w, h), margin));
             }
         }
     }
@@ -843,10 +842,7 @@ fn ink_profiles(
     let nested: Vec<(String, GlyphBody)> = {
         let dims = |name: &str| match bodies.get(name) {
             None => crate::compose::PartDims::Unknown,
-            Some(body) => match body.declared_extent() {
-                Some((w, h)) => crate::compose::PartDims::Size(w, h),
-                None => crate::compose::PartDims::Undeclared,
-            },
+            Some(body) => crate::compose::PartDims::of(body),
         };
         let mut nested: Vec<(String, GlyphBody)> = Vec::new();
         let mut seen: HashSet<String> = HashSet::default();

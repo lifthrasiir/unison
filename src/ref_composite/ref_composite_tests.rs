@@ -39,6 +39,7 @@ fn composite_to_grid_resolves_pattern_refs_like_compute_composite() {
             declared_anchors: Vec::new(),
             scale: 1,
             declared_box: None,
+            declared_margin: Default::default(),
             declared_origin: (0, 0),
             inline_source: None,
         },
@@ -2050,6 +2051,7 @@ fn a_ref_offset_names_the_targets_box_corner() {
         declared_anchors: Vec::new(),
         scale: 1,
         declared_box: Some((1, 1)),
+        declared_margin: Default::default(),
         declared_origin: origin,
         inline_source: None,
     };
