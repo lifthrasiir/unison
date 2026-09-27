@@ -34,6 +34,7 @@ mod rename;
 mod resize;
 mod save;
 mod search;
+mod search_lists;
 mod settings;
 mod timing;
 mod toast;
@@ -1105,6 +1106,9 @@ impl UniformApp {
         }
         if bottom.search_run {
             self.run_search_from_box(ctx);
+        }
+        if let Some((source, stop)) = bottom.list_click {
+            self.goto_list_stop(ctx, source, stop);
         }
         self.menu_find = menu.find;
         self.palette_requested |= menu.palette;

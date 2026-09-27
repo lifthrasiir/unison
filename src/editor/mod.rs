@@ -438,6 +438,23 @@ impl EditorState {
         self.active
     }
 
+    /// The buffer's changes against what its file holds, as of now; see
+    /// [`change_marks`]. Cached on the buffer's revision, so asking every frame
+    /// costs a comparison.
+    pub(crate) fn change_marks(
+        &mut self,
+        doc: &Document,
+        lines: &[DocLine],
+    ) -> std::sync::Arc<change_marks::ChangeMarks> {
+        let revision = change_marks::BufferRevision {
+            undo: self.undo.revision(),
+            edit_gen: doc.edit_gen,
+            pixel_gen: doc.pixel_gen,
+            len: lines.len(),
+        };
+        self.changes.marks(lines, revision)
+    }
+
     /// The document line the caret is on.
     pub(crate) fn cursor_line(&self) -> usize {
         self.cursor.line

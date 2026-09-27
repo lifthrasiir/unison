@@ -1025,15 +1025,7 @@ fn show_document(
 
     // Against the lines this frame's view was built from, before this frame
     // edits them, so the marks agree with the rows they are drawn beside.
-    let changes = state.changes.marks(
-        lines,
-        crate::editor::change_marks::BufferRevision {
-            undo: state.undo.revision(),
-            edit_gen: doc.edit_gen,
-            pixel_gen: doc.pixel_gen,
-            len: lines.len(),
-        },
-    );
+    let changes = state.change_marks(doc, lines);
 
     // Where the marks fall along the view, which only a new view or new marks
     // move; see `paint_gutter_marks`.

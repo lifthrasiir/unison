@@ -333,6 +333,87 @@ pub(crate) fn mark_spans(
     spans
 }
 
+/// How many unchanged file lines may separate two changes that are still one
+/// [`ChangeHunk`]: few enough that the second is on screen when the caret is
+/// put on the first.
+pub(crate) const HUNK_GAP: usize = 3;
+
+/// One stop of the Search pane's Changes list: a run of changes close enough
+/// together to be reviewed at once.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) struct ChangeHunk {
+    /// Where the caret goes: the first line the run touches or, for a run that
+    /// begins with a deletion, the line it was deleted in front of — the last
+    /// line for a deletion at the end.
+    pub(crate) line: usize,
+    /// One past the last buffer line the run covers.
+    pub(crate) end: usize,
+    pub(crate) added: usize,
+    pub(crate) modified: usize,
+    pub(crate) deletions: usize,
+}
+
+/// `marks` of `lines` grouped into hunks, a change joining the one before it
+/// when at most `gap` unchanged lines separate them.
+///
+/// The gap is measured in **file lines**, not buffer lines: a grid is one
+/// buffer line but as many rows on screen as its glyph is tall, and it is the
+/// screen the rule is about.
+pub(crate) fn hunks(marks: &ChangeMarks, lines: &[DocLine], gap: usize) -> Vec<ChangeHunk> {
+    let mut out: Vec<ChangeHunk> = Vec::new();
+    if marks.is_clean() {
+        return out;
+    }
+    let starts = crate::document::compute_docline_file_lines(lines);
+    // Where a deletion at the very end sits, by the rule `starts` is built by.
+    let total = match lines.last() {
+        Some(DocLine::Text(_)) => starts[lines.len() - 1] + 1,
+        Some(DocLine::Grid(grid)) if !grid.is_all_empty() => {
+            starts[lines.len() - 1] + grid.height as usize
+        }
+        Some(DocLine::Grid(_)) => starts[lines.len() - 1],
+        None => 0,
+    };
+    let file_line = |i: usize| starts.get(i).copied().unwrap_or(total);
+    let mut add = |start: usize, end: usize, change: Option<LineChange>| {
+        let hunk = match out.last_mut() {
+            Some(h) if file_line(start).saturating_sub(file_line(h.end)) <= gap => h,
+            _ => {
+                out.push(ChangeHunk {
+                    line: start.min(lines.len().saturating_sub(1)),
+                    end,
+                    added: 0,
+                    modified: 0,
+                    deletions: 0,
+                });
+                out.last_mut().unwrap()
+            }
+        };
+        hunk.end = hunk.end.max(end);
+        match change {
+            Some(LineChange::Added) => hunk.added += 1,
+            Some(LineChange::Modified) => hunk.modified += 1,
+            _ => hunk.deletions += 1,
+        }
+    };
+    let mut deleted = marks.deleted_before().iter().peekable();
+    for (i, &change) in marks.lines.iter().enumerate() {
+        while let Some(&&at) = deleted.peek()
+            && at <= i
+        {
+            add(at, at, None);
+            deleted.next();
+        }
+        if change != LineChange::Unchanged {
+            add(i, i + 1, Some(change));
+        }
+    }
+    for &at in deleted {
+        add(at, at, None);
+    }
+    out
+}
+
 /// Paints `marks` in the gap between the line numbers and the text, `gap`
 /// being its `(left, right)`, for a document whose top is at `top` and which
 /// is `total_height` tall. Returns what was painted, for the harness.
@@ -523,6 +604,70 @@ mod tests {
         let pairs = vec![(0, 3), (1, 0), (2, 1), (3, 4), (4, 2), (5, 5)];
         assert_eq!(increasing_pairs(pairs), [(1, 0), (2, 1), (4, 2), (5, 5)]);
         assert_eq!(increasing_pairs(Vec::new()), []);
+    }
+
+    /// `(line, end, added, modified, deletions)` of each hunk.
+    fn hunk_shapes(
+        saved: &[DocLine],
+        current: &[DocLine],
+    ) -> Vec<(usize, usize, usize, usize, usize)> {
+        hunks(&marks_of(saved, current), current, HUNK_GAP)
+            .iter()
+            .map(|h| (h.line, h.end, h.added, h.modified, h.deletions))
+            .collect()
+    }
+
+    #[test]
+    fn a_clean_buffer_has_no_hunks() {
+        let saved = parse_doclines("a\nb\n");
+        assert_eq!(hunk_shapes(&saved, &saved), []);
+    }
+
+    /// Changes up to `HUNK_GAP` unchanged lines apart are one stop; one line
+    /// further and they are two.
+    #[test]
+    fn nearby_changes_are_one_hunk() {
+        let saved = parse_doclines("0\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n");
+        let mut current = saved.clone();
+        for i in [1, 1 + HUNK_GAP + 1, 1 + HUNK_GAP + 1 + HUNK_GAP + 2] {
+            current[i].as_text_mut().unwrap().push('!');
+        }
+        let (a, b) = (1 + HUNK_GAP + 1, 1 + HUNK_GAP + 1 + HUNK_GAP + 2);
+        assert_eq!(
+            hunk_shapes(&saved, &current),
+            [(1, a + 1, 0, 2, 0), (b, b + 1, 0, 1, 0)]
+        );
+    }
+
+    /// The gap is counted in file lines, so a glyph's pixel rows between two
+    /// changes keep them apart though the grid is one buffer line.
+    #[test]
+    fn a_grid_counts_its_rows_toward_the_gap() {
+        let saved = parse_doclines("glyph a 2 4\n@@..\n..@@\n@@..\n..@@\nref b 0 0\n");
+        assert!(matches!(saved[1], DocLine::Grid(_)));
+        let mut current = saved.clone();
+        current[0].as_text_mut().unwrap().push_str(" advance 3");
+        current[2].as_text_mut().unwrap().push('0');
+        assert_eq!(
+            hunk_shapes(&saved, &current),
+            [(0, 1, 0, 1, 0), (2, 3, 0, 1, 0)]
+        );
+    }
+
+    /// A deletion joins the change it borders, and one at the end of the file
+    /// stops on the last line rather than past it.
+    #[test]
+    fn deletions_join_hunks_and_stay_in_the_buffer() {
+        let saved = parse_doclines("0\n1\n2\n3\n4\n5\n6\n7\n8\n9\n");
+        let mut current = saved.clone();
+        current.truncate(9);
+        current.remove(2);
+        current[1].as_text_mut().unwrap().push('!');
+        current.insert(4, text("new"));
+        assert_eq!(
+            hunk_shapes(&saved, &current),
+            [(1, 5, 1, 1, 1), (8, 9, 0, 0, 1)]
+        );
     }
 
     #[test]

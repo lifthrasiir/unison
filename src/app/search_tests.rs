@@ -1067,4 +1067,141 @@ mod app_tests {
         app.step_search_hit(&ctx, step.unwrap());
         assert_eq!(app.search.counter(), "2/3");
     }
+
+    use crate::app::search_lists::SearchSource;
+    use crate::issues::{Issue, Severity};
+
+    /// Reports `(severity, file, doc line)` as a build would, located against
+    /// the snapshot the way a landed report is.
+    fn report(app: &mut UniformApp, dir: &TempDir, issues: &[(Severity, &str, usize)]) {
+        app.issues = issues
+            .iter()
+            .map(|&(severity, file, line)| Issue {
+                severity,
+                glyph: None,
+                message: format!("{file}:{line}"),
+                file: dir.0.join(file),
+                line,
+                file_line: line + 1,
+            })
+            .collect();
+        app.issues_line_ids =
+            crate::editor::issue_marks::snapshot_line_ids(app.font_base_docs.iter().map(|d| &**d));
+        app.issues_gen = 1;
+        app.refresh_issue_marks();
+    }
+
+    /// The Issues list walks the font file by file and line by line, whatever
+    /// order the report put the findings in — the error first, there.
+    #[test]
+    fn ctrl_g_walks_the_issues_in_file_order() {
+        let (dir, ctx, mut app) = two_file_app("list-issues");
+        report(
+            &mut app,
+            &dir,
+            &[
+                (Severity::Error, "b.unf", 1),
+                (Severity::Warning, "a.unf", 4),
+                (Severity::Chore, "b.unf", 0),
+            ],
+        );
+        app.search.source = SearchSource::Issues;
+
+        let mut walked = Vec::new();
+        for _ in 0..4 {
+            let step = press(&mut app, &ctx, egui::Key::G, cmd());
+            app.step_search_hit(&ctx, step.unwrap());
+            walked.push(caret(&app));
+        }
+        let at = |f: &str, l| (f.to_string(), l);
+        assert_eq!(
+            walked,
+            [
+                at("a.unf", 4),
+                at("b.unf", 0),
+                at("b.unf", 1),
+                at("a.unf", 4)
+            ]
+        );
+
+        // Moved away by hand, the next step goes on from the caret rather
+        // than from the entry last landed on.
+        app.open_file(dir.0.join("b.unf"));
+        let b = app
+            .open_documents
+            .iter()
+            .position(|d| d.document.path.ends_with("b.unf"))
+            .unwrap();
+        app.panes.show_document(b);
+        let doc = &mut app.open_documents[b];
+        doc.editor_state.goto_caret(&doc.lines, 3, 0);
+        app.step_search_hit(&ctx, false);
+        assert_eq!(caret(&app), at("b.unf", 1));
+    }
+
+    /// A step with nothing to walk says so and moves nothing.
+    #[test]
+    fn ctrl_g_with_no_changes_is_a_message() {
+        let (dir, ctx, mut app) = two_file_app("list-no-changes");
+        app.open_file(dir.0.join("b.unf"));
+        app.search.source = SearchSource::Changes;
+        app.step_search_hit(&ctx, true);
+        assert_eq!(app.search.message.as_deref(), Some("No unsaved changes"));
+        assert_eq!(caret(&app), ("b.unf".to_string(), 0));
+    }
+
+    /// The Changes list stops once per hunk — two edits a line apart are one
+    /// stop — across every open file, in file order, and wraps.
+    #[test]
+    fn ctrl_g_walks_the_unsaved_changes_by_hunk() {
+        let (dir, ctx, mut app) = two_file_app("list-changes");
+        let long: String = (0..16).map(|i| format!("// line {i}\n")).collect();
+        std::fs::write(dir.0.join("c.unf"), &long).unwrap();
+        for (file, lines) in [("c.unf", &[2usize, 3, 12][..]), ("b.unf", &[3][..])] {
+            app.open_file(dir.0.join(file));
+            let doc = app
+                .open_documents
+                .iter_mut()
+                .find(|d| d.document.path.ends_with(file))
+                .unwrap();
+            for &line in lines {
+                doc.lines[line].as_text_mut().unwrap().push_str(" edited");
+            }
+            doc.document.edit_gen += 1;
+        }
+        app.search.source = SearchSource::Changes;
+
+        // From b.unf's top, where the last open left the caret.
+        let mut walked = Vec::new();
+        for _ in 0..4 {
+            app.step_search_hit(&ctx, true);
+            walked.push(caret(&app));
+        }
+        let at = |f: &str, l| (f.to_string(), l);
+        assert_eq!(
+            walked,
+            [
+                at("b.unf", 3),
+                at("c.unf", 2),
+                at("c.unf", 12),
+                at("b.unf", 3)
+            ]
+        );
+        app.step_search_hit(&ctx, false);
+        assert_eq!(caret(&app), at("c.unf", 12));
+        assert_eq!(app.search.message, None);
+    }
+
+    /// Running a search is asking to read its results, so it brings them back
+    /// whichever list the pane was showing.
+    #[test]
+    fn a_search_run_shows_the_search_results_again() {
+        let (_dir, ctx, mut app) = two_file_app("list-back-to-search");
+        app.search.source = SearchSource::Changes;
+        app.search.kind = SearchKind::Text;
+        app.search.query = "alpha".to_string();
+        app.run_search_from_box(&ctx);
+        assert_eq!(app.search.source, SearchSource::Search);
+        assert_eq!(app.search.counter(), "1/3");
+    }
 }

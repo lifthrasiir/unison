@@ -1,5 +1,8 @@
 //! The Search pane: every place a name — or a piece of text — appears.
 //!
+//! The pane can show the issues or the unsaved changes in place of the results,
+//! and Ctrl/Cmd+G then walks that list instead; see [`super::search_lists`].
+//!
 //! Two ways in. The pane's own header row runs whatever is typed into it under
 //! the kind its dropdown names ([`SearchKind`]), and a Ctrl/Cmd+click in the
 //! editor runs a name search without going through the box. Both end in the
@@ -75,6 +78,7 @@
 //! verbatim text search would otherwise match `@@.@` in a closed file and lose
 //! the row the moment the file opened, throwing every later ordinal off.
 
+use super::search_lists::{DocChanges, ListStop, SearchSource};
 use super::*;
 use crate::document::SliceNameParts;
 use crate::document_io::SourceLine;
@@ -636,6 +640,15 @@ pub(super) struct SearchState {
     /// from one that steps the kind; the chord is read before the panel of the
     /// same frame is laid out, so this is the only answer available.
     pub query_focused: bool,
+    /// Which list the pane shows under the header row, and so what Ctrl/Cmd+G
+    /// walks; see [`super::search_lists`].
+    pub source: SearchSource,
+    /// The issue and the change the caret was last put on, by address.
+    pub issues_current: Option<ListStop>,
+    pub changes_current: Option<ListStop>,
+    /// The changes list, per open document; see
+    /// [`UniformApp::refresh_change_list`].
+    pub changes: Vec<DocChanges>,
 }
 
 impl SearchState {
@@ -855,6 +868,9 @@ impl UniformApp {
         });
         self.search.current = None;
         self.search.message = None;
+        // A search run is a request to read its results, whichever list the
+        // pane was showing.
+        self.search.source = SearchSource::Search;
         let screen_h = ctx.input(|i| i.screen_rect.height());
         self.open_bottom_panel(super::panels::SEARCH_TAB, screen_h);
     }
@@ -881,11 +897,17 @@ impl UniformApp {
     }
 
     /// Ctrl/Cmd+G and Ctrl/Cmd+Shift+G: the next or previous hit of the last
-    /// run, in the order the pane lists them, wrapping at both ends.
+    /// run, in the order the pane lists them, wrapping at both ends — or,
+    /// while the pane shows the issues or the changes instead, the next or
+    /// previous one of those ([`UniformApp::step_list`]).
     ///
     /// Wrapping rather than stopping: the list is finite and on screen, so an
     /// end that swallows the chord says less than one that comes round again.
     pub(super) fn step_search_hit(&mut self, ctx: &egui::Context, forward: bool) {
+        if self.search.source != SearchSource::Search {
+            self.step_list(ctx, self.search.source, forward);
+            return;
+        }
         let n = self.search.hits().len();
         if n == 0 {
             self.search.message = Some(match &self.search.results {

@@ -3,6 +3,10 @@
 
 use super::background::BackgroundTaskPhase;
 use super::search::{SearchHit, SearchKind, SearchState};
+use super::search_lists::{
+    ListStop, SearchSource, change_count, change_keys, file_ordered_issues, find_stop, issue_keys,
+    list_button_label, show_change_list, show_issue_list,
+};
 use super::*;
 use crate::issues::Severity;
 
@@ -43,6 +47,8 @@ pub(super) struct BottomPanelResult {
     pub issue_click: Option<(PathBuf, usize)>,
     /// Index into the current search results.
     pub search_click: Option<usize>,
+    /// A row of the Search pane's issues or changes list.
+    pub list_click: Option<(SearchSource, ListStop)>,
     /// Enter in the search box, or its Search button: run what the box holds.
     /// The row cannot do it itself — the search reads every open document, and
     /// the jump it ends in moves a caret in an editor this frame has not laid
@@ -88,8 +94,15 @@ fn hit_text(ui: &egui::Ui, hit: &SearchHit) -> egui::text::LayoutJob {
 ///
 /// `[kind] [query] n/m [Search] message`, in that order and always present —
 /// the row says what a search *would* do before one has been run, which is what
-/// makes Ctrl/Cmd+F land somewhere that explains itself.
-fn show_search_header(ui: &mut egui::Ui, state: &mut SearchState, run: &mut bool) {
+/// makes Ctrl/Cmd+F land somewhere that explains itself. The list buttons are
+/// at the far right, `lists` being each one's label; see
+/// [`super::search_lists`].
+fn show_search_header(
+    ui: &mut egui::Ui,
+    state: &mut SearchState,
+    lists: [String; SearchSource::LISTS.len()],
+    run: &mut bool,
+) {
     ui.horizontal(|ui| {
         egui::ComboBox::from_id_salt("search_kind")
             .selected_text(state.kind.label())
@@ -165,7 +178,29 @@ fn show_search_header(ui: &mut egui::Ui, state: &mut SearchState, run: &mut bool
                     .color(ui.visuals().warn_fg_color),
             );
         }
+        // Right to left, so added in reverse to read left to right.
+        ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+            for (source, label) in SearchSource::LISTS.into_iter().zip(lists).rev() {
+                let lit = state.source == source;
+                if ui.selectable_label(lit, label).clicked() {
+                    state.source = if lit { SearchSource::Search } else { source };
+                    state.message = None;
+                }
+            }
+        });
     });
+}
+
+/// What the Search pane's issues list is drawn from, gathered by the host
+/// because the issues and their filter are not the pane's own.
+pub(super) struct IssueListInput<'a> {
+    /// Filtered and in file order; empty unless the list is showing.
+    pub rows: &'a [(&'a Issue, usize, usize)],
+    /// Every located issue, filter or not, for the filter's buttons.
+    pub counts: [usize; Severity::ALL.len()],
+    /// How many the filter shows, for the header's button.
+    pub shown: usize,
+    pub filter: &'a mut IssueFilter,
 }
 
 /// Rows of "where this name is written", in the diagnostics list's format: the
@@ -173,11 +208,58 @@ fn show_search_header(ui: &mut egui::Ui, state: &mut SearchState, run: &mut bool
 fn show_search_tab(
     ui: &mut egui::Ui,
     state: &mut SearchState,
-    click: &mut Option<usize>,
-    run: &mut bool,
+    issues: IssueListInput<'_>,
+    result: &mut BottomPanelResult,
 ) {
-    show_search_header(ui, state, run);
+    let issues_current = (state.source == SearchSource::Issues)
+        .then(|| find_stop(&issue_keys(issues.rows), state.issues_current.as_ref()?))
+        .flatten();
+    let changes_current = (state.source == SearchSource::Changes)
+        .then(|| {
+            find_stop(
+                &change_keys(&state.changes),
+                state.changes_current.as_ref()?,
+            )
+        })
+        .flatten();
+    let lists = [
+        list_button_label(SearchSource::Issues, issues.shown, issues_current),
+        list_button_label(
+            SearchSource::Changes,
+            change_count(&state.changes),
+            changes_current,
+        ),
+    ];
+    show_search_header(ui, state, lists, &mut result.search_run);
     ui.separator();
+
+    let mut list_click = None;
+    match state.source {
+        SearchSource::Search => {}
+        SearchSource::Issues => {
+            show_issue_list(
+                ui,
+                issues.rows,
+                issues.counts,
+                issues.filter,
+                state.issues_current.as_ref(),
+                &mut list_click,
+            );
+        }
+        SearchSource::Changes => {
+            show_change_list(
+                ui,
+                &state.changes,
+                state.changes_current.as_ref(),
+                &mut list_click,
+            );
+        }
+    }
+    if state.source != SearchSource::Search {
+        result.list_click = list_click.map(|stop| (state.source, stop));
+        return;
+    }
+    let click = &mut result.search_click;
 
     let current = state.current;
     let Some(search) = &state.results else {
@@ -331,7 +413,7 @@ impl IssueFilter {
 /// whichever font answers for them. A chore is a warning that does not ask to
 /// be told again, so it takes the warning's shape hollowed out and the
 /// warning's colour dulled, rather than a mark of its own.
-fn severity_icon(severity: Severity) -> &'static str {
+pub(super) fn severity_icon(severity: Severity) -> &'static str {
     match severity {
         Severity::Error => "\u{2716}",
         Severity::Warning => "\u{26A0}",
@@ -341,7 +423,7 @@ fn severity_icon(severity: Severity) -> &'static str {
     }
 }
 
-fn severity_color(ui: &egui::Ui, severity: Severity) -> egui::Color32 {
+pub(super) fn severity_color(ui: &egui::Ui, severity: Severity) -> egui::Color32 {
     match severity {
         Severity::Error => egui::Color32::from_rgb(220, 60, 60),
         Severity::Warning => egui::Color32::from_rgb(200, 180, 50),
@@ -390,7 +472,7 @@ pub(super) fn issues_tab_label(counts: [usize; Severity::ALL.len()]) -> String {
 
 /// The row of severity buttons above the list: left-click toggles one,
 /// right-click keeps only that one.
-fn show_issue_filter(
+pub(super) fn show_issue_filter(
     ui: &mut egui::Ui,
     filter: &mut IssueFilter,
     counts: [usize; Severity::ALL.len()],
@@ -856,11 +938,35 @@ impl UniformApp {
                     );
                 }
                 Some(SEARCH_TAB) => {
+                    // Both lists' buttons carry a count, so both are brought
+                    // up to date whichever is showing; only the issues'
+                    // sort waits for its list to be the one on screen.
+                    self.refresh_change_list();
+                    let located =
+                        Self::located_issues(&self.issues, &self.assert_issues, &self.issue_marks);
+                    let all: Vec<&Issue> = located.iter().map(|(issue, ..)| *issue).collect();
+                    let counts = severity_counts(&all);
+                    let shown = Severity::ALL
+                        .iter()
+                        .zip(counts)
+                        .filter(|(sev, _)| self.issue_filter.shows(**sev))
+                        .map(|(_, n)| n)
+                        .sum();
+                    let rows = if self.search.source == SearchSource::Issues {
+                        file_ordered_issues(located, self.issue_filter)
+                    } else {
+                        Vec::new()
+                    };
                     show_search_tab(
                         ui,
                         &mut self.search,
-                        &mut result.search_click,
-                        &mut result.search_run,
+                        IssueListInput {
+                            rows: &rows,
+                            counts,
+                            shown,
+                            filter: &mut self.issue_filter,
+                        },
+                        &mut result,
                     );
                 }
                 _ => {}

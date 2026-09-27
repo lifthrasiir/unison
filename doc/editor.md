@@ -72,6 +72,14 @@ step to the next and previous result, wrapping; **Esc** in the box hands the key
 editor and does nothing else, so a Ctrl+G afterwards carries straight on. A search does not reach
 inside a glyph's pixel rows: they are one grid line to the caret, not text.
 
+At the right end of the header row, **Issues** and **Changes** swap the list below for the
+diagnostics or for the unsaved changes, and Ctrl+G / Ctrl+Shift+G then walk that list instead;
+clicking the lit button again, or running a search, brings the results back. Both lists are in file
+order — the issues are not sorted by severity here, only filtered, by the Issues tab's own severity
+buttons — and a step goes on from the caret once it has been moved off the entry last landed on. A
+change is a run of changed lines: changes at most three unchanged lines apart are one stop, which is
+what reviewing a clearance optimization's rewrites (left unsaved for that purpose) wants.
+
 **Ctrl+T / Ctrl+Shift+T** go back and forward through jumps. Going back restores the page that was
 on screen, not merely the line.
 
