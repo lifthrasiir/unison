@@ -35,7 +35,7 @@ glyph han-21b24:15x16 15 16 // 𡬤
 // ⿱ han-34de-($-1) han-5bf8 // ⿱㓞寸
 
 glyph han-21b2a:15x16 15 16 // 𡬪
-⿰ han-8840:9x16 han-5bf8:6x16 // ⿰血寸
+⿰ han-8840:9x14 han-5bf8:6x16 // ⿰血寸
 
 glyph han-21b2b:15x16 15 16 // 𡬫
 ⿰ han-821f:9x16 han-5bf8:6x16 // ⿰舟寸
@@ -207,7 +207,7 @@ glyph han-21b64:15x16 15 16 // 𡭤
 // ⿰ han-51fa han-5c0f // ⿰出小
 
 glyph han-21b68:15x16 15 16 // 𡭨
-⿱ han-76ee:15x7 han-5c0f:15x9 // ⿱目小
+⿱ han-76ee:9x7 han-5c0f:15x9 // ⿱目小
 
 // glyph han-21b69-($han-regions):15x16 15 16 // 𡭩 ⿳𡭔𫜹八(G) ⿱𢑐八(T)
 // ⿳ han-21b54 han-2b739 han-516b-($-1) // ⿳𡭔𫜹八
@@ -215,7 +215,7 @@ glyph han-21b68:15x16 15 16 // 𡭨
 ## 42.6
 
 glyph han-21b6a:15x16 15 16 // 𡭪
-⿳ han-21b54:15x7 han-65e5:15x5 han-513f:15x4 // ⿳𡭔日儿
+⿳ han-21b54:15x7 han-65e5:11x5 han-513f:15x4 // ⿳𡭔日儿
 
 // glyph han-21b6d-($han-regions):15x16 15 16 // 𡭭 ⿱𡭔吏(G) ⿱小吏(Z)
 // ⿱ han-21b54 han-540f-($-1) // ⿱𡭔吏
@@ -238,7 +238,7 @@ glyph han-21b6a:15x16 15 16 // 𡭪
 ## 42.7
 
 glyph han-21b74:15x16 15 16 // 𡭴
-⿳ -3 han-21b54:15x7 han-65e5:15x5 han-5c0f:15x7 // ⿳𡭔日小
+⿳ -3 han-21b54:15x7 han-65e5:11x5 han-5c0f:15x7 // ⿳𡭔日小
 
 // glyph han-21b78:15x16 15 16 // 𡭸
 // ⿱ han-5c11 han-540c // ⿱少同
@@ -255,9 +255,9 @@ glyph han-21b74:15x16 15 16 // 𡭴
 // ⿱ han-21b54 han-2233f // ⿱𡭔𢌿
 
 glyph han-21b82-t:15x16 15 16 // 𡮂
-⿳ -4 han-21b54:15x7 han-767d:15x6 han-5c0f:15x7 // ⿳𡭔白小
+⿳ -4 han-21b54:15x7 han-767d:11x6 han-5c0f:15x7 // ⿳𡭔白小
 glyph han-21b82-j:15x16 15 16 // 𡮂
-⿳ -4 han-5c0f:15x7 han-767d:15x6 han-5c0f:15x7 // ⿳小白小
+⿳ -4 han-5c0f:15x7 han-767d:11x6 han-5c0f:15x7 // ⿳小白小
 
 // glyph han-21b83:15x16 15 16 // 𡮃
 // ⿱ han-5349 han-31483 // ⿱卉𱒃
@@ -399,8 +399,8 @@ $$/0V/......................$$
 // glyph han-21c24:15x16 15 16 // 𡰤
 // ⿱ han-4e37 han-5c38 // ⿱丷尸
 
-// glyph han-21c25:15x16 15 16 // 𡰥
-// ⿸ han-5c38 han-4e8c // ⿸尸二
+glyph han-21c25:15x16 15 16 // 𡰥
+⿸ han-5c38:15x16.11x12 han-4e8c:9x10 5 6 // ⿸尸二
 
 glyph han-21c26:15x16 15 16 // 𡰦
 ⿸ han-5c38:15x16.11x12 han-4eba:9x10 6 6 // ⿸尸人
@@ -637,7 +637,7 @@ $$............@@............$$
 // ⿱ han-4db9 han-5442 // ⿱䶹呂
 
 glyph han-21d19:15x16 15 16 // 𡴙 ⿱山皁(T) ⿱䶹皁(Z)
-⿳ han-5c71:15x4 han-767d:15x9 han-5341:15x3 // ⿳山白十
+⿳ han-5c71:15x4 han-767d:11x9 han-5341:15x3 // ⿳山白十
 
 // glyph han-21d1a:15x16 15 16 // 𡴚 ⿳䶹屮分(G) ⿳䶹䶹分(Z)
 // ⿳ han-4db9 han-4db9 han-5206 // ⿳䶹䶹分

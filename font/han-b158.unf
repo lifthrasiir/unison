@@ -325,7 +325,7 @@ glyph han-282d9:15x16 15 16 // 𨋙
 ⿰ han-8eca:5x16 1 han-7533:9x16 // ⿰車申
 
 glyph han-282dd:15x16 15 16 // 𨋝
-⿲ han-8eca:5x16 han-5de5:5x16-l han-529b:5x16 // ⿲車工力
+⿲ han-8eca:5x16 han-5de5:5x12-l han-529b:5x16 // ⿲車工力
 
 // glyph han-282de:15x16 15 16 // 𨋞
 // ⿰ han-8eca han-5e03 // ⿰車布
@@ -366,7 +366,7 @@ glyph han-282eb:15x16 15 16 // 𨋫
 // ⿰ han-8eca han-8272 // ⿰車色
 
 glyph han-282f0:15x16 15 16 // 𨋰
-⿲ han-8eca:5x16 han-51ab:3x16 han-6b20:7x16 // ⿲車冫欠
+⿲ han-8eca:5x16 han-51ab:3x12 han-6b20:7x16 // ⿲車冫欠
 
 // glyph han-282f2:15x16 15 16 // 𨋲
 // ⿲ han-8eca han-51ab han-6c34 // ⿲車冫水 <- ⿰車冰

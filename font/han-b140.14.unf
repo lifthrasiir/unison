@@ -42,7 +42,7 @@
 // ⿳ han-8278 han-660d han-8278 // ⿳艸昍艸
 
 glyph han-26fd7:15x16 15 16 // 𦿗 ⿱艹𰚫(GT) ⿱蒿毛(X)
-⿳ -4 han-8279:15x3 han-9ad8:15x9 han-6bdb:15x8 // ⿳艹高毛
+⿳ -4 han-8279:15x3 han-9ad8:13x9 han-6bdb:15x8 // ⿳艹高毛
 
 // glyph han-26fd8:15x16 15 16 // 𦿘
 // ⿳ han-8279 han-4fce han-76bf // ⿳艹俎皿

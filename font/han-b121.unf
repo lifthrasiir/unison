@@ -273,13 +273,13 @@ glyph han-262bc-(t|j|p):15x16 15 16 // 𦊼
 ⿱ han-7f52:15x3 1 han-5442:15x12 // ⿱罒呂
 
 glyph han-262be:15x16 15 16 // 𦊾
-⿳ han-7f52:15x3 1 han-4e0d:15x8 han-53e3:15x4 // ⿳罒不口
+⿳ han-7f52:15x3 1 han-4e0d:15x8 han-53e3:11x4 // ⿳罒不口
 
 // glyph han-262bf:15x16 15 16 // 𦊿
 // ⿱ han-7f52 han-4e23 // ⿱罒丣
 
 glyph han-262c1:15x16 15 16 // 𦋁
-⿳ han-7f52:15x4 1 han-65e5:15x5 1 han-5e72:15x5 // ⿳罒日干
+⿳ han-7f52:15x4 1 han-65e5:11x5 1 han-5e72:15x5 // ⿳罒日干
 
 glyph han-262c2:15x16 15 16 // 𦋂
 ⿱ han-7f52:15x3 1 han-65f6:15x12 // ⿱罒时

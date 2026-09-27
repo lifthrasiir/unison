@@ -600,7 +600,7 @@ glyph han-674e-($han-regions):15x16 15 16 // 李
 glyph han-674e.0:* = han-674e-j:*
 
 glyph han-674f:15x16 15 16 // 杏
-⿱ han-6728:15x9 han-53e3:15x7 // ⿱木口
+⿱ han-6728:15x9 han-53e3:11x7 // ⿱木口
 
 // glyph han-6750:15x16 15 16 // 材
 // ⿰ han-6728 han-624d // ⿰木才
@@ -786,11 +786,11 @@ H_h/..........@@..........\h_H
 glyph han-6771.0:* = han-6771:*
 
 glyph han-6772:15x16 15 16 // 杲
-⿱ han-65e5:15x7 han-6728:15x9 // ⿱日木
+⿱ han-65e5:11x7 han-6728:15x9 // ⿱日木
 glyph han-6772.0:* = han-6772:*
 
 glyph han-6773:15x16 15 16 // 杳
-⿱ han-6728:15x9 han-65e5:15x7 // ⿱木日
+⿱ han-6728:15x9 han-65e5:11x7 // ⿱木日
 glyph han-6773.0:* = han-6773:*
 
 glyph han-6774:15x16 15 16 // 杴
@@ -1026,7 +1026,7 @@ glyph han-67b6:15x16 15 16 // 架
 glyph han-67b6.0:* = han-67b6:*
 
 glyph han-67b7:15x16 15 16 // 枷
-⿲ han-6728:5x16 han-529b:5x16 1 han-53e3:4x16 // ⿲木力口
+⿲ han-6728:5x16 han-529b:5x16 1 han-53e3:4x12 // ⿲木力口
 glyph han-67b7.0:* = han-67b7:*
 
 glyph han-67b8:15x16 15 16 // 枸
@@ -1273,7 +1273,7 @@ glyph han-6805:15x16 15 16 // 栅
 glyph han-6805.0:* = han-6805:*
 
 glyph han-6807:15x16 15 16 // 标
-⿰ han-6728:7x16 1 han-793a:7x16 // ⿰木示
+⿰ han-6728:7x16 1 han-793a:7x14 // ⿰木示
 
 // glyph han-680b:15x16 15 16 // 栋
 // ⿰ han-6728 han-4e1c // ⿰木东
@@ -1357,7 +1357,7 @@ glyph han-6822:15x16 15 16 // 栢
 // ⿰ han-6728 han-5dde // ⿰木州
 
 glyph han-6828:15x16 15 16 // 栨
-⿲ han-6728:5x16 han-51ab:3x16 han-6b20:7x16 // ⿲木冫欠
+⿲ han-6728:5x16 han-51ab:3x12 han-6b20:7x16 // ⿲木冫欠
 
 glyph han-6829-($han-regions):15x16 15 16 // 栩
 ⿰ han-6728:5x16 1 han-7fbd-($-1):9x16 // ⿰木羽
@@ -1419,7 +1419,7 @@ glyph han-684e:15x16 15 16 // 桎
 ⿰ han-6728:7x16 1 han-81f3:7x16 // ⿰木至
 
 glyph han-684f:15x16 15 16 // 桏
-⿲ han-6728:5x16 han-5de5:5x16-l han-961d:5x16-r // ⿲木工阝
+⿲ han-6728:5x16 han-5de5:5x12-l han-961d:5x16-r // ⿲木工阝
 
 glyph han-6850:15x16 15 16 // 桐
 ⿰ han-6728:7x16 1 han-540c:7x16 // ⿰木同
@@ -1434,7 +1434,7 @@ glyph han-6854:15x16 15 16 // 桔
 ⿰ han-6728:7x16 1 han-5409:7x16 // ⿰木吉
 
 glyph han-6856:15x16 15 16 // 桖
-⿰ han-6728:5x16 1 han-8840:9x16 // ⿰木血
+⿰ han-6728:5x16 1 han-8840:9x14 // ⿰木血
 
 glyph han-685b:15x16 15 16 // 桛
 ⿰ han-6728:7x16 1 han-209d7:7x16 // ⿰木𠧗

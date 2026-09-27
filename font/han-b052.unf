@@ -379,10 +379,10 @@ glyph han-22338:15x16 15 16 // 𢌸
 // ⿱ han-215dc han-5efe // ⿱𡗜廾
 
 glyph han-2233f:15x16 15 16 // 𢌿
-⿱ han-7530:15x7 han-5efe:15x9 // ⿱田廾
+⿱ han-7530:11x7 han-5efe:15x9 // ⿱田廾
 
 glyph han-22341:15x16 15 16 // 𢍁
-⿱ han-7531:15x6 1 han-5efe:15x9 // ⿱由廾
+⿱ han-7531:13x6 1 han-5efe:15x9 // ⿱由廾
 
 ## 55.6
 

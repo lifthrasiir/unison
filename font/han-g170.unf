@@ -98,7 +98,7 @@ glyph han-3103a:15x16 15 16 // 𱀺
 // ⿳ han-96e8 han-7530 han-516b // ⿳雨田八 <- ⿱雷八
 
 glyph han-31058:15x16 15 16 // 𱁘
-⿳ -2 han-96e8:15x6 1 han-7530:15x5 han-529b:15x6 // ⿳雨田力
+⿳ -2 han-96e8:15x6 1 han-7530:11x5 han-529b:15x6 // ⿳雨田力
 
 // glyph han-3105a-($han-regions):15x16 15 16 // 𱁚
 // ⿱ han-96e8-($-1) han-9632 // ⿱雨防
@@ -308,7 +308,7 @@ glyph han-310ed:15x16 15 16 // 𱃭
 ## 184'.4
 
 glyph han-310f3:15x16 15 16 // 𱃳
-⿰ han-9963:5x16 1 han-4e0d:9x16 // ⿰饣不
+⿰ han-9963:5x14 1 han-4e0d:9x16 // ⿰饣不
 
 // glyph han-310f4-($han-regions):15x16 15 16 // 𱃴
 // ⿰ han-9963 han-535e-($-1) // ⿰饣卞
@@ -319,7 +319,7 @@ glyph han-310f3:15x16 15 16 // 𱃳
 // ⿰ han-9963 han-592e // ⿰饣央
 
 glyph han-310f6:15x16 15 16 // 𱃶
-⿰ han-9963:5x16 1 han-56da:9x16 // ⿰饣囚
+⿰ han-9963:5x14 1 han-56da:9x16 // ⿰饣囚
 
 // glyph han-310f7-($han-regions):15x16 15 16 // 𱃷
 // ⿰ han-9963 han-534a-($-1) // ⿰饣半
@@ -327,7 +327,7 @@ glyph han-310f6:15x16 15 16 // 𱃶
 ## 184'.6
 
 glyph han-310f8:15x16 15 16 // 𱃸
-⿰ han-9963:5x16 1 han-81f3:9x16 // ⿰饣至
+⿰ han-9963:5x14 1 han-81f3:9x16 // ⿰饣至
 
 // glyph han-310f9:15x16 15 16 // 𱃹
 // ⿰ han-9963 han-5c82 // ⿰饣岂
@@ -341,10 +341,10 @@ glyph han-310f8:15x16 15 16 // 𱃸
 ## 184'.8
 
 glyph han-310fe:15x16 15 16 // 𱃾
-⿰ han-9963:5x16 1 han-5485:9x16 // ⿰饣咅
+⿰ han-9963:5x14 1 han-5485:9x16 // ⿰饣咅
 
 glyph han-310ff:15x16 15 16 // 𱃿
-⿰ han-9963:5x16 1 han-708e:9x16 // ⿰饣炎
+⿰ han-9963:5x14 1 han-708e:9x16 // ⿰饣炎
 
 # CJK unified ideographs extension G: 馬 (187)
 
@@ -422,13 +422,13 @@ glyph han-31171:15x16 15 16 // 𱅱
 ## 189.2
 
 glyph han-31174:15x16 15 16 // 𱅴
-⿱ han-9ad8:15x9 1 han-4e01:15x6 // ⿱高丁
+⿱ han-9ad8:13x9 1 han-4e01:15x6 // ⿱高丁
 
 glyph han-31175:15x16 15 16 // 𱅵
-⿱ han-9ad8:15x9 han-51e0:15x7 // ⿱高几
+⿱ han-9ad8:13x9 han-51e0:15x7 // ⿱高几
 
 glyph han-31176:15x16 15 16 // 𱅶
-⿱ han-9ad8:15x10 1 han-5165:15x5 // ⿱高入
+⿱ han-9ad8:13x10 1 han-5165:15x5 // ⿱高入
 
 ## 189.3
 
@@ -438,7 +438,7 @@ glyph han-31177:15x16 15 16 // 𱅷
 ## 189.5
 
 glyph han-31178:15x16 15 16 // 𱅸
-⿱ han-6b63:15x5 han-9ad9:15x11 // ⿱正髙
+⿱ han-6b63:15x5 han-9ad9:13x11 // ⿱正髙
 
 glyph han-31179:15x16 15 16 // 𱅹
 ⿰ han-9ad8:7x16 1 han-7533:7x16 // ⿰高申

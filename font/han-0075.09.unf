@@ -98,7 +98,7 @@ glyph han-6980:15x16 15 16 // 榀
 ⿰ han-6728:5x16 1 han-54c1:9x16 // ⿰木品
 
 glyph han-6983:15x16 15 16 // 榃
-⿱ han-6797:15x11 han-7530:15x5 // ⿱林田
+⿱ han-6797:15x11 han-7530:11x5 // ⿱林田
 
 glyph han-6985:15x16 15 16 // 榅
 ⿰ han-6728:5x16 1 han-6637:9x16 // ⿰木昷
@@ -123,7 +123,7 @@ glyph han-6994-($han-regions):15x16 15 16 // 榔 ⿰木郎(GHTV) ⿰木郞(JKP)
 ## 75.10
 
 glyph han-698a:15x16 15 16 // 榊
-⿲ -2 han-6728:5x16 han-793b:5x16 han-7533:7x16 // ⿲木礻申
+⿲ -2 han-6728:5x16 han-793b:5x14 han-7533:7x16 // ⿲木礻申
 
 // glyph han-699f:15x16 15 16 // 榟
 // ⿰ han-6728 han-5bb0 // ⿰木宰
@@ -164,7 +164,7 @@ glyph han-69be-($han-regions):15x16 15 16 // 榾
 glyph han-69be.0:* = han-69be-j:*
 
 glyph han-69c0:15x16 15 16 // 槀
-⿱ han-9ad8:15x9 han-6728:15x7 // ⿱高木
+⿱ han-9ad8:13x9 han-6728:15x7 // ⿱高木
 glyph han-69c0.0:* = han-69c0:*
 
 glyph han-69c1:15x16 15 16 // 槁
@@ -182,7 +182,7 @@ glyph han-69c1.3:* = han-69c1.1:*
 // ⿰ han-6728 han-768b // ⿰木皋
 
 glyph han-69e0:15x16 15 16 // 槠
-⿲ han-6728:5x16 han-8ba0:3x16 han-8005-g:7x16 // ⿲木讠者
+⿲ han-6728:5x16 han-8ba0:3x14 han-8005-g:7x16 // ⿲木讠者
 
 // glyph han-6a2e:15x16 15 16 // 樮
 // ⿰ han-6728 han-4673 // ⿰木䙳

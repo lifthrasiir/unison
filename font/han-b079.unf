@@ -99,10 +99,10 @@ glyph han-23b25:15x16 15 16 // 𣬥
 ⿺ han-6bdb:15x16.10x14 han-5b50.0:9x10 6 2 // ⿺毛子
 
 glyph han-23b26:15x16 15 16 // 𣬦
-⿱ han-53e3:15x5 1 han-6bdb:15x10 // ⿱口毛
+⿱ han-53e3:11x5 1 han-6bdb:15x10 // ⿱口毛
 
 glyph han-23b27:15x16 15 16 // 𣬧
-⿱ han-6bdb:15x10 1 han-53e3:15x5 // ⿱毛口
+⿱ han-6bdb:15x10 1 han-53e3:11x5 // ⿱毛口
 
 ## 82.4
 
@@ -137,7 +137,7 @@ glyph han-23b36:15x16 15 16 // 𣬶
 ⿺ han-6bdb:15x16.10x14 han-5df4:9x11 6 1 // ⿺毛巴
 
 glyph han-23b37:15x16 15 16 // 𣬷
-⿱ han-5df4:15x7 han-6bdb:15x9 // ⿱巴毛
+⿱ han-5df4:13x7 han-6bdb:15x9 // ⿱巴毛
 
 ## 82.5
 

@@ -74,10 +74,10 @@ glyph han-32de7:15x16 15 16 // 𲷧
 ## 120.3
 
 glyph han-32de9-($han-regions):15x16 15 16 // 𲷩
-⿰ han-7cf9-($-1):5x16 1 han-5dfe:9x16 // ⿰糹巾
+⿰ han-7cf9-($-1):5x14 1 han-5dfe:9x16 // ⿰糹巾
 
 glyph han-32dea:15x16 15 16 // 𲷪
-⿰ han-7cf9-v:5x16 1 han-95e8:9x16 // ⿰糹门
+⿰ han-7cf9-v:5x14 1 han-95e8:9x16 // ⿰糹门
 
 ## 120.5
 
@@ -90,7 +90,7 @@ glyph han-32dea:15x16 15 16 // 𲷪
 // ⿰ han-7cf9-($-1) han-7070 // ⿰糹灰
 
 glyph han-32def:15x16 15 16 // 𲷯
-⿰ han-7cf9-g:5x16 1 han-5321:9x16 // ⿰糹匡
+⿰ han-7cf9-g:5x14 1 han-5321:9x16 // ⿰糹匡
 
 // glyph han-32df6-($han-regions):15x16 15 16 // 𲷶
 // ⿰ han-7cf9-($-1) han-6c5f // ⿰糹江
@@ -255,22 +255,22 @@ glyph han-32e52:15x16 15 16 // 𲹒
 ## 128.3
 
 glyph han-32e69:15x16 15 16 // 𲹩
-⿰ han-8033:6x16-l han-5f13:9x16 // ⿰耳弓
+⿰ han-8033:6x14-l han-5f13:9x16 // ⿰耳弓
 
 ## 128.5
 
 glyph han-32e6b:15x16 15 16 // 𲹫
-⿰ han-8033:6x16-l han-53f0:9x16 // ⿰耳台
+⿰ han-8033:6x14-l han-53f0:9x16 // ⿰耳台
 
 ## 128.6
 
 glyph han-32e6c:15x16 15 16 // 𲹬
-⿰ han-8033:6x16-l han-7c73:9x16 // ⿰耳米
+⿰ han-8033:6x14-l han-7c73:9x16 // ⿰耳米
 
 ## 128.7
 
 glyph han-32e6d:15x16 15 16 // 𲹭
-⿰ han-8033:6x16-l han-8096-g:9x16 // ⿰耳肖
+⿰ han-8033:6x14-l han-8096-g:9x16 // ⿰耳肖
 
 ## 128.8
 
@@ -555,7 +555,7 @@ glyph han-32f93:15x16 15 16 // 𲾓
 // ⿰ han-866b han-2662d // ⿰虫𦘭
 
 glyph han-32f98:15x16 15 16 // 𲾘
-⿱ han-25ad7:15x5 han-866b:15x11 // ⿱𥫗虫
+⿱ han-25ad7:13x5 han-866b:15x11 // ⿱𥫗虫
 
 glyph han-32f99:15x16 15 16 // 𲾙
 ⿰ han-866b:5x16 1 han-540d:9x16 // ⿰虫名
@@ -649,8 +649,8 @@ glyph han-32fbe:15x16 15 16 // 𲾾
 
 ## 143.4
 
-// glyph han-33014:15x16 15 16 // 𳀔
-// ⿺ han-6bdb han-8840 // ⿺毛血
+glyph han-33014:15x16 15 16 // 𳀔
+⿺ han-6bdb:15x16.10x14 han-8840:9x14 5 0 // ⿺毛血
 
 // glyph han-33015:15x16 15 16 // 𳀕
 // ⿰ han-8840 han-6bdb // ⿰血毛
@@ -696,7 +696,7 @@ glyph han-3301b:15x16 15 16 // 𳀛
 ## 145.4
 
 glyph han-3302f:15x16 15 16 // 𳀯
-⿰ han-8864.0:5x16 1 han-6708:9x16 // ⿰衤月
+⿰ han-8864.0:5x14 1 han-6708:9x16 // ⿰衤月
 
 ## 145.6
 
@@ -830,7 +830,7 @@ glyph han-33079:15x16 15 16 // 𳁹
 ## 149'.5
 
 glyph han-3307c:15x16 15 16 // 𳁼
-⿰ han-8ba0:5x16 1 han-7533:9x16 // ⿰讠申
+⿰ han-8ba0:5x14 1 han-7533:9x16 // ⿰讠申
 
 # CJK unified ideographs extension J: 貝 (154)
 

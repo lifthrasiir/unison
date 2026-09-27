@@ -3,7 +3,7 @@
 ## 31.1
 
 glyph han-211a0:15x16 15 16 // 𡆠
-⿴ han-56d7:15x16.11x14 han-4e59:9x12 3 2 // ⿴囗乙
+⿴ han-56d7:13x16.11x14 han-4e59:9x12 3 2 // ⿴囗乙
 
 // glyph han-211a1:15x16 15 16 // 𡆡 ⿴囗㇏(G) ⿴囗乁(T)
 // ⿴ han-56d7 han-4e41 // ⿴囗乁
@@ -23,7 +23,7 @@ ref 4x1 10 0 negated
 // ⿴ han-56d7 han-4e8c // ⿴囗二
 
 glyph han-211a5:15x16 15 16 // 𡆥
-⿴ han-56d7:15x16.11x12 han-535c:5x12 5 2 // ⿴囗卜
+⿴ han-56d7:13x14.11x12 han-535c:5x12 5 2 // ⿴囗卜
 
 // glyph han-211a6:15x16 15 16 // 𡆦
 // ⿴ han-56d7 han-516b // ⿴囗八
@@ -40,21 +40,21 @@ glyph han-211a5:15x16 15 16 // 𡆥
 // ⿴ han-56d7 han-5344 // ⿴囗卄
 
 glyph han-211ab:15x16 15 16 // 𡆫
-⿴ han-56d7:15x16.11x14 han-5dfe:7x14 4 1 // ⿴囗巾
+⿴ han-56d7:13x16.11x14 han-5dfe:7x14 4 1 // ⿴囗巾
 
 glyph han-211ac:15x16 15 16 // 𡆬
-⿴ han-56d7:15x16.11x12 han-5de5:9x10 3 3 // ⿴囗工
+⿴ han-56d7:13x14.11x12 han-5de5:9x10 3 3 // ⿴囗工
 
 glyph han-211ad:15x16 15 16 // 𡆭
-⿴ han-56d7:15x16.11x14 han-4e07:10x14 2 1 // ⿴囗万
+⿴ han-56d7:13x16.11x14 han-4e07:10x14 2 1 // ⿴囗万
 
 glyph han-211ae-g:15x16 15 16 // 𡆮
-⿴ han-56d7:15x16.11x12 han-571f:9x10 3 3 // ⿴囗土
+⿴ han-56d7:13x14.11x12 han-571f:9x10 3 3 // ⿴囗土
 glyph han-211ae-j:15x16 15 16 // 𡆮
-⿴ han-56d7:15x16.11x12 han-58eb:9x10 3 3 // ⿴囗士
+⿴ han-56d7:13x14.11x12 han-58eb:9x10 3 3 // ⿴囗士
 
 glyph han-211af:15x16 15 16 // 𡆯
-⿴ han-56d7:15x16.11x12 han-5c71:9x10 3 3 // ⿴囗山
+⿴ han-56d7:13x14.11x12 han-5c71:9x10 3 3 // ⿴囗山
 
 // glyph han-211b1:15x16 15 16 // 𡆱
 // ⿴ han-56d7 han-5f61 // ⿴囗彡
@@ -63,7 +63,7 @@ glyph han-211af:15x16 15 16 // 𡆯
 // ⿴ han-56d7 han-4ea1-($-1) // ⿴囗亡
 
 glyph han-211b3:15x16 15 16 // 𡆳
-⿴ han-56d7:15x16.11x12 han-5df3:9x10 3 3 // ⿴囗巳
+⿴ han-56d7:13x14.11x12 han-5df3:9x10 3 3 // ⿴囗巳
 
 ## 31.4
 
@@ -95,16 +95,16 @@ $$0P......................0P$$
 // ⿴ han-56d7 han-4e10-($-1) // ⿴囗丐
 
 glyph han-211ba:15x16 15 16 // 𡆺
-⿴ han-56d7:15x16.11x14 han-624b:11x13 2 1 // ⿴囗手
+⿴ han-56d7:13x16.11x14 han-624b:11x13 2 1 // ⿴囗手
 
 // glyph han-211bf:15x16 15 16 // 𡆿
 // ⿴ han-56d7 han-6c0f // ⿴囗氏
 
 glyph han-211c2:15x16 15 16 // 𡇂
-⿴ han-56d7:15x16.11x12 han-706b:11x12 2 2 // ⿴囗火
+⿴ han-56d7:13x14.11x12 han-706b:11x12 2 2 // ⿴囗火
 
 glyph han-211c3:15x16 15 16 // 𡇃
-⿴ han-56d7:15x16.11x12 han-5df4:9x10 3 3 // ⿴囗巴
+⿴ han-56d7:13x14.11x12 han-5df4:9x10 3 3 // ⿴囗巴
 
 // glyph han-211c5:15x16 15 16 // 𡇅
 // ⿴ han-56d7 han-65b9 // ⿴囗方
@@ -124,7 +124,7 @@ glyph han-211c3:15x16 15 16 // 𡇃
 // ⿴ han-56d7 han-5e03 // ⿴囗布
 
 glyph han-211cc:15x16 15 16 // 𡇌
-⿴ han-56d7:15x16.11x12 han-76ee:7x10 4 3 // ⿴囗目
+⿴ han-56d7:13x14.11x12 han-76ee:7x10 4 3 // ⿴囗目
 
 // glyph han-211d0:15x16 15 16 // 𡇐
 // ⿴ han-56d7 han-672c // ⿴囗本
@@ -138,7 +138,7 @@ glyph han-211cc:15x16 15 16 // 𡇌
 // ⿴ han-56d7 han-81f3 // ⿴囗至
 
 glyph han-211d6:15x16 15 16 // 𡇖
-⿴ han-56d7:15x16.11x12 han-81e3:9x10 3 3 // ⿴囗臣
+⿴ han-56d7:13x14.11x12 han-81e3:9x10 3 3 // ⿴囗臣
 
 // glyph han-211d8:15x16 15 16 // 𡇘
 // ⿴ han-56d7 han-591a // ⿴囗多
@@ -147,7 +147,7 @@ glyph han-211d6:15x16 15 16 // 𡇖
 // ⿴ han-56d7 han-6735 // ⿴囗朵
 
 glyph han-211da:15x16 15 16 // 𡇚
-⿴ han-56d7:15x16.11x12 han-767e:9x10 3 3 // ⿴囗百
+⿴ han-56d7:13x14.11x12 han-767e:9x10 3 3 // ⿴囗百
 
 // glyph han-211dc:15x16 15 16 // 𡇜
 // ⿴ han-56d7 han-820c // ⿴囗舌
@@ -187,7 +187,7 @@ glyph han-211da:15x16 15 16 // 𡇚
 // ⿴ han-56d7 han-5352 // ⿴囗卒
 
 glyph han-21200:15x16 15 16 // 𡈀
-⿴ han-56d7:15x16.11x12 han-4e9e:9x10 3 3 // ⿴囗亞
+⿴ han-56d7:13x14.11x12 han-4e9e:9x10 3 3 // ⿴囗亞
 
 ## 31.9
 
@@ -379,13 +379,13 @@ glyph han-2123d.0:* = han-2123d:*
 ## 32.2
 
 glyph han-2123f:15x16 15 16 // 𡈿
-⿰ han-571f:5x16-l 1 han-5341:9x16 // ⿰土十
+⿰ han-571f:5x14-l 1 han-5341:9x16 // ⿰土十
 
 // glyph han-21240:15x16 15 16 // 𡉀
 // ⿱ han-516b han-571f // ⿱八土
 
 glyph han-21241:15x16 15 16 // 𡉁
-⿰ han-571f:5x16-l 1 han-4e43:9x16 // ⿰土乃
+⿰ han-571f:5x14-l 1 han-4e43:9x16 // ⿰土乃
 
 glyph han-21242:15x16 15 16 // 𡉂
 assume ⿱ han-529b:15x7 -1 han-571f:15x10 // ⿱力土
@@ -403,7 +403,7 @@ assume ⿸ han-20087:15x16.9x11 han-571f:9x10 5 5 // ⿸𠂇土
 // ⿱ han-571f han-51f5 // ⿱土凵
 
 glyph han-21247:15x16 15 16 // 𡉇
-⿰ han-571f:5x16-l 1 han-4eba:9x16 // ⿰土人
+⿰ han-571f:5x14-l 1 han-4eba:9x16 // ⿰土人
 
 ## 32.3
 
@@ -417,16 +417,16 @@ glyph han-21247:15x16 15 16 // 𡉇
 // ⿰ han-571f han-4e08-($-1) // ⿰土丈
 
 glyph han-2124e:15x16 15 16 // 𡉎
-⿰ han-571f:5x16-l -1 han-5de5:11x16 // ⿰土工
+⿰ han-571f:5x14-l -1 han-5de5:11x16 // ⿰土工
 
 glyph han-2124f:15x16 15 16 // 𡉏
-⿰ han-571f:5x16-l 1 han-5df2:9x16 // ⿰土已
+⿰ han-571f:5x14-l 1 han-5df2:9x16 // ⿰土已
 
 glyph han-21250:15x16 15 16 // 𡉐
 ⿱ han-5de5:15x7 1 han-571f:15x8 // ⿱工土
 
 glyph han-21251:15x16 15 16 // 𡉑
-⿰ han-571f:5x16-l 1 han-5927:9x16 // ⿰土大
+⿰ han-571f:5x14-l 1 han-5927:9x16 // ⿰土大
 
 glyph han-21253:15x16 15 16 // 𡉓
 ⿱ han-571f:15x7 han-5973:15x9 // ⿱土女
@@ -438,7 +438,7 @@ glyph han-21253:15x16 15 16 // 𡉓
 // ⿰ han-571f han-4e38-($-1) // ⿰土丸
 
 glyph han-21256:15x16 15 16 // 𡉖
-⿰ han-571f:5x16-l 1 han-5f13:9x16 // ⿰土弓
+⿰ han-571f:5x14-l 1 han-5f13:9x16 // ⿰土弓
 
 ## 32.4
 
@@ -455,7 +455,7 @@ glyph han-2125f:15x16 15 16 // 𡉟
 ⿰ han-723f:6x16 han-571f:9x16 // ⿰爿土
 
 glyph han-21260:15x16 15 16 // 𡉠
-⿰ han-571f:5x16-l 1 han-738b:9x16 // ⿰土王
+⿰ han-571f:5x14-l 1 han-738b:9x16 // ⿰土王
 
 glyph han-21263:15x16 15 16 // 𡉣
 ⿱ han-6728:15x8 han-571f:15x8 // ⿱木土
@@ -464,10 +464,10 @@ glyph han-21264:15x16 15 16 // 𡉤
 ⿱ han-4e0d:15x8 han-571f:15x8 // ⿱不土
 
 glyph han-21265:15x16 15 16 // 𡉥
-⿰ han-571f:5x16-l 1 han-4e2d:9x16 // ⿰土中
+⿰ han-571f:5x14-l 1 han-4e2d:9x16 // ⿰土中
 
 glyph han-21266:15x16 15 16 // 𡉦
-⿰ han-571f:5x16-l 1 han-5348:9x16 // ⿰土午
+⿰ han-571f:5x14-l 1 han-5348:9x16 // ⿰土午
 
 // glyph han-21269:15x16 15 16 // 𡉩
 // ⿰ han-571f han-72ac // ⿰土犬
@@ -485,7 +485,7 @@ glyph han-2126d:15x16 15 16 // 𡉭
 // ⿰ han-571f han-6237 // ⿰土户
 
 glyph han-21277:15x16 15 16 // 𡉷
-⿱ han-5df4:15x8 han-571f:15x8 // ⿱巴土
+⿱ han-5df4:13x8 han-571f:15x8 // ⿱巴土
 
 // glyph han-21278:15x16 15 16 // 𡉸
 // ⿱ han-20678 han-571f // ⿱𠙸土
@@ -500,10 +500,10 @@ glyph han-2127a:15x16 15 16 // 𡉺
 // ⿰ han-571f han-516d // ⿰土六
 
 glyph han-2127e:15x16 15 16 // 𡉾
-⿰ han-571f:3x16-l 1 han-5fc3:11x16 // ⿰土心
+⿰ han-571f:3x13-l 1 han-5fc3:11x16 // ⿰土心
 
 glyph han-2127f:15x16 15 16 // 𡉿
-⿰ han-571f:5x16-l 1 han-6728:9x16 // ⿰土木
+⿰ han-571f:5x14-l 1 han-6728:9x16 // ⿰土木
 
 // glyph han-21280:15x16 15 16 // 𡊀
 // ⿰ han-571f han-592a // ⿰土太
@@ -517,10 +517,10 @@ glyph han-2127f:15x16 15 16 // 𡉿
 // ⿱ han-5f01 han-571f // ⿱弁土
 
 glyph han-21286:15x16 15 16 // 𡊆
-⿰ han-571f:7x16-l 1 han-793a:7x16 // ⿰土示
+⿰ han-571f:7x14-l 1 han-793a:7x14 // ⿰土示
 
 glyph han-21289:15x16 15 16 // 𡊉
-⿰ han-571f:5x16-l 1 han-672b:9x16 // ⿰土末
+⿰ han-571f:5x14-l 1 han-672b:9x16 // ⿰土末
 
 // glyph han-2128b-($han-regions):15x16 15 16 // 𡊋
 // ⿰ han-572d han-53c8-($-1) // ⿰圭又
@@ -550,7 +550,7 @@ glyph han-2128f.0:15x16 15 16 // 𡊏
 ..............................
 ref han-2128f.1:15x16
 glyph han-2128f.1:15x16 15 16 // 𡊏
-⿳ han-53b6:15x5 han-5c71:15x4 han-571f:15x7 // ⿳厶山土
+⿳ han-53b6:13x5 han-5c71:15x4 han-571f:15x7 // ⿳厶山土
 glyph han-2128f-j:* = han-2128f.0:*
 glyph han-2128f-(g|t):* = han-2128f.1:*
 
@@ -558,13 +558,13 @@ glyph han-2128f-(g|t):* = han-2128f.1:*
 // ⿰ han-571f han-5c12 // ⿰土尒
 
 glyph han-21294:15x16 15 16 // 𡊔
-⿰ han-571f:5x16-l 1 han-5e02:9x16 // ⿰土市
+⿰ han-571f:5x14-l 1 han-5e02:9x16 // ⿰土市
 
 glyph han-21296:15x16 15 16 // 𡊖
-⿰ han-571f:5x16-l 1 han-672c:9x16 // ⿰土本
+⿰ han-571f:5x14-l 1 han-672c:9x16 // ⿰土本
 
 glyph han-21297:15x16 15 16 // 𡊗
-⿲ han-571f:3x16-l han-529b:6x16 1 han-53e3:5x16 // ⿲土力口
+⿲ han-571f:3x13-l han-529b:6x16 1 han-53e3:5x12 // ⿲土力口
 
 glyph han-2129a:15x16 15 16 // 𡊚
 ⿰ han-571f:7x16 han-767d:8x16 // ⿰土白
@@ -573,7 +573,7 @@ glyph han-2129a:15x16 15 16 // 𡊚
 // ⿰ han-571f han-53bb // ⿰土去
 
 glyph han-2129c:15x16 15 16 // 𡊜
-⿰ han-571f:5x16-l 1 han-53e4:9x16 // ⿰土古
+⿰ han-571f:5x14-l 1 han-53e4:9x16 // ⿰土古
 
 // glyph han-2129e-($han-regions):15x16 15 16 // 𡊞
 // ⿱ han-5e73-($-1) han-571f // ⿱平土
@@ -582,13 +582,13 @@ glyph han-2129f:15x16 15 16 // 𡊟
 ⿰ han-571f:7x16 1 han-76ee:7x16 // ⿰土目
 
 glyph han-212a0:15x16 15 16 // 𡊠
-⿰ han-571f:5x16-l 1 han-7532:9x16 // ⿰土甲
+⿰ han-571f:5x14-l 1 han-7532:9x16 // ⿰土甲
 
 glyph han-212a1:15x16 15 16 // 𡊡
-⿰ han-571f:5x16-l 1 han-7531:9x16 // ⿰土由
+⿰ han-571f:5x14-l 1 han-7531:9x16 // ⿰土由
 
 glyph han-212a2:15x16 15 16 // 𡊢
-⿰ han-571f:3x16-l han-518c.x:12x16 // ⿰土册
+⿰ han-571f:3x13-l han-518c.x:12x16 // ⿰土册
 
 glyph han-212a3:15x16 15 16 // 𡊣
 ⿱ han-4e18:15x9 han-571f:15x7 // ⿱丘土
@@ -600,7 +600,7 @@ glyph han-212a4:15x16 15 16 // 𡊤
 // ⿱ han-571f han-53e5 // ⿱土句
 
 glyph han-212a9:15x16 15 16 // 𡊩
-assume ⿰ han-571f:5x16-l -1 han-7389:11x16 // ⿰土玉
+assume ⿰ han-571f:5x14-l -1 han-7389:11x16 // ⿰土玉
 
 // glyph han-212aa:15x16 15 16 // 𡊪
 // ⿳ han-571f han-4491 han-513f // ⿳土䒑儿 <- ⿱土⿱䒑儿
@@ -615,7 +615,7 @@ assume ⿰ han-571f:5x16-l -1 han-7389:11x16 // ⿰土玉
 // ⿰ han-571f han-5f01 // ⿰土弁
 
 glyph han-212b0:15x16 15 16 // 𡊰
-⿰ han-571f:5x16-l 1 han-7530:9x16 // ⿰土田
+⿰ han-571f:5x14-l 1 han-7530:9x16 // ⿰土田
 
 glyph han-212b1:15x16 15 16 // 𡊱
 ⿰ han-571f:7x16 han-53ec:8x16 // ⿰土召
@@ -624,7 +624,7 @@ glyph han-212b1:15x16 15 16 // 𡊱
 // ⿰ han-571f han-4e3b // ⿰土主
 
 glyph han-212b3:15x16 15 16 // 𡊳
-⿰ han-571f:5x16-l 1 han-751f:9x16 // ⿰土生
+⿰ han-571f:5x14-l 1 han-751f:9x16 // ⿰土生
 
 // glyph han-212b4:15x16 15 16 // 𡊴
 // ⿱ han-5c3c han-571f // ⿱尼土
@@ -650,7 +650,7 @@ glyph han-212b9:15x16 15 16 // 𡊹 ⿱襾土(G) ⿱覀土(T)
 // ⿰ han-21d44 han-571f // ⿰𡵄土
 
 glyph han-212c0:15x16 15 16 // 𡋀
-⿲ han-571f:3x16-l han-793b:5x16 1 han-4e5a:6x16 // ⿲土礻乚
+⿲ han-571f:3x13-l han-793b:5x14 1 han-4e5a:6x16 // ⿲土礻乚
 
 // glyph han-212c2:15x16 15 16 // 𡋂
 // ⿰ han-571f han-5e74 // ⿰土年
@@ -684,7 +684,7 @@ glyph han-212d0:15x16 15 16 // 𡋐
 // ref han-571f
 
 glyph han-212d2:15x16 15 16 // 𡋒
-⿰ han-571f:5x16-l 1 han-8840:9x16 // ⿰土血
+⿰ han-571f:5x14-l 1 han-8840:9x14 // ⿰土血
 
 // glyph han-212d4:15x16 15 16 // 𡋔
 // ⿰ han-571f han-7cf8 // ⿰土糸
@@ -699,13 +699,13 @@ glyph han-212d2:15x16 15 16 // 𡋒
 // ⿱ han-56e0 han-571f // ⿱因土
 
 glyph han-212d9:15x16 15 16 // 𡋙
-⿰ han-571f:5x16-l 1 han-56de:9x16 // ⿰土回
+⿰ han-571f:5x14-l 1 han-56de:9x16 // ⿰土回
 
 // glyph han-212db:15x16 15 16 // 𡋛
 // ⿱ han-5408 han-571f // ⿱合土
 
 glyph han-212df:15x16 15 16 // 𡋟
-⿰ han-571f:5x16-l 1 han-4ea4.0:9x16 // ⿰土交
+⿰ han-571f:5x14-l 1 han-4ea4.0:9x16 // ⿰土交
 
 // glyph han-212e0:15x16 15 16 // 𡋠
 // ⿰ han-571f han-20ae1 // ⿰土𠫡
@@ -718,10 +718,10 @@ glyph han-212e3:15x16 15 16 // 𡋣
 ⿰ han-571f:7x16 1 han-572d:7x16 // ⿰土圭
 
 glyph han-212e5:15x16 15 16 // 𡋥
-assume ⿰ han-571f:7x16-l -1 han-5409:9x16 // ⿰土吉
+assume ⿰ han-571f:7x14-l -1 han-5409:9x16 // ⿰土吉
 
 glyph han-212e6:15x16 15 16 // 𡋦
-⿰ han-571f:7x16-l han-767e:8x16 // ⿰土百
+⿰ han-571f:7x14-l han-767e:8x16 // ⿰土百
 
 ## 32.7
 
@@ -738,7 +738,7 @@ glyph han-212ed-($han-regions):15x16 15 16 // 𡋭
 // ⿱ han-4e23 han-571f // ⿱丣土
 
 glyph han-212f5:15x16 15 16 // 𡋵
-⿳ han-65e5:15x5 han-5927:15x6 -1 han-571f:15x6 // ⿳日大土
+⿳ han-65e5:11x5 han-5927:15x6 -1 han-571f:15x6 // ⿳日大土
 
 // glyph han-212fb:15x16 15 16 // 𡋻
 // ⿱ han-5deb han-571f // ⿱巫土
@@ -750,7 +750,7 @@ glyph han-212f5:15x16 15 16 // 𡋵
 // ⿰ han-571f han-8d64 // ⿰土赤
 
 glyph han-212ff:15x16 15 16 // 𡋿
-⿰ han-571f:5x16-l 1 han-5442:9x16 // ⿰土呂
+⿰ han-571f:5x14-l 1 han-5442:9x16 // ⿰土呂
 
 // glyph han-21300:15x16 15 16 // 𡌀 ⿰土别(V) ⿰土別(Z)
 // ⿲ han-571f han-53e6 han-5202 // ⿲土另刂
@@ -759,18 +759,18 @@ glyph han-212ff:15x16 15 16 // 𡋿
 // ⿱ han-6c7e han-571f // ⿱汾土
 
 glyph han-21303-g:15x16 15 16 // 𡌃
-⿰ han-571f:5x16-l han-544a:10x16 // ⿰土告
+⿰ han-571f:5x14-l han-544a:10x16 // ⿰土告
 glyph han-21303-h:15x16 15 16 // 𡌃
-⿰ han-571f:5x16-l han-543f:10x16 // ⿰土吿
+⿰ han-571f:5x14-l han-543f:10x16 // ⿰土吿
 
 glyph han-21304:15x16 15 16 // 𡌄
-⿰ han-571f:5x16-l 1 han-8eca:9x16 // ⿰土車
+⿰ han-571f:5x14-l 1 han-8eca:9x16 // ⿰土車
 
 // glyph han-21305:15x16 15 16 // 𡌅
 // ⿱ han-4f5b han-571f // ⿱佛土
 
 glyph han-21307:15x16 15 16 // 𡌇
-⿲ han-571f:3x16-l han-77f3:7x16 han-5200:5x16 // ⿲土石刀
+⿲ han-571f:3x13-l han-77f3:7x16 han-5200:5x16 // ⿲土石刀
 
 // glyph han-2130c:15x16 15 16 // 𡌌
 // ⿱ han-28e22 han-571f // ⿱𨸢土
@@ -779,7 +779,7 @@ glyph han-21307:15x16 15 16 // 𡌇
 // ⿱ han-598d han-571f // ⿱妍土
 
 glyph han-2130f:15x16 15 16 // 𡌏
-⿰ han-571f:5x16-l 1 han-8eab:9x16 // ⿰土身
+⿰ han-571f:5x14-l 1 han-8eab:9x16 // ⿰土身
 
 glyph han-21314:15x16 15 16 // 𡌔
 ⿰ han-571f:7x16 -1 han-8096.0:9x16 // ⿰土肖
@@ -794,7 +794,7 @@ glyph han-21314:15x16 15 16 // 𡌔
 // ⿰ han-571f han-34b4 // ⿰土㒴
 
 glyph han-21320:15x16 15 16 // 𡌠
-assume ⿲ han-571f:3x16-l han-4ebb:5x16 -1 han-6c10-v:8x16 // ⿲土亻氐
+assume ⿲ han-571f:3x13-l han-4ebb:5x16 -1 han-6c10-v:8x16 // ⿲土亻氐
 
 // glyph han-21324:15x16 15 16 // 𡌤
 // ⿰ han-572d han-72ac // ⿰圭犬
@@ -823,7 +823,7 @@ glyph han-21332:15x16 15 16 // 𡌲
 // ⿰ han-571f han-2233f // ⿰土𢌿
 
 glyph han-2133a:15x16 15 16 // 𡌺
-⿰ han-571f:3x16-l 1 han-27227:11x16 // ⿰土𧈧
+⿰ han-571f:3x13-l 1 han-27227:11x16 // ⿰土𧈧
 
 // glyph han-2133d:15x16 15 16 // 𡌽
 // ⿰ han-571f han-5e97 // ⿰土店
@@ -838,13 +838,13 @@ glyph han-2133a:15x16 15 16 // 𡌺
 // ⿰ han-571f han-23955 // ⿰土𣥕
 
 glyph han-2134e:15x16 15 16 // 𡍎
-⿰ han-571f:7x16-l 1 han-5353:7x16 // ⿰土卓
+⿰ han-571f:7x14-l 1 han-5353:7x16 // ⿰土卓
 
 glyph han-2135a:15x16 15 16 // 𡍚
-⿲ han-571f:5x16-l han-6728:5x16 han-6728:5x16 // ⿲土木木
+⿲ han-571f:5x14-l han-6728:5x16 han-6728:5x16 // ⿲土木木
 
 glyph han-2135c:15x16 15 16 // 𡍜
-⿰ han-571f:5x16-l 1 han-9580:9x16 // ⿰土門
+⿰ han-571f:5x14-l 1 han-9580:9x16 // ⿰土門
 
 ## 32.9
 
@@ -852,7 +852,7 @@ glyph han-21366:15x16 15 16 // 𡍦
 ⿱ -1 han-571f:15x4 1 han-8ecd:15x12 // ⿱土軍
 
 glyph han-2136b:15x16 15 16 // 𡍫
-⿲ han-571f:3x16-l han-8c9d:6x16 1 han-5202:5x16 // ⿲土貝刂
+⿲ han-571f:3x13-l han-8c9d:6x16 1 han-5202:5x16 // ⿲土貝刂
 
 // glyph han-21372:15x16 15 16 // 𡍲
 // ⿰ han-571f han-8037 // ⿰土耷
@@ -864,22 +864,22 @@ glyph han-2136b:15x16 15 16 // 𡍫
 // ⿲ han-571f han-5fc4 han-4e98 // ⿲土忄亘
 
 glyph han-21378:15x16 15 16 // 𡍸
-⿳ han-53e3:15x4 1 han-5405:15x5 1 han-571f:15x5 // ⿳口吅土
+⿳ han-53e3:11x4 1 han-5405:15x5 1 han-571f:15x5 // ⿳口吅土
 
 glyph han-21381:15x16 15 16 // 𡎁
-⿲ han-571f:3x16-l han-53e4:7x16 han-6708:5x16 // ⿲土古月
+⿲ han-571f:3x13-l han-53e4:7x16 han-6708:5x16 // ⿲土古月
 
 // glyph han-21384:15x16 15 16 // 𡎄
 // ⿳ han-4e06 han-5196 han-26277 // ⿳丆冖𦉷 <- ⿱⿱丆冖𦉷
 
 glyph han-21388:15x16 15 16 // 𡎈
-⿲ han-571f:3x16-l han-572d:5x16 han-5bf8:7x16 // ⿲土圭寸
+⿲ han-571f:3x13-l han-572d:5x16 han-5bf8:7x16 // ⿲土圭寸
 
 glyph han-21389:15x16 15 16 // 𡎉
 ⿰ han-8005-g:7x16 1 han-571f:7x16 // ⿰者土
 
 glyph han-2138e:15x16 15 16 // 𡎎
-⿰ han-571f:5x16-l han-54a0:10x16 // ⿰土咠
+⿰ han-571f:5x14-l han-54a0:10x16 // ⿰土咠
 
 // glyph han-2138f:15x16 15 16 // 𡎏
 // ⿰ han-571f han-6cc9 // ⿰土泉
@@ -891,7 +891,7 @@ glyph han-2138e:15x16 15 16 // 𡎎
 // ⿰ han-571f han-67d0 // ⿰土某
 
 glyph han-213a3:15x16 15 16 // 𡎣
-⿲ han-571f:3x16-l han-65e5:5x16 1 han-53ec:6x16 // ⿲土日召
+⿲ han-571f:3x13-l han-65e5:5x16 1 han-53ec:6x16 // ⿲土日召
 
 // glyph han-213a8:15x16 15 16 // 𡎨
 // ⿳ han-5c71 han-5c7e han-571f // ⿳山屾土 <- ⿱𡷈土
@@ -920,10 +920,10 @@ glyph han-213a3:15x16 15 16 // 𡎣
 // ⿰ han-571f han-76cd // ⿰土盍
 
 glyph han-213e2:15x16 15 16 // 𡏢
-⿰ han-571f:5x16-l 1 han-99ac:9x16 // ⿰土馬
+⿰ han-571f:5x14-l 1 han-99ac:9x16 // ⿰土馬
 
 glyph han-213e7:15x16 15 16 // 𡏧
-⿲ han-571f:3x16-l han-4ebb:3x16 han-5485:9x16 // ⿲土亻咅
+⿲ han-571f:3x13-l han-4ebb:3x16 han-5485:9x16 // ⿲土亻咅
 
 ## 32.11
 
@@ -937,7 +937,7 @@ glyph han-213e7:15x16 15 16 // 𡏧
 // ⿰ han-571f han-5bc4 // ⿰土寄
 
 glyph han-213ff:15x16 15 16 // 𡏿
-⿲ -1 han-571f:3x16-l han-5485:9x16 han-961d:4x16-r // ⿲土咅阝
+⿲ -1 han-571f:3x13-l han-5485:9x16 han-961d:4x16-r // ⿲土咅阝
 
 // glyph han-2140e:15x16 15 16 // 𡐎
 // ⿳ han-58eb han-7f52 han-2a8b4 // ⿳士罒𪢴
@@ -949,12 +949,12 @@ glyph han-2141a:15x16 15 16 // 𡐚
 ⿰ han-571f:7x16 1 han-9b5a:7x16 // ⿰土魚
 
 glyph han-2141b:15x16 15 16 // 𡐛
-⿲ han-571f:3x16-l han-8eca:5x16 han-65a4:7x16 // ⿲土車斤
+⿲ han-571f:3x13-l han-8eca:5x16 han-65a4:7x16 // ⿲土車斤
 
 ## 32.12
 
 glyph han-2143e:15x16 15 16 // 𡐾
-⿲ han-571f:3x16-l han-624c:3x16 han-662f:9x16 // ⿲土扌是
+⿲ han-571f:3x13-l han-624c:3x16 han-662f:9x16 // ⿲土扌是
 
 // glyph han-21442:15x16 15 16 // 𡑂
 // ⿰ han-571f han-264d4 // ⿰土𦓔
@@ -969,7 +969,7 @@ glyph han-2143e:15x16 15 16 // 𡐾
 // ⿰ han-571f han-68ee // ⿰土森
 
 glyph han-2145d:15x16 15 16 // 𡑝
-⿰ han-571f:5x16-l 1 han-7ca6:9x16 // ⿰土粦
+⿰ han-571f:5x14-l 1 han-7ca6:9x16 // ⿰土粦
 
 ## 32.13
 
@@ -980,7 +980,7 @@ glyph han-2145d:15x16 15 16 // 𡑝
 // ⿰ han-571f han-3b05 // ⿰土㬅
 
 glyph han-21468:15x16 15 16 // 𡑨
-⿲ han-571f:3x16-l han-98e0-t:7x16 han-6b20:5x16 // ⿲土飠欠
+⿲ han-571f:3x13-l han-98e0-t:7x16 han-6b20:5x16 // ⿲土飠欠
 
 // glyph han-21480:15x16 15 16 // 𡒀
 // ⿳ han-56da han-7530 han-5736 // ⿳囚田圶
@@ -1002,7 +1002,7 @@ glyph han-21468:15x16 15 16 // 𡑨
 // ⿰ han-571f han-885b // ⿰土衛
 
 glyph han-214cf:15x16 15 16 // 𡓏
-⿲ han-571f:3x16-l han-7ca6:8x16 han-961d:4x16-r // ⿲土粦阝
+⿲ han-571f:3x13-l han-7ca6:8x16 han-961d:4x16-r // ⿲土粦阝
 
 ## 32.16
 

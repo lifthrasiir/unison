@@ -126,7 +126,7 @@ glyph han-2989d-(g|j):* = han-2989d.0:*
 glyph han-2989d-t:* = han-2989d.x:*
 
 glyph han-2989e:15x16 15 16 // 𩢞
-⿲ han-99ac:7x16 han-5de5:3x16-l han-5369:5x16 // ⿲馬工卩
+⿲ han-99ac:7x16 han-5de5:3x12-l han-5369:5x16 // ⿲馬工卩
 
 glyph han-298a0:15x16 15 16 // 𩢠
 ⿰ han-53f0:7x16 1 han-99ac:7x16 // ⿰台馬

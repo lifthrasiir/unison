@@ -9,7 +9,7 @@ glyph han-25e27:15x16 15 16 // 𥸧
 // ⿰ han-7c73 han-53c8-($-1) // ⿰米又
 
 glyph han-25e2a:15x16 15 16 // 𥸪
-⿱ han-7c73:15x9 han-4eba:15x7 // ⿱米人
+⿱ han-7c73:13x9 han-4eba:15x7 // ⿱米人
 
 ## 119.3
 
@@ -20,7 +20,7 @@ glyph han-25e2c:15x16 15 16 // 𥸬
 // ⿱ han-7c73 han-5efe // ⿱米廾
 
 glyph han-25e2e:15x16 15 16 // 𥸮
-⿱ han-571f:15x7 han-7c73:15x9 // ⿱土米
+⿱ han-571f:15x7 han-7c73:13x9 // ⿱土米
 glyph han-25e2e.0:* = han-25e2e:*
 
 glyph han-25e2f:15x16 15 16 // 𥸯
@@ -85,7 +85,7 @@ glyph han-25e4b:15x16 15 16 // 𥹋
 ⿰ han-7c73:7x16 1 han-53f0:7x16 // ⿰米台
 
 glyph han-25e4c:15x16 15 16 // 𥹌
-⿱ han-52a0:15x7 han-7c73:15x9 // ⿱加米
+⿱ han-52a0:15x7 han-7c73:13x9 // ⿱加米
 
 // glyph han-25e4d:15x16 15 16 // 𥹍
 // ⿰ han-7c73 han-5b81 // ⿰米宁
@@ -181,16 +181,16 @@ glyph han-25e8a-j:15x16 15 16 // 𥺊
 ⿰ han-7c73:7x16 han-543f:8x16 // ⿰米吿
 
 glyph han-25e8b:15x16 15 16 // 𥺋
-⿳ -7 han-51fa:15x8 han-201a2:15x6 han-7c73:15x9 // ⿳出𠆢米 <- ⿱出⿱𠆢米
+⿳ -7 han-51fa:15x8 han-201a2:15x6 han-7c73:13x9 // ⿳出𠆢米 <- ⿱出⿱𠆢米
 
 glyph han-25e8e:15x16 15 16 // 𥺎
 ⿰ han-7c73:9x16 han-8c9d:6x16 // ⿰米貝
 
 glyph han-25e8f:15x16 15 16 // 𥺏
-⿲ han-7c73:5x16 han-53e3:3x16 han-6b20:7x16 // ⿲米口欠
+⿲ han-7c73:5x16 han-53e3:3x12 han-6b20:7x16 // ⿲米口欠
 
 glyph han-25e90:15x16 15 16 // 𥺐
-⿲ han-7c73:5x16 han-53e3:4x16 han-65a4:6x16 // ⿲米口斤
+⿲ han-7c73:5x16 han-53e3:4x12 han-65a4:6x16 // ⿲米口斤
 
 glyph han-25e93:15x16 15 16 // 𥺓
 ⿰ han-7c73:5x16 han-5442:10x16 // ⿰米呂
@@ -230,6 +230,9 @@ glyph han-25e9d-(g|t):* = han-25e9d.1:*
 
 // glyph han-25ea6:15x16 15 16 // 𥺦
 // ⿰ han-7c73 han-5e97 // ⿰米店
+
+// glyph han-25eab:15x16 15 16 // 𥺫
+// ⿰ han-7c73 han-2093b // ⿰米𠤻
 
 // glyph han-25eac:15x16 15 16 // 𥺬
 // ⿰ han-7c73 han-5b5f // ⿰米孟
@@ -320,7 +323,7 @@ glyph han-25eda:15x16 15 16 // 𥻚
 // ⿰ han-7c73 han-8336 // ⿰米茶
 
 glyph han-25efb:15x16 15 16 // 𥻻
-⿲ -7 han-7c73:5x16 han-7cf9-v:5x16 1 han-5185:11x16 // ⿲米糹内
+⿲ -7 han-7c73:5x16 han-7cf9-v:5x14 1 han-5185:11x16 // ⿲米糹内
 
 ## 119.11
 
@@ -394,7 +397,7 @@ glyph han-25f6c:15x16 15 16 // 𥽬
 ## 119.18
 
 glyph han-25f75:15x16 15 16 // 𥽵
-⿲ -2 han-7c73:5x16 han-7cf9-v:5x16 han-582f:7x16 // ⿲米糹堯
+⿲ -2 han-7c73:5x16 han-7cf9-v:5x14 han-582f:7x16 // ⿲米糹堯
 
 ## 119.19
 

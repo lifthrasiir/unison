@@ -66,7 +66,7 @@ glyph han-2366c:15x16 15 16 // 𣙬
 ⿰ han-6817:9x16 1 han-5de8-v:5x16 // ⿰栗巨
 
 glyph han-2366f:15x16 15 16 // 𣙯
-⿲ han-6728:5x16 han-571f:3x16-l han-96b9:7x16 // ⿲木土隹
+⿲ han-6728:5x16 han-571f:3x13-l han-96b9:7x16 // ⿲木土隹
 
 // glyph han-23673:15x16 15 16 // 𣙳
 // ⿲ han-6728 han-8db3 han-6728 // ⿲木足木
@@ -106,10 +106,10 @@ glyph han-236a6-h:15x16 15 16 // 𣚦 ⿰木强(GT) ⿰木強(H)
 ⿲ han-6728:5x16 han-5f13:5x16 han-27227:5x16 // ⿲木弓𧈧
 
 glyph han-236ab:15x16 15 16 // 𣚫
-⿲ han-6728:5x16 han-6c35:3x16 han-8005-g:7x16 // ⿲木氵者
+⿲ han-6728:5x16 han-6c35:3x12 han-8005-g:7x16 // ⿲木氵者
 
 glyph han-236ac:15x16 15 16 // 𣚬
-⿲ han-6728:5x16 han-7cf9-g:5x16 han-5409:5x16 // ⿲木糹吉
+⿲ han-6728:5x16 han-7cf9-g:5x14 han-5409:5x16 // ⿲木糹吉
 
 // glyph han-236ae:15x16 15 16 // 𣚮
 // ⿱ han-63de han-6728 // ⿱揞木
