@@ -122,3 +122,17 @@ A'. ./d/
 ```
 
 A' is a bit more complicated but perfectly symmetric and has the same nominal and visual width as A.
+
+## Han
+
+Han characters need a separate mention because of its large number and complexity. Many characters (> 90%) can be composed from simpler components, but their size inventory varies and has a significant amount of local shaping rules. The current design tries to account for this observation.
+
+All Han characters are named `han-XXXX` where `XXXX` is 4- or 5-digit hexadecimal Unicode code point. Regional variants are named `han-XXXX-R` where `R` is a region code (see `han.unf` for details) and numbered and named variants are named `han-XXXX.N` where `N` is either a hexadecimal selector number (VS17 = 0, VS18 = 1, ...) or a unique letter out of `xyzw...`. Those characters then have size and directional variants represented with Uniform's own variant label, such as `:15x16` or `:15x16.11x12` or `:9x16-l` and so on. Aliases are prevalent among them, for example regional variants are frequently also numbered.
+
+Unison also tries to faithfully support major regional variants, though some of them might be artificial. For example, there are three possible variants for U+9751 靑 or U+9752 青 combined and their regional forms are fairly consistent. As such, if a certain character containing them is not attested in a particular region (say, Vietnam), it might still be rendered using the most consistent variant (`han-9752.0` in this case).
+
+Uniform's IDC command support is heavily geared towards Han use cases and handles most common composition types. One-dimensional IDC recognizes an "across" and "cross" axis and semi-automatically chooses and locates components provided that their size in the cross axis equals that of the target glyph. Directional hints (e.g. `l` in `:9x16-l`) are also taken into account whenever appropriate. Two-dimensional enclosing IDC verifies the cavity size declared by components (e.g. `11x12` from `:15x16.11x12`) instead of axes. Some IDCs, notably an overlaying one, are not supported and has to be manually drawn.
+
+Han glyphs are always designed to tightly contain grid pixels, so there must not be any margin around them. The single exception is `:15x16` which is a full character (there is a single column of implicit horizontal margin). Uniform provides a declaration of optional preferred margin for components and it should be used instead of manual margin instead. A more precise control is also available in the form of nested splits.
+
+It is expected that a significant portion of Han characters is borderline impossible to represent using a 15x16 grid, in which case per-character scaling might be required. There is not any planned extension to allow fractional sizing yet. The current priority is to complete common characters and "easy" characters with a small number of components first.

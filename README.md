@@ -69,7 +69,7 @@ The major differences (and possible advantages) are as follows:
 
 ## Coverage
 
-As of 2026-09-12:
+As of 2026-09-28:
 
 | Script | Status |
 |--------|--------|
@@ -84,7 +84,7 @@ As of 2026-09-12:
 | Ogham | Complete |
 | Runic | Complete |
 | Kana | Placeholder glyphs only (100%) |
-| Han | Semi-automatically composed (URO 20+%, total 10+%), verification needed |
+| Han | Semi-automatically composed (URO 23%, total 13%), verification in progress |
 | Hangul | Modern complete, archaic 80% |
 | General symbols | ~30% |
 | Mathematical symbols | ~20% |
