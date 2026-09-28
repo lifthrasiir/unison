@@ -1258,6 +1258,13 @@ glyph han-99e7:15x16 15 16 // 駧
 // glyph han-99e9:15x16 15 16 // 駩
 // ⿰ han-99ac han-5168 // ⿰馬全
 
+glyph han-99ea:15x16 15 16 // 駪
+⿰ han-99ac:7x16 1 han-5148:7x16 // ⿰馬先
+glyph han-99ea.0:* = han-99ea:*
+
+glyph han-99eb:15x16 15 16 // 駫
+⿰ han-99ac:7x16 1 han-5149:7x16 // ⿰馬光
+
 glyph han-99ec:15x16 15 16 // 駬
 ⿰ han-99ac:7x16 1 han-8033:7x16 // ⿰馬耳
 

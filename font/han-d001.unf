@@ -412,3 +412,20 @@ glyph han-2b80d:15x16 15 16 // 𫠍
 ⿲ han-9b5a:7x16 han-91d2:5x15-l han-5341:3x16 // ⿲魚釒十
 glyph han-2b80d.0:* = han-2b80d:*
 
+# CJK unified ideographs extension D: 鱼 (195')
+
+## 195'.4
+
+glyph han-2b80f:15x16 15 16 // 𫠏
+⿰ han-9c7c:7x16-l 1 han-6728:7x16 // ⿰鱼木
+
+## 195'.5
+
+glyph han-2b810:15x16 15 16 // 𫠐
+⿰ han-9c7c:7x16-l 1 han-7518:7x16 // ⿰鱼甘
+
+## 195'.11
+
+// glyph han-2b812:15x16 15 16 // 𫠒
+// ⿰ han-9c7c han-7ae0 // ⿰鱼章
+

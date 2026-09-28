@@ -244,6 +244,9 @@ glyph han-2647b-($han-regions):15x16 15 16 // 𦑻
 // glyph han-26486-($han-regions):15x16 15 16 // 𦒆
 // ⿰ han-7fd2-($-1) han-7fbd-($-1) // ⿰習羽
 
+// glyph han-26489-($han-regions):15x16 15 16 // 𦒉
+// ⿰ han-5149 han-7fd2-($-1) // ⿰光習
+
 ## 124.12
 
 // glyph han-2648d-($han-regions):15x16 15 16 // 𦒍
@@ -408,6 +411,9 @@ glyph han-2655d:15x16 15 16 // 𦕝
 
 glyph han-26560:15x16 15 16 // 𦕠
 ⿰ han-8033:6x14-l han-5171:9x16 // ⿰耳共
+
+glyph han-26564:15x16 15 16 // 𦕤
+⿰ han-8033:6x14-l han-5149:9x16 // ⿰耳光
 
 glyph han-26569:15x16 15 16 // 𦕩
 ⿰ han-8033:7x16 1 han-897f:7x16 // ⿰耳西

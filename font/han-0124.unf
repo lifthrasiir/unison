@@ -1703,6 +1703,10 @@ glyph han-80e2:15x16 15 16 // 胢
 // glyph han-80ed:15x16 15 16 // 胭 ⿰月因(GJKPV) ⿰⺼因(HT)
 // ⿰ han-6708 han-56e0 // ⿰月因
 
+glyph han-80f1:15x16 15 16 // 胱
+⿰ han-6708:5x14-l 1 han-5149:9x16 // ⿰月光
+glyph han-80f1.0:* = han-80f1:*
+
 glyph han-80f3:15x16 15 16 // 胳
 ⿰ han-6708:7x16 1 han-5404:7x16 // ⿰月各
 glyph han-80f3.0:* = han-80f3:*

@@ -365,6 +365,10 @@ glyph han-86a8.0:* = han-86a8:*
 // glyph han-86a9:15x16 15 16 // 蚩 ⿱㞢虫(GHP) ⿳䶹一虫(TJKV)
 // ⿳ han-4db9 han-4e00 han-866b // ⿳䶹一虫
 
+glyph han-86aa:15x16 15 16 // 蚪
+⿰ han-866b:5x16 1 han-6597:9x16 // ⿰虫斗
+glyph han-86aa.0:* = han-86aa:*
+
 ## 142.5
 
 glyph han-86ab:15x16 15 16 // 蚫
@@ -711,6 +715,9 @@ glyph han-8748:15x16 15 16 // 蝈
 ⿰ han-866b:5x16 1 han-56fd:9x16 // ⿰虫国
 
 ## 142.9
+
+// glyph han-874c:15x16 15 16 // 蝌
+// ⿰ han-866b han-79d1 // ⿰虫科
 
 glyph han-874e:15x16 15 16 // 蝎
 ⿰ han-866b:5x16 1 han-66f7:9x16 // ⿰虫曷
@@ -1093,6 +1100,12 @@ glyph han-885b:15x16 15 16 // 衛
 
 glyph han-885d:15x16 15 16 // 衝
 ⿲ han-5f73:3x16 han-91cd:9x16 han-4e8d:3x16 // ⿲彳重亍
+
+## 144.10
+
+glyph han-8861:15x16 15 16 // 衡
+⿲ han-5f73:3x16 han-29d4b:7x16 han-4e8d:5x16 // ⿲彳𩵋亍
+glyph han-8861.0:* = han-8861:*
 
 # CJK unified ideographs: 衣 (145)
 

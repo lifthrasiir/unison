@@ -216,6 +216,9 @@ glyph han-296c7-($han-regions):15x16 15 16 // 𩛇
 // glyph han-296d0:15x16 15 16 // 𩛐
 // ⿰ han-98e0 han-21c31 // ⿰飠𡰱
 
+glyph han-296d4:15x16 15 16 // 𩛔
+⿰ han-98e0-g:7x16 1 han-5148:7x16 // ⿰飠先
+
 // glyph han-296d5-($han-regions):15x16 15 16 // 𩛕
 // ⿰ han-7f36 han-98df-($-1) // ⿰缶食
 
@@ -308,6 +311,9 @@ glyph han-29724:15x16 15 16 // 𩜤
 // ⿱ han-6ce2 han-98df-($-1) // ⿱波食
 
 ## 184.9
+
+// glyph han-2972d-($han-regions):15x16 15 16 // 𩜭
+// ⿰ han-98e0-($-1) han-79d1 // ⿰飠科
 
 // glyph han-29735:15x16 15 16 // 𩜵 ⿰飠耑(GTP) ⿰𩙿耑(K)
 // ⿰ han-98e0 han-8011 // ⿰飠耑
@@ -435,6 +441,9 @@ glyph han-29801:15x16 15 16 // 𩠁
 
 // glyph han-29804:15x16 15 16 // 𩠄
 // ⿰ han-9963 han-6765 // ⿰饣来
+
+// glyph han-29805-($han-regions):15x16 15 16 // 𩠅
+// ⿰ han-9963 han-8fbe-($-1) // ⿰饣达
 
 ## 184'.9
 

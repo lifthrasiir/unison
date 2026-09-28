@@ -261,6 +261,9 @@ glyph han-320f6:15x16 15 16 // 𲃶
 glyph han-320f7:15x16 15 16 // 𲃷
 ⿲ -1 han-27fb7:5x16 han-6708:5x16 1 han-65e6:5x16 // ⿲𧾷月旦
 
+// glyph han-320f9:15x16 15 16 // 𲃹
+// ⿰ han-27fb7 han-6d17 // ⿰𧾷洗
+
 ## 157.10
 
 // glyph han-320fb:15x16 15 16 // 𲃻
@@ -722,6 +725,9 @@ glyph han-32228:15x16 15 16 // 𲈨
 // glyph han-32239:15x16 15 16 // 𲈹
 // ⿵ han-95e8 han-897f // ⿵门西
 
+// glyph han-3223a:15x16 15 16 // 𲈺
+// ⿵ han-95e8 han-5149 // ⿵门光
+
 ## 169'.7
 
 // glyph han-3223f:15x16 15 16 // 𲈿
@@ -1060,6 +1066,45 @@ glyph han-32316:15x16 15 16 // 𲌖
 
 glyph han-3233a:15x16 15 16 // 𲌺
 ⿲ -2 han-9b5a:7x16 han-5973:5x16 han-53e4:5x16 // ⿲魚女古
+
+# CJK unified ideographs extension H: 鱼 (195')
+
+## 195'.3
+
+glyph han-32348:15x16 15 16 // 𲍈
+⿰ han-9c7c:7x16-l 1 han-4ea1-g:7x16 // ⿰鱼亡
+
+## 195'.4
+
+// glyph han-32349:15x16 15 16 // 𲍉
+// ⿱ han-5143 han-9c7c // ⿱元鱼
+
+// glyph han-3234a:15x16 15 16 // 𲍊
+// ⿰ han-9c7c han-725b // ⿰鱼牛
+
+// glyph han-3234b:15x16 15 16 // 𲍋
+// ⿰ han-9c7c han-516d // ⿰鱼六
+
+## 195'.5
+
+glyph han-3234c:15x16 15 16 // 𲍌
+⿰ han-9c7c:7x16-l 1 han-53e4:7x16 // ⿰鱼古
+
+## 195'.6
+
+glyph han-3234e:15x16 15 16 // 𲍎
+⿰ han-9c7c:7x16-l 1 han-5171:7x16 // ⿰鱼共
+
+glyph han-3234f:15x16 15 16 // 𲍏
+⿰ han-9c7c:7x16-l 1 han-5148:7x16 // ⿰鱼先
+
+glyph han-32350:15x16 15 16 // 𲍐
+⿰ han-9c7c:7x16-l 1 han-7c73:7x16 // ⿰鱼米
+
+## 195'.8
+
+// glyph han-32355-($han-regions):15x16 15 16 // 𲍕
+// ⿰ han-9c7c han-5351-($-1) // ⿰鱼卑
 
 # CJK unified ideographs extension H: 鳥 (196)
 

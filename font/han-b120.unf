@@ -207,6 +207,9 @@ glyph han-25ff6:15x16 15 16 // 𥿶
 // glyph han-26005:15x16 15 16 // 𦀅
 // ⿰ han-7cf9 han-5e74 // ⿰糹年
 
+// glyph han-26008-($han-regions):15x16 15 16 // 𦀈
+// ⿰ han-7cf9-($-1) han-5148 // ⿰糹先
+
 // glyph han-26009:15x16 15 16 // 𦀉
 // ⿰ han-7cf9 han-6735 // ⿰糹朵
 
@@ -532,6 +535,11 @@ glyph han-2619d-($han-regions):15x16 15 16 // 𦆝 ⿰糹𡬽(GT) ⿰縹寸(X)
 
 glyph han-261ba:15x16 15 16 // 𦆺
 ⿲ -2 han-7cf9-v:5x14 han-4ee4.2:7x16 han-9801:5x16 // ⿲糹令頁
+
+## 120.15
+
+// glyph han-261ca-($han-regions):15x16 15 16 // 𦇊
+// ⿰ han-7cf9-($-1) han-8f1d // ⿰糹輝
 
 ## 120.17
 

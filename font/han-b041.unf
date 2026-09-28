@@ -428,6 +428,9 @@ glyph han-21c31:15x16 15 16 // 𡰱
 glyph han-21c36:15x16 15 16 // 𡰶
 ⿸ han-5c38:15x16.11x12 han-65e5:7x10 7 6 // ⿸尸日
 
+// glyph han-21c37:15x16 15 16 // 𡰷
+// ⿸ han-5c38 han-6597 // ⿸尸斗
+
 // glyph han-21c3c:15x16 15 16 // 𡰼
 // ⿸ han-5c38 han-5b54 // ⿸尸孔
 
@@ -464,6 +467,9 @@ glyph han-21c48:15x16 15 16 // 𡱈
 
 // glyph han-21c52:15x16 15 16 // 𡱒
 // ⿸ han-5c38 han-5171 // ⿸尸共
+
+// glyph han-21c58:15x16 15 16 // 𡱘
+// ⿸ han-5c38 han-5149 // ⿸尸光
 
 // glyph han-21c5c:15x16 15 16 // 𡱜
 // ⿸ han-5c38 han-5146 // ⿸尸兆

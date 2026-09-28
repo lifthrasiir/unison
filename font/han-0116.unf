@@ -196,6 +196,9 @@ glyph han-7a91:15x16 15 16 // 窑 ⿱穴缶(G) ⿱⿱宀儿缶(HTJKP)
 // glyph han-7aae-($han-regions):15x16 15 16 // 窮 ⿱穴躬(G) ⿱⿱宀儿躬(HTJKPV)
 // ⿱ han-7a74-($-1) han-8eac // ⿱穴躬
 
+// glyph han-7ab2-($han-regions):15x16 15 16 // 窲 ⿱穴料(G) ⿱⿱宀儿料(HTKP)
+// ⿱ han-7a74-($-1) han-6599 // ⿱穴料
+
 ## 116.11
 
 // glyph han-7ab5:15x16 15 16 // 窵 ⿱穴鳥(G) ⿱⿱宀儿鳥(HTJKP)
@@ -884,6 +887,9 @@ glyph han-7b40:15x16 15 16 // 筀
 // glyph han-7b44:15x16 15 16 // 筄
 // ⿱ han-25ad7 han-5146 // ⿱𥫗兆
 
+// glyph han-7b45:15x16 15 16 // 筅
+// ⿱ han-25ad7 han-5148 // ⿱𥫗先
+
 // glyph han-7b46:15x16 15 16 // 筆
 // ⿱ han-25ad7 han-807f // ⿱𥫗聿
 
@@ -1079,6 +1085,9 @@ glyph han-7b9f-($han-regions):15x16 15 16 // 箟
 
 glyph han-7bb1:15x16 15 16 // 箱
 ⿱ han-25ad7:13x5 han-76f8:15x11 // ⿱𥫗相
+
+// glyph han-7bb2:15x16 15 16 // 箲
+// ⿱ han-25ad7 han-6d17 // ⿱𥫗洗
 
 glyph han-7bb6:15x16 15 16 // 箶
 ⿱ han-25ad7:13x5 han-80e1:15x11 // ⿱𥫗胡

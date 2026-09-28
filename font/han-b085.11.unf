@@ -191,6 +191,9 @@ glyph han-23fd8:15x16 15 16 // 𣿘
 glyph han-24014:15x16 15 16 // 𤀔
 ⿲ han-6c35:3x12 han-98e0-v:7x16 han-6b20:5x16 // ⿲氵飠欠
 
+// glyph han-24017:15x16 15 16 // 𤀗 ⿰洗呂(V) ⿰洗吕(Z)
+// ⿰ han-6d17 han-5442 // ⿰洗呂
+
 // glyph han-2401b:15x16 15 16 // 𤀛
 // ⿰ han-6ce5 han-4f86 // ⿰泥來
 
@@ -254,6 +257,9 @@ glyph han-2408c:15x16 15 16 // 𤂌
 // glyph han-240a8:15x16 15 16 // 𤂨
 // ⿲ han-6c35 han-6728 han-83ab // ⿲氵木莫 <- ⿰氵模
 
+// glyph han-240a9-($han-regions):15x16 15 16 // 𤂩
+// ⿲ han-6c35 han-5148 han-8005-($-1) // ⿲氵先者
+
 glyph han-240ad:15x16 15 16 // 𤂭
 ⿲ -2 han-6c35:3x12 han-9149:7x16 han-5352:7x16 // ⿲氵酉卒
 
@@ -283,6 +289,9 @@ glyph han-2411c:15x16 15 16 // 𤄜
 
 // glyph han-24124:15x16 15 16 // 𤄤
 // ⿱ han-6f58 han-5171 // ⿱潘共
+
+// glyph han-24133:15x16 15 16 // 𤄳
+// ⿳ han-5148 han-515f han-6c34 // ⿳先兟水
 
 ## 85.19
 

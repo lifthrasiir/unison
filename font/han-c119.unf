@@ -131,6 +131,11 @@ glyph han-2b0f3:15x16 15 16 // 𫃳
 glyph han-2b0f6:15x16 15 16 // 𫃶
 ⿲ han-7cf9-v:5x14 han-6c35:3x12 han-5404:7x16 // ⿲糹氵各
 
+## 120.10
+
+// glyph han-2b0fc-($han-regions):15x16 15 16 // 𫃼
+// ⿰ han-7cf9-($-1) han-6599 // ⿰糹料
+
 ## 120.12
 
 // glyph han-2b101:15x16 15 16 // 𫄁
@@ -182,6 +187,11 @@ glyph han-2b11d:15x16 15 16 // 𫄝
 
 glyph han-2b121:15x16 15 16 // 𫄡
 ⿰ han-7e9f:5x14 han-540c:10x16 // ⿰纟同
+
+## 120'.7
+
+// glyph han-2b124-($han-regions):15x16 15 16 // 𫄤
+// ⿰ han-7e9f han-8fbe-($-1) // ⿰纟达
 
 ## 120'.9
 
@@ -732,6 +742,9 @@ glyph han-2b2aa:15x16 15 16 // 𫊪
 // glyph han-2b2b5:15x16 15 16 // 𫊵
 // ⿰ han-866b han-5bfa // ⿰虫寺
 
+glyph han-2b2b6:15x16 15 16 // 𫊶
+⿰ han-866b:5x16 1 han-5149:9x16 // ⿰虫光
+
 // glyph han-2b2b9:15x16 15 16 // 𫊹
 // ⿰ han-866b han-4f1a // ⿰虫会
 
@@ -899,6 +912,11 @@ glyph han-2b320:15x16 15 16 // 𫌠
 
 // glyph han-2b325:15x16 15 16 // 𫌥
 // ⿱ han-597b han-899e // ⿱奻覞
+
+## 147.18
+
+// glyph han-2b326:15x16 15 16 // 𫌦
+// ⿳ han-5148 han-515f han-898b // ⿳先兟見
 
 # CJK unified ideographs extension C: 角 (148)
 
@@ -1173,6 +1191,9 @@ glyph han-2b3c4:15x16 15 16 // 𫏄
 glyph han-2b3c7:15x16 15 16 // 𫏇
 ⿰ han-27fb7:5x16 1 han-5171:9x16 // ⿰𧾷共
 
+glyph han-2b3c8:15x16 15 16 // 𫏈
+⿰ han-27fb7:5x16 1 han-5149:9x16 // ⿰𧾷光
+
 glyph han-2b3c9:15x16 15 16 // 𫏉
 ⿰ han-27fb7:5x16 1 han-540d:9x16 // ⿰𧾷名
 
@@ -1216,6 +1237,9 @@ glyph han-2b3dd:15x16 15 16 // 𫏝
 
 glyph han-2b3e7:15x16 15 16 // 𫏧
 ⿰ han-27fb7:5x16 1 han-9700:9x16 // ⿰𧾷需
+
+// glyph han-2b3e8:15x16 15 16 // 𫏨
+// ⿰ han-27fb7 han-9c9c // ⿰𧾷鲜
 
 # CJK unified ideographs extension C: 身 (158)
 

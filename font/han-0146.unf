@@ -664,6 +664,9 @@ glyph han-89d2-(h|t|j|k|p|v):* = han-89d2.1:*
 // glyph han-89e2-($han-regions):15x16 15 16 // 觢 ⿱㓞角(GKP) ⿱⿰⿻三丨刀角(HT)
 // ⿱ han-34de-($-1) han-89d2-($-1) // ⿱㓞角
 
+// glyph han-89e5-($han-regions):15x16 15 16 // 觥
+// ⿰ han-89d2-($-1) han-5149 // ⿰角光
+
 // glyph han-89e6-($han-regions):15x16 15 16 // 触
 // ⿰ han-89d2-($-1) han-866b // ⿰角虫
 
@@ -1347,6 +1350,10 @@ glyph han-8a73.0:* = han-8a73-j:*
 // glyph han-8a74-($han-regions):15x16 15 16 // 詴
 // ⿰ han-8a01-($-1) han-6709 // ⿰訁有
 
+glyph han-8a75-($han-regions):15x16 15 16 // 詵
+⿰ han-8a01-($-1):5x16 1 han-5148:9x16 // ⿰訁先
+glyph han-8a75.0:* = han-8a75-j:*
+
 // glyph han-8a76:15x16 15 16 // 詶
 // ⿰ han-8a01 han-5dde // ⿰訁州
 
@@ -1953,6 +1960,9 @@ glyph han-8bd8:15x16 15 16 // 诘
 
 // glyph han-8bd9:15x16 15 16 // 诙
 // ⿰ han-8ba0 han-7070 // ⿰讠灰
+
+// glyph han-8bdc:15x16 15 16 // 诜
+// ⿰ han-8ba0 han-5148 // ⿰讠先
 
 // glyph han-8bdd:15x16 15 16 // 话
 // ⿰ han-8ba0 han-820c // ⿰讠舌

@@ -145,6 +145,9 @@ glyph han-42fa-($han-regions):15x16 15 16 // 䋺 ⿰糹秋(GT) ⿰糸秋(P)
 glyph han-42fd-($han-regions):15x16 15 16 // 䋽 ⿰糹封(GT) ⿰糸封(P)
 ⿲ -1 han-7cf9-($-1):5x14 han-572d:5x16 han-5bf8:6x16 // ⿲糹圭寸
 
+// glyph han-4300-($han-regions):15x16 15 16 // 䌀 ⿰糹科(GT) ⿰糸科(KP)
+// ⿰ han-7cf9-($-1) han-79d1 // ⿰糹科
+
 // glyph han-4301:15x16 15 16 // 䌁 ⿰糹要(GT) ⿰糸要(KP)
 // ⿰ han-7cf9 han-8981 // ⿰糹要
 

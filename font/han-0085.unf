@@ -855,6 +855,10 @@ glyph han-6d13.0:* = han-6d13:*
 // glyph han-6d14:15x16 15 16 // 洔
 // ⿰ han-6c35 han-5bfa // ⿰氵寺
 
+glyph han-6d17:15x16 15 16 // 洗
+⿰ han-6c35:5x16 1 han-5148:9x16 // ⿰氵先
+glyph han-6d17.0:* = han-6d17:*
+
 glyph han-6d1b:15x16 15 16 // 洛
 ⿰ han-6c35:5x16 3 han-5404:7x16 // ⿰氵各
 
@@ -935,6 +939,10 @@ glyph han-6d34-(g|h|t|p):* = han-6d34.2:*
 
 glyph han-6d37:15x16 15 16 // 洷
 ⿰ han-6c35:5x16 1 han-81f3:9x16 // ⿰氵至
+
+glyph han-6d38:15x16 15 16 // 洸
+⿰ han-6c35:5x16 1 han-5149:9x16 // ⿰氵光
+glyph han-6d38.0:* = han-6d38:*
 
 // glyph han-6d39:15x16 15 16 // 洹
 // ⿰ han-6c35 han-4e98 // ⿰氵亘
@@ -1286,6 +1294,9 @@ glyph han-6e10:15x16 15 16 // 渐
 
 glyph han-6e12:15x16 15 16 // 渒
 ⿰ han-6c35:5x16 han-5351.0:10x16 // ⿰氵卑
+
+glyph han-6e14:15x16 15 16 // 渔
+⿰ han-6c35:5x16 1 han-9c7c:9x16 // ⿰氵鱼
 
 glyph han-6e1a.0:15x16 15 16 // 渚
 ⿰ han-6c35:5x16 1 han-8005.1:9x16 // ⿰氵者

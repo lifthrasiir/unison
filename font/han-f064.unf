@@ -148,6 +148,9 @@ glyph han-2d86b:15x16 15 16 // 𭡫
 // glyph han-2d86d:15x16 15 16 // 𭡭
 // ⿲ han-624c han-6c35 han-820c // ⿲扌氵舌 <- ⿰扌活
 
+// glyph han-2d86e:15x16 15 16 // 𭡮
+// ⿰ han-6296 han-7533 // ⿰抖申
+
 // glyph han-2d86f-($han-regions):15x16 15 16 // 𭡯
 // ⿰ han-22aab han-51ac-($-1) // ⿰𢪫冬
 
@@ -231,6 +234,13 @@ glyph han-2d917:15x16 15 16 // 𭤗
 
 // glyph han-2d918:15x16 15 16 // 𭤘
 // ⿱ han-6587 han-65e6 // ⿱文旦
+
+# CJK unified ideographs extension F: 斗 (68)
+
+## 68.12
+
+// glyph han-2d91d:15x16 15 16 // 𭤝
+// ⿳ han-5405 han-6597 han-5405 // ⿳吅斗吅
 
 # CJK unified ideographs extension F: 斤 (69)
 
@@ -441,6 +451,9 @@ glyph han-2d998:15x16 15 16 // 𭦘
 
 // glyph han-2d99d-($han-regions):15x16 15 16 // 𭦝
 // ⿰ han-65f1 han-4ee4-($-1) // ⿰旱令
+
+// glyph han-2d99e:15x16 15 16 // 𭦞
+// ⿰ han-65e9 han-5148 // ⿰早先
 
 // glyph han-2d99f:15x16 15 16 // 𭦟
 // ⿳ han-65e5 han-7f52 han-4e07 // ⿳日罒万

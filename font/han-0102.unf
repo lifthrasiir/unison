@@ -1546,6 +1546,11 @@ glyph han-764c.0:* = han-764c:*
 // glyph han-7657:15x16 15 16 // 癗
 // ⿸ han-7592 han-96f7 // ⿸疒雷
 
+## 104.14
+
+// glyph han-7663:15x16 15 16 // 癣
+// ⿸ han-7592 han-9c9c // ⿸疒鲜
+
 ## 104.17
 
 // glyph han-766c:15x16 15 16 // 癬
@@ -2152,6 +2157,10 @@ glyph han-769c.0:* = han-769c:*
 glyph han-769c.1:* = han-769c:*
 glyph han-769c.2:15x16 15 16 // 皜
 ⿰ han-767d:5x16 1 han-9ad9:9x16 // ⿰白髙
+
+glyph han-769d:15x16 15 16 // 皝
+⿰ han-7687:7x16 1 han-5149:7x16 // ⿰皇光
+glyph han-769d.0:* = han-769d:*
 
 // glyph han-769e:15x16 15 16 // 皞
 // ⿰ han-767d han-768b // ⿰白皋

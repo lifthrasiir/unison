@@ -429,6 +429,11 @@ glyph han-2cbd1:15x16 15 16 // 𬯑
 // glyph han-2cbeb:15x16 15 16 // 𬯫
 // ⿳ han-96b9 han-5196 han-571f // ⿳隹冖土
 
+## 172.6
+
+glyph han-2cbec:15x16 15 16 // 𬯬
+⿰ han-5149:7x16 1 han-96b9:7x16 // ⿰光隹
+
 ## 172.8
 
 glyph han-2cbef:15x16 15 16 // 𬯯
@@ -944,6 +949,83 @@ glyph han-2cd69:15x16 15 16 // 𬵩
 glyph han-2cd70:15x16 15 16 // 𬵰
 ⿲ -5 han-9b5a:7x16 1 han-27fb7:5x16 han-5146:7x16 // ⿲魚𧾷兆
 
+# CJK unified ideographs extension E: 鱼 (195')
+
+## 195'.2
+
+glyph han-2cd80:15x16 15 16 // 𬶀
+⿰ han-9c7c:9x16-l 1 han-5202:5x16 // ⿰鱼刂
+
+glyph han-2cd81:15x16 15 16 // 𬶁
+⿰ han-9c7c:7x16-l 1 han-4eba:7x16 // ⿰鱼人
+
+## 195'.3
+
+glyph han-2cd82:15x16 15 16 // 𬶂
+⿰ han-9c7c:7x16-l 1 han-571f:7x16 // ⿰鱼土
+
+// glyph han-2cd83:15x16 15 16 // 𬶃
+// ⿰ han-9c7c han-5927 // ⿰鱼大
+
+glyph han-2cd84:15x16 15 16 // 𬶄
+⿰ han-9c7c:7x16-l 1 han-52fa-g:7x16 // ⿰鱼勺
+
+## 195'.4
+
+glyph han-2cd86:15x16 15 16 // 𬶆
+⿰ han-9c7c:7x16-l 1 han-4e30-g:7x16 // ⿰鱼丰
+
+glyph han-2cd88:15x16 15 16 // 𬶈
+⿰ han-9c7c:7x16-l han-6708:8x16 // ⿰鱼月
+
+glyph han-2cd89:15x16 15 16 // 𬶉
+⿰ han-9c7c:7x16-l 1 han-5348:7x16 // ⿰鱼午
+
+## 195'.5
+
+glyph han-2cd8b:15x16 15 16 // 𬶋
+⿰ han-9c7c:7x16-l han-53e5:8x16 // ⿰鱼句
+
+## 195'.6
+
+glyph han-2cd90:15x16 15 16 // 𬶐
+⿰ han-9c7c:7x16-l 1 han-5146:7x16 // ⿰鱼兆
+
+## 195'.7
+
+// glyph han-2cd91-($han-regions):15x16 15 16 // 𬶑
+// ⿰ han-9c7c han-8fbe-($-1) // ⿰鱼达
+
+glyph han-2cd94:15x16 15 16 // 𬶔
+⿰ han-9c7c:7x16-l han-544a:8x16 // ⿰鱼告
+
+## 195'.8
+
+// glyph han-2cd96:15x16 15 16 // 𬶖
+// ⿰ han-9c7c han-5944 // ⿰鱼奄
+
+// glyph han-2cd9c:15x16 15 16 // 𬶜
+// ⿰ han-9c7c han-5485 // ⿰鱼咅
+
+## 195'.9
+
+// glyph han-2cd9e:15x16 15 16 // 𬶞
+// ⿰ han-9c7c han-80e1 // ⿰鱼胡
+
+// glyph han-2cd9f:15x16 15 16 // 𬶟
+// ⿰ han-9c7c han-524c // ⿰鱼剌
+
+// glyph han-2cda0:15x16 15 16 // 𬶠
+// ⿰ han-9c7c han-67ec // ⿰鱼柬
+
+// glyph han-2cda2:15x16 15 16 // 𬶢
+// ⿰ han-9c7c han-661f // ⿰鱼星
+
+## 195'.18
+
+glyph han-2cdba:15x16 15 16 // 𬶺
+⿰ han-9c7c:7x16-l han-96da:8x16 // ⿰鱼雚
+
 # CJK unified ideographs extension E: 鳥 (196)
 
 ## 196.2
@@ -966,6 +1048,9 @@ glyph han-2cdbf:15x16 15 16 // 𬶿
 
 glyph han-2cdc3:15x16 15 16 // 𬷃
 ⿰ han-7247.x:6x16 2 han-9ce5:7x16 // ⿰片鳥
+
+glyph han-2cdc4:15x16 15 16 // 𬷄
+⿰ han-6597:7x16 1 han-9ce5:7x16 // ⿰斗鳥
 
 ## 196.5
 

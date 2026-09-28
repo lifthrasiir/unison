@@ -89,6 +89,9 @@ glyph han-2e8ba:15x16 15 16 // 𮢺
 
 ## 167.12
 
+// glyph han-2e8c4:15x16 15 16 // 𮣄
+// ⿱ han-515f han-91d1 // ⿱兟金
+
 glyph han-2e8c7:15x16 15 16 // 𮣇
 ⿲ -3 han-91d2:5x15-l han-624c:3x16 han-54a0:10x16 // ⿲釒扌咠
 
@@ -177,6 +180,9 @@ glyph han-2e907:15x16 15 16 // 𮤇
 // ⿵ han-9580 han-53f0 // ⿵門台
 
 ## 169.6
+
+// glyph han-2e90e:15x16 15 16 // 𮤎
+// ⿵ han-9580 han-5149 // ⿵門光
 
 // glyph han-2e90f:15x16 15 16 // 𮤏
 // ⿵ han-9580 han-6c5f // ⿵門江
@@ -993,6 +999,23 @@ glyph han-2eb04:15x16 15 16 // 𮬄
 
 // glyph han-2eb15:15x16 15 16 // 𮬕
 // ⿳ han-8279 han-9ad8 han-9b5a // ⿳艹高魚 <- ⿱蒿魚
+
+# CJK unified ideographs extension F: 鱼 (195')
+
+## 195'.6
+
+// glyph han-2eb1d:15x16 15 16 // 𮬝
+// ⿰ han-9c7c han-5c81 // ⿰鱼岁
+
+## 195'.10
+
+glyph han-2eb21:15x16 15 16 // 𮬡
+⿰ han-9c7c:7x16-l 1 han-9aa8-g:7x16 // ⿰鱼骨
+
+## 195'.11
+
+// glyph han-2eb23:15x16 15 16 // 𮬣
+// ⿰ han-9c7c han-8854 // ⿰鱼衔
 
 # CJK unified ideographs extension F: 鳥 (196)
 

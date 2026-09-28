@@ -99,6 +99,12 @@ glyph han-20e11:15x16 15 16 // 𠸑
 // glyph han-20e19:15x16 15 16 // 𠸙
 // ⿰ han-53e4 han-5f04 // ⿰古弄
 
+// glyph han-20e1b:15x16 15 16 // 𠸛
+// ⿰ han-540d han-5148 // ⿰名先
+
+// glyph han-20e1c:15x16 15 16 // 𠸜
+// ⿺ han-5148 han-540d // ⿺先名
+
 glyph han-20e1e:15x16 15 16 // 𠸞
 ⿲ han-53e3:4x12 1 han-706b:5x16 han-5360:5x16 // ⿲口火占
 
@@ -223,6 +229,9 @@ glyph han-20e9d:15x16 15 16 // 𠺝
 
 glyph han-20ea8:15x16 15 16 // 𠺨
 ⿲ -5 han-53e3:3x12 han-8033:6x16 han-5fc3:11x16 // ⿲口耳心
+
+// glyph han-20eab:15x16 15 16 // 𠺫
+// ⿰ han-53e3 han-6599 // ⿰口料
 
 // glyph han-20eae:15x16 15 16 // 𠺮
 // ⿲ han-53e3 han-65e5 han-5bfa // ⿲口日寺

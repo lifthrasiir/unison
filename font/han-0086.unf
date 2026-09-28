@@ -426,6 +426,9 @@ glyph han-7091:15x16 15 16 // 炑
 // glyph han-7092:15x16 15 16 // 炒
 // ⿰ han-706b han-5c11 // ⿰火少
 
+glyph han-7093:15x16 15 16 // 炓
+⿰ han-706b:5x14-l 1 han-6597:9x16 // ⿰火斗
+
 // glyph han-7094:15x16 15 16 // 炔
 // ⿰ han-706b han-592c // ⿰火夬
 
@@ -559,6 +562,9 @@ glyph han-70cb:15x16 15 16 // 烋
 
 glyph han-70cc:15x16 15 16 // 烌
 ⿲ han-706b:5x16 han-4ebb:3x16 han-6728:7x16 // ⿲火亻木
+
+glyph han-70cd:15x16 15 16 // 烍
+⿰ han-706b:5x14-l 1 han-5148:9x16 // ⿰火先
 
 // glyph han-70ce:15x16 15 16 // 烎
 // ⿳ han-4e00 han-5efe han-706b // ⿳一廾火
@@ -886,7 +892,7 @@ glyph han-9fbd:15x16 15 16 // 龽
 glyph han-9fbd.0:* = han-9fbd:*
 glyph han-9fbd.1:* = han-9fbd:*
 glyph han-9fbd.2:15x16 15 16 // 龽
-⿰ han-706b:7x16 1 han-9b5a.x:7x16 // ⿰火魚
+⿰ han-706b:7x16 1 han-29d4b:7x16 // ⿰火𩵋
 
 ## 86.12
 
@@ -1760,6 +1766,9 @@ glyph han-7283:15x16 15 16 // 犃
 
 // glyph han-728e:15x16 15 16 // 犎
 // ⿱ han-5c01 han-725b // ⿱封牛
+
+// glyph han-7290:15x16 15 16 // 犐
+// ⿰ han-725c han-79d1 // ⿰牜科
 
 // glyph han-7291:15x16 15 16 // 犑
 // ⿰ han-725c han-72ca // ⿰牜狊

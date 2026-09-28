@@ -277,6 +277,9 @@ glyph han-2599d:15x16 15 16 // 𥦝 ⿱穴林(G) ⿱⿱宀儿林(TV)
 // glyph han-259a4:15x16 15 16 // 𥦤 ⿱穴抺(G) ⿱⿱宀儿抺(T)
 // ⿳ han-5b80 han-516b han-62ba // ⿳宀八抺
 
+// glyph han-259a5-($han-regions):15x16 15 16 // 𥦥 ⿱穴𠈣(G) ⿱⿱宀儿𠈣(T)
+// ⿱ han-7a74-($-1) han-20223 // ⿱穴𠈣
+
 // glyph han-259a7:15x16 15 16 // 𥦧 ⿱穴𦨉(G) ⿱⿱宀儿𦨉(T)
 // ⿳ han-5b80 han-516b han-26a09 // ⿳宀八𦨉 <- ⿱穴𦨉
 
@@ -308,6 +311,9 @@ glyph han-2599d:15x16 15 16 // 𥦝 ⿱穴林(G) ⿱⿱宀儿林(TV)
 
 // glyph han-259bd:15x16 15 16 // 𥦽 ⿱穴是(G) ⿱⿱宀儿是(T)
 // ⿳ han-5b80 han-516b han-662f // ⿳宀八是 <- ⿱穴是
+
+// glyph han-259c7-($han-regions):15x16 15 16 // 𥧇 ⿱穴科(G) ⿱⿱宀儿科(T)
+// ⿱ han-7a74-($-1) han-79d1 // ⿱穴科
 
 // glyph han-259cc:15x16 15 16 // 𥧌 ⿱穴𱭏(G) ⿱⿱宀儿𱭏(H)
 // ⿳ han-5b80 han-516b han-31b4f // ⿳宀八𱭏

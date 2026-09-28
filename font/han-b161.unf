@@ -35,19 +35,12 @@ glyph han-28452-($han-regions):15x16 15 16 // 𨑒
 glyph han-28452.0:* = han-28452-j:*
 glyph han-28452.1:* = han-28452-g:*
 
+glyph han-28453-($han-regions):15x16 15 16 // 𨑓
+⿺ han-8fb6-($-1):15x16.11x14 han-5df2:10x13 5 0 // ⿺辶已
 glyph han-28453.0:15x16 15 16 // 𨑓
 ⿺ han-8fb6.0:15x16.11x14 han-5df3:10x13 5 0 // ⿺辶巳
 glyph han-28453.1:15x16 15 16 // 𨑓
 ⿺ han-8fb6.1:15x16.11x14 han-5df3:10x13 5 0 // ⿺辶巳
-glyph han-28453.x:15x16 15 16 // 𨑓
-⿺ han-8fb6.1:15x16.11x14 han-5df2:10x13 5 0 // ⿺辶已
-glyph han-28453.y:15x16 15 16 // 𨑓
-⿺ han-8fb6.4:15x16.11x14 han-5df2:10x13 5 0 // ⿺辶已
-glyph han-28453.z:15x16 15 16 // 𨑓
-⿺ han-8fb6.0:15x16.11x14 han-5df2:10x13 5 0 // ⿺辶已
-glyph han-28453-g:* = han-28453.x:*
-glyph han-28453-t:* = han-28453.y:*
-glyph han-28453-p:* = han-28453.z:*
 
 glyph han-28455:15x16 15 16 // 𨑕
 ⿺ han-8fb6.1:15x16.11x14 han-53e3:9x12 5 1 // ⿺辶口
@@ -236,6 +229,9 @@ glyph han-284b7:15x16 15 16 // 𨒷
 
 glyph han-284b9:15x16 15 16 // 𨒹
 ⿺ han-8fb6-k:15x16.11x14 han-767e:10x13 5 0 // ⿺辶百
+
+// glyph han-284ba-($han-regions):15x16 15 16 // 𨒺
+// ⿺ han-8fb6-($-1) han-5149 // ⿺辶光
 
 // glyph han-284bb-($han-regions):15x16 15 16 // 𨒻
 // ⿺ han-8fb6-($-1) han-5bfe // ⿺辶対

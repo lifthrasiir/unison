@@ -176,6 +176,9 @@ glyph han-30a21:15x16 15 16 // 𰨡
 
 ## 115.6
 
+glyph han-30a25:15x16 15 16 // 𰨥
+⿰ han-79be:5x16 1 han-5148:9x16 // ⿰禾先
+
 // glyph han-30a28:15x16 15 16 // 𰨨
 // ⿰ han-79be han-22451 // ⿰禾𢑑
 
@@ -1025,6 +1028,9 @@ glyph han-30c1c:15x16 15 16 // 𰰜
 
 // glyph han-30c28:15x16 15 16 // 𰰨
 // ⿱ han-8279 han-4ed1 // ⿱艹仑
+
+// glyph han-30c29:15x16 15 16 // 𰰩
+// ⿱ han-8279 han-6597 // ⿱艹斗
 
 // glyph han-30c2a-($han-regions):15x16 15 16 // 𰰪
 // ⿱ han-8279 han-4e11-($-1) // ⿱艹丑

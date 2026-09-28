@@ -38,6 +38,11 @@ $$@@....................\1@@$$
 // glyph han-323b5:15x16 15 16 // 𲎵
 // ⿰ han-53f3 han-767e // ⿰右百
 
+## 1.11
+
+// glyph han-323b7:15x16 15 16 // 𲎷
+// ⿰ han-4e22 han-5149 // ⿰丢光
+
 # CJK unified ideographs extension J: 丨 (2)
 
 ## 2.4
@@ -331,10 +336,31 @@ glyph han-32421:15x16 15 16 // 𲐡
 
 # CJK unified ideographs extension J: 儿 (10)
 
+## 10.6
+
+// glyph han-3246c:15x16 15 16 // 𲑬
+// ⿰ han-5149 han-5165 // ⿰光入
+
 ## 10.8
+
+// glyph han-3246d:15x16 15 16 // 𲑭
+// ⿺ han-5149 han-4e2d // ⿺光中
 
 glyph han-3246e:15x16 15 16 // 𲑮
 ⿰ han-5146:7x16 1 han-5206:7x16 // ⿰兆分
+
+## 10.9
+
+// glyph han-3246f:15x16 15 16 // 𲑯
+// ⿰ han-5149 han-53e6 // ⿰光另
+
+## 10.12
+
+// glyph han-32472-($han-regions):15x16 15 16 // 𲑲
+// ⿰ han-5149 han-660c-($-1) // ⿰光昌
+
+glyph han-32473:15x16 15 16 // 𲑳
+⿰ han-5149:7x16 han-5176:8x16 // ⿰光其
 
 # CJK unified ideographs extension J: 入 (11)
 
@@ -799,6 +825,9 @@ glyph han-32514:15x16 15 16 // 𲔔
 // glyph han-3256a:15x16 15 16 // 𲕪
 // ⿰ han-53e3 han-80c6 // ⿰口胆
 
+// glyph han-3256b:15x16 15 16 // 𲕫
+// ⿰ han-53e3 han-6d17 // ⿰口洗
+
 // glyph han-3256c:15x16 15 16 // 𲕬
 // ⿰ han-53e3 han-6070 // ⿰口恰
 
@@ -932,6 +961,11 @@ glyph han-32514:15x16 15 16 // 𲔔
 
 // glyph han-3261f:15x16 15 16 // 𲘟
 // ⿱ han-4e3f han-56da // ⿱丿囚
+
+## 31.6
+
+// glyph han-32622:15x16 15 16 // 𲘢
+// ⿴ han-56d7 han-5148 // ⿴囗先
 
 ## 31.7
 

@@ -474,6 +474,11 @@ glyph han-8cf1:15x16 15 16 // 賱
 glyph han-8cff:15x16 15 16 // 賿
 ⿰ han-8c9d:8x16 han-7fcf:7x16 // ⿰貝翏
 
+## 154.12
+
+// glyph han-8d0a:15x16 15 16 // 贊
+// ⿱ han-515f han-8c9d // ⿱兟貝
+
 ## 154.14
 
 // glyph han-8d14:15x16 15 16 // 贔
@@ -845,6 +850,10 @@ glyph han-8dbc-(g|h|t|k|p):* = han-8dbc.2:*
 
 glyph han-8de2:15x16 15 16 // 跢
 ⿰ han-27fb7:5x16 1 han-591a:9x16 // ⿰𧾷多
+
+glyph han-8de3:15x16 15 16 // 跣
+⿰ han-27fb7:5x16 1 han-5148:9x16 // ⿰𧾷先
+glyph han-8de3.0:* = han-8de3:*
 
 glyph han-8de4.0:15x16 15 16 // 跤
 ⿰ han-27fb7:5x16 1 han-4ea4.1:9x16 // ⿰𧾷交

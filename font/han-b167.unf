@@ -492,6 +492,9 @@ glyph han-28b60:15x16 15 16 // 𨭠
 // glyph han-28b69:15x16 15 16 // 𨭩
 // ⿲ han-91d2 han-4eb2 han-65a4 // ⿲釒亲斤 <- ⿰釒新
 
+// glyph han-28b76:15x16 15 16 // 𨭶
+// ⿰ han-91d2 han-29db7 // ⿰釒𩶷
+
 glyph han-28b88:15x16 15 16 // 𨮈
 ⿲ -2 han-91d2:5x15-l han-97f3:7x16 han-6b20:5x16 // ⿲釒音欠
 

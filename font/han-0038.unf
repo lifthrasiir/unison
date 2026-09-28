@@ -495,6 +495,10 @@ glyph han-59eb.0:* = han-59eb:*
 // glyph han-59ee:15x16 15 16 // 姮
 // ⿰ han-5973 han-4e98 // ⿰女亘
 
+glyph han-59ef:15x16 15 16 // 姯
+⿰ han-5973:6x14-l han-5149:9x16 // ⿰女光
+glyph han-59ef.0:* = han-59ef:*
+
 // glyph han-59f2:15x16 15 16 // 姲
 // ⿰ han-5973 han-5b89 // ⿰女安
 
@@ -515,6 +519,9 @@ glyph han-59f8.1:15x16 15 16 // 姸
 glyph han-59f8.2:* = han-59f8.0:*
 glyph han-59f8-(h|j|k):* = han-59f8.0:*
 glyph han-59f8-(g|t|p):* = han-59f8.1:*
+
+glyph han-59fa:15x16 15 16 // 姺
+⿰ han-5973:6x14-l han-5148:9x16 // ⿰女先
 
 // glyph han-59fb:15x16 15 16 // 姻
 // ⿰ han-5973 han-56e0 // ⿰女因
@@ -1619,6 +1626,9 @@ glyph han-5ba9:15x16 15 16 // 宩
 ⿱ han-5b80:15x3 han-7c73:13x13 // ⿱宀米
 glyph han-5ba9.0:* = han-5ba9:*
 
+// glyph han-5baa:15x16 15 16 // 宪
+// ⿱ han-5b80 han-5148 // ⿱宀先
+
 glyph han-5bab:15x16 15 16 // 宫
 ⿱ han-5b80:15x4 han-5415:15x12 // ⿱宀吕
 
@@ -2122,6 +2132,11 @@ glyph han-5c18-($han-regions):15x16 15 16 // 尘
 
 // glyph han-5c1f:15x16 15 16 // 尟
 // ⿺ han-662f han-5c11 // ⿺是少
+
+## 42.11
+
+// glyph han-5c21-($han-regions):15x16 15 16 // 尡
+// ⿰ han-5149 han-6606-($-1) // ⿰光昆
 
 # CJK unified ideographs: 尢 (43)
 

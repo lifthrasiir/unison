@@ -169,6 +169,9 @@ glyph han-32752:15x16 15 16 // 𲝒
 // glyph han-32754:15x16 15 16 // 𲝔
 // ⿱ han-5211 han-5c71 // ⿱刑山
 
+// glyph han-32755:15x16 15 16 // 𲝕
+// ⿱ han-5c71 han-5149 // ⿱山光
+
 // glyph han-32756:15x16 15 16 // 𲝖
 // ⿰ han-5c71 han-5c16 // ⿰山尖
 
@@ -420,6 +423,9 @@ glyph han-327f3:15x16 15 16 // 𲟳
 glyph han-327f9:15x16 15 16 // 𲟹
 ⿰ han-5fc4:5x16 1 han-800c:9x16 // ⿰忄而
 
+// glyph han-327fb:15x16 15 16 // 𲟻
+// ⿱ han-5148 han-5fc3 // ⿱先心
+
 // glyph han-327fd:15x16 15 16 // 𲟽
 // ⿱ han-8840 han-5fc3 // ⿱血心
 
@@ -660,6 +666,18 @@ glyph han-328f5:15x16 15 16 // 𲣵
 glyph han-328fa:15x16 15 16 // 𲣺
 ⿰ han-6587-g:7x16 han-7ca6:8x16 // ⿰文粦
 
+# CJK unified ideographs extension J: 斗 (68)
+
+## 68.5
+
+glyph han-328fd:15x16 15 16 // 𲣽
+⿰ han-53e4:5x16 1 han-6597:9x16 // ⿰古斗
+
+## 68.11
+
+// glyph han-328ff-($han-regions):15x16 15 16 // 𲣿
+// ⿰ han-4a3e-($-1) han-6597 // ⿰䨾斗
+
 # CJK unified ideographs extension J: 斤 (69)
 
 ## 69.10
@@ -732,6 +750,9 @@ glyph han-32924:15x16 15 16 // 𲤤
 
 // glyph han-3292b-($han-regions):15x16 15 16 // 𲤫
 // ⿰ han-65e9 han-5468-($-1) // ⿰早周
+
+// glyph han-32931:15x16 15 16 // 𲤱
+// ⿱ han-5149 han-660e // ⿱光明
 
 ## 72.11
 

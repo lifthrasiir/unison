@@ -1484,6 +1484,10 @@ glyph han-5797.0:* = han-5797:*
 // glyph han-5798:15x16 15 16 // 垘
 // ⿲ han-571f han-4ebb han-72ac // ⿲土亻犬 <- ⿰土伏
 
+glyph han-5799:15x16 15 16 // 垙
+⿰ han-571f:5x14-l 1 han-5149:9x16 // ⿰土光
+glyph han-5799.0:* = han-5799:*
+
 // glyph han-579a:15x16 15 16 // 垚
 // ⿱ han-571f han-2a8b4 // ⿱土𪢴
 

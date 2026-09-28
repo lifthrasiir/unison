@@ -16,6 +16,9 @@ glyph han-29ac1:15x16 15 16 // 𩫁
 // glyph han-29ac2:15x16 15 16 // 𩫂
 // ⿱ han-9ad8 han-5b54 // ⿱高孔
 
+glyph han-29ac4:15x16 15 16 // 𩫄
+⿰ han-9ad8:7x16 1 han-6597:7x16 // ⿰高斗
+
 // glyph han-29ac7:15x16 15 16 // 𩫇
 // ⿱ han-4e0d han-9ad8 // ⿱不高
 
@@ -303,6 +306,9 @@ glyph han-29add:15x16 15 16 // 𩫝
 
 // glyph han-29cc0:15x16 15 16 // 𩳀
 // ⿺ han-9b3c han-81f3 // ⿺鬼至
+
+// glyph han-29cc1:15x16 15 16 // 𩳁
+// ⿰ han-5149 han-9b3c // ⿰光鬼
 
 // glyph han-29cc4:15x16 15 16 // 𩳄
 // ⿰ han-66f2 han-9b3c // ⿰曲鬼

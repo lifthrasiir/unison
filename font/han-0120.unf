@@ -233,6 +233,9 @@ glyph han-7d0b-v:* = han-7d0b.z:*
 // glyph han-7d0e:15x16 15 16 // 紎 ⿰糹犬(GHT) ⿰糸犬(K)
 // ⿰ han-7cf9 han-72ac // ⿰糹犬
 
+// glyph han-7d0f-($han-regions):15x16 15 16 // 紏 ⿰糹斗(GHT) ⿰糸斗(JKP)
+// ⿰ han-7cf9-($-1) han-6597 // ⿰糹斗
+
 glyph han-7d10-($han-regions):15x16 15 16 // 紐
 ⿰ han-7cf9-($-1):5x14 han-4e11-($-1):10x16 // ⿰糹丑
 glyph han-7d10.0:* = han-7d10-j:*
@@ -476,6 +479,9 @@ glyph han-7d53.0:* = han-7d53-j:*
 
 glyph han-7d54-($han-regions):15x16 15 16 // 絔
 ⿰ han-7cf9-($-1):5x14 1 han-767e:9x16 // ⿰糹百
+
+// glyph han-7d56-($han-regions):15x16 15 16 // 絖 ⿰糹光(GHTV) ⿰糸光(JKP)
+// ⿰ han-7cf9-($-1) han-5149 // ⿰糹光
 
 glyph han-7d57-($han-regions):15x16 15 16 // 絗
 ⿰ han-7cf9-($-1):5x14 1 han-56de:9x16 // ⿰糹回

@@ -424,6 +424,11 @@ glyph han-2ecad:15x16 15 16 // 𮲭
 // glyph han-2ecb2:15x16 15 16 // 𮲲
 // ⿰ han-6728 han-5e86 // ⿰木庆
 
+## 75.8
+
+glyph han-2ecb5:15x16 15 16 // 𮲵
+⿰ han-6728:5x16 1 han-9c7c:9x16 // ⿰木鱼
+
 ## 75.9
 
 // glyph han-2ecb7:15x16 15 16 // 𮲷
@@ -850,6 +855,9 @@ glyph han-2ed80:15x16 15 16 // 𮶀
 glyph han-2ed8b:15x16 15 16 // 𮶋
 ⿰ han-7fbd-g:9x16 1 han-866b:5x16 // ⿰羽虫
 
+// glyph han-2ed8c-($han-regions):15x16 15 16 // 𮶌
+// ⿺ han-5148 han-7fbd-($-1) // ⿺先羽
+
 glyph han-2ed8d:15x16 15 16 // 𮶍
 ⿲ han-51ab:3x12 han-4e2d:5x16 han-7fbd.1:7x16 // ⿲冫中羽
 
@@ -874,6 +882,11 @@ glyph han-2ed92:15x16 15 16 // 𮶒
 
 // glyph han-2ed94:15x16 15 16 // 𮶔
 // ⿰ han-6708 han-97e6 // ⿰月韦
+
+## 130.6
+
+glyph han-2ecab:15x16 15 16 // 𮲫
+⿰ han-6708:5x14-l 1 han-5148:9x16 // ⿰月先
 
 # CJK unified ideographs extension I: 舟 (137)
 
@@ -1024,8 +1037,8 @@ glyph han-2edd6:15x16 15 16 // 𮷖
 
 ## 162.5
 
-glyph han-2eddf:15x16 15 16 // 𮷟
-⿺ han-8fb6-g:15x16.11x14 han-79be:9x13 5 1 // ⿺辶禾
+glyph han-2eddf-($han-regions):15x16 15 16 // 𮷟
+⿺ han-8fb6-($-1):15x16.11x14 han-79be:9x13 5 1 // ⿺辶禾
 
 ## 162.8
 
@@ -1199,3 +1212,10 @@ glyph han-2ee3e:15x16 15 16 // 𮸾
 
 // glyph han-2ee52:15x16 15 16 // 𮹒
 // ⿺ han-9b3c han-5927 // ⿺鬼大
+
+# CJK unified ideographs extension I: 鱼 (195')
+
+## 195'.4
+
+// glyph han-2ee53-($han-regions):15x16 15 16 // 𮹓
+// ⿱ han-6587-($-1) han-9c7c // ⿱文鱼

@@ -162,6 +162,9 @@ glyph han-2add7:15x16 15 16 // 𪷗
 // glyph han-2aded:15x16 15 16 // 𪷭
 // ⿰ han-6c35 han-95a8 // ⿰氵閨
 
+// glyph han-2adee:15x16 15 16 // 𪷮
+// ⿺ han-6d17 han-820d // ⿺洗舍
+
 glyph han-2adf0:15x16 15 16 // 𪷰
 ⿲ -1 han-6c35:3x12 han-97f3:7x16 han-53ec:6x16 // ⿲氵音召
 
@@ -1050,6 +1053,9 @@ glyph han-2b06a:15x16 15 16 // 𫁪
 // glyph han-2b073:15x16 15 16 // 𫁳
 // ⿱ han-25ad7 han-97e6 // ⿱𥫗韦
 
+// glyph han-2b075:15x16 15 16 // 𫁵
+// ⿱ han-25ad7 han-6597 // ⿱𥫗斗
+
 ## 118.5
 
 // glyph han-2b079:15x16 15 16 // 𫁹
@@ -1130,6 +1136,11 @@ glyph han-2b08b:15x16 15 16 // 𫂋
 
 // glyph han-2b0a7:15x16 15 16 // 𫂧
 // ⿱ han-25ad7 han-235e5 // ⿱𥫗𣗥
+
+## 118.16
+
+// glyph han-2b0ac:15x16 15 16 // 𫂬
+// ⿱ han-25ad7 han-8861 // ⿱𥫗衡
 
 ## 118.18
 

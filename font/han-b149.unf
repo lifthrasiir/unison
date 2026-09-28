@@ -215,6 +215,9 @@ glyph han-279d4-($han-regions):15x16 15 16 // 𧧔
 // glyph han-279eb:15x16 15 16 // 𧧫
 // ⿰ han-8a01 han-21c31 // ⿰訁𡰱
 
+glyph han-279ef:15x16 15 16 // 𧧯
+⿰ han-8a01-v:5x16 1 han-5149:9x16 // ⿰訁光
+
 glyph han-279f0-($han-regions):15x16 15 16 // 𧧰
 ⿰ han-8a01-($-1):5x16 1 han-81e3:9x16 // ⿰訁臣
 

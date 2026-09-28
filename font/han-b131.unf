@@ -325,6 +325,9 @@ glyph han-26a34:15x16 15 16 // 𦨴
 // glyph han-26a35:15x16 15 16 // 𦨵
 // ⿲ han-821f han-5f73 han-4e8d // ⿲舟彳亍
 
+glyph han-26a3b:15x16 15 16 // 𦨻
+⿰ han-821f:7x16 1 han-5149:7x16 // ⿰舟光
+
 ## 137.7
 
 // glyph han-26a33:15x16 15 16 // 𦨳

@@ -766,6 +766,10 @@ glyph han-604c:15x16 15 16 // 恌
 ⿰ han-5fc4:5x16 1 han-5146:9x16 // ⿰忄兆
 glyph han-604c.0:* = han-604c:*
 
+glyph han-604d:15x16 15 16 // 恍
+⿰ han-5fc4:5x16 1 han-5149:9x16 // ⿰忄光
+glyph han-604d.0:* = han-604d:*
+
 glyph han-604e:15x16 15 16 // 恎
 ⿰ han-5fc4:7x16 1 han-81f3:7x16 // ⿰忄至
 
@@ -1406,6 +1410,9 @@ glyph han-623b-(t|k):* = han-623b.3:*
 glyph han-623b-(g|p):* = han-623b.x:*
 
 ## 63.4
+
+// glyph han-623d:15x16 15 16 // 戽 ⿸户斗(GHP) ⿸戶斗(TJK)
+// ⿸ han-6237 han-6597 // ⿸户斗
 
 // glyph han-623e:15x16 15 16 // 戾 ⿸户犬(GHPV) ⿸戶犬(TJK)
 // ⿸ han-6237 han-72ac // ⿸户犬

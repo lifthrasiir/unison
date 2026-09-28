@@ -174,6 +174,9 @@ glyph han-225f5:15x16 15 16 // 𢗵
 // glyph han-225f7:15x16 15 16 // 𢗷
 // ⿰ han-5fc4 han-6c34 // ⿰忄水
 
+glyph han-225f8:15x16 15 16 // 𢗸
+⿰ han-5fc4:5x16 1 han-6597:9x16 // ⿰忄斗
+
 // glyph han-225f9:15x16 15 16 // 𢗹
 // ⿱ han-65a4 han-5fc3 // ⿱斤心
 
@@ -336,6 +339,9 @@ glyph han-22658:15x16 15 16 // 𢙘
 
 glyph han-2265b:15x16 15 16 // 𢙛
 ⿰ han-5fc4:5x16 1 han-540d:9x16 // ⿰忄名
+
+glyph han-2265d:15x16 15 16 // 𢙝
+⿰ han-5fc4:5x16 1 han-5148:9x16 // ⿰忄先
 
 glyph han-2265e:15x16 15 16 // 𢙞
 ⿱ han-81e3:13x10 han-5fc3:15x6 // ⿱臣心
@@ -632,6 +638,9 @@ glyph han-22746:15x16 15 16 // 𢝆
 
 // glyph han-22759:15x16 15 16 // 𢝙
 // ⿰ han-5fc4 han-76c3 // ⿰忄盃
+
+// glyph han-2275a:15x16 15 16 // 𢝚
+// ⿰ han-5fc4 han-6d17 // ⿰忄洗
 
 // glyph han-2275d:15x16 15 16 // 𢝝
 // ⿳ han-76ee han-21b55 han-5fc3 // ⿳目𡭕心

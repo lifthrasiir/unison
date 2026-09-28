@@ -27,6 +27,9 @@ glyph han-4a12-($han-regions):15x16 15 16 // 䨒
 // glyph han-4a13:15x16 15 16 // 䨓
 // ⿱ han-96e8 han-56de // ⿱雨回
 
+// glyph han-4a14-($han-regions):15x16 15 16 // 䨔
+// ⿱ han-96e8-($-1) han-5149 // ⿱雨光
+
 // glyph han-4a15-($han-regions):15x16 15 16 // 䨕
 // ⿱ han-96e8-($-1) han-6c59 // ⿱雨汙
 
@@ -820,6 +823,9 @@ glyph han-4bcd-($han-regions):15x16 15 16 // 䯍
 // glyph han-4bd0:15x16 15 16 // 䯐
 // ⿰ han-9aa8 han-8089 // ⿰骨肉
 
+glyph han-4bd1-($han-regions):15x16 15 16 // 䯑
+⿰ han-9aa8-($-1):7x16 1 han-5149:7x16 // ⿰骨光
+
 // glyph han-4bd2:15x16 15 16 // 䯒
 // ⿲ han-9aa8 han-5f73 han-4e8d // ⿲骨彳亍
 
@@ -1086,6 +1092,18 @@ glyph han-4c89:15x16 15 16 // 䲉
 
 // glyph han-4c9c:15x16 15 16 // 䲜 ⿰𩺰𩺰(GTP) ⿱䲆䲆(X)
 // ⿱ han-4c86 han-4c86 // ⿱䲆䲆
+
+# CJK unified ideographs extension A: 鱼 (195')
+
+## 195'.5
+
+glyph han-4c9e:15x16 15 16 // 䲞
+⿰ han-9c7c:7x16-l 1 han-7acb:7x16 // ⿰鱼立
+
+## 195'.10
+
+// glyph han-4ca4:15x16 15 16 // 䲤
+// ⿰ han-9c7c han-9152 // ⿰鱼酒
 
 # CJK unified ideographs extension A: 鳥 (196)
 

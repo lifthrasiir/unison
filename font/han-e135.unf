@@ -133,6 +133,9 @@ glyph han-2c72a:15x16 15 16 // 𬜪
 // glyph han-2c73f:15x16 15 16 // 𬜿
 // ⿱ han-8279 han-56fd // ⿱艹国
 
+// glyph han-2c741:15x16 15 16 // 𬝁
+// ⿱ han-8279 han-9c7c // ⿱艹鱼
+
 glyph han-2c744:15x16 15 16 // 𬝄
 ⿳ han-8279:15x3 han-5b80:15x3 han-7389:15x10 // ⿳艹宀玉
 
@@ -193,6 +196,9 @@ glyph han-2c75e:15x16 15 16 // 𬝞
 
 // glyph han-2c76d:15x16 15 16 // 𬝭
 // ⿳ han-8279 han-51b6 han-5efe // ⿳艹冶廾
+
+// glyph han-2c76e:15x16 15 16 // 𬝮
+// ⿱ han-8279 han-6599 // ⿱艹料
 
 // glyph han-2c772:15x16 15 16 // 𬝲
 // ⿱ han-8279 han-5a33 // ⿱艹娳
@@ -594,6 +600,9 @@ glyph han-2c8dc:15x16 15 16 // 𬣜
 
 // glyph han-2c8de:15x16 15 16 // 𬣞
 // ⿰ han-8ba0 han-3749 // ⿰讠㝉
+
+// glyph han-2c8df:15x16 15 16 // 𬣟
+// ⿰ han-8ba0 han-6597 // ⿰讠斗
 
 ## 149'.5
 

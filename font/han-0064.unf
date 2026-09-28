@@ -382,6 +382,10 @@ glyph han-6294:15x16 15 16 // 抔
 ⿰ han-624c:5x16 1 han-4e0d:9x16 // ⿰扌不
 glyph han-6294.0:* = han-6294:*
 
+glyph han-6296:15x16 15 16 // 抖
+⿰ han-624c:5x16 1 han-6597:9x16 // ⿰扌斗
+glyph han-6296.0:* = han-6296:*
+
 glyph han-6297:15x16 15 16 // 抗
 ⿰ han-624c:5x16 1 han-4ea2:9x16 // ⿰扌亢
 glyph han-6297.0:* = han-6297:*
@@ -672,6 +676,10 @@ glyph han-6302.0:* = han-6302:*
 glyph han-6303:15x16 15 16 // 挃
 ⿰ han-624c:5x16 1 han-81f3:9x16 // ⿰扌至
 glyph han-6303.0:* = han-6303:*
+
+glyph han-6304:15x16 15 16 // 挄
+⿰ han-624c:5x16 1 han-5149:9x16 // ⿰扌光
+glyph han-6304.0:* = han-6304:*
 
 // glyph han-6306:15x16 15 16 // 挆
 // ⿰ han-624c han-6735 // ⿰扌朵

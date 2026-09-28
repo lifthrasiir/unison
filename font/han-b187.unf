@@ -196,6 +196,9 @@ glyph han-298b8:15x16 15 16 // 𩢸
 // glyph han-298c0:15x16 15 16 // 𩣀
 // ⿰ han-99ac han-8089 // ⿰馬肉
 
+glyph han-298c2:15x16 15 16 // 𩣂
+⿰ han-5148:7x16 1 han-99ac:7x16 // ⿰先馬
+
 glyph han-298c6:15x16 15 16 // 𩣆
 ⿰ han-99ac:7x16 1 han-7f8a:7x16 // ⿰馬羊
 

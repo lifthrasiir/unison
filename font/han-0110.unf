@@ -328,6 +328,10 @@ glyph han-9fec:15x16 15 16 // 鿬
 // glyph han-7842:15x16 15 16 // 硂
 // ⿰ han-77f3 han-5168 // ⿰石全
 
+glyph han-7844:15x16 15 16 // 硄
+⿰ han-77f3:6x16 han-5149:9x16 // ⿰石光
+glyph han-7844.0:* = han-7844:*
+
 glyph han-7845:15x16 15 16 // 硅
 ⿰ han-77f3:7x16 1 han-572d:7x16 // ⿰石圭
 
@@ -1547,6 +1551,10 @@ glyph han-79cf.0:* = han-79cf:*
 glyph han-79d0:15x16 15 16 // 秐
 ⿰ han-79be:5x16 1 han-4e91:9x16 // ⿰禾云
 
+glyph han-79d1:15x16 15 16 // 科
+⿰ han-79be:5x16 1 han-6597:9x16 // ⿰禾斗
+glyph han-79d1.0:* = han-79d1:*
+
 // glyph han-79d2:15x16 15 16 // 秒
 // ⿰ han-79be han-5c11 // ⿰禾少
 
@@ -1808,6 +1816,9 @@ glyph han-7a21:15x16 15 16 // 稡
 ⿰ han-79be:7x16 1 han-5352:7x16 // ⿰禾卒
 glyph han-7a21.0:* = han-7a21:*
 
+glyph han-7a23:15x16 15 16 // 稣
+⿰ han-9c7c:7x16-l 1 han-79be:7x16 // ⿰鱼禾
+
 // glyph han-7a25:15x16 15 16 // 稥
 // ⿳ han-79be han-706c han-65e5 // ⿳禾灬日 <- ⿱𤇕日
 
@@ -1854,7 +1865,7 @@ glyph han-7a4c:15x16 15 16 // 穌
 glyph han-7a4c.0:* = han-7a4c:*
 glyph han-7a4c.1:* = han-7a4c:*
 glyph han-7a4c.2:15x16 15 16 // 穌
-⿰ han-9b5a.x:7x16 1 han-79be:7x16 // ⿰魚禾
+⿰ han-29d4b:7x16 1 han-79be:7x16 // ⿰𩵋禾
 
 // glyph han-7a52:15x16 15 16 // 穒
 // ⿱ han-79be han-9ce5 // ⿱禾鳥

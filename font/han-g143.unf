@@ -674,6 +674,11 @@ glyph han-30e9c:15x16 15 16 // 𰺜
 // glyph han-30ea5-($han-regions):15x16 15 16 // 𰺥 ⿰辛{20}(T) ⿰辛丸(V)
 // ⿰ han-8f9b han-4e38-($-1) // ⿰辛丸
 
+## 160.6
+
+// glyph han-30ea7:15x16 15 16 // 𰺧
+// ⿺ han-5148 han-8f9b // ⿺先辛
+
 ## 160.11
 
 // glyph han-30eaa:15x16 15 16 // 𰺪
@@ -1006,6 +1011,9 @@ glyph han-30f71:15x16 15 16 // 𰽱
 
 glyph han-30f72:15x16 15 16 // 𰽲
 ⿰ han-9485:6x14 han-5409:9x16 // ⿰钅吉
+
+// glyph han-30f75:15x16 15 16 // 𰽵
+// ⿰ han-9485 han-5149 // ⿰钅光
 
 glyph han-30f76:15x16 15 16 // 𰽶
 ⿰ han-9485:6x14 han-866b:9x16 // ⿰钅虫

@@ -225,6 +225,9 @@ glyph han-223dd:15x16 15 16 // 𢏝
 glyph han-223e0:15x16 15 16 // 𢏠
 ⿲ han-5f13:7x16 han-6c35:3x12 han-5de5:5x16 // ⿲弓氵工
 
+glyph han-223e1:15x16 15 16 // 𢏡
+⿰ han-5f13:6x16 han-5148:9x16 // ⿰弓先
+
 // glyph han-223e2:15x16 15 16 // 𢏢
 // ⿰ han-66f2 han-5f13 // ⿰曲弓
 
@@ -543,8 +546,14 @@ glyph han-224dd:15x16 15 16 // 𢓝
 // glyph han-224df:15x16 15 16 // 𢓟
 // ⿰ han-5f73 han-5dde // ⿰彳州
 
+glyph han-224e0:15x16 15 16 // 𢓠
+⿰ han-5f73:5x16 1 han-5148:9x16 // ⿰彳先
+
 glyph han-224e3:15x16 15 16 // 𢓣
 ⿰ han-5f73:5x16 1 han-673f:9x16 // ⿰彳朿
+
+glyph han-224e5:15x16 15 16 // 𢓥
+⿰ han-5f73:5x16 1 han-5149:9x16 // ⿰彳光
 
 // glyph han-224e6:15x16 15 16 // 𢓦
 // ⿲ han-5f73 han-9fb6 han-5369 // ⿲彳龶卩

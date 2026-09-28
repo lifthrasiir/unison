@@ -178,6 +178,9 @@ glyph han-24bd7:15x16 15 16 // 𤯗
 
 ## 100.4
 
+glyph han-24bd8:15x16 15 16 // 𤯘
+⿰ han-751f:7x16-l 1 han-6597:7x16 // ⿰生斗
+
 // glyph han-24bda:15x16 15 16 // 𤯚
 // ⿱ han-4e0d han-751f // ⿱不生
 
@@ -533,6 +536,9 @@ glyph han-24c69:15x16 15 16 // 𤱩
 
 // glyph han-24c6d:15x16 15 16 // 𤱭 ⿱𣁁田(G) ⿳入文田(T)
 // ⿳ han-5165 han-6587 han-7530 // ⿳入文田
+
+glyph han-24c73:15x16 15 16 // 𤱳
+⿰ han-7530:5x14-l 1 han-5149:9x16 // ⿰田光
 
 // glyph han-24c76:15x16 15 16 // 𤱶
 // ⿰ han-4ea9 han-72ac // ⿰亩犬

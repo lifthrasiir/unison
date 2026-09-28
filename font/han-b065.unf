@@ -79,6 +79,65 @@ glyph han-23063:15x16 15 16 // 𣁣
 // glyph han-2306a:15x16 15 16 // 𣁪
 // ⿳ han-6587 han-4020 han-519d // ⿳文䀠冝
 
+# CJK unified ideographs extension B: 斗 (68)
+
+## 68.4
+
+glyph han-2306e:15x16 15 16 // 𣁮
+⿰ han-4e30-t:7x16 1 han-6597:7x16 // ⿰丰斗
+
+glyph han-2306f:15x16 15 16 // 𣁯
+⿰ han-6597:7x16 han-5143:8x16 // ⿰斗元
+
+glyph han-23070:15x16 15 16 // 𣁰
+⿰ han-6597:9x16 han-65a4:6x16 // ⿰斗斤
+
+## 68.5
+
+glyph han-23071:15x16 15 16 // 𣁱
+⿰ han-7533:7x16 1 han-6597:7x16 // ⿰申斗
+
+// glyph han-23072-($han-regions):15x16 15 16 // 𣁲
+// ⿰ han-6597 han-51ac-($-1) // ⿰斗冬
+
+## 68.6
+
+// glyph han-23073-($han-regions):15x16 15 16 // 𣁳
+// ⿰ han-820c-($-1) han-6597 // ⿰舌斗
+
+glyph han-23074:15x16 15 16 // 𣁴
+⿰ han-5408:7x16 1 han-6597:7x16 // ⿰合斗
+
+glyph han-23075:15x16 15 16 // 𣁵
+⿰ han-7f8a:7x16-l 1 han-6597:7x16 // ⿰羊斗
+
+glyph han-23076:15x16 15 16 // 𣁶
+⿰ han-6597:7x16 1 han-5146:7x16 // ⿰斗兆
+
+## 68.7
+
+glyph han-23078:15x16 15 16 // 𣁸
+⿰ han-9578:7x16 1 han-6597:7x16 // ⿰镸斗
+
+glyph han-23079:15x16 15 16 // 𣁹
+⿰ han-6597:7x16 1 han-9149:7x16 // ⿰斗酉
+
+glyph han-2307a:15x16 15 16 // 𣁺
+⿲ -3 han-5206:7x16 han-5f13:4x16 han-6597:7x16 // ⿲分弓斗 <- ⿰分⿰弓斗
+
+## 68.9
+
+glyph han-23083:15x16 15 16 // 𣂃
+⿰ han-8005-v:7x16 1 han-6597:7x16 // ⿰者斗
+
+## 68.10
+
+// glyph han-23087-($han-regions):15x16 15 16 // 𣂇
+// ⿰ han-6597 han-539e-($-1) // ⿰斗厞
+
+// glyph han-23088:15x16 15 16 // 𣂈
+// ⿱ han-241fe han-6597 // ⿱𤇾斗
+
 # CJK unified ideographs extension B: 斤 (69)
 
 ## 69.2
@@ -181,6 +240,9 @@ glyph han-230da:15x16 15 16 // 𣃚
 
 glyph han-230db:15x16 15 16 // 𣃛
 ⿰ han-65b9:7x16 1 han-706b:7x16 // ⿰方火
+
+// glyph han-230dc:15x16 15 16 // 𣃜
+// ⿱ han-6597 han-65b9 // ⿱斗方
 
 ## 70.5
 

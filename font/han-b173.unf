@@ -445,6 +445,13 @@ glyph han-291da:15x16 15 16 // 𩇚 ⿰青台(T) ⿰靑台(Z)
 glyph han-291db-($han-regions):15x16 15 16 // 𩇛
 assume ⿰ han-751f:7x16 -1 han-9751-or-9752-($-1):9x16 // ⿰生青
 
+## 174.6
+
+glyph han-291dc-($han-regions):15x16 15 16 // 𩇜
+⿰ han-9752-($-1):7x16 1 han-5148:7x16 // ⿰青先
+glyph han-291dc.0:* = han-291dc-j:*
+glyph han-291dc.1:* = han-291dc-g:*
+
 ## 174.8
 
 // glyph han-291dd-($han-regions):15x16 15 16 // 𩇝 ⿰冫靘(GTP) ⿰凊色(X)
