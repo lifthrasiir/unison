@@ -365,7 +365,7 @@ glyph han-4367:15x16 15 16 // 䍧
 ## 123.6
 
 glyph han-436e:15x16 15 16 // 䍮
-⿰ han-7f8a:7x16 1 han-5146:7x16 // ⿰羊兆
+⿰ han-7f8a:7x16-l 1 han-5146:7x16 // ⿰羊兆
 
 // glyph han-4370:15x16 15 16 // 䍰
 // ⿰ han-7f8a han-56e0 // ⿰羊因
@@ -378,7 +378,7 @@ glyph han-436e:15x16 15 16 // 䍮
 ## 123.9
 
 glyph han-4377:15x16 15 16 // 䍷
-⿰ han-7f8a:7x16 1 han-97cb:7x16 // ⿰羊韋
+⿰ han-7f8a:7x16-l 1 han-97cb:7x16 // ⿰羊韋
 
 # CJK unified ideographs extension A: 羽 (124)
 

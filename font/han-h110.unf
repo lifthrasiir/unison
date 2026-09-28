@@ -153,6 +153,9 @@ glyph han-31d52:15x16 15 16 // 𱵒
 // glyph han-31d7f:15x16 15 16 // 𱵿
 // ⿰ han-79be han-53f3 // ⿰禾右
 
+// glyph han-31d81-($han-regions):15x16 15 16 // 𱶁
+// ⿰ han-79be han-65a5-($-1) // ⿰禾斥
+
 ## 115.6
 
 // glyph han-31d82:15x16 15 16 // 𱶂

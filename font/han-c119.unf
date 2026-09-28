@@ -268,7 +268,7 @@ glyph han-2b121:15x16 15 16 // 𫄡
 // ⿰ han-7f8a han-592e // ⿰羊央
 
 glyph han-2b151:15x16 15 16 // 𫅑
-⿰ han-7f8a:7x16 1 han-65e6:7x16 // ⿰羊旦
+⿰ han-7f8a:7x16-l 1 han-65e6:7x16 // ⿰羊旦
 
 ## 123.6
 
@@ -888,7 +888,7 @@ glyph han-2b31e:15x16 15 16 // 𫌞
 // ⿲ han-5f00 han-5f61 han-898b // ⿲开彡見
 
 glyph han-2b320:15x16 15 16 // 𫌠
-⿲ -2 han-4ebb:3x16 han-672c:9x16 han-898b:5x16 // ⿲亻本見
+⿲ han-4ebb:3x16 han-672c:7x16 han-898b:5x16 // ⿲亻本見
 
 ## 147.9
 

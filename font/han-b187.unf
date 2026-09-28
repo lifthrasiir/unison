@@ -98,8 +98,8 @@ glyph han-29891-($han-regions):15x16 15 16 // 𩢑
 // glyph han-29894-($han-regions):15x16 15 16 // 𩢔
 // ⿰ han-99ac han-534a-($-1) // ⿰馬半
 
-// glyph han-29895:15x16 15 16 // 𩢕
-// ⿰ han-99ac han-672c // ⿰馬本
+glyph han-29895:15x16 15 16 // 𩢕
+⿰ han-99ac:7x16 1 han-672c:7x16 // ⿰馬本
 
 // glyph han-29896:15x16 15 16 // 𩢖
 // ⿰ han-99ac han-672b // ⿰馬末
@@ -443,6 +443,9 @@ glyph han-29a28-($han-regions):15x16 15 16 // 𩨨
 ⿰ han-9aa8-($-1):7x16 han-6bd4-($-1):8x16 // ⿰骨比
 
 ## 188.5
+
+// glyph han-29a2f-($han-regions):15x16 15 16 // 𩨯
+// ⿰ han-9aa8-($-1) han-65a5-($-1) // ⿰骨斥
 
 glyph han-29a30-($han-regions):15x16 15 16 // 𩨰
 ⿰ han-9aa8-($-1):7x16 1 han-5931:7x16 // ⿰骨失

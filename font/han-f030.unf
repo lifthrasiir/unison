@@ -80,6 +80,9 @@ glyph han-2d1d1:15x16 15 16 // 𭇑
 glyph han-2d1d2:15x16 15 16 // 𭇒 ⿰口冊(M) ⿰口⿻⺆卄(K)
 ⿰ han-53e3:3x12 han-518a:12x16 // ⿰口冊
 
+// glyph han-2d1d3-($han-regions):15x16 15 16 // 𭇓
+// ⿰ han-53e3 han-65a5-($-1) // ⿰口斥
+
 // glyph han-2d1d4:15x16 15 16 // 𭇔
 // ⿰ han-53e3 han-4eda // ⿰口仚
 
@@ -163,7 +166,7 @@ glyph han-2d202:15x16 15 16 // 𭈂
 ⿲ han-53e3:3x12 han-4ebb:3x16 han-65e6:9x16 // ⿲口亻旦
 
 glyph han-2d204:15x16 15 16 // 𭈄
-⿲ han-53e3:3x12 han-4ebb:3x16 han-672c:9x16 // ⿲口亻本
+⿲ han-53e3:3x12 han-4ebb:5x16 han-672c:7x16 // ⿲口亻本
 
 // glyph han-2d205:15x16 15 16 // 𭈅
 // ⿲ han-53e3 han-820c han-4e5a // ⿲口舌乚 <- ⿰口乱

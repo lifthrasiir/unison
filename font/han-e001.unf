@@ -1422,8 +1422,8 @@ glyph han-2bbcd:15x16 15 16 // 𫯍
 
 ## 36.8
 
-// glyph han-2bbd0:15x16 15 16 // 𫯐
-// ⿰ han-591a han-672c // ⿰多本
+glyph han-2bbd0:15x16 15 16 // 𫯐
+⿰ han-591a:7x16 1 han-672c:7x16 // ⿰多本
 
 ## 36.11
 

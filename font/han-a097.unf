@@ -331,6 +331,9 @@ glyph han-3fec:15x16 15 16 // 㿬
 
 ## 107.5
 
+// glyph han-3fed-($han-regions):15x16 15 16 // 㿭
+// ⿰ han-65a5-($-1) han-76ae // ⿰斥皮
+
 // glyph han-3fee:15x16 15 16 // 㿮
 // ⿰ han-592e han-76ae // ⿰央皮
 
@@ -680,6 +683,9 @@ glyph han-40a3-($han-regions):15x16 15 16 // 䂣
 
 glyph han-40a4:15x16 15 16 // 䂤
 ⿲ han-77f3:5x16 han-4ebb:3x16 han-5bf8:7x16 // ⿲石亻寸
+
+// glyph han-40a8-($han-regions):15x16 15 16 // 䂨
+// ⿰ han-77f3 han-65a5-($-1) // ⿰石斥
 
 ## 112.6
 

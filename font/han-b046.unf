@@ -217,6 +217,9 @@ glyph han-21d92:15x16 15 16 // 𡶒
 glyph han-21d9a:15x16 15 16 // 𡶚
 ⿰ han-5c71:5x16 1 han-7530:9x16 // ⿰山田
 
+// glyph han-21d9c-($han-regions):15x16 15 16 // 𡶜
+// ⿰ han-5c71 han-65a5-($-1) // ⿰山斥
+
 // glyph han-21d9d:15x16 15 16 // 𡶝
 // ⿱ han-5c71 han-518b // ⿱山冋
 

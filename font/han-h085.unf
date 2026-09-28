@@ -603,8 +603,8 @@ glyph han-31c3e:15x16 15 16 // 𱰾
 
 ## 102.12
 
-// glyph han-31c40:15x16 15 16 // 𱱀
-// ⿰ han-756a han-672c // ⿰番本
+glyph han-31c40:15x16 15 16 // 𱱀
+⿰ han-756a:7x16 1 han-672c:7x16 // ⿰番本
 
 # CJK unified ideographs extension H: 疒 (104)
 
@@ -785,7 +785,7 @@ glyph han-31cb3:15x16 15 16 // 𱲳
 // ⿰ han-76ee han-8db3 // ⿰目足
 
 glyph han-31cba:15x16 15 16 // 𱲺
-⿲ han-76ee:3x13-l han-4ebb:3x16 han-672c:9x16 // ⿲目亻本
+⿲ han-76ee:3x13-l han-4ebb:5x16 han-672c:7x16 // ⿲目亻本
 
 ## 109.8
 

@@ -727,6 +727,11 @@ glyph han-2b581:15x16 15 16 // 𫖁
 glyph han-2b59d:15x16 15 16 // 𫖝
 ⿰ han-6bd4-j:8x16 han-9801:7x16 // ⿰比頁
 
+## 181.5
+
+// glyph han-2b59e-($han-regions):15x16 15 16 // 𫖞
+// ⿰ han-65a5-($-1) han-9801 // ⿰斥頁
+
 ## 181.8
 
 // glyph han-2b5a1:15x16 15 16 // 𫖡

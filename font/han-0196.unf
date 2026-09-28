@@ -309,7 +309,7 @@ glyph han-9d36:15x16 15 16 // 鴶
 ⿰ han-5409:7x16 1 han-9ce5:7x16 // ⿰吉鳥
 
 glyph han-9d39:15x16 15 16 // 鴹
-⿰ han-7f8a:7x16 1 han-9ce5:7x16 // ⿰羊鳥
+⿰ han-7f8a:7x16-l 1 han-9ce5:7x16 // ⿰羊鳥
 
 glyph han-9d3b:15x16 15 16 // 鴻 ⿰江鳥(GHTJKPV) ⿰氵䲨(X)
 ⿲ han-6c35:3x12 han-5de5:5x12-l han-9ce5:7x16 // ⿲氵工鳥

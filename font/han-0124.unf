@@ -365,7 +365,7 @@ glyph han-7fc8-($han-regions):15x16 15 16 // 翈
 ⿰ han-7532:7x16 han-7fbd-($-1):8x16 // ⿰甲羽
 
 glyph han-7fc9-($han-regions):15x16 15 16 // 翉
-⿰ han-672c:9x16 han-7fbd-($-1):6x16 // ⿰本羽
+⿰ han-672c:7x16 han-7fbd-($-1):8x16 // ⿰本羽
 
 glyph han-7fca-($han-regions):15x16 15 16 // 翊
 ⿰ han-7acb:5x16 1 han-7fbd-($-1):9x16 // ⿰立羽
@@ -431,8 +431,12 @@ glyph han-7fd2-($han-regions):15x16 15 16 // 習 ⿱羽白(GHTKPV) ⿱⿰习习�
 glyph han-7fd3-($han-regions):15x16 15 16 // 翓
 ⿰ han-5409:5x16 1 han-7fbd-($-1):9x16 // ⿰吉羽
 
-glyph han-7fd4-($han-regions):15x16 15 16 // 翔 ⿰羊羽(GHTKP) ⿰羊⿰习习(J)
-⿰ han-7f8a:7x16 han-7fbd-($-1):8x16 // ⿰羊羽
+glyph han-7fd4-($han-regions):15x16 15 16 // 翔
+⿰ han-7f8a:7x16-l han-7fbd-($-1):8x16 // ⿰羊羽
+glyph han-7fd4.0:* = han-7fd4-j:*
+glyph han-7fd4.1:* = han-7fd4-k:*
+glyph han-7fd4.2:* = han-7fd4-j:*
+glyph han-7fd4.3:* = han-7fd4-k:*
 
 // glyph han-7fd5-($han-regions):15x16 15 16 // 翕
 // ⿱ han-5408 han-7fbd-($-1) // ⿱合羽

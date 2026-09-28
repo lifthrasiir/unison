@@ -1206,8 +1206,8 @@ glyph han-2c664:15x16 15 16 // 𬙤
 
 ## 123.6
 
-glyph han-2c672:15x16 15 16 // 𬙲 ⿰羊幵(G) ⿰羊开(Z)
-assume ⿰ han-7f8a:7x16 -1 han-5e75.0:9x16 // ⿰羊幵
+glyph han-2c672:15x16 15 16 // 𬙲
+assume ⿰ han-7f8a:7x16-l -1 han-5e75.0:9x16 // ⿰羊幵
 
 ## 123.8
 

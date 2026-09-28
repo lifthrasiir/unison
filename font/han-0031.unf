@@ -1418,6 +1418,9 @@ glyph han-577b-($han-regions):15x16 15 16 // 坻
 ⿰ han-571f:5x14-l han-6c10-($-1):10x16 // ⿰土氐
 glyph han-577b.0:* = han-577b-j:*
 
+// glyph han-577c-($han-regions):15x16 15 16 // 坼
+// ⿰ han-571f han-65a5-($-1) // ⿰土斥
+
 glyph han-577d-($han-regions):15x16 15 16 // 坽
 ⿰ han-571f:5x14-l 1 han-4ee4-($-1):9x16 // ⿰土令
 glyph han-577d.0:* = han-577d-j:*
@@ -3242,6 +3245,8 @@ glyph han-5931:15x16 15 16 // 失
 ref han-592b:15x16
 glyph han-5931.0:* = han-5931:*
 
+glyph han-5932:7x16 7 16 // 夲
+⿱ han-5927:7x10 han-5341:7x6 // ⿱大十
 glyph han-5932:9x16 9 16 // 夲
 ⿱ han-5927:9x10 -1 han-5341:9x7 // ⿱大十
 glyph han-5932:15x16 15 16 // 夲

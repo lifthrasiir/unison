@@ -687,6 +687,9 @@ glyph han-3290f:15x16 15 16 // 𲤏
 glyph han-32914:15x16 15 16 // 𲤔
 ⿰ han-65e5:5x14-l 1 han-5360:9x16 // ⿰日占
 
+// glyph han-32916-($han-regions):15x16 15 16 // 𲤖
+// ⿰ han-65e5 han-65a5-($-1) // ⿰日斥
+
 glyph han-32917:15x16 15 16 // 𲤗
 ⿰ han-65e5:5x14-l 1 han-76ae:9x16 // ⿰日皮
 

@@ -431,6 +431,9 @@ glyph han-86b7.x:15x16 15 16 // 蚷
 glyph han-86b7-(h|t|j):* = han-86b7.0:*
 glyph han-86b7-(g|k|p):* = han-86b7.x:*
 
+// glyph han-86b8-($han-regions):15x16 15 16 // 蚸
+// ⿰ han-866b han-65a5-($-1) // ⿰虫斥
+
 glyph han-86b9:15x16 15 16 // 蚹
 ⿲ han-866b:5x16 han-4ebb:3x16 han-5bf8:7x16 // ⿲虫亻寸
 glyph han-86b9.0:* = han-86b9:*

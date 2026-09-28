@@ -564,8 +564,8 @@ glyph han-4b30-($han-regions):15x16 15 16 // 䬰
 glyph han-4b30.0:* = han-4b30-j:*
 glyph han-4b30.1:* = han-4b30-g:*
 
-// glyph han-4b31:15x16 15 16 // 䬱 ⿰飠本(GTP) ⿰𩙿本(K)
-// ⿰ han-98e0 han-672c // ⿰飠本
+glyph han-4b31-($han-regions):15x16 15 16 // 䬱
+⿰ han-98e0-($-1):7x16 1 han-672c:7x16 // ⿰飠本
 
 glyph han-4b32-($han-regions):15x16 15 16 // 䬲
 ⿰ han-98e0-($-1):7x16 han-53e5:8x16 // ⿰飠句
@@ -972,8 +972,10 @@ glyph han-4c3e:15x16 15 16 // 䰾
 // glyph han-4c40:15x16 15 16 // 䱀
 // ⿰ han-9b5a han-592e // ⿰魚央
 
-// glyph han-4c41:15x16 15 16 // 䱁 ⿰魚本(G) ⿰魚夲(TP)
-// ⿰ han-9b5a han-5932 // ⿰魚夲
+glyph han-4c41-g:15x16 15 16 // 䱁
+⿰ han-9b5a:7x16 1 han-672c:7x16 // ⿰魚本
+glyph han-4c41-(t|j|p):15x16 15 16 // 䱁
+⿰ han-9b5a:7x16 1 han-5932:7x16 // ⿰魚夲
 
 glyph han-4c43:15x16 15 16 // 䱃
 ⿰ han-9b5a:7x16 1 han-5931:7x16 // ⿰魚失

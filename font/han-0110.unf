@@ -294,6 +294,7 @@ glyph han-7834:15x16 15 16 // 破
 
 glyph han-7835:15x16 15 16 // 砵
 ⿰ han-77f3:5x16 1 han-672c:9x16 // ⿰石本
+glyph han-7835.0:* = han-7835:*
 
 glyph han-7836:15x16 15 16 // 砶
 ⿰ han-77f3:8x16 1 han-767d:6x16 // ⿰石白

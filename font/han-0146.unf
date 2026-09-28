@@ -1172,6 +1172,9 @@ glyph han-8a32.0:* = han-8a32-j:*
 
 ## 149.5
 
+// glyph han-8a34-($han-regions):15x16 15 16 // 訴
+// ⿰ han-8a01-($-1) han-65a5-($-1) // ⿰訁斥
+
 glyph han-8a35-($han-regions):15x16 15 16 // 訵
 ⿰ han-8a01-($-1):5x16 1 han-56db:9x16 // ⿰訁四
 glyph han-8a35.0:* = han-8a35-j:*
@@ -1922,6 +1925,9 @@ glyph han-8bc7:15x16 15 16 // 诇
 
 // glyph han-8bc8:15x16 15 16 // 诈
 // ⿰ han-8ba0 han-4e4d // ⿰讠乍
+
+// glyph han-8bc9-($han-regions):15x16 15 16 // 诉
+// ⿰ han-8ba0 han-65a5-($-1) // ⿰讠斥
 
 glyph han-8bcb:15x16 15 16 // 诋
 ⿰ han-8ba0:5x14 han-6c10.x:10x16 // ⿰讠氐

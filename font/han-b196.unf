@@ -201,6 +201,9 @@ glyph han-29fe8:15x16 15 16 // 𩿨
 glyph han-29fe9:15x16 15 16 // 𩿩
 ⿰ han-51fa:5x16 1 han-9ce5:9x16 // ⿰出鳥
 
+// glyph han-29fea-($han-regions):15x16 15 16 // 𩿪
+// ⿰ han-65a5-($-1) han-9ce5 // ⿰斥鳥
+
 // glyph han-29feb:15x16 15 16 // 𩿫
 // ⿰ han-5388 han-9ce5 // ⿰厈鳥
 

@@ -3568,7 +3568,8 @@ glyph han-52b0:15x16 15 16 // 劰
 // ⿳ han-516b han-592b han-529b // ⿳八夫力 <- ⿱𠔉力
 
 glyph han-52b7:15x16 15 16 // 劷
-⿰ han-7f8a:7x16 han-529b:8x16 // ⿰羊力
+⿰ han-7f8a:7x16-l han-529b:8x16 // ⿰羊力
+glyph han-52b7.0:* = han-52b7:*
 
 glyph han-52b8:15x16 15 16 // 劸
 ⿰ han-572d:7x16 han-529b:8x16 // ⿰圭力

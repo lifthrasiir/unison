@@ -7054,7 +7054,7 @@ glyph han-4f4c-($han-regions):15x16 15 16 // 佌
 glyph han-4f4c.0:* = han-4f4c-j:*
 
 glyph han-4f4d:15x16 15 16 // 位
-⿰ han-4ebb:5x16 1 han-7acb:9x16 // ⿰亻立
+⿰ han-4ebb:5x16 -1 han-7acb:11x16 // ⿰亻立
 glyph han-4f4d.0:* = han-4f4d:*
 
 glyph han-4f4e-($han-regions):15x16 15 16 // 低
@@ -7075,6 +7075,10 @@ glyph han-4f4e.0:* = han-4f4e-j:*
 
 glyph han-4f53:15x16 15 16 // 体
 ⿰ han-4ebb:5x16 1 han-672c:9x16 // ⿰亻本
+glyph han-4f53.0:* = han-4f53:*
+glyph han-4f53.1:* = han-4f53:*
+glyph han-4f53.2:15x16 15 16 // 体
+⿰ han-4ebb:5x16 1 han-5932:9x16 // ⿰亻夲
 
 glyph han-4f54:15x16 15 16 // 佔
 ⿰ han-4ebb:5x16 1 han-5360:9x16 // ⿰亻占
@@ -7084,6 +7088,7 @@ glyph han-4f55:15x12 15 12 // 何
 ⿰ han-4ebb:5x12 han-53ef:10x12 // ⿰亻可
 glyph han-4f55:15x16 15 16 // 何
 ⿰ han-4ebb:5x16 han-53ef:10x16 // ⿰亻可
+glyph han-4f55.0:* = han-4f55:*
 
 // glyph han-4f56:15x16 15 16 // 佖
 // ⿰ han-4ebb han-5fc5 // ⿰亻必
@@ -7093,6 +7098,7 @@ glyph han-4f55:15x16 15 16 // 何
 
 glyph han-4f5a:15x16 15 16 // 佚
 ⿰ han-4ebb:5x16 1 han-5931:9x16 // ⿰亻失
+glyph han-4f5a.0:* = han-4f5a:*
 
 glyph han-4f5b:15x16 15 16 // 佛
 ⿰ han-4ebb:5x16 1 han-5f17:9x16 // ⿰亻弗

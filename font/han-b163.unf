@@ -208,7 +208,7 @@ glyph han-286b9:15x16 15 16 // 𨚹
 // ⿰ han-4e22 han-961d // ⿰丢阝
 
 glyph han-286c1:15x16 15 16 // 𨛁
-⿰ han-7f8a:9x16 1 han-961d:5x16-r // ⿰羊阝
+⿰ han-7f8a:9x16-l 1 han-961d:5x16-r // ⿰羊阝
 
 // glyph han-286c3:15x16 15 16 // 𨛃
 // ⿰ han-22451 han-961d // ⿰𢑑阝

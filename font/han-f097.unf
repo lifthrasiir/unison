@@ -638,6 +638,9 @@ glyph han-2e063-k:15x16 15 16 // 𮁣
 glyph han-2e067:15x16 15 16 // 𮁧
 ⿰ han-793a:5x14 1 han-518c.0:9x16 // ⿰示册
 
+// glyph han-2e06a-($han-regions):15x16 15 16 // 𮁪 ⿰示斥(K) ⿰礻斥(Z)
+// ⿰ han-793a han-65a5-($-1) // ⿰示斥
+
 // glyph han-2e06b:15x16 15 16 // 𮁫 ⿰示宁(S) ⿰礻宁(Z)
 // ⿰ han-793a han-5b81 // ⿰示宁
 

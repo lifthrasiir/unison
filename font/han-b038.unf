@@ -160,6 +160,9 @@ glyph han-216ef:15x16 15 16 // 𡛯
 glyph han-216f3:15x16 15 16 // 𡛳
 ⿰ han-5973:7x16 han-767d:8x16 // ⿰女白
 
+// glyph han-216f4-($han-regions):15x16 15 16 // 𡛴
+// ⿰ han-5973 han-65a5-($-1) // ⿰女斥
+
 glyph han-216f5:15x16 15 16 // 𡛵
 ⿱ han-6b63:15x6 1 han-5973:15x9 // ⿱正女
 
