@@ -525,6 +525,9 @@ glyph han-5fe4:15x16 15 16 // 忤
 ⿰ han-5fc4:5x16 1 han-5348:9x16 // ⿰忄午
 glyph han-5fe4.0:* = han-5fe4:*
 
+// glyph han-5fe5:15x16 15 16 // 忥
+// ⿹ han-6c14 han-5fc3 // ⿹气心
+
 glyph han-5fe8:15x16 15 16 // 忨
 ⿰ han-5fc4:5x16 1 han-5143:9x16 // ⿰忄元
 glyph han-5fe8.0:* = han-5fe8:*
@@ -573,6 +576,9 @@ glyph han-5ffb.0:* = han-5ffb:*
 glyph han-5ffc:15x16 15 16 // 忼
 ⿰ han-5fc4:5x16 1 han-4ea2:9x16 // ⿰忄亢
 glyph han-5ffc.0:* = han-5ffc:*
+
+// glyph han-5ffe:15x16 15 16 // 忾 ⿰忄气(G) ⿰忄⿳𠂉一乙(T)
+// ⿰ han-5fc4 han-6c14 // ⿰忄气
 
 // glyph han-5fff:15x16 15 16 // 忿
 // ⿱ han-5206 han-5fc3 // ⿱分心

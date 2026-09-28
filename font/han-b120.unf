@@ -77,6 +77,9 @@ glyph han-25f9e.1:* = han-25f9e-j:*
 // glyph han-25fa7:15x16 15 16 // 𥾧
 // ⿰ han-7cf9 han-5dff // ⿰糹巿
 
+// glyph han-25fa8-($han-regions):15x16 15 16 // 𥾨 ⿰糹气(G) ⿰糹⿳𠂉一乙(T)
+// ⿰ han-7cf9-($-1) han-6c14 // ⿰糹气
+
 glyph han-25fab-($han-regions):15x16 15 16 // 𥾫
 ⿰ han-7cf9-($-1):5x14 1 han-4e30-($-1):9x16 // ⿰糹丰
 

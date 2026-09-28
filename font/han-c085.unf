@@ -29,6 +29,9 @@ glyph han-2ad6a:15x16 15 16 // 𪵪
 glyph han-2ad72:15x16 15 16 // 𪵲
 ⿰ han-6c35:5x16 han-51f9:10x14 // ⿰氵凹
 
+// glyph han-2ad73:15x16 15 16 // 𪵳
+// ⿰ han-6c35 han-77e2 // ⿰氵矢
+
 glyph han-2ad76:15x16 15 16 // 𪵶 ⿲氵己力(K) ⿰𣲆力(X)
 ⿲ han-6c35:3x12 han-5df1:7x16 han-529b:5x16 // ⿲氵己力
 
@@ -195,6 +198,9 @@ glyph han-2ae11:15x16 15 16 // 𪸑
 
 glyph han-2ae14:15x16 15 16 // 𪸔
 ⿰ han-706b:5x16 han-6b62:10x16 // ⿰火止
+
+// glyph han-2ae15:15x16 15 16 // 𪸕
+// ⿰ han-706b han-6c14 // ⿰火气
 
 glyph han-2ae16:15x16 15 16 // 𪸖
 ⿳ han-706b:15x5 1 han-5196:15x3 -1 han-4eba:15x8 // ⿳火冖人
@@ -776,6 +782,36 @@ glyph han-2afb2.1:15x16 15 16 // 𪾲
 glyph han-2afb3:15x16 15 16 // 𪾳
 ⿰ han-76ee:6x16 han-97cb:9x16 // ⿰目韋
 
+# CJK unified ideographs extension C: 矢 (111)
+
+## 111.4
+
+// glyph han-2afc8:15x16 15 16 // 𪿈
+// ⿰ han-77e2 han-6728 // ⿰矢木
+
+// glyph han-2afc9:15x16 15 16 // 𪿉
+// ⿰ han-77e2 han-5c11 // ⿰矢少
+
+## 111.6
+
+// glyph han-2afca:15x16 15 16 // 𪿊
+// ⿰ han-77e2 han-4e9a // ⿰矢亚
+
+## 111.8
+
+// glyph han-2afcb:15x16 15 16 // 𪿋
+// ⿰ han-77e2 han-5176 // ⿰矢其
+
+## 111.10
+
+// glyph han-2afce-($han-regions):15x16 15 16 // 𪿎
+// ⿰ han-77e2 han-5c04-($-1) // ⿰矢射
+
+## 111.16
+
+// glyph han-2afd0-($han-regions):15x16 15 16 // 𪿐
+// ⿰ han-77e2 han-8f38-($-1) // ⿰矢輸
+
 # CJK unified ideographs extension C: 石 (112)
 
 ## 112.4
@@ -1008,8 +1044,8 @@ glyph han-2b060:15x16 15 16 // 𫁠
 
 ## 117.7
 
-// glyph han-2b063-($han-regions):15x16 15 16 // 𫁣
-// ⿰ han-7acb han-89d2-($-1) // ⿰立角
+glyph han-2b063:15x16 15 16 // 𫁣
+⿰ han-7acb:5x16 1 han-89d2-t:9x16 // ⿰立角
 
 glyph han-2b064:15x16 15 16 // 𫁤
 ⿲ han-7acb:5x16 han-5200:5x16 han-7acb:5x16 // ⿲立刀立

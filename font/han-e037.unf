@@ -592,6 +592,11 @@ glyph han-2bd98:15x16 15 16 // 𫶘
 
 # CJK unified ideographs extension E: 工 (48)
 
+## 48.5
+
+// glyph han-2bdac:15x16 15 16 // 𫶬
+// ⿱ han-5de5 han-77e2 // ⿱工矢
+
 ## 48.8
 
 // glyph han-2bdae:15x16 15 16 // 𫶮
@@ -1189,6 +1194,9 @@ glyph han-2bf70:15x16 15 16 // 𫽰
 
 // glyph han-2bf84:15x16 15 16 // 𫾄
 // ⿰ han-624c han-91cf // ⿰扌量
+
+// glyph han-2bf85-($han-regions):15x16 15 16 // 𫾅
+// ⿰ han-6354-($-1) han-534a-($-1) // ⿰捔半
 
 glyph han-2bf88:15x16 15 16 // 𫾈
 ⿲ han-624c:3x16 han-6c35:3x12 han-9aa8-g:9x16 // ⿲扌氵骨

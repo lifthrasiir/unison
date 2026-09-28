@@ -269,8 +269,8 @@ glyph han-286d7.0:* = han-286d7:*
 // glyph han-286e2:15x16 15 16 // 𨛢
 // ⿰ han-674f han-961d // ⿰杏阝
 
-// glyph han-286e5-($han-regions):15x16 15 16 // 𨛥
-// ⿰ han-89d2-($-1) han-961d // ⿰角阝
+glyph han-286e5-($han-regions):15x16 15 16 // 𨛥
+⿰ han-89d2-($-1):9x16 1 han-961d:5x16-r // ⿰角阝
 
 glyph han-286e9:15x16 15 16 // 𨛩
 ⿰ han-8eca:9x16 1 han-961d:5x16-r // ⿰車阝

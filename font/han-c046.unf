@@ -10,6 +10,9 @@ glyph han-2aa24:15x16 15 16 // 𪨤
 
 ## 46.4
 
+// glyph han-2aa26:15x16 15 16 // 𪨦 ⿰山⿳𠂉一乙(GT) ⿰山气(Z)
+// ⿰ han-5c71 han-6c14 // ⿰山气
+
 // glyph han-2aa27:15x16 15 16 // 𪨧
 // ⿱ han-5c71 han-4ed1 // ⿱山仑
 
@@ -432,6 +435,9 @@ glyph han-2ab64:15x16 15 16 // 𪭤
 // glyph han-2ab65:15x16 15 16 // 𪭥
 // ⿰ han-624c han-5de6 // ⿰扌左
 
+// glyph han-2ab68:15x16 15 16 // 𪭨
+// ⿰ han-624c han-77e2 // ⿰扌矢
+
 glyph han-2ab6a:15x16 15 16 // 𪭪
 ⿰ han-624c:3x16 han-518c.0:12x16 // ⿰扌册
 
@@ -654,6 +660,12 @@ glyph han-2ac13-($han-regions):15x16 15 16 // 𪰓
 
 // glyph han-2ac14:15x16 15 16 // 𪰔
 // ⿱ han-65e5 han-592e // ⿱日央
+
+// glyph han-2ac15:15x16 15 16 // 𪰕
+// ⿰ han-65e5 han-77e2 // ⿰日矢
+
+// glyph han-2ac16:15x16 15 16 // 𪰖
+// ⿱ han-65e5 han-77e2 // ⿱日矢
 
 // glyph han-2ac17:15x16 15 16 // 𪰗
 // ⿰ han-65e5 han-5fc5 // ⿰日必
@@ -1027,3 +1039,20 @@ glyph han-2ad59:15x16 15 16 // 𪵙
 
 glyph han-2ad5d:15x16 15 16 // 𪵝
 ⿱ han-6797:15x7 han-6bdb:15x9 // ⿱林毛
+
+# CJK unified ideographs extension C: 气 (84)
+
+## 84.4
+
+// glyph han-2ad63:15x16 15 16 // 𪵣
+// ⿰ han-4e91 han-6c14 // ⿰云气
+
+## 84.5
+
+glyph han-2ad64:15x16 15 16 // 𪵤
+⿹ han-6c14:15x16.11x9 han-53ef:9x8 1 8 // ⿹气可
+
+## 84.9
+
+// glyph han-2ad66:15x16 15 16 // 𪵦
+// ⿰ han-97f3 han-6c14 // ⿰音气

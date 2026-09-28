@@ -722,6 +722,9 @@ glyph han-2b2a5:15x16 15 16 // 𫊥
 glyph han-2b2a7:15x16 15 16 // 𫊧
 ⿲ han-866b:5x16 han-4e03:5x16 han-5200:5x16 // ⿲虫七刀
 
+// glyph han-2b2a8:15x16 15 16 // 𫊨
+// ⿰ han-866b han-6c14 // ⿰虫气
+
 glyph han-2b2aa:15x16 15 16 // 𫊪
 ⿰ han-866b:5x16 1 han-957f:9x16 // ⿰虫长
 

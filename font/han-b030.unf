@@ -232,6 +232,9 @@ glyph han-20bc8:15x16 15 16 // 𠯈
 // glyph han-20bcd:15x16 15 16 // 𠯍
 // ⿰ han-53e3 han-5184 // ⿰口冄
 
+// glyph han-20bcf:15x16 15 16 // 𠯏 ⿰口气(G) ⿰口⿳𠂉一乙(T)
+// ⿰ han-53e3 han-6c14 // ⿰口气
+
 glyph han-20bd0:15x16 15 16 // 𠯐
 ⿰ han-53e3:7x12 1 han-65e5:7x16 // ⿰口日
 
@@ -462,6 +465,9 @@ glyph han-20c44:15x16 15 16 // 𠱄
 
 // glyph han-20c47:15x16 15 16 // 𠱇 ⿰口宂(V) ⿰口穴(UCS2003)
 // ⿰ han-53e3 han-5b82 // ⿰口宂
+
+// glyph han-20c48:15x16 15 16 // 𠱈
+// ⿰ han-53e3 han-77e2 // ⿰口矢
 
 glyph han-20c4a:15x16 15 16 // 𠱊
 ⿲ han-53e3:3x12 han-4ebb:3x16 han-58eb:9x16 // ⿲口亻士

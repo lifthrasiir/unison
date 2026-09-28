@@ -337,8 +337,8 @@ glyph han-2e5d4:15x16 15 16 // 𮗔
 // glyph han-2e5e5-($han-regions):15x16 15 16 // 𮗥
 // ⿰ han-89d2-($-1) han-6bdb // ⿰角毛
 
-// glyph han-2e5e6-($han-regions):15x16 15 16 // 𮗦
-// ⿰ han-89d2-($-1) han-6b20 // ⿰角欠
+glyph han-2e5e6:15x16 15 16 // 𮗦
+⿰ han-89d2-k:9x16 1 han-6b20:5x16 // ⿰角欠
 
 // glyph han-2e5e7-($han-regions):15x16 15 16 // 𮗧
 // ⿰ han-89d2-($-1) han-4e4b // ⿰角之

@@ -51,6 +51,9 @@ glyph han-29876:15x16 15 16 // 𩡶
 // glyph han-29878:15x16 15 16 // 𩡸
 // ⿰ han-99ac han-5e00 // ⿰馬帀
 
+// glyph han-29879:15x16 15 16 // 𩡹 ⿰馬气(G) ⿰馬⿳𠂉一乙(T)
+// ⿰ han-99ac han-6c14 // ⿰馬气
+
 // glyph han-2987b:15x16 15 16 // 𩡻
 // ⿰ han-99ac han-592d // ⿰馬夭
 
@@ -357,6 +360,9 @@ glyph han-29972:15x16 15 16 // 𩥲
 
 // glyph han-2998d:15x16 15 16 // 𩦍
 // ⿰ han-7ae5 han-99ac // ⿰童馬
+
+// glyph han-29999:15x16 15 16 // 𩦙
+// ⿲ han-99ac han-675f han-77e2 // ⿲馬束矢
 
 ## 187.13
 

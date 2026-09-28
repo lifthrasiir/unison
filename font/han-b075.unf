@@ -112,6 +112,9 @@ glyph han-233d4:15x16 15 16 // 𣏔
 // glyph han-233d8:15x16 15 16 // 𣏘
 // ⿰ han-6728 han-4ec5 // ⿰木仅
 
+// glyph han-233d9:15x16 15 16 // 𣏙
+// ⿰ han-6728 han-6c14 // ⿰木气
+
 glyph han-233da:15x16 15 16 // 𣏚
 ⿰ han-6728:5x16 han-6c0f:10x16 // ⿰木氏
 
@@ -167,8 +170,8 @@ glyph han-233fa:15x16 15 16 // 𣏺
 // glyph han-233fc:15x16 15 16 // 𣏼 ⿱廿木(G) ㇯某一(X)
 // ⿳ han-5344 han-4e00 han-6728 // ⿳卄一木
 
-// glyph han-233ff:15x16 15 16 // 𣏿
-// ⿰ han-6728 han-5929 // ⿰木天
+glyph han-233ff:15x16 15 16 // 𣏿
+⿰ han-6728:5x16 1 han-5929:9x16 // ⿰木天
 
 glyph han-23400:15x16 15 16 // 𣐀
 ⿰ han-6728:5x16 1 han-6587.0:9x16 // ⿰木文

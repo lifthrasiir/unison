@@ -258,6 +258,9 @@ glyph han-3c1e:15x16 15 16 // 㰞
 
 ## 76.4
 
+// glyph han-3c1f:15x16 15 16 // 㰟
+// ⿰ han-6c14 han-6b20 // ⿰气欠
+
 glyph han-3c20:15x16 15 16 // 㰠
 ⿰ han-4ea2:7x16 1 han-6b20:7x16 // ⿰亢欠
 
@@ -467,6 +470,18 @@ glyph han-3c9e:15x16 15 16 // 㲞
 
 glyph han-3cb3-($han-regions):15x16 15 16 // 㲳
 ⿰ han-6c10-($-1):8x16 han-5931:7x16 // ⿰氐失
+
+# CJK unified ideographs extension A: 气 (84)
+
+## 84.4
+
+// glyph han-3cb4:15x16 15 16 // 㲴
+// ⿹ han-6c14 han-4e2d // ⿹气中
+
+## 84.7
+
+// glyph han-3cb5-($han-regions):15x16 15 16 // 㲵
+// ⿹ han-6c14 han-8096-($-1) // ⿹气肖
 
 # CJK unified ideographs extension A: 水 (85)
 

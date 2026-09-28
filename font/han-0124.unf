@@ -1171,6 +1171,9 @@ glyph han-8041:15x16 15 16 // 聁
 
 ## 128.5
 
+// glyph han-8045:15x16 15 16 // 聅
+// ⿰ han-8033 han-77e2 // ⿰耳矢
+
 glyph han-8046-($han-regions):15x16 15 16 // 聆
 assume ⿰ han-8033:7x16 -1 han-4ee4-($-1):9x16 // ⿰耳令
 glyph han-8046.0:* = han-8046-j:*

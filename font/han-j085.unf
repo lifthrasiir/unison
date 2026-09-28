@@ -357,6 +357,11 @@ glyph han-32b45:15x16 15 16 // 𲭅
 // glyph han-32b4b-($han-regions):15x16 15 16 // 𲭋
 // ⿰ han-7247-($-1) han-624b // ⿰片手
 
+## 91.5
+
+// glyph han-32b4c-($han-regions):15x16 15 16 // 𲭌
+// ⿰ han-7247-($-1) han-77e2 // ⿰片矢
+
 ## 91.9
 
 glyph han-32b4d:15x16 15 16 // 𲭍
@@ -826,6 +831,13 @@ glyph han-32ca1:15x16 15 16 // 𲲡
 
 // glyph han-32cab-($han-regions):15x16 15 16 // 𲲫
 // ⿰ han-76ee han-8a08-($-1) // ⿰目計
+
+# CJK unified ideographs extension J: 矢 (111)
+
+## 111.6
+
+// glyph han-32cc1:15x16 15 16 // 𲳁
+// ⿰ han-77e2 han-897f // ⿰矢西
 
 # CJK unified ideographs extension J: 石 (112)
 

@@ -597,6 +597,23 @@ glyph han-2c1c9:15x16 15 16 // 𬇉
 // glyph han-2c1cd:15x16 15 16 // 𬇍
 // ⿱ han-4ea4 han-6c0f // ⿱交氏
 
+# CJK unified ideographs extension E: 气 (84)
+
+## 84.4
+
+glyph han-2c1cf:15x16 15 16 // 𬇏
+⿹ han-6c14:15x16.11x9 han-6728:9x9 1 7 // ⿹气木
+
+## 84.5
+
+// glyph han-2c1d0:15x16 15 16 // 𬇐
+// ⿹ han-6c14 han-7535 // ⿹气电
+
+## 84.6
+
+// glyph han-2c1d1:15x16 15 16 // 𬇑 ⿺⿳𠂉一乙朴(V) ⿺气朴(Z)
+// ⿺ han-6c14 han-6734 // ⿺气朴
+
 # CJK unified ideographs extension E: 水 (85)
 
 ## 85.3

@@ -333,8 +333,8 @@ glyph han-2d950:15x16 15 16 // 𭥐
 glyph han-2d953:15x16 15 16 // 𭥓
 ⿰ han-65e5:5x14-l 1 han-4e91:9x16 // ⿰日云
 
-// glyph han-2d954:15x16 15 16 // 𭥔
-// ⿰ han-65e5 han-5929 // ⿰日天
+glyph han-2d954:15x16 15 16 // 𭥔
+⿰ han-65e5:5x14-l 1 han-5929:9x16 // ⿰日天
 
 glyph han-2d955:15x16 15 16 // 𭥕
 ⿱ han-65e5:11x7 1 han-738b:15x8 // ⿱日王

@@ -96,6 +96,9 @@ glyph han-37b8:15x16 15 16 // 㞸
 glyph han-37b9:15x16 15 16 // 㞹
 ⿰ han-5c71:5x16 han-53ef:10x16 // ⿰山可
 
+// glyph han-37ba:15x16 15 16 // 㞺
+// ⿱ han-5c71 han-77e2 // ⿱山矢
+
 // glyph han-37bc:15x16 15 16 // 㞼
 // ⿳ han-4e5b han-6c34 han-5c71 // ⿳乛水山 <- ⿱氶山
 
@@ -967,6 +970,9 @@ glyph han-39c8:15x16 15 16 // 㧈
 ⿰ han-624c:5x16 1 han-5f13:9x16 // ⿰扌弓
 
 ## 64.4
+
+// glyph han-39c9:15x16 15 16 // 㧉 ⿰扌⿳𠂉一乙(G) ⿰扌气(TP)
+// ⿰ han-624c han-6c14 // ⿰扌气
 
 glyph han-39ca:15x16 15 16 // 㧊
 ⿰ han-624c:5x16 1 han-5e02:9x16 // ⿰扌市

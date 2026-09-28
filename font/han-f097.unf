@@ -506,6 +506,41 @@ glyph han-2dfd2:15x16 15 16 // 𭿒
 // glyph han-2dfdd:15x16 15 16 // 𭿝
 // ⿰ han-76ee han-91cf // ⿰目量
 
+# CJK unified ideographs extension F: 矢 (111)
+
+## 111.2
+
+// glyph han-2dffd:15x16 15 16 // 𭿽
+// ⿰ han-77e2 han-4e01 // ⿰矢丁
+
+## 111.4
+
+// glyph han-2dfff:15x16 15 16 // 𭿿
+// ⿱ han-706b han-77e2 // ⿱火矢
+
+## 111.5
+
+// glyph han-2e000:15x16 15 16 // 𮀀
+// ⿰ han-77e2 han-4e14 // ⿰矢且
+
+## 111.6
+
+// glyph han-2e001:15x16 15 16 // 𮀁
+// ⿰ han-77e2 han-81e3 // ⿰矢臣
+
+// glyph han-2e002:15x16 15 16 // 𮀂
+// ⿰ han-77e2 han-4e98 // ⿰矢亘
+
+## 111.8
+
+// glyph han-2e004:15x16 15 16 // 𮀄
+// ⿰ han-77e2 han-963f // ⿰矢阿
+
+## 111.9
+
+// glyph han-2e005:15x16 15 16 // 𮀅
+// ⿰ han-77e2 han-8011 // ⿰矢耑
+
 # CJK unified ideographs extension F: 石 (112)
 
 ## 112.3

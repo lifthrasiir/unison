@@ -78,8 +78,8 @@ glyph han-2e1e0:15x16 15 16 // 𮇠
 // glyph han-2e1e1:15x16 15 16 // 𮇡
 // ⿰ han-7c73 han-5175 // ⿰米兵
 
-// glyph han-2e1e2-($han-regions):15x16 15 16 // 𮇢
-// ⿰ han-7c73 han-89d2-($-1) // ⿰米角
+glyph han-2e1e2:15x16 15 16 // 𮇢
+⿰ han-7c73:5x16 1 han-89d2-g:9x16 // ⿰米角
 
 // glyph han-2e1e4:15x16 15 16 // 𮇤
 // ⿰ han-7c73 han-7075 // ⿰米灵
@@ -685,6 +685,9 @@ glyph han-2e3e6:15x16 15 16 // 𮏦
 
 glyph han-2e3f2:15x16 15 16 // 𮏲
 ⿳ han-8279-g:15x3 han-53e3:11x5 han-866b:15x8 // ⿳艹口虫
+
+// glyph han-2e3f4-($han-regions):15x16 15 16 // 𮏴
+// ⿱ han-8279-($-1) han-89d4-($-1) // ⿱艹觔
 
 // glyph han-2e3fa:15x16 15 16 // 𮏺
 // ⿱ han-8279 han-72ec // ⿱艹独

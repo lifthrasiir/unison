@@ -162,8 +162,8 @@ glyph han-2a73e:15x16 15 16 // 𪜾
 // glyph han-2a73f:15x16 15 16 // 𪜿
 // ⿰ han-4ebb han-599f // ⿰亻妟
 
-// glyph han-2a740-($han-regions):15x16 15 16 // 𪝀
-// ⿰ han-4ebb han-89d2-($-1) // ⿰亻角
+glyph han-2a740:15x16 15 16 // 𪝀
+⿰ han-4ebb:5x16 1 han-89d2-t:9x16 // ⿰亻角
 
 // glyph han-2a741:15x16 15 16 // 𪝁 ⿱仍𠮟(K) ⿱仍𫜸(Z)
 // ⿱ han-4ecd han-20b9f // ⿱仍𠮟

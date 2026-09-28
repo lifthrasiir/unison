@@ -1215,8 +1215,8 @@ glyph han-30caf:15x16 15 16 // 𰲯
 // glyph han-30cbc:15x16 15 16 // 𰲼
 // ⿰ han-866b han-65f1 // ⿰虫旱
 
-// glyph han-30cbe-($han-regions):15x16 15 16 // 𰲾
-// ⿰ han-866b han-89d2-($-1) // ⿰虫角
+glyph han-30cbe-($han-regions):15x16 15 16 // 𰲾
+⿰ han-866b:5x16 1 han-89d2-($-1):9x16 // ⿰虫角
 
 ## 142.8
 

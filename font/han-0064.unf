@@ -815,8 +815,15 @@ glyph han-6352:15x16 15 16 // 捒
 ⿰ han-624c:5x16 1 han-675f:9x16 // ⿰扌束
 glyph han-6352.0:* = han-6352:*
 
-// glyph han-6354-($han-regions):15x16 15 16 // 捔
-// ⿰ han-624c han-89d2-($-1) // ⿰扌角
+glyph han-6354.0:15x16 15 16 // 捔
+⿰ han-624c:5x16 1 han-89d2.1:9x16 // ⿰扌角
+glyph han-6354.1:* = han-6354.0:*
+glyph han-6354.2:15x16 15 16 // 捔
+⿰ han-624c:5x16 1 han-89d2.3:9x16 // ⿰扌角
+glyph han-6354.x:15x16 15 16 // 捔
+⿰ han-624c:5x16 1 han-89d2.0:9x16 // ⿰扌角
+glyph han-6354-(h|t|j|k):* = han-6354.0:*
+glyph han-6354-(g|p):* = han-6354.x:*
 
 glyph han-6355:15x13 15 13 // 捕
 ⿰ han-624c:5x13 1 han-752b:9x13 // ⿰扌甫

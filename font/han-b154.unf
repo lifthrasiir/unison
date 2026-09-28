@@ -487,6 +487,9 @@ glyph han-27e30:15x16 15 16 // 𧸰
 // glyph han-27e9d:15x16 15 16 // 𧺝
 // ⿺ han-8d70 han-65e5 // ⿺走日
 
+// glyph han-27e9e:15x16 15 16 // 𧺞 ⿺走气(G) ⿺走⿳𠂉一乙(T)
+// ⿺ han-8d70 han-6c14 // ⿺走气
+
 // glyph han-27ea0:15x16 15 16 // 𧺠
 // ⿺ han-8d70 han-6b62 // ⿺走止
 
@@ -758,6 +761,9 @@ glyph han-27e30:15x16 15 16 // 𧸰
 
 // glyph han-27f40:15x16 15 16 // 𧽀
 // ⿺ han-8d70 han-72ca // ⿺走狊
+
+// glyph han-27f44-($han-regions):15x16 15 16 // 𧽄
+// ⿺ han-8d70 han-34e9-($-1) // ⿺走㓩
 
 // glyph han-27f45:15x16 15 16 // 𧽅
 // ⿺ han-8d70 han-67bc // ⿺走枼

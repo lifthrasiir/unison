@@ -12,6 +12,9 @@ glyph han-24f28:15x16 15 16 // 𤼨
 
 ## 105.5
 
+// glyph han-24f29:15x16 15 16 // 𤼩
+// ⿱ han-7676 han-77e2 // ⿱癶矢
+
 // glyph han-24f2a:15x16 15 16 // 𤼪
 // ⿱ han-7676 han-5f01 // ⿱癶弁
 
@@ -85,6 +88,9 @@ glyph han-24f4a-($han-regions):15x16 15 16 // 𤽊
 
 // glyph han-24f4c:15x16 15 16 // 𤽌
 // ⿰ han-767d han-5dff // ⿰白巿
+
+// glyph han-24f4d:15x16 15 16 // 𤽍
+// ⿰ han-767d han-6c14 // ⿰白气
 
 glyph han-24f4e:15x16 15 16 // 𤽎
 ⿱ han-767d:11x7 1 han-4e91:15x8 // ⿱白云

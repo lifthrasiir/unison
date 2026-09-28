@@ -848,6 +848,9 @@ glyph han-32970:15x16 15 16 // 𲥰
 glyph han-32974:15x16 15 16 // 𲥴
 ⿰ han-6728:5x16 han-51f8:10x14 // ⿰木凸
 
+// glyph han-32976:15x16 15 16 // 𲥶
+// ⿰ han-6728 han-77e2 // ⿰木矢
+
 ## 75.6
 
 // glyph han-32978:15x16 15 16 // 𲥸
@@ -1014,3 +1017,65 @@ glyph han-32a07:15x16 15 16 // 𲨇
 
 // glyph han-32a10:15x16 15 16 // 𲨐
 // ⿺ han-6bdb han-70b9 // ⿺毛点
+
+# CJK unified ideographs extension J: 气 (84)
+
+## 84.3
+
+glyph han-32a14:15x16 15 16 // 𲨔
+⿹ han-6c14:15x16.11x9 han-571f:11x9 0 7 // ⿹气土
+
+## 84.4
+
+// glyph han-32a15:15x16 15 16 // 𲨕
+// ⿹ han-6c14 han-5143 // ⿹气元
+
+// glyph han-32a17:15x16 15 16 // 𲨗
+// ⿹ han-6c14 han-6bdb // ⿹气毛
+
+// glyph han-32a18:15x16 15 16 // 𲨘
+// ⿹ han-6c14 han-6c34 // ⿹气水
+
+## 84.5
+
+// glyph han-32a19-($han-regions):15x16 15 16 // 𲨙
+// ⿹ han-6c14 han-5c3c-($-1) // ⿹气尼
+
+## 84.6
+
+// glyph han-32a1a:15x16 15 16 // 𲨚
+// ⿰ han-538b han-6c14 // ⿰压气
+
+## 84.7
+
+// glyph han-32a1d:15x16 15 16 // 𲨝
+// ⿹ han-6c14 han-590b // ⿹气夋
+
+## 84.8
+
+// glyph han-32a1f:15x16 15 16 // 𲨟
+// ⿹ han-6c14 han-7f57 // ⿹气罗
+
+// glyph han-32a20:15x16 15 16 // 𲨠
+// ⿹ han-6c14 han-91d1 // ⿹气金
+
+// glyph han-32a22:15x16 15 16 // 𲨢
+// ⿹ han-6c14 han-963f // ⿹气阿
+
+## 84.9
+
+// glyph han-32a24:15x16 15 16 // 𲨤
+// ⿹ han-6c14 han-66f7 // ⿹气曷
+
+// glyph han-32a25:15x16 15 16 // 𲨥
+// ⿹ han-6c14 han-4eb2 // ⿹气亲
+
+## 84.12
+
+// glyph han-32a2a:15x16 15 16 // 𲨪
+// ⿹ han-6c14 han-9ed1 // ⿹气黑
+
+## 84.17
+
+// glyph han-32a2e:15x16 15 16 // 𲨮
+// ⿹ han-6c14 han-9bae // ⿹气鮮

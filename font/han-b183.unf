@@ -131,6 +131,9 @@ glyph han-296a0:15x16 15 16 // 𩚠
 glyph han-296a3-($han-regions):15x16 15 16 // 𩚣
 ⿰ han-98e0-($-1):7x16 1 han-65e5:7x16 // ⿰飠日
 
+// glyph han-296a4-($han-regions):15x16 15 16 // 𩚤 ⿰飠气(G) ⿰飠⿳𠂉一乙(TP)
+// ⿰ han-98e0-($-1) han-6c14 // ⿰飠气
+
 glyph han-296a5:15x16 15 16 // 𩚥
 ⿰ han-98e0-g:7x16 1 han-5df4:7x16 // ⿰飠巴
 

@@ -443,6 +443,9 @@ glyph han-9240.0:* = han-9240:*
 // glyph han-9242-($han-regions):15x16 15 16 // 鉂
 // ⿰ han-91d2 han-53f2-($-1) // ⿰釒史
 
+// glyph han-9243:15x16 15 16 // 鉃
+// ⿰ han-91d2 han-77e2 // ⿰釒矢
+
 glyph han-9244:15x16 15 16 // 鉄
 ⿰ han-91d2:7x16 1 han-5931:7x16 // ⿰釒失
 glyph han-9244.0:* = han-9244:*

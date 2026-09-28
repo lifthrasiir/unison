@@ -1,3 +1,28 @@
+# CJK unified ideographs extension H: 矢 (111)
+
+## 111.6
+
+// glyph han-31cdd:15x16 15 16 // 𱳝
+// ⿰ han-77e2 han-800c // ⿰矢而
+
+// glyph han-31cde:15x16 15 16 // 𱳞
+// ⿰ han-77e2 han-6b21 // ⿰矢次
+
+## 111.7
+
+// glyph han-31cdf:15x16 15 16 // 𱳟
+// ⿳ han-77e2 han-4e00 han-5216 // ⿳矢一刖 <- ⿱矢⿱一刖
+
+## 111.9
+
+// glyph han-31ce2:15x16 15 16 // 𱳢
+// ⿰ han-77e2 han-9762 // ⿰矢面
+
+## 111.10
+
+// glyph han-31ce3:15x16 15 16 // 𱳣
+// ⿰ han-77e2 han-54e5 // ⿰矢哥
+
 # CJK unified ideographs extension H: 石 (112)
 
 ## 112.3

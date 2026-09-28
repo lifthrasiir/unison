@@ -719,11 +719,17 @@ glyph han-2090e.0:* = han-2090e:*
 
 ## 21.5
 
+// glyph han-20911-($han-regions):15x16 15 16 // 𠤑
+// ⿰ han-5315-($-1) han-77e2 // ⿰匕矢
+
 // glyph han-20912-($han-regions):15x16 15 16 // 𠤒
 // ⿳ han-201a2 han-4e0a han-5315-($-1) // ⿳𠆢上匕 <- ⿱𠆢⿱上匕
 
 // glyph han-20914:15x16 15 16 // 𠤔
 // ⿱ han-5315 han-7518 // ⿱匕甘
+
+// glyph han-20915-($han-regions):15x16 15 16 // 𠤕
+// ⿱ han-5315-($-1) han-77e2 // ⿱匕矢
 
 ## 21.6
 

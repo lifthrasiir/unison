@@ -1316,6 +1316,9 @@ glyph han-75b8.0:* = han-75b8:*
 glyph han-75bd:15x16 15 16 // 疽
 ⿸ han-7592:15x16.11x13 han-4e14:9x12 5 4 // ⿸疒且
 
+// glyph han-75be:15x16 15 16 // 疾
+// ⿸ han-7592 han-77e2 // ⿸疒矢
+
 // glyph han-75bf:15x16 15 16 // 疿
 // ⿸ han-7592 han-5f17 // ⿸疒弗
 

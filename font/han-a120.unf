@@ -568,6 +568,9 @@ glyph han-43d5:15x16 15 16 // 䏕 ⿰月壬(GKP) ⿰⺼𡈼(T) ⿰月王(J)
 // glyph han-43d6:15x16 15 16 // 䏖 ⿰月引(GKP) ⿰⺼引(T)
 // ⿲ han-6708 han-5f13 han-4e28 // ⿲月弓丨 <- ⿰月引
 
+// glyph han-43d7:15x16 15 16 // 䏗 ⿰月气(G) ⿰⺼⿳𠂉一乙(T)
+// ⿰ han-6708 han-6c14 // ⿰月气
+
 // glyph han-43d8:15x16 15 16 // 䏘 ⿰月匹(G) ⿰⺼匹(T)
 // ⿰ han-6708 han-5339 // ⿰月匹
 
@@ -908,6 +911,9 @@ glyph han-44a7.1:15x16 15 16 // 䒧
 ⿱ han-8279.2:15x3 han-53bb:15x13 // ⿱艹去
 glyph han-44a7-(g|p):* = han-44a7.0:*
 glyph han-44a7-(t|j):* = han-44a7.1:*
+
+// glyph han-44a8-($han-regions):15x16 15 16 // 䒨
+// ⿱ han-8279-($-1) han-77e2 // ⿱艹矢
 
 // glyph han-44a9:15x16 15 16 // 䒩
 // ⿱ han-8279 han-79be // ⿱艹禾

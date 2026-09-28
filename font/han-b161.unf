@@ -168,6 +168,9 @@ glyph han-28491-g:15x16 15 16 // 𨒑
 glyph han-28491-j:15x16 15 16 // 𨒑
 ⿺ han-8fb6.0:15x16.11x14 han-5de8.1:11x13 4 0 // ⿺辶巨
 
+// glyph han-28494-($han-regions):15x16 15 16 // 𨒔
+// ⿺ han-8fb6-($-1) han-77e2 // ⿺辶矢
+
 // glyph han-28495:15x16 15 16 // 𨒕
 // ⿺ han-8fb6 han-4ed8 // ⿺辶付
 

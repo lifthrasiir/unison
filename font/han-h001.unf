@@ -786,6 +786,9 @@ glyph han-31532:15x16 15 16 // 𱔲
 glyph han-31538:15x16 15 16 // 𱔸
 ⿲ han-53e3:3x12 han-624c:3x16 han-25055:9x16 // ⿲口扌𥁕
 
+// glyph han-3153f-($han-regions):15x16 15 16 // 𱔿
+// ⿰ han-53e3 han-89e6-($-1) // ⿰口触
+
 ## 30.14
 
 glyph han-31546:15x16 15 16 // 𱕆

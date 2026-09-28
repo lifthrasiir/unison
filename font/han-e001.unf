@@ -207,8 +207,8 @@ glyph han-2b889:15x16 15 16 // 𫢉
 
 ## 9.4
 
-// glyph han-2b88b:15x16 15 16 // 𫢋
-// ⿰ han-4ebb han-5929 // ⿰亻天
+glyph han-2b88b:15x16 15 16 // 𫢋
+⿰ han-4ebb:5x16 1 han-5929:9x16 // ⿰亻天
 
 // glyph han-2b88c:15x16 15 16 // 𫢌
 // ⿰ han-4ebb han-4e39 // ⿰亻丹
@@ -815,6 +815,9 @@ glyph han-2ba26:15x16 15 16 // 𫨦
 
 // glyph han-2ba37-($han-regions):15x16 15 16 // 𫨷
 // ⿰ han-767d han-53c8-($-1) // ⿰白又
+
+// glyph han-2ba38-($han-regions):15x16 15 16 // 𫨸
+// ⿰ han-77e2 han-53c8-($-1) // ⿰矢又
 
 ## 29.7
 

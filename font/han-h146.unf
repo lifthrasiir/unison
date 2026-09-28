@@ -26,8 +26,8 @@ assume ⿳ han-5b80:15x3 -1 2|han-5bf8:11x5|2 han-898b:13x9 // ⿳宀寸見
 
 ## 148.5
 
-// glyph han-3205a-($han-regions):15x16 15 16 // 𲁚
-// ⿰ han-89d2-($-1) han-53ef // ⿰角可
+glyph han-3205a:15x16 15 16 // 𲁚
+⿰ -1 han-89d2-g:9x16 1 han-53ef:6x16 // ⿰角可
 
 // glyph han-3205b-($han-regions):15x16 15 16 // 𲁛
 // ⿰ han-89d2-($-1) han-53f0 // ⿰角台
@@ -1025,6 +1025,9 @@ glyph han-32316:15x16 15 16 // 𲌖
 
 // glyph han-32327:15x16 15 16 // 𲌧
 // ⿱ han-9b3c han-793a // ⿱鬼示
+
+// glyph han-32328:15x16 15 16 // 𲌨
+// ⿺ han-9b3c han-77e2 // ⿺鬼矢
 
 ## 194.7
 
