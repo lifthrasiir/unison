@@ -444,13 +444,11 @@ glyph han-95ab.3:* = han-95ab:*
 // glyph han-95ac:15x16 15 16 // 閬
 // ⿵ han-9580 han-826f // ⿵門良
 
-glyph han-95ad.0:15x16 15 16 // 閭
-⿵ han-9580:15x16.13x11 han-5442:11x10 2 6 // ⿵門呂
-glyph han-95ad.1:* = han-95ad.0:*
-glyph han-95ad.2:15x16 15 16 // 閭
-⿵ han-9580:15x16.13x11 han-5415:11x10 2 6 // ⿵門吕
-glyph han-95ad-(h|t|j|k|p|v):* = han-95ad.0:*
-glyph han-95ad-g:* = han-95ad.2:*
+glyph han-95ad-($han-regions):15x16 15 16 // 閭
+⿵ han-9580:15x16.13x11 han-5415-or-5442-($-1):11x10 2 6 // ⿵門呂
+glyph han-95ad.0:* = han-95ad-h:*
+glyph han-95ad.1:* = han-95ad-h:*
+glyph han-95ad.2:* = han-95ad-g:*
 
 glyph han-95b3:15x16 15 16 // 閳
 ⿵ han-9580:15x16.13x11 han-8eca:11x11 2 5 // ⿵門車
@@ -2037,6 +2035,14 @@ $$..../Vv'........\1@@......$$
 glyph han-9751-(g|h|j|k|p|v):* = han-9751.0:*
 glyph han-9751-t:* = han-9751.x:*
 
+glyph han-9751-or-9752-g:* = han-9752-g:*
+glyph han-9751-or-9752-h:* = han-9752-h:*
+glyph han-9751-or-9752-t:* = han-9752-t:*
+glyph han-9751-or-9752-j:* = han-9751-j:*
+glyph han-9751-or-9752-k:* = han-9751-k:*
+glyph han-9751-or-9752-p:* = han-9751-p:*
+glyph han-9751-or-9752-v:* = han-9752-v:*
+
 glyph han-9752.0:5x16 5 16 // 青
 $$..@@..$$
 $$..@@..$$
@@ -2242,15 +2248,13 @@ glyph han-9752-t:* = han-9752.x:*
 
 ## 174.5
 
-glyph han-9755.0:15x16 15 16 // 靕
-⿰ han-6b63:8x16 han-9751.0:7x16 // ⿰正靑
+glyph han-9755-($han-regions):15x16 15 16 // 靕
+⿰ han-6b63:8x16 han-9751-or-9752-($-1):7x16 // ⿰正靑
+glyph han-9755.0:* = han-9755-j:*
 glyph han-9755.1:* = han-9755.0:* // TODO
 glyph han-9755.2:* = han-9755.1:*
-glyph han-9755.3:* = han-9755.0:*
-glyph han-9755.4:15x16 15 16 // 靕
-⿰ han-6b63:8x16 han-9752.0:7x16 // ⿰正青
-glyph han-9755.x:15x16 15 16 // 靕
-⿰ han-6b63:8x16 han-9752.x:7x16 // ⿰正青
+glyph han-9755.3:* = han-9755-j:*
+glyph han-9755.4:* = han-9755-g:*
 glyph han-9755.5:15x16 15 16 // 靕
 @@@@@@@@@@@@@@@@..............
 $$........../01/..............
@@ -2269,21 +2273,15 @@ $$..@@..@@....$$..............
 $$..@@..@@....$$..............
 @@@@@@@@@@@@@@@@..............
 ref han-9752.0:7x16 8 0
-glyph han-9755-(j|p):* = han-9755.0:*
-glyph han-9755-(g|h):* = han-9755.4:*
-glyph han-9755-t:* = han-9755.x:*
 
-glyph han-9756.0:15x16 15 16 // 靖
-assume ⿰ han-7acb:7x16 -1 han-9752.0:9x16 // ⿰立青
-glyph han-9756.1:15x16 15 16 // 靖
-assume ⿰ han-7acb:7x16 -1 han-9751.0:9x16 // ⿰立靑
-glyph han-9756.2:* = han-9756.0:*
-glyph han-9756.3:* = han-9756.1:*
-glyph han-9756.x:15x16 15 16 // 靖
-assume ⿰ han-7acb:7x16 -1 han-9752.x:9x16 // ⿰立青
-glyph han-9756-(g|h|j):* = han-9756.0:*
-glyph han-9756-(k|p):* = han-9756.1:*
-glyph han-9756-t:* = han-9756.x:*
+glyph han-9756-(g|h|t|j):15x16 15 16 // 靖
+assume ⿰ han-7acb:7x16 -1 han-9752-($-1):9x16 // ⿰立青
+glyph han-9756-(k|p):15x16 15 16 // 靖
+assume ⿰ han-7acb:7x16 -1 han-9751-($-1):9x16 // ⿰立靑
+glyph han-9756.0:* = han-9756-g:*
+glyph han-9756.1:* = han-9756-k:*
+glyph han-9756.2:* = han-9756-g:*
+glyph han-9756.3:* = han-9756-k:*
 
 ## 174.6
 
@@ -2292,11 +2290,11 @@ glyph han-9756-t:* = han-9756.x:*
 
 ## 174.7
 
-glyph han-975a.0:15x16 15 16 // 靚
-⿰ han-9751.0:7x16 han-898b:8x16 // ⿰靑見
-glyph han-975a.1:* = han-975a.0:*
-glyph han-975a.2:15x16 15 16 // 靚
-⿰ han-9752.0:7x16 han-898b:8x16 // ⿰青見
+glyph han-975a-($han-regions):15x16 15 16 // 靚
+⿰ han-9751-or-9752-($-1):7x16 han-898b:8x16 // ⿰靑見
+glyph han-975a.0:* = han-975a-j:*
+glyph han-975a.1:* = han-975a-j:*
+glyph han-975a.2:* = han-975a-g:*
 glyph han-975a.3:15x16 15 16 // 靚
 ..............................
 ..............................
@@ -2315,11 +2313,6 @@ glyph han-975a.3:15x16 15 16 // 靚
 ..............................
 ..............................
 ref han-975a.0:15x16
-glyph han-975a.x:15x16 15 16 // 靚
-⿰ han-9752.x:7x16 han-898b:8x16 // ⿰青見
-glyph han-975a-(j|k|p):* = han-975a.0:*
-glyph han-975a-(g|h):* = han-975a.2:*
-glyph han-975a-t:* = han-975a.x:*
 
 # CJK unified ideographs: 非 (175)
 

@@ -335,11 +335,37 @@ def parse_label(label: str) -> tuple[tuple[int, int] | None, tuple[int, int] | N
 # a multi-alias `glyph han-XXXX-(j|k):* = han-XXXX.0:*`, or the older `exists
 # han-XXXX\.0:(…)` over `glyph han-XXXX-(j|k):($1) = ($0)` it abbreviates --
 # which is how `load_inventory` reads them.
+#
+# One more form names a *pair* of characters rather than one, and is not a
+# `HanName` (see `OR_NAME_RE`).
 HAN_NAME_RE = re.compile(
     r"^han-(?P<cp>[0-9a-f]{4,5})"
     r"(?:\.(?P<shape>[0-9a-z]+)|-(?P<region>\([^()]*\)|[a-z]))?"
     r"(?::(?P<label>.*))?$"
 )
+
+# `han-XXXX-or-YYYY-R`: the component region R writes as either of two
+# characters, where the choice between them follows the region the same way
+# across many composites (靑 for JKP and 青 elsewhere: `han-9751-or-9752`).
+# It is only ever an alias, one `glyph han-XXXX-or-YYYY-R:* = han-XXXX-R:*`
+# (or `= han-YYYY-R:*`, or a plain `han-XXXX:*` for a character not drawn per
+# region) per region, written after `han-XXXX`'s own group with XXXX < YYYY, so
+# a composite line writes `han-XXXX-or-YYYY-($-1)` as it would `han-XXXX-($-1)`.
+# A composite whose regions split the pair differently still names the two
+# characters itself.
+OR_NAME_RE = re.compile(
+    r"^han-(?P<cp>[0-9a-f]{4,5})-or-(?P<alt>[0-9a-f]{4,5})"
+    r"-(?P<region>\([^()]*\)|[a-z])"
+    r"(?::(?P<label>.*))?$"
+)
+
+
+def parse_or_name(name: str) -> tuple[int, int] | None:
+    """The two code points of a `han-XXXX-or-YYYY-R` name, or `None`."""
+    m = OR_NAME_RE.match(name)
+    if m is None:
+        return None
+    return int(m.group("cp"), 16), int(m.group("alt"), 16)
 
 # The region letters `$han-regions` names, for a source that states none.
 DEFAULT_REGIONS = ["g", "h", "t", "j", "k", "p", "v"]

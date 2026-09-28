@@ -594,16 +594,11 @@ glyph han-5703.0:* = han-5703:*
 
 ## 31.8
 
-glyph han-570a.0:15x16 15 16 // 圊 ⿴囗青(GH[S]) ⿴囗青(T) ⿴囗靑(JKP)
-⿴ han-56d7:13x16.11x14 han-9751.0:11x14 2 1 // ⿴囗靑
-glyph han-570a.1:* = han-570a.0:*
-glyph han-570a.2:15x16 15 16 // 圊 ⿴囗青(GH[S]) ⿴囗青(T) ⿴囗靑(JKP)
-⿴ han-56d7:13x16.11x14 han-9752.0:11x14 2 1 // ⿴囗青
-glyph han-570a.x:15x16 15 16 // 圊 ⿴囗青(GH[S]) ⿴囗青(T) ⿴囗靑(JKP)
-⿴ han-56d7:13x16.11x14 han-9752.x:11x14 2 1 // ⿴囗青
-glyph han-570a-(j|k|p):* = han-570a.0:*
-glyph han-570a-(g|h):* = han-570a.2:*
-glyph han-570a-t:* = han-570a.x:*
+glyph han-570a-($han-regions):15x16 15 16 // 圊
+⿴ han-56d7:13x16.11x14 han-9751-or-9752-($-1):11x14 2 1 // ⿴囗靑
+glyph han-570a.0:* = han-570a-j:*
+glyph han-570a.1:* = han-570a-j:*
+glyph han-570a.2:* = han-570a-g:*
 
 ## 31.9
 
@@ -1634,15 +1629,10 @@ glyph han-57e4:15x16 15 16 // 埤 ⿰土卑(GHTKP) ⿰土⿱⿱㇒⿻日丿十(J
 ⿰ han-571f:5x14-l han-5351.0:10x16 // ⿰土卑
 glyph han-57e4.0:* = han-57e4:*
 
-glyph han-57e5.0:15x16 15 16 // 埥 ⿰土青(GHT) ⿰土靑(K)
-⿰ han-571f:5x14-l 1 han-9751.0:9x16 // ⿰土靑
-glyph han-57e5.1:15x16 15 16 // 埥 ⿰土青(GHT) ⿰土靑(K)
-⿰ han-571f:5x14-l 1 han-9752.0:9x16 // ⿰土青
-glyph han-57e5.x:15x16 15 16 // 埥 ⿰土青(GHT) ⿰土靑(K)
-⿰ han-571f:5x14-l 1 han-9752.x:9x16 // ⿰土青
-glyph han-57e5-(j|k):* = han-57e5.0:*
-glyph han-57e5-(g|h):* = han-57e5.1:*
-glyph han-57e5-t:* = han-57e5.x:*
+glyph han-57e5-($han-regions):15x16 15 16 // 埥
+⿰ han-571f:5x14-l 1 han-9751-or-9752-($-1):9x16 // ⿰土靑
+glyph han-57e5.0:* = han-57e5-j:*
+glyph han-57e5.1:* = han-57e5-g:*
 
 // glyph han-57ec:15x16 15 16 // 埬
 // ⿰ han-571f han-6771 // ⿰土東
@@ -1913,12 +1903,9 @@ glyph han-585b:15x16 15 16 // 塛
 // glyph han-5866:15x16 15 16 // 塦
 // ⿱ han-9663 han-571f // ⿱陣土
 
-glyph han-586d.0:15x16 15 16 // 塭
-⿰ han-571f:5x14-l 1 han-6637:9x16 // ⿰土昷
-glyph han-586d.x:15x16 15 16 // 塭
-⿰ han-571f:5x14-l 1 han-25055:9x16 // ⿰土𥁕
-glyph han-586d-(g|h):* = han-586d.0:*
-glyph han-586d-(t|k):* = han-586d.x:*
+glyph han-586d-($han-regions):15x16 15 16 // 塭
+⿰ han-571f:5x14-l 1 han-6637-or-25055-($-1):9x16 // ⿰土昷
+glyph han-586d.0:* = han-586d-g:*
 
 // glyph han-586e:15x16 15 16 // 塮
 // ⿰ han-571f han-5c04 // ⿰土射

@@ -404,7 +404,7 @@ glyph han-249a9:15x16 15 16 // 𤦩
 glyph han-249aa:15x16 15 16 // 𤦪
 ⿰ han-248e9:5x16 1 han-6771:9x16 // ⿰𤣩東
 
-glyph han-249ad-($han-regions):15x16 15 16 // 𤦭 ⿰𤣩青(HT) ⿰𤣩靑(Z)
+glyph han-249ad-($han-regions):15x16 15 16 // 𤦭
 ⿰ han-248e9:5x16 1 han-9752-($-1):9x16 // ⿰𤣩青
 
 glyph han-249ae:15x16 15 16 // 𤦮

@@ -766,10 +766,8 @@ glyph han-212ff:15x16 15 16 // 𡋿
 // glyph han-21302:15x16 15 16 // 𡌂
 // ⿱ han-6c7e han-571f // ⿱汾土
 
-glyph han-21303-g:15x16 15 16 // 𡌃
-⿰ han-571f:5x14-l han-544a:10x16 // ⿰土告
-glyph han-21303-h:15x16 15 16 // 𡌃
-⿰ han-571f:5x14-l han-543f:10x16 // ⿰土吿
+glyph han-21303-($han-regions):15x16 15 16 // 𡌃
+⿰ han-571f:5x14-l han-543f-or-544a-($-1):10x16 // ⿰土告
 
 glyph han-21304:15x16 15 16 // 𡌄
 ⿰ han-571f:5x14-l 1 han-8eca:9x16 // ⿰土車

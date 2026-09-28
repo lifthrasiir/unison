@@ -724,12 +724,9 @@ glyph han-92c0:15x16 15 16 // 鋀
 ⿰ han-91d2:5x15-l 1 han-8c46:9x16 // ⿰釒豆
 glyph han-92c0.0:* = han-92c0:*
 
-glyph han-92c1.0:15x16 15 16 // 鋁
-⿰ han-91d2:5x15-l 1 han-5442:9x16 // ⿰釒呂
-glyph han-92c1.x:15x16 15 16 // 鋁
-⿰ han-91d2:5x15-l 1 han-5415:9x16 // ⿰釒吕
-glyph han-92c1-(h|t|j|k|p):* = han-92c1.0:*
-glyph han-92c1-g:* = han-92c1.x:*
+glyph han-92c1-($han-regions):15x16 15 16 // 鋁
+⿰ han-91d2:5x15-l 1 han-5415-or-5442-($-1):9x16 // ⿰釒呂
+glyph han-92c1.0:* = han-92c1-h:*
 
 glyph han-92c3:15x16 15 16 // 鋃
 ⿰ han-91d2:7x16 1 han-826f.0:7x16 // ⿰釒良
@@ -806,12 +803,10 @@ glyph han-92ea.0:* = han-92ea:*
 // glyph han-92eb:15x16 15 16 // 鋫
 // ⿱ han-5229 han-91d1 // ⿱利金
 
-glyph han-92ef.0:15x16 15 16 // 鋯
-⿰ han-91d2:7x16 han-543f:8x16 // ⿰釒吿
-glyph han-92ef.1:15x16 15 16 // 鋯
-⿰ han-91d2:7x16 han-544a:8x16 // ⿰釒告
-glyph han-92ef-(h|j):* = han-92ef.0:*
-glyph han-92ef-(g|t|k|v):* = han-92ef.1:*
+glyph han-92ef-($han-regions):15x16 15 16 // 鋯
+⿰ han-91d2:7x16 han-543f-or-544a-($-1):8x16 // ⿰釒吿
+glyph han-92ef.0:* = han-92ef-h:*
+glyph han-92ef.1:* = han-92ef-g:*
 
 glyph han-92f0:15x16 15 16 // 鋰
 ⿰ han-91d2:7x16 1 han-91cc:7x16 // ⿰釒里
@@ -850,17 +845,12 @@ glyph han-9301:15x16 15 16 // 錁
 // glyph han-9303:15x16 15 16 // 錃
 // ⿱ han-6ce2 han-91d1 // ⿱波金
 
-glyph han-9306.0:15x16 15 16 // 錆
-⿰ han-91d2:7x16 1 han-9752.0:7x16 // ⿰釒青
-glyph han-9306.1:15x16 15 16 // 錆
-⿰ han-91d2:7x16 1 han-9751.0:7x16 // ⿰釒靑
-glyph han-9306.2:* = han-9306.0:*
-glyph han-9306.3:* = han-9306.1:*
-glyph han-9306.x:15x16 15 16 // 錆
-⿰ han-91d2:7x16 1 han-9752.x:7x16 // ⿰釒青
-glyph han-9306-(g|h|v):* = han-9306.0:*
-glyph han-9306-(j|k|p):* = han-9306.1:*
-glyph han-9306-t:* = han-9306.x:*
+glyph han-9306-($han-regions):15x16 15 16 // 錆
+⿰ han-91d2:7x16 1 han-9751-or-9752-($-1):7x16 // ⿰釒青
+glyph han-9306.0:* = han-9306-g:*
+glyph han-9306.1:* = han-9306-j:*
+glyph han-9306.2:* = han-9306-g:*
+glyph han-9306.3:* = han-9306-j:*
 
 glyph han-9307:15x16 15 16 // 錇
 ⿰ han-91d2:5x15-l 1 han-5485:9x16 // ⿰釒咅
@@ -1093,13 +1083,11 @@ glyph han-93b6.0:* = han-93b6:*
 glyph han-93b7:15x16 15 16 // 鎷
 ⿰ han-91d2:5x15-l 1 han-99ac:9x16 // ⿰釒馬
 
-glyph han-93ba.0:15x16 15 16 // 鎺
-assume ⿲ han-91d2:5x15-l han-793a:5x14 -1 han-4e14:6x16 // ⿲釒示且
-glyph han-93ba.1:* = han-93ba.0:*
-glyph han-93ba.2:15x16 15 16 // 鎺
-assume ⿲ han-91d2:5x15-l han-793b:5x14 -1 han-4e14:6x16 // ⿲釒礻且
-glyph han-93ba-j:* = han-93ba.0:*
-glyph han-93ba-g:* = han-93ba.2:*
+glyph han-93ba-($han-regions):15x16 15 16 // 鎺
+assume ⿲ han-91d2:5x15-l han-793a-or-793b-($-1):5x14 -1 han-4e14:6x16 // ⿲釒示且
+glyph han-93ba.0:* = han-93ba-j:*
+glyph han-93ba.1:* = han-93ba-j:*
+glyph han-93ba.2:* = han-93ba-g:*
 
 glyph han-93be:15x16 15 16 // 鎾
 ⿰ han-91d2:5x15-l 1 han-6637:9x16 // ⿰釒昷

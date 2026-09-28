@@ -768,12 +768,9 @@ glyph han-6339.0:* = han-6339:*
 // glyph han-633e:15x16 15 16 // 挾
 // ⿰ han-624c han-593e // ⿰扌夾
 
-glyph han-6341.0:15x16 15 16 // 捁
-⿰ han-624c:5x16 han-543f:10x16 // ⿰扌吿
-glyph han-6341.x:15x16 15 16 // 捁
-⿰ han-624c:5x16 han-544a:10x16 // ⿰扌告
-glyph han-6341-(h|j):* = han-6341.0:*
-glyph han-6341-(g|t|k|p|v):* = han-6341.x:*
+glyph han-6341-($han-regions):15x16 15 16 // 捁
+⿰ han-624c:5x16 han-543f-or-544a-($-1):10x16 // ⿰扌吿
+glyph han-6341.0:* = han-6341-h:*
 
 glyph han-6346:15x16 15 16 // 捆
 ⿰ han-624c:3x16 han-56f0:13x16 // ⿰扌困
@@ -830,12 +827,9 @@ glyph han-6359.0:* = han-6359:*
 glyph han-635a:15x16 15 16 // 捚
 ⿰ han-624c:5x16 1 han-91cc:9x16 // ⿰扌里
 
-glyph han-635b.0:15x16 15 16 // 捛
-⿰ han-624c:3x16 1 han-5442:11x16 // ⿰扌呂
-glyph han-635b.x:15x16 15 16 // 捛
-⿰ han-624c:3x16 1 han-5415:11x16 // ⿰扌吕
-glyph han-635b-(t|j|v):* = han-635b.0:*
-glyph han-635b-g:* = han-635b.x:*
+glyph han-635b-($han-regions):15x16 15 16 // 捛
+⿰ han-624c:3x16 1 han-5415-or-5442-($-1):11x16 // ⿰扌呂
+glyph han-635b.0:* = han-635b-t:*
 
 // glyph han-6360:15x16 15 16 // 捠
 // ⿰ han-624c han-5175 // ⿰扌兵
@@ -885,10 +879,8 @@ glyph han-6380.0:* = han-6380:*
 // glyph han-6382:15x16 15 16 // 掂
 // ⿰ han-624c han-5e97 // ⿰扌店
 
-glyph han-6385-(g|h|t):15x16 15 16 // 掅
-⿰ han-624c:5x16 1 han-9752-($-1):9x16 // ⿰扌青
-glyph han-6385-(k|p):15x16 15 16 // 掅
-⿰ han-624c:5x16 1 han-9751-($-1):9x16 // ⿰扌靑
+glyph han-6385-($han-regions):15x16 15 16 // 掅
+⿰ han-624c:5x16 1 han-9751-or-9752-($-1):9x16 // ⿰扌青
 
 glyph han-6389:15x16 15 16 // 掉
 ⿰ han-624c:5x16 1 han-5353:9x16 // ⿰扌卓
@@ -957,13 +949,11 @@ glyph han-63c0:15x16 15 16 // 揀
 ⿰ han-624c:5x16 1 han-67ec:9x16 // ⿰扌柬
 glyph han-63c0.0:* = han-63c0:*
 
-glyph han-63c4.0:15x16 15 16 // 揄
-⿰ han-624c:5x16 1 han-516a.0:9x16 // ⿰扌兪
-glyph han-63c4.1:* = han-63c4.0:*
-glyph han-63c4.2:15x16 15 16 // 揄
-⿰ han-624c:5x16 1 han-4fde.0:9x16 // ⿰扌俞
-glyph han-63c4-(j|k|p):* = han-63c4.0:*
-glyph han-63c4-(g|h|t):* = han-63c4.2:*
+glyph han-63c4-($han-regions):15x16 15 16 // 揄
+⿰ han-624c:5x16 1 han-4fde-or-516a-($-1):9x16 // ⿰扌兪
+glyph han-63c4.0:* = han-63c4-j:*
+glyph han-63c4.1:* = han-63c4-j:*
+glyph han-63c4.2:* = han-63c4-g:*
 
 // glyph han-63c6:15x16 15 16 // 揆
 // ⿰ han-624c han-7678 // ⿰扌癸

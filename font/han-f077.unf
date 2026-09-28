@@ -25,8 +25,8 @@ glyph han-2db5e:15x16 15 16 // 𭭞
 
 ## 77.8
 
-glyph han-2db66:15x16 15 16 // 𭭦 ⿰止靑(J) ⿰止青(Z)
-⿰ han-6b62:8x16-l han-9751.0:7x16 // ⿰止靑
+glyph han-2db66:15x16 15 16 // 𭭦
+⿰ han-6b62:8x16-l han-9751-j:7x16 // ⿰止靑
 
 // glyph han-2db68:15x16 15 16 // 𭭨
 // ⿰ han-6b62 han-5947 // ⿰止奇

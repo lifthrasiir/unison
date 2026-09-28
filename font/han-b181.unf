@@ -223,10 +223,10 @@ glyph han-294c0:15x16 15 16 // 𩓀
 // glyph han-294e7:15x16 15 16 // 𩓧
 // ⿰ han-5b9c han-9801 // ⿰宜頁
 
-glyph han-294e8-(g|t):15x16 15 16 // 𩓨 ⿰青頁(GT) ⿰靑頁(P)
-⿰ han-9752-($-1):7x16 1 han-9801:7x16 // ⿰青頁
-glyph han-294e8-(p):15x16 15 16 // 𩓨 ⿰青頁(GT) ⿰靑頁(P)
-⿰ han-9751-($-1):7x16 1 han-9801:7x16 // ⿰靑頁
+glyph han-294e8-($han-regions):15x16 15 16 // 𩓨
+⿰ han-9751-or-9752-($-1):7x16 1 han-9801:7x16 // ⿰青頁
+glyph han-294e8.0:* = han-294e8-j:*
+glyph han-294e8.1:* = han-294e8-g:*
 
 glyph han-294e9:15x16 15 16 // 𩓩
 ⿰ han-4e9e:9x16 1 han-9801:5x16 // ⿰亞頁

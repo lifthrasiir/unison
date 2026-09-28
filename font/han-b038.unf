@@ -251,10 +251,8 @@ glyph han-21729:15x16 15 16 // 𡜩
 // glyph han-21731:15x16 15 16 // 𡜱
 // ⿰ han-5973 han-5fcc // ⿰女忌
 
-glyph han-21732-(g|t):15x16 15 16 // 𡜲
-⿰ han-5973:7x16 han-544a:8x16 // ⿰女告
-glyph han-21732-j:15x16 15 16 // 𡜲
-⿰ han-5973:7x16 han-543f:8x16 // ⿰女吿
+glyph han-21732-($han-regions):15x16 15 16 // 𡜲
+⿰ han-5973:7x16 han-543f-or-544a-($-1):8x16 // ⿰女告
 
 glyph han-21733:15x16 15 16 // 𡜳
 ⿰ han-5973:7x16 1 han-9149:7x16 // ⿰女酉

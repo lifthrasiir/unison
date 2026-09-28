@@ -435,10 +435,8 @@ glyph han-28fe8:15x16 15 16 // 𨿨
 // glyph han-28feb:15x16 15 16 // 𨿫
 // ⿰ han-5947 han-96b9 // ⿰奇隹
 
-glyph han-28fec-(g|t):15x16 15 16 // 𨿬
-⿰ han-9752-($-1):7x16 1 han-96b9:7x16 // ⿰青隹
-glyph han-28fec-(j):15x16 15 16 // 𨿬
-⿰ han-9751-($-1):7x16 1 han-96b9:7x16 // ⿰靑隹
+glyph han-28fec-($han-regions):15x16 15 16 // 𨿬
+⿰ han-9751-or-9752-($-1):7x16 1 han-96b9:7x16 // ⿰青隹
 
 // glyph han-28ff2:15x16 15 16 // 𨿲
 // ⿰ han-5774 han-96b9 // ⿰坴隹

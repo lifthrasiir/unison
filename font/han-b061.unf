@@ -70,10 +70,8 @@ glyph han-225b8:15x16 15 16 // 𢖸
 glyph han-225bd:15x16 15 16 // 𢖽
 ⿱ han-571f:15x10 han-5fc3:15x6 // ⿱土心
 
-glyph han-225bf-g:15x16 15 16 // 𢖿
-⿱ han-21b54:15x7 han-5fc3:15x9 // ⿱𡭔心
-glyph han-225bf-j:15x16 15 16 // 𢖿
-⿱ han-5c0f:15x7 han-5fc3:15x9 // ⿱小心
+glyph han-225bf-($han-regions):15x16 15 16 // 𢖿
+⿱ han-5c0f-or-21b54-($-1):15x7 han-5fc3:15x9 // ⿱𡭔心
 
 glyph han-225c0:15x16 15 16 // 𢗀
 ⿱ han-53e3:11x9 1 han-5fc3:15x6 // ⿱口心
@@ -374,12 +372,10 @@ glyph han-2266a:15x16 15 16 // 𢙪
 // glyph han-22671:15x16 15 16 // 𢙱
 // ⿰ han-5fc4 han-5f04 // ⿰忄弄
 
-glyph han-22672.0:15x16 15 16 // 𢙲
-⿰ han-5fc4:5x16 han-5442:10x16 // ⿰忄呂
-glyph han-22672.1:15x16 15 16 // 𢙲
-⿰ han-5fc4:5x16 han-5415:10x16 // ⿰忄吕
-glyph han-22672-(t|j|v):* = han-22672.0:*
-glyph han-22672-g:* = han-22672.1:*
+glyph han-22672-($han-regions):15x16 15 16 // 𢙲
+⿰ han-5fc4:5x16 han-5415-or-5442-($-1):10x16 // ⿰忄呂
+glyph han-22672.0:* = han-22672-t:*
+glyph han-22672.1:* = han-22672-g:*
 
 glyph han-22673:15x16 15 16 // 𢙳
 ⿲ han-5fc4:5x16 han-723f:5x16 han-58eb:5x16 // ⿲忄爿士

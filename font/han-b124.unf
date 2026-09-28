@@ -176,8 +176,10 @@ glyph han-26442:15x16 15 16 // 𦑂
 // glyph han-26449-($han-regions):15x16 15 16 // 𦑉 ⿰⿱日⺝羽(GT) ⿰冐羽(Z)
 // ⿰ han-5190 han-7fbd-($-1) // ⿰冐羽
 
-glyph han-2644a-($han-regions):15x16 15 16 // 𦑊 ⿰羽青(GHT) ⿰羽靑(Z)
+glyph han-2644a-(g|h|t):15x16 15 16 // 𦑊
 ⿰ han-7fbd-($-1):9x16 1 han-9752-($-1):5x16 // ⿰羽青
+glyph han-2644a-(j):15x16 15 16 // 𦑊
+⿰ han-7fbd-($-1):8x16 han-9751-($-1):7x16 // ⿰羽靑
 
 glyph han-2644b-($han-regions):15x16 15 16 // 𦑋
 ⿰ han-5352:7x16 han-7fbd-($-1):8x16 // ⿰卒羽

@@ -289,15 +289,10 @@ glyph han-284e6-($han-regions):15x16 15 16 // 𨓦
 // glyph han-284f3-($han-regions):15x16 15 16 // 𨓳 ⿺辶杳(GT) ⿺辶⿱木目(U)
 // ⿺ han-8fb6-($-1) han-6773 // ⿺辶杳
 
-glyph han-284fd.0:15x16 15 16 // 𨓽
-⿺ han-8fb6.0:15x16.11x14 han-9751.0:11x14 4 0 // ⿺辶靑
-glyph han-284fd.1:15x16 15 16 // 𨓽
-⿺ han-8fb6.1:15x16.11x14 han-9752.0:11x14 4 0 // ⿺辶青
-glyph han-284fd.x:15x16 15 16 // 𨓽
-⿺ han-8fb6.4:15x16.11x14 han-9752.x:11x14 4 0 // ⿺辶青
-glyph han-284fd-j:* = han-284fd.0:*
-glyph han-284fd-g:* = han-284fd.1:*
-glyph han-284fd-t:* = han-284fd.x:*
+glyph han-284fd-($han-regions):15x16 15 16 // 𨓽
+⿺ han-8fb6-($-1):15x16.11x14 han-9751-or-9752-($-1):11x14 4 0 // ⿺辶靑
+glyph han-284fd.0:* = han-284fd-j:*
+glyph han-284fd.1:* = han-284fd-g:*
 
 // glyph han-284fe-($han-regions):15x16 15 16 // 𨓾
 // ⿺ han-8fb6-($-1) han-5947 // ⿺辶奇

@@ -144,8 +144,13 @@ def chars_for(tok: str) -> list[str] | None:
     """The characters a component or header may be commented as, canonical first.
 
     `None` for a token that names no han glyph at all, which is what stops the
-    line it is on from being checked.
+    line it is on from being checked. A `han-XXXX-or-YYYY` component draws one
+    of the two per region, and one comment serves every region, so it may be
+    written as either.
     """
+    pair = G.parse_or_name(tok)
+    if pair is not None:
+        return [chr(cp) for cp in pair]
     hn = G.parse_han_name(tok)
     if hn is None:
         return None

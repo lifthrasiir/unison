@@ -764,8 +764,10 @@ glyph han-20602:15x16 15 16 // 𠘂
 
 ## 15.14
 
-glyph han-20612-($han-regions):15x16 15 16 // 𠘒
+glyph han-20612-(g|t):15x16 15 16 // 𠘒
 ⿲ han-51ab:3x12 han-9752-($-1):5x16 han-821f:7x16 // ⿲冫青舟
+glyph han-20612-(j):15x16 15 16 // 𠘒
+⿲ han-51ab:3x12 han-9751-($-1):7x16 han-821f:7x16 // ⿲冫靑舟
 
 // glyph han-20614:15x16 15 16 // 𠘔
 // ⿱ han-99ae han-5c11 // ⿱馮少

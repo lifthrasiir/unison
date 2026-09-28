@@ -442,10 +442,8 @@ glyph han-291d9:15x16 15 16 // 𩇙 ⿰青令(T) ⿰靑令(Z)
 glyph han-291da:15x16 15 16 // 𩇚 ⿰青台(T) ⿰靑台(Z)
 ⿰ han-9752-t:7x16 1 han-53f0:7x16 // ⿰青台
 
-glyph han-291db-(g|t|v):15x16 15 16 // 𩇛
-assume ⿰ han-751f:7x16 -1 han-9752-($-1):9x16 // ⿰生青
-glyph han-291db-(j):15x16 15 16 // 𩇛
-assume ⿰ han-751f:7x16 -1 han-9751-($-1):9x16 // ⿰生靑
+glyph han-291db-($han-regions):15x16 15 16 // 𩇛
+assume ⿰ han-751f:7x16 -1 han-9751-or-9752-($-1):9x16 // ⿰生青
 
 ## 174.8
 
@@ -455,7 +453,7 @@ assume ⿰ han-751f:7x16 -1 han-9751-($-1):9x16 // ⿰生靑
 ## 174.9
 
 glyph han-291df-($han-regions):15x16 15 16 // 𩇟
-⿲ han-51ab:3x12 han-9752-($-1):5x16 han-898b:7x16 // ⿲冫青見
+⿲ han-51ab:3x12 han-9751-or-9752-($-1):7x16 han-898b:5x16 // ⿲冫青見
 
 ## 174.10
 

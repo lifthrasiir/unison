@@ -796,8 +796,13 @@ glyph han-4474:15x16 15 16 // 䑴
 // glyph han-4475:15x16 15 16 // 䑵 ⿰舟冐(G) ⿰舟⿱冃月(T)
 // ⿰ han-821f han-5190 // ⿰舟冐
 
-glyph han-4476-($han-regions):15x16 15 16 // 䑶 ⿰舟青(GTP) ⿰舟靑(J)
+glyph han-4476-(g|t|p):15x16 15 16 // 䑶
 ⿰ han-821f:7x16 1 han-9752-($-1):7x16 // ⿰舟青
+glyph han-4476-(j):15x16 15 16 // 䑶
+⿰ han-821f:7x16 1 han-9751-($-1):7x16 // ⿰舟靑
+glyph han-4476.0:* = han-4476-j:*
+glyph han-4476.1:* = han-4476-j:*
+glyph han-4476.2:* = han-4476-t:*
 
 ## 137.9
 

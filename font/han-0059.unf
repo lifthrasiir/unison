@@ -901,13 +901,11 @@ glyph han-6084-(g|h|t):* = han-6084.2:*
 // glyph han-608d:15x16 15 16 // 悍
 // ⿰ han-5fc4 han-65f1 // ⿰忄旱
 
-glyph han-608e.0:15x16 15 16 // 悎
-⿰ han-5fc4:5x16 han-543f:10x16 // ⿰忄吿
-glyph han-608e.1:* = han-608e.0:*
-glyph han-608e.2:15x16 15 16 // 悎
-⿰ han-5fc4:5x16 han-544a:10x16 // ⿰忄告
-glyph han-608e-(h|j):* = han-608e.0:*
-glyph han-608e-(g|t|k):* = han-608e.2:*
+glyph han-608e-($han-regions):15x16 15 16 // 悎
+⿰ han-5fc4:5x16 han-543f-or-544a-($-1):10x16 // ⿰忄吿
+glyph han-608e.0:* = han-608e-h:*
+glyph han-608e.1:* = han-608e-h:*
+glyph han-608e.2:* = han-608e-g:*
 
 // glyph han-608f:15x16 15 16 // 悏
 // ⿰ han-5fc4 han-593e // ⿰忄夾
@@ -1007,17 +1005,14 @@ glyph han-60bc.0:* = han-60bc:*
 // glyph han-60c3:15x16 15 16 // 惃
 // ⿰ han-5fc4 han-6606 // ⿰忄昆
 
-glyph han-60c5.0:15x16 15 16 // 情
-⿰ han-5fc4:5x16 1 han-9752.0:9x16 // ⿰忄青
-glyph han-60c5.1:15x16 15 16 // 情
-⿰ han-5fc4:5x16 1 han-9751.0:9x16 // ⿰忄靑
-glyph han-60c5.2:* = han-60c5.0:*
-glyph han-60c5.3:* = han-60c5.1:*
-glyph han-60c5.x:15x16 15 16 // 情
-⿰ han-5fc4:5x16 1 han-9752.x:9x16 // ⿰忄青
-glyph han-60c5-(g|h|j|v):* = han-60c5.0:*
-glyph han-60c5-(k|p):* = han-60c5.1:*
-glyph han-60c5-t:* = han-60c5.x:*
+glyph han-60c5-(g|h|t|j|v):15x16 15 16 // 情
+⿰ han-5fc4:5x16 1 han-9752-($-1):9x16 // ⿰忄青
+glyph han-60c5-(k|p):15x16 15 16 // 情
+⿰ han-5fc4:5x16 1 han-9751-($-1):9x16 // ⿰忄靑
+glyph han-60c5.0:* = han-60c5-g:*
+glyph han-60c5.1:* = han-60c5-k:*
+glyph han-60c5.2:* = han-60c5-g:*
+glyph han-60c5.3:* = han-60c5-k:*
 
 glyph han-60c6.0:15x16 15 16 // 惆
 ⿰ han-5fc4:5x16 han-5468.0:10x16 // ⿰忄周

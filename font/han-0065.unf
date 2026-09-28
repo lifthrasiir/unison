@@ -1811,6 +1811,9 @@ glyph han-6637:15x16 15 16 // 昷 (see also han-25055)
 ⿱ han-65e5:11x7 1 han-76bf:15x8 // ⿱日皿
 glyph han-6637.0:* = han-6637:*
 
+glyph han-6637-or-25055-(g|h|v):* = han-6637:*
+glyph han-6637-or-25055-(t|j|k|p):* = han-25055:*
+
 // glyph han-6638-($han-regions):15x16 15 16 // 昸
 // ⿰ han-65e5 han-51ac-($-1) // ⿰日冬
 
@@ -1922,14 +1925,12 @@ glyph han-6665:15x16 15 16 // 晥
 ⿰ han-65e5:5x14-l 1 han-5b8c:9x16 // ⿰日完
 glyph han-6665.0:* = han-6665:*
 
-glyph han-6667.0:15x16 15 16 // 晧
-⿰ han-65e5:6x16 1 han-543f:8x16 // ⿰日吿
-glyph han-6667.1:15x16 15 16 // 晧
-⿰ han-65e5:6x16 1 han-544a:8x16 // ⿰日告
-glyph han-6667.2:* = han-6667.0:*
-glyph han-6667.3:* = han-6667.1:*
-glyph han-6667-(h|j):* = han-6667.0:*
-glyph han-6667-(g|t|k|p):* = han-6667.1:*
+glyph han-6667-($han-regions):15x16 15 16 // 晧
+⿰ han-65e5:6x16 1 han-543f-or-544a-($-1):8x16 // ⿰日吿
+glyph han-6667.0:* = han-6667-h:*
+glyph han-6667.1:* = han-6667-g:*
+glyph han-6667.2:* = han-6667-h:*
+glyph han-6667.3:* = han-6667-g:*
 
 ## 72.8
 
@@ -1962,19 +1963,16 @@ glyph han-6671:15x16 15 16 // 晱
 // glyph han-6673:15x16 15 16 // 晳
 // ⿱ han-6790 han-65e5 // ⿱析日
 
-glyph han-6674.0:15x16 15 16 // 晴
-⿰ han-65e5:5x14-l 1 han-9751.0:9x16 // ⿰日靑
-glyph han-6674.1:15x16 15 16 // 晴
-⿰ han-65e5:5x14-l 1 han-9752.0:9x16 // ⿰日青
-glyph han-6674.2:* = han-6674.1:*
-glyph han-6674.3:* = han-6674.0:*
-glyph han-6674.4:* = han-6674.0:*
-glyph han-6674.5:* = han-6674.1:*
-glyph han-6674.x:15x16 15 16 // 晴
-⿰ han-65e5:5x14-l 1 han-9752.x:9x16 // ⿰日青
-glyph han-6674-(k|p):* = han-6674.0:*
-glyph han-6674-(g|h|j|v):* = han-6674.1:*
-glyph han-6674-t:* = han-6674.x:*
+glyph han-6674-(g|h|t|j|v):15x16 15 16 // 晴
+⿰ han-65e5:5x14-l 1 han-9752-($-1):9x16 // ⿰日青
+glyph han-6674-(k|p):15x16 15 16 // 晴
+⿰ han-65e5:5x14-l 1 han-9751-($-1):9x16 // ⿰日靑
+glyph han-6674.0:* = han-6674-k:*
+glyph han-6674.1:* = han-6674-g:*
+glyph han-6674.2:* = han-6674-g:*
+glyph han-6674.3:* = han-6674-k:*
+glyph han-6674.4:* = han-6674-k:*
+glyph han-6674.5:* = han-6674-g:*
 
 glyph han-6676:11x13 11 13 // 晶
 ⿱ 1|han-65e5:9x6|1 1 han-660d:11x6 // ⿱日昍

@@ -2019,6 +2019,9 @@ $$..........................$$
 @@..........................@@
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
+glyph han-5415-or-5442-g:* = han-5415:*
+glyph han-5415-or-5442-(h|t|j|k|p|v):* = han-5442:*
+
 // glyph han-5416:15x16 15 16 // 吖
 // ⿰ han-53e3 han-4e2b // ⿰口丫
 
@@ -2200,6 +2203,9 @@ glyph han-543f:15x16 15 16 // 吿
 ..............................
 ..............................
 ref han-544a:15x16
+
+glyph han-543f-or-544a-(g|t|k|p|v):* = han-544a:*
+glyph han-543f-or-544a-(h|j):* = han-543f:*
 
 glyph han-5442:7x16 7 16 // 呂
 $$@@@@@@@@@@$$
@@ -3002,13 +3008,11 @@ glyph han-54d0:15x16 15 16 // 哐
 
 ## 30.7
 
-glyph han-54e0.0:15x16 15 16 // 哠
-⿰ han-53e3:7x12 han-543f:8x16 // ⿰口吿
-glyph han-54e0.1:* = han-54e0.0:*
-glyph han-54e0.2:15x16 15 16 // 哠
-⿰ han-53e3:7x12 han-544a:8x16 // ⿰口告
-glyph han-54e0-(h|j):* = han-54e0.0:*
-glyph han-54e0-(g|t|k|v):* = han-54e0.2:*
+glyph han-54e0-($han-regions):15x16 15 16 // 哠
+⿰ han-53e3:7x12 han-543f-or-544a-($-1):8x16 // ⿰口吿
+glyph han-54e0.0:* = han-54e0-h:*
+glyph han-54e0.1:* = han-54e0-h:*
+glyph han-54e0.2:* = han-54e0-g:*
 
 // glyph han-54e1:15x16 15 16 // 員
 // ⿱ han-53e3 han-8c9d // ⿱口貝
@@ -3257,15 +3261,12 @@ glyph han-5566:15x16 15 16 // 啦
 ⿲ han-53e3:3x12 han-624c:3x16 han-7acb:9x16 // ⿲口扌立
 glyph han-5566.0:* = han-5566:*
 
-glyph han-5568.0:15x16 15 16 // 啨
-⿰ han-53e3:6x12 han-9751.0:9x16 // ⿰口靑
-glyph han-5568.1:15x16 15 16 // 啨
-⿰ han-53e3:6x12 han-9752.0:9x16 // ⿰口青
-glyph han-5568.x:15x16 15 16 // 啨
-⿰ han-53e3:6x12 han-9752.x:9x16 // ⿰口青
-glyph han-5568-p:* = han-5568.0:*
-glyph han-5568-(g|j|v):* = han-5568.1:*
-glyph han-5568-t:* = han-5568.x:*
+glyph han-5568-(g|t|j|v):15x16 15 16 // 啨
+⿰ han-53e3:6x12 han-9752-($-1):9x16 // ⿰口青
+glyph han-5568-(p):15x16 15 16 // 啨
+⿰ han-53e3:6x12 han-9751-($-1):9x16 // ⿰口靑
+glyph han-5568.0:* = han-5568-p:*
+glyph han-5568.1:* = han-5568-g:*
 
 // glyph han-5569:15x16 15 16 // 啩
 // ⿰ han-53e3 han-5366 // ⿰口卦
@@ -3486,13 +3487,11 @@ glyph han-55d7-($han-regions):15x16 15 16 // 嗗
 ⿰ han-53e3:5x12 1 han-9aa8-($-1):9x16 // ⿰口骨
 glyph han-55d7.0:* = han-55d7-j:*
 
-glyph han-55e2.0:15x16 15 16 // 嗢
-⿰ han-53e3:5x12 1 han-25055:9x16 // ⿰口𥁕
-glyph han-55e2.1:* = han-55e2.0:*
-glyph han-55e2.2:15x16 15 16 // 嗢
-⿰ han-53e3:5x12 1 han-6637:9x16 // ⿰口昷
-glyph han-55e2-(t|j|k|p):* = han-55e2.0:*
-glyph han-55e2-(g|h|v):* = han-55e2.2:*
+glyph han-55e2-($han-regions):15x16 15 16 // 嗢
+⿰ han-53e3:5x12 1 han-6637-or-25055-($-1):9x16 // ⿰口𥁕
+glyph han-55e2.0:* = han-55e2-t:*
+glyph han-55e2.1:* = han-55e2-t:*
+glyph han-55e2.2:* = han-55e2-g:*
 
 // glyph han-55e5:15x16 15 16 // 嗥
 // ⿰ han-53e3 han-768b // ⿰口皋

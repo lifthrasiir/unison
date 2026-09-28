@@ -2082,12 +2082,8 @@ glyph han-7697.1:15x16 15 16 // 皗
 glyph han-7697-j:* = han-7697.0:*
 glyph han-7697-(g|t|k|p):* = han-7697.1:*
 
-glyph han-7698-g:15x16 15 16 // 皘 ⿰白青(GT) ⿰白靑(P)
-⿰ han-767d:6x16 han-9752.0:9x16 // ⿰白青
-glyph han-7698-t:15x16 15 16 // 皘 ⿰白青(GT) ⿰白靑(P)
-⿰ han-767d:6x16 han-9752.x:9x16 // ⿰白青
-glyph han-7698-(j|p):15x16 15 16 // 皘 ⿰白青(GT) ⿰白靑(P)
-⿰ han-767d:6x16 han-9751.0:9x16 // ⿰白靑
+glyph han-7698-($han-regions):15x16 15 16 // 皘
+⿰ han-767d:6x16 han-9751-or-9752-($-1):9x16 // ⿰白青
 
 // glyph han-7699:15x16 15 16 // 皙
 // ⿱ han-6790 han-767d // ⿱析白
@@ -3140,10 +3136,11 @@ glyph han-7752:15x16 15 16 // 睒
 // glyph han-775a:15x16 15 16 // 睚
 // ⿰ han-76ee han-5393 // ⿰目厓
 
-glyph han-775b-(g|h|t):15x16 15 16 // 睛 ⿰目青(GH[V]) ⿰目青(T) ⿰目靑(JKP)
-⿰ han-76ee:6x16 han-9752-($-1):9x16 // ⿰目青
-glyph han-775b-(j|k|p):15x16 15 16 // 睛 ⿰目青(GH[V]) ⿰目青(T) ⿰目靑(JKP)
-⿰ han-76ee:6x16 han-9751-($-1):9x16 // ⿰目靑
+glyph han-775b-($han-regions):15x16 15 16 // 睛
+⿰ han-76ee:6x16 han-9751-or-9752-($-1):9x16 // ⿰目青
+glyph han-775b.0:* = han-775b-j:*
+glyph han-775b.1:* = han-775b-j:*
+glyph han-775b.2:* = han-775b-g:*
 
 // glyph han-775e:15x16 15 16 // 睞
 // ⿰ han-76ee han-4f86 // ⿰目來
@@ -3171,10 +3168,8 @@ glyph han-776d-(g|t|j|k|p):* = han-776d.2:*
 
 ## 109.9
 
-glyph han-776e-(g|h|t):15x16 15 16 // 睮
-⿰ han-76ee:5x13-l 1 han-4fde.0:9x16 // ⿰目俞
-glyph han-776e-(j|k|p):15x16 15 16 // 睮
-⿰ han-76ee:5x13-l 1 han-516a.0:9x16 // ⿰目兪
+glyph han-776e-($han-regions):15x16 15 16 // 睮
+⿰ han-76ee:5x13-l 1 han-4fde-or-516a-($-1):9x16 // ⿰目俞
 
 glyph han-7772:15x16 15 16 // 睲
 ⿰ han-76ee:4x13-l han-661f:11x16 // ⿰目星
