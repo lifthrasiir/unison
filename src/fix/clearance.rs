@@ -7,8 +7,8 @@
 //! # What it touches
 //!
 //! **Only a line the source already reports**, and a rewrite is emitted only
-//! when it *lowers* the score — a line that cannot be improved keeps the
-//! warning rather than being shuffled about. Four kinds of report, and they are
+//! when it *lowers* what the search minimizes (the cost below) — a line that
+//! cannot be improved keeps the warning rather than being shuffled about. Four kinds of report, and they are
 //! not the same act:
 //!
 //! - a **clearance finding**: the line has a layout and it is outside the
@@ -53,7 +53,7 @@
 //!
 //! One set of gaps and labels then has to serve every glyph, so the objective
 //! is **the fewest glyphs warning at all**, then the fewest with no layout,
-//! then the summed score and the tie-breaks below. The warnings are a work
+//! then the summed cost and the tie-breaks below. The warnings are a work
 //! queue and its length is what the command is there to shorten, so a family in
 //! which one more glyph is finished beats one in which every glyph is a little
 //! less wrong. The middle number keeps a TODO from outliving every answer to
@@ -78,6 +78,17 @@
 //! check reports on. Zero is "no clearance finding", not "no warning": a
 //! wrong-slot component warns at any score and is counted beside it.
 //!
+//! What the search minimizes is not quite the score but its **cost**
+//! ([`cost`]): the score, plus one and a half per cell the parts' boxes leave
+//! of the glyph's at its two edges — a leading gap, or what the last part
+//! leaves at the far end. Room at an edge reads as the glyph shoved to one
+//! side; the same room between the parts reads as their spacing, even past
+//! `max`. So `a 2 b` is written in preference to `a 1 b` with a cell left at
+//! the far edge, although the check counts one more cell against it — and a
+//! rewrite may report a larger score than the line had, having lowered the
+//! cost. It is the boxes that are held to the edges and not the ink, so a part
+//! drawn with a bearing of its own keeps it.
+//!
 //! # Why the gaps need no search
 //!
 //! Because the clearances *are* the free variables, and their sum is not one.
@@ -90,11 +101,10 @@
 //! ```
 //!
 //! which mentions no position — a property of the *variants*. So the question
-//! is "which integers summing to a fixed T are least far outside `min..max`",
-//! which is arithmetic: if T fits in `(k+1)·min ..= (k+1)·max` the answer is
-//! zero; otherwise the least possible is the shortfall itself, reached when
-//! every clearance is on the range's near side. [`arrange`] is those three
-//! cases, and only the variants are searched.
+//! is "which integers summing to a fixed T cost least", which is arithmetic:
+//! [`cost`] is one convex function per clearance, and a fixed sum of those is
+//! minimized a cell at a time. [`arrange`] is that walk, and only the variants
+//! are searched.
 //!
 //! `audit max-contact-run` does not disturb any of that: what a junction owes it
 //! is a property of the pair, not of where the line puts them, so it lands
@@ -108,19 +118,24 @@
 //!    one sum of ranks, because a sum cannot tell `[-l, -r]` reversed from two
 //!    unmarked names, and only the first warns;
 //! 2. the smallest sum of the two edge clearances — parts pushed out against
-//!    the box, room grown between them. This decides `⿰` between "0 1 0" and
-//!    "0 0 1", and is the whole of what makes a result look composed;
+//!    the box, room grown between them. [`cost`] says the same of the boxes;
+//!    this says it of the ink, for the layouts the boxes do not decide;
 //! 3. the most even inner clearances, when there are two (`⿲`/`⿳`);
-//! 4. lexicographically smallest, left first;
-//! 5. the line as written, then the names in order — so a run over an unchanged
+//! 4. the least room the line writes around the parts' boxes, gaps and the
+//!    leftover at the far end alike: of two variants that draw the same ink,
+//!    the one whose box is a cell longer, rather than a gap standing in for
+//!    that cell beside the shorter one;
+//! 5. lexicographically smallest, left first;
+//! 6. the line as written, then the names in order — so a run over an unchanged
 //!    source is a no-op.
 //!
-//! Steps 2–4 are the order [`arrange`] builds one layout in; they appear again
-//! because two *different* variant choices also have to be ordered.
+//! Steps 2, 3 and 5 are the order [`arrange`] builds one layout in; they
+//! appear again because two *different* variant choices also have to be
+//! ordered.
 //!
 //! # An enclosure
 //!
-//! Planned by [`optimize_enclosure_line`], differing in three ways that follow
+//! Planned by [`optimize_enclosure_line`], differing in four ways that follow
 //! from what the layout is:
 //!
 //! - **the placements are searched, not solved.** The two axes are not
@@ -132,7 +147,10 @@
 //!   open side, none on a `⿴`;
 //! - **`inner_spread` is over the axes walled on both sides**, which centres
 //!   the inner part of a `⿴` where the lexicographic rule would wedge it into
-//!   a corner.
+//!   a corner;
+//! - **the objective is the plain score**, not [`cost`]: the clearances of an
+//!   enclosure are the inner part against its walls, and `edge_sum` already
+//!   pushes it out on the open sides.
 //!
 //! [`optimize_pattern_enclosure_line`] reads those rules over a family the way
 //! [`optimize_pattern_line`] reads a split's: the two offsets and the labels
@@ -168,10 +186,11 @@ pub struct ClearanceFix {
     /// The score before and after: how far the clearances fall outside the
     /// range, summed — over the whole family for a pattern line.
     ///
-    /// `after < before` holds for a line that stands for one glyph. For a
-    /// pattern line the objective is [`glyphs_warning`](Self::glyphs_warning)
-    /// first, so `after` may be the larger of the two when the rewrite
-    /// finishes a glyph at the others' expense.
+    /// What a rewrite lowers is the [`cost`], not this, so `after` may be the
+    /// larger of the two: a cell moved off an edge into the middle may put the
+    /// middle past the range. For a pattern line the objective is
+    /// [`glyphs_warning`](Self::glyphs_warning) first, so `after` may also be
+    /// larger when the rewrite finishes a glyph at the others' expense.
     ///
     /// `None` before means the line had no layout to score — a component had
     /// not picked its variant, so there was nothing measured rather than
@@ -983,8 +1002,9 @@ impl Candidate {
 /// fields are in the order the module docs list them.
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 struct Key {
-    /// How far outside the range the layout is, summed. The objective.
-    score: i32,
+    /// [`cost`]: how far outside the range the layout is, summed, with the
+    /// room the boxes leave at the edges added. The objective.
+    cost: i32,
     /// How many components are drawn for a slot other than the one they sit
     /// in — the second objective, and the only one that moves a line whose
     /// clearances are already perfect.
@@ -1002,10 +1022,19 @@ struct Key {
     edge_sum: i32,
     /// How far apart the two inner clearances are (`⿲`/`⿳` only; 0 otherwise).
     inner_spread: i32,
+    /// The room the line writes around the parts' boxes — every gap and what
+    /// the last part leaves of the glyph, as magnitudes. Two variant choices
+    /// that measure alike differ here when one box is a cell longer than the
+    /// other with the ink where it was: the longer one is the drawing made for
+    /// that room, and the gap beside the shorter one is standing in for it.
+    blank: i32,
     clearances: Vec<i32>,
     /// `false` — the variants as written — sorts first.
     changed: bool,
     names: Vec<String>,
+    /// [`score`], which is what the check reports. `clearances` fixes it, so it
+    /// orders nothing.
+    score: i32,
 }
 
 /// Plan one IDC line, or `None` when the line does not warn, cannot be
@@ -1037,7 +1066,7 @@ fn optimize_line(
     // still something to do here, though: picking from the family it names is
     // exactly what the TODO asks for, so the line is optimized *towards* a
     // decision rather than away from a warning. Its `before` is `None`, and the
-    // "must lower the score" rule below has nothing to compare against.
+    // "must lower the cost" rule below has nothing to compare against.
     let undecided = written.iter().any(|n| is_undecided_slot(n));
 
     // A component the check *errors* on — a name nothing defines, a box that
@@ -1082,15 +1111,16 @@ fn optimize_line(
         Some(current) => {
             let placed = walk(compose, &current);
             let as_written: Vec<&Candidate> = current.iter().collect();
+            let clearances = clearances_at(&as_written, &placed, axis_extent, horizontal, contact)?;
+            let score = score(&clearances, lo, hi);
+            let last = current.len() - 1;
+            let trail = axis_extent - (placed[last] + current[last].extent);
             let before = (
-                score(
-                    &clearances_at(&as_written, &placed, axis_extent, horizontal, contact)?,
-                    lo,
-                    hi,
-                ),
+                score,
+                cost(score, placed[0], trail),
                 current.iter().filter(|c| c.rank == 2).count(),
             );
-            if before == (0, 0) {
+            if (before.0, before.2) == (0, 0) {
                 return None; // nothing warns, so nothing to fix
             }
             Some(before)
@@ -1140,7 +1170,8 @@ fn optimize_line(
         }
     }
     let (key, pick) = best?;
-    if before.is_some_and(|before| (key.score, key.mismatched) >= before) {
+    if before.is_some_and(|(_, cost, mismatched)| (key.cost, key.mismatched) >= (cost, mismatched))
+    {
         return None; // a line nobody can improve keeps its warning
     }
     let chosen: Vec<&Candidate> = pick
@@ -1171,9 +1202,9 @@ fn optimize_line(
     }
     Some(PlannedLine {
         line,
-        before: before.map(|(score, _)| score),
+        before: before.map(|(score, _, _)| score),
         after: key.score,
-        mismatched: before.map(|(_, mismatched)| (mismatched, key.mismatched)),
+        mismatched: before.map(|(_, _, mismatched)| (mismatched, key.mismatched)),
         glyphs_warning: None,
         faulty,
     })
@@ -1230,6 +1261,9 @@ struct Member {
     hi: i32,
     base: Vec<i32>,
     total: i32,
+    /// What the parts' boxes leave of the glyph along the axis before any gap:
+    /// the room the line's gaps and its trailing leftover share.
+    room: i32,
     /// The `audit max-contact-run` rule this glyph is held to, for the
     /// verification pass; the layout itself already has it folded into `base`
     /// and `total`.
@@ -1290,10 +1324,10 @@ struct LabelChoice {
 ///    worth more than one in which every glyph is slightly less wrong: the
 ///    warnings are a work queue, and its length is what the command is there to
 ///    shorten;
-/// 2. then the summed score, and the same tie-breaks a single line is ordered
-///    by ([`Key`]) summed over the family — a gap moves every glyph's first
-///    clearance by the same amount, so ordering the gaps lexicographically
-///    orders the clearances the way [`Key`] does.
+/// 2. then the summed [`cost`], and the same tie-breaks a single line is
+///    ordered by ([`Key`]) summed over the family — a gap moves every glyph's
+///    first clearance by the same amount, so ordering the gaps
+///    lexicographically orders the clearances the way [`Key`] does.
 ///
 /// A glyph whose parts this pass cannot measure — a part that is itself a
 /// composite, a component with no variant picked, a name no
@@ -1574,15 +1608,19 @@ fn optimize_pattern_line(
         // hull every glyph's clearance `i` is on the same side of its range, so
         // stepping back towards it gains each glyph a cell there and costs it
         // at most the one it takes from the last clearance — never a worse
-        // answer, and often a better one. The gaps as written are in the set
-        // whatever it says, so that "as written" is always one of the answers
-        // compared.
+        // answer, and often a better one. [`cost`] adds two places a gap may
+        // usefully be outside that: a leading gap of 0, which puts the first
+        // box flush with the glyph's, and an inner gap as large as all the room
+        // the boxes leave, which puts the last one flush too. The gaps as
+        // written are in the set whatever it says, so that "as written" is
+        // always one of the answers compared.
         let mut choices: Vec<Vec<i32>> = Vec::with_capacity(written_gaps.len());
         for (i, gap) in written_gaps.iter().enumerate() {
             let (mut lo, mut hi) = (*gap, *gap);
             for member in family.iter().flatten() {
-                lo = lo.min(member.lo - member.base[i] - 1);
-                hi = hi.max(member.hi - member.base[i] + 1);
+                let flush = if i == 0 { 0 } else { member.room };
+                lo = lo.min(member.lo - member.base[i] - 1).min(flush - 1);
+                hi = hi.max(member.hi - member.base[i] + 1).max(flush + 1);
             }
             choices.push((lo..=hi).collect());
         }
@@ -1608,11 +1646,11 @@ fn optimize_pattern_line(
         }
     }
     let (key, pick, gaps) = best?;
-    if (key.warnings, key.unresolved, key.score, key.mismatched)
+    if (key.warnings, key.unresolved, key.cost, key.mismatched)
         >= (
             before.warnings,
             before.unresolved,
-            before.score,
+            before.cost,
             before.mismatched,
         )
     {
@@ -1889,14 +1927,18 @@ fn member_layouts(
         .iter()
         .enumerate()
         .map(|(m, member)| {
-            let layout = parts_at(slots, pick, m)
-                .and_then(|parts| affine_layout(&parts, axis_extent, horizontal, member.contact));
+            let layout = parts_at(slots, pick, m).and_then(|parts| {
+                let room = axis_extent - parts.iter().map(|p| p.extent).sum::<i32>();
+                affine_layout(&parts, axis_extent, horizontal, member.contact)
+                    .map(|(base, total)| (base, total, room))
+            });
             match layout {
-                Some((base, total)) => Some(Some(Member {
+                Some((base, total, room)) => Some(Some(Member {
                     lo: member.lo,
                     hi: member.hi,
                     base,
                     total,
+                    room,
                     contact: member.contact,
                 })),
                 // A glyph that was measured as written and is not measurable
@@ -1925,8 +1967,8 @@ struct PatternKey {
     /// protected by `warnings` ahead of this, so no decision is bought by
     /// breaking one that was already right.
     unresolved: usize,
-    /// How far outside their ranges the family is, summed.
-    score: i32,
+    /// [`cost`], summed over the family.
+    cost: i32,
     /// How many slots hold a label drawn for another slot — one number for the
     /// family, the label being what every glyph here shares.
     mismatched: usize,
@@ -1934,10 +1976,15 @@ struct PatternKey {
     directed: std::cmp::Reverse<usize>,
     edge_sum: i32,
     inner_spread: i32,
+    blank: i32,
     /// `false` — the line as written — sorts first.
     changed: bool,
     gaps: Vec<i32>,
     names: Vec<String>,
+    /// How far outside their ranges the family is, summed: what the check
+    /// reports. The clearances behind it are what everything above is about,
+    /// so it has nothing left to order.
+    score: i32,
 }
 
 /// Score one choice of labels and gaps over the whole family.
@@ -1952,11 +1999,13 @@ fn evaluate_gaps(
     let mut key = PatternKey {
         warnings: 0,
         unresolved: 0,
+        cost: 0,
         score: 0,
         mismatched: chosen.iter().filter(|c| c.rank == 2).count(),
         directed: std::cmp::Reverse(chosen.iter().filter(|c| c.rank == 0).count()),
         edge_sum: 0,
         inner_spread: 0,
+        blank: 0,
         changed: gaps != written || chosen.iter().any(|c| c.relabel.is_some()),
         gaps: gaps.to_vec(),
         names: chosen
@@ -1968,6 +2017,8 @@ fn evaluate_gaps(
             .collect(),
     };
     let mut clearances: Vec<i32> = Vec::with_capacity(4);
+    let written_blank: i32 = gaps.iter().map(|g| g.abs()).sum();
+    let gap_sum: i32 = gaps.iter().sum();
     for member in family {
         // A glyph this choice leaves with no layout is one the check errors on
         // and nothing here has answered: it warns, at every set of gaps alike.
@@ -1981,6 +2032,8 @@ fn evaluate_gaps(
         let s = score(&clearances, member.lo, member.hi);
         key.warnings += usize::from(s > 0);
         key.score += s;
+        key.cost += cost(s, gaps[0], member.room - gap_sum);
+        key.blank += written_blank + (member.room - gap_sum).abs();
         key.edge_sum += clearances[0] + clearances[n - 1];
         if n == 4 {
             key.inner_spread += (clearances[1] - clearances[2]).abs();
@@ -2039,12 +2092,26 @@ fn evaluate(
     let n = chosen.len() + 1;
     // The sum every layout of these variants has, whatever the gaps do.
     let mut total = chosen[0].frontier.near + (axis_extent - 1 - chosen[n - 2].frontier.far);
+    let mut facings = Vec::with_capacity(n - 2);
     for pair in chosen.windows(2) {
-        total += effective_facing(pair[0].side(), pair[1].side(), horizontal, contact)?;
+        let facing = effective_facing(pair[0].side(), pair[1].side(), horizontal, contact)?;
+        total += facing;
+        facings.push(facing);
     }
-    let clearances = arrange(n, total, lo, hi);
+    let last = chosen[n - 2];
+    let bearings = (chosen[0].frontier.near, last.extent - 1 - last.frontier.far);
+    let clearances = arrange(n, total, lo, hi, bearings);
+    // The gaps those clearances write, walked the way [`optimize_line`] places
+    // the parts: each is the clearance less what the ink already leaves.
+    let lead = clearances[0] - bearings.0;
+    let trail = clearances[n - 1] - bearings.1;
+    let mut blank = lead.abs() + trail.abs();
+    for (i, facing) in facings.iter().enumerate() {
+        blank += (clearances[i + 1] - facing - chosen[i].extent).abs();
+    }
+    let score = score(&clearances, lo, hi);
     Some(Key {
-        score: score(&clearances, lo, hi),
+        cost: cost(score, lead, trail),
         mismatched: chosen.iter().filter(|c| c.rank == 2).count(),
         directed: std::cmp::Reverse(chosen.iter().filter(|c| c.rank == 0).count()),
         asked: std::cmp::Reverse(
@@ -2059,6 +2126,8 @@ fn evaluate(
             4 => (clearances[1] - clearances[2]).abs(),
             _ => 0,
         },
+        blank,
+        score,
         clearances,
         changed: chosen.iter().zip(written).any(|(c, w)| c.name != *w),
         names: chosen.iter().map(|c| c.name.clone()).collect(),
@@ -2177,55 +2246,80 @@ fn score(clearances: &[i32], lo: i32, hi: i32) -> i32 {
     clearances.iter().map(|c| distance(*c, lo, hi)).sum::<i32>() + distance(total, lo, hi)
 }
 
-/// The `n` clearances summing to `total` that the module's rules pick: as far
-/// inside `lo..=hi` as the total allows, then out at the edges, then even in
-/// the middle, then lexicographically least.
+/// What the optimizer minimizes, in half cells: the check's [`score`], plus one
+/// and a half for every cell the parts' *boxes* leave of the glyph at its two
+/// edges — `lead`, the gap written before the first part, and `trail`, what the
+/// last one leaves at the far end. A box that overhangs the glyph's costs
+/// nothing here: sources do that on purpose, to pull a part drawn with a wide
+/// bearing in against the edge, and the score already says whether it went too
+/// far.
 ///
-/// The feasible set is a box every clearance shares, because the least possible
-/// cost pins them all to one side of the range:
-///
-/// - `total` inside `n·lo ..= n·hi` — every clearance can be in `lo..=hi`, cost 0;
-/// - `total` below it — the cost is the shortfall, reached exactly when no
-///   clearance exceeds `lo`;
-/// - `total` above it — the cost is the excess, reached exactly when none is
-///   below `hi`.
-///
-/// Inside that box the rest is a greedy walk: fill the inner clearances as far
-/// as the box and the edges' own room allow (which is what minimizes the edge
-/// pair, their sum being `total` less the inner ones), split the inner sum as
-/// evenly as it goes with the smaller share first, then give the near edge the
-/// least it may take.
-fn arrange(n: usize, total: i32, lo: i32, hi: i32) -> Vec<i32> {
-    debug_assert!(n >= 3, "an IDC line has at least two parts");
-    let count = n as i32;
-    let (low, high) = if total < count * lo {
-        (None, Some(lo))
-    } else if total > count * hi {
-        (Some(hi), None)
-    } else {
-        (Some(lo), Some(hi))
-    };
-    let inner = n - 2;
-    // Only one of the two bounds can be missing, so a bound always survives.
-    let inner_sum = [high.map(|u| u * inner as i32), low.map(|l| total - 2 * l)]
-        .into_iter()
-        .flatten()
-        .min()
-        .expect("one side of the box is always bounded");
-    let edge_sum = total - inner_sum;
-    let near = [low, high.map(|u| edge_sum - u)]
-        .into_iter()
-        .flatten()
-        .max()
-        .expect("one side of the box is always bounded");
+/// Room written at an edge reads as the whole glyph shoved to one side, which
+/// is worse than the same room between the parts even where the range would
+/// allow it at the edge and not in the middle: `a 2 b` beats `a 1 b` with a
+/// cell left over, although the check counts one more cell against it. It is
+/// the boxes and not the ink that are held to the edges, since a part drawn
+/// with a bearing of its own was drawn that way on purpose.
+fn cost(score: i32, lead: i32, trail: i32) -> i32 {
+    2 * score + 3 * (lead.max(0) + trail.max(0))
+}
 
-    let share = inner_sum.div_euclid(inner as i32);
-    let over = (inner_sum - share * inner as i32) as usize;
-    let mut out = Vec::with_capacity(n);
-    out.push(near);
-    out.extend(std::iter::repeat_n(share, inner - over));
-    out.extend(std::iter::repeat_n(share + 1, over));
-    out.push(edge_sum - near);
+/// The `n` clearances summing to `total` that the module's rules pick: the
+/// least [`cost`], then in at the edges, then even in the middle, then
+/// lexicographically least. `bearings` is what the first part's ink leaves
+/// before its box starts and the last part's after its box ends: the edge
+/// clearances at which the boxes sit flush with the glyph's.
+///
+/// The total is fixed, so [`cost`]'s own term for it is, and the rest is a sum
+/// of one convex function per clearance: `2·distance` for an inner one, and
+/// that plus `3·max(0, c - bearing)` for an edge. Such a sum under a fixed total is
+/// minimized greedily, a cell at a time from every clearance at its own
+/// cheapest: each cell goes where it costs least — or comes from where taking
+/// it costs least — and on a tie to wherever the later rules want it: into
+/// the middle rather than an edge, the smaller inner clearance first (the later
+/// of two equal ones), the far edge before the near one; and taken out of the
+/// edges first, near before far, then the larger inner clearance. Where a
+/// clearance's cheapest is a range rather than one value, it starts at the end
+/// those rules favour: an inner one at `hi`, an edge at the low end.
+fn arrange(n: usize, total: i32, lo: i32, hi: i32, bearings: (i32, i32)) -> Vec<i32> {
+    debug_assert!(n >= 3, "an IDC line has at least two parts");
+    let each = |i: usize, c: i32| {
+        let edge = match i {
+            0 => 3 * (c - bearings.0).max(0),
+            _ if i == n - 1 => 3 * (c - bearings.1).max(0),
+            _ => 0,
+        };
+        2 * distance(c, lo, hi) + edge
+    };
+    // An edge is cheapest from `lo` up to the bearing, or at the bearing alone
+    // when that is short of the range.
+    let low_edge = |bearing: i32| bearing.min(lo);
+    let mut out: Vec<i32> = (0..n)
+        .map(|i| match i {
+            0 => low_edge(bearings.0),
+            _ if i == n - 1 => low_edge(bearings.1),
+            _ => hi,
+        })
+        .collect();
+    let mut sum: i32 = out.iter().sum();
+    let inner: Vec<usize> = (1..n - 1).collect();
+    while sum != total {
+        let step = (total - sum).signum();
+        let mut order = inner.clone();
+        if step > 0 {
+            order.sort_by_key(|&i| (out[i], std::cmp::Reverse(i)));
+            order.extend([n - 1, 0]);
+        } else {
+            order.sort_by_key(|&i| (std::cmp::Reverse(out[i]), i));
+            order.splice(0..0, [0, n - 1]);
+        }
+        let pick = order
+            .into_iter()
+            .min_by_key(|&i| each(i, out[i] + step) - each(i, out[i]))
+            .expect("an IDC line has clearances");
+        out[pick] += step;
+        sum += step;
+    }
     out
 }
 

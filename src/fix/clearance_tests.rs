@@ -1,7 +1,7 @@
 use super::*;
 use crate::document_io::parse_document_from_str;
 
-/// `arrange` and `score` alone, with no source behind them.
+/// `arrange`, `score` and `cost` alone, with no source behind them.
 mod arithmetic {
     use super::*;
 
@@ -9,72 +9,73 @@ mod arithmetic {
     fn a_total_that_fits_is_laid_out_edges_first() {
         // Three clearances, room for one cell of slack: the parts go out
         // against the box and the slack lands between them.
-        assert_eq!(arrange(3, 1, 0, 1), vec![0, 1, 0]);
-        assert_eq!(arrange(3, 0, 0, 1), vec![0, 0, 0]);
-        // Two cells of slack, one edge has to take one: the near one, by the
-        // lexicographic rule.
-        assert_eq!(arrange(3, 2, 0, 1), vec![0, 1, 1]);
-        assert_eq!(arrange(3, 3, 0, 1), vec![1, 1, 1]);
-        for total in -4..=6 {
-            assert_eq!(score(&arrange(3, total, 0, 1), 0, 1), least(3, total, 0, 1));
-        }
+        assert_eq!(arrange(3, 1, 0, 1, (0, 0)), vec![0, 1, 0]);
+        assert_eq!(arrange(3, 0, 0, 1, (0, 0)), vec![0, 0, 0]);
+        // More slack than the middle may hold: it still goes there, since a
+        // cell at an edge costs more than a cell past the range in the middle.
+        assert_eq!(arrange(3, 2, 0, 1, (0, 0)), vec![0, 2, 0]);
+        assert_eq!(arrange(3, 3, 0, 1, (0, 0)), vec![0, 3, 0]);
+    }
+
+    /// An edge part drawn with a bearing of its own keeps it while the range
+    /// allows: the box sits flush with the glyph's and the ink where it was
+    /// drawn. Past the range, the box overhangs the glyph's as far as the
+    /// range asks — overhanging costs nothing but what the score says.
+    #[test]
+    fn a_drawn_bearing_is_kept_inside_the_range() {
+        assert_eq!(arrange(3, 3, 0, 1, (1, 0)), vec![1, 2, 0]);
+        assert_eq!(arrange(3, 4, 0, 1, (2, 0)), vec![1, 3, 0]);
+        assert_eq!(arrange(3, 2, 0, 1, (0, 3)), vec![0, 1, 1]);
     }
 
     /// Four clearances: the two inner ones are evened out before the
     /// lexicographic rule ever gets a say.
     #[test]
     fn three_parts_even_out_the_middle() {
-        assert_eq!(arrange(4, 2, 0, 1), vec![0, 1, 1, 0]);
-        assert_eq!(arrange(4, 3, 0, 1), vec![0, 1, 1, 1]);
-        assert_eq!(arrange(4, 1, 0, 1), vec![0, 0, 1, 0]);
-        assert_eq!(arrange(4, 4, 0, 1), vec![1, 1, 1, 1]);
+        assert_eq!(arrange(4, 2, 0, 1, (0, 0)), vec![0, 1, 1, 0]);
+        assert_eq!(arrange(4, 3, 0, 1, (0, 0)), vec![0, 1, 2, 0]);
+        assert_eq!(arrange(4, 1, 0, 1, (0, 0)), vec![0, 0, 1, 0]);
+        assert_eq!(arrange(4, 4, 0, 1, (0, 0)), vec![0, 2, 2, 0]);
     }
 
     /// Parts too fat for the box: the least the layout can be outside the
     /// range is the shortfall, and no arrangement does better.
     #[test]
     fn parts_that_do_not_fit_are_as_close_as_the_arithmetic_allows() {
-        let out = arrange(3, -3, 0, 1);
+        let out = arrange(3, -3, 0, 1, (0, 0));
         assert_eq!(out.iter().sum::<i32>(), -3);
         assert_eq!(score(&out, 0, 1), 3 + 3, "the three plus the total's own");
-        // Parts far too thin: the edges take the maximum and the middle swells.
-        let out = arrange(3, 9, 0, 1);
-        assert_eq!(out, vec![1, 7, 1]);
-        assert_eq!(score(&out, 0, 1), 6 + 8);
+        // Parts far too thin: the edges stay put and the middle swells.
+        let out = arrange(3, 9, 0, 1, (0, 0));
+        assert_eq!(out, vec![0, 9, 0]);
+        assert_eq!(score(&out, 0, 1), 8 + 8);
     }
 
-    /// The exhaustive answer, for ranges and totals across the interesting band.
+    /// The exhaustive answer, for ranges, bearings and totals across the
+    /// interesting band.
     #[test]
     fn arrange_is_the_least_and_the_most_even() {
         for n in 3..=4usize {
             for total in -6..=10 {
                 for (lo, hi) in [(0, 1), (0, 0), (-1, 1), (1, 2)] {
-                    let ours = arrange(n, total, lo, hi);
-                    assert_eq!(ours.len(), n);
-                    assert_eq!(ours.iter().sum::<i32>(), total);
-                    let best = brute_force(n, total, lo, hi);
-                    assert_eq!(ours, best, "n={n} total={total} range={lo}..{hi}");
+                    for bearings in [(0, 0), (1, 0), (0, 2), (3, 1), (-1, 0)] {
+                        let ours = arrange(n, total, lo, hi, bearings);
+                        assert_eq!(ours.len(), n);
+                        assert_eq!(ours.iter().sum::<i32>(), total);
+                        let best = brute_force(n, total, lo, hi, bearings);
+                        assert_eq!(
+                            ours, best,
+                            "n={n} total={total} range={lo}..{hi} bearings={bearings:?}"
+                        );
+                    }
                 }
             }
         }
     }
 
-    /// The least cost `n` clearances summing to `total` can have.
-    fn least(n: usize, total: i32, lo: i32, hi: i32) -> i32 {
-        let n = n as i32;
-        let spread = if total < n * lo {
-            n * lo - total
-        } else if total > n * hi {
-            total - n * hi
-        } else {
-            0
-        };
-        spread + distance(total, lo, hi)
-    }
-
     /// Every arrangement in a window wide enough to hold the answer, ordered by
     /// the module's rules — the definition `arrange` is a shortcut for.
-    fn brute_force(n: usize, total: i32, lo: i32, hi: i32) -> Vec<i32> {
+    fn brute_force(n: usize, total: i32, lo: i32, hi: i32, bearings: (i32, i32)) -> Vec<i32> {
         // Wide enough to hold every answer for the totals tested here; the
         // free clearances are counted off as digits in that window.
         let (from, to) = (-12i32, 12i32);
@@ -96,7 +97,7 @@ mod arithmetic {
             candidate.push(last);
             let key = |c: &Vec<i32>| {
                 (
-                    score(c, lo, hi),
+                    cost(score(c, lo, hi), c[0] - bearings.0, c[n - 1] - bearings.1),
                     c[0] + c[n - 1],
                     if n == 4 { (c[1] - c[2]).abs() } else { 0 },
                     c.clone(),
@@ -120,8 +121,9 @@ fn plan(src: &str) -> Vec<ClearanceFix> {
         .collect()
 }
 
-/// Two parts in an 8x4 box, `a` drawn at its left and `b` inset by one, so
-/// there is nothing at either edge and a canyon in the middle:
+/// Two parts in a 9x4 box, `a` drawn at its left and `b` inset by one, so
+/// that as written there is a canyon in the middle and a cell left over at
+/// the right edge:
 ///
 /// ```text
 /// a:4x4  ##..     a:3x4  #..     b:4x4  .###
@@ -147,7 +149,7 @@ glyph b:4x4 4 4
 ..@@@@@@
 ..@@@@@@
 
-glyph test-x 8 4
+glyph test-x 9 4
 \u{2FF0} a:4x4 b:4x4
 ";
 
@@ -158,12 +160,17 @@ fn a_line_that_warns_is_rewritten_by_its_gaps_alone() {
     let fix = &fixes[0];
     assert_eq!(fix.glyph, "test-x");
     assert_eq!(fix.old_line, "\u{2FF0} a:4x4 b:4x4");
-    // 0/3/0 as written: the middle is 2 outside the range and so is the total.
-    assert_eq!(fix.before, Some(4));
-    // Both parts move outwards: 1/1/1, and the total — which no arrangement
-    // can change — is all that is left to warn about.
-    assert_eq!(fix.after, 2);
-    assert_eq!(fix.new_line, "\u{2FF0} 1 a:4x4 -2 b:4x4");
+    // 0/3/1 as written: the middle is 2 outside the range and the total 3.
+    assert_eq!(fix.before, Some(5));
+    // The cell at the edge moves into the middle: 0/4/0. The check counts one
+    // more cell against that than against the line as written, and it is
+    // still the better layout — see `cost`.
+    assert_eq!(fix.after, 6);
+    assert_eq!(fix.new_line, "\u{2FF0} a:4x4 1 b:4x4");
+
+    // In a box a cell narrower, every spare cell is between the parts
+    // already, which is as good as the parts allow however loudly it warns.
+    assert!(plan(&TWO_PARTS.replace("test-x 9 4", "test-x 8 4")).is_empty());
 }
 
 /// Two flat faces in a box with one cell to spare. Nothing warns about the
@@ -231,15 +238,15 @@ fn a_nested_split_is_laid_out_as_one_part() {
     assert_eq!(fixes.len(), 1, "{fixes:?}");
     let fix = &fixes[0];
     // The numbers of `a_line_that_warns_is_rewritten_by_its_gaps_alone`.
-    assert_eq!((fix.before, fix.after), (Some(4), 2));
-    assert_eq!(fix.new_line, "\u{2FF0} 1 h:4x2|h:4x2 -2 b:4x4");
+    assert_eq!((fix.before, fix.after), (Some(5), 6));
+    assert_eq!(fix.new_line, "\u{2FF0} h:4x2|h:4x2 1 b:4x4");
 
     // The same in a pattern block, where the gaps are the family's.
     let family = two_parts_nested("\u{2FF0} h:4x2|h:4x2 b:4x4")
-        .replace("glyph test-x 8 4", "glyph test-(x|y) 8 4");
+        .replace("glyph test-x 9 4", "glyph test-(x|y) 9 4");
     let fixes = plan(&family);
     assert_eq!(fixes.len(), 1, "{fixes:?}");
-    assert_eq!(fixes[0].new_line, "\u{2FF0} 1 h:4x2|h:4x2 -2 b:4x4");
+    assert_eq!(fixes[0].new_line, "\u{2FF0} h:4x2|h:4x2 1 b:4x4");
 }
 
 /// What is inside a nested split is not this line's to change: its members'
@@ -283,7 +290,7 @@ glyph test-y 8 4
 
 #[test]
 fn a_line_inside_the_range_is_left_alone() {
-    let wide = TWO_PARTS.replace("ideal-clearance test-* 0 1", "ideal-clearance test-* 0 3");
+    let wide = TWO_PARTS.replace("ideal-clearance test-* 0 1", "ideal-clearance test-* 0 4");
     assert!(plan(&wide).is_empty(), "nothing warns, so nothing is fixed");
     // And so is a glyph no rule reaches.
     assert!(plan(&TWO_PARTS.replace("test-*", "other-*")).is_empty());
@@ -296,8 +303,8 @@ fn a_wider_variant_is_chosen_when_the_gaps_cannot_do_it() {
     let src = TWO_PARTS.replace("\u{2FF0} a:4x4 b:4x4", "\u{2FF0} a:3x4 b:4x4");
     let fixes = plan(&src);
     assert_eq!(fixes.len(), 1, "{fixes:?}");
-    assert_eq!((fixes[0].before, fixes[0].after), (Some(5), 2));
-    assert_eq!(fixes[0].new_line, "\u{2FF0} 1 a:4x4 -2 b:4x4");
+    assert_eq!((fixes[0].before, fixes[0].after), (Some(7), 6));
+    assert_eq!(fixes[0].new_line, "\u{2FF0} a:4x4 1 b:4x4");
 }
 
 /// A variant drawn for the other side of the glyph is not an alternative, so
@@ -309,8 +316,8 @@ fn a_variant_for_the_wrong_slot_is_not_a_candidate() {
         .replace("glyph a:4x4 4 4", "glyph a:4x4-r 4 4");
     let fixes = plan(&src);
     assert_eq!(fixes.len(), 1, "{fixes:?}");
-    assert_eq!((fixes[0].before, fixes[0].after), (Some(5), 4));
-    assert_eq!(fixes[0].new_line, "\u{2FF0} 1 a:3x4 -1 b:4x4");
+    assert_eq!((fixes[0].before, fixes[0].after), (Some(7), 8));
+    assert_eq!(fixes[0].new_line, "\u{2FF0} a:3x4 2 b:4x4");
 }
 
 /// Two full parts filling an 8x4 box exactly, so every clearance is already
@@ -393,8 +400,8 @@ fn an_undecided_component_picks_a_variant() {
     assert_eq!(fixes[0].before, None, "nothing was measured to begin with");
     // The same answer the decided line reaches: the wider variant, and the
     // gaps that push both parts out against the box.
-    assert_eq!(fixes[0].after, 2);
-    assert_eq!(fixes[0].new_line, "\u{2FF0} 1 a:4x4 -2 b:4x4");
+    assert_eq!(fixes[0].after, 6);
+    assert_eq!(fixes[0].new_line, "\u{2FF0} a:4x4 1 b:4x4");
 }
 
 /// An undecided component whose family is empty names nothing that could go in
@@ -446,8 +453,8 @@ fn a_component_the_check_errors_on_picks_a_variant_that_fits() {
         assert_eq!(fixes.len(), 1, "{part}: {fixes:?}");
         assert_eq!(fixes[0].before, None, "{part}: nothing was measured");
         assert!(fixes[0].faulty, "{part}");
-        assert_eq!(fixes[0].after, 2, "{part}");
-        assert_eq!(fixes[0].new_line, "\u{2FF0} 1 a:4x4 -2 b:4x4", "{part}");
+        assert_eq!(fixes[0].after, 6, "{part}");
+        assert_eq!(fixes[0].new_line, "\u{2FF0} a:4x4 1 b:4x4", "{part}");
     }
 }
 
@@ -706,27 +713,27 @@ fn a_pattern_line_that_warns_about_nothing_is_left_alone() {
     assert!(plan(&PATTERN_PARTS.replace("test-*", "other-*")).is_empty());
 }
 
-/// Three parts, each drawing only its first column of three, in a 9x3 box.
-/// The total is 6 and nothing can change it, but the arrangement can still be
-/// brought from 0/2/2/2 to the evenest layout the range allows.
+/// Three parts, each drawing only its middle column of three, in an 11x3 box.
+/// The total is 8 and nothing can change it, but the arrangement can still be
+/// brought from 1/2/2/3 — two cells left over at the far edge — to the evenest
+/// layout that leaves the boxes flush with the glyph's.
 #[test]
 fn three_parts_are_spread_evenly() {
     let src = "\
 audit ideal-clearance test-* 0 1
 
 glyph p:3x3 3 3
-@@....
-@@....
-@@....
+..@@..
+..@@..
+..@@..
 
-glyph test-y 9 3
+glyph test-y 11 3
 \u{2FF2} p:3x3 p:3x3 p:3x3
 ";
     let fixes = plan(src);
     assert_eq!(fixes.len(), 1, "{fixes:?}");
-    assert_eq!((fixes[0].before, fixes[0].after), (Some(8), 7));
-    // A gap of zero is not written, and neither is a trailing one.
-    assert_eq!(fixes[0].new_line, "\u{2FF2} 1 p:3x3 p:3x3 p:3x3");
+    assert_eq!((fixes[0].before, fixes[0].after), (Some(11), 11));
+    assert_eq!(fixes[0].new_line, "\u{2FF2} p:3x3 1 p:3x3 1 p:3x3");
 }
 
 /// A vertical split measures columns instead of rows.
@@ -743,13 +750,13 @@ glyph d:4x2 4 2
 ........
 @@@@@@@@
 
-glyph test-z 4 4
+glyph test-z 4 5
 \u{2FF1} u:4x2 d:4x2
 ";
     let fixes = plan(src);
     assert_eq!(fixes.len(), 1, "{fixes:?}");
-    assert_eq!((fixes[0].before, fixes[0].after), (Some(2), 1));
-    assert_eq!(fixes[0].new_line, "\u{2FF1} u:4x2 -1 d:4x2");
+    assert_eq!((fixes[0].before, fixes[0].after), (Some(3), 4));
+    assert_eq!(fixes[0].new_line, "\u{2FF1} u:4x2 1 d:4x2");
 }
 
 /// The comment on the line survives the rewrite.
@@ -758,7 +765,7 @@ fn a_rewritten_line_keeps_its_comment() {
     let src = TWO_PARTS.replace("\u{2FF0} a:4x4 b:4x4", "\u{2FF0} a:4x4 b:4x4  // as drawn");
     let fixes = plan(&src);
     assert_eq!(fixes.len(), 1, "{fixes:?}");
-    assert_eq!(fixes[0].new_line, "\u{2FF0} 1 a:4x4 -2 b:4x4 // as drawn");
+    assert_eq!(fixes[0].new_line, "\u{2FF0} a:4x4 1 b:4x4 // as drawn");
 }
 
 /// The clearance findings the real check reports for a source.
@@ -796,15 +803,22 @@ fn fixed(src: &str) -> String {
 #[test]
 fn applying_a_plan_removes_the_warnings_it_was_scored_on() {
     for src in [
-        TWO_PARTS.to_string(),
+        TWO_PARTS.replace("test-x 9 4", "test-x 10 4"),
         TWO_PARTS.replace("\u{2FF0} a:4x4 b:4x4", "\u{2FF0} a:3x4 b:4x4"),
     ] {
         let before = clearance_warnings(&src);
         let after = clearance_warnings(&fixed(&src));
-        // Only the total is left, and it is the one no arrangement can move.
-        assert_eq!(before.len(), 2, "{before:?}");
-        assert_eq!(after.len(), 1, "{after:?}");
-        assert!(after[0].contains("in total"), "{after:?}");
+        // Two cells at the right edge as written; after, the edge is clear and
+        // what is left is the middle and the total, which is where the plan
+        // put what no arrangement can remove.
+        assert_eq!(before.len(), 3, "{before:?}");
+        assert!(before[1].contains("right edge"), "{before:?}");
+        assert_eq!(after.len(), 2, "{after:?}");
+        assert!(
+            after[0].contains("between 'a:4x4' and 'b:4x4'"),
+            "{after:?}"
+        );
+        assert!(after[1].contains("in total"), "{after:?}");
     }
     // A second run is a no-op: what it would rewrite, it already did.
     let once = fixed(TWO_PARTS);
@@ -932,7 +946,12 @@ fn a_variant_declared_by_a_pattern_block_is_a_candidate() {
 #[test]
 fn a_label_only_part_of_the_family_draws_is_not_a_candidate() {
     let src = PATTERN_LABELS.replace("glyph ry:4x4 4 4", "glyph unused-ry:4x4 4 4");
-    assert!(plan(&src).is_empty(), "{:?}", plan(&src));
+    // The line still overhangs the glyph by a cell, which its gaps may mend.
+    let fixes = plan(&src);
+    assert!(
+        fixes.iter().all(|f| f.new_line.contains("(rx|ry):5x4")),
+        "{fixes:?}"
+    );
 }
 
 /// A relabel writes the name the *line* spells, so a component written as an
@@ -946,7 +965,11 @@ fn an_alias_that_exists_at_one_label_only_is_not_relabelled() {
             .replace("glyph ry:5x4 5 4", "glyph ry2:5x4 5 4")
             .replace("glyph ry:4x4 4 4", "glyph ry2:4x4 4 4"),
     );
-    assert!(plan(&src).is_empty(), "{:?}", plan(&src));
+    let fixes = plan(&src);
+    assert!(
+        fixes.iter().all(|f| f.new_line.contains("(rx|ry):5x4")),
+        "{fixes:?}"
+    );
 }
 
 /// Parts far too thin for their box, with a variant of `a` as wide as the
@@ -990,8 +1013,8 @@ fn a_part_as_long_as_the_glyph_is_not_a_candidate() {
         fixes[0].new_line,
     );
     // Only the gaps are left to work with, and they cannot mend a total of 5:
-    // the edges take their maximum and the middle swells with the rest.
-    assert_eq!(fixes[0].new_line, "\u{2FF0} 1 a:2x4 3 b:1x4");
+    // the edges stay clear and the middle takes all of it.
+    assert_eq!(fixes[0].new_line, "\u{2FF0} a:2x4 5 b:1x4");
 }
 
 /// The same trap over a family: the label `8x4` fills the 8-wide box on its
@@ -1027,7 +1050,7 @@ glyph test-(x|y) 8 4
 fn a_label_as_long_as_the_glyph_is_not_a_candidate() {
     let fixes = plan(OVERSIZED_LABEL);
     assert_eq!(fixes.len(), 1, "{fixes:?}");
-    assert_eq!(fixes[0].new_line, "\u{2FF0} 1 l:1x4 2 (rx|ry):2x4");
+    assert_eq!(fixes[0].new_line, "\u{2FF0} l:1x4 5 (rx|ry):2x4");
 }
 
 /// A family whose only drawing for a slot is reachable through a `glyph A = B`
@@ -1079,7 +1102,8 @@ fn an_alias_is_a_candidate_for_the_slot_its_name_states() {
 /// stands for is measured, so the outer line can be optimized.
 ///
 /// `nested:4x4` is `⿰ in:2x4-l in:2x4-r`, which inks its columns 1..3; beside
-/// `left:4x4`, which inks 0..1, that leaves a canyon of 3 the gaps can spread.
+/// `left:4x4`, which inks 0..1, that leaves a canyon of 3, and the 9-wide box a
+/// cell at the right edge the gaps can move into it.
 const NESTED: &str = "\
 audit ideal-clearance test-* 0 1
 
@@ -1104,7 +1128,7 @@ glyph left:4x4 4 4
 glyph nested:4x4 4 4
 \u{2FF0} in:2x4-l in:2x4-r
 
-glyph test-x 8 4
+glyph test-x 9 4
 \u{2FF0} left:4x4 nested:4x4
 ";
 
@@ -1113,11 +1137,10 @@ fn a_part_that_is_itself_split_can_be_chosen() {
     let fixes = plan(NESTED);
     assert_eq!(fixes.len(), 1, "{fixes:?}");
     assert_eq!(fixes[0].glyph, "test-x");
-    // 0/3/0 as written: the middle is 2 outside the range and so is the total.
-    // The total is the parts' own and cannot move, so 1/1/1 is the best there
-    // is and the total's own 2 is all that is left.
-    assert_eq!((fixes[0].before, fixes[0].after), (Some(4), 2));
-    assert_eq!(fixes[0].new_line, "\u{2FF0} 1 left:4x4 -2 nested:4x4");
+    // The numbers of `a_line_that_warns_is_rewritten_by_its_gaps_alone`:
+    // 0/3/1 as written, 0/4/0 after.
+    assert_eq!((fixes[0].before, fixes[0].after), (Some(5), 6));
+    assert_eq!(fixes[0].new_line, "\u{2FF0} left:4x4 1 nested:4x4");
 }
 
 // ------------------------------------------------------------------ enclosures
@@ -1663,8 +1686,12 @@ fn a_variant_padded_by_its_margin_is_a_candidate_measured_where_it_sits() {
     let fixes = plan(PADDED);
     assert_eq!(fixes.len(), 1, "{fixes:?}");
     assert_eq!(fixes[0].old_line, "\u{2FF1} mouth wide:8x3");
-    assert_eq!(fixes[0].new_line, "\u{2FF1} mouth:4x2 -1 wide:8x3");
-    assert_eq!(fixes[0].after, 1, "the total of 2 is one over the range");
+    // Measured over 0..3 there would be nothing between the two to warn
+    // about. Over 2..5 there is 2, which is the total and one over the range,
+    // and it stays between them rather than one of its cells going to the
+    // bottom edge.
+    assert_eq!(fixes[0].new_line, "\u{2FF1} mouth:4x2 wide:8x3");
+    assert_eq!(fixes[0].after, 2);
 }
 
 /// 凵 drawn tight with its margin stated, and drawn with the margin in its
@@ -1707,4 +1734,129 @@ glyph test-g 7 5
         drawn[0].new_line.replace("cupp:7x5.3x4", "cup:5x4.3x4")
     );
     assert_eq!(tight[0].after, drawn[0].after);
+}
+
+/// Where the room a line has to spare goes: between the parts rather than at
+/// the glyph's edges, and into a variant's own box rather than a gap beside
+/// it. Every case is tried along both axes and as a family, since neither rule
+/// has anything to do with which way the line runs or how many glyphs it is.
+mod spare_room {
+    use super::*;
+
+    /// The size `name:L` stands for: `L` cells along the axis, 4 across.
+    fn sized(token: &str, horizontal: bool) -> String {
+        match token.split_once(':') {
+            Some((name, len)) if horizontal => format!("{name}:{len}x4"),
+            Some((name, len)) => format!("{name}:4x{len}"),
+            None => token.to_string(),
+        }
+    }
+
+    /// [`sized`] undone, so that one expectation reads for both axes.
+    fn shorthand(token: &str, horizontal: bool) -> String {
+        match token
+            .split_once(':')
+            .and_then(|(n, s)| Some((n, s.split_once('x')?)))
+        {
+            Some((name, (w, _))) if horizontal => format!("{name}:{w}"),
+            Some((name, (_, h))) => format!("{name}:{h}"),
+            None => token.to_string(),
+        }
+    }
+
+    /// A part `len` cells long along the axis and 4 across, inked on the
+    /// cells `ink` along the axis and on every one across.
+    fn part(name: &str, len: usize, ink: std::ops::Range<usize>, horizontal: bool) -> String {
+        let (w, h) = if horizontal { (len, 4) } else { (4, len) };
+        let mut out = format!("glyph {name}:{w}x{h} {w} {h}\n");
+        for y in 0..h {
+            for x in 0..w {
+                let along = if horizontal { x } else { y };
+                out.push_str(if ink.contains(&along) { "@@" } else { ".." });
+            }
+            out.push('\n');
+        }
+        out + "\n"
+    }
+
+    /// The one rewrite of `line` — written `a:L b:L` with lengths along the
+    /// axis — in a glyph `extent` long, planned along both axes, alone and as
+    /// a family of two, and read back in the same shorthand.
+    fn plans(parts: impl Fn(bool) -> Vec<String>, extent: usize, line: &str) -> Vec<String> {
+        let mut out = Vec::new();
+        for horizontal in [true, false] {
+            let (w, h) = if horizontal { (extent, 4) } else { (4, extent) };
+            let op = if horizontal { "\u{2FF0}" } else { "\u{2FF1}" };
+            let written: Vec<String> = line.split(' ').map(|t| sized(t, horizontal)).collect();
+            for name in ["test-x", "test-(x|y)"] {
+                let src = format!(
+                    "audit ideal-clearance test-* 0 1\n\n{}glyph {name} {w} {h}\n{op} {}\n",
+                    parts(horizontal).concat(),
+                    written.join(" "),
+                );
+                let fixes = plan(&src);
+                assert_eq!(fixes.len(), 1, "{src}\n{fixes:?}");
+                let tokens: Vec<String> = fixes[0]
+                    .new_line
+                    .split(' ')
+                    .skip(1)
+                    .map(|t| shorthand(t, horizontal))
+                    .collect();
+                out.push(tokens.join(" "));
+            }
+        }
+        out
+    }
+
+    /// Two solid parts and two cells to spare, which the `0 1` band cannot
+    /// hold anywhere. Both cells go between the parts, where they read as the
+    /// parts' own spacing, and none is left at an edge, where it would read as
+    /// the glyph being shoved to one side.
+    #[test]
+    fn spare_room_goes_between_the_parts_not_at_an_edge() {
+        let parts = |h| vec![part("a", 4, 0..4, h), part("b", 3, 0..3, h)];
+        for line in [
+            "a:4 b:3",
+            "1 a:4 b:3",
+            "2 a:4 b:3",
+            "1 a:4 1 b:3",
+            "a:4 1 b:3",
+        ] {
+            let lines = plans(parts, 9, line);
+            assert!(lines.iter().all(|l| l == "a:4 2 b:3"), "{line}: {lines:?}");
+        }
+        // Three cells, two past the range in the middle: a family's gaps are
+        // searched rather than solved, and the search has to reach that far.
+        let lines = plans(parts, 10, "a:4 b:3");
+        assert!(lines.iter().all(|l| l == "a:4 3 b:3"), "{lines:?}");
+    }
+
+    /// A variant one cell longer that draws the same ink as the shorter one
+    /// measures exactly alike, so what is left to choose between is the gap
+    /// the line writes: the longer box needs one cell less of it, whichever
+    /// side of the part the extra cell is on.
+    #[test]
+    fn a_longer_variant_is_preferred_to_a_gap_beside_it() {
+        // The right-hand part, padded on its near side.
+        let right = |h| {
+            vec![
+                part("a", 4, 0..4, h),
+                part("b", 3, 0..3, h),
+                part("b", 4, 1..4, h),
+            ]
+        };
+        let lines = plans(right, 9, "a:4 b:3");
+        assert!(lines.iter().all(|l| l == "a:4 1 b:4"), "{lines:?}");
+
+        // The left-hand part, padded on its far side.
+        let left = |h| {
+            vec![
+                part("a", 3, 0..3, h),
+                part("a", 4, 0..3, h),
+                part("b", 4, 0..4, h),
+            ]
+        };
+        let lines = plans(left, 9, "a:3 b:4");
+        assert!(lines.iter().all(|l| l == "a:4 1 b:4"), "{lines:?}");
+    }
 }

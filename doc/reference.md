@@ -2144,8 +2144,8 @@ the source already draws and the gaps the line may write. It acts on two kinds o
 are not the same act:
 
 * a **clearance chore**, where the line has a layout and the layout is outside the range. The
-  search moves it inside, and the rewrite is emitted only if it *lowers* the score — a line that
-  cannot be improved keeps its finding rather than being shuffled about;
+  search moves it inside, and the rewrite is emitted only if it *lowers* the cost described below —
+  a line that cannot be improved keeps its finding rather than being shuffled about;
 * a **todo**, where a component has not [picked its variant](#undecided-components). There is no
   layout at all then and so no score to lower, but the family the component names is on hand and
   choosing from it is exactly what the todo asks for. Such a line is planned whatever it scores,
@@ -2178,12 +2178,20 @@ The **score** of a layout is how far its clearances fall outside the range, summ
 *n + 1* clearances plus their total, exactly the set of numbers the check reports on. Zero is "no
 finding at all".
 
+What the search minimizes is that score plus one and a half for every cell the parts' **boxes** leave
+empty at the glyph's two edges: a leading gap, or what the last part leaves at the far end. Room at an
+edge reads as the glyph shoved to one side, while the same room between the parts reads as their
+spacing, so with `ideal-clearance 0 1` a ⿰ with two cells to spare is written `a 2 b` rather than
+`a 1 b` with a cell left at the far edge — although the check counts one more cell against the
+first. A rewrite can therefore report a higher score than the line had. It is the boxes and not the
+ink that are held to the edges: a part drawn with a bearing of its own keeps it, and a box that
+overhangs the glyph's costs only what the score says.
+
 The gaps themselves are not searched, because they are arithmetic. Placing the parts is the same as
 choosing all but one of the clearances freely, since moving a part along the axis moves exactly the
 two clearances beside it in opposite directions — and their sum telescopes down to a number that
 mentions no position at all, being a property of the chosen *variants*. So the question is only
-"which integers summing to a fixed total are least far outside `MIN..MAX`", which has three cases and
-no search. Only the variants are searched, and that is the product of the slots' candidate lists,
+"which integers summing to a fixed total cost least", which is a short walk and no search. Only the variants are searched, and that is the product of the slots' candidate lists,
 which is a handful.
 
 Many layouts score the same, and they are ordered:
@@ -2191,15 +2199,18 @@ Many layouts score the same, and they are ordered:
 1. **more variants that state a direction** — a `-l` name in the left slot says the drawing was made
    for that slot, and a source that says so is worth more than one that leaves it to be inferred;
 2. **the smallest sum of the two edge clearances** — the parts are pushed out against the glyph's box
-   and the room they leave each other is what grows. This is what decides a ⿰ between `0 1 0` and
-   `0 0 1`, and it is the whole of what makes a result look composed rather than shoved to one side;
+   and the room they leave each other is what grows;
 3. **the most even inner clearances**, when there are two of them (⿲, ⿳);
-4. **lexicographically smallest**, left clearance first, so what is left over lands at the near edge
+4. **the least room written around the parts' boxes** — the gaps and what the last part leaves of
+   the glyph. Of two variants that draw the same ink, the one whose box is a cell longer is written
+   instead of the shorter one with a gap beside it: `a 1 b:5x16` rather than `a 2 b:4x16`;
+5. **lexicographically smallest**, left clearance first, so what is left over lands at the near edge
    rather than anywhere;
-5. **the line as written**, then the names in order — so a run over an unchanged source is a no-op
+6. **the line as written**, then the names in order — so a run over an unchanged source is a no-op
    and the output is reproducible.
 
-An [enclosure](#enclosures-) is planned differently in one respect: the inner part's placements are
+An [enclosure](#enclosures-) is planned differently in two respects. It minimizes the plain score,
+the edge rule above being about a split's outer parts. And the inner part's placements are
 searched over the box rather than solved, since the two axes are not independent — how much room
 the left wall leaves depends on which rows the inner part covers. The rules then push the inner
 part out on the open sides and centre it along the walled axes.
@@ -2207,7 +2218,7 @@ part out on the open sides and centre it along the walled axes.
 A line written as a pattern stands for a whole family, and what a rewrite may move there is what
 the family shares — the gaps (or, for an enclosure, the two offsets) and a component's variant
 label wherever the block's own pattern does not reach it. The objective becomes the fewest glyphs
-warning at all, then the fewest with no layout, and only then the summed score.
+warning at all, then the fewest with no layout, and only then the summed cost.
 
 ## On-demand Glyphs
 

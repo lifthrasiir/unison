@@ -177,8 +177,9 @@ mod tests {
         }
     }
 
-    /// Two parts with a canyon down the middle, in a file the editor has not
-    /// opened: exactly the case the Font menu item exists for.
+    /// Two parts with a canyon down the middle and a cell left at the right
+    /// edge, in a file the editor has not opened: exactly the case the Font
+    /// menu item exists for.
     const SOURCE: &str = "\
 meta height 4
 meta ascent 3
@@ -198,7 +199,7 @@ glyph b:4x4 4 4
 ..@@@@@@
 ..@@@@@@
 
-glyph test-x 8 4
+glyph test-x 9 4
 \u{2FF0} a:4x4 b:4x4
 ";
 
@@ -243,7 +244,7 @@ glyph test-x 8 4
         );
 
         run(&mut app, &ctx);
-        assert_eq!(compose_line(&app), "\u{2FF0} 1 a:4x4 -2 b:4x4");
+        assert_eq!(compose_line(&app), "\u{2FF0} a:4x4 1 b:4x4");
         let doc = &app.open_documents[0];
         assert!(doc.document.dirty, "an editor fix is an edit, not a write");
         assert_eq!(
