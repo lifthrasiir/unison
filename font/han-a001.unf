@@ -460,7 +460,8 @@ glyph han-34bb:15x16 15 16 // 㒻 ⿱冃見(GT) ⿱日見(Z)
 // ⿱ han-5196 han-535c // ⿱冖卜
 
 glyph han-34c1:15x16 15 16 // 㓁
-⿱ han-5196:15x3 han-513f:15x12 // ⿱冖儿
+assume ⿱ han-5196:15x3 -2 han-513f:15x6 // ⿱冖儿
+glyph han-34c1.0:* = han-34c1:*
 
 # CJK unified ideographs extension A: 冫 (15)
 
@@ -550,7 +551,7 @@ glyph han-34e1:15x16 15 16 // 㓡
 ⿰ han-7f36:9x16 han-5202:6x16 // ⿰缶刂
 
 glyph han-34e2:15x16 15 16 // 㓢
-⿰ han-5404:7x16 1 han-5202:6x16 // ⿰各刂
+⿰ han-5404:7x16 2 han-5202:6x16 // ⿰各刂
 
 glyph han-34e3:15x16 15 16 // 㓣
 ⿰ han-5408:9x16 1 han-5202:5x16 // ⿰合刂
@@ -759,7 +760,7 @@ glyph han-354d:15x16 15 16 // 㕍
 ## 28.2
 
 glyph han-3555:15x16 15 16 // 㕕
-⿱ han-53b6:13x7 1 han-53b6:13x7 // ⿱厶厶
+⿱ han-53b6:13x7 2 han-53b6:13x7 // ⿱厶厶
 
 # CJK unified ideographs extension A: 又 (29)
 

@@ -473,7 +473,7 @@ glyph han-3cb9:15x16 15 16 // 㲹
 ⿰ han-6c35:5x16 han-51e0:10x16 // ⿰氵几
 
 glyph han-3cba.0:15x16 15 16 // 㲺 ⿰氵七(G) ⿰氵⿻一乚(T) ⿰氵匕(P)
-⿰ han-6c35:5x16 1 han-4e03:8x16 // ⿰氵七
+⿰ han-6c35:5x16 2 han-4e03:8x16 // ⿰氵七
 glyph han-3cba.1:15x16 15 16 // 㲺 ⿰氵七(G) ⿰氵⿻一乚(T) ⿰氵匕(P)
 ⿰ han-6c35:5x16 1 han-5315.0:9x16 // ⿰氵匕
 glyph han-3cba-(g|t|j):* = han-3cba.0:*
@@ -1000,7 +1000,7 @@ glyph han-3e20-t:15x16 15 16 // 㸠
 ## 93.2
 
 glyph han-3e28:15x16 15 16 // 㸨
-⿰ han-725c:6x16 1 han-4e29:7x16 // ⿰牜丩
+⿰ han-725c:6x16 2 han-4e29:7x16 // ⿰牜丩
 
 ## 93.3
 
@@ -1187,10 +1187,10 @@ glyph han-3ea9:15x16 15 16 // 㺩
 ⿰ han-248e9:7x16 1 han-4e29:7x16 // ⿰𤣩丩
 
 glyph han-3eaa:15x16 15 16 // 㺪
-⿰ 1 han-248e9:7x16 1 han-535c:5x16 // ⿰𤣩卜
+⿰ han-248e9:7x16 1 han-535c:7x16 // ⿰𤣩卜
 
 glyph han-3eab:15x16 15 16 // 㺫
-⿰ han-248e9:7x16 1 han-5202:6x16 // ⿰𤣩刂
+⿰ han-248e9:7x16 2 han-5202:6x16 // ⿰𤣩刂
 
 ## 96.3
 

@@ -17,11 +17,11 @@ glyph han-29682-t:* = han-29682.x:*
 // ⿰ han-98e0 han-53c8-($-1) // ⿰飠又
 
 glyph han-29685.0:15x16 15 16 // 𩚅
-⿰ 1 han-98e0.y:7x16 1 han-535c:5x16 // ⿰飠卜
+⿰ han-98e0.y:7x16 1 han-535c:7x16 // ⿰飠卜
 glyph han-29685.1:15x16 15 16 // 𩚅
-⿰ 1 han-98e0.0:7x16 1 han-535c:5x16 // ⿰飠卜
+⿰ han-98e0.0:7x16 1 han-535c:7x16 // ⿰飠卜
 glyph han-29685.x:15x16 15 16 // 𩚅
-⿰ 1 han-98e0.x:7x16 1 han-535c:5x16 // ⿰飠卜
+⿰ han-98e0.x:7x16 1 han-535c:7x16 // ⿰飠卜
 glyph han-29685-(g|j):* = han-29685.1:*
 glyph han-29685-t:* = han-29685.x:*
 

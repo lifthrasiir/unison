@@ -149,7 +149,7 @@ glyph han-32def:15x16 15 16 // 𲷯
 ## 120'.4
 
 glyph han-32e2f:15x16 15 16 // 𲸯
-⿰ han-7e9f:5x16 1 han-8f66:9x16 // ⿰纟车
+⿰ han-7e9f:5x14 1 han-8f66:9x16 // ⿰纟车
 
 // glyph han-32e30:15x16 15 16 // 𲸰
 // ⿰ han-7e9f han-592a // ⿰纟太
@@ -391,7 +391,7 @@ glyph han-32eef:15x16 15 16 // 𲻯
 ## 140.6
 
 glyph han-32ef5:15x16 15 16 // 𲻵
-⿱ han-8279:15x3 1 han-6263:15x11 // ⿱艹扣
+⿱ han-8279:15x3 1 han-6263:15x12 // ⿱艹扣
 
 // glyph han-32ef6:15x16 15 16 // 𲻶
 // ⿱ han-8279 han-5c16 // ⿱艹尖

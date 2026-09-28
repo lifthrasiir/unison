@@ -120,7 +120,7 @@ glyph han-22aa0:15x16 15 16 // 𢪠
 // ⿰ han-624c han-4e10-($-1) // ⿰扌丐
 
 glyph han-22aab:15x16 15 16 // 𢪫
-⿰ 1 han-624c:5x16 1 han-723f:6x16 // ⿰扌爿
+assume ⿰ han-624c:5x16 2 han-723f:8x16 // ⿰扌爿
 
 glyph han-22aac:15x16 15 16 // 𢪬
 ⿲ han-624c:5x16 han-5b50.0:5x16-l han-4e5a:5x16 // ⿲扌子乚

@@ -229,7 +229,7 @@ glyph han-26013-($han-regions):15x16 15 16 // 𦀓
 ⿰ han-7cf9-($-1):5x14 1 han-8f9b:9x16 // ⿰糹辛
 
 glyph han-26015-($han-regions):15x16 15 16 // 𦀕
-⿰ han-7cf9-($-1):5x14 1 han-9091:8x16 // ⿰糹邑
+⿰ han-7cf9-($-1):5x14 1 han-9091:9x16 // ⿰糹邑
 
 // glyph han-26017:15x16 15 16 // 𦀗 ⿰糹赤(GTV) ⿰糸赤(J)
 // ⿰ han-7cf9 han-8d64 // ⿰糹赤
@@ -274,7 +274,7 @@ glyph han-2602c:15x16 15 16 // 𦀬
 // ⿰ han-7cf9 han-4e32 // ⿰糹串
 
 glyph han-26037:15x16 15 16 // 𦀷
-⿰ 1 han-7cf9-t:5x14 1 han-590b:7x16 // ⿰糹夋
+⿰ han-7cf9-t:5x14 3 han-590b:7x16 // ⿰糹夋
 
 // glyph han-26038:15x16 15 16 // 𦀸
 // ⿰ han-7cf9 han-7683 // ⿰糹皃
@@ -547,15 +547,15 @@ glyph han-26202:15x16 15 16 // 𦈂
 // ⿰ han-7e9f han-5deb // ⿰纟巫
 
 glyph han-2620b:15x16 15 16 // 𦈋
-⿰ han-7e9f:5x16 1 han-9149:9x16 // ⿰纟酉
+⿰ han-7e9f:5x14 1 han-9149:9x16 // ⿰纟酉
 
 glyph han-2620c:15x16 15 16 // 𦈌
-⿰ han-7e9f:5x16 1 han-675f:9x16 // ⿰纟束
+⿰ han-7e9f:5x14 1 han-675f:9x16 // ⿰纟束
 
 ## 120'.9
 
 glyph han-26214:15x16 15 16 // 𦈔
-⿰ han-7e9f:5x16 1 han-9aa8-g:9x16 // ⿰纟骨
+⿰ han-7e9f:5x14 1 han-9aa8-g:9x16 // ⿰纟骨
 
 ## 120'.10
 
@@ -568,4 +568,4 @@ glyph han-26214:15x16 15 16 // 𦈔
 ## 120'.14
 
 glyph han-26221:15x16 15 16 // 𦈡
-⿰ han-7e9f:5x16 1 han-9700:9x16 // ⿰纟需
+⿰ han-7e9f:5x14 1 han-9700:9x16 // ⿰纟需

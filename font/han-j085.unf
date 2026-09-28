@@ -387,7 +387,7 @@ glyph han-32b61:15x16 15 16 // 𲭡
 ## 94.2
 
 glyph han-32b6b:15x16 15 16 // 𲭫
-⿰ 1 han-72ad:6x16 2 han-535c:5x16 // ⿰犭卜
+assume ⿰ han-72ad:6x16 2 han-535c:7x16 // ⿰犭卜
 
 // glyph han-32b6c-($han-regions):15x16 15 16 // 𲭬
 // ⿰ han-72ad han-53c8-($-1) // ⿰犭又
@@ -486,7 +486,7 @@ glyph han-32b9b:15x16 15 16 // 𲮛
 ## 94.11
 
 glyph han-32bb2:15x16 15 16 // 𲮲
-⿰ han-72ad:6x16 1 han-9b5a:7x16 // ⿰犭魚
+⿰ han-72ad:6x16 han-9b5a:9x16 // ⿰犭魚
 
 ## 94.12
 

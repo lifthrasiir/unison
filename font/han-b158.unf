@@ -17,7 +17,7 @@ ref 4x1 2 15 negated
 ## 158.2
 
 glyph han-28212-g:15x16 15 16 // 𨈒
-⿰ han-8eab.x:7x16 2 han-535c:5x16 // ⿰身卜
+⿰ han-8eab.x:7x16 1 han-535c:7x16 // ⿰身卜
 glyph han-28212-v:15x16 15 16 // 𨈒
 ⿰ han-8eab:9x16 1 han-535c:5x16 // ⿰身卜
 

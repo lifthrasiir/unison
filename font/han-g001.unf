@@ -608,7 +608,7 @@ glyph han-3011b:15x16 15 16 // 𰄛
 ⿰ han-5200:9x16 1 han-52fa-g:5x16 // ⿰刀勺
 
 glyph han-3011c:15x16 15 16 // 𰄜
-⿰ han-5fc4:7x16 1 han-5202:6x16 // ⿰忄刂
+assume ⿰ han-5fc4:7x16 2 han-5202:6x16 // ⿰忄刂
 
 ## 18.4
 

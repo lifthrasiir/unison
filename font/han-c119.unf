@@ -74,7 +74,7 @@ glyph han-2b0cb:15x16 15 16 // 𫃋
 ## 120.2
 
 glyph han-2b0da:15x16 15 16 // 𫃚
-⿰ 1 han-7cf9.x:5x14 3 han-535c:5x16 // ⿰糹卜
+⿰ han-7cf9.x:5x14 3 han-535c:7x16 // ⿰糹卜
 
 ## 120.3
 
@@ -157,18 +157,18 @@ glyph han-2b109:15x16 15 16 // 𫄉
 ## 120'.1
 
 glyph han-2b119:15x16 15 16 // 𫄙
-⿰ han-7e9f:5x16 1 han-4e5a:9x16 // ⿰纟乚
+⿰ han-7e9f:5x14 1 han-4e5a:9x16 // ⿰纟乚
 
 ## 120'.4
 
 glyph han-2b11b:15x16 15 16 // 𫄛
-⿰ han-7e9f:5x16 1 han-4eca-g:9x16 // ⿰纟今
+⿰ han-7e9f:5x14 1 han-4eca-g:9x16 // ⿰纟今
 
 glyph han-2b11c:15x16 15 16 // 𫄜
-⿰ han-7e9f:5x16 1 han-6bdb:9x16 // ⿰纟毛
+⿰ han-7e9f:5x14 1 han-6bdb:9x16 // ⿰纟毛
 
 glyph han-2b11d:15x16 15 16 // 𫄝
-⿰ han-7e9f:5x16 1 han-5f14:9x16 // ⿰纟弔
+⿰ han-7e9f:5x14 1 han-5f14:9x16 // ⿰纟弔
 
 ## 120'.5
 
@@ -181,7 +181,7 @@ glyph han-2b11d:15x16 15 16 // 𫄝
 // ⿰ han-7e9f han-4e98 // ⿰纟亘
 
 glyph han-2b121:15x16 15 16 // 𫄡
-⿰ han-7e9f:5x16 han-540c:10x16 // ⿰纟同
+⿰ han-7e9f:5x14 han-540c:10x16 // ⿰纟同
 
 ## 120'.9
 
@@ -453,7 +453,7 @@ glyph han-2b1da:15x16 15 16 // 𫇚
 // ⿱ han-8279 han-535c // ⿱艹卜
 
 glyph han-2b1e6:15x16 15 16 // 𫇦
-⿱ 1 han-8279:15x3 8 han-5196:15x3 // ⿱艹冖
+assume ⿱ han-8279:15x3 1 han-5196:15x3 // ⿱艹冖
 
 ## 140.3
 

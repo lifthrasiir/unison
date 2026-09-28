@@ -75,7 +75,7 @@ glyph han-25aeb:15x16 15 16 // 𥫫
 ⿱ han-25ad7:13x5 han-4e0b:15x11 // ⿱𥫗下
 
 glyph han-25aed:15x16 15 16 // 𥫭
-⿱ 1 han-25ad7:13x5 han-5973:15x9 // ⿱𥫗女
+⿱ han-25ad7:13x5 -1 han-5973:15x12 // ⿱𥫗女
 
 ## 118.4
 
@@ -218,7 +218,7 @@ glyph han-25b37:15x16 15 16 // 𥬷
 // ⿱ han-25ad7 han-808c // ⿱𥫗肌
 
 glyph han-25b41:15x16 15 16 // 𥭁
-⿱ 1 han-25ad7:13x5 han-7c73:13x9 // ⿱𥫗米
+⿱ -1 han-25ad7:13x5 -1 han-7c73:13x13 // ⿱𥫗米
 
 // glyph han-25b42:15x16 15 16 // 𥭂
 // ⿱ han-25ad7 han-5fdb // ⿱𥫗忛

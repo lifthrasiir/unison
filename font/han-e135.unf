@@ -663,7 +663,7 @@ glyph han-2c90d:15x16 15 16 // 𬤍
 ## 149'.10
 
 glyph han-2c910:15x16 15 16 // 𬤐
-⿰ 1 han-8ba0:5x14 1 han-54e5:7x16 // ⿰讠哥
+⿰ han-8ba0:5x14 1 han-54e5:9x16 // ⿰讠哥
 
 // glyph han-2c912:15x16 15 16 // 𬤒
 // ⿰ han-8ba0 han-76cd // ⿰讠盍
@@ -1104,7 +1104,7 @@ glyph han-2ca75:15x16 15 16 // 𬩵
 ⿰ han-4e2d:9x16 1 han-961d:5x16-r // ⿰中阝
 
 glyph han-2ca76:15x16 15 16 // 𬩶
-⿰ 1 han-725c:6x16 1 han-961d:7x16-r // ⿰牜阝
+assume ⿰ han-725c:6x16 2 han-961d:7x16-r // ⿰牜阝
 
 ## 163.5
 

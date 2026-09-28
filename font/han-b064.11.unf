@@ -45,7 +45,7 @@ glyph han-22cdd:15x16 15 16 // 𢳝
 // ⿰ han-624c han-24f2d // ⿰扌𤼭
 
 glyph han-22cf6:15x16 15 16 // 𢳶
-⿰ 1 han-624c:5x16 1 han-9b5a:7x16 // ⿰扌魚
+⿰ han-624c:5x16 1 han-9b5a:9x16 // ⿰扌魚
 
 // glyph han-22cfe:15x16 15 16 // 𢳾
 // ⿰ han-624c han-52d5 // ⿰扌動

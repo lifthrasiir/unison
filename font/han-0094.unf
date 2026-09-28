@@ -200,7 +200,7 @@ glyph han-72ca-j:* = han-72ca.0:*
 glyph han-72ca-(g|h|t|k|p):* = han-72ca.1:*
 
 glyph han-72cb:15x16 15 16 // 狋
-⿰ han-72ad:6x16 1 han-793a:7x14 // ⿰犭示
+⿰ han-72ad:6x16 2 han-793a:7x14 // ⿰犭示
 
 glyph han-72cc:15x16 15 16 // 狌
 ⿰ han-72ad:6x16 han-751f:9x16 // ⿰犭生
@@ -268,7 +268,8 @@ glyph han-72e1-(k|v):* = han-72e1.0:*
 glyph han-72e1-(g|h|t|j|p):* = han-72e1.1:*
 
 glyph han-72e2:15x16 15 16 // 狢
-⿰ han-72ad:6x16 1 han-5404:7x16 // ⿰犭各
+⿰ han-72ad:6x16 2 han-5404:7x16 // ⿰犭各
+glyph han-72e2.0:* = han-72e2:*
 
 glyph han-72e3:15x16 15 16 // 狣
 ⿰ han-72ad:6x16 han-5146:9x16 // ⿰犭兆
@@ -315,7 +316,7 @@ glyph han-72fa:15x16 15 16 // 狺
 glyph han-72fa.0:* = han-72fa:*
 
 glyph han-72fb:15x16 15 16 // 狻
-⿰ han-72ad:6x16 1 han-590b:7x16 // ⿰犭夋
+⿰ han-72ad:6x16 2 han-590b:7x16 // ⿰犭夋
 
 glyph han-72fc-($han-regions):15x16 15 16 // 狼
 ⿰ han-72ad:6x16 han-826f-($-1):9x16 // ⿰犭良

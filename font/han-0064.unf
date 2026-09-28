@@ -200,7 +200,7 @@ glyph han-6250:15x16 15 16 // 扐
 glyph han-6250.0:* = han-6250:*
 
 glyph han-6251:15x16 15 16 // 扑
-⿰ 1 han-624c:5x16 3 han-535c:5x16 // ⿰扌卜
+assume ⿰ han-624c:5x16 3 han-535c:7x16 // ⿰扌卜
 glyph han-6251.0:* = han-6251:*
 
 // glyph han-6252:15x16 15 16 // 扒
@@ -255,6 +255,8 @@ glyph han-625e.0:* = han-625e:*
 
 glyph han-6263:15x11 15 11 // 扣
 ⿰ han-624c:5x11 1 han-53e3:9x11 // ⿰扌口
+glyph han-6263:15x12 15 12 // 扣
+⿰ han-624c:5x12 1 han-53e3:9x12 // ⿰扌口
 glyph han-6263:15x16 15 16 // 扣
 ⿰ han-624c:5x16 1 han-53e3:9x12 // ⿰扌口
 glyph han-6263.0:* = han-6263:*
@@ -683,7 +685,7 @@ glyph han-630b:15x16 15 16 // 挋
 glyph han-630b.0:* = han-630b:*
 
 glyph han-630c:15x16 15 16 // 挌
-⿰ 1 han-624c:5x16 1 han-5404:7x16 // ⿰扌各
+⿰ han-624c:5x16 3 han-5404:7x16 // ⿰扌各
 glyph han-630c.0:* = han-630c:*
 
 glyph han-630d.0:15x16 15 16 // 挍
@@ -815,7 +817,7 @@ glyph han-6356:15x16 15 16 // 捖
 ⿰ han-624c:5x16 1 han-5b8c:9x16 // ⿰扌完
 
 glyph han-6358:15x16 15 16 // 捘
-⿰ 1 han-624c:5x16 1 han-590b:7x16 // ⿰扌夋
+⿰ han-624c:5x16 3 han-590b:7x16 // ⿰扌夋
 glyph han-6358.0:* = han-6358:*
 
 glyph han-6359:15x16 15 16 // 捙

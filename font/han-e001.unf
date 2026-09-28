@@ -32,7 +32,7 @@ glyph han-2b82b:15x16 15 16 // 𫠫
 ⿱ han-4e0d:15x8 han-5143:15x8 // ⿱不元
 
 glyph han-2b82c:15x16 15 16 // 𫠬
-⿱ han-4e0d:15x8 1 han-4e2d:15x6 // ⿱不中
+⿱ -1 han-4e0d:15x8 han-4e2d:15x9 // ⿱不中
 
 // glyph han-2b82d:15x16 15 16 // 𫠭
 // ⿰ han-4e0d han-4e0d // ⿰不不

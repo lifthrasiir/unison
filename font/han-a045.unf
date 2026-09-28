@@ -949,7 +949,7 @@ glyph han-39c2-(t|j):15x16 15 16 // 㧂
 ## 64.2
 
 glyph han-39c3:15x16 15 16 // 㧃
-⿰ 1 han-624c:5x16 1 han-4e29:7x16 // ⿰扌丩
+assume ⿰ han-624c:5x16 3 han-4e29:7x16 // ⿰扌丩
 
 glyph han-39c4:15x16 15 16 // 㧄
 ⿰ han-624c:5x16 1 han-51f5:9x14.7x13 // ⿰扌凵
@@ -1054,7 +1054,7 @@ glyph han-39fd:15x16 15 16 // 㧽
 ⿰ han-624c:3x16 han-56fa:13x16 // ⿰扌固
 
 glyph han-3a02:15x16 15 16 // 㨂
-⿰ han-624c:5x16 han-6771:9x16 // ⿰扌東
+⿰ han-624c:5x16 1 han-6771:9x16 // ⿰扌東
 
 // glyph han-3a03-($han-regions):15x16 15 16 // 㨃
 // ⿰ han-624c han-4eab-($-1) // ⿰扌享

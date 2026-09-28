@@ -221,7 +221,7 @@ glyph han-27279:15x16 15 16 // 𧉹
 ⿲ han-866b:5x16 han-6728:5x16 han-4e5a:5x16 // ⿲虫木乚
 
 glyph han-2727a:15x16 15 16 // 𧉺
-⿱ han-4e16:15x6 1 han-866b:15x8 // ⿱世虫
+⿱ -1 han-4e16:15x6 han-866b:15x11 // ⿱世虫
 
 // glyph han-2727b-($han-regions):15x16 15 16 // 𧉻
 // ⿰ han-866b han-534a-($-1) // ⿰虫半
