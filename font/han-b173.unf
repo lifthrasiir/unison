@@ -357,6 +357,9 @@ glyph han-2915f:15x16 15 16 // 𩅟
 glyph han-29185:15x16 15 16 // 𩆅
 ⿳ -7 han-96e8:15x6 1 han-5929:15x8 han-97ed:15x8 // ⿳雨天韭
 
+// glyph han-29186-($han-regions):15x16 15 16 // 𩆆
+// ⿱ han-96e8-($-1) han-9f0e // ⿱雨鼎
+
 // glyph han-2918f:15x16 15 16 // 𩆏
 // ⿱ han-96e8 han-8449 // ⿱雨葉
 

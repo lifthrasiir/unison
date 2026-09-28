@@ -414,6 +414,11 @@ glyph han-2aeaf:15x16 15 16 // 𪺯
 glyph han-2aebf:15x16 15 16 // 𪺿
 ⿰ han-72ad:6x16 han-9580:9x16 // ⿰犭門
 
+## 94.10
+
+// glyph han-2aec6:15x16 15 16 // 𪻆
+// ⿰ han-72ad han-9b3c // ⿰犭鬼
+
 ## 94.11
 
 glyph han-2aec8:15x16 15 16 // 𪻈 ⿰犭強(V) ⿰犭强(Z)
@@ -980,6 +985,11 @@ glyph han-2b044:15x16 15 16 // 𫁄
 
 // glyph han-2b054:15x16 15 16 // 𫁔 ⿰⿱穴工匡(V) ⿰空匡(Z)
 // ⿰ han-7a7a han-5321 // ⿰空匡
+
+## 116.10
+
+// glyph han-2b056:15x16 15 16 // 𫁖 ⿱⿱宀儿鬼(J) ⿱穴鬼(Z)
+// ⿳ han-5b80 han-513f han-9b3c // ⿳宀儿鬼 <- ⿱⿱宀儿鬼
 
 # CJK unified ideographs extension C: 立 (117)
 

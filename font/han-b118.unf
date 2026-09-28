@@ -710,6 +710,9 @@ glyph han-25ca7:15x16 15 16 // 𥲧
 // glyph han-25ce5:15x16 15 16 // 𥳥
 // ⿳ han-25ad7 han-2bcbd han-7528 // ⿳𥫗𫲽用
 
+// glyph han-25cec:15x16 15 16 // 𥳬
+// ⿱ han-25ad7 han-9ed1 // ⿱𥫗黑
+
 // glyph han-25ced:15x16 15 16 // 𥳭
 // ⿳ han-25ad7 han-6b62 han-8220 // ⿳𥫗止舠 <- ⿱𥫗𣦃
 
@@ -853,6 +856,9 @@ glyph han-25d96:15x16 15 16 // 𥶖
 
 // glyph han-25da8:15x16 15 16 // 𥶨
 // ⿱ han-25ad7 han-8782 // ⿱𥫗螂
+
+// glyph han-25daf:15x16 15 16 // 𥶯 ⿰鬼笛(V) ⿰⿷⿱㇒⿸⿻日丿乚厶笛(UCS2003)
+// ⿰ han-9b3c han-7b1b // ⿰鬼笛
 
 // glyph han-25db2:15x16 15 16 // 𥶲
 // ⿳ han-25ad7 han-77f3 han-7833 // ⿳𥫗石砳 <- ⿱𥫗磊

@@ -369,6 +369,9 @@ glyph han-28a65:15x16 15 16 // 𨩥
 
 ## 167.10
 
+// glyph han-28a88:15x16 15 16 // 𨪈
+// ⿰ han-91d2 han-9b3c // ⿰釒鬼
+
 glyph han-28a9a:15x16 15 16 // 𨪚
 ⿲ han-91d2:5x15-l han-8eca:5x16 han-5e72:5x16 // ⿲釒車干
 
@@ -459,6 +462,9 @@ glyph han-28b30:15x16 15 16 // 𨬰
 
 // glyph han-28b3c:15x16 15 16 // 𨬼
 // ⿰ han-91d2 han-25b45 // ⿰釒𥭅
+
+// glyph han-28b46:15x16 15 16 // 𨭆
+// ⿰ han-91d2 han-9ed1 // ⿰釒黑
 
 // glyph han-28b48:15x16 15 16 // 𨭈
 // ⿲ han-91d2 han-72ad han-82d6 // ⿲釒犭苖 <- ⿰釒⿰犭苖

@@ -106,7 +106,7 @@ glyph han-29d75:15x16 15 16 // 𩵵
 // ⿰ han-9b5a han-7236-($-1) // ⿰魚父
 
 glyph han-29d7a:15x16 15 16 // 𩵺
-⿰ han-9b5a:7x16 1 han-6708:7x16 // ⿰魚月
+⿰ han-9b5a:7x16 han-6708:8x16 // ⿰魚月
 
 // glyph han-29d7d:15x16 15 16 // 𩵽
 // ⿰ han-9b5a han-5fc3 // ⿰魚心
@@ -217,8 +217,10 @@ glyph han-29dbb:15x16 15 16 // 𩶻
 // glyph han-29dc6:15x16 15 16 // 𩷆
 // ⿰ han-9b5a han-4f1a // ⿰魚会
 
-glyph han-29dcb:15x16 15 16 // 𩷋
+glyph han-29dcb-(g|t):15x16 15 16 // 𩷋
 ⿲ -1 han-9b5a:7x16 han-793b:5x14 han-4e5a:4x16 // ⿲魚礻乚
+glyph han-29dcb-j:15x16 15 16 // 𩷋
+⿲ -1 han-9b5a:7x16 han-793a:5x14 han-4e5a:4x16 // ⿲魚示乚
 
 ## 195.7
 
@@ -271,7 +273,7 @@ glyph han-29de0:15x16 15 16 // 𩷠
 // ⿰ han-9b5a han-8d64 // ⿰魚赤
 
 glyph han-29dea:15x16 15 16 // 𩷪
-⿰ han-9b5a:7x16 1 han-898b:7x16 // ⿰魚見
+⿰ han-9b5a:7x16 han-898b:8x16 // ⿰魚見
 
 // glyph han-29dec:15x16 15 16 // 𩷬
 // ⿱ han-72c2 han-9b5a // ⿱狂魚
@@ -299,8 +301,10 @@ glyph han-29dfb:15x16 15 16 // 𩷻
 // glyph han-29dfd:15x16 15 16 // 𩷽
 // ⿰ han-9b5a han-6c93 // ⿰魚沓
 
-glyph han-29dfe:15x16 15 16 // 𩷾
+glyph han-29dfe-g:15x16 15 16 // 𩷾
 ⿲ -1 han-9b5a:7x16 han-793b:5x14 han-961d:4x16-r // ⿲魚礻阝
+glyph han-29dfe-(t|j):15x16 15 16 // 𩷾
+⿲ -1 han-9b5a:7x16 han-793a:5x14 han-961d:4x16-r // ⿲魚示阝
 
 glyph han-29e00:15x16 15 16 // 𩸀
 ⿲ -2 han-9b5a:7x16 han-6708:5x16 han-6708:5x16 // ⿲魚月月
@@ -417,6 +421,9 @@ glyph han-29e6c:15x16 15 16 // 𩹬
 
 ## 195.10
 
+// glyph han-29e77:15x16 15 16 // 𩹷
+// ⿰ han-9b5a han-9b3c // ⿰魚鬼
+
 glyph han-29e7e-(g):15x16 15 16 // 𩹾
 ⿲ -8 han-9b5a:7x16 han-7cf9-($-1):5x14 han-5185:11x16 // ⿲魚糹内
 glyph han-29e7e-(t|j|p):15x16 15 16 // 𩹾
@@ -482,6 +489,9 @@ glyph han-29ed7:15x16 15 16 // 𩻗
 
 // glyph han-29ee1:15x16 15 16 // 𩻡
 // ⿰ han-9b5a han-7ae5 // ⿰魚童
+
+// glyph han-29ee4:15x16 15 16 // 𩻤
+// ⿰ han-9b5a han-9ed1 // ⿰魚黑
 
 // glyph han-29ee9:15x16 15 16 // 𩻩
 // ⿰ han-9b5a han-6b6e // ⿰魚歮

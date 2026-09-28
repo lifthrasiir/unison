@@ -9,3 +9,26 @@
 
 // glyph han-2a4dd:15x16 15 16 // 𪓝 ⿻𪓑⿰𠂇又(G) ⿻𪓑⿰丆又(T)
 // ⿻𪓑⿰𠂇又
+
+# CJK unified ideographs extension B: 鼎 (206)
+
+## 206.2
+
+// glyph han-2a503:15x16 15 16 // 𪔃
+// ⿱ han-5182 han-9f0e // ⿱冂鼎
+
+## 206.3
+
+// glyph han-2a504:15x16 15 16 // 𪔄
+// ⿱ han-571f han-9f0e // ⿱土鼎
+
+// glyph han-2a505:15x16 15 16 // 𪔅
+// ⿱ han-53e3 han-9f0e // ⿱口鼎
+
+// glyph han-2a506:15x16 15 16 // 𪔆
+// ⿰ han-9f0e han-5e72 // ⿰鼎干
+
+## 206.4
+
+// glyph han-2a507:15x16 15 16 // 𪔇
+// ⿱ han-6728 han-9f0e // ⿱木鼎

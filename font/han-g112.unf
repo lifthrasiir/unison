@@ -986,6 +986,11 @@ glyph han-30c0e:15x16 15 16 // 𰰎
 // glyph han-30c19:15x16 15 16 // 𰰙
 // ⿰ han-91cd han-8272 // ⿰重色
 
+## 139.12
+
+// glyph han-30c1b:15x16 15 16 // 𰰛
+// ⿺ han-8272 han-9ed1 // ⿺色黑
+
 # CJK unified ideographs extension G: 艸 (140)
 
 ## 140.2
@@ -1225,6 +1230,9 @@ glyph han-30cc2:15x16 15 16 // 𰳂
 
 // glyph han-30cd0:15x16 15 16 // 𰳐
 // ⿱ han-6b62 han-45b5 // ⿱止䖵
+
+// glyph han-30cd2:15x16 15 16 // 𰳒
+// ⿱ han-9b3c han-866b // ⿱鬼虫
 
 // glyph han-30cd3:15x16 15 16 // 𰳓
 // ⿲ han-866b han-793b han-5144 // ⿲虫礻兄 <- ⿰虫祝

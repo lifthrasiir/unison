@@ -1066,6 +1066,9 @@ glyph han-8488-($han-regions):15x16 15 16 // 蒈
 
 ## 140.10
 
+// glyph han-8490:15x16 15 16 // 蒐
+// ⿱ han-8279 han-9b3c // ⿱艹鬼
+
 // glyph han-8495:15x16 15 16 // 蒕
 // ⿳ han-8279 han-56da han-76bf // ⿳艹囚皿 <- ⿱艹𥁕
 
@@ -1329,6 +1332,9 @@ glyph han-8583:15x16 15 16 // 薃
 
 // glyph han-85a0:15x16 15 16 // 薠
 // ⿱ han-8279 han-7169 // ⿱艹煩
+
+// glyph han-85a1:15x16 15 16 // 薡
+// ⿱ han-8279 han-9f0e // ⿱艹鼎
 
 // glyph han-9fa9:15x16 15 16 // 龩
 // ⿱ han-8279 han-9773 // ⿱艹靳

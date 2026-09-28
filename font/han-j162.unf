@@ -727,6 +727,11 @@ glyph han-332ea:15x16 15 16 // 𳋪
 glyph han-332ec:15x16 15 16 // 𳋬
 ⿰ han-9963:5x14 1 han-5b8b:9x16 // ⿰饣宋
 
+## 184'.10
+
+// glyph han-332ee:15x16 15 16 // 𳋮
+// ⿰ han-9963 han-9b3c // ⿰饣鬼
+
 # CJK unified ideographs extension J: 首 (185)
 
 ## 185.7
@@ -808,6 +813,52 @@ glyph han-33308:15x16 15 16 // 𳌈
 
 glyph han-3331e:15x16 15 16 // 𳌞
 ⿱ han-9ad8:13x10 han-9fb0:15x6 // ⿱高龰
+
+# CJK unified ideographs extension J: 鬼 (194)
+
+## 194.4
+
+// glyph han-3332f:15x16 15 16 // 𳌯
+// ⿺ han-9b3c han-5929 // ⿺鬼天
+
+// glyph han-33330:15x16 15 16 // 𳌰
+// ⿺ han-9b3c han-5143 // ⿺鬼元
+
+// glyph han-33333-($han-regions):15x16 15 16 // 𳌳
+// ⿺ han-9b3c han-5316-($-1) // ⿺鬼化
+
+// glyph han-33334:15x16 15 16 // 𳌴
+// ⿰ han-592c han-9b3c // ⿰夬鬼
+
+## 194.5
+
+// glyph han-33335:15x16 15 16 // 𳌵
+// ⿺ han-9b3c han-767d // ⿺鬼白
+
+## 194.6
+
+// glyph han-33337:15x16 15 16 // 𳌷
+// ⿺ han-9b3c han-807f // ⿺鬼聿
+
+## 194.7
+
+// glyph han-33338:15x16 15 16 // 𳌸
+// ⿺ han-9b3c han-65f1 // ⿺鬼旱
+
+## 194.9
+
+// glyph han-3333d:15x16 15 16 // 𳌽
+// ⿺ han-9b3c han-661f // ⿺鬼星
+
+## 194.12
+
+// glyph han-33343:15x16 15 16 // 𳍃
+// ⿺ han-9b3c han-5f3c // ⿺鬼弼
+
+## 194.14
+
+// glyph han-33344:15x16 15 16 // 𳍄
+// ⿺ han-9b3c han-8f14 // ⿺鬼輔
 
 # CJK unified ideographs extension J: 魚 (195)
 
@@ -999,3 +1050,13 @@ glyph han-333d7:15x16 15 16 // 𳏗
 
 // glyph han-333fd:15x16 15 16 // 𳏽
 // ⿳ han-8ccf han-5b80 han-9ce5 // ⿳賏宀鳥
+
+# CJK unified ideographs extension J: 黑 (203)
+
+## 203.5
+
+// glyph han-3344c:15x16 15 16 // 𳑌
+// ⿰ han-9ed1 han-767d // ⿰黑白
+
+// glyph han-3344d:15x16 15 16 // 𳑍
+// ⿰ han-9ed1 han-4ed5 // ⿰黑仕

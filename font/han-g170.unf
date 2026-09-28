@@ -454,6 +454,18 @@ glyph han-31179:15x16 15 16 // 𱅹
 // glyph han-3117c:15x16 15 16 // 𱅼
 // ⿰ han-9ad8 han-5736 // ⿰高圶
 
+# CJK unified ideographs extension G: 鬼 (194)
+
+## 194.2
+
+// glyph han-31196:15x16 15 16 // 𱆖
+// ⿱ han-51e0 han-9b3c // ⿱几鬼
+
+## 194.14
+
+// glyph han-311a0:15x16 15 16 // 𱆠
+// ⿺ han-9b3c han-21b3d // ⿺鬼𡬽
+
 # CJK unified ideographs extension G: 魚 (195)
 
 ## 195.2
@@ -594,6 +606,13 @@ glyph han-3123e:15x16 15 16 // 𱈾
 
 // glyph han-312f0:15x16 15 16 // 𱋰
 // ⿰ han-9ebb han-4f86 // ⿰麻來
+
+# CJK unified ideographs extension G: 黑 (203)
+
+## 203.12
+
+// glyph han-312fa:15x16 15 16 // 𱋺
+// ⿰ han-9ed1 han-7b49 // ⿰黑等
 
 # CJK unified ideographs extension G: 黾 (205')
 

@@ -155,6 +155,9 @@ glyph han-4303-j:15x16 15 16 // 䌃
 
 ## 120.10
 
+// glyph han-4306-($han-regions):15x16 15 16 // 䌆 ⿰糹鬼(GT) ⿰糸鬼(J)
+// ⿰ han-7cf9-($-1) han-9b3c // ⿰糹鬼
+
 // glyph han-4308-($han-regions):15x16 15 16 // 䌈 ⿰糹𦐇(GT) ⿰糸⿱日羽(K) ⿰糸𦐇(P)
 // ⿰ han-7cf9 han-26407-($-1) // ⿰糹𦐇
 
@@ -687,7 +690,7 @@ glyph han-4427:15x16 15 16 // 䐧 ⿰月高(GK) ⿰⺼高(T)
 // glyph han-4432-($han-regions):15x16 15 16 // 䐲 ⿰月習(GKP) ⿰⺼習(T)
 // ⿰ han-6708 han-7fd2-($-1) // ⿰月習
 
-glyph han-4433:15x16 15 16 // 䐳 ⿰月魚(GK) ⿰⺼魚(T)
+glyph han-4433:15x16 15 16 // 䐳
 ⿰ han-6708:7x16 1 han-9b5a:7x16 // ⿰月魚
 
 ## 130.12

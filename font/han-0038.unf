@@ -779,6 +779,9 @@ glyph han-5abd:15x16 15 16 // 媽
 ⿰ han-5973:5x14-l 1 han-99ac:9x16 // ⿰女馬
 glyph han-5abd.0:* = han-5abd:*
 
+// glyph han-5abf:15x16 15 16 // 媿
+// ⿰ han-5973 han-9b3c // ⿰女鬼
+
 // glyph han-5ac8:15x16 15 16 // 嫈
 // ⿱ han-241fe han-5973 // ⿱𤇾女
 
@@ -826,6 +829,9 @@ glyph han-5af0:15x16 15 16 // 嫰
 
 // glyph han-5afb:15x16 15 16 // 嫻
 // ⿰ han-5973 han-9591 // ⿰女閑
+
+// glyph han-5afc:15x16 15 16 // 嫼
+// ⿰ han-5973 han-9ed1 // ⿰女黑
 
 glyph han-5afe:15x16 15 16 // 嫾
 ⿰ han-5973:5x14-l 1 han-7ca6:9x16 // ⿰女粦

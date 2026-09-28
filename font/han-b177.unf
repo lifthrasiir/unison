@@ -246,6 +246,9 @@ glyph han-292fe:15x16 15 16 // 𩋾
 // glyph han-25315:15x16 15 16 // 𥌕
 // ⿱ han-9781 han-76ee // ⿱鞁目
 
+// glyph han-29303:15x16 15 16 // 𩌃
+// ⿰ han-9769 han-9b3c // ⿰革鬼
+
 // glyph han-29307-($han-regions):15x16 15 16 // 𩌇
 // ⿰ han-9769 han-26407-($-1) // ⿰革𦐇
 
@@ -418,6 +421,11 @@ glyph han-293c3:15x16 15 16 // 𩏃
 
 glyph han-293cc:15x16 15 16 // 𩏌
 ⿰ han-97cb:7x16 han-66f7:8x16 // ⿰韋曷
+
+## 178.10
+
+// glyph han-293d0:15x16 15 16 // 𩏐
+// ⿰ han-97cb han-9b3c // ⿰韋鬼
 
 ## 178.13
 

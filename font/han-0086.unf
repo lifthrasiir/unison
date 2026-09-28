@@ -885,6 +885,10 @@ glyph han-71ae:15x16 15 16 // 熮
 
 glyph han-9fbd:15x16 15 16 // 龽
 ⿰ han-706b:7x16 1 han-9b5a:7x16 // ⿰火魚
+glyph han-9fbd.0:* = han-9fbd:*
+glyph han-9fbd.1:* = han-9fbd:*
+glyph han-9fbd.2:15x16 15 16 // 龽
+⿰ han-706b:7x16 1 han-9b5a.x:7x16 // ⿰火魚
 
 ## 86.12
 

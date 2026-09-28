@@ -75,3 +75,172 @@ glyph han-2a3a6-(t|j):15x16 15 16 // 𪎦 ⿸麻林(GT) ⿱麻林(UCS2003)
 
 // glyph han-2a3b1:15x16 15 16 // 𪎱
 // ⿰ han-9ebb han-9700 // ⿰麻需
+
+# CJK unified ideographs extension B: 黑 (203)
+
+## 203.1
+
+// glyph han-2a418:15x16 15 16 // 𪐘
+// ⿰ han-9ed1 han-4e59 // ⿰黑乙
+
+## 203.2
+
+// glyph han-2a419:15x16 15 16 // 𪐙
+// ⿰ han-9ed1 han-535c // ⿰黑卜
+
+// glyph han-2a41a:15x16 15 16 // 𪐚
+// ⿰ han-9ed1 han-4e02 // ⿰黑丂
+
+// glyph han-2a41b:15x16 15 16 // 𪐛
+// ⿰ han-9ed1 han-5200 // ⿰黑刀
+
+## 203.3
+
+// glyph han-2a41d:15x16 15 16 // 𪐝
+// ⿰ han-9ed1 han-5927 // ⿰黑大
+
+// glyph han-2a41f-($han-regions):15x16 15 16 // 𪐟 ⿰黑{20}(GTP) ⿰黑丸(UCS2003)
+// ⿰ han-9ed1 han-4e38-($-1) // ⿰黑丸
+
+// glyph han-2a421:15x16 15 16 // 𪐡
+// ⿱ han-5927 han-9ed1 // ⿱大黑
+
+// glyph han-2a422:15x16 15 16 // 𪐢
+// ⿰ han-9ed1 han-58eb // ⿰黑士
+
+// glyph han-2a423-($han-regions):15x16 15 16 // 𪐣
+// ⿰ han-9ed1 han-5b50-($-1) // ⿰黑子
+
+## 203.4
+
+// glyph han-2a425:15x16 15 16 // 𪐥
+// ⿰ han-9ed1 han-592a // ⿰黑太
+
+// glyph han-2a426:15x16 15 16 // 𪐦
+// ⿰ han-9ed1 han-4ea2 // ⿰黑亢
+
+// glyph han-2a428:15x16 15 16 // 𪐨
+// ⿰ han-9ed1 han-5197 // ⿰黑冗
+
+// glyph han-2a429:15x16 15 16 // 𪐩
+// ⿰ han-9ed1 han-706b // ⿰黑火
+
+// glyph han-2a42c:15x16 15 16 // 𪐬
+// ⿰ han-9ed1 han-5143 // ⿰黑元
+
+// glyph han-2a430-($han-regions):15x16 15 16 // 𪐰
+// ⿱ han-6587-($-1) han-9ed1 // ⿱文黑
+
+## 203.5
+
+// glyph han-2a434:15x16 15 16 // 𪐴
+// ⿰ han-9ed1 han-4e3b // ⿰黑主
+
+// glyph han-2a435:15x16 15 16 // 𪐵
+// ⿰ han-9ed1 han-4e14 // ⿰黑且
+
+// glyph han-2a438-($han-regions):15x16 15 16 // 𪐸
+// ⿰ han-9ed1 han-4ee4-($-1) // ⿰黑令
+
+// glyph han-2a43a:15x16 15 16 // 𪐺
+// ⿱ han-9ed1 han-79be // ⿱黑禾
+
+// glyph han-2a43b:15x16 15 16 // 𪐻
+// ⿰ han-9ed1 han-4ed8 // ⿰黑付
+
+// glyph han-2a43c-($han-regions):15x16 15 16 // 𪐼
+// ⿰ han-9ed1 han-5305-($-1) // ⿰黑包
+
+// glyph han-2a43d:15x16 15 16 // 𪐽
+// ⿰ han-51fa han-9ed1 // ⿰出黑
+
+// glyph han-2a43e:15x16 15 16 // 𪐾
+// ⿱ han-9ed1 han-4ed5 // ⿱黑仕
+
+## 203.6
+
+// glyph han-2a440:15x16 15 16 // 𪑀
+// ⿰ han-9ed1 han-7070 // ⿰黑灰
+
+// glyph han-2a443:15x16 15 16 // 𪑃
+// ⿰ han-9ed1 han-518a // ⿰黑冊
+
+// glyph han-2a445:15x16 15 16 // 𪑅
+// ⿰ han-9ed1 han-4f1a // ⿰黑会
+
+// glyph han-2a447:15x16 15 16 // 𪑇
+// ⿰ han-9ed1 han-5408 // ⿰黑合
+
+## 203.7
+
+// glyph han-2a448:15x16 15 16 // 𪑈
+// ⿰ han-9ed1 han-898b // ⿰黑見
+
+// glyph han-2a44a-($han-regions):15x16 15 16 // 𪑊
+// ⿰ han-9ed1 han-8096-($-1) // ⿰黑肖
+
+// glyph han-2a44c:15x16 15 16 // 𪑌
+// ⿰ han-9ed1 han-8c37 // ⿰黑谷
+
+// glyph han-2a44e:15x16 15 16 // 𪑎
+// ⿰ han-9ed1 han-519d // ⿰黑冝
+
+// glyph han-2a451-($han-regions):15x16 15 16 // 𪑑
+// ⿰ han-9ed1 han-541f-($-1) // ⿰黑吟
+
+## 203.8
+
+// glyph han-2a452-($han-regions):15x16 15 16 // 𪑒
+// ⿰ han-9ed1 han-4eab-($-1) // ⿰黑享
+
+// glyph han-2a453:15x16 15 16 // 𪑓
+// ⿰ han-9ed1 han-708e // ⿰黑炎
+
+// glyph han-2a457:15x16 15 16 // 𪑗
+// ⿰ han-9ed1 han-59be // ⿰黑妾
+
+// glyph han-2a459:15x16 15 16 // 𪑙
+// ⿰ han-9ed1 han-91d1 // ⿰黑金
+
+// glyph han-2a45a:15x16 15 16 // 𪑚
+// ⿰ han-9ed1 han-4f86 // ⿰黑來
+
+// glyph han-2a45f:15x16 15 16 // 𪑟
+// ⿱ han-523a han-9ed1 // ⿱刺黑
+
+## 203.9
+
+// glyph han-2a466:15x16 15 16 // 𪑦
+// ⿰ han-9ed1 han-66f7 // ⿰黑曷
+
+// glyph han-2a467:15x16 15 16 // 𪑧
+// ⿰ han-9ed1 han-67bc // ⿰黑枼
+
+// glyph han-2a46d:15x16 15 16 // 𪑭
+// ⿰ han-9ed1 han-594e // ⿰黑奎
+
+// glyph han-2a475:15x16 15 16 // 𪑵
+// ⿳ han-5927 han-5405 han-9ed1 // ⿳大吅黑
+
+// glyph han-2a478:15x16 15 16 // 𪑸
+// ⿰ han-9ed1 han-9801 // ⿰黑頁
+
+## 203.10
+
+// glyph han-2a48d:15x16 15 16 // 𪒍
+// ⿱ han-51a7 han-9ed1 // ⿱冧黑
+
+## 203.12
+
+// glyph han-2a49d:15x16 15 16 // 𪒝
+// ⿰ han-9ed1 han-96f2 // ⿰黑雲
+
+## 203.15
+
+// glyph han-2a4be:15x16 15 16 // 𪒾
+// ⿰ han-9ed1 han-23296 // ⿰黑𣊖
+
+## 203.17
+
+// glyph han-2a4c3:15x16 15 16 // 𪓃
+// ⿰ han-9ed1 han-8944 // ⿰黑襄

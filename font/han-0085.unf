@@ -1099,6 +1099,9 @@ glyph han-6da7:15x16 15 16 // 涧
 
 ## 85.8
 
+// glyph han-6d99:15x16 15 16 // 涙
+// ⿰ han-6c35 han-623b // ⿰氵戻
+
 glyph han-6daa:15x16 15 16 // 涪
 ⿰ han-6c35:5x16 1 han-5485:9x16 // ⿰氵咅
 glyph han-6daa.0:* = han-6daa:*

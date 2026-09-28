@@ -821,6 +821,9 @@ glyph han-5d6a:15x16 15 16 // 嵪
 ⿰ han-5c71:5x12-l 1 han-9ad8:9x16 // ⿰山高
 glyph han-5d6a.0:* = han-5d6a:*
 
+// glyph han-5d6c:15x16 15 16 // 嵬
+// ⿱ han-5c71 han-9b3c // ⿱山鬼
+
 ## 46.11
 
 // glyph han-5d79:15x16 15 16 // 嵹 ⿱山强(G) ⿱山強(HTJK)
@@ -3781,6 +3784,9 @@ glyph han-5eaf:15x16 15 16 // 庯
 
 // glyph han-5ec5:15x16 15 16 // 廅
 // ⿸ han-5e7f han-76cd // ⿸广盍
+
+// glyph han-5ec6:15x16 15 16 // 廆
+// ⿸ han-5e7f han-9b3c // ⿸广鬼
 
 ## 53.11
 

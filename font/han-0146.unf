@@ -1639,6 +1639,9 @@ glyph han-8b01-($han-regions):15x16 15 16 // 謁 ⿰訁曷(GHTKPV) ⿰訁⿱日�
 // glyph han-8b08:15x16 15 16 // 謈
 // ⿳ han-65e5 han-5171 han-8a00 // ⿳日共言
 
+// glyph han-8b09-($han-regions):15x16 15 16 // 謉
+// ⿰ han-8a01-($-1) han-9b3c // ⿰訁鬼
+
 glyph han-8b0c-($han-regions):15x16 15 16 // 謌
 ⿰ han-8a01-($-1):7x16 1 han-54e5:7x16 // ⿰訁哥
 glyph han-8b0c.0:* = han-8b0c-j:*

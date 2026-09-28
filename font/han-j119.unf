@@ -56,6 +56,11 @@ glyph han-32dc7:15x16 15 16 // 𲷇
 glyph han-32dcf:15x16 15 16 // 𲷏
 ⿰ han-7c73:5x16 1 han-54c1:9x16 // ⿰米品
 
+## 119.10
+
+// glyph han-32dd3:15x16 15 16 // 𲷓
+// ⿰ han-7c73 han-9b3c // ⿰米鬼
+
 ## 119.13
 
 // glyph han-32ddc:15x16 15 16 // 𲷜
@@ -689,6 +694,9 @@ glyph han-3301b:15x16 15 16 // 𳀛
 // glyph han-33025-($han-regions):15x16 15 16 // 𳀥
 // ⿲ han-5f73 han-785d-($-1) han-4e8d // ⿲彳硝亍
 
+// glyph han-33027:15x16 15 16 // 𳀧
+// ⿲ han-5f73 han-9ed1 han-4e8d // ⿲彳黑亍
+
 # CJK unified ideographs extension J: 衣 (145)
 
 ## 145.2
@@ -841,6 +849,11 @@ glyph han-3307c:15x16 15 16 // 𳁼
 
 glyph han-3307e:15x16 15 16 // 𳁾
 ⿰ han-8c37:9x16 han-4e14:6x16 // ⿰谷且
+
+## 150.10
+
+// glyph han-3307f:15x16 15 16 // 𳁿
+// ⿰ han-8c37 han-9b3c // ⿰谷鬼
 
 ## 150.15
 

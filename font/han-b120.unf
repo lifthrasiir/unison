@@ -487,6 +487,9 @@ glyph han-2613a:15x16 15 16 // 𦄺
 // glyph han-2613c:15x16 15 16 // 𦄼 ⿰糹須(GTV) ⿰糸須(P)
 // ⿲ han-7cf9 han-5f61 han-9801 // ⿲糹彡頁
 
+// glyph han-2613f-($han-regions):15x16 15 16 // 𦄿
+// ⿰ han-7cf9-($-1) han-9ed1 // ⿰糹黑
+
 // glyph han-26145:15x16 15 16 // 𦅅
 // ⿰ han-7cf9 han-7ae5 // ⿰糹童
 

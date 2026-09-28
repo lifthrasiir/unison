@@ -174,6 +174,9 @@ glyph han-28254-(t|j):15x16 15 16 // 𨉔
 // glyph han-28274:15x16 15 16 // 𨉴
 // ⿰ han-8eab han-8338 // ⿰身茸
 
+// glyph han-28275:15x16 15 16 // 𨉵
+// ⿰ han-8eab han-9b3c // ⿰身鬼
+
 // glyph han-28278:15x16 15 16 // 𨉸
 // ⿰ han-8eab han-99ac // ⿰身馬
 
@@ -192,6 +195,9 @@ glyph han-28254-(t|j):15x16 15 16 // 𨉔
 
 // glyph han-2827f:15x16 15 16 // 𨉿
 // ⿰ han-8eab han-264d4 // ⿰身𦓔
+
+// glyph han-28282:15x16 15 16 // 𨊂
+// ⿰ han-8eab han-9ed1 // ⿰身黑
 
 // glyph han-28283:15x16 15 16 // 𨊃
 // ⿰ han-756a han-8eab // ⿰番身
@@ -522,6 +528,9 @@ glyph han-2836b:15x16 15 16 // 𨍫
 
 // glyph han-28377:15x16 15 16 // 𨍷
 // ⿰ han-8eca han-8338 // ⿰車茸
+
+// glyph han-28379:15x16 15 16 // 𨍹
+// ⿰ han-8eca han-9b3c // ⿰車鬼
 
 glyph han-2837e:15x16 15 16 // 𨍾
 ⿰ han-8eca:5x16 1 han-9aa8-g:9x16 // ⿰車骨

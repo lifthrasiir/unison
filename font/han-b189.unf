@@ -123,3 +123,298 @@ glyph han-29add:15x16 15 16 // 𩫝
 
 // glyph han-29c1a:15x16 15 16 // 𩰚
 // ⿵ han-9b25 han-230aa // ⿵鬥𣂪
+
+# CJK unified ideographs extension B: 鬼 (194)
+
+## 194.2
+
+// glyph han-29c79:15x16 15 16 // 𩱹
+// ⿺ han-9b3c han-529b // ⿺鬼力
+
+// glyph han-29c7a:15x16 15 16 // 𩱺
+// ⿺ han-9b3c han-5369 // ⿺鬼卩
+
+// glyph han-29c7b:15x16 15 16 // 𩱻
+// ⿺ han-9b3c han-535c // ⿺鬼卜
+
+// glyph han-29c7c:15x16 15 16 // 𩱼
+// ⿱ han-4e5d han-9b3c // ⿱九鬼
+
+## 194.3
+
+// glyph han-29c7d:15x16 15 16 // 𩱽
+// ⿺ han-5140 han-9b3c // ⿺兀鬼
+
+// glyph han-29c7f-($han-regions):15x16 15 16 // 𩱿
+// ⿱ han-4ea1-($-1) han-9b3c // ⿱亡鬼
+
+// glyph han-29c80:15x16 15 16 // 𩲀
+// ⿺ han-9b3c han-5c71 // ⿺鬼山
+
+// glyph han-29c81:15x16 15 16 // 𩲁
+// ⿺ han-9b3c han-5915 // ⿺鬼夕
+
+// glyph han-29c82:15x16 15 16 // 𩲂
+// ⿺ han-9b3c han-536a // ⿺鬼卪
+
+// glyph han-29c83-($han-regions):15x16 15 16 // 𩲃
+// ⿺ han-9b3c han-52fa-($-1) // ⿺鬼勺
+
+// glyph han-29c85:15x16 15 16 // 𩲅
+// ⿺ han-9b3c han-5bf8 // ⿺鬼寸
+
+// glyph han-29c87-($han-regions):15x16 15 16 // 𩲇 ⿺⿱甶儿子(T) ⿺鬼子(Z)
+// ⿺ han-9b3c han-5b50-($-1) // ⿺鬼子
+
+// glyph han-29c88:15x16 15 16 // 𩲈
+// ⿱ han-9b3c han-5c71 // ⿱鬼山
+
+// glyph han-29c89-($han-regions):15x16 15 16 // 𩲉
+// ⿰ han-4ea1-($-1) han-9b3c // ⿰亡鬼
+
+## 194.4
+
+// glyph han-29c8a:15x16 15 16 // 𩲊
+// ⿺ han-9b3c han-6bdb // ⿺鬼毛
+
+// glyph han-29c8b:15x16 15 16 // 𩲋
+// ⿰ han-4ea2 han-9b3c // ⿰亢鬼
+
+// glyph han-29c8c:15x16 15 16 // 𩲌
+// ⿰ han-65b9 han-9b3c // ⿰方鬼
+
+// glyph han-29c8d:15x16 15 16 // 𩲍
+// ⿺ han-9b3c han-725b // ⿺鬼牛
+
+// glyph han-29c8e:15x16 15 16 // 𩲎
+// ⿺ han-9b3c han-5c11 // ⿺鬼少
+
+// glyph han-29c8f-($han-regions):15x16 15 16 // 𩲏
+// ⿰ han-5316-($-1) han-9b3c // ⿰化鬼
+
+// glyph han-29c91:15x16 15 16 // 𩲑
+// ⿺ han-9b3c han-4e91 // ⿺鬼云
+
+// glyph han-29c92:15x16 15 16 // 𩲒
+// ⿺ han-9b3c han-957f // ⿺鬼长
+
+// glyph han-29c93:15x16 15 16 // 𩲓
+// ⿺ han-9b3c han-592d // ⿺鬼夭
+
+// glyph han-29c95:15x16 15 16 // 𩲕
+// ⿺ han-9b3c han-706b // ⿺鬼火
+
+// glyph han-29c96-($han-regions):15x16 15 16 // 𩲖
+// ⿰ han-6bd4-($-1) han-9b3c // ⿰比鬼
+
+// glyph han-29c97-($han-regions):15x16 15 16 // 𩲗
+// ⿺ han-9b3c han-4e30-($-1) // ⿺鬼丰
+
+// glyph han-29c99:15x16 15 16 // 𩲙
+// ⿺ han-9b3c han-6728 // ⿺鬼木
+
+// glyph han-29c9b-($han-regions):15x16 15 16 // 𩲛 ⿱𠕀鬼(G) ⿳冖又鬼(T)
+// ⿳ han-5196 han-53c8-($-1) han-9b3c // ⿳冖又鬼
+
+// glyph han-29c9c-($han-regions):15x16 15 16 // 𩲜
+// ⿱ han-5316-($-1) han-9b3c // ⿱化鬼
+
+// glyph han-29c9d:15x16 15 16 // 𩲝
+// ⿺ han-9b3c han-5206 // ⿺鬼分
+
+// glyph han-29c9e:15x16 15 16 // 𩲞
+// ⿺ han-9b3c han-6708 // ⿺鬼月
+
+// glyph han-29c9f:15x16 15 16 // 𩲟 ⿺鬼欠(G) ⿺⿷⿱甶儿厶欠(UCS2003)
+// ⿺ han-9b3c han-6b20 // ⿺鬼欠
+
+// glyph han-29ca0:15x16 15 16 // 𩲠
+// ⿺ han-9b3c han-65b9 // ⿺鬼方
+
+## 194.5
+
+// glyph han-29ca1:15x16 15 16 // 𩲡 ⿰礻鬼(G) ⿰示鬼(TV)
+// ⿰ han-793a han-9b3c // ⿰示鬼
+
+// glyph han-29ca2:15x16 15 16 // 𩲢
+// ⿺ han-9b3c han-76ae // ⿺鬼皮
+
+// glyph han-29ca3:15x16 15 16 // 𩲣
+// ⿰ han-7532 han-9b3c // ⿰甲鬼
+
+// glyph han-29ca4:15x16 15 16 // 𩲤
+// ⿺ han-9b3c han-53ec // ⿺鬼召
+
+// glyph han-29ca5:15x16 15 16 // 𩲥
+// ⿺ han-9b3c han-53f0 // ⿺鬼台
+
+// glyph han-29ca6:15x16 15 16 // 𩲦
+// ⿺ han-9b3c han-5360 // ⿺鬼占
+
+// glyph han-29ca8-($han-regions):15x16 15 16 // 𩲨
+// ⿱ han-6b64-($-1) han-9b3c // ⿱此鬼
+
+// glyph han-29ca9-($han-regions):15x16 15 16 // 𩲩
+// ⿺ han-9b3c han-4ee4-($-1) // ⿺鬼令
+
+// glyph han-29cab:15x16 15 16 // 𩲫
+// ⿰ han-5931 han-9b3c // ⿰失鬼
+
+// glyph han-29caf-($han-regions):15x16 15 16 // 𩲯
+// ⿺ han-9b3c han-534a-($-1) // ⿺鬼半
+
+// glyph han-29cb0:15x16 15 16 // 𩲰
+// ⿰ han-53f5 han-9b3c // ⿰叵鬼
+
+// glyph han-29cb1:15x16 15 16 // 𩲱
+// ⿺ han-9b3c han-53e4 // ⿺鬼古
+
+// glyph han-29cb2:15x16 15 16 // 𩲲
+// ⿺ han-9b3c han-4e14 // ⿺鬼且
+
+// glyph han-29cb3:15x16 15 16 // 𩲳
+// ⿺ han-9b3c han-7532 // ⿺鬼甲
+
+// glyph han-29cb4:15x16 15 16 // 𩲴
+// ⿺ han-9b3c han-592e // ⿺鬼央
+
+// glyph han-29cb5:15x16 15 16 // 𩲵
+// ⿺ han-9b3c han-751f // ⿺鬼生
+
+// glyph han-29cb7:15x16 15 16 // 𩲷
+// ⿺ han-9b3c han-79be // ⿺鬼禾
+
+// glyph han-29cb8:15x16 15 16 // 𩲸
+// ⿱ han-767d han-9b3c // ⿱白鬼
+
+// glyph han-29cb9:15x16 15 16 // 𩲹
+// ⿺ han-9b3c han-4ee7 // ⿺鬼仧
+
+## 194.6
+
+// glyph han-29cbb-($han-regions):15x16 15 16 // 𩲻
+// ⿺ han-9b3c han-4ea4-($-1) // ⿺鬼交
+
+// glyph han-29cbd:15x16 15 16 // 𩲽
+// ⿱ han-9b3c han-8033 // ⿱鬼耳
+
+// glyph han-29cbe:15x16 15 16 // 𩲾
+// ⿰ han-6709 han-9b3c // ⿰有鬼
+
+// glyph han-29cc0:15x16 15 16 // 𩳀
+// ⿺ han-9b3c han-81f3 // ⿺鬼至
+
+// glyph han-29cc4:15x16 15 16 // 𩳄
+// ⿰ han-66f2 han-9b3c // ⿰曲鬼
+
+// glyph han-29cc9:15x16 15 16 // 𩳉
+// ⿺ han-9b3c han-821f // ⿺鬼舟
+
+// glyph han-29ccb:15x16 15 16 // 𩳋
+// ⿺ han-9b3c han-5408 // ⿺鬼合
+
+## 194.7
+
+// glyph han-29ccd:15x16 15 16 // 𩳍
+// ⿺ han-9b3c han-5de0 // ⿺鬼巠
+
+// glyph han-29cd0:15x16 15 16 // 𩳐
+// ⿺ han-9b3c han-752b // ⿺鬼甫
+
+// glyph han-29cd2:15x16 15 16 // 𩳒
+// ⿺ han-9b3c han-675f // ⿺鬼束
+
+// glyph han-29cd3:15x16 15 16 // 𩳓
+// ⿺ han-9b3c han-91cc // ⿺鬼里
+
+// glyph han-29cda:15x16 15 16 // 𩳚
+// ⿺ han-9b3c han-5b8c // ⿺鬼完
+
+// glyph han-29cdb:15x16 15 16 // 𩳛
+// ⿺ han-9b3c han-8eca // ⿺鬼車
+
+// glyph han-29cdc:15x16 15 16 // 𩳜
+// ⿺ han-9b3c han-9149 // ⿺鬼酉
+
+// glyph han-29cdd:15x16 15 16 // 𩳝 ⿱吞鬼(GT) ⿱呑⿷⿱甶儿厶(UCS2003)
+// ⿱ han-541e han-9b3c // ⿱吞鬼
+
+## 194.8
+
+// glyph han-29ce2:15x16 15 16 // 𩳢
+// ⿺ han-9b3c han-5944 // ⿺鬼奄
+
+// glyph han-29ce3:15x16 15 16 // 𩳣
+// ⿺ han-9b3c han-5947 // ⿺鬼奇
+
+// glyph han-29ce4:15x16 15 16 // 𩳤
+// ⿺ han-9b3c han-9577 // ⿺鬼長
+
+// glyph han-29ce7-($han-regions):15x16 15 16 // 𩳧
+// ⿱ han-96e8-($-1) han-9b3c // ⿱雨鬼
+
+// glyph han-29cf2:15x16 15 16 // 𩳲
+// ⿺ han-9b3c han-4f88 // ⿺鬼侈
+
+// glyph han-29cf3:15x16 15 16 // 𩳳 ⿰鬼來(V) ⿰⿷⿱㇒⿸⿻日丿乚厶來(UCS2003)
+// ⿰ han-9b3c han-4f86 // ⿰鬼來
+
+// glyph han-29cf4:15x16 15 16 // 𩳴 ⿰鬼卦(V) ⿰⿷⿱㇒⿸⿻日丿乚厶卦(UCS2003)
+// ⿰ han-9b3c han-5366 // ⿰鬼卦
+
+## 194.9
+
+// glyph han-29cf6:15x16 15 16 // 𩳶
+// ⿰ han-67bc han-9b3c // ⿰枼鬼
+
+// glyph han-29cf7:15x16 15 16 // 𩳷
+// ⿺ han-9b3c han-97cb // ⿺鬼韋
+
+// glyph han-29cf8:15x16 15 16 // 𩳸
+// ⿺ han-9b3c han-82d7 // ⿺鬼苗
+
+// glyph han-29cfe:15x16 15 16 // 𩳾
+// ⿺ han-9b3c han-9762 // ⿺鬼面
+
+// glyph han-29d00-($han-regions):15x16 15 16 // 𩴀
+// ⿺ han-9b3c han-8005-($-1) // ⿺鬼者
+
+// glyph han-29d02:15x16 15 16 // 𩴂
+// ⿺ han-9b3c han-91cd // ⿺鬼重
+
+## 194.10
+
+// glyph han-29d08:15x16 15 16 // 𩴈
+// ⿰ han-771b han-9b3c // ⿰眛鬼
+
+// glyph han-29d0a:15x16 15 16 // 𩴊
+// ⿺ han-9b3c han-8336 // ⿺鬼茶
+
+## 194.11
+
+// glyph han-29d12:15x16 15 16 // 𩴒 ⿱强鬼(G) ⿱強鬼(TP)
+// ⿱ han-5f37 han-9b3c // ⿱強鬼
+
+// glyph han-29d15:15x16 15 16 // 𩴕
+// ⿱ han-65ac han-9b3c // ⿱斬鬼
+
+## 194.12
+
+// glyph han-29d20:15x16 15 16 // 𩴠
+// ⿺ han-9b3c han-7ca6 // ⿺鬼粦
+
+// glyph han-29d26:15x16 15 16 // 𩴦
+// ⿰ han-9593 han-9b3c // ⿰間鬼
+
+// glyph han-29d29:15x16 15 16 // 𩴩
+// ⿺ han-9b3c han-7131 // ⿺鬼焱
+
+## 194.14
+
+// glyph han-29d36:15x16 15 16 // 𩴶
+// ⿺ han-9b3c han-9700 // ⿺鬼需
+
+## 194.18
+
+// glyph han-29d44:15x16 15 16 // 𩵄
+// ⿺ han-9b3c han-96da // ⿺鬼雚

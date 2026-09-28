@@ -262,6 +262,11 @@ glyph han-2e92e:15x16 15 16 // 𮤮
 // glyph han-2e937:15x16 15 16 // 𮤷
 // ⿵ han-95e8 han-6d2a // ⿵门洪
 
+## 169'.12
+
+// glyph han-2e938:15x16 15 16 // 𮤸
+// ⿵ han-95e8 han-9ed1 // ⿵门黑
+
 # CJK unified ideographs extension F: 阜 (170)
 
 ## 170.4
@@ -899,6 +904,44 @@ glyph han-2eaa8:15x16 15 16 // 𮪨
 // glyph han-2ead5:15x16 15 16 // 𮫕
 // ⿵ han-9b25 han-99ac // ⿵鬥馬
 
+# CJK unified ideographs extension F: 鬼 (194)
+
+## 194.4
+
+// glyph han-2eadd:15x16 15 16 // 𮫝 ⿱⿱小㇒⿷⿱甶儿厶(S) ⿱少鬼(Z)
+// ⿱ han-5c11 han-9b3c // ⿱少鬼
+
+## 194.6
+
+// glyph han-2eadf:15x16 15 16 // 𮫟
+// ⿱ han-9b3c han-8863 // ⿱鬼衣
+
+## 194.7
+
+// glyph han-2eae0-($han-regions):15x16 15 16 // 𮫠
+// ⿱ han-90a6-($-1) han-9b3c // ⿱邦鬼
+
+## 194.8
+
+// glyph han-2eae1:15x16 15 16 // 𮫡
+// ⿰ han-5176 han-9b3c // ⿰其鬼
+
+// glyph han-2eae3:15x16 15 16 // 𮫣 ⿺⿷⿱甶儿厶炎(S) ⿺鬼炎(Z)
+// ⿺ han-9b3c han-708e // ⿺鬼炎
+
+## 194.9
+
+// glyph han-2eae4:15x16 15 16 // 𮫤
+// ⿺ han-9b3c han-9996 // ⿺鬼首
+
+## 194.10
+
+// glyph han-2eae5:15x16 15 16 // 𮫥 ⿺⿱甶儿盍(K) ⿺鬼盍(Z)
+// ⿺ han-9b3c han-76cd // ⿺鬼盍
+
+// glyph han-2eae6:15x16 15 16 // 𮫦 ⿺⿷⿱甶儿厶栗(S) ⿺鬼栗(Z)
+// ⿺ han-9b3c han-6817 // ⿺鬼栗
+
 # CJK unified ideographs extension F: 魚 (195)
 
 ## 195.3
@@ -1012,6 +1055,9 @@ glyph han-2eb39:15x16 15 16 // 𮬹
 // glyph han-2eb3d:15x16 15 16 // 𮬽
 // ⿰ han-7f57 han-9ce5 // ⿰罗鳥
 
+// glyph han-2eb42:15x16 15 16 // 𮭂
+// ⿰ han-9ce5 han-623b // ⿰鳥戻
+
 // glyph han-2eb43:15x16 15 16 // 𮭃
 // ⿲ han-6c35 han-5144 han-9ce5 // ⿲氵兄鳥 <- ⿰況鳥
 
@@ -1055,8 +1101,31 @@ glyph han-2eb88:15x16 15 16 // 𮮈
 
 ## 203.4
 
+// glyph han-2eb94:15x16 15 16 // 𮮔
+// ⿰ han-9ed1 han-5206 // ⿰黑分
+
 // glyph han-2eb95-($han-regions):15x16 15 16 // 𮮕
 // ⿱ han-7236-($-1) han-9ed2 // ⿱父黒
+
+## 203.5
+
+// glyph han-2eb96:15x16 15 16 // 𮮖
+// ⿰ han-9ed1 han-7acb // ⿰黑立
+
+## 203.8
+
+// glyph han-2eb99:15x16 15 16 // 𮮙
+// ⿰ han-9ed1 han-6797 // ⿰黑林
+
+// glyph han-2eb9a:15x16 15 16 // 𮮚
+// ⿰ han-9ed1 han-5485 // ⿰黑咅
+
+# CJK unified ideographs extension F: 鼎 (206)
+
+## 206.3
+
+// glyph han-2eba5-($han-regions):15x16 15 16 // 𮮥
+// ⿱ han-9f0e han-624d-($-1) // ⿱鼎才
 
 # CJK unified ideographs extension F: 鼻 (209)
 
