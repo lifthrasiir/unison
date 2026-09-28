@@ -492,8 +492,10 @@ glyph han-242b6:15x16 15 16 // 𤊶
 glyph han-242bc:15x16 15 16 // 𤊼
 ⿰ han-708e:7x16 1 han-7518:7x16 // ⿰炎甘
 
-glyph han-242be:15x16 15 16 // 𤊾 ⿱𥄕火(GT) ⿳艹目火(P)
-⿳ han-8279:15x3 han-76ee:9x7 han-706b:15x6 // ⿳艹目火
+glyph han-242be-(g|t|j):15x16 15 16 // 𤊾
+⿳ han-8279.1:15x3 han-76ee:9x7 han-706b:15x6 // ⿳艹目火
+glyph han-242be-p:15x16 15 16 // 𤊾
+⿳ han-8279.0:15x3 han-76ee:9x7 han-706b:15x6 // ⿳艹目火
 
 // glyph han-242c0:15x16 15 16 // 𤋀
 // ⿰ han-706b han-72ca // ⿰火狊
@@ -501,8 +503,10 @@ glyph han-242be:15x16 15 16 // 𤊾 ⿱𥄕火(GT) ⿳艹目火(P)
 // glyph han-242c1:15x16 15 16 // 𤋁
 // ⿱ han-661c han-706c // ⿱昜灬
 
-glyph han-242c2:15x16 15 16 // 𤋂 ⿳卝罒火(GT) ⿳艹罒火(P) ⿱𦭝火(X)
-⿳ han-8279:15x3 han-7f52:15x7 han-706b:15x6 // ⿳艹罒火
+glyph han-242c2-(g|t|j):15x16 15 16 // 𤋂
+⿳ han-8279.1:15x3 han-7f52:15x7 han-706b:15x6 // ⿳艹罒火
+glyph han-242c2-p:15x16 15 16 // 𤋂
+⿳ han-8279.0:15x3 han-7f52:15x7 han-706b:15x6 // ⿳艹罒火
 
 // glyph han-242c7:15x16 15 16 // 𤋇
 // ⿱ han-7702 han-706c // ⿱眂灬
@@ -526,7 +530,7 @@ glyph han-242c2:15x16 15 16 // 𤋂 ⿳卝罒火(GT) ⿳艹罒火(P) ⿱𦭝火(
 // ⿰ han-706b han-601d // ⿰火思
 
 glyph han-242d9:15x16 15 16 // 𤋙
-⿰ han-706b:5x14-l 1 han-82d7:9x16 // ⿰火苗
+⿰ han-706b:5x14-l 1 han-82d7-t:9x16 // ⿰火苗
 
 // glyph han-242dc:15x16 15 16 // 𤋜
 // ⿱ han-662d han-706b // ⿱昭火

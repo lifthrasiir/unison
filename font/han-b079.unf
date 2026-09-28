@@ -23,8 +23,10 @@ glyph han-23b05-($han-regions):15x16 15 16 // 𣬅
 
 ## 81.9
 
-glyph han-23b0d-($han-regions):15x16 15 16 // 𣬍
-⿰ han-82d7:7x16 1 han-6bd4-($-1):7x16 // ⿰苗比
+glyph han-23b0d-(g):15x16 15 16 // 𣬍
+⿰ han-82d7.0:7x16 1 han-6bd4-($-1):7x16 // ⿰苗比
+glyph han-23b0d-(t|j):15x16 15 16 // 𣬍
+⿰ han-82d7.2:7x16 1 han-6bd4-($-1):7x16 // ⿰苗比
 
 ## 81.10
 

@@ -532,7 +532,7 @@ glyph han-317ab:15x16 15 16 // 𱞫
 // ⿰ han-5fc4 han-67e5 // ⿰忄查
 
 glyph han-317ad:15x16 15 16 // 𱞭
-⿰ han-5fc4:5x16 1 han-82d7:9x16 // ⿰忄苗
+⿰ han-5fc4:5x16 1 han-82d7-g:9x16 // ⿰忄苗
 
 // glyph han-317ae:15x16 15 16 // 𱞮
 // ⿰ han-5fc4 han-6631 // ⿰忄昱

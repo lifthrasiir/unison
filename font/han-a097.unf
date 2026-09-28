@@ -1038,8 +1038,10 @@ glyph han-4163.0:* = han-4163:*
 glyph han-4165:15x16 15 16 // 䅥
 ⿰ han-79be:5x16 1 han-66f7:9x16 // ⿰禾曷
 
-glyph han-4166:15x16 15 16 // 䅦
-⿰ han-79be:5x16 1 han-82d7:9x16 // ⿰禾苗
+glyph han-4166-(g|k):15x16 15 16 // 䅦
+⿰ han-79be:5x16 1 han-82d7.0:9x16 // ⿰禾苗
+glyph han-4166-(t|j):15x16 15 16 // 䅦
+⿰ han-79be:5x16 1 han-82d7.2:9x16 // ⿰禾苗
 
 glyph han-4167:15x16 15 16 // 䅧
 ⿰ han-79be:5x16 1 han-97f3:9x16 // ⿰禾音

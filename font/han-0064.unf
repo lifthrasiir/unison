@@ -972,8 +972,13 @@ glyph han-63c4.2:* = han-63c4-g:*
 // glyph han-63cc:15x16 15 16 // 揌
 // ⿰ han-624c han-601d // ⿰扌思
 
-glyph han-63cf:15x16 15 16 // 描
-⿰ han-624c:5x16 1 han-82d7:9x16 // ⿰扌苗
+glyph han-63cf.0:15x16 15 16 // 描
+⿰ han-624c:5x16 1 han-82d7.0:9x16 // ⿰扌苗
+glyph han-63cf.1:* = han-63cf.0:*
+glyph han-63cf.2:15x16 15 16 // 描
+⿰ han-624c:5x16 1 han-82d7.2:9x16 // ⿰扌苗
+glyph han-63cf-(g|j|k|p|v):* = han-63cf.0:*
+glyph han-63cf-(h|t):* = han-63cf.2:*
 
 glyph han-63d0:15x16 15 16 // 提
 ⿰ han-624c:5x16 1 han-662f:9x16 // ⿰扌是

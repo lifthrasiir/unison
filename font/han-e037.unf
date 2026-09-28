@@ -363,7 +363,7 @@ glyph han-2bcd5:15x16 15 16 // 𫳕
 // ⿱ han-5b80 han-9801 // ⿱宀頁
 
 glyph han-2bcdd:15x16 15 16 // 𫳝
-⿳ han-5b80:15x5 han-8279:15x3 1 han-7530:11x7 // ⿳宀艹田
+⿳ han-5b80:15x5 han-8279.2:15x3 1 han-7530:11x7 // ⿳宀艹田
 
 // glyph han-2bcde:15x16 15 16 // 𫳞
 // ⿱ han-5b80 han-661c // ⿱宀昜

@@ -426,7 +426,7 @@ glyph han-23225-($han-regions):15x16 15 16 // 𣈥
 // ⿱ han-65e5 han-4fde // ⿱日俞
 
 glyph han-23234:15x16 15 16 // 𣈴
-⿰ han-65e5:4x14-l 2 han-82d7:9x16 // ⿰日苗
+⿰ han-65e5:4x14-l 2 han-82d7-h:9x16 // ⿰日苗
 
 glyph han-23237:15x16 15 16 // 𣈷
 ⿰ han-65e5:5x14-l 1 han-7687:9x16 // ⿰日皇

@@ -800,18 +800,11 @@ glyph han-7ddd-p:* = han-7ddd.y:*
 // glyph han-7ddf:15x16 15 16 // 緟 ⿰糹重(GHT) ⿰糸重(KP)
 // ⿰ han-7cf9 han-91cd // ⿰糹重
 
-glyph han-7de2.0:15x16 15 16 // 緢
-⿰ han-7cf9.z:5x14 1 han-82d7:9x16 // ⿰糹苗
-glyph han-7de2.1:* = han-7de2.0:*
-glyph han-7de2.2:* = han-7de2.0:*
-glyph han-7de2.x:15x16 15 16 // 緢
-⿰ han-7cf9.x:5x14 1 han-82d7:9x16 // ⿰糹苗
-glyph han-7de2.y:15x16 15 16 // 緢
-⿰ han-7cf9.y:5x14 1 han-82d7:9x16 // ⿰糹苗
-glyph han-7de2-j:* = han-7de2.0:*
-glyph han-7de2-k:* = han-7de2.2:*
-glyph han-7de2-(g|t):* = han-7de2.x:*
-glyph han-7de2-p:* = han-7de2.y:*
+glyph han-7de2-($han-regions):15x16 15 16 // 緢
+⿰ han-7cf9-($-1):5x14 1 han-82d7-($-1):9x16 // ⿰糹苗
+glyph han-7de2.0:* = han-7de2-j:*
+glyph han-7de2.1:* = han-7de2-j:*
+glyph han-7de2.2:* = han-7de2-k:*
 
 // glyph han-7de4:15x16 15 16 // 緤 ⿰糹枼(GHTV) ⿰糸枼(JKP)
 // ⿰ han-7cf9 han-67bc // ⿰糹枼

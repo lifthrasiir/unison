@@ -3400,8 +3400,13 @@ glyph han-97ed.0:* = han-97ed:*
 
 ## 179.4
 
-glyph han-97ee:15x16 15 16 // 韮
-⿱ han-8279:15x3 1 han-97ed:15x12 // ⿱艹韭
+glyph han-97ee.0:15x16 15 16 // 韮
+⿱ han-8279.0:15x3 1 han-97ed:15x12 // ⿱艹韭
+glyph han-97ee.1:* = han-97ee.0:*
+glyph han-97ee.2:15x16 15 16 // 韮
+⿱ han-8279.2:15x3 1 han-97ed:15x12 // ⿱艹韭
+glyph han-97ee-(g|j|k|p):* = han-97ee.0:*
+glyph han-97ee-(h|t):* = han-97ee.2:*
 
 # CJK unified ideographs: 音 (180)
 

@@ -352,8 +352,10 @@ glyph han-346c:15x16 15 16 // 㑬
 
 ## 9.9
 
-glyph han-3464:15x16 15 16 // 㑤
-⿰ han-4ebb:5x16 1 han-82d7:9x16 // ⿰亻苗
+glyph han-3464-($han-regions):15x16 15 16 // 㑤
+⿰ han-4ebb:5x16 1 han-82d7-($-1):9x16 // ⿰亻苗
+glyph han-3464.0:* = han-3464-g:*
+glyph han-3464.1:* = han-3464-h:*
 
 glyph han-346e:15x16 15 16 // 㑮
 ⿰ han-4ebb:5x16 1 han-8ecd:9x16 // ⿰亻軍

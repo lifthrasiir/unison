@@ -41,8 +41,10 @@
 // glyph han-26fd1:15x16 15 16 // 𦿑
 // ⿳ han-8278 han-660d han-8278 // ⿳艸昍艸
 
-glyph han-26fd7:15x16 15 16 // 𦿗 ⿱艹𰚫(GT) ⿱蒿毛(X)
-⿳ -4 han-8279:15x3 han-9ad8:13x9 han-6bdb:15x8 // ⿳艹高毛
+glyph han-26fd7-g:15x16 15 16 // 𦿗
+⿳ -4 han-8279.0:15x3 han-9ad8:13x9 han-6bdb:15x8 // ⿳艹高毛
+glyph han-26fd7-(t|j):15x16 15 16 // 𦿗
+⿳ -4 han-8279.2:15x3 han-9ad8:13x9 han-6bdb:15x8 // ⿳艹高毛
 
 // glyph han-26fd8:15x16 15 16 // 𦿘
 // ⿳ han-8279 han-4fce han-76bf // ⿳艹俎皿
@@ -86,13 +88,17 @@ glyph han-26fd7:15x16 15 16 // 𦿗 ⿱艹𰚫(GT) ⿱蒿毛(X)
 // glyph han-27016:15x16 15 16 // 𧀖
 // ⿱ han-8279 han-4160 // ⿱艹䅠
 
-glyph han-27019:15x16 15 16 // 𧀙
-⿳ -2 han-8279:15x3 han-803f:15x12 han-706c:15x3 // ⿳艹耿灬
+glyph han-27019-g:15x16 15 16 // 𧀙
+⿳ -2 han-8279.0:15x3 han-803f:15x12 han-706c:15x3 // ⿳艹耿灬
+glyph han-27019-(t|j):15x16 15 16 // 𧀙
+⿳ -2 han-8279.2:15x3 han-803f:15x12 han-706c:15x3 // ⿳艹耿灬
 
 ## 140.15
 
-glyph han-26fd5:15x16 15 16 // 𦿕
-⿳ -5 han-8279:15x3 han-63a8:15x13 han-6728:15x5 // ⿳艹推木
+glyph han-26fd5-g:15x16 15 16 // 𦿕
+⿳ -5 han-8279.0:15x3 han-63a8:15x13 han-6728:15x5 // ⿳艹推木
+glyph han-26fd5-(t|j):15x16 15 16 // 𦿕
+⿳ -5 han-8279.2:15x3 han-63a8:15x13 han-6728:15x5 // ⿳艹推木
 
 // glyph han-27020:15x16 15 16 // 𧀠
 // ⿱ han-8279 han-7df9 // ⿱艹緹
@@ -112,11 +118,15 @@ glyph han-26fd5:15x16 15 16 // 𦿕
 // glyph han-2703a:15x16 15 16 // 𧀺
 // ⿱ han-8279 han-9821 // ⿱艹頡
 
-glyph han-2703d:15x16 15 16 // 𧀽
-⿳ -3 han-8279:15x3 han-79df:15x12 1 han-76bf:15x3 // ⿳艹租皿
+glyph han-2703d-g:15x16 15 16 // 𧀽
+⿳ -3 han-8279.0:15x3 han-79df:15x12 1 han-76bf:15x3 // ⿳艹租皿
+glyph han-2703d-(t|j):15x16 15 16 // 𧀽
+⿳ -3 han-8279.2:15x3 han-79df:15x12 1 han-76bf:15x3 // ⿳艹租皿
 
-glyph han-27054:15x16 15 16 // 𧁔
-⿳ -3 han-8279:15x3 han-6d66:15x13 han-76bf:15x3 // ⿳艹浦皿
+glyph han-27054-g:15x16 15 16 // 𧁔
+⿳ -3 han-8279.0:15x3 han-6d66:15x13 han-76bf:15x3 // ⿳艹浦皿
+glyph han-27054-j:15x16 15 16 // 𧁔
+⿳ -3 han-8279.2:15x3 han-6d66:15x13 han-76bf:15x3 // ⿳艹浦皿
 
 // glyph han-27055:15x16 15 16 // 𧁕 ⿳艹⿰氵幷⿰𠂇十(T) ⿱蓱廾(Z)
 // ⿳ han-8279 han-6d34 han-5efe // ⿳艹洴廾

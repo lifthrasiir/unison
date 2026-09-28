@@ -67,7 +67,7 @@ glyph han-2c712:15x16 15 16 // 𬜒
 ## 140.3
 
 glyph han-2c721:15x16 15 16 // 𬜡
-⿱ han-8279:15x3 1 han-5c71:15x12 // ⿱艹山
+⿱ han-8279-t:15x3 1 han-5c71:15x12 // ⿱艹山
 
 ## 140.4
 
@@ -85,10 +85,10 @@ glyph han-2c721:15x16 15 16 // 𬜡
 // ⿱ han-8279 han-5c81 // ⿱艹岁
 
 glyph han-2c729:15x16 15 16 // 𬜩
-⿳ han-8279:15x3 han-201a2:15x6 han-65e5:11x7 // ⿳艹𠆢日
+⿳ han-8279-t:15x3 han-201a2:15x6 han-65e5:11x7 // ⿳艹𠆢日
 
 glyph han-2c72a:15x16 15 16 // 𬜪
-⿱ han-8279:15x3 han-7f36:15x13 // ⿱艹缶
+⿱ han-8279-g:15x3 han-7f36:15x13 // ⿱艹缶
 
 // glyph han-2c72b:15x16 15 16 // 𬜫
 // ⿳ han-8279 han-4e5d han-5fc3 // ⿳艹九心 <- ⿱艽心
@@ -137,7 +137,7 @@ glyph han-2c72a:15x16 15 16 // 𬜪
 // ⿱ han-8279 han-9c7c // ⿱艹鱼
 
 glyph han-2c744:15x16 15 16 // 𬝄
-⿳ han-8279:15x3 han-5b80:15x3 han-7389:15x10 // ⿳艹宀玉
+⿳ han-8279-t:15x3 han-5b80:15x3 han-7389:15x10 // ⿳艹宀玉
 
 // glyph han-2c745:15x16 15 16 // 𬝅
 // ⿱ han-8279 han-2abf2 // ⿱艹𪯲
@@ -157,7 +157,7 @@ glyph han-2c744:15x16 15 16 // 𬝄
 // ⿳ han-8279 han-5185 han-76bf // ⿳艹内皿
 
 glyph han-2c750:15x16 15 16 // 𬝐
-⿳ han-8279:15x3 han-5360:11x9 han-706c:15x4 // ⿳艹占灬
+⿳ han-8279-v:15x3 han-5360:11x9 han-706c:15x4 // ⿳艹占灬
 
 // glyph han-2c751:15x16 15 16 // 𬝑
 // ⿳ han-8279 han-201a2 han-9578 // ⿳艹𠆢镸
@@ -180,7 +180,7 @@ glyph han-2c750:15x16 15 16 // 𬝐
 // ⿱ han-8279 han-8041 // ⿱艹聁
 
 glyph han-2c75e:15x16 15 16 // 𬝞
-⿳ han-8279:15x3 han-6728:15x5 han-8033:15x8 // ⿳艹木耳
+⿳ han-8279.2:15x3 han-6728:15x5 han-8033:15x8 // ⿳艹木耳
 
 // glyph han-2c75f:15x16 15 16 // 𬝟
 // ⿱ han-8279 han-5703 // ⿱艹圃
@@ -218,7 +218,7 @@ glyph han-2c75e:15x16 15 16 // 𬝞
 // ⿳ han-8279 han-96e8-($-1) han-4e90 // ⿳艹雨亐
 
 glyph han-2c779:15x16 15 16 // 𬝹
-⿳ han-8279:15x3 han-96e8:15x7 1 han-2b739:13x5 // ⿳艹雨𫜹
+⿳ han-8279-t:15x3 han-96e8:15x7 1 han-2b739:13x5 // ⿳艹雨𫜹
 
 // glyph han-2c77f:15x16 15 16 // 𬝿
 // ⿱ han-8279 han-4899 // ⿱艹䢙
@@ -260,8 +260,8 @@ glyph han-2c779:15x16 15 16 // 𬝹
 // glyph han-2c7a6:15x16 15 16 // 𬞦
 // ⿳ han-8279 han-7c89 han-5efe // ⿳艹粉廾
 
-glyph han-2c7a9:15x16 15 16 // 𬞩 ⿱艹㙜(G) ⿱蒿土(X)
-⿳ han-8279:15x3 han-9ad8:13x9 han-571f:15x4 // ⿳艹高土
+glyph han-2c7a9:15x16 15 16 // 𬞩
+⿳ han-8279.2:15x3 han-9ad8:13x9 han-571f:15x4 // ⿳艹高土
 
 // glyph han-2c7aa:15x16 15 16 // 𬞪
 // ⿳ han-8279 han-9996 han-5143 // ⿳艹首元

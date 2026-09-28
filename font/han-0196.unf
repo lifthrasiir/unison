@@ -494,8 +494,11 @@ glyph han-9d92:15x16 15 16 // 鶒
 ⿲ -5 han-675f:7x16 han-529b:5x16 1 han-9ce5:7x16 // ⿲束力鳥
 glyph han-9d92.0:* = han-9d92:*
 
-glyph han-9d93:15x16 15 16 // 鶓
-⿰ han-82d7:7x16 1 han-9ce5:7x16 // ⿰苗鳥
+glyph han-9d93-($han-regions):15x16 15 16 // 鶓
+⿰ han-82d7-($-1):7x16 1 han-9ce5:7x16 // ⿰苗鳥
+glyph han-9d93.0:* = han-9d93-g:*
+glyph han-9d93.1:* = han-9d93-g:*
+glyph han-9d93.2:* = han-9d93-h:*
 
 glyph han-9d95:15x16 15 16 // 鶕
 ⿰ han-97f3:7x16 1 han-9ce5:7x16 // ⿰音鳥

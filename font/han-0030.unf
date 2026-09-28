@@ -3457,8 +3457,10 @@ glyph han-55b2.0:* = han-55b2-j:*
 // glyph han-55b3:15x16 15 16 // 喳 ⿰口查(GHT) ⿰口査(K)
 // ⿰ han-53e3 han-67e5 // ⿰口查
 
-glyph han-55b5:15x16 15 16 // 喵
-⿰ han-53e3:5x12 1 han-82d7:9x16 // ⿰口苗
+glyph han-55b5-(g|v):15x16 15 16 // 喵
+⿰ han-53e3:5x12 1 han-82d7.0:9x16 // ⿰口苗
+glyph han-55b5-(h|t|j):15x16 15 16 // 喵
+⿰ han-53e3:5x12 1 han-82d7.2:9x16 // ⿰口苗
 
 // glyph han-55b8:15x16 15 16 // 喸 ⿱甫𫜸(G) ⿱甫𠮟(K)
 // ⿱ han-752b han-2b738 // ⿱甫𫜸

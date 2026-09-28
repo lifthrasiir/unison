@@ -280,10 +280,13 @@ glyph han-2b7c9.0:* = han-2b7c9:*
 ## 140.7
 
 glyph han-2b7d0:15x16 15 16 // 𫟐
-⿳ han-8279:15x3 han-5b80:15x4 -1 han-65b9:15x10 // ⿳艹宀方
+⿳ han-8279.0:15x3 han-5b80:15x4 -1 han-65b9:15x10 // ⿳艹宀方
+glyph han-2b7d0.0:* = han-2b7d0:*
+glyph han-2b7d0.1:15x16 15 16 // 𫟐
+⿳ han-8279.2:15x3 han-5b80:15x4 -1 han-65b9:15x10 // ⿳艹宀方
 
 glyph han-2b7d1:15x16 15 16 // 𫟑
-⿳ han-8279:15x3 han-2b739:13x7 han-706b:15x6 // ⿳艹𫜹火
+⿳ han-8279-g:15x3 han-2b739:13x7 han-706b:15x6 // ⿳艹𫜹火
 
 ## 140.12
 

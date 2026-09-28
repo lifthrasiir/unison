@@ -965,11 +965,13 @@ glyph han-9346:15x16 15 16 // 鍆
 
 ## 167.9
 
-glyph han-9328:15x16 15 16 // 錨
-⿰ han-91d2:5x15-l 1 han-82d7:9x16 // ⿰釒苗
-glyph han-9328.0:* = han-9328:*
-glyph han-9328.1:* = han-9328:*
-glyph han-9328.2:* = han-9328:* // not distinguished
+glyph han-9328.0:15x16 15 16 // 錨
+⿰ han-91d2:5x15-l 1 han-82d7.0:9x16 // ⿰釒苗
+glyph han-9328.1:* = han-9328.0:*
+glyph han-9328.2:15x16 15 16 // 錨
+⿰ han-91d2:5x15-l 1 han-82d7.2:9x16 // ⿰釒苗
+glyph han-9328-(g|j|k|p):* = han-9328.0:*
+glyph han-9328-(h|t):* = han-9328.2:*
 
 // glyph han-9347:15x16 15 16 // 鍇
 // ⿰ han-91d2 han-7686 // ⿰釒皆
@@ -1591,7 +1593,7 @@ glyph han-9517:15x16 15 16 // 锗
 ⿰ han-9485:6x14 han-8005-g:9x16 // ⿰钅者
 
 glyph han-951a:15x16 15 16 // 锚
-⿰ han-9485:6x14 han-82d7:9x16 // ⿰钅苗
+⿰ han-9485:6x14 han-82d7-g:9x16 // ⿰钅苗
 
 // glyph han-951c:15x16 15 16 // 锜
 // ⿰ han-9485 han-5947 // ⿰钅奇

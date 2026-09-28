@@ -440,8 +440,13 @@ glyph han-7329:15x16 15 16 // 猩
 ⿰ han-72ad:4x16 han-661f:11x16 // ⿰犭星
 glyph han-7329.0:* = han-7329:*
 
-glyph han-732b:15x16 15 16 // 猫
-⿰ han-72ad:6x16 han-82d7:9x16 // ⿰犭苗
+glyph han-732b.0:15x16 15 16 // 猫
+⿰ han-72ad:6x16 han-82d7.0:9x16 // ⿰犭苗
+glyph han-732b.1:* = han-732b.0:*
+glyph han-732b.2:15x16 15 16 // 猫
+⿰ han-72ad:6x16 han-82d7.2:9x16 // ⿰犭苗
+glyph han-732b-(g|j|k|p|v):* = han-732b.0:*
+glyph han-732b-(h|t):* = han-732b.2:*
 
 // glyph han-732f:15x16 15 16 // 猯
 // ⿰ han-72ad han-8011 // ⿰犭耑

@@ -652,8 +652,8 @@ glyph han-2468e-($han-regions):15x16 15 16 // 𤚎
 glyph han-2468f:15x16 15 16 // 𤚏
 ⿰ han-725c:6x16 han-91cd:9x16 // ⿰牜重
 
-glyph han-24690:15x16 15 16 // 𤚐
-⿰ han-725c:6x16 han-82d7:9x16 // ⿰牜苗
+glyph han-24690-($han-regions):15x16 15 16 // 𤚐
+⿰ han-725c:6x16 han-82d7-($-1):9x16 // ⿰牜苗
 
 // glyph han-24691:15x16 15 16 // 𤚑
 // ⿰ han-725c han-5c04 // ⿰牜射
