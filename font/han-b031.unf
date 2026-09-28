@@ -568,6 +568,9 @@ glyph han-2128f-(g|t):* = han-2128f.1:*
 glyph han-21294:15x16 15 16 // 𡊔
 ⿰ han-571f:5x14-l 1 han-5e02:9x16 // ⿰土市
 
+// glyph han-21295:15x16 15 16 // 𡊕
+// ⿰ han-571f han-24d13 // ⿰土𤴓
+
 glyph han-21296:15x16 15 16 // 𡊖
 ⿰ han-571f:5x14-l 1 han-672c:9x16 // ⿰土本
 
@@ -944,6 +947,9 @@ glyph han-213e7:15x16 15 16 // 𡏧
 
 glyph han-213ff:15x16 15 16 // 𡏿
 ⿲ -1 han-571f:3x13-l han-5485:9x16 han-961d:4x16-r // ⿲土咅阝
+
+// glyph han-21406:15x16 15 16 // 𡐆
+// ⿰ han-571f han-86cb // ⿰土蛋
 
 // glyph han-2140e:15x16 15 16 // 𡐎
 // ⿳ han-58eb han-7f52 han-2a8b4 // ⿳士罒𪢴

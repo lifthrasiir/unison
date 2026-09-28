@@ -358,6 +358,9 @@ glyph han-2d964:15x16 15 16 // 𭥤
 glyph han-2d969:15x16 15 16 // 𭥩
 ⿰ han-65e5:8x16 han-7acb:7x16 // ⿰日立
 
+// glyph han-2d96a:15x16 15 16 // 𭥪
+// ⿰ han-65e5 han-5170 // ⿰日兰
+
 glyph han-2d96b:15x16 15 16 // 𭥫
 ⿱ han-7530:11x7 2 han-65e5:11x7 // ⿱田日
 

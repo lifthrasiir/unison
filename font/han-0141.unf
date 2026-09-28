@@ -482,8 +482,9 @@ glyph han-86c9.0:* = han-86c9-j:*
 glyph han-86ca:15x16 15 16 // 蛊
 ⿱ han-866b:15x8 1 han-76bf:15x7 // ⿱虫皿
 
-// glyph han-86cb:15x16 15 16 // 蛋
-// ⿳ han-4e5b han-9fb0 han-866b // ⿳乛龰虫 <- ⿱疋虫
+glyph han-86cb:15x16 15 16 // 蛋
+⿱ han-758b:15x8 han-866b:15x8 // ⿱疋虫
+glyph han-86cb.0:* = han-86cb:*
 
 // glyph han-86cc-($han-regions):15x16 15 16 // 蛌
 // ⿰ han-866b han-74dc-($-1) // ⿰虫瓜

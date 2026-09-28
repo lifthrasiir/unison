@@ -142,6 +142,9 @@ glyph han-216e1:15x16 15 16 // 𡛡
 glyph han-216e9:15x16 15 16 // 𡛩
 ⿰ han-5973:7x16 1 han-7acb:7x16 // ⿰女立
 
+// glyph han-216eb:15x16 15 16 // 𡛫
+// ⿰ han-5973 han-758b // ⿰女疋
+
 // glyph han-216ec:15x16 15 16 // 𡛬
 // ⿱ han-76ae han-5973 // ⿱皮女
 
@@ -525,6 +528,9 @@ glyph han-21872:15x16 15 16 // 𡡲
 
 // glyph han-2189a:15x16 15 16 // 𡢚
 // ⿰ han-5973 han-3b05 // ⿰女㬅
+
+// glyph han-2189f:15x16 15 16 // 𡢟
+// ⿰ han-5973 han-695a // ⿰女楚
 
 // glyph han-218aa:15x16 15 16 // 𡢪
 // ⿰ han-5973 han-97ee // ⿰女韮

@@ -286,6 +286,9 @@ glyph han-2a00f-g:15x16 15 16 // 𪀏
 glyph han-2a00f-(t|j|k):15x16 15 16 // 𪀏
 ⿰ han-9ce5:7x16 1 han-5de8.1:7x16 // ⿰鳥巨
 
+glyph han-2a011:15x16 15 16 // 𪀑
+⿰ han-24d14:6x16 han-9ce5:9x16 // ⿰𤴔鳥
+
 ## 196.6
 
 glyph han-2a012:15x16 15 16 // 𪀒

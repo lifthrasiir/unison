@@ -364,6 +364,9 @@ glyph han-20c02:15x16 15 16 // 𠰂
 glyph han-20c09:15x16 15 16 // 𠰉
 ⿰ han-53e3:7x12 han-53ec:8x16 // ⿰口召
 
+// glyph han-20c0a:15x16 15 16 // 𠰊
+// ⿰ han-53e3 han-758b // ⿰口疋
+
 glyph han-20c0b:15x16 15 16 // 𠰋
 ⿰ han-53e3:5x12 han-4e18:10x16 // ⿰口丘
 

@@ -146,7 +146,7 @@ glyph han-286a0:15x16 15 16 // 𨚠
 // ⿰ han-4e3c han-961d // ⿰丼阝
 
 glyph han-286a3:15x16 15 16 // 𨚣
-⿰ han-6b63:10x16 han-961d:5x16-r // ⿰正阝
+⿰ han-6b63:8x16-l han-961d:7x16-r // ⿰正阝
 
 glyph han-286a5:15x16 15 16 // 𨚥
 ⿰ han-751f:7x16 1 han-961d:7x16-r // ⿰生阝

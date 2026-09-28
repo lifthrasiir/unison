@@ -813,6 +813,9 @@ glyph han-32514:15x16 15 16 // 𲔔
 // glyph han-32571:15x16 15 16 // 𲕱
 // ⿰ han-53e3 han-57d4 // ⿰口埔
 
+// glyph han-32572-($han-regions):15x16 15 16 // 𲕲
+// ⿰ han-53e3 han-635b-($-1) // ⿰口捛
+
 // glyph han-32579:15x16 15 16 // 𲕹
 // ⿱ han-241fe han-53e3 // ⿱𤇾口
 

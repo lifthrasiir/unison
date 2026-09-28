@@ -388,6 +388,9 @@ glyph han-2bcdf:15x16 15 16 // 𫳟
 // glyph han-2bce7:15x16 15 16 // 𫳧
 // ⿳ han-5b80 han-53e3 han-8c9d // ⿳宀口貝 <- ⿱宀員
 
+// glyph han-2bceb-($han-regions):15x16 15 16 // 𫳫
+// ⿱ han-5b80 han-795c-($-1) // ⿱宀祜
+
 ## 40.11
 
 // glyph han-2bcf2:15x16 15 16 // 𫳲

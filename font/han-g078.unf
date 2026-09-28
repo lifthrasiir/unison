@@ -974,6 +974,11 @@ glyph han-308c6:15x16 15 16 // 𰣆
 // glyph han-308e0:15x16 15 16 // 𰣠
 // ⿳ han-767e han-4e5b han-9fb0 // ⿳百乛龰 <- ⿱百疋
 
+## 103.8
+
+glyph han-308e1:15x16 15 16 // 𰣡
+⿳ han-4ea1-g:15x4 1 han-7f52:15x3 1 han-758b:15x7 // ⿳亡罒疋
+
 # CJK unified ideographs extension G: 疒 (104)
 
 ## 104.4

@@ -423,6 +423,9 @@ glyph han-6fc9:15x16 15 16 // 濉
 ⿲ han-6c35:3x12 han-76ee:3x13-l han-96b9:9x16 // ⿲氵目隹
 glyph han-6fc9.0:* = han-6fc9:*
 
+// glyph han-6fcb:15x16 15 16 // 濋
+// ⿰ han-6c35 han-695a // ⿰氵楚
+
 // glyph han-6fcc:15x16 15 16 // 濌
 // ⿰ han-91cd han-6c93 // ⿰重沓
 

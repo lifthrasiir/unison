@@ -27,6 +27,9 @@ glyph han-2d4e5:15x16 15 16 // 𭓥
 // glyph han-2d4e6:15x16 15 16 // 𭓦
 // ⿱ han-5b80 han-79be // ⿱宀禾
 
+// glyph han-2d4e8:15x16 15 16 // 𭓨
+// ⿱ han-5b80 han-5170 // ⿱宀兰
+
 ## 40.6
 
 glyph han-2d4ed:15x16 15 16 // 𭓭
@@ -75,6 +78,9 @@ glyph han-2d4fd:15x16 15 16 // 𭓽 ⿳宀癶山(J) ⿳宀{105}山(K)
 
 // glyph han-2d509:15x16 15 16 // 𭔉 ⿱宀⿷⿱甶儿厶(S) ⿱宀鬼(Z)
 // ⿱ han-5b80 han-9b3c // ⿱宀鬼
+
+// glyph han-2d50b-($han-regions):15x16 15 16 // 𭔋
+// ⿱ han-5b80 han-608e-($-1) // ⿱宀悎
 
 ## 40.11
 

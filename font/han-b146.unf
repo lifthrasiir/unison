@@ -127,6 +127,9 @@ glyph han-2781f-($han-regions):15x16 15 16 // 𧠟
 glyph han-27822:15x16 15 16 // 𧠢
 ⿰ han-4e14:7x16 1 han-898b:7x16 // ⿰且見
 
+// glyph han-27823:15x16 15 16 // 𧠣
+// ⿰ han-758b han-898b // ⿰疋見
+
 glyph han-27824:15x16 15 16 // 𧠤
 ⿰ han-5f17:9x16 1 han-898b:5x16 // ⿰弗見
 

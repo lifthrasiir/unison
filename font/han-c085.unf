@@ -222,6 +222,9 @@ glyph han-2ae1c:15x16 15 16 // 𪸜
 // glyph han-2ae21:15x16 15 16 // 𪸡
 // ⿰ han-706b han-5f18 // ⿰火弘
 
+// glyph han-2ae22:15x16 15 16 // 𪸢
+// ⿰ han-706b han-758b // ⿰火疋
+
 ## 86.6
 
 glyph han-2ae23:15x16 15 16 // 𪸣
@@ -327,6 +330,9 @@ glyph han-2ae70:15x16 15 16 // 𪹰
 ⿲ -4 han-706b:5x14-l han-6587.0:7x16 han-96b9:7x16 // ⿲火文隹
 
 ## 86.13
+
+// glyph han-2ae75:15x16 15 16 // 𪹵
+// ⿰ han-706b han-695a // ⿰火楚
 
 // glyph han-2ae76:15x16 15 16 // 𪹶 ⿱⿰日⿻者丶火(J) ⿱暏火(Z)
 // ⿱ han-668f han-706b // ⿱暏火

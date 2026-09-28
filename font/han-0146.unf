@@ -1514,7 +1514,7 @@ glyph han-8ab9.3:* = han-8ab9-j:*
 // ⿰ han-8a01 han-5b9c // ⿰訁宜
 
 glyph han-8abe-($han-regions):15x16 15 16 // 誾
-⿵ han-9580:15x16.13x11 han-8a00-($-1):11x11 2 5 // ⿵門言
+assume ⿵ han-9580:15x16.13x11 han-8a00-($-1):11x11 2 5 // ⿵門言
 glyph han-8abe.0:* = han-8abe-j:*
 glyph han-8abe.1:* = han-8abe-j:*
 glyph han-8abe.2:* = han-8abe-j:*

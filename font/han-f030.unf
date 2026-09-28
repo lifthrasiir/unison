@@ -918,6 +918,9 @@ glyph han-2d4be:15x16 15 16 // 𭒾
 glyph han-2d4bf:15x16 15 16 // 𭒿
 ⿰ han-5b50.0:7x16-l 1 han-751f:7x16 // ⿰子生
 
+// glyph han-2d4c0-($han-regions):15x16 15 16 // 𭓀
+// ⿰ han-5b50-($-1) han-5170 // ⿰子兰
+
 ## 39.6
 
 // glyph han-2d4c2:15x16 15 16 // 𭓂

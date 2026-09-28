@@ -520,6 +520,9 @@ glyph han-25055.0:* = han-25055:*
 glyph han-2506f:15x16 15 16 // 𥁯
 ⿱ han-8db3:15x10 1 han-76bf:15x5 // ⿱足皿
 
+// glyph han-25071:15x16 15 16 // 𥁱
+// ⿳ han-53b6 han-758b han-76bf // ⿳厶疋皿
+
 // glyph han-25073:15x16 15 16 // 𥁳
 // ⿱ han-6c7e han-76bf // ⿱汾皿
 

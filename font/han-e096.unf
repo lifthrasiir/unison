@@ -221,8 +221,8 @@ glyph han-2c3d7:15x16 15 16 // 𬏗
 
 ## 103.8
 
-// glyph han-2c3d9:15x16 15 16 // 𬏙
-// ⿳ han-708f han-4e5b han-9fb0 // ⿳炏乛龰 <- ⿱炏疋
+glyph han-2c3d9:15x16 15 16 // 𬏙
+⿱ han-708f:15x8 1 han-758b:15x7 // ⿱炏疋
 
 # CJK unified ideographs extension E: 疒 (104)
 
@@ -467,6 +467,9 @@ glyph han-2c484:15x16 15 16 // 𬒄
 // glyph han-2c486:15x16 15 16 // 𬒆
 // ⿰ han-77f3 han-4e1a // ⿰石业
 
+// glyph han-2c487:15x16 15 16 // 𬒇
+// ⿰ han-77f3 han-5170 // ⿰石兰
+
 ## 112.6
 
 // glyph han-2c48a:15x16 15 16 // 𬒊
@@ -644,6 +647,11 @@ glyph han-2c4e2-($han-regions):15x16 15 16 // 𬓢
 // glyph han-2c50d-($han-regions):15x16 15 16 // 𬔍
 // ⿳ han-7a74-($-1) han-7531 han-5efe // ⿳穴由廾
 
+## 116.11
+
+// glyph han-2c513-($han-regions):15x16 15 16 // 𬔓
+// ⿱ han-7a74-($-1) han-7105-($-1) // ⿱穴焅
+
 # CJK unified ideographs extension E: 立 (117)
 
 ## 117.1
@@ -752,6 +760,9 @@ glyph han-2c543:15x16 15 16 // 𬕃
 
 // glyph han-2c545:15x16 15 16 // 𬕅
 // ⿱ han-25ad7 han-4f4d // ⿱𥫗位
+
+// glyph han-2c548:15x16 15 16 // 𬕈
+// ⿳ han-25ad7 han-201a2 han-24d13 // ⿳𥫗𠆢𤴓
 
 // glyph han-2c54c:15x16 15 16 // 𬕌
 // ⿱ han-25ad7 han-5e8a // ⿱𥫗床

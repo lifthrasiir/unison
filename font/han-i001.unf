@@ -189,6 +189,11 @@ glyph han-2ec35:15x16 15 16 // 𮰵
 // glyph han-2ec3c:15x16 15 16 // 𮰼
 // ⿱ han-4e0d han-5973 // ⿱不女
 
+## 38.5
+
+// glyph han-2ec3e:15x16 15 16 // 𮰾
+// ⿰ han-5973 han-5170 // ⿰女兰
+
 ## 38.6
 
 // glyph han-2ec3f:15x16 15 16 // 𮰿
@@ -276,6 +281,11 @@ glyph han-2ec68:15x16 15 16 // 𮱨
 
 // glyph han-2ec6d-($han-regions):15x16 15 16 // 𮱭
 // ⿱ han-5c71 han-5cad-($-1) // ⿱山岭
+
+## 46.13
+
+// glyph han-2ec70:15x16 15 16 // 𮱰
+// ⿰ han-5c71 han-695a // ⿰山楚
 
 # CJK unified ideographs extension I: 巾 (50)
 
@@ -561,6 +571,9 @@ glyph han-2ed04:15x16 15 16 // 𮴄
 
 glyph han-2ed0b:15x16 15 16 // 𮴋
 ⿰ han-248e9:5x16 1 han-5e02:9x16 // ⿰𤣩市
+
+// glyph han-2ed0c:15x16 15 16 // 𮴌
+// ⿰ han-248e9 han-5170 // ⿰𤣩兰
 
 glyph han-2ed0d:15x16 15 16 // 𮴍
 ⿰ han-248e9:5x16 1 han-51fa:9x16 // ⿰𤣩出
@@ -883,10 +896,13 @@ glyph han-2ed98:15x16 15 16 // 𮶘
 
 ## 140.3
 
-// glyph han-2ed9c:15x16 15 16 // 𮶜
-// ⿱ han-8279 han-4e09 // ⿱艹三
+glyph han-2ed9c:15x16 15 16 // 𮶜
+⿱ han-8279:15x3 1 han-4e09:15x12 // ⿱艹三
 
 ## 140.5
+
+// glyph han-2ed9f:15x16 15 16 // 𮶟
+// ⿱ han-8279 han-5170 // ⿱艹兰
 
 // glyph han-2eda0:15x16 15 16 // 𮶠
 // ⿱ han-8279 han-5e03 // ⿱艹布

@@ -199,6 +199,9 @@ glyph han-31d9e:15x16 15 16 // 𱶞
 
 ## 116.5
 
+// glyph han-31db3-($han-regions):15x16 15 16 // 𱶳
+// ⿱ han-7a74-($-1) han-5170 // ⿱穴兰
+
 // glyph han-31db5:15x16 15 16 // 𱶵
 // ⿳ han-5b80 han-516b han-5f17 // ⿳宀八弗
 
@@ -959,6 +962,11 @@ glyph han-31fab:15x16 15 16 // 𱾫
 
 // glyph han-31fdc:15x16 15 16 // 𱿜
 // ⿰ han-866b han-5fc3 // ⿰虫心
+
+## 142.5
+
+// glyph han-31fde:15x16 15 16 // 𱿞
+// ⿰ han-866b han-5170 // ⿰虫兰
 
 ## 142.6
 

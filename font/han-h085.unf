@@ -606,6 +606,13 @@ glyph han-31c3e:15x16 15 16 // 𱰾
 glyph han-31c40:15x16 15 16 // 𱱀
 ⿰ han-756a:7x16 1 han-672c:7x16 // ⿰番本
 
+# CJK unified ideographs extension H: 疋 (103)
+
+## 103.6
+
+// glyph han-31c47-($han-regions):15x16 15 16 // 𱱇
+// ⿰ han-24d14 han-540f-($-1) // ⿰𤴔吏
+
 # CJK unified ideographs extension H: 疒 (104)
 
 ## 104.3
@@ -798,6 +805,9 @@ glyph han-31cc2:15x16 15 16 // 𱳂
 // ⿺ han-9b3c han-76ee // ⿺鬼目
 
 ## 109.13
+
+// glyph han-31ccb:15x16 15 16 // 𱳋
+// ⿰ han-76ee han-695a // ⿰目楚
 
 // glyph han-31ccc:15x16 15 16 // 𱳌 ⿳䀠宂口(T) ⿳䀠穴口(Z)
 // ⿳ han-4020 han-5b82 han-53e3 // ⿳䀠宂口

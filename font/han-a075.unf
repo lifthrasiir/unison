@@ -563,6 +563,9 @@ glyph han-3cd1:15x16 15 16 // 㳑
 // glyph han-3cd3:15x16 15 16 // 㳓
 // ⿰ han-6c35 han-53f3 // ⿰氵右
 
+// glyph han-3cd5:15x16 15 16 // 㳕
+// ⿰ han-6c35 han-5170 // ⿰氵兰
+
 ## 85.6
 
 // glyph han-3cd6:15x16 15 16 // 㳖
@@ -1236,6 +1239,9 @@ glyph han-3eba:15x16 15 16 // 㺺
 
 // glyph han-3ebb:15x16 15 16 // 㺻
 // ⿰ han-248e9 han-5dff // ⿰𤣩巿
+
+// glyph han-3ebc:15x16 15 16 // 㺼
+// ⿰ han-248e9 han-758b // ⿰𤣩疋
 
 // glyph han-3ebd:15x16 15 16 // 㺽
 // ⿰ han-248e9 han-4e15 // ⿰𤣩丕

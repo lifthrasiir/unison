@@ -483,6 +483,9 @@ glyph han-28b5a:15x16 15 16 // 𨭚
 glyph han-28b60:15x16 15 16 // 𨭠
 ⿲ -1 han-91d2:5x15-l han-9769:5x16 han-65a4:6x16 // ⿲釒革斤
 
+// glyph han-28b63:15x16 15 16 // 𨭣
+// ⿰ han-91d2 han-695a // ⿰釒楚
+
 // glyph han-28b67:15x16 15 16 // 𨭧
 // ⿳ han-5b80 han-4020 han-91d1 // ⿳宀䀠金 <- ⿱宀𲇖
 

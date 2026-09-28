@@ -211,8 +211,8 @@ glyph han-21d91:15x16 15 16 // 𡶑
 glyph han-21d92:15x16 15 16 // 𡶒
 ⿰ han-5c71:5x16 1 han-5f17:9x16 // ⿰山弗
 
-// glyph han-21d95:15x16 15 16 // 𡶕
-// ⿳ han-4e5b han-9fb0 han-5c71 // ⿳乛龰山 <- ⿱疋山
+glyph han-21d95:15x16 15 16 // 𡶕
+⿱ han-758b:15x7 han-5c71:15x9 // ⿱疋山
 
 glyph han-21d9a:15x16 15 16 // 𡶚
 ⿰ han-5c71:5x16 1 han-7530:9x16 // ⿰山田

@@ -643,6 +643,16 @@ glyph han-32c3d:15x16 15 16 // 𲰽
 // glyph han-32c48:15x16 15 16 // 𲱈
 // ⿰ han-7537 han-8981 // ⿰男要
 
+# CJK unified ideographs extension J: 疋 (103)
+
+## 103.11
+
+// glyph han-32c50:15x16 15 16 // 𲱐
+// ⿱ han-65ac han-758b // ⿱斬疋
+
+// glyph han-32c51:15x16 15 16 // 𲱑
+// ⿰ han-24d14 han-65ac // ⿰𤴔斬
+
 # CJK unified ideographs extension J: 疒 (104)
 
 ## 104.4
@@ -987,6 +997,9 @@ glyph han-32d2b:15x16 15 16 // 𲴫
 // ⿰ han-793b han-7adf // ⿰礻竟
 
 ## 113.13
+
+// glyph han-32d39:15x16 15 16 // 𲴹
+// ⿰ han-793b han-695a // ⿰礻楚
 
 // glyph han-32d3a:15x16 15 16 // 𲴺
 // ⿰ han-793b han-55bf // ⿰礻喿
