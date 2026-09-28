@@ -433,6 +433,9 @@ glyph han-32b7a:15x16 15 16 // 𲭺
 
 ## 94.6
 
+glyph han-32b7c:15x16 15 16 // 𲭼
+⿰ han-72ad:6x16 han-673f:9x16 // ⿰犭朿
+
 // glyph han-32b7e:15x16 15 16 // 𲭾
 // ⿰ han-72ad han-4ef2 // ⿰犭仲
 
@@ -905,8 +908,8 @@ glyph han-32ceb:15x16 15 16 // 𲳫
 // glyph han-32cf0:15x16 15 16 // 𲳰
 // ⿱ han-5c01 han-77f3 // ⿱封石
 
-// glyph han-32cf1:15x16 15 16 // 𲳱
-// ⿰ han-77f3 han-67ec // ⿰石柬
+glyph han-32cf1:15x16 15 16 // 𲳱
+⿰ han-77f3:5x16 1 han-67ec:9x16 // ⿰石柬
 
 glyph han-32cf2:15x16 15 16 // 𲳲
 ⿰ han-77f3:6x16 han-8005-g:9x16 // ⿰石者

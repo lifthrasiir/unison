@@ -785,6 +785,11 @@ glyph han-2b2d8:15x16 15 16 // 𫋘
 glyph han-2b2d9:15x16 15 16 // 𫋙 ⿰虫強(V) ⿰虫强(Z)
 ⿲ han-866b:5x16 1 han-5f13:4x16 han-27227:5x16 // ⿲虫弓𧈧
 
+## 142.16
+
+// glyph han-2b2e8-($han-regions):15x16 15 16 // 𫋨
+// ⿰ han-866b han-8aeb-($-1) // ⿰虫諫
+
 # CJK unified ideographs extension C: 血 (143)
 
 ## 143.4

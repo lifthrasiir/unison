@@ -709,8 +709,9 @@ glyph han-5d1d-(j|k):15x16 15 16 // 崝 ⿰山青(GHTP) ⿰山靑(JK)
 // glyph han-5d1f:15x16 15 16 // 崟
 // ⿱ han-5c71 han-91d1 // ⿱山金
 
-// glyph han-5d20:15x16 15 16 // 崠
-// ⿰ han-5c71 han-6771 // ⿰山東
+glyph han-5d20:15x16 15 16 // 崠
+⿰ han-5c71:5x12-l 1 han-6771:9x16 // ⿰山東
+glyph han-5d20.0:* = han-5d20:*
 
 // glyph han-5d23:15x16 15 16 // 崣
 // ⿳ han-5c71 han-79be han-5973 // ⿳山禾女 <- ⿱山委

@@ -1088,8 +1088,9 @@ glyph han-966e:15x16 15 16 // 陮
 ⿰ han-961d:5x16-l 1 han-96b9:9x16 // ⿰阝隹
 glyph han-966e.0:* = han-966e:*
 
-// glyph han-9673:15x16 15 16 // 陳
-// ⿰ han-961d han-6771 // ⿰阝東
+glyph han-9673:15x16 15 16 // 陳
+⿰ han-961d:5x16-l 1 han-6771:9x16 // ⿰阝東
+glyph han-9673.0:* = han-9673:*
 
 glyph han-9674:15x16 15 16 // 陴
 ⿰ han-961d:5x16-l han-5351.0:10x16 // ⿰阝卑

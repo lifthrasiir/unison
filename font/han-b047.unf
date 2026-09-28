@@ -591,8 +591,8 @@ glyph han-220f8:15x16 15 16 // 𢃸
 // glyph han-220fe:15x16 15 16 // 𢃾
 // ⿰ han-5dfe han-800e // ⿰巾耎
 
-// glyph han-220ff:15x16 15 16 // 𢃿
-// ⿰ han-5dfe han-67ec // ⿰巾柬
+glyph han-220ff:15x16 15 16 // 𢃿
+⿰ han-5dfe:5x16 1 han-67ec:9x16 // ⿰巾柬
 
 // glyph han-22101:15x16 15 16 // 𢄁
 // ⿳ han-4e1a han-4491 han-5dff // ⿳业䒑巿

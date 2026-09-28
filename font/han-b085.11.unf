@@ -91,6 +91,9 @@ glyph han-23f34:15x16 15 16 // 𣼴
 glyph han-23f37:15x16 15 16 // 𣼷
 ⿲ han-6c35:3x12 han-9769:7x16 han-529b:5x16 // ⿲氵革力
 
+// glyph han-23f3c:15x16 15 16 // 𣼼
+// ⿰ han-6c35 han-9673 // ⿰氵陳
+
 glyph han-23f3d-($han-regions):15x16 15 16 // 𣼽
 ⿲ han-6c35:3x12 han-826f-($-1):7x16 han-6708:5x16 // ⿲氵良月
 

@@ -755,8 +755,13 @@ glyph han-7147:15x16 15 16 // 煇
 // glyph han-7148:15x16 15 16 // 煈
 // ⿰ han-706b han-98a8 // ⿰火風
 
-// glyph han-7149:15x16 15 16 // 煉 ⿰火柬(GHTKPV) ⿰火東(J)
-// ⿰ han-706b han-67ec // ⿰火柬
+glyph han-7149:15x16 15 16 // 煉
+⿰ han-706b:5x14-l 1 han-67ec:9x16 // ⿰火柬
+glyph han-7149.0:* = han-7149:*
+glyph han-7149.1:15x16 15 16 // 煉
+⿰ han-706b:5x14-l 1 han-6771:9x16 // ⿰火東
+glyph han-7149.2:* = han-7149.1:*
+glyph han-7149.3:* = han-7149.0:*
 
 // glyph han-714b:15x16 15 16 // 煋
 // ⿰ han-706b han-661f // ⿰火星

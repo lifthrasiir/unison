@@ -634,6 +634,9 @@ glyph han-62f1.0:* = han-62f1:*
 glyph han-62f8:15x16 15 16 // 拸
 ⿰ han-624c:5x16 1 han-591a:9x16 // ⿰扌多
 
+glyph han-62fa:15x16 15 16 // 拺
+⿰ han-624c:5x16 1 han-673f:9x16 // ⿰扌朿
+
 // glyph han-62fb:15x16 15 16 // 拻
 // ⿰ han-624c han-7070 // ⿰扌灰
 
@@ -945,8 +948,9 @@ glyph han-63b4.0:* = han-63b4:*
 
 ## 64.9
 
-// glyph han-63c0:15x16 15 16 // 揀
-// ⿰ han-624c han-67ec // ⿰扌柬
+glyph han-63c0:15x16 15 16 // 揀
+⿰ han-624c:5x16 1 han-67ec:9x16 // ⿰扌柬
+glyph han-63c0.0:* = han-63c0:*
 
 glyph han-63c4.0:15x16 15 16 // 揄
 ⿰ han-624c:5x16 1 han-516a.0:9x16 // ⿰扌兪

@@ -36,6 +36,9 @@
 // glyph han-24af6-($han-regions):15x16 15 16 // 𤫶
 // ⿰ han-5409 han-74dc-($-1) // ⿰吉瓜
 
+// glyph han-24af7-($han-regions):15x16 15 16 // 𤫷
+// ⿰ han-673f han-74dc-($-1) // ⿰朿瓜
+
 // glyph han-24af9-($han-regions):15x16 15 16 // 𤫹
 // ⿳ han-516d han-201a2 han-74dc-($-1) // ⿳六𠆢瓜
 
@@ -188,6 +191,9 @@ glyph han-24bd7:15x16 15 16 // 𤯗
 
 // glyph han-24be0:15x16 15 16 // 𤯠
 // ⿰ han-56e0 han-751f // ⿰因生
+
+glyph han-24be1:15x16 15 16 // 𤯡
+⿰ han-751f:7x16-l 1 han-673f:7x16 // ⿰生朿
 
 glyph han-24be4:15x16 15 16 // 𤯤
 ⿰ han-5408:7x16 1 han-751f:7x16 // ⿰合生
@@ -578,8 +584,8 @@ glyph han-24c92-j:15x16 15 16 // 𤲒
 // glyph han-24c98:15x16 15 16 // 𤲘
 // ⿰ han-7530 han-9577 // ⿰田長
 
-// glyph han-24c9a:15x16 15 16 // 𤲚
-// ⿰ han-7530 han-6771 // ⿰田東
+glyph han-24c9a:15x16 15 16 // 𤲚
+⿰ han-7530:5x14-l 1 han-6771:9x16 // ⿰田東
 
 // glyph han-24c9d:15x16 15 16 // 𤲝
 // ⿱ han-4f86 han-7530 // ⿱來田

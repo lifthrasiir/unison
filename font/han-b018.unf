@@ -544,6 +544,9 @@ glyph han-20883:15x16 15 16 // 𠢃
 
 ## 19.12
 
+// glyph han-208a0:15x16 15 16 // 𠢠
+// ⿱ han-68d8 han-529b // ⿱棘力
+
 // glyph han-208a6:15x16 15 16 // 𠢦
 // ⿱ han-52c5 han-6b63 // ⿱勅正
 
@@ -567,6 +570,9 @@ glyph han-20883:15x16 15 16 // 𠢃
 
 // glyph han-208c1:15x16 15 16 // 𠣁
 // ⿳ han-241fe han-7c73 han-529b // ⿳𤇾米力 <- ⿱𤇾⿱米力
+
+// glyph han-208c2-($han-regions):15x16 15 16 // 𠣂
+// ⿰ han-8aeb-($-1) han-529b // ⿰諫力
 
 # CJK unified ideographs extension B: 勹 (20)
 

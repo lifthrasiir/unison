@@ -145,6 +145,9 @@ glyph han-27d62:15x16 15 16 // 𧵢
 // glyph han-27d68:15x16 15 16 // 𧵨
 // ⿰ han-8c9d han-5b89 // ⿰貝安
 
+// glyph han-27d69:15x16 15 16 // 𧵩
+// ⿱ han-673f han-8c9d // ⿱朿貝
+
 // glyph han-27d6d:15x16 15 16 // 𧵭 ⿱开貝(G) ⿱⿰干干貝(T) ⿱幵貝(P)
 // ⿱ han-5e75 han-8c9d // ⿱幵貝
 
@@ -575,6 +578,9 @@ glyph han-27e30:15x16 15 16 // 𧸰
 // glyph han-27ed4:15x16 15 16 // 𧻔
 // ⿺ han-8d70 han-5321 // ⿺走匡
 
+// glyph han-27ed5:15x16 15 16 // 𧻕
+// ⿺ han-8d70 han-673f // ⿺走朿
+
 // glyph han-27ed6:15x16 15 16 // 𧻖
 // ⿺ han-8d70 han-821f // ⿺走舟
 
@@ -678,6 +684,9 @@ glyph han-27e30:15x16 15 16 // 𧸰
 
 // glyph han-27f13:15x16 15 16 // 𧼓
 // ⿺ han-8d70 han-6771 // ⿺走東
+
+// glyph han-27f15:15x16 15 16 // 𧼕
+// ⿺ han-8d70 han-523a // ⿺走刺
 
 // glyph han-27f16:15x16 15 16 // 𧼖
 // ⿳ han-6797 han-571f han-9fb0 // ⿳林土龰 <- ⿱林走

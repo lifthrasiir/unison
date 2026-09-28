@@ -517,8 +517,8 @@ glyph han-31799:15x16 15 16 // 𱞙
 
 ## 61.9
 
-// glyph han-317ab:15x16 15 16 // 𱞫
-// ⿰ han-5fc4 han-67ec // ⿰忄柬
+glyph han-317ab:15x16 15 16 // 𱞫
+⿰ han-5fc4:5x16 1 han-67ec:9x16 // ⿰忄柬
 
 // glyph han-317ac:15x16 15 16 // 𱞬
 // ⿰ han-5fc4 han-67e5 // ⿰忄查

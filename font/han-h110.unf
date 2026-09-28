@@ -574,8 +574,8 @@ glyph han-31ea1:15x16 15 16 // 𱺡
 // glyph han-31ea6:15x16 15 16 // 𱺦
 // ⿰ han-7e9f han-5398 // ⿰纟厘
 
-// glyph han-31ea7:15x16 15 16 // 𱺧
-// ⿰ han-7e9f han-67ec // ⿰纟柬
+glyph han-31ea7:15x16 15 16 // 𱺧
+⿰ han-7e9f:5x16 1 han-67ec:9x16 // ⿰纟柬
 
 ## 120'.12
 

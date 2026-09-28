@@ -257,8 +257,12 @@ glyph han-25ebc:15x16 15 16 // 𥺼
 // glyph han-25ec1:15x16 15 16 // 𥻁
 // ⿰ han-7c73 han-8011 // ⿰米耑
 
-// glyph han-25ec2:15x16 15 16 // 𥻂
-// ⿰ han-7c73 han-67ec // ⿰米柬
+glyph han-25ec2:15x16 15 16 // 𥻂
+⿰ han-7c73:5x16 1 han-67ec:9x16 // ⿰米柬
+glyph han-25ec2.0:* = han-25ec2:*
+glyph han-25ec2.1:* = han-25ec2:*
+glyph han-25ec2.2:15x16 15 16 // 𥻂
+⿰ han-7c73:5x16 1 han-6771:9x16 // ⿰米東
 
 glyph han-25ec3:15x16 15 16 // 𥻃
 ⿲ -1 han-7c73:5x16 han-675f:7x16 1 han-5202:3x16 // ⿲米束刂

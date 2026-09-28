@@ -7669,8 +7669,9 @@ glyph han-502e.0:* = han-502e:*
 // glyph han-5031:15x16 15 16 // 倱
 // ⿰ han-4ebb han-6606 // ⿰亻昆
 
-// glyph han-5032:15x16 15 16 // 倲
-// ⿰ han-4ebb han-6771 // ⿰亻東
+glyph han-5032:15x16 15 16 // 倲
+⿰ han-4ebb:5x16 1 han-6771:9x16 // ⿰亻東
+glyph han-5032.0:* = han-5032:*
 
 // glyph han-503d:15x16 15 16 // 倽
 // ⿰ han-4ebb han-820d // ⿰亻舍
@@ -7872,6 +7873,9 @@ glyph han-50e9.0:* = han-50e9:*
 
 glyph han-50ef:15x16 15 16 // 僯
 ⿰ han-4ebb:5x16 1 han-7ca6:9x16 // ⿰亻粦
+
+// glyph han-50f0:15x16 15 16 // 僰
+// ⿱ han-68d8 han-4eba // ⿱棘人
 
 // glyph han-50f3:15x16 15 16 // 僳
 // ⿰ han-4ebb han-7c9f // ⿰亻粟

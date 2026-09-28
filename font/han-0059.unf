@@ -228,8 +228,8 @@ glyph han-5f9f-(g|t|k):15x16 15 16 // 徟
 
 ## 60.9
 
-// glyph han-5f9a:15x16 15 16 // 徚
-// ⿰ han-5f73 han-67ec // ⿰彳柬
+glyph han-5f9a:15x16 15 16 // 徚
+⿰ han-5f73:5x16 1 han-67ec:9x16 // ⿰彳柬
 
 glyph han-5fa5:15x16 15 16 // 徥
 ⿰ han-5f73:5x16 1 han-662f:9x16 // ⿰彳是

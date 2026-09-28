@@ -74,6 +74,9 @@ glyph han-2e516:15x16 15 16 // 𮔖
 
 ## 142.8
 
+// glyph han-2e517:15x16 15 16 // 𮔗
+// ⿰ han-866b han-523a // ⿰虫刺
+
 // glyph han-2e519:15x16 15 16 // 𮔙 ⿰虫⿱日月(S) ⿰虫冐(Z)
 // ⿰ han-866b han-5190 // ⿰虫冐
 
@@ -983,8 +986,8 @@ glyph han-2e7fa:15x16 15 16 // 𮟺
 
 ## 163.8
 
-// glyph han-2e7fd:15x16 15 16 // 𮟽
-// ⿰ han-6771 han-961d // ⿰東阝
+glyph han-2e7fd:15x16 15 16 // 𮟽
+⿰ han-6771:9x16 1 han-961d:5x16-r // ⿰東阝
 
 // glyph han-2e7ff:15x16 15 16 // 𮟿
 // ⿰ han-2d558 han-961d // ⿰𭕘阝

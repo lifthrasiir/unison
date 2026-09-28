@@ -890,6 +890,9 @@ glyph han-7b52:15x16 15 16 // 筒
 // glyph han-7b55:15x16 15 16 // 筕
 // ⿱ han-25ad7 han-884c // ⿱𥫗行
 
+// glyph han-7b56:15x16 15 16 // 策
+// ⿱ han-25ad7 han-673f // ⿱𥫗朿
+
 glyph han-7b57:15x16 15 16 // 筗
 ⿱ han-25ad7:13x5 han-4ef2:15x11 // ⿱𥫗仲
 
@@ -1023,6 +1026,9 @@ glyph han-7b96:15x16 15 16 // 箖
 
 glyph han-7b9f-($han-regions):15x16 15 16 // 箟
 ⿳ han-25ad7:13x5 han-65e5:11x7 han-6bd4-($-1):15x4 // ⿳𥫗日比
+
+// glyph han-7ba3:15x16 15 16 // 箣
+// ⿱ han-25ad7 han-523a // ⿱𥫗刺
 
 // glyph han-7ba4:15x16 15 16 // 箤
 // ⿱ han-25ad7 han-5352 // ⿱𥫗卒

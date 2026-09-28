@@ -594,8 +594,8 @@ glyph han-5a33:15x16 15 16 // 娳
 glyph han-5a38:15x16 15 16 // 娸
 ⿰ han-5973:5x14-l 1 han-5176:9x16 // ⿰女其
 
-// glyph han-5a3b:15x16 15 16 // 娻
-// ⿰ han-5973 han-6771 // ⿰女東
+glyph han-5a3b:15x16 15 16 // 娻
+⿰ han-5973:6x14-l han-6771:9x16 // ⿰女東
 
 glyph han-5a3c-($han-regions):15x16 15 16 // 娼
 ⿰ han-5973:5x14-l 1 han-660c-($-1):9x16 // ⿰女昌
@@ -740,8 +740,8 @@ glyph han-5a9e.0:* = han-5a9e:*
 // glyph han-5a9f:15x16 15 16 // 媟
 // ⿰ han-5973 han-67bc // ⿰女枼
 
-// glyph han-5aa1:15x16 15 16 // 媡
-// ⿰ han-5973 han-67ec // ⿰女柬
+glyph han-5aa1:15x16 15 16 // 媡
+⿰ han-5973:5x14-l 1 han-67ec:9x16 // ⿰女柬
 
 // glyph han-5aa2:15x16 15 16 // 媢 ⿰女冒(GHTKP) ⿰女⿱冃目(J)
 // ⿰ han-5973 han-5192 // ⿰女冒

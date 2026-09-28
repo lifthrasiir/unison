@@ -3036,6 +3036,10 @@ glyph han-5235:15x16 15 16 // 刵
 // glyph han-5238:15x16 15 16 // 券 ⿱龹刀(GHTJ) ⿱𠔉刀(KPV)
 // ⿳ han-516b han-592b han-5200 // ⿳八夫刀 <- ⿱𠔉刀
 
+glyph han-523a:15x16 15 16 // 刺
+⿰ han-673f:9x16 1 han-5202:5x16 // ⿰朿刂
+glyph han-523a.0:* = han-523a:*
+
 // glyph han-523c:15x16 15 16 // 刼
 // ⿰ han-53bb han-5203 // ⿰去刃
 
