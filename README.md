@@ -83,7 +83,7 @@ As of 2026-09-29:
 | Unified Canadian Aboriginal Syllabics | Complete |
 | Ogham | Complete |
 | Runic | Complete |
-| Kana | Placeholder glyphs only (100%) |
+| Kana | Complete, tidying up |
 | Han | Semi-automatically composed (URO 23%, total 13%), verification in progress |
 | Hangul | Complete for modern and archaic |
 | General symbols | ~30% |
