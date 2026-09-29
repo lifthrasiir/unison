@@ -507,8 +507,8 @@ glyph han-4029:15x16 15 16 // 䀩
 glyph han-402b:15x16 15 16 // 䀫
 ⿰ han-76ee:6x16 han-5408:9x16 // ⿰目合
 
-// glyph han-402c:15x16 15 16 // 䀬
-// ⿰ han-76ee han-5168 // ⿰目全
+glyph han-402c-($han-regions):15x16 15 16 // 䀬
+⿰ han-76ee:5x13-l 1 han-5168-($-1):9x16 // ⿰目全
 
 ## 109.7
 

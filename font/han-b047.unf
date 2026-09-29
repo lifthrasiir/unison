@@ -40,6 +40,9 @@ $$..........................$$
 
 ## 47.3
 
+// glyph han-21fe9:15x16 15 16 // 𡿩
+// ⿱ han-5ddb han-2053c // ⿱巛𠔼
+
 // glyph han-21fea:15x16 15 16 // 𡿪
 // ⿱ han-5ddb han-5915 // ⿱巛夕
 
@@ -283,6 +286,11 @@ glyph han-22036:15x16 15 16 // 𢀶
 // glyph han-22037:15x16 15 16 // 𢀷 ⿱氶巳(G) ⿱氶己(T)
 // ⿳ han-4e5b han-6c34 han-5df3 // ⿳乛水巳
 
+## 49.6
+
+// glyph han-2203b-($han-regions):15x16 15 16 // 𢀻
+// ⿱ han-5173-($-1) han-5df1 // ⿱关己
+
 ## 49.7
 
 // glyph han-2203c:15x16 15 16 // 𢀼
@@ -454,8 +462,8 @@ glyph han-22094:15x16 15 16 // 𢂔
 // glyph han-22096-($han-regions):15x16 15 16 // 𢂖
 // ⿱ han-5317-($-1) han-5e00 // ⿱北帀
 
-// glyph han-22098:15x16 15 16 // 𢂘
-// ⿰ han-5dfe han-5168 // ⿰巾全
+glyph han-22098-($han-regions):15x16 15 16 // 𢂘
+⿰ han-5dfe:5x16 1 han-5168-($-1):9x16 // ⿰巾全
 
 // glyph han-2209a:15x16 15 16 // 𢂚
 // ⿳ han-4ea0 han-65e5 han-5dfe // ⿳亠日巾 <- ⿱𣅀巾

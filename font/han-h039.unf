@@ -512,6 +512,9 @@ glyph han-3178f:15x16 15 16 // 𱞏
 
 ## 61.7
 
+// glyph han-31798-($han-regions):15x16 15 16 // 𱞘
+// ⿰ han-5fc4 han-3031e-($-1) // ⿰忄𰌞
+
 glyph han-31799:15x16 15 16 // 𱞙
 ⿰ han-5fc4:7x16 1 han-9149:7x16 // ⿰忄酉
 

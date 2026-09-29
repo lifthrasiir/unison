@@ -1357,8 +1357,9 @@ glyph han-75c8:15x16 15 16 // 痈
 glyph han-75cb:15x16 15 16 // 痋
 ⿸ han-7592:15x16.11x13 han-866b:11x12 4 3 // ⿸疒虫
 
-// glyph han-75cc:15x16 15 16 // 痌
-// ⿸ han-7592 han-540c // ⿸疒同
+glyph han-75cc:15x16 15 16 // 痌
+⿸ han-7592:15x16.11x13 han-540c:9x12 5 4 // ⿸疒同
+glyph han-75cc.0:* = han-75cc:*
 
 // glyph han-75cf:15x16 15 16 // 痏
 // ⿸ han-7592 han-6709 // ⿸疒有
@@ -3159,6 +3160,9 @@ glyph han-7736:15x16 15 16 // 眶
 
 // glyph han-7737:15x16 15 16 // 眷 ⿱龹目(GHT) ⿱𠔉目(JKPV)
 // ⿳ han-516b han-592b han-76ee // ⿳八夫目 <- ⿱𠔉目
+
+// glyph han-7739-($han-regions):15x16 15 16 // 眹 ⿰目关(GHTKP) ⿰目⿱八天(J)
+// ⿰ han-76ee han-5173-($-1) // ⿰目关
 
 glyph han-773a:15x16 15 16 // 眺
 ⿰ han-76ee:6x16 han-5146:9x16 // ⿰目兆

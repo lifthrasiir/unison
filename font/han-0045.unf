@@ -358,7 +358,7 @@ glyph han-5c77:15x16 15 16 // 屷
 ## 46.3
 
 glyph han-5c78:15x16 15 16 // 屸
-⿰ han-5c71:5x12-l 1 han-5de5:9x16 // ⿰山工
+⿰ han-5c71:5x12-l -1 han-5de5:11x16 // ⿰山工
 
 glyph han-5c7a:15x16 15 16 // 屺
 ⿰ han-5c71:5x12-l 1 han-5df1:9x16 // ⿰山己

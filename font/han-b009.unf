@@ -338,6 +338,9 @@ glyph han-2020c:15x16 15 16 // 𠈌
 glyph han-20223:15x16 15 16 // 𠈣
 ⿺ han-5148:15x16.8x14 han-4eba:7x14 7 0 // ⿺先人
 
+// glyph han-2022a-($han-regions):15x16 15 16 // 𠈪
+// ⿰ han-4ebb han-5173-($-1) // ⿰亻关
+
 ## 9.7
 
 glyph han-2022e:15x16 15 16 // 𠈮

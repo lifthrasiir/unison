@@ -298,8 +298,8 @@ glyph han-2ec68:15x16 15 16 // 𮱨
 
 ## 57.6
 
-// glyph han-2ec76:15x16 15 16 // 𮱶
-// ⿰ han-5f13 han-5168 // ⿰弓全
+glyph han-2ec76:15x16 15 16 // 𮱶
+⿰ han-5f13:6x16 han-5168-g:9x16 // ⿰弓全
 
 // glyph han-2ec77:15x16 15 16 // 𮱷
 // ⿰ han-5f13 han-5b89 // ⿰弓安

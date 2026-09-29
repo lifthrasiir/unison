@@ -320,6 +320,9 @@ glyph han-2cba0:15x16 15 16 // 𬮠
 // glyph han-2cba5:15x16 15 16 // 𬮥
 // ⿵ han-95e8 han-4f17 // ⿵门众
 
+// glyph han-2cba6-($han-regions):15x16 15 16 // 𬮦
+// ⿵ han-95e8 han-5173-($-1) // ⿵门关
+
 // glyph han-2cba7-($han-regions):15x16 15 16 // 𬮧
 // ⿵ han-95e8 han-6c52-($-1) // ⿵门汒
 

@@ -316,6 +316,9 @@ glyph han-2dcbd:15x16 15 16 // 𭲽
 // glyph han-2dcc8:15x16 15 16 // 𭳈
 // ⿰ han-6c35 han-5bdb // ⿰氵寛
 
+// glyph han-2dcca-($han-regions):15x16 15 16 // 𭳊 ⿲氵关隹(J) ⿰浂隹(X)
+// ⿲ han-6c35 han-5173-($-1) han-96b9 // ⿲氵关隹
+
 glyph han-2dccc:15x16 15 16 // 𭳌
 ⿲ han-6c35:3x12 han-7cf9-k:5x14 han-8005.0:7x16 // ⿲氵糹者
 

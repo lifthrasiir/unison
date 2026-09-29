@@ -529,8 +529,8 @@ glyph han-59fa:15x16 15 16 // 姺
 glyph han-59fc:15x16 15 16 // 姼
 ⿰ han-5973:5x14-l 1 han-591a:9x16 // ⿰女多
 
-// glyph han-59fe:15x16 15 16 // 姾
-// ⿰ han-5973 han-5168 // ⿰女全
+glyph han-59fe-($han-regions):15x16 15 16 // 姾
+⿰ han-5973:5x14-l 1 han-5168-($-1):9x16 // ⿰女全
 
 // glyph han-59ff:15x16 15 16 // 姿
 // ⿱ han-6b21 han-5973 // ⿱次女
@@ -2436,8 +2436,8 @@ glyph han-5c5a.0:* = han-5c5a:*
 // glyph han-5c5b:15x16 15 16 // 屛
 // ⿸ han-5c38 han-5e77 // ⿸尸幷
 
-// glyph han-5c5d:15x16 15 16 // 屝
-// ⿸ han-5c38 han-975e // ⿸尸非
+glyph han-5c5d-($han-regions):15x16 15 16 // 屝
+⿸ han-5c38:15x16.11x12 han-975e-($-1):11x12 4 4 // ⿸尸非
 
 ## 44.9
 

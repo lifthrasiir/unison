@@ -5778,6 +5778,13 @@ $$.../d@P2@b\...$$
 $$./d@0/..\0@b\.$$
 /hd@0/$$$$$$\0@bh\
 H_h/$$......$$\h_H
+glyph han-4eba:9x6 9 6 // 人
+......$$@@$$......
+$$$$$$.V88V.$$$$$$
+$$.../d@P2@b\...$$
+$$/hd@0/..\0@bh\$$
+~hH_h/......\h_Hh~
+H/$$$$$$$$$$$$$$\H
 glyph han-4eba:9x8 9 8 // 人
 ......$$@@$$......
 $$$$$$..@@..$$$$$$
@@ -7272,8 +7279,11 @@ glyph han-4f76.2:15x16 15 16 // 佶
 // glyph han-4f78:15x16 15 16 // 佸
 // ⿰ han-4ebb han-820c // ⿰亻舌
 
-// glyph han-4f7a:15x16 15 16 // 佺
-// ⿰ han-4ebb han-5168 // ⿰亻全
+glyph han-4f7a-($han-regions):15x16 15 16 // 佺
+⿰ han-4ebb:5x16 1 han-5168-($-1):9x16 // ⿰亻全
+glyph han-4f7a.0:* = han-4f7a-j:*
+glyph han-4f7a.1:* = han-4f7a-j:*
+glyph han-4f7a.2:* = han-4f7a-g:*
 
 glyph han-4f7b:15x16 15 16 // 佻
 ⿰ han-4ebb:5x16 1 han-5146:9x16 // ⿰亻兆

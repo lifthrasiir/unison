@@ -447,6 +447,9 @@ glyph han-32b7c:15x16 15 16 // 𲭼
 // glyph han-32b7e:15x16 15 16 // 𲭾
 // ⿰ han-72ad han-4ef2 // ⿰犭仲
 
+// glyph han-32b7f-($han-regions):15x16 15 16 // 𲭿
+// ⿰ han-72ad han-5173-($-1) // ⿰犭关
+
 ## 94.7
 
 // glyph han-32b80:15x16 15 16 // 𲮀

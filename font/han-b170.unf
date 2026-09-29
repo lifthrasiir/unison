@@ -122,8 +122,8 @@ glyph han-28e42:15x16 15 16 // 𨹂
 glyph han-28e4d:15x16 15 16 // 𨹍
 ⿰ han-961d:5x16-l 1 han-4ea4.0:9x16 // ⿰阝交
 
-// glyph han-28e51:15x16 15 16 // 𨹑
-// ⿰ han-961d han-5168 // ⿰阝全
+glyph han-28e51:15x16 15 16 // 𨹑
+⿰ han-961d:5x16-l 1 han-5168-t:9x16 // ⿰阝全
 
 // glyph han-28e54:15x16 15 16 // 𨹔
 // ⿰ han-961d han-8272 // ⿰阝色

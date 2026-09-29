@@ -315,8 +315,8 @@ glyph han-272a6:15x16 15 16 // 𧊦
 // glyph han-272af:15x16 15 16 // 𧊯 ⿱永虫(G) ⿱𣱵虫(T)
 // ⿳ han-4ea0 han-6c34 han-866b // ⿳亠水虫 <- ⿱𣱵虫
 
-// glyph han-272b2:15x16 15 16 // 𧊲
-// ⿰ han-866b han-5168 // ⿰虫全
+glyph han-272b2-($han-regions):15x16 15 16 // 𧊲
+⿰ han-866b:5x16 1 han-5168-($-1):9x16 // ⿰虫全
 
 // glyph han-272b3:15x16 15 16 // 𧊳
 // ⿰ han-866b han-4e98 // ⿰虫亘

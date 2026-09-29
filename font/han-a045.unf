@@ -966,6 +966,9 @@ glyph han-39c5:15x16 15 16 // 㧅
 glyph han-39c6:15x16 15 16 // 㧆
 ⿰ han-624c:5x16 1 han-5dfe:9x16 // ⿰扌巾
 
+// glyph han-39c7:15x16 15 16 // 㧇
+// ⿰ han-624c han-2053c // ⿰扌𠔼
+
 glyph han-39c8:15x16 15 16 // 㧈
 ⿰ han-624c:5x16 1 han-5f13:9x16 // ⿰扌弓
 

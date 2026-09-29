@@ -2766,6 +2766,9 @@ glyph han-6713.0:* = han-6713:*
 glyph han-6713.1:* = han-6713:*
 glyph han-6713.2:* = han-6713:* // TODO
 
+// glyph han-6715-($han-regions):15x16 15 16 // 朕
+// ⿰ han-6708 han-5173-($-1) // ⿰月关
+
 ## 74.7
 
 glyph han-6716:15x16 15 16 // 朖

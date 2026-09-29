@@ -383,8 +383,8 @@ glyph han-32473:15x16 15 16 // 𲑳
 
 ## 12.5
 
-// glyph han-3247f-($han-regions):15x16 15 16 // 𲑿
-// ⿱ han-52a0 han-516b-($-1) // ⿱加八
+glyph han-3247f-($han-regions):15x16 15 16 // 𲑿
+⿱ -1 han-52a0:15x5 han-516b-($-1):15x12 // ⿱加八
 
 ## 12.11
 
@@ -403,8 +403,8 @@ glyph han-32480:15x16 15 16 // 𲒀
 
 ## 14.2
 
-// glyph han-32487-($han-regions):15x16 15 16 // 𲒇
-// ⿱ han-5196 han-516b-($-1) // ⿱冖八
+glyph han-32487-($han-regions):15x16 15 16 // 𲒇
+⿱ han-5196:15x3 1 han-516b-($-1):15x12 // ⿱冖八
 
 ## 14.4
 
@@ -432,6 +432,9 @@ glyph han-3248c:15x16 15 16 // 𲒌
 
 // glyph han-32492:15x16 15 16 // 𲒒
 // ⿰ han-51ab han-820d // ⿰冫舍
+
+// glyph han-32493-($han-regions):15x16 15 16 // 𲒓
+// ⿲ han-51ab han-5173-($-1) han-5202 // ⿲冫关刂
 
 ## 15.10
 
@@ -583,8 +586,8 @@ glyph han-324c5:15x16 15 16 // 𲓅
 // glyph han-324dc:15x16 15 16 // 𲓜
 // ⿱ han-5341 han-5182 // ⿱十冂
 
-// glyph han-324dd-($han-regions):15x16 15 16 // 𲓝
-// ⿱ han-5341 han-516b-($-1) // ⿱十八
+glyph han-324dd-($han-regions):15x16 15 16 // 𲓝
+⿱ han-5341:15x4 han-516b-($-1):15x12 // ⿱十八
 
 ## 24.4
 
@@ -1082,6 +1085,9 @@ glyph han-32665:15x16 15 16 // 𲙥
 
 // glyph han-3266e:15x16 15 16 // 𲙮
 // ⿰ han-571f han-91dd // ⿰土針
+
+// glyph han-32670-($han-regions):15x16 15 16 // 𲙰
+// ⿲ han-571f han-5173-($-1) han-6708 // ⿲土关月
 
 ## 32.11
 

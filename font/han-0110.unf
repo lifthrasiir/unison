@@ -386,8 +386,10 @@ glyph han-9fec:15x16 15 16 // 鿬
 
 ## 112.6
 
-// glyph han-7842:15x16 15 16 // 硂
-// ⿰ han-77f3 han-5168 // ⿰石全
+glyph han-7842-($han-regions):15x16 15 16 // 硂
+⿰ han-77f3:6x16 han-5168-($-1):9x16 // ⿰石全
+glyph han-7842.0:* = han-7842-j:*
+glyph han-7842.1:* = han-7842-g:*
 
 glyph han-7844:15x16 15 16 // 硄
 ⿰ han-77f3:6x16 han-5149:9x16 // ⿰石光

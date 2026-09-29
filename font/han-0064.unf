@@ -643,8 +643,11 @@ glyph han-62f1.0:* = han-62f1:*
 // glyph han-62f3:15x16 15 16 // 拳 ⿱龹手(GHTJ) ⿱𠔉手(KPV)
 // ⿳ han-516b han-592b han-624b // ⿳八夫手 <- ⿱𠔉手
 
-// glyph han-62f4:15x16 15 16 // 拴
-// ⿰ han-624c han-5168 // ⿰扌全
+glyph han-62f4-($han-regions):15x16 15 16 // 拴
+⿰ han-624c:5x16 1 han-5168-($-1):9x16 // ⿰扌全
+glyph han-62f4.0:* = han-62f4-j:*
+glyph han-62f4.1:* = han-62f4-j:*
+glyph han-62f4.2:* = han-62f4-g:*
 
 glyph han-62f8:15x16 15 16 // 拸
 ⿰ han-624c:5x16 1 han-591a:9x16 // ⿰扌多

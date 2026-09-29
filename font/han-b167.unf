@@ -375,6 +375,9 @@ glyph han-28a65:15x16 15 16 // 𨩥
 // glyph han-28a88:15x16 15 16 // 𨪈
 // ⿰ han-91d2 han-9b3c // ⿰釒鬼
 
+// glyph han-28a94-($han-regions):15x16 15 16 // 𨪔
+// ⿱ han-7277-($-1) han-91d1 // ⿱牷金
+
 glyph han-28a9a:15x16 15 16 // 𨪚
 ⿲ han-91d2:5x15-l han-8eca:5x16 han-5e72:5x16 // ⿲釒車干
 

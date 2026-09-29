@@ -863,8 +863,9 @@ glyph han-8de4.2:15x16 15 16 // 跤
 glyph han-8de4-(j|k):* = han-8de4.0:*
 glyph han-8de4-(g|h|t|p):* = han-8de4.2:*
 
-// glyph han-8de7:15x16 15 16 // 跧
-// ⿰ han-27fb7 han-5168 // ⿰𧾷全
+glyph han-8de7-($han-regions):15x16 15 16 // 跧
+⿰ han-27fb7:5x16 1 han-5168-($-1):9x16 // ⿰𧾷全
+glyph han-8de7.0:* = han-8de7-j:*
 
 // glyph han-8deb:15x16 15 16 // 跫
 // ⿱ han-5de9 han-8db3 // ⿱巩足

@@ -104,6 +104,9 @@ glyph han-28231:15x16 15 16 // 𨈱
 // glyph han-28239:15x16 15 16 // 𨈹
 // ⿰ han-8eab han-540c // ⿰身同
 
+// glyph han-2823d-($han-regions):15x16 15 16 // 𨈽
+// ⿰ han-8eab han-5173-($-1) // ⿰身关
+
 // glyph han-2823e:15x16 15 16 // 𨈾 ⿰身并(T) ⿰身幷(Z)
 // ⿰ han-8eab han-5e76 // ⿰身并
 

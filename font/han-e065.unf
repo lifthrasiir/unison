@@ -70,6 +70,9 @@ glyph han-2c02c:15x16 15 16 // 𬀬
 // glyph han-2c031:15x16 15 16 // 𬀱
 // ⿰ han-65e5 han-5c82 // ⿰日岂
 
+// glyph han-2c032-($han-regions):15x16 15 16 // 𬀲 ⿰日⿱八天(M) ⿰日关(Z)
+// ⿰ han-65e5 han-5173-($-1) // ⿰日关
+
 ## 72.7
 
 // glyph han-2c035:15x16 15 16 // 𬀵
@@ -503,6 +506,9 @@ glyph han-2c17b:15x16 15 16 // 𬅻
 
 // glyph han-2c17f:15x16 15 16 // 𬅿
 // ⿱ han-6b64 han-4e14 // ⿱此且
+
+// glyph han-2c180:15x16 15 16 // 𬆀
+// ⿱ han-23956 han-2053c // ⿱𣥖𠔼
 
 ## 77.8
 

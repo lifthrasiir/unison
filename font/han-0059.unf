@@ -846,8 +846,8 @@ glyph han-606b.0:* = han-606b:*
 // glyph han-606c:15x16 15 16 // 恬
 // ⿰ han-5fc4 han-820c // ⿰忄舌
 
-// glyph han-606e:15x16 15 16 // 恮
-// ⿰ han-5fc4 han-5168 // ⿰忄全
+glyph han-606e-($han-regions):15x16 15 16 // 恮
+⿰ han-5fc4:5x16 1 han-5168-($-1):9x16 // ⿰忄全
 
 glyph han-6070:15x16 15 16 // 恰
 ⿰ han-5fc4:5x16 1 han-5408:9x16 // ⿰忄合

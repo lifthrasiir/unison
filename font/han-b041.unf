@@ -23,8 +23,8 @@ glyph han-21b24:15x16 15 16 // 𡬤
 // glyph han-21b25:15x16 15 16 // 𡬥
 // ⿰ han-2d060 han-5bf8 // ⿰𭁠寸
 
-// glyph han-21b26:15x16 15 16 // 𡬦
-// ⿳ han-516b han-5de5 han-5bf8 // ⿳八工寸
+glyph han-21b26:15x16 15 16 // 𡬦
+⿳ han-516b-g:15x6 han-5de5:15x4 han-5bf8:15x6 // ⿳八工寸
 
 ## 41.6
 
@@ -163,6 +163,9 @@ glyph han-21b57:15x16 15 16 // 𡭗
 
 ## 42.3
 
+// glyph han-21b59:15x16 15 16 // 𡭙 ⿱⺌𠔼(G) ⿱𡭔𠔼(T)
+// ⿱ han-21b54 han-2053c // ⿱𡭔𠔼
+
 // glyph han-21b5a:15x16 15 16 // 𡭚
 // ⿱ han-4e09 han-5c0f // ⿱三小
 
@@ -293,8 +296,8 @@ glyph han-21b82-($han-regions):15x16 15 16 // 𡮂
 // ref han-4e00 // ⿻一𰀫
 // ref han-3002b
 
-// glyph han-21bc2:15x16 15 16 // 𡯂
-// ⿱ han-516b han-51e0 // ⿱八几
+glyph han-21bc2-($han-regions):15x16 15 16 // 𡯂
+⿱ han-516b.1:15x6 han-51e0:15x10 // ⿱八几
 
 ## 43.1
 
@@ -609,6 +612,9 @@ $$............@@............$$
 
 // glyph han-21d07-($han-regions):15x16 15 16 // 𡴇
 // ⿱ han-4db9 han-4e30-($-1) // ⿱䶹丰
+
+// glyph han-21d0a:15x16 15 16 // 𡴊 ⿱㞢𠔼(G) ⿳䶹一𠔼(UCS2003)
+// ⿱ han-37a2 han-2053c // ⿱㞢𠔼
 
 ## 45.5
 

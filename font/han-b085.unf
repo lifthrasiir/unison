@@ -446,6 +446,9 @@ glyph han-23db7:15x16 15 16 // 𣶷
 // glyph han-23dc2:15x16 15 16 // 𣷂
 // ⿰ han-6c35 han-5b9d // ⿰氵宝
 
+// glyph han-23dc3-($han-regions):15x16 15 16 // 𣷃 ⿲氵关力(T) ⿰浂力(X)
+// ⿲ han-6c35 han-5173-($-1) han-529b // ⿲氵关力
+
 // glyph han-23dc6:15x16 15 16 // 𣷆
 // ⿰ han-6c35 han-25927 // ⿰氵𥤧
 

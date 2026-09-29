@@ -1211,6 +1211,9 @@ glyph han-8051:15x16 15 16 // 聑
 // glyph han-8053:15x16 15 16 // 聓
 // ⿱ han-5de9 han-8033 // ⿱巩耳
 
+// glyph han-8054-($han-regions):15x16 15 16 // 联
+// ⿰ han-8033 han-5173-($-1) // ⿰耳关
+
 glyph han-8060.0:15x16 15 16 // 聠
 ⿰ han-8033:6x14-l han-5e76:9x16 // ⿰耳并
 glyph han-8060.1:* = han-8060.0:*
@@ -1580,6 +1583,9 @@ glyph han-80b6-($han-regions):15x16 15 16 // 肶
 
 glyph han-80b7:15x16 15 16 // 肷
 ⿰ han-6708:5x14-l 1 han-6b20:9x16 // ⿰月欠
+
+// glyph han-80b8-($han-regions):15x16 15 16 // 肸 ⿰月𰅭(GJKP) ⿰⺼𰅭(HT)
+// ⿰ han-6708 han-3016d-($-1) // ⿰月𰅭
 
 glyph han-80ba:15x16 15 16 // 肺 ⿰月巿(GPV) ⿰⺼巿(HT) ⿰月市(JK)
 ⿰ han-6708:5x14-l 1 han-5e02:9x16 // ⿰月市

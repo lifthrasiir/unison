@@ -827,6 +827,9 @@ glyph han-26d14-(t|j):15x16 15 16 // 𦴔
 // glyph han-26d33:15x16 15 16 // 𦴳 ⿱苟⿰𠂇十(T) ⿱苟廾(Z)
 // ⿳ han-8279 han-53e5 han-5efe // ⿳艹句廾
 
+// glyph han-26d3d-($han-regions):15x16 15 16 // 𦴽
+// ⿱ han-8279-($-1) han-62f4-($-1) // ⿱艹拴
+
 // glyph han-26d3f-($han-regions):15x16 15 16 // 𦴿
 // ⿱ han-8279 han-73b2-($-1) // ⿱艹玲
 
