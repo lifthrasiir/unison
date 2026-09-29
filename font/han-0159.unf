@@ -1682,9 +1682,9 @@ glyph han-909e:15x16 15 16 // 邞
 glyph han-909f:15x16 15 16 // 邟
 ⿰ han-4ea2:9x16 1 han-961d:5x16-r // ⿰亢阝
 
-glyph han-90a0:15x16 15 16 // 邠
-⿰ han-5206:9x16 1 han-961d:5x16-r // ⿰分阝
-glyph han-90a0.0:* = han-90a0:*
+glyph han-90a0-($han-regions):15x16 15 16 // 邠
+⿰ han-5206-($-1):9x16 1 han-961d:5x16-r // ⿰分阝
+glyph han-90a0.0:* = han-90a0-j:*
 
 glyph han-90a1:15x16 15 16 // 邡
 ⿰ han-65b9:9x16 1 han-961d:5x16-r // ⿰方阝
@@ -2165,8 +2165,9 @@ glyph han-9159:15x16 15 16 // 酙
 ⿰ han-9149:7x16 1 han-6597:7x16 // ⿰酉斗
 glyph han-9159.0:* = han-9159:*
 
-glyph han-915a:15x16 15 16 // 酚
-⿰ han-9149:7x16 1 han-5206:7x16 // ⿰酉分
+glyph han-915a-($han-regions):15x16 15 16 // 酚
+⿰ han-9149:7x16 1 han-5206-($-1):7x16 // ⿰酉分
+glyph han-915a.0:* = han-915a-j:*
 
 glyph han-915b:15x16 15 16 // 酛
 ⿰ han-9149:7x16 han-5143:8x16 // ⿰酉元

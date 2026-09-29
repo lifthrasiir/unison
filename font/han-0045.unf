@@ -403,8 +403,8 @@ glyph han-5c8a:15x16 15 16 // 岊
 ⿱ han-5df4:13x8 1 han-5c71:15x7 // ⿱巴山
 glyph han-5c8a.0:* = han-5c8a:*
 
-glyph han-5c8e:15x16 15 16 // 岎
-⿰ han-5c71:7x16 1 han-5206:7x16 // ⿰山分
+glyph han-5c8e-($han-regions):15x16 15 16 // 岎
+⿰ han-5c71:5x12-l 1 han-5206-($-1):9x16 // ⿰山分
 
 glyph han-5c8f:15x16 15 16 // 岏
 ⿰ han-5c71:5x12-l 1 han-5143:9x16 // ⿰山元
@@ -2889,8 +2889,13 @@ glyph han-5e06-v:* = han-5e06.x:*
 
 ## 50.4
 
-glyph han-5e09:15x16 15 16 // 帉
-⿰ han-5dfe:7x16 1 han-5206:7x16 // ⿰巾分
+glyph han-5e09-($han-regions):15x16 15 16 // 帉
+⿰ han-5dfe:5x16 1 han-5206-($-1):9x16 // ⿰巾分
+glyph han-5e09.0:* = han-5e09-j:*
+glyph han-5e09.1:15x16 15 16 // 帉
+ref han-5dfe:5x16 0 0 // ⿰巾⿱𠆢刀
+ref han-201a2:9x7 6 0
+ref han-5200:5x9 8 7
 
 glyph han-5e0a:15x16 15 16 // 帊
 ⿰ han-5dfe:5x16 1 han-5df4:9x16 // ⿰巾巴

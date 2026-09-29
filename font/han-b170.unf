@@ -49,9 +49,9 @@ glyph han-28e22:15x16 15 16 // 𨸢
 ⿰ han-961d:5x16-l 1 han-65a4:9x16 // ⿰阝斤
 
 glyph han-28e23:15x16 15 16 // 𨸣
-⿰ han-961d:5x16-l 1 han-5206:9x16 // ⿰阝分
+⿰ han-961d:5x16-l 1 han-5206-t:9x16 // ⿰阝分
 
-glyph han-28e26:15x16 15 16 // 𨸦 ⿰阝开(G) ⿰阝幵(Z)
+glyph han-28e26:15x16 15 16 // 𨸦
 ⿰ han-961d:5x16-l 1 han-5f00:9x16 // ⿰阝开
 
 // glyph han-28e28:15x16 15 16 // 𨸨

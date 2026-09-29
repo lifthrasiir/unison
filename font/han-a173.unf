@@ -682,8 +682,8 @@ glyph han-4b77:15x16 15 16 // 䭷
 glyph han-4b7a:15x16 15 16 // 䭺
 ⿰ han-99ac:7x16 1 han-4ea2:7x16 // ⿰馬亢
 
-glyph han-4b7b:15x16 15 16 // 䭻
-⿰ han-99ac:7x16 1 han-5206:7x16 // ⿰馬分
+glyph han-4b7b-($han-regions):15x16 15 16 // 䭻
+⿰ han-99ac:7x16 1 han-5206-($-1):7x16 // ⿰馬分
 
 // glyph han-4b7d:15x16 15 16 // 䭽
 // ⿰ han-99ac han-725b // ⿰馬牛

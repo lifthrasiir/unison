@@ -1191,7 +1191,7 @@ glyph han-8a1b-($han-regions):15x16 15 16 // 訛 ⿰訁化(GHTV) ⿰訁⿰亻�
 ⿰ han-8a01-($-1):5x16 han-5316-($-1):10x16 // ⿰訁化
 
 glyph han-8a1c-($han-regions):15x16 15 16 // 訜
-⿰ han-8a01-($-1):5x16 1 han-5206:9x16 // ⿰訁分
+⿰ han-8a01-($-1):5x16 1 han-5206-($-1):9x16 // ⿰訁分
 
 // glyph han-8a1e-($han-regions):15x16 15 16 // 訞
 // ⿰ han-8a01-($-1) han-592d // ⿰訁夭

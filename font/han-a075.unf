@@ -1052,8 +1052,8 @@ glyph han-3e2c:15x16 15 16 // 㸬
 glyph han-3e2d:15x16 15 16 // 㸭
 ⿰ han-725c:6x16 han-5df4:9x16 // ⿰牜巴
 
-glyph han-3e2e:15x16 15 16 // 㸮
-⿰ han-725c:6x16 han-5206:9x16 // ⿰牜分
+glyph han-3e2e-($han-regions):15x16 15 16 // 㸮
+⿰ han-725c:6x16 han-5206-($-1):9x16 // ⿰牜分
 
 glyph han-3e2f:15x16 15 16 // 㸯
 ⿰ han-725c:6x16 han-6597:9x16 // ⿰牜斗

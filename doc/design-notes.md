@@ -131,8 +131,44 @@ All Han characters are named `han-XXXX` where `XXXX` is 4- or 5-digit hexadecima
 
 Unison also tries to faithfully support major regional variants, though some of them might be artificial. For example, there are three possible variants for U+9751 靑 or U+9752 青 combined and their regional forms are fairly consistent. As such, if a certain character containing them is not attested in a particular region (say, Vietnam), it might still be rendered using the most consistent variant (`han-9752.0` in this case).
 
-Uniform's IDC command support is heavily geared towards Han use cases and handles most common composition types. One-dimensional IDC recognizes an "across" and "cross" axis and semi-automatically chooses and locates components provided that their size in the cross axis equals that of the target glyph. Directional hints (e.g. `l` in `:9x16-l`) are also taken into account whenever appropriate. Two-dimensional enclosing IDC verifies the cavity size declared by components (e.g. `11x12` from `:15x16.11x12`) instead of axes. Some IDCs, notably an overlaying one, are not supported and has to be manually drawn.
+Uniform's IDC command support is heavily geared towards Han use cases and handles most common composition types. One-dimensional IDC recognizes an "across" and "cross" axis and semi-automatically chooses and locates components provided that their size in the cross axis equals that of the target glyph. Directional hints (e.g. `l` in `:9x16-l`) are also taken into account whenever appropriate. Two-dimensional enclosing IDC verifies the cavity size declared by components (e.g. `11x12` from `:15x16.11x12`) instead of axes. Some IDCs, notably an overlaying one, are not supported and have to be manually drawn.
 
 Han glyphs are always designed to tightly contain grid pixels, so there must not be any margin around them. The single exception is `:15x16` which is a full character (there is a single column of implicit horizontal margin). Uniform provides a declaration of optional preferred margin for components and it should be used instead of manual margin instead. A more precise control is also available in the form of nested splits.
 
 It is expected that a significant portion of Han characters is borderline impossible to represent using a 15x16 grid, in which case per-character scaling might be required. There is not any planned extension to allow fractional sizing yet. The current priority is to complete common characters and "easy" characters with a small number of components first.
+
+### Regional components
+
+Once a component gets regional variants, every character using it has to become regional as well. The `map` in `han.unf` prefers an unsuffixed `han-XXXX` over every regional one, so leaving an unsuffixed name around would silently override the region split; a regional component therefore has no unsuffixed name at all, and each of its users is rewritten into `glyph han-XXXX-($han-regions):15x16` with the component spelled `-($-1)`. A user that is already partially regional (`han-XXXX-(g|j|p)`) keeps `($-1)`, a user for a single region names that region, and a numbered variant names the numbered variant of the component that its reference shows. Numbered aliases of a converted user, previously `han-XXXX.0:* = han-XXXX:*`, should point to a concrete region instead (specifically, the first applicable region in the order of `ghtjkpv`).
+
+The variant numbers and the region grouping of a character come from *its own* references, never from those of its component. For example, U+5206 分 has two forms because U+516B 八 has two (the right stroke is a plain ㇏ or starts with a short horizontal, 乁), but the two characters disagree on both counts: VS17 is the hooked 八 (`han-516b.0`) and the plain 分 (`han-5206.0`), and Vietnam uses the hooked 八 but the plain 分 (`han-516b-(j|k|p|v)` versus `han-5206-(g|h|t|v)`). The same holds one level up: U+7D1B 紛 groups its 分 as GHTJV/KP while its 糹 still follows `($-1)`, so the character is split into `han-7d1b-(g|h|t|j|v)` and `han-7d1b-(k|p)` with the 分 variant named explicitly in each.
+
+Only a character whose references actually differ by region is made regional. Otherwise the component is named by the form that fits: `-R` when the character applies to a single locale and uses that locale's default form (U+7EB7 纷 uses `han-5206-g`, U+2B847 𫡇 uses `han-5206-v`), and `.N` when it either picks a variant other than that locale's default, or is shared by several locales that all use the same variant (`han-5206.0`). A single-region group can still be written as an alternation, `han-XXXX-(t)`, so that `($-1)` keeps working in its components.
+
+Numbered variants are not limited to the forms of the component either. The IVD sometimes registers a form that the component no longer has, such as the 𠆢-topped 分 in U+5E09.1 帉 and U+9B75.2 魵; such a variant is drawn directly from the old parts (`ref han-201a2:9x7` plus `ref han-5200:5x9`) instead of adding a third variant to the component.
+
+Ideally all component variants should share the same size and boundary, but this is not always possible. Examples include U+5DE8 巨 which has two variants one of which has two notches at the left, so a matching variant with the same visual width is one pixel narrower than that. In such cases variants have to be exhaustively described from users.
+
+### Component forms
+
+A component form that has no code point of its own (the upper 八 in 分, unlike U+201A2 𠆢 for 人) is typically a size variant of the character itself, with an optional directional hint for where it sits in the parent: `han-516b.0:15x6-u`, `han-516b.1:9x8-u` and so on. These are listed before the full `:15x16` drawings of the character.
+
+A character built from such forms is written as an IDC rather than as `ref`s with hand-picked offsets, so that clearance is checked; a narrower lower part is centered with a nested split, and parts that interlock overlap with a negative gap:
+
+```
+glyph han-5206.0:9x16 9 16 // 分
+⿱ han-516b.1:9x8-u -1 2|han-5200:5x9|2 // ⿱八刀
+```
+
+Note that nested splits could have been simplified if the `margin-x` flag were given to `han-5200:5x9` above.
+
+Hardblanks tell the clearance check how far a neighbour may reach into the part. In 八 one row of the space between the two strokes is claimed where the strokes start to flare out, and everything below it is left open, so the top bar of 刀 may come up into the flare but not further; the cells outside the tops of the strokes are claimed as well.
+
+### Checking the bitmap build
+
+The outline and the bitmap build have to be checked separately, because a drawing that looks right in one can look wrong in the other. The published `.ttc` only has the outlines. To look at the bitmap, build a copy of `font/` with `meta bitmap-axis` added and instantiate the result at `BMAP=1`.
+
+- Most shapes have a lit and an unlit spelling with identical geometry, so the lit cell of a diagonal is a free choice that leaves the outline alone. Use it to keep the staircase even: a column repeated in the middle of a diagonal (5, 4, 3, 3, 2) reads as a kink, while a repeat at the steep end (5, 4, 4, 3, 2) reads as a curve.
+- A sheared on-demand stroke decides its bitmap by coverage, so a stroke that leans by less than a pixel over its height lights the same column all the way down. When a near-vertical stroke has to step in the bitmap, draw it with pixel pairs instead of a `ref`.
+- On-demand glyphs have some specific pixel ratios that don't make a neat curve in the bitmap, like `5x2-ys1` (6 instead of 5 pixels lit). A common trick is to slightly adjust the dimension (e.g. `4p5r6x2-ys1` or `5p1r8x2-ys1`) to make it neat without visibly changing the shape.
+- Keep the staircase consistent across the sizes of one component (e.g. 3, 3, 3, 3, 2, 2, 1, 0 at `:9x8` and 2, 2, 2, 2, 1, 1, 0 at `:7x7`), so the component looks the same in every character that uses it.

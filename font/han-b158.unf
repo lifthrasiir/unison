@@ -296,7 +296,7 @@ glyph han-282c0-($han-regions):15x16 15 16 // 𨋀
 ⿰ han-8eca:5x16 han-4e11-($-1):10x16 // ⿰車丑
 
 glyph han-282c2:15x16 15 16 // 𨋂
-⿰ han-8eca:7x16 1 han-5206:7x16 // ⿰車分
+assume ⿰ han-8eca:7x16 -1 han-5206.0:9x16 // ⿰車分
 
 // glyph han-282c5:15x16 15 16 // 𨋅
 // ⿱ han-6bd4 han-8eca // ⿱比車

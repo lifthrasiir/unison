@@ -56,8 +56,8 @@ assume ⿰ han-624c:5x16 4 han-5202:6x16 // ⿰扌刂
 // glyph han-206ba:15x16 15 16 // 𠚺
 // ⿰ han-5c11 han-5202 // ⿰少刂
 
-glyph han-206bc:15x16 15 16 // 𠚼
-⿰ han-5206:9x16 1 han-5202:5x16 // ⿰分刂
+glyph han-206bc-($han-regions):15x16 15 16 // 𠚼
+⿰ han-5206-($-1):9x16 1 han-5202:5x16 // ⿰分刂
 
 glyph han-206c1-g:15x16 15 16 // 𠛁
 ⿰ han-7247.0:10x16 han-5202:5x16 // ⿰片刂

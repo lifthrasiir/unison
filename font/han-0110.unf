@@ -257,8 +257,8 @@ glyph han-780c:15x16 15 16 // 砌
 glyph han-780d:15x16 15 16 // 砍
 ⿰ han-77f3:7x16 1 han-6b20:7x16 // ⿰石欠
 
-glyph han-780f:15x16 15 16 // 砏
-⿰ han-77f3:7x16 1 han-5206:7x16 // ⿰石分
+glyph han-780f-($han-regions):15x16 15 16 // 砏
+⿰ han-77f3:5x16 1 han-5206-($-1):9x16 // ⿰石分
 
 glyph han-7812-($han-regions):15x16 15 16 // 砒
 ⿰ han-77f3:5x16 1 han-6bd4-($-1):9x16 // ⿰石比
@@ -1609,8 +1609,8 @@ glyph han-79cd:15x16 15 16 // 种
 ⿰ han-79be:5x16 1 han-4e2d:9x16 // ⿰禾中
 glyph han-79cd.0:* = han-79cd:*
 
-glyph han-79ce:15x16 15 16 // 秎
-⿰ han-79be:7x16 1 han-5206:7x16 // ⿰禾分
+glyph han-79ce-($han-regions):15x16 15 16 // 秎
+⿰ han-79be:5x16 1 han-5206-($-1):9x16 // ⿰禾分
 
 glyph han-79cf:15x16 15 16 // 秏
 ⿰ han-79be:5x16 1 han-6bdb:9x16 // ⿰禾毛

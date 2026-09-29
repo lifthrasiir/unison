@@ -6857,8 +6857,9 @@ glyph han-4efc:15x16 15 16 // 仼
 ⿰ han-4ebb:5x16 1 han-738b:9x16 // ⿰亻王
 glyph han-4efc.0:* = han-4efc:*
 
-glyph han-4efd:15x16 15 16 // 份
-⿰ han-4ebb:5x16 han-5206:9x16 // ⿰亻分
+glyph han-4efd-($han-regions):15x16 15 16 // 份
+⿰ han-4ebb:5x16 1 han-5206-($-1):9x16 // ⿰亻分
+glyph han-4efd.0:* = han-4efd-j:*
 
 glyph han-4eff:15x16 15 16 // 仿
 ⿰ han-4ebb:5x16 1 han-65b9:9x16 // ⿰亻方

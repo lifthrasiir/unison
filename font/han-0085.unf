@@ -440,8 +440,11 @@ glyph han-6c7b.0:* = han-6c7b:*
 // glyph han-6c7d:15x16 15 16 // 汽
 // ⿰ han-6c35 han-6c14 // ⿰氵气
 
-glyph han-6c7e:15x16 15 16 // 汾
-⿰ han-6c35:5x16 1 han-5206:9x16 // ⿰氵分
+glyph han-6c7e-($han-regions):15x16 15 16 // 汾
+⿰ han-6c35:5x16 1 han-5206-($-1):9x16 // ⿰氵分
+glyph han-6c7e.0:* = han-6c7e-j:*
+glyph han-6c7e.1:* = han-6c7e-j:*
+glyph han-6c7e.2:* = han-6c7e-g:*
 
 glyph han-6c81:15x16 15 16 // 沁
 ⿰ han-6c35:3x12 1 han-5fc3:11x16 // ⿰氵心

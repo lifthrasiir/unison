@@ -295,8 +295,8 @@ glyph han-599f.0:* = han-599f:*
 glyph han-59a1:15x16 15 16 // 妡
 ⿰ han-5973:7x16 1 han-65a4:7x16 // ⿰女斤
 
-glyph han-59a2:15x16 15 16 // 妢
-⿰ han-5973:7x16 1 han-5206:7x16 // ⿰女分
+glyph han-59a2-($han-regions):15x16 15 16 // 妢
+⿰ han-5973:7x16 1 han-5206-($-1):7x16 // ⿰女分
 
 glyph han-59a3-($han-regions):15x16 15 16 // 妣
 ⿰ han-5973:5x14-l 1 han-6bd4-($-1):9x16 // ⿰女比

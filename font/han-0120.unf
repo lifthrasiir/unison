@@ -270,8 +270,14 @@ glyph han-7d19-(j|k):* = han-7d19.0:*
 glyph han-7d19-(g|h|t|v):* = han-7d19.x:*
 glyph han-7d19-p:* = han-7d19.y:*
 
-glyph han-7d1b-($han-regions):15x16 15 16 // 紛 ⿰糹分(GHTV) ⿰糸分(JKP)
-⿰ han-7cf9-($-1):5x14 1 han-5206:9x16 // ⿰糹分
+glyph han-7d1b-(g|h|t|j|v):15x16 15 16 // 紛
+⿰ han-7cf9-($-1):5x14 1 han-5206.0:9x16 // ⿰糹分
+glyph han-7d1b-(k|p):15x16 15 16 // 紛
+⿰ han-7cf9-($-1):5x14 1 han-5206.1:9x16 // ⿰糹分
+glyph han-7d1b.0:* = han-7d1b-j:*
+glyph han-7d1b.1:* = han-7d1b-k:*
+glyph han-7d1b.2:* = han-7d1b-j:*
+glyph han-7d1b.3:* = han-7d1b-k:*
 
 glyph han-7d1c-($han-regions):15x16 15 16 // 紜
 ⿰ han-7cf9-($-1):5x14 1 han-4e91:9x16 // ⿰糹云
@@ -1076,7 +1082,7 @@ glyph han-7eb0-($han-regions):15x16 15 16 // 纰
 // ⿰ han-7e9f han-4ece // ⿰纟从
 
 glyph han-7eb7:15x16 15 16 // 纷
-⿰ han-7e9f:5x14 1 han-5206:9x16 // ⿰纟分
+⿰ han-7e9f:5x14 1 han-5206-g:9x16 // ⿰纟分
 
 glyph han-7eb8:15x16 15 16 // 纸
 ⿰ han-7e9f:5x14 han-6c0f:10x16 // ⿰纟氏
@@ -1671,8 +1677,8 @@ glyph han-7f8a.1:* = han-7f8a:*
 
 ## 123.4
 
-glyph han-7f92:15x16 15 16 // 羒
-⿰ han-7f8a:7x16-l 1 han-5206:7x16 // ⿰羊分
+glyph han-7f92-($han-regions):15x16 15 16 // 羒
+⿰ han-7f8a:7x16-l 1 han-5206-($-1):7x16 // ⿰羊分
 
 glyph han-7f93:15x16 15 16 // 羓
 ⿰ han-7f8a:7x16-l 1 han-5df4:7x16 // ⿰羊巴

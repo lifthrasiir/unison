@@ -11,7 +11,7 @@ glyph han-268e0:15x16 15 16 // 𦣠
 ⿱ han-81e3:13x7 1 han-2123c:15x8 // ⿱臣𡈼
 
 glyph han-268e1:15x16 15 16 // 𦣡
-⿰ han-81e3:8x16 han-5206:7x16 // ⿰臣分
+⿰ han-81e3:6x16 han-5206-t:9x16 // ⿰臣分
 
 // glyph han-268e2:15x16 15 16 // 𦣢
 // ⿰ han-81e3 han-5dff // ⿰臣巿

@@ -96,8 +96,12 @@ glyph han-980f:15x16 15 16 // 頏
 glyph han-9811:15x16 15 16 // 頑
 ⿰ han-5143:6x16 han-9801:9x16 // ⿰元頁
 
-glyph han-9812:15x16 15 16 // 頒
-⿰ han-5206:7x16 1 han-9801:7x16 // ⿰分頁
+glyph han-9812-($han-regions):15x16 15 16 // 頒
+⿰ han-5206-($-1):7x16 1 han-9801:7x16 // ⿰分頁
+glyph han-9812.0:* = han-9812-g:*
+glyph han-9812.1:* = han-9812-j:*
+glyph han-9812.2:* = han-9812-g:*
+glyph han-9812.3:* = han-9812-j:*
 
 ## 181.5
 

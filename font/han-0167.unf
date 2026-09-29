@@ -317,9 +317,9 @@ glyph han-9215-($han-regions):15x16 15 16 // 鈕
 ⿰ han-91d2:5x15-l han-4e11-($-1):10x16 // ⿰釒丑
 glyph han-9215.0:* = han-9215-j:*
 
-glyph han-9216:15x16 15 16 // 鈖
-⿰ han-91d2:7x16 1 han-5206:7x16 // ⿰釒分
-glyph han-9216.0:* = han-9216:*
+glyph han-9216-($han-regions):15x16 15 16 // 鈖
+⿰ han-91d2:5x15-l 1 han-5206-($-1):9x16 // ⿰釒分
+glyph han-9216.0:* = han-9216-j:*
 
 // glyph han-9217:15x16 15 16 // 鈗
 // ⿰ han-91d2 han-5141 // ⿰釒允

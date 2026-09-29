@@ -501,8 +501,8 @@ glyph han-23e1b-(g|t):15x16 15 16 // 𣸛
 glyph han-23e1b-j:15x16 15 16 // 𣸛
 ⿲ han-6c35:3x12 han-8096.1:7x16 han-5202:5x16 // ⿲氵肖刂
 
-glyph han-23e1c:15x16 15 16 // 𣸜
-⿲ han-6c35:3x12 han-76ee:4x16 1 han-5206:7x16 // ⿲氵目分
+glyph han-23e1c-($han-regions):15x16 15 16 // 𣸜
+⿲ han-6c35:3x12 han-76ee:4x16 1 han-5206-($-1):7x16 // ⿲氵目分
 
 // glyph han-23e1d-($han-regions):15x16 15 16 // 𣸝
 // ⿰ han-6c35 han-263fa-($-1) // ⿰氵𦏺

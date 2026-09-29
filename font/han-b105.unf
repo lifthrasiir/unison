@@ -77,8 +77,8 @@ glyph han-24f45:15x16 15 16 // 𤽅
 glyph han-24f48:15x16 15 16 // 𤽈
 ⿱ han-767d:11x11 han-706b:15x5 // ⿱白火
 
-glyph han-24f49:15x16 15 16 // 𤽉
-⿰ han-767d:6x16 han-5206:9x16 // ⿰白分
+glyph han-24f49-($han-regions):15x16 15 16 // 𤽉
+⿰ han-767d:6x16 han-5206-($-1):9x16 // ⿰白分
 
 glyph han-24f4a-($han-regions):15x16 15 16 // 𤽊
 ⿰ han-767d:4x16 1 han-6bd4-($-1):10x16 // ⿰白比

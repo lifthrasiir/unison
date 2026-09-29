@@ -2074,8 +2074,11 @@ glyph han-5427:15x16 15 16 // 吧
 ⿰ han-53e3:5x12 1 han-5df4:9x16 // ⿰口巴
 glyph han-5427.0:* = han-5427:*
 
-glyph han-5429:15x16 15 16 // 吩
-⿰ han-53e3:7x12 1 han-5206:7x16 // ⿰口分
+glyph han-5429-($han-regions):15x16 15 16 // 吩
+⿰ han-53e3:7x12 1 han-5206-($-1):7x16 // ⿰口分
+glyph han-5429.0:* = han-5429-j:*
+glyph han-5429.1:* = han-5429-j:*
+glyph han-5429.2:* = han-5429-g:*
 
 glyph han-542a-($han-regions):15x16 15 16 // 吪
 ⿰ han-53e3:5x12 1 han-5316-($-1):9x16 // ⿰口化

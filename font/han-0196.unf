@@ -171,8 +171,8 @@ glyph han-9cf9-(g|p):* = han-9cf9.x:*
 // glyph han-9cfa:15x16 15 16 // 鳺
 // ⿰ han-592b han-9ce5 // ⿰夫鳥
 
-glyph han-9cfb:15x16 15 16 // 鳻
-⿰ han-5206:7x16 1 han-9ce5:7x16 // ⿰分鳥
+glyph han-9cfb-($han-regions):15x16 15 16 // 鳻
+⿰ han-5206-($-1):7x16 1 han-9ce5:7x16 // ⿰分鳥
 
 glyph han-9cfc:15x16 15 16 // 鳼
 ⿰ han-6587.0:7x16 1 han-9ce5:7x16 // ⿰文鳥

@@ -585,8 +585,11 @@ glyph han-7ad3:15x16 15 16 // 竓
 assume ⿰ han-7acb:7x16 -1 han-6bdb:9x16 // ⿰立毛
 glyph han-7ad3.0:* = han-7ad3:*
 
-glyph han-7ad5:15x16 15 16 // 竕
-⿰ han-7acb:5x16 1 han-5206:9x16 // ⿰立分
+glyph han-7ad5-($han-regions):15x16 15 16 // 竕
+⿰ han-7acb:5x16 1 han-5206-($-1):9x16 // ⿰立分
+glyph han-7ad5.0:* = han-7ad5-j:*
+glyph han-7ad5.1:* = han-7ad5-j:*
+glyph han-7ad5.2:* = han-7ad5-g:*
 
 // glyph han-7ad7:15x16 15 16 // 竗
 // ⿰ han-7acb han-5c11 // ⿰立少
@@ -1480,8 +1483,12 @@ glyph han-7c87:15x16 15 16 // 粇
 glyph han-7c88-($han-regions):15x16 15 16 // 粈
 ⿰ han-7c73:5x16 han-4e11-($-1):10x16 // ⿰米丑
 
-glyph han-7c89:15x16 15 16 // 粉
-⿰ han-7c73:7x16 1 han-5206:7x16 // ⿰米分
+glyph han-7c89-($han-regions):15x16 15 16 // 粉
+⿰ han-7c73:5x16 1 han-5206-($-1):9x16 // ⿰米分
+glyph han-7c89.0:* = han-7c89-g:*
+glyph han-7c89.1:* = han-7c89-j:*
+glyph han-7c89.2:* = han-7c89-g:*
+glyph han-7c89.3:* = han-7c89-j:*
 
 glyph han-7c8a-($han-regions):15x16 15 16 // 粊
 ⿱ han-6bd4-($-1):15x7 han-7c73:13x9 // ⿱比米

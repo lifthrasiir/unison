@@ -300,9 +300,9 @@ glyph han-245ab-($han-regions):15x16 15 16 // 𤖫
 ## 91.4
 
 glyph han-245ad-(g|j|p):15x16 15 16 // 𤖭
-⿰ han-7247.0:8x16 han-5206:7x16 // ⿰片分
-glyph han-245ad-t:15x16 15 16 // 𤖭
-⿰ han-7247.x:6x16 han-5206:9x16 // ⿰片分
+⿰ han-7247.0:8x16 han-5206-($-1):7x16 // ⿰片分
+glyph han-245ad-(t):15x16 15 16 // 𤖭
+⿰ han-7247.x:6x16 han-5206-($-1):9x16 // ⿰片分
 
 glyph han-245af-($han-regions):15x16 15 16 // 𤖯
 ⿰ han-7247-($-1):6x16 han-4e0d:9x16 // ⿰片不

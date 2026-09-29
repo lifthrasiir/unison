@@ -1266,8 +1266,8 @@ glyph han-574a:15x16 15 16 // 坊
 assume ⿰ han-571f:7x14-l -1 han-65b9:9x16 // ⿰土方
 glyph han-574a.0:* = han-574a:*
 
-glyph han-574b:15x16 15 16 // 坋
-⿰ han-571f:5x14-l 1 han-5206:9x16 // ⿰土分
+glyph han-574b-($han-regions):15x16 15 16 // 坋
+⿰ han-571f:5x14-l 1 han-5206-($-1):9x16 // ⿰土分
 
 // glyph han-574c:15x16 15 16 // 坌
 // ⿱ han-5206 han-571f // ⿱分土

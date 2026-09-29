@@ -364,8 +364,8 @@ glyph han-24c28:15x16 15 16 // 𤰨
 
 ## 102.4
 
-glyph han-24c2a:15x16 15 16 // 𤰪
-⿰ han-7530:7x14-l 1 han-5206:7x16 // ⿰田分
+glyph han-24c2a-($han-regions):15x16 15 16 // 𤰪
+⿰ han-7530:5x14-l 1 han-5206-($-1):9x16 // ⿰田分
 
 // glyph han-24c2b:15x16 15 16 // 𤰫
 // ⿱ han-37a2 han-7530 // ⿱㞢田

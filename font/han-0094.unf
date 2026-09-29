@@ -1154,9 +1154,9 @@ glyph han-739f.0:* = han-739f-j:*
 glyph han-739f.1:* = han-739f-j:*
 glyph han-739f.2:* = han-739f-g:*
 
-glyph han-73a2:15x16 15 16 // 玢
-assume ⿰ han-248e9:7x16 -1 han-5206:9x16 // ⿰𤣩分
-glyph han-73a2.0:* = han-73a2:*
+glyph han-73a2-($han-regions):15x16 15 16 // 玢
+assume ⿰ han-248e9:7x16 -1 han-5206-($-1):9x16 // ⿰𤣩分
+glyph han-73a2.0:* = han-73a2-j:*
 
 // glyph han-73a3-($han-regions):15x16 15 16 // 玣
 // ⿰ han-248e9 han-535e-($-1) // ⿰𤣩卞

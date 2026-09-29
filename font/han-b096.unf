@@ -395,8 +395,8 @@ glyph han-24989:15x16 15 16 // 𤦉
 glyph han-249a2:15x16 15 16 // 𤦢
 ⿱ han-5176:15x10 1 han-738b:15x5 // ⿱其王
 
-glyph han-249a6:15x16 15 16 // 𤦦
-⿲ -2 han-248e9:3x16 han-5206:7x16 han-738b:7x16 // ⿲𤣩分王
+glyph han-249a6-($han-regions):15x16 15 16 // 𤦦
+⿲ -2 han-248e9:3x16 han-5206-($-1):7x16 han-738b:7x16 // ⿲𤣩分王
 
 glyph han-249a9:15x16 15 16 // 𤦩
 ⿰ han-248e9:5x16 han-4e9e:10x16 // ⿰𤣩亞

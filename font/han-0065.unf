@@ -1722,8 +1722,8 @@ glyph han-660e.3:* = han-660e.1:*
 // glyph han-660f:15x16 15 16 // 昏
 // ⿱ han-6c0f han-65e5 // ⿱氏日
 
-glyph han-6610:15x16 15 16 // 昐
-⿰ han-65e5:7x16 1 han-5206:7x16 // ⿰日分
+glyph han-6610-($han-regions):15x16 15 16 // 昐
+⿰ han-65e5:5x14-l 1 han-5206-($-1):9x16 // ⿰日分
 
 glyph han-6611.0:15x16 15 16 // 昑
 ⿰ han-65e5:5x16 1 han-4eca.0:9x16 // ⿰日今
@@ -2737,8 +2737,8 @@ glyph han-670b.1:* = han-670b:* // not distinguished
 glyph han-670b.2:* = han-670b.0:*
 glyph han-670b.3:* = han-670b.1:*
 
-glyph han-670c:15x16 15 16 // 朌
-⿰ han-6708:5x14-l 1 han-5206:9x16 // ⿰月分
+glyph han-670c-($han-regions):15x16 15 16 // 朌
+⿰ han-6708:5x14-l 1 han-5206-($-1):9x16 // ⿰月分
 
 ## 74.5
 

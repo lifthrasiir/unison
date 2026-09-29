@@ -755,8 +755,8 @@ glyph han-3903:15x16 15 16 // 㤃
 // glyph han-390a-($han-regions):15x16 15 16 // 㤊
 // ⿰ han-5fc4 han-723b-($-1) // ⿰忄爻
 
-glyph han-390b:15x16 15 16 // 㤋
-⿰ han-5fc4:7x16 1 han-5206:7x16 // ⿰忄分
+glyph han-390b-($han-regions):15x16 15 16 // 㤋
+⿰ han-5fc4:7x16 1 han-5206-($-1):7x16 // ⿰忄分
 
 ## 61.5
 

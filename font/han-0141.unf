@@ -344,8 +344,9 @@ glyph han-869f:15x16 15 16 // 蚟
 // glyph han-86a0:15x16 15 16 // 蚠
 // ⿱ han-5206 han-866b // ⿱分虫
 
-glyph han-86a1:15x16 15 16 // 蚡
-⿰ han-866b:7x16 1 han-5206:7x16 // ⿰虫分
+glyph han-86a1-($han-regions):15x16 15 16 // 蚡
+⿰ han-866b:5x16 1 han-5206-($-1):9x16 // ⿰虫分
+glyph han-86a1.0:* = han-86a1-j:*
 
 glyph han-86a2:15x16 15 16 // 蚢
 ⿰ han-866b:5x16 1 han-4ea2:9x16 // ⿰虫亢
@@ -1220,9 +1221,9 @@ glyph han-886c:15x16 15 16 // 衬
 glyph han-886d:15x16 15 16 // 衭
 ⿰ han-8864.0:5x14 1 han-592b:9x16 // ⿰衤夫
 
-glyph han-886f:15x16 15 16 // 衯
-⿰ han-8864.0:5x14 1 han-5206:9x16 // ⿰衤分
-glyph han-886f.0:* = han-886f:*
+glyph han-886f-($han-regions):15x16 15 16 // 衯
+⿰ han-8864.0:5x14 1 han-5206-($-1):9x16 // ⿰衤分
+glyph han-886f.0:* = han-886f-j:*
 
 // glyph han-8872:15x16 15 16 // 衲 ⿰衤内(GV) ⿰衤內(HTJKP)
 // ⿰ han-8864 han-5185 // ⿰衤内

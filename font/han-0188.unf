@@ -865,13 +865,16 @@ glyph han-9b74:15x16 15 16 // 魴
 ⿰ han-9b5a:7x16 1 han-65b9:7x16 // ⿰魚方
 glyph han-9b74.0:* = han-9b74:*
 
-glyph han-9b75:15x16 15 16 // 魵
-⿰ han-9b5a:7x16 1 han-5206:7x16 // ⿰魚分
-glyph han-9b75.0:* = han-9b75:*
-glyph han-9b75.1:* = han-9b75:*
+glyph han-9b75-($han-regions):15x16 15 16 // 魵
+⿰ han-9b5a:7x16 1 han-5206-($-1):7x16 // ⿰魚分
+glyph han-9b75.0:* = han-9b75-j:*
+glyph han-9b75.1:* = han-9b75-j:*
 glyph han-9b75.2:15x16 15 16 // 魵
-⿰ han-29d4b:7x16 1 han-5206:7x16 // ⿰𩵋分
-glyph han-9b75.3:* = han-9b75.2:* // TODO
+ref han-29d4b:7x16 0 0 // ⿰𩵋⿱𠆢刀
+ref han-201a2:7x7 8 0
+ref han-5200:5x9 9 7
+glyph han-9b75.3:15x16 15 16 // 魵
+⿰ han-29d4b:7x16 1 han-5206.1:7x16 // ⿰𩵋分
 
 // glyph han-9b76:15x16 15 16 // 魶 ⿰魚内(G) ⿰魚內(HTJKP)
 // ⿰ han-9b5a han-5185 // ⿰魚内

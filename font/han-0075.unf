@@ -992,8 +992,11 @@ glyph han-678b:15x16 15 16 // 枋
 ⿰ han-6728:5x16 1 han-65b9:9x16 // ⿰木方
 glyph han-678b.0:* = han-678b:*
 
-glyph han-678c:15x16 15 16 // 枌
-⿰ han-6728:7x16 1 han-5206:7x16 // ⿰木分
+glyph han-678c-($han-regions):15x16 15 16 // 枌
+⿰ han-6728:5x16 1 han-5206-($-1):9x16 // ⿰木分
+glyph han-678c.0:* = han-678c-j:*
+glyph han-678c.1:* = han-678c-j:*
+glyph han-678c.2:* = han-678c-g:*
 
 glyph han-678e:15x16 15 16 // 枎
 ⿰ han-6728:5x16 1 han-592b:9x16 // ⿰木夫
@@ -1988,8 +1991,8 @@ glyph han-6911.2:15x16 15 16 // 椑
 ....................@@......$$
 ref han-6728:5x16
 
-glyph han-6915:15x16 15 16 // 椕
-⿲ -2 han-6728:5x16 han-5206:7x16 han-6728:5x16 // ⿲木分木
+glyph han-6915-($han-regions):15x16 15 16 // 椕
+⿲ -2 han-6728:5x16 han-5206-($-1):7x16 han-6728:5x16 // ⿲木分木
 
 // glyph han-6918:15x16 15 16 // 椘
 // ⿱ han-6797 han-4e4b // ⿱林之
