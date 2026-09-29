@@ -1000,3 +1000,43 @@ fn a_copy_run_ends_without_a_key_up() {
         "a second press long after the last repeat is a new copy"
     );
 }
+
+/// A code point the UCD puts in no block goes into an `Unassigned` block
+/// spanning the gap it sits in, in code point order among the real ones —
+/// not into one section at the end, where nobody looks for it. A filled grid
+/// leaves it as it is, even where a `prop` line makes a character of a gap
+/// code point, and it states no coverage.
+#[test]
+fn a_code_point_in_no_block_is_in_the_unassigned_block_of_its_gap() {
+    let mut state = state(concat!(
+        "meta height 16\n",
+        "meta ascent 14\n",
+        "meta descent 2\n",
+        "glyph sq 1 1\n",
+        "@@\n",
+        "prop U+2FE1 gc So\n",
+        "map U+2FD5 = sq\n",
+        "map U+2FE0 = sq\n",
+        "map U+2FF0 = sq\n",
+    ));
+    let headings = |s: &mut SpecimenState| -> Vec<String> {
+        s.row_summaries(64)
+            .into_iter()
+            .filter(|r| r.starts_with('#'))
+            .collect()
+    };
+    let expected = vec![
+        "# Kangxi Radicals  U+2F00..2FDF  1 / 214 (0.5%)",
+        "# Unassigned  U+2FE0..2FEF",
+        "# Ideographic Description Characters  U+2FF0..2FFF  1 / 16 (6.2%)",
+    ];
+    assert_eq!(headings(&mut state), expected);
+    state.options.show_undeclared = true;
+    assert_eq!(headings(&mut state), expected);
+    let rows = state.row_summaries(64);
+    let gap = rows
+        .iter()
+        .position(|r| r.starts_with("# Unassigned"))
+        .unwrap();
+    assert_eq!(rows[gap + 1], "2FE0");
+}

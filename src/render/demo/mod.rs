@@ -154,9 +154,8 @@ struct DemoMeta {
 #[derive(serde::Serialize)]
 struct DemoBlock {
     name: String,
-    /// `null` for the one section holding the code points no block covers —
-    /// there is no range for them to be a fraction of.
-    range: Option<String>,
+    /// The block's range, or a gap's for an `Unassigned` block.
+    range: String,
     start: u32,
     end: u32,
     /// `[declared, total]` — the coverage the heading states, on the same rule
@@ -451,63 +450,7 @@ fn collect(
     let declared = src.cmap();
     let zero_advance = zero_advance_codepoints(bitmap_ttf, declared);
 
-    // Group the mapped characters by block, exactly as the specimen does: a
-    // code point no block covers goes into one section at the end rather than
-    // having a range invented for it, and that section is never filled.
-    let mut by_block: BTreeMap<(u32, u32), (String, Vec<u32>)> = BTreeMap::new();
-    let mut no_block: Vec<u32> = Vec::new();
-    for &cp in declared.keys() {
-        match blocks_map.block_of(cp) {
-            Some(b) => by_block
-                .entry((b.start, b.end))
-                .or_insert_with(|| (b.name.to_string(), Vec::new()))
-                .1
-                .push(cp),
-            None => no_block.push(cp),
-        }
-    }
-
-    // A `prop block` claim nested inside a UCD block takes its code points out
-    // of the outer one; both bounds are compared for the same reason the
-    // editor compares both — a claim can share its start with the block it
-    // overrides.
-    let in_block = |cp: u32, start: u32, end: u32| {
-        blocks_map
-            .block_of(cp)
-            .is_some_and(|b| (b.start, b.end) == (start, end))
-    };
-
-    let mut out_blocks: Vec<DemoBlock> = Vec::new();
-    for ((start, end), (name, cps)) in by_block {
-        let coverage = cps.iter().all(|&cp| props.is_assigned(cp)).then(|| {
-            let total = (start..=end)
-                .filter(|&cp| in_block(cp, start, end) && props.is_assigned(cp))
-                .count();
-            [cps.len(), total]
-        });
-        let members = (start..=end).filter(|&cp| {
-            in_block(cp, start, end) && (declared.contains_key(&cp) || props.is_assigned(cp))
-        });
-        out_blocks.push(DemoBlock {
-            name,
-            range: Some(format_block_range(start, end)),
-            start,
-            end,
-            coverage,
-            runs: runs_of(members, start, declared, &zero_advance),
-        });
-    }
-    if !no_block.is_empty() {
-        let (start, end) = (no_block[0], *no_block.last().unwrap());
-        out_blocks.push(DemoBlock {
-            name: "No Block".to_string(),
-            range: None,
-            start,
-            end,
-            coverage: None,
-            runs: runs_of(no_block.iter().copied(), start, declared, &zero_advance),
-        });
-    }
+    let out_blocks = group_blocks(&blocks_map, props, declared, &zero_advance);
 
     let (names, name_runs) = collect_names(declared.keys().copied(), props);
 
@@ -834,6 +777,70 @@ fn gap_is_free(props: &CharProps, from: u32, to: u32, prefix: &str) -> bool {
     })
 }
 
+/// The mapped characters grouped by block, exactly as the specimen does: in
+/// code point order, a code point in a gap between blocks going into the gap's
+/// `Unassigned` block ([`BlockMap`]), which is never filled and states no
+/// coverage.
+fn group_blocks(
+    blocks_map: &BlockMap,
+    props: &CharProps,
+    declared: &BTreeMap<u32, String>,
+    zero_advance: &std::collections::BTreeSet<u32>,
+) -> Vec<DemoBlock> {
+    let mut by_block: BTreeMap<(u32, u32), (String, bool, Vec<u32>)> = BTreeMap::new();
+    for &cp in declared.keys() {
+        let b = blocks_map.block_of(cp);
+        by_block
+            .entry((b.start, b.end))
+            .or_insert_with(|| (b.name.to_string(), b.unassigned, Vec::new()))
+            .2
+            .push(cp);
+    }
+
+    // A `prop block` claim nested inside a UCD block takes its code points out
+    // of the outer one; both bounds are compared for the same reason the
+    // editor compares both — a claim can share its start with the block it
+    // overrides.
+    let in_block = |cp: u32, start: u32, end: u32| {
+        let b = blocks_map.block_of(cp);
+        (b.start, b.end) == (start, end)
+    };
+
+    let mut out_blocks: Vec<DemoBlock> = Vec::new();
+    for ((start, end), (name, unassigned, cps)) in by_block {
+        let range = format_block_range(start, end);
+        if unassigned {
+            out_blocks.push(DemoBlock {
+                name,
+                range,
+                start,
+                end,
+                coverage: None,
+                runs: runs_of(cps.iter().copied(), start, declared, zero_advance),
+            });
+            continue;
+        }
+        let coverage = cps.iter().all(|&cp| props.is_assigned(cp)).then(|| {
+            let total = (start..=end)
+                .filter(|&cp| in_block(cp, start, end) && props.is_assigned(cp))
+                .count();
+            [cps.len(), total]
+        });
+        let members = (start..=end).filter(|&cp| {
+            in_block(cp, start, end) && (declared.contains_key(&cp) || props.is_assigned(cp))
+        });
+        out_blocks.push(DemoBlock {
+            name,
+            range,
+            start,
+            end,
+            coverage,
+            runs: runs_of(members, start, declared, zero_advance),
+        });
+    }
+    out_blocks
+}
+
 /// Ascending code points to `gap,len,flags` runs, breaking wherever the code
 /// points are not consecutive or the flags differ. See [`DemoBlock::runs`] for
 /// the written form; `origin` is what the first run's gap is measured from.
@@ -992,6 +999,42 @@ mod tests {
 
     fn cps(list: &[u32]) -> BTreeMap<u32, String> {
         list.iter().map(|&cp| (cp, format!("g{cp:x}"))).collect()
+    }
+
+    /// A code point in a gap between blocks is listed in the gap's own
+    /// `Unassigned` block, in place among the real ones, and — unlike every
+    /// other block on the page — that one is not filled, whatever a `prop` line
+    /// says about the code points in it.
+    #[test]
+    fn a_gap_is_an_unfilled_unassigned_block_in_code_point_order() {
+        let doc =
+            crate::document_io::parse_document_from_str("prop U+2FE1 gc So\n", "test.unf".into())
+                .unwrap();
+        let props = CharProps::collect(&[&doc]);
+        let declared = cps(&[0x2FD5, 0x2FE0, 0x2FF0]);
+        let blocks = group_blocks(
+            &BlockMap::collect(&[&doc]),
+            &props,
+            &declared,
+            &Default::default(),
+        );
+        let heads: Vec<(&str, &str, Option<[usize; 2]>)> = blocks
+            .iter()
+            .map(|b| (b.name.as_str(), b.range.as_str(), b.coverage))
+            .collect();
+        assert_eq!(
+            heads,
+            vec![
+                ("Kangxi Radicals", "U+2F00..2FDF", Some([1, 214])),
+                ("Unassigned", "U+2FE0..2FEF", None),
+                (
+                    "Ideographic Description Characters",
+                    "U+2FF0..2FFF",
+                    Some([1, 16])
+                ),
+            ]
+        );
+        assert_eq!(blocks[1].runs, "0,1,1");
     }
 
     #[test]

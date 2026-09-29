@@ -908,11 +908,9 @@ impl SpecimenState {
         self.sections.clear();
 
         // Group the mapped characters by block, in code point order. A code
-        // point in no block at all — the UCD leaves gaps between them — goes
-        // into one section at the end rather than having a range invented for
-        // it, and is never filled.
-        let mut by_block: BTreeMap<(u32, u32), (String, Vec<u32>)> = BTreeMap::new();
-        let mut no_block: Vec<u32> = Vec::new();
+        // point in a gap between blocks is in the gap's `Unassigned` block
+        // ([`crate::ucd::BlockMap`]), which is never filled.
+        let mut by_block: BTreeMap<(u32, u32), (String, bool, Vec<u32>)> = BTreeMap::new();
         // A base that only variation sequences name still gets a cell — see
         // [`UvsEntry`] — so the grouping runs over both sets of code points.
         let cell_cps: BTreeSet<u32> = self
@@ -922,27 +920,24 @@ impl SpecimenState {
             .copied()
             .collect();
         for cp in cell_cps {
-            match self.blocks.block_of(cp) {
-                Some(b) => by_block
-                    .entry((b.start, b.end))
-                    .or_insert_with(|| (b.name.to_string(), Vec::new()))
-                    .1
-                    .push(cp),
-                None => no_block.push(cp),
-            }
+            let b = self.blocks.block_of(cp);
+            by_block
+                .entry((b.start, b.end))
+                .or_insert_with(|| (b.name.to_string(), b.unassigned, Vec::new()))
+                .2
+                .push(cp);
         }
 
         let mut groups: Vec<Group> = Vec::new();
-        for ((start, end), (name, cps)) in by_block {
+        for ((start, end), (name, unassigned, cps)) in by_block {
             // The coverage is a count of *characters*, not of cells, so it
             // reads the same whether or not the grid is filled — and a block
             // with a glyph on a code point it has no character for states none
-            // at all, the fraction being one that would read over 100%.
-            let coverage = cps
-                .iter()
-                .all(|&cp| self.char_props.is_assigned(cp))
+            // at all, the fraction being one that would read over 100%. A gap
+            // has no characters to be a fraction of.
+            let coverage = (!unassigned && cps.iter().all(|&cp| self.char_props.is_assigned(cp)))
                 .then(|| (cps.len(), self.block_total(start, end)));
-            let cps = if self.options.show_undeclared {
+            let cps = if self.options.show_undeclared && !unassigned {
                 self.block_members(start, end).collect()
             } else {
                 cps
@@ -952,14 +947,6 @@ impl SpecimenState {
                 heading: Some(format!("{name}  {range}")),
                 coverage,
                 cps,
-            });
-        }
-        if !no_block.is_empty() {
-            groups.push(Group {
-                heading: Some("No Block".to_string()),
-                // A code point in no block has no range to be a fraction of.
-                coverage: None,
-                cps: no_block,
             });
         }
 
@@ -1035,9 +1022,8 @@ impl SpecimenState {
         // it overrides, and comparing starts alone would then fill the claimed
         // code points into both sections.
         (start..=end).filter(move |&cp| {
-            self.blocks
-                .block_of(cp)
-                .is_some_and(|b| (b.start, b.end) == (start, end))
+            let b = self.blocks.block_of(cp);
+            (b.start, b.end) == (start, end)
         })
     }
 

@@ -687,7 +687,7 @@
     section.id = "b" + index;
 
     var head = '<div class="block-head"><h2>' + esc(block.name) + "</h2>";
-    if (block.range) head += '<span class="range">' + esc(block.range) + "</span>";
+    head += '<span class="range">' + esc(block.range) + "</span>";
     if (block.coverage) {
       var pct = block.coverage[1] ? Math.round((block.coverage[0] / block.coverage[1]) * 100) : 0;
       head += '<div class="cov"><span>' + block.coverage[0] + " / " + block.coverage[1] +

@@ -99,7 +99,7 @@ Editor (feature `editor`):
 | `sidebar.rs`, `specimen.rs`, `edit_menu.rs`, `preview/` | File list, the specimen panel, the bottom live preview with its three shaping backends. |
 
 `font/*.unf` are the font sources. `testdata/` is test-only `.unf` plus goldens. `data/` holds the
-sample-generation inputs read through `-d data`, and `Blocks-17.0.0.txt`, the one file compiled in
+sample-generation inputs read through `-d data`, and `Blocks-18.0.0.txt`, the one file compiled in
 (`ucd.rs`). `data/ref/` is untracked drawing reference cut by `scripts/extract_ref_charts.py`.
 
 ## Tests

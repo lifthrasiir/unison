@@ -14,7 +14,8 @@
 //!
 //! The values come from `icu_properties`, pinned to an exact version in
 //! `Cargo.toml` so the UCD version is a deliberate choice;
-//! `tests::data_is_unicode_17` fails if it stops being Unicode 17.0. Blocks
+//! `tests::data_is_unicode_17` fails if it stops being Unicode 17.0. The
+//! bundled `Blocks.txt` is its own version, 18.0 (see [`BLOCKS_TXT`]). Blocks
 //! and assignedness are *not* behind the `editor` feature — the headless
 //! `build` lays `demo.html` out with them — which is why `icu_properties` is a
 //! plain dependency, and why `Blocks.txt` is compiled in.
@@ -287,9 +288,19 @@ pub fn format_block_range(start: u32, end: u32) -> String {
 /// that silently loses its headings when the working directory is elsewhere is
 /// worse than 11 KB in the binary. The headless build wants it too — `demo.html`
 /// is grouped the same way — which is why nothing here is behind the `editor`
-/// feature. Keep the version in step with the
-/// `icu_properties` pin (`tests::data_is_unicode_17`).
-const BLOCKS_TXT: &str = include_str!("../data/Blocks-17.0.0.txt");
+/// feature.
+///
+/// This may run ahead of the `icu_properties` pin (`tests::data_is_unicode_17`),
+/// as it does now: 18.0 against 17.0. The skew is harmless in that direction —
+/// a block added in the newer version is a heading with every character in it
+/// still `Cn`, so it gets coverage and cells only once the pin catches up —
+/// whereas the other way round would leave newly assigned characters in
+/// [`UNASSIGNED_BLOCK`].
+const BLOCKS_TXT: &str = include_str!("../data/Blocks-18.0.0.txt");
+
+/// The name of the block a gap between two UCD blocks stands in for; see
+/// [`BlockMap::block_of`].
+pub const UNASSIGNED_BLOCK: &str = "Unassigned";
 
 /// One block of the code space: an inclusive range with a name.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -297,6 +308,10 @@ pub struct BlockInfo<'a> {
     pub start: u32,
     pub end: u32,
     pub name: &'a str,
+    /// A gap between UCD blocks rather than a block — [`UNASSIGNED_BLOCK`].
+    /// A flag and not a comparison of `name`, since a `prop block` may call
+    /// itself anything.
+    pub unassigned: bool,
 }
 
 /// The UCD blocks, parsed once. Sorted and non-overlapping by construction of
@@ -320,12 +335,21 @@ fn ucd_blocks() -> &'static [(u32, u32, &'static str)] {
 }
 
 /// Which block every code point belongs to: the UCD's blocks with the source's
-/// own `prop block` claims laid over them.
+/// own `prop block` claims laid over them, and the gaps between UCD blocks
+/// filled in as [`UNASSIGNED_BLOCK`].
 ///
 /// A stated block wins over the UCD block it sits inside — that is the whole
 /// point of stating one, since the UCD calls the entire area "Private Use Area"
 /// and says nothing about what a font put there. Two stated blocks that overlap
 /// are resolved last-wins, in source order, like every other `prop` field.
+///
+/// A gap is a block of its own, bounded by its neighbours, so that a code point
+/// in one — a character from a newer Unicode than the bundled `Blocks.txt`, or
+/// a slip of the keyboard — is listed where it sits among the real blocks
+/// rather than in a section of its own at the end, where nobody looks for it.
+/// It is a block only for grouping: nothing fills it and it states no coverage,
+/// since the UCD says it has no characters, and a `prop` line that says
+/// otherwise outside Private Use is a mistake rather than a character.
 #[derive(Clone, Debug, Default)]
 pub struct BlockMap {
     /// `prop block` claims in source order; searched back to front.
@@ -348,27 +372,40 @@ impl BlockMap {
         Self { stated }
     }
 
-    /// The block `cp` belongs to, or `None` for a code point no block covers
-    /// (the UCD leaves gaps between blocks).
-    pub fn block_of(&self, cp: u32) -> Option<BlockInfo<'_>> {
+    /// The block `cp` belongs to. Every code point has one: a gap between UCD
+    /// blocks is an [`UNASSIGNED_BLOCK`] spanning that gap.
+    pub fn block_of(&self, cp: u32) -> BlockInfo<'_> {
         if let Some((start, end, name)) = self
             .stated
             .iter()
             .rev()
             .find(|(start, end, _)| (*start..=*end).contains(&cp))
         {
-            return Some(BlockInfo {
+            return BlockInfo {
                 start: *start,
                 end: *end,
                 name,
-            });
+                unassigned: false,
+            };
         }
         let blocks = ucd_blocks();
-        let idx = blocks
-            .partition_point(|(start, _, _)| *start <= cp)
-            .checked_sub(1)?;
-        let (start, end, name) = blocks[idx];
-        (cp <= end).then_some(BlockInfo { start, end, name })
+        let idx = blocks.partition_point(|(start, _, _)| *start <= cp);
+        if let Some(&(start, end, name)) = idx.checked_sub(1).map(|i| &blocks[i])
+            && cp <= end
+        {
+            return BlockInfo {
+                start,
+                end,
+                name,
+                unassigned: false,
+            };
+        }
+        BlockInfo {
+            start: idx.checked_sub(1).map_or(0, |i| blocks[i].1 + 1),
+            end: blocks.get(idx).map_or(0x10FFFF, |b| b.0 - 1),
+            name: UNASSIGNED_BLOCK,
+            unassigned: true,
+        }
     }
 }
 
@@ -664,18 +701,41 @@ mod tests {
     #[test]
     fn the_bundled_blocks_file_covers_the_code_space_it_should() {
         let m = BlockMap::default();
-        let b = m.block_of(0x41).unwrap();
+        let b = m.block_of(0x41);
         assert_eq!((b.start, b.end, b.name), (0x0000, 0x007F, "Basic Latin"));
-        let b = m.block_of(0xAC00).unwrap();
+        let b = m.block_of(0xAC00);
         assert_eq!(b.name, "Hangul Syllables");
         // The last code point of the last block, and the block boundaries
         // around a gap the UCD leaves unassigned to any block.
         assert_eq!(
-            m.block_of(0x10FFFF).unwrap().name,
+            m.block_of(0x10FFFF).name,
             "Supplementary Private Use Area-B"
         );
-        assert_eq!(m.block_of(0x2FE0), None);
-        assert_eq!(m.block_of(0x2FDF).unwrap().name, "Kangxi Radicals");
+        assert_eq!(m.block_of(0x2FDF).name, "Kangxi Radicals");
+        // A block Unicode 18.0 added, in what was a gap in 17.0.
+        assert_eq!(m.block_of(0x1D260).name, "Musical Symbols Supplement");
+    }
+
+    /// A gap the UCD leaves between two blocks is one `Unassigned` block of
+    /// its own, bounded by its neighbours, so a code point in it still sorts
+    /// among the real blocks.
+    #[cfg(feature = "editor")]
+    #[test]
+    fn a_gap_between_blocks_is_an_unassigned_block() {
+        let m = BlockMap::default();
+        let b = m.block_of(0x2FE0);
+        assert_eq!(
+            (b.start, b.end, b.name, b.unassigned),
+            (0x2FE0, 0x2FEF, UNASSIGNED_BLOCK, true)
+        );
+        assert!(!m.block_of(0x2FF0).unassigned);
+        // A claim inside a gap is a block like any other, and cuts nothing
+        // out of the gap's own bounds.
+        let m = blocks("prop block `Gap Claim` = U+2FE4..2FE7\n");
+        assert_eq!(m.block_of(0x2FE4).name, "Gap Claim");
+        assert!(!m.block_of(0x2FE4).unassigned);
+        let b = m.block_of(0x2FE8);
+        assert_eq!((b.start, b.end, b.unassigned), (0x2FE0, 0x2FEF, true));
     }
 
     /// The point of `prop block`: the UCD calls all of U+F0000..FFFFD "Private
@@ -684,26 +744,23 @@ mod tests {
     #[test]
     fn a_stated_block_overrides_the_ucd_one_for_its_range_only() {
         let m = blocks("prop block `Unison Symbols` = U+F0000..F00FF\n");
-        let b = m.block_of(0xF0010).unwrap();
+        let b = m.block_of(0xF0010);
         assert_eq!(
             (b.start, b.end, b.name),
             (0xF0000, 0xF00FF, "Unison Symbols")
         );
         // One past the claim is the plain UCD block again.
-        assert_eq!(
-            m.block_of(0xF0100).unwrap().name,
-            "Supplementary Private Use Area-A"
-        );
+        assert_eq!(m.block_of(0xF0100).name, "Supplementary Private Use Area-A");
         // And a claim changes nothing outside the Private Use planes.
-        assert_eq!(m.block_of(0x41).unwrap().name, "Basic Latin");
+        assert_eq!(m.block_of(0x41).name, "Basic Latin");
 
         // Two claims over one code point: the later line wins.
         let m = blocks(concat!(
             "prop block `First` = U+E000..E0FF\n",
             "prop block `Second` = U+E080..E0FF\n",
         ));
-        assert_eq!(m.block_of(0xE000).unwrap().name, "First");
-        assert_eq!(m.block_of(0xE080).unwrap().name, "Second");
+        assert_eq!(m.block_of(0xE000).name, "First");
+        assert_eq!(m.block_of(0xE080).name, "Second");
     }
 
     #[cfg(feature = "editor")]
