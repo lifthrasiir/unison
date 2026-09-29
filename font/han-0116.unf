@@ -924,7 +924,7 @@ glyph han-7b4b:15x16 15 16 // 筋
 // ⿱ han-25ad7 han-5de9 // ⿱𥫗巩
 
 glyph han-7b52:15x16 15 16 // 筒
-⿱ han-25ad7:13x5 han-540c:15x11 // ⿱𥫗同
+⿱ han-25ad7:13x5 han-540c:13x11 // ⿱𥫗同
 
 // glyph han-7b53:15x16 15 16 // 筓
 // ⿱ han-25ad7 han-5e75 // ⿱𥫗幵
@@ -1655,7 +1655,7 @@ glyph han-7cb8:15x16 15 16 // 粸
 glyph han-7cb9:15x16 15 16 // 粹
 ⿰ han-7c73:7x16 1 han-5352:7x16 // ⿰米卒
 
-glyph han-7cba:15x16 15 16 // 粺 ⿰米卑(GHTKP) ⿰米⿱⿱㇒⿻日丿十(J)
+glyph han-7cba:15x16 15 16 // 粺
 ⿰ han-7c73:5x16 han-5351.0:10x16 // ⿰米卑
 glyph han-7cba.0:* = han-7cba:*
 
@@ -1702,9 +1702,9 @@ glyph han-7cca:15x16 15 16 // 糊
 // glyph han-7ce2:15x16 15 16 // 糢
 // ⿰ han-7c73 han-83ab // ⿰米莫
 
-glyph han-7ce8-(g|k|p):15x16 15 16 // 糨 ⿰米强(GKP) ⿰米強(HT)
+glyph han-7ce8-(g|k|p):15x16 15 16 // 糨
 ⿲ han-7c73:5x16 han-5f13:4x16 1 han-867d:5x16 // ⿲米弓虽
-glyph han-7ce8-(h|t|j):15x16 15 16 // 糨 ⿰米强(GKP) ⿰米強(HT)
+glyph han-7ce8-(h|t|j):15x16 15 16 // 糨
 ⿲ han-7c73:5x16 han-5f13:5x16 han-27227:5x16 // ⿲米弓𧈧
 
 ## 119.12
@@ -1719,3 +1719,5 @@ glyph han-7ce8-(h|t|j):15x16 15 16 // 糨 ⿰米强(GKP) ⿰米強(HT)
 
 glyph han-7cef:15x16 15 16 // 糯
 ⿰ han-7c73:5x16 1 han-9700:9x16 // ⿰米需
+glyph han-7cef.0:* = han-7cef:*
+

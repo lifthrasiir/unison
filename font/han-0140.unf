@@ -698,7 +698,7 @@ glyph han-8338.3:15x16 15 16 // 茸
 // ⿱ han-8278 han-8278 // ⿱艸艸
 
 glyph han-833c-($han-regions):15x16 15 16 // 茼
-⿱ han-8279-($-1):15x3 1 han-540c:15x12 // ⿱艹同
+⿱ han-8279-($-1):15x3 1 han-540c:13x12 // ⿱艹同
 glyph han-833c.0:* = han-833c-g:*
 glyph han-833c.1:* = han-833c-g:*
 glyph han-833c.2:* = han-833c-h:*
