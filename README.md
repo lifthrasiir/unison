@@ -69,7 +69,7 @@ The major differences (and possible advantages) are as follows:
 
 ## Coverage
 
-As of 2026-09-28:
+As of 2026-09-29:
 
 | Script | Status |
 |--------|--------|
@@ -85,7 +85,7 @@ As of 2026-09-28:
 | Runic | Complete |
 | Kana | Placeholder glyphs only (100%) |
 | Han | Semi-automatically composed (URO 23%, total 13%), verification in progress |
-| Hangul | Modern complete, archaic 80% |
+| Hangul | Complete for modern and archaic |
 | General symbols | ~30% |
 | Mathematical symbols | ~20% |
 | APL symbols | 100% |
