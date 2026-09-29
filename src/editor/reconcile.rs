@@ -16,86 +16,122 @@ pub fn parse_glyph_header_dims(s: &str) -> Option<(u16, u16)> {
     Some((dims.width, dims.height))
 }
 
-pub fn reconcile(lines: &mut Vec<DocLine>, undo: &mut UndoStack, caret: Caret) -> Option<Caret> {
+/// What [`reconcile`] would do to a buffer next: the first header/grid
+/// mismatch, or failing that the first grid no header owns.
+enum Fix {
+    Resize { at: usize, width: u16, height: u16 },
+    Create { at: usize, width: u16, height: u16 },
+    Demote { at: usize },
+}
+
+fn find_fix(lines: &[DocLine]) -> Option<Fix> {
     // Pass A: header/grid mismatch — resize or create
     for i in 0..lines.len() {
         if let DocLine::Text(t) = &lines[i]
-            && let Some((w, h)) = parse_glyph_header_dims(t)
+            && let Some((width, height)) = parse_glyph_header_dims(t)
         {
             match lines.get(i + 1) {
-                Some(DocLine::Grid(g)) if g.width == w && g.height == h => {
-                    // Dimensions match — nothing to do
-                }
-                Some(DocLine::Grid(g)) => {
-                    // Resize
-                    let mut resized = PixelGrid::clone(g);
-                    resized.resize(w, h);
-                    let old = lines[i + 1].clone();
-                    let resized = DocLine::grid(resized).with_id_of(&old);
-                    undo.break_coalesce();
-                    undo.push_derived_lines(i + 1, vec![old], vec![resized.clone()], caret, caret);
-                    undo.break_coalesce();
-                    lines[i + 1] = resized;
-                    return Some(caret);
+                Some(DocLine::Grid(g)) if g.width == width && g.height == height => {}
+                Some(DocLine::Grid(_)) => {
+                    return Some(Fix::Resize {
+                        at: i + 1,
+                        width,
+                        height,
+                    });
                 }
                 _ => {
-                    // No grid follows — insert empty
-                    let empty = PixelGrid::new(w, h);
-                    let caret_after = caret_after_splice(caret, i + 1, 0, 1);
-                    undo.break_coalesce();
-                    undo.push_derived_lines(
-                        i + 1,
-                        vec![],
-                        vec![DocLine::grid(empty.clone())],
-                        caret,
-                        caret_after,
-                    );
-                    undo.break_coalesce();
-                    lines.insert(i + 1, DocLine::grid(empty));
-                    return Some(caret_after);
+                    return Some(Fix::Create {
+                        at: i + 1,
+                        width,
+                        height,
+                    });
                 }
             }
         }
     }
 
     // Pass B: orphaned grid demotion
-    for i in 0..lines.len() {
-        if let DocLine::Grid(g) = &lines[i] {
-            let valid_header = i > 0
-                && matches!(&lines[i - 1], DocLine::Text(t)
-                    if parse_glyph_header_dims(t).is_some());
+    (0..lines.len()).find_map(|i| {
+        let valid_header = i > 0
+            && matches!(&lines[i - 1], DocLine::Text(t)
+                if parse_glyph_header_dims(t).is_some());
+        (matches!(lines[i], DocLine::Grid(_)) && !valid_header).then_some(Fix::Demote { at: i })
+    })
+}
 
-            if !valid_header {
-                // An all-empty grid was never text in the file: the parser
-                // hands every dimensioned header a grid of its own, empty when
-                // no pixel rows followed it, and the serializer writes none
-                // back. Demoting one would *create* rows of blank pixel text
-                // that nothing ever wrote — when a `glyph foo 16 16` with only
-                // `ref` lines loses its dimensions, the grid just goes away.
-                let rows: Vec<DocLine> = if g.is_all_empty() {
-                    Vec::new()
-                } else {
-                    (0..g.height)
-                        .map(|r| DocLine::text(encode_grid_row(g, r)))
-                        .collect()
-                };
-                let caret_after = caret_after_splice(caret, i, 1, rows.len());
-                undo.break_coalesce();
-                undo.push_derived_lines(
-                    i,
-                    vec![lines[i].clone()],
-                    rows.clone(),
-                    caret,
-                    caret_after,
-                );
-                undo.break_coalesce();
-                lines.splice(i..=i, rows);
-                return Some(caret_after);
-            }
+/// Whether [`reconcile`] would leave `lines` as they are.
+///
+/// A buffer that is not is one caught mid-edit: a header whose dimensions were
+/// typed but whose grid only follows once the caret leaves it. Undo and redo
+/// restore buffers verbatim and never reconcile them, so they must not stop on
+/// such a state; see [`crate::editor::EditorState::perform_undo`].
+pub fn is_reconciled(lines: &[DocLine]) -> bool {
+    find_fix(lines).is_none()
+}
+
+pub fn reconcile(lines: &mut Vec<DocLine>, undo: &mut UndoStack, caret: Caret) -> Option<Caret> {
+    match find_fix(lines)? {
+        Fix::Resize { at, width, height } => {
+            let DocLine::Grid(g) = &lines[at] else {
+                unreachable!()
+            };
+            let mut resized = PixelGrid::clone(g);
+            resized.resize(width, height);
+            let old = lines[at].clone();
+            let resized = DocLine::grid(resized).with_id_of(&old);
+            undo.break_coalesce();
+            undo.push_derived_lines(at, vec![old], vec![resized.clone()], caret, caret);
+            undo.break_coalesce();
+            lines[at] = resized;
+            Some(caret)
+        }
+        Fix::Create { at, width, height } => {
+            // No grid follows — insert empty
+            let empty = PixelGrid::new(width, height);
+            let caret_after = caret_after_splice(caret, at, 0, 1);
+            undo.break_coalesce();
+            undo.push_derived_lines(
+                at,
+                vec![],
+                vec![DocLine::grid(empty.clone())],
+                caret,
+                caret_after,
+            );
+            undo.break_coalesce();
+            lines.insert(at, DocLine::grid(empty));
+            Some(caret_after)
+        }
+        Fix::Demote { at } => {
+            let DocLine::Grid(g) = &lines[at] else {
+                unreachable!()
+            };
+            // An all-empty grid was never text in the file: the parser hands
+            // every dimensioned header a grid of its own, empty when no pixel
+            // rows followed it, and the serializer writes none back. Demoting
+            // one would *create* rows of blank pixel text that nothing ever
+            // wrote — when a `glyph foo 16 16` with only `ref` lines loses its
+            // dimensions, the grid just goes away.
+            let rows: Vec<DocLine> = if g.is_all_empty() {
+                Vec::new()
+            } else {
+                (0..g.height)
+                    .map(|r| DocLine::text(encode_grid_row(g, r)))
+                    .collect()
+            };
+            let caret_after = caret_after_splice(caret, at, 1, rows.len());
+            undo.break_coalesce();
+            undo.push_derived_lines(
+                at,
+                vec![lines[at].clone()],
+                rows.clone(),
+                caret,
+                caret_after,
+            );
+            undo.break_coalesce();
+            lines.splice(at..=at, rows);
+            Some(caret_after)
         }
     }
-
-    None
 }
 
 /// Keep a caret attached to the same logical content when a line range is

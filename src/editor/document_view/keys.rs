@@ -165,29 +165,9 @@ pub(super) fn handle_document_keys(
                         || (i.modifiers.command && i.key_pressed(egui::Key::Y))
                 });
                 if undo_pressed {
-                    let sel_ctx = Some(crate::editor::undo::SelectionUndoCtx {
-                        mode: &mut state.mode,
-                        pixel_selection: &mut state.pixel_selection,
-                    });
-                    if let Some(c) = state.undo.undo_with_sel(lines, sel_ctx) {
-                        state.folds.expand_containing(c.line);
-                        state.cursor = caret::clamp(lines, c);
-                        state.selection_anchor = None;
-                        state.skip_reconcile = true;
-                        *needs_rederive = true;
-                    }
+                    *needs_rederive |= state.perform_undo(lines);
                 } else if redo_pressed {
-                    let sel_ctx = Some(crate::editor::undo::SelectionUndoCtx {
-                        mode: &mut state.mode,
-                        pixel_selection: &mut state.pixel_selection,
-                    });
-                    if let Some(c) = state.undo.redo_with_sel(lines, sel_ctx) {
-                        state.folds.expand_containing(c.line);
-                        state.cursor = caret::clamp(lines, c);
-                        state.selection_anchor = None;
-                        state.skip_reconcile = true;
-                        *needs_rederive = true;
-                    }
+                    *needs_rederive |= state.perform_redo(lines);
                 }
             }
 

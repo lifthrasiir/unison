@@ -699,41 +699,57 @@ impl EditorState {
     }
 
     /// Undoes one entry and restores caret/selection state; returns whether
-    /// anything changed.  The single implementation behind both the raw
-    /// Cmd+Z path and the Edit-menu action.
+    /// anything changed.  The single implementation behind the raw Cmd+Z
+    /// paths (text and pixel modes) and the Edit-menu action.
     pub fn perform_undo(&mut self, lines: &mut Vec<DocLine>) -> bool {
-        let sel_ctx = Some(undo::SelectionUndoCtx {
-            mode: &mut self.mode,
-            pixel_selection: &mut self.pixel_selection,
-        });
-        if let Some(c) = self.undo.undo_with_sel(lines, sel_ctx) {
-            // The caret an undo restores is a jump like any other, so a group
-            // standing between it and the eye opens. The fold itself is not on
-            // the stack: only where the caret has to end up is.
-            self.folds.expand_containing(c.line);
-            self.cursor = caret::clamp(lines, c);
-            self.selection_anchor = None;
-            self.skip_reconcile = true;
-            true
-        } else {
-            false
-        }
+        self.step_history(lines, false)
     }
 
     pub fn perform_redo(&mut self, lines: &mut Vec<DocLine>) -> bool {
-        let sel_ctx = Some(undo::SelectionUndoCtx {
-            mode: &mut self.mode,
-            pixel_selection: &mut self.pixel_selection,
-        });
-        if let Some(c) = self.undo.redo_with_sel(lines, sel_ctx) {
-            self.folds.expand_containing(c.line);
-            self.cursor = caret::clamp(lines, c);
-            self.selection_anchor = None;
-            self.skip_reconcile = true;
-            true
-        } else {
-            false
+        self.step_history(lines, true)
+    }
+
+    /// One undo or redo, as the user sees it.
+    ///
+    /// That is usually one entry, but never a stop on a buffer `reconcile`
+    /// would still change. The grid a header's new dimensions call for is
+    /// created when the caret leaves the header, and it folds into whatever
+    /// entry is on top then — the Enter that left it, say, rather than the
+    /// typing that stated the size — so undoing that entry alone restores the
+    /// header with no grid under it. Undo does not reconcile what it restores,
+    /// and the reparse gave the header an empty grid the buffer did not have:
+    /// drawn, but with nothing to paint into. Such a state only ever existed
+    /// while the header was being typed, so the step goes on to the next one
+    /// that is whole.
+    fn step_history(&mut self, lines: &mut Vec<DocLine>, redo: bool) -> bool {
+        let mut landed = None;
+        loop {
+            let sel_ctx = Some(undo::SelectionUndoCtx {
+                mode: &mut self.mode,
+                pixel_selection: &mut self.pixel_selection,
+            });
+            let stepped = if redo {
+                self.undo.redo_with_sel(lines, sel_ctx)
+            } else {
+                self.undo.undo_with_sel(lines, sel_ctx)
+            };
+            let Some(c) = stepped else { break };
+            landed = Some(c);
+            if reconcile::is_reconciled(lines) {
+                break;
+            }
         }
+        let Some(c) = landed else {
+            return false;
+        };
+        // The caret an undo restores is a jump like any other, so a group
+        // standing between it and the eye opens. The fold itself is not on
+        // the stack: only where the caret has to end up is.
+        self.folds.expand_containing(c.line);
+        self.cursor = caret::clamp(lines, c);
+        self.selection_anchor = None;
+        self.skip_reconcile = true;
+        true
     }
 
     /// Runs an Edit-menu action against this editor.

@@ -518,3 +518,74 @@ fn a_patched_view_is_the_view_a_rebuild_lays_out() {
         "the section is still folded"
     );
 }
+
+/// Dimensions appended to a bare `glyph foo`, then Enter to leave the header:
+/// the grid `reconcile` creates is a consequence of the dimensions, but it
+/// folds into the entry on top of the stack, which is the Enter's. Undoing the
+/// Enter used to stop on `glyph foo 8 16` with no grid under it — a state that
+/// only ever existed while the header was being typed — so the reparse drew
+/// an empty grid the buffer did not have, and a stroke on it painted nothing.
+#[test]
+fn undo_past_the_enter_that_left_a_new_header_takes_its_dimensions_too() {
+    let mut h = EditorHarness::new("// top\n\nglyph bar 4 2\n@@......\n......@@\n");
+    let original_lines = h.lines.clone();
+    h.click_text(1, 0);
+    h.type_text("glyph foo");
+    h.key(Key::Enter);
+    let before_dims = h.lines.clone();
+    h.advance_time(2.0);
+    h.key(Key::ArrowUp);
+    h.key(Key::End);
+    h.type_text(" 8 16");
+    h.advance_time(2.0);
+    h.key(Key::Enter);
+    assert_eq!(h.text(1), "glyph foo 8 16");
+    assert_eq!(h.grid(2).height, 16);
+
+    h.advance_time(2.0);
+    h.click_grid_cell(2, 2, 2); // enters GlyphEdit
+    h.click_grid_cell(2, 2, 2); // paints
+    assert!(h.grid(2).get(2, 2).is_bitmap_filled());
+    assert_view_consistent(&h);
+
+    h.advance_time(2.0);
+    cmd_z(&mut h);
+    assert!(h.grid(2).is_all_empty(), "the stroke is undone first");
+    assert_view_consistent(&h);
+
+    cmd_z(&mut h);
+    assert_eq!(h.lines, before_dims, "the grid goes with the dimensions");
+    assert_view_consistent(&h);
+
+    // Redo walks the same steps forward, never stopping on the header alone.
+    h.key_mod(Key::Z, Modifiers::COMMAND | Modifiers::SHIFT);
+    assert_eq!(h.text(1), "glyph foo 8 16");
+    assert_eq!(h.grid(2).height, 16);
+    assert_view_consistent(&h);
+
+    undo_all(&mut h);
+    assert_eq!(h.lines, original_lines);
+    assert_view_consistent(&h);
+}
+
+/// Retyping a dimension slowly records the keystrokes as separate entries, and
+/// only the last one carries the resize. Undoing it must not stop on the
+/// `glyph foo 4 ` in between, which states no height over a 4x2 grid.
+#[test]
+fn undo_of_a_slowly_retyped_dimension_skips_the_half_typed_header() {
+    let mut h = EditorHarness::new("glyph foo 4 2\n@@......\n......@@\n\n// end\n");
+    let original_lines = h.lines.clone();
+    h.click_text(0, 13);
+    h.key(Key::Backspace);
+    // Coalescing runs on the wall clock, which the harness does not drive;
+    // this is the pause that ends an entry.
+    h.state.undo.break_coalesce();
+    h.type_text("3");
+    h.key(Key::ArrowDown);
+    assert_eq!(h.text(0), "glyph foo 4 3");
+    assert_eq!(h.grid(1).height, 3);
+
+    cmd_z(&mut h);
+    assert_eq!(h.lines, original_lines);
+    assert_view_consistent(&h);
+}
