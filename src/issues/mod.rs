@@ -483,5 +483,5 @@ fn short_path(path: &Path) -> String {
 }
 
 #[cfg(test)]
-#[path = "issues_tests.rs"]
+#[path = "issues_tests/mod.rs"]
 mod tests;

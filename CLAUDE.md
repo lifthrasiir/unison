@@ -113,7 +113,7 @@ module; the suites that outgrew one:
 | `document_io/` | `document_io_tests/` |
 | `compose/` | `compose_tests/` (shared helpers in its `mod.rs`) |
 | `document/` | `document/document_tests.rs` |
-| `issues/` | `issues/issues_tests.rs` |
+| `issues/` | `issues/issues_tests/` |
 | `ref_composite/` | `ref_composite/ref_composite_tests/` |
 | `editor/document_view/` | `document_view/tests.rs` (helpers) and `editor/view_tests/` (harness scenarios) |
 | `exists.rs`, `pixel.rs`, `specimen/`, `meta.rs`, `faces.rs`, `on_demand.rs`, `fix/clearance/`, `render/sample.rs`, `render/reach.rs`, `editor/pixel_selection.rs`, `editor/ref_images.rs`, `editor/glyph_resize.rs`, `app/search.rs`, `app/palette.rs` | `<name>_tests.rs` beside the module |

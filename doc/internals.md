@@ -88,7 +88,7 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | A base offering several slot sizes, and the first-fit that picks one | `render/ttf_builder/gpos.rs` (`slot_holds`, `CcmpKey`), `collect.rs` (the base-alt reachability loop) |
 | Why a precomposed mark and a shaped one attach by the same rule, and the exact-before-holds tier only the composite has | `ref_composite/anchors.rs` (`Fit`, `aligned_delta`), `render/ttf_builder/gpos.rs` (`slot_holds`) |
 | Why an anchor error drops the glyph (and its cmap entry), like a missing ref | `render/glyph_cache.rs` (`resolve_pending`) |
-| Why a glyph the build drops silently is still accounted for, and the test that pins it | `issues/anchors.rs` (`check_anchor_derivation`), `issues/issues_tests.rs` |
+| Why a glyph the build drops silently is still accounted for, and the test that pins it | `issues/anchors.rs` (`check_anchor_derivation`), `issues/issues_tests/` |
 | `⿰⿱⿲⿳`: the split, the gap term, why the offsets are derived rather than written | `compose/` |
 | Why a split fills the box and not the grid, and so moves with a declared `origin` | `compose/op.rs` (`Raster`), `compose/split.rs` (`expand_compose`) |
 | `1\|foo\|1\|bar\|1`: a nested split in a slot, the glyph it stands for, why its box is inferred rather than declared, where its ink comes from, and why the fixer lays it out as one part without going inside | `compose/mod.rs` (`# Nested splits`), `compose/nested.rs` (`nested_line`, `nested_key`), `/compose.rs` (`ink_profiles`), `fix/clearance/names.rs` (`slot_names`), `fix/clearance/inventory.rs` (`Inventory::register_nested`), `document/glyph.rs` (`ComposeItem::Nested`) |
