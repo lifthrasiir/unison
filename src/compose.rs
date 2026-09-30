@@ -2220,7 +2220,8 @@ fn expand_enclosure(
             // walls would report a decision nobody made. See the module docs.
             issues.push((
                 Severity::Todo,
-                "has no placement picked yet; an enclosure writes the inner part's top-left                  offsets, as in `X Y 3 2`"
+                "has no placement picked yet; an enclosure writes the inner part's top-left \
+                 offsets, as in `X Y 3 2`"
                     .to_string(),
             ));
             None
