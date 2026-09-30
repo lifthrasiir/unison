@@ -21,7 +21,7 @@ use super::tokens::{continuation_text, split_heading, tokenize_tokens};
 /// shared with the `DocLine`-based editor path.
 pub fn parse_document_from_str(content: &str, path: std::path::PathBuf) -> Result<Document> {
     let lines = tokenize_strict(content)?;
-    let (doc, _) = derive_document(&lines, path).map_err(|e| anyhow::anyhow!(e.to_string()))?;
+    let (doc, _) = derive_document(&lines, path);
     Ok(doc)
 }
 

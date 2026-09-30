@@ -17,7 +17,7 @@
 //! anew from text. Rewriting a line in place keeps it (the value is mutated
 //! through [`Tracked`]'s `DerefMut`); an edit that replaces lines with fresh
 //! ones decides for itself which of them are the old ones continued, through
-//! [`DocLine::inherit_ids`](super::DocLine::inherit_ids).
+//! [`DocLine::continue_text_edit`](super::DocLine::continue_text_edit).
 //!
 //! # Allocation
 //!

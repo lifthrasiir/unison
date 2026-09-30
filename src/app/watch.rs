@@ -590,7 +590,7 @@ pub(super) struct ScannedFile {
     pub(super) hash: u64,
     /// The hash the buffer believed was on disk when the scan was asked for.
     /// A write of ours that lands in between moves it, and then the bytes read
-    /// may be from before that write; see [`UniformApp::apply_watch_changes`].
+    /// may be from before that write; see [`UniformApp::apply_watch_changes`](super::UniformApp::apply_watch_changes).
     pub(super) believed: Option<u64>,
     pub(super) outcome: ScanOutcome,
 }

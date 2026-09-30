@@ -21,7 +21,7 @@ pub(super) fn filled_grid(w: u16, h: u16) -> PixelGrid {
 pub(super) fn make_doc(text: &str) -> Document {
     use crate::document_io::{derive_document, parse_doclines};
     let lines = parse_doclines(text);
-    let (doc, _) = derive_document(&lines, std::path::PathBuf::new()).unwrap();
+    let (doc, _) = derive_document(&lines, std::path::PathBuf::new());
     doc
 }
 

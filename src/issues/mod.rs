@@ -35,7 +35,7 @@ mod slices;
 mod unused;
 
 use crate::hash::{HashMap, HashSet};
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use crate::document::{Document, DocumentItem, GlyphName, SliceNameParts};
 use crate::pattern::NamePartsMap;
@@ -67,7 +67,8 @@ use crate::resolve::{DocSet, Resolution};
 ///
 /// [`Severity::Note`] is the other direction: something worth saying that asks
 /// for no action, so it is off by default in the editor's issue list.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+/// Ordered worst first, by declaration order, which [`Severity::ALL`] repeats.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Severity {
     Error,
     Warning,
@@ -79,6 +80,7 @@ pub enum Severity {
 impl Severity {
     /// Every severity, worst first — the order the filter buttons are drawn in
     /// and the order [`Ord`] sorts by.
+    #[cfg_attr(all(not(feature = "editor"), not(test)), expect(dead_code))]
     pub const ALL: [Severity; 5] = [
         Severity::Error,
         Severity::Warning,
@@ -428,29 +430,11 @@ pub fn collect_issues_cancellable(
     Some(issues)
 }
 
-impl PartialOrd for Severity {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-impl Ord for Severity {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        let rank = |s: &Severity| {
-            Severity::ALL
-                .iter()
-                .position(|c| c == s)
-                .unwrap_or(Severity::ALL.len())
-        };
-        rank(self).cmp(&rank(other))
-    }
-}
-
 /// The names written on one item, each with whether it is read as a glyph
 /// *block* name — for the checks that work on what a line states rather than
-/// on what expansion made of it.  That is the one context where a top-level `|` is a verbatim
-/// list rather than an alternation group ([`crate::pattern`]), so the two
-/// cannot be parsed alike.
+/// on what expansion made of it. That is the one context where a top-level `|`
+/// is a verbatim list rather than an alternation group ([`crate::pattern`]), so
+/// the two cannot be parsed alike.
 pub(super) fn written_patterns(item: &DocumentItem) -> Vec<(&str, bool)> {
     match item {
         // An IDC component expands in lock-step with the block's name exactly
@@ -474,12 +458,6 @@ pub(super) fn written_patterns(item: &DocumentItem) -> Vec<(&str, bool)> {
         DocumentItem::Remap { .. } => item.remap_operands().map(|s| (s.as_str(), false)).collect(),
         _ => Vec::new(),
     }
-}
-
-fn short_path(path: &Path) -> String {
-    path.file_name()
-        .map(|n| n.to_string_lossy().to_string())
-        .unwrap_or_else(|| path.display().to_string())
 }
 
 #[cfg(test)]

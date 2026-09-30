@@ -49,7 +49,7 @@ fn header_dims_match_derive_for_valued_flags() {
         ("glyph foo 4 3 advance 0", Some((4, 3))),
     ] {
         let lines = vec![DocLine::text(header.to_string())];
-        let (doc, _) = derive_document(&lines, "test.unf".into()).unwrap();
+        let (doc, _) = derive_document(&lines, "test.unf".into());
         let Some(DocumentItem::Glyph { body, .. }) = doc.items.first() else {
             panic!("expected glyph item for {header:?}");
         };

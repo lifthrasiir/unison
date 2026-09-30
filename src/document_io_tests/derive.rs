@@ -6,7 +6,7 @@ use super::*;
 fn assert_derive_equivalent(input: &str) {
     let old_doc = parse_document_from_str(input, "test.unf".into()).unwrap();
     let lines = parse_doclines(input);
-    let (new_doc, starts) = derive_document(&lines, "test.unf".into()).unwrap();
+    let (new_doc, starts) = derive_document(&lines, "test.unf".into());
 
     assert_eq!(
         old_doc.items.len(),
@@ -182,7 +182,7 @@ glyph foo 2 1
 ref bar 0 0
 ";
     let lines = parse_doclines(input);
-    let (doc, starts) = derive_document(&lines, "test.unf".into()).unwrap();
+    let (doc, starts) = derive_document(&lines, "test.unf".into());
     assert_eq!(doc.items.len(), 2);
     assert_eq!(starts, vec![0, 1]); // comment at line 0, glyph header at line 1
 }

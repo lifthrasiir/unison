@@ -450,7 +450,9 @@ fn collect(
     let declared = src.cmap();
     let zero_advance = zero_advance_codepoints(bitmap_ttf, declared);
 
-    let out_blocks = group_blocks(&blocks_map, props, declared, &zero_advance);
+    let vs_pairs = variation_sequences(expansion, bitmap_ttf);
+    let vs_bases = vs_pairs.iter().map(|&(base, _)| base).collect();
+    let out_blocks = group_blocks(&blocks_map, props, declared, &vs_bases, &zero_advance);
 
     let (names, name_runs) = collect_names(declared.keys().copied(), props);
 
@@ -471,7 +473,7 @@ fn collect(
         names,
         name_runs,
         samples: collect_samples(src, data_dir),
-        seqs: collect_sequences(docs, face, expansion, bitmap_ttf),
+        seqs: collect_sequences(docs, face, expansion, &vs_pairs),
         vs_labels: props
             .selector_labels()
             .map(|(cp, label)| (cp, label.to_string()))
@@ -567,7 +569,7 @@ fn collect_sequences(
     docs: &[&Document],
     face: &crate::faces::Face,
     expansion: &crate::render::ttf_builder::Expansion,
-    ttf: &[u8],
+    vs_pairs: &[(u32, u32)],
 ) -> String {
     use std::collections::BTreeSet;
 
@@ -579,7 +581,7 @@ fn collect_sequences(
     }
 
     let mut by_first: BTreeMap<u32, Offers> = BTreeMap::new();
-    for (base, selector) in variation_sequences(expansion, ttf) {
+    for &(base, selector) in vs_pairs {
         by_first.entry(base).or_default().selectors.insert(selector);
     }
     if let Some(found) = crate::render::remap_only_sequences_from(docs, face, expansion) {
@@ -777,68 +779,36 @@ fn gap_is_free(props: &CharProps, from: u32, to: u32, prefix: &str) -> bool {
     })
 }
 
-/// The mapped characters grouped by block, exactly as the specimen does: in
-/// code point order, a code point in a gap between blocks going into the gap's
-/// `Unassigned` block ([`BlockMap`]), which is never filled and states no
-/// coverage.
+/// The mapped characters grouped by block, exactly as the specimen does —
+/// through the one grouping both share ([`BlockMap::group`]). A base that only
+/// variation sequences name (`vs_bases`) is stated too: its cell is where the
+/// page offers the sequences.
 fn group_blocks(
     blocks_map: &BlockMap,
     props: &CharProps,
     declared: &BTreeMap<u32, String>,
+    vs_bases: &std::collections::BTreeSet<u32>,
     zero_advance: &std::collections::BTreeSet<u32>,
 ) -> Vec<DemoBlock> {
-    let mut by_block: BTreeMap<(u32, u32), (String, bool, Vec<u32>)> = BTreeMap::new();
-    for &cp in declared.keys() {
-        let b = blocks_map.block_of(cp);
-        by_block
-            .entry((b.start, b.end))
-            .or_insert_with(|| (b.name.to_string(), b.unassigned, Vec::new()))
-            .2
-            .push(cp);
-    }
-
-    // A `prop block` claim nested inside a UCD block takes its code points out
-    // of the outer one; both bounds are compared for the same reason the
-    // editor compares both — a claim can share its start with the block it
-    // overrides.
-    let in_block = |cp: u32, start: u32, end: u32| {
-        let b = blocks_map.block_of(cp);
-        (b.start, b.end) == (start, end)
-    };
-
-    let mut out_blocks: Vec<DemoBlock> = Vec::new();
-    for ((start, end), (name, unassigned, cps)) in by_block {
-        let range = format_block_range(start, end);
-        if unassigned {
-            out_blocks.push(DemoBlock {
-                name,
-                range,
-                start,
-                end,
-                coverage: None,
-                runs: runs_of(cps.iter().copied(), start, declared, zero_advance),
-            });
-            continue;
-        }
-        let coverage = cps.iter().all(|&cp| props.is_assigned(cp)).then(|| {
-            let total = (start..=end)
-                .filter(|&cp| in_block(cp, start, end) && props.is_assigned(cp))
-                .count();
-            [cps.len(), total]
-        });
-        let members = (start..=end).filter(|&cp| {
-            in_block(cp, start, end) && (declared.contains_key(&cp) || props.is_assigned(cp))
-        });
-        out_blocks.push(DemoBlock {
-            name,
-            range,
-            start,
-            end,
-            coverage,
-            runs: runs_of(members, start, declared, zero_advance),
-        });
-    }
-    out_blocks
+    let stated: std::collections::BTreeSet<u32> =
+        declared.keys().chain(vs_bases).copied().collect();
+    blocks_map
+        .group(props, stated)
+        .into_iter()
+        .map(|group| DemoBlock {
+            range: format_block_range(group.start, group.end),
+            start: group.start,
+            end: group.end,
+            coverage: group.coverage.map(|(stated, total)| [stated, total]),
+            runs: runs_of(
+                group.filled(blocks_map, props),
+                group.start,
+                declared,
+                zero_advance,
+            ),
+            name: group.name,
+        })
+        .collect()
 }
 
 /// Ascending code points to `gap,len,flags` runs, breaking wherever the code
@@ -1019,6 +989,7 @@ mod tests {
             &props,
             &declared,
             &Default::default(),
+            &Default::default(),
         );
         let heads: Vec<(&str, &str, Option<[usize; 2]>)> = blocks
             .iter()
@@ -1037,6 +1008,26 @@ mod tests {
             ]
         );
         assert_eq!(blocks[1].runs, "0,1,1");
+    }
+
+    /// A base only variation sequences name still gets its cell, exactly as
+    /// in the specimen: the cell is where the page offers the sequences, and
+    /// without it they could not be reached at all.
+    #[test]
+    fn a_base_only_variation_sequences_name_still_gets_a_cell() {
+        let doc = crate::document_io::parse_document_from_str("", "test.unf".into()).unwrap();
+        let blocks = group_blocks(
+            &BlockMap::collect(&[&doc]),
+            &CharProps::collect(&[&doc]),
+            &cps(&[]),
+            &[0xE000].into_iter().collect(),
+            &Default::default(),
+        );
+        assert_eq!(blocks.len(), 1, "one block, the base's");
+        assert_eq!(
+            (blocks[0].start, blocks[0].runs.as_str()),
+            (0xE000, "0,1,0")
+        );
     }
 
     #[test]

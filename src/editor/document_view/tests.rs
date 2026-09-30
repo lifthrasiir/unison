@@ -10,7 +10,7 @@ use crate::edit_menu::EditAction;
 #[test]
 fn deferred_change_is_dirty_without_advancing_generation_and_is_per_editor() {
     let lines = vec![DocLine::text("glyph foo 2 2")];
-    let (mut doc, _) = derive_document(&lines, "test.unf".into()).unwrap();
+    let (mut doc, _) = derive_document(&lines, "test.unf".into());
     doc.edit_gen = 7;
 
     let mut first = EditorState::new();
@@ -36,7 +36,7 @@ fn deferred_change_is_dirty_without_advancing_generation_and_is_per_editor() {
 #[test]
 fn external_edit_action_can_be_flushed_immediately() {
     let mut lines = vec![DocLine::text("//abc")];
-    let (mut doc, _) = derive_document(&lines, "test.unf".into()).unwrap();
+    let (mut doc, _) = derive_document(&lines, "test.unf".into());
     let mut state = EditorState::new();
     state.selection_anchor = Some(Caret::new(0, 2));
     state.cursor = Caret::new(0, 3);
@@ -78,7 +78,7 @@ fn inline_flatten_places_the_pixels_by_the_targets_box() {
              ref stem {offset}\n"
         );
         let mut lines = parse_doclines(&src);
-        let (doc, _) = derive_document(&lines, "test.unf".into()).unwrap();
+        let (doc, _) = derive_document(&lines, "test.unf".into());
         let name_parts = crate::document::collect_name_parts(&[&doc]);
         let (named, _alt) = ref_composite::resolve_named_glyphs_with_parts(&[&doc], &name_parts);
         let mut state = EditorState::new();
@@ -142,7 +142,7 @@ fn inline_flatten_removes_the_ref_line_not_an_interleaved_anchor() {
          anchor -a 0 0\n\
          ref stem 0 0\n",
     );
-    let (doc, _) = derive_document(&lines, "test.unf".into()).unwrap();
+    let (doc, _) = derive_document(&lines, "test.unf".into());
     let name_parts = crate::document::collect_name_parts(&[&doc]);
     let (named, _alt) = ref_composite::resolve_named_glyphs_with_parts(&[&doc], &name_parts);
     let mut state = EditorState::new();
@@ -183,7 +183,7 @@ fn inline_flatten_removes_the_ref_line_not_an_interleaved_anchor() {
 /// resolution the editor draws from, and the index of a glyph by name.
 fn inline_fixture(source: &str) -> (Vec<DocLine>, Document, InlineEnv) {
     let lines = parse_doclines(source);
-    let (doc, _) = derive_document(&lines, "test.unf".into()).unwrap();
+    let (doc, _) = derive_document(&lines, "test.unf".into());
     let name_parts = crate::document::collect_name_parts(&[&doc]);
     let (named, alt_index) = ref_composite::resolve_named_glyphs_with_parts(&[&doc], &name_parts);
     (
@@ -665,7 +665,7 @@ fn inline_to_pixels_of_an_idc_line_flattens_every_part() {
 
 fn assert_all_doc_lines_covered(input: &str) {
     let lines = parse_doclines(input);
-    let (doc, _) = derive_document(&lines, "test.unf".into()).unwrap();
+    let (doc, _) = derive_document(&lines, "test.unf".into());
 
     let last_item_end = doc
         .items

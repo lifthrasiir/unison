@@ -103,7 +103,7 @@ pub(super) fn expand_link_token(
 /// The capture groups in force at `line`: the ones the enclosing `glyph` block
 /// header wrote, unless the line writes a pattern of its own.
 ///
-/// The carry is the one [`super::search::LineCarry`] keeps while it walks a
+/// The carry is the one `super::search::LineCarry` keeps while it walks a
 /// file, for the same reason: the groups a `$-N` names are written on another
 /// line, so a line cannot answer for itself.
 pub(super) fn block_captures_at_line(

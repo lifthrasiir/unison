@@ -1,8 +1,6 @@
 //! `DocLine`s to `Document` items: `derive_document`, `rederive_document` and the
 //! `derive_items` dispatch, with the item-start keyword predicates.
 
-use std::fmt;
-
 use crate::document::*;
 
 use super::header::{
@@ -12,17 +10,6 @@ use super::tokens::{
     continuation_text, dedent_continuations, quote_token, split_comment_owned, split_heading,
     split_written_uvs_pair, tokenize_tokens,
 };
-
-#[derive(Debug)]
-pub struct DeriveError(pub String);
-
-impl fmt::Display for DeriveError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "derive error: {}", self.0)
-    }
-}
-
-impl std::error::Error for DeriveError {}
 
 /// The keywords that begin a top-level item, as [`derive_document`] dispatches
 /// on them.
@@ -64,10 +51,7 @@ pub fn line_starts_item<'a>(mut tokens: impl Iterator<Item = &'a str> + Clone) -
     tokens.next().is_some_and(starts_item) && crate::compose::IdcOp::of_line(rest).is_none()
 }
 
-pub fn derive_document(
-    lines: &[DocLine],
-    path: std::path::PathBuf,
-) -> std::result::Result<(Document, Vec<usize>), DeriveError> {
+pub fn derive_document(lines: &[DocLine], path: std::path::PathBuf) -> (Document, Vec<usize>) {
     let mut doc = Document::new(path);
     let parsed = derive_items(lines, 0, None, &|_, _| false);
     doc.items = parsed.items;
@@ -82,7 +66,7 @@ pub fn derive_document(
             .map(crate::document::line_fingerprint)
             .collect();
     }
-    Ok((doc, parsed.item_line_starts))
+    (doc, parsed.item_line_starts)
 }
 
 /// Which items a [`rederive_document`] parsed afresh: `old` in the previous
@@ -134,7 +118,7 @@ pub fn rederive_document(
         Some((first, last))
     });
     let Some(changed) = changed else {
-        let (doc, _) = derive_document(lines, old.path.clone()).expect("a derive does not fail");
+        let (doc, _) = derive_document(lines, old.path.clone());
         let rebuild = crate::document::items_changed_for_rebuild(&old.items, &doc.items);
         return (doc, rebuild, None);
     };

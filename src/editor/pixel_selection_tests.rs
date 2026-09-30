@@ -68,7 +68,7 @@ fn copy_grounded_selection() {
     use crate::document_io::parse_doclines;
     let content = "glyph test 3 2\n@@@@..\n..@@@@";
     let lines = parse_doclines(content);
-    let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into()).unwrap();
+    let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into());
     let sel = PixelSelection {
         item_idx: 0,
         row: 0,
@@ -86,7 +86,7 @@ fn copy_floating_selection() {
     use crate::document_io::parse_doclines;
     let content = "glyph test 3 2\n......\n......";
     let lines = parse_doclines(content);
-    let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into()).unwrap();
+    let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into());
     let mut float = PixelGrid::new(2, 1);
     float.set(0, 0, PixelShape::new(pixel::PX_ALMOSTFULL, true));
     float.set(0, 1, PixelShape::EMPTY);
@@ -107,7 +107,7 @@ fn delete_grounded_clears_pixels() {
     use crate::document_io::parse_doclines;
     let content = "glyph test 3 2\n@@@@@@\n@@@@@@";
     let mut lines = parse_doclines(content);
-    let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into()).unwrap();
+    let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into());
 
     let mut state = EditorState::new();
     state.mode = EditMode::PixelSelect {
@@ -140,7 +140,7 @@ fn delete_floating_discards() {
     use crate::document_io::parse_doclines;
     let content = "glyph test 3 2\n......\n......";
     let mut lines = parse_doclines(content);
-    let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into()).unwrap();
+    let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into());
 
     let mut float = PixelGrid::new(2, 1);
     float.set(0, 0, PixelShape::new(pixel::PX_ALMOSTFULL, true));
@@ -178,7 +178,7 @@ fn commit_floating_merges_overwrite() {
     use crate::document_io::parse_doclines;
     let content = "glyph test 3 2\n@@@@@@\n@@@@@@";
     let mut lines = parse_doclines(content);
-    let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into()).unwrap();
+    let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into());
 
     let mut float = PixelGrid::new(2, 1);
     float.set(0, 0, PixelShape::EMPTY);
@@ -215,7 +215,7 @@ fn mirror_h_entire_glyph() {
     use crate::document_io::parse_doclines;
     let content = "glyph test 3 2\n@@@@..\n..@@@@";
     let mut lines = parse_doclines(content);
-    let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into()).unwrap();
+    let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into());
 
     let mut state = EditorState::new();
     state.mode = EditMode::PixelSelect {
@@ -243,7 +243,7 @@ fn flip_v_entire_glyph() {
     use crate::document_io::parse_doclines;
     let content = "glyph test 3 2\n@@@@..\n......";
     let mut lines = parse_doclines(content);
-    let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into()).unwrap();
+    let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into());
 
     let mut state = EditorState::new();
     state.mode = EditMode::PixelSelect {
@@ -269,7 +269,7 @@ fn rotate_180_entire_glyph() {
     use crate::document_io::parse_doclines;
     let content = "glyph test 3 2\n@@....\n......";
     let mut lines = parse_doclines(content);
-    let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into()).unwrap();
+    let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into());
 
     let mut state = EditorState::new();
     state.mode = EditMode::PixelSelect {
@@ -295,7 +295,7 @@ fn rotate_cw_blocked_on_non_square_glyph() {
     use crate::document_io::parse_doclines;
     let content = "glyph test 3 2\n@@@@..\n......";
     let lines = parse_doclines(content);
-    let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into()).unwrap();
+    let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into());
 
     let mut state = EditorState::new();
     state.mode = EditMode::PixelSelect {
@@ -314,7 +314,7 @@ fn transform_grounded_selection_becomes_floating() {
     use crate::document_io::parse_doclines;
     let content = "glyph test 4 4\n@@@@....\n........\n........\n........";
     let mut lines = parse_doclines(content);
-    let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into()).unwrap();
+    let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into());
 
     let mut state = EditorState::new();
     state.mode = EditMode::PixelSelect {
@@ -349,7 +349,7 @@ fn rotate_cw_selection_changes_dimensions() {
     use crate::document_io::parse_doclines;
     let content = "glyph test 4 4\n@@@@@@..\n........\n........\n........";
     let mut lines = parse_doclines(content);
-    let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into()).unwrap();
+    let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into());
 
     let mut state = EditorState::new();
     state.mode = EditMode::PixelSelect {
@@ -394,7 +394,7 @@ fn round_half_to_even_cases() {
 
 fn make_scale_test_doc(source: &str) -> (Document, Vec<DocLine>, EditorState) {
     let lines = crate::document_io::parse_doclines(source);
-    let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into()).unwrap();
+    let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into());
     let state = EditorState::new();
     (doc, lines, state)
 }
@@ -493,7 +493,7 @@ glyph foo 2 1
     }
 
     // And back down again — the claim survives the round trip.
-    let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into()).unwrap();
+    let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into());
     assert!(handle_adjust_scale(&doc, &mut lines, &mut state, 1));
     let grid = lines[1].as_grid().unwrap();
     assert_eq!((grid.width, grid.height), (2, 1));

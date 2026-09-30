@@ -4,7 +4,7 @@
 //! declared in one place: `ref han-xxxx-($-1):15x16` under a seven-region
 //! header goes to one block if the font declares all seven together and to two
 //! if it declares them `(g|h|t)` and `(j|k|p|v)`. The host resolves that — see
-//! [`crate::app::goto_pattern`], which is also where the grouping and the
+//! `crate::app::goto_pattern`, which is also where the grouping and the
 //! "there is only one place, just jump" case live — and hands what is left
 //! here: one row per place and the names of the pattern that land there, the
 //! first of which is the one a jump to it is made with.

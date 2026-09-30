@@ -57,11 +57,7 @@ extern crate windows_core;
 fn load_docs_reporting_errors(dir: &std::path::Path) -> (Vec<document::Document>, usize) {
     let (docs, errors) = render::ttf_builder::load_docs_from_directory_checked(dir);
     for error in &errors {
-        let file = error
-            .file
-            .file_name()
-            .map(|n| n.to_string_lossy().into_owned())
-            .unwrap_or_default();
+        let file = crate::document_io::file_label(&error.file);
         eprintln!("error: {file}:{}: {}", error.file_line, error.message);
     }
     if !errors.is_empty() {
@@ -109,11 +105,7 @@ fn report_issues(
         _ => true,
     };
     for issue in issues.iter().filter(|i| printed(i.severity)) {
-        let file = issue
-            .file
-            .file_name()
-            .map(|n| n.to_string_lossy().into_owned())
-            .unwrap_or_default();
+        let file = crate::document_io::file_label(&issue.file);
         eprintln!(
             "{}: {file}:{}: {}",
             issue.severity.label(),
@@ -171,11 +163,7 @@ fn run_fix(input: &std::path::Path, optimize_clearance: bool, dry_run: bool) -> 
             let Some((_, bytes)) = sources.get(doc_fixes.doc_idx) else {
                 continue;
             };
-            let file = doc
-                .path
-                .file_name()
-                .map(|n| n.to_string_lossy().into_owned())
-                .unwrap_or_default();
+            let file = crate::document_io::file_label(&doc.path);
             // The file is written back whole, so it has to be text that can be:
             // a lossy decode would replace every stray byte in it, on lines the
             // fix never touched.
@@ -1265,11 +1253,7 @@ fn main() {
         }
 
         for issue in shape_result.issues.iter().chain(sd_result.issues.iter()) {
-            let file_name = issue
-                .file
-                .file_name()
-                .map(|n| n.to_string_lossy().to_string())
-                .unwrap_or_default();
+            let file_name = crate::document_io::file_label(&issue.file);
             // A warning does not fail its assertion; see `render::assert`.
             let label = match issue.severity {
                 issues::Severity::Warning => "WARN",

@@ -944,30 +944,22 @@ impl UniformApp {
                 doc.editor_state
                     .undo
                     .push_compound(ops, cursor_before, doc.editor_state.cursor);
-                match crate::document_io::derive_document(&doc.lines, doc.document.path.clone()) {
-                    Ok((new_doc, _)) => {
-                        let items_changed = crate::document::items_changed_for_rebuild(
-                            &doc.document.items,
-                            &new_doc.items,
-                        );
-                        let next_gen = doc.document.edit_gen + 1;
-                        let pixel_gen = doc.document.pixel_gen;
-                        let content_gen = if items_changed {
-                            doc.document.content_gen + 1
-                        } else {
-                            doc.document.content_gen
-                        };
-                        doc.document = new_doc;
-                        doc.document.dirty = true;
-                        doc.document.edit_gen = next_gen;
-                        doc.document.pixel_gen = pixel_gen;
-                        doc.document.content_gen = content_gen;
-                    }
-                    Err(_) => {
-                        doc.document.dirty = true;
-                        doc.document.edit_gen += 1;
-                    }
-                }
+                let (new_doc, _) =
+                    crate::document_io::derive_document(&doc.lines, doc.document.path.clone());
+                let items_changed =
+                    crate::document::items_changed_for_rebuild(&doc.document.items, &new_doc.items);
+                let next_gen = doc.document.edit_gen + 1;
+                let pixel_gen = doc.document.pixel_gen;
+                let content_gen = if items_changed {
+                    doc.document.content_gen + 1
+                } else {
+                    doc.document.content_gen
+                };
+                doc.document = new_doc;
+                doc.document.dirty = true;
+                doc.document.edit_gen = next_gen;
+                doc.document.pixel_gen = pixel_gen;
+                doc.document.content_gen = content_gen;
                 changed_count += 1;
             }
         }

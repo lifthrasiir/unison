@@ -33,7 +33,7 @@
 //! Drawn at its reported index, a finding would then tint whatever line had
 //! slid under it. So an issue is located through the buffer's
 //! [`LineId`]s instead: the id the *snapshot* had at the reported index, looked
-//! up in the buffer as it is now ([`crate::document::line_id`] says why the id
+//! up in the buffer as it is now (`crate::document::line_id` says why the id
 //! travels with the line). A line whose id is gone was deleted, or rebuilt by
 //! an edit that did not continue it, and its findings are hidden rather than
 //! pinned to a stranger.
@@ -403,9 +403,7 @@ mod tests {
     use crate::document::DocLine;
 
     fn derive(lines: &[DocLine]) -> Document {
-        crate::document_io::derive_document(lines, PathBuf::from("a.unf"))
-            .unwrap()
-            .0
+        crate::document_io::derive_document(lines, PathBuf::from("a.unf")).0
     }
 
     /// A report on `source` naming `lines`, and the snapshot it read.

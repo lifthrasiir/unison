@@ -17,7 +17,7 @@ struct Fixture {
 impl Fixture {
     fn new(source: &str) -> Self {
         let lines = parse_doclines(source);
-        let (doc, _) = derive_document(&lines, "test.unf".into()).expect("derive");
+        let (doc, _) = derive_document(&lines, "test.unf".into());
         let mut f = Fixture {
             doc,
             lines,
@@ -83,7 +83,7 @@ impl Fixture {
             crate::meta::FontMetrics::default(),
         );
         apply_plan(&mut self.lines, plan);
-        let (doc, _) = derive_document(&self.lines, "test.unf".into()).expect("re-derive");
+        let (doc, _) = derive_document(&self.lines, "test.unf".into());
         self.doc = doc;
         self.resolve();
     }
@@ -176,7 +176,7 @@ fn shrinking_crops_what_falls_outside() {
 #[test]
 fn the_glyph_never_shrinks_past_its_last_pixel() {
     let block = parse_doclines(DOT);
-    let (doc, _) = derive_document(&block, "t.unf".into()).unwrap();
+    let (doc, _) = derive_document(&block, "t.unf".into());
     let DocumentItem::Glyph { body, .. } = &doc.items[0] else {
         unreachable!()
     };

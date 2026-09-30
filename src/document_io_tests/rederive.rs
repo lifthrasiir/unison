@@ -46,7 +46,7 @@ fn variants(line: &str) -> Vec<String> {
 }
 
 fn assert_same(what: &str, lines: &[DocLine], old: &Document) {
-    let (whole, _) = derive_document(lines, "test.unf".into()).unwrap();
+    let (whole, _) = derive_document(lines, "test.unf".into());
     let (part, rebuild, reparse) = rederive_document(old.clone(), lines);
     assert_eq!(part.items, whole.items, "{what}: items");
     assert_eq!(
@@ -80,7 +80,7 @@ fn assert_same(what: &str, lines: &[DocLine], old: &Document) {
 fn a_reparse_of_one_line_agrees_with_a_whole_derive() {
     for (name, src) in sources() {
         let lines = parse_doclines(&src);
-        let (old, _) = derive_document(&lines, "test.unf".into()).unwrap();
+        let (old, _) = derive_document(&lines, "test.unf".into());
         for i in 0..lines.len() {
             let original = lines[i].as_text().unwrap_or("").to_string();
             for variant in variants(&original) {
@@ -98,7 +98,7 @@ fn a_reparse_of_one_line_agrees_with_a_whole_derive() {
 fn a_reparse_of_two_lines_agrees_with_a_whole_derive() {
     for (name, src) in sources() {
         let lines = parse_doclines(&src);
-        let (old, _) = derive_document(&lines, "test.unf".into()).unwrap();
+        let (old, _) = derive_document(&lines, "test.unf".into());
         for i in 0..lines.len().saturating_sub(3) {
             let mut edited = lines.clone();
             edited[i] = DocLine::text("glyph fresh");
@@ -113,7 +113,7 @@ fn a_reparse_of_two_lines_agrees_with_a_whole_derive() {
 #[test]
 fn nothing_changed_and_a_changed_length_are_the_two_ends() {
     let lines = parse_doclines("glyph a 1 1\n@@\n// c\n");
-    let (old, _) = derive_document(&lines, "test.unf".into()).unwrap();
+    let (old, _) = derive_document(&lines, "test.unf".into());
     let (same, rebuild, reparse) = rederive_document(old.clone(), &lines);
     assert_eq!(same.items, old.items);
     assert!(!rebuild);

@@ -232,7 +232,7 @@ pub struct UniformApp {
     /// keyed on: a specimen ask does not step it, so one ask per document set
     /// is exactly one rebuild that knew the tab was open — and a rebuild that
     /// came back without the data has therefore already had its turn. See the
-    /// ask itself in [`super::background`].
+    /// ask itself in [`background`].
     specimen_asked_for: Option<u64>,
     font_build_rx: mpsc::Receiver<FontBuildMessage>,
     font_build_tx: mpsc::Sender<FontBuildMessage>,

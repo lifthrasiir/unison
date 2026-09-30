@@ -61,3 +61,13 @@ pub(super) fn has(issues: &[Issue], severity: Severity, needle: &str) -> bool {
         .iter()
         .any(|i| i.severity == severity && i.message.contains(needle))
 }
+
+/// `ALL` lists the severities worst first, and that is also the order they
+/// sort in: the report, the filter buttons and every `max` over findings agree.
+#[test]
+fn severities_sort_in_the_order_all_lists_them() {
+    let mut sorted = Severity::ALL;
+    sorted.sort();
+    assert_eq!(sorted, Severity::ALL);
+    assert!(Severity::Error < Severity::Note);
+}

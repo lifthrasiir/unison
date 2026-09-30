@@ -617,7 +617,7 @@ pub(super) struct GutterLayout {
     /// Digits the line numbers are right-aligned in.
     pub(super) digits: usize,
     /// Width of the space closing the number field. With the text's own
-    /// [`LEFT_PAD`](super::LEFT_PAD) it is the gap between a line's number and
+    /// [`LEFT_PAD`] it is the gap between a line's number and
     /// its first character, where the change marks go
     /// ([`crate::editor::change_marks`]).
     pub(super) space_width: f32,

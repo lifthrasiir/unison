@@ -407,6 +407,98 @@ impl BlockMap {
             unassigned: true,
         }
     }
+
+    /// The code points of the block `start..=end` — both bounds compared, not
+    /// just the start: a `prop block` claim can begin where the UCD block it
+    /// sits in begins, and its code points belong to it and not to that one.
+    pub fn members(&self, start: u32, end: u32) -> impl Iterator<Item = u32> + '_ {
+        (start..=end).filter(move |&cp| {
+            let b = self.block_of(cp);
+            (b.start, b.end) == (start, end)
+        })
+    }
+
+    /// `stated` — the code points a page shows whether or not it fills the
+    /// blocks — grouped by block, in code point order. The one grouping the
+    /// editor's specimen and `demo.html` both lay out, so the two cannot
+    /// disagree about which blocks there are or what their coverage is.
+    pub fn group(
+        &self,
+        props: &CharProps,
+        stated: impl IntoIterator<Item = u32>,
+    ) -> Vec<BlockGroup> {
+        let mut by_block: std::collections::BTreeMap<(u32, u32), BlockGroup> =
+            std::collections::BTreeMap::new();
+        for cp in stated {
+            let b = self.block_of(cp);
+            by_block
+                .entry((b.start, b.end))
+                .or_insert_with(|| BlockGroup {
+                    start: b.start,
+                    end: b.end,
+                    name: b.name.to_string(),
+                    unassigned: b.unassigned,
+                    stated: Vec::new(),
+                    coverage: None,
+                })
+                .stated
+                .push(cp);
+        }
+        let mut groups: Vec<BlockGroup> = by_block.into_values().collect();
+        for g in &mut groups {
+            // A count of *characters*, not of cells: a block with a glyph on a
+            // code point it has no character for states none at all, the
+            // fraction being one that would read over 100%. A gap has no
+            // characters to be a fraction of.
+            g.coverage =
+                (!g.unassigned && g.stated.iter().all(|&cp| props.is_assigned(cp))).then(|| {
+                    let total = self
+                        .members(g.start, g.end)
+                        .filter(|&cp| props.is_assigned(cp))
+                        .count();
+                    (g.stated.len(), total)
+                });
+        }
+        groups
+    }
+}
+
+/// One block's worth of [`BlockMap::group`].
+pub struct BlockGroup {
+    pub start: u32,
+    pub end: u32,
+    pub name: String,
+    /// A gap between UCD blocks: never filled, and states no coverage.
+    pub unassigned: bool,
+    /// The stated code points in it, ascending.
+    pub stated: Vec<u32>,
+    /// `(stated, characters)` — how many of the block's characters are stated.
+    /// The denominator is the one thing on a heading that is *not* a count of
+    /// cells: a code point the source draws without a character there is a
+    /// cell but not a character.
+    pub coverage: Option<(usize, usize)>,
+}
+
+impl BlockGroup {
+    /// The code points a filled block shows: every character the block has
+    /// ([`CharProps::is_assigned`], which is the `prop` lines inside Private
+    /// Use and the UCD outside it), plus the stated ones. A block's permanent
+    /// holes and its unassigned tail are not holes in the *font*, so they get
+    /// no cell; a gap shows only what is stated.
+    pub fn filled<'a>(
+        &'a self,
+        blocks: &'a BlockMap,
+        props: &'a CharProps,
+    ) -> Box<dyn Iterator<Item = u32> + 'a> {
+        if self.unassigned {
+            return Box::new(self.stated.iter().copied());
+        }
+        Box::new(
+            blocks
+                .members(self.start, self.end)
+                .filter(move |cp| self.stated.binary_search(cp).is_ok() || props.is_assigned(*cp)),
+        )
+    }
 }
 
 #[cfg(feature = "editor")]

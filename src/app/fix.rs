@@ -136,28 +136,7 @@ mod tests {
     use super::*;
     use crate::app::settings::Settings;
 
-    /// Its own directory per test, removed when the test ends. Written inline:
-    /// `font/` is downstream data and no test may read it.
-    struct TempDir(PathBuf);
-
-    impl TempDir {
-        fn new(tag: &str) -> Self {
-            let dir = std::env::temp_dir().join(format!(
-                "uniform-fix-{tag}-{}-{:?}",
-                std::process::id(),
-                std::thread::current().id(),
-            ));
-            let _ = std::fs::remove_dir_all(&dir);
-            std::fs::create_dir_all(&dir).unwrap();
-            Self(dir)
-        }
-    }
-
-    impl Drop for TempDir {
-        fn drop(&mut self) {
-            let _ = std::fs::remove_dir_all(&self.0);
-        }
-    }
+    use crate::app::background::startup_tests::TempDir;
 
     /// Two parts with a canyon down the middle and a cell left at the right
     /// edge, in a file the editor has not opened: exactly the case the Font
@@ -216,7 +195,7 @@ glyph test-x 9 4
 
     #[test]
     fn optimizing_rewrites_an_unopened_file_and_leaves_it_dirty() {
-        let dir = TempDir::new("apply");
+        let dir = TempDir::new("fix-apply");
         std::fs::write(dir.0.join("a.unf"), SOURCE).unwrap();
         let ctx = egui::Context::default();
         let mut app = UniformApp::with_settings(&ctx, Settings::default(), Some(dir.0.clone()));
@@ -246,7 +225,7 @@ glyph test-x 9 4
     /// from the stale derive would write the old line back over the edit.
     #[test]
     fn optimizing_reads_an_edit_not_yet_rederived() {
-        let dir = TempDir::new("pending");
+        let dir = TempDir::new("fix-pending");
         std::fs::write(dir.0.join("a.unf"), SOURCE).unwrap();
         let ctx = egui::Context::default();
         let mut app = UniformApp::with_settings(&ctx, Settings::default(), Some(dir.0.clone()));
@@ -273,7 +252,7 @@ glyph test-x 9 4
     /// the same glyph's IDC line says by then.
     #[test]
     fn a_line_edited_during_the_run_is_left_alone() {
-        let dir = TempDir::new("during");
+        let dir = TempDir::new("fix-during");
         std::fs::write(dir.0.join("a.unf"), SOURCE).unwrap();
         let ctx = egui::Context::default();
         let mut app = UniformApp::with_settings(&ctx, Settings::default(), Some(dir.0.clone()));
@@ -300,7 +279,7 @@ glyph test-x 9 4
     /// A second run has nothing left to do, and says so rather than editing.
     #[test]
     fn a_source_already_at_its_best_is_left_alone() {
-        let dir = TempDir::new("noop");
+        let dir = TempDir::new("fix-noop");
         std::fs::write(dir.0.join("a.unf"), SOURCE).unwrap();
         let ctx = egui::Context::default();
         let mut app = UniformApp::with_settings(&ctx, Settings::default(), Some(dir.0.clone()));

@@ -527,3 +527,37 @@ ref mark-above
         "the composed grid must not depend on the flag"
     );
 }
+
+/// An alternative whose own derivation failed is dropped from the font, and so
+/// is never one a composite can pick. The editor's resolution has to offer the
+/// same alternatives the build does, or the two place a mark differently.
+#[test]
+fn an_alternative_that_failed_to_derive_is_offered_to_no_one() {
+    use crate::document_io;
+
+    let input = "\
+glyph half 2 1
+@@@@
+anchor +above 1 0
+
+glyph m 1 1 mark
+@@
+anchor -above 0 0
+
+glyph m:wide mark
+ref half 0 0 inherit
+ref half 4 0 inherit
+anchor -above 0..1 0
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let (_, alt_index) = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::default());
+    assert!(
+        alt_index.get("m").iter().all(|(name, _)| name != "m:wide"),
+        "{:?}",
+        alt_index
+            .get("m")
+            .iter()
+            .map(|(n, _)| n)
+            .collect::<Vec<_>>()
+    );
+}

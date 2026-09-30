@@ -497,7 +497,7 @@ fn rotate_to_min(mut pts: Vec<(i64, i64)>) -> Vec<(i64, i64)> {
 fn glyph_logical_dims(g: &ResolvedGlyph) -> ((u32, u32), (u32, u32)) {
     let s = g.scale.max(1) as u32;
     let reduce = |n: u32| {
-        let d = crate::pattern::gcd(n as usize, s as usize).max(1) as u32;
+        let d = crate::math::gcd_u64(u64::from(n), u64::from(s)).max(1) as u32;
         (n / d, s / d)
     };
     (reduce(g.grid.width as u32), reduce(g.grid.height as u32))
@@ -527,7 +527,12 @@ fn rendering(g: &ResolvedGlyph, q: i64) -> Rendering {
 /// The smallest lattice every one of `glyphs` snaps to exactly.
 fn common_lattice<'a>(glyphs: impl IntoIterator<Item = &'a ResolvedGlyph>) -> i64 {
     glyphs.into_iter().fold(1i64, |acc, g| {
-        crate::pattern::lcm(acc as usize, glyph_lattice_denom(g) as usize) as i64
+        // Past `i64` — glyphs on many coprime lattices at once — the lattice so
+        // far is kept, and the glyph that overran it is compared snapped to it
+        // rather than not at all.
+        crate::math::lcm_u64(acc as u64, glyph_lattice_denom(g) as u64)
+            .and_then(|lcm| i64::try_from(lcm).ok())
+            .unwrap_or(acc)
     })
 }
 
@@ -563,10 +568,7 @@ impl SameDistinctAssertion {
 
     /// `FILE:LINE`, for naming this assertion in the message of another.
     fn location(&self) -> String {
-        let file = self.file.file_name().map_or_else(
-            || self.file.display().to_string(),
-            |n| n.to_string_lossy().into_owned(),
-        );
+        let file = crate::document_io::file_label(&self.file);
         format!("{file}:{}", self.file_line)
     }
 }

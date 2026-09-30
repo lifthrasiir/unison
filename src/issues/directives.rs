@@ -33,10 +33,7 @@ pub(super) fn check_audit(cx: &Cx<'_>, issues: &mut Vec<Issue>) {
             };
             if let Some(&first) = declared_audit.get(&entry.slot()) {
                 let (path, _, file_line) = docset.location(first);
-                let name = path
-                    .file_name()
-                    .map(|n| n.to_string_lossy().into_owned())
-                    .unwrap_or_else(|| path.display().to_string());
+                let name = crate::document_io::file_label(&path);
                 issues.push(docset.to_issue(&Diagnostic::error(
                     here,
                     format!(
@@ -91,10 +88,7 @@ pub(super) fn check_meta(cx: &Cx<'_>, issues: &mut Vec<Issue>) {
             let by_scope = declared_meta.entry(entry.slot()).or_default();
             if let Some(&first) = by_scope.get(&scope) {
                 let (path, _, file_line) = docset.location(first);
-                let name = path
-                    .file_name()
-                    .map(|n| n.to_string_lossy().into_owned())
-                    .unwrap_or_else(|| path.display().to_string());
+                let name = crate::document_io::file_label(&path);
                 issues.push(docset.to_issue(&Diagnostic::error(
                     here,
                     format!(
@@ -124,10 +118,7 @@ pub(super) fn check_meta(cx: &Cx<'_>, issues: &mut Vec<Issue>) {
             }
             let (_, first) = reaching[0];
             let (path, _, file_line) = docset.location(*first);
-            let name = path
-                .file_name()
-                .map(|n| n.to_string_lossy().into_owned())
-                .unwrap_or_else(|| path.display().to_string());
+            let name = crate::document_io::file_label(&path);
             for (_, here) in &reaching[1..] {
                 issues.push(docset.to_issue(&Diagnostic::error(
                     **here,

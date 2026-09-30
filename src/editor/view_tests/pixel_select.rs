@@ -515,7 +515,7 @@ fn paste_via_pixel_selection_function() {
     use crate::editor::pixel_selection;
 
     let mut lines = parse_doclines("glyph test 3 2\n......\n......");
-    let (doc, _) = derive_document(&lines, "test.unf".into()).unwrap();
+    let (doc, _) = derive_document(&lines, "test.unf".into());
     let mut state = crate::editor::EditorState::new();
     state.mode = EditMode::GlyphEdit {
         item_idx: 0,
@@ -539,7 +539,7 @@ fn paste_too_small_for_selection_fails() {
     use crate::editor::pixel_selection;
 
     let mut lines = parse_doclines("glyph test 3 2\n......\n......");
-    let (doc, _) = derive_document(&lines, "test.unf".into()).unwrap();
+    let (doc, _) = derive_document(&lines, "test.unf".into());
     let mut state = crate::editor::EditorState::new();
     state.mode = EditMode::PixelSelect {
         item_idx: 0,

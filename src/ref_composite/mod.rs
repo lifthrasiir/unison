@@ -682,23 +682,10 @@ pub(crate) fn resolve_glyph_bodies(
     // fixpoint round.
     let mut alt_index = AlternativesIndex::build(&cache);
 
-    // How many alternatives of each base name are still unresolved. A composite
-    // must not be derived while one of them is pending: the alternative would be
-    // missing from `alt_index`, so a ref whose anchors only size-match *that*
-    // alternative silently falls back to offset (0, 0) instead. `i-upper` +
-    // `acute-above` did exactly that — serving `i-upper`'s two-cell `+above` is
-    // the whole reason `acute-above:wide` exists.
-    let mut pending_alts: HashMap<String, usize> = HashMap::default();
-    for pg in &pending {
-        for prefix in alternative_prefixes(&pg.name) {
-            *pending_alts.entry(prefix.to_string()).or_default() += 1;
-        }
-    }
-
-    // Dropped for one round whenever that guard is what blocks every remaining
-    // glyph (a reference cycle running through an alternative), so resolution
-    // still terminates with the fallbacks it produced before.
-    let mut relaxed = false;
+    // The schedule the build's fixpoint runs too, so the two agree on which
+    // alternative every composite gets; see `glyph_cache::Rounds`.
+    let mut rounds =
+        crate::render::glyph_cache::Rounds::new(pending.iter().map(|pg| pg.name.as_str()));
     // Inner-loop steps rather than resolved glyphs, so a round that resolves
     // nothing is interruptible too.
     let mut steps = 0usize;
@@ -708,7 +695,7 @@ pub(crate) fn resolve_glyph_bodies(
         }
         let mut progress = false;
         // What this round will flatten. Deriving stays serial — it reads and
-        // writes `alt_index` and `pending_alts`, and a composite later in the
+        // writes `alt_index` and `rounds`, and a composite later in the
         // round has to see the alternatives resolved before it — but flattening
         // is pure, and it is where the time goes. See
         // `glyph_cache::resolve_pending`, whose rounds are waves for the same
@@ -721,16 +708,9 @@ pub(crate) fn resolve_glyph_bodies(
             {
                 return (cache, alt_index);
             }
-            if !pg
-                .refs
-                .iter()
-                .all(|r| resolve_ref_name_with_parts(&r.name, &cache, name_parts).is_some())
-                || (!relaxed
-                    && pg
-                        .refs
-                        .iter()
-                        .any(|r| r.offset.is_none() && pending_alts.contains_key(&r.name)))
-            {
+            let resolves =
+                |name: &str| resolve_ref_name_with_parts(name, &cache, name_parts).is_some();
+            if rounds.must_wait(&pg.refs, resolves) {
                 pending.push(pg);
                 continue;
             }
@@ -738,7 +718,7 @@ pub(crate) fn resolve_glyph_bodies(
                 resolve_ref_name_with_parts(name, &cache, name_parts)
                     .map_or((0, 0), |resolved| resolved.declared_origin)
             };
-            let (mut effective_refs, exposed, _issues) = derive_ref_offsets_with(
+            let (mut effective_refs, exposed, issues) = derive_ref_offsets_with(
                 &pg.points,
                 &pg.refs,
                 pg.scale,
@@ -754,30 +734,21 @@ pub(crate) fn resolve_glyph_bodies(
                 },
                 origin_of,
             );
-            // An alternative derived earlier in this wave is in `alt_index`
-            // but not in `cache` until the wave is flattened, and a layer the
-            // flattening cannot find is dropped without a word. A composite
-            // that picked one waits for the next round, when it is there.
-            if effective_refs
-                .iter()
-                .any(|r| resolve_ref_name_with_parts(&r.name, &cache, name_parts).is_none())
-            {
+            if crate::render::glyph_cache::Rounds::picked_unbuilt(&effective_refs, resolves) {
                 pending.push(pg);
                 continue;
             }
             rebase_offsets_to_box(&mut effective_refs, pg.scale, origin_of);
             let anchors: Vec<GlyphPoint> = exposed.into_iter().map(|(p, _)| p).collect();
-            for prefix in alternative_prefixes(&pg.name) {
-                if let Some(count) = pending_alts.get_mut(prefix) {
-                    *count -= 1;
-                    if *count == 0 {
-                        pending_alts.remove(prefix);
-                    }
-                }
+            rounds.settle(&pg.name);
+            // A glyph whose derivation failed is still drawn here, where the
+            // editor shows what is written, but the build drops it — so it is
+            // no alternative for anything to pick. Merged right away rather
+            // than at round end: a composite later in the same round has to
+            // see the alternatives resolved before it.
+            if issues.is_empty() {
+                alt_index.extend([(pg.name.clone(), anchors.clone())]);
             }
-            // Merged right away rather than at round end: a composite later in
-            // the same round has to see the alternatives resolved before it.
-            alt_index.extend([(pg.name.clone(), anchors.clone())]);
             wave.push((pg, effective_refs, anchors));
             progress = true;
         }
@@ -866,15 +837,8 @@ pub(crate) fn resolve_glyph_bodies(
             return (cache, alt_index);
         }
 
-        if pending.is_empty() {
+        if !rounds.next_round(!pending.is_empty(), progress) {
             break;
-        }
-        if progress {
-            relaxed = false;
-        } else if relaxed {
-            break;
-        } else {
-            relaxed = true;
         }
     }
 

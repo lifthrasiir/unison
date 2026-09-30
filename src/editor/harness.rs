@@ -505,7 +505,7 @@ pub(crate) struct Pane {
 impl Pane {
     fn new(source: &str) -> Self {
         let lines = parse_doclines(source);
-        let (doc, _) = derive_document(&lines, "second.unf".into()).expect("derive_document");
+        let (doc, _) = derive_document(&lines, "second.unf".into());
         let mut pane = Self {
             doc,
             lines,
@@ -541,7 +541,7 @@ impl EditorHarness {
     /// frame so layout queries work immediately.
     pub fn new(source: &str) -> Self {
         let lines = parse_doclines(source);
-        let (doc, _) = derive_document(&lines, "test.unf".into()).expect("derive_document");
+        let (doc, _) = derive_document(&lines, "test.unf".into());
         let mut h = Self {
             ctx: egui::Context::default(),
             doc,

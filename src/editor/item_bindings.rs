@@ -83,7 +83,7 @@ mod tests {
 
     fn fixture(source: &str) -> (Document, NamePartsMap) {
         let lines = parse_doclines(source);
-        let (doc, _) = derive_document(&lines, "test.unf".into()).unwrap();
+        let (doc, _) = derive_document(&lines, "test.unf".into());
         let name_parts = crate::document::collect_name_parts(&[&doc]);
         (doc, name_parts)
     }
@@ -184,7 +184,7 @@ mod tests {
                       glyph han-($1) 2 2\n\
                       ref ($0) 0 0\n";
         let mut lines = parse_doclines(source);
-        let (doc, _) = derive_document(&lines, "test.unf".into()).unwrap();
+        let (doc, _) = derive_document(&lines, "test.unf".into());
         let name_parts = crate::document::collect_name_parts(&[&doc]);
         let (scopes, _) = crate::exists::resolve_scopes(&[&doc], &name_parts);
         let first = crate::exists::FirstMatches::collect(&[&doc], &scopes);
@@ -196,7 +196,7 @@ mod tests {
         // either kind stays put — as the editor does: the other lines keep
         // their ids.
         lines.splice(0..0, parse_doclines("glyph new 1 1\n@@\n"));
-        let (edited, _) = derive_document(&lines, "test.unf".into()).unwrap();
+        let (edited, _) = derive_document(&lines, "test.unf".into());
         let after = glyph_idx(&edited, "han-($1)");
         assert_ne!(before, after, "the edit moved the block");
         assert_eq!(first.get(&edited, after).map(<[String]>::to_vec), matched);

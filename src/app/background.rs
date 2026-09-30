@@ -1179,8 +1179,7 @@ pub(crate) mod startup_tests {
     /// Its own directory per test, removed when the test ends. Written inline:
     /// `font/` is downstream data and no test may read it.
     ///
-    /// Shared with [`crate::app::history`]'s tests, which drive the same
-    /// pipeline for a different question.
+    /// The one every app-level test takes its directory from.
     pub(crate) struct TempDir(pub(crate) PathBuf);
 
     impl TempDir {
@@ -1193,6 +1192,13 @@ pub(crate) mod startup_tests {
             let _ = std::fs::remove_dir_all(&dir);
             std::fs::create_dir_all(&dir).unwrap();
             Self(dir)
+        }
+
+        /// Writes `name` in the directory and returns its path.
+        pub(crate) fn write(&self, name: &str, content: &str) -> PathBuf {
+            let path = self.0.join(name);
+            std::fs::write(&path, content).unwrap();
+            path
         }
     }
 

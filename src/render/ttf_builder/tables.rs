@@ -582,11 +582,16 @@ pub(super) fn build_ttf(
     // glyph-id indexing means — but `fvar`/`STAT` describe the axis, so all
     // three appear together or not at all.
     if let Some(variations) = &variations {
-        let (fvar, stat) = build_variable_tables();
-        builder.add_table(&fvar).unwrap();
-        builder.add_table(&stat).unwrap();
-        if let Some(gvar) = build_gvar(variations, num_glyphs) {
-            builder.add_table(&gvar).unwrap();
+        match build_gvar(variations, num_glyphs) {
+            Ok(gvar) => {
+                let (fvar, stat) = build_variable_tables();
+                builder.add_table(&fvar).unwrap();
+                builder.add_table(&stat).unwrap();
+                builder.add_table(&gvar).unwrap();
+            }
+            // An axis with no deltas behind it would be a variable font that
+            // varies nothing, which is worse than the static one this leaves.
+            Err(e) => eprintln!("error: the bitmap axis was left out: gvar: {e}"),
         }
     }
 
@@ -760,7 +765,7 @@ fn build_variable_tables() -> (Fvar, Stat) {
 fn build_gvar(
     variations: &[Result<masters::PointDeltas, masters::NoVariation>],
     num_glyphs: u16,
-) -> Option<Gvar> {
+) -> Result<Gvar, impl std::fmt::Display> {
     let tent = Tent::new(
         F2Dot14::from_f32(1.0),
         Some((
@@ -786,7 +791,7 @@ fn build_gvar(
             }
         })
         .collect();
-    Gvar::new(entries, 1).ok()
+    Gvar::new(entries, 1)
 }
 
 /// Every delta, written out in full.

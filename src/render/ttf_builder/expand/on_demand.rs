@@ -177,8 +177,21 @@ pub(super) fn inject_on_demand_glyph_items(
                 if let (Some(mono_body), Some(color_body)) = (&mono_body, &color_body) {
                     let mono_s = mono_body.scale.max(1);
                     let color_s = color_body.scale.max(1);
-                    let combined_scale =
-                        crate::pattern::lcm(mono_s as usize, color_s as usize) as u8;
+                    // The finer of the two lattices both halves land on; one
+                    // past what a `scale` can state has no glyph to go into.
+                    let Some(combined_scale) =
+                        crate::math::lcm_u64(u64::from(mono_s), u64::from(color_s))
+                            .and_then(|lcm| u8::try_from(lcm).ok())
+                    else {
+                        diagnostics.push(Diagnostic::error(
+                            origin,
+                            format!(
+                                "color/mono glyph '{name}' cannot be synthesized: \
+                                 scales {mono_s} and {color_s} have no common scale up to 255",
+                            ),
+                        ));
+                        continue;
+                    };
                     let mono_s = mono_s as i16;
                     let color_s = color_s as i16;
                     let combined_s = combined_scale as i16;

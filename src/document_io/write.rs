@@ -263,6 +263,15 @@ pub fn is_source_file(path: &Path) -> bool {
             .is_some_and(|name| !name.to_string_lossy().starts_with('.'))
 }
 
+/// How a report names a source file: its file name, or the whole path for one
+/// that has none. Every report names files alike, so a message can be searched
+/// for by what another one said.
+pub fn file_label(path: &Path) -> String {
+    path.file_name()
+        .map(|n| n.to_string_lossy().into_owned())
+        .unwrap_or_else(|| path.display().to_string())
+}
+
 // Write via temp file + rename to work around macOS SMB server silently
 // ignoring file truncation (https://github.com/rust-lang/rust/issues/159054).
 #[cfg(feature = "editor")]

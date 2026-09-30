@@ -9,7 +9,8 @@ use crate::document::{
 };
 use crate::pattern::NamePattern;
 
-use super::{Cx, Issue, Severity, issue_at, short_path};
+use super::{Cx, Issue, Severity, issue_at};
+use crate::document_io::file_label;
 
 pub(super) fn check_glyphs_and_remaps(cx: &Cx<'_>, issues: &mut Vec<Issue>) {
     let docs = cx.docs;
@@ -120,7 +121,7 @@ pub(super) fn check_glyphs_and_remaps(cx: &Cx<'_>, issues: &mut Vec<Issue>) {
                                 format!(
                                     "duplicate glyph '{}' (first defined at {}:{})",
                                     en,
-                                    short_path(prev_file),
+                                    file_label(prev_file),
                                     prev_line,
                                 ),
                             ));

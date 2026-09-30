@@ -299,7 +299,7 @@ glyph @-y 1 1
 @@
 ";
     let lines = parse_doclines(src);
-    let (doc, _) = derive_document(&lines, "test.unf".into()).unwrap();
+    let (doc, _) = derive_document(&lines, "test.unf".into());
     for (item, &line) in doc.item_line_starts.iter().enumerate() {
         assert_eq!(
             crate::document::at_base_at_line(&lines, line).as_deref(),

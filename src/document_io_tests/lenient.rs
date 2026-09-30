@@ -7,7 +7,7 @@ use super::*;
 fn derive_empty_body_glyph() {
     let input = "glyph foo\n";
     let lines = parse_doclines(input);
-    let (doc, _) = derive_document(&lines, "test.unf".into()).unwrap();
+    let (doc, _) = derive_document(&lines, "test.unf".into());
     assert_eq!(doc.items.len(), 1);
     if let DocumentItem::Glyph { body, .. } = &doc.items[0] {
         assert!(body.pixels.is_none());
@@ -21,7 +21,7 @@ fn derive_empty_body_glyph() {
 fn derive_glyph_header_split_from_alias() {
     let input = "glyph foo\n= bar\n";
     let lines = parse_doclines(input);
-    let (doc, _) = derive_document(&lines, "test.unf".into()).unwrap();
+    let (doc, _) = derive_document(&lines, "test.unf".into());
     assert_eq!(doc.items.len(), 2);
     if let DocumentItem::Glyph { body, .. } = &doc.items[0] {
         assert!(body.pixels.is_none());
@@ -36,7 +36,7 @@ fn derive_glyph_header_split_from_alias() {
 fn derive_glyph_with_dims_no_grid_docline() {
     // Simulates editing state: header with dims but Grid DocLine removed
     let lines = vec![DocLine::text("glyph foo 8 16".to_string())];
-    let (doc, _) = derive_document(&lines, "test.unf".into()).unwrap();
+    let (doc, _) = derive_document(&lines, "test.unf".into());
     assert_eq!(doc.items.len(), 1);
     if let DocumentItem::Glyph { body, .. } = &doc.items[0] {
         let grid = body.pixels.as_ref().expect("should have empty grid");
@@ -94,7 +94,7 @@ assume unused stem
     assert_eq!(input, output_str, "DocLine round-trip failed");
 
     let old_doc = parse_document_from_str(input, "test.unf".into()).unwrap();
-    let (new_doc, _) = derive_document(&lines, "test.unf".into()).unwrap();
+    let (new_doc, _) = derive_document(&lines, "test.unf".into());
     assert_eq!(
         old_doc.items.len(),
         new_doc.items.len(),

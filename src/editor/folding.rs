@@ -475,7 +475,7 @@ mod tests {
 
     fn state_for(source: &str) -> (Document, Vec<DocLine>, FoldState) {
         let lines = parse_doclines(source);
-        let (doc, _) = derive_document(&lines, "test.unf".into()).expect("derive");
+        let (doc, _) = derive_document(&lines, "test.unf".into());
         let mut folds = FoldState::default();
         folds.sync(&doc, &lines);
         (doc, lines, folds)

@@ -11,7 +11,8 @@ use crate::document::{
     Directive, DocumentItem, MAX_HEADING_LEVEL, classify_directive, substitute_name_parts,
 };
 
-use super::{Cx, Issue, Severity, issue_at, short_path};
+use super::{Cx, Issue, Severity, issue_at};
+use crate::document_io::file_label;
 
 /// Every codepoint a `map` claims, checked for duplicates within a slice
 /// and for conflicts between two slices one face includes; returns the
@@ -220,7 +221,7 @@ pub(super) fn check_maps(
                                         format!(
                                             "duplicate codepoint mapping U+{:04X} (first at {}:{})",
                                             cp,
-                                            short_path(&prev.file),
+                                            file_label(&prev.file),
                                             prev.file_line,
                                         ),
                                     ));
@@ -397,7 +398,7 @@ pub(super) fn check_maps(
                         describe(first_slice),
                         describe(slice),
                         face.label(),
-                        short_path(&first.file),
+                        file_label(&first.file),
                         first.file_line,
                     ),
                     file: site.file.clone(),

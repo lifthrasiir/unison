@@ -169,6 +169,11 @@ fn created_parses_to_seconds_since_1904() {
         entry("created 1970-01-01T00:01:02Z"),
         Ok(MetaEntry::Created(24107 * 86400 + 62)),
     );
+    assert!(entry("created 2024-02-29").is_ok(), "a leap day");
+    assert!(
+        entry("created 2000-02-29").is_ok(),
+        "a leap day by the 400-year rule"
+    );
     // A leap year the century rule would get wrong if the arithmetic were naive.
     assert_eq!(
         entry("created 2000-03-01"),
@@ -179,6 +184,10 @@ fn created_parses_to_seconds_since_1904() {
         "created 1970-13-01",
         "created x",
         "created 1970-01-01T00:00:00",
+        // Days the month does not have, which would roll into the next one.
+        "created 2025-02-29",
+        "created 2025-04-31",
+        "created 1900-02-29",
     ] {
         assert!(parse_meta_entry(bad).is_err(), "{bad} should not parse");
     }

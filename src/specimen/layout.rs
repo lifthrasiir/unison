@@ -1,7 +1,7 @@
 //! Steps 2 and 3 of the specimen's three: which cells exist in which sections
 //! ([`SpecimenState::rebuild_sections`]) and which row each cell is on ([`GridLayout`]).
 
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeSet;
 
 use crate::ucd::format_block_range;
 
@@ -64,48 +64,36 @@ impl SpecimenState {
         self.items.clear();
         self.sections.clear();
 
-        // Group the mapped characters by block, in code point order. A code
-        // point in a gap between blocks is in the gap's `Unassigned` block
-        // ([`crate::ucd::BlockMap`]), which is never filled.
-        let mut by_block: BTreeMap<(u32, u32), (String, bool, Vec<u32>)> = BTreeMap::new();
-        // A base that only variation sequences name still gets a cell — see
-        // [`UvsEntry`] — so the grouping runs over both sets of code points.
+        // Group the mapped characters by block, in code point order, through
+        // the one grouping `demo.html` lays out as well. A code point in a gap
+        // between blocks is in the gap's `Unassigned` block
+        // ([`crate::ucd::BlockMap`]), which is never filled. A base that only
+        // variation sequences name still gets a cell — see [`UvsEntry`] — so
+        // the grouping runs over both sets of code points.
         let cell_cps: BTreeSet<u32> = self
             .declared
             .keys()
             .chain(self.uvs.keys())
             .copied()
             .collect();
-        for cp in cell_cps {
-            let b = self.blocks.block_of(cp);
-            by_block
-                .entry((b.start, b.end))
-                .or_insert_with(|| (b.name.to_string(), b.unassigned, Vec::new()))
-                .2
-                .push(cp);
-        }
-
-        let mut groups: Vec<Group> = Vec::new();
-        for ((start, end), (name, unassigned, cps)) in by_block {
-            // The coverage is a count of *characters*, not of cells, so it
-            // reads the same whether or not the grid is filled — and a block
-            // with a glyph on a code point it has no character for states none
-            // at all, the fraction being one that would read over 100%. A gap
-            // has no characters to be a fraction of.
-            let coverage = (!unassigned && cps.iter().all(|&cp| self.char_props.is_assigned(cp)))
-                .then(|| (cps.len(), self.block_total(start, end)));
-            let cps = if self.options.show_undeclared && !unassigned {
-                self.block_members(start, end).collect()
-            } else {
-                cps
-            };
-            let range = format_block_range(start, end);
-            groups.push(Group {
-                heading: Some(format!("{name}  {range}")),
-                coverage,
-                cps,
-            });
-        }
+        let groups: Vec<Group> = self
+            .blocks
+            .group(&self.char_props, cell_cps)
+            .into_iter()
+            .map(|group| {
+                let cps = if self.options.show_undeclared {
+                    group.filled(&self.blocks, &self.char_props).collect()
+                } else {
+                    group.stated.clone()
+                };
+                let range = format_block_range(group.start, group.end);
+                Group {
+                    heading: Some(format!("{}  {range}", group.name)),
+                    coverage: group.coverage,
+                    cps,
+                }
+            })
+            .collect();
 
         let grouped = self.options.group_by_block;
         for Group {
@@ -169,42 +157,6 @@ impl SpecimenState {
                 len: self.items.len() - remap_start,
             });
         }
-    }
-
-    /// Every code point of one block, minus the ones a nested `prop block`
-    /// claims — those belong to that block's own section.
-    fn block_range(&self, start: u32, end: u32) -> impl Iterator<Item = u32> + '_ {
-        // Both bounds, not just the start: a `prop block` claim at the very
-        // beginning of a Private Use plane shares its start with the UCD block
-        // it overrides, and comparing starts alone would then fill the claimed
-        // code points into both sections.
-        (start..=end).filter(move |&cp| {
-            let b = self.blocks.block_of(cp);
-            (b.start, b.end) == (start, end)
-        })
-    }
-
-    /// Every character of one block — the ones a filled grid gives a cell to:
-    /// every one the source has ([`crate::ucd::CharProps::is_assigned`], which
-    /// is the `prop` lines inside Private Use and the UCD outside it), plus the
-    /// ones it draws. A block's permanent holes and its unassigned tail are not
-    /// holes in the *font*, so they get no cell.
-    fn block_members(&self, start: u32, end: u32) -> impl Iterator<Item = u32> + '_ {
-        self.block_range(start, end).filter(move |&cp| {
-            self.declared.contains_key(&cp)
-                || self.uvs.contains_key(&cp)
-                || self.char_props.is_assigned(cp)
-        })
-    }
-
-    /// How many characters a block has — the denominator of the coverage its
-    /// heading states, and the one thing there that is *not* a count of cells:
-    /// a code point the source draws without stating is a cell but not a
-    /// character.
-    fn block_total(&self, start: u32, end: u32) -> usize {
-        self.block_range(start, end)
-            .filter(|&cp| self.char_props.is_assigned(cp))
-            .count()
     }
 
     /// Step 3: which cells sit on which row, for `cols` columns.

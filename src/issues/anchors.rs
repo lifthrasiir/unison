@@ -119,68 +119,20 @@ pub(super) fn check_anchor_derivation(cx: &Cx<'_>, issues: &mut Vec<Issue>) {
     // the same shared driver and the same derivation the font build uses
     // (`glyph_cache`/`derive_ref_offsets_with`), so what is reported here is
     // exactly what resolution dropped.
-    struct AnchorsOnly {
-        anchors: Vec<crate::document::GlyphPoint>,
-        w: u16,
-        h: u16,
-    }
-    impl AnchorsOnly {
-        fn new() -> Self {
-            Self {
-                anchors: Vec::new(),
-                w: 0,
-                h: 0,
-            }
-        }
-    }
-    impl crate::render::glyph_cache::CachedGlyphEntry for AnchorsOnly {
-        fn anchors(&self) -> &[crate::document::GlyphPoint] {
-            &self.anchors
-        }
-        fn declared_origin(&self) -> (i16, i16) {
-            (0, 0)
-        }
-        fn dims_mut(&mut self) -> (&mut u16, &mut u16) {
-            (&mut self.w, &mut self.h)
-        }
-        fn set_resolution(
-            &mut self,
-            anchors: Vec<crate::document::GlyphPoint>,
-            _scale: u8,
-            _origin: (i16, i16),
-        ) {
-            self.anchors = anchors;
-        }
-    }
-
-    let mut declared_anchors: HashMap<&str, &[crate::document::GlyphPoint]> = HashMap::default();
     let mut origin_of: HashMap<&str, Option<crate::resolve::ItemRef>> = HashMap::default();
     for e in &expansion.items {
         if let DocumentItem::Glyph {
-            name: GlyphName(n),
-            body,
+            name: GlyphName(n), ..
         } = &e.item
         {
-            declared_anchors.entry(n).or_insert(&body.points);
             origin_of.entry(n).or_insert(e.origin);
         }
     }
 
-    let (mut cache, pending) = crate::render::glyph_cache::seed_cache(
-        expansion.items(),
-        |_, _, _| AnchorsOnly::new(),
-        AnchorsOnly::new,
-        &crate::cancel::CancelToken::never(),
-    );
     let mut derive_issues: Vec<(String, crate::ref_composite::DeriveIssue)> = Vec::new();
-    crate::render::glyph_cache::resolve_pending(
-        &mut cache,
-        pending,
-        &crate::document::collect_anchor_aligns(expansion.items()),
-        |name| declared_anchors.get(name).map(|pts| pts.to_vec()),
-        &mut crate::render::glyph_cache::FnBuilder(|_: &_, _: &_, _: &_| AnchorsOnly::new()),
+    crate::render::glyph_cache::resolve_anchors_only(
+        || expansion.items(),
         |name, issue| derive_issues.push((name.to_string(), issue)),
-        &crate::cancel::CancelToken::never(),
     );
     // Every derive issue is an error: each one means an anchor derived to
     // nothing, and the glyph it was reported for is dropped from the build

@@ -346,6 +346,172 @@ fn drop_unresolvable<V>(cache: &HashMap<String, V>, pending: &mut Vec<PendingGly
     pending.retain(|pg| !dead.contains(&pg.name));
 }
 
+/// What a glyph is to a pass that only needs to know *whether* it resolves,
+/// and to what anchors: everything the derivation reads, and no raster.
+///
+/// Which glyphs resolve is decided by their refs and anchors alone — a
+/// composite whose anchors derive to nothing is dropped, one whose refs never
+/// resolve is never tried — so this answers it without composing anything.
+pub(crate) struct AnchorsOnly {
+    pub(crate) anchors: Vec<GlyphPoint>,
+    declared_origin: (i16, i16),
+    w: u16,
+    h: u16,
+}
+
+impl AnchorsOnly {
+    fn new() -> Self {
+        Self {
+            anchors: Vec::new(),
+            declared_origin: (0, 0),
+            w: 0,
+            h: 0,
+        }
+    }
+}
+
+impl CachedGlyphEntry for AnchorsOnly {
+    fn anchors(&self) -> &[GlyphPoint] {
+        &self.anchors
+    }
+    fn declared_origin(&self) -> (i16, i16) {
+        self.declared_origin
+    }
+    fn dims_mut(&mut self) -> (&mut u16, &mut u16) {
+        (&mut self.w, &mut self.h)
+    }
+    fn set_resolution(&mut self, anchors: Vec<GlyphPoint>, _scale: u8, origin: (i16, i16)) {
+        self.anchors = anchors;
+        self.declared_origin = origin;
+    }
+}
+
+/// Every glyph of `items` that resolves, through the same driver and the same
+/// derivation the font build runs, with the anchors it exposes; `on_issue`
+/// hears each derivation that failed, whose glyph is left out as the build
+/// leaves it out.
+pub(crate) fn resolve_anchors_only<'a, I: Iterator<Item = &'a DocumentItem>>(
+    items: impl Fn() -> I,
+    on_issue: impl FnMut(&str, crate::ref_composite::DeriveIssue),
+) -> HashMap<String, AnchorsOnly> {
+    let never = crate::cancel::CancelToken::never();
+    let mut declared_anchors: HashMap<&str, &[GlyphPoint]> = HashMap::default();
+    for item in items() {
+        if let DocumentItem::Glyph {
+            name: GlyphName(n),
+            body,
+        } = item
+        {
+            declared_anchors.entry(n).or_insert(&body.points);
+        }
+    }
+    let (mut cache, pending) = seed_cache(
+        items(),
+        |_, _, _| AnchorsOnly::new(),
+        AnchorsOnly::new,
+        &never,
+    );
+    resolve_pending(
+        &mut cache,
+        pending,
+        &crate::document::collect_anchor_aligns(items()),
+        |name| declared_anchors.get(name).map(|pts| pts.to_vec()),
+        &mut FnBuilder(|_: &_, _: &_, _: &_| AnchorsOnly::new()),
+        on_issue,
+        &never,
+    );
+    cache
+}
+
+/// The schedule both composite fixpoints run — this module's
+/// [`resolve_pending`] for the build and `ref_composite`'s for the editor — so
+/// the two cannot disagree about when a composite is derived, and therefore
+/// about which alternative it gets. What each one *builds* per wave differs
+/// (contours here, grids there); when is the part that has to be one rule.
+///
+/// Three things decide it:
+/// - A composite waits while any of its refs resolves to nothing yet.
+/// - It also waits while an offset-less ref still has an alternative pending:
+///   that alternative would be missing from the index the derivation picks
+///   from, so a substitution only *it* can satisfy (by anchor size) would
+///   silently fall through. `i-upper` + `acute-above` did exactly that.
+/// - That second guard is dropped for one round whenever it is all that holds
+///   every remaining glyph back (a reference cycle through an alternative), so
+///   resolution still ends, with the fallbacks it produced before.
+///
+/// A derivation that picked an alternative derived earlier in the *same* wave
+/// defers too ([`Rounds::picked_unbuilt`]): that one is indexed but not yet
+/// built, and a layer the builder cannot find is dropped without a word.
+pub(crate) struct Rounds {
+    /// How many alternatives of each base name are still pending.
+    pending_alts: HashMap<String, usize>,
+    relaxed: bool,
+}
+
+impl Rounds {
+    /// The schedule over the composites named by `pending`.
+    pub(crate) fn new<'a>(pending: impl Iterator<Item = &'a str>) -> Self {
+        let mut pending_alts: HashMap<String, usize> = HashMap::default();
+        for name in pending {
+            for prefix in crate::ref_composite::alternative_prefixes(name) {
+                *pending_alts.entry(prefix.to_string()).or_default() += 1;
+            }
+        }
+        Self {
+            pending_alts,
+            relaxed: false,
+        }
+    }
+
+    /// Whether a composite with these refs has to wait for a later round;
+    /// `resolves` says whether a name is in the cache.
+    pub(crate) fn must_wait(&self, refs: &[GlyphRef], resolves: impl Fn(&str) -> bool) -> bool {
+        !refs.iter().all(|r| resolves(&r.name))
+            || (!self.relaxed
+                && refs
+                    .iter()
+                    .any(|r| r.offset.is_none() && self.pending_alts.contains_key(&r.name)))
+    }
+
+    /// Whether a derivation settled on a ref that is not built yet — an
+    /// alternative derived earlier in this wave — so the composite waits.
+    pub(crate) fn picked_unbuilt(
+        effective_refs: &[GlyphRef],
+        resolves: impl Fn(&str) -> bool,
+    ) -> bool {
+        effective_refs.iter().any(|r| !resolves(&r.name))
+    }
+
+    /// `name` is no longer pending, whatever became of it. The counts have to
+    /// come down either way: leaving one standing would block every composite
+    /// that refs the base until the first barren round relaxed the guard.
+    pub(crate) fn settle(&mut self, name: &str) {
+        for prefix in crate::ref_composite::alternative_prefixes(name) {
+            if let Some(count) = self.pending_alts.get_mut(prefix) {
+                *count -= 1;
+                if *count == 0 {
+                    self.pending_alts.remove(prefix);
+                }
+            }
+        }
+    }
+
+    /// At the end of a round: whether another one is due.
+    pub(crate) fn next_round(&mut self, pending_left: bool, progress: bool) -> bool {
+        if !pending_left {
+            return false;
+        }
+        if progress {
+            self.relaxed = false;
+        } else if self.relaxed {
+            return false;
+        } else {
+            self.relaxed = true;
+        }
+        true
+    }
+}
+
 /// Fixpoint loop resolving pending glyphs against the cache.  Each round
 /// takes every pending glyph whose refs all resolve, derives its effective
 /// ref offsets and anchors, builds the composite via `build`, applies the
@@ -371,7 +537,7 @@ fn drop_unresolvable<V>(cache: &HashMap<String, V>, pending: &mut Vec<PendingGly
 ///
 /// Each round derives every glyph the cache can already satisfy, traces them
 /// all, and only then inserts them. Deriving and inserting stay serial — they
-/// read and write `alt_index`, `pending_alts` and the cache itself — but tracing
+/// read and write `alt_index`, the [`Rounds`] and the cache itself — but tracing
 /// is pure with respect to that bookkeeping: a glyph enters a wave only once
 /// every ref of it is *already* in the cache, so nothing a wave produces can
 /// change what another member of the same wave sees. That is what lets
@@ -396,25 +562,11 @@ pub(crate) fn resolve_pending<V, B>(
     B: CompositeBuilder<V>,
 {
     drop_unresolvable(cache, &mut pending);
-    // How many alternatives of each base name are still unresolved. A
-    // composite must not be derived while an alternative of one of its
-    // offset-less refs is pending: that alternative would be missing from
-    // `alt_index`, so a substitution that only *it* can satisfy (by anchor
-    // size) silently falls through. Same guard, same relaxation for cycles,
-    // as `ref_composite::resolve_expansion` — the two fixpoints must not
-    // disagree about which alternative a composite gets.
-    //
     // Counted after the drop above, so an alternative that can never resolve
     // does not hold the guard shut: it would never reach `alt_index` either
     // way, and leaving it counted only delayed every dependent composite to
     // the relaxation round.
-    let mut pending_alts: HashMap<String, usize> = HashMap::default();
-    for pg in &pending {
-        for prefix in crate::ref_composite::alternative_prefixes(&pg.name) {
-            *pending_alts.entry(prefix.to_string()).or_default() += 1;
-        }
-    }
-    let mut relaxed = false;
+    let mut rounds = Rounds::new(pending.iter().map(|pg| pg.name.as_str()));
     // Counts inner-loop steps, not resolved glyphs: a round that resolves
     // nothing still walks every pending glyph, and that walk has to be
     // interruptible too.
@@ -438,16 +590,9 @@ pub(crate) fn resolve_pending<V, B>(
             if steps.is_multiple_of(CANCEL_STRIDE) && cancel.is_cancelled() {
                 return;
             }
-            let blocked = !pending[i]
-                .refs
-                .iter()
-                .all(|gref| resolve_cached(&gref.name, cache).is_some())
-                || (!relaxed
-                    && pending[i]
-                        .refs
-                        .iter()
-                        .any(|r| r.offset.is_none() && pending_alts.contains_key(&r.name)));
-            if blocked {
+            if rounds.must_wait(&pending[i].refs, |name| {
+                resolve_cached(name, cache).is_some()
+            }) {
                 i += 1;
                 continue;
             }
@@ -465,14 +610,9 @@ pub(crate) fn resolve_pending<V, B>(
                     &mut declared_anchors,
                     origin_of,
                 );
-            // An alternative derived earlier in this wave is in `alt_index`
-            // but not in `cache` until the wave is traced, and a layer the
-            // tracer cannot find is dropped without a word. A composite that
-            // picked one waits for the next round, when it is there.
-            if effective_refs
-                .iter()
-                .any(|r| resolve_cached(&r.name, cache).is_none())
-            {
+            if Rounds::picked_unbuilt(&effective_refs, |name| {
+                resolve_cached(name, cache).is_some()
+            }) {
                 deferred.push(pg);
                 continue;
             }
@@ -482,21 +622,16 @@ pub(crate) fn resolve_pending<V, B>(
                 on_issue(&pg.name, issue);
             }
             let anchors: Vec<GlyphPoint> = anchors.into_iter().map(|(p, _)| p).collect();
-            // The counts have to come down either way — they say how many
-            // alternatives are still *pending*, and this one no longer is,
-            // whether or not it produced a glyph. Leaving a count standing
-            // would block every composite that refs the base until the first
-            // barren round relaxes the guard.
+            rounds.settle(&pg.name);
+            // Still counts as progress: the glyph left `pending`, so a round
+            // that only dropped glyphs has to be followed by another one.
+            progress = true;
+            // A glyph whose derivation failed is dropped, and so is no
+            // alternative for anything to pick.
+            if errored {
+                continue;
+            }
             for prefix in crate::ref_composite::alternative_prefixes(&pg.name) {
-                if let Some(count) = pending_alts.get_mut(prefix) {
-                    *count -= 1;
-                    if *count == 0 {
-                        pending_alts.remove(prefix);
-                    }
-                }
-                if errored {
-                    continue;
-                }
                 // Merged right away rather than at round end: a composite
                 // later in the same round has to see this alternative.
                 let alts = alt_index.entry(prefix.to_string()).or_default();
@@ -504,12 +639,6 @@ pub(crate) fn resolve_pending<V, B>(
                     Ok(pos) => alts[pos].1 = anchors.clone(),
                     Err(pos) => alts.insert(pos, (pg.name.clone(), anchors.clone())),
                 }
-            }
-            // Still counts as progress: the glyph left `pending`, so a round
-            // that only dropped glyphs has to be followed by another one.
-            progress = true;
-            if errored {
-                continue;
             }
             wave.push((pg, effective_refs, anchors));
         }
@@ -557,15 +686,8 @@ pub(crate) fn resolve_pending<V, B>(
             cache.insert(pg.name, entry);
         }
 
-        if pending.is_empty() {
+        if !rounds.next_round(!pending.is_empty(), progress) {
             break;
-        }
-        if progress {
-            relaxed = false;
-        } else if relaxed {
-            break;
-        } else {
-            relaxed = true;
         }
     }
 }

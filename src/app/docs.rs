@@ -154,10 +154,7 @@ pub(super) fn document_from_source(
     if lines.is_empty() {
         lines.push(crate::document::DocLine::text(String::new()));
     }
-    let mut doc = doc;
-    if let Ok((fresh_doc, _)) = document_io::derive_document(&lines, path) {
-        doc = fresh_doc;
-    }
+    let (doc, _) = document_io::derive_document(&lines, path);
     Ok((doc, lines))
 }
 
@@ -333,11 +330,7 @@ pub(super) fn apply_reloaded_lines(open: &mut OpenDocument, new_lines: Vec<DocLi
     open.owed_external_toast = false;
 }
 
-pub(super) fn file_name_of(path: &std::path::Path) -> String {
-    path.file_name()
-        .map(|n| n.to_string_lossy().to_string())
-        .unwrap_or_else(|| path.display().to_string())
-}
+pub(super) use crate::document_io::file_label as file_name_of;
 
 /// Asks before writing over files that changed on disk after they were opened.
 /// Answering no cancels the save outright, so the version on disk survives.
@@ -708,35 +701,7 @@ impl UniformApp {
 mod reload_tests {
     use super::*;
 
-    /// A directory of its own per test, removed when the test ends. The
-    /// documents here are written inline: `font/` is downstream data and no
-    /// test may read it.
-    struct TempDir(PathBuf);
-
-    impl TempDir {
-        fn new(tag: &str) -> Self {
-            let dir = std::env::temp_dir().join(format!(
-                "uniform-{tag}-{}-{:?}",
-                std::process::id(),
-                std::thread::current().id(),
-            ));
-            let _ = std::fs::remove_dir_all(&dir);
-            std::fs::create_dir_all(&dir).unwrap();
-            Self(dir)
-        }
-
-        fn write(&self, name: &str, content: &str) -> PathBuf {
-            let path = self.0.join(name);
-            std::fs::write(&path, content).unwrap();
-            path
-        }
-    }
-
-    impl Drop for TempDir {
-        fn drop(&mut self) {
-            let _ = std::fs::remove_dir_all(&self.0);
-        }
-    }
+    use crate::app::background::startup_tests::TempDir;
 
     fn text_of(open: &OpenDocument) -> String {
         let mut buf = Vec::new();

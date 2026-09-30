@@ -350,7 +350,16 @@ fn parse_timestamp(s: &str) -> Result<i64, String> {
     }
     let (y, mo, d) = (num(dp[0], 4)?, num(dp[1], 2)?, num(dp[2], 2)?);
     let (h, mi, sec) = (num(tp[0], 2)?, num(tp[1], 2)?, num(tp[2], 2)?);
-    if !(1..=12).contains(&mo) || !(1..=31).contains(&d) || h > 23 || mi > 59 || sec > 60 {
+    let leap = y % 4 == 0 && (y % 100 != 0 || y % 400 == 0);
+    let month_days = match mo {
+        2 if leap => 29,
+        2 => 28,
+        4 | 6 | 9 | 11 => 30,
+        _ => 31,
+    };
+    // A day the month does not have would roll into the next one; second 60
+    // is the leap second ISO 8601 allows.
+    if !(1..=12).contains(&mo) || !(1..=month_days).contains(&d) || h > 23 || mi > 59 || sec > 60 {
         return Err(bad());
     }
     let days = days_from_civil(y, mo, d) + DAYS_1904_TO_1970;
