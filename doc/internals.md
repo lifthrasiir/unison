@@ -91,8 +91,8 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Why a glyph the build drops silently is still accounted for, and the test that pins it | `issues/anchors.rs` (`check_anchor_derivation`), `issues/issues_tests.rs` |
 | `⿰⿱⿲⿳`: the split, the gap term, why the offsets are derived rather than written | `compose.rs` |
 | Why a split fills the box and not the grid, and so moves with a declared `origin` | `compose.rs` (`Raster`, `expand_compose`) |
-| `1\|foo\|1\|bar\|1`: a nested split in a slot, the glyph it stands for, why its box is inferred rather than declared, where its ink comes from, and why the fixer lays it out as one part without going inside | `compose.rs` (`# Nested splits`, `nested_line`, `nested_key`), `render/ttf_builder/expand.rs` (`ink_profiles`), `fix/clearance.rs` (`slot_names`, `Inventory::register_nested`), `document/glyph.rs` (`ComposeItem::Nested`) |
-| `margin-x L\|R` / `margin-y T\|B`: why a part states its default padding, why only across the axis and only in a glyph's own line, and where the padded part is measured | `compose.rs` (`# A part's margin`, `padding_across`, `outer_padding`, `cavity_fits`), `document/glyph.rs` (`Margin`), `fix/clearance.rs` (`Candidate::side`, `EnclosurePart::at`) |
+| `1\|foo\|1\|bar\|1`: a nested split in a slot, the glyph it stands for, why its box is inferred rather than declared, where its ink comes from, and why the fixer lays it out as one part without going inside | `compose.rs` (`# Nested splits`, `nested_line`, `nested_key`), `render/ttf_builder/expand.rs` (`ink_profiles`), `fix/clearance/names.rs` (`slot_names`), `fix/clearance/inventory.rs` (`Inventory::register_nested`), `document/glyph.rs` (`ComposeItem::Nested`) |
+| `margin-x L\|R` / `margin-y T\|B`: why a part states its default padding, why only across the axis and only in a glyph's own line, and where the padded part is measured | `compose.rs` (`# A part's margin`, `padding_across`, `outer_padding`, `cavity_fits`), `document/glyph.rs` (`Margin`), `fix/clearance/inventory.rs` (`Candidate::side`, `EnclosurePart::at`) |
 | `assume ⿰ …`: why an assumed line drops its clearance chores and nothing else, and the one reader of the keyword | `compose.rs` (`# An assumed line`, `IdcOp::of_line`) |
 | `⿴⿵⿶⿷⿸⿹⿺⿼⿽`: which sides an enclosure fills, and why its two numbers are offsets rather than gaps | `compose.rs` (`Walls`, `expand_enclosure`) |
 | The four boundaries of one line, and the one type every gap is measured between | `compose.rs` (`InkLine`, `Face`, `GapSide`) |
@@ -105,7 +105,7 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | `audit ideal-clearance`: the prefix match, which rule wins, why an enclosure may have a band of its own | `audit.rs` (`IdealClearances`, `ClearanceBand`) |
 | `audit max-contact-run`: how far two parts may run together, why that is a clearance rather than a complaint of its own, why a contact needs no hardblank term, and why it is measured between contours and not cells | `audit.rs` (`MaxContactRuns`), `compose.rs` (`contact_run`, `Face::ink`, `EdgeCover`), `detail.rs` (`DetailRegion::edge_coverage`) |
 | Which parts a clearance check can measure, and what it costs a source with no rule | `render/ttf_builder/expand.rs` (`ink_profiles`) |
-| Measuring a part that is itself a composite or itself IDC-split, and the walk the check and the fixer share | `ref_composite/mod.rs` (`resolve_reachable`, `derive_compose_body`), `render/ttf_builder/expand.rs` (`ink_profiles`), `fix/clearance.rs` (`Inventory::flatten_composites`) |
+| Measuring a part that is itself a composite or itself IDC-split, and the walk the check and the fixer share | `ref_composite/mod.rs` (`resolve_reachable`, `derive_compose_body`), `render/ttf_builder/expand.rs` (`ink_profiles`), `fix/clearance/inventory.rs` (`Inventory::flatten_composites`) |
 | Why a clearance is measured over the declared box | `compose.rs` (`InkProfile::of`) |
 | Why an IDC line becomes `ref`s at expansion time, and why the parts are sized by what they declare | `render/ttf_builder/expand.rs` (`expand_compose_lines`), `ref_composite/mod.rs` (`declared_box`) |
 | Why an IDC line with an unpicked variant is a TODO and not an error, and what else it silences | `compose.rs` (`expand_compose`, `is_undecided`), `render/ttf_builder/expand.rs` (`expand_compose_lines`) |
@@ -123,11 +123,11 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Topic | Read |
 | --- | --- |
 | What a `uniform fix` command may rewrite, and the two frontends that apply one | `fix/mod.rs` |
-| Optimizing clearance: the variant search, the score, why the gaps are arithmetic; which of several equal layouts is chosen | `fix/clearance.rs` (`optimize_clearance`, `arrange`, `Key`) |
-| A line the check errors on, planned like a TODO, and the extent an erroring name is still trusted for | `fix/clearance.rs` (`SlotState`, `Key::asked`) |
-| A pattern line: the gaps its glyphs share, why the count of warning glyphs comes before the score, which label is the family's to choose, and appending a label to what the line writes | `fix/clearance.rs` (`optimize_pattern_line`, `slot_choices`, `write_pattern_line`) |
-| Why an enclosure's placements are searched where a split's gaps are solved; a pattern enclosure line | `fix/clearance.rs` (`optimize_enclosure_line`, `optimize_pattern_enclosure_line`) |
-| Which parts the variant search knows about, pattern-declared blocks included | `fix/clearance.rs` (`Inventory::collect`, `block_names`), `alias.rs` (`collect_with_merges`) |
+| Optimizing clearance: the variant search, the score, why the gaps are arithmetic; which of several equal layouts is chosen | `fix/clearance/mod.rs` (`optimize_clearance`), `fix/clearance/layout.rs` (`arrange`), `fix/clearance/split.rs` (`Key`) |
+| A line the check errors on, planned like a TODO, and the extent an erroring name is still trusted for | `fix/clearance/inventory.rs` (`SlotState`), `fix/clearance/split.rs` (`Key::asked`) |
+| A pattern line: the gaps its glyphs share, why the count of warning glyphs comes before the score, which label is the family's to choose, and appending a label to what the line writes | `fix/clearance/pattern.rs` (`optimize_pattern_line`, `slot_choices`, `write_pattern_line`) |
+| Why an enclosure's placements are searched where a split's gaps are solved; a pattern enclosure line | `fix/clearance/enclosure.rs` (`optimize_enclosure_line`), `fix/clearance/pattern_enclosure.rs` (`optimize_pattern_enclosure_line`) |
+| Which parts the variant search knows about, pattern-declared blocks included | `fix/clearance/inventory.rs` (`Inventory::collect`), `fix/clearance/names.rs` (`block_names`), `alias.rs` (`collect_with_merges`) |
 | A fix in the editor: one undo entry per file, nothing written to disk | `app/fix.rs` |
 
 ## Diagnostics
