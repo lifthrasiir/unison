@@ -303,11 +303,11 @@ glyph han-24fd0:15x16 15 16 // 𤿐
 // glyph han-24fd5:15x16 15 16 // 𤿕
 // ⿰ han-6c11 han-76ae // ⿰民皮
 
-// glyph han-24fd6:15x16 15 16 // 𤿖 ⿰末皮(GT) ⿰未皮(UCS2003)
-// ⿰ han-672b han-76ae // ⿰末皮
+glyph han-24fd6:15x16 15 16 // 𤿖
+⿰ han-672b:7x16 han-76ae:8x16 // ⿰末皮
 
-// glyph han-24fd7:15x16 15 16 // 𤿗
-// ⿰ han-76ae han-672b // ⿰皮末
+glyph han-24fd7:15x16 15 16 // 𤿗
+⿰ han-76ae:8x16 han-672b:7x16 // ⿰皮末
 
 glyph han-24fd8:15x16 15 16 // 𤿘 ⿰召皮(G) ⿰⿱勹口皮(T)
 ⿰ han-53ec:6x16 1 han-76ae:8x16 // ⿰召皮

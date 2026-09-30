@@ -231,10 +231,10 @@ glyph han-292ec:15x16 15 16 // 𩋬
 ⿰ han-9769:7x16 1 han-661c:7x16 // ⿰革昜
 
 glyph han-292ee:15x16 15 16 // 𩋮
-⿲ -1 han-9769:5x16 han-572d:5x16 han-5bf8:6x16 // ⿲革圭寸
+⿲ han-9769:5x16 han-572d:5x16 han-5bf8:5x16 // ⿲革圭寸
 
 glyph han-292f0-($han-regions):15x16 15 16 // 𩋰
-⿲ -1 han-9769:5x16 han-7cf9-($-1):5x14 han-5bf8:6x16 // ⿲革糹寸
+⿲ han-9769:5x16 han-7cf9-($-1):5x14 han-5bf8:5x16 // ⿲革糹寸
 
 glyph han-292f5-($han-regions):15x16 15 16 // 𩋵
 ⿰ han-9769:7x16 1 han-8005-($-1):7x16 // ⿰革者
@@ -358,11 +358,11 @@ glyph han-2939b:15x16 15 16 // 𩎛
 glyph han-2939e:15x16 15 16 // 𩎞
 ⿰ han-53f0:7x16 1 han-97cb:7x16 // ⿰台韋
 
-// glyph han-2939f:15x16 15 16 // 𩎟
-// ⿰ han-97cb han-672a // ⿰韋未
+glyph han-2939f:15x16 15 16 // 𩎟
+⿰ han-97cb:7x16 1 han-672a:7x16 // ⿰韋未
 
 glyph han-293a0:15x16 15 16 // 𩎠
-⿲ -1 han-97cb:7x16 han-4ebb:3x16 han-5bf8:6x16 // ⿲韋亻寸
+⿲ han-97cb:7x16 han-4ebb:3x16 han-5bf8:5x16 // ⿲韋亻寸
 
 glyph han-293a1:15x16 15 16 // 𩎡
 ⿰ han-5f17:7x16 1 han-97cb:7x16 // ⿰弗韋
@@ -415,8 +415,8 @@ glyph han-293bb-($han-regions):15x16 15 16 // 𩎻
 // glyph han-293bd:15x16 15 16 // 𩎽
 // ⿰ han-97cb han-6c93 // ⿰韋沓
 
-// glyph han-293bf:15x16 15 16 // 𩎿
-// ⿰ han-97cb han-660c // ⿰韋昌
+glyph han-293bf:15x16 15 16 // 𩎿
+⿰ han-97cb:7x16 1 han-660c-t:7x16 // ⿰韋昌
 
 // glyph han-293c1:15x16 15 16 // 𩏁
 // ⿰ han-97cb han-23402 // ⿰韋𣐂

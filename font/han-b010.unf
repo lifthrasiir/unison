@@ -45,8 +45,8 @@ glyph han-2048c-t:* = han-2048c.x:*
 // glyph han-20490:15x16 15 16 // 𠒐
 // ⿺ han-514b han-4e07 // ⿺克万
 
-// glyph han-20491:15x16 15 16 // 𠒑
-// ⿺ han-5148 han-5143 // ⿺先元
+glyph han-20491:15x16 15 16 // 𠒑
+⿺ han-5148:15x16.8x14 han-5143:7x13 7 1 // ⿺先元
 
 // glyph han-20493:15x16 15 16 // 𠒓
 // ⿺ han-5143 han-897f // ⿺元西
@@ -160,8 +160,8 @@ ref han-5165:15x13
 
 ## 11.2
 
-// glyph han-204dc:15x16 15 16 // 𠓜
-// ⿰ han-5165 han-5165 // ⿰入入
+glyph han-204dc:15x16 15 16 // 𠓜
+⿰ han-5165:7x16 1 han-5165:7x16 // ⿰入入
 
 glyph han-204dd:15x16 15 16 // 𠓝
 ⿱ han-5165:15x10 -1 han-5341:15x7 // ⿱入十
@@ -850,7 +850,7 @@ glyph han-205fd:15x16 15 16 // 𠗽
 ⿰ han-51ab:5x14 1 han-7fcf:9x16 // ⿰冫翏
 
 glyph han-20601:15x16 15 16 // 𠘁
-⿲ -1 han-51ab:3x12 han-5485:9x16 han-961d:4x16-r // ⿲冫咅阝
+⿲ han-51ab:3x12 han-5485:7x16 han-961d:5x16-r // ⿲冫咅阝
 
 glyph han-20602:15x16 15 16 // 𠘂
 ⿲ han-51ab:3x12 han-675f:7x16 han-6b20:5x16 // ⿲冫束欠

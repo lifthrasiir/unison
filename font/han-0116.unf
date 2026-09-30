@@ -215,6 +215,11 @@ glyph han-7a91:15x16 15 16 // 窑 ⿱穴缶(G) ⿱⿱宀儿缶(HTJKP)
 // glyph han-7ac1-($han-regions):15x16 15 16 // 竁 ⿱穴毳(G) ⿱⿱宀儿毳(HTKP)
 // ⿳ han-7a74-($-1) han-6bdb han-3c8e // ⿳穴毛㲎
 
+## 116.14
+
+// glyph han-7ac6-($han-regions):15x16 15 16 // 竆 ⿱穴躳(G) ⿱⿱宀儿躳(TJKP)
+// ⿱ han-7a74-($-1) han-8eb3 // ⿱穴躳
+
 # CJK unified ideographs: 立 (117)
 
 ## 117.0
@@ -1286,6 +1291,11 @@ assume ⿳ han-25ad7:13x5 -1 han-5176:15x10 -2 2|han-571f:11x4|2 // ⿳𥫗其�
 
 // glyph han-7c57:15x16 15 16 // 籗
 // ⿳ han-25ad7 han-96e8 han-96b9 // ⿳𥫗雨隹 <- ⿱𥫗霍
+
+## 118.17
+
+// glyph han-7c66:15x16 15 16 // 籦
+// ⿱ han-25ad7 han-937e // ⿱𥫗鍾
 
 ## 118.19
 

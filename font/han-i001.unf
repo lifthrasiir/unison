@@ -364,7 +364,7 @@ glyph han-2ec8f:15x16 15 16 // 𮲏
 ## 70.8
 
 glyph han-2ec98:15x16 15 16 // 𮲘
-⿲ -2 han-65b9:7x16 1 han-65e5:3x16 han-65a4:6x16 // ⿲方日斤
+⿲ -1 han-65b9:7x16 1 han-65e5:3x14-l han-65a4:5x16 // ⿲方日斤
 
 // glyph han-2ec99:15x16 15 16 // 𮲙
 // ⿰ han-65b9 han-91d1 // ⿰方金
@@ -1015,8 +1015,8 @@ glyph han-2edcb:15x16 15 16 // 𮷋
 
 ## 158.5
 
-// glyph han-2edd4:15x16 15 16 // 𮷔
-// ⿰ han-8eab han-672a // ⿰身未
+glyph han-2edd4:15x16 15 16 // 𮷔
+⿰ han-8eab.x:7x16 1 han-672a:7x16 // ⿰身未
 
 // glyph han-2edd5-($han-regions):15x16 15 16 // 𮷕
 // ⿰ han-534a-($-1) han-8eab // ⿰半身
@@ -1158,8 +1158,8 @@ glyph han-2ee11:15x16 15 16 // 𮸑
 
 ## 168.4
 
-// glyph han-2ee24:15x16 15 16 // 𮸤
-// ⿰ han-9578 han-5929 // ⿰镸天
+glyph han-2ee24:15x16 15 16 // 𮸤
+⿰ han-9578:7x16 1 han-5929:7x16 // ⿰镸天
 
 # CJK unified ideographs extension I: 门 (169')
 

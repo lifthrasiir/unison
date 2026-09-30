@@ -72,8 +72,8 @@ glyph han-26938:15x16 15 16 // 𦤸
 
 ## 133.4
 
-// glyph han-26939:15x16 15 16 // 𦤹
-// ⿰ han-81f3 han-4e0d // ⿰至不
+glyph han-26939:15x16 15 16 // 𦤹
+⿰ han-81f3:7x16 1 han-4e0d:7x16 // ⿰至不
 
 ## 133.5
 
@@ -83,8 +83,8 @@ glyph han-26938:15x16 15 16 // 𦤸
 // glyph han-2693c:15x16 15 16 // 𦤼
 // ⿳ han-58eb han-5196 han-81f3 // ⿳士冖至 <- ⿱⿱士冖至
 
-// glyph han-2693d:15x16 15 16 // 𦤽
-// ⿰ han-81f3 han-5c3c // ⿰至尼
+glyph han-2693d:15x16 15 16 // 𦤽
+⿰ han-81f3:7x16 han-5c3c.0:8x16 // ⿰至尼
 
 glyph han-2693e:15x16 15 16 // 𦤾
 ⿰ han-81f3:7x16 1 han-65e6:7x16 // ⿰至旦
@@ -258,8 +258,8 @@ glyph han-26a0d:15x16 15 16 // 𦨍
 
 ## 137.3
 
-// glyph han-26a10:15x16 15 16 // 𦨐
-// ⿰ han-821f han-5927 // ⿰舟大
+glyph han-26a10:15x16 15 16 // 𦨐
+⿰ han-821f:7x16 1 han-5927:7x16 // ⿰舟大
 
 // glyph han-26a11:15x16 15 16 // 𦨑
 // ⿰ han-821f han-624d // ⿰舟才
@@ -307,8 +307,8 @@ glyph han-26a27:15x16 15 16 // 𦨧
 glyph han-26a2a:15x16 15 16 // 𦨪
 ⿰ han-821f:7x16 1 han-65e6:7x16 // ⿰舟旦
 
-// glyph han-26a2b-($han-regions):15x16 15 16 // 𦨫
-// ⿰ han-821f han-5e73-($-1) // ⿰舟平
+glyph han-26a2b:15x16 15 16 // 𦨫
+⿰ han-821f:7x16 1 han-5e73-g:7x16 // ⿰舟平
 
 glyph han-26a2d:15x16 15 16 // 𦨭
 ⿰ han-821f:7x16 han-76ae:8x16 // ⿰舟皮
@@ -375,8 +375,8 @@ glyph han-26a56:15x16 15 16 // 𦩖
 glyph han-26a57:15x16 15 16 // 𦩗
 ⿰ han-821f:7x16 1 han-708e:7x16 // ⿰舟炎
 
-// glyph han-26a5c:15x16 15 16 // 𦩜
-// ⿰ han-821f han-5485 // ⿰舟咅
+glyph han-26a5c:15x16 15 16 // 𦩜
+⿰ han-821f:7x16 1 han-5485:7x16 // ⿰舟咅
 
 glyph han-2899e:15x16 15 16 // 𨦞
 ⿰ han-91d2:5x15-l 1 han-821f:9x16 // ⿰釒舟
@@ -404,8 +404,8 @@ glyph han-26a65:15x16 15 16 // 𦩥
 // glyph han-26a6d:15x16 15 16 // 𦩭
 // ⿰ han-821f han-601d // ⿰舟思
 
-// glyph han-26a70:15x16 15 16 // 𦩰
-// ⿰ han-821f han-91cd // ⿰舟重
+glyph han-26a70:15x16 15 16 // 𦩰
+⿰ han-821f:7x16 1 han-91cd:7x16 // ⿰舟重
 
 glyph han-26a73:15x16 15 16 // 𦩳
 ⿰ han-821f:7x16 1 han-8005-v:7x16 // ⿰舟者

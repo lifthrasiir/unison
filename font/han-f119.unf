@@ -19,7 +19,7 @@ glyph han-2e1c5:15x16 15 16 // 𮇅
 // ⿺ han-7c73 han-65e5 // ⿺米日
 
 glyph han-2e1c8:15x16 15 16 // 𮇈
-⿲ -2 han-7c73:5x16 han-4ebb:3x16 han-4e5d:9x16 // ⿲米亻九
+⿲ han-7c73:5x16 han-4ebb:3x16 han-4e5d:7x16 // ⿲米亻九
 
 glyph han-2e1c9:15x16 15 16 // 𮇉
 ⿰ han-7c73:5x16 1 han-65b9:9x16 // ⿰米方
@@ -492,7 +492,7 @@ glyph han-2e2f7:15x16 15 16 // 𮋷
 ## 130.14
 
 glyph han-2e342:15x16 15 16 // 𮍂
-⿲ -2 han-53e4:5x16 han-6708:5x16 han-662f:7x16 // ⿲古月是
+⿲ han-53e4:3x16 han-6708:5x14-l han-662f:7x16 // ⿲古月是
 
 ## 130.16
 
@@ -567,8 +567,8 @@ glyph han-2e38b:15x16 15 16 // 𮎋
 glyph han-2e38e:15x16 15 16 // 𮎎
 ⿰ han-821f:7x16 1 han-5442:7x16 // ⿰舟呂
 
-// glyph han-2e38f:15x16 15 16 // 𮎏
-// ⿰ han-821f han-5448 // ⿰舟呈
+glyph han-2e38f:15x16 15 16 // 𮎏
+⿰ han-821f:7x16 1 han-5448-k:7x16 // ⿰舟呈
 
 // glyph han-2e390:15x16 15 16 // 𮎐
 // ⿰ han-821f han-8c37 // ⿰舟谷

@@ -1712,8 +1712,9 @@ glyph han-7f9d.0:* = han-7f9d-j:*
 // glyph han-7fa5:15x16 15 16 // 羥
 // ⿰ han-7f8a han-5de0 // ⿰羊巠
 
-// glyph han-7fa6:15x16 15 16 // 羦
-// ⿰ han-7f8a han-5b8c // ⿰羊完
+glyph han-7fa6:15x16 15 16 // 羦
+⿰ han-7f8a:7x16-l 1 han-5b8c:7x16 // ⿰羊完
+glyph han-7fa6.0:* = han-7fa6:*
 
 glyph han-7fa7:15x16 15 16 // 羧
 ⿰ han-7f8a:7x16-l 1 han-590b:7x16 // ⿰羊夋

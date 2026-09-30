@@ -1064,7 +1064,7 @@ glyph han-60d4:15x16 15 16 // 惔
 glyph han-60d4.0:* = han-60d4:*
 
 glyph han-60de:15x16 15 16 // 惞
-⿲ -1 han-5fc4:5x16 han-65a4:6x16 han-6b20:5x16 // ⿲忄斤欠
+⿲ han-5fc4:5x16 han-65a4:5x16 han-6b20:5x16 // ⿲忄斤欠
 glyph han-60de.0:* = han-60de:*
 
 glyph han-60df:15x16 15 16 // 惟
@@ -1217,7 +1217,7 @@ glyph han-6153.0:* = han-6153:*
 // ⿱ han-65ac han-5fc3 // ⿱斬心
 
 glyph han-615a:15x16 15 16 // 慚
-⿲ -1 han-5fc4:5x16 han-8eca:5x16 han-65a4:6x16 // ⿲忄車斤
+⿲ han-5fc4:5x16 han-8eca:5x16 han-65a4:5x16 // ⿲忄車斤
 glyph han-615a.0:* = han-615a:*
 
 // glyph han-615b:15x16 15 16 // 慛

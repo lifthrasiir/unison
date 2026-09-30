@@ -92,8 +92,8 @@ glyph han-2ded7:15x16 15 16 // 𭻗
 // glyph han-2ded9:15x16 15 16 // 𭻙
 // ⿰ han-4e3b han-7537 // ⿰主男
 
-// glyph han-2deda:15x16 15 16 // 𭻚
-// ⿰ han-7537 han-5305 // ⿰男包
+glyph han-2deda:15x16 15 16 // 𭻚
+⿰ han-7537:7x16 1 han-5305-g:7x16 // ⿰男包
 
 ## 102.8
 
@@ -353,8 +353,8 @@ glyph han-2df6e:15x16 15 16 // 𭽮
 
 ## 107.9
 
-// glyph han-2df70:15x16 15 16 // 𭽰
-// ⿰ han-76ae han-91cd // ⿰皮重
+glyph han-2df70:15x16 15 16 // 𭽰
+⿰ han-76ae:8x16 han-91cd:7x16 // ⿰皮重
 
 ## 107.18
 

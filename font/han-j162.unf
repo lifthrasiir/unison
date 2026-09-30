@@ -258,6 +258,9 @@ glyph han-331b6:15x16 15 16 // 𳆶
 
 ## 167.12
 
+// glyph han-331b9:15x16 15 16 // 𳆹
+// ⿰ han-91d2 han-5839 // ⿰釒堹
+
 // glyph han-331ba:15x16 15 16 // 𳆺
 // ⿰ han-91d2 han-96f2 // ⿰釒雲
 
@@ -314,8 +317,8 @@ glyph han-331b6:15x16 15 16 // 𳆶
 
 ## 168.9
 
-// glyph han-331f6:15x16 15 16 // 𳇶
-// ⿰ han-9578 han-91cd // ⿰镸重
+glyph han-331f6:15x16 15 16 // 𳇶
+⿰ han-9578:7x16 1 han-91cd:7x16 // ⿰镸重
 
 # CJK unified ideographs extension J: 門 (169)
 
@@ -603,6 +606,11 @@ glyph han-33297:15x16 15 16 // 𳊗
 // glyph han-33299-($han-regions):15x16 15 16 // 𳊙
 // ⿰ han-4e15 han-975e-($-1) // ⿰丕非
 
+## 175.12
+
+// glyph han-3329a-($han-regions):15x16 15 16 // 𳊚
+// ⿱ han-975e-($-1) han-4735 // ⿱非䜵
+
 # CJK unified ideographs extension J: 面 (176)
 
 ## 176.8
@@ -880,8 +888,8 @@ glyph han-3331e:15x16 15 16 // 𳌞
 
 ## 195.4
 
-// glyph han-33345:15x16 15 16 // 𳍅
-// ⿰ han-9b5a han-5929 // ⿰魚天
+glyph han-33345:15x16 15 16 // 𳍅
+⿰ han-9b5a:7x16 1 han-5929:7x16 // ⿰魚天
 
 // glyph han-33346:15x16 15 16 // 𳍆
 // ⿺ han-722a han-9b5a // ⿺爪魚
@@ -962,8 +970,8 @@ assume ⿰ han-9c7c:7x16-l -1 han-4e01:9x16 // ⿰鱼丁
 glyph han-33392:15x16 15 16 // 𳎒
 ⿰ han-9c7c:7x16-l han-5316-g:8x16 // ⿰鱼化
 
-// glyph han-33394-($han-regions):15x16 15 16 // 𳎔
-// ⿰ han-9c7c han-4e11-($-1) // ⿰鱼丑
+glyph han-33394:15x16 15 16 // 𳎔
+⿰ han-9c7c:7x16-l han-4e11-g:8x16 // ⿰鱼丑
 
 ## 195'.5
 
@@ -972,8 +980,8 @@ glyph han-33395:15x16 15 16 // 𳎕
 
 ## 195'.7
 
-// glyph han-33398:15x16 15 16 // 𳎘
-// ⿰ han-9c7c han-8eab // ⿰鱼身
+glyph han-33398:15x16 15 16 // 𳎘
+⿰ han-9c7c:7x16-l han-8eab:8x16 // ⿰鱼身
 
 ## 195'.8
 
@@ -1037,8 +1045,8 @@ glyph han-333af:15x16 15 16 // 𳎯
 // glyph han-333b8:15x16 15 16 // 𳎸
 // ⿰ han-541e han-9ce5 // ⿰吞鳥
 
-// glyph han-333b9-($han-regions):15x16 15 16 // 𳎹
-// ⿰ han-5448-($-1) han-9ce5 // ⿰呈鳥
+glyph han-333b9:15x16 15 16 // 𳎹
+⿰ han-5448-g:7x16 han-9ce5:8x16 // ⿰呈鳥
 
 // glyph han-333bb:15x16 15 16 // 𳎻
 // ⿱ han-58ef han-9ce5 // ⿱壯鳥

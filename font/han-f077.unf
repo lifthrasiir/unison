@@ -241,7 +241,7 @@ glyph han-2dc46:15x16 15 16 // 𭱆
 ⿲ han-6c35:3x12 han-8eca:7x16 han-5202:5x16 // ⿲氵車刂
 
 glyph han-2dc48:15x16 15 16 // 𭱈
-⿲ -3 han-6c35:3x12 han-800c:9x16 han-5bf8:6x16 // ⿲氵而寸
+assume ⿲ han-6c35:3x12 -1 han-800c:9x16 han-5bf8:4x16 // ⿲氵而寸
 
 glyph han-2dc4c:15x16 15 16 // 𭱌
 ⿲ han-6c35:3x12 han-8033:7x16 han-5e72:5x16 // ⿲氵耳干
@@ -395,7 +395,7 @@ glyph han-2dd0c:15x16 15 16 // 𭴌
 ⿰ han-706b:7x16 1 han-65e5:7x16 // ⿰火日
 
 glyph han-2dd0d:15x16 15 16 // 𭴍
-⿲ -2 han-706b:5x14-l han-4ebb:3x16 han-4e5d:9x16 // ⿲火亻九
+⿲ han-706b:5x14-l han-4ebb:3x16 han-4e5d:7x16 // ⿲火亻九
 
 glyph han-2dd0e:15x16 15 16 // 𭴎
 ⿰ han-706b:5x14-l 1 han-6bdb:9x16 // ⿰火毛
@@ -786,7 +786,7 @@ glyph han-2de24:15x16 15 16 // 𭸤
 ## 94.12
 
 glyph han-2de28:15x16 15 16 // 𭸨
-⿲ -1 han-72ad:4x16 han-5176:6x16 han-65a4:6x16 // ⿲犭其斤
+⿲ han-72ad:4x16 han-5176:6x16 han-65a4:5x16 // ⿲犭其斤
 
 ## 94.17
 

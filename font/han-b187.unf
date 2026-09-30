@@ -48,8 +48,8 @@ glyph han-29876:15x16 15 16 // 𩡶
 // glyph han-29877:15x16 15 16 // 𩡷
 // ⿱ han-72ac han-99ac // ⿱犬馬
 
-// glyph han-29878:15x16 15 16 // 𩡸
-// ⿰ han-99ac han-5e00 // ⿰馬帀
+glyph han-29878:15x16 15 16 // 𩡸
+⿰ han-99ac:7x16 1 han-5e00:7x16 // ⿰馬帀
 
 // glyph han-29879:15x16 15 16 // 𩡹 ⿰馬气(G) ⿰馬⿳𠂉一乙(T)
 // ⿰ han-99ac han-6c14 // ⿰馬气
@@ -104,8 +104,8 @@ glyph han-29891-($han-regions):15x16 15 16 // 𩢑
 glyph han-29895:15x16 15 16 // 𩢕
 ⿰ han-99ac:7x16 1 han-672c:7x16 // ⿰馬本
 
-// glyph han-29896:15x16 15 16 // 𩢖
-// ⿰ han-99ac han-672b // ⿰馬末
+glyph han-29896:15x16 15 16 // 𩢖
+⿰ han-99ac:7x16 1 han-672b:7x16 // ⿰馬末
 
 // glyph han-29897:15x16 15 16 // 𩢗
 // ⿱ han-536d han-99ac // ⿱卭馬
@@ -226,7 +226,7 @@ glyph han-298c6:15x16 15 16 // 𩣆
 // ⿰ han-99ac han-8c37 // ⿰馬谷
 
 glyph han-298e9:15x16 15 16 // 𩣩
-⿲ -1 han-99ac:7x16 han-624c:3x16 han-65a4:6x16 // ⿲馬扌斤
+⿲ han-99ac:7x16 han-624c:3x16 han-65a4:5x16 // ⿲馬扌斤
 
 // glyph han-298ea:15x16 15 16 // 𩣪
 // ⿰ han-99ac han-5de0 // ⿰馬巠
@@ -384,7 +384,7 @@ glyph han-299bc:15x16 15 16 // 𩦼
 ⿲ -6 han-99ac:7x16 han-5404:7x16 han-96b9:7x16 // ⿲馬各隹
 
 glyph han-299be:15x16 15 16 // 𩦾
-⿲ -5 han-99ac:7x16 han-7968:7x16 han-5bf8:6x16 // ⿲馬票寸
+⿲ -3 han-99ac:7x16 han-7968:7x16 han-5bf8:4x16 // ⿲馬票寸
 
 ## 187.15
 
@@ -541,11 +541,11 @@ glyph han-29a64-($han-regions):15x16 15 16 // 𩩤
 glyph han-29a67-($han-regions):15x16 15 16 // 𩩧
 ⿰ han-9aa8-($-1):7x16 1 han-708e:7x16 // ⿰骨炎
 
-// glyph han-29a6a:15x16 15 16 // 𩩪
-// ⿰ han-660c han-9aa8 // ⿰昌骨
+glyph han-29a6a:15x16 15 16 // 𩩪
+⿰ han-660c-v:7x16 1 han-9aa8-v:7x16 // ⿰昌骨
 
-// glyph han-29a6b:15x16 15 16 // 𩩫
-// ⿰ han-9aa8 han-660c // ⿰骨昌
+glyph han-29a6b-($han-regions):15x16 15 16 // 𩩫
+⿰ han-9aa8-($-1):7x16 1 han-660c-($-1):7x16 // ⿰骨昌
 
 // glyph han-29a6c:15x16 15 16 // 𩩬 ⿰⿱⿳士冖一几骨(V) ⿰壳骨(Z)
 // ⿰ han-58f3 han-9aa8 // ⿰壳骨
@@ -559,8 +559,8 @@ glyph han-29a72-($han-regions):15x16 15 16 // 𩩲
 ⿰ han-9aa8-($-1):7x16 han-66f7:8x16 // ⿰骨曷
 glyph han-29a72.0:* = han-29a72-j:*
 
-// glyph han-29a73:15x16 15 16 // 𩩳
-// ⿰ han-9aa8 han-91cd // ⿰骨重
+glyph han-29a73-($han-regions):15x16 15 16 // 𩩳
+⿰ han-9aa8-($-1):7x16 1 han-91cd:7x16 // ⿰骨重
 
 // glyph han-29a76-($han-regions):15x16 15 16 // 𩩶
 // ⿰ han-9aa8-($-1) han-98df-($-1) // ⿰骨食

@@ -445,7 +445,7 @@ glyph han-27ac2:15x16 15 16 // 𧫂
 // ⿰ han-8a01 han-9593 // ⿰訁間
 
 glyph han-27b1c-($han-regions):15x16 15 16 // 𧬜
-⿲ -2 han-8a01-($-1):5x16 han-5176:6x16 han-65a4:6x16 // ⿲訁其斤
+⿲ -1 han-8a01-($-1):5x16 han-5176:6x16 han-65a4:5x16 // ⿲訁其斤
 
 // glyph han-27b1e-($han-regions):15x16 15 16 // 𧬞
 // ⿰ han-8a01-($-1) han-96f2 // ⿰訁雲

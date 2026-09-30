@@ -88,16 +88,16 @@ glyph han-27bde:15x16 15 16 // 𧯞
 
 ## 151.5
 
-// glyph han-27be0:15x16 15 16 // 𧯠
-// ⿰ han-8c46 han-53e5 // ⿰豆句
+glyph han-27be0:15x16 15 16 // 𧯠
+⿰ han-8c46:7x16 han-53e5:8x16 // ⿰豆句
 
 // glyph han-27be4:15x16 15 16 // 𧯤
 // ⿰ han-8c46 han-4e4d // ⿰豆乍
 
 ## 151.6
 
-// glyph han-27be8:15x16 15 16 // 𧯨
-// ⿰ han-8c46 han-591a // ⿰豆多
+glyph han-27be8:15x16 15 16 // 𧯨
+⿰ han-8c46:7x16 1 han-591a:7x16 // ⿰豆多
 
 ## 151.7
 
@@ -120,8 +120,8 @@ glyph han-27bef:15x16 15 16 // 𧯯
 
 ## 151.9
 
-// glyph han-27bf9:15x16 15 16 // 𧯹
-// ⿰ han-97f3 han-8c46 // ⿰音豆
+glyph han-27bf9:15x16 15 16 // 𧯹
+⿰ han-97f3:7x16 1 han-8c46:7x16 // ⿰音豆
 
 ## 151.10
 

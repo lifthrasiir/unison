@@ -427,7 +427,7 @@ glyph han-2a7e0:15x16 15 16 // 𪟠
 ## 19.10
 
 glyph han-2a7e1:15x16 15 16 // 𪟡
-⿰ -1 han-7537:9x16 1 han-53ef:6x16 // ⿰男可
+⿰ han-7537:7x16 han-53ef:8x16 // ⿰男可
 
 ## 19.12
 
@@ -436,8 +436,13 @@ glyph han-2a7e1:15x16 15 16 // 𪟡
 
 ## 19.13
 
-// glyph han-2a7e6:15x16 15 16 // 𪟦
-// ⿰ han-7537 han-96b9 // ⿰男隹
+glyph han-2a7e6:15x16 15 16 // 𪟦
+⿰ han-7537:7x16 1 han-96b9:7x16 // ⿰男隹
+
+## 19.19
+
+// glyph han-2a7e7:15x16 15 16 // 𪟧
+// ⿱ han-7537 han-24cb6 // ⿱男𤲶
 
 # CJK unified ideographs extension C: 匕 (21)
 
@@ -694,8 +699,8 @@ glyph han-2a86d:15x16 15 16 // 𪡭
 glyph han-2a86e:15x16 15 16 // 𪡮
 ⿲ han-53e3:3x12 1 han-8c9d:5x16 han-5bf8:6x16 // ⿲口貝寸
 
-// glyph han-2a873:15x16 15 16 // 𪡳
-// ⿰ han-5485 han-53f0 // ⿰咅台
+glyph han-2a873:15x16 15 16 // 𪡳
+⿰ han-5485:7x16 1 han-53f0:7x16 // ⿰咅台
 
 glyph han-2a874:15x16 15 16 // 𪡴
 ⿲ han-53e3:3x12 1 han-8a01.x:5x16 1 han-5df1:5x16 // ⿲口訁己
@@ -1019,8 +1024,8 @@ glyph han-2a944:15x16 15 16 // 𪥄
 glyph han-2a949:15x16 15 16 // 𪥉
 ⿱ han-5929:15x8 han-5df4:13x8 // ⿱天巴
 
-// glyph han-2a94a:15x16 15 16 // 𪥊
-// ⿰ han-672a han-5927 // ⿰未大
+glyph han-2a94a:15x16 15 16 // 𪥊
+⿰ han-672a:7x16 1 han-5927:7x16 // ⿰未大
 
 // glyph han-2a94b:15x16 15 16 // 𪥋
 // ⿱ han-5927 han-672a // ⿱大未
@@ -1034,7 +1039,7 @@ glyph han-2a949:15x16 15 16 // 𪥉
 // ⿱ han-5321 han-5927 // ⿱匡大
 
 glyph han-2a94f:15x16 15 16 // 𪥏
-⿲ -6 han-5927:9x16 han-65b9:7x16 han-4eba:5x16 // ⿲大方人
+⿲ -4 han-5927:7x16 han-65b9:7x16 han-4eba:5x16 // ⿲大方人
 
 ## 37.7
 
@@ -1061,6 +1066,11 @@ glyph han-2a94f:15x16 15 16 // 𪥏
 
 // glyph han-2a95d:15x16 15 16 // 𪥝
 // ⿱ han-52d5 han-5927 // ⿱動大
+
+## 37.12
+
+// glyph han-2a95f:15x16 15 16 // 𪥟
+// ⿱ han-5839 han-5927 // ⿱堹大
 
 # CJK unified ideographs extension C: 女 (38)
 
@@ -1127,7 +1137,7 @@ glyph han-2a975:15x16 15 16 // 𪥵
 // ⿱ han-59ac han-4e4b // ⿱妬之
 
 glyph han-2a987:15x16 15 16 // 𪦇
-⿲ -1 han-5973:5x14-l han-572d:5x16 han-5bf8:6x16 // ⿲女圭寸
+⿲ han-5973:5x14-l han-572d:5x16 han-5bf8:5x16 // ⿲女圭寸
 
 // glyph han-2a98d-($han-regions):15x16 15 16 // 𪦍
 // ⿰ han-5984-($-1) han-5149 // ⿰妄光

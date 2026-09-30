@@ -484,8 +484,8 @@ glyph han-2e622:15x16 15 16 // 𮘢
 
 ## 151.5
 
-// glyph han-2e652-($han-regions):15x16 15 16 // 𮙒 ⿰豆⿱{88}龴(K) ⿰豆令(Z)
-// ⿰ han-8c46 han-4ee4-($-1) // ⿰豆令
+glyph han-2e652:15x16 15 16 // 𮙒
+assume ⿰ han-8c46:7x16 -1 han-4ee4.x:9x16 // ⿰豆令
 
 ## 151.7
 
@@ -550,6 +550,9 @@ glyph han-2e689:15x16 15 16 // 𮚉
 ⿰ han-8c9d:5x16 1 han-5b8c:9x16 // ⿰貝完
 
 ## 154.8
+
+// glyph han-2e68c:15x16 15 16 // 𮚌
+// ⿱ han-2d448 han-8c9d // ⿱𭑈貝
 
 // glyph han-2e690:15x16 15 16 // 𮚐 ⿰貝⿱日月(S) ⿰貝冐(Z)
 // ⿰ han-8c9d han-5190 // ⿰貝冐
@@ -684,7 +687,7 @@ glyph han-2e6e4:15x16 15 16 // 𮛤
 // ⿰ han-27fb7 han-5190 // ⿰𧾷冐
 
 glyph han-2e6e7:15x16 15 16 // 𮛧
-⿲ -1 han-27fb7:5x16 han-65a4:6x16 han-6b20:5x16 // ⿲𧾷斤欠
+⿲ han-27fb7:5x16 han-65a4:5x16 han-6b20:5x16 // ⿲𧾷斤欠
 
 ## 157.9
 
@@ -749,8 +752,8 @@ glyph han-2e718:15x16 15 16 // 𮜘
 
 ## 158.6
 
-// glyph han-2e732:15x16 15 16 // 𮜲
-// ⿰ han-8eab han-5171 // ⿰身共
+glyph han-2e732:15x16 15 16 // 𮜲
+⿰ han-8eab.x:7x16 1 han-5171:7x16 // ⿰身共
 
 // glyph han-2e733:15x16 15 16 // 𮜳
 // ⿰ han-8eab han-5321 // ⿰身匡
@@ -760,8 +763,8 @@ glyph han-2e718:15x16 15 16 // 𮜘
 
 ## 158.18
 
-// glyph han-2e73e:15x16 15 16 // 𮜾
-// ⿰ han-8eab han-96da // ⿰身雚
+glyph han-2e73e:15x16 15 16 // 𮜾
+⿰ han-8eab:7x16 han-96da-j:8x16 // ⿰身雚
 
 # CJK unified ideographs extension F: 車 (159)
 
@@ -1058,8 +1061,8 @@ glyph han-2e81f:15x16 15 16 // 𮠟
 // glyph han-2e821:15x16 15 16 // 𮠡
 // ⿱ han-215dc han-9149 // ⿱𡗜酉
 
-// glyph han-2e822:15x16 15 16 // 𮠢
-// ⿰ han-9149 han-672b // ⿰酉末
+glyph han-2e822:15x16 15 16 // 𮠢
+⿰ han-9149:7x16 1 han-672b:7x16 // ⿰酉末
 
 ## 164.6
 
@@ -1088,8 +1091,8 @@ glyph han-2e82d:15x16 15 16 // 𮠭
 
 ## 164.8
 
-// glyph han-2e830:15x16 15 16 // 𮠰
-// ⿰ han-9149 han-660c // ⿰酉昌
+glyph han-2e830:15x16 15 16 // 𮠰
+⿰ han-9149:7x16 1 han-660c-j:7x16 // ⿰酉昌
 
 glyph han-2e831:15x16 15 16 // 𮠱
 ⿲ han-9149:7x16 han-79be:5x16 han-53e3:3x12 // ⿲酉禾口
@@ -1099,8 +1102,8 @@ glyph han-2e831:15x16 15 16 // 𮠱
 
 ## 164.9
 
-// glyph han-2e835:15x16 15 16 // 𮠵
-// ⿰ han-9149 han-91cd // ⿰酉重
+glyph han-2e835:15x16 15 16 // 𮠵
+⿰ han-9149:7x16 1 han-91cd:7x16 // ⿰酉重
 
 # CJK unified ideographs extension F: 釆 (165)
 

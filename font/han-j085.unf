@@ -590,8 +590,8 @@ glyph han-32c28:15x16 15 16 // 𲰨
 glyph han-32c29:15x16 15 16 // 𲰩
 ⿰ han-751f:7x16-l han-767d:8x16 // ⿰生白
 
-// glyph han-32c2a-($han-regions):15x16 15 16 // 𲰪
-// ⿰ han-751f han-5c3c-($-1) // ⿰生尼
+glyph han-32c2a:15x16 15 16 // 𲰪
+⿰ han-751f:7x16-l han-5c3c-g:8x16 // ⿰生尼
 
 ## 100.6
 
@@ -646,8 +646,8 @@ glyph han-32c3d:15x16 15 16 // 𲰽
 
 ## 102.8
 
-// glyph han-32c43:15x16 15 16 // 𲱃
-// ⿰ han-7537 han-5149 // ⿰男光
+glyph han-32c43:15x16 15 16 // 𲱃
+⿰ han-7537:7x16 1 han-5149:7x16 // ⿰男光
 
 ## 102.9
 

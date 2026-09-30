@@ -149,7 +149,7 @@ glyph han-238e2:15x16 15 16 // 𣣢
 ⿲ han-4ebb:3x16 han-8a00.0:5x16 han-6b20:7x16 // ⿲亻言欠
 
 glyph han-238ea:15x16 15 16 // 𣣪
-⿲ -1 han-65a4:6x16 han-767d:4x16 1 han-6b20:5x16 // ⿲斤白欠
+⿲ han-65a4:5x16 han-767d:4x16 1 han-6b20:5x16 // ⿲斤白欠
 
 // glyph han-238ed:15x16 15 16 // 𣣭
 // ⿰ han-5399 han-6b20 // ⿰厙欠
@@ -173,7 +173,7 @@ glyph han-238ea:15x16 15 16 // 𣣪
 ## 76.12
 
 glyph han-23918:15x16 15 16 // 𣤘
-⿲ -2 han-5176:6x16 han-65a4:6x16 han-6b20:5x16 // ⿲其斤欠
+⿲ -1 han-5176:6x16 han-65a4:5x16 han-6b20:5x16 // ⿲其斤欠
 
 glyph han-23919:15x16 15 16 // 𣤙
 ⿰ han-55ac:7x16 1 han-6b20:7x16 // ⿰喬欠

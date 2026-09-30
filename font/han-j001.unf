@@ -281,8 +281,8 @@ glyph han-32421:15x16 15 16 // 𲐡
 // glyph han-32427:15x16 15 16 // 𲐧
 // ⿰ han-4ecd han-4e14 // ⿰仍且
 
-// glyph han-32429-($han-regions):15x16 15 16 // 𲐩
-// ⿰ han-4eca-($-1) han-5c3c-($-1) // ⿰今尼
+glyph han-32429:15x16 15 16 // 𲐩
+⿰ han-4eca.x:7x16 han-5c3c-v:8x16 // ⿰今尼
 
 // glyph han-3242a:15x16 15 16 // 𲐪
 // ⿰ han-4ebb han-9634 // ⿰亻阴
@@ -339,8 +339,8 @@ glyph han-32421:15x16 15 16 // 𲐡
 
 ## 10.6
 
-// glyph han-3246c:15x16 15 16 // 𲑬
-// ⿰ han-5149 han-5165 // ⿰光入
+glyph han-3246c:15x16 15 16 // 𲑬
+⿰ han-5149:7x16 1 han-5165:7x16 // ⿰光入
 
 ## 10.8
 
@@ -357,8 +357,8 @@ glyph han-3246e:15x16 15 16 // 𲑮
 
 ## 10.12
 
-// glyph han-32472-($han-regions):15x16 15 16 // 𲑲
-// ⿰ han-5149 han-660c-($-1) // ⿰光昌
+glyph han-32472:15x16 15 16 // 𲑲
+⿰ han-5149:7x16 1 han-660c-g:7x16 // ⿰光昌
 
 glyph han-32473:15x16 15 16 // 𲑳
 ⿰ han-5149:7x16 han-5176:8x16 // ⿰光其
@@ -1183,8 +1183,8 @@ glyph han-326bd:15x16 15 16 // 𲚽
 
 ## 37.10
 
-// glyph han-326c5:15x16 15 16 // 𲛅
-// ⿰ han-54e5 han-5927 // ⿰哥大
+glyph han-326c5:15x16 15 16 // 𲛅
+⿰ han-54e5:7x16 1 han-5927:7x16 // ⿰哥大
 
 # CJK unified ideographs extension J: 女 (38)
 

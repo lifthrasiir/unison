@@ -631,7 +631,7 @@ glyph han-203e3:15x16 15 16 // 𠏣
 // ⿲ han-4ebb han-8033 han-5b9c // ⿲亻耳宜 <- ⿰亻𦖑
 
 glyph han-20406:15x16 15 16 // 𠐆
-⿲ -1 han-4ebb:3x16 han-7968:7x16 han-5bf8:6x16 // ⿲亻票寸
+⿲ han-4ebb:3x16 han-7968:7x16 han-5bf8:5x16 // ⿲亻票寸
 
 // glyph han-20407:15x16 15 16 // 𠐇
 // ⿱ han-4f86 han-4f86 // ⿱來來

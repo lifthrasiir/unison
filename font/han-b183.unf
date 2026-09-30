@@ -49,8 +49,8 @@ glyph han-29685.x:15x16 15 16 // 𩚅
 glyph han-29685-(g|j):* = han-29685.1:*
 glyph han-29685-t:* = han-29685.x:*
 
-// glyph han-29686:15x16 15 16 // 𩚆
-// ⿰ han-98e0 han-5165 // ⿰飠入
+glyph han-29686-($han-regions):15x16 15 16 // 𩚆
+⿰ han-98e0-($-1):7x16 1 han-5165:7x16 // ⿰飠入
 
 ## 184.3
 
@@ -104,8 +104,10 @@ glyph han-29695.0:* = han-29695-j:*
 glyph han-29695.1:15x16 15 16 // 𩚕
 ⿰ han-98e0.0:7x16 1 han-4eca.0:7x16 // ⿰飠今
 
-// glyph han-29696-($han-regions):15x16 15 16 // 𩚖
-// ⿰ han-98e0 han-4e11-($-1) // ⿰飠丑
+glyph han-29696-($han-regions):15x16 15 16 // 𩚖
+⿰ han-98e0-($-1):7x16 han-4e11-($-1):8x16 // ⿰飠丑
+glyph han-29696.0:* = han-29696-j:*
+glyph han-29696.1:* = han-29696-p:*
 
 // glyph han-29697:15x16 15 16 // 𩚗
 // ⿰ han-98e0 han-5197 // ⿰飠冗
@@ -157,10 +159,10 @@ glyph han-296ab-($han-regions):15x16 15 16 // 𩚫
 ⿰ han-98e0-($-1):7x16 han-6b63:8x16 // ⿰飠正
 
 glyph han-296ad-($han-regions):15x16 15 16 // 𩚭
-⿲ -1 han-98e0-($-1):7x16 han-4ebb:3x16 han-5bf8:6x16 // ⿲飠亻寸
+⿲ han-98e0-($-1):7x16 han-4ebb:3x16 han-5bf8:5x16 // ⿲飠亻寸
 
-// glyph han-296af:15x16 15 16 // 𩚯
-// ⿰ han-98e0 han-5c3c // ⿰飠尼
+glyph han-296af-($han-regions):15x16 15 16 // 𩚯
+⿰ han-98e0-($-1):7x16 han-5c3c-($-1):8x16 // ⿰飠尼
 
 // glyph han-296b0:15x16 15 16 // 𩚰
 // ⿰ han-98e0 han-5349 // ⿰飠卉
@@ -238,7 +240,7 @@ glyph han-296d8-($han-regions):15x16 15 16 // 𩛘
 // ⿱ han-98df-($-1) han-5171 // ⿱食共
 
 glyph han-296dc:15x16 15 16 // 𩛜
-⿲ -5 han-98e0.0:7x16 han-6587.0:7x16 han-5bf8:6x16 // ⿲飠文寸
+⿲ -3 han-98e0.0:7x16 han-6587.0:7x16 han-5bf8:4x16 // ⿲飠文寸
 
 ## 184.7
 
@@ -248,8 +250,8 @@ glyph han-296e1-($han-regions):15x16 15 16 // 𩛡
 // glyph han-296e3:15x16 15 16 // 𩛣
 // ⿰ han-98e0 han-5fd7 // ⿰飠志
 
-// glyph han-296e6:15x16 15 16 // 𩛦
-// ⿰ han-98e0 han-5448 // ⿰飠呈
+glyph han-296e6-($han-regions):15x16 15 16 // 𩛦
+⿰ han-98e0-($-1):7x16 1 han-5448-($-1):7x16 // ⿰飠呈
 
 // glyph han-296e7:15x16 15 16 // 𩛧
 // ⿰ han-98e0 han-65f1 // ⿰飠旱
@@ -386,7 +388,7 @@ glyph han-2977d-(t|j|p):15x16 15 16 // 𩝽 ⿰飠强(G) ⿰飠強(TP)
 // ⿱ han-6b36 han-98df-($-1) // ⿱欶食
 
 glyph han-2978f-($han-regions):15x16 15 16 // 𩞏
-⿲ -3 han-98e0-($-1):7x16 han-8eca:5x16 han-65a4:6x16 // ⿲飠車斤
+⿲ -2 han-98e0-($-1):7x16 han-8eca:5x16 han-65a4:5x16 // ⿲飠車斤
 glyph han-2978f.0:* = han-2978f-j:*
 glyph han-2978f.1:* = han-2978f-g:*
 

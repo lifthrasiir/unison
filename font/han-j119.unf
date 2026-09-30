@@ -1042,8 +1042,8 @@ glyph han-330d5-($han-regions):15x16 15 16 // 𳃕
 
 ## 158.3
 
-// glyph han-330f1:15x16 15 16 // 𳃱
-// ⿰ han-8eab han-5927 // ⿰身大
+glyph han-330f1:15x16 15 16 // 𳃱
+⿰ han-8eab:8x16 han-5927:7x16 // ⿰身大
 
 ## 158.4
 
@@ -1055,11 +1055,11 @@ glyph han-330d5-($han-regions):15x16 15 16 // 𳃕
 // glyph han-330f5:15x16 15 16 // 𳃵
 // ⿰ han-8eab han-4e9a // ⿰身亚
 
-// glyph han-330f6:15x16 15 16 // 𳃶
-// ⿰ han-8eab han-81f3 // ⿰身至
+glyph han-330f6:15x16 15 16 // 𳃶
+⿰ han-8eab:8x16 han-81f3:7x16 // ⿰身至
 
-// glyph han-330f7:15x16 15 16 // 𳃷
-// ⿰ han-8eab han-591a // ⿰身多
+glyph han-330f7:15x16 15 16 // 𳃷
+⿰ han-8eab:8x16 han-591a:7x16 // ⿰身多
 
 ## 158.7
 

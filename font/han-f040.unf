@@ -607,8 +607,8 @@ glyph han-2d640:15x16 15 16 // 𭙀
 
 ## 51.6
 
-// glyph han-2d641-($han-regions):15x16 15 16 // 𭙁
-// ⿰ han-5e73-($-1) han-6587 // ⿰平文
+glyph han-2d641:15x16 15 16 // 𭙁
+assume ⿰ han-5e73-g:9x16 -1 han-6587-g:7x16 // ⿰平文
 
 ## 51.7
 
@@ -909,7 +909,7 @@ glyph han-2d71c:15x16 15 16 // 𭜜
 // ⿰ han-5fc4 han-77e2 // ⿰忄矢
 
 glyph han-2d720:15x16 15 16 // 𭜠
-⿲ -2 han-5fc4:5x16 han-4ebb:3x16 han-5927:9x16 // ⿲忄亻大
+⿲ han-5fc4:5x16 han-4ebb:3x16 han-5927:7x16 // ⿲忄亻大
 
 // glyph han-2d721:15x16 15 16 // 𭜡
 // ⿰ han-5fc4 han-5e83 // ⿰忄広
@@ -1086,7 +1086,7 @@ assume ⿲ han-5fc4:5x16 han-27fb7:5x16 han-5de8-k:5x16 // ⿲忄𧾷巨
 ## 61.14
 
 glyph han-2d7c5:15x16 15 16 // 𭟅
-⿲ -3 han-5fc4:5x16 han-7968:7x16 han-5bf8:6x16 // ⿲忄票寸
+⿲ -1 han-5fc4:5x16 han-7968:7x16 han-5bf8:4x16 // ⿲忄票寸
 
 // glyph han-2d7cc:15x16 15 16 // 𭟌
 // ⿱ han-6f38 han-5fc3 // ⿱漸心

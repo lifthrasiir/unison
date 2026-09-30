@@ -30,8 +30,8 @@
 // glyph han-3135c:15x16 15 16 // 𱍜
 // ⿰ han-8c37 han-4e0b // ⿰谷下
 
-// glyph han-3135d:15x16 15 16 // 𱍝
-// ⿰ han-5b8c han-4e0b // ⿰完下
+glyph han-3135d:15x16 15 16 // 𱍝
+assume ⿰ han-5b8c:7x16 -1 han-4e0b:9x16 // ⿰完下
 
 ## 1.10
 
@@ -633,8 +633,8 @@ glyph han-314a5:15x16 15 16 // 𱒥
 // glyph han-314ab:15x16 15 16 // 𱒫
 // ⿲ han-53e3 han-624c han-592c // ⿲口扌夬 <- ⿰口抉
 
-// glyph han-314ae:15x16 15 16 // 𱒮
-// ⿰ han-672b han-53f0 // ⿰末台
+glyph han-314ae:15x16 15 16 // 𱒮
+⿰ han-672b:7x16 1 han-53f0:7x16 // ⿰末台
 
 glyph han-314b3:15x16 15 16 // 𱒳
 ⿲ han-53e3:4x12 han-72ad:4x16 han-738b:7x16 // ⿲口犭王
@@ -654,7 +654,7 @@ glyph han-314ba:15x16 15 16 // 𱒺
 ## 30.8
 
 glyph han-314bd:15x16 15 16 // 𱒽
-⿲ -2 han-53e3:3x12 han-6728:5x16 han-4e0d:9x16 // ⿲口木不
+⿲ han-53e3:3x12 han-6728:5x16 han-4e0d:7x16 // ⿲口木不
 
 // glyph han-314be:15x16 15 16 // 𱒾
 // ⿰ han-53e3 han-6770 // ⿰口杰
@@ -689,7 +689,7 @@ glyph han-314d6:15x16 15 16 // 𱓖
 ⿲ han-53e3:3x12 han-6728:5x16 han-5e02:7x16 // ⿲口木市
 
 glyph han-314d7:15x16 15 16 // 𱓗
-⿲ -3 han-53e3:3x12 han-800c:9x16 han-5bf8:6x16 // ⿲口而寸
+⿲ -1 han-53e3:3x12 han-800c:9x16 han-5bf8:4x16 // ⿲口而寸
 
 // glyph han-314d9:15x16 15 16 // 𱓙
 // ⿲ han-53e3 han-624c han-5bfa // ⿲口扌寺

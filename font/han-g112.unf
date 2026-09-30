@@ -518,7 +518,7 @@ glyph han-30ada:15x16 15 16 // 𰫚
 ⿰ han-7cf9-j:5x14 1 han-5e00:9x16 // ⿰糹帀
 
 glyph han-30adc:15x16 15 16 // 𰫜
-⿲ -2 han-7cf9-g:5x14 han-4ebb:3x16 han-4e5d:9x16 // ⿲糹亻九
+⿲ han-7cf9-g:5x14 han-4ebb:3x16 han-4e5d:7x16 // ⿲糹亻九
 
 ## 120.5
 
@@ -1232,7 +1232,7 @@ glyph han-30cbe-($han-regions):15x16 15 16 // 𰲾
 ## 142.8
 
 glyph han-30cc2:15x16 15 16 // 𰳂
-⿲ -1 han-866b:5x16 1 han-8f66:4x16-l han-65a4:6x16 // ⿲虫车斤
+⿲ han-866b:5x16 1 han-8f66:4x16-l han-65a4:5x16 // ⿲虫车斤
 
 // glyph han-30cc3:15x16 15 16 // 𰳃
 // ⿰ han-866b han-6770 // ⿰虫杰
@@ -1276,7 +1276,7 @@ glyph han-30cd5:15x16 15 16 // 𰳕
 ## 142.13
 
 glyph han-30cdf:15x16 15 16 // 𰳟
-⿲ -6 han-866b:5x16 han-4e5d:9x16 han-9ce5:7x16 // ⿲虫九鳥
+⿲ -4 han-866b:5x16 han-4e5d:7x16 han-9ce5:7x16 // ⿲虫九鳥
 
 ## 142.14
 

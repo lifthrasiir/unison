@@ -46,7 +46,7 @@ glyph han-2894e:15x16 15 16 // 𨥎
 // ⿱ han-7236-($-1) han-91d1 // ⿱父金
 
 glyph han-28950:15x16 15 16 // 𨥐
-⿲ -2 han-91d2:5x15-l han-4ebb:3x16 han-4e5d:9x16 // ⿲釒亻九
+⿲ han-91d2:5x15-l han-4ebb:3x16 han-4e5d:7x16 // ⿲釒亻九
 
 // glyph han-28951:15x16 15 16 // 𨥑
 // ⿰ han-91d2 han-535d // ⿰釒卝
@@ -279,7 +279,7 @@ glyph han-28a0f:15x16 15 16 // 𨨏
 // ⿱ han-548c han-91d1 // ⿱和金
 
 glyph han-28a13:15x16 15 16 // 𨨓
-⿲ -4 han-91d2:5x15-l han-5973:5x16 han-672a:9x16 // ⿲釒女未
+⿲ -2 han-91d2:5x15-l han-5973:5x14-l han-672a:7x16 // ⿲釒女未
 
 // glyph han-28a16:15x16 15 16 // 𨨖
 // ⿱ han-73a8 han-91d1 // ⿱玨金
@@ -353,7 +353,7 @@ glyph han-28a57:15x16 15 16 // 𨩗
 // ⿳ han-91d1 han-65e5 han-751f // ⿳金日生
 
 glyph han-28a65:15x16 15 16 // 𨩥
-⿲ -1 han-91d2:5x15-l han-572d:5x16 han-5bf8:6x16 // ⿲釒圭寸
+⿲ han-91d2:5x15-l han-572d:5x16 han-5bf8:5x16 // ⿲釒圭寸
 
 // glyph han-28a68:15x16 15 16 // 𨩨
 // ⿰ han-91d2 han-67e5 // ⿰釒查
@@ -441,7 +441,7 @@ glyph han-28afb:15x16 15 16 // 𨫻
 // ⿰ han-91d2 han-21a3c // ⿰釒𡨼
 
 glyph han-28b05:15x16 15 16 // 𨬅
-⿲ -3 han-91d2:5x15-l han-826f.0:7x16 han-65a4:6x16 // ⿲釒良斤
+⿲ -2 han-91d2:5x15-l han-826f.0:7x16 han-65a4:5x16 // ⿲釒良斤
 
 // glyph han-28b08:15x16 15 16 // 𨬈
 // ⿰ han-91d2 han-9ebb // ⿰釒麻
@@ -496,7 +496,7 @@ glyph han-28b5a:15x16 15 16 // 𨭚
 // ⿰ han-91d2 han-3b05 // ⿰釒㬅
 
 glyph han-28b60:15x16 15 16 // 𨭠
-⿲ -1 han-91d2:5x15-l han-9769:5x16 han-65a4:6x16 // ⿲釒革斤
+⿲ han-91d2:5x15-l han-9769:5x16 han-65a4:5x16 // ⿲釒革斤
 
 // glyph han-28b63:15x16 15 16 // 𨭣
 // ⿰ han-91d2 han-695a // ⿰釒楚
@@ -522,7 +522,7 @@ glyph han-28bab:15x16 15 16 // 𨮫
 ⿲ -4 han-91d2:5x15-l han-8eca:5x16 han-5de0:9x16 // ⿲釒車巠
 
 glyph han-28bac:15x16 15 16 // 𨮬
-⿲ -3 han-91d2:5x15-l han-7968:7x16 han-5bf8:6x16 // ⿲釒票寸
+⿲ -1 han-91d2:5x15-l han-7968:7x16 han-5bf8:4x16 // ⿲釒票寸
 
 // glyph han-28bb1:15x16 15 16 // 𨮱
 // ⿰ han-91d2 han-7b87 // ⿰釒箇
