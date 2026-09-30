@@ -3,7 +3,12 @@
 //! Declared as a child module of that one through `#[path]`, so it still
 //! reaches its private items.
 
+use super::paint::cp_has_metrics;
 use super::*;
+use crate::document::{Document, NamePartsMap};
+use crate::glyph_flags::GlyphFlag;
+use crate::hash::HashMap;
+use skrifa::FontRef;
 
 fn doc(src: &str) -> Document {
     crate::document_io::parse_document_from_str(src, "t.unf".into()).unwrap()

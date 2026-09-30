@@ -190,15 +190,15 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | What the page is told about sequences, and why no glyph name is among it | `render/demo/mod.rs` (`collect_sequences`) |
 | What the blob is modelled into: delta-coded runs, front-coded names, one entry per naming rule | `render/demo/mod.rs` (`DemoBlock::runs`, `DemoNames`, `widen_runs`, `collect_names`), `demo.js` (`nameOf`) |
 | Lazy chunks, and folding a long block in the middle | `render/demo/demo.js` (`FOLD_OVER`, `foldMarker`), `render/demo/mod.rs` |
-| The same fold in the editor's specimen | `specimen.rs` (`FOLD_EDGE_ROWS`, `Row::Fold`, `SpecimenState::unfolded`) |
+| The same fold in the editor's specimen | `specimen/mod.rs` (`FOLD_EDGE_ROWS`, `Row::Fold`, `SpecimenState::unfolded`) |
 | The dotted circle in a demo cell, and why `hmtx` decides which cells get one | `render/demo/mod.rs` (`CELL_ZERO_ADVANCE`, `zero_advance_codepoints`), `demo.css` (`.dc`) |
 | Why a demo cell is bidi-isolated; which contrast the tokens are held to | `render/demo/demo.css` (`.cell`, `:root`) |
 | The sample panel: where a typed text is kept, how a UDHR key becomes a language name, the one size for both drawings | `render/demo/mod.rs` (`# The sample panel`), `demo.js` (`selectSample`, `ssSet`, `langName`, `state.em`, `snapZoom`), `render/sample.rs` (`udhr_selection`, `UdhrEntry`) |
-| Why a character the font cannot draw is tinted by the specimen and not by a glyph flag | `specimen.rs` (`CharEntry::unresolved`, `flag_for`) |
-| The specimen's warning/error tints, and why a click on a tinted cell lands on the component | `specimen.rs` (`flag_bg`, `goto_target`), `glyph_flags.rs` (`GlyphFlags::source`) |
-| Why what the specimen reads is collected in the background; which remap targets it remembers; why it is handed the searches and aliases; the one clone per line | `specimen.rs` (`SpecimenData`, `remap_targets`, `rebuild_if_needed`), `app/background.rs`, `exists.rs` (`Scope::rebind`) |
-| The specimen's three options, its cache keys, and filling a block out | `specimen.rs` (`SpecimenOptions`, `SpecimenState::cached_gen`) |
-| Where a variation sequence sits on the specimen | `specimen.rs` (`UvsEntry`, `uvs_label`, `uvs_boundary`) |
+| Why a character the font cannot draw is tinted by the specimen and not by a glyph flag | `specimen/mod.rs` (`CharEntry::unresolved`), `specimen/status.rs` (`flag_for`) |
+| The specimen's warning/error tints, and why a click on a tinted cell lands on the component | `specimen/paint.rs` (`flag_bg`), `specimen/status.rs` (`goto_target`), `glyph_flags.rs` (`GlyphFlags::source`) |
+| Why what the specimen reads is collected in the background; which remap targets it remembers; why it is handed the searches and aliases; the one clone per line | `specimen/mod.rs` (`SpecimenData`, `rebuild_if_needed`), `specimen/collect.rs` (`remap_targets`), `app/background.rs`, `exists.rs` (`Scope::rebind`) |
+| The specimen's three options, its cache keys, and filling a block out | `specimen/mod.rs` (`SpecimenOptions`, `SpecimenState::cached_gen`) |
+| Where a variation sequence sits on the specimen | `specimen/mod.rs` (`UvsEntry`), `specimen/status.rs` (`uvs_label`), `specimen/layout.rs` (`uvs_boundary`) |
 
 ## The editor
 
@@ -256,7 +256,7 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | The reference chart strip above a `glyph` line: where the strips are, why one fixed row height | `editor/ref_images.rs` (`REF_IMAGE_ROW`, `RefImages::end_frame`), `audit.rs` (`ref_image_root`) |
 | Files changed outside the editor; F5; the poll backend | `app/watch.rs` (`request_refresh`, `run_scan`, `apply_directory_snapshot`, `poll_snapshot`, `next_poll_delay`) |
 | Saving off the UI thread, the revision a write is credited to, why quitting waits, why the bytes are recorded first | `app/save.rs`, `editor/undo.rs` (`SavePoint`), `app/docs.rs` (`knows_disk_bytes`, `confirm_close_and_maybe_save`) |
-| Rebuild debouncing, generations, one build at a time, cancellation, why the font result is sent early | `app/background.rs` (`UniformApp::rebuild`, `take_current_font_build`, `arm_initial_font_build`, `set_selected_face`), `cancel.rs`, `specimen.rs` |
+| Rebuild debouncing, generations, one build at a time, cancellation, why the font result is sent early | `app/background.rs` (`UniformApp::rebuild`, `take_current_font_build`, `arm_initial_font_build`, `set_selected_face`), `cancel.rs`, `specimen/mod.rs` |
 | Why a rebuild sends the composites ahead of validation, and what the recomposition borrows to run beside it | `app/background.rs` (`# Three results`, `take_derived_data`), `app/mod.rs` (`ResolvedMessage`), `ref_composite/mod.rs` (`resolve_expanded_items_shared`) |
 | Why the rebuild also composes the open documents for the panes | `editor/grid_render.rs` (`CompositeMemo`, `seed_composites`) |
 | Why a rebuild's snapshot of the directory is shared, not copied, and why replaced results are freed on another thread | `app/docs.rs` (`snapshot_docs`), `discard.rs` |
@@ -283,5 +283,5 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Why a character the built font lacks must not keep the glyph id Core Text hands back | `preview/coretext.rs` (`run_is_font`) |
 | How tall a preview row is; why the editor's preedit box cannot crop a glyph but the preview's could | `preview/metrics.rs` (`VMetrics`), `editor/document_view/paint.rs` |
 | The text-editing keys, and the state both the editor and the preview edit through | `editor/doc_input.rs` (`TextEdit`) |
-| Who answers Ctrl/Cmd+C, and why the last surface of the frame is the one the clipboard keeps | `clipboard.rs` (`release_label_selection`), `editor/doc_input.rs` (`copy_range`), `specimen.rs` (`CopyKey`) |
+| Who answers Ctrl/Cmd+C, and why the last surface of the frame is the one the clipboard keeps | `clipboard.rs` (`release_label_selection`), `editor/doc_input.rs` (`copy_range`), `specimen/status.rs` (`CopyKey`) |
 | Where a `sample` reaches the reader: the demo's panel and the editor's *Use* button | `render/demo/mod.rs` (`collect_samples`), `editor/document_view/paint.rs` (`sample_use_rect`), `app/mod.rs` |

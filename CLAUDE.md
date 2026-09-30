@@ -96,7 +96,7 @@ Editor (feature `editor`):
 | `editor/mod.rs`, `editor/ids.rs` | `EditorState`, `EditMode`, and the editor-is-a-widget model. |
 | `editor/document_view/` | The editor widget's frame loop, split by concern (`layout`, `paint`, `scroll`, `keys`, `popups`, `changes`). Most churn is here. |
 | `editor/` others | One file per feature: shadows, caret, popups, folding, comment toggle, resize, annotations, autocomplete, links, `line_fields` (the one place that knows where names live on a line), `harness`, `view_tests/`. |
-| `sidebar.rs`, `specimen.rs`, `edit_menu.rs`, `preview/` | File list, the specimen panel, the bottom live preview with its three shaping backends. |
+| `sidebar.rs`, `specimen/`, `edit_menu.rs`, `preview/` | File list, the specimen panel, the bottom live preview with its three shaping backends. |
 
 `font/*.unf` are the font sources. `testdata/` is test-only `.unf` plus goldens. `data/` holds the
 sample-generation inputs read through `-d data`, and `Blocks-18.0.0.txt`, the one file compiled in
@@ -115,7 +115,7 @@ module; the suites that outgrew one:
 | `issues/` | `issues/issues_tests.rs` |
 | `ref_composite/` | `ref_composite/ref_composite_tests.rs` |
 | `editor/document_view/` | `document_view/tests.rs` (helpers) and `editor/view_tests/` (harness scenarios) |
-| `exists.rs`, `pixel.rs`, `specimen.rs`, `meta.rs`, `faces.rs`, `on_demand.rs`, `compose/`, `fix/clearance/`, `render/sample.rs`, `render/reach.rs`, `editor/pixel_selection.rs`, `editor/ref_images.rs`, `editor/glyph_resize.rs`, `app/search.rs`, `app/palette.rs` | `<name>_tests.rs` beside the module |
+| `exists.rs`, `pixel.rs`, `specimen/`, `meta.rs`, `faces.rs`, `on_demand.rs`, `compose/`, `fix/clearance/`, `render/sample.rs`, `render/reach.rs`, `editor/pixel_selection.rs`, `editor/ref_images.rs`, `editor/glyph_resize.rs`, `app/search.rs`, `app/palette.rs` | `<name>_tests.rs` beside the module |
 
 ## Where the bugs come from
 
@@ -124,7 +124,7 @@ Ranked by how often a commit touched them for a fix rather than a feature:
 1. `render/ttf_builder/` + `render/contour.rs` — contour tracing over sub-pixel and on-demand
    shapes, seen through a composite rather than alone. Check contour output at composite level.
 2. `detail.rs` / `pixel.rs` — degenerate inputs (empty, 1×1, zero extent). Test them explicitly.
-3. `specimen.rs` + `render/demo/` — "the font is right, the specimen is wrong". Check both.
+3. `specimen/` + `render/demo/` — "the font is right, the specimen is wrong". Check both.
 4. `editor/document_view/` and the interaction layer — focus, wheel routing, delete, lost flags
    after a drag: exactly what `EditorHarness` exists for.
 5. Name expansion and remap (`pattern.rs`, `ttf_builder/gsub.rs`) — the context-dependent parse
