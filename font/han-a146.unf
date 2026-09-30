@@ -2,13 +2,19 @@
 
 ## 146.3
 
-glyph han-4672:15x16 15 16 // 䙲 ⿱覀大(GTJ) ⿱襾大(P)
-⿱ han-8980:15x5 han-5927:15x11 // ⿱覀大
+glyph han-4672.0:15x16 15 16 // 䙲
+⿱ han-8980:15x7 han-5927:15x9 // ⿱覀大
+ref 3x1 2 6 negated
+ref 3x1 10 6 negated
+glyph han-4672.1:15x16 15 16 // 䙲
+⿱ han-8980:15x7 han-5927:15x9 // ⿱覀大
+glyph han-4672-p:* = han-4672.0:*
+glyph han-4672-(g|t|j):* = han-4672.1:*
 
 ## 146.4
 
 glyph han-4673:15x16 15 16 // 䙳
-⿱ han-8980:15x5 1 han-706b:15x10 // ⿱覀火
+⿱ han-8980:15x7 1 han-706b:15x8 // ⿱覀火
 
 ## 146.6
 
@@ -147,6 +153,7 @@ glyph han-4698-($han-regions):15x16 15 16 // 䚘
 
 glyph han-46ae-($han-regions):15x16 15 16 // 䚮
 ⿰ han-8a01-($-1):5x16 1 han-4e43:9x16 // ⿰訁乃
+glyph han-46ae.0:* = han-46ae-j:*
 
 glyph han-46af-($han-regions):15x16 15 16 // 䚯
 assume ⿰ han-8a01-($-1):7x16 2 han-5202:6x16 // ⿰訁刂
@@ -208,6 +215,9 @@ glyph han-46c6-($han-regions):15x16 15 16 // 䛆
 // glyph han-46c8-($han-regions):15x16 15 16 // 䛈
 // ⿰ han-8a01-($-1) han-77e2 // ⿰訁矢
 
+glyph han-46c9-($han-regions):15x16 15 16 // 䛉
+⿰ han-8a01-($-1):5x16 han-6c11:10x16 // ⿰訁民
+
 glyph han-46cc-($han-regions):15x16 15 16 // 䛌
 ⿰ han-8a01-($-1):5x16 1 han-5305.1:9x16 // ⿰訁包
 
@@ -262,7 +272,7 @@ glyph han-46e8-($han-regions):15x16 15 16 // 䛨
 
 ## 149.8
 
-glyph han-46e9-($han-regions):15x16 15 16 // 䛩 ⿰訁亞(GTP) ⿰訁亜(B)
+glyph han-46e9-($han-regions):15x16 15 16 // 䛩
 ⿰ han-8a01-($-1):5x16 han-4e9e:10x16 // ⿰訁亞
 
 // glyph han-46eb-($han-regions):15x16 15 16 // 䛫
@@ -609,6 +619,9 @@ glyph han-47e1-($han-regions):15x16 15 16 // 䟡
 glyph han-47e7:15x16 15 16 // 䟧
 ⿰ han-27fb7:7x16 1 han-7530:7x16 // ⿰𧾷田
 
+glyph han-47e8:15x16 15 16 // 䟨
+⿰ han-27fb7:5x16 han-6c11:10x16 // ⿰𧾷民
+
 // glyph han-47e9:15x16 15 16 // 䟩
 // ⿰ han-27fb7 han-53bb // ⿰𧾷去
 
@@ -773,6 +786,9 @@ glyph han-484d:15x16 15 16 // 䡍
 
 // glyph han-484f:15x16 15 16 // 䡏
 // ⿰ han-8eca han-5f18 // ⿰車弘
+
+glyph han-4851:15x16 15 16 // 䡑
+⿰ han-8eca:5x16 han-6c11:10x16 // ⿰車民
 
 glyph han-4852:15x16 15 16 // 䡒
 ⿰ han-8eca:7x16 1 han-7530:7x16 // ⿰車田
@@ -1223,7 +1239,7 @@ glyph han-4975:15x16 15 16 // 䥵
 ## 167'.6
 
 glyph han-4980:15x16 15 16 // 䦀
-⿰ han-9485:6x14 han-7fbd.1:9x16 // ⿰钅羽
+⿰ han-9485:6x14 han-7fbd-g:9x16 // ⿰钅羽
 
 ## 167'.7
 

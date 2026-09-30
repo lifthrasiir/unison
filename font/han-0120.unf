@@ -1466,6 +1466,9 @@ glyph han-7f5f:15x16 15 16 // 罟
 ⿱ han-7f52:15x4 han-53e4:13x12 // ⿱罒古
 glyph han-7f5f.0:* = han-7f5f:*
 
+// glyph han-7f60:15x16 15 16 // 罠
+// ⿱ han-7f52 han-6c11 // ⿱罒民
+
 glyph han-7f61:15x16 15 16 // 罡
 ⿱ han-7f52:15x4 1 han-6b63:15x11 // ⿱罒正
 glyph han-7f61.0:* = han-7f61:*

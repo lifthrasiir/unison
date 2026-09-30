@@ -462,8 +462,8 @@ glyph han-21a16:15x16 15 16 // 𡨖
 // glyph han-21a17:15x16 15 16 // 𡨗
 // ⿳ han-5b80 han-767d han-4e03 // ⿳宀白七 <- ⿱宀皂
 
-glyph han-21a1d:15x16 15 16 // 𡨝 ⿳宀火夕(G) ⿱灾夕(X)
-⿳ -1 han-5b80:15x3 han-706b:15x5 1 han-5915:15x8 // ⿳宀火夕
+glyph han-21a1d:15x16 15 16 // 𡨝
+⿳ han-5b80:15x3 han-706b:15x4 1 han-5915:15x8 // ⿳宀火夕
 
 // glyph han-21a1f:15x16 15 16 // 𡨟
 // ⿱ han-5b80 han-544a // ⿱宀告

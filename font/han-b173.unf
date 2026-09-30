@@ -168,8 +168,8 @@ glyph han-290c9:15x16 15 16 // 𩃉 ⿱雨吳(T) ⿱雨吴(Z)
 // glyph han-290ce-($han-regions):15x16 15 16 // 𩃎
 // ⿱ han-96e8-($-1) han-6c78 // ⿱雨汸
 
-glyph han-290cf:15x16 15 16 // 𩃏 ⿱雨灵(G) ⿱雪火(X)
-⿳ -1 han-96e8:15x6 1 han-2b739:13x5 han-706b:15x5 // ⿳雨𫜹火
+glyph han-290cf:15x16 15 16 // 𩃏
+⿳ han-96e8:15x6 1 han-2b739:13x5 han-706b:15x4 // ⿳雨𫜹火
 
 // glyph han-290d0:15x16 15 16 // 𩃐
 // ⿱ han-96e8 han-4f4e // ⿱雨低

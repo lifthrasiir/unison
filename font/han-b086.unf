@@ -202,6 +202,9 @@ glyph han-241d9:15x16 15 16 // 𤇙
 // glyph han-241da-($han-regions):15x16 15 16 // 𤇚
 // ⿰ han-706b han-65a5-($-1) // ⿰火斥
 
+glyph han-241dc:15x16 15 16 // 𤇜
+⿰ han-706b:5x14-l han-6c11:10x16 // ⿰火民
+
 // glyph han-241dd:15x16 15 16 // 𤇝
 // ⿱ han-5f17 han-706b // ⿱弗火
 
@@ -672,7 +675,7 @@ glyph han-24356:15x16 15 16 // 𤍖
 // ⿱ han-7968 han-706c // ⿱票灬
 
 glyph han-24362:15x16 15 16 // 𤍢
-⿳ -1 han-706b:15x5 han-708f:15x8 han-571f:15x4 // ⿳火炏土
+⿳ han-706b:15x4 han-708f:15x8 han-571f:15x4 // ⿳火炏土
 
 // glyph han-24364:15x16 15 16 // 𤍤
 // ⿰ han-706b han-7ae0 // ⿰火章

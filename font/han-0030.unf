@@ -2549,6 +2549,9 @@ glyph han-5450:15x16 15 16 // 呐
 glyph han-5460:15x16 15 16 // 呠
 ⿰ han-53e3:5x12 1 han-672c:9x16 // ⿰口本
 
+// glyph han-5461:15x16 15 16 // 呡
+// ⿰ han-53e3 han-6c11 // ⿰口民
+
 glyph han-5462-($han-regions):15x16 15 16 // 呢
 ⿰ han-53e3:5x12 han-5c3c-($-1):10x16 // ⿰口尼
 glyph han-5462.0:* = han-5462-j:*

@@ -384,6 +384,10 @@ glyph han-59c3:15x16 15 16 // 姃
 ⿰ han-5973:5x14-l han-6b63:10x16 // ⿰女正
 glyph han-59c3.0:* = han-59c3:*
 
+glyph han-59c4:15x16 15 16 // 姄
+⿰ han-5973:5x14-l han-6c11:10x16 // ⿰女民
+glyph han-59c4.0:* = han-59c4:*
+
 // glyph han-59c5-($han-regions):15x16 15 16 // 姅
 // ⿰ han-5973 han-534a-($-1) // ⿰女半
 

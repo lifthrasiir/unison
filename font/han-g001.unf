@@ -719,6 +719,9 @@ glyph han-3014a:15x16 15 16 // 𰅊
 // glyph han-3014b-($han-regions):15x16 15 16 // 𰅋
 // ⿰ han-5317-($-1) han-529b // ⿰北力
 
+glyph han-3014c:15x16 15 16 // 𰅌
+⿰ han-529b:7x16 han-6c11:8x16 // ⿰力民
+
 ## 19.6
 
 // glyph han-3014d:15x16 15 16 // 𰅍

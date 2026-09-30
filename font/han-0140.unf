@@ -436,6 +436,9 @@ glyph han-82dd-(t|j):15x16 15 16 // 苝
 // glyph han-82df:15x16 15 16 // 苟
 // ⿱ han-8279 han-53e5 // ⿱艹句
 
+// glyph han-82e0-($han-regions):15x16 15 16 // 苠
+// ⿱ han-8279-($-1) han-6c11 // ⿱艹民
+
 glyph han-82e3-(g|j|p):15x16 15 16 // 苣
 ⿱ han-8279.0:15x3 han-5de8-($-1):15x13 // ⿱艹巨
 glyph han-82e3-(h|t|k):15x16 15 16 // 苣

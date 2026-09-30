@@ -97,6 +97,9 @@ glyph han-2c02c:15x16 15 16 // 𬀬
 
 ## 72.9
 
+// glyph han-2c042:15x16 15 16 // 𬁂
+// ⿱ han-73c9 han-65e5 // ⿱珉日
+
 // glyph han-2c044:15x16 15 16 // 𬁄
 // ⿳ han-65e5 han-5341 han-574e // ⿳日十坎 <- ⿱早坎
 
@@ -1071,6 +1074,9 @@ glyph han-2c324:15x16 15 16 // 𬌤
 
 // glyph han-2c32c:15x16 15 16 // 𬌬
 // ⿰ han-72ad han-5de6 // ⿰犭左
+
+glyph han-2c32d:15x16 15 16 // 𬌭
+assume ⿰ han-72ad:6x16 -1 han-6c11:10x16 // ⿰犭民
 
 ## 94.6
 

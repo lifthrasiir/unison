@@ -617,6 +617,9 @@ glyph han-600a:15x16 15 16 // 怊
 ⿰ han-5fc4:5x16 han-53ec:10x16 // ⿰忄召
 glyph han-600a.0:* = han-600a:*
 
+glyph han-600b:15x16 15 16 // 怋
+⿰ han-5fc4:5x16 han-6c11:10x16 // ⿰忄民
+
 // glyph han-600c:15x16 15 16 // 怌
 // ⿰ han-5fc4 han-4e15 // ⿰忄丕
 

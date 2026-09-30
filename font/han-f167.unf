@@ -483,7 +483,7 @@ glyph han-2e99a:15x16 15 16 // 𮦚
 // ⿰ han-96f7 han-5df4 // ⿰雷巴
 
 glyph han-2e99f:15x16 15 16 // 𮦟
-⿳ -1 han-96e8:15x6 1 han-7530:11x5 han-706b:15x5 // ⿳雨田火
+⿳ han-96e8:15x6 1 han-7530:11x5 han-706b:15x4 // ⿳雨田火
 
 // glyph han-2e9a0-($han-regions):15x16 15 16 // 𮦠
 // ⿱ han-96e8-($-1) han-6627 // ⿱雨昧

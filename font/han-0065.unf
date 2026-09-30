@@ -1838,6 +1838,9 @@ glyph han-662b:15x16 15 16 // 昫
 ⿰ han-65e5:5x14-l 1 han-53e5:9x16 // ⿰日句
 glyph han-662b.0:* = han-662b:*
 
+// glyph han-662c:15x16 15 16 // 昬
+// ⿱ han-6c11 han-65e5 // ⿱民日
+
 glyph han-662d:15x16 15 16 // 昭
 ⿰ han-65e5:7x16 han-53ec:8x16 // ⿰日召
 glyph han-662d.0:* = han-662d:*

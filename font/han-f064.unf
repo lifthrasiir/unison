@@ -235,6 +235,9 @@ glyph han-2d917:15x16 15 16 // 𭤗
 // glyph han-2d918:15x16 15 16 // 𭤘
 // ⿱ han-6587 han-65e6 // ⿱文旦
 
+glyph han-2d919:15x16 15 16 // 𭤙
+⿰ han-6c11:8x16 han-6587-j:7x16 // ⿰民文
+
 # CJK unified ideographs extension F: 斗 (68)
 
 ## 68.12

@@ -798,6 +798,10 @@ glyph han-6ced.0:* = han-6ced:*
 // glyph han-6cee-($han-regions):15x16 15 16 // 泮 ⿰氵半(GHTKPV) ⿰氵⿻八𰀁(J)
 // ⿰ han-6c35 han-534a-($-1) // ⿰氵半
 
+glyph han-6cef:15x16 15 16 // 泯
+⿰ han-6c35:5x16 han-6c11:10x16 // ⿰氵民
+glyph han-6cef.0:* = han-6cef:*
+
 // glyph han-6cf1:15x16 15 16 // 泱
 // ⿰ han-6c35 han-592e // ⿰氵央
 

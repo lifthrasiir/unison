@@ -2149,6 +2149,9 @@ glyph han-51b7.0:* = han-51b7-j:*
 // glyph han-51b8-($han-regions):15x16 15 16 // 冸 ⿰冫半(GHTKP) ⿰冫⿻八𰀁(J)
 // ⿰ han-51ab han-534a-($-1) // ⿰冫半
 
+// glyph han-51ba:15x16 15 16 // 冺
+// ⿰ han-51ab han-6c11 // ⿰冫民
+
 // glyph han-51bb:15x16 15 16 // 冻
 // ⿰ han-51ab han-4e1c // ⿰冫东
 
@@ -3406,6 +3409,9 @@ glyph han-5220.1:15x16 15 16 // 删
 ⿰ han-518c.0:12x16 han-5202:3x16 // ⿰册刂
 glyph han-5220-(h|t|j):* = han-5220.0:*
 glyph han-5220-(g|v):* = han-5220.1:*
+
+glyph han-5221:15x16 15 16 // 刡
+⿰ han-6c11:10x16 1 han-5202:4x16 // ⿰民刂
 
 glyph han-5222-($han-regions):15x16 15 16 // 刢
 ⿰ han-4ee4-($-1):9x16 1 han-5202:5x16 // ⿰令刂

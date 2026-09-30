@@ -448,8 +448,19 @@ glyph han-23c3b:15x16 15 16 // 𣰻
 
 ## 83.4
 
+// glyph han-23c45-($han-regions):15x16 15 16 // 𣱅
+// ⿱ han-4ea1-($-1) han-6c11 // ⿱亡民
+
 // glyph han-23c46:15x16 15 16 // 𣱆 ⿰户氏(V) ⿰戶氏(Z)
 // ⿰ han-6237 han-6c0f // ⿰户氏
+
+## 83.5
+
+// glyph han-23c48:15x16 15 16 // 𣱈
+// ⿱ han-6c11 han-5df4 // ⿱民巴
+
+// glyph han-23c49:15x16 15 16 // 𣱉
+// ⿱ han-4e91 han-6c11 // ⿱云民
 
 ## 83.7
 

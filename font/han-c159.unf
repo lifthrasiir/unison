@@ -983,6 +983,9 @@ glyph han-2b64f:15x16 15 16 // 𫙏
 // glyph han-2b656:15x16 15 16 // 𫙖
 // ⿰ han-9b5a han-5c3c // ⿰魚尼
 
+glyph han-2b657:15x16 15 16 // 𫙗
+⿰ han-9b5a:7x16 han-6c11:8x16 // ⿰魚民
+
 ## 195.6
 
 glyph han-2b658:15x16 15 16 // 𫙘

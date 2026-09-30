@@ -176,8 +176,10 @@ glyph han-72c4:15x16 15 16 // 狄
 ⿰ han-72ad:6x16 han-706b:9x16 // ⿰犭火
 glyph han-72c4.0:* = han-72c4:*
 
-// glyph han-72c5-($han-regions):15x16 15 16 // 狅 ⿰犭壬(GHTP) ⿰犭𡈼(K)
-// ⿰ han-72ad han-58ec-($-1) // ⿰犭壬
+glyph han-72c5-(g|h|j|k|p):15x16 15 16 // 狅
+⿰ han-72ad:6x16 han-58ec.0:9x16 // ⿰犭壬
+glyph han-72c5-t:15x16 15 16 // 狅
+⿰ han-72ad:6x16 han-2123c:9x16 // ⿰犭𡈼
 
 glyph han-72c6:15x16 15 16 // 狆
 ⿰ han-72ad:6x16 han-4e2d:9x16 // ⿰犭中
@@ -1286,6 +1288,10 @@ glyph han-73c7:15x16 15 16 // 珇
 glyph han-73c8:15x16 15 16 // 珈
 ⿲ han-248e9:3x16 han-529b:6x16 1 han-53e3:5x12 // ⿲𤣩力口
 glyph han-73c8.0:* = han-73c8:*
+
+glyph han-73c9:15x16 15 16 // 珉
+⿰ han-248e9:5x16 han-6c11:10x16 // ⿰𤣩民
+glyph han-73c9.0:* = han-73c9:*
 
 glyph han-73ca.0:15x16 15 16 // 珊
 ⿰ han-248e9:3x16 han-518a:12x16 // ⿰𤣩冊

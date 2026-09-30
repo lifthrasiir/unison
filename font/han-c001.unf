@@ -131,6 +131,9 @@ glyph han-2a730:15x16 15 16 // 𪜰
 // glyph han-2a732-($han-regions):15x16 15 16 // 𪜲
 // ⿰ han-4ebb han-65a5-($-1) // ⿰亻斥
 
+glyph han-2a733:15x16 15 16 // 𪜳
+⿰ han-4ebb:5x16 han-6c11:10x16 // ⿰亻民
+
 // glyph han-2a734:15x16 15 16 // 𪜴
 // ⿰ han-4ebb han-5f18 // ⿰亻弘
 
@@ -1136,6 +1139,9 @@ glyph han-2a98f:15x16 15 16 // 𪦏
 
 // glyph han-2a991:15x16 15 16 // 𪦑
 // ⿱ han-2309c han-5973 // ⿱𣂜女
+
+// glyph han-2a993:15x16 15 16 // 𪦓
+// ⿰ han-5973 han-7720 // ⿰女眠
 
 ## 38.11
 

@@ -901,8 +901,10 @@ glyph han-3dce:15x16 15 16 // 㷎
 // glyph han-3dcf:15x16 15 16 // 㷏
 // ⿱ han-2b029 han-706b // ⿱𫀩火
 
-glyph han-3dd1:15x16 15 16 // 㷑 ⿱火垔(G) ⿱火⿱覀土(TP)
+glyph han-3dd1-(g|t|p):15x16 15 16 // 㷑
 ⿳ han-706b:15x5 1 han-8980:15x5 han-571f:15x5 // ⿳火覀土
+glyph han-3dd1-j:15x16 15 16 // 㷑
+⿳ han-706b:15x4 1 han-897f:15x7 han-571f:15x4 // ⿳火西土
 
 // glyph han-3dd6:15x16 15 16 // 㷖
 // ⿰ han-7085 han-53ec // ⿰炅召

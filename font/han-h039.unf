@@ -724,6 +724,9 @@ glyph han-31869:15x16 15 16 // 𱡩
 // glyph han-3187d:15x16 15 16 // 𱡽
 // ⿰ han-65e5 han-4e3b // ⿰日主
 
+glyph han-3187e:15x16 15 16 // 𱡾
+⿰ han-65e5:5x14-l han-6c11:10x16 // ⿰日民
+
 ## 72.6
 
 glyph han-3187f:15x16 15 16 // 𱡿
@@ -1114,6 +1117,13 @@ glyph han-31942:15x16 15 16 // 𱥂
 
 // glyph han-31960:15x16 15 16 // 𱥠
 // ⿰ han-5939 han-6bdb // ⿰夹毛
+
+# CJK unified ideographs extension H: 氏 (83)
+
+## 83.4
+
+glyph han-31969:15x16 15 16 // 𱥩
+⿰ han-5df1:5x16 han-6c11:10x16 // ⿰己民
 
 # CJK unified ideographs extension H: 气 (84)
 

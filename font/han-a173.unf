@@ -358,6 +358,9 @@ glyph han-4ab6:15x16 15 16 // 䪶
 glyph han-4ab7:15x16 15 16 // 䪷
 ⿰ han-53e5:8x16 han-9801:7x16 // ⿰句頁
 
+glyph han-4ab8:15x16 15 16 // 䪸
+⿰ han-6c11:10x16 han-9801:5x16 // ⿰民頁
+
 // glyph han-4ab9:15x16 15 16 // 䪹
 // ⿰ han-4e15 han-9801 // ⿰丕頁
 
@@ -368,7 +371,8 @@ glyph han-4ab7:15x16 15 16 // 䪷
 // ⿰ han-5f01 han-9801 // ⿰弁頁
 
 glyph han-4abc:15x16 15 16 // 䪼
-⿰ han-51fa:9x16 1 han-9801:5x16 // ⿰出頁
+⿰ han-51fa:7x16 1 han-9801:7x16 // ⿰出頁
+glyph han-4abc.0:* = han-4abc:*
 
 ## 181.6
 
@@ -522,7 +526,7 @@ glyph han-4b03:15x16 15 16 // 䬃
 
 ## 184.2
 
-glyph han-4b22-($han-regions):15x16 15 16 // 䬢 ⿰飠刀(GTP) ⿰𩙿刀(J)
+glyph han-4b22-($han-regions):15x16 15 16 // 䬢
 assume ⿰ han-98e0-($-1):7x16 -1 han-5200:9x16 // ⿰飠刀
 glyph han-4b22.0:* = han-4b22-j:*
 glyph han-4b22.1:* = han-4b22-g:*
@@ -557,7 +561,7 @@ glyph han-4b2b-($han-regions):15x16 15 16 // 䬫
 // glyph han-4b2d-($han-regions):15x16 15 16 // 䬭
 // ⿱ han-53e8 han-98df-($-1) // ⿱叨食
 
-glyph han-4b2f-($han-regions):15x16 15 16 // 䬯 ⿰飠占(GTP) ⿰𩙿占(K)
+glyph han-4b2f-($han-regions):15x16 15 16 // 䬯
 ⿰ han-98e0-($-1):7x16 1 han-5360:7x16 // ⿰飠占
 
 glyph han-4b30-($han-regions):15x16 15 16 // 䬰
@@ -1189,6 +1193,7 @@ glyph han-4cc2:15x16 15 16 // 䳂
 
 glyph han-4cc4:15x16 15 16 // 䳄
 ⿲ han-6b62:5x16-l han-5315.x:3x16 han-9ce5:7x16 // ⿲止匕鳥
+glyph han-4cc4.0:* = han-4cc4:*
 
 glyph han-4cc6:15x16 15 16 // 䳆
 ⿰ han-767d:6x16 1 han-9ce5:7x16 // ⿰白鳥
@@ -1234,6 +1239,7 @@ glyph han-4cdf:15x16 15 16 // 䳟
 
 glyph han-4ce1:15x16 15 16 // 䳡
 ⿰ han-96b9:7x16 1 han-9ce5:7x16 // ⿰隹鳥
+glyph han-4ce1.0:* = han-4ce1:*
 
 glyph han-4ce2:15x16 15 16 // 䳢
 ⿰ han-5176:8x16 han-9ce5:7x16 // ⿰其鳥

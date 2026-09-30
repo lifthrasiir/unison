@@ -513,6 +513,10 @@ glyph han-5cb6:15x16 15 16 // 岶
 ⿰ han-5c71:5x12-l 1 han-767d:9x16 // ⿰山白
 glyph han-5cb6.0:* = han-5cb6:*
 
+glyph han-5cb7:15x16 15 16 // 岷
+⿰ han-5c71:5x12-l han-6c11:10x16 // ⿰山民
+glyph han-5cb7.0:* = han-5cb7:*
+
 // glyph han-5cb8:15x16 15 16 // 岸
 // ⿱ han-5c71 han-5388 // ⿱山厈
 

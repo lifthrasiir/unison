@@ -280,6 +280,9 @@ glyph han-2b121:15x16 15 16 // 𫄡
 glyph han-2b151:15x16 15 16 // 𫅑
 ⿰ han-7f8a:7x16-l 1 han-65e6:7x16 // ⿰羊旦
 
+glyph han-2b152:15x16 15 16 // 𫅒
+⿰ han-7f8a:7x16-l han-6c11:8x16 // ⿰羊民
+
 ## 123.6
 
 // glyph han-2b153:15x16 15 16 // 𫅓
