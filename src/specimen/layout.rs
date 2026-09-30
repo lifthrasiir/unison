@@ -116,6 +116,10 @@ impl SpecimenState {
                 for (selector, (glyph_name, unresolved)) in
                     self.uvs.get(&cp).cloned().unwrap_or_default()
                 {
+                    if self.options.hide_same_as_base && self.same_as_base.contains(&(cp, selector))
+                    {
+                        continue;
+                    }
                     self.uvs_entries.push(UvsEntry {
                         base: cp,
                         selector,

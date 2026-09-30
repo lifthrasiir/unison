@@ -386,6 +386,7 @@ fn run_edit_probe(input: &std::path::Path, repeats: usize) {
                 &f.name_to_gid,
                 None,
                 &_flags,
+                specimen::same_as_base(&[&f.vector, &f.bitmap]),
                 &never,
             )
         });
@@ -563,6 +564,7 @@ fn rebuild_like_the_editor(
             &font.name_to_gid,
             None,
             &glyph_flags,
+            specimen::same_as_base(&[&font.vector, &font.bitmap]),
             cancel,
         );
     }

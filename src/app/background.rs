@@ -472,9 +472,18 @@ impl UniformApp {
                     // Copied before the pair leaves for the UI, and only where
                     // the specimen is going to be collected below: it needs the
                     // *built* font's glyph set, which is the only honest answer
-                    // to whether a cell can be drawn.
-                    let gid_map = want_specimen
-                        .then(|| pair.as_ref().map(|p| p.name_to_gid.clone()))
+                    // to whether a cell can be drawn, and the bytes themselves,
+                    // the only honest answer to which variation sequences draw
+                    // what their base does (`crate::specimen::same_as_base`).
+                    // The bytes are compared after the send rather than here:
+                    // it takes a few tens of milliseconds, and the font waits
+                    // for none of it.
+                    let for_specimen = want_specimen
+                        .then(|| {
+                            pair.as_ref().map(|p| {
+                                (p.name_to_gid.clone(), p.vector.clone(), p.bitmap.clone())
+                            })
+                        })
                         .flatten();
                     // A cancelled build returns `None` like a failed one; only
                     // the token tells the two apart, and only so a cancellation
@@ -491,6 +500,9 @@ impl UniformApp {
                     // `ResultSlot` delivers on drop and nothing else this
                     // rebuild does is anything the font waits for.
                     drop(font_slot);
+                    let gid_map = for_specimen.map(|(gid_map, vector, bitmap)| {
+                        (gid_map, crate::specimen::same_as_base(&[&vector, &bitmap]))
+                    });
                     (gid_map, took)
                 });
                 let recompose = scope.spawn(|| {
@@ -607,17 +619,18 @@ impl UniformApp {
 
             // After the three above rather than beside them: it reads both the
             // built font's glyph set and the flags validation left.
-            let (specimen, specimen_took) = match gid_map.as_ref() {
-                Some(gid_map) => {
+            let (specimen, specimen_took) = match gid_map {
+                Some((gid_map, same_as_base)) => {
                     let t = std::time::Instant::now();
                     let data = crate::specimen::SpecimenData::collect(
                         &refs,
                         &resolution.name_parts,
                         &expansion.exists,
                         &expansion.aliases,
-                        gid_map,
+                        &gid_map,
                         face_id,
                         &glyph_flags,
+                        same_as_base,
                         &cancel,
                     );
                     (Some(data), t.elapsed())

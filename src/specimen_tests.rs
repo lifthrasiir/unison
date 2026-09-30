@@ -264,6 +264,7 @@ fn the_grid_opens_grouped_and_unmarked() {
     assert!(options.group_by_block);
     assert!(!options.show_metric_marks);
     assert!(!options.show_undeclared);
+    assert!(!options.hide_same_as_base);
 }
 
 /// A heading's coverage counts the block's *characters*, not its cells:
@@ -728,6 +729,47 @@ fn a_variation_sequence_follows_its_base_in_selector_order() {
         // cell its sequence varies from.
         vec!["4E00 +VS17 +VS18 4E01 +VS1"]
     );
+}
+
+/// A sequence that draws what its base draws is dropped by the toggle,
+/// whether it is the very same glyph (directly or through an alias) or a
+/// glyph of its own that draws alike — `han-4e00` against `han-4e00.0`, which
+/// share only their sized variants. Asked of the built fonts, so this builds
+/// one. A base whose sequences are all dropped keeps its cell, and one no
+/// `map` names on its own has nothing to be the same as.
+#[test]
+fn a_sequence_drawn_like_its_base_can_be_hidden() {
+    let src = "\
+meta height 16
+meta ascent 14
+meta descent 2
+glyph sq 1 1
+@@
+glyph sq-copy 1 1
+@@
+glyph sq-alias = sq
+glyph blank 1 1
+..
+map U+4E00 = sq
+map U+4E00 U+FE00 = sq
+map U+4E00 U+FE01 = sq-alias
+map U+4E00 U+FE02 = sq-copy
+map U+4E00 U+FE03 = blank
+map U+4E01 U+FE00 = sq
+";
+    let d = doc(src);
+    let docs = [&d];
+    let pair =
+        crate::render::build_font_pair_cached(&docs, &crate::render::new_contour_cache()).unwrap();
+    let mut state = state(src);
+    state.same_as_base = same_as_base(&[&pair.vector, &pair.bitmap]);
+    state.options.group_by_block = false;
+    assert_eq!(
+        state.row_summaries(16),
+        vec!["4E00 +VS1 +VS2 +VS3 +VS4 4E01 +VS1"]
+    );
+    state.options.hide_same_as_base = true;
+    assert_eq!(state.row_summaries(16), vec!["4E00 +VS4 4E01 +VS1"]);
 }
 
 /// The undrawn borders: the ones a variation-sequence cell shares with the run

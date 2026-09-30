@@ -71,6 +71,7 @@ impl SpecimenData {
         name_to_gid: &HashMap<String, u16>,
         face_id: Option<&str>,
         glyph_flags: &GlyphFlags,
+        same_as_base: HashSet<(u32, u32)>,
         cancel: &crate::cancel::CancelToken,
     ) -> Self {
         // `cancel` stops the walk over the documents, which is nearly all of
@@ -438,6 +439,7 @@ impl SpecimenData {
             uvs,
             remap_entries,
             blocks,
+            same_as_base,
             char_props,
             glyph_flags,
         }

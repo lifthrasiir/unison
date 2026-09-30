@@ -57,7 +57,10 @@ use crate::ucd::BlockMap;
 mod collect;
 mod layout;
 mod paint;
+mod same_glyph;
 mod status;
+
+pub use same_glyph::same_as_base;
 
 use paint::{CellStyle, flag_bg};
 use status::{CopyKey, format_coverage, uvs_label};
@@ -91,7 +94,7 @@ pub struct SpecimenClick {
 }
 
 /// Which characters the specimen lists and what it draws on each cell — the
-/// three toggles of the grid's context menu.
+/// toggles of the grid's context menu.
 ///
 /// Plain `Copy` fields, and the whole struct is the cache key of everything
 /// derived from it, so it round-trips through the settings as one value; see
@@ -109,6 +112,10 @@ pub struct SpecimenOptions {
     pub show_metric_marks: bool,
     /// Break the grid into one section per block, under a heading row.
     pub group_by_block: bool,
+    /// Leave out a variation sequence that draws exactly what its base
+    /// character does, in both fonts of the pair — see [`same_glyph`] for why
+    /// that is asked of the built fonts rather than of the glyph names.
+    pub hide_same_as_base: bool,
 }
 
 impl Default for SpecimenOptions {
@@ -120,6 +127,7 @@ impl Default for SpecimenOptions {
             // detail to switch on for one look rather than the resting state.
             show_metric_marks: false,
             group_by_block: true,
+            hide_same_as_base: false,
         }
     }
 }
@@ -251,6 +259,9 @@ pub struct SpecimenState {
     uvs: BTreeMap<u32, BTreeMap<u32, (String, bool)>>,
     /// Which block every code point falls in, `prop block` claims included.
     blocks: BlockMap,
+    /// The `(base, selector)` pairs that draw the same as their base; see
+    /// [`same_glyph`].
+    same_as_base: HashSet<(u32, u32)>,
     /// The sections a reader has opened out of their fold, by index into
     /// `sections`. Layout state and nothing more: it is cleared whenever the
     /// sections are rebuilt, since an index means something else afterwards.
@@ -297,6 +308,7 @@ pub struct SpecimenData {
     uvs: BTreeMap<u32, BTreeMap<u32, (String, bool)>>,
     remap_entries: Vec<RemapEntry>,
     blocks: BlockMap,
+    same_as_base: HashSet<(u32, u32)>,
     char_props: crate::ucd::CharProps,
     glyph_flags: GlyphFlags,
 }
@@ -315,6 +327,7 @@ impl SpecimenState {
             declared: BTreeMap::new(),
             uvs: BTreeMap::new(),
             blocks: BlockMap::default(),
+            same_as_base: HashSet::default(),
             unfolded: HashSet::default(),
             cached_gen: None,
             glyph_cache: GlyphCache::new(),
@@ -341,6 +354,7 @@ impl SpecimenState {
         self.uvs = data.uvs;
         self.remap_entries = data.remap_entries;
         self.blocks = data.blocks;
+        self.same_as_base = data.same_as_base;
         self.char_props = data.char_props;
         self.glyph_flags = data.glyph_flags;
     }
@@ -373,6 +387,7 @@ impl SpecimenState {
             name_to_gid,
             face_id,
             glyph_flags,
+            HashSet::default(),
             &crate::cancel::CancelToken::never(),
         );
         self.apply(data, font_data_gen, derived_gen);
@@ -721,7 +736,12 @@ impl SpecimenState {
             | ui.checkbox(&mut self.options.show_metric_marks, "Show metric marks")
                 .clicked()
             | ui.checkbox(&mut self.options.group_by_block, "Group by block")
-                .clicked();
+                .clicked()
+            | ui.checkbox(
+                &mut self.options.hide_same_as_base,
+                "Hide sequences same as base",
+            )
+            .clicked();
         if toggled {
             ui.close_menu();
         }
