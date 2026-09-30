@@ -295,6 +295,13 @@ glyph han-32e6d:15x16 15 16 // 𲹭
 // glyph han-32e75-($han-regions):15x16 15 16 // 𲹵
 // ⿱ han-8a18-($-1) han-8033 // ⿱記耳
 
+# CJK unified ideographs extension J: 聿 (129)
+
+## 129.6
+
+// glyph han-32e84-($han-regions):15x16 15 16 // 𲺄
+// ⿰ han-807f han-52a3-($-1) // ⿰聿劣
+
 # CJK unified ideographs extension J: 肉 (130)
 
 ## 130.3

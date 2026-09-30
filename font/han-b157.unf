@@ -338,7 +338,7 @@ glyph han-2805a:15x16 15 16 // 𨁚
 ⿰ han-27fb7:5x16 1 han-5b8c:9x16 // ⿰𧾷完
 
 glyph han-2805c:15x16 15 16 // 𨁜
-⿲ -2 han-27fb7:5x16 han-624c:3x16 han-592b:9x16 // ⿲𧾷扌夫
+⿲ han-27fb7:5x16 han-624c:3x16 han-592b:7x16 // ⿲𧾷扌夫
 
 // glyph han-28062:15x16 15 16 // 𨁢
 // ⿱ han-91c6 han-8db3 // ⿱釆足

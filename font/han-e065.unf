@@ -28,7 +28,7 @@ glyph han-2bfee:15x16 15 16 // 𫿮
 ## 70.6
 
 glyph han-2c001:15x16 15 16 // 𬀁
-⿲ -6 han-592b:9x16 han-65b9:7x16 han-4eba:5x16 // ⿲夫方人
+⿲ -4 han-592b:7x16 han-65b9:7x16 han-4eba:5x16 // ⿲夫方人
 
 ## 70.10
 
@@ -321,7 +321,7 @@ glyph han-2c0f1:15x16 15 16 // 𬃱
 ⿲ -1 han-6728:5x16 han-53e4:5x16 1 han-65e6:5x16 // ⿲木古旦
 
 glyph han-2c0f4:15x16 15 16 // 𬃴
-⿲ han-6728:5x16 han-6728:5x16 1 han-767e:4x16 // ⿲木木百
+⿲ han-6728:5x16 han-6728:5x16 han-767e:5x16 // ⿲木木百
 
 // glyph han-2c0f7:15x16 15 16 // 𬃷
 // ⿱ han-675f han-675f // ⿱束束

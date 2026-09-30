@@ -434,6 +434,9 @@ glyph han-2e613:15x16 15 16 // 𮘓
 
 ## 149.8
 
+// glyph han-2e618-($han-regions):15x16 15 16 // 𮘘
+// ⿰ han-8a01-($-1) han-6b69-($-1) // ⿰訁歩
+
 glyph han-2e61a-($han-regions):15x16 15 16 // 𮘚
 ⿲ han-8a01-($-1):5x16 han-6708:5x16 han-6708:5x16 // ⿲訁月月
 

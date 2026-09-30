@@ -739,8 +739,8 @@ glyph han-32c55:15x16 15 16 // 𲱕
 
 ## 106.9
 
-// glyph han-32c83:15x16 15 16 // 𲲃
-// ⿱ han-6797 han-767e // ⿱林百
+glyph han-32c83:15x16 15 16 // 𲲃
+⿱ han-6797:15x7 han-767e:15x9 // ⿱林百
 
 # CJK unified ideographs extension J: 皮 (107)
 

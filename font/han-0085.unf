@@ -1300,6 +1300,9 @@ ref han-6e05.0:15x16
 glyph han-6e06:15x16 15 16 // 渆
 ⿲ han-6c35:3x12 han-5e76:8x16 han-5202:4x16 // ⿲氵并刂
 
+// glyph han-6e09-($han-regions):15x16 15 16 // 渉
+// ⿰ han-6c35 han-6b69-($-1) // ⿰氵歩
+
 // glyph han-6e0f:15x16 15 16 // 渏
 // ⿰ han-6c35 han-5947 // ⿰氵奇
 

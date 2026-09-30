@@ -909,6 +909,9 @@ glyph han-3159f:15x16 15 16 // 𱖟
 // glyph han-315a1:15x16 15 16 // 𱖡
 // ⿰ han-571f han-593a // ⿰土夺
 
+// glyph han-315a2-($han-regions):15x16 15 16 // 𱖢
+// ⿰ han-571f han-52a3-($-1) // ⿰土劣
+
 // glyph han-315a5:15x16 15 16 // 𱖥
 // ⿰ han-571f han-8272 // ⿰土色
 

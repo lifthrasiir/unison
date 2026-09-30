@@ -117,8 +117,8 @@ glyph han-23c9e:15x16 15 16 // 𣲞
 // glyph han-23ca5:15x16 15 16 // 𣲥
 // ⿰ han-6c35 han-4e39 // ⿰氵丹
 
-// glyph han-23ca6:15x16 15 16 // 𣲦
-// ⿱ han-6c34 han-5c11 // ⿱水少
+glyph han-23ca6:15x16 15 16 // 𣲦
+⿱ han-6c34:15x9 han-5c11-v:15x7 // ⿱水少
 
 glyph han-23ca7:15x16 15 16 // 𣲧
 ⿰ han-6c35:5x16 1 han-706b:9x16 // ⿰氵火

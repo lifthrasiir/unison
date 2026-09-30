@@ -818,6 +818,9 @@ glyph han-2e0c1:15x16 15 16 // 𮃁
 glyph han-2e0c7:15x16 15 16 // 𮃇
 ⿰ han-79be:5x16 1 han-9751-j:9x16 // ⿰禾靑
 
+// glyph han-2e0ca-($han-regions):15x16 15 16 // 𮃊
+// ⿰ han-79be han-6b69-($-1) // ⿰禾歩
+
 // glyph han-2e0d1:15x16 15 16 // 𮃑
 // ⿰ han-79be han-5b5f // ⿰禾孟
 

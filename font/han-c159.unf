@@ -21,6 +21,11 @@ glyph han-2b3f4:15x16 15 16 // 𫏴
 // glyph han-2b3f7:15x16 15 16 // 𫏷
 // ⿰ han-8eca han-2bb60 // ⿰車𫭠
 
+## 159.10
+
+// glyph han-2b3fc:15x16 15 16 // 𫏼
+// ⿱ han-3698 han-8ecd // ⿱㚘軍
+
 ## 159.11
 
 // glyph han-2b3ff:15x16 15 16 // 𫏿
@@ -876,8 +881,8 @@ glyph han-2b5f5:15x16 15 16 // 𫗵
 
 ## 187.4
 
-// glyph han-2b606:15x16 15 16 // 𫘆
-// ⿰ han-99ac han-592b // ⿰馬夫
+glyph han-2b606:15x16 15 16 // 𫘆
+⿰ han-99ac:7x16 1 han-592b:7x16 // ⿰馬夫
 
 // glyph han-2b607:15x16 15 16 // 𫘇
 // ⿰ han-99ac han-5339 // ⿰馬匹

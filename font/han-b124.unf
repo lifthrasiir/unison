@@ -374,8 +374,8 @@ glyph han-26544:15x16 15 16 // 𦕄
 // glyph han-26548:15x16 15 16 // 𦕈
 // ⿰ han-8033 han-5c11 // ⿰耳少
 
-// glyph han-26549:15x16 15 16 // 𦕉
-// ⿱ han-5c11 han-8033 // ⿱少耳
+glyph han-26549-($han-regions):15x16 15 16 // 𦕉
+⿱ han-5c11-($-1):15x7 1 han-8033:15x8 // ⿱少耳
 
 glyph han-2654c:15x16 15 16 // 𦕌
 ⿰ han-6c0f:8x16 han-8033:7x16 // ⿰氏耳

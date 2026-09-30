@@ -76,6 +76,9 @@ glyph han-3b58:15x16 15 16 // 㭘
 // glyph han-3b5d:15x16 15 16 // 㭝
 // ⿱ han-6797 han-4e5d // ⿱林九
 
+// glyph han-3b5e-($han-regions):15x16 15 16 // 㭞
+// ⿰ han-6728 han-52a3-($-1) // ⿰木劣
+
 // glyph han-3b5f:15x16 15 16 // 㭟
 // ⿱ han-5171 han-6728 // ⿱共木
 

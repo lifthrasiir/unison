@@ -331,8 +331,8 @@ glyph han-20f17:15x16 15 16 // 𠼗
 // glyph han-20f1d:15x16 15 16 // 𠼝
 // ⿰ han-53e3 han-68a8 // ⿰口梨
 
-// glyph han-20f1e:15x16 15 16 // 𠼞
-// ⿰ han-5408 han-4e9e // ⿰合亞
+glyph han-20f1e:15x16 15 16 // 𠼞
+⿰ han-5408:7x16 han-4e9e:8x16 // ⿰合亞
 
 glyph han-20f22-g:15x16 15 16 // 𠼢 ⿰口强(G) ⿰口強(TV)
 ⿲ han-53e3:3x12 1 han-5f13:4x16 han-867d:7x16 // ⿲口弓虽

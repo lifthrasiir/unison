@@ -445,6 +445,7 @@ $$....@@@@@@@@@@@@@@@@@@....$$
 $$........@@......@@........$$
 $$......./@@......@@....../1$$
 $$@@@@@@@@0/......@@@@@@@@@@$$
+glyph han-898b.0:* = han-898b:*
 
 ## 147.2
 
@@ -457,7 +458,8 @@ glyph han-898d:15x16 15 16 // 覍
 ⿱ han-21b54:15x7 han-898b:13x9 // ⿱𡭔見
 glyph han-898d.0:* = han-898d:*
 glyph han-898d.1:* = han-898d:*
-// TODO glyph han-898d.2:*
+glyph han-898d.2:15x16 15 16 // 覍
+⿱ han-5c11.0:15x7 han-898b:13x9 // ⿱𡭔見
 
 // glyph han-898e:15x16 15 16 // 覎
 // ⿺ han-898b han-5b50 // ⿺見子
@@ -465,18 +467,19 @@ glyph han-898d.1:* = han-898d:*
 ## 147.4
 
 glyph han-898f:15x16 15 16 // 規
-⿰ han-592b:9x16 1 han-898b:5x16 // ⿰夫見
+⿰ han-592b:7x16 1 han-898b:7x16 // ⿰夫見
+glyph han-898f.0:* = han-898f:*
 
 // glyph han-8990-($han-regions):15x16 15 16 // 覐
 // ⿺ han-898b han-723b-($-1) // ⿺見爻
 
 glyph han-8991-(g|j|p):15x16 15 16 // 覑
-⿰ han-7247.0:8x16 han-898b:7x16 // ⿰片見
+assume ⿰ han-7247.0:8x16 -1 han-898b:8x16 // ⿰片見
 glyph han-8991-(h|t):15x16 15 16 // 覑
 ⿰ han-7247.x:6x16 1 han-898b:8x16 // ⿰片見
 
 glyph han-8992:15x16 15 16 // 覒
-⿰ han-6bdb:9x16 1 han-898b:5x16 // ⿰毛見
+⿰ han-6bdb:7x16 1 han-898b:7x16 // ⿰毛見
 
 // glyph han-8994:15x16 15 16 // 覔
 // ⿱ han-4e0d han-898b // ⿱不見
@@ -488,11 +491,13 @@ glyph han-8992:15x16 15 16 // 覒
 
 glyph han-8998:15x16 15 16 // 覘
 ⿰ han-5360:7x16 1 han-898b:7x16 // ⿰占見
+glyph han-8998.0:* = han-8998:*
 
 ## 147.6
 
 glyph han-899c:15x16 15 16 // 覜
 ⿰ han-5146:7x16 1 han-898b:7x16 // ⿰兆見
+glyph han-899c.0:* = han-899c:*
 
 ## 147.7
 
@@ -526,10 +531,13 @@ glyph han-89a6-(j|k):* = han-89a6.0:*
 glyph han-89a6-(g|h|t):* = han-89a6.2:*
 glyph han-89a6-p:* = han-89a6.x:*
 
-glyph han-89a9-(g|h|t|k|p|v):15x16 15 16 // 覩 ⿰者見(GHTKPV) ⿰⿻者丶見(J)
-⿰ han-8005-($-1):7x16 1 han-898b:7x16 // ⿰者見
-glyph han-89a9-j:15x16 15 16 // 覩 ⿰者見(GHTKPV) ⿰⿻者丶見(J)
+glyph han-89a9.0:15x16 15 16 // 覩
 ⿰ han-8005.1:7x16 1 han-898b:7x16 // ⿰者見
+glyph han-89a9.1:* = han-89a9.0:*
+glyph han-89a9.2:15x16 15 16 // 覩
+⿰ han-8005.0:7x16 1 han-898b:7x16 // ⿰者見
+glyph han-89a9-(j|k|p):* = han-89a9.0:*
+glyph han-89a9-(g|h|t|v):* = han-89a9.2:*
 
 // glyph han-89aa:15x16 15 16 // 親
 // ⿰ han-4eb2 han-898b // ⿰亲見

@@ -608,8 +608,8 @@ glyph han-2e38e:15x16 15 16 // 𮎎
 glyph han-2e3a8:15x16 15 16 // 𮎨
 ⿳ han-8279-j:15x3 han-5927:15x5 han-5df3:13x8 // ⿳艹大巳
 
-// glyph han-2e3a9:15x16 15 16 // 𮎩
-// ⿱ han-8279 han-767e // ⿱艹百
+glyph han-2e3a9:15x16 15 16 // 𮎩
+⿱ han-8279-g:15x3 1 han-767e:15x12 // ⿱艹百
 
 // glyph han-2e3aa:15x16 15 16 // 𮎪
 // ref han-8299 // ⿻芙丷

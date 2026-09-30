@@ -3946,8 +3946,9 @@ glyph han-52a2:15x16 15 16 // 劢
 
 ## 19.4
 
-// glyph han-52a3:15x16 15 16 // 劣
-// ⿱ han-5c11 han-529b // ⿱少力
+glyph han-52a3-($han-regions):15x16 15 16 // 劣
+⿱ han-5c11-($-1):15x7 han-529b:15x9 // ⿱少力
+glyph han-52a3.0:* = han-52a3-j:*
 
 glyph han-52a4:15x16 15 16 // 劤
 ⿰ han-65a4:6x16 1 han-529b:8x16 // ⿰斤力

@@ -1087,7 +1087,7 @@ glyph han-4c7f:15x16 15 16 // 䱿
 // ⿲ han-9b5a han-2bd56 han-5bf8 // ⿲魚𫵖寸 <- ⿰魚尉
 
 glyph han-4c85:15x16 15 16 // 䲅
-⿲ -6 han-9b5a:7x16 han-592b:9x16 han-898b:5x16 // ⿲魚夫見
+⿲ -4 han-9b5a:7x16 han-592b:7x16 han-898b:5x16 // ⿲魚夫見
 
 glyph han-4c86:15x16 15 16 // 䲆
 ⿰ han-9b5a:7x16 1 han-9b5a:7x16 // ⿰魚魚

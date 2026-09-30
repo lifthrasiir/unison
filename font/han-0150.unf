@@ -431,6 +431,9 @@ glyph han-8cd9-(g|t|k|p):* = han-8cd9.x:*
 // glyph han-8cda:15x16 15 16 // 賚
 // ⿱ han-4f86 han-8c9d // ⿱來貝
 
+// glyph han-8cdb:15x16 15 16 // 賛
+// ⿱ han-3698 han-8c9d // ⿱㚘貝
+
 glyph han-8ce0:15x16 15 16 // 賠
 ⿰ han-8c9d:6x16 han-5485:9x16 // ⿰貝咅
 glyph han-8ce0.0:* = han-8ce0:*

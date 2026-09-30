@@ -63,6 +63,9 @@ glyph han-2d4f3:15x16 15 16 // 𭓳
 // glyph han-2d4f6:15x16 15 16 // 𭓶
 // ⿱ han-5b80 han-5353 // ⿱宀卓
 
+// glyph han-2d4f7-($han-regions):15x16 15 16 // 𭓷 ⿱宀歩(S) ⿱宀步(Z)
+// ⿱ han-5b80 han-6b69-($-1) // ⿱宀歩
+
 // glyph han-2d4f8:15x16 15 16 // 𭓸
 // ⿳ han-5b80 han-2053c han-518b // ⿳宀𠔼冋
 
@@ -336,7 +339,7 @@ glyph han-2d594:15x16 15 16 // 𭖔
 // ⿱ han-5c71 han-5321 // ⿱山匡
 
 glyph han-2d596:15x16 15 16 // 𭖖
-⿰ han-5c71:5x16 2 han-767e:8x16 // ⿰山百
+⿰ han-5c71:5x12-l 1 han-767e:9x16 // ⿰山百
 
 glyph han-2d599:15x16 15 16 // 𭖙
 ⿰ han-5c71:5x12-l 1 han-5149:9x16 // ⿰山光

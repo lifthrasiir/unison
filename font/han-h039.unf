@@ -262,8 +262,8 @@ glyph han-316e5:15x16 15 16 // 𱛥
 // glyph han-316e9:15x16 15 16 // 𱛩
 // ⿱ han-5c71 han-675f // ⿱山束
 
-// glyph han-316ea:15x16 15 16 // 𱛪
-// ⿱ han-51fa han-5c11 // ⿱出少
+glyph han-316ea:15x16 15 16 // 𱛪
+⿱ han-51fa:15x8 1 han-5c11-k:15x7 // ⿱出少
 
 glyph han-316eb:15x16 15 16 // 𱛫
 ⿰ han-5c71:5x16 1 han-8c9d:8x16 // ⿰山貝

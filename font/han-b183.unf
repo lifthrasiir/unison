@@ -280,8 +280,8 @@ glyph han-296f5-($han-regions):15x16 15 16 // 𩛵
 
 ## 184.8
 
-// glyph han-29704:15x16 15 16 // 𩜄
-// ⿰ han-98e0 han-4e9e // ⿰飠亞
+glyph han-29704-($han-regions):15x16 15 16 // 𩜄
+⿰ han-98e0-($-1):7x16 han-4e9e:8x16 // ⿰飠亞
 
 // glyph han-29709:15x16 15 16 // 𩜉
 // ⿰ han-98e0 han-820d // ⿰飠舍

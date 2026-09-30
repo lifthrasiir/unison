@@ -370,8 +370,8 @@ glyph han-2266a:15x16 15 16 // 𢙪
 // glyph han-2266d:15x16 15 16 // 𢙭
 // ⿰ han-5c16 han-5fc3 // ⿰尖心
 
-// glyph han-2266f:15x16 15 16 // 𢙯
-// ⿱ han-767e han-5fc3 // ⿱百心
+glyph han-2266f:15x16 15 16 // 𢙯
+⿱ han-767e:15x9 han-5fc3:15x7 // ⿱百心
 
 ## 61.7
 

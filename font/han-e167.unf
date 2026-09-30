@@ -670,8 +670,8 @@ glyph han-2cc43:15x16 15 16 // 𬱃
 
 ## 184.4
 
-// glyph han-2cc8b:15x16 15 16 // 𬲋
-// ⿰ han-98e0 han-592b // ⿰飠夫
+glyph han-2cc8b:15x16 15 16 // 𬲋
+⿰ han-98e0-g:7x16 1 han-592b:7x16 // ⿰飠夫
 
 // glyph han-2cc8c:15x16 15 16 // 𬲌
 // ⿰ han-98e0 han-5e00 // ⿰飠帀

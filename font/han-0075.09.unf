@@ -219,7 +219,8 @@ glyph han-69e0:15x16 15 16 // 槠
 // ⿲ han-6728 han-5774 han-4e38-($-1) // ⿲木坴丸 <- ⿰木埶
 
 glyph han-69fb:15x16 15 16 // 槻
-⿲ -4 han-6728:5x16 han-592b:9x16 han-898b:5x16 // ⿲木夫見
+⿲ -2 han-6728:5x16 han-592b:7x16 han-898b:5x16 // ⿲木夫見
+glyph han-69fb.0:* = han-69fb:*
 
 // glyph han-69fc:15x16 15 16 // 槼
 // ⿱ han-898f han-6728 // ⿱規木
