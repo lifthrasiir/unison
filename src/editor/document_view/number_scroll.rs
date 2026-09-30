@@ -28,21 +28,66 @@
 //! [`line_numbers`](crate::editor::line_numbers) knows. There the sign is part
 //! of the number — the caret may sit on either side of it, a selection holds
 //! it, and zero steps down to `-1` — and anywhere else only the digits are.
+//!
+//! A split's gap is a signed number that may also be left out for zero
+//! ([`GapSlot`]), and there the gesture treats "no gap" *as* the zero rather
+//! than writing one: a step that lands on zero takes the gap out, and a step
+//! from a slot with none writes `1` or `-1` into it. Stepping down from `1`
+//! therefore reads `1`, nothing, `-1`. Digits at the caret still come first —
+//! the end of `han-4ebb:5x16` steps the name's `16` as it always did — so a
+//! slot is reached from the whitespace between parts, or from the edge of a
+//! part that does not end in a digit. A slot that already holds a gap steps
+//! that gap rather than writing a second one beside it.
+//!
+//! Two slots can meet at one caret column: the edge of a nested split is both
+//! the line's slot outside the token and the nested split's own slot inside
+//! it. The nested one wins, since the line's is also reachable from the part
+//! on its other side. Where a gap was taken out, though, the caret alone
+//! cannot always say which of the two it was in — `a|b 1 c|d` leaves it at an
+//! edge of `c|d` — and it may even end up beside a digit that would claim it
+//! (`b:3x4 1`). So the omission remembers its slot ([`OmittedGap`]), and the
+//! next tick goes back there for as long as neither the caret nor the line
+//! has moved.
+//!
+//! [`GapSlot`]: crate::editor::line_numbers::GapSlot
 
 use std::ops::Range;
 
 use super::*;
+use crate::editor::line_numbers::{GapSlot, gap_slots, signed_numbers};
 
 /// A number the wheel resolved to, ready to be written back. Detection runs
 /// before the scroll area consumes the wheel; the edit itself is applied
 /// after the paint pass, with the other document edits of the frame.
 pub(super) struct NumberBump {
     line: usize,
-    /// Character columns of the number being replaced, sign included.
+    /// Character columns being replaced: the number itself, sign included,
+    /// or for a gap the whole of its slot's region.
     start: usize,
     end: usize,
-    /// The stepped number.
+    /// What replaces them.
     text: String,
+    /// The columns of the stepped number once written, left selected; empty
+    /// where a gap stepped to zero was taken out, and the caret goes there.
+    number: Range<usize>,
+    /// For a gap, whether its slot is a nested split's — what an omission
+    /// has to remember besides `start`.
+    nested: Option<bool>,
+}
+
+/// Where the last tick took a gap out, so that the next one writes it back
+/// into the same slot; see the module docs. Stale as soon as the caret or the
+/// line differs from what the omission left, which is checked rather than
+/// cleared.
+#[derive(Clone, Debug)]
+pub(crate) struct OmittedGap {
+    line: usize,
+    col: usize,
+    text: String,
+    /// The slot, as its region's start (which a write into it never moves)
+    /// and whether it is a nested split's.
+    region_start: usize,
+    nested: bool,
 }
 
 /// The digit run the caret is *in or next to*, as character columns. `None`
@@ -144,6 +189,11 @@ fn step_digits(digits: &str, delta: i32) -> String {
     String::from_utf8(d).expect("digits stay ASCII")
 }
 
+/// Whether `number` is zero, in whatever width and with whatever sign.
+fn is_zero(number: &str) -> bool {
+    number.trim_start_matches('-').bytes().all(|b| b == b'0')
+}
+
 /// `number` stepped by one in `delta`'s direction. An unsigned number is
 /// [`step_digits`] and stops at zero; a `signed` one steps its magnitude away
 /// from or toward zero and crosses it, the sign appearing below zero and
@@ -154,7 +204,6 @@ fn step_number(number: &str, delta: i32, signed: bool) -> String {
         Some(digits) if signed => (true, digits),
         _ => (false, number),
     };
-    let is_zero = |d: &str| d.bytes().all(|c| c == b'0');
     if is_zero(digits) {
         // Zero has no sign to keep, whichever it was written with.
         return if signed && delta < 0 {
@@ -246,15 +295,33 @@ pub(super) fn detect_number_bump(
     let Some(DocLine::Text(text)) = lines.get(line) else {
         return None;
     };
-    let signed_numbers = crate::editor::line_numbers::signed_numbers(text);
-    let (start, end, signed) = match state.selection_range() {
+    let col = state.cursor.col;
+    let signed = signed_numbers(text);
+    let slots = gap_slots(text);
+    let target = match state.selection_range() {
         Some((lo, hi)) if lo != hi => {
             if lo.line != line || hi.line != line {
                 return None;
             }
-            number_in_selection(text, &signed_numbers, lo.col, hi.col)?
+            Target::Number(number_in_selection(text, &signed, lo.col, hi.col)?)
         }
-        _ => number_around(text, &signed_numbers, state.cursor.col)?,
+        _ => {
+            let remembered = state
+                .omitted_gap
+                .as_ref()
+                .filter(|m| m.line == line && m.col == col && *text == *m.text);
+            match remembered {
+                Some(m) => Target::Slot(
+                    slots
+                        .iter()
+                        .find(|s| s.region.start == m.region_start && s.nested == m.nested)?,
+                ),
+                None => match number_around(text, &signed, col) {
+                    Some(number) => Target::Number(number),
+                    None => Target::Slot(slot_at(&slots, col)?),
+                },
+            }
+        }
     };
 
     // Only now, with a number in hand, is the input this gesture's to take.
@@ -271,13 +338,132 @@ pub(super) fn detect_number_bump(
             if step < 0 { 1 } else { -1 }
         }
     };
-    let number: String = text.chars().take(end).skip(start).collect();
-    Some(NumberBump {
+    let chars: Vec<char> = text.chars().collect();
+    let (slot, gap) = match target {
+        Target::Number((start, end, signed)) => {
+            match slots.iter().find(|s| s.gaps.contains(&(start..end))) {
+                Some(slot) => (slot, Some(start..end)),
+                None => {
+                    let stepped =
+                        step_number(&chars[start..end].iter().collect::<String>(), delta, signed);
+                    return Some(NumberBump {
+                        line,
+                        start,
+                        end,
+                        number: start..start + stepped.chars().count(),
+                        text: stepped,
+                        nested: None,
+                    });
+                }
+            }
+        }
+        Target::Slot(slot) => (slot, slot.gaps.first().cloned()),
+    };
+    Some(step_gap(&chars, line, slot, gap, col, delta))
+}
+
+/// What the gesture resolved to: a number already written — its columns and
+/// whether it is signed — or a gap slot with none at the caret.
+enum Target<'a> {
+    Number((usize, usize, bool)),
+    Slot(&'a GapSlot),
+}
+
+/// The slot the caret is in, touching either end of its region counting. A
+/// nested split's slot wins over the line's where the two meet at the token's
+/// edge; see the module docs.
+fn slot_at(slots: &[GapSlot], col: usize) -> Option<&GapSlot> {
+    let mut at = slots
+        .iter()
+        .filter(|s| s.region.start <= col && col <= s.region.end);
+    let first = at.next()?;
+    Some(at.find(|s| s.nested).unwrap_or(first))
+}
+
+/// Steps the `gap` written in `slot`, or with none there the zero it leaves
+/// out, as one rewrite of the slot's whole region. Always the whole region,
+/// starting where the slot does, so that each tick replaces exactly what the
+/// last one wrote at the same column — the undo stack's replace chain, which
+/// is what folds writing, stepping and omitting a gap into one undo.
+///
+/// A gap that steps to zero is taken out with one separator beside it, the
+/// one after where there is one, so `a 1 b` becomes `a b` and a trailing
+/// `b 1` becomes `b`. One written from nothing goes in at the caret with a
+/// separator on whichever side needs one to stay a token of its own.
+fn step_gap(
+    chars: &[char],
+    line: usize,
+    slot: &GapSlot,
+    gap: Option<Range<usize>>,
+    col: usize,
+    delta: i32,
+) -> NumberBump {
+    let is_sep = |c: char| {
+        if slot.nested {
+            c == '|'
+        } else {
+            c.is_whitespace()
+        }
+    };
+    let region = slot.region.clone();
+    // What is cut out of the line, what goes in its place, and where the
+    // stepped number ends up.
+    let (cut, insert, number) = match gap {
+        Some(gap) => {
+            let stepped = step_number(&chars[gap.clone()].iter().collect::<String>(), delta, true);
+            let cut = if !is_zero(&stepped) {
+                let number = gap.start..gap.start + stepped.chars().count();
+                return rewrite_region(chars, line, slot, gap, &stepped, number);
+            } else if gap.end < region.end && is_sep(chars[gap.end]) {
+                gap.start..gap.end + 1
+            } else if gap.start > region.start && is_sep(chars[gap.start - 1]) {
+                gap.start - 1..gap.end
+            } else {
+                gap
+            };
+            (cut.clone(), String::new(), cut.start..cut.start)
+        }
+        None => {
+            let at = col.clamp(region.start, region.end);
+            // A neighbour that is neither a separator nor outside the token
+            // (whitespace, for a nested split) needs a separator between.
+            let needs_sep = |c: Option<&char>| c.is_some_and(|&c| !is_sep(c) && !c.is_whitespace());
+            let sep = if slot.nested { '|' } else { ' ' };
+            let stepped = step_number("0", delta, true);
+            let lead = needs_sep(at.checked_sub(1).and_then(|i| chars.get(i)));
+            let number = at + usize::from(lead)..at + usize::from(lead) + stepped.len();
+            let mut insert = String::new();
+            insert.extend(lead.then_some(sep));
+            insert.push_str(&stepped);
+            insert.extend(needs_sep(chars.get(at)).then_some(sep));
+            (at..at, insert, number)
+        }
+    };
+    rewrite_region(chars, line, slot, cut, &insert, number)
+}
+
+/// The [`NumberBump`] that rewrites `slot`'s whole region with `cut` replaced
+/// by `insert`; see [`step_gap`] for why the whole region.
+fn rewrite_region(
+    chars: &[char],
+    line: usize,
+    slot: &GapSlot,
+    cut: Range<usize>,
+    insert: &str,
+    number: Range<usize>,
+) -> NumberBump {
+    let region = slot.region.clone();
+    let mut text: String = chars[region.start..cut.start].iter().collect();
+    text.push_str(insert);
+    text.extend(&chars[cut.end..region.end]);
+    NumberBump {
         line,
-        start,
-        end,
-        text: step_number(&number, delta, signed),
-    })
+        start: region.start,
+        end: region.end,
+        text,
+        number,
+        nested: Some(slot.nested),
+    }
 }
 
 /// Keeps the wheel away from the scroll area for as long as the gesture's
@@ -346,9 +532,10 @@ pub(super) fn apply_number_bump(
         start,
         end,
         text,
+        number,
+        nested,
     } = bump;
-    let anchor = Caret::new(line, start);
-    state.cursor = crate::editor::editing::replace_in_line(
+    crate::editor::editing::replace_in_line(
         lines,
         &mut state.undo,
         line,
@@ -357,7 +544,18 @@ pub(super) fn apply_number_bump(
         &text,
         state.cursor,
     );
-    state.selection_anchor = Some(anchor);
+    state.cursor = Caret::new(line, number.end);
+    state.selection_anchor = (!number.is_empty()).then_some(Caret::new(line, number.start));
+    state.omitted_gap = match (nested, lines.get(line)) {
+        (Some(nested), Some(DocLine::Text(after))) if number.is_empty() => Some(OmittedGap {
+            line,
+            col: number.start,
+            text: after.to_string(),
+            region_start: start,
+            nested,
+        }),
+        _ => None,
+    };
     true
 }
 

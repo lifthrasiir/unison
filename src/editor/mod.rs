@@ -288,6 +288,9 @@ pub struct EditorState {
     /// The run of Ctrl-drag whole-glyph shifts in progress, if any. See
     /// [`pixel_selection::GlyphShiftRun`].
     pub(crate) glyph_shift_run: Option<pixel_selection::GlyphShiftRun>,
+    /// Where Alt + wheel / Alt + Up/Down last took a zero gap out, so the next
+    /// tick writes it back there. See [`document_view::OmittedGap`].
+    pub(crate) omitted_gap: Option<document_view::OmittedGap>,
     /// Cached per-frame view data (composites, visual lines, source offsets);
     /// rebuilt only when the document or layout inputs change.
     pub(crate) view_cache: Option<document_view::ViewCache>,
@@ -398,6 +401,7 @@ impl EditorState {
             pixel_selection: None,
             pixel_select_anchor: None,
             glyph_shift_run: None,
+            omitted_gap: None,
             view_cache: None,
             stale_view: None,
             last_reparse: None,

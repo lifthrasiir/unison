@@ -180,6 +180,131 @@ fn alt_arrows_step_a_selected_negative_number() {
     assert_eq!(h.text(1), "anchor +x 1 -2..-1");
 }
 
+/// An IDC split's gap may be left out when it is zero, so the gesture treats
+/// "no gap" as the zero: from the empty slot it writes `1` or `-1`, and a gap
+/// stepped to zero is taken out again. Down, down from `1` is therefore
+/// `1` → (none) → `-1`, and the whole run is one undo.
+#[test]
+fn alt_arrows_write_and_omit_a_zero_gap() {
+    let mut h = EditorHarness::new("glyph c\n⿰ a b\n");
+    h.click_text(1, 3); // right after "a"
+
+    h.key_mod(Key::ArrowUp, Modifiers::ALT);
+    assert_eq!(h.text(1), "⿰ a 1 b");
+    assert_eq!(h.state.selection_anchor, Some(Caret { line: 1, col: 4 }));
+    assert_eq!(h.cursor(), Caret { line: 1, col: 5 });
+
+    h.key_mod(Key::ArrowDown, Modifiers::ALT);
+    assert_eq!(h.text(1), "⿰ a b");
+    assert_eq!(h.state.selection_anchor, None);
+    h.key_mod(Key::ArrowDown, Modifiers::ALT);
+    assert_eq!(h.text(1), "⿰ a -1 b");
+    h.key_mod(Key::ArrowUp, Modifiers::ALT);
+    assert_eq!(h.text(1), "⿰ a b");
+    h.key_mod(Key::ArrowUp, Modifiers::ALT);
+    assert_eq!(h.text(1), "⿰ a 1 b");
+
+    h.key_mod(Key::Z, Modifiers::COMMAND);
+    assert_eq!(h.text(1), "⿰ a b");
+    assert_eq!(h.cursor(), Caret { line: 1, col: 3 });
+}
+
+/// The slots at either end of the line are gaps too.
+#[test]
+fn alt_arrows_write_a_gap_at_either_end_of_a_split() {
+    let mut h = EditorHarness::new("glyph c\n⿰ a b // c\n");
+    h.click_text(1, 1); // right after the operator
+    h.key_mod(Key::ArrowDown, Modifiers::ALT);
+    assert_eq!(h.text(1), "⿰ -1 a b // c");
+
+    h.click_text(1, 8); // right after "b"
+    h.key_mod(Key::ArrowUp, Modifiers::ALT);
+    assert_eq!(h.text(1), "⿰ -1 a b 1 // c");
+    h.key_mod(Key::ArrowDown, Modifiers::ALT);
+    assert_eq!(h.text(1), "⿰ -1 a b // c");
+}
+
+/// A gap written out is omitted as soon as it steps to zero, and a slot that
+/// already holds one steps it rather than writing a second beside it.
+#[test]
+fn alt_arrows_step_the_gap_a_slot_already_has() {
+    let mut h = EditorHarness::new("glyph c\n⿰ a 1 b\n");
+    h.click_text(1, 3); // after "a", a space away from the "1"
+    h.key_mod(Key::ArrowUp, Modifiers::ALT);
+    assert_eq!(h.text(1), "⿰ a 2 b");
+    h.key_mod(Key::ArrowDown, Modifiers::ALT);
+    h.key_mod(Key::ArrowDown, Modifiers::ALT);
+    assert_eq!(h.text(1), "⿰ a b");
+}
+
+/// Inside a nested split the pieces' own slots take the gesture: between two
+/// pieces, and at the token's edge — which the nested split wins over the
+/// line's slot on the other side of the space.
+#[test]
+fn alt_arrows_write_a_gap_inside_a_nested_split() {
+    let mut h = EditorHarness::new("glyph c\n⿰ a b|c\n");
+    h.click_text(1, 4); // the start of "b|c"
+    h.key_mod(Key::ArrowUp, Modifiers::ALT);
+    assert_eq!(h.text(1), "⿰ a 1|b|c");
+    h.key_mod(Key::ArrowDown, Modifiers::ALT);
+    assert_eq!(h.text(1), "⿰ a b|c");
+    assert_eq!(h.cursor(), Caret { line: 1, col: 4 });
+    h.key_mod(Key::ArrowDown, Modifiers::ALT);
+    assert_eq!(h.text(1), "⿰ a -1|b|c");
+
+    let mut h = EditorHarness::new("glyph c\n⿰ a b|c\n");
+    h.click_text(1, 5); // between "b" and "|"
+    h.key_mod(Key::ArrowUp, Modifiers::ALT);
+    assert_eq!(h.text(1), "⿰ a b|1|c");
+    h.key_mod(Key::ArrowDown, Modifiers::ALT);
+    assert_eq!(h.text(1), "⿰ a b|c");
+}
+
+/// An omitted gap leaves the caret where the gap was, and the gesture keeps
+/// going there: even beside a nested split, whose edge would otherwise take
+/// the caret, or beside a name ending in digits, which would otherwise be the
+/// number at the caret.
+#[test]
+fn an_omitted_gap_keeps_its_slot_for_the_next_tick() {
+    let mut h = EditorHarness::new("glyph c\n⿰ a|b 1 c|d\n");
+    h.click_text(1, 7); // after the "1"
+    h.key_mod(Key::ArrowDown, Modifiers::ALT);
+    assert_eq!(h.text(1), "⿰ a|b c|d");
+    h.key_mod(Key::ArrowDown, Modifiers::ALT);
+    assert_eq!(h.text(1), "⿰ a|b -1 c|d");
+
+    let mut h = EditorHarness::new("glyph c\n⿰ a b:3x4 1\n");
+    h.click_text(1, 11); // after the trailing "1"
+    h.key_mod(Key::ArrowDown, Modifiers::ALT);
+    assert_eq!(h.text(1), "⿰ a b:3x4");
+    h.key_mod(Key::ArrowDown, Modifiers::ALT);
+    assert_eq!(h.text(1), "⿰ a b:3x4 -1");
+}
+
+/// Digits at the caret still come first: at the end of a part's name the
+/// gesture steps the name's size, as it always has, and writes no gap.
+#[test]
+fn a_digit_at_the_caret_wins_over_the_gap_slot() {
+    let mut h = EditorHarness::new("glyph c\n⿰ a:5x16 b\n");
+    h.click_text(1, 8); // right after "16"
+    h.key_mod(Key::ArrowUp, Modifiers::ALT);
+    assert_eq!(h.text(1), "⿰ a:5x17 b");
+}
+
+/// Only a split's gap may be left out. A `ref` offset left out means
+/// "adjoin by anchors" and an enclosure's offsets left out mean "not decided",
+/// so neither is ever written or omitted by the gesture.
+#[test]
+fn only_a_splits_gap_is_written_or_omitted() {
+    let mut h = EditorHarness::new("glyph c\nref sp 1 2\n⿴ a b\n");
+    h.click_text(1, 8);
+    h.key_mod(Key::ArrowDown, Modifiers::ALT);
+    assert_eq!(h.text(1), "ref sp 0 2");
+    h.click_text(2, 3);
+    h.key_mod(Key::ArrowDown, Modifiers::ALT);
+    assert_eq!(h.text(2), "⿴ a b");
+}
+
 /// A run of ticks is one edit: the numbers scroll past several values, and a
 /// single undo takes the whole run back — as typing does within its coalesce
 /// window.

@@ -41,6 +41,7 @@ use keys::handle_document_keys;
 use layout::{
     GutterLayout, ViewCacheKey, collapsed_source_lines, doc_line_to_y, page_has_fold_marker,
 };
+pub(crate) use number_scroll::OmittedGap;
 use number_scroll::{
     alt_wheel_here, apply_number_bump, detect_number_bump, swallow_alt_arrows, swallow_wheel_delta,
 };

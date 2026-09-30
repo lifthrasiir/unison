@@ -24,6 +24,12 @@
 //! An enclosure's `P Q` reads as `i16` too but is deliberately absent: it is
 //! the inner part's offset *inside* the walls, and a negative one puts it
 //! outside the box it is being measured against.
+//!
+//! One of those positions may also be *left out*, standing for zero: a
+//! split's gap ([`gap_slots`]). Nowhere else does an absent number mean zero —
+//! a `ref` without `X Y` is placed by its anchors, and an enclosure without
+//! `P Q` has not been placed at all — so nowhere else may the gesture write a
+//! number that was not there or take one out that was.
 
 use std::ops::Range;
 
@@ -162,6 +168,105 @@ pub(crate) fn signed_numbers(line: &str) -> Vec<Range<usize>> {
     out
 }
 
+/// One place on a split's line where a gap may stand: between two parts, or
+/// between a part and either end — of the line, or of a nested split, whose
+/// pieces have gaps of their own. A gap may be written there or left out for
+/// zero, and more than one written there add up.
+#[derive(Clone, Debug, PartialEq)]
+pub(crate) struct GapSlot {
+    /// From the end of what comes before the slot (the operator, a part, the
+    /// start of a nested split) to the start of what comes after it (a part,
+    /// the end of a nested split, or the end of the last gap on the line).
+    /// Everything in it is whitespace — a `|` inside a nested split — and
+    /// gaps.
+    pub region: Range<usize>,
+    /// The gaps written in it, sign included.
+    pub gaps: Vec<Range<usize>>,
+    /// Whether the slot is among a nested split's pieces, where `|` rather
+    /// than whitespace separates.
+    pub nested: bool,
+}
+
+/// Every [`GapSlot`] on `line`, in line order; empty unless the line is a
+/// split (⿰⿱⿲⿳), `assume`d or not. Where the parser reads a token as a gap —
+/// any token that is an integer, [`crate::document_io`]'s `parse_compose_line`
+/// — this does too, so a slot's `gaps` are exactly the parser's.
+pub(crate) fn gap_slots(line: &str) -> Vec<GapSlot> {
+    let trimmed = line.trim_start();
+    let leading = line.chars().count() - trimmed.chars().count();
+    let Ok(spans) = tokenize_with_spans(trimmed) else {
+        return Vec::new();
+    };
+    let Some((op, assumed)) =
+        crate::compose::IdcOp::of_line(spans.iter().map(|s| s.value.as_str()))
+    else {
+        return Vec::new();
+    };
+    if op.walls().is_some() {
+        return Vec::new();
+    }
+    let (ops, items) = spans.split_at(if assumed { 2 } else { 1 });
+    let cols = |span: &TokenSpan| leading + span.raw_start..leading + span.raw_end;
+
+    let mut slots = Vec::new();
+    let mut before = cols(&ops[ops.len() - 1]).end;
+    let mut gaps = Vec::new();
+    for span in items {
+        let at = cols(span);
+        let unquoted = at.len() == span.value.chars().count();
+        if unquoted && is_signed_integer(&span.value) {
+            gaps.push(at);
+            continue;
+        }
+        slots.push(GapSlot {
+            region: before..at.start,
+            gaps: std::mem::take(&mut gaps),
+            nested: false,
+        });
+        before = at.end;
+        if !unquoted
+            || span.value.chars().count() < 2
+            || !crate::pattern::has_top_level_pipe(&span.value)
+        {
+            continue;
+        }
+        // The pieces of a nested split, walked the same way with `|` for
+        // whitespace: its first slot starts at the token and its last ends
+        // there, so a gap at either end of it is inside the token.
+        let mut piece_before = at.start;
+        let mut piece_gaps = Vec::new();
+        let mut from = at.start;
+        for piece in crate::pattern::split_top_level_pipes(&span.value) {
+            let piece_at = from..from + piece.chars().count();
+            from = piece_at.end + 1;
+            if is_signed_integer(piece) {
+                piece_gaps.push(piece_at);
+                continue;
+            }
+            slots.push(GapSlot {
+                region: piece_before..piece_at.start,
+                gaps: std::mem::take(&mut piece_gaps),
+                nested: true,
+            });
+            piece_before = piece_at.end;
+        }
+        slots.push(GapSlot {
+            region: piece_before..at.end,
+            gaps: piece_gaps,
+            nested: true,
+        });
+    }
+    // The last slot ends at the last gap rather than at the comment, so the
+    // whitespace before a comment is not a place a gap is written into.
+    let end = gaps.last().map_or(before, |g: &Range<usize>| g.end);
+    slots.push(GapSlot {
+        region: before..end,
+        gaps,
+        nested: false,
+    });
+    slots
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -205,6 +310,53 @@ mod tests {
         // `(a|1)` is one pattern, not a nested split.
         assert_eq!(found("⿰ (a|1) b"), Vec::<String>::new());
         assert_eq!(found("⿴ a b 3 2"), Vec::<String>::new());
+    }
+
+    /// A slot as the tests write it, each gap as `(start, end)`.
+    fn slot(region: Range<usize>, gaps: &[(usize, usize)], nested: bool) -> GapSlot {
+        GapSlot {
+            region,
+            gaps: gaps.iter().map(|&(start, end)| start..end).collect(),
+            nested,
+        }
+    }
+
+    #[test]
+    fn a_split_has_a_slot_before_between_and_after_its_parts() {
+        // ⿰ a -1 b 2 // c
+        // 0 2 4  7 9
+        assert_eq!(
+            gap_slots("⿰ a -1 b 2 // c"),
+            [
+                slot(1..2, &[], false),
+                slot(3..7, &[(4, 6)], false),
+                slot(8..10, &[(9, 10)], false),
+            ]
+        );
+        // With no trailing gap the last slot is empty, at the last part's end.
+        assert_eq!(gap_slots("  ⿰ a b").last(), Some(&slot(7..7, &[], false)));
+        assert_eq!(gap_slots("assume ⿱ a b")[0], slot(8..9, &[], false));
+        assert_eq!(gap_slots("⿴ a b 1 2"), []);
+        assert_eq!(gap_slots("ref a 1 2"), []);
+    }
+
+    #[test]
+    fn a_nested_split_has_slots_of_its_own_inside_the_token() {
+        // ⿰ a 1|b|c 2
+        // 0 2 4 6 8 10
+        assert_eq!(
+            gap_slots("⿰ a 1|b|c 2"),
+            [
+                slot(1..2, &[], false),
+                slot(3..4, &[], false),
+                slot(4..6, &[(4, 5)], true),
+                slot(7..8, &[], true),
+                slot(9..9, &[], true),
+                slot(9..11, &[(10, 11)], false),
+            ]
+        );
+        // A pattern's alternation is one part, not a nested split.
+        assert_eq!(gap_slots("⿰ (a|b) c").len(), 3);
     }
 
     #[test]
