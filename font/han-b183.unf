@@ -27,7 +27,7 @@ glyph han-2967f.0:* = han-2967f:*
 ## 184.1
 
 glyph han-29682.0:15x16 15 16 // 𩚂
-⿰ han-2967f:7x16 1 han-4e5a:7x16 // ⿰飠乚
+⿰ han-2967f:7x16 1 han-4e5a:7x16 // ⿰𩙿乚
 glyph han-29682.1:15x16 15 16 // 𩚂
 ⿰ han-98e0.0:7x16 1 han-4e5a:7x16 // ⿰飠乚
 glyph han-29682.x:15x16 15 16 // 𩚂
@@ -41,7 +41,7 @@ glyph han-29682-t:* = han-29682.x:*
 // ⿰ han-98e0 han-53c8-($-1) // ⿰飠又
 
 glyph han-29685.0:15x16 15 16 // 𩚅
-⿰ han-2967f:7x16 1 han-535c:7x16 // ⿰飠卜
+⿰ han-2967f:7x16 1 han-535c:7x16 // ⿰𩙿卜
 glyph han-29685.1:15x16 15 16 // 𩚅
 ⿰ han-98e0.0:7x16 1 han-535c:7x16 // ⿰飠卜
 glyph han-29685.x:15x16 15 16 // 𩚅
@@ -58,7 +58,7 @@ glyph han-29685-t:* = han-29685.x:*
 // ⿱ han-98df-($-1) han-5efe // ⿱食廾
 
 glyph han-29688.0:15x16 15 16 // 𩚈
-⿰ han-2967f:7x16 1 han-52fa.0:7x16 // ⿰飠勺
+⿰ han-2967f:7x16 1 han-52fa.0:7x16 // ⿰𩙿勺
 glyph han-29688.1:15x16 15 16 // 𩚈
 ⿰ han-98e0.0:7x16 1 han-52fa.0:7x16 // ⿰飠勺
 glyph han-29688.x:15x16 15 16 // 𩚈
@@ -179,7 +179,7 @@ glyph han-296b5-(g|p|v):15x16 15 16 // 𩚵
 glyph han-296b5-t:15x16 15 16 // 𩚵
 ⿰ han-98e0.x:7x16 1 han-7518:7x16 // ⿰飠甘
 glyph han-296b5-j:15x16 15 16 // 𩚵
-⿰ han-2967f:7x16 1 han-7518:7x16 // ⿰飠甘
+⿰ han-2967f:7x16 1 han-7518:7x16 // ⿰𩙿甘
 
 // glyph han-296b6:15x16 15 16 // 𩚶
 // ⿰ han-98e0 han-5144 // ⿰飠兄

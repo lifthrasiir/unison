@@ -267,6 +267,12 @@ ref han-56d7:15x16
 
 ## 31.18
 
+glyph han-21239:13x13 13 13 margin-x 1 // 𡈹
+ref han-7530:13x13
+ref han-6728:5x5 1 1
+ref han-6728:5x5 7 1
+ref han-6728:5x5 1 7
+ref han-6728:5x5 7 7
 glyph han-21239:15x16 15 16 // 𡈹
 ref han-7530:15x16
 ref han-6728:5x5 2 2
@@ -955,8 +961,8 @@ glyph han-213a3:15x16 15 16 // 𡎣
 // glyph han-213c4:15x16 15 16 // 𡏄 ⿱⿰示且土(J) ⿱祖土(Z)
 // ⿱ han-7956 han-571f // ⿱祖土
 
-// glyph han-213cb:15x16 15 16 // 𡏋
-// ⿱ han-6d66 han-571f // ⿱浦土
+glyph han-213cb:15x16 15 16 // 𡏋
+⿱ han-6d66:15x10 han-571f:15x6 // ⿱浦土
 
 // glyph han-213d0:15x16 15 16 // 𡏐
 // ⿱ han-2309c han-571f // ⿱𣂜土

@@ -923,8 +923,8 @@ glyph han-2acc5:15x16 15 16 // 𪳅
 // glyph han-2accc:15x16 15 16 // 𪳌
 // ⿱ han-675c han-52a9 // ⿱杜助
 
-// glyph han-2acce:15x16 15 16 // 𪳎
-// ⿱ han-803f han-6728 // ⿱耿木
+glyph han-2acce:15x16 15 16 // 𪳎
+⿱ han-803f:15x9 han-6728:15x7 // ⿱耿木
 
 // glyph han-2acd0:15x16 15 16 // 𪳐
 // ⿱ han-4020 han-6728 // ⿱䀠木

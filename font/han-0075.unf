@@ -716,9 +716,9 @@ glyph han-675b:15x16 15 16 // 杛
 ⿰ han-6728:5x16 1 han-5f13:9x16 // ⿰木弓
 
 glyph han-675c:15x12 15 12 // 杜
-⿰ han-6728:5x12 1 han-571f:9x12 // ⿰木土
+assume ⿰ han-6728:7x12 -1 han-571f:9x12 // ⿰木土
 glyph han-675c:15x16 15 16 // 杜
-⿰ han-6728:5x16 1 han-571f:9x16 // ⿰木土
+assume ⿰ han-6728:7x16 -1 han-571f:9x16 // ⿰木土
 glyph han-675c.0:* = han-675c:*
 glyph han-675c.1:* = han-675c:*
 glyph han-675c.2:15x16 15 16 // 杜

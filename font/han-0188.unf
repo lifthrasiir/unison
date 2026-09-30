@@ -1298,7 +1298,7 @@ glyph han-9c22.2:15x16 15 16 // 鰢
 // ⿰ han-9b5a han-25055 // ⿰魚𥁕
 
 glyph han-9c30-($han-regions):15x16 15 16 // 鰰
-⿲ -4 han-9b5a:7x16 han-793a-or-793b-($-1):5x14 han-7533:7x16 // ⿲魚示申
+⿲ -2 han-9b5a:7x16 han-793a-or-793b-($-1):5x14 han-7533:5x16 // ⿲魚示申
 glyph han-9c30.0:* = han-9c30-j:*
 glyph han-9c30.1:* = han-9c30-j:*
 glyph han-9c30.2:* = han-9c30-g:*

@@ -512,8 +512,8 @@ glyph han-2e99f:15x16 15 16 // 𮦟
 // glyph han-2e9a6-($han-regions):15x16 15 16 // 𮦦
 // ⿱ han-96e8-($-1) han-72f8 // ⿱雨狸
 
-// glyph han-2e9ab:15x16 15 16 // 𮦫
-// ⿱ han-96e8 han-6d66 // ⿱雨浦
+glyph han-2e9ab:15x16 15 16 // 𮦫
+assume ⿱ han-96e8:15x7 -1 han-6d66:15x10 // ⿱雨浦
 
 ## 173.12
 

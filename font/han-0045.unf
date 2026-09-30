@@ -925,8 +925,9 @@ glyph han-5d83.0:* = han-5d83:*
 // glyph han-5d89:15x16 15 16 // 嶉
 // ⿱ han-5c71 han-552f // ⿱山唯
 
-// glyph han-5d8a:15x16 15 16 // 嶊
-// ⿱ han-5c71 han-63a8 // ⿱山推
+glyph han-5d8a:15x16 15 16 // 嶊
+⿱ han-5c71:15x7 han-63a8:15x9 // ⿱山推
+glyph han-5d8a.0:* = han-5d8a:*
 
 glyph han-5d8b:15x16 15 16 // 嶋
 ⿰ han-5c71:5x12-l 1 han-9ce5:9x16 // ⿰山鳥

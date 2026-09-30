@@ -486,9 +486,9 @@ glyph han-82eb.1:* = han-82eb-g:*
 glyph han-82eb.2:* = han-82eb-h:*
 
 glyph han-82ec-(g|p):15x16 15 16 // 苬
-⿱ han-8279.0:15x3 1 han-56da:15x12 // ⿱艹囚
+⿱ han-8279.0:15x3 1 han-56da:13x12 // ⿱艹囚
 glyph han-82ec-(h|t|j|k):15x16 15 16 // 苬
-⿱ han-8279.2:15x3 1 han-56da:15x12 // ⿱艹囚
+⿱ han-8279.2:15x3 1 han-56da:13x12 // ⿱艹囚
 
 glyph han-82ee-(g|p):15x16 15 16 // 苮
 ⿱ han-8279.0:15x3 1 han-4ed9:15x12 // ⿱艹仙
@@ -810,6 +810,8 @@ glyph han-8370-($han-regions):15x16 15 16 // 荰
 glyph han-8370.0:* = han-8370-g:*
 glyph han-8370.1:* = han-8370-g:*
 glyph han-8370.2:* = han-8370-t:*
+glyph han-8370.3:15x16 15 16 // 荰
+⿱ han-8279.2:15x3 1 han-6728:7x12|-1|han-58eb:9x12 // ⿱艹⿰木士
 
 glyph han-8372.0:15x16 15 16 // 荲
 ⿱ han-8279.0:15x3 han-91cc:15x13 // ⿱艹里
@@ -890,7 +892,7 @@ glyph han-8397-(h|t|j|k):15x16 15 16 // 莗
 ⿱ han-8279.2:15x3 han-8eca:15x13 // ⿱艹車
 
 glyph han-8398-($han-regions):15x16 15 16 // 莘
-⿳ han-8279-($-1):15x3 han-7acb:15x8 han-5341:15x5 // ⿳艹立十
+⿳ han-8279-($-1):15x3 han-7acb:15x8 1|han-5341:13x5|1 // ⿳艹立十
 glyph han-8398.0:* = han-8398-g:*
 glyph han-8398.1:* = han-8398-g:*
 glyph han-8398.2:* = han-8398-h:*
@@ -1847,6 +1849,9 @@ glyph han-85c1.4:* = han-85c1.3:*
 
 // glyph han-85f9:15x16 15 16 // 藹
 // ⿱ han-8279 han-8b01 // ⿱艹謁
+
+// glyph han-85fa-($han-regions):15x16 15 16 // 藺
+// ⿱ han-8279-($-1) han-95b5 // ⿱艹閵
 
 // glyph han-85ff:15x16 15 16 // 藿
 // ⿳ han-8279 han-96e8 han-96b9 // ⿳艹雨隹 <- ⿱艹霍

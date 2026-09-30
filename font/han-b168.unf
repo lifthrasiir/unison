@@ -341,8 +341,8 @@ glyph han-28d0f:15x16 15 16 // 𨴏
 // glyph han-28d28:15x16 15 16 // 𨴨
 // ⿵ han-9580 han-675f // ⿵門束
 
-// glyph han-28d2a:15x16 15 16 // 𨴪
-// ⿵ han-9580 han-752b // ⿵門甫
+glyph han-28d2a:15x16 15 16 // 𨴪
+⿵ han-9580:15x16.13x11 han-752b:9x10 3 6 // ⿵門甫
 
 // glyph han-28d2c:15x16 15 16 // 𨴬
 // ⿵ han-9580 han-544a // ⿵門告
@@ -451,6 +451,9 @@ glyph han-28d3c:15x16 15 16 // 𨴼
 // ⿵ han-9580 han-6637 // ⿵門昷
 
 ## 169.10
+
+// glyph han-28d84:15x16 15 16 // 𨶄
+// ⿱ han-4e8c han-95b5 // ⿱二閵
 
 // glyph han-28d8a:15x16 15 16 // 𨶊
 // ⿱ han-5020 han-9580 // ⿱倠門

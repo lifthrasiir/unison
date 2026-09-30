@@ -282,8 +282,8 @@ glyph han-28f87:15x16 15 16 // 𨾇
 
 ## 172.3
 
-// glyph han-28f88:15x16 15 16 // 𨾈
-// ⿸ han-5c38 han-96b9 // ⿸尸隹
+glyph han-28f88:15x16 15 16 // 𨾈
+⿸ han-5c38:15x16.11x12 han-96b9:9x9 5 6 // ⿸尸隹
 
 glyph han-28f8a:15x16 15 16 // 𨾊
 ⿰ han-5de5:7x16 1 han-96b9:7x16 // ⿰工隹
