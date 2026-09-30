@@ -217,6 +217,7 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Why both ends of a search divide a file the same way, and what goes wrong when they do not | `app/search.rs` (module note, `LineCarry`), `document_io.rs` (`walk_source_lines`) |
 | Why opening a file from the snapshot keeps its generations | `app/docs.rs` (`open_document_from_text`) |
 | Which tokens on a line name what | `editor/line_fields.rs` |
+| Which numbers on a line are signed | `editor/line_numbers.rs` |
 | Where a Ctrl/Cmd+click on a `$-N`/`($N)` goes; a glyph name in a `//` comment; Ctrl/Cmd+`]` | `editor/doc_links.rs` (`find_capture_target`, `extract_comment_links`), `editor/document_view/paint.rs` (`link_at_caret`) |
 | Ctrl/Cmd+click on a reference written as a *pattern*: expanding it, grouping the expansions by where they go, when the reader is asked to pick and when the click just jumps | `app/goto_pattern.rs` (`resolve`, `block_captures_at_line`, `expand_link_token`), `editor/goto_popup.rs`, `editor/document_view/mod.rs` (`NavTarget::Pattern`) |
 | The walk a list popup offers — the selection, the window it is shown through, and the keys that move it — shared by completion, the goto choice and the palette | `editor/list_popup.rs` (`ListNav`, `read_move`, `read_typed_list_key`, `show_window`) |

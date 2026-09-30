@@ -126,7 +126,9 @@ per-file.
 - **F2** on a name renames the symbol across every file that mentions it, opening the unopened
   ones first. Which tokens are that kind of name follows the same classification the links use, so
   a `remap` group that reads like a glyph name is not touched.
-- **Alt+wheel** or **Alt+↑/↓** step the number at the caret, whatever the pointer is over.
+- **Alt+wheel** or **Alt+↑/↓** step the number at the caret, whatever the pointer is over. A number
+  stops at zero unless the directive reads it as signed — a `ref` or `origin` offset, an anchor, a
+  split's gap, a pixel `meta` value — where it steps on to `-1`.
 - **Completion** opens while a name is typed. Filtering stops at the name's last `:`, so the
   variants of a glyph are listed together; in an IDC slot the list is ordered by how well a variant
   fits the slot and drops one of the wrong size outright. On-demand shapes are never offered.

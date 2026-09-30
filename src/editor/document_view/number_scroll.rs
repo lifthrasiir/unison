@@ -20,9 +20,16 @@
 //!
 //! [`interceptor_scroll_step`]: super::interceptor_scroll_step
 //!
-//! Numbers are non-negative integers of unbounded width, so the arithmetic is
-//! done on the digit *string* (`[0-8]9*$` carries on increment, `[1-9]0*$` on
-//! decrement) rather than through an integer that would cap out at some width.
+//! Numbers are integers of unbounded width, so the arithmetic is done on the
+//! digit *string* (`[0-8]9*$` carries on increment, `[1-9]0*$` on decrement)
+//! rather than through an integer that would cap out at some width. Most are
+//! also non-negative, and stepping one down stops at zero: a `-` is only a
+//! sign where the grammar reads the number as signed, which
+//! [`line_numbers`](crate::editor::line_numbers) knows. There the sign is part
+//! of the number — the caret may sit on either side of it, a selection holds
+//! it, and zero steps down to `-1` — and anywhere else only the digits are.
+
+use std::ops::Range;
 
 use super::*;
 
@@ -31,10 +38,10 @@ use super::*;
 /// after the paint pass, with the other document edits of the frame.
 pub(super) struct NumberBump {
     line: usize,
-    /// Character columns of the digit run being replaced.
+    /// Character columns of the number being replaced, sign included.
     start: usize,
     end: usize,
-    /// The stepped digits.
+    /// The stepped number.
     text: String,
 }
 
@@ -60,10 +67,17 @@ fn digits_around(text: &str, col: usize) -> Option<(usize, usize)> {
     Some((start, end))
 }
 
-/// The digit run inside an existing selection, which must be exactly
-/// `\s*[0-9]+\s*` — anything else could not be stepped without guessing which
-/// part of it is the number, so it is left alone.
-fn digits_in_selection(text: &str, lo: usize, hi: usize) -> Option<(usize, usize)> {
+/// The number inside an existing selection, which must be exactly
+/// `\s*[0-9]+\s*`, or `\s*-?[0-9]+\s*` over one of the line's `signed`
+/// numbers — anything else could not be stepped without guessing which part
+/// of it is the number, so it is left alone. Also says whether the number
+/// found is signed.
+fn number_in_selection(
+    text: &str,
+    signed: &[Range<usize>],
+    lo: usize,
+    hi: usize,
+) -> Option<(usize, usize, bool)> {
     let chars: Vec<char> = text.chars().collect();
     if lo >= hi || hi > chars.len() {
         return None;
@@ -74,11 +88,27 @@ fn digits_in_selection(text: &str, lo: usize, hi: usize) -> Option<(usize, usize
     if lead + trail >= sel.len() {
         return None;
     }
+    let (start, end) = (lo + lead, hi - trail);
+    if signed.contains(&(start..end)) {
+        return Some((start, end, true));
+    }
     let digits = &sel[lead..sel.len() - trail];
     if !digits.iter().all(char::is_ascii_digit) {
         return None;
     }
-    Some((lo + lead, hi - trail))
+    Some((start, end, false))
+}
+
+/// The number at the caret: one of the line's `signed` numbers the caret is
+/// in or next to — so a caret on the sign's side of `-1` finds it too — or
+/// else the plain digit run of [`digits_around`]. Also says which it was.
+fn number_around(text: &str, signed: &[Range<usize>], col: usize) -> Option<(usize, usize, bool)> {
+    // Signed numbers are whole tokens (or whole `..`/`|` pieces), so no two
+    // of them touch and at most one can hold the caret.
+    if let Some(r) = signed.iter().find(|r| r.start <= col && col <= r.end) {
+        return Some((r.start, r.end, true));
+    }
+    digits_around(text, col).map(|(start, end)| (start, end, false))
 }
 
 /// `digits` stepped by one in `delta`'s direction, on the string rather than
@@ -112,6 +142,34 @@ fn step_digits(digits: &str, delta: i32) -> String {
         }
     }
     String::from_utf8(d).expect("digits stay ASCII")
+}
+
+/// `number` stepped by one in `delta`'s direction. An unsigned number is
+/// [`step_digits`] and stops at zero; a `signed` one steps its magnitude away
+/// from or toward zero and crosses it, the sign appearing below zero and
+/// disappearing at it: `1` → `0` → `-1`, and `-1` → `0` rather than `-0`.
+/// Written padding is kept on both sides of zero (`-01` → `00`).
+fn step_number(number: &str, delta: i32, signed: bool) -> String {
+    let (negative, digits) = match number.strip_prefix('-') {
+        Some(digits) if signed => (true, digits),
+        _ => (false, number),
+    };
+    let is_zero = |d: &str| d.bytes().all(|c| c == b'0');
+    if is_zero(digits) {
+        // Zero has no sign to keep, whichever it was written with.
+        return if signed && delta < 0 {
+            format!("-{}", step_digits(digits, 1))
+        } else {
+            step_digits(digits, delta)
+        };
+    }
+    let away_from_zero = (delta >= 0) != negative;
+    let stepped = step_digits(digits, if away_from_zero { 1 } else { -1 });
+    if negative && !is_zero(&stepped) {
+        format!("-{stepped}")
+    } else {
+        stepped
+    }
 }
 
 /// Alt, and nothing else. A chord that adds Ctrl/Cmd/Shift belongs to whoever
@@ -188,14 +246,15 @@ pub(super) fn detect_number_bump(
     let Some(DocLine::Text(text)) = lines.get(line) else {
         return None;
     };
-    let (start, end) = match state.selection_range() {
+    let signed_numbers = crate::editor::line_numbers::signed_numbers(text);
+    let (start, end, signed) = match state.selection_range() {
         Some((lo, hi)) if lo != hi => {
             if lo.line != line || hi.line != line {
                 return None;
             }
-            digits_in_selection(text, lo.col, hi.col)?
+            number_in_selection(text, &signed_numbers, lo.col, hi.col)?
         }
-        _ => digits_around(text, state.cursor.col)?,
+        _ => number_around(text, &signed_numbers, state.cursor.col)?,
     };
 
     // Only now, with a number in hand, is the input this gesture's to take.
@@ -212,12 +271,12 @@ pub(super) fn detect_number_bump(
             if step < 0 { 1 } else { -1 }
         }
     };
-    let digits: String = text.chars().take(end).skip(start).collect();
+    let number: String = text.chars().take(end).skip(start).collect();
     Some(NumberBump {
         line,
         start,
         end,
-        text: step_digits(&digits, delta),
+        text: step_number(&number, delta, signed),
     })
 }
 
@@ -323,12 +382,60 @@ mod tests {
 
     #[test]
     fn a_selection_is_a_number_only_when_it_holds_nothing_else() {
-        assert_eq!(digits_in_selection("a 12 b", 1, 5), Some((2, 4)));
-        assert_eq!(digits_in_selection("a 12 b", 2, 4), Some((2, 4)));
-        assert_eq!(digits_in_selection("a 12 b", 0, 4), None);
-        assert_eq!(digits_in_selection("a 12 b", 2, 6), None);
-        assert_eq!(digits_in_selection("a 12 b", 1, 2), None);
-        assert_eq!(digits_in_selection("a 12 b", 3, 3), None);
+        assert_eq!(
+            number_in_selection("a 12 b", &[], 1, 5),
+            Some((2, 4, false))
+        );
+        assert_eq!(
+            number_in_selection("a 12 b", &[], 2, 4),
+            Some((2, 4, false))
+        );
+        assert_eq!(number_in_selection("a 12 b", &[], 0, 4), None);
+        assert_eq!(number_in_selection("a 12 b", &[], 2, 6), None);
+        assert_eq!(number_in_selection("a 12 b", &[], 1, 2), None);
+        assert_eq!(number_in_selection("a 12 b", &[], 3, 3), None);
+    }
+
+    #[test]
+    fn a_selection_over_a_signed_number_takes_its_sign() {
+        let signed = [2..4, 7..8];
+        assert_eq!(
+            number_in_selection("a -3 b", &signed, 1, 5),
+            Some((2, 4, true))
+        );
+        // Unsigned, the `-` is not part of a number.
+        assert_eq!(number_in_selection("a -3 b", &[], 1, 5), None);
+        assert_eq!(
+            number_in_selection("a -3 b", &signed, 3, 4),
+            Some((3, 4, false))
+        );
+    }
+
+    #[test]
+    fn a_caret_on_either_side_of_the_sign_finds_a_signed_number() {
+        let signed = [2..4, 7..8];
+        assert_eq!(number_around("a -3 b", &signed, 2), Some((2, 4, true)));
+        assert_eq!(number_around("a -3 b", &signed, 4), Some((2, 4, true)));
+        assert_eq!(number_around("a -3 b", &[], 2), None);
+        assert_eq!(number_around("a -3 b", &[], 3), Some((3, 4, false)));
+    }
+
+    #[test]
+    fn a_signed_number_steps_through_zero() {
+        assert_eq!(step_number("1", -1, true), "0");
+        assert_eq!(step_number("0", -1, true), "-1");
+        assert_eq!(step_number("-1", -1, true), "-2");
+        assert_eq!(step_number("-1", 1, true), "0");
+        assert_eq!(step_number("-10", 1, true), "-9");
+        assert_eq!(step_number("-99", -1, true), "-100");
+        // Zero has no sign; padding survives the crossing.
+        assert_eq!(step_number("-0", 1, true), "1");
+        assert_eq!(step_number("-0", -1, true), "-1");
+        assert_eq!(step_number("00", -1, true), "-01");
+        assert_eq!(step_number("-01", 1, true), "00");
+        // Unsigned, zero is the floor and a stray `-` is not a sign.
+        assert_eq!(step_number("0", -1, false), "0");
+        assert_eq!(step_number("5", 1, false), "6");
     }
 
     #[test]

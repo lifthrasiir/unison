@@ -121,6 +121,65 @@ fn alt_wheel_down_at_zero_stays_at_zero() {
     assert_eq!(h.text(2), "meta descent 1");
 }
 
+/// A number the grammar reads as signed steps through zero: a `ref` offset
+/// goes 0 → -1 → -2 and back, the sign coming and going with the value, and
+/// the whole run stays one undo.
+#[test]
+fn alt_arrows_step_a_signed_number_through_zero() {
+    let mut h = EditorHarness::new("glyph a\nref sp 0 4\n");
+    h.click_text(1, 7); // before the "0"
+
+    h.key_mod(Key::ArrowDown, Modifiers::ALT);
+    assert_eq!(h.text(1), "ref sp -1 4");
+    // The sign is part of the selected number, so the next tick takes it too.
+    assert_eq!(h.state.selection_anchor, Some(Caret { line: 1, col: 7 }));
+    assert_eq!(h.cursor(), Caret { line: 1, col: 9 });
+    h.key_mod(Key::ArrowDown, Modifiers::ALT);
+    assert_eq!(h.text(1), "ref sp -2 4");
+    h.key_mod(Key::ArrowUp, Modifiers::ALT);
+    h.key_mod(Key::ArrowUp, Modifiers::ALT);
+    assert_eq!(h.text(1), "ref sp 0 4");
+    h.key_mod(Key::ArrowUp, Modifiers::ALT);
+    assert_eq!(h.text(1), "ref sp 1 4");
+
+    h.key_mod(Key::Z, Modifiers::COMMAND);
+    assert_eq!(h.text(1), "ref sp 0 4");
+}
+
+/// A caret on the sign's side of a negative number still finds it.
+#[test]
+fn alt_wheel_finds_a_negative_number_from_before_its_sign() {
+    let mut h = EditorHarness::new("glyph a\nref sp 3 -1\n");
+    h.click_text(1, 9); // between the space and the "-"
+    let pos = h.text_pos(0, 0);
+    h.alt_wheel_at(pos, true);
+    assert_eq!(h.text(1), "ref sp 3 0");
+    h.alt_wheel_at(pos, true);
+    assert_eq!(h.text(1), "ref sp 3 1");
+}
+
+/// A number the grammar reads as a size is never negative: the glyph header's
+/// `W H` stops at zero exactly as before.
+#[test]
+fn alt_arrows_keep_an_unsigned_number_at_zero() {
+    let mut h = EditorHarness::new("glyph foo 0 2\n\n\n");
+    h.click_text(0, 10);
+    h.key_mod(Key::ArrowDown, Modifiers::ALT);
+    assert_eq!(h.text(0), "glyph foo 0 2");
+}
+
+/// A selected negative number is a number, sign and all.
+#[test]
+fn alt_arrows_step_a_selected_negative_number() {
+    let mut h = EditorHarness::new("glyph a\nanchor +x 1 -3..-1\n");
+    h.click_text(1, 11);
+    for _ in 0..3 {
+        h.key_mod(Key::ArrowRight, Modifiers::SHIFT); // " -3"
+    }
+    h.key_mod(Key::ArrowUp, Modifiers::ALT);
+    assert_eq!(h.text(1), "anchor +x 1 -2..-1");
+}
+
 /// A run of ticks is one edit: the numbers scroll past several values, and a
 /// single undo takes the whole run back — as typing does within its coalesce
 /// window.

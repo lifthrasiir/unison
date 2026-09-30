@@ -47,6 +47,7 @@ pub mod inline_tools;
 pub(crate) mod issue_marks;
 pub mod item_bindings;
 pub mod line_fields;
+pub(crate) mod line_numbers;
 pub(crate) mod list_popup;
 pub mod minimap;
 pub mod pixel_interaction;
