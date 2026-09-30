@@ -218,7 +218,7 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Why opening a file from the snapshot keeps its generations | `app/docs.rs` (`open_document_from_text`) |
 | Which tokens on a line name what | `editor/line_fields.rs` |
 | Which numbers on a line are signed | `editor/line_numbers.rs` |
-| Where a Ctrl/Cmd+click on a `$-N`/`($N)` goes; a glyph name in a `//` comment; Ctrl/Cmd+`]` | `editor/doc_links.rs` (`find_capture_target`, `extract_comment_links`), `editor/document_view/paint.rs` (`link_at_caret`) |
+| Where a Ctrl/Cmd+click on a `$-N`/`($N)` goes; a glyph name in a `//` comment; Ctrl/Cmd+`]` | `editor/doc_links.rs` (`find_capture_target`, `extract_comment_links`), `editor/document_view/paint/links.rs` (`link_at_caret`) |
 | Ctrl/Cmd+click on a reference written as a *pattern*: expanding it, grouping the expansions by where they go, when the reader is asked to pick and when the click just jumps | `app/goto_pattern.rs` (`resolve`, `block_captures_at_line`, `expand_link_token`), `editor/goto_popup.rs`, `editor/document_view/mod.rs` (`NavTarget::Pattern`) |
 | The walk a list popup offers — the selection, the window it is shown through, and the keys that move it — shared by completion, the goto choice and the palette | `editor/list_popup.rs` (`ListNav`, `read_move`, `read_typed_list_key`, `show_window`) |
 | Typing a character by code point (Ctrl+K), and why not Alt; why a click on the popup's own chrome does not dismiss it | `editor/codepoint_popup.rs` (`resolve_field`) |
@@ -239,13 +239,13 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | What a frame reads off a whole view, once per view | `editor/document_view/layout.rs` (`ViewGeometry`), `editor/change_marks.rs` (`paint_gutter_marks`) |
 | Why a search's first match is keyed by the item's line and not its index | `exists.rs` (`FirstMatches`) |
 | Why Control-click is a right click on the Mac, and why at the raw input rather than per widget | `app/ctrl_click.rs` |
-| Why a right-click moves the caret first; why a menu action hands the keyboard back | `editor/document_view/paint.rs` (`secondary_pos`, `refocus_after_menu`), `editor/mod.rs` (`refocus`) |
+| Why a right-click moves the caret first; why a menu action hands the keyboard back | `editor/document_view/paint/mod.rs` (`secondary_pos`, `refocus_after_menu`), `editor/mod.rs` (`refocus`) |
 | The two rectangles a resize drags (box vs canvas), which flags and which `ref`s it writes, units | `editor/glyph_resize.rs` (`canvas_box`, `CanvasStart`, `boxed_for`), `app/resize.rs`, `document_io/header.rs` (`replace_glyph_box_flags`), `ref_composite/anchors.rs` (`DeriveOutcome::anchor_placed`) |
 | A resize preview: uncommitted text, and everything that has to drop it | `editor/glyph_resize.rs` (`cancel`), `app/docs.rs` (`flush_pending_changes`) |
 | A floating pixel selection: what commits it, and who lands it before reading the buffer | `editor/pixel_selection.rs` (`reconcile`, `effective_selection`, `select_all`), `app/docs.rs` (`commit_floating_selection`), `editor/mod.rs` (`pixel_select_anchor`) |
-| The empty band below the last line | `editor/document_view/paint.rs` (`paint_document_area`) |
+| The empty band below the last line | `editor/document_view/paint/mod.rs` (`paint_document_area`) |
 | Who owns a key while an IME is composing | `editor/doc_input.rs` (`ImeKeyGuard`) |
-| A reported line's tint and the message drawn after it; why the message is painted rather than annotated | `editor/issue_marks.rs`, `editor/document_view/paint.rs` (`paint_document_area`), `editor/colors.rs` (`issue_colors`) |
+| A reported line's tint and the message drawn after it; why the message is painted rather than annotated | `editor/issue_marks.rs`, `editor/document_view/paint/mod.rs` (`paint_document_area`), `editor/colors.rs` (`issue_colors`) |
 | How a finding follows lines opened or deleted after its build, and why a line is located by id rather than index | `editor/issue_marks.rs` (`# Following edits`), `document/line_id.rs` |
 | Which line an edit that rebuilds lines from text continues, and where a snapshot's ids are carried over (open, reload, refresh) | `document/mod.rs` (`DocLine::continue_text_edit`, `DocLine::with_id_of`, `DocLine::adopt_line_ids`), `app/docs.rs` (`open_file`, `apply_reloaded_lines`), `app/watch.rs` (`apply_directory_snapshot`) |
 | Inline annotations, and the dotted circle before a zero-advance character | `editor/annotations.rs` (`zero_advance_placeholders`, `paint_dotted_circle`, `display_prefix`), `editor/visual_lines.rs` (`compute_wrap_segments`) |
@@ -281,7 +281,7 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Visual order against logical indices; the caret's affinity; why an arrow moves visually but Shift+arrow extends logically; the caret's shape | `preview/cluster.rs` (`CaretPos`, `step`), `preview/widget.rs` (`caret_affinity`, `take_visual_step`, `caret_shape`) |
 | Forcing the paragraph direction, on the shared path and on Core Text | `preview/widget.rs` (`show_direction_combo`), `preview/bidi.rs` (`ParagraphDirection`), `preview/coretext.rs` (`paragraph_style_for`) |
 | Why a character the built font lacks must not keep the glyph id Core Text hands back | `preview/coretext.rs` (`run_is_font`) |
-| How tall a preview row is; why the editor's preedit box cannot crop a glyph but the preview's could | `preview/metrics.rs` (`VMetrics`), `editor/document_view/paint.rs` |
+| How tall a preview row is; why the editor's preedit box cannot crop a glyph but the preview's could | `preview/metrics.rs` (`VMetrics`), `editor/document_view/paint/mod.rs` |
 | The text-editing keys, and the state both the editor and the preview edit through | `editor/doc_input.rs` (`TextEdit`) |
 | Who answers Ctrl/Cmd+C, and why the last surface of the frame is the one the clipboard keeps | `clipboard.rs` (`release_label_selection`), `editor/doc_input.rs` (`copy_range`), `specimen/status.rs` (`CopyKey`) |
-| Where a `sample` reaches the reader: the demo's panel and the editor's *Use* button | `render/demo/mod.rs` (`collect_samples`), `editor/document_view/paint.rs` (`sample_use_rect`), `app/mod.rs` |
+| Where a `sample` reaches the reader: the demo's panel and the editor's *Use* button | `render/demo/mod.rs` (`collect_samples`), `editor/document_view/paint/sample_button.rs` (`sample_use_rect`), `app/mod.rs` |
