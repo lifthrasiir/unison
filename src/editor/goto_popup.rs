@@ -6,8 +6,8 @@
 //! if it declares them `(g|h|t)` and `(j|k|p|v)`. The host resolves that — see
 //! [`crate::app::goto_pattern`], which is also where the grouping and the
 //! "there is only one place, just jump" case live — and hands what is left
-//! here: one row per place, the name a jump to it is made with, and how many
-//! further names of the pattern land there.
+//! here: one row per place and the names of the pattern that land there, the
+//! first of which is the one a jump to it is made with.
 //!
 //! The rows are a listing to be walked, so the walk is
 //! [`crate::editor::list_popup`]'s, the same one autocompletion uses. What is
@@ -20,11 +20,9 @@ use crate::editor::list_popup::{ListNav, read_move};
 /// One place a pattern's expansions lead.
 #[derive(Clone, Debug, PartialEq)]
 pub(crate) struct GotoChoice {
-    /// The name the jump is carried out with — the first expansion that landed
-    /// here, which stands for the rest.
-    pub name: String,
-    /// How many *further* names land in the same place; `0` for a group of one.
-    pub extra: usize,
+    /// Every expansion that landed here, in the pattern's order. The first is
+    /// the name the jump is carried out with, and stands for the rest.
+    pub names: Vec<String>,
     /// `file.unf:12`, the place itself, for the row to show.
     pub location: String,
 }
@@ -66,14 +64,7 @@ impl GotoChoicePopup {
     /// The rows as `(name and count, location)`, with the first column padded
     /// so the locations line up under each other.
     pub(crate) fn rows(&self) -> Vec<(String, String)> {
-        let labels: Vec<String> = self
-            .choices
-            .iter()
-            .map(|c| match c.extra {
-                0 => c.name.clone(),
-                n => format!("{}  [+{n}]", c.name),
-            })
-            .collect();
+        let labels: Vec<String> = self.choices.iter().map(|c| group_label(&c.names)).collect();
         let width = labels.iter().map(|l| l.chars().count()).max().unwrap_or(0);
         labels
             .into_iter()
@@ -87,6 +78,62 @@ impl GotoChoicePopup {
             })
             .collect()
     }
+}
+
+/// A row's first column: the group written as the pattern it spells, with
+/// its size, when that is short enough to read —
+/// `han-xxxx-(j|k|p|v):15x16  [4]` — and otherwise the name the jump is made with and how many *more*
+/// names land there, `han-xxxx-j:15x16  [+3]`. The two counts differ on
+/// purpose: the pattern already shows every name, so its count is a total, and
+/// the lone name shows one, so its count is the rest.
+///
+/// Short enough is no longer than twice the longest name. A group whose names
+/// share little has a pattern about as long as all of them together, and a row
+/// that long is a list, not a label.
+fn group_label(names: &[String]) -> String {
+    let [first, ..] = names else {
+        return String::new();
+    };
+    if names.len() == 1 {
+        return first.clone();
+    }
+    let longest = names.iter().map(|n| n.chars().count()).max().unwrap_or(0);
+    // A name the pattern grammar would read as syntax has no pattern to
+    // stand for it.
+    let spellable = names.iter().all(|n| !n.contains(['(', ')', '|', '*', '$']));
+    if spellable {
+        let pattern = common_pattern(names);
+        if pattern.chars().count() <= 2 * longest {
+            return format!("{pattern}  [{}]", names.len());
+        }
+    }
+    format!("{first}  [+{}]", names.len() - 1)
+}
+
+/// `prefix(a|b|c)suffix` over the names' longest common prefix and suffix, the
+/// suffix taken from what the prefix leaves of the shortest name so the two
+/// never overlap. A name that is all prefix and suffix is an empty
+/// alternative, which the grammar reads back as it is.
+fn common_pattern(names: &[String]) -> String {
+    let chars: Vec<Vec<char>> = names.iter().map(|n| n.chars().collect()).collect();
+    let shortest = chars.iter().map(Vec::len).min().unwrap_or(0);
+    let agree = |at: &dyn Fn(&[char]) -> char| chars.iter().all(|c| at(c) == at(&chars[0]));
+    let prefix = (0..shortest).take_while(|&i| agree(&|c| c[i])).count();
+    let suffix = (0..shortest - prefix)
+        .take_while(|&i| agree(&|c| c[c.len() - 1 - i]))
+        .count();
+    let middles: Vec<String> = chars
+        .iter()
+        .map(|c| c[prefix..c.len() - suffix].iter().collect())
+        .collect();
+    format!(
+        "{}({}){}",
+        chars[0][..prefix].iter().collect::<String>(),
+        middles.join("|"),
+        chars[0][chars[0].len() - suffix..]
+            .iter()
+            .collect::<String>(),
+    )
 }
 
 /// What one frame's input did to the popup.
@@ -166,7 +213,7 @@ pub(crate) fn choose(state: &mut super::EditorState, index: usize) {
         from: popup.from,
         from_offset: popup.from_offset,
         target: super::document_view::NavTarget::CrossFile(super::document_view::GotoGlyph {
-            name: choice.name.clone(),
+            name: choice.names[0].clone(),
             kind: super::doc_links::LinkTargetKind::Glyph,
         }),
     });
@@ -176,12 +223,11 @@ pub(crate) fn choose(state: &mut super::EditorState, index: usize) {
 mod tests {
     use super::*;
 
-    fn popup(rows: &[(&str, usize)]) -> GotoChoicePopup {
+    fn popup(rows: &[&[&str]]) -> GotoChoicePopup {
         let choices = rows
             .iter()
-            .map(|(name, extra)| GotoChoice {
-                name: (*name).to_string(),
-                extra: *extra,
+            .map(|names| GotoChoice {
+                names: names.iter().map(|n| n.to_string()).collect(),
                 location: "han-0038.unf:1013".to_string(),
             })
             .collect();
@@ -192,17 +238,80 @@ mod tests {
     /// locations line up under each other whatever the names are.
     #[test]
     fn the_rows_pad_the_names_into_a_column() {
-        let popup = popup(&[("han-xxxx-g:15x16", 2), ("han-x:15x16", 3)]);
+        let popup = popup(&[
+            &["han-xxxx-g:15x16", "han-xxxx-h:15x16", "han-xxxx-t:15x16"],
+            &["foo-alpha", "bar-beta", "baz-gamma", "qux-delta"],
+        ]);
         let rows = popup.rows();
-        assert_eq!(rows[0].0, "han-xxxx-g:15x16  [+2]");
-        assert_eq!(rows[1].0, "han-x:15x16  [+3]     ");
+        assert_eq!(rows[0].0, "han-xxxx-(g|h|t):15x16  [3]");
+        assert_eq!(rows[1].0, "foo-alpha  [+3]            ");
         assert_eq!(rows[0].0.chars().count(), rows[1].0.chars().count());
         assert_eq!(rows[0].1, "han-0038.unf:1013");
     }
 
-    /// A group of one says so by saying nothing: there is no `[+0]`.
+    /// A group of one says so by saying nothing: there is no `[+0]` or `[1]`.
     #[test]
     fn a_group_of_one_carries_no_count() {
-        assert_eq!(popup(&[("foo", 0)]).rows()[0].0, "foo");
+        assert_eq!(popup(&[&["foo"]]).rows()[0].0, "foo");
+    }
+
+    /// A group is written as the pattern it spells when that stays short —
+    /// no longer than twice its longest name — and the count is then the
+    /// group's size, since every name is on the row.
+    #[test]
+    fn a_short_pattern_stands_for_the_group() {
+        let names = [
+            "han-xxxx-j:15x16",
+            "han-xxxx-k:15x16",
+            "han-xxxx-p:15x16",
+            "han-xxxx-v:15x16",
+        ];
+        assert_eq!(
+            popup(&[&names]).rows()[0].0,
+            "han-xxxx-(j|k|p|v):15x16  [4]"
+        );
+    }
+
+    /// The bound is inclusive: a pattern of exactly twice the longest name is
+    /// still short enough, and one character more is not.
+    #[test]
+    fn the_pattern_may_be_up_to_twice_the_longest_name() {
+        // `ab-(x|y)` is 8 characters against a longest name of 4.
+        assert_eq!(group_label(&strings(&["ab-x", "ab-y"])), "ab-(x|y)  [2]");
+        // `a-(x|y)` is 7 against 3.
+        assert_eq!(group_label(&strings(&["a-x", "a-y"])), "a-x  [+1]");
+    }
+
+    /// The prefix and the suffix never overlap, so a name that is all prefix
+    /// becomes an empty alternative — which the pattern grammar reads back.
+    #[test]
+    fn a_name_that_is_all_prefix_is_an_empty_alternative() {
+        let names = strings(&["foo-bar", "foo-bar-2", "foo-bar-3"]);
+        assert_eq!(common_pattern(&names), "foo-bar(|-2|-3)");
+        let names = strings(&["aa", "aaa"]);
+        assert_eq!(common_pattern(&names), "aa(|a)");
+    }
+
+    /// Whatever the pattern shown, it denotes exactly the group, in order.
+    #[test]
+    fn the_pattern_reads_back_as_the_names() {
+        for names in [
+            &["han-xxxx-g:15x16", "han-xxxx-h:15x16", "han-xxxx-t:15x16"][..],
+            &["foo-bar", "foo-bar-2", "foo-bar-3"],
+            &["aa", "aaa"],
+            &["a-x", "b-x"],
+            &["가-a", "가-b"],
+        ] {
+            let names = strings(names);
+            let pattern = common_pattern(&names);
+            let back = crate::pattern::NamePattern::parse_element(&pattern)
+                .unwrap()
+                .into_vec();
+            assert_eq!(back, names, "{pattern}");
+        }
+    }
+
+    fn strings(names: &[&str]) -> Vec<String> {
+        names.iter().map(|n| n.to_string()).collect()
     }
 }

@@ -51,8 +51,10 @@ history entries.
 A *reference* written as a pattern names many glyphs at once, so the click expands it and looks each
 name up. Where they are all declared in the same place — `ref han-5b50-($-1):9x16` against a
 `glyph han-5b50-($han-regions):($1)` block — it simply jumps. Where they split, a small list offers
-one row per place, each naming the glyph the jump would go to, how many further names land there and
-the file and line, e.g. `han-52fa-g:7x16  [+5]   han-0010.unf:2862`. The list is walked with ↑/↓,
+one row per place with its file and line. A row names the glyphs that land there as a pattern with
+their total count when that is short (at most twice the longest name), e.g.
+`han-52fa-(g|h|t):7x16  [3]   han-0010.unf:2862`, and otherwise the glyph the jump would go to and
+how many further names land there, e.g. `han-52fa-g:7x16  [+5]   han-0010.unf:2862`. The list is walked with ↑/↓,
 PgUp/PgDn, Home/End, taken with Enter, and dismissed by Escape or by carrying on with anything else.
 If none of the names is declared anywhere, the click falls back to the Search pane as any other.
 

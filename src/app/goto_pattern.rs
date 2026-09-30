@@ -50,12 +50,9 @@ const MAX_EXPANSIONS: usize = 256;
 /// One place a pattern's expansions lead, and how many of them lead there.
 #[derive(Clone, Debug, PartialEq)]
 pub(super) struct GotoGroup {
-    /// The first expansion that landed here, and the name a jump to this row
-    /// is carried out with.
-    pub name: String,
-    /// How many *further* names of the pattern land in the same place, so a
-    /// group of three reads `[+2]`.
-    pub extra: usize,
+    /// Every expansion that landed here, in the order the pattern writes them.
+    /// The first is the name a jump to this row is carried out with.
+    pub names: Vec<String>,
     /// The declaring file and its 1-based line, for the row to display.
     pub path: PathBuf,
     pub file_line: usize,
@@ -292,10 +289,9 @@ pub(super) fn resolve(
             .iter_mut()
             .find(|g| g.file_line == file_line && g.path == path)
         {
-            Some(group) => group.extra += 1,
+            Some(group) => group.names.push(name.clone()),
             None => groups.push(GotoGroup {
-                name: name.clone(),
-                extra: 0,
+                names: vec![name.clone()],
                 path,
                 file_line,
             }),
@@ -303,7 +299,7 @@ pub(super) fn resolve(
     }
     match groups.len() {
         0 => PatternLink::Nowhere,
-        1 => PatternLink::One(groups.remove(0).name),
+        1 => PatternLink::One(groups.remove(0).names.remove(0)),
         _ => PatternLink::Many(groups),
     }
 }
@@ -362,8 +358,7 @@ impl super::UniformApp {
         let choices = groups
             .into_iter()
             .map(|group| GotoChoice {
-                name: group.name,
-                extra: group.extra,
+                names: group.names,
                 location: format!(
                     "{}:{}",
                     group
@@ -470,11 +465,20 @@ glyph han-xxxx-(j|k|p|v):15x16 15 16
             panic!("two blocks declare these, so there is a choice: {link:?}");
         };
         assert_eq!(groups.len(), 2);
-        assert_eq!(groups[0].name, "han-xxxx-g:15x16");
-        assert_eq!(groups[0].extra, 2);
+        assert_eq!(
+            groups[0].names,
+            ["han-xxxx-g:15x16", "han-xxxx-h:15x16", "han-xxxx-t:15x16"]
+        );
         assert_eq!(groups[0].file_line, 1);
-        assert_eq!(groups[1].name, "han-xxxx-j:15x16");
-        assert_eq!(groups[1].extra, 3);
+        assert_eq!(
+            groups[1].names,
+            [
+                "han-xxxx-j:15x16",
+                "han-xxxx-k:15x16",
+                "han-xxxx-p:15x16",
+                "han-xxxx-v:15x16"
+            ]
+        );
         assert_eq!(groups[1].file_line, 2);
     }
 
@@ -599,8 +603,8 @@ map wide|narrow : ⁂ = triple-star($-half)
             panic!("the two slices name two glyphs, declared apart: {link:?}");
         };
         assert_eq!(groups.len(), 2);
-        assert_eq!(groups[0].name, "triple-star");
-        assert_eq!(groups[1].name, "triple-star-half");
+        assert_eq!(groups[0].names[0], "triple-star");
+        assert_eq!(groups[1].names[0], "triple-star-half");
 
         // The unqualified map alone is what the click used to have, and it
         // leaves the token unexpandable.

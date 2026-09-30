@@ -529,8 +529,7 @@ fn choice_popup(names: &[&str]) -> crate::editor::goto_popup::GotoChoicePopup {
         .iter()
         .enumerate()
         .map(|(i, name)| GotoChoice {
-            name: (*name).to_string(),
-            extra: i,
+            names: vec![(*name).to_string()],
             location: format!("han-0038.unf:{}", i + 1),
         })
         .collect();
