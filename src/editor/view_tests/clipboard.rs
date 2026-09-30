@@ -199,6 +199,52 @@ fn copy_paste_preserves_grid_content() {
     assert_eq!(h.text(2), "");
 }
 
+/// A paste ending in a newline ends on a line of its own: what a line-wise copy
+/// (`line two\n`) puts back is a whole line, not a line joined to the one after.
+#[test]
+fn paste_ending_in_a_newline_keeps_it() {
+    let mut h = EditorHarness::new(&text_doc());
+    h.click_text(1, 8); // end of "line two"
+    h.paste("\nX\n");
+    assert_eq!(h.text(1), "line two");
+    assert_eq!(h.text(2), "X");
+    assert_eq!(h.text(3), "");
+    assert_eq!(h.text(4), "line three");
+    assert_eq!(h.cursor(), Caret::new(3, 0));
+    assert_view_consistent(&h);
+
+    let mut h = EditorHarness::new("a\n\nb\n");
+    h.click_text(1, 0); // the empty line
+    h.paste("line two\n");
+    assert_eq!(h.text(1), "line two");
+    assert_eq!(h.text(2), "");
+    assert_eq!(h.text(3), "b");
+    assert_eq!(h.cursor(), Caret::new(2, 0));
+    assert_view_consistent(&h);
+}
+
+/// A multi-line paste at the *end* of a grid-owning header: the header stays
+/// in front of the paste, so its grid has to stay with it, not be pushed down
+/// under the pasted lines while the header gets an empty one.
+#[test]
+fn multiline_paste_at_the_end_of_a_grid_header_keeps_the_grid_with_it() {
+    let mut h = EditorHarness::new(&two_glyph_doc());
+    let original_lines = h.lines.clone();
+
+    h.click_text(0, 13); // end of "glyph foo 4 4"
+    h.paste(" // x\n// y");
+
+    assert_eq!(h.text(0), "glyph foo 4 4 // x");
+    let grid = h.grid(1);
+    assert!(grid.get(2, 2).is_bitmap_filled(), "pixel art must survive");
+    assert_eq!(h.grid_row_count(1), 4);
+    assert_eq!(h.text(2), "// y");
+    assert_view_consistent(&h);
+
+    undo_all(&mut h);
+    assert_eq!(h.lines, original_lines);
+}
+
 /// A multi-line paste whose last line lands on a grid-owning header must not
 /// bring a grid of its own along: `parse_doclines` gives every dimensioned
 /// header a grid, and that fresh empty one used to be spliced in *between* the

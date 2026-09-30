@@ -733,6 +733,32 @@ map Y = y
     );
 }
 
+/// An alternative of an alternative is reached through the one it varies,
+/// exactly as the build registers it (`foo:a:b` under `foo:a` as well as
+/// `foo`): a ref that reaches `foo:a` alone may pick it.
+#[test]
+fn an_alternative_of_a_used_alternative_is_not_unused() {
+    let issues = issues_for(
+        "\
+glyph pix 1 1
+@@
+glyph foo:a
+ref pix
+glyph foo:a:b
+ref pix
+glyph user
+ref foo:a
+map U = user
+",
+    );
+    assert!(
+        !issues
+            .iter()
+            .any(|i| i.message.contains("'foo:a:b' is unused")),
+        "`foo:a:b` is an alternative of the used `foo:a`, got: {issues:?}",
+    );
+}
+
 /// A pattern glyph declares one glyph per expanded name, whatever the block
 /// holds — the expansions share the block's body, its pixel grid included,
 /// exactly as they share its `ref` lines. So a block that states only a box is

@@ -1114,24 +1114,52 @@ pub fn shape_to_chars(shape: PixelShape) -> [char; 2] {
     [c1 as char, c2 as char]
 }
 
+/// The inverse of [`SHAPE_TO_CHARS`], indexed by the two ASCII bytes, with
+/// [`NO_SHAPE`] where no shape is spelled so. `??` is the placeholder written
+/// for an id with no spelling, never a spelling itself, so it stays unmapped;
+/// a pair two ids share reads back as the first.
+const CHARS_TO_SHAPE: [u8; 128 * 128] = {
+    let mut table = [NO_SHAPE; 128 * 128];
+    let mut id = 0;
+    while id < 256 {
+        let [a, b] = SHAPE_TO_CHARS[id];
+        let at = a as usize * 128 + b as usize;
+        if !(a == b'?' && b == b'?') && table[at] == NO_SHAPE {
+            table[at] = id as u8;
+        }
+        id += 1;
+    }
+    table
+};
+
+/// An id [`SHAPE_TO_CHARS`] spells `??`, so that no pair ever reads back as it.
+const NO_SHAPE: u8 = PX_CUSTOM;
+const _: () = assert!(matches!(SHAPE_TO_CHARS[NO_SHAPE as usize], [b'?', b'?']));
+
 pub fn chars_to_shape(c1: char, c2: char) -> Option<PixelShape> {
-    let b1 = c1 as u8;
-    let b2 = c2 as u8;
-    SHAPE_TO_CHARS
-        .iter()
-        .enumerate()
-        .find(|&(_, &[a, b])| a == b1 && b == b2)
-        .map(|(i, _)| PixelShape(i as u8))
+    if !c1.is_ascii() || !c2.is_ascii() {
+        return None;
+    }
+    match CHARS_TO_SHAPE[c1 as usize * 128 + c2 as usize] {
+        NO_SHAPE => None,
+        id => Some(PixelShape(id)),
+    }
 }
 
 // ---------------------------------------------------------------------------
 // Shape combine (union / subtract) via precomputed rasters
 // ---------------------------------------------------------------------------
 
+// The editor's painting is the only reader of these outside the tests; the
+// build combines cells through the exact geometry of `crate::detail`.
+#[cfg(any(feature = "editor", test))]
 const RASTER_N: usize = 10;
+#[cfg(any(feature = "editor", test))]
 const RASTER_BITS: usize = RASTER_N * RASTER_N;
+#[cfg(any(feature = "editor", test))]
 const FULL_RASTER: u128 = (1u128 << RASTER_BITS) - 1;
 
+#[cfg(any(feature = "editor", test))]
 #[rustfmt::skip]
 const SHAPE_RASTERS: [u128; 128] = {
     let mut r = [0u128; 128];
@@ -1537,85 +1565,6 @@ fn seg_intersect_t(
         None
     }
 }
-
-// ---------------------------------------------------------------------------
-// Multi-shape difference adjacency (union of positive shapes minus union of
-// negative shapes).  Used by contour tracing for negated ref layers.
-// ---------------------------------------------------------------------------
-
-/// Compute adjacency bits and gap segments for the geometric difference of
-/// two sets of shapes within a single pixel cell:  union(positive) \ union(negative).
-///
-/// The result is computed by rasterizing both unions on a fine grid, taking
-/// the set difference, and finding the closest known shape whose adjacency
-/// (bits + gap segments) is guaranteed to form valid closed contours.
-pub fn multi_shape_diff_adjacency(
-    positive_shapes: &[u8],
-    negative_shapes: &[u8],
-) -> (u8, Vec<Seg>) {
-    if negative_shapes.is_empty() {
-        return multi_shape_adjacency(positive_shapes);
-    }
-    if positive_shapes.is_empty() {
-        return (0, Vec::new());
-    }
-
-    let mut pos_raster = 0u128;
-    for &s in positive_shapes {
-        pos_raster |= SHAPE_RASTERS[s as usize];
-    }
-    let mut neg_raster = 0u128;
-    for &s in negative_shapes {
-        neg_raster |= SHAPE_RASTERS[s as usize];
-    }
-
-    let result_raster = pos_raster & (!neg_raster & FULL_RASTER);
-    if result_raster == 0 {
-        return (0, Vec::new());
-    }
-
-    let best_id = closest_raster_shape(result_raster);
-    let (bits, segs) = adjacency(best_id);
-    (bits, segs.to_vec())
-}
-
-fn closest_raster_shape(target: u128) -> u8 {
-    if target == 0 {
-        return PX_EMPTY;
-    }
-    if target == FULL_RASTER {
-        return PX_ALMOSTFULL;
-    }
-    for i in 0u8..31 {
-        if SHAPE_RASTERS[i as usize] == target {
-            return i;
-        }
-    }
-    for i in 97u8..128 {
-        if SHAPE_RASTERS[i as usize] == target {
-            return i;
-        }
-    }
-    let mut best = PX_ALMOSTFULL;
-    let mut best_dist = u32::MAX;
-    for i in 1u8..31 {
-        let dist = (target ^ SHAPE_RASTERS[i as usize]).count_ones();
-        if dist < best_dist {
-            best_dist = dist;
-            best = i;
-        }
-    }
-    for i in 97u8..128 {
-        let dist = (target ^ SHAPE_RASTERS[i as usize]).count_ones();
-        if dist < best_dist {
-            best_dist = dist;
-            best = i;
-        }
-    }
-    best
-}
-
-// ---------------------------------------------------------------------------
 
 #[cfg(test)]
 #[path = "pixel_tests.rs"]

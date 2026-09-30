@@ -332,14 +332,18 @@ impl CachedContours {
         }
     }
 
+    /// Everything [`Self::from_components_inner`] reads, so that two composites
+    /// with one key trace alike.
     fn hash_composite_key(
         own_pixels: Option<&PixelGrid>,
         refs: &[GlyphRef],
         cache: &HashMap<String, CachedContours>,
         bitmap: bool,
+        parent_scale: u8,
     ) -> u64 {
         let mut hasher = std::collections::hash_map::DefaultHasher::new();
         bitmap.hash(&mut hasher);
+        parent_scale.hash(&mut hasher);
         if let Some(grid) = own_pixels {
             1u8.hash(&mut hasher);
             hash_grid_for_cache(grid, bitmap).hash(&mut hasher);
@@ -361,6 +365,8 @@ impl CachedContours {
                 resolved.origin_col.hash(&mut hasher);
                 resolved.width.hash(&mut hasher);
                 resolved.height.hash(&mut hasher);
+                resolved.scale.hash(&mut hasher);
+                resolved.declared_origin.hash(&mut hasher);
             }
         }
         hasher.finish()
@@ -453,9 +459,7 @@ impl CachedContours {
             };
 
             // Build flattened grid for downstream composites that reference
-            // this glyph.  shape_subtract may produce PX_DOT for some pixels,
-            // which is acceptable here since the grid is only used for pixel
-            // lookups, not for contour tracing.
+            // this glyph, stacked exactly as the contours above were.
             let (min_r, min_c, raster_w, raster_h) = crate::render::contour::layer_bounds(
                 diff_layers.iter().map(|&(g, r, c, _)| (g, r, c)),
             );
@@ -729,7 +733,13 @@ impl crate::render::glyph_cache::CompositeBuilder<CachedContours> for ContourBui
         if self.cache.is_none() {
             return 0;
         }
-        CachedContours::hash_composite_key(self.own_pixels(pg), refs, cache, self.flavor(&pg.name))
+        CachedContours::hash_composite_key(
+            self.own_pixels(pg),
+            refs,
+            cache,
+            self.flavor(&pg.name),
+            pg.scale,
+        )
     }
 
     fn lookup(&mut self, key: &u64) -> Option<CachedContours> {

@@ -6,36 +6,7 @@ use crate::document::{Document, DocumentItem, substitute_name_parts};
 use crate::pattern::{NamePartsMap, NamePattern};
 use crate::pattern::{capture_groups, substitute_name_parts_and_captures};
 
-use super::{Issue, Severity, issue_at};
-
-/// The names written on one item, each with whether it is read as a glyph
-/// *block* name.  That is the one context where a top-level `|` is a verbatim
-/// list rather than an alternation group ([`crate::pattern`]), so the two
-/// cannot be parsed alike.
-fn written_patterns(item: &DocumentItem) -> Vec<(&str, bool)> {
-    match item {
-        // An IDC component expands in lock-step with the block's name exactly
-        // as a `ref` target does, so a ragged group is the same fault there.
-        DocumentItem::Glyph { name, body } => std::iter::once((name.0.as_str(), true))
-            .chain(body.refs.iter().map(|r| (r.name.as_str(), false)))
-            .chain(
-                body.compose
-                    .iter()
-                    .flat_map(|c| c.part_names())
-                    .map(|p| (p, false)),
-            )
-            .collect(),
-        DocumentItem::GlyphAlias { name, target, .. } => {
-            vec![(name.0.as_str(), true), (target.as_str(), false)]
-        }
-        DocumentItem::Map { glyphs, .. } => glyphs.iter().map(|g| (g.as_str(), false)).collect(),
-        DocumentItem::MapDecomposed { glyph, .. } => {
-            glyph.as_deref().map(|g| (g, false)).into_iter().collect()
-        }
-        DocumentItem::Remap { .. } => item.remap_operands().map(|s| (s.as_str(), false)).collect(),
-        _ => Vec::new(),
-    }
-}
+use super::{Issue, Severity, issue_at, written_patterns};
 
 /// The groups an item's leading pattern writes, which every other name on it
 /// may name with a `$-N`. The check has to substitute them like the expansion

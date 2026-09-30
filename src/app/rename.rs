@@ -11,7 +11,6 @@
 //! from the classification, and a kind missing an arm there renames only the
 //! files that happen to be open.
 
-use super::docs::{load_open_document, shadowed_by_open};
 use super::*;
 
 /// Apply rename in place, returning the old text values of changed lines
@@ -892,48 +891,28 @@ mod rename_caret_tests {
 
 impl UniformApp {
     pub(super) fn execute_rename(&mut self, action: &crate::editor::document_view::RenameAction) {
-        use crate::editor::doc_links::RenameKind;
-
         // Documents opened below are only appended, so the pane's document
         // indices — and with them the focus — stay valid throughout.
         let mut changed_count = 0usize;
 
-        // First pass: check which unopened files would be affected and open them.
-        // Uses already-parsed font_base_docs (in memory) to avoid disk I/O
-        // for the check; affected files are loaded in parallel.
+        if !action.kind.accepts(&action.new_name) {
+            self.set_status(format!(
+                "'{}' is not a valid {} name; nothing was renamed.",
+                action.new_name,
+                action.kind.noun(),
+            ));
+            return;
+        }
+
+        // First pass: open the files the rename reaches that no buffer holds.
+        // Decided from the snapshot's parsed items, so the check reads nothing.
         let to_open: Vec<PathBuf> = self
             .font_base_docs
             .iter()
-            .filter(|base| {
-                !shadowed_by_open(&self.open_documents, &base.path)
-                    && doc_may_reference(&base.items, &action.old_name, &action.kind)
-            })
+            .filter(|base| doc_may_reference(&base.items, &action.old_name, &action.kind))
             .map(|base| base.path.clone())
             .collect();
-
-        if !to_open.is_empty() {
-            let base_docs = &self.font_base_docs;
-            let loaded: Vec<_> = std::thread::scope(|s| {
-                let handles: Vec<_> = to_open
-                    .iter()
-                    .map(|path| {
-                        let path = path.clone();
-                        let base_gen = base_docs
-                            .iter()
-                            .find(|b| b.path == path)
-                            .map(|b| (b.edit_gen, b.content_gen));
-                        s.spawn(move || load_open_document(path, base_gen).ok())
-                    })
-                    .collect();
-                handles
-                    .into_iter()
-                    .filter_map(|h| h.join().ok().flatten())
-                    .collect()
-            });
-            for open_doc in loaded {
-                self.open_documents.push(open_doc);
-            }
-        }
+        self.open_for_edit(&to_open);
 
         // Second pass: apply rename in place to all open documents.
         // Only touches Text lines; Grid lines are never cloned or compared.
@@ -994,23 +973,61 @@ impl UniformApp {
         }
 
         if changed_count > 0 {
-            let kind_str = match action.kind {
-                RenameKind::Glyph => "glyph",
-                RenameKind::NameParts => "name-parts",
-                RenameKind::Point => "point",
-                RenameKind::Color => "color",
-                RenameKind::Face => "face",
-                RenameKind::Slice => "slice",
-                RenameKind::RemapGroup => "remap group",
-            };
             self.set_status(format!(
                 "Renamed {} '{}' → '{}' ({} file{})",
-                kind_str,
+                action.kind.noun(),
                 action.old_name,
                 action.new_name,
                 changed_count,
                 if changed_count == 1 { "" } else { "s" },
             ));
         }
+    }
+}
+
+#[cfg(test)]
+mod rename_validation_tests {
+    use crate::app::UniformApp;
+    use crate::app::background::startup_tests::TempDir;
+    use crate::editor::doc_links::RenameKind;
+    use crate::editor::document_view::RenameAction;
+
+    /// A new name the grammar would not read as that kind of name renames
+    /// nothing: writing it into every file that names the old one would leave
+    /// them all broken — `vowel` for `$vowel` turns a binding into a glyph name,
+    /// `a b` for a glyph splits it into two tokens.
+    #[test]
+    fn a_name_that_cannot_be_that_kind_of_name_renames_nothing() {
+        let dir = TempDir::new("rename-invalid");
+        let source = "name-parts $v = a e\nglyph k-($v) 1 1\n@@\nmap K = k-a\n";
+        std::fs::write(dir.0.join("a.unf"), source).unwrap();
+        let ctx = egui::Context::default();
+        let mut app = UniformApp::with_settings(&ctx, Default::default(), Some(dir.0.clone()));
+        app.open_file(dir.0.join("a.unf"));
+        let before = app.open_documents[0].lines.clone();
+
+        for (kind, old, new) in [
+            (RenameKind::NameParts, "$v", "vowel"),
+            (RenameKind::NameParts, "$v", "$vo wel"),
+            (RenameKind::Glyph, "k-a", "k a"),
+            (RenameKind::Glyph, "k-a", "k|a"),
+        ] {
+            app.execute_rename(&RenameAction {
+                old_name: old.to_string(),
+                new_name: new.to_string(),
+                kind,
+            });
+            assert_eq!(app.open_documents[0].lines, before, "{old} -> {new}");
+            let (status, _) = app.status_message.clone().expect("the refusal says so");
+            assert!(status.contains("not a valid"), "{status}");
+        }
+
+        // A valid one still goes through.
+        app.execute_rename(&RenameAction {
+            old_name: "$v".to_string(),
+            new_name: "$vowel".to_string(),
+            kind: RenameKind::NameParts,
+        });
+        assert_ne!(app.open_documents[0].lines, before);
     }
 }

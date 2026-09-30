@@ -304,7 +304,9 @@ impl ShapedPreviewState {
 
             let para = preview::Paragraph::new(&display, self.direction);
             let paragraph_level = para.level;
-            match backend.shape(font_data, &para, 1024, &[]) {
+            // The built font's em, which is what `font_data` always is.
+            let upm = crate::render::ttf_builder::UNITS_PER_EM;
+            match backend.shape(font_data, &para, upm, &[]) {
                 Ok(glyphs) => {
                     let total_chars = display.chars().count();
                     let clusters = cluster::build_clusters(&glyphs, px_size, total_chars);

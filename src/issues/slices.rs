@@ -7,7 +7,7 @@ use crate::hash::{HashMap, HashSet};
 use crate::document::DocumentItem;
 use crate::resolve::Diagnostic;
 
-use super::{Cx, Issue, Severity, issue_at};
+use super::{Cx, Issue, Severity, issue_at, written_patterns};
 
 /// Per-item slice checks: the slices a line names, and the name parts it
 /// leaves unbound in one of them.
@@ -59,7 +59,7 @@ pub(super) fn check_slice_qualifiers(cx: &Cx<'_>, issues: &mut Vec<Issue>) {
                 let mut reported: Vec<String> = Vec::new();
                 for slice in stated {
                     let parts = scoped_parts.for_slice(slice);
-                    for name in written_names(item) {
+                    for (name, _) in written_patterns(item) {
                         let Some(part) = unbound_scoped_part(name, parts, scoped_parts) else {
                             continue;
                         };
@@ -240,13 +240,6 @@ pub(super) fn check_empty_slices(cx: &Cx<'_>, issues: &mut Vec<Issue>) {
     }
 }
 
-/// Problems in a `feature ... for ...` target list.
-///
-/// A target is an OpenType script tag, optionally narrowed to one language
-/// system below it as `script/LANG`. Both registries use 4-byte tags, so a
-/// longer part would be silently truncated to something that resolves to
-/// nothing — worth an error rather than a font that quietly ignores the
-/// declaration.
 /// The first `$part` in `name` that `parts` does not bind but some slice does.
 ///
 /// A slice-scoped binding substitutes nothing where it does not apply, and what
@@ -267,27 +260,4 @@ fn unbound_scoped_part(
         let part = &name[at..end];
         (!parts.contains_key(part) && scoped.is_slice_scoped(part)).then(|| part.to_string())
     })
-}
-
-/// The names written on one item, for a check that works on the source text
-/// rather than on what expansion made of it.
-fn written_names(item: &DocumentItem) -> Vec<&str> {
-    let mut names: Vec<&str> = Vec::new();
-    match item {
-        DocumentItem::Glyph { name, body } => {
-            names.push(name.0.as_str());
-            names.extend(body.refs.iter().map(|r| r.name.as_str()));
-        }
-        DocumentItem::GlyphAlias { name, target, .. } => {
-            names.push(name.0.as_str());
-            names.push(target.as_str());
-        }
-        DocumentItem::Map { glyphs, .. } => names.extend(glyphs.iter().map(String::as_str)),
-        DocumentItem::MapDecomposed { glyph, .. } => {
-            names.extend(glyph.as_deref());
-        }
-        DocumentItem::Remap { .. } => names.extend(item.remap_operands().map(String::as_str)),
-        _ => {}
-    }
-    names
 }

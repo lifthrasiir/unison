@@ -721,12 +721,18 @@ pub(super) fn paint_document_area(
                     secondary_caret = Some(Caret::new(vl.doc_line, col));
                 }
 
-                // Cursor drawing for text lines
+                // Cursor drawing for text lines. A column at a soft wrap is
+                // both this segment's end and the next one's start, and the
+                // caret is drawn once, at the start of the next: only the
+                // line's last segment has its end as a place of its own.
                 let text_char_count = text.chars().count();
+                let seg_end = vl.col_offset + text_char_count;
                 if matches!(state.mode, EditMode::Normal)
                     && state.cursor.line == vl.doc_line
                     && state.cursor.col >= vl.col_offset
-                    && state.cursor.col <= vl.col_offset + text_char_count
+                    && (state.cursor.col < seg_end
+                        || (state.cursor.col == seg_end
+                            && seg_end == doc_line_text(lines, vl, text).chars().count()))
                 {
                     let local_col = state.cursor.col - vl.col_offset;
                     let cx = origin.x + LEFT_PAD + atext.x_pos(ui, font_id, local_col);
@@ -1570,18 +1576,26 @@ const SAMPLE_USE_LABEL: &str = "Use";
 /// through the line's [mode](crate::samples::SampleMode), so *Use* hands over
 /// what the sample stands for and not the axes a `matrix` writes it as.
 fn sample_text_at(doc: &Document, doc_line: usize) -> Option<String> {
+    let (mode, text) = sample_at(doc, doc_line)?;
+    Some(
+        crate::samples::SampleText {
+            raw: text.join("\n"),
+            mode: crate::samples::SampleMode::from_tokens(mode),
+        }
+        .expanded(),
+    )
+}
+
+/// The `sample` item whose header is `doc_line`, if it carries a text: the
+/// test the *Use* button is drawn by on every frame, which must not pay for
+/// expanding a `matrix` it will not use.
+fn sample_at(doc: &Document, doc_line: usize) -> Option<(&[String], &[String])> {
     let idx = line_to_item_idx(&doc.item_line_starts, doc_line)?;
     if doc.item_line_starts.get(idx) != Some(&doc_line) {
         return None;
     }
     match doc.items.get(idx) {
-        Some(DocumentItem::Sample { mode, text, .. }) if !text.is_empty() => Some(
-            crate::samples::SampleText {
-                raw: text.join("\n"),
-                mode: crate::samples::SampleMode::from_tokens(mode),
-            }
-            .expanded(),
-        ),
+        Some(DocumentItem::Sample { mode, text, .. }) if !text.is_empty() => Some((mode, text)),
         _ => None,
     }
 }
@@ -1604,7 +1618,7 @@ fn sample_use_rect(
     if vl.col_offset + seg_len != doc_line_text(lines, vl, segment).chars().count() {
         return None;
     }
-    sample_text_at(doc, vl.doc_line)?;
+    sample_at(doc, vl.doc_line)?;
     let end = atext.x_pos(ui, font_id, seg_len);
     let label_w = ui.fonts(|f| {
         f.layout_no_wrap(

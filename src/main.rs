@@ -171,13 +171,20 @@ fn run_fix(input: &std::path::Path, optimize_clearance: bool, dry_run: bool) -> 
             let Some((_, bytes)) = sources.get(doc_fixes.doc_idx) else {
                 continue;
             };
-            let text = String::from_utf8_lossy(bytes).into_owned();
-            let lines: Vec<&str> = text.split('\n').collect();
             let file = doc
                 .path
                 .file_name()
                 .map(|n| n.to_string_lossy().into_owned())
                 .unwrap_or_default();
+            // The file is written back whole, so it has to be text that can be:
+            // a lossy decode would replace every stray byte in it, on lines the
+            // fix never touched.
+            let Ok(text) = std::str::from_utf8(bytes) else {
+                eprintln!("error: {file}: not valid UTF-8; not rewritten");
+                failures += 1;
+                continue;
+            };
+            let lines: Vec<&str> = text.split('\n').collect();
 
             let mut edits: Vec<(usize, String)> = Vec::new();
             for f in &doc_fixes.fixes {
@@ -229,7 +236,7 @@ fn run_fix(input: &std::path::Path, optimize_clearance: bool, dry_run: bool) -> 
             if edits.is_empty() || dry_run {
                 continue;
             }
-            match std::fs::write(&doc.path, fix::rewrite_lines(&text, &edits)) {
+            match std::fs::write(&doc.path, fix::rewrite_lines(text, &edits)) {
                 Ok(()) => written += edits.len(),
                 Err(e) => {
                     eprintln!("error: {file}: {e}");
@@ -1225,11 +1232,18 @@ fn main() {
         let refs: Vec<&document::Document> = docs.iter().collect();
         // Same rule as `build`: a validation error fails the run even when
         // every assertion passes.
-        let error_count =
-            parse_errors + report_issues(&refs, &resolve::Resolution::compute(&refs), show_chores);
+        let resolution = resolve::Resolution::compute(&refs);
+        let error_count = parse_errors + report_issues(&refs, &resolution, show_chores);
 
-        let name_parts = document::collect_name_parts(&refs);
-        let (resolved, _) = ref_composite::resolve_named_glyphs_with_parts(&refs, &name_parts);
+        // `same`/`distinct` compare resolved glyphs, and resolving is about a
+        // font build's worth of work: done only for a source that asks, and
+        // then from the expansion the report above already made.
+        let resolved = if render::assert::has_same_distinct_assertions(&refs) {
+            let never = cancel::CancelToken::never();
+            ref_composite::resolve_expansion(resolution.expansion, &resolution.name_parts, &never).0
+        } else {
+            Default::default()
+        };
 
         // One build per face the assertions actually reach — including the
         // primary one, which used to be built here and then a second time as
@@ -1326,5 +1340,41 @@ fn main() {
         eprintln!("Usage: uniform <build|test|fix> [options...]");
         eprintln!("GUI mode requires the 'editor' feature.");
         std::process::exit(1);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    /// `fix` writes a file back whole, and so only one it can write back
+    /// whole: bytes that are not UTF-8 would come back as U+FFFD everywhere
+    /// they stood, on a line the fix never touched.
+    #[test]
+    fn fix_leaves_a_file_that_is_not_utf8_alone() {
+        let dir = std::env::temp_dir().join(format!(
+            "uniform-fix-utf8-{}-{:?}",
+            std::process::id(),
+            std::thread::current().id()
+        ));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        let mut source = b"// \xff latin-1 in a comment\n".to_vec();
+        source.extend_from_slice(
+            "meta height 4\nmeta ascent 3\nmeta descent 1\n\n\
+             audit ideal-clearance test-* 0 1\n\n\
+             glyph a:4x4 4 4\n@@@@....\n@@@@....\n@@@@....\n@@@@....\n\n\
+             glyph b:4x4 4 4\n..@@@@@@\n..@@@@@@\n..@@@@@@\n..@@@@@@\n\n\
+             glyph test-x 9 4\n\u{2FF0} a:4x4 b:4x4\n"
+                .as_bytes(),
+        );
+        let path = dir.join("a.unf");
+        std::fs::write(&path, &source).unwrap();
+
+        assert_eq!(
+            super::run_fix(&dir, true, false),
+            1,
+            "a file left alone is a failure"
+        );
+        assert_eq!(std::fs::read(&path).unwrap(), source);
+        let _ = std::fs::remove_dir_all(&dir);
     }
 }

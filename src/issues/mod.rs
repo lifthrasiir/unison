@@ -446,6 +446,36 @@ impl Ord for Severity {
     }
 }
 
+/// The names written on one item, each with whether it is read as a glyph
+/// *block* name — for the checks that work on what a line states rather than
+/// on what expansion made of it.  That is the one context where a top-level `|` is a verbatim
+/// list rather than an alternation group ([`crate::pattern`]), so the two
+/// cannot be parsed alike.
+pub(super) fn written_patterns(item: &DocumentItem) -> Vec<(&str, bool)> {
+    match item {
+        // An IDC component expands in lock-step with the block's name exactly
+        // as a `ref` target does, so a ragged group is the same fault there.
+        DocumentItem::Glyph { name, body } => std::iter::once((name.0.as_str(), true))
+            .chain(body.refs.iter().map(|r| (r.name.as_str(), false)))
+            .chain(
+                body.compose
+                    .iter()
+                    .flat_map(|c| c.part_names())
+                    .map(|p| (p, false)),
+            )
+            .collect(),
+        DocumentItem::GlyphAlias { name, target, .. } => {
+            vec![(name.0.as_str(), true), (target.as_str(), false)]
+        }
+        DocumentItem::Map { glyphs, .. } => glyphs.iter().map(|g| (g.as_str(), false)).collect(),
+        DocumentItem::MapDecomposed { glyph, .. } => {
+            glyph.as_deref().map(|g| (g, false)).into_iter().collect()
+        }
+        DocumentItem::Remap { .. } => item.remap_operands().map(|s| (s.as_str(), false)).collect(),
+        _ => Vec::new(),
+    }
+}
+
 fn short_path(path: &Path) -> String {
     path.file_name()
         .map(|n| n.to_string_lossy().to_string())

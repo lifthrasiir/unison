@@ -945,6 +945,42 @@ map A = a
     assert!(!built.bitmap.is_empty() && !built.vector.is_empty());
 }
 
+/// The shared contour cache serves a composite only when everything the
+/// composite is traced from is the same. A component whose `scale` alone
+/// changes keeps its raster, and so the hash of its grid, but it is placed at
+/// a different size, so its parent must not be served the outline it had.
+#[cfg(feature = "editor")]
+#[test]
+fn a_rescaled_component_is_not_served_from_the_contour_cache() {
+    let source = |a_header: &str| {
+        format!(
+            "meta height 4\nmeta ascent 3\nmeta descent 1\n\n\
+             glyph a {a_header}\n@@..\n@@@@\n\n\
+             glyph b 2 2\n..@@\n@@..\n\n\
+             glyph c\nref a\nref b 2 0\n\n\
+             map A = c\n"
+        )
+    };
+    let build = |text: &str, cache: &crate::render::SharedContourCache| {
+        let doc = document_io::parse_document_from_str(text, "test.unf".into()).unwrap();
+        crate::render::ttf_builder::build_font_pair_cached_for(
+            &[&doc],
+            cache,
+            None,
+            &crate::cancel::CancelToken::never(),
+        )
+        .expect("builds")
+    };
+    let warm = crate::render::new_contour_cache();
+    build(&source("2 2"), &warm);
+    let served = build(&source("1 1 scale 2"), &warm);
+    let fresh = build(&source("1 1 scale 2"), &crate::render::new_contour_cache());
+    assert!(
+        served.vector == fresh.vector && served.bitmap == fresh.bitmap,
+        "the warm cache must build what a cold one does"
+    );
+}
+
 /// The directory load reads its files concurrently (they are one network round
 /// trip each, and 44 of them were eight seconds of a cold start). Concurrency
 /// is not observable from here — the contract it must not break is: documents

@@ -313,6 +313,8 @@ pub(super) fn add_color_layer_glyphs(
             continue;
         }
         let base_gid = GlyphId16::new(i as u16);
+        // Both within `u16`: `collect_glyph_data` refuses a font whose glyphs
+        // and layers together overrun the glyph ids.
         let first_layer_index = colr_layers.len() as u16;
 
         for cl in &g.color_layers {

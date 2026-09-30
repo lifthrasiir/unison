@@ -280,3 +280,31 @@ fn zero_width_glyph_reads_no_grid_lenient() {
         .collect();
     assert_eq!(texts, vec!["glyph foo 0 16", "", "", "ref bar"]);
 }
+
+/// The editor reads the `@` base in force at a line off the text, and has to
+/// read the base the parser used there — a multi-alias header included, which
+/// the parser reads as its `NAME($1)` form before taking the base off it.
+#[cfg(feature = "editor")]
+#[test]
+fn the_editor_reads_the_at_base_the_parser_used() {
+    let src = "\
+glyph foo 1 1
+@@
+glyph bar* = foo*
+glyph @-x 1 1
+@@
+glyph baz:mono 1 1
+@@
+glyph @-y 1 1
+@@
+";
+    let lines = parse_doclines(src);
+    let (doc, _) = derive_document(&lines, "test.unf".into()).unwrap();
+    for (item, &line) in doc.item_line_starts.iter().enumerate() {
+        assert_eq!(
+            crate::document::at_base_at_line(&lines, line).as_deref(),
+            doc.at_bases[item].as_deref(),
+            "item {item} at line {line}"
+        );
+    }
+}

@@ -583,6 +583,17 @@ pub fn parse_on_demand_glyph(name: &str) -> Option<OnDemandGlyph> {
     if (w == 0 && w_frac == 0) || (h == 0 && h_frac == 0) {
         return None;
     }
+    // The grid the build lays out is the box rounded up to whole cells, in
+    // subcells. Past the same bound the centering lattice keeps to, a name
+    // costs gigabytes and minutes, and the editor resolves names as they are
+    // typed.
+    let subcells = |n: u8, frac: u8| {
+        (u32::from(n) * u32::from(scale) + u32::from(frac)).div_ceil(u32::from(scale))
+            * u32::from(scale)
+    };
+    if subcells(w, w_frac).max(subcells(h, h_frac)) > u32::from(MAX_FINE_EXTENT) {
+        return None;
+    }
 
     let shape = match word {
         ShapeWord::Fixed(shape) => shape,
@@ -827,11 +838,6 @@ fn shape_vertices(shape: &OnDemandShape, cx: i64, cy: i64, ax: f64, ay: f64) -> 
     }
 }
 
-/// Nearest integer to `n / d` (`d > 0`), rounding halves up.
-fn div_round(n: i64, d: i64) -> i64 {
-    (2 * n + d).div_euclid(2 * d)
-}
-
 /// Cut every edge where it crosses a cell border, so that no edge interior
 /// ever leaves the cell its endpoints are in.
 ///
@@ -852,7 +858,7 @@ fn subdivide_at_cell_borders(pts: &[(i64, i64)]) -> Vec<(i64, i64)> {
             let (lo, hi) = (x1.min(x2), x1.max(x2));
             for k in lo.div_euclid(POLY_Q) + 1..=(hi - 1).div_euclid(POLY_Q) {
                 let x = k * POLY_Q;
-                let y = y1 + div_round((y2 - y1) * (x - x1), x2 - x1);
+                let y = y1 + crate::math::div_round_i64((y2 - y1) * (x - x1), x2 - x1);
                 cuts.push((((x - x1) * (x2 - x1).signum(), (x2 - x1).abs()), (x, y)));
             }
         }
@@ -860,7 +866,7 @@ fn subdivide_at_cell_borders(pts: &[(i64, i64)]) -> Vec<(i64, i64)> {
             let (lo, hi) = (y1.min(y2), y1.max(y2));
             for k in lo.div_euclid(POLY_Q) + 1..=(hi - 1).div_euclid(POLY_Q) {
                 let y = k * POLY_Q;
-                let x = x1 + div_round((x2 - x1) * (y - y1), y2 - y1);
+                let x = x1 + crate::math::div_round_i64((x2 - x1) * (y - y1), y2 - y1);
                 cuts.push((((y - y1) * (y2 - y1).signum(), (y2 - y1).abs()), (x, y)));
             }
         }
@@ -904,9 +910,15 @@ fn clip_half_plane(
         let t = bound - coord(a);
         let span = coord(b) - coord(a);
         if vertical {
-            (bound, a.1 + div_round((b.1 - a.1) * t, span))
+            (
+                bound,
+                a.1 + crate::math::div_round_i64((b.1 - a.1) * t, span),
+            )
         } else {
-            (a.0 + div_round((b.0 - a.0) * t, span), bound)
+            (
+                a.0 + crate::math::div_round_i64((b.0 - a.0) * t, span),
+                bound,
+            )
         }
     };
     let n = ring.len();
@@ -950,8 +962,10 @@ fn clip_ring_to_cell(ring: &[(i64, i64)], row: u16, col: u16) -> crate::detail::
         cur.into_iter()
             .map(|(x, y)| {
                 (
-                    div_round((x - x0) * REGION_DEN, POLY_Q).clamp(0, REGION_DEN) as u8,
-                    div_round((y - y0) * REGION_DEN, POLY_Q).clamp(0, REGION_DEN) as u8,
+                    crate::math::div_round_i64((x - x0) * REGION_DEN, POLY_Q).clamp(0, REGION_DEN)
+                        as u8,
+                    crate::math::div_round_i64((y - y0) * REGION_DEN, POLY_Q).clamp(0, REGION_DEN)
+                        as u8,
                 )
             })
             .collect(),
@@ -1249,11 +1263,11 @@ pub fn make_on_demand_grid(spec: &OnDemandBox) -> PixelGrid {
     }
     static CACHE: OnceLock<Mutex<HashMap<OnDemandBox, PixelGrid>>> = OnceLock::new();
     let cache = CACHE.get_or_init(Mutex::default);
-    if let Some(grid) = cache.lock().unwrap().get(spec) {
+    if let Some(grid) = crate::parallel::lock_memo(cache).get(spec) {
         return grid.clone();
     }
     let grid = build_on_demand_grid(spec);
-    cache.lock().unwrap().insert(spec.clone(), grid.clone());
+    crate::parallel::lock_memo(cache).insert(spec.clone(), grid.clone());
     grid
 }
 

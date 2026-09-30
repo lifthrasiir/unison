@@ -125,6 +125,46 @@ pub enum RenameKind {
     RemapGroup,
 }
 
+impl RenameKind {
+    /// What the rename popup and the status line call this kind of name.
+    pub fn noun(&self) -> &'static str {
+        match self {
+            RenameKind::Glyph => "glyph",
+            RenameKind::NameParts => "name-parts",
+            RenameKind::Point => "point",
+            RenameKind::Color => "color",
+            RenameKind::Face => "face",
+            RenameKind::Slice => "slice",
+            RenameKind::RemapGroup => "remap group",
+        }
+    }
+
+    /// Whether `name` reads back as a name of this kind wherever the old one
+    /// stood. A rename writes the new name into every line that names the old
+    /// one, so one that does not — `vowel` for a `$vowel`, `a b` for a glyph —
+    /// breaks all of them at once.
+    pub fn accepts(&self, name: &str) -> bool {
+        // The characters a `$var` reference is read to the end of
+        // (`crate::pattern::substitute_name_parts`).
+        let var_char = |c: char| c.is_alphanumeric() || c == '-' || c == '_';
+        let plain = |s: &str| {
+            !s.is_empty()
+                && s.chars()
+                    .all(|c| c.is_ascii_alphanumeric() || matches!(c, '-' | '.' | '_'))
+        };
+        match self {
+            RenameKind::Glyph => crate::pattern::is_valid_glyph_name(name),
+            RenameKind::NameParts => name
+                .strip_prefix('$')
+                .is_some_and(|rest| !rest.is_empty() && rest.chars().all(var_char)),
+            RenameKind::Face => crate::faces::is_valid_face_id(name),
+            RenameKind::Slice => crate::faces::is_valid_slice_id(name),
+            // A point's sign is written by the rename, so the name carries none.
+            RenameKind::Point | RenameKind::Color | RenameKind::RemapGroup => plain(name),
+        }
+    }
+}
+
 #[derive(Clone, Debug)]
 #[allow(dead_code)]
 pub struct RenameTarget {
@@ -505,21 +545,41 @@ fn written_group_offsets(text: &str) -> Vec<usize> {
 }
 
 /// The same for a *regular expression*: every capturing group, numbered by its
-/// opening parenthesis — nested ones included, and `(?…)` excluded, which is
-/// how the regex crate numbers them and so how [`crate::exists`] does.
+/// opening parenthesis — nested and named ones included, `(?:…)`, escapes and
+/// classes not — which is how the regex crate numbers them and so how
+/// [`crate::exists`] does. Asked of the regex parser itself rather than
+/// re-lexed here, so the two cannot disagree.
 fn regex_group_offsets(pattern: &str) -> Vec<usize> {
-    let chars: Vec<char> = pattern.chars().collect();
-    let mut offsets = Vec::new();
-    let mut i = 0;
-    while i < chars.len() {
-        match chars[i] {
-            '\\' => i += 1,
-            '(' if chars.get(i + 1) != Some(&'?') => offsets.push(i),
+    use regex_syntax::ast::{Ast, GroupKind};
+    fn walk(ast: &Ast, out: &mut Vec<(u32, usize)>) {
+        match ast {
+            Ast::Group(group) => {
+                let index = match &group.kind {
+                    GroupKind::CaptureIndex(index) => Some(*index),
+                    GroupKind::CaptureName { name, .. } => Some(name.index),
+                    GroupKind::NonCapturing(_) => None,
+                };
+                if let Some(index) = index {
+                    out.push((index, group.span.start.offset));
+                }
+                walk(&group.ast, out);
+            }
+            Ast::Repetition(rep) => walk(&rep.ast, out),
+            Ast::Concat(concat) => concat.asts.iter().for_each(|a| walk(a, out)),
+            Ast::Alternation(alt) => alt.asts.iter().for_each(|a| walk(a, out)),
             _ => {}
         }
-        i += 1;
     }
-    offsets
+    let Ok(ast) = regex_syntax::ast::parse::Parser::new().parse(pattern) else {
+        return Vec::new();
+    };
+    let mut groups = Vec::new();
+    walk(&ast, &mut groups);
+    groups.sort_unstable();
+    groups
+        .into_iter()
+        .map(|(_, byte)| pattern[..byte].chars().count())
+        .collect()
 }
 
 /// The tokens of the leading pattern a line writes, as `(column, raw text)` in
@@ -1477,6 +1537,18 @@ mod capture_target_tests {
         // Past the block the search governs there is nothing to name.
         let past = lines.len() - 1;
         assert_eq!(find_capture_target(&lines, past, "$0"), None);
+    }
+
+    /// A parenthesis in a class, or escaped, opens no group; a named group is
+    /// numbered like any other — the regex crate's numbering, which is the one
+    /// the search binds by.
+    #[test]
+    fn a_search_capture_is_numbered_as_the_regex_numbers_it() {
+        let lines = doc("exists [(]x(y)(?:z)(?P<w>v)\nglyph g-($1)-($2) 2 2\n");
+        let ex = at(&lines, "exists");
+        let header = at(&lines, "glyph g-");
+        assert_eq!(find_capture_target(&lines, header, "$1"), Some((ex, 11)));
+        assert_eq!(find_capture_target(&lines, header, "$2"), Some((ex, 19)));
     }
 
     /// Neither spelling is a name-parts reference, and a plain `$var` is not

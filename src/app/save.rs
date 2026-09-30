@@ -26,6 +26,18 @@
 //! under the first write's revision. It also keeps a Save All from opening one
 //! connection per file on a share that serves them serially anyway.
 //!
+//! # A change nobody has reported yet
+//!
+//! The watcher is what tells the editor a file changed outside it, and on a
+//! polled share it can be seconds behind. A save in that window would replace
+//! the other change without a word, so the worker reads the file just before
+//! writing it: bytes that are neither what the buffer last read or wrote nor a
+//! write of ours still in flight make the save a conflict. Nothing is written,
+//! the document is marked changed outside, and the next save asks — the same
+//! question [`confirm_overwrite`] asks for a change the watcher did report —
+//! with a confirmed overwrite writing unconditionally. The cost is one read of
+//! the file per save.
+//!
 //! # Quitting
 //!
 //! Closing the window is the one place that may not simply enqueue and return:
@@ -55,6 +67,32 @@ struct SaveJob {
     /// compares against once they are on disk; see
     /// [`crate::editor::change_marks`].
     lines: Arc<[DocLine]>,
+    /// The hashes the file may hold for the write to go ahead, or `None` for
+    /// an overwrite the user confirmed. See the module docs.
+    expect: Option<Vec<u64>>,
+}
+
+/// Why a write did not happen.
+enum SaveError {
+    Io(String),
+    /// The file holds bytes this editor neither read nor wrote.
+    Conflict,
+}
+
+/// The worker's whole job: check, then write. Also what runs on the calling
+/// thread once the worker is gone.
+fn write_checked(job: &SaveJob) -> Option<SaveError> {
+    if let Some(expect) = &job.expect
+        && let Ok(bytes) = std::fs::read(&job.path)
+        && !expect.contains(&crate::app::watch::hash_bytes(&bytes))
+    {
+        // A file that cannot be read — gone, most likely — is written as
+        // before: there is nothing on disk left to lose.
+        return Some(SaveError::Conflict);
+    }
+    document_io::write_and_sync(&job.path, &job.bytes)
+        .err()
+        .map(|e| SaveError::Io(e.to_string()))
 }
 
 /// What became of one write, on its way back to the document it came from.
@@ -63,7 +101,7 @@ pub(super) struct SaveOutcome {
     hash: u64,
     point: SavePoint,
     lines: Arc<[DocLine]>,
-    error: Option<String>,
+    error: Option<SaveError>,
 }
 
 /// The worker thread and the two channels to it.
@@ -90,9 +128,7 @@ impl SaveQueue {
         let ctx = ctx.clone();
         std::thread::spawn(move || {
             for job in job_rx {
-                let error = document_io::write_and_sync(&job.path, &job.bytes)
-                    .err()
-                    .map(|e| e.to_string());
+                let error = write_checked(&job);
                 let outcome = SaveOutcome {
                     path: job.path,
                     hash: job.hash,
@@ -123,18 +159,18 @@ impl SaveQueue {
     /// A save that cannot be moved off the UI thread is still better than one
     /// that never happens, and the outcome reads the same either way.
     fn submit(&mut self, job: SaveJob) -> Option<SaveOutcome> {
-        let job = match self.tx.as_ref().map(|tx| tx.send(job)) {
-            Some(Ok(())) => {
-                self.in_flight += 1;
-                return None;
-            }
-            Some(Err(mpsc::SendError(job))) => job,
-            None => return None,
+        let job = match &self.tx {
+            Some(tx) => match tx.send(job) {
+                Ok(()) => {
+                    self.in_flight += 1;
+                    return None;
+                }
+                Err(mpsc::SendError(job)) => job,
+            },
+            None => job,
         };
         self.tx = None;
-        let error = document_io::write_and_sync(&job.path, &job.bytes)
-            .err()
-            .map(|e| e.to_string());
+        let error = write_checked(&job);
         Some(SaveOutcome {
             path: job.path,
             hash: job.hash,
@@ -166,11 +202,23 @@ impl SaveQueue {
     }
 }
 
+/// The status line for a save that found the file changed outside the editor.
+fn conflict_message(path: &std::path::Path) -> String {
+    format!(
+        "{} changed on disk since it was last read, and was not saved. \
+         Save again to overwrite it, or reload it from the sidebar.",
+        file_name_of(path)
+    )
+}
+
 impl UniformApp {
     /// Serializes one open document and hands its write over. Returns whether
     /// there is now a write to wait for — a document that does not serialize
     /// says so on the status bar and produces none.
-    fn enqueue_save(&mut self, idx: usize) -> bool {
+    ///
+    /// `overwrite` is a save the user confirmed over a change made outside the
+    /// editor: it writes whatever the file holds now.
+    fn enqueue_save(&mut self, idx: usize, overwrite: bool) -> bool {
         let Some(doc) = self.open_documents.get_mut(idx) else {
             return false;
         };
@@ -187,6 +235,16 @@ impl UniformApp {
         // taking it breaks undo coalescing so the next keystroke cannot fold
         // into the entry it names.
         let point = doc.editor_state.undo.save_point();
+        // What the file may hold when the write reaches it: what this buffer
+        // last read or wrote, or a write of its own queued ahead of this one.
+        let expect = (!overwrite)
+            .then(|| {
+                let known = doc.disk_hash.into_iter();
+                known
+                    .chain(doc.pending_disk_hashes.iter().copied())
+                    .collect()
+            })
+            .filter(|known: &Vec<u64>| !known.is_empty());
         // Recorded before the write starts, since the file can be read back —
         // by the watcher — before its outcome is applied here.
         doc.pending_disk_hashes.push(hash);
@@ -196,6 +254,7 @@ impl UniformApp {
             hash,
             point,
             lines: doc.lines.as_slice().into(),
+            expect,
         };
         start(&mut self.bg_tasks.save);
         match self.saves.submit(job) {
@@ -217,8 +276,12 @@ impl UniformApp {
         let Some(idx) = idx else {
             // Nothing holds the file any more. The error is still the user's
             // to hear; a success has nothing left to record.
-            if let Some(e) = outcome.error {
-                self.set_status(format!("Save error ({}): {e}", file_name_of(&outcome.path),));
+            match outcome.error {
+                Some(SaveError::Io(e)) => {
+                    self.set_status(format!("Save error ({}): {e}", file_name_of(&outcome.path)));
+                }
+                Some(SaveError::Conflict) => self.set_status(conflict_message(&outcome.path)),
+                None => {}
             }
             return;
         };
@@ -238,9 +301,17 @@ impl UniformApp {
                     self.set_status(format!("Saved {path}"));
                 }
             }
-            Some(e) => {
+            Some(SaveError::Io(e)) => {
                 self.saves.batch_failed = true;
                 self.set_status(format!("Save error: {e}"));
+            }
+            Some(SaveError::Conflict) => {
+                // The watcher will say so as well once it looks; the next save
+                // asks either way.
+                doc.external_change = true;
+                self.saves.batch_failed = true;
+                let message = conflict_message(&outcome.path);
+                self.set_status(message);
             }
         }
     }
@@ -298,11 +369,12 @@ impl UniformApp {
             return;
         };
         doc.flush_pending_changes();
-        if doc.external_change && !confirm_overwrite(&[file_name_of(&doc.document.path)]) {
+        let overwrite = doc.external_change;
+        if overwrite && !confirm_overwrite(&[file_name_of(&doc.document.path)]) {
             return;
         }
         let path = doc.document.path.display().to_string();
-        if self.enqueue_save(idx) {
+        if self.enqueue_save(idx, overwrite) {
             self.set_status(format!("Saving {path}..."));
         }
     }
@@ -334,7 +406,9 @@ impl UniformApp {
         self.saves.batch = true;
         self.saves.batch_failed = false;
         for idx in dirty {
-            self.enqueue_save(idx);
+            // Confirmed above, where it was changed outside.
+            let overwrite = self.open_documents[idx].external_change;
+            self.enqueue_save(idx, overwrite);
         }
         if self.saves.is_busy() {
             self.set_status("Saving all files...".to_string());
@@ -431,7 +505,10 @@ mod tests {
         append_line(&mut app, "# saved");
         assert!(app.open_documents[0].document.dirty);
 
-        assert!(app.enqueue_save(0), "the write is handed to the worker");
+        assert!(
+            app.enqueue_save(0, false),
+            "the write is handed to the worker"
+        );
         // The buffer moves on while the write is in flight.
         append_line(&mut app, "# typed during the write");
         pump_until_idle(&mut app, &ctx);
@@ -453,6 +530,78 @@ mod tests {
             doc.editor_state.undo.is_at_saved(),
             "undoing back to the written revision is what makes it clean"
         );
+    }
+
+    /// Once the worker has been found gone, every later save is written on the
+    /// calling thread — not dropped while the document reads as saving.
+    #[test]
+    fn a_save_after_the_worker_is_gone_is_still_written() {
+        let (dir, ctx, mut app) = app_with_open_file("save-no-worker");
+        app.saves.tx = None;
+        append_line(&mut app, "# written inline");
+
+        assert!(!app.enqueue_save(0, false), "nothing is left in flight");
+        pump_until_idle(&mut app, &ctx);
+        let on_disk = std::fs::read_to_string(dir.0.join("a.unf")).unwrap();
+        assert!(on_disk.contains("# written inline"));
+        assert!(!app.open_documents[0].document.dirty);
+    }
+
+    /// A file changed outside the editor that the watcher has not reported
+    /// yet — a poll interval on a share is seconds — is not written over: the
+    /// write finds bytes it does not know, and stops.
+    #[test]
+    fn a_save_does_not_overwrite_a_change_the_watcher_has_not_seen() {
+        let (dir, ctx, mut app) = app_with_open_file("save-conflict");
+        let outside = "glyph b 1 1\n@@\n";
+        std::fs::write(dir.0.join("a.unf"), outside).unwrap();
+        append_line(&mut app, "# ours");
+
+        app.enqueue_save(0, false);
+        pump_until_idle(&mut app, &ctx);
+        assert_eq!(
+            std::fs::read_to_string(dir.0.join("a.unf")).unwrap(),
+            outside
+        );
+        let doc = &app.open_documents[0];
+        assert!(doc.document.dirty, "the buffer is still unsaved");
+        assert!(
+            doc.external_change,
+            "and the next save asks before overwriting"
+        );
+        assert!(doc.pending_disk_hashes.is_empty());
+        let (status, _) = app.status_message.clone().unwrap();
+        assert!(status.contains("changed on disk"), "{status}");
+
+        // The overwrite the next save asks for, confirmed.
+        app.enqueue_save(0, true);
+        pump_until_idle(&mut app, &ctx);
+        assert!(
+            std::fs::read_to_string(dir.0.join("a.unf"))
+                .unwrap()
+                .contains("# ours")
+        );
+        assert!(!app.open_documents[0].document.dirty);
+        assert!(!app.open_documents[0].external_change);
+    }
+
+    /// Two saves of one file queued back to back: the second finds the first
+    /// one's bytes, which are ours.
+    #[test]
+    fn a_save_queued_behind_another_is_not_a_conflict() {
+        let (dir, ctx, mut app) = app_with_open_file("save-queued");
+        append_line(&mut app, "# first");
+        app.enqueue_save(0, false);
+        append_line(&mut app, "# second");
+        app.enqueue_save(0, false);
+        pump_until_idle(&mut app, &ctx);
+        assert!(
+            std::fs::read_to_string(dir.0.join("a.unf"))
+                .unwrap()
+                .contains("# second")
+        );
+        assert!(!app.open_documents[0].document.dirty);
+        assert!(!app.open_documents[0].external_change);
     }
 
     /// The change marks compare against what a write put on disk, and so
@@ -477,7 +626,7 @@ mod tests {
         append_line(&mut app, "# saved");
         assert_eq!(marks(&mut app).last(), Some(&LineChange::Added));
 
-        assert!(app.enqueue_save(0));
+        assert!(app.enqueue_save(0, false));
         append_line(&mut app, "# typed during the write");
         pump_until_idle(&mut app, &ctx);
 
@@ -504,7 +653,7 @@ mod tests {
         document_io::serialize_doclines(&app.open_documents[0].lines, &mut bytes).unwrap();
         let hash = crate::app::watch::hash_bytes(&bytes);
 
-        app.enqueue_save(0);
+        app.enqueue_save(0, false);
         let doc = &app.open_documents[0];
         assert_eq!(doc.disk_hash, opened_hash, "nothing has reported back yet");
         assert!(
@@ -556,7 +705,7 @@ mod tests {
         std::fs::remove_file(&path).unwrap();
         std::fs::create_dir(&path).unwrap();
 
-        app.enqueue_save(0);
+        app.enqueue_save(0, false);
         assert!(!app.finish_pending_saves(), "the write failed");
         assert!(app.open_documents[0].document.dirty);
         assert!(app.open_documents[0].pending_disk_hashes.is_empty());

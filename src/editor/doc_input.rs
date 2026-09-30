@@ -255,7 +255,10 @@ fn apply_event(
                     egui::Key::Backspace => {
                         if te.delete_selection_if_any() {
                             *changed = true;
-                        } else if word_mod {
+                        } else if word_mod && te.cursor.col > 0 {
+                            // At the start of a line the word step would reach
+                            // into the line above, which may be a pixel grid:
+                            // that is the plain Backspace's to handle, below.
                             let word_start = caret::move_word_left(te.lines, *te.cursor);
                             if word_start != *te.cursor {
                                 *te.cursor = crate::editor::editing::delete_selection(
@@ -273,7 +276,10 @@ fn apply_event(
                     egui::Key::Delete => {
                         if te.delete_selection_if_any() {
                             *changed = true;
-                        } else if word_mod {
+                        } else if word_mod
+                            && te.cursor.col < caret::line_char_len(te.lines, te.cursor.line)
+                        {
+                            // Likewise at the end of a line, for the plain Delete.
                             let word_end = caret::move_word_right(te.lines, *te.cursor);
                             if word_end != *te.cursor {
                                 *te.cursor = crate::editor::editing::delete_selection(
@@ -606,19 +612,33 @@ pub(crate) fn paste_text(
     content.push_str(&suffix);
 
     let mut new = crate::document_io::parse_doclines(&content);
+    // A source file's last newline ends its last line; a paste's starts one.
+    if content.ends_with('\n') {
+        new.push(DocLine::text(String::new()));
+    }
 
     // `parse_doclines` hands every dimensioned header a grid of its own, empty
-    // when the text carried no pixel rows. If the paste *ends* on a header
-    // whose grid is already in the buffer — it sits just past the replaced
-    // range — that fresh empty grid would be spliced in between the two,
-    // orphaning the real one: its pixels were demoted to raw text and the glyph
-    // was left blank. Drop it and let the existing grid stay with its header;
-    // `reconcile` resizes it if the pasted dimensions differ.
-    if matches!(new.last(), Some(DocLine::Grid(g)) if g.is_all_empty())
-        && matches!(lines.get(hi.line + 1), Some(DocLine::Grid(_)))
-    {
-        new.pop();
+    // when the text carried no pixel rows. Where the header the caret was on
+    // owns a grid already — it sits just past the replaced range — that grid
+    // has to stay with the header, wherever the paste leaves it: a fresh empty
+    // grid spliced in between the two orphaned the real one, whose pixels were
+    // demoted to raw text while the glyph was left blank. `reconcile` resizes
+    // the kept grid if the pasted dimensions differ.
+    let mut end = hi.line;
+    if matches!(lines.get(hi.line + 1), Some(DocLine::Grid(_))) {
+        let synthesized =
+            |line: Option<&DocLine>| matches!(line, Some(DocLine::Grid(g)) if g.is_all_empty());
+        if synthesized(new.last()) {
+            // The paste *ends* on the header: its grid already follows.
+            new.pop();
+        } else if lo.line == hi.line && !prefix.is_empty() && synthesized(new.get(1)) {
+            // The header stayed *in front* of the paste: its grid comes along
+            // into the place the parse made for it.
+            end = hi.line + 1;
+            new[1] = lines[end].clone();
+        }
     }
+    let old: Vec<DocLine> = lines[lo.line..=end].to_vec();
     DocLine::continue_text_edit(&old, &mut new, !prefix.is_empty(), !suffix.is_empty());
 
     let caret_after = match new.last() {
@@ -630,7 +650,7 @@ pub(crate) fn paste_text(
         None => Caret::new(lo.line, 0),
     };
     undo.push_lines(lo.line, old, new.clone(), *cursor, caret_after);
-    lines.splice(lo.line..=hi.line, new);
+    lines.splice(lo.line..=end, new);
     *cursor = caret_after;
 }
 

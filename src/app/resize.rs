@@ -18,7 +18,6 @@
 use crate::hash::HashSet;
 use std::path::PathBuf;
 
-use super::docs::{load_open_document, shadowed_by_open};
 use super::*;
 use crate::editor::glyph_resize::{self, ResizeAction, ResolveEnv};
 
@@ -47,35 +46,10 @@ impl UniformApp {
         let to_open: Vec<PathBuf> = self
             .font_base_docs
             .iter()
-            .filter(|base| {
-                !shadowed_by_open(&self.open_documents, &base.path)
-                    && doc_may_reference(&base.items, &names)
-            })
+            .filter(|base| doc_may_reference(&base.items, &names))
             .map(|base| base.path.clone())
             .collect();
-        if !to_open.is_empty() {
-            let base_docs = &self.font_base_docs;
-            let loaded: Vec<_> = std::thread::scope(|s| {
-                let handles: Vec<_> = to_open
-                    .iter()
-                    .map(|path| {
-                        let path = path.clone();
-                        let base_gen = base_docs
-                            .iter()
-                            .find(|b| b.path == path)
-                            .map(|b| (b.edit_gen, b.content_gen));
-                        s.spawn(move || load_open_document(path, base_gen).ok())
-                    })
-                    .collect();
-                handles
-                    .into_iter()
-                    .filter_map(|h| h.join().ok().flatten())
-                    .collect()
-            });
-            for open_doc in loaded {
-                self.open_documents.push(open_doc);
-            }
-        }
+        self.open_for_edit(&to_open);
 
         let mut changed_count = 0usize;
         for doc in &mut self.open_documents {

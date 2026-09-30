@@ -912,10 +912,9 @@ fn detect_context(line: &str, col: usize) -> Option<CompletionContext> {
     None
 }
 
+/// The first word's length in characters, the unit the caret column is in.
 fn keyword_len(trimmed: &str) -> usize {
-    trimmed
-        .find(|c: char| c.is_whitespace())
-        .unwrap_or(trimmed.len())
+    trimmed.chars().take_while(|c| !c.is_whitespace()).count()
 }
 
 /// Find which rest-token index the cursor falls within.
@@ -1134,6 +1133,16 @@ mod tests {
         assert!(detect_context("ref foo // $na", 14).is_none());
         // Before the marker the line completes as usual.
         assert!(detect_context("ref lat // note", 7).is_some());
+    }
+
+    /// The keyword is measured in characters, like the caret: `⿰` is one
+    /// column however many bytes it takes, so a name typed right after it is
+    /// a name and not more of the keyword.
+    #[test]
+    fn a_name_right_after_an_idc_operator_is_not_a_keyword() {
+        let ctx = detect_context("\u{2FF0} a", 3).unwrap();
+        assert_ne!(ctx.kind, CompletionKind::Keyword);
+        assert_eq!(ctx.prefix, "a");
     }
 
     #[test]

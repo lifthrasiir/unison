@@ -1372,7 +1372,8 @@ fn rewrite_scale_in_header(header: &str, new_scale: u8) -> String {
     let mut i = 0;
     let mut scale_written = false;
     while i < tokens.len() {
-        if tokens[i] == "scale" && i + 1 < tokens.len() {
+        // Past the keyword and the name: a glyph may be *called* `scale`.
+        if i >= 2 && tokens[i] == "scale" && i + 1 < tokens.len() {
             if new_scale > 1 {
                 result.push("scale".into());
                 result.push(new_scale.to_string());

@@ -161,10 +161,60 @@ pub(super) fn document_from_source(
     Ok((doc, lines))
 }
 
+/// `path` opened into an editor buffer: parsed from the snapshot's source when
+/// it has one, from disk otherwise.
+fn open_from_snapshot(
+    base_docs: &[Arc<Document>],
+    sources: &HashMap<PathBuf, FontSource>,
+    path: &std::path::Path,
+) -> anyhow::Result<OpenDocument> {
+    // The generations the snapshot holds for this path, if it has it.
+    let base = base_docs.iter().find(|base| base.path == path);
+    let base_gen = base.map(|b| (b.edit_gen, b.content_gen));
+    // Opening is on the critical path of a Ctrl/Cmd+click, so a file the
+    // snapshot already holds is parsed from memory rather than read again;
+    // see [`FontSource`] for what that costs.
+    match sources.get(path) {
+        // The snapshot's own bytes, re-parsed: the same source revision,
+        // and so the same font. Stepping the generations here is what made
+        // every Ctrl/Cmd+click into a file cost a full rebuild.
+        //
+        // "The same font" rests on the round trip `document_from_source`
+        // performs — parse, serialize, re-derive — producing the items the
+        // snapshot's plain parse did. That is the invariant the parser's
+        // round-trip tests exist for, and the one every editor flush
+        // already depends on.
+        //
+        // The same lines, too: a report on the snapshot locates its
+        // findings by line id, and no rebuild is coming to replace it.
+        Some(source) => open_document_from_text(
+            &source.text,
+            source.hash,
+            path.to_path_buf(),
+            base_gen.unwrap_or((0, 0)),
+        )
+        .map(|mut open| {
+            if let Some(base) = base
+                && DocLine::adopt_line_ids(&mut open.lines, &base.line_ids)
+            {
+                open.document.line_ids = Arc::clone(&base.line_ids);
+                // Under the ids the lines have now, or every one of them
+                // would pair by content alone.
+                open.editor_state
+                    .changes
+                    .set_saved(open.lines.as_slice().into());
+            }
+            open
+        }),
+        None => load_open_document(path.to_path_buf(), base_gen),
+    }
+}
+
 /// Loads a file from disk into a fresh `OpenDocument`: parse, serialize to
 /// canonical text, re-derive from the resulting doclines, and bump the
-/// generation counters past the directory snapshot's (`base_gen`).  Shared by
-/// interactive open and the parallel loads `execute_rename` performs.
+/// generation counters past the directory snapshot's (`base_gen`). What
+/// [`open_from_snapshot`] falls back to for a file the snapshot has no source
+/// for.
 pub(super) fn load_open_document(
     path: PathBuf,
     base_gen: Option<(u64, u64)>,
@@ -260,6 +310,9 @@ pub(super) fn apply_reloaded_lines(open: &mut OpenDocument, new_lines: Vec<DocLi
             .changes
             .set_saved(open.lines.as_slice().into());
         open.disk_hash = Some(hash);
+        // Nor is there anything left to warn about.
+        open.external_change = false;
+        open.owed_external_toast = false;
         return;
     }
     let caret_after = crate::editor::caret::clamp(&open.lines, caret_before);
@@ -391,6 +444,18 @@ impl UniformApp {
         }
     }
 
+    /// Re-derives what the editor has held back (a line the caret is still
+    /// on), and nothing else: a background run that reads the documents has to
+    /// read what the buffers say, but unlike a save it is no reason to commit a
+    /// floating selection or drop a resize preview.
+    pub(super) fn sync_pending_derives(&mut self) {
+        for doc in &mut self.open_documents {
+            if doc.editor_state.has_pending_document_sync() {
+                doc.flush_pending_changes_forced();
+            }
+        }
+    }
+
     /// Opens `path` into a pane and focuses it. Which pane is
     /// [`Panes::show_document`]'s call: the placeholder if one is up,
     /// otherwise the pane that last had the focus — and a file that is
@@ -409,49 +474,7 @@ impl UniformApp {
             return;
         }
 
-        // The generations the snapshot holds for this path, if it has it.
-        let base_gen = self
-            .font_base_docs
-            .iter()
-            .find(|base| base.path == path)
-            .map(|b| (b.edit_gen, b.content_gen));
-        // Opening is on the critical path of a Ctrl/Cmd+click, so a file the
-        // snapshot already holds is parsed from memory rather than read again;
-        // see [`FontSource`] for what that costs.
-        let loaded = match self.font_sources.get(&path) {
-            // The snapshot's own bytes, re-parsed: the same source revision,
-            // and so the same font. Stepping the generations here is what made
-            // every Ctrl/Cmd+click into a file cost a full rebuild.
-            //
-            // "The same font" rests on the round trip `document_from_source`
-            // performs — parse, serialize, re-derive — producing the items the
-            // snapshot's plain parse did. That is the invariant the parser's
-            // round-trip tests exist for, and the one every editor flush
-            // already depends on.
-            //
-            // The same lines, too: a report on the snapshot locates its
-            // findings by line id, and no rebuild is coming to replace it.
-            Some(source) => open_document_from_text(
-                &source.text,
-                source.hash,
-                path.clone(),
-                base_gen.unwrap_or((0, 0)),
-            )
-            .map(|mut open| {
-                if let Some(base) = self.font_base_docs.iter().find(|base| base.path == path)
-                    && DocLine::adopt_line_ids(&mut open.lines, &base.line_ids)
-                {
-                    open.document.line_ids = std::sync::Arc::clone(&base.line_ids);
-                    // Under the ids the lines have now, or every one of them
-                    // would pair by content alone.
-                    open.editor_state
-                        .changes
-                        .set_saved(open.lines.as_slice().into());
-                }
-                open
-            }),
-            None => load_open_document(path.clone(), base_gen),
-        };
+        let loaded = open_from_snapshot(&self.font_base_docs, &self.font_sources, &path);
         match loaded {
             Ok(open_doc) => {
                 self.open_documents.push(open_doc);
@@ -461,6 +484,47 @@ impl UniformApp {
             Err(e) => {
                 self.set_status(format!("Error: {e}"));
             }
+        }
+    }
+
+    /// Opens every file of `paths` that no buffer holds yet, for an edit that
+    /// reaches across the directory (rename, resize, a clearance plan) — in
+    /// parallel, and appended only, so pane document indices stay valid.
+    ///
+    /// Parsed from the snapshot's source where it has one, like [`Self::open_file`],
+    /// so a rename across forty files does not read forty files on this thread.
+    /// A file that cannot be opened is named on the status line; the edit goes
+    /// ahead in the others.
+    pub(super) fn open_for_edit(&mut self, paths: &[PathBuf]) {
+        let to_open: Vec<&PathBuf> = paths
+            .iter()
+            .filter(|path| !shadowed_by_open(&self.open_documents, path))
+            .collect();
+        if to_open.is_empty() {
+            return;
+        }
+        let (base_docs, sources) = (&self.font_base_docs, &self.font_sources);
+        let loaded: Vec<(PathBuf, anyhow::Result<OpenDocument>)> = std::thread::scope(|s| {
+            let handles: Vec<_> = to_open
+                .iter()
+                .map(|&path| {
+                    s.spawn(move || (path.clone(), open_from_snapshot(base_docs, sources, path)))
+                })
+                .collect();
+            handles
+                .into_iter()
+                .map(|h| h.join().expect("opening a document does not panic"))
+                .collect()
+        });
+        let mut failed = Vec::new();
+        for (path, open) in loaded {
+            match open {
+                Ok(open) => self.open_documents.push(open),
+                Err(e) => failed.push(format!("{}: {e}", file_name_of(&path))),
+            }
+        }
+        if !failed.is_empty() {
+            self.set_status(format!("Could not open {}", failed.join("; ")));
         }
     }
 

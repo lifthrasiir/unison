@@ -151,9 +151,10 @@ pub(super) fn collect_graph<'a>(cx: &'a Cx<'_>) -> GlyphGraph<'a> {
         .iter()
         .map(|n| n.as_str())
         .chain(aliases.decls().iter().map(|d| d.name.as_str()));
+    // Under every prefix, as the build registers them: `foo:a:b` is an
+    // alternative of `foo:a` as well as of `foo`.
     for name in alt_candidates {
-        if let Some(colon_pos) = name.find(':') {
-            let base = &name[..colon_pos];
+        for base in crate::ref_composite::alternative_prefixes(name) {
             alt_names.entry(base).or_default().push(name);
         }
     }

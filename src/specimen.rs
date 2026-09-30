@@ -447,7 +447,6 @@ impl SpecimenState {
         self.uvs = data.uvs;
         self.remap_entries = data.remap_entries;
         self.blocks = data.blocks;
-        self.unfolded.clear();
         self.char_props = data.char_props;
         self.glyph_flags = data.glyph_flags;
     }
@@ -902,6 +901,7 @@ impl SpecimenState {
     fn rebuild_sections(&mut self) {
         self.sections_key = Some(self.options);
         self.layout = None;
+        self.unfolded.clear();
         self.entries.clear();
         self.uvs_entries.clear();
         self.items.clear();
@@ -1763,11 +1763,16 @@ impl SpecimenState {
         let center = style.cell_center(cell_min);
 
         let mut drawn_via_rasterizer = false;
+        // Whether the built font answers for this character at all. Where it
+        // does, its answer stands even when it is a glyph with no outline: a
+        // blank the font maps is drawn blank, not in the UI font's shape.
+        let mut font_maps = false;
 
         if let Some(font_bytes) = style.raster_font
             && let Some(font) = &font
             && let Some(gid) = font.charmap().map(ch)
         {
+            font_maps = true;
             drawn_via_rasterizer = self.draw_rasterized_glyph(
                 painter,
                 cell_rect,
@@ -1782,12 +1787,13 @@ impl SpecimenState {
         }
 
         // The fallback draws the character in the *editor's* UI font, which is
-        // a reasonable stand-in for a glyph the build has not caught up with —
+        // a reasonable stand-in for a glyph the build has not caught up with
+        // (one the font does not map yet) —
         // but for a character the source declares nothing about it would read
         // as coverage the font does not have, so an undeclared cell stays empty.
         // It is the font's glyph, not this one, that the cell claims to show,
         // so a dimmed cell dims it too.
-        if !drawn_via_rasterizer && declared {
+        if !drawn_via_rasterizer && !font_maps && declared {
             let color = if has_metrics {
                 glyph_color
             } else {

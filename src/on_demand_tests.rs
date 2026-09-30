@@ -362,6 +362,19 @@ fn parse_on_demand_glyph_fractional_rejects_invalid() {
     assert_eq!(parse_on_demand_glyph("3x_5"), None);
 }
 
+/// A name is typed into the editor one character at a time and resolved as it
+/// is typed, so one that would build a grid of billions of subcells is not an
+/// on-demand name at all rather than a hang.
+#[test]
+fn parse_on_demand_glyph_rejects_a_grid_too_large_to_build() {
+    assert_eq!(parse_on_demand_glyph("255x255p1r255"), None);
+    assert_eq!(parse_on_demand_glyph("100x100p1r100-circle"), None);
+    assert_eq!(parse_on_demand_glyph("_255p1r255x1p0r255"), None);
+    // The largest real shapes are nowhere near it.
+    assert!(parse_on_demand_glyph("16x16p1r16-circle").is_some());
+    assert!(parse_on_demand_glyph("255x255").is_some());
+}
+
 #[test]
 fn on_demand_centered_axis_splits_the_leftover() {
     // 1½ cells wide on a quarter lattice: the box is 6 subcells inside an
@@ -697,6 +710,34 @@ fn a_negative_dimension_anchors_a_curved_shape_like_a_rectangle() {
             let a = plain.region_at(r, c).mirror_h().canonical().area2();
             let b = flipped.region_at(r, 7 - c).canonical().area2();
             assert!((a - b).abs() < 0.1, "({r},{c}): {a} vs {b}");
+        }
+    }
+}
+
+/// A shape symmetric about its vertical axis comes out cell for cell as its own
+/// mirror image: where an edge crosses a cell border is rounded by where it is,
+/// not by which way round the ring the edge happens to run.
+#[cfg(feature = "editor")]
+#[test]
+fn a_symmetric_shape_is_its_own_mirror_image() {
+    for name in [
+        "8x8-circle",
+        "8x6-circle",
+        "12x4-circle",
+        "8x8-poly4",
+        "8x8-poly6",
+        "10x8-poly8",
+    ] {
+        let grid = make_on_demand_grid(&shape_of(name));
+        let w = grid.width;
+        for r in 0..grid.height {
+            for c in 0..w {
+                assert_eq!(
+                    grid.region_at(r, c).mirror_h().canonical(),
+                    grid.region_at(r, w - 1 - c).canonical(),
+                    "{name} ({r},{c})"
+                );
+            }
         }
     }
 }

@@ -217,7 +217,7 @@ impl PixelGrid {
             h.finish()
         };
         {
-            let mut cache = CACHE.lock().unwrap();
+            let mut cache = crate::parallel::lock_memo(&CACHE);
             if let Some(entries) = cache.get_or_insert_with(HashMap::default).get(&key) {
                 for (src, o, n, out) in entries {
                     if *o == old_scale && *n == new_scale && src == self {
@@ -227,7 +227,7 @@ impl PixelGrid {
             }
         }
         let out = self.rescale_uncached(old_scale, new_scale);
-        let mut cache = CACHE.lock().unwrap();
+        let mut cache = crate::parallel::lock_memo(&CACHE);
         let map = cache.get_or_insert_with(HashMap::default);
         // Crude bound: drop everything when the cache grows unreasonable
         // (long editor sessions keep mutating grids).

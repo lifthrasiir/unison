@@ -34,16 +34,8 @@ pub(super) fn show_rename_popup(ui: &egui::Ui, state: &mut EditorState) -> Optio
                 .show(ui, |ui| {
                     ui.set_min_width(200.0);
                     let kind_label = match &state.popup {
-                        PopupState::Rename { kind, .. } => match kind {
-                            RenameKind::Glyph => "Rename glyph",
-                            RenameKind::NameParts => "Rename name-parts",
-                            RenameKind::Point => "Rename point",
-                            RenameKind::Color => "Rename color",
-                            RenameKind::Face => "Rename face",
-                            RenameKind::Slice => "Rename slice",
-                            RenameKind::RemapGroup => "Rename remap group",
-                        },
-                        _ => "Rename",
+                        PopupState::Rename { kind, .. } => format!("Rename {}", kind.noun()),
+                        _ => "Rename".to_string(),
                     };
                     ui.label(kind_label);
                     let PopupState::Rename {

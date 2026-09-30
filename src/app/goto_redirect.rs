@@ -26,7 +26,7 @@
 //! ask when it happens to be current.
 
 use crate::document::{DocLine, NamePartsMap};
-use crate::document_io::{split_comment, starts_item, tokenize_tokens};
+use crate::document_io::{line_starts_item, split_comment, tokenize_tokens};
 use crate::editor::doc_links::{LinkTargetKind, pattern_denotes};
 
 use super::NavLoc;
@@ -124,7 +124,7 @@ fn redirect_at_declaration(
     // An alias (`glyph A = B`) is one line with no body, so it has no `goto`
     // ref and nothing below it is its own — the rule [`crate::exists::Carry`]
     // reads by too.
-    if header.first().is_none_or(|t| t != "glyph") || header[2..].iter().any(|t| t == "=") {
+    if header.first().is_none_or(|t| t != "glyph") || header.iter().skip(2).any(|t| t == "=") {
         return None;
     }
     // The block has to be the one that declares `name` — the same test the jump
@@ -178,7 +178,7 @@ fn goto_ref_of_block(lines: &[DocLine], line: usize) -> Option<(usize, String)> 
         // A blank line ends the block, as it ends it for the parser.
         let keyword = tokens.first()?;
         if keyword == "ref" {
-            if tokens[2..].iter().any(|t| t == "goto") {
+            if tokens.iter().skip(2).any(|t| t == "goto") {
                 return Some((i, tokens.get(1)?.clone()));
             }
             continue;
@@ -187,7 +187,7 @@ fn goto_ref_of_block(lines: &[DocLine], line: usize) -> Option<(usize, String)> 
         // a new block, a blank line — is past the end of it.
         let is_body = keyword == "anchor"
             || crate::compose::IdcOp::of_line(tokens.iter().map(String::as_str)).is_some();
-        if !is_body || starts_item(keyword) {
+        if !is_body || line_starts_item(tokens.iter().map(String::as_str)) {
             return None;
         }
     }
@@ -400,6 +400,17 @@ mod tests {
             redirect("glyph w\nref goto 0 0\n", "w"),
             None,
             "a target *named* `goto` is not a flagged ref"
+        );
+        assert_eq!(
+            redirect("glyph w\nref\nref a 0 0 goto\n", "w").as_deref(),
+            Some("a"),
+            "a half-typed `ref` is still body"
+        );
+        assert_eq!(redirect("glyph\nref a 0 0 goto\n", "w"), None);
+        assert_eq!(
+            redirect("glyph w\nassume \u{2FF0} a b\nref a 0 0 goto\n", "w").as_deref(),
+            Some("a"),
+            "an `assume` IDC line is body, not a new item"
         );
         assert_eq!(
             redirect("glyph w\nref a 0 0 goto\n", "other"),

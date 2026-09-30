@@ -21,6 +21,17 @@ fn pixel_shape_roundtrip() {
     }
 }
 
+/// `??` is what an id with no spelling is *written* as, not a spelling: read
+/// back it would be a cell with no geometry. And a character outside ASCII is
+/// no shape character, whatever its low byte happens to be.
+#[test]
+fn only_real_spellings_read_back() {
+    assert_eq!(chars_to_shape('?', '?'), None);
+    // U+0430 CYRILLIC SMALL LETTER A, whose low byte is `0`.
+    assert_eq!(chars_to_shape('\u{430}', '/'), None);
+    assert_eq!(chars_to_shape('@', '\u{140}'), None);
+}
+
 #[test]
 fn common_shapes() {
     assert_eq!(shape_to_chars(PixelShape::EMPTY), ['.', '.']);

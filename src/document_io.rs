@@ -342,9 +342,6 @@ pub fn comment_suffix(comment: &Option<String>) -> String {
     }
 }
 
-/// Quote a token for serialization. Wraps in backticks when the value is
-/// empty, starts with a backtick, or contains whitespace; internal backticks
-/// are doubled.
 /// `SLICE[|SLICE...] : ` in front of a directive body, or nothing for the base
 /// slice.
 #[cfg(any(feature = "editor", test))]
@@ -355,8 +352,16 @@ pub fn slice_prefix(slices: &[String]) -> String {
     format!("{} : ", quote_token(&slices.join("|")))
 }
 
+/// Quote a token for serialization. Wraps in backticks when the value is
+/// empty, starts with a backtick or with `//` (which bare would start the
+/// line's comment, [`split_comment`]), or contains whitespace; internal
+/// backticks are doubled.
 pub fn quote_token(s: &str) -> String {
-    if !s.is_empty() && !s.starts_with('`') && !s.contains(char::is_whitespace) {
+    if !s.is_empty()
+        && !s.starts_with('`')
+        && !s.starts_with("//")
+        && !s.contains(char::is_whitespace)
+    {
         s.to_string()
     } else {
         let escaped = s.replace('`', "``");
@@ -714,6 +719,11 @@ pub const GLYPH_FLAG_KEYWORDS: [&str; 11] = [
 /// The one walker behind both the lenient parse and the strict validation.
 /// `err` receives a message for each malformed token; the lenient caller
 /// ignores them, the strict caller reports the first one.
+/// The most cells a glyph grid may have along either side, scale applied. Far
+/// past any real glyph (a few hundred), and far short of an allocation that
+/// would stop the editor.
+pub const MAX_GRID_SIDE: u32 = 4096;
+
 fn parse_glyph_flag_parts_impl<S: AsRef<str>>(
     flag_parts: &[S],
     err: &mut impl FnMut(String),
@@ -812,6 +822,21 @@ fn parse_glyph_flag_parts_impl<S: AsRef<str>>(
             }
         }
         fp += 1;
+    }
+    // The grid a header asks for is allocated as soon as it is read — in the
+    // editor, as soon as the caret leaves a header being typed a digit at a
+    // time — so a size past any real glyph is an error here, and the lenient
+    // parse reads a header that owns no grid rather than billions of cells.
+    if let (Some(w), Some(h)) = (flags.width, flags.height) {
+        let scale = u32::from(flags.scale.unwrap_or(1));
+        let (cells_w, cells_h) = (u32::from(w) * scale, u32::from(h) * scale);
+        if cells_w.max(cells_h) > MAX_GRID_SIDE {
+            err(format!(
+                "a {cells_w}×{cells_h} cell grid is past the limit of {MAX_GRID_SIDE} cells a side"
+            ));
+            flags.width = None;
+            flags.height = None;
+        }
     }
     // One slot, one spelling. The lenient parse keeps both values — it has no
     // way to report anything and something has to be shown — and the strict one
@@ -974,10 +999,12 @@ pub fn replace_glyph_box_flags(
     let mut appended = String::new();
     for (keyword, value) in wanted {
         let values = if keyword == "advance" { 1 } else { 2 };
+        // Past the keyword and the name: a glyph may be *called* `origin`.
         let at = spans
             .iter()
+            .skip(2)
             .position(|s| s.value == keyword)
-            .filter(|&i| i >= 2);
+            .map(|i| i + 2);
         match (at, value) {
             (Some(i), Some(text)) => {
                 let start = spans[i].raw_start;
@@ -1626,9 +1653,10 @@ impl std::error::Error for ParseError {}
 /// belongs to the glyph block above. `assume` is the one keyword that is both:
 /// in front of an IDC operator it is that line's
 /// ([`IdcOp::of_line`](crate::compose::IdcOp::of_line)), so a caller holding
-/// more than the first token asks that first. The editor's text-only passes (search,
-/// navigation) need that boundary without parsing the file, so it is stated
-/// here, beside the dispatch it has to agree with, rather than re-listed there.
+/// more than the first token asks [`line_starts_item`] instead. The editor's
+/// text-only passes (search, navigation) need that boundary without parsing the
+/// file, so it is stated here, beside the dispatch it has to agree with, rather
+/// than re-listed there.
 pub fn starts_item(token: &str) -> bool {
     matches!(
         token,
@@ -1648,6 +1676,13 @@ pub fn starts_item(token: &str) -> bool {
             | "color"
             | "sample"
     )
+}
+
+/// Whether a line, given as its tokens, begins a top-level item: [`starts_item`]
+/// on its first token, less an `assume` that is an IDC line's own.
+pub fn line_starts_item<'a>(mut tokens: impl Iterator<Item = &'a str> + Clone) -> bool {
+    let rest = tokens.clone();
+    tokens.next().is_some_and(starts_item) && crate::compose::IdcOp::of_line(rest).is_none()
 }
 
 pub fn derive_document(
@@ -2034,16 +2069,8 @@ fn derive_items(
                         // every name-reading step below sees that. One the
                         // strict parse rejects stays an ordinary alias here,
                         // whose `*` names no glyph.
-                        let multi = alias_target.and_then(|target| {
-                            crate::alias::multi_alias_prefixes(&parts[0], target)
-                                .ok()
-                                .flatten()
-                        });
-
-                        let written = match multi {
-                            Some((name_prefix, _)) => format!("{name_prefix}($1)"),
-                            None => parts[0].clone(),
-                        };
+                        let multi = crate::document::header_multi_alias(parts);
+                        let written = crate::document::header_written_name(parts).into_owned();
                         let expanded =
                             crate::document::expand_at_name(&written, at_base.as_deref());
                         let raw_name = match multi {

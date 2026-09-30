@@ -324,7 +324,7 @@ pub fn step(clusters: &[ClusterSpan], caret: CaretPos, dir: Step) -> Option<Care
 pub fn edge_caret(clusters: &[ClusterSpan], side: Step) -> Option<CaretPos> {
     let (idx, span) = match side {
         Step::Left => (0, clusters.first()?),
-        Step::Right => (clusters.len() - 1, clusters.last()?),
+        Step::Right => (clusters.len().checked_sub(1)?, clusters.last()?),
     };
     Some(
         Resolved {
@@ -734,6 +734,7 @@ mod tests {
         assert_eq!(edge_caret(&rtl, Step::Left).unwrap().char_idx, 3);
         assert_eq!(edge_caret(&rtl, Step::Right).unwrap().char_idx, 0);
         assert!(edge_caret(&[], Step::Left).is_none());
+        assert!(edge_caret(&[], Step::Right).is_none());
     }
 
     /// A click is where the caret's affinity comes from when it is not moving.

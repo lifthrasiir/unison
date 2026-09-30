@@ -240,7 +240,7 @@ pub fn subtract_classified(a: &DetailRegion, b: &DetailRegion) -> Classified {
         return hit.clone();
     }
     let result = bool_op(a, b, BoolOp::Subtract).classify();
-    let mut cache = CACHE.lock().unwrap();
+    let mut cache = crate::parallel::lock_memo(&CACHE);
     let map = cache.get_or_insert_with(HashMap::default);
     if map.len() > 65536 {
         map.clear();
@@ -316,11 +316,7 @@ impl Frac {
     /// Round the real value to the nearest multiple of `1/den`, halves up.
     fn round_to_den(self, den: i64, scale: i64) -> i64 {
         let (n, d) = self.to_real(scale);
-        let num = n * den as i128;
-        let q = num.div_euclid(d);
-        let r = num.rem_euclid(d);
-        let q = if 2 * r >= d { q + 1 } else { q };
-        q as i64
+        crate::math::div_round_i128(n * den as i128, d) as i64
     }
 }
 
@@ -494,11 +490,7 @@ fn normalize_input(input: &SweepInput) -> (i64, Vec<SweepEdge>) {
         if scale % d == 0 {
             return n * (scale / d);
         }
-        let num = n as i128 * scale as i128;
-        let d = d as i128;
-        let q = num.div_euclid(d);
-        let r = num.rem_euclid(d);
-        (if 2 * r >= d { q + 1 } else { q }) as i64
+        crate::math::div_round_i128(n as i128 * scale as i128, d as i128) as i64
     };
 
     let mut edges = Vec::new();
@@ -1068,7 +1060,7 @@ impl DetailRegion {
         let d = den as i64;
         let src = self.den.max(1) as i64;
         // Nearest multiple of 1/d to k/src, halves up.
-        let snap = |k: u8| -> i64 { (2 * k as i64 * d + src).div_euclid(2 * src).clamp(0, d) };
+        let snap = |k: u8| -> i64 { crate::math::div_round_i64(k as i64 * d, src).clamp(0, d) };
         let mut rings = Vec::new();
         for ring in &self.rings {
             let snapped: Vec<(i64, i64)> = ring.iter().map(|&(x, y)| (snap(x), snap(y))).collect();

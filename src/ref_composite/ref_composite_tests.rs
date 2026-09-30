@@ -754,6 +754,48 @@ ref mark-above:wide 2 1
     );
 }
 
+/// The same, when the base name is a plain glyph and only its alternative is a
+/// composite: nothing holds `combo` back a round, so the alternative it picks
+/// is derived in the very wave `combo` is — and has to be drawn, not skipped
+/// for not having been flattened yet.
+#[test]
+fn alternative_derived_in_the_same_wave_is_drawn_by_later_composites() {
+    use crate::document_io;
+
+    let input = "\
+glyph stroke 3 1 inline
+@@@@@@
+
+glyph mark-above 1 1 mark
+@@
+anchor -above 0 0
+
+glyph mark-above:wide mark
+ref stroke
+anchor -above 0..1 0
+
+glyph base 5 3
+..........
+..........
+@@@@@@@@@@
+anchor +above 2..3 1
+
+glyph combo
+ref base
+ref mark-above
+
+glyph combo-expected
+ref base
+ref mark-above:wide 2 1
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let (resolved, _) = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::default());
+    assert_eq!(
+        resolved["combo"].grid, resolved["combo-expected"].grid,
+        "the wide alternative should have been picked, anchored and drawn"
+    );
+}
+
 #[test]
 fn lookahead_selects_alternative_when_later_ref_consumes_forwarded_anchor() {
     use crate::document_io;

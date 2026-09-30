@@ -2427,7 +2427,9 @@ pub(crate) fn expand_uvs_map_triples(
     selector: &str,
     glyph: &str,
 ) -> Result<Vec<(u32, u32, String)>, UvsExpandError> {
-    let bases = expand_map_codepoints(char_repr);
+    // A single code point is parsed as written, scalar value or not.
+    let mut bases = expand_map_codepoints(char_repr);
+    bases.retain(|&cp| char::from_u32(cp).is_some());
     let selectors = expand_map_codepoints(selector);
     // The groups of both halves, numbered in written order — the base's first,
     // since that is how the line reads.
@@ -2531,7 +2533,7 @@ fn map_char_pattern(char_repr: &str) -> Option<Arc<MapCharSpec>> {
     const MEMO_MAX_ENTRIES: usize = 32;
     static CACHE: OnceLock<Mutex<HashMap<String, Arc<MapCharSpec>>>> = OnceLock::new();
     let cache = CACHE.get_or_init(Mutex::default);
-    if let Some(spec) = cache.lock().unwrap().get(char_repr) {
+    if let Some(spec) = crate::parallel::lock_memo(cache).get(char_repr) {
         return Some(spec.clone());
     }
 
@@ -2564,7 +2566,7 @@ fn map_char_pattern(char_repr: &str) -> Option<Arc<MapCharSpec>> {
         produced,
     });
     if wide {
-        let mut cache = cache.lock().unwrap();
+        let mut cache = crate::parallel::lock_memo(cache);
         if cache.len() < MEMO_MAX_ENTRIES {
             cache.insert(char_repr.to_string(), spec.clone());
         }

@@ -889,6 +889,29 @@ fn the_carry_covers_the_block_and_stops_at_the_next_item() {
     assert_eq!(seen, [None, p(), p(), p(), p(), None]);
 }
 
+/// `assume` in front of an IDC operator is that line's, not a new item: the
+/// block, and the scope over it, carries on past it.
+#[test]
+fn the_carry_covers_an_assumed_idc_line() {
+    let lines = [
+        "exists han-(x)",
+        "glyph han-($1) 16 16",
+        "assume \u{2FF0} a b",
+        "ref ($0) 1 0",
+        "assume height 8",
+    ];
+    let mut carry = Carry::default();
+    let seen: Vec<Option<String>> = lines
+        .iter()
+        .map(|l| {
+            carry.enter(l);
+            carry.pattern().map(str::to_string)
+        })
+        .collect();
+    let p = || Some("han-(x)".to_string());
+    assert_eq!(seen, [p(), p(), p(), p(), None]);
+}
+
 /// A `map` is one line, so the carry is over after it.
 #[test]
 fn the_carry_over_a_map_lasts_one_line() {

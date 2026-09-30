@@ -395,3 +395,18 @@ map U+0030 U+FE0F = zero-emoji
         "the subtable must not run past the cmap table",
     );
 }
+
+/// A base that is no Unicode scalar value is reported, as it is for a plain
+/// `map`, and left out of the font; it must not take the whole build down with
+/// it on the way into the 24-bit fields of cmap format 14.
+#[test]
+fn a_base_outside_unicode_is_left_out_of_the_variation_sequences() {
+    let src = "meta height 4\nmeta ascent 3\nmeta descent 1\n\n\
+               glyph g 1 1\n@@\n\n\
+               map U+FFFFFFFF U+FE0F = g\n\
+               map U+0041 U+FE0F = g\n";
+    let doc = document_io::parse_document_from_str(src, "test.unf".into()).unwrap();
+    let ttf = build_font_from_documents(&[&doc]).expect("the build goes on");
+    let face = rustybuzz::Face::from_slice(&ttf, 0).unwrap();
+    assert!(face.glyph_variation_index('A', '\u{FE0F}').is_some());
+}

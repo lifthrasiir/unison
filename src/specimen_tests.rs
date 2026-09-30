@@ -288,6 +288,29 @@ fn a_heading_states_its_block_coverage() {
     );
 }
 
+/// An opened fold names its section by index, and a regrouping renumbers the
+/// sections: what a reader opened under one grouping is not open under the next.
+#[test]
+fn an_opened_fold_does_not_survive_a_regrouping() {
+    let mut state = state(BLOCKS_SRC);
+    state.options.show_undeclared = true;
+    state.options.group_by_block = true;
+    let folds = |s: &mut SpecimenState| {
+        s.row_summaries(2)
+            .iter()
+            .filter(|r| r.starts_with('\u{2026}'))
+            .count()
+    };
+    assert!(folds(&mut state) > 0, "Basic Latin fills out to a fold");
+    state.unfolded.insert(0);
+
+    state.options.group_by_block = false;
+    assert!(
+        folds(&mut state) > 0,
+        "the one ungrouped section is section 0 too, and must start folded"
+    );
+}
+
 /// A control (`gc=Cc`) is not a character the font can be missing: it is in
 /// neither side of a heading's fraction, and a filled grid gives it no cell.
 #[test]

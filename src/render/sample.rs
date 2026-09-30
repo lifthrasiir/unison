@@ -372,14 +372,15 @@ fn collect_sample_data_with(
     // absent for the same reason; letting either in would show the sample a
     // character the font does not map, which is the exact way the sample and
     // the font start disagreeing.
-    let mut cmap: BTreeMap<u32, String> = BTreeMap::new();
-    for item in all_items() {
-        // The expansion is face-independent; the sample is not.
-        if !item
-            .slice_qualifier()
+    // The expansion is face-independent; the sample is not.
+    let in_face = |item: &DocumentItem| {
+        item.slice_qualifier()
             .iter()
             .all(|s| face.includes(Some(s.as_str())))
-        {
+    };
+    let mut cmap: BTreeMap<u32, String> = BTreeMap::new();
+    for item in all_items() {
+        if !in_face(item) {
             continue;
         }
         match item {
@@ -422,6 +423,7 @@ fn collect_sample_data_with(
     let mut seen_features: HashSet<String> = HashSet::default();
     for item in all_items() {
         if let DocumentItem::Feature { name, .. } = item
+            && in_face(item)
             && seen_features.insert(name.clone())
         {
             features.push(name.clone());

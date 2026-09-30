@@ -754,6 +754,17 @@ pub(crate) fn resolve_glyph_bodies(
                 },
                 origin_of,
             );
+            // An alternative derived earlier in this wave is in `alt_index`
+            // but not in `cache` until the wave is flattened, and a layer the
+            // flattening cannot find is dropped without a word. A composite
+            // that picked one waits for the next round, when it is there.
+            if effective_refs
+                .iter()
+                .any(|r| resolve_ref_name_with_parts(&r.name, &cache, name_parts).is_none())
+            {
+                pending.push(pg);
+                continue;
+            }
             rebase_offsets_to_box(&mut effective_refs, pg.scale, origin_of);
             let anchors: Vec<GlyphPoint> = exposed.into_iter().map(|(p, _)| p).collect();
             for prefix in alternative_prefixes(&pg.name) {
@@ -965,7 +976,7 @@ fn synthesized_on_demand(name: &str) -> Option<&'static ResolvedGlyph> {
     use std::sync::{Mutex, OnceLock};
     static CACHE: OnceLock<Mutex<HashMap<String, &'static ResolvedGlyph>>> = OnceLock::new();
     let cache = CACHE.get_or_init(Mutex::default);
-    if let Some(resolved) = cache.lock().unwrap().get(name) {
+    if let Some(resolved) = crate::parallel::lock_memo(cache).get(name) {
         return Some(resolved);
     }
     // Only the self-contained shapes: the color/mono pair of
@@ -992,7 +1003,7 @@ fn synthesized_on_demand(name: &str) -> Option<&'static ResolvedGlyph> {
         scale: spec.scale,
         inline_source: None,
     }));
-    cache.lock().unwrap().insert(name.to_string(), resolved);
+    crate::parallel::lock_memo(cache).insert(name.to_string(), resolved);
     Some(resolved)
 }
 

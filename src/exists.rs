@@ -1419,7 +1419,7 @@ pub fn eval_codepoint(spec: &str, caps: &[String]) -> Result<String, String> {
 /// search's own matches are named. So the carry is a small state machine rather
 /// than a flag, stepped *before* each line is read: what governs a line has to
 /// be known while reading it, and whether the block ended is decided by the
-/// line itself ([`crate::document_io::starts_item`]).
+/// line itself ([`crate::document_io::line_starts_item`]).
 ///
 /// Text again, not the item model, for the reason [`pattern_on_line`] is.
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
@@ -1461,10 +1461,7 @@ impl Carry {
             return;
         }
         let trimmed = line.trim_start();
-        let starts_item = trimmed
-            .split_ascii_whitespace()
-            .next()
-            .is_some_and(crate::document_io::starts_item);
+        let starts_item = crate::document_io::line_starts_item(trimmed.split_ascii_whitespace());
         *self = match std::mem::take(self) {
             // An alias shares the `glyph` keyword with a block and is one line,
             // like a `map` — so it is what it says on that line and nothing

@@ -25,7 +25,9 @@ keeps them: it is flagged, a notice says so, and the next save asks before overw
 postponed while the pointer rests on the surface the change would move (the sidebar for the file
 list, the pane for its contents); a sticky notice says what is waiting, and clicking it applies the
 change now. **F5** (*File ▸ Refresh filesystem*) asks for a check immediately, which is the way to
-force one on a volume the operating system cannot watch.
+force one on a volume the operating system cannot watch. A save also checks the file just before
+writing it, so a change the watcher has not noticed yet is not overwritten either: the save stops,
+says so, and the next save asks as above.
 
 *File ▸ Export* writes the built font to a file; the `build` subcommand is the same thing with more
 options.

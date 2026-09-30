@@ -23,6 +23,7 @@ mod commands;
 mod ctrl_click;
 mod docs;
 mod fix;
+mod folder;
 mod goto_pattern;
 mod goto_redirect;
 mod history;
@@ -124,11 +125,12 @@ enum DerivedDataResult {
     Failed,
     Cancelled,
 }
-type AssertResultMessage = Vec<Issue>;
+/// What one assertion run found, and the [`UniformApp::folder_gen`] it ran in.
+type AssertResultMessage = (u64, Vec<Issue>);
 /// What one `fix` run produced, per document: the plan `crate::fix` made and
 /// which document of the snapshot it was made against. Applying it is
 /// `app::fix`'s job, on the UI thread, where the open documents are.
-type FixResultMessage = Vec<crate::fix::clearance::DocumentFixes>;
+type FixResultMessage = (u64, Vec<crate::fix::clearance::DocumentFixes>);
 
 pub struct UniformApp {
     /// What the last run left behind, and what this one will leave. Held for
@@ -137,6 +139,10 @@ pub struct UniformApp {
     /// is recorded when it is made, not when the application quits.
     settings: Settings,
     font_dir: Option<PathBuf>,
+    /// Stepped by every *File ▸ Open Folder*. A background run that is not
+    /// keyed on a build generation (assertions, the clearance plan) carries the
+    /// one it started in, and a result from a folder since replaced is dropped.
+    folder_gen: u64,
     last_title: String,
     open_documents: Vec<OpenDocument>,
     /// The one or two editor panes and which of them has the focus. The
@@ -546,6 +552,7 @@ impl UniformApp {
         let mut app = Self {
             settings,
             font_dir: font_dir.clone(),
+            folder_gen: 0,
             last_title: String::new(),
             open_documents: Vec::new(),
             panes: Panes::new_with_zoom(zoom_level),
@@ -1085,7 +1092,7 @@ impl UniformApp {
         // on.
         if let Some(text) = editor_panel.use_sample {
             self.shaped_preview.replace_text(&text);
-            if self.bottom_panel_tab != Some(0) {
+            if self.bottom_panel_tab != Some(panels::PREVIEW_TAB) {
                 let screen_h = ctx.input(|i| i.screen_rect.height());
                 self.open_bottom_panel(0, screen_h);
             }

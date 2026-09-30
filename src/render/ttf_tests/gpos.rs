@@ -1014,6 +1014,82 @@ fn a_script_that_already_names_the_tag_gets_no_second_feature_record() {
     );
 }
 
+/// A shaper that resolves a language uses that LangSys *instead of* the
+/// default one, so the anchor lookups have to reach every LangSys of the
+/// script: the record a language names with the tag, where it names its own,
+/// and one record, where it names none.
+#[test]
+fn anchor_lookups_reach_every_language_system_of_the_script() {
+    use crate::render::ttf_builder::gpos::merge_anchor_feature_lookups;
+
+    // `hebr` names record 0; `hebr/IWR` a `ccmp` of its own, record 1;
+    // `hebr/JII` names no `ccmp` at all, only the `locl` at record 2.
+    let lang_sys = |indices: Vec<u16>| LangSys {
+        required_feature_index: 0xFFFF,
+        feature_indices: indices,
+    };
+    let existing = Gsub::new(
+        ScriptList::new(vec![ScriptRecord::new(
+            Tag::new(b"hebr"),
+            Script::new(
+                Some(lang_sys(vec![0])),
+                vec![
+                    LangSysRecord::new(Tag::new(b"IWR "), lang_sys(vec![1])),
+                    LangSysRecord::new(Tag::new(b"JII "), lang_sys(vec![2])),
+                ],
+            ),
+        )]),
+        FeatureList::new(vec![
+            FeatureRecord::new(Tag::new(b"ccmp"), Feature::new(None, vec![])),
+            FeatureRecord::new(Tag::new(b"ccmp"), Feature::new(None, vec![])),
+            FeatureRecord::new(Tag::new(b"locl"), Feature::new(None, vec![])),
+        ]),
+        LookupList::new(vec![]),
+    );
+    let mut gsub = Some(existing);
+
+    let mut sc = SubstitutionChainContext::default();
+    *sc = ChainedSequenceContext::Format3(ChainedSequenceContextFormat3::new(
+        vec![],
+        vec![],
+        vec![],
+        vec![],
+    ));
+    let chain = SubstitutionLookup::ChainContextual(Lookup::new(LookupFlag::empty(), vec![sc]));
+    merge_anchor_feature_lookups(
+        &mut gsub,
+        vec![("ccmp".to_string(), vec!["hebr".to_string()], vec![chain])],
+    );
+
+    let gsub = gsub.unwrap();
+    let hebr = &gsub.script_list.script_records[0].script;
+    let default: &LangSys = (*hebr.default_lang_sys).as_ref().unwrap();
+    let all = std::iter::once(("dflt", default)).chain(hebr.lang_sys_records.iter().map(|r| {
+        (
+            if r.lang_sys_tag == Tag::new(b"IWR ") {
+                "IWR"
+            } else {
+                "JII"
+            },
+            &*r.lang_sys,
+        )
+    }));
+    for (lang, ls) in all {
+        let ccmp: Vec<&FeatureRecord> = ls
+            .feature_indices
+            .iter()
+            .map(|&i| &gsub.feature_list.feature_records[i as usize])
+            .filter(|fr| fr.feature_tag == Tag::new(b"ccmp"))
+            .collect();
+        assert_eq!(ccmp.len(), 1, "{lang} names 'ccmp' exactly once");
+        assert_eq!(
+            ccmp[0].feature.lookup_list_indices,
+            vec![0u16],
+            "{lang}'s 'ccmp' carries the anchor lookups"
+        );
+    }
+}
+
 /// `align c` centres a mark in a slot wider than itself, where the default
 /// `ul` puts it flush against the slot's low edge. Both readings come off one
 /// source with only the `align` token differing, so what is pinned is the

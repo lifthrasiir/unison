@@ -84,7 +84,7 @@ fn timeline() -> &'static Mutex<Timeline> {
 /// that is not ours.
 pub fn init() {
     let before_main = time_before_main();
-    let mut t = timeline().lock().unwrap();
+    let mut t = crate::parallel::lock_memo(timeline());
     t.origin = Instant::now();
     t.before_main = before_main;
     t.collecting = true;
@@ -93,7 +93,7 @@ pub fn init() {
 /// Records a point on the startup path. Cheap enough to leave in unconditionally
 /// (one lock, one push), and a no-op once the first frame is up.
 pub fn mark(label: impl Into<String>) {
-    let mut t = timeline().lock().unwrap();
+    let mut t = crate::parallel::lock_memo(timeline());
     if !t.collecting {
         return;
     }
@@ -109,7 +109,7 @@ pub fn mark(label: impl Into<String>) {
 /// Records how long it took just to enumerate the font directory — on a share
 /// this is one round trip that can outweigh the reads that follow.
 pub fn record_dir_scan(dir: &Path, elapsed: Duration) {
-    let mut t = timeline().lock().unwrap();
+    let mut t = crate::parallel::lock_memo(timeline());
     if !t.collecting {
         return;
     }
@@ -120,7 +120,7 @@ pub fn record_dir_scan(dir: &Path, elapsed: Duration) {
 /// [`crate::render::ttf_builder::load_docs_from_directory_with_sources`], which
 /// also runs on every later rebuild — hence the `collecting` guard.
 pub fn record_file(path: &Path, bytes: usize, read: Duration, parse: Duration) {
-    let mut t = timeline().lock().unwrap();
+    let mut t = crate::parallel::lock_memo(timeline());
     if !t.collecting {
         return;
     }
@@ -135,7 +135,7 @@ pub fn record_file(path: &Path, bytes: usize, read: Duration, parse: Duration) {
 /// Ends collection. The report stays available for the GUI window; only new
 /// rows stop being added.
 pub fn first_frame_done() {
-    let mut t = timeline().lock().unwrap();
+    let mut t = crate::parallel::lock_memo(timeline());
     t.collecting = false;
 }
 
@@ -177,7 +177,7 @@ impl Drop for PerfStage {
 /// Clears everything but the origin, so a second measurement (the `probe`
 /// subcommand's repeat run) does not read as a continuation of the first.
 pub fn restart_collection() {
-    let mut t = timeline().lock().unwrap();
+    let mut t = crate::parallel::lock_memo(timeline());
     t.origin = Instant::now();
     t.marks.clear();
     t.dir_scan = None;
@@ -192,7 +192,7 @@ fn ms(d: Duration) -> String {
 /// The human-readable timeline. Both the stderr dump and the GUI window print
 /// exactly this.
 pub fn report() -> String {
-    let t = timeline().lock().unwrap();
+    let t = crate::parallel::lock_memo(timeline());
     let mut out = String::new();
     out.push_str("Startup timing\n");
     out.push_str("==============\n\n");

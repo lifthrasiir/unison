@@ -114,7 +114,9 @@ impl UniformApp {
     /// editor pane and the shaped preview holds the focus. The preview wins
     /// the same way it does for the edit menu.
     pub(super) fn focused_zoom_target(&self) -> ZoomTarget {
-        if self.bottom_panel_tab == Some(0) && self.shaped_preview.is_focused() {
+        if self.bottom_panel_tab == Some(super::panels::PREVIEW_TAB)
+            && self.shaped_preview.is_focused()
+        {
             ZoomTarget::Preview
         } else if self
             .active_doc()

@@ -51,6 +51,18 @@ pub enum UndoOp {
     Compound(Vec<UndoOp>),
 }
 
+impl UndoOp {
+    /// Whether applying the op changes nothing. Only the two text forms merge
+    /// into one another often enough to end up here.
+    fn is_noop(&self) -> bool {
+        match self {
+            UndoOp::Text { old, new, .. } => old == new,
+            UndoOp::Lines { old, new, .. } => old == new,
+            _ => false,
+        }
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct UndoEntry {
     pub op: UndoOp,
@@ -77,6 +89,10 @@ pub struct UndoStack {
     /// included — unlike `position`, which a run of typing leaves where it
     /// is. See [`UndoStack::revision`].
     revision: u64,
+    /// Where the caret was before an edit that coalesced into nothing and was
+    /// dropped. A run that carries on (an Alt+arrow nudge through zero) is still
+    /// one edit from where it started, so the next entry it opens starts there.
+    resumed_caret: Option<Caret>,
 }
 
 /// The state of a buffer at one moment, kept so that a write finishing later
@@ -103,6 +119,7 @@ impl UndoStack {
             saved_position: Some(0),
             epoch: 0,
             revision: 0,
+            resumed_caret: None,
         }
     }
 
@@ -155,6 +172,7 @@ impl UndoStack {
     }
 
     fn truncate_and_invalidate(&mut self) {
+        self.resumed_caret = None;
         self.revision += 1;
         if self.entries.len() > self.position {
             self.epoch = self.epoch.wrapping_add(1);
@@ -168,6 +186,7 @@ impl UndoStack {
     }
 
     pub fn break_coalesce(&mut self) {
+        self.resumed_caret = None;
         self.last_push_time = std::time::Instant::now() - std::time::Duration::from_secs(10);
     }
 
@@ -417,10 +436,24 @@ impl UndoStack {
             && try_merge(entry)
         {
             entry.caret_after = caret_after;
-            self.revision += 1;
+            // Typing a character and deleting it again folds into an edit that
+            // changes nothing, which is no step to undo: drop it, or the next
+            // Cmd+Z appears to do nothing at all.
+            if entry.op.is_noop() {
+                let started_at = entry.caret_before;
+                self.position -= 1;
+                self.truncate_and_invalidate();
+                self.resumed_caret = Some(started_at);
+            } else {
+                self.revision += 1;
+            }
             return;
         }
 
+        let caret_before = match self.resumed_caret.take() {
+            Some(started_at) if elapsed < COALESCE_MS => started_at,
+            _ => caret_before,
+        };
         self.truncate_and_invalidate();
         self.entries.push(UndoEntry {
             op: make_op(),
@@ -1089,6 +1122,27 @@ mod tests {
         assert!(!undo.is_at_saved(), "and no position on the stack is it");
         undo.redo(&mut lines);
         assert!(!undo.is_at_saved());
+    }
+
+    /// Typing a character and deleting it again folds into one edit that
+    /// changes nothing, and an edit that changes nothing is no step of undo:
+    /// the next Cmd+Z has to undo what came before it, not appear to do nothing.
+    #[test]
+    fn an_edit_undone_by_hand_leaves_no_step_behind() {
+        let mut lines = vec![text("abc")];
+        let mut undo = UndoStack::new();
+
+        undo.push_text(0, 3, "".into(), "d".into(), c(0, 3), c(0, 4));
+        lines[0] = DocLine::text("abcd");
+        undo.mark_saved();
+
+        undo.push_text(0, 4, "".into(), "e".into(), c(0, 4), c(0, 5));
+        undo.push_text(0, 4, "e".into(), "".into(), c(0, 5), c(0, 4));
+        assert!(undo.is_at_saved(), "back where the file is");
+
+        assert_eq!(undo.undo(&mut lines), Some(c(0, 3)));
+        assert_eq!(lines[0], text("abc"), "the first Cmd+Z undoes the `d`");
+        assert!(!undo.can_undo());
     }
 
     #[test]

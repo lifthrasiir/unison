@@ -34,6 +34,24 @@ fn an_unopened_file_is_searched_from_the_snapshot_source() {
     assert_eq!(hits[0].text, "ref bar 0 0");
 }
 
+/// An IDC line names its parts as a `ref` names its target, patterns and
+/// all: `⿰ hangul-(g|n) x` uses `hangul-g`.
+#[test]
+fn an_idc_part_written_as_a_pattern_is_an_appearance() {
+    let source = "glyph hangul-gx 8 16\n\u{2FF0} hangul-(g|n) x\n";
+    let files = vec![(PathBuf::from("h.unf"), SearchText::Source(source))];
+    let (hits, _) = collect_hits(
+        &files,
+        "hangul-g",
+        SearchKind::Name(LinkTargetKind::Glyph),
+        &no_scoped_parts(),
+    );
+    assert_eq!(
+        hits.iter().map(|h| h.file_line).collect::<Vec<_>>(),
+        vec![2],
+    );
+}
+
 /// Declarations are listed before uses, and each group keeps the order the
 /// files and their lines were walked in.
 #[test]

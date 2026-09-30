@@ -105,3 +105,39 @@ fn gutter_keeps_room_for_the_numbers_a_shut_group_hides() {
         one + digit * 3.0
     );
 }
+
+/// A caret at a soft wrap is at the end of one segment and the start of the
+/// next, and is one caret: painted on one of them, not on both.
+#[test]
+fn a_caret_at_a_soft_wrap_is_painted_once() {
+    let long: String = std::iter::repeat_n("very-long-glyph-name", 12)
+        .collect::<Vec<_>>()
+        .join(" ");
+    let mut h = EditorHarness::new(&format!("// {long}\n"));
+    let wrap_col = h
+        .snap()
+        .vlines
+        .iter()
+        .filter(|vl| vl.doc_line == 0)
+        .filter_map(|vl| match &vl.kind {
+            SnapKind::Text { col_offset, .. } => Some(*col_offset),
+            SnapKind::GridRow { .. } | SnapKind::RefImage { .. } => None,
+        })
+        .find(|c| *c > 0)
+        .expect("the line must wrap for this test to mean anything");
+    // The caret's own strokes: vertical, and nothing else paints one that wide.
+    let carets = |h: &EditorHarness| {
+        h.painted_segments()
+            .iter()
+            .filter(|([a, b], stroke)| a.x == b.x && stroke.width == 2.0)
+            .count()
+    };
+    h.click_text(0, 3);
+    h.frame();
+    let mid_line = carets(&h);
+    assert!(mid_line >= 1, "a caret is painted at all");
+
+    h.state.cursor = Caret::new(0, wrap_col);
+    h.frame();
+    assert_eq!(carets(&h), mid_line);
+}

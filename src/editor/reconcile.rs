@@ -6,8 +6,15 @@ use crate::editor::undo::UndoStack;
 /// Parse a `glyph NAME W H` header line and return its pixel dimensions,
 /// or `None` if the line isn't a header that expects pixel rows (e.g.
 /// `glyph NAME = ALIAS` or `glyph NAME` with no dimensions).
+///
+/// Asked of every text line of the buffer on each flush, so a line that cannot
+/// start with the keyword — spelled bare or quoted — is turned away before it
+/// is tokenized.
 pub fn parse_glyph_header_dims(s: &str) -> Option<(u16, u16)> {
     let trimmed = s.trim();
+    if !(trimmed.starts_with("glyph") || trimmed.starts_with('`')) {
+        return None;
+    }
     let tokens = tokenize_tokens(trimmed).ok()?;
     if tokens.first().is_none_or(|t| t != "glyph") {
         return None;

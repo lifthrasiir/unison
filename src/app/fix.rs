@@ -25,7 +25,6 @@
 
 use std::path::PathBuf;
 
-use super::docs::{load_open_document, shadowed_by_open};
 use super::*;
 use crate::editor::undo::UndoOp;
 use crate::fix::clearance::DocumentFixes;
@@ -40,7 +39,12 @@ impl UniformApp {
             );
             return;
         }
-        self.open_files_for_plan(&plan);
+        let paths: Vec<PathBuf> = plan
+            .iter()
+            .map(|f| f.path.clone())
+            .filter(|path| self.font_base_docs.iter().any(|b| &b.path == path))
+            .collect();
+        self.open_for_edit(&paths);
 
         let (mut lines, mut files) = (0usize, 0usize);
         for doc_fixes in &plan {
@@ -52,10 +56,15 @@ impl UniformApp {
                 continue;
             };
             let doc = &mut self.open_documents[idx];
+            // `locate` reads the derived document; a line the caret is still
+            // on has to be in it first.
+            if doc.editor_state.has_pending_document_sync() {
+                doc.flush_pending_changes_forced();
+            }
             let caret_before = doc.editor_state.cursor;
             let mut ops: Vec<UndoOp> = Vec::new();
             for fix in &doc_fixes.fixes {
-                let Some(line) = locate(doc, &fix.glyph, fix.item_idx, fix.compose_idx) else {
+                let Some(line) = locate(doc, fix) else {
                     continue;
                 };
                 let Some(DocLine::Text(text)) = doc.lines.get_mut(line) else {
@@ -98,47 +107,20 @@ impl UniformApp {
             ),
         });
     }
-
-    /// Open the files the plan rewrites that are not open yet, in parallel and
-    /// appended only, so pane document indices stay valid. Same rule as
-    /// [`super::resize`].
-    fn open_files_for_plan(&mut self, plan: &[DocumentFixes]) {
-        let to_open: Vec<PathBuf> = plan
-            .iter()
-            .map(|f| &f.path)
-            .filter(|path| !shadowed_by_open(&self.open_documents, path))
-            .filter(|path| self.font_base_docs.iter().any(|b| &&b.path == path))
-            .cloned()
-            .collect();
-        if to_open.is_empty() {
-            return;
-        }
-        let base_docs = &self.font_base_docs;
-        let loaded: Vec<_> = std::thread::scope(|s| {
-            let handles: Vec<_> = to_open
-                .iter()
-                .map(|path| {
-                    let path = path.clone();
-                    let base_gen = base_docs
-                        .iter()
-                        .find(|b| b.path == path)
-                        .map(|b| (b.edit_gen, b.content_gen));
-                    s.spawn(move || load_open_document(path, base_gen).ok())
-                })
-                .collect();
-            handles
-                .into_iter()
-                .filter_map(|h| h.join().ok().flatten())
-                .collect()
-        });
-        self.open_documents.extend(loaded);
-    }
 }
 
 /// The DocLine the fix's IDC line is on *now*, or `None` when the document has
-/// moved on from the plan.
-fn locate(doc: &OpenDocument, glyph: &str, item_idx: usize, compose_idx: usize) -> Option<usize> {
-    let item = crate::fix::find_glyph_item(&doc.document, glyph, item_idx)?;
+/// moved on from the plan — the glyph is gone, or its line no longer says what
+/// the plan read (the user edited it while the plan was being made).
+fn locate(doc: &OpenDocument, fix: &crate::fix::clearance::ClearanceFix) -> Option<usize> {
+    let item = crate::fix::find_glyph_item(&doc.document, &fix.glyph, fix.item_idx)?;
+    let crate::document::DocumentItem::Glyph { body, .. } = &doc.document.items[item] else {
+        return None;
+    };
+    if body.compose.get(fix.compose_idx)?.format_line() != fix.old_line {
+        return None;
+    }
+    let compose_idx = fix.compose_idx;
     let starts = &doc.document.item_line_starts;
     let header = starts.get(item).copied()?;
     let end = starts.get(item + 1).copied().unwrap_or(doc.lines.len());
@@ -257,6 +239,62 @@ glyph test-x 9 4
         let doc = &mut app.open_documents[0];
         doc.editor_state.undo.undo(&mut doc.lines);
         assert_eq!(compose_line(&app), "\u{2FF0} a:4x4 b:4x4");
+    }
+
+    /// The plan is made from what the buffer says, including a line the
+    /// editor has not re-derived yet because the caret is still on it: a plan
+    /// from the stale derive would write the old line back over the edit.
+    #[test]
+    fn optimizing_reads_an_edit_not_yet_rederived() {
+        let dir = TempDir::new("pending");
+        std::fs::write(dir.0.join("a.unf"), SOURCE).unwrap();
+        let ctx = egui::Context::default();
+        let mut app = UniformApp::with_settings(&ctx, Settings::default(), Some(dir.0.clone()));
+        app.open_file(dir.0.join("a.unf"));
+        let doc = &mut app.open_documents[0];
+        let at = doc
+            .lines
+            .iter()
+            .position(|l| l.as_text().is_some_and(|t| t.starts_with('\u{2FF0}')))
+            .unwrap();
+        doc.lines[at] = DocLine::text("\u{2FF0} b:4x4 a:4x4".to_string());
+        doc.editor_state.pending_reparse_line = Some(at);
+
+        run(&mut app, &ctx);
+        assert!(
+            compose_line(&app).starts_with("\u{2FF0} b:4x4 "),
+            "the edit survives: {}",
+            compose_line(&app)
+        );
+    }
+
+    /// And a line edited *while* the plan is being made is not overwritten
+    /// when it lands: the fix is for the line the plan read, not for whatever
+    /// the same glyph's IDC line says by then.
+    #[test]
+    fn a_line_edited_during_the_run_is_left_alone() {
+        let dir = TempDir::new("during");
+        std::fs::write(dir.0.join("a.unf"), SOURCE).unwrap();
+        let ctx = egui::Context::default();
+        let mut app = UniformApp::with_settings(&ctx, Settings::default(), Some(dir.0.clone()));
+        app.open_file(dir.0.join("a.unf"));
+
+        app.run_clearance_optimizer(&ctx);
+        let doc = &mut app.open_documents[0];
+        let at = doc
+            .lines
+            .iter()
+            .position(|l| l.as_text().is_some_and(|t| t.starts_with('\u{2FF0}')))
+            .unwrap();
+        doc.lines[at] = DocLine::text("\u{2FF0} b:4x4 a:4x4".to_string());
+        doc.flush_pending_changes_forced();
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(20);
+        while app.fix_running {
+            assert!(std::time::Instant::now() < deadline);
+            std::thread::sleep(std::time::Duration::from_millis(5));
+            app.pump_background_pipeline(&ctx);
+        }
+        assert_eq!(compose_line(&app), "\u{2FF0} b:4x4 a:4x4");
     }
 
     /// A second run has nothing left to do, and says so rather than editing.

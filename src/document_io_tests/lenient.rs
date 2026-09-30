@@ -337,6 +337,17 @@ fn a_box_flag_is_rewritten_where_it_stands() {
             (None, None, Some((5, 16))),
             "glyph foo 4 2 extent 5 16",
         ),
+        // A glyph *named* like a flag is still only a name.
+        (
+            "glyph origin 4 2 origin 1 -2",
+            (Some((3, 0)), None, None),
+            "glyph origin 4 2 origin 3 0",
+        ),
+        (
+            "glyph advance 4 2 advance 5",
+            (None, None, None),
+            "glyph advance 4 2",
+        ),
     ];
     for (line, (origin, advance, extent), expected) in cases {
         assert_eq!(
@@ -506,3 +517,27 @@ fn strict_parse_accepts_a_pattern_on_a_multi_alias_name() {
 // -----------------------------------------------------------------------
 // Backtick-quoting tokenizer tests
 // -----------------------------------------------------------------------
+
+/// A header is typed into the editor a digit at a time, and the grid it asks
+/// for is allocated when the caret leaves it: `glyph a 60000 60000` is 3.6
+/// billion cells. Past the limit the header is an error naming the size, and
+/// owns no grid at all — nothing downstream builds one.
+#[test]
+fn a_grid_past_the_size_limit_is_rejected_and_never_allocated() {
+    for header in [
+        "glyph a 60000 60000",
+        "glyph a 5000 1",
+        "glyph a 1000 1 scale 5",
+    ] {
+        let err =
+            parse_document_from_str(&format!("{header}\n"), "test.unf".into()).expect_err(header);
+        assert!(format!("{err}").contains("limit"), "{header}: {err}");
+        let tokens: Vec<&str> = header.split(' ').skip(1).collect();
+        assert!(glyph_header_dims(&tokens).is_none(), "{header}");
+    }
+    let tokens = ["a", "480", "880"];
+    assert!(
+        glyph_header_dims(&tokens).is_some(),
+        "a large real glyph still has its grid"
+    );
+}

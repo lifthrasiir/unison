@@ -37,6 +37,48 @@ fn delete_key_updates_immediately() {
     assert!(h.doc.dirty);
 }
 
+/// Deleting a word never reaches across a line into a pixel grid: at the
+/// edge of a line it is the plain Backspace/Delete, which step onto the grid
+/// rather than delete it.
+#[test]
+fn word_delete_at_a_line_edge_leaves_the_grid_alone() {
+    let word = if cfg!(target_os = "macos") {
+        Modifiers::ALT
+    } else {
+        Modifiers::CTRL
+    };
+    let mut h = EditorHarness::new(&two_glyph_doc());
+    let original_lines = h.lines.clone();
+
+    h.click_text(2, 0); // the blank line under `foo`'s grid
+    h.key_mod(Key::Backspace, word);
+    assert_eq!(
+        h.lines, original_lines,
+        "Alt/Ctrl+Backspace deleted the grid"
+    );
+
+    h.click_text(0, 13); // the end of `glyph foo 4 4`
+    h.key_mod(Key::Delete, word);
+    assert_eq!(h.lines, original_lines, "Alt/Ctrl+Delete deleted the grid");
+    assert_view_consistent(&h);
+}
+
+/// A jump to a line the document no longer has — an issue reported before the
+/// file was cut short — lands on the last line, where typing still works.
+#[test]
+fn a_jump_past_the_end_lands_on_the_last_line() {
+    let mut h = EditorHarness::new("one\ntwo\n");
+    h.state.goto_line(100);
+    h.frame();
+    h.type_text("x");
+    assert_view_consistent(&h);
+    assert!(
+        h.lines
+            .iter()
+            .any(|l| l.as_text().is_some_and(|t| t.contains('x')))
+    );
+}
+
 #[test]
 fn click_grid_enters_glyph_edit() {
     let mut h = EditorHarness::new(&sample_doc());

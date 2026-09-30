@@ -897,7 +897,6 @@ pub fn run_same_distinct_assertions(
 /// These need every glyph resolved, which costs about as much as a font build,
 /// so a caller that would have to compute that resolution asks first. Scanning
 /// the items is free next to it.
-#[cfg(feature = "editor")]
 pub fn has_same_distinct_assertions(docs: &[&Document]) -> bool {
     docs.iter().any(|doc| {
         doc.items.iter().any(|item| {

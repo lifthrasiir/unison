@@ -10,24 +10,24 @@ pub struct Rgba {
     pub a: u8,
 }
 
+/// `#RRGGBB` or `#RRGGBBAA`, hex digits and nothing else.
 pub fn parse_hex_color(s: &str) -> Option<Rgba> {
     let s = s.strip_prefix('#')?;
-    match s.len() {
-        6 => {
-            let r = u8::from_str_radix(&s[0..2], 16).ok()?;
-            let g = u8::from_str_radix(&s[2..4], 16).ok()?;
-            let b = u8::from_str_radix(&s[4..6], 16).ok()?;
-            Some(Rgba { r, g, b, a: 255 })
-        }
-        8 => {
-            let r = u8::from_str_radix(&s[0..2], 16).ok()?;
-            let g = u8::from_str_radix(&s[2..4], 16).ok()?;
-            let b = u8::from_str_radix(&s[4..6], 16).ok()?;
-            let a = u8::from_str_radix(&s[6..8], 16).ok()?;
-            Some(Rgba { r, g, b, a })
-        }
-        _ => None,
+    if !s.bytes().all(|b| b.is_ascii_hexdigit()) {
+        return None;
     }
+    let byte = |i: usize| u8::from_str_radix(&s[i..i + 2], 16).ok();
+    let a = match s.len() {
+        6 => 255,
+        8 => byte(6)?,
+        _ => return None,
+    };
+    Some(Rgba {
+        r: byte(0)?,
+        g: byte(2)?,
+        b: byte(4)?,
+        a,
+    })
 }
 
 pub type ColorAliasMap = HashMap<String, (Rgba, Option<LayerVisibility>)>;
@@ -89,4 +89,38 @@ pub fn effective_visibility(
         return *vis;
     }
     LayerVisibility::Both
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn hex_colors_are_exactly_hex_digits() {
+        assert_eq!(
+            parse_hex_color("#12abEF"),
+            Some(Rgba {
+                r: 0x12,
+                g: 0xab,
+                b: 0xef,
+                a: 255
+            })
+        );
+        assert_eq!(
+            parse_hex_color("#12abef80"),
+            Some(Rgba {
+                r: 0x12,
+                g: 0xab,
+                b: 0xef,
+                a: 0x80
+            })
+        );
+        // Six *bytes* that are not six digits: no panic on a char boundary, and
+        // no sign that `from_str_radix` would otherwise let through.
+        assert_eq!(parse_hex_color("#aébcd"), None);
+        assert_eq!(parse_hex_color("#éééé"), None);
+        assert_eq!(parse_hex_color("#+1+2+3"), None);
+        assert_eq!(parse_hex_color("#12345"), None);
+        assert_eq!(parse_hex_color("123456"), None);
+    }
 }

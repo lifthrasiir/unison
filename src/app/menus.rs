@@ -340,9 +340,9 @@ impl UniformApp {
                             None,
                             Some(ClosePanels),
                             None,
-                            Some(ShowTab(0)),
-                            Some(ShowTab(1)),
-                            Some(ShowTab(2)),
+                            Some(ShowTab(super::panels::PREVIEW_TAB)),
+                            Some(ShowTab(super::panels::SPECIMEN_TAB)),
+                            Some(ShowTab(super::panels::ISSUES_TAB)),
                             None,
                         ],
                         menu,
@@ -505,75 +505,7 @@ impl UniformApp {
             && let Some(dir) = rfd::FileDialog::new().pick_folder()
             && self.confirm_close_and_maybe_save()
         {
-            self.font_dir = Some(dir.clone());
-            self.open_documents.clear();
-            // The pane layout is not carried across folders: its documents
-            // are gone, and pane indices would dangle. The navigation
-            // history indexes the same list, so it goes with them. The zoom
-            // level is a view preference rather than part of that layout, so
-            // it does carry.
-            self.panes = Panes::new_with_zoom(self.panes.focused().zoom_level);
-            self.nav_history.clear();
-            // Its hits name files that are no longer the ones on screen.
-            self.search = SearchState::default();
-            self.sidebar.set_directory(&dir);
-            self.watch.set_directory(&dir, ctx);
-            // Through the watch's (just cleared) cache, so the first refresh
-            // in this folder compares against what was read here.
-            let (base_docs, parse_errors, sources) = self.watch.load_directory(&dir);
-            self.install_font_snapshot(base_docs, parse_errors, sources);
-            // The faces of the old folder mean nothing in the new one. This
-            // folder's own last face is applied straight away, from a scan of
-            // its `face` lines rather than from a resolve — exactly as at
-            // startup, and for the same reason: a face applied later is a
-            // second full build.
-            self.face_ids = {
-                let refs: Vec<&Document> = self.font_base_docs.iter().map(|d| &**d).collect();
-                crate::faces::FaceSet::collect(&refs)
-                    .faces
-                    .iter()
-                    .map(|f| f.id.clone())
-                    .collect()
-            };
-            self.selected_face = self
-                .settings
-                .face_for(&dir)
-                .filter(|f| self.face_ids.iter().any(|id| id == f))
-                .unwrap_or_default()
-                .to_string();
-            // Both background stages are still working on the folder that just
-            // went away. Nothing they produce is wanted, and the font build in
-            // particular holds the contour cache this thread is about to clear
-            // — so it would be waited on rather than merely wasted.
-            self.rebuild_cancel.cancel();
-            self.contour_cache.lock().unwrap().clear();
-            self.composite_grid_cache.lock().unwrap().clear();
-            self.font_build_gen = self.font_build_gen.wrapping_add(1);
-            // Neither the font nor the derived data is built here: a folder on
-            // a share takes tens of seconds to build and resolve, and doing it
-            // on this thread is the freeze that startup no longer has. The
-            // pipeline picks both up on the next frame, and until it does this
-            // folder looks like a directory whose first build has not landed —
-            // which is exactly what it is.
-            self.arm_initial_font_build();
-            self.shaped_preview.invalidate_font(self.font_data_gen);
-            // The old folder's derived data is *wrong* here rather than merely
-            // stale, so it is dropped rather than left to be replaced.
-            self.named_glyphs = Arc::default();
-            self.resolved_gen = self.resolved_gen.wrapping_add(1);
-            self.composite_seeds = Arc::default();
-            self.alt_index = Default::default();
-            self.name_parts = NamePartsMap::default();
-            self.char_props = Default::default();
-            self.color_aliases = Default::default();
-            self.anchor_aligns = Default::default();
-            self.font_meta = Default::default();
-            self.issues.clear();
-            // No resolve has run for this generation: what arms the derived-data
-            // rebuild on the next pump.
-            self.named_glyphs_gen = u64::MAX;
-            self.issues_gen = u64::MAX;
-            self.set_status(format!("Opened folder {}", dir.display()));
+            self.switch_folder(ctx, dir);
         }
 
         if menu.rename_file

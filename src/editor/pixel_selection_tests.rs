@@ -603,6 +603,19 @@ glyph foo 2 2 scale 2
     assert_eq!((grid.width, grid.height), (2, 2));
 }
 
+/// The name is not a flag, whatever it is called.
+#[test]
+fn a_glyph_named_scale_keeps_its_name_through_a_rescale() {
+    assert_eq!(
+        rewrite_scale_in_header("glyph scale 8 8", 2),
+        "glyph scale 8 8 scale 2"
+    );
+    assert_eq!(
+        rewrite_scale_in_header("glyph scale 8 8 scale 2", 1),
+        "glyph scale 8 8"
+    );
+}
+
 #[test]
 fn adjust_scale_undo_restores_original() {
     let source = "\

@@ -79,3 +79,36 @@ pub(crate) fn map_indexed<R: Send>(
     }
     out
 }
+
+/// Locks a memo shared between the stages above, whether or not an earlier
+/// holder panicked.
+///
+/// Every such mutex guards a cache keyed by content: an entry is either there
+/// and right or absent, and a holder that panicked mid-insert left at worst an
+/// entry missing. Poisoning would instead turn one panicked build — which the
+/// editor survives, see `ResultSlot` — into every later build panicking on the
+/// lock, until a restart.
+pub(crate) fn lock_memo<T: ?Sized>(memo: &std::sync::Mutex<T>) -> std::sync::MutexGuard<'_, T> {
+    memo.lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn a_memo_outlives_a_panic_while_it_was_held() {
+        let memo = std::sync::Mutex::new(vec![1]);
+        let _ = std::thread::scope(|s| {
+            s.spawn(|| {
+                let _held = memo.lock().unwrap();
+                panic!("a build that failed mid-stage");
+            })
+            .join()
+        });
+        assert!(memo.is_poisoned());
+        lock_memo(&memo).push(2);
+        assert_eq!(*lock_memo(&memo), vec![1, 2]);
+    }
+}

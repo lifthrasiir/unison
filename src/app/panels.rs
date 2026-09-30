@@ -14,9 +14,12 @@ fn min_bottom_panel_height(screen_height: f32) -> f32 {
     270.0_f32.min(screen_height * 0.5)
 }
 
-/// The specimen's tab. Named because the background rebuild asks whether it is
-/// open before collecting what it needs; see [`crate::specimen::SpecimenData`].
+/// The bottom panel's tabs, by the index `bottom_panel_tab` (and the settings
+/// file) stores. The specimen's is asked about by the background rebuild before
+/// it collects what the specimen needs; see [`crate::specimen::SpecimenData`].
+pub(super) const PREVIEW_TAB: usize = 0;
 pub(super) const SPECIMEN_TAB: usize = 1;
+pub(super) const ISSUES_TAB: usize = 2;
 pub(super) const SEARCH_TAB: usize = 3;
 
 /// Reopening the bottom panel: the height it comes back at, and the override
@@ -796,7 +799,7 @@ impl UniformApp {
             }
             ui.horizontal(|ui| {
                 let screen_h = ui.ctx().input(|i| i.screen_rect.height());
-                for (idx, label) in [(0, "Preview"), (1, "Specimen")] {
+                for (idx, label) in [(PREVIEW_TAB, "Preview"), (SPECIMEN_TAB, "Specimen")] {
                     let selected = self.bottom_panel_tab == Some(idx);
                     if ui.selectable_label(selected, label).clicked() {
                         if selected {
@@ -812,12 +815,12 @@ impl UniformApp {
                         .map(|(issue, ..)| issue)
                         .collect();
                 let issues_label = issues_tab_label(severity_counts(&all_issues));
-                let issues_selected = self.bottom_panel_tab == Some(2);
+                let issues_selected = self.bottom_panel_tab == Some(ISSUES_TAB);
                 if ui.selectable_label(issues_selected, issues_label).clicked() {
                     if issues_selected {
                         self.bottom_panel_tab = None;
                     } else {
-                        self.open_bottom_panel(2, screen_h);
+                        self.open_bottom_panel(ISSUES_TAB, screen_h);
                     }
                 }
                 let search_label = match self.search.hits().len() {
@@ -833,7 +836,7 @@ impl UniformApp {
                     }
                 }
             });
-            if self.bottom_panel_tab != Some(1) {
+            if self.bottom_panel_tab != Some(SPECIMEN_TAB) {
                 self.specimen.hover_status = None;
             }
             // A box that is not on screen holds nothing, and a Ctrl/Cmd+F has
@@ -847,7 +850,7 @@ impl UniformApp {
             }
             ui.separator();
             match self.bottom_panel_tab {
-                Some(0) => {
+                Some(PREVIEW_TAB) => {
                     ui.horizontal(|ui| {
                         ui.label("Font size:");
                         let slider_resp = ui.add(
@@ -927,7 +930,7 @@ impl UniformApp {
                         self.rebuild_log.ui_stage(|e| &mut e.specimen_layout, took);
                     }
                 }
-                Some(2) => {
+                Some(ISSUES_TAB) => {
                     let all_issues =
                         Self::located_issues(&self.issues, &self.assert_issues, &self.issue_marks);
                     show_issues_tab(

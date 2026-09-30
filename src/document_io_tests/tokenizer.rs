@@ -106,6 +106,22 @@ fn quote_token_starts_with_backtick() {
     assert_eq!(quote_token("`foo"), "```foo`");
 }
 
+/// A token is written into a line, and a bare `//` at a token start is where
+/// that line's comment begins: such a value has to come back quoted.
+#[test]
+fn quote_roundtrip_through_a_line() {
+    for val in ["//", "//x", "a//b", "hello", "a b"] {
+        let line = format!("meta k {}", quote_token(val));
+        let (body, comment) = crate::document_io::split_comment(&line);
+        assert_eq!(comment, None, "{line:?}");
+        assert_eq!(
+            tokenize_tokens(body).unwrap(),
+            vec!["meta", "k", val],
+            "{line:?}"
+        );
+    }
+}
+
 #[test]
 fn quote_roundtrip() {
     for val in ["", "hello", "a b", "`", "a`b", "`foo", "``", "a b c"] {

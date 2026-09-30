@@ -1752,3 +1752,50 @@ map C = c
     let a = glyphs.iter().find(|g| g.name == "a").unwrap();
     assert!(a.composite_refs.is_empty(), "`a` is a simple glyph now");
 }
+
+/// The font build's side of
+/// `ref_composite::tests::alternative_derived_in_the_same_wave_is_drawn_by_later_composites`:
+/// an alternative derived in the same wave as the composite that picks it is
+/// still traced into it, rather than dropped for not being in the cache yet.
+#[test]
+fn an_alternative_derived_in_the_same_wave_is_traced_into_its_user() {
+    let input = "\
+meta height 4
+meta ascent 3
+meta descent 1
+
+glyph stroke 3 1 inline
+@@@@@@
+
+glyph mark-above 1 1 mark
+@@
+anchor -above 0 0
+
+glyph mark-above:wide mark
+ref stroke
+anchor -above 0..1 0
+
+glyph base 5 3
+..........
+..........
+@@@@@@@@@@
+anchor +above 2..3 1
+
+glyph combo
+ref base
+ref mark-above
+
+glyph combo-expected
+ref base
+ref mark-above:wide 2 1
+
+map A = combo
+map B = combo-expected
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let (_, _, glyphs, _, _) = collect_glyph_data(&[&doc], false).unwrap();
+    assert_eq!(
+        flattened_contours(&glyphs, "combo"),
+        flattened_contours(&glyphs, "combo-expected"),
+    );
+}

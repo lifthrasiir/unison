@@ -298,7 +298,7 @@ impl Sidebar {
                                 let new_path = dir.join(&new_name);
                                 if new_path == path {
                                     cancel_edit = true;
-                                } else if new_path.exists() {
+                                } else if self.name_is_taken(&path, &new_path) {
                                     self.set_edit_error("A file with that name already exists.");
                                 } else {
                                     match std::fs::rename(&path, &new_path) {
@@ -391,7 +391,14 @@ impl Sidebar {
                                 if new_path.exists() {
                                     self.set_edit_error("A file with that name already exists.");
                                 } else {
-                                    match std::fs::write(&new_path, "") {
+                                    // `create_new`: a file that appeared since
+                                    // the check is not truncated.
+                                    let created = std::fs::OpenOptions::new()
+                                        .write(true)
+                                        .create_new(true)
+                                        .open(&new_path)
+                                        .map(drop);
+                                    match created {
                                         Ok(()) => {
                                             actions.push(SidebarAction::FileCreated(new_path));
                                             cancel_edit = true;
@@ -456,6 +463,22 @@ impl Sidebar {
                 *focus_set = false;
             }
             EditState::None => {}
+        }
+    }
+
+    /// Whether renaming `old` to `new` would land on another file. A name
+    /// that differs from the old one only in case names the old file itself on
+    /// a filesystem that folds case, where `exists` says yes; the listing says
+    /// whether that exact spelling is a file of its own.
+    fn name_is_taken(&self, old: &Path, new: &Path) -> bool {
+        let case_only = match (old.file_name(), new.file_name()) {
+            (Some(a), Some(b)) => a.eq_ignore_ascii_case(b),
+            _ => false,
+        };
+        if case_only {
+            self.files.iter().any(|f| f.file_name() == new.file_name())
+        } else {
+            new.exists()
         }
     }
 
@@ -599,24 +622,28 @@ mod tests {
     /// (here b.unf, since z.unf sorts last). Whether its confirm re-fires is
     /// up to egui's frame-level focus bookkeeping, which is not ours to rely
     /// on; this pins the whole exchange to one rename and an ended edit.
-    #[test]
-    fn confirming_a_rename_ends_the_edit_before_the_next_row() {
+    /// A directory of its own holding `names`, empty files all.
+    fn dir_with(tag: &str, names: &[&str]) -> PathBuf {
         let dir = std::env::temp_dir().join(format!(
-            "uniform-sidebar-rename-{}-{:?}",
+            "uniform-sidebar-{tag}-{}-{:?}",
             std::process::id(),
             std::thread::current().id(),
         ));
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();
-        for name in ["a.unf", "b.unf", "c.unf"] {
+        for name in names {
             std::fs::write(dir.join(name), "").unwrap();
         }
+        dir
+    }
 
-        let mut sb = Sidebar::new();
-        sb.set_directory(&dir);
-        sb.start_rename(&dir.join("a.unf"));
+    /// Renames `from` to `to` the way a user does it — the field drawn and
+    /// focused on one frame, Enter on the next — and returns the renames the
+    /// panel reported.
+    fn rename_via_panel(sb: &mut Sidebar, from: &Path, to: &str) -> Vec<(PathBuf, PathBuf)> {
+        sb.start_rename(from);
         if let EditState::Renaming { text, .. } = &mut sb.edit_state {
-            *text = "z.unf".to_string();
+            *text = to.to_string();
         } else {
             panic!("rename did not start");
         }
@@ -633,9 +660,6 @@ mod tests {
             });
             actions
         };
-
-        // Frame 1 draws the field and gives it the focus; frame 2's Enter
-        // confirms it.
         assert!(frame(vec![]).is_empty());
         let actions = frame(vec![egui::Event::Key {
             key: egui::Key::Enter,
@@ -644,18 +668,51 @@ mod tests {
             repeat: false,
             modifiers: Default::default(),
         }]);
-
-        let renames: Vec<_> = actions
+        actions
             .iter()
             .filter_map(|a| match a {
                 SidebarAction::FileRenamed { old, new } => Some((old.clone(), new.clone())),
                 _ => None,
             })
-            .collect();
+            .collect()
+    }
+
+    /// Confirming a rename must end the edit within the same frame's row loop.
+    /// The loop re-visits the confirmed row's index over the reloaded list, so
+    /// a Renaming state left behind used to draw a second edit field there —
+    /// same widget id, same frame — over whatever file sorted onto that index
+    /// (here b.unf, since z.unf sorts last). Whether its confirm re-fires is
+    /// up to egui's frame-level focus bookkeeping, which is not ours to rely
+    /// on; this pins the whole exchange to one rename and an ended edit.
+    #[test]
+    fn confirming_a_rename_ends_the_edit_before_the_next_row() {
+        let dir = dir_with("rename", &["a.unf", "b.unf", "c.unf"]);
+        let mut sb = Sidebar::new();
+        sb.set_directory(&dir);
+
+        let renames = rename_via_panel(&mut sb, &dir.join("a.unf"), "z.unf");
         assert_eq!(renames, [(dir.join("a.unf"), dir.join("z.unf"))]);
         assert!(!sb.is_editing());
         assert!(dir.join("z.unf").exists());
         assert!(dir.join("b.unf").exists(), "b.unf was renamed over");
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    /// Changing only the case of a name is a rename, on a filesystem that
+    /// folds case too: the file "already there" is the file being renamed.
+    /// Where case is not folded and both spellings exist, it stays refused.
+    #[test]
+    fn a_rename_that_only_changes_case_goes_through() {
+        let dir = dir_with("rename-case", &["a.unf"]);
+        let mut sb = Sidebar::new();
+        sb.set_directory(&dir);
+        let renames = rename_via_panel(&mut sb, &dir.join("a.unf"), "A.unf");
+        assert_eq!(renames, [(dir.join("a.unf"), dir.join("A.unf"))]);
+        let listed: Vec<_> = std::fs::read_dir(&dir)
+            .unwrap()
+            .map(|e| e.unwrap().file_name())
+            .collect();
+        assert_eq!(listed, ["A.unf"]);
         std::fs::remove_dir_all(&dir).unwrap();
     }
 

@@ -1497,13 +1497,16 @@ pub(super) fn collect_glyph_data_with_shared(
         }
     }
 
+    // Every COLR layer is a glyph of its own, given the ids after the collected
+    // ones (`add_color_layer_glyphs`), so they count against the same limit.
     const MAX_GLYPHS: usize = u16::MAX as usize;
-    if glyph_data.len() > MAX_GLYPHS {
-        eprintln!(
-            "error: too many glyphs ({}, max {})",
-            glyph_data.len(),
-            MAX_GLYPHS,
-        );
+    let glyph_ids = glyph_data.len()
+        + glyph_data
+            .iter()
+            .map(|g| g.color_layers.len())
+            .sum::<usize>();
+    if glyph_ids > MAX_GLYPHS {
+        eprintln!("error: too many glyphs ({glyph_ids}, max {MAX_GLYPHS})");
         return None;
     }
 

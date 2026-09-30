@@ -107,15 +107,6 @@ pub(super) fn may_write_an_at_name(text: &str) -> bool {
 /// what makes the filter below cheap.
 const GLYPH_NAME_KEYWORDS: [&str; 6] = ["glyph", "ref", "map", "remap", "assert", "assume"];
 
-/// Whether `text` — one line, or a whole file — could write a glyph name as a
-/// *pattern* rather than in full.
-///
-/// The literal filters cannot see a pattern hit: `fo(o|q)` denotes `foo` while
-/// containing neither `foo` nor anything derivable from it, so a line that
-/// might carry one has to be tokenized. This keeps that from costing a pass
-/// over every pixel row: `(`, `|` and `*` are all *shape codes* too, so a
-/// metacharacter alone says nothing, and only a line whose first token is a
-/// keyword that names a glyph can be a pattern.
 /// Whether `text` could write a `$N` capture slot on a line an `exists`
 /// governs.
 ///
@@ -130,11 +121,22 @@ pub(super) fn may_write_a_capture(text: &str) -> bool {
         .any(|w| w[0] == b'$' && w[1].is_ascii_digit())
 }
 
+/// Whether `text` — one line, or a whole file — could write a glyph name as a
+/// *pattern* rather than in full.
+///
+/// The literal filters cannot see a pattern hit: `fo(o|q)` denotes `foo` while
+/// containing neither `foo` nor anything derivable from it, so a line that
+/// might carry one has to be tokenized. This keeps that from costing a pass
+/// over every pixel row: `(`, `|` and `*` are all *shape codes* too, so a
+/// metacharacter alone says nothing, and only a line whose first token is a
+/// keyword that names a glyph — or an IDC operator, whose parts are named as a
+/// `ref`'s target is — can be a pattern.
 pub(super) fn may_write_a_pattern(text: &str) -> bool {
     text.lines().any(|line| {
         let line = line.trim_start();
         let keyword = line.split_ascii_whitespace().next().unwrap_or_default();
-        GLYPH_NAME_KEYWORDS.contains(&keyword)
+        (GLYPH_NAME_KEYWORDS.contains(&keyword)
+            || crate::compose::IdcOp::of_line(std::iter::once(keyword)).is_some())
             && line[keyword.len()..].contains(['(', '|', '$', '*'])
     })
 }

@@ -234,6 +234,7 @@ impl UniformApp {
             std::time::Instant::now(),
         ));
 
+        self.sync_pending_derives();
         let all_docs = self.snapshot_docs();
         self.assert_pending_line_ids =
             crate::editor::issue_marks::snapshot_line_ids(all_docs.iter().map(|d| &**d));
@@ -255,18 +256,22 @@ impl UniformApp {
         let cache = self.contour_cache.clone();
         let tx = self.assert_tx.clone();
         let ctx = ctx.clone();
+        let folder_gen = self.folder_gen;
         std::thread::spawn(move || {
             let mut slot = ResultSlot::new(
                 tx,
                 ctx,
-                vec![Issue {
-                    glyph: None,
-                    severity: crate::issues::Severity::Error,
-                    message: "Shape assertions failed to run (internal error)".to_string(),
-                    file: std::path::PathBuf::new(),
-                    line: 0,
-                    file_line: 0,
-                }],
+                (
+                    folder_gen,
+                    vec![Issue {
+                        glyph: None,
+                        severity: crate::issues::Severity::Error,
+                        message: "Shape assertions failed to run (internal error)".to_string(),
+                        file: std::path::PathBuf::new(),
+                        line: 0,
+                        file_line: 0,
+                    }],
+                ),
             );
             let refs: Vec<&Document> = all_docs.iter().map(|d| &**d).collect();
             // Which files the assertions are *read* from; which faces exist and
@@ -305,7 +310,7 @@ impl UniformApp {
                 }
             }
 
-            slot.set(result);
+            slot.set((folder_gen, result));
         });
     }
 
@@ -324,20 +329,22 @@ impl UniformApp {
         start(&mut self.bg_tasks.optimize);
         self.set_status("Optimizing clearances...".to_string());
 
+        self.sync_pending_derives();
         let all_docs = self.snapshot_docs();
         let tx = self.fix_tx.clone();
         let ctx = ctx.clone();
+        let folder_gen = self.folder_gen;
         std::thread::spawn(move || {
             // A worker that dies delivers an empty plan, which reads as "there
             // was nothing to do" — the flag it latched is cleared either way.
-            let mut slot = ResultSlot::new(tx, ctx, Vec::new());
+            let mut slot = ResultSlot::new(tx, ctx, (folder_gen, Vec::new()));
             let perf_t0 = perf_log_enabled().then(std::time::Instant::now);
             let refs: Vec<&Document> = all_docs.iter().map(|d| &**d).collect();
             let plan = crate::fix::clearance::optimize_clearance(&refs);
             if let Some(t0) = perf_t0 {
                 eprintln!("[perf] optimize clearance: {:?}", t0.elapsed());
             }
-            slot.set(plan);
+            slot.set((folder_gen, plan));
         });
     }
 
@@ -509,7 +516,7 @@ impl UniformApp {
                     );
                     // Borrowed, not consumed: the font build and validation are
                     // reading the same items right now.
-                    let mut gc = grid_cache.lock().unwrap();
+                    let mut gc = crate::parallel::lock_memo(&grid_cache);
                     let (named_glyphs, alt_index) =
                         crate::ref_composite::resolve_expanded_items_shared(
                             &expansion.items,
@@ -971,7 +978,11 @@ impl UniformApp {
             ctx.request_repaint();
         }
 
-        if let Ok(assert_issues) = self.assert_rx.try_recv() {
+        // A run started in a folder that has since been replaced reports on
+        // files that are gone; `switch_folder` already released its flag.
+        if let Ok((folder_gen, assert_issues)) = self.assert_rx.try_recv()
+            && folder_gen == self.folder_gen
+        {
             let count = assert_issues.len();
             self.assert_issues = assert_issues;
             self.assert_line_ids = std::mem::take(&mut self.assert_pending_line_ids);
@@ -985,11 +996,13 @@ impl UniformApp {
             };
             self.status_message = Some((total_msg, std::time::Instant::now()));
             if count > 0 {
-                self.bottom_panel_tab = Some(2);
+                self.bottom_panel_tab = Some(super::panels::ISSUES_TAB);
             }
         }
 
-        if let Ok(plan) = self.fix_rx.try_recv() {
+        if let Ok((folder_gen, plan)) = self.fix_rx.try_recv()
+            && folder_gen == self.folder_gen
+        {
             self.fix_running = false;
             finish(&mut self.bg_tasks.optimize);
             self.apply_clearance_plan(plan);

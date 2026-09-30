@@ -38,7 +38,7 @@ fn sender() -> &'static Mutex<mpsc::Sender<Garbage>> {
 /// thread is gone, which only a panic inside some `Drop` could have caused.
 pub(crate) fn discard<T: Send + 'static>(value: T) {
     let garbage: Garbage = Box::new(value);
-    let failed = sender().lock().unwrap().send(garbage);
+    let failed = crate::parallel::lock_memo(sender()).send(garbage);
     drop(failed);
 }
 

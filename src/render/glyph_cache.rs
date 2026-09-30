@@ -429,6 +429,9 @@ pub(crate) fn resolve_pending<V, B>(
         // settled on, the anchors to record with it, and the memo key the
         // builder handed back (with the value already, when the memo had it).
         let mut wave = Vec::new();
+        // Held out of `pending` until the scan is over, which would otherwise
+        // walk into them again this same round.
+        let mut deferred = Vec::new();
         let mut i = 0;
         while i < pending.len() {
             steps += 1;
@@ -462,6 +465,17 @@ pub(crate) fn resolve_pending<V, B>(
                     &mut declared_anchors,
                     origin_of,
                 );
+            // An alternative derived earlier in this wave is in `alt_index`
+            // but not in `cache` until the wave is traced, and a layer the
+            // tracer cannot find is dropped without a word. A composite that
+            // picked one waits for the next round, when it is there.
+            if effective_refs
+                .iter()
+                .any(|r| resolve_cached(&r.name, cache).is_none())
+            {
+                deferred.push(pg);
+                continue;
+            }
             crate::ref_composite::rebase_offsets_to_box(&mut effective_refs, pg.scale, origin_of);
             let errored = !issues.is_empty();
             for issue in issues {
@@ -499,6 +513,7 @@ pub(crate) fn resolve_pending<V, B>(
             }
             wave.push((pg, effective_refs, anchors));
         }
+        pending.append(&mut deferred);
         let keys = crate::parallel::map_indexed(wave.len(), cancel, |i| {
             let (pg, refs, _) = &wave[i];
             builder.key(pg, refs, cache)

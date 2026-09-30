@@ -246,7 +246,7 @@ fn poll_interval() -> Duration {
 /// The pair can miss a rewrite that keeps the length and lands inside one tick
 /// of the volume's timestamp resolution (2 s on a FAT-ish share); polling has
 /// no answer to that, and it is the same blind spot the previous backend had.
-#[derive(PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq)]
 struct PolledEntry {
     len: u64,
     modified: Option<std::time::SystemTime>,
@@ -266,11 +266,17 @@ struct PolledEntry {
 /// On Unix `DirEntry::metadata` *is* a `stat`, so this is one call per file
 /// there; the volumes that fall back to polling on those platforms are the
 /// exception rather than the rule (see [`is_local_volume`]).
-fn poll_snapshot(dir: &Path) -> std::collections::BTreeMap<PathBuf, PolledEntry> {
+///
+/// A listing that fails outright is `None` rather than an empty directory, and
+/// a file whose `stat` fails keeps what `previous` knew of it: on a share both
+/// are a blip, and read as the truth they would report every file deleted and
+/// then created again — two full re-parses and an emptied sidebar for nothing.
+fn poll_snapshot(
+    dir: &Path,
+    previous: &std::collections::BTreeMap<PathBuf, PolledEntry>,
+) -> Option<std::collections::BTreeMap<PathBuf, PolledEntry>> {
     let mut out = std::collections::BTreeMap::new();
-    let Ok(entries) = std::fs::read_dir(dir) else {
-        return out;
-    };
+    let entries = std::fs::read_dir(dir).ok()?;
     for entry in entries.flatten() {
         let path = entry.path();
         if !crate::document_io::is_source_file(&path) {
@@ -284,16 +290,19 @@ fn poll_snapshot(dir: &Path) -> std::collections::BTreeMap<PathBuf, PolledEntry>
         } else {
             entry.metadata().ok()
         };
-        let Some(meta) = meta else { continue };
-        out.insert(
-            path,
-            PolledEntry {
+        let entry = match meta {
+            Some(meta) => PolledEntry {
                 len: meta.len(),
                 modified: meta.modified().ok(),
             },
-        );
+            None => match previous.get(&path) {
+                Some(known) => known.clone(),
+                None => continue,
+            },
+        };
+        out.insert(path, entry);
     }
-    out
+    Some(out)
 }
 
 /// Turns two consecutive snapshots into the events the watch reports.
@@ -390,7 +399,7 @@ fn spawn_poll_thread(
     let thread_restart = restart.clone();
     std::thread::spawn(move || {
         let baseline = Instant::now();
-        let mut previous = poll_snapshot(&dir);
+        let mut previous = poll_snapshot(&dir, &Default::default()).unwrap_or_default();
         // The baseline tick is a tick like any other, so its cost is what the
         // first interval is chosen from — a share slow enough to matter says so
         // before the second scan rather than after it.
@@ -424,8 +433,9 @@ fn spawn_poll_thread(
             }
 
             let tick = Instant::now();
-            let next = poll_snapshot(&dir);
+            let next = poll_snapshot(&dir, &previous);
             cost = tick.elapsed();
+            let Some(next) = next else { continue };
             let events = diff_snapshots(&previous, &next);
             previous = next;
             let mut sent = false;
@@ -578,6 +588,10 @@ struct ScanRequest {
 pub(super) struct ScannedFile {
     pub(super) path: PathBuf,
     pub(super) hash: u64,
+    /// The hash the buffer believed was on disk when the scan was asked for.
+    /// A write of ours that lands in between moves it, and then the bytes read
+    /// may be from before that write; see [`UniformApp::apply_watch_changes`].
+    pub(super) believed: Option<u64>,
     pub(super) outcome: ScanOutcome,
 }
 
@@ -753,6 +767,12 @@ impl WatchState {
         }
     }
 
+    /// Queues `path` for another scan, as an event reporting it would.
+    fn rescan(&mut self, path: PathBuf) {
+        self.pending.insert(path);
+        self.settle_at.get_or_insert_with(Instant::now);
+    }
+
     /// Whether there is something to scan and no scan is already running. A
     /// refresh the user asked for skips the settle delay: nothing is being
     /// waited out, since the request is not a report that a write is in
@@ -901,6 +921,7 @@ fn run_scan(
         files.push(ScannedFile {
             path,
             hash,
+            believed: known,
             outcome,
         });
     }
@@ -1080,6 +1101,14 @@ impl super::UniformApp {
                 continue;
             };
             let doc = &self.open_documents[idx];
+            // One of our own writes landed after the scan was asked for, and
+            // the bytes are not ours: they may be an earlier write of ours
+            // read late, or an outside change after ours. Not knowing which,
+            // the file is read again, which settles it.
+            if !doc.knows_disk_bytes(file.hash) && doc.disk_hash != file.believed {
+                self.watch.rescan(file.path);
+                continue;
+            }
             let status = FileStatus {
                 // Re-checked here, not just in the scan: the file may have
                 // been saved from this editor while the scan was in flight,
@@ -1382,6 +1411,7 @@ mod tests {
         watch.hold(ScannedFile {
             path: PathBuf::from("/font/num.unf"),
             hash: 0,
+            believed: None,
             outcome: ScanOutcome::Parsed(Vec::new()),
         });
         let one = watch.held_notice().expect("a held change says so");
@@ -1391,6 +1421,7 @@ mod tests {
         watch.hold(ScannedFile {
             path: PathBuf::from("/font/latin.unf"),
             hash: 0,
+            believed: None,
             outcome: ScanOutcome::Parsed(Vec::new()),
         });
         assert!(
@@ -1814,6 +1845,94 @@ mod tests {
             "and one that found a change still rebuilds"
         );
 
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    /// A warning about a change the buffer has since caught up with — the
+    /// file changed back, or only in its spacing — is withdrawn by the reload
+    /// that finds nothing to replace; otherwise the next save still asks
+    /// whether to overwrite it.
+    #[test]
+    fn a_reload_that_changes_nothing_withdraws_the_warning() {
+        let dir = std::env::temp_dir().join(format!("uniform-reload-same-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        let source = "glyph a 2 2\n@@..\n..@@\n";
+        std::fs::write(dir.join("a.unf"), source).unwrap();
+        let ctx = egui::Context::default();
+        let mut app =
+            super::super::UniformApp::with_settings(&ctx, Default::default(), Some(dir.clone()));
+        app.open_file(dir.join("a.unf"));
+        let doc = &mut app.open_documents[0];
+        doc.external_change = true;
+        doc.owed_external_toast = true;
+
+        let same = doc.lines.clone();
+        super::super::docs::apply_reloaded_lines(doc, same, hash_bytes(b"respaced"));
+        assert!(!doc.external_change);
+        assert!(!doc.owed_external_toast);
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    /// A directory the poll cannot list is not an empty one: every file in it
+    /// would be reported deleted, and then created again on the next tick.
+    #[test]
+    fn a_listing_that_fails_is_no_snapshot() {
+        let dir = std::env::temp_dir().join(format!("uniform-poll-gone-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join("a.unf"), "glyph a 1 1\n@@\n").unwrap();
+        let before = poll_snapshot(&dir, &Default::default()).expect("a listing");
+        assert_eq!(before.len(), 1);
+        std::fs::remove_dir_all(&dir).unwrap();
+        assert!(poll_snapshot(&dir, &before).is_none());
+    }
+
+    /// Two saves in a row, and the scan the first one's event started lands
+    /// after the second has: the bytes it read are our own first write, which
+    /// is no longer the one the buffer names. They are not an outside change
+    /// to reload — the buffer would go back to the first save — and not safely
+    /// ignored either, so the file is simply scanned again.
+    #[test]
+    fn a_scan_that_predates_our_own_later_write_is_scanned_again() {
+        let dir = std::env::temp_dir().join(format!("uniform-echo-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        let first = "glyph a 2 2\n@@..\n..@@\n";
+        let second = "glyph a 2 2\n@@@@\n@@@@\n";
+        std::fs::write(dir.join("a.unf"), second).unwrap();
+
+        let ctx = egui::Context::default();
+        let mut app =
+            super::super::UniformApp::with_settings(&ctx, Default::default(), Some(dir.clone()));
+        app.open_file(dir.join("a.unf"));
+        let before = app.open_documents[0].lines.clone();
+        // The scan was asked for while the buffer still named the file as it
+        // was before either save.
+        let believed = Some(hash_bytes(b"what was there before"));
+        let (_, stale_lines) =
+            super::super::docs::document_from_source(first, dir.join("a.unf")).unwrap();
+        app.watch.hold(ScannedFile {
+            path: dir.join("a.unf"),
+            hash: hash_bytes(first.as_bytes()),
+            believed,
+            outcome: ScanOutcome::Parsed(stale_lines),
+        });
+        app.watch.force_apply = true;
+        app.apply_watch_changes(&ctx);
+
+        assert_eq!(
+            app.open_documents[0].lines, before,
+            "not reloaded to the first save"
+        );
+        assert!(
+            !app.open_documents[0].external_change,
+            "not warned about either"
+        );
+        assert!(
+            app.watch.pending.contains(&dir.join("a.unf")),
+            "but scanned again"
+        );
         let _ = std::fs::remove_dir_all(&dir);
     }
 

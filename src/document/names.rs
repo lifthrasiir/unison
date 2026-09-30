@@ -78,6 +78,26 @@ pub fn at_base_from_glyph_name(name: &str) -> Option<String> {
     (!base.is_empty()).then(|| base.to_string())
 }
 
+/// A multi-alias header, `glyph NAME* = PREFIX*`, as its two prefixes; `None`
+/// for any other header. `parts` are the header's tokens after the keyword.
+pub fn header_multi_alias(parts: &[String]) -> Option<(&str, &str)> {
+    let (name, rest) = parts.split_first()?;
+    let eq = rest.iter().position(|p| p == "=")?;
+    crate::alias::multi_alias_prefixes(name, rest.get(eq + 1)?)
+        .ok()
+        .flatten()
+}
+
+/// The name a `glyph` header declares as every name-reading step reads it: a
+/// multi-alias is read as the alias its `exists` form scopes, `NAME($1)`.
+/// `parts` are the header's tokens after the keyword, at least one of them.
+pub fn header_written_name(parts: &[String]) -> std::borrow::Cow<'_, str> {
+    match header_multi_alias(parts) {
+        Some((name_prefix, _)) => format!("{name_prefix}($1)").into(),
+        None => parts[0].as_str().into(),
+    }
+}
+
 /// The `@` base in force on line `line` of a buffer: the nearest `glyph` header
 /// *above* it whose name carries no `@` of its own.
 ///
@@ -93,10 +113,10 @@ pub fn at_base_at_line(lines: &[DocLine], line: usize) -> Option<String> {
         .filter_map(|l| l.as_text())
         .filter_map(|t| {
             let tokens = crate::document_io::tokenize_tokens(t.trim()).ok()?;
-            if tokens.first()? != "glyph" {
+            if tokens.first()? != "glyph" || tokens.len() < 2 {
                 return None;
             }
-            at_base_from_glyph_name(tokens.get(1)?)
+            at_base_from_glyph_name(&header_written_name(&tokens[1..]))
         })
         .next()
 }

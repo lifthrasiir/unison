@@ -572,11 +572,9 @@ pub(crate) fn layer_bounds<'a>(
 /// the same refs. A later positive layer therefore restores area an earlier
 /// negation took away.
 ///
-/// The bitmask tracers below identify a cell by its shape id alone, so every
-/// `PX_CUSTOM` cell looks alike to them (and carries no adjacency at all).
-/// Whenever custom detail geometry is in play we therefore combine the cells
-/// through [`crate::detail::bool_op`] first and hand the result to
-/// [`track_contour`], which does understand detail regions.
+/// The result goes to [`track_contour`], which understands detail regions; the
+/// bitmask tracer ([`track_contour_multi`]) identifies a cell by its shape id
+/// alone, which is enough for a union of catalog shapes but not a difference.
 fn merge_layers_exact(
     layers: &[(&PixelGrid, i32, i32, bool)],
     mask: u8,
@@ -643,27 +641,7 @@ fn merge_layers_exact(
     out
 }
 
-/// Whether any layer carries custom detail geometry, which the shape-id
-/// bitmask tracers cannot represent.
-fn layers_have_detail(layers: &[(&PixelGrid, i32, i32, bool)]) -> bool {
-    layers
-        .iter()
-        .any(|&(grid, _, _, _)| !grid.details.is_empty())
-}
-
-/// Whether a positive layer follows a negated one, in which case the stack has
-/// to be applied in order. The bitmask tracer collapses the layers into one
-/// positive and one negative set, which is only the same thing when every
-/// negation comes last — otherwise it drops what a later layer drew back.
-fn layers_need_order(layers: &[(&PixelGrid, i32, i32, bool)]) -> bool {
-    match layers.iter().position(|&(_, _, _, negated)| negated) {
-        Some(first) => layers[first..].iter().any(|&(_, _, _, neg)| !neg),
-        None => false,
-    }
-}
-
-/// One step of the flood fill shared by [`track_contour_multi`] and
-/// [`track_contour_multi_diff`]: computes which sides of pixel `i` connect
+/// One step of the flood fill of [`track_contour_multi`]: computes which sides of pixel `i` connect
 /// to its neighbors, queues connected unvisited neighbors, and emits
 /// boundary segments for the disconnected sides.
 #[expect(clippy::too_many_arguments)]
@@ -765,9 +743,11 @@ pub fn track_contour_multi(layers: &[(&PixelGrid, i32, i32)], mask: u8) -> Vec<V
         return Vec::new();
     }
 
-    let flagged: Vec<(&PixelGrid, i32, i32, bool)> =
-        layers.iter().map(|&(g, r, c)| (g, r, c, false)).collect();
-    if layers_have_detail(&flagged) {
+    // Every `PX_CUSTOM` cell looks alike to the bitmask below (and carries no
+    // adjacency at all), so custom detail geometry takes the exact merge.
+    if layers.iter().any(|&(grid, _, _)| !grid.details.is_empty()) {
+        let flagged: Vec<(&PixelGrid, i32, i32, bool)> =
+            layers.iter().map(|&(g, r, c)| (g, r, c, false)).collect();
         let merged = merge_layers_exact(&flagged, mask, min_r, min_c, width, height);
         return track_contour(&merged, mask);
     }
@@ -869,10 +849,13 @@ pub fn track_contour_multi(layers: &[(&PixelGrid, i32, i32)], mask: u8) -> Vec<V
 
 /// Like [`track_contour_multi`] but supports negative (subtracted) layers.
 ///
-/// Each entry in `layers` is `(grid, row_offset, col_offset, negated)`.
-/// Positive layers are unioned; negative layers are subtracted from the result.
-/// Per-pixel adjacency is computed via [`pixel::multi_shape_diff_adjacency`]
-/// and cached by `(positive_mask, negative_mask)` to avoid redundant work.
+/// Each entry in `layers` is `(grid, row_offset, col_offset, negated)`, applied
+/// in order as [`PixelGrid::blit`] stacks them. With no negation this is
+/// [`track_contour_multi`]; with one, the stack is merged cell by cell through
+/// the exact geometry ([`merge_layers_exact`]) and the result traced as one
+/// grid. A shape-id bitmask cannot stand in for a difference: the difference
+/// of two catalog shapes is in general no catalog shape, and a cell such as
+/// `PX_DOT`, which shares no side with a neighbour, is not empty either.
 pub fn track_contour_multi_diff(
     layers: &[(&PixelGrid, i32, i32, bool)],
     mask: u8,
@@ -880,8 +863,7 @@ pub fn track_contour_multi_diff(
     if layers.is_empty() {
         return Vec::new();
     }
-    let has_negated = layers.iter().any(|l| l.3);
-    if !has_negated {
+    if !layers.iter().any(|l| l.3) {
         let plain: Vec<(&PixelGrid, i32, i32)> =
             layers.iter().map(|&(g, r, c, _)| (g, r, c)).collect();
         return track_contour_multi(&plain, mask);
@@ -891,108 +873,8 @@ pub fn track_contour_multi_diff(
     if width == 0 || height == 0 {
         return Vec::new();
     }
-
-    if layers_have_detail(layers) || layers_need_order(layers) {
-        let merged = merge_layers_exact(layers, mask, min_r, min_c, width, height);
-        return track_contour(&merged, mask);
-    }
-
-    let stride = width + 1;
-    let total = (height + 2) * stride;
-
-    let mut pos_masks: Vec<u128> = vec![0; total];
-    let mut neg_masks: Vec<u128> = vec![0; total];
-
-    for &(grid, row_off, col_off, negated) in layers {
-        let off_r = (row_off - min_r) as usize;
-        let off_c = (col_off - min_c) as usize;
-        let target = if negated {
-            &mut neg_masks
-        } else {
-            &mut pos_masks
-        };
-        for r in 0..grid.height as usize {
-            for c in 0..grid.width as usize {
-                let sid = grid.get(r as u16, c as u16).catalog_shape_id() & mask;
-                if sid != PX_EMPTY {
-                    let idx = (off_r + r + 1) * stride + (off_c + c);
-                    target[idx] |= 1u128 << sid;
-                }
-            }
-        }
-    }
-
-    // A pixel has content if positive shapes remain after subtracting negatives.
-    // For the adjacency pre-computation we use the diff-aware function; however
-    // for the quick "is this pixel non-empty" test we conservatively mark any
-    // pixel that has positive shapes (we'll skip it during tracing if its diff
-    // adjacency turns out to be 0).
-
-    // Pre-compute per-pixel adjacency.
-    let mut adj_data: Vec<u8> = vec![0; total];
-    let mut diff_cache: HashMap<(u128, u128), CellEdges> = HashMap::default();
-
-    for i in 0..total {
-        if pos_masks[i] != 0 {
-            let key = (pos_masks[i], neg_masks[i]);
-            let entry = diff_cache.entry(key).or_insert_with(|| {
-                let pos_ids = bitmask_to_ids(pos_masks[i]);
-                let (adj, gaps) = if neg_masks[i] == 0 {
-                    pixel::multi_shape_adjacency(&pos_ids)
-                } else {
-                    let neg_ids = bitmask_to_ids(neg_masks[i]);
-                    pixel::multi_shape_diff_adjacency(&pos_ids, &neg_ids)
-                };
-                CellEdges { adj, gaps }
-            });
-            adj_data[i] = entry.adj;
-        }
-    }
-
-    let mut paths = Vec::new();
-    let mut visited = HashSet::default();
-
-    for row in 0..height {
-        let i0 = (row + 1) * stride;
-        for i in i0..i0 + width {
-            if pos_masks[i] == 0 || adj_data[i] == 0 || visited.contains(&i) {
-                continue;
-            }
-
-            let mut unsure = vec![i];
-            let mut segs: Vec<(f32, f32, f32, f32)> = Vec::new();
-
-            while let Some(i) = unsure.pop() {
-                if visited.contains(&i) {
-                    continue;
-                }
-                if adj_data[i] == 0 {
-                    continue;
-                }
-                visited.insert(i);
-
-                let key = (pos_masks[i], neg_masks[i]);
-                let entry = diff_cache.get(&key).unwrap();
-                let (pixel_adj, gap_segs) = (entry.adj, entry.gaps.as_slice());
-
-                expand_pixel(
-                    i,
-                    stride,
-                    pixel_adj,
-                    gap_segs,
-                    &adj_data,
-                    &visited,
-                    &mut unsure,
-                    &mut segs,
-                );
-            }
-
-            trace_closed_paths(&segs, MULTI_KEY_SCALE, &mut paths);
-        }
-    }
-
-    fix_winding(&mut paths);
-    paths
+    let merged = merge_layers_exact(layers, mask, min_r, min_c, width, height);
+    track_contour(&merged, mask)
 }
 
 // Clipped gap segments can have coordinates at 1/4, 1/6, 1/8 etc. of a pixel
@@ -1261,7 +1143,7 @@ mod tests {
         use crate::detail::DetailRegion;
         let mut one = make_grid(1, 1, &[PX_EMPTY]);
         // A third-of-a-pixel wide box, as an explicit region rather than a
-        // catalog shape id, so `layers_have_detail` picks the exact path.
+        // catalog shape id.
         let region = DetailRegion {
             den: 3,
             rings: vec![vec![(0, 0), (1, 0), (1, 3), (0, 3)]],
@@ -1282,6 +1164,66 @@ mod tests {
             xs.contains(&0.0) && xs.contains(&1.0),
             "the re-drawn half must survive the earlier negation: {:?}",
             paths[0],
+        );
+    }
+
+    /// Twice the signed area enclosed by traced paths, by the shoelace formula.
+    fn paths_area2(paths: &[Vec<(f32, f32)>]) -> f64 {
+        paths
+            .iter()
+            .map(|p| {
+                (0..p.len())
+                    .map(|i| {
+                        let (a, b) = (p[i], p[(i + 1) % p.len()]);
+                        f64::from(a.0) * f64::from(b.1) - f64::from(b.0) * f64::from(a.1)
+                    })
+                    .sum::<f64>()
+            })
+            .sum::<f64>()
+            .abs()
+    }
+
+    /// A `PX_DOT` has no side it shares with a neighbour, but it is not empty:
+    /// a negated layer elsewhere in the stack must not make it vanish.
+    #[test]
+    fn diff_keeps_a_dot_beside_a_negation() {
+        use crate::pixel::PX_DOT;
+        let dot = make_grid(1, 1, &[PX_DOT | PX_FULL]);
+        let full = make_grid(1, 1, &[PX_ALMOSTFULL | PX_FULL]);
+        let paths = track_contour_multi_diff(
+            &[
+                (&dot, 0, 0, false),
+                (&full, 0, 2, false),
+                (&full, 0, 2, true),
+            ],
+            PX_SUBPIXEL,
+        );
+        assert_eq!(
+            paths,
+            track_contour(&dot, PX_SUBPIXEL),
+            "the diamond is all there is"
+        );
+    }
+
+    /// The difference of two catalog shapes is traced exactly, not snapped to
+    /// the nearest catalog shape.
+    #[test]
+    fn diff_of_catalog_shapes_is_exact() {
+        use crate::detail::{BoolOp, bool_op};
+        use crate::pixel::{PX_DOT, PX_HALF1};
+        let dot = make_grid(1, 1, &[PX_DOT | PX_FULL]);
+        let half = make_grid(1, 1, &[PX_HALF1 | PX_FULL]);
+        let paths =
+            track_contour_multi_diff(&[(&dot, 0, 0, false), (&half, 0, 0, true)], PX_SUBPIXEL);
+        let exact = bool_op(
+            &dot.region_at(0, 0),
+            &half.region_at(0, 0),
+            BoolOp::Subtract,
+        );
+        assert!(
+            (paths_area2(&paths) - exact.area2()).abs() < 1e-6,
+            "traced {paths:?}, exact area2 {}",
+            exact.area2()
         );
     }
 

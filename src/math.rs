@@ -62,9 +62,51 @@ pub fn lcm_u64(a: u64, b: u64) -> Option<u64> {
     (a / gcd_u64(a, b)).checked_mul(b)
 }
 
+/// Nearest integer to `n / d`, halves rounded up (towards +∞), for a divisor
+/// of either sign; `d` must not be zero. The geometry wants a rounding that
+/// depends on the value alone, not on which way an edge happened to run, so the
+/// sign is normalized before the floor division.
+macro_rules! div_round {
+    ($name:ident, $t:ty) => {
+        pub fn $name(n: $t, d: $t) -> $t {
+            debug_assert!(d != 0, "division by zero");
+            let (n, d) = if d < 0 { (-n, -d) } else { (n, d) };
+            let (q, r) = (n.div_euclid(d), n.rem_euclid(d));
+            if 2 * r >= d { q + 1 } else { q }
+        }
+    };
+}
+
+div_round!(div_round_i64, i64);
+div_round!(div_round_i128, i128);
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn div_round_depends_on_the_value_not_the_signs() {
+        for (n, d, want) in [
+            (7, 3, 2),
+            (-7, -3, 2),
+            (-7, 3, -2),
+            (7, -3, -2),
+            (3, 2, 2),
+            (-3, -2, 2),
+            (-3, 2, -1),
+            (3, -2, -1),
+            (0, -5, 0),
+            (5, 10, 1),
+            (-5, 10, 0),
+        ] {
+            assert_eq!(div_round_i64(n, d), want, "div_round({n}, {d})");
+            assert_eq!(
+                div_round_i128(n.into(), d.into()),
+                want.into(),
+                "div_round({n}, {d})"
+            );
+        }
+    }
 
     fn gcd_reference(mut a: u128, mut b: u128) -> u128 {
         while b != 0 {

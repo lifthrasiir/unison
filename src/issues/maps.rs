@@ -430,6 +430,13 @@ fn legacy_font_meta_replacement(text: &str) -> String {
     }
 }
 
+/// Problems in a `feature ... for ...` target list.
+///
+/// A target is an OpenType script tag, optionally narrowed to one language
+/// system below it as `script/LANG`. Both registries use 4-byte tags, so a
+/// longer part would be silently truncated to something that resolves to
+/// nothing — worth an error rather than a font that quietly ignores the
+/// declaration.
 fn script_lang_issues(targets: &[String]) -> Vec<String> {
     let mut issues = Vec::new();
     for target in targets {

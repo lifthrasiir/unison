@@ -774,7 +774,7 @@ fn build_pair_from_shared(
     // next *completed* build, which refreshes everything it still reads. An
     // aborted build therefore leaves the cache holding more than it needs, and
     // nothing else.
-    let mut cc = shared_cache.lock().unwrap();
+    let mut cc = crate::parallel::lock_memo(shared_cache);
     cc.begin_generation();
 
     // The two flavors keep separate caches (see `ContourCaches`), so there is
@@ -1190,7 +1190,7 @@ pub fn build_font_with_gid_map_for_cached(
     let never = crate::cancel::CancelToken::never();
     let shared = collect::compute_shared_font_input_for(docs, face, &never)?;
     let data = {
-        let mut cc = shared_cache.lock().unwrap();
+        let mut cc = crate::parallel::lock_memo(shared_cache);
         collect::collect_glyph_data_with_shared(&shared, false, Some(cc.vector()), &never)?
     };
     build_with_gid_map(data)

@@ -1057,34 +1057,49 @@ pub(super) fn merge_anchor_feature_lookups(
         // every mark falls back to bearing placement. `feature ccmp for hebr :
         // anchor he-below` beside `feature ccmp for hebr : he-meteg` is the
         // pair that showed it, and `armn`/`grek` were carrying it too.
-        let script_targets: Vec<(Tag, Option<u16>)> = scripts
-            .iter()
-            .map(|script| {
-                let script_tag = make_tag(script);
-                let named = gsub
-                    .script_list
-                    .script_records
-                    .iter()
-                    .find(|sr| sr.script_tag == script_tag)
-                    .and_then(|sr| {
-                        let lang_sys = (*sr.script.default_lang_sys).as_ref()?;
-                        lang_sys.feature_indices.iter().copied().find(|&i| {
-                            gsub.feature_list
-                                .feature_records
-                                .get(i as usize)
-                                .is_some_and(|fr| fr.feature_tag == feat_tag)
-                        })
-                    });
-                (script_tag, named)
+        //
+        // Every LangSys of the script, not only the default one: a shaper that
+        // resolves a language uses that LangSys *instead of* the default, so a
+        // language with a `ccmp` of its own (`feature ccmp for latn/ROM`) never
+        // runs lookups merged only into the default's.
+        let names_tag = |ls: &LangSys| {
+            ls.feature_indices.iter().copied().find(|&i| {
+                gsub.feature_list
+                    .feature_records
+                    .get(i as usize)
+                    .is_some_and(|fr| fr.feature_tag == feat_tag)
             })
-            .collect();
+        };
+        let mut targets: Vec<u16> = Vec::new();
+        // Whether some LangSys, or some script with no record yet, names no
+        // record with the tag and has to be given one.
+        let mut needs_shared = scripts.is_empty();
+        for script in &scripts {
+            let script_tag = make_tag(script);
+            let Some(sr) = gsub
+                .script_list
+                .script_records
+                .iter()
+                .find(|sr| sr.script_tag == script_tag)
+            else {
+                needs_shared = true;
+                continue;
+            };
+            let default = (*sr.script.default_lang_sys).as_deref();
+            needs_shared |= default.is_none();
+            let languages = sr.script.lang_sys_records.iter().map(|r| &*r.lang_sys);
+            for ls in default.into_iter().chain(languages) {
+                match names_tag(ls) {
+                    Some(idx) => targets.push(idx),
+                    None => needs_shared = true,
+                }
+            }
+        }
 
-        // The scripts that name none share one record: an existing one with
+        // The LangSys that name none share one record: an existing one with
         // the tag (its other scripts pick the lookups up too, which the
         // coverage tables make harmless), or a new one. A feature naming no
         // script still wants a record, so that its lookups are not orphaned.
-        let needs_shared =
-            script_targets.is_empty() || script_targets.iter().any(|(_, idx)| idx.is_none());
         let shared_idx = needs_shared.then(|| {
             match gsub
                 .feature_list
@@ -1102,7 +1117,6 @@ pub(super) fn merge_anchor_feature_lookups(
             }
         });
 
-        let mut targets: Vec<u16> = script_targets.iter().filter_map(|(_, idx)| *idx).collect();
         targets.extend(shared_idx);
         targets.sort_unstable();
         targets.dedup();
@@ -1117,45 +1131,61 @@ pub(super) fn merge_anchor_feature_lookups(
             }
         }
 
-        // Every script the feature names has to reach a record — also when
-        // the record already existed: a `remap` with the same tag registers
-        // only its own scripts, and the merged lookups would otherwise never
-        // apply in the ones it did not cover. A script that already named one
-        // is done; registering the shared record beside it is the duplicate.
-        for (script_tag, named) in &script_targets {
-            if named.is_some() {
-                continue;
+        // Every LangSys of every script the feature names has to reach a
+        // record — also when the record already existed: a `remap` with the
+        // same tag registers only its own scripts, and the merged lookups would
+        // otherwise never apply in the ones it did not cover. A LangSys that
+        // already named one is done; registering the shared record beside it
+        // is the duplicate.
+        let Some(feat_idx) = shared_idx else { continue };
+        let feature_tags: Vec<Tag> = gsub
+            .feature_list
+            .feature_records
+            .iter()
+            .map(|fr| fr.feature_tag)
+            .collect();
+        let register = |ls: &mut LangSys| {
+            let named = ls.feature_indices.iter().any(|&i| {
+                feature_tags
+                    .get(i as usize)
+                    .is_some_and(|&tag| tag == feat_tag)
+            });
+            if !named {
+                ls.feature_indices.push(feat_idx);
             }
-            let script_tag = *script_tag;
-            let Some(feat_idx) = shared_idx else { continue };
-
+        };
+        for script in &scripts {
+            let script_tag = make_tag(script);
             let existing = gsub
                 .script_list
                 .script_records
                 .iter_mut()
                 .find(|sr| sr.script_tag == script_tag);
-
-            if let Some(sr) = existing {
-                if let Some(ref mut default_ls) = *sr.script.default_lang_sys {
-                    if !default_ls.feature_indices.contains(&feat_idx) {
-                        default_ls.feature_indices.push(feat_idx);
-                    }
-                } else {
+            let Some(sr) = existing else {
+                let script_obj = Script::new(
+                    Some(LangSys {
+                        required_feature_index: 0xFFFF,
+                        feature_indices: vec![feat_idx],
+                    }),
+                    vec![],
+                );
+                gsub.script_list
+                    .script_records
+                    .push(ScriptRecord::new(script_tag, script_obj));
+                continue;
+            };
+            match *sr.script.default_lang_sys {
+                Some(ref mut default_ls) => register(default_ls),
+                None => {
                     sr.script.default_lang_sys = Some(LangSys {
                         required_feature_index: 0xFFFF,
                         feature_indices: vec![feat_idx],
                     })
                     .into();
                 }
-            } else {
-                let lang_sys = LangSys {
-                    required_feature_index: 0xFFFF,
-                    feature_indices: vec![feat_idx],
-                };
-                let script_obj = Script::new(Some(lang_sys), vec![]);
-                gsub.script_list
-                    .script_records
-                    .push(ScriptRecord::new(script_tag, script_obj));
+            }
+            for record in &mut sr.script.lang_sys_records {
+                register(&mut record.lang_sys);
             }
         }
 

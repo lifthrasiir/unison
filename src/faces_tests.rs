@@ -414,6 +414,21 @@ fn using_a_scoped_name_part_unqualified_names_the_reason() {
     );
 }
 
+/// An IDC line names its parts as a `ref` names its target, so a scoped part
+/// used there is reported the same way.
+#[test]
+fn a_scoped_name_part_in_an_idc_line_names_the_reason() {
+    let msgs = errors(
+        "slice wide\nname-parts wide : $x = -half\n\
+         glyph p 1 1\n@@\nglyph q 1 1\n@@\n\
+         glyph c 2 1\n\u{2FF0} p($x) q\nmap A = c\n",
+    );
+    assert!(
+        msgs.iter().any(|m| m.contains("bound per slice")),
+        "got {msgs:?}",
+    );
+}
+
 /// Listing a slice twice would state the line twice for it, which is a
 /// duplicate mapping however it was meant.
 #[test]

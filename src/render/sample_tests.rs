@@ -146,3 +146,30 @@ fn the_subdivision_flags_text_is_a_line_per_region() {
 
     std::fs::remove_dir_all(&dir).ok();
 }
+
+/// The sample is the primary face's, and so are its features: one stated for
+/// a slice that face leaves out is not in its font, exactly as a `map` stated
+/// for one maps nothing here.
+#[test]
+fn a_feature_stated_for_another_face_is_not_the_samples() {
+    let d = parse(
+        "\
+meta height 4
+meta ascent 3
+meta descent 1
+
+slice wide
+face narrow
+face wide : wide
+
+glyph a 1 1
+@@
+map A = a
+
+feature liga for latn : plain
+feature wide : ss01 for latn : widened
+",
+    );
+    let data = collect_sample_data(&[&d]).expect("sample data should build");
+    assert_eq!(data.features, vec!["liga".to_string()]);
+}

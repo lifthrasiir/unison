@@ -921,12 +921,14 @@ pub fn write_demo_html(
 ) -> io::Result<()> {
     let data = collect(src, docs, expansion, fonts.ttf, fonts.folded, data_dir);
     let title = format!("{} \u{2014} specimen", data.meta.family);
-    // `</` inside the blob would end the script element early whatever it sits
-    // in; JSON has no other way to spell a slash, so it is escaped here rather
-    // than being trusted not to occur.
+    // The blob sits inside a `<script>` element, where `</script` ends it early
+    // and `<!--` followed by `<script` makes its real end tag not count — both
+    // spellable in a sample text. JSON writes `<` only inside a string, where
+    // `\u003c` means the same character, so every one is escaped rather than
+    // each dangerous sequence being trusted not to occur.
     let json = serde_json::to_string(&data)
         .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?
-        .replace("</", "<\\/");
+        .replace('<', "\\u003c");
     let base_features: Vec<String> = data
         .meta
         .features
@@ -1279,5 +1281,51 @@ map U+0301 = mark
         );
 
         std::fs::remove_dir_all(&dir).ok();
+    }
+}
+
+#[cfg(test)]
+mod page_tests {
+    /// A sample text is the author's, and whatever it spells stays text: the
+    /// script element that carries the page's data ends where the page's own
+    /// `</script>` is, not at one written in a sample.
+    #[test]
+    fn a_sample_text_cannot_end_the_data_script() {
+        let hostile = "a</script><!--<script>b";
+        let src = format!(
+            "meta height 4\nmeta ascent 3\nmeta descent 1\n\n\
+             glyph a 1 1\n@@\nmap a = a\n\nsample Trap\n|| {hostile}\n"
+        );
+        let doc = crate::document_io::parse_document_from_str(&src, "t.unf".into()).unwrap();
+        let docs = [&doc];
+        let resolution = crate::resolve::Resolution::compute(&docs);
+        let source = crate::render::sample::SampleSource::collect_with(&docs, &resolution)
+            .expect("a sample source");
+        let ttf = crate::render::build_font_from_documents(&docs).expect("a font");
+        let fonts = super::DemoFonts {
+            woff2: &ttf,
+            ttf: &ttf,
+            folded: &[],
+        };
+        let mut html = Vec::new();
+        super::write_demo_html(
+            &mut html,
+            &source,
+            &docs,
+            &resolution.expansion,
+            fonts,
+            None,
+        )
+        .unwrap();
+        let html = String::from_utf8(html).unwrap();
+        assert!(
+            !html.contains(hostile),
+            "the text went into the page verbatim"
+        );
+        assert_eq!(
+            html.matches("</script>").count(),
+            html.matches("<script").count(),
+            "every script element ends where it was meant to"
+        );
     }
 }

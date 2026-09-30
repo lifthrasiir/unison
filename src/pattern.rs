@@ -875,8 +875,7 @@ fn try_expand_inline_range(chars: &[char], start: usize) -> Option<(usize, Vec<S
     if end_val < start_val {
         return Some((i, Vec::new()));
     }
-    let count = end_val - start_val + 1;
-    if count > MAX_EXPANSION as u64 {
+    if end_val - start_val >= MAX_EXPANSION as u64 {
         return Some((i, Vec::new()));
     }
 
@@ -1231,6 +1230,16 @@ mod tests {
     fn inline_range_reversed_leaves_as_is() {
         let parts = NamePartsMap::default();
         assert_eq!(substitute_name_parts("($3..2)", &parts), "($3..2)",);
+    }
+
+    /// The widest ranges a `u64` holds are refused like any other range over
+    /// the cap — not wrapped around to a count of zero that passes it.
+    #[test]
+    fn inline_range_spanning_all_of_u64_is_refused() {
+        let parts = NamePartsMap::default();
+        for spec in ["($0..18446744073709551615)", "($#0..ffffffffffffffff)"] {
+            assert_eq!(substitute_name_parts(spec, &parts), spec);
+        }
     }
 
     #[test]

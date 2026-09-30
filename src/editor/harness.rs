@@ -1296,6 +1296,27 @@ impl EditorHarness {
         out
     }
 
+    /// Every line segment the last frame painted, as its two ends and its
+    /// stroke — a caret is one.
+    pub fn painted_segments(&self) -> Vec<([egui::Pos2; 2], egui::Stroke)> {
+        fn walk(shape: &egui::Shape, out: &mut Vec<([egui::Pos2; 2], egui::Stroke)>) {
+            match shape {
+                egui::Shape::LineSegment { points, stroke } => out.push((*points, *stroke)),
+                egui::Shape::Vec(v) => {
+                    for s in v {
+                        walk(s, out);
+                    }
+                }
+                _ => {}
+            }
+        }
+        let mut out = Vec::new();
+        for cs in &self.last_shapes {
+            walk(&cs.shape, &mut out);
+        }
+        out
+    }
+
     /// Every textured mesh the last frame painted but the minimap's — an
     /// image, and in this editor that means a reference chart strip — as its
     /// bounding box and the clip rect it was painted under. The clip is half
