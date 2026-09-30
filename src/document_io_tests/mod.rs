@@ -19,3 +19,6 @@ mod samples;
 mod tokenizer;
 
 use super::*;
+
+use crate::document::*;
+use crate::pixel::chars_to_shape;

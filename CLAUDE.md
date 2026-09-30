@@ -77,7 +77,7 @@ Core (feature-independent):
 
 | Module | What it holds |
 | --- | --- |
-| `document/`, `document_io.rs` | The `.unf` data model, parser and serializer. `document_io.rs` is where the syntax the parser reads is spelled out; `doc/reference.md` is the user-facing reference. |
+| `document/`, `document_io/` | The `.unf` data model, parser and serializer. `document_io/` is where the syntax the parser reads is spelled out; `doc/reference.md` is the user-facing reference. |
 | `pattern.rs`, `exists.rs`, `alias.rs`, `merge.rs` | Name expansion, the `exists` search, `glyph A = B`, and implicit merges of one pattern block. |
 | `pixel.rs`, `detail.rs`, `on_demand.rs`, `math.rs` | Shape codes, exact sub-pixel geometry, synthesized shapes, gcd. |
 | `ref_composite/`, `compose/` | Composite (`ref`) resolution and the IDC lines. |
@@ -110,7 +110,7 @@ module; the suites that outgrew one:
 | Module | Tests |
 | --- | --- |
 | `render/ttf_builder/` | `render/ttf_tests/` (shared helpers in its `mod.rs`) |
-| `document_io.rs` | `document_io_tests/` |
+| `document_io/` | `document_io_tests/` |
 | `document/` | `document/document_tests.rs` |
 | `issues/` | `issues/issues_tests.rs` |
 | `ref_composite/` | `ref_composite/ref_composite_tests.rs` |

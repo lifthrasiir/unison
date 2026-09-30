@@ -13,20 +13,20 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 
 | Topic | Read |
 | --- | --- |
-| `.unf` syntax: tokens, comments, directives, glyph blocks, the lenient derive | `document_io.rs` |
-| What characters a name may contain | `document_io.rs` (`# Names`), `pattern.rs` |
-| `@` as a glyph/`ref` name prefix: what it stands for and where the written form is kept | `document/names.rs` (`expand_at_name`), `document_io.rs` |
-| `#`/`##`/`###` headings: why they are a comment to every build stage | `document_io.rs` (`# Headings`), `document/mod.rs` (`DocumentItem::Heading`) |
-| `\|\| TEXT` continuation lines: why a keyword and not a mid-line escape, what "the shared whitespace" removes | `document_io.rs` (`# Continuation lines`, `dedent_continuations`) |
-| Why a continuation is never tokenized, and the round trip that rests on one dedented line starting at column 0 | `document_io.rs` (`tokenize_strict`), `document/serialize.rs` (`sample_lines`) |
+| `.unf` syntax: tokens, comments, directives, glyph blocks, the lenient derive | `document_io/` |
+| What characters a name may contain | `document_io/mod.rs` (`# Names`), `pattern.rs` |
+| `@` as a glyph/`ref` name prefix: what it stands for and where the written form is kept | `document/names.rs` (`expand_at_name`), `document_io/` |
+| `#`/`##`/`###` headings: why they are a comment to every build stage | `document_io/mod.rs` (`# Headings`), `document/mod.rs` (`DocumentItem::Heading`) |
+| `\|\| TEXT` continuation lines: why a keyword and not a mid-line escape, what "the shared whitespace" removes | `document_io/mod.rs` (`# Continuation lines`, `dedent_continuations`) |
+| Why a continuation is never tokenized, and the round trip that rests on one dedented line starting at column 0 | `document_io/strict.rs` (`tokenize_strict`), `document/serialize.rs` (`sample_lines`) |
 | Which edits skip a rebuild, and why the gate is not "does the font read it" | `document/mod.rs` (`same_for_rebuild`) |
-| Why a line the grammar cannot read does not fail the derive | `document_io.rs` (`derive_document`) |
-| The declared box (`origin C R` / `extent W H`): the rectangle a glyph claims, and why ink may leave it | `document_io.rs` (`# Glyph blocks`), `document/glyph.rs` (`declared_origin`, `declared_extent`) |
-| `advance W` vs `extent W H`: why the width is a flag of its own, and why writing both is an error | `document/glyph.rs` (`GlyphBody::declared_extent`), `document_io.rs` (`parse_glyph_flag_parts_impl`) |
+| Why a line the grammar cannot read does not fail the derive | `document_io/derive.rs` (`derive_document`) |
+| The declared box (`origin C R` / `extent W H`): the rectangle a glyph claims, and why ink may leave it | `document_io/mod.rs` (`# Glyph blocks`), `document/glyph.rs` (`declared_origin`, `declared_extent`) |
+| `advance W` vs `extent W H`: why the width is a flag of its own, and why writing both is an error | `document/glyph.rs` (`GlyphBody::declared_extent`), `document_io/header.rs` (`parse_glyph_flag_parts_impl`) |
 | Why an unstated advance follows the raster and not the grid, and the one accessor `hmtx` and the editor agree through | `document/glyph.rs` (`GlyphBody::stated_advance`) |
 | Why an unstated box dimension is the raster's far edge, so an origin is a bearing rather than a shift of the whole box | `document/glyph.rs` (`declared_extent`), `render/ttf_builder/collect.rs` (`resolve_glyph_metrics`) |
 | The origin in the grid vs the side bearings it exports as, and why only one is written | `document/glyph.rs` (`GlyphBody::declared_origin`), `render/ttf_builder/collect.rs` (`resolve_glyph_metrics`) |
-| `map BASE SELECTOR`: a variation sequence, its two written forms and why length stops at 2 | `document_io.rs`, `document/mod.rs` (`Map::selector`) |
+| `map BASE SELECTOR`: a variation sequence, its two written forms and why length stops at 2 | `document_io/`, `document/mod.rs` (`Map::selector`) |
 | `map CHAR = A B C`: ordered alternatives, why the choice is per codepoint, `.notdef` as the implicit last one, and the empty target | `/alternatives.rs` (`resolve_map_alternatives`), `issues/maps.rs` |
 | Expanding a `map` line's alternatives together, and the memo that parses a wide character spec once | `/map_spec.rs` (`WideMapRows`, `map_char_pattern`), `/alternatives.rs` (`AltTarget`) |
 | Why the lines that write one character spec are settled together, and on every core | `/alternatives/wide.rs` (`settle_wide_groups`), `/alternatives.rs` (`SettledAlt`, `resolve_map_alternatives`), `parallel.rs` |
@@ -214,7 +214,7 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | A menu entry as a value, what adding one costs, and why a command requests rather than performs | `app/commands.rs` (`Command`, `CommandCx`) |
 | The palette (Ctrl/Cmd+P): what it lists and caches, subsequence and code point matching, why it takes the list keys out of the queue, where the keyboard goes back to, and why a command waits a frame | `app/palette.rs` (`narrow`, `codepoint_fit`, `take_list_keys`, `PaletteState`) |
 | One jump to a name for a link, a specimen click and the palette, and the caret a jump from no link departs from | `app/mod.rs` (`jump_to_name`, `caret_nav_loc`) |
-| Why both ends of a search divide a file the same way, and what goes wrong when they do not | `app/search.rs` (module note, `LineCarry`), `document_io.rs` (`walk_source_lines`) |
+| Why both ends of a search divide a file the same way, and what goes wrong when they do not | `app/search.rs` (module note, `LineCarry`), `document_io/lines.rs` (`walk_source_lines`) |
 | Why opening a file from the snapshot keeps its generations | `app/docs.rs` (`open_document_from_text`) |
 | Which tokens on a line name what | `editor/line_fields.rs` |
 | Which numbers on a line are signed | `editor/line_numbers.rs` |
@@ -233,14 +233,14 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Ctrl/Cmd+`/`: which lines a toggle takes, and the grid it demotes and promotes | `editor/comment.rs` |
 | A header and its grid are one block: Enter, line-wise copy/cut, paste | `editor/editing.rs` (`insert_newline`), `editor/doc_input.rs` (`current_line_range`, `paste_text`) |
 | Why an edit on a header or `ref` line waits before it reparses | `editor/document_view/changes.rs` (`apply_pending_rederive`) |
-| A reparse of only what an edit reached: where it restarts, where it may stop, the one piece of state between two items | `document_io.rs` (`rederive_document`, `derive_items`), `document/mod.rs` (`Document::at_bases`, `line_fingerprint`) |
+| A reparse of only what an edit reached: where it restarts, where it may stop, the one piece of state between two items | `document_io/derive.rs` (`rederive_document`, `derive_items`), `document/mod.rs` (`Document::at_bases`, `line_fingerprint`) |
 | What an edit costs the view: which lines are laid out again, what a rebuild reuses, and why cold memory decides it | `editor/document_view/mod.rs` (`patch_plan`, `patchable_segment`, `splice_segment`, `build_view`), `editor/visual_lines.rs` (`VlineSpan`, `TextLayoutMemo`), `editor/grid_render.rs` (`CompositeMemo`), `editor/mod.rs` (`LastReparse`) |
 | Why a view is keyed on how the fonts set text rather than on the font, and on the composites rather than on the findings | `render/ttf_builder/mod.rs` (`text_layout_fingerprint`), `app/mod.rs` (`text_layout_gen`, `resolved_gen`) |
 | What a frame reads off a whole view, once per view | `editor/document_view/layout.rs` (`ViewGeometry`), `editor/change_marks.rs` (`paint_gutter_marks`) |
 | Why a search's first match is keyed by the item's line and not its index | `exists.rs` (`FirstMatches`) |
 | Why Control-click is a right click on the Mac, and why at the raw input rather than per widget | `app/ctrl_click.rs` |
 | Why a right-click moves the caret first; why a menu action hands the keyboard back | `editor/document_view/paint.rs` (`secondary_pos`, `refocus_after_menu`), `editor/mod.rs` (`refocus`) |
-| The two rectangles a resize drags (box vs canvas), which flags and which `ref`s it writes, units | `editor/glyph_resize.rs` (`canvas_box`, `CanvasStart`, `boxed_for`), `app/resize.rs`, `document_io.rs` (`replace_glyph_box_flags`), `ref_composite/anchors.rs` (`DeriveOutcome::anchor_placed`) |
+| The two rectangles a resize drags (box vs canvas), which flags and which `ref`s it writes, units | `editor/glyph_resize.rs` (`canvas_box`, `CanvasStart`, `boxed_for`), `app/resize.rs`, `document_io/header.rs` (`replace_glyph_box_flags`), `ref_composite/anchors.rs` (`DeriveOutcome::anchor_placed`) |
 | A resize preview: uncommitted text, and everything that has to drop it | `editor/glyph_resize.rs` (`cancel`), `app/docs.rs` (`flush_pending_changes`) |
 | A floating pixel selection: what commits it, and who lands it before reading the buffer | `editor/pixel_selection.rs` (`reconcile`, `effective_selection`, `select_all`), `app/docs.rs` (`commit_floating_selection`), `editor/mod.rs` (`pixel_select_anchor`) |
 | The empty band below the last line | `editor/document_view/paint.rs` (`paint_document_area`) |
