@@ -239,7 +239,7 @@ pub use variant::{
 };
 
 #[cfg(test)]
-#[path = "../compose_tests.rs"]
+#[path = "../compose_tests/mod.rs"]
 mod tests;
 
 #[cfg(test)]
