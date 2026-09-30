@@ -472,3 +472,35 @@ fn clicking_a_grid_scrollbar_focuses_the_editor() {
     h.click_at(egui::pos2(bar.min.x + 20.0, bar.center().y));
     assert!(h.editor_has_focus());
 }
+
+/// Undo in grid edit mode shows at once. A stroke reaches the document
+/// through the pixel-only fast path; the undo that takes it back goes
+/// through the incremental rederive, which has to see that the grid differs
+/// from what the document holds — not from what it held before the stroke.
+#[test]
+fn undoing_a_stroke_in_grid_edit_mode_updates_the_document() {
+    let mut h = EditorHarness::new("glyph test 4 2\n........\n........");
+    h.click_grid_cell(1, 0, 0);
+    assert!(matches!(h.state.mode, EditMode::GlyphEdit { .. }));
+    h.click_grid_cell(1, 0, 1);
+    assert!(h.grid(1).get(0, 1).is_bitmap_filled(), "the click paints");
+
+    let doc_pixels = |h: &EditorHarness| match &h.doc.items[0] {
+        crate::document::DocumentItem::Glyph { body, .. } => body.pixels.clone(),
+        other => panic!("not a glyph: {other:?}"),
+    };
+    assert_eq!(doc_pixels(&h).as_ref(), Some(h.grid(1)));
+
+    h.key_mod(Key::Z, Modifiers::COMMAND);
+    assert!(matches!(h.state.mode, EditMode::GlyphEdit { .. }));
+    assert!(h.grid(1).get(0, 1).is_clear(), "the undo clears the buffer");
+    assert_eq!(
+        doc_pixels(&h).as_ref(),
+        Some(h.grid(1)),
+        "the document follows the undo while still in grid edit mode"
+    );
+
+    h.key_mod(Key::Z, Modifiers::COMMAND | Modifiers::SHIFT);
+    assert!(h.grid(1).get(0, 1).is_bitmap_filled());
+    assert_eq!(doc_pixels(&h).as_ref(), Some(h.grid(1)));
+}

@@ -213,6 +213,13 @@ fn flush_pixel_change(
         && let Some(DocumentItem::Glyph { body, .. }) = doc.items.get_mut(item_idx)
     {
         body.pixels = Some(PixelGrid::clone(grid));
+        // The next rederive finds what changed against these fingerprints. Left
+        // at the pre-stroke grid, the undo that restores it would look like no
+        // change at all, and the stroke would stay in `doc` until something
+        // else reparsed the glyph.
+        if let Some(fp) = std::sync::Arc::make_mut(&mut doc.line_fps).get_mut(grid_doc_line) {
+            *fp = crate::document::line_fingerprint(&lines[grid_doc_line]);
+        }
     }
     doc.docline_file_lines = crate::document::compute_docline_file_lines(lines);
     doc.pixel_gen += 1;
