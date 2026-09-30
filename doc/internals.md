@@ -27,13 +27,13 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Why an unstated box dimension is the raster's far edge, so an origin is a bearing rather than a shift of the whole box | `document/glyph.rs` (`declared_extent`), `render/ttf_builder/collect.rs` (`resolve_glyph_metrics`) |
 | The origin in the grid vs the side bearings it exports as, and why only one is written | `document/glyph.rs` (`GlyphBody::declared_origin`), `render/ttf_builder/collect.rs` (`resolve_glyph_metrics`) |
 | `map BASE SELECTOR`: a variation sequence, its two written forms and why length stops at 2 | `document_io.rs`, `document/mod.rs` (`Map::selector`) |
-| `map CHAR = A B C`: ordered alternatives, why the choice is per codepoint, `.notdef` as the implicit last one, and the empty target | `render/ttf_builder/expand.rs` (`resolve_map_alternatives`), `issues/maps.rs` |
-| Expanding a `map` line's alternatives together, and the memo that parses a wide character spec once | `render/ttf_builder/expand.rs` (`WideMapRows`, `AltTarget`, `map_char_pattern`) |
-| Why the lines that write one character spec are settled together, and on every core | `render/ttf_builder/expand.rs` (`settle_wide_groups`, `SettledAlt`, `resolve_map_alternatives`), `parallel.rs` |
+| `map CHAR = A B C`: ordered alternatives, why the choice is per codepoint, `.notdef` as the implicit last one, and the empty target | `/alternatives.rs` (`resolve_map_alternatives`), `issues/maps.rs` |
+| Expanding a `map` line's alternatives together, and the memo that parses a wide character spec once | `/map_spec.rs` (`WideMapRows`, `map_char_pattern`), `/alternatives.rs` (`AltTarget`) |
+| Why the lines that write one character spec are settled together, and on every core | `/alternatives/wide.rs` (`settle_wide_groups`), `/alternatives.rs` (`SettledAlt`, `resolve_map_alternatives`), `parallel.rs` |
 | Why one search-scoped `map`'s expansion is indexed rather than searched for | `issues/mod.rs` (`scoped_map_expansions`, `Cx::source_items`) |
-| Why a `map` target nothing declares is never a reachability root | `issues/unused.rs` (`GlyphGraph::knows`), `render/ttf_builder/expand.rs` (`MapAlternativeIndex`) |
+| Why a `map` target nothing declares is never a reachability root | `issues/unused.rs` (`GlyphGraph::knows`), `/alternatives/index.rs` (`MapAlternativeIndex`) |
 | Why the duplicate-codepoint table holds two integers per codepoint | `issues/maps.rs` (`MapSite`, `SliceTable`) |
-| Which half of a variation sequence may be a range, and why not both | `render/ttf_builder/expand.rs` (`expand_uvs_map_triples`) |
+| Which half of a variation sequence may be a range, and why not both | `/map_spec.rs` (`expand_uvs_map_triples`) |
 | `meta` keys, name-record derivation, single-assignment rule, the `@LANG` slot | `meta.rs` |
 | Faces, slices, the base slice, and why there is no override | `faces.rs` |
 | `--output` path rules (`%`, `.ttc`, `.woff2`) | `faces.rs` (`plan_output`) |
@@ -57,7 +57,7 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | --- | --- |
 | Name pattern grammar and its per-context parses | `pattern.rs` |
 | `$-N` back-references, and why only a written `(...)` captures | `pattern.rs` (`capture_groups`, `substitute_captures`) |
-| Which item binds a back-reference and how far it reaches | `document/name_parts.rs` (`expand_glyph_block`), `alias.rs` (`expand_alias`), `render/ttf_builder/expand.rs` (`map_char_pattern`) |
+| Which item binds a back-reference and how far it reaches | `document/name_parts.rs` (`expand_glyph_block`), `alias.rs` (`expand_alias`), `/map_spec.rs` (`map_char_pattern`) |
 | Why several groups combine by the largest (not the LCM), and what a ragged group warns | `pattern.rs`, `issues/patterns.rs` (`check_ragged_patterns`) |
 | Why a name that is nothing but one `($-N)` is never ragged | `issues/patterns.rs` (`whole_back_reference`) |
 | Stating one line for several slices (`map wide\|narrow :`) and per-slice `name-parts` | `document/name_parts.rs` (`SliceNameParts`), `pattern.rs` |
@@ -66,7 +66,7 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Why a multi-alias's search compiles no regex, and why a long run of matches is fed back on every core | `exists.rs` (`ExistsPattern::multi_alias`, `FEED_CHUNK`) |
 | A `glyph … = …` under an `exists` | `exists.rs` (`resolve_scopes`), `alias.rs` (`collect_inner`) |
 | A code point computed from a match (`U+[BASE+]($N)`) | `exists.rs` (`eval_codepoint`) |
-| Where a scoped item is expanded, and why a source-side check reads a scoped `map`'s output but a scoped block's own line | `render/ttf_builder/expand.rs` (`expand_inner`), `issues/mod.rs` (`Cx::source_items`) |
+| Where a scoped item is expanded, and why a source-side check reads a scoped `map`'s output but a scoped block's own line | `/mod.rs` (`expand_inner`), `issues/mod.rs` (`Cx::source_items`) |
 | Why two matched names of one glyph are not an error, and where an indistinguishable pair is caught | `exists.rs` (`# What is searched`), `issues/remap.rs` (the duplicate scan) |
 | `glyph A = B`: one glyph id, two names; where each stage canonicalizes | `alias.rs` |
 | Why an IDC component keeps its written name past canonicalization | `alias.rs`, `compose.rs` (`expand_compose`) |
@@ -91,7 +91,7 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Why a glyph the build drops silently is still accounted for, and the test that pins it | `issues/anchors.rs` (`check_anchor_derivation`), `issues/issues_tests.rs` |
 | `⿰⿱⿲⿳`: the split, the gap term, why the offsets are derived rather than written | `compose.rs` |
 | Why a split fills the box and not the grid, and so moves with a declared `origin` | `compose.rs` (`Raster`, `expand_compose`) |
-| `1\|foo\|1\|bar\|1`: a nested split in a slot, the glyph it stands for, why its box is inferred rather than declared, where its ink comes from, and why the fixer lays it out as one part without going inside | `compose.rs` (`# Nested splits`, `nested_line`, `nested_key`), `render/ttf_builder/expand.rs` (`ink_profiles`), `fix/clearance/names.rs` (`slot_names`), `fix/clearance/inventory.rs` (`Inventory::register_nested`), `document/glyph.rs` (`ComposeItem::Nested`) |
+| `1\|foo\|1\|bar\|1`: a nested split in a slot, the glyph it stands for, why its box is inferred rather than declared, where its ink comes from, and why the fixer lays it out as one part without going inside | `compose.rs` (`# Nested splits`, `nested_line`, `nested_key`), `/compose.rs` (`ink_profiles`), `fix/clearance/names.rs` (`slot_names`), `fix/clearance/inventory.rs` (`Inventory::register_nested`), `document/glyph.rs` (`ComposeItem::Nested`) |
 | `margin-x L\|R` / `margin-y T\|B`: why a part states its default padding, why only across the axis and only in a glyph's own line, and where the padded part is measured | `compose.rs` (`# A part's margin`, `padding_across`, `outer_padding`, `cavity_fits`), `document/glyph.rs` (`Margin`), `fix/clearance/inventory.rs` (`Candidate::side`, `EnclosurePart::at`) |
 | `assume ⿰ …`: why an assumed line drops its clearance chores and nothing else, and the one reader of the keyword | `compose.rs` (`# An assumed line`, `IdcOp::of_line`) |
 | `⿴⿵⿶⿷⿸⿹⿺⿼⿽`: which sides an enclosure fills, and why its two numbers are offsets rather than gaps | `compose.rs` (`Walls`, `expand_enclosure`) |
@@ -104,11 +104,11 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Clearance: the ink a split leaves between its parts and the box, and why the per-part range and the total are both needed | `compose.rs` (`InkProfile`, `measure_clearances`) |
 | `audit ideal-clearance`: the prefix match, which rule wins, why an enclosure may have a band of its own | `audit.rs` (`IdealClearances`, `ClearanceBand`) |
 | `audit max-contact-run`: how far two parts may run together, why that is a clearance rather than a complaint of its own, why a contact needs no hardblank term, and why it is measured between contours and not cells | `audit.rs` (`MaxContactRuns`), `compose.rs` (`contact_run`, `Face::ink`, `EdgeCover`), `detail.rs` (`DetailRegion::edge_coverage`) |
-| Which parts a clearance check can measure, and what it costs a source with no rule | `render/ttf_builder/expand.rs` (`ink_profiles`) |
-| Measuring a part that is itself a composite or itself IDC-split, and the walk the check and the fixer share | `ref_composite/mod.rs` (`resolve_reachable`, `derive_compose_body`), `render/ttf_builder/expand.rs` (`ink_profiles`), `fix/clearance/inventory.rs` (`Inventory::flatten_composites`) |
+| Which parts a clearance check can measure, and what it costs a source with no rule | `/compose.rs` (`ink_profiles`) |
+| Measuring a part that is itself a composite or itself IDC-split, and the walk the check and the fixer share | `ref_composite/mod.rs` (`resolve_reachable`, `derive_compose_body`), `/compose.rs` (`ink_profiles`), `fix/clearance/inventory.rs` (`Inventory::flatten_composites`) |
 | Why a clearance is measured over the declared box | `compose.rs` (`InkProfile::of`) |
-| Why an IDC line becomes `ref`s at expansion time, and why the parts are sized by what they declare | `render/ttf_builder/expand.rs` (`expand_compose_lines`), `ref_composite/mod.rs` (`declared_box`) |
-| Why an IDC line with an unpicked variant is a TODO and not an error, and what else it silences | `compose.rs` (`expand_compose`, `is_undecided`), `render/ttf_builder/expand.rs` (`expand_compose_lines`) |
+| Why an IDC line becomes `ref`s at expansion time, and why the parts are sized by what they declare | `/compose.rs` (`expand_compose_lines`), `ref_composite/mod.rs` (`declared_box`) |
+| Why an IDC line with an unpicked variant is a TODO and not an error, and what else it silences | `compose.rs` (`expand_compose`, `is_undecided`), `/compose.rs` (`expand_compose_lines`) |
 | On-demand glyph names, `BitmapFill`, circles, polygons, shears, normalization, the two lattices | `on_demand.rs` |
 | Which on-demand grids are remembered between builds | `on_demand.rs` (`make_on_demand_grid`) |
 | Why the view synthesizes an on-demand ref instead of waiting for the resolve | `ref_composite/mod.rs` (`resolve_ref_name_for_view`) |
@@ -262,9 +262,9 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Why a rebuild's snapshot of the directory is shared, not copied, and why replaced results are freed on another thread | `app/docs.rs` (`snapshot_docs`), `discard.rs` |
 | Why the heap returns memory to the OS from a thread of its own | `heap.rs` |
 | What one editing scenario costs the UI thread, frame by frame, against the real font | `app/frame_profile.rs` |
-| Which parts of the expansion and the face build run on every core, and how each keeps the serial order: items and search matches cut into units, IDC lines, ink profiles, merge candidates, own-grid traces, memo keys | `render/ttf_builder/expand.rs` (`expand_item`, `expand_compose_lines`, `ink_profiles`), `merge.rs` (`collect_blocks`), `render/ttf_builder/collect.rs` (`collect_glyph_data_with_shared`), `render/ttf_builder/contours.rs` (`CachedContours::from_grids`), `render/glyph_cache.rs` (`CompositeBuilder::key`) |
+| Which parts of the expansion and the face build run on every core, and how each keeps the serial order: items and search matches cut into units, IDC lines, ink profiles, merge candidates, own-grid traces, memo keys | `/items.rs` (`expand_item`), `/compose.rs` (`expand_compose_lines`, `ink_profiles`), `merge.rs` (`collect_blocks`), `render/ttf_builder/collect.rs` (`collect_glyph_data_with_shared`), `render/ttf_builder/contours.rs` (`CachedContours::from_grids`), `render/glyph_cache.rs` (`CompositeBuilder::key`) |
 | Why the validation checks run at once, and why the report still reads as a serial run's | `issues/mod.rs` (`collect_issues_cancellable`) |
-| Which stages notice a cancel, and why the next edit waits for the ones that do not | `issues/mod.rs` (`collect_issues_cancellable`), `render/ttf_builder/expand.rs` (`expand_documents_cancellable`), `main.rs` (`rebuild_like_the_editor`) |
+| Which stages notice a cancel, and why the next edit waits for the ones that do not | `issues/mod.rs` (`collect_issues_cancellable`), `/mod.rs` (`expand_documents_cancellable`), `main.rs` (`rebuild_like_the_editor`) |
 | Why the remembered face is applied before the first build | `app/mod.rs` (`with_settings`) |
 | What survives between runs, where the settings file lives | `app/settings.rs`, `main.rs` (`with_app_id`) |
 | Where the seconds before the first frame go; what one edit costs; where an edit's wait goes in the running editor | `startup.rs`, `main.rs` (`run_edit_probe`), `app/timing.rs` |

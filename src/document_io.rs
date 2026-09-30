@@ -85,7 +85,7 @@
 //! - `exists` — [`crate::exists`]; `name-parts` — [`crate::pattern`] and
 //!   [`crate::document::SliceNameParts`] (each token of the right-hand side is
 //!   itself a pattern, `resolve_name_part_values`).
-//! - `map` — `render/ttf_builder/expand.rs` (`resolve_map_alternatives` for the
+//! - `map` — `render/ttf_builder/expand/` (`resolve_map_alternatives` for the
 //!   ordered targets and the empty last one, `expand_uvs_map_triples` for a
 //!   variation sequence, and `generate`); `Map::selector` in
 //!   [`crate::document`] for the two spellings of a selector and why length

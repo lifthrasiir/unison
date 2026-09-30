@@ -41,7 +41,7 @@ pub(super) struct Inventory<'a> {
     margins: HashMap<String, Margin>,
     /// The grid of every glyph that draws itself entirely with its own pixels.
     /// A composite draws ink this pass cannot see, and half a part's ink
-    /// measured is worse than none — the same rule `expand.rs::ink_profiles`
+    /// measured is worse than none — the same rule `expand/compose.rs::ink_profiles`
     /// applies.
     /// Name → the grid to measure and the box to measure it over.
     grids: HashMap<String, PartGrid<'a>>,
@@ -266,7 +266,7 @@ impl<'a> Inventory<'a> {
     }
 
     /// Make up the glyph every nested split of a split line stands for, as
-    /// the build does (`expand.rs::ink_profiles`): its box inferred from its
+    /// the build does (`expand/compose.rs::ink_profiles`): its box inferred from its
     /// members, recorded here under its slot name ([`slot_names`]), and its
     /// body ([`crate::compose::nested_body`]) handed back for
     /// [`Self::flatten_composites`] to flatten. A pattern block's lines are

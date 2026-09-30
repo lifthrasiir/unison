@@ -218,7 +218,7 @@ pub(super) fn expand_block_lines(
 
 /// Every glyph a pattern block declares and the body it has, with the names
 /// in its refs and IDC lines substituted and expanded exactly as the build
-/// does (`expand.rs::expand_glyph_item`); `None` when the block does not
+/// does (`expand/items.rs::expand_glyph_item`); `None` when the block does not
 /// expand at all.
 pub(super) fn expand_block(
     name_parts: &crate::document::NamePartsMap,
