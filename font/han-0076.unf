@@ -202,8 +202,13 @@ glyph han-6b4c.0:* = han-6b4c:*
 
 ## 76.18
 
-glyph han-6b61:15x16 15 16 // 歡 ⿰雚欠(GJKPV[B]) ⿰雚欠(HT)
-⿰ han-96da:8x16 han-6b20:7x16 // ⿰雚欠
+glyph han-6b61-($han-regions):15x16 15 16 // 歡
+⿰ han-96da-($-1):8x16 han-6b20:7x16 // ⿰雚欠
+glyph han-6b61.0:* = han-6b61-g:*
+glyph han-6b61.1:* = han-6b61-g:*
+glyph han-6b61.2:* = han-6b61-h:*
+glyph han-6b61.3:15x16 15 16 // 歡
+⿰ han-96da.x:8x16 han-6b20:7x16 // ⿰雚欠
 
 # CJK unified ideographs: 止 (77)
 

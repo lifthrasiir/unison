@@ -656,6 +656,9 @@ glyph han-78e6:15x16 15 16 // 磦
 // glyph han-78e8:15x16 15 16 // 磨
 // ⿸ han-9ebb han-77f3 // ⿸麻石
 
+// glyph han-78ea:15x16 15 16 // 磪
+// ⿰ han-77f3 han-5d14 // ⿰石崔
+
 ## 112.12
 
 // glyph han-78f5:15x16 15 16 // 磵
@@ -668,11 +671,17 @@ glyph han-78fb:15x16 15 16 // 磻
 ⿰ han-77f3:7x16 1 han-756a:7x16 // ⿰石番
 glyph han-78fb.0:* = han-78fb:*
 
+// glyph han-78fc:15x16 15 16 // 磼
+// ⿰ han-77f3 han-96c6 // ⿰石集
+
 glyph han-78fd:15x16 15 16 // 磽
 ⿰ han-77f3:7x16 1 han-582f:7x16 // ⿰石堯
 
 // glyph han-7900:15x16 15 16 // 礀
 // ⿰ han-77f3 han-9592 // ⿰石閒
+
+// glyph han-7901:15x16 15 16 // 礁
+// ⿰ han-77f3 han-7126 // ⿰石焦
 
 glyph han-7904:15x16 15 16 // 礄
 ⿰ han-77f3:5x16 1 han-55ac:9x16 // ⿰石喬
@@ -695,6 +704,9 @@ glyph han-791d:15x16 15 16 // 礝
 
 ## 112.16
 
+// glyph han-792d-($han-regions):15x16 15 16 // 礭
+// ⿰ han-77f3 han-970d-($-1) // ⿰石霍
+
 glyph han-792e.0:15x16 15 16 // 礮
 ⿲ -5 han-77f3:5x16 1 han-99ac:7x16 han-4ea4.1:7x16 // ⿲石馬交
 glyph han-792e.1:* = han-792e.0:*
@@ -705,8 +717,10 @@ glyph han-792e-(g|h|t|k|p):* = han-792e.2:*
 
 ## 112.18
 
-glyph han-7936:15x16 15 16 // 礶
-⿰ han-77f3:5x16 1 han-96da:9x16 // ⿰石雚
+glyph han-7936-($han-regions):15x16 15 16 // 礶
+⿰ han-77f3:6x16 han-96da-($-1):9x16 // ⿰石雚
+glyph han-7936.0:* = han-7936-g:*
+glyph han-7936.1:* = han-7936-h:*
 
 # CJK unified ideographs: 示 (113)
 
@@ -1942,6 +1956,9 @@ glyph han-7a4c.2:15x16 15 16 // 穌
 
 ## 115.12
 
+// glyph han-7a55:15x16 15 16 // 穕
+// ⿰ han-79be han-96c6 // ⿰禾集
+
 glyph han-7a58:15x16 15 16 // 穘
 ⿰ han-79be:7x16 1 han-582f:7x16 // ⿰禾堯
 
@@ -1966,6 +1983,9 @@ glyph han-7a5a.1:15x16 15 16 // 穚
 ..............................
 ..\1..........................
 ref han-7a5a.0:15x16
+
+// glyph han-7a5b:15x16 15 16 // 穛
+// ⿰ han-79be han-7126 // ⿰禾焦
 
 // glyph han-7a5c:15x16 15 16 // 穜
 // ⿰ han-79be han-7ae5 // ⿰禾童

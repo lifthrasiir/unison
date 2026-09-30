@@ -249,6 +249,9 @@ glyph han-9860:15x16 15 16 // 顠
 glyph han-9864:15x16 15 16 // 顤
 ⿰ han-582f:7x16 1 han-9801:7x16 // ⿰堯頁
 
+// glyph han-9866:15x16 15 16 // 顦
+// ⿰ han-7126 han-9801 // ⿰焦頁
+
 // glyph han-9868:15x16 15 16 // 顨
 // ⿱ han-2950a han-4e0c // ⿱𩔊丌
 
@@ -262,8 +265,11 @@ glyph han-986c:15x16 15 16 // 顬
 // glyph han-9873:15x16 15 16 // 顳
 // ⿰ han-8076 han-9801 // ⿰聶頁
 
-glyph han-9874:15x16 15 16 // 顴
-⿰ han-96da:8x16 han-9801:7x16 // ⿰雚頁
+glyph han-9874-($han-regions):15x16 15 16 // 顴
+⿰ han-96da-($-1):8x16 han-9801:7x16 // ⿰雚頁
+glyph han-9874.0:* = han-9874-g:*
+glyph han-9874.1:* = han-9874-g:*
+glyph han-9874.2:* = han-9874-h:*
 
 # CJK unified ideographs: 風 (182)
 
@@ -1432,8 +1438,11 @@ glyph han-9a64:15x16 15 16 // 驤
 
 ## 187.18
 
-glyph han-9a69:15x16 15 16 // 驩
-⿰ han-99ac:7x16 han-96da:8x16 // ⿰馬雚
+glyph han-9a69-($han-regions):15x16 15 16 // 驩
+⿰ han-99ac:7x16 han-96da-($-1):8x16 // ⿰馬雚
+glyph han-9a69.0:* = han-9a69-g:*
+glyph han-9a69.1:* = han-9a69-g:*
+glyph han-9a69.2:* = han-9a69-h:*
 
 ## 187.20
 

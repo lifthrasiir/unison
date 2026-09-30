@@ -489,6 +489,9 @@ glyph han-733e.0:* = han-733e-j:*
 glyph han-7351:15x16 15 16 // 獑
 ⿲ han-72ad:4x16 han-8eca:5x16 han-65a4:6x16 // ⿲犭車斤
 
+// glyph han-7355:15x16 15 16 // 獕
+// ⿰ han-72ad han-5d14 // ⿰犭崔
+
 ## 94.12
 
 glyph han-735c:15x16 15 16 // 獜
@@ -521,8 +524,10 @@ glyph han-737d:15x16 15 16 // 獽
 
 ## 94.18
 
-glyph han-737e:15x16 15 16 // 獾
-⿰ han-72ad:6x16 han-96da:9x16 // ⿰犭雚
+glyph han-737e-(g|k|p):15x16 15 16 // 獾
+⿰ han-72ad:6x16 han-96da.0:9x16 // ⿰犭雚
+glyph han-737e-(h|t|j):15x16 15 16 // 獾
+⿰ han-72ad:6x16 han-96da.1:9x16 // ⿰犭雚
 
 # CJK unified ideographs: 玉 (96)
 
@@ -1686,6 +1691,9 @@ glyph han-746f:15x16 15 16 // 瑯 ⿰𤣩郎(GHT) ⿰𤣩郞(JKP)
 
 ## 96.11
 
+// glyph han-7480:15x16 15 16 // 璀
+// ⿰ han-248e9 han-5d14 // ⿰𤣩崔
+
 // glyph han-7482:15x16 15 16 // 璂
 // ⿰ han-248e9 han-57fa // ⿰𤣩基
 
@@ -1741,8 +1749,12 @@ glyph han-74d6.0:* = han-74d6:*
 
 ## 96.18
 
-glyph han-74d8:15x16 15 16 // 瓘
-⿰ han-248e9:5x16 1 han-96da:9x16 // ⿰𤣩雚
+glyph han-74d8-($han-regions):15x16 15 16 // 瓘
+⿰ han-248e9:5x16 1 han-96da-($-1):9x16 // ⿰𤣩雚
+glyph han-74d8.0:* = han-74d8-g:*
+glyph han-74d8.1:* = han-74d8-h:*
+glyph han-74d8.2:* = han-74d8-h:*
+glyph han-74d8.3:* = han-74d8-g:*
 
 # CJK unified ideographs: 瓜 (97)
 

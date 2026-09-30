@@ -684,7 +684,7 @@ glyph han-3221d:15x16 15 16 // 𲈝
 ## 167'.18
 
 glyph han-32221:15x16 15 16 // 𲈡
-⿰ han-9485:5x14 1 han-96da:9x16 // ⿰钅雚
+⿰ han-9485:5x14 1 han-96da-g:9x16 // ⿰钅雚
 
 # CJK unified ideographs extension H: 門 (169)
 
@@ -1117,7 +1117,7 @@ glyph han-32350:15x16 15 16 // 𲍐
 ## 196.3
 
 glyph han-3235a:15x16 15 16 // 𲍚
-⿰ han-9ce5:7x16 1 han-58eb:7x16 // ⿰鳥士
+⿰ han-9ce5:8x16 han-58eb:7x16 // ⿰鳥士
 
 ## 196.5
 
@@ -1125,7 +1125,7 @@ glyph han-3235a:15x16 15 16 // 𲍚
 // ⿳ han-9ce5 han-4e00 han-5185 // ⿳鳥一内
 
 glyph han-3235e:15x16 15 16 // 𲍞
-⿰ han-5e02:7x16 1 han-9ce5:7x16 // ⿰市鳥
+⿰ han-5e02:7x16 han-9ce5:8x16 // ⿰市鳥
 
 ## 196.7
 

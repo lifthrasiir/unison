@@ -321,6 +321,9 @@ glyph han-256e6:15x16 15 16 // 𥛦
 glyph han-256ee-($han-regions):15x16 15 16 // 𥛮
 ⿰ han-793a-or-793b-($-1):5x14 1 han-756a:9x16 // ⿰礻番
 
+// glyph han-256f2:15x16 15 16 // 𥛲 ⿰礻焦(GTV) ⿰示焦(P)
+// ⿰ han-793b han-7126 // ⿰礻焦
+
 glyph han-256f7:15x16 15 16 // 𥛷
 ⿰ han-793b:5x14 1 han-7ca6:9x16 // ⿰礻粦
 
@@ -816,8 +819,10 @@ glyph han-258e4:15x16 15 16 // 𥣤
 
 ## 115.18
 
-glyph han-2590a:15x16 15 16 // 𥤊
-⿰ han-79be:5x16 1 han-96da:9x16 // ⿰禾雚
+glyph han-2590a-(g|p):15x16 15 16 // 𥤊
+⿰ han-79be:5x16 1 han-96da.0:9x16 // ⿰禾雚
+glyph han-2590a-(t|j|k):15x16 15 16 // 𥤊
+⿰ han-79be:5x16 1 han-96da.1:9x16 // ⿰禾雚
 
 // glyph han-2590b:15x16 15 16 // 𥤋
 // ⿳ han-8033 han-8051 han-79be // ⿳耳聑禾 <- ⿱聶禾

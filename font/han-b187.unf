@@ -391,6 +391,11 @@ glyph han-299be:15x16 15 16 // 𩦾
 // glyph han-299cc:15x16 15 16 // 𩧌 ⿱騳术(G) ⿱騳朮(Z)
 // ⿱ han-9a33 han-672f // ⿱騳术
 
+## 187.16
+
+// glyph han-299cf-($han-regions):15x16 15 16 // 𩧏
+// ⿰ han-99ac han-970d-($-1) // ⿰馬霍
+
 ## 187.17
 
 // glyph han-299d4:15x16 15 16 // 𩧔
@@ -585,6 +590,9 @@ glyph han-29a8a-($han-regions):15x16 15 16 // 𩪊
 // glyph han-29a8d:15x16 15 16 // 𩪍
 // ⿰ han-9aa8 han-5340 // ⿰骨區
 
+// glyph han-29a93-($han-regions):15x16 15 16 // 𩪓
+// ⿰ han-9aa8-($-1) han-5d14 // ⿰骨崔
+
 // glyph han-29a96:15x16 15 16 // 𩪖
 // ⿰ han-9aa8 han-7562 // ⿰骨畢
 
@@ -614,8 +622,10 @@ glyph han-29ab0:15x16 15 16 // 𩪰
 
 ## 188.18
 
-glyph han-29abc-($han-regions):15x16 15 16 // 𩪼
-⿰ han-9aa8-($-1):7x16 han-96da:8x16 // ⿰骨雚
+glyph han-29abc-(g|p):15x16 15 16 // 𩪼
+assume ⿰ han-9aa8-($-1):7x16 -1 han-96da.0:9x16 // ⿰骨雚
+glyph han-29abc-(t|j):15x16 15 16 // 𩪼
+assume ⿰ han-9aa8-($-1):7x16 -1 han-96da.1:9x16 // ⿰骨雚
 
 ## 188.19
 

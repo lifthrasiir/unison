@@ -328,8 +328,10 @@ glyph han-2243f:15x16 15 16 // 𢐿
 
 ## 57.18
 
-glyph han-22446:15x16 15 16 // 𢑆
-⿰ han-5f13:7x16 han-96da:8x16 // ⿰弓雚
+glyph han-22446-g:15x16 15 16 // 𢑆
+⿰ han-5f13:6x16 han-96da.0:9x16 // ⿰弓雚
+glyph han-22446-(t|j):15x16 15 16 // 𢑆
+⿰ han-5f13:6x16 han-96da.1:9x16 // ⿰弓雚
 
 # CJK unified ideographs extension B: 彐 (58)
 
@@ -662,6 +664,9 @@ glyph han-2254b:15x16 15 16 // 𢕋
 
 // glyph han-22557:15x16 15 16 // 𢕗
 // ⿰ han-5f73 han-5bc4 // ⿰彳寄
+
+// glyph han-22558:15x16 15 16 // 𢕘
+// ⿰ han-5f73 han-5d14 // ⿰彳崔
 
 // glyph han-22559:15x16 15 16 // 𢕙
 // ⿲ han-5f73 han-72ad han-5b5f // ⿲彳犭孟 <- ⿰彳猛

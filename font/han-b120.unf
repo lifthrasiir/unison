@@ -505,6 +505,9 @@ glyph han-2613a:15x16 15 16 // 𦄺
 // glyph han-2613f-($han-regions):15x16 15 16 // 𦄿
 // ⿰ han-7cf9-($-1) han-9ed1 // ⿰糹黑
 
+// glyph han-26143-($han-regions):15x16 15 16 // 𦅃 ⿰糹焦(GT) ⿰糸焦(P)
+// ⿰ han-7cf9-($-1) han-7126 // ⿰糹焦
+
 // glyph han-26145:15x16 15 16 // 𦅅
 // ⿰ han-7cf9 han-7ae5 // ⿰糹童
 
@@ -589,6 +592,11 @@ glyph han-26214:15x16 15 16 // 𦈔
 
 // glyph han-26217-($han-regions):15x16 15 16 // 𦈗
 // ⿰ han-7e9f han-532a-($-1) // ⿰纟匪
+
+## 120'.12
+
+// glyph han-2621c:15x16 15 16 // 𦈜
+// ⿰ han-7e9f han-96c6 // ⿰纟集
 
 ## 120'.14
 

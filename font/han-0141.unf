@@ -892,6 +892,9 @@ glyph han-87e0:15x16 15 16 // 蟠
 ⿰ han-866b:5x16 1 han-756a:9x16 // ⿰虫番
 glyph han-87e0.0:* = han-87e0:*
 
+// glyph han-87ed:15x16 15 16 // 蟭
+// ⿰ han-866b han-7126 // ⿰虫焦
+
 glyph han-87ef:15x16 15 16 // 蟯
 ⿰ han-866b:5x16 1 han-582f:9x16 // ⿰虫堯
 glyph han-87ef.0:* = han-87ef:*
@@ -941,8 +944,10 @@ glyph han-8830.0:* = han-8830:*
 
 ## 142.18
 
-glyph han-8838:15x16 15 16 // 蠸
-⿰ han-866b:5x16 1 han-96da:9x16 // ⿰虫雚
+glyph han-8838-(g|k|p):15x16 15 16 // 蠸
+⿰ han-866b:5x16 1 han-96da.0:9x16 // ⿰虫雚
+glyph han-8838-(h|t|j):15x16 15 16 // 蠸
+⿰ han-866b:5x16 1 han-96da.1:9x16 // ⿰虫雚
 
 ## 142.19
 
@@ -1649,6 +1654,9 @@ $$..@@H_h/....\0@@
 
 // glyph han-894b-($han-regions):15x16 15 16 // 襋
 // ⿰ han-8864-($-1) han-68d8 // ⿰衤棘
+
+// glyph han-894d-($han-regions):15x16 15 16 // 襍
+// ⿰ han-8864-($-1) han-96c6 // ⿰衤集
 
 glyph han-894e-($han-regions):15x16 15 16 // 襎
 ⿰ han-8864-($-1):5x14 1 han-756a:9x16 // ⿰衤番

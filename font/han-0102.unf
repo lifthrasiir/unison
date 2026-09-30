@@ -1535,6 +1535,9 @@ glyph han-760b.0:* = han-760b:*
 
 ## 104.12
 
+// glyph han-7644:15x16 15 16 // 癄
+// ⿸ han-7592 han-7126 // ⿸疒焦
+
 // glyph han-7647:15x16 15 16 // 癇
 // ⿸ han-7592 han-9592 // ⿸疒閒
 
@@ -1560,6 +1563,11 @@ glyph han-764c.0:* = han-764c:*
 
 // glyph han-7663:15x16 15 16 // 癣
 // ⿸ han-7592 han-9c9c // ⿸疒鲜
+
+## 104.16
+
+// glyph han-7668-($han-regions):15x16 15 16 // 癨
+// ⿸ han-7592 han-970d-($-1) // ⿸疒霍
 
 ## 104.17
 
@@ -2175,6 +2183,11 @@ glyph han-769d.0:* = han-769d:*
 // glyph han-769e:15x16 15 16 // 皞
 // ⿰ han-767d han-768b // ⿰白皋
 
+## 106.11
+
+// glyph han-76a0:15x16 15 16 // 皠
+// ⿰ han-767d han-5d14 // ⿰白崔
+
 ## 106.12
 
 glyph han-76a2:15x16 15 16 // 皢
@@ -2188,6 +2201,11 @@ glyph han-76a4:15x16 15 16 // 皤
 
 // glyph han-76a8:15x16 15 16 // 皨
 // ⿳ han-767d han-3fdf han-571f // ⿳白㿟土 <- ⿱皛土
+
+## 106.16
+
+// glyph han-76ac-($han-regions):15x16 15 16 // 皬
+// ⿰ han-767d han-970d-($-1) // ⿰白霍
 
 # CJK unified ideographs: 皮 (107)
 
@@ -3300,7 +3318,7 @@ glyph han-7793:15x16 15 16 // 瞓
 // ⿰ han-76ee han-7ae0 // ⿰目章
 
 glyph han-7797:15x16 15 16 // 瞗
-⿰ han-76ee:7x16 1 han-9ce5:7x16 // ⿰目鳥
+⿰ han-76ee:5x13-l 1 han-9ce5:9x16 // ⿰目鳥
 
 // glyph han-7798:15x16 15 16 // 瞘
 // ⿰ han-76ee han-5340 // ⿰目區
@@ -3309,7 +3327,8 @@ glyph han-7797:15x16 15 16 // 瞗
 // ⿰ han-76ee han-83ab // ⿰目莫
 
 glyph han-779f:15x16 15 16 // 瞟
-⿰ han-76ee:7x16 1 han-7968:7x16 // ⿰目票
+⿰ han-76ee:5x13-l 1 han-7968:9x16 // ⿰目票
+glyph han-779f.0:* = han-779f:*
 
 glyph han-77a1:15x16 15 16 // 瞡
 ⿲ -2 han-76ee:3x13-l han-592b:9x16 han-898b:5x16 // ⿲目夫見
@@ -3321,6 +3340,9 @@ glyph han-77a1:15x16 15 16 // 瞡
 
 glyph han-77a4:15x16 15 16 // 瞤
 ⿰ han-76ee:3x13-l 1 han-958f:11x16 // ⿰目閏
+
+// glyph han-77a7:15x16 15 16 // 瞧
+// ⿰ han-76ee han-7126 // ⿰目焦
 
 glyph han-77af:15x16 15 16 // 瞯
 ⿰ han-76ee:3x13-l 1 han-9592:11x16 // ⿰目閒
@@ -3351,10 +3373,19 @@ glyph han-77b7:15x16 15 16 // 瞷
 // glyph han-77c2:15x16 15 16 // 矂
 // ⿰ han-76ee han-55bf // ⿰目喿
 
+## 109.16
+
+// glyph han-77d0-($han-regions):15x16 15 16 // 矐
+// ⿰ han-76ee han-970d-($-1) // ⿰目霍
+
 ## 109.18
 
-glyph han-77d4:15x16 15 16 // 矔
-⿰ han-76ee:6x16 1 han-96da:8x16 // ⿰目雚
+glyph han-77d4.0:15x16 15 16 // 矔
+⿰ han-76ee:6x16 han-96da.0:9x16 // ⿰目雚
+glyph han-77d4.1:15x16 15 16 // 矔
+⿰ han-76ee:6x16 han-96da.1:9x16 // ⿰目雚
+glyph han-77d4-(g|k|p):* = han-77d4.0:*
+glyph han-77d4-(h|t|j):* = han-77d4.1:*
 
 ## 109.19
 

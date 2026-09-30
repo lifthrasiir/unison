@@ -647,8 +647,10 @@ glyph han-232e9:15x16 15 16 // 𣋩
 // glyph han-2330d:15x16 15 16 // 𣌍
 // ⿰ han-65e5 han-8076 // ⿰日聶
 
-glyph han-23313:15x16 15 16 // 𣌓
-⿰ han-65e5:5x16 1 han-96da:9x16 // ⿰日雚
+glyph han-23313-g:15x16 15 16 // 𣌓
+⿰ han-65e5:6x12 han-96da.0:9x16 // ⿰日雚
+glyph han-23313-(t|j):15x16 15 16 // 𣌓
+⿰ han-65e5:6x12 han-96da.1:9x16 // ⿰日雚
 
 # CJK unified ideographs extension B: 曰 (73)
 

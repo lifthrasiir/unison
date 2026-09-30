@@ -909,6 +909,9 @@ glyph han-7e39.0:* = han-7e39-j:*
 // glyph han-7e3b:15x16 15 16 // 縻 ⿸麻糸(GHTKP) ⿸广⿱𣏟糸(J)
 // ⿸ han-9ebb han-7cf8 // ⿸麻糸
 
+// glyph han-7e40-($han-regions):15x16 15 16 // 繀 ⿰糹崔(GHT) ⿰糸崔(P)
+// ⿰ han-7cf9-($-1) han-5d14 // ⿰糹崔
+
 // glyph han-7e43:15x16 15 16 // 繃 ⿰糹崩(GHT) ⿰糸崩(JKP)
 // ⿰ han-7cf9 han-5d29 // ⿰糹崩
 

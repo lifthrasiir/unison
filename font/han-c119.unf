@@ -803,11 +803,19 @@ glyph han-2b2c1:15x16 15 16 // 𫋁
 
 ## 142.11
 
+// glyph han-2b2d7:15x16 15 16 // 𫋗
+// ⿰ han-866b han-96c0 // ⿰虫雀
+
 glyph han-2b2d8:15x16 15 16 // 𫋘
 ⿲ han-866b:5x16 han-7cf9-j:5x14 han-7530:5x16 // ⿲虫糹田
 
 glyph han-2b2d9:15x16 15 16 // 𫋙 ⿰虫強(V) ⿰虫强(Z)
 ⿲ han-866b:5x16 1 han-5f13:4x16 han-27227:5x16 // ⿲虫弓𧈧
+
+## 142.12
+
+// glyph han-2b2dd:15x16 15 16 // 𫋝
+// ⿰ han-866b han-96c6 // ⿰虫集
 
 ## 142.16
 

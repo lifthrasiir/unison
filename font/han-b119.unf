@@ -332,6 +332,9 @@ glyph han-25efb:15x16 15 16 // 𥻻
 
 ## 119.11
 
+// glyph han-25f02:15x16 15 16 // 𥼂
+// ⿰ han-7c73 han-5d14 // ⿰米崔
+
 // glyph han-25f0f:15x16 15 16 // 𥼏
 // ⿲ han-7c73 han-8eca han-725b // ⿲米車牛
 
@@ -342,6 +345,9 @@ glyph han-25efb:15x16 15 16 // 𥻻
 // ⿰ han-7c73 han-7b20 // ⿰米笠
 
 ## 119.12
+
+// glyph han-25f1a:15x16 15 16 // 𥼚
+// ⿰ han-7c73 han-7126 // ⿰米焦
 
 // glyph han-25f1b:15x16 15 16 // 𥼛
 // ⿳ han-6bdb han-3c8e han-7c73 // ⿳毛㲎米 <- ⿱毳米
@@ -396,6 +402,11 @@ glyph han-25f41-($han-regions):15x16 15 16 // 𥽁 ⿰米飲(GT) ⿰米⿰食欠
 
 // glyph han-25f63-($han-regions):15x16 15 16 // 𥽣
 // ⿰ han-7c73 han-290cf-($-1) // ⿰米𩃏
+
+## 119.16
+
+// glyph han-25f65-($han-regions):15x16 15 16 // 𥽥
+// ⿰ han-7c73 han-970d-($-1) // ⿰米霍
 
 ## 119.17
 

@@ -166,8 +166,8 @@ glyph han-21b57:15x16 15 16 // 𡭗
 // glyph han-21b59:15x16 15 16 // 𡭙 ⿱⺌𠔼(G) ⿱𡭔𠔼(T)
 // ⿱ han-21b54 han-2053c // ⿱𡭔𠔼
 
-// glyph han-21b5a:15x16 15 16 // 𡭚
-// ⿱ han-4e09 han-5c0f // ⿱三小
+glyph han-21b5a:15x16 15 16 // 𡭚
+⿱ han-4e09:15x9 han-5c0f:15x7 // ⿱三小
 
 glyph han-21b5b-($han-regions):15x16 15 16 // 𡭛
 ⿱ han-5c0f-or-21b54-($-1):15x7 han-5efe:15x9 // ⿱𡭔廾

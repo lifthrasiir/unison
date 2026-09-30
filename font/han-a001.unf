@@ -1088,6 +1088,9 @@ glyph han-35de.0:* = han-35de:*
 
 ## 30.12
 
+// glyph han-35f1:15x16 15 16 // 㗱
+// ⿰ han-53e3 han-96c6 // ⿰口集
+
 glyph han-35f4.0:15x16 15 16 // 㗴
 ⿰ han-53e3:3x12 1 han-9593:11x16 // ⿰口間
 glyph han-35f4.1:* = han-35f4.0:*
@@ -1101,6 +1104,9 @@ glyph han-35f5:15x16 15 16 // 㗵
 
 // glyph han-35f8:15x16 15 16 // 㗸
 // ⿰ han-53e3 han-4616 // ⿰口䘖
+
+// glyph han-35f9:15x16 15 16 // 㗹
+// ⿰ han-53e3 han-226e7 // ⿰口𢛧
 
 ## 30.13
 
@@ -1248,6 +1254,11 @@ glyph han-365c:15x16 15 16 // 㙜
 
 glyph han-365f:15x16 15 16 // 㙟
 ⿲ han-571f:3x13-l han-826f.0:7x16 han-6708:5x16 // ⿲土良月
+
+## 32.12
+
+// glyph han-366b:15x16 15 16 // 㙫
+// ⿰ han-571f han-96c6 // ⿰土集
 
 ## 32.13
 
@@ -1541,6 +1552,9 @@ glyph han-371b:15x16 15 16 // 㜛
 
 // glyph han-371e:15x16 15 16 // 㜞
 // ⿱ han-65ac han-5973 // ⿱斬女
+
+// glyph han-3720:15x16 15 16 // 㜠
+// ⿰ han-5973 han-5d14 // ⿰女崔
 
 # CJK unified ideographs extension A: 子 (39)
 

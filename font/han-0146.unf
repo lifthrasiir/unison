@@ -554,8 +554,13 @@ glyph han-89a9-j:15x16 15 16 // 覩 ⿰者見(GHTKPV) ⿰⿻者丶見(J)
 
 ## 147.18
 
-glyph han-89c0:15x16 15 16 // 觀
-⿰ han-96da:8x16 han-898b:7x16 // ⿰雚見
+glyph han-89c0-($han-regions):15x16 15 16 // 觀
+⿰ han-96da-($-1):8x16 han-898b:7x16 // ⿰雚見
+glyph han-89c0.0:* = han-89c0-g:*
+glyph han-89c0.1:* = han-89c0-g:*
+glyph han-89c0.2:* = han-89c0-h:*
+glyph han-89c0.3:15x16 15 16 // 觀
+⿰ han-96da.3:8x16 han-898b:7x16 // ⿰雚見
 
 # CJK unified ideographs: 角 (148)
 
@@ -1817,6 +1822,9 @@ glyph han-8b52-($han-regions):15x16 15 16 // 譒
 ⿰ han-8a01-($-1):5x16 1 han-756a:9x16 // ⿰訁番
 glyph han-8b52.0:* = han-8b52-j:*
 
+// glyph han-8b59-($han-regions):15x16 15 16 // 譙
+// ⿰ han-8a01-($-1) han-7126 // ⿰訁焦
+
 glyph han-9fbb:15x16 15 16 // 龻
 ⿲ han-7cf9-g:5x14 han-8a00.x:5x16 han-7cf9-g:5x14 // ⿲糹言糹
 
@@ -1869,9 +1877,11 @@ glyph han-8b93.0:* = han-8b93-j:*
 // ⿰ han-8a01-($-1) han-8076 // ⿰訁聶
 
 glyph han-8b99-($han-regions):15x16 15 16 // 讙
-⿰ han-8a01-($-1):5x16 1 han-96da:9x16 // ⿰訁雚
+⿰ han-8a01-($-1):5x16 1 han-96da-($-1):9x16 // ⿰訁雚
 glyph han-8b99.0:* = han-8b99-j:*
 glyph han-8b99.1:* = han-8b99-j:*
+glyph han-8b99.2:15x16 15 16 // 讙
+⿰ han-8a01.0:5x16 1 han-96da.1:9x16 // ⿰訁雚
 
 # CJK unified ideographs: 讠 (149')
 
@@ -2139,3 +2149,8 @@ glyph han-8c19:15x16 15 16 // 谙
 
 glyph han-8c2c:15x16 15 16 // 谬
 ⿰ han-8ba0:5x14 1 han-7fcf:9x16 // ⿰讠翏
+
+## 149'.12
+
+// glyph han-8c2f:15x16 15 16 // 谯
+// ⿰ han-8ba0 han-7126 // ⿰讠焦

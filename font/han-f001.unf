@@ -719,7 +719,7 @@ glyph han-2d002:15x16 15 16 // 𭀂
 // ⿰ han-4ebb han-982d // ⿰亻頭
 
 glyph han-2d008:15x16 15 16 // 𭀈
-⿲ han-4ebb:3x16 han-7530:5x16 han-9ce5:7x16 // ⿲亻田鳥
+assume ⿲ han-4ebb:3x16 han-7530:5x16 han-9ce5:7x16 // ⿲亻田鳥
 
 glyph han-2d00a:15x16 15 16 // 𭀊
 ⿲ han-4ebb:3x16 han-767d:4x16 1 han-9ce5:7x16 // ⿲亻白鳥
@@ -1212,7 +1212,7 @@ glyph han-2d113:15x16 15 16 // 𭄓
 ## 18.22
 
 glyph han-2d11d:15x16 15 16 // 𭄝
-⿲ -3 han-5200:5x16 han-96da:7x16 1 han-6b20:5x16 // ⿲刀雚欠
+⿲ -2 han-5200:5x16 han-96da-g:7x16 han-6b20:5x16 // ⿲刀雚欠
 
 # CJK unified ideographs extension F: 力 (19)
 

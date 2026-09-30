@@ -510,7 +510,7 @@ glyph han-7ff2-($han-regions):15x16 15 16 // 翲
 // ⿰ han-7fbd-($-1) han-9023-($-1) // ⿰羽連
 
 glyph han-7ff5-($han-regions):15x16 15 16 // 翵
-⿰ han-7fbd-($-1):7x16 1 han-9ce5:7x16 // ⿰羽鳥
+⿰ han-7fbd-($-1):6x16 1 han-9ce5:8x16 // ⿰羽鳥
 
 ## 124.12
 
@@ -1960,6 +1960,9 @@ glyph han-8183.0:* = han-8183:*
 // glyph han-8192:15x16 15 16 // 膒 ⿰月區(GP) ⿰⺼區(T)
 // ⿰ han-6708 han-5340 // ⿰月區
 
+// glyph han-8197:15x16 15 16 // 膗 ⿰月崔(GKP) ⿰⺼崔(HT)
+// ⿰ han-6708 han-5d14 // ⿰月崔
+
 glyph han-8198:15x16 15 16 // 膘
 ⿰ han-6708:5x14-l 1 han-7968:9x16 // ⿰月票
 glyph han-8198.0:* = han-8198:*
@@ -1991,6 +1994,9 @@ glyph han-81b0:15x16 15 16 // 膰
 ⿰ han-6708:5x14-l 1 han-756a:9x16 // ⿰月番
 glyph han-81b0.0:* = han-81b0:*
 
+// glyph han-81b2:15x16 15 16 // 膲 ⿰月焦(GJKP) ⿰⺼焦(HT)
+// ⿰ han-6708 han-7126 // ⿰月焦
+
 // glyph han-81b6:15x16 15 16 // 膶 ⿰月閏(G) ⿰⺼閏(H)
 // ⿰ han-6708 han-958f // ⿰月閏
 
@@ -2007,6 +2013,11 @@ glyph han-81b0.0:* = han-81b0:*
 glyph han-81d1:15x16 15 16 // 臑
 ⿰ han-6708:5x14-l 1 han-9700:9x16 // ⿰月需
 glyph han-81d1.0:* = han-81d1:*
+
+## 130.16
+
+// glyph han-81db-($han-regions):15x16 15 16 // 臛 ⿰月霍(GJKP) ⿰⺼霍(HT)
+// ⿰ han-6708 han-970d-($-1) // ⿰月霍
 
 ## 130.19
 

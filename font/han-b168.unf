@@ -483,6 +483,9 @@ glyph han-28d3c:15x16 15 16 // 𨴼
 // glyph han-28daf:15x16 15 16 // 𨶯
 // ⿵ han-9580 han-9ed1 // ⿵門黑
 
+// glyph han-28db2:15x16 15 16 // 𨶲
+// ⿵ han-9580 han-7126 // ⿵門焦
+
 // glyph han-28db3-($han-regions):15x16 15 16 // 𨶳
 // ⿵ han-9580 han-8996-($-1) // ⿵門視
 
@@ -564,3 +567,8 @@ glyph han-28e03:15x16 15 16 // 𨸃
 
 // glyph han-28e05:15x16 15 16 // 𨸅
 // ⿵ han-95e8 han-81f3 // ⿵门至
+
+## 169'.12
+
+// glyph han-28e0b:15x16 15 16 // 𨸋
+// ⿵ han-95e8 han-7126 // ⿵门焦

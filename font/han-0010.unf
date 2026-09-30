@@ -2219,6 +2219,11 @@ glyph han-51d3:15x16 15 16 // 凓
 // glyph han-51d6:15x16 15 16 // 凖
 // ⿱ han-51c6 han-5341 // ⿱准十
 
+## 15.11
+
+// glyph han-51d7:15x16 15 16 // 凗
+// ⿰ han-51ab han-5d14 // ⿰冫崔
+
 ## 15.12
 
 glyph han-51d8:15x16 15 16 // 凘
@@ -3591,6 +3596,11 @@ glyph han-527d.0:* = han-527d:*
 // glyph han-527e:15x16 15 16 // 剾
 // ⿰ han-5340 han-5202 // ⿰區刂
 
+## 18.12
+
+// glyph han-5281:15x16 15 16 // 劁
+// ⿰ han-7126 han-5202 // ⿰焦刂
+
 ## 18.13
 
 // glyph han-528b:15x16 15 16 // 劋
@@ -3969,7 +3979,7 @@ glyph han-52a9:15x16 15 16 // 助
 // ⿰ han-53bb han-529b // ⿰去力
 
 glyph han-52ac:15x16 15 16 // 劬
-⿰ han-53e5:7x16 han-529b:8x16 // ⿰句力
+⿰ han-53e5:8x16 han-529b:7x16 // ⿰句力
 glyph han-52ac.0:* = han-52ac:*
 
 glyph han-52ad:15x16 15 16 // 劭
@@ -4151,8 +4161,15 @@ glyph han-52f7.0:* = han-52f7:*
 
 ## 19.18
 
-glyph han-52f8:15x16 15 16 // 勸
-⿰ han-96da:8x16 1 han-529b:6x16 // ⿰雚力
+glyph han-52f8-($han-regions):15x16 15 16 // 勸
+⿰ han-96da-($-1):8x16 han-529b:7x16 // ⿰雚力
+glyph han-52f8.0:* = han-52f8-g:*
+glyph han-52f8.1:* = han-52f8-g:*
+glyph han-52f8.2:* = han-52f8-h:*
+glyph han-52f8.3:15x16 15 16 // 勸
+⿰ han-96da.x:8x16 han-529b:7x16 // ⿰雚力
+glyph han-52f8.4:* = han-52f8.0:*
+glyph han-52f8.5:* = han-52f8.3:*
 
 # CJK unified ideographs: 勹 (20)
 

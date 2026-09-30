@@ -522,6 +522,9 @@ glyph han-20326:15x16 15 16 // 𠌦
 // glyph han-2032b:15x16 15 16 // 𠌫
 // ⿰ han-4ebb han-7562 // ⿰亻畢
 
+// glyph han-20331:15x16 15 16 // 𠌱
+// ⿰ han-4ebb han-595e // ⿰亻奞
+
 glyph han-20332:15x16 15 16 // 𠌲
 ⿲ han-4ebb:3x16 han-8eca:5x16 han-65a4:7x16 // ⿲亻車斤
 
@@ -559,6 +562,9 @@ glyph han-20363:15x16 15 16 // 𠍣
 
 // glyph han-20370:15x16 15 16 // 𠍰
 // ⿲ han-4ebb han-27fb7 han-5bfa // ⿲亻𧾷寺
+
+// glyph han-20371:15x16 15 16 // 𠍱
+// ⿰ han-4ebb han-96c6 // ⿰亻集
 
 // glyph han-20377:15x16 15 16 // 𠍷
 // ⿰ han-4ebb han-68d8 // ⿰亻棘
@@ -647,6 +653,11 @@ glyph han-20415:15x16 15 16 // 𠐕
 // glyph han-20422-($han-regions):15x16 15 16 // 𠐢
 // ⿲ han-4ebb han-7fd2-($-1) han-5143 // ⿲亻習元
 
+## 9.16
+
+// glyph han-20436-($han-regions):15x16 15 16 // 𠐶
+// ⿰ han-4ebb han-970d-($-1) // ⿰亻霍
+
 ## 9.17
 
 glyph han-2043e:15x16 15 16 // 𠐾
@@ -660,7 +671,7 @@ glyph han-20452:15x16 15 16 // 𠑒
 ## 9.20
 
 glyph han-20467:15x16 15 16 // 𠑧
-⿲ han-4ebb:3x16 han-96da:7x16 han-529b:5x16 // ⿲亻雚力
+assume ⿲ han-4ebb:3x16 -1 han-96da-t:8x16 han-529b:5x16 // ⿲亻雚力
 
 ## 9.21
 

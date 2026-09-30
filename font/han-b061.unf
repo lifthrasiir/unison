@@ -520,8 +520,8 @@ glyph han-226df:15x16 15 16 // 𢛟
 // glyph han-226e5:15x16 15 16 // 𢛥
 // ⿸ han-5c38 han-601d // ⿸尸思
 
-// glyph han-226e7:15x16 15 16 // 𢛧
-// ⿱ han-96b9 han-5fc3 // ⿱隹心
+glyph han-226e7:15x16 15 16 // 𢛧
+⿱ han-96b9:15x9 han-5fc3:15x7 // ⿱隹心
 
 // glyph han-226eb:15x16 15 16 // 𢛫
 // ⿳ han-4ea0 han-8980 han-5fc3 // ⿳亠覀心
@@ -747,6 +747,9 @@ glyph han-227d9:15x16 15 16 // 𢟙
 ⿲ han-5fc4:5x16 han-91d2:7x16 han-5341:3x16 // ⿲忄釒十
 
 ## 61.11
+
+// glyph han-227e0:15x16 15 16 // 𢟠
+// ⿰ han-5fc4 han-595e // ⿰忄奞
 
 // glyph han-227eb:15x16 15 16 // 𢟫
 // ⿰ han-5fc4 han-3760 // ⿰忄㝠

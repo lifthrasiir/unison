@@ -1057,6 +1057,9 @@ glyph han-214cf:15x16 15 16 // 𡓏
 // glyph han-214d0:15x16 15 16 // 𡓐
 // ⿰ han-571f han-5669 // ⿰土噩
 
+// glyph han-214d8-($han-regions):15x16 15 16 // 𡓘
+// ⿰ han-571f han-970d-($-1) // ⿰土霍
+
 ## 32.18
 
 // glyph han-214f3:15x16 15 16 // 𡓳

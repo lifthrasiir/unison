@@ -1145,8 +1145,11 @@ glyph han-840c.3:* = han-840c-h:*
 // glyph han-840e:15x16 15 16 // 萎
 // ⿳ han-8279 han-79be han-5973 // ⿳艹禾女 <- ⿱艹委
 
-// glyph han-8411:15x16 15 16 // 萑
-// ⿱ han-8279 han-96b9 // ⿱艹隹
+glyph han-8411-($han-regions):15x16 15 16 // 萑
+⿱ han-8279-($-1):15x3 1 han-96b9:15x12 // ⿱艹隹
+glyph han-8411.0:* = han-8411-g:*
+glyph han-8411.1:* = han-8411-g:*
+glyph han-8411.2:* = han-8411-h:*
 
 glyph han-8413-($han-regions):15x16 15 16 // 萓
 ⿳ han-8279-($-1):15x3 han-5b80:15x4 -1 han-4e14:15x10 // ⿳艹宀且

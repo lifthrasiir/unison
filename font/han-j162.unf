@@ -116,6 +116,9 @@ glyph han-33156:15x16 15 16 // 𳅖
 // glyph han-3315d:15x16 15 16 // 𳅝
 // ⿱ han-65ac han-9149 // ⿱斬酉
 
+// glyph han-3315f:15x16 15 16 // 𳅟
+// ⿰ han-9149 han-96c0 // ⿰酉雀
+
 # CJK unified ideographs extension J: 釆 (165)
 
 ## 165.3
@@ -269,6 +272,11 @@ glyph han-331b6:15x16 15 16 // 𳆶
 
 // glyph han-331c2-($han-regions):15x16 15 16 // 𳇂
 // ⿰ han-91d2 han-2252a-($-1) // ⿰釒𢔪
+
+## 167.13
+
+// glyph han-331c9:15x16 15 16 // 𳇉
+// ⿰ han-91d2 han-435c // ⿰釒䍜
 
 ## 167.14
 
@@ -999,7 +1007,7 @@ glyph han-33395:15x16 15 16 // 𳎕
 ## 196.5
 
 glyph han-333ab:15x16 15 16 // 𳎫
-⿰ han-4e16:7x16 1 han-9ce5:7x16 // ⿰世鳥
+⿰ han-4e16:7x16 han-9ce5:8x16 // ⿰世鳥
 
 // glyph han-333ad:15x16 15 16 // 𳎭
 // ⿰ han-53e6 han-9ce5 // ⿰另鳥
@@ -1092,6 +1100,9 @@ glyph han-333d7:15x16 15 16 // 𳏗
 
 // glyph han-333e8:15x16 15 16 // 𳏨
 // ⿰ han-6b3d han-9ce5 // ⿰欽鳥
+
+// glyph han-333e9:15x16 15 16 // 𳏩
+// ⿰ han-9ce5 han-24299 // ⿰鳥𤊙
 
 ## 196.13
 

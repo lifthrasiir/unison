@@ -379,6 +379,9 @@ glyph han-2977d-(t|j|p):15x16 15 16 // 𩝽 ⿰飠强(G) ⿰飠強(TP)
 // glyph han-29781-($han-regions):15x16 15 16 // 𩞁 ⿸麻食(GT) ⿱麻食(P)
 // ⿸ han-9ebb-($-1) han-98df-($-1) // ⿸麻食
 
+// glyph han-29785-($han-regions):15x16 15 16 // 𩞅
+// ⿰ han-98e0-($-1) han-5d14 // ⿰飠崔
+
 // glyph han-2978c-($han-regions):15x16 15 16 // 𩞌
 // ⿱ han-6b36 han-98df-($-1) // ⿱欶食
 
@@ -416,6 +419,11 @@ glyph han-297bb-($han-regions):15x16 15 16 // 𩞻
 
 // glyph han-297e2:15x16 15 16 // 𩟢
 // ⿰ han-98e0 han-84b2 // ⿰飠蒲
+
+## 184.16
+
+// glyph han-297ef-($han-regions):15x16 15 16 // 𩟯
+// ⿰ han-98e0-($-1) han-970d-($-1) // ⿰飠霍
 
 # CJK unified ideographs extension B: 饣 (184')
 

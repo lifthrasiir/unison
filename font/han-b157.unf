@@ -520,6 +520,9 @@ glyph han-280fa:15x16 15 16 // 𨃺
 // glyph han-2810c-($han-regions):15x16 15 16 // 𨄌
 // ⿰ han-27fb7 han-7fd2-($-1) // ⿰𧾷習
 
+// glyph han-2810d:15x16 15 16 // 𨄍
+// ⿰ han-27fb7 han-5d14 // ⿰𧾷崔
+
 // glyph han-2810e:15x16 15 16 // 𨄎
 // ⿰ han-27fb7 han-57fa // ⿰𧾷基
 
@@ -531,6 +534,9 @@ glyph han-28119:15x16 15 16 // 𨄙
 
 // glyph han-2811f:15x16 15 16 // 𨄟
 // ⿱ han-5806 han-8db3 // ⿱堆足
+
+// glyph han-28124:15x16 15 16 // 𨄤
+// ⿰ han-27fb7 han-96c0 // ⿰𧾷雀
 
 // glyph han-2812c:15x16 15 16 // 𨄬
 // ⿸ han-9ebb han-8db3 // ⿸麻足
