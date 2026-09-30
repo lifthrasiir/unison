@@ -47,7 +47,7 @@ pub enum AuditEntry {
     IdealClearance { prefix: String, band: ClearanceBand },
     /// `max-contact-run PREFIX* N` — how many consecutive lines two neighbouring
     /// parts of an IDC line may touch along before the layout owes them a cell
-    /// of clearance. See [`MaxContactRuns`] and [`crate::compose::contact_run`].
+    /// of clearance. See [`MaxContactRuns`] and [`crate::compose::contact_run`](crate::compose::gap::contact_run).
     MaxContactRun { prefix: String, max: u16 },
     /// `ref-image-path PATH` — the directory holding one reference strip per
     /// code point, as a path relative to the file this line is written in. The
@@ -318,7 +318,7 @@ impl ClearanceBand {
 /// (which want parting) from a pair that meets at a tip (which does not). It
 /// says nothing about hardblanks and needs none: a hardblank that has already
 /// parted two parts leaves no ink touching for this to count. See
-/// [`crate::compose::contact_run`].
+/// [`crate::compose::contact_run`](crate::compose::gap::contact_run).
 ///
 /// It says its piece *as* a clearance — the junction reports a cell less — so
 /// it is in force only where an `audit ideal-clearance` rule reaches the same

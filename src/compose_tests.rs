@@ -1,7 +1,11 @@
 //! Tests for the IDC line and the variant name rule.
 
+use super::enclosure::cavity_fits;
+use super::gap::{ContactDemand, contact_demand, contact_run, facing_offset};
+use super::ink::{InkLine, WallFace};
 use super::*;
-use crate::document::{ComposeItem, GlyphCompose};
+use crate::document::{ComposeItem, GlyphCompose, GlyphRef, Margin, PixelGrid};
+use crate::issues::Severity;
 
 /// One `audit ideal-clearance` band, as a test writes it: the same range for a
 /// split and for an enclosure, which is what a source stating one pair means.

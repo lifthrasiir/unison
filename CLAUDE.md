@@ -80,7 +80,7 @@ Core (feature-independent):
 | `document/`, `document_io.rs` | The `.unf` data model, parser and serializer. `document_io.rs` is where the syntax the parser reads is spelled out; `doc/reference.md` is the user-facing reference. |
 | `pattern.rs`, `exists.rs`, `alias.rs`, `merge.rs` | Name expansion, the `exists` search, `glyph A = B`, and implicit merges of one pattern block. |
 | `pixel.rs`, `detail.rs`, `on_demand.rs`, `math.rs` | Shape codes, exact sub-pixel geometry, synthesized shapes, gcd. |
-| `ref_composite/`, `compose.rs` | Composite (`ref`) resolution and the IDC lines. |
+| `ref_composite/`, `compose/` | Composite (`ref`) resolution and the IDC lines. |
 | `faces.rs`, `meta.rs`, `audit.rs`, `samples.rs`, `ucd.rs` | The non-glyph directives: faces/slices, `meta`, `audit`, `sample`, `prop`. |
 | `resolve.rs`, `glyph_flags.rs`, `issues/` | Diagnostics: shared vocabulary, per-glyph flags, and the cross-document checks (one module per check). |
 | `fix/` | `uniform fix`: the commands that rewrite the source. |
@@ -115,7 +115,7 @@ module; the suites that outgrew one:
 | `issues/` | `issues/issues_tests.rs` |
 | `ref_composite/` | `ref_composite/ref_composite_tests.rs` |
 | `editor/document_view/` | `document_view/tests.rs` (helpers) and `editor/view_tests/` (harness scenarios) |
-| `exists.rs`, `pixel.rs`, `specimen.rs`, `meta.rs`, `faces.rs`, `on_demand.rs`, `compose.rs`, `fix/clearance/`, `render/sample.rs`, `render/reach.rs`, `editor/pixel_selection.rs`, `editor/ref_images.rs`, `editor/glyph_resize.rs`, `app/search.rs`, `app/palette.rs` | `<name>_tests.rs` beside the module |
+| `exists.rs`, `pixel.rs`, `specimen.rs`, `meta.rs`, `faces.rs`, `on_demand.rs`, `compose/`, `fix/clearance/`, `render/sample.rs`, `render/reach.rs`, `editor/pixel_selection.rs`, `editor/ref_images.rs`, `editor/glyph_resize.rs`, `app/search.rs`, `app/palette.rs` | `<name>_tests.rs` beside the module |
 
 ## Where the bugs come from
 

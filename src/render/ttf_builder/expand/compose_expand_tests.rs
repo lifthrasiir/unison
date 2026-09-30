@@ -1,5 +1,5 @@
 //! The diagnostics an IDC line produces once its components have been looked
-//! up — which is here rather than in `compose.rs`, because whether a component
+//! up — which is here rather than in `compose/`, because whether a component
 //! name resolves is a question only the whole expansion can answer.
 
 use crate::document_io::parse_document_from_str;

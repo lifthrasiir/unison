@@ -69,7 +69,7 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Where a scoped item is expanded, and why a source-side check reads a scoped `map`'s output but a scoped block's own line | `/mod.rs` (`expand_inner`), `issues/mod.rs` (`Cx::source_items`) |
 | Why two matched names of one glyph are not an error, and where an indistinguishable pair is caught | `exists.rs` (`# What is searched`), `issues/remap.rs` (the duplicate scan) |
 | `glyph A = B`: one glyph id, two names; where each stage canonicalizes | `alias.rs` |
-| Why an IDC component keeps its written name past canonicalization | `alias.rs`, `compose.rs` (`expand_compose`) |
+| Why an IDC component keeps its written name past canonicalization | `alias.rs`, `compose/split.rs` (`expand_compose`) |
 | Several names of one pattern block turning out to be one glyph; why two blocks never merge; why a merge is decided on names; which glyph a `remap` stops from merging; `keep` as the opt-out | `merge.rs` |
 | Why a scoped block's matches are still one merge candidate set | `merge.rs` (`collect_blocks`) |
 | What a pattern glyph block shares with every name it declares | `document/name_parts.rs` (`expand_glyph_block`) |
@@ -89,26 +89,26 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Why a precomposed mark and a shaped one attach by the same rule, and the exact-before-holds tier only the composite has | `ref_composite/anchors.rs` (`Fit`, `aligned_delta`), `render/ttf_builder/gpos.rs` (`slot_holds`) |
 | Why an anchor error drops the glyph (and its cmap entry), like a missing ref | `render/glyph_cache.rs` (`resolve_pending`) |
 | Why a glyph the build drops silently is still accounted for, and the test that pins it | `issues/anchors.rs` (`check_anchor_derivation`), `issues/issues_tests.rs` |
-| `⿰⿱⿲⿳`: the split, the gap term, why the offsets are derived rather than written | `compose.rs` |
-| Why a split fills the box and not the grid, and so moves with a declared `origin` | `compose.rs` (`Raster`, `expand_compose`) |
-| `1\|foo\|1\|bar\|1`: a nested split in a slot, the glyph it stands for, why its box is inferred rather than declared, where its ink comes from, and why the fixer lays it out as one part without going inside | `compose.rs` (`# Nested splits`, `nested_line`, `nested_key`), `/compose.rs` (`ink_profiles`), `fix/clearance/names.rs` (`slot_names`), `fix/clearance/inventory.rs` (`Inventory::register_nested`), `document/glyph.rs` (`ComposeItem::Nested`) |
-| `margin-x L\|R` / `margin-y T\|B`: why a part states its default padding, why only across the axis and only in a glyph's own line, and where the padded part is measured | `compose.rs` (`# A part's margin`, `padding_across`, `outer_padding`, `cavity_fits`), `document/glyph.rs` (`Margin`), `fix/clearance/inventory.rs` (`Candidate::side`, `EnclosurePart::at`) |
-| `assume ⿰ …`: why an assumed line drops its clearance chores and nothing else, and the one reader of the keyword | `compose.rs` (`# An assumed line`, `IdcOp::of_line`) |
-| `⿴⿵⿶⿷⿸⿹⿺⿼⿽`: which sides an enclosure fills, and why its two numbers are offsets rather than gaps | `compose.rs` (`Walls`, `expand_enclosure`) |
-| The four boundaries of one line, and the one type every gap is measured between | `compose.rs` (`InkLine`, `Face`, `GapSide`) |
-| Which run of a line is the wall a cavity sees | `compose.rs` (`WallFace`) |
-| Why an enclosure's clearance total is per axis | `compose.rs` (`Clearance::horizontal`, `report_clearances`) |
-| `:WxH.NxM`: the cavity a name promises, why it is a lower bound, and where it may sit | `compose.rs` (`VariantSpec::inner`, `cavity_fits`, `enclosure_rank`) |
-| The `:WxH-l` variant name rule, the position tie-break, and why a three-part split's middle slot claims no position | `compose.rs` (`VariantSpec`, `direction_rank`, `IdcOp::slot_direction`) |
-| An IDC line written as a pattern, and why its layout is still solved per glyph | `compose.rs`, `document/name_parts.rs` (`expand_glyph_block`) |
-| Clearance: the ink a split leaves between its parts and the box, and why the per-part range and the total are both needed | `compose.rs` (`InkProfile`, `measure_clearances`) |
+| `⿰⿱⿲⿳`: the split, the gap term, why the offsets are derived rather than written | `compose/` |
+| Why a split fills the box and not the grid, and so moves with a declared `origin` | `compose/op.rs` (`Raster`), `compose/split.rs` (`expand_compose`) |
+| `1\|foo\|1\|bar\|1`: a nested split in a slot, the glyph it stands for, why its box is inferred rather than declared, where its ink comes from, and why the fixer lays it out as one part without going inside | `compose/mod.rs` (`# Nested splits`), `compose/nested.rs` (`nested_line`, `nested_key`), `/compose.rs` (`ink_profiles`), `fix/clearance/names.rs` (`slot_names`), `fix/clearance/inventory.rs` (`Inventory::register_nested`), `document/glyph.rs` (`ComposeItem::Nested`) |
+| `margin-x L\|R` / `margin-y T\|B`: why a part states its default padding, why only across the axis and only in a glyph's own line, and where the padded part is measured | `compose/mod.rs` (`# A part's margin`), `compose/variant.rs` (`padding_across`), `compose/fit.rs` (`outer_padding`), `compose/enclosure.rs` (`cavity_fits`), `document/glyph.rs` (`Margin`), `fix/clearance/inventory.rs` (`Candidate::side`, `EnclosurePart::at`) |
+| `assume ⿰ …`: why an assumed line drops its clearance chores and nothing else, and the one reader of the keyword | `compose/mod.rs` (`# An assumed line`), `compose/op.rs` (`IdcOp::of_line`) |
+| `⿴⿵⿶⿷⿸⿹⿺⿼⿽`: which sides an enclosure fills, and why its two numbers are offsets rather than gaps | `compose/op.rs` (`Walls`), `compose/enclosure.rs` (`expand_enclosure`) |
+| The four boundaries of one line, and the one type every gap is measured between | `compose/ink.rs` (`InkLine`, `Face`), `compose/gap.rs` (`GapSide`) |
+| Which run of a line is the wall a cavity sees | `compose/ink.rs` (`WallFace`) |
+| Why an enclosure's clearance total is per axis | `compose/clearance.rs` (`Clearance::horizontal`, `report_clearances`) |
+| `:WxH.NxM`: the cavity a name promises, why it is a lower bound, and where it may sit | `compose/variant.rs` (`VariantSpec::inner`, `enclosure_rank`), `compose/enclosure.rs` (`cavity_fits`) |
+| The `:WxH-l` variant name rule, the position tie-break, and why a three-part split's middle slot claims no position | `compose/variant.rs` (`VariantSpec`, `direction_rank`), `compose/op.rs` (`IdcOp::slot_direction`) |
+| An IDC line written as a pattern, and why its layout is still solved per glyph | `compose/`, `document/name_parts.rs` (`expand_glyph_block`) |
+| Clearance: the ink a split leaves between its parts and the box, and why the per-part range and the total are both needed | `compose/ink.rs` (`InkProfile`), `compose/clearance.rs` (`measure_clearances`) |
 | `audit ideal-clearance`: the prefix match, which rule wins, why an enclosure may have a band of its own | `audit.rs` (`IdealClearances`, `ClearanceBand`) |
-| `audit max-contact-run`: how far two parts may run together, why that is a clearance rather than a complaint of its own, why a contact needs no hardblank term, and why it is measured between contours and not cells | `audit.rs` (`MaxContactRuns`), `compose.rs` (`contact_run`, `Face::ink`, `EdgeCover`), `detail.rs` (`DetailRegion::edge_coverage`) |
+| `audit max-contact-run`: how far two parts may run together, why that is a clearance rather than a complaint of its own, why a contact needs no hardblank term, and why it is measured between contours and not cells | `audit.rs` (`MaxContactRuns`), `compose/gap.rs` (`contact_run`), `compose/ink.rs` (`Face::ink`, `EdgeCover`), `detail.rs` (`DetailRegion::edge_coverage`) |
 | Which parts a clearance check can measure, and what it costs a source with no rule | `/compose.rs` (`ink_profiles`) |
 | Measuring a part that is itself a composite or itself IDC-split, and the walk the check and the fixer share | `ref_composite/mod.rs` (`resolve_reachable`, `derive_compose_body`), `/compose.rs` (`ink_profiles`), `fix/clearance/inventory.rs` (`Inventory::flatten_composites`) |
-| Why a clearance is measured over the declared box | `compose.rs` (`InkProfile::of`) |
+| Why a clearance is measured over the declared box | `compose/ink.rs` (`InkProfile::of`) |
 | Why an IDC line becomes `ref`s at expansion time, and why the parts are sized by what they declare | `/compose.rs` (`expand_compose_lines`), `ref_composite/mod.rs` (`declared_box`) |
-| Why an IDC line with an unpicked variant is a TODO and not an error, and what else it silences | `compose.rs` (`expand_compose`, `is_undecided`), `/compose.rs` (`expand_compose_lines`) |
+| Why an IDC line with an unpicked variant is a TODO and not an error, and what else it silences | `compose/split.rs` (`expand_compose`), `compose/variant.rs` (`is_undecided`), `/compose.rs` (`expand_compose_lines`) |
 | On-demand glyph names, `BitmapFill`, circles, polygons, shears, normalization, the two lattices | `on_demand.rs` |
 | Which on-demand grids are remembered between builds | `on_demand.rs` (`make_on_demand_grid`) |
 | Why the view synthesizes an on-demand ref instead of waiting for the resolve | `ref_composite/mod.rs` (`resolve_ref_name_for_view`) |
@@ -222,7 +222,7 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Ctrl/Cmd+click on a reference written as a *pattern*: expanding it, grouping the expansions by where they go, when the reader is asked to pick and when the click just jumps | `app/goto_pattern.rs` (`resolve`, `block_captures_at_line`, `expand_link_token`), `editor/goto_popup.rs`, `editor/document_view/mod.rs` (`NavTarget::Pattern`) |
 | The walk a list popup offers — the selection, the window it is shown through, and the keys that move it — shared by completion, the goto choice and the palette | `editor/list_popup.rs` (`ListNav`, `read_move`, `read_typed_list_key`, `show_window`) |
 | Typing a character by code point (Ctrl+K), and why not Alt; why a click on the popup's own chrome does not dismiss it | `editor/codepoint_popup.rs` (`resolve_field`) |
-| Completion: the `:` prefix rule, which item a listing starts on, typing on from a walked item, which keys it claims, what is never offered, what an IDC slot's listing drops | `editor/autocomplete.rs` (`effective_prefix`, `filter_candidates`, `select_for_text`, `continue_from_selection`, `handle_keys`, `collect_candidates`), `compose.rs` (`direction_rank`) |
+| Completion: the `:` prefix rule, which item a listing starts on, typing on from a walked item, which keys it claims, what is never offered, what an IDC slot's listing drops | `editor/autocomplete.rs` (`effective_prefix`, `filter_candidates`, `select_for_text`, `continue_from_selection`, `handle_keys`, `collect_candidates`), `compose/variant.rs` (`direction_rank`) |
 | Folding: what a group is, why the list rides on `edit_gen`, which blocks start folded, where the caret goes, closing vs opening scroll | `editor/folding.rs` (`fold_groups`, `apply_initial`, `toggle_at`, `snap_caret`, `FoldScroll`) |
 | The gutter's marker columns; why wrapping is measured against the widest gutter; why a group's depth is one pass kept with the groups | `document_view/layout.rs` (`GutterLayout`, `page_has_fold_marker`), `document_view/mod.rs` (`wrap_width`), `editor/folding.rs` (`nesting_depths`) |
 | Where a zoom leaves the page: pointer, visible caret or viewport middle, and why not a scaled offset | `document_view/zoom_anchor.rs` |
