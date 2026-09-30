@@ -1165,5 +1165,5 @@ impl AlternativesIndex {
 }
 
 #[cfg(test)]
-#[path = "ref_composite_tests.rs"]
+#[path = "ref_composite_tests/mod.rs"]
 mod tests;
