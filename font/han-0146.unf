@@ -463,7 +463,7 @@ glyph han-898b.0:* = han-898b:*
 ## 147.3
 
 glyph han-898d:15x16 15 16 // 覍
-⿱ han-21b54:15x7 han-898b:13x9 // ⿱𡭔見
+⿱ han-21b54:13x7 han-898b:13x9 // ⿱𡭔見
 glyph han-898d.0:* = han-898d:*
 glyph han-898d.1:* = han-898d:*
 glyph han-898d.2:15x16 15 16 // 覍
@@ -1526,7 +1526,7 @@ glyph han-8a8f-($han-regions):15x16 15 16 // 誏
 glyph han-8a8f.0:* = han-8a8f-j:*
 
 glyph han-8a91-($han-regions):15x16 15 16 // 誑
-⿲ -1 han-8a01-($-1):5x16 han-72ad:4x16 han-738b:7x16 // ⿲訁犭王
+⿲ -1 han-8a01-($-1):5x16 han-72ad:4x14 han-738b:7x16 // ⿲訁犭王
 glyph han-8a91.0:* = han-8a91-j:*
 
 // glyph han-8a93:15x16 15 16 // 誓
@@ -1599,6 +1599,9 @@ glyph han-8ab0.0:* = han-8ab0-j:*
 glyph han-8ab2-($han-regions):15x16 15 16 // 課
 ⿰ han-8a01-($-1):5x16 1 han-679c:9x16 // ⿰訁果
 glyph han-8ab2.0:* = han-8ab2-j:*
+
+// glyph han-8ab3-($han-regions):15x16 15 16 // 誳
+// ⿰ han-8a01-($-1) han-5c48 // ⿰訁屈
 
 glyph han-8ab6-($han-regions):15x16 15 16 // 誶
 ⿰ han-8a01-($-1):5x16 1 han-5352:9x16 // ⿰訁卒
@@ -2096,7 +2099,7 @@ glyph han-8bf0:15x16 15 16 // 诰
 ⿰ han-8ba0:5x14 han-544a:10x16 // ⿰讠告
 
 glyph han-8bf3:15x16 15 16 // 诳
-⿲ han-8ba0:3x14 1 han-72ad:4x16 han-738b:7x16 // ⿲讠犭王
+⿲ han-8ba0:3x14 1 han-72ad:4x14 han-738b:7x16 // ⿲讠犭王
 
 ## 149'.8
 

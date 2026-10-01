@@ -1349,6 +1349,9 @@ glyph han-9c22.2:15x16 15 16 // 鰢
 // glyph han-9c23:15x16 15 16 // 鰣
 // ⿲ han-9b5a han-65e5 han-5bfa // ⿲魚日寺
 
+// glyph han-9c25:15x16 15 16 // 鰥 ⿰魚眔(G) ⿰魚⿱罒⿴{11}丨(HT) ⿰魚⿱罒⿲𰀪丨⿱丶丶(JKP)
+// ⿰ han-9b5a han-7714 // ⿰魚眔
+
 // glyph han-9c28-($han-regions):15x16 15 16 // 鰨
 // ⿰ han-9b5a han-26407-($-1) // ⿰魚𦐇
 
@@ -1691,6 +1694,9 @@ glyph han-9ff7:15x16 15 16 // 鿷
 
 // glyph han-9cce-($han-regions):15x16 15 16 // 鳎
 // ⿰ han-9c7c han-26407-($-1) // ⿰鱼𦐇
+
+// glyph han-9ccf:15x16 15 16 // 鳏
+// ⿰ han-9c7c han-7714 // ⿰鱼眔
 
 ## 195'.11
 

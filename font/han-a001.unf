@@ -1695,18 +1695,18 @@ glyph han-3775.0:* = han-3775:*
 ## 41.7
 
 glyph han-3776:15x16 15 16 // 㝶
-⿳ han-7f52:15x3 han-513f:15x4 han-5bf8:15x9 // ⿳罒儿寸
+⿳ han-7f52:13x3 han-513f:15x4 han-5bf8:15x9 // ⿳罒儿寸
 
 # CJK unified ideographs extension A: 小 (42)
 
 ## 42.7
 
 glyph han-3778.0:15x16 15 16 // 㝸
-⿳ han-5c0f:15x7 han-65e5:11x5 han-513f:15x4 // ⿳小日儿
+⿳ han-5c0f:13x7 han-65e5:11x5 han-513f:15x4 // ⿳小日儿
 glyph han-3778.1:15x16 15 16 // 㝸
-⿳ han-5c0f:15x7 han-767d:11x6 han-513f:15x3 // ⿳小白儿
+⿳ han-5c0f:13x7 han-767d:11x6 han-513f:15x3 // ⿳小白儿
 glyph han-3778.x:15x16 15 16 // 㝸
-⿳ han-21b54:15x7 han-767d:11x6 han-513f:15x3 // ⿳𡭔白儿
+⿳ han-21b54:13x7 han-767d:11x6 han-513f:15x3 // ⿳𡭔白儿
 glyph han-3778-j:* = han-3778.0:*
 glyph han-3778-(g|t):* = han-3778.x:*
 

@@ -419,7 +419,7 @@ glyph han-2e609:15x16 15 16 // 𮘉
 ⿲ han-8a01.0:5x16 han-5f00:7x16 han-5202:3x16 // ⿲訁开刂
 
 glyph han-2e60b:15x16 15 16 // 𮘋 ⿲訁犭巳(S) ⿰訁犯(Z)
-⿲ han-8a01.0:5x16 han-72ad:4x16 1 han-5df3:5x16 // ⿲訁犭巳
+⿲ han-8a01.0:5x16 han-72ad:4x14 1 han-5df3:5x16 // ⿲訁犭巳
 
 ## 149.7
 
@@ -701,7 +701,7 @@ glyph han-2e6f4:15x16 15 16 // 𮛴
 // ⿰ han-27fb7 han-31c74 // ⿰𧾷𱱴
 
 glyph han-2e6f9:15x16 15 16 // 𮛹
-⿲ han-27fb7:5x15 han-72ad:4x16 1 han-866b:5x16 // ⿲𧾷犭虫
+⿲ han-27fb7:5x15 han-72ad:4x14 1 han-866b:5x16 // ⿲𧾷犭虫
 
 glyph han-2e6fe:15x16 15 16 // 𮛾
 ⿰ han-27fb7:5x15 1 han-97f3:9x16 // ⿰𧾷音

@@ -248,7 +248,7 @@ glyph han-29106:15x16 15 16 // 𩄆
 ⿳ -1 han-96e8:15x6 1 han-65e5:11x5 han-751f:15x9 // ⿳雨日生
 
 glyph han-29107:15x16 15 16 // 𩄇
-⿳ han-96e8:15x6 1 han-7f52:15x3 1 han-738b:15x5 // ⿳雨罒王
+⿳ han-96e8:15x6 1 han-7f52:13x3 1 han-738b:15x5 // ⿳雨罒王
 
 // glyph han-2910a-($han-regions):15x16 15 16 // 𩄊
 // ⿱ han-96e8-($-1) han-8a08 // ⿱雨計
@@ -573,7 +573,7 @@ glyph han-29206:15x16 15 16 // 𩈆
 ⿰ han-9762:7x16 1 han-5df4:7x16 // ⿰面巴
 
 glyph han-29207-($han-regions):15x16 15 16 // 𩈇
-⿰ han-9762:7x16 han-4e11-($-1):8x16 // ⿰面丑
+⿰ han-9762:7x16 han-4e11-($-1):8x14 // ⿰面丑
 
 glyph han-29208-(g|j):15x16 15 16 // 𩈈
 ⿰ han-9762:7x16 1 han-4e30.0:7x16 // ⿰面丰

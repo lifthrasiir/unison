@@ -304,7 +304,7 @@ assume ⿲ han-9b5a:5x16 1 han-793a-or-793b-($-1):5x14 1 han-4e5a:3x16 // ⿲魚
 ## 195.7
 
 glyph han-29dce:15x16 15 16 // 𩷎
-⿲ han-9b5a:5x16 1 han-72ad:4x16 han-706b:5x16 // ⿲魚犭火
+⿲ han-9b5a:5x16 1 han-72ad:4x14 han-706b:5x16 // ⿲魚犭火
 
 glyph han-29dcf:15x16 15 16 // 𩷏
 ⿰ han-9b5a:5x16 1 han-5de0:9x16 // ⿰魚巠
@@ -322,7 +322,7 @@ glyph han-29dd5-($han-regions):15x16 15 16 // 𩷕
 ⿰ han-9b5a:7x16 1 han-826f-($-1):7x16 // ⿰魚良
 
 glyph han-29dd7:15x16 15 16 // 𩷗
-assume ⿲ han-9b5a:5x16 han-72ad:4x16 -1 han-738b:7x16 // ⿲魚犭王
+assume ⿲ han-9b5a:5x16 han-72ad:4x14 -1 han-738b:7x16 // ⿲魚犭王
 
 glyph han-29ddb-($han-regions):15x16 15 16 // 𩷛
 ⿰ han-9b5a:5x16 1 han-89d2-($-1):9x16 // ⿰魚角

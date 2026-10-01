@@ -305,6 +305,9 @@ glyph han-3005d:15x16 15 16 // 𰁝
 
 ## 8.10
 
+// glyph han-3005e:15x16 15 16 // 𰁞 ⿱亠⿱罒⿻丨⿰二二(S) ⿱亠眔(Z)
+// ⿱ han-4ea0 han-7714 // ⿱亠眔
+
 glyph han-3005f:15x16 15 16 // 𰁟
 ⿲ -1 han-4ea1-g:7x16 han-6c35:3x12 han-5404:7x16 // ⿲亡氵各
 
@@ -366,7 +369,7 @@ glyph han-30081:15x16 15 16 // 𰂁
 ⿲ han-4ebb:3x16 han-6587-g:9x16 han-5202:3x16 // ⿲亻文刂
 
 glyph han-30082:15x16 15 16 // 𰂂
-⿲ han-4ebb:5x16 han-6c35:5x16 han-5de5:5x16 // ⿲亻氵工
+⿲ han-4ebb:5x16 han-6c35:5x15 han-5de5:5x16 // ⿲亻氵工
 
 // glyph han-30083:15x16 15 16 // 𰂃
 // ⿰ han-4ebb han-5bfb // ⿰亻寻
@@ -1081,7 +1084,7 @@ glyph han-30204:15x16 15 16 // 𰈄
 // ⿰ han-53e3 han-70b9 // ⿰口点
 
 glyph han-3020b:15x16 15 16 // 𰈋
-⿲ han-53e3:4x12 han-72ad:4x16 han-866b:7x16 // ⿲口犭虫
+⿲ han-53e3:4x12 han-72ad:4x14 han-866b:7x16 // ⿲口犭虫
 
 // glyph han-3020d:15x16 15 16 // 𰈍
 // ⿰ han-53e3 han-4eb2 // ⿰口亲
@@ -1526,7 +1529,7 @@ glyph han-30320:15x16 15 16 // 𰌠
 ⿱ han-5b50.0:15x9 han-6b62:15x7 // ⿱子止
 
 glyph han-30322:15x16 15 16 // 𰌢
-⿰ han-5b50-g:5x16-l han-4e11-g:10x16 // ⿰子丑
+⿰ han-5b50-g:5x16-l han-4e11-g:10x14 // ⿰子丑
 
 ## 39.5
 

@@ -105,7 +105,7 @@ glyph han-29695.1:15x16 15 16 // 𩚕
 ⿰ han-98e0.0:7x16 1 han-4eca.0:7x16 // ⿰飠今
 
 glyph han-29696-($han-regions):15x16 15 16 // 𩚖
-⿰ han-98e0-($-1):7x16 han-4e11-($-1):8x16 // ⿰飠丑
+⿰ han-98e0-($-1):7x16 han-4e11-($-1):8x14 // ⿰飠丑
 glyph han-29696.0:* = han-29696-j:*
 glyph han-29696.1:* = han-29696-p:*
 

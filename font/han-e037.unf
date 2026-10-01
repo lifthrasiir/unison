@@ -509,6 +509,11 @@ glyph han-2bd56:15x16 15 16 // 𫵖
 // glyph han-2bd5d:15x16 15 16 // 𫵝
 // ⿸ han-5c38 han-3177c // ⿸尸𱝼
 
+## 44.11
+
+// glyph han-2bd62:15x16 15 16 // 𫵢
+// ⿰ han-66f2 han-5c48 // ⿰曲屈
+
 # CJK unified ideographs extension E: 山 (46)
 
 ## 46.2
@@ -1135,7 +1140,7 @@ glyph han-2bf30:15x16 15 16 // 𫼰
 // ⿰ han-624c han-201da // ⿰扌𠇚
 
 glyph han-2bf3a:15x16 15 16 // 𫼺
-⿲ han-624c:3x16 han-72ad:4x16 1 han-738b:7x16 // ⿲扌犭王
+⿲ han-624c:3x16 han-72ad:4x14 1 han-738b:7x16 // ⿲扌犭王
 
 glyph han-2bf3b:15x16 15 16 // 𫼻
 ⿲ han-624c:3x16 han-4ebb:3x16 1 han-767d:8x16 // ⿲扌亻白

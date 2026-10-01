@@ -199,7 +199,7 @@ glyph han-32e2f:15x16 15 16 // 𲸯
 ## 122.9
 
 glyph han-32e40:15x16 15 16 // 𲹀
-⿱ han-7f52:15x3 1 han-5247:15x12 // ⿱罒則
+⿱ han-7f52:13x3 1 han-5247:15x12 // ⿱罒則
 
 ## 122.16
 
@@ -1070,6 +1070,9 @@ glyph han-330f7:15x16 15 16 // 𳃷
 
 glyph han-330fa:15x16 15 16 // 𳃺
 ⿰ han-8eab:9x16 han-5176:6x16 // ⿰身其
+
+// glyph han-330fd:15x16 15 16 // 𳃽
+// ⿰ han-8eab han-5c48 // ⿰身屈
 
 # CJK unified ideographs extension J: 車 (159)
 

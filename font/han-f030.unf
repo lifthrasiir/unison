@@ -400,7 +400,7 @@ glyph han-2d305:15x16 15 16 // 𭌅
 ⿲ -2 han-53e3:3x12 han-7f8a:7x16 han-66f7:7x16 // ⿲口羊曷
 
 glyph han-2d307:15x16 15 16 // 𭌇
-assume ⿲ han-53e3:3x12 1 han-961d:4x16-l -1 han-7ca6:8x16 // ⿲口阝粦
+assume ⿲ han-53e3:3x12 1 han-961d:4x14-l -1 han-7ca6:8x16 // ⿲口阝粦
 
 ## 30.16
 

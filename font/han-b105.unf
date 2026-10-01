@@ -64,7 +64,7 @@ glyph han-24f42:15x16 15 16 // 𤽂
 // ⿱ han-767d han-5ddd // ⿱白川
 
 glyph han-24f44:15x16 15 16 // 𤽄 ⿱白⿲丿丨乀(G) ⿱白小(V)
-⿱ han-767d:11x9 han-5c0f:15x7 // ⿱白小
+⿱ han-767d:11x9 han-5c0f:13x7 // ⿱白小
 
 glyph han-24f45:15x16 15 16 // 𤽅
 ⿱ han-767d:11x11 1 han-5140:15x4 // ⿱白兀

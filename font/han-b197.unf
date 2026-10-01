@@ -76,6 +76,13 @@ glyph han-2a3a6-(t|j):15x16 15 16 // 𪎦 ⿸麻林(GT) ⿱麻林(UCS2003)
 // glyph han-2a3b1:15x16 15 16 // 𪎱
 // ⿰ han-9ebb han-9700 // ⿰麻需
 
+# CJK unified ideographs extension B: 黍 (202)
+
+## 202.2
+
+// glyph han-2a3ed:15x16 15 16 // 𪏭
+// ⿱ han-5229 han-3196f // ⿱利𱥯
+
 # CJK unified ideographs extension B: 黑 (203)
 
 ## 203.1

@@ -559,7 +559,7 @@ glyph han-5ff6:15x16 15 16 // 忶
 glyph han-5ff6.0:* = han-5ff6:*
 
 glyph han-5ff8-($han-regions):15x16 15 16 // 忸
-⿰ han-5fc4:5x16 han-4e11-($-1):10x16 // ⿰忄丑
+⿰ han-5fc4:5x16 han-4e11-($-1):10x14 // ⿰忄丑
 glyph han-5ff8.0:* = han-5ff8-j:*
 
 glyph han-5ff9:15x16 15 16 // 忹

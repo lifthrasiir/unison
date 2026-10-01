@@ -701,7 +701,7 @@ glyph han-2cfed:15x16 15 16 // 𬿭
 ## 9.13
 
 glyph han-2cff0:15x16 15 16 // 𬿰
-⿲ han-4ebb:3x16 han-248e9:3x16 han-9801:9x16 // ⿲亻𤣩頁
+⿲ han-4ebb:3x16 han-248e9:3x14 han-9801:9x16 // ⿲亻𤣩頁
 
 ## 9.14
 
@@ -1474,6 +1474,9 @@ glyph han-2d19b:15x16 15 16 // 𭆛
 // ⿱ han-593e han-53b6 // ⿱夾厶
 
 ## 28.8
+
+// glyph han-2d19e:15x16 15 16 // 𭆞
+// ⿳ han-53b6 han-5927 han-6c3a // ⿳厶大氺
 
 glyph han-2d19f:15x16 15 16 // 𭆟
 ⿱ han-6797:15x11 han-53b6:13x5 // ⿱林厶

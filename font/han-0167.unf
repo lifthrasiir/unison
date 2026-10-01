@@ -314,7 +314,7 @@ glyph han-9210-(g|p):* = han-9210.x:*
 // ⿰ han-91d2 han-5c11 // ⿰釒少
 
 glyph han-9215-($han-regions):15x16 15 16 // 鈕
-⿰ han-91d2:5x15-l han-4e11-($-1):10x16 // ⿰釒丑
+⿰ han-91d2:5x15-l han-4e11-($-1):10x14 // ⿰釒丑
 glyph han-9215.0:* = han-9215-j:*
 
 glyph han-9216-($han-regions):15x16 15 16 // 鈖
@@ -1421,7 +1421,7 @@ glyph han-94ac:15x16 15 16 // 钬
 // ⿰ han-9485 han-6597 // ⿰钅斗
 
 glyph han-94ae:15x16 15 16 // 钮
-⿰ han-9485:5x14 han-4e11-g:10x16 // ⿰钅丑
+⿰ han-9485:5x14 han-4e11-g:10x14 // ⿰钅丑
 
 glyph han-94af:15x16 15 16 // 钯
 ⿰ han-9485:6x14 han-5df4:9x16 // ⿰钅巴

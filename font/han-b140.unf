@@ -225,9 +225,9 @@ glyph han-26b56-($han-regions):15x16 15 16 // 𦭖
 // ⿳ han-8279 han-53e3 han-516b // ⿳艹口八 <- ⿱艹只
 
 glyph han-26b5d-g:15x16 15 16 // 𦭝
-⿱ han-8279.0:15x3 1 han-7f52:15x12 // ⿱艹罒
+⿱ han-8279.0:15x3 1 han-7f52:13x12 // ⿱艹罒
 glyph han-26b5d-(t|j):15x16 15 16 // 𦭝
-⿱ han-8279.1:15x3 1 han-7f52:15x12 // ⿱艹罒
+⿱ han-8279.1:15x3 1 han-7f52:13x12 // ⿱艹罒
 
 // glyph han-26b66:15x16 15 16 // 𦭦
 // ⿳ han-8279 han-4e36 han-738b // ⿳艹丶王 <- ⿱艹主

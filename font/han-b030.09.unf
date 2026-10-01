@@ -258,7 +258,7 @@ glyph han-20ec6:15x16 15 16 // 𠻆
 ⿲ han-53e3:4x12 1 han-961d:5x16-r han-8eca:5x16 // ⿲口阝車
 
 glyph han-20ed0:15x16 15 16 // 𠻐
-⿲ han-53e3:5x12 han-248e9:3x16 han-5404:7x16 // ⿲口𤣩各
+⿲ han-53e3:5x12 han-248e9:3x14 han-5404:7x16 // ⿲口𤣩各
 
 ## 30.11
 
@@ -293,7 +293,7 @@ glyph han-20ef4-($han-regions):15x16 15 16 // 𠻴
 ⿲ han-53e3:3x12 han-826f-($-1):7x16 han-6708:5x16 // ⿲口良月
 
 glyph han-20ef7:15x16 15 16 // 𠻷
-⿲ han-53e3:4x12 han-248e9:3x16 han-898b:8x16 // ⿲口𤣩見
+⿲ han-53e3:4x12 han-248e9:3x14 han-898b:8x16 // ⿲口𤣩見
 
 glyph han-20efa:15x16 15 16 // 𠻺
 ⿲ han-53e3:3x12 han-624c:3x16 han-4e9e:9x16 // ⿲口扌亞

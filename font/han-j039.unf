@@ -68,7 +68,7 @@ glyph han-32705:15x16 15 16 // 𲜅
 ## 41.5
 
 glyph han-32720:15x16 15 16 // 𲜠
-⿱ han-7f52:15x7 han-5bf8:15x9 // ⿱罒寸
+⿱ han-7f52:13x7 han-5bf8:15x9 // ⿱罒寸
 
 ## 41.9
 
@@ -125,6 +125,11 @@ glyph han-32735:15x16 15 16 // 𲜵
 
 // glyph han-32736:15x16 15 16 // 𲜶
 // ⿸ han-5c38 han-5f17 // ⿸尸弗
+
+## 44.8
+
+// glyph han-32739-($han-regions):15x16 15 16 // 𲜹
+// ⿰ han-5c48 han-4ea1-($-1) // ⿰屈亡
 
 # CJK unified ideographs extension J: 山 (46)
 

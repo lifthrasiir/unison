@@ -227,6 +227,12 @@ glyph han-2647b-($han-regions):15x16 15 16 // 𦑻
 
 ## 124.10
 
+// glyph han-26472-($han-regions):15x16 15 16 // 𦑲 ⿰眔羽(G) ⿰⿱罒⿴{11}丨羽(T) ⿰⿱罒⿲𰀪丨⿱丶丶羽(P)
+// ⿰ han-7714 han-7fbd-($-1) // ⿰眔羽
+
+// glyph han-26476-($han-regions):15x16 15 16 // 𦑶 ⿰羽眔(G) ⿰羽⿱罒⿴{11}丨(T) ⿰羽⿱罒⿲𰀪丨⿱丶丶(P)
+// ⿰ han-7fbd-($-1) han-7714 // ⿰羽眔
+
 // glyph han-2647c-($han-regions):15x16 15 16 // 𦑼
 // ⿰ han-7fbd-($-1) han-26407-($-1) // ⿰羽𦐇
 

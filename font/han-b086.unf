@@ -507,9 +507,9 @@ glyph han-242be-p:15x16 15 16 // 𤊾
 // ⿱ han-661c han-706c // ⿱昜灬
 
 glyph han-242c2-(g|t|j):15x16 15 16 // 𤋂
-⿳ han-8279.1:15x3 han-7f52:15x7 han-706b:15x6 // ⿳艹罒火
+⿳ han-8279.1:15x3 han-7f52:13x7 han-706b:15x6 // ⿳艹罒火
 glyph han-242c2-p:15x16 15 16 // 𤋂
-⿳ han-8279.0:15x3 han-7f52:15x7 han-706b:15x6 // ⿳艹罒火
+⿳ han-8279.0:15x3 han-7f52:13x7 han-706b:15x6 // ⿳艹罒火
 
 // glyph han-242c7:15x16 15 16 // 𤋇
 // ⿱ han-7702 han-706c // ⿱眂灬

@@ -187,7 +187,7 @@ glyph han-46b9-($han-regions):15x16 15 16 // 䚹
 ⿰ han-8a01-($-1):5x16 1 han-6bd4-($-1):9x16 // ⿰訁比
 
 glyph han-46bc-($han-regions):15x16 15 16 // 䚼
-⿰ han-8a01-($-1):5x16 han-4e11-($-1):10x16 // ⿰訁丑
+⿰ han-8a01-($-1):5x16 han-4e11-($-1):10x14 // ⿰訁丑
 
 glyph han-46bd-($han-regions):15x16 15 16 // 䚽
 ⿰ han-8a01-($-1):5x16 1 han-6bdb:9x16 // ⿰訁毛
@@ -552,6 +552,9 @@ glyph han-477c.1:* = han-477c-g:*
 // glyph han-47b4:15x16 15 16 // 䞴
 // ⿺ han-8d70 han-5468 // ⿺走周
 
+// glyph han-47b7:15x16 15 16 // 䞷
+// ⿺ han-8d70 han-5c48 // ⿺走屈
+
 ## 156.9
 
 // glyph han-47b9:15x16 15 16 // 䞹
@@ -669,6 +672,9 @@ glyph han-4802:15x16 15 16 // 䠂
 
 // glyph han-4806:15x16 15 16 // 䠆
 // ⿰ han-27fb7 han-9577 // ⿰𧾷長
+
+// glyph han-4807:15x16 15 16 // 䠇
+// ⿰ han-27fb7 han-5c48 // ⿰𧾷屈
 
 glyph han-480a-($han-regions):15x16 15 16 // 䠊
 ⿰ han-27fb7:5x15 1 han-975e-($-1):9x16 // ⿰𧾷非
@@ -1194,6 +1200,9 @@ glyph han-493a:15x16 15 16 // 䤺
 
 ## 167.10
 
+// glyph han-493d:15x16 15 16 // 䤽 ⿰釒眔(G) ⿰釒⿱罒⿴{11}丨(T) ⿰釒⿱罒⿲𰀪丨⿱丶丶(P)
+// ⿰ han-91d2 han-7714 // ⿰釒眔
+
 // glyph han-4946:15x16 15 16 // 䥆
 // ⿳ han-4ea0 han-975e han-91d1 // ⿳亠非金
 
@@ -1344,15 +1353,15 @@ glyph han-49a5:15x16 15 16 // 䦥
 ## 170.2
 
 glyph han-49b9:15x16 15 16 // 䦹
-⿰ han-961d:5x16-l 1 han-5341:9x16 // ⿰阝十
+⿰ han-961d:5x14-l 1 han-5341:9x16 // ⿰阝十
 
 glyph han-49ba:15x16 15 16 // 䦺
-⿰ han-961d:4x16-l han-4e01:11x16 // ⿰阝丁
+⿰ han-961d:4x14-l han-4e01:11x16 // ⿰阝丁
 
 ## 170.3
 
 glyph han-49bb:15x16 15 16 // 䦻
-⿰ han-961d:5x16-l 1 han-5b50.0:9x16 // ⿰阝子
+⿰ han-961d:5x14-l 1 han-5b50.0:9x16 // ⿰阝子
 
 ## 170.4
 
@@ -1360,7 +1369,7 @@ glyph han-49bb:15x16 15 16 // 䦻
 // ⿰ han-961d han-592c // ⿰阝夬
 
 glyph han-49bf:15x16 15 16 // 䦿
-⿰ han-961d:5x16-l 1 han-4e2d:9x16 // ⿰阝中
+⿰ han-961d:5x14-l 1 han-4e2d:9x16 // ⿰阝中
 
 // glyph han-49c0:15x16 15 16 // 䧀
 // ⿰ han-961d han-53b7 // ⿰阝厷
@@ -1368,41 +1377,41 @@ glyph han-49bf:15x16 15 16 // 䦿
 ## 170.5
 
 glyph han-49c1:15x16 15 16 // 䧁
-⿰ han-961d:5x16-l 1 han-53e5:9x16 // ⿰阝句
+⿰ han-961d:5x14-l 1 han-53e5:9x16 // ⿰阝句
 
 glyph han-49c2:15x16 15 16 // 䧂
-⿰ han-961d:4x16-l 1 han-53ec:10x16 // ⿰阝召
+⿰ han-961d:4x14-l 1 han-53ec:10x16 // ⿰阝召
 
 glyph han-49c3:15x16 15 16 // 䧃
-⿰ han-961d:5x16-l 1 han-7530:9x16 // ⿰阝田
+⿰ han-961d:5x14-l 1 han-7530:9x16 // ⿰阝田
 
 ## 170.6
 
 glyph han-49c4:15x16 15 16 // 䧄
-⿰ han-961d:5x16-l 3 han-5404:7x16 // ⿰阝各
+⿰ han-961d:5x14-l 3 han-5404:7x16 // ⿰阝各
 
 glyph han-49c6:15x16 15 16 // 䧆
-⿰ han-961d:5x16-l 1 han-5171:9x16 // ⿰阝共
+⿰ han-961d:5x14-l 1 han-5171:9x16 // ⿰阝共
 
 // glyph han-49c7:15x16 15 16 // 䧇
 // ⿰ han-961d han-8863 // ⿰阝衣
 
 glyph han-49c8:15x16 15 16 // 䧈
-⿰ han-961d:5x16-l han-8980:10x16 // ⿰阝覀
+⿰ han-961d:5x14-l han-8980:10x16 // ⿰阝覀
 
 ## 170.7
 
 glyph han-49c9:15x16 15 16 // 䧉
-⿰ han-961d:5x16-l 1 han-91cc:9x16 // ⿰阝里
+⿰ han-961d:5x14-l 1 han-91cc:9x16 // ⿰阝里
 
 glyph han-49ca-($han-regions):15x16 15 16 // 䧊
-⿰ han-961d:5x16-l han-543f-or-544a-($-1):10x16 // ⿰阝告
+⿰ han-961d:5x14-l han-543f-or-544a-($-1):10x16 // ⿰阝告
 
 glyph han-49cb:15x16 15 16 // 䧋
-⿰ han-961d:5x16-l han-898b:10x16 // ⿰阝見
+⿰ han-961d:5x14-l han-898b:10x16 // ⿰阝見
 
 glyph han-49cd:15x16 15 16 // 䧍
-⿰ han-961d:5x16-l 1 han-8c37:9x16 // ⿰阝谷
+⿰ han-961d:5x14-l 1 han-8c37:9x16 // ⿰阝谷
 
 ## 170.8
 
@@ -1413,19 +1422,19 @@ glyph han-49cd:15x16 15 16 // 䧍
 // ⿰ han-961d han-4f86 // ⿰阝來
 
 glyph han-49d3.0:15x16 15 16 // 䧓
-⿰ han-961d:5x16-l han-5468.0:10x16 // ⿰阝周
+⿰ han-961d:5x14-l han-5468.0:10x16 // ⿰阝周
 glyph han-49d3.1:15x16 15 16 // 䧓
-⿰ han-961d:5x16-l han-5468.1:10x16 // ⿰阝周
+⿰ han-961d:5x14-l han-5468.1:10x16 // ⿰阝周
 glyph han-49d3-j:* = han-49d3.0:*
 glyph han-49d3-(g|t|p):* = han-49d3.1:*
 
 ## 170.10
 
 glyph han-49da:15x16 15 16 // 䧚
-⿰ han-961d:5x16-l 1 han-9ad8:9x16 // ⿰阝高
+⿰ han-961d:5x14-l 1 han-9ad8:9x16 // ⿰阝高
 
 glyph han-49de:15x16 15 16 // 䧞
-⿰ han-961d:5x16-l 1 han-99ac:9x16 // ⿰阝馬
+⿰ han-961d:5x14-l 1 han-99ac:9x16 // ⿰阝馬
 
 ## 170.11
 
@@ -1433,7 +1442,7 @@ glyph han-49de:15x16 15 16 // 䧞
 // ⿰ han-961d han-5340 // ⿰阝區
 
 glyph han-49e3:15x16 15 16 // 䧣
-⿰ han-961d:5x16-l 1 han-7968:9x16 // ⿰阝票
+⿰ han-961d:5x14-l 1 han-7968:9x16 // ⿰阝票
 
 # CJK unified ideographs extension A: 隹 (172)
 

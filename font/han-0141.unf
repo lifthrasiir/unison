@@ -1057,7 +1057,7 @@ glyph han-884c.0:* = han-884c:*
 ## 144.3
 
 glyph han-884d:15x16 15 16 // 衍
-⿲ han-5f73:5x16 han-6c35:5x16 han-4e8d:5x16 // ⿲彳氵亍
+⿲ han-5f73:5x16 han-6c35:5x15 han-4e8d:5x16 // ⿲彳氵亍
 glyph han-884d.0:* = han-884d:*
 
 glyph han-884e:15x16 15 16 // 衎

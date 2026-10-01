@@ -380,7 +380,7 @@ glyph han-20244:15x16 15 16 // 𠉄
 // ⿰ han-4ebb han-8292-($-1) // ⿰亻芒
 
 glyph han-2024d:15x16 15 16 // 𠉍
-⿰ han-4ebb:3x16 han-56f0:13x16 // ⿰亻困
+⿰ han-4ebb:3x16 1 han-56f0:11x16 // ⿰亻困
 
 // glyph han-20257:15x16 15 16 // 𠉗
 // ⿲ han-4ebb han-820c han-4e5a // ⿲亻舌乚 <- ⿰亻乱
@@ -427,7 +427,7 @@ glyph han-2024d:15x16 15 16 // 𠉍
 // ⿰ han-4f81 han-5202 // ⿰侁刂
 
 glyph han-20294:15x16 15 16 // 𠊔
-⿲ han-4ebb:3x16 han-6c35:5x16 han-7acb:7x16 // ⿲亻氵立
+⿲ han-4ebb:3x16 han-6c35:5x15 han-7acb:7x16 // ⿲亻氵立
 
 // glyph han-20299:15x16 15 16 // 𠊙
 // ⿰ han-4ebb han-5b9c // ⿰亻宜

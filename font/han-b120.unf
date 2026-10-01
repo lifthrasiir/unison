@@ -329,6 +329,9 @@ glyph han-26045:15x16 15 16 // 𦁅
 // glyph han-2604f:15x16 15 16 // 𦁏 ⿰糹奄(GT) ⿰糸奄(P)
 // ⿰ han-7cf9 han-5944 // ⿰糹奄
 
+// glyph han-26050-($han-regions):15x16 15 16 // 𦁐 ⿰糹屈(GT) ⿰糸屈(P)
+// ⿰ han-7cf9-($-1) han-5c48 // ⿰糹屈
+
 // glyph han-26054:15x16 15 16 // 𦁔
 // ⿰ han-7cf9 han-3901 // ⿰糹㤁
 
