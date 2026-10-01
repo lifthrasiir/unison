@@ -250,8 +250,10 @@ glyph han-21b6a:15x16 15 16 // 𡭪
 // glyph han-21b6e:15x16 15 16 // 𡭮 ⿱𡭔有(G) ⿱小有(Z)
 // ⿱ han-21b54 han-6709 // ⿱𡭔有
 
-glyph han-21b6f:15x16 15 16 // 𡭯
+glyph han-21b6f-g:15x16 15 16 // 𡭯
 ⿳ han-21b54:15x5 han-21b54:15x5 1 han-5c0f:15x5 // ⿳𡭔𡭔小
+glyph han-21b6f-(t|j):15x16 15 16 // 𡭯
+⿳ han-5c0f:15x5 han-5c0f:15x5 1 han-5c0f:15x5 // ⿳小小小
 
 // glyph han-21b70:15x16 15 16 // 𡭰
 // ⿰ han-5146 han-5c0f // ⿰兆小

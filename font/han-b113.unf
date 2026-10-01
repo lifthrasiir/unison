@@ -682,8 +682,8 @@ glyph han-257e2:15x16 15 16 // 𥟢
 // glyph han-257fe:15x16 15 16 // 𥟾
 // ⿰ han-79be han-82e6 // ⿰禾苦
 
-// glyph han-25800:15x16 15 16 // 𥠀
-// ⿰ han-79be han-661f // ⿰禾星
+glyph han-25800:15x16 15 16 // 𥠀
+⿰ han-79be:5x16 1 han-661f:9x16 // ⿰禾星
 
 // glyph han-25804:15x16 15 16 // 𥠄
 // ⿰ han-79be han-8011 // ⿰禾耑
@@ -745,7 +745,7 @@ glyph han-2583a-($han-regions):15x16 15 16 // 𥠺
 // ⿰ han-79be han-9583 // ⿰禾閃
 
 glyph han-25857:15x16 15 16 // 𥡗
-⿰ han-79be:7x16 1 han-99ac:7x16 // ⿰禾馬
+⿰ han-79be:7x16 han-99ac:8x16 // ⿰禾馬
 
 ## 115.11
 

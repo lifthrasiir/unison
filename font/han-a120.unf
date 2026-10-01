@@ -1388,8 +1388,8 @@ glyph han-45ca:15x16 15 16 // 䗊
 // glyph han-45cb:15x16 15 16 // 䗋
 // ⿰ han-866b han-67d0 // ⿰虫某
 
-// glyph han-45cc:15x16 15 16 // 䗌
-// ⿰ han-866b han-661f // ⿰虫星
+glyph han-45cc:15x16 15 16 // 䗌
+⿰ han-866b:5x16 1 han-661f:9x16 // ⿰虫星
 
 // glyph han-45ce:15x16 15 16 // 䗎
 // ⿰ han-866b han-5794 // ⿰虫垔

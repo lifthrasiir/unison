@@ -701,7 +701,9 @@ glyph han-212b3:15x16 15 16 // 𡊳
 // glyph han-212b7-($han-regions):15x16 15 16 // 𡊷 ⿱㓞土(G) ⿱⿰⿻三丨刀土(T)
 // ⿱ han-34de-($-1) han-571f // ⿱㓞土
 
-glyph han-212b9:15x16 15 16 // 𡊹 ⿱襾土(G) ⿱覀土(T)
+glyph han-212b9-(g|j):15x16 15 16 // 𡊹
+⿱ han-897e:15x7 han-571f:15x9 // ⿱襾土
+glyph han-212b9-t:15x16 15 16 // 𡊹
 ⿱ han-8980:15x7 han-571f:15x9 // ⿱覀土
 
 // glyph han-212ba:15x16 15 16 // 𡊺

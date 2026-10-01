@@ -390,6 +390,9 @@ glyph han-2599d:15x16 15 16 // 𥦝 ⿱穴林(G) ⿱⿱宀儿林(TV)
 // glyph han-25a11-($han-regions):15x16 15 16 // 𥨑 ⿳穴彼木(G) ⿳⿱宀儿彼木(T)
 // ⿳ han-7a74-($-1) han-5f7c han-6728 // ⿳穴彼木
 
+// glyph han-25a15-($han-regions):15x16 15 16 // 𥨕 ⿱穴惺(G) ⿱⿱宀儿惺(TP)
+// ⿱ han-7a74-($-1) han-60fa // ⿱穴惺
+
 // glyph han-25a18:15x16 15 16 // 𥨘 ⿱穴𬌡(G) ⿱⿱宀儿𬌡(T)
 // ⿳ han-5b80 han-513f han-2c321 // ⿳宀儿𬌡 <- ⿱⿱宀儿𬌡
 

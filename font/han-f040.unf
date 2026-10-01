@@ -897,7 +897,7 @@ glyph han-2d715:15x16 15 16 // 𭜕 ⿰忄开(K) ⿰忄幵(Z)
 ## 61.5
 
 glyph han-2d71b:15x16 15 16 // 𭜛
-⿰ han-5fc4:5x16 1 han-76bf:9x16 // ⿰忄皿
+⿰ han-5fc4:5x16 1 han-76bf:9x12 // ⿰忄皿
 
 glyph han-2d71c:15x16 15 16 // 𭜜
 ⿰ han-5fc4:7x16 1 han-76ee:7x16 // ⿰忄目
@@ -1070,7 +1070,7 @@ glyph han-2d795:15x16 15 16 // 𭞕
 // ⿰ han-5fc4 han-24ca2 // ⿰忄𤲢
 
 glyph han-2d7af:15x16 15 16 // 𭞯
-assume ⿲ han-5fc4:5x16 han-27fb7:5x16 han-5de8-k:5x16 // ⿲忄𧾷巨
+assume ⿲ han-5fc4:5x16 han-27fb7:5x15 han-5de8-k:5x16 // ⿲忄𧾷巨
 
 // glyph han-2d7b0-($han-regions):15x16 15 16 // 𭞰
 // ⿰ han-5fc4 han-26c4b-($-1) // ⿰忄𦱋

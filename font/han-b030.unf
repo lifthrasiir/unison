@@ -395,7 +395,7 @@ glyph han-20c15:15x16 15 16 // 𠰕
 ⿱ han-51fa:15x10 1 han-53e3:11x5 // ⿱出口
 
 glyph han-20c18:15x16 15 16 // 𠰘
-⿰ han-53e3:5x12 1 han-76bf:9x16 // ⿰口皿
+⿰ han-53e3:5x12 1 han-76bf:9x12 // ⿰口皿
 
 glyph han-20c19:15x16 15 16 // 𠰙 ⿰口刊(GT) ⿰口刋(V)
 ⿲ han-53e3:4x12 han-5e72:7x16 han-5202:4x16 // ⿲口干刂

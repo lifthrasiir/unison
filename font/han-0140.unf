@@ -680,7 +680,9 @@ glyph han-8333.2:* = han-8333-h:*
 // glyph han-8335:15x16 15 16 // 茵
 // ⿱ han-8279 han-56e0 // ⿱艹因
 
-glyph han-8336-($han-regions):15x16 15 16 // 茶 ⿳艹𠆢朩(GTJKP) ⿳艹𠆢木(HV)
+glyph han-8336-(g|t|j|k):15x16 15 16 // 茶 
+⿳ han-8279-($-1):15x3 han-201a2:15x6 -1 han-6729:15x8 // ⿳艹𠆢朩
+glyph han-8336-(h|p|v):15x16 15 16 // 茶 
 ⿳ han-8279-($-1):15x3 han-201a2:15x6 -1 han-6728:15x8 // ⿳艹𠆢木
 glyph han-8336.0:* = han-8336-g:*
 glyph han-8336.1:* = han-8336-g:*

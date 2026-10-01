@@ -282,7 +282,7 @@ glyph han-23b75:15x16 15 16 // 𣭵
 // ⿰ han-65f1 han-6bdb // ⿰旱毛
 
 glyph han-23b7b:15x16 15 16 // 𣭻
-⿰ han-27fb7:5x16 1 han-6bdb:9x16 // ⿰𧾷毛
+⿰ han-27fb7:5x15 1 han-6bdb:9x16 // ⿰𧾷毛
 
 glyph han-23b7e:15x16 15 16 // 𣭾
 ⿺ han-6bdb:15x16.10x14 han-752b:9x13 6 0 // ⿺毛甫

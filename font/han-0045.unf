@@ -4246,12 +4246,16 @@ ref han-5efe:15x9 0 7
 
 ## 55.3
 
-glyph han-5f02:15x16 15 16 // 异
+glyph han-5f02.0:15x16 15 16 // 异
 ⿱ han-5df1:13x7 han-5efe:15x9 // ⿱己廾
-glyph han-5f02.0:* = han-5f02:*
-glyph han-5f02.1:* = han-5f02:*
+glyph han-5f02.1:* = han-5f02.0:*
 glyph han-5f02.2:15x16 15 16 // 异
 ⿱ han-5df2:13x7 han-5efe:15x9 // ⿱已廾
+glyph han-5f02.x:15x16 15 16 // 异
+⿱ han-5df3:13x7 han-5efe:15x9 // ⿱巳廾
+glyph han-5f02-(t|j|k):* = han-5f02.0:*
+glyph han-5f02-(h|p):* = han-5f02.2:*
+glyph han-5f02-g:* = han-5f02.x:*
 
 ## 55.4
 

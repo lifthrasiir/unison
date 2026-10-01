@@ -468,7 +468,7 @@ glyph han-24865:15x16 15 16 // 𤡥
 // ⿰ han-72ad han-7c9f // ⿰犭粟
 
 glyph han-2488a:15x16 15 16 // 𤢊
-⿲ -1 han-72ad:4x16 han-27fb7:5x16 han-5404:7x16 // ⿲犭𧾷各
+⿲ han-72ad:4x16 han-27fb7:4x14 han-5404:7x16 // ⿲犭𧾷各
 
 ## 94.13
 

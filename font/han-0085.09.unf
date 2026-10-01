@@ -330,7 +330,7 @@ glyph han-6f58:15x16 15 16 // 潘
 glyph han-6f58.0:* = han-6f58:*
 
 glyph han-6f5e:15x16 15 16 // 潞
-⿲ han-6c35:3x12 han-27fb7:5x16 han-5404:7x16 // ⿲氵𧾷各
+⿲ han-6c35:3x12 han-27fb7:5x15 han-5404:7x16 // ⿲氵𧾷各
 glyph han-6f5e.0:* = han-6f5e:*
 
 glyph han-6f64:15x16 15 16 // 潤

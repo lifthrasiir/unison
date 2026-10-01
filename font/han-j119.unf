@@ -989,13 +989,13 @@ glyph han-33099:15x16 15 16 // 𳂙
 ## 157.4
 
 glyph han-330c8:15x16 15 16 // 𳃈
-⿰ han-27fb7:5x16 1 han-8f66:9x16 // ⿰𧾷车
+⿰ han-27fb7:5x15 1 han-8f66:9x16 // ⿰𧾷车
 
 // glyph han-330c9-($han-regions):15x16 15 16 // 𳃉
 // ⿰ han-27fb7 han-5b54-($-1) // ⿰𧾷孔
 
 glyph han-330ca:15x16 15 16 // 𳃊
-⿰ han-27fb7:5x16 1 han-5f14:9x16 // ⿰𧾷弔
+⿰ han-27fb7:5x15 1 han-5f14:9x16 // ⿰𧾷弔
 
 ## 157.5
 
@@ -1016,7 +1016,7 @@ glyph han-330ca:15x16 15 16 // 𳃊
 // ⿰ han-27fb7 han-8db3 // ⿰𧾷足
 
 glyph han-330d5-($han-regions):15x16 15 16 // 𳃕
-⿰ han-27fb7:5x16 1 han-89d2-($-1):9x16 // ⿰𧾷角
+⿰ han-27fb7:5x15 1 han-89d2-($-1):9x16 // ⿰𧾷角
 
 ## 157.8
 

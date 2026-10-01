@@ -186,7 +186,7 @@ glyph han-28272:15x16 15 16 // 𨉲
 // ⿰ han-8eab han-9b3c // ⿰身鬼
 
 glyph han-28278:15x16 15 16 // 𨉸
-⿰ han-8eab:8x16 han-99ac:7x16 // ⿰身馬
+assume ⿰ han-8eab:8x16 -1 han-99ac:8x16 // ⿰身馬
 
 ## 158.11
 
@@ -580,7 +580,7 @@ glyph han-283ac:15x16 15 16 // 𨎬
 ## 159.13
 
 glyph han-283b2:15x16 15 16 // 𨎲
-⿲ -3 han-8eca:5x16 1 han-27fb7:5x16 han-5404:7x16 // ⿲車𧾷各
+⿲ -2 han-8eca:5x16 1 han-27fb7:4x14 han-5404:7x16 // ⿲車𧾷各
 
 // glyph han-283bc:15x16 15 16 // 𨎼
 // ⿲ han-8eca han-6709 han-8eca // ⿲車有車

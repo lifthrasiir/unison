@@ -807,7 +807,7 @@ glyph han-27487:15x16 15 16 // 𧒇
 ⿲ han-866b:5x16 han-72ad:4x16 1 han-8005-v:5x16 // ⿲虫犭者
 
 glyph han-2748c:15x16 15 16 // 𧒌
-⿲ -3 han-866b:5x16 1 han-27fb7:5x16 han-5404:7x16 // ⿲虫𧾷各
+⿲ -2 han-866b:5x16 1 han-27fb7:4x14 han-5404:7x16 // ⿲虫𧾷各
 
 // glyph han-2748d:15x16 15 16 // 𧒍
 // ⿱ han-8def han-866b // ⿱路虫

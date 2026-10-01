@@ -791,8 +791,9 @@ glyph han-7149.1:15x16 15 16 // 煉
 glyph han-7149.2:* = han-7149.1:*
 glyph han-7149.3:* = han-7149.0:*
 
-// glyph han-714b:15x16 15 16 // 煋
-// ⿰ han-706b han-661f // ⿰火星
+glyph han-714b:15x16 15 16 // 煋
+⿰ han-706b:5x14-l 1 han-661f:9x16 // ⿰火星
+glyph han-714b.0:* = han-714b:*
 
 glyph han-714c:15x16 15 16 // 煌
 ⿰ han-706b:5x14-l 1 han-7687:9x16 // ⿰火皇

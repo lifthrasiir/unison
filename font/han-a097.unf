@@ -821,8 +821,8 @@ glyph han-40cb-($han-regions):15x16 15 16 // 䃋
 // glyph han-40cc:15x16 15 16 // 䃌 ⿰石垔(GT) ⿰石⿱覀土(P)
 // ⿰ han-77f3 han-5794 // ⿰石垔
 
-// glyph han-40cf:15x16 15 16 // 䃏
-// ⿰ han-77f3 han-661f // ⿰石星
+glyph han-40cf:15x16 15 16 // 䃏
+⿰ han-77f3:6x16 han-661f:9x16 // ⿰石星
 
 // glyph han-40d0:15x16 15 16 // 䃐
 // ⿰ han-77f3 han-7a81 // ⿰石突

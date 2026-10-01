@@ -241,7 +241,7 @@ glyph han-4a75:15x16 15 16 // 䩵
 // ⿰ han-9769 han-8338 // ⿰革茸
 
 glyph han-4a7b:15x16 15 16 // 䩻
-⿰ han-9769:7x16 1 han-99ac:7x16 // ⿰革馬
+⿰ han-9769:7x16 han-99ac:8x16 // ⿰革馬
 
 ## 177.11
 
@@ -687,16 +687,16 @@ glyph han-4b42.1:* = han-4b42-g:*
 ## 187.4
 
 glyph han-4b77:15x16 15 16 // 䭷
-⿰ han-99ac:7x16 1 han-6bdb:7x16 // ⿰馬毛
+⿰ han-99ac:8x16 han-6bdb:7x16 // ⿰馬毛
 
 glyph han-4b78:15x16 15 16 // 䭸
-⿰ han-99ac:7x16 1 han-7236.0:7x16 // ⿰馬父
+⿰ han-99ac:8x16 han-7236.0:7x16 // ⿰馬父
 
 glyph han-4b7a:15x16 15 16 // 䭺
-⿰ han-99ac:7x16 1 han-4ea2:7x16 // ⿰馬亢
+⿰ han-99ac:8x16 han-4ea2:7x16 // ⿰馬亢
 
 glyph han-4b7b-($han-regions):15x16 15 16 // 䭻
-⿰ han-99ac:7x16 1 han-5206-($-1):7x16 // ⿰馬分
+⿰ han-99ac:8x16 han-5206-($-1):7x16 // ⿰馬分
 
 // glyph han-4b7d:15x16 15 16 // 䭽
 // ⿰ han-99ac han-725b // ⿰馬牛
@@ -707,10 +707,10 @@ glyph han-4b7b-($han-regions):15x16 15 16 // 䭻
 ## 187.5
 
 glyph han-4b7f:15x16 15 16 // 䭿
-⿰ han-99ac:7x16 1 han-5931:7x16 // ⿰馬失
+⿰ han-99ac:8x16 han-5931:7x16 // ⿰馬失
 
 glyph han-4b80:15x16 15 16 // 䮀
-⿰ han-99ac:7x16 1 han-5305.1:7x16 // ⿰馬包
+⿰ han-99ac:8x16 han-5305.1:7x16 // ⿰馬包
 
 // glyph han-4b81:15x16 15 16 // 䮁
 // ⿰ han-99ac han-5f01 // ⿰馬弁
@@ -727,7 +727,7 @@ glyph han-4b80:15x16 15 16 // 䮀
 // ⿰ han-99ac han-807f // ⿰馬聿
 
 glyph han-4b88:15x16 15 16 // 䮈
-⿰ han-99ac:7x16 1 han-591a:7x16 // ⿰馬多
+⿰ han-99ac:8x16 han-591a:7x16 // ⿰馬多
 
 glyph han-4b8c:15x16 15 16 // 䮌
 ⿲ han-99ac:7x16 han-4ebb:3x16 han-6728:5x16 // ⿲馬亻木
@@ -743,7 +743,7 @@ glyph han-4b92:15x16 15 16 // 䮒
 ## 187.8
 
 glyph han-4b93:15x16 15 16 // 䮓
-⿰ han-99ac:7x16 1 han-5353:7x16 // ⿰馬卓
+⿰ han-99ac:8x16 han-5353:7x16 // ⿰馬卓
 
 glyph han-4b96-($han-regions):15x16 15 16 // 䮖
 ⿰ han-99ac:7x16 1 han-660c-($-1):7x16 // ⿰馬昌
@@ -757,7 +757,7 @@ glyph han-4b96-($han-regions):15x16 15 16 // 䮖
 // ⿰ han-99ac han-67bc // ⿰馬枼
 
 glyph han-4b9d:15x16 15 16 // 䮝
-⿰ han-99ac:7x16 1 han-8ecd:7x16 // ⿰馬軍
+⿰ han-99ac:8x16 han-8ecd:7x16 // ⿰馬軍
 
 ## 187.10
 
@@ -768,7 +768,7 @@ glyph han-4ba6:15x16 15 16 // 䮦
 // ⿰ han-99ac han-5bb0 // ⿰馬宰
 
 glyph han-4ba9-($han-regions):15x16 15 16 // 䮩
-⿰ han-99ac:7x16 1 han-9aa8-($-1):7x16 // ⿰馬骨
+⿰ han-99ac:8x16 han-9aa8-($-1):7x16 // ⿰馬骨
 
 ## 187.11
 
@@ -778,7 +778,7 @@ glyph han-4ba9-($han-regions):15x16 15 16 // 䮩
 ## 187.12
 
 glyph han-4bb3:15x16 15 16 // 䮳
-⿰ han-99ac:7x16 1 han-756a:7x16 // ⿰馬番
+⿰ han-99ac:8x16 han-756a:7x16 // ⿰馬番
 
 // glyph han-4bb5:15x16 15 16 // 䮵
 // ⿰ han-99ac han-7ae5 // ⿰馬童
