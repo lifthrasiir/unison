@@ -464,7 +464,70 @@ pub fn line_fingerprint(line: &DocLine) -> u64 {
     h.finish()
 }
 
+/// What two snapshots of a document have in common, as far as the stages of an
+/// expansion that read names alone can tell: [`crate::resolve::NameMemo`]
+/// reuses each stage on the answer that covers what it reads.
+#[cfg(feature = "editor")]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum NameMatch {
+    Different,
+    /// Every name a line declares or searches: what
+    /// [`crate::exists::resolve_scopes`] reads, which is nothing of a `glyph`
+    /// block but its name.
+    Names,
+    /// [`Self::Names`], and every block's slots — whether it says `keep`, and
+    /// the names its `ref`s and IDC components are written with — which is what
+    /// the implicit merges read on top ([`crate::merge`]). A ref's offset, a
+    /// grid's cells and every other flag are left out: nothing at this level
+    /// reads them.
+    Slots,
+}
+
+/// The part of two bodies [`NameMatch::Slots`] compares; see
+/// `crate::merge::collect_blocks` and [`expand_glyph_block_slots`], which
+/// read exactly this, and must not read more without this comparing it too.
+#[cfg(feature = "editor")]
+fn same_slots(a: &GlyphBody, b: &GlyphBody) -> bool {
+    a.keep == b.keep
+        && a.refs.len() == b.refs.len()
+        && a.refs.iter().zip(&b.refs).all(|(x, y)| x.name == y.name)
+        && a.compose.len() == b.compose.len()
+        && a.compose
+            .iter()
+            .zip(&b.compose)
+            .all(|(x, y)| x.part_names().eq(y.part_names()))
+}
+
 impl Document {
+    /// How much of what names a glyph `other` shares with this document; see
+    /// [`NameMatch`]. The same path and the same items in the same places
+    /// first, every item but a `glyph` block equal in full, and a block's own
+    /// name equal; then, for [`NameMatch::Slots`], each block's slots too.
+    #[cfg(feature = "editor")]
+    pub fn name_match(&self, other: &Self) -> NameMatch {
+        if self.path != other.path || self.items.len() != other.items.len() {
+            return NameMatch::Different;
+        }
+        let mut slots = true;
+        for pair in self.items.iter().zip(&other.items) {
+            match pair {
+                (DocumentItem::Glyph { name, body }, DocumentItem::Glyph { name: n, body: b }) => {
+                    if name != n {
+                        return NameMatch::Different;
+                    }
+                    slots = slots && same_slots(body, b);
+                }
+                (item, other_item) if item == other_item => {}
+                _ => return NameMatch::Different,
+            }
+        }
+        if slots {
+            NameMatch::Slots
+        } else {
+            NameMatch::Names
+        }
+    }
+
     pub fn new(path: PathBuf) -> Self {
         Self {
             items: Vec::new(),

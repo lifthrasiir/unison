@@ -308,7 +308,7 @@ impl RebuildTiming {
 #[cfg(feature = "editor")]
 fn run_edit_probe(input: &std::path::Path, repeats: usize) {
     let never = cancel::CancelToken::never();
-    let (mut docs, errors, _sources) =
+    let (docs, errors, _sources) =
         render::ttf_builder::load_docs_from_directory_with_sources(input);
     if !errors.is_empty() {
         eprintln!("{} file(s) failed to parse", errors.len());
@@ -318,19 +318,26 @@ fn run_edit_probe(input: &std::path::Path, repeats: usize) {
         std::process::exit(1);
     }
 
+    // Shared the way the editor shares them: an edit replaces the document it
+    // reached and leaves every other one the `Arc` it was, which is what
+    // `resolve::NameMemo` tells an untouched document by.
+    let mut docs: Vec<std::sync::Arc<document::Document>> =
+        docs.into_iter().map(std::sync::Arc::new).collect();
     let contour_cache = render::new_contour_cache();
     let mut grid_cache = ref_composite::CompositeGridCache::default();
+    let name_memo = std::sync::Mutex::new(resolve::NameMemo::default());
     let mut rows: Vec<RebuildTiming> = Vec::new();
 
-    let rebuild = |docs: &[document::Document],
+    let rebuild = |docs: &[std::sync::Arc<document::Document>],
                    contour_cache: &render::SharedContourCache,
                    grid_cache: &mut ref_composite::CompositeGridCache,
                    label: &'static str| {
-        let refs: Vec<&document::Document> = docs.iter().collect();
+        let refs: Vec<&document::Document> = docs.iter().map(|d| &**d).collect();
 
         // The one expansion both halves below read.
         let t = std::time::Instant::now();
-        let Some(resolution) = resolve::Resolution::compute_cancellable(&refs, &never) else {
+        let Some(resolution) = resolve::Resolution::compute_reusing(docs, &name_memo, &never)
+        else {
             eprintln!("resolution produced nothing; is `meta height` set?");
             std::process::exit(1);
         };
@@ -431,6 +438,13 @@ fn run_edit_probe(input: &std::path::Path, repeats: usize) {
         &mut grid_cache,
         "one glyph block",
     ));
+    rename_one_ref(&mut docs);
+    rows.push(rebuild(
+        &docs,
+        &contour_cache,
+        &mut grid_cache,
+        "one ref renamed",
+    ));
 
     // How long a superseded rebuild keeps the slot. An edit arriving while one
     // runs cancels it, and the next rebuild only starts once the cancelled one
@@ -446,7 +460,13 @@ fn run_edit_probe(input: &std::path::Path, repeats: usize) {
         let started = std::time::Instant::now();
         let ended = std::thread::scope(|s| {
             let worker = s.spawn(|| {
-                rebuild_like_the_editor(&docs, &contour_cache, &mut grid_cache, &cancel);
+                rebuild_like_the_editor(
+                    &docs,
+                    &contour_cache,
+                    &mut grid_cache,
+                    &name_memo,
+                    &cancel,
+                );
                 started.elapsed()
             });
             std::thread::sleep(delay);
@@ -467,6 +487,7 @@ fn run_edit_probe(input: &std::path::Path, repeats: usize) {
             &docs,
             &contour_cache,
             &mut grid_cache,
+            &name_memo,
             &never,
         ));
     }
@@ -515,14 +536,15 @@ fn milestone_report(rows: &[Milestones]) -> String {
 /// added here.
 #[cfg(feature = "editor")]
 fn rebuild_like_the_editor(
-    docs: &[document::Document],
+    docs: &[std::sync::Arc<document::Document>],
     contour_cache: &render::SharedContourCache,
     grid_cache: &mut ref_composite::CompositeGridCache,
+    name_memo: &std::sync::Mutex<resolve::NameMemo>,
     cancel: &cancel::CancelToken,
 ) -> Option<Milestones> {
     let started = std::time::Instant::now();
-    let refs: Vec<&document::Document> = docs.iter().collect();
-    let resolution = resolve::Resolution::compute_cancellable(&refs, cancel)?;
+    let refs: Vec<&document::Document> = docs.iter().map(|d| &**d).collect();
+    let resolution = resolve::Resolution::compute_reusing(docs, name_memo, cancel)?;
     let expansion = &resolution.expansion;
     let ((font, font_at), composites_at, glyph_flags) = std::thread::scope(|s| {
         let build = s.spawn(|| {
@@ -601,10 +623,22 @@ fn cancel_probe_report(rows: &[(std::time::Duration, std::time::Duration)]) -> S
 }
 
 /// Flip the first pixel of the first glyph that has a grid, the way the editor's
-/// own pixel-only path does — the grid in place, both generations bumped.
+/// own pixel-only path does — the grid in place, both generations bumped, and
+/// the document replaced rather than written through, as the editor's snapshot
+/// of it is.
 #[cfg(feature = "editor")]
-fn edit_one_pixel(docs: &mut [document::Document]) -> bool {
-    for doc in docs.iter_mut() {
+fn edit_one_pixel(docs: &mut [std::sync::Arc<document::Document>]) -> bool {
+    let has_grid = |doc: &document::Document| {
+        doc.items.iter().any(|item| {
+            matches!(item, document::DocumentItem::Glyph { body, .. }
+                if body.pixels.as_ref().is_some_and(|g| g.width > 0 && g.height > 0))
+        })
+    };
+    let Some(doc) = docs.iter_mut().find(|d| has_grid(d)) else {
+        return false;
+    };
+    let doc = std::sync::Arc::make_mut(doc);
+    {
         for item in doc.items.iter_mut() {
             let document::DocumentItem::Glyph { body, .. } = item else {
                 continue;
@@ -637,8 +671,8 @@ fn edit_one_pixel(docs: &mut [document::Document]) -> bool {
 /// rather than a drawing, and so the one that tells a cache keyed on the glyph
 /// set from a cache keyed on the pixels.
 #[cfg(feature = "editor")]
-fn add_one_glyph_block(docs: &mut [document::Document]) {
-    let Some(doc) = docs.first_mut() else {
+fn add_one_glyph_block(docs: &mut [std::sync::Arc<document::Document>]) {
+    let Some(doc) = docs.first_mut().map(std::sync::Arc::make_mut) else {
         return;
     };
     let body = doc.items.iter().find_map(|item| match item {
@@ -652,6 +686,31 @@ fn add_one_glyph_block(docs: &mut [document::Document]) {
     });
     doc.item_line_starts.push(0);
     doc.content_gen += 1;
+}
+
+/// Rename the first `ref` of the first glyph that has one to a name nothing
+/// declares: what typing into a `ref` line is between two keystrokes. It
+/// changes a slot the merges read but no name the searches do, so it is the
+/// edit that tells the two halves of `resolve::NameMemo` apart.
+#[cfg(feature = "editor")]
+fn rename_one_ref(docs: &mut [std::sync::Arc<document::Document>]) {
+    let has_ref = |doc: &document::Document| {
+        doc.items.iter().any(|item| {
+            matches!(item, document::DocumentItem::Glyph { body, .. } if !body.refs.is_empty())
+        })
+    };
+    let Some(doc) = docs.iter_mut().find(|d| has_ref(d)) else {
+        return;
+    };
+    let doc = std::sync::Arc::make_mut(doc);
+    let gref = doc.items.iter_mut().find_map(|item| match item {
+        document::DocumentItem::Glyph { body, .. } => body.refs.first_mut(),
+        _ => None,
+    });
+    if let Some(gref) = gref {
+        gref.name = "probe-renamed-ref".to_string();
+        doc.content_gen += 1;
+    }
 }
 
 #[cfg(feature = "editor")]

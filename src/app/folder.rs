@@ -60,6 +60,7 @@ impl UniformApp {
         self.rebuild_cancel.cancel();
         crate::parallel::lock_memo(&self.contour_cache).clear();
         crate::parallel::lock_memo(&self.composite_grid_cache).clear();
+        crate::parallel::lock_memo(&self.name_memo).clear();
         self.font_build_gen = self.font_build_gen.wrapping_add(1);
         // Neither the font nor the derived data is built here: a folder on
         // a share takes tens of seconds to build and resolve, and doing it

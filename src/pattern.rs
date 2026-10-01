@@ -125,11 +125,19 @@ impl NamePattern {
         }
     }
 
+    /// Whether [`Self::parse_element`] reads `s` as the one name `s` and
+    /// nothing else. A lookup that missed `s` can stop here rather than parse
+    /// it to be told the same name back: the glyph cache asks this of every
+    /// `ref` it has not resolved yet, round after round.
+    pub fn element_is_plain(s: &str) -> bool {
+        s.chars().count() <= 1 || (!s.contains('(') && !s.contains('|') && !s.contains('*'))
+    }
+
     /// Parses a single name element (`map`/`remap` operands, `assume unused`
     /// arguments, runtime ref lookups).  A top-level `|` or `*` without any
     /// parentheses wraps the whole string into one alternation group.
     pub fn parse_element(s: &str) -> Result<Self, NamePatternError> {
-        if s.chars().count() <= 1 || (!s.contains('(') && !s.contains('|') && !s.contains('*')) {
+        if Self::element_is_plain(s) {
             return Ok(Self::single(s.to_string()));
         }
         if s.contains('(') {

@@ -52,17 +52,50 @@ pub(crate) struct Expansion {
     /// here for the consumers that do not go through the item list — GSUB,
     /// `assert shape`, validation — and for the editor, which has to recognize
     /// an alias name written in the text. See [`crate::alias`].
-    pub aliases: crate::alias::AliasMap,
+    pub aliases: std::sync::Arc<crate::alias::AliasMap>,
     /// Which items an `exists` governs and what each search found. The items
     /// above are already expanded against it and hold no `$N` at all; this is
     /// for the consumers that walk the *source* — validation, above all, which
     /// would otherwise read `han-($1)` as a glyph name nobody may write.
-    pub exists: crate::exists::ExistsScopes,
+    pub exists: std::sync::Arc<crate::exists::ExistsScopes>,
+    /// What resolving the searches reported, which `diagnostics` holds as
+    /// well. Kept apart for [`NameLevel`], which is reused whole.
+    #[cfg(feature = "editor")]
+    exists_diagnostics: std::sync::Arc<[Diagnostic]>,
 }
+
+/// The searches with what resolving them reported, and the aliases (implicit
+/// merges included): the two stages of an expansion that read names alone —
+/// never a grid's cells, a ref's offset or a flag — and between them a third
+/// of it. An edit to a drawing leaves both as they were, and one to a `ref` a
+/// block's slots read leaves the searches. See [`crate::resolve::NameMemo`]
+/// for when each is reused, and [`crate::document::NameMatch`] for what each
+/// reads.
+#[cfg(feature = "editor")]
+#[derive(Clone)]
+pub(crate) struct NameLevel {
+    pub searches: Searches,
+    pub aliases: std::sync::Arc<crate::alias::AliasMap>,
+}
+
+/// The searches, and what resolving them reported.
+pub(crate) type Searches = (
+    std::sync::Arc<crate::exists::ExistsScopes>,
+    std::sync::Arc<[Diagnostic]>,
+);
 
 impl Expansion {
     pub fn items(&self) -> impl Iterator<Item = &DocumentItem> {
         self.items.iter().map(|e| &e.item)
+    }
+
+    /// The part of this a later expansion may reuse; see [`NameLevel`].
+    #[cfg(feature = "editor")]
+    pub(crate) fn name_level(&self) -> NameLevel {
+        NameLevel {
+            searches: (self.exists.clone(), self.exists_diagnostics.clone()),
+            aliases: self.aliases.clone(),
+        }
     }
 }
 
@@ -120,7 +153,21 @@ pub(crate) fn expand_documents_cancellable(
     faces: &crate::faces::FaceSet,
     cancel: &crate::cancel::CancelToken,
 ) -> Option<Expansion> {
-    expand_inner(docs, name_parts, &faces.union(), cancel)
+    expand_inner(docs, name_parts, &faces.union(), Reuse::default(), cancel)
+}
+
+/// [`expand_documents_cancellable`], taking the searches and the aliases from
+/// `reuse` where it has them rather than resolving them again. The caller
+/// vouches for each: see [`crate::resolve::NameMemo`].
+#[cfg(feature = "editor")]
+pub(crate) fn expand_documents_reusing(
+    docs: &[&Document],
+    name_parts: &NamePartsMap,
+    faces: &crate::faces::FaceSet,
+    reuse: Reuse,
+    cancel: &crate::cancel::CancelToken,
+) -> Option<Expansion> {
+    expand_inner(docs, name_parts, &faces.union(), reuse, cancel)
 }
 
 /// Expand for one face: items qualified with a slice the face does not include
@@ -134,16 +181,33 @@ pub(crate) fn expand_for(
     name_parts: &NamePartsMap,
     face: &crate::faces::Face,
 ) -> Expansion {
-    expand_inner(docs, name_parts, face, &crate::cancel::CancelToken::never())
-        .expect("a `never` token cannot cancel")
+    expand_inner(
+        docs,
+        name_parts,
+        face,
+        Reuse::default(),
+        &crate::cancel::CancelToken::never(),
+    )
+    .expect("a `never` token cannot cancel")
+}
+
+/// What [`expand_inner`] takes as given rather than resolving: the searches,
+/// or the searches and the aliases (the aliases are resolved against the
+/// searches, so never without them).
+#[derive(Default)]
+pub(crate) struct Reuse {
+    pub searches: Option<Searches>,
+    pub aliases: Option<std::sync::Arc<crate::alias::AliasMap>>,
 }
 
 /// `cancel` is read between the stages below, and inside the one that runs on
-/// every core (settling `map` alternatives); `None` means it was set.
+/// every core (settling `map` alternatives); `None` means it was set. `reuse`
+/// stands in for the first two stages where it can; see [`NameLevel`].
 fn expand_inner(
     docs: &[&Document],
     name_parts: &NamePartsMap,
     face: &crate::faces::Face,
+    reuse: Reuse,
     cancel: &crate::cancel::CancelToken,
 ) -> Option<Expansion> {
     let mut all_items: Vec<ExpandedItem> = Vec::new();
@@ -156,16 +220,29 @@ fn expand_inner(
     // declare what, and the merge candidates below rest on that. Nothing in the
     // other direction: a search reads the names as written, so it needs no
     // alias map of its own.
-    let _perf = crate::startup::PerfStage::new("expand: exists");
-    let (exists, exists_diagnostics) = crate::exists::resolve_scopes(docs, name_parts);
-    diagnostics.extend(exists_diagnostics);
-    if cancel.is_cancelled() {
-        return None;
-    }
-    drop(_perf);
-    let _perf = crate::startup::PerfStage::new("expand: aliases");
-    let aliases = crate::alias::AliasMap::collect_with_merges(docs, name_parts, &exists);
-    drop(_perf);
+    let (exists, exists_diagnostics, aliases) = match reuse {
+        Reuse {
+            searches: Some((exists, diagnostics)),
+            aliases: Some(aliases),
+        } => (exists, diagnostics, aliases),
+        Reuse { searches, .. } => {
+            let (exists, exists_diagnostics) = match searches {
+                Some(searches) => searches,
+                None => {
+                    let _perf = crate::startup::PerfStage::new("expand: exists");
+                    let (exists, diagnostics) = crate::exists::resolve_scopes(docs, name_parts);
+                    (exists.into(), diagnostics.into())
+                }
+            };
+            if cancel.is_cancelled() {
+                return None;
+            }
+            let _perf = crate::startup::PerfStage::new("expand: aliases");
+            let aliases = crate::alias::AliasMap::collect_with_merges(docs, name_parts, &exists);
+            (exists, exists_diagnostics, aliases.into())
+        }
+    };
+    diagnostics.extend(exists_diagnostics.iter().cloned());
     let _perf = crate::startup::PerfStage::new("expand: items");
     if cancel.is_cancelled() {
         return None;
@@ -366,6 +443,8 @@ fn expand_inner(
         diagnostics,
         aliases,
         exists,
+        #[cfg(feature = "editor")]
+        exists_diagnostics,
     })
 }
 

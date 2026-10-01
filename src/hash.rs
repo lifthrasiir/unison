@@ -24,7 +24,32 @@
 //!
 //! Where a map is *not* keyed by author-supplied text and not hot — anything
 //! reading untrusted input, should such a thing ever appear — reach for
-//! `crate::hash::HashMap` by its full path and say why.
+//! `std::collections::HashMap` by its full path and say why.
+//!
+//! # Content keys
+//!
+//! A different job with a different requirement: the caches that key an entry
+//! on a *digest* of what it was made from — the contour cache, the composite
+//! grid cache, [`crate::document::PixelGrid::rescale`]'s memo — and so take two
+//! things with one digest for one thing. There a collision is not a slower
+//! lookup but a glyph drawn with another glyph's outline, so the digest has to
+//! be good at telling structured input apart (grids that differ in one cell,
+//! keys that differ in one small integer), which is exactly what `FxHasher`'s
+//! one multiply per write is not built for. [`KeyHasher`] is `foldhash`'s
+//! quality variant, under a fixed seed so that a key means the same from run
+//! to run. It replaced SipHash-1-3 here, which is as good at this and seven
+//! times the cost on a 15×16 grid (44 ns against 6 on the Mac), and every
+//! rebuild hashes every grid in the font.
 
 pub type HashMap<K, V> = std::collections::HashMap<K, V, rustc_hash::FxBuildHasher>;
 pub type HashSet<T> = std::collections::HashSet<T, rustc_hash::FxBuildHasher>;
+
+/// The hasher for content keys; see the module docs.
+pub type KeyHasher = foldhash::quality::FoldHasher<'static>;
+
+/// A fresh [`KeyHasher`].
+pub fn key_hasher() -> KeyHasher {
+    use std::hash::BuildHasher;
+    static STATE: foldhash::quality::FixedState = foldhash::quality::FixedState::with_seed(0);
+    STATE.build_hasher()
+}

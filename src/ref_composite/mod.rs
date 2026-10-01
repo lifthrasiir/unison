@@ -214,7 +214,7 @@ impl CompositeGridCache {
     }
 }
 
-fn hash_grid_into(grid: &PixelGrid, hasher: &mut std::collections::hash_map::DefaultHasher) {
+fn hash_grid_into(grid: &PixelGrid, hasher: &mut crate::hash::KeyHasher) {
     use std::hash::Hash;
     grid.hash_cells_into(hasher);
     if !grid.details.is_empty() {

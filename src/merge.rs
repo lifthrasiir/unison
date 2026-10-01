@@ -123,54 +123,101 @@ pub fn implicit_merges(
         return Vec::new();
     }
     let matched = remap_inputs(docs, name_parts, aliases);
+    settle(&blocks, &matched, aliases).into_pairs()
+}
+
+/// The fixpoint over `blocks`, as a worklist.
+///
+/// A round used to run every block, and a round that changed anything was
+/// followed by another: a font whose longest chain of pattern blocks naming
+/// each other was *n* deep paid *n* + 1 full passes over sixty thousand
+/// expansions to find what, after the first, a few hundred of them had to say.
+/// A block's merges are a function of its keys alone, and its keys change only
+/// when a join moves one of the names its slots read, so a block no join has
+/// reached since it last ran would ask for joins that are already made. Those
+/// are the blocks skipped here. The ones that do run still run in block order,
+/// round after round, each against the σ its turn sees — which is what makes
+/// this the same σ as the full rounds, and not merely an equivalent one: a
+/// representative is decided by which of two joins comes first, so an order
+/// that differed could keep a different name.
+fn settle(blocks: &[Block], matched: &HashSet<String>, aliases: &AliasMap) -> Merged {
+    // Which blocks read a name, by the name a slot resolves to through the
+    // declared aliases: the part of `canon` that never changes.
+    let mut readers: HashMap<&str, Vec<usize>> = HashMap::default();
+    for (b, block) in blocks.iter().enumerate() {
+        for name in block.slots.iter().flatten() {
+            let name = aliases.resolved_target(name).unwrap_or(name);
+            let list = readers.entry(name).or_default();
+            if list.last() != Some(&b) {
+                list.push(b);
+            }
+        }
+    }
 
     let mut merged = Merged::default();
-
+    let mut dirty = vec![true; blocks.len()];
     loop {
         let mut changed = false;
-        for block in &blocks {
-            // The keys of a whole block first, so `merged` is read through
-            // once and written after — one round sees one state of σ.
-            let keys: Vec<Vec<&str>> = block
-                .slots
-                .iter()
-                .map(|slots| {
-                    slots
-                        .iter()
-                        .map(|n| canon(n, &merged, aliases))
-                        .collect::<Vec<&str>>()
-                })
-                .collect();
-
-            let mut first_with_key: HashMap<&[&str], usize> = HashMap::default();
-            let mut new_merges: Vec<(String, String)> = Vec::new();
-            for (i, key) in keys.iter().enumerate() {
-                // A glyph some rule matches on keeps its own id, and cannot
-                // stand for another glyph either.
-                if matched.contains(block.members[i].as_str()) {
-                    continue;
-                }
-                match first_with_key.get(key.as_slice()) {
-                    None => {
-                        first_with_key.insert(key.as_slice(), i);
-                    }
-                    Some(&first) => {
-                        new_merges.push((block.members[i].clone(), block.members[first].clone()));
-                    }
-                }
+        for (b, block) in blocks.iter().enumerate() {
+            if !std::mem::take(&mut dirty[b]) {
+                continue;
             }
-            // Joining two groups that are already one is not a change, and
-            // saying so is what ends the loop.
-            for (name, first) in new_merges {
-                changed |= merged.join(&name, &first, aliases);
+            for (name, first) in block_merges(block, matched, &merged, aliases) {
+                // Joining two groups that are already one is not a change, and
+                // saying so is what ends the loop.
+                changed |= merged.join(&name, &first, aliases, |moved| {
+                    for &reader in readers.get(moved).into_iter().flatten() {
+                        dirty[reader] = true;
+                    }
+                });
             }
         }
         if !changed {
             break;
         }
     }
+    merged
+}
 
-    merged.into_pairs()
+/// The joins one block asks for under `merged`: each expansion into the first
+/// one whose slots name the same glyphs.
+fn block_merges(
+    block: &Block,
+    matched: &HashSet<String>,
+    merged: &Merged,
+    aliases: &AliasMap,
+) -> Vec<(String, String)> {
+    // The keys of a whole block first, so `merged` is read through once and
+    // written after — one block sees one state of σ.
+    let keys: Vec<Vec<&str>> = block
+        .slots
+        .iter()
+        .map(|slots| {
+            slots
+                .iter()
+                .map(|n| canon(n, merged, aliases))
+                .collect::<Vec<&str>>()
+        })
+        .collect();
+
+    let mut first_with_key: HashMap<&[&str], usize> = HashMap::default();
+    let mut new_merges: Vec<(String, String)> = Vec::new();
+    for (i, key) in keys.iter().enumerate() {
+        // A glyph some rule matches on keeps its own id, and cannot stand for
+        // another glyph either.
+        if matched.contains(block.members[i].as_str()) {
+            continue;
+        }
+        match first_with_key.get(key.as_slice()) {
+            None => {
+                first_with_key.insert(key.as_slice(), i);
+            }
+            Some(&first) => {
+                new_merges.push((block.members[i].clone(), block.members[first].clone()));
+            }
+        }
+    }
+    new_merges
 }
 
 /// σ under construction: every merged name with the name it was merged into,
@@ -196,6 +243,9 @@ pub fn implicit_merges(
 #[derive(Default)]
 struct Merged {
     parent: HashMap<String, String>,
+    /// Every root's group less the root itself, so a join can say whose
+    /// representative it changed; a name absent here is alone in its group.
+    members: HashMap<String, Vec<String>>,
 }
 
 impl Merged {
@@ -212,12 +262,27 @@ impl Merged {
     /// Merge `name`'s group into `first`'s, and say whether that joined two
     /// groups that were not already one. `first`'s representative wins, so the
     /// name a block's first expansion settles on is the one the font keeps.
-    fn join(&mut self, name: &str, first: &str, aliases: &AliasMap) -> bool {
+    /// `moved` is told every name whose representative that changed.
+    fn join(
+        &mut self,
+        name: &str,
+        first: &str,
+        aliases: &AliasMap,
+        mut moved: impl FnMut(&str),
+    ) -> bool {
         let root = canon(name, self, aliases).to_string();
         let into = canon(first, self, aliases).to_string();
         if root == into {
             return false;
         }
+        let mut group = self.members.remove(&root).unwrap_or_default();
+        moved(&root);
+        group.iter().for_each(|n| moved(n));
+        group.push(root.clone());
+        self.members
+            .entry(into.clone())
+            .or_default()
+            .append(&mut group);
         self.parent.insert(root, into);
         true
     }
@@ -280,6 +345,10 @@ fn remap_inputs(
 
 /// Every block whose expansions are candidates: a `glyph` block whose name is
 /// a pattern standing for more than one name, and that does not say `keep`.
+///
+/// `keep` is the one thing this reads of a body itself; the slots are
+/// [`expand_glyph_block_slots`]'s. See [`crate::document::NameMatch::Slots`],
+/// which has to compare whatever this comes to read.
 fn collect_blocks(
     docs: &[&Document],
     name_parts: &NamePartsMap,
@@ -613,6 +682,64 @@ remap g : a-alias -> x
             assert!(!reps.contains(&name.as_str()), "{m:?}");
         }
         assert!(m.iter().any(|(name, _)| name == "x-n"), "{m:?}");
+    }
+
+    /// The full rounds [`settle`] replaced: every block, every round.
+    fn settle_every_round(
+        blocks: &[Block],
+        matched: &HashSet<String>,
+        aliases: &AliasMap,
+    ) -> Merged {
+        let mut merged = Merged::default();
+        loop {
+            let mut changed = false;
+            for block in blocks {
+                for (name, first) in block_merges(block, matched, &merged, aliases) {
+                    changed |= merged.join(&name, &first, aliases, |_| {});
+                }
+            }
+            if !changed {
+                break;
+            }
+        }
+        merged
+    }
+
+    /// Skipping the blocks no join has reached must leave the σ the full
+    /// rounds reach — the same representatives, not just the same groups —
+    /// including where the order of two joins decides which name is kept.
+    #[test]
+    fn the_worklist_settles_on_the_sigma_of_full_rounds() {
+        for src in [
+            // A chain written top-down: one round.
+            "glyph a-(g|j) 1 1\n@@\nglyph b-(g|j) 1 1\nref a-(g|j) 0 0\n\
+             glyph c-(g|j) 1 1\nref b-(g|j) 0 0\n",
+            // The same chain bottom-up: a round per link.
+            "glyph c-(g|j|k) 1 1\nref b-(g|j|k) 0 0\nglyph b-(g|j|k) 1 1\nref a-(g|j|k) 0 0\n\
+             glyph a-(g|j) 1 1\n@@\nglyph a-k 1 1\n..\n",
+            // Two blocks with a name in common, which each want in its own
+            // group: the order of the joins is the whole answer.
+            "glyph x-(a|n) 1 1\n@@\nglyph x-(b|n) 1 1\n@@\n\
+             glyph y-(p|q) 1 1\nref x-(a|b) 0 0\nglyph z-(p|q) 1 1\nref x-(n|b) 0 0\n",
+            // Through a declared alias, and past a name a rule matches on.
+            "glyph a 1 1\n@@\nglyph a-alt = a\nglyph c-(g|j|k) 1 1\nref (a|a-alt|a) 0 0\n\
+             glyph d-(g|j) 1 1\nref c-(g|j) 0 0\nremap g : c-k -> a\n",
+        ] {
+            let doc = parse_document_from_str(src, "t.unf".into()).unwrap();
+            let docs = vec![&doc];
+            let name_parts = crate::document::collect_name_parts(&docs);
+            let aliases = AliasMap::collect(&docs, &name_parts);
+            let (exists, _) = crate::exists::resolve_scopes(&docs, &name_parts);
+            let blocks = collect_blocks(&docs, &name_parts, &exists);
+            let matched = remap_inputs(&docs, &name_parts, &aliases);
+            let full = settle_every_round(&blocks, &matched, &aliases).into_pairs();
+            assert!(!full.is_empty(), "{src}");
+            assert_eq!(
+                settle(&blocks, &matched, &aliases).into_pairs(),
+                full,
+                "{src}"
+            );
+        }
     }
 
     /// `$name-parts` are substituted before anything is compared, exactly as

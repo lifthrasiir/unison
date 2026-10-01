@@ -599,7 +599,10 @@ pub(super) fn build_ttf(
     let has_gpos = anchor_data.gpos.is_some();
 
     if let Some(ref gsub) = gsub {
-        builder.add_table(gsub).unwrap();
+        // Through the memo: the rules rarely change between two builds, and
+        // packing them is most of this function; see `packed`.
+        let bytes = super::packed::packed_gsub(gsub).unwrap();
+        builder.add_raw(Tag::new(b"GSUB"), bytes.to_vec());
     }
 
     if let Some(ref gpos) = anchor_data.gpos {

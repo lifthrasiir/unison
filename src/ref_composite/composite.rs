@@ -134,7 +134,7 @@ impl CompositeLayout<'_> {
     /// only when the ink going into it differs.
     pub(super) fn grid_cache_key(&self, own_pixels: Option<&PixelGrid>, parent_scale: u8) -> u64 {
         use std::hash::{Hash, Hasher};
-        let mut hasher = std::collections::hash_map::DefaultHasher::new();
+        let mut hasher = crate::hash::key_hasher();
         parent_scale.hash(&mut hasher);
         (self.min_r, self.min_c, self.max_r, self.max_c).hash(&mut hasher);
         match own_pixels {

@@ -44,7 +44,7 @@ fn derive_effective_refs(
         refs,
         parent_scale,
         aligns,
-        |name| resolve_cached_ref(name, cache).map(|resolved| resolved.anchors.clone()),
+        |name| resolve_cached_ref(name, cache).map(|resolved| resolved.anchors.to_vec()),
         |name| alt_index.get(name).map_or_else(Vec::new, |v| v.clone()),
         |name| declared_anchors_map.get(name).cloned(),
         origin_of,
@@ -235,7 +235,7 @@ pub(super) struct SharedFontInput {
     /// `remap` rule on every rebuild.
     gsub_data: std::sync::Arc<GsubData>,
     color_aliases: ColorAliasMap,
-    glyph_aliases: crate::alias::AliasMap,
+    glyph_aliases: std::sync::Arc<crate::alias::AliasMap>,
     glyph_meta: GlyphMetaMap,
     inline_glyphs: HashSet<String>,
     /// Each glyph's first definition, as its index into `all_items`: the
@@ -259,7 +259,7 @@ struct FaceInput {
     scale: f32,
     all_items: Vec<DocumentItem>,
     gsub_data: GsubData,
-    glyph_aliases: crate::alias::AliasMap,
+    glyph_aliases: std::sync::Arc<crate::alias::AliasMap>,
 }
 
 /// Where the expansion comes from: computed here, or lent by a caller that
@@ -335,24 +335,25 @@ fn compute_face_input(
 
     let name_parts = collect_name_parts(docs);
     let union = crate::faces::FaceSet::collect(docs).union();
-    let (glyph_aliases, all_items): (crate::alias::AliasMap, Vec<DocumentItem>) = match source {
-        ExpansionSource::Compute => {
-            let expansion = super::expand::expand_for(docs, &name_parts, &union);
-            if cancel.is_cancelled() {
-                return None;
+    let (glyph_aliases, all_items): (std::sync::Arc<crate::alias::AliasMap>, Vec<DocumentItem>) =
+        match source {
+            ExpansionSource::Compute => {
+                let expansion = super::expand::expand_for(docs, &name_parts, &union);
+                if cancel.is_cancelled() {
+                    return None;
+                }
+                let items = face_items(expansion.items(), face);
+                (expansion.aliases, items)
             }
-            let items = face_items(expansion.items(), face);
-            (expansion.aliases, items)
-        }
-        // Copied rather than taken: the lender is still reading it — validation
-        // walks the same expansion beside this build, and the glyph cache
-        // consumes it after. A copy of the items is a fraction of what
-        // producing them costs.
-        ExpansionSource::Lent(expansion) => (
-            expansion.aliases.clone(),
-            face_items(expansion.items(), face),
-        ),
-    };
+            // Copied rather than taken: the lender is still reading it — validation
+            // walks the same expansion beside this build, and the glyph cache
+            // consumes it after. A copy of the items is a fraction of what
+            // producing them costs; the aliases are shared.
+            ExpansionSource::Lent(expansion) => (
+                expansion.aliases.clone(),
+                face_items(expansion.items(), face),
+            ),
+        };
 
     // GSUB expands `remap` patterns straight from the documents rather than
     // from `all_items`, so it is one of the two places that has to
@@ -986,7 +987,7 @@ pub(super) fn collect_glyph_data_with_shared(
             color_layers: Vec::new(),
             mark: body.is_some_and(|b| b.mark),
             resolved_anchors: if anchored {
-                resolved.anchors.clone()
+                resolved.anchors.to_vec()
             } else {
                 Vec::new()
             },

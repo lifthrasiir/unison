@@ -240,6 +240,11 @@ pub fn expand_glyph_block(name: &GlyphName, body: &GlyphBody) -> Result<Vec<Docu
 /// Unlike [`expand_glyph_block`] this substitutes `$name-parts` itself, on the
 /// three names it reads, so a caller holding the block as written needs no
 /// body clone to get at them.
+///
+/// Those names — the block's, its refs', its IDC components' — are all this
+/// reads, and the editor reuses the merges across an edit to anything else in
+/// a block ([`crate::document::NameMatch::Slots`]). Reading more here means
+/// comparing it there.
 pub fn expand_glyph_block_slots(
     name: &GlyphName,
     body: &GlyphBody,

@@ -208,7 +208,7 @@ impl PixelGrid {
 
         let key = {
             use std::hash::{Hash, Hasher};
-            let mut h = std::collections::hash_map::DefaultHasher::new();
+            let mut h = crate::hash::key_hasher();
             self.hash_cells_into(&mut h);
             self.den.hash(&mut h);
             self.details.hash(&mut h);

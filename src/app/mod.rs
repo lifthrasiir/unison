@@ -256,6 +256,10 @@ pub struct UniformApp {
     /// what keeps the pixel grid from trailing the built font by a full
     /// resolve. See [`crate::ref_composite::CompositeGridCache`].
     composite_grid_cache: Arc<Mutex<crate::ref_composite::CompositeGridCache>>,
+    /// The searches and the aliases of the last rebuild, which the next reuses
+    /// when the edit between them was to pixels alone. See
+    /// [`crate::resolve::NameMemo`].
+    name_memo: Arc<Mutex<crate::resolve::NameMemo>>,
     /// Which face the editor builds. The editor never builds a collection —
     /// one face at a time — so this picks the one the preview, the specimen
     /// and the UI font itself are drawn with. Empty means the primary face,
@@ -592,6 +596,7 @@ impl UniformApp {
             rebuild_cancel: crate::cancel::CancelToken::never(),
             contour_cache,
             composite_grid_cache: Arc::default(),
+            name_memo: Arc::default(),
             selected_face,
             face_ids,
             named_glyphs: Arc::default(),

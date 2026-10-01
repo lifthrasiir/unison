@@ -82,7 +82,7 @@ pub fn new_contour_cache() -> SharedContourCache {
 }
 
 fn hash_grid_for_cache(grid: &PixelGrid, bitmap: bool) -> u64 {
-    let mut hasher = std::collections::hash_map::DefaultHasher::new();
+    let mut hasher = crate::hash::key_hasher();
     grid.hash_cells_into(&mut hasher);
     if !grid.details.is_empty() {
         grid.den.hash(&mut hasher);
@@ -173,7 +173,9 @@ pub(super) struct CachedContours {
     /// The glyph's declared box origin in logical cells, carried so a ref's
     /// placement can run box to box (`glyph_cache::CachedGlyphEntry`).
     declared_origin: (i16, i16),
-    pub(super) anchors: Vec<GlyphPoint>,
+    /// Shared for the same reason `contours` is: an entry is copied out of the
+    /// cache on every hit.
+    pub(super) anchors: std::sync::Arc<[GlyphPoint]>,
     pub(super) grid: Option<std::sync::Arc<PixelGrid>>,
     /// What a parent's composite key reads in place of `grid`, which it used to
     /// hash in full — once per ref, per composite, per flavor, on every
@@ -187,7 +189,7 @@ pub(super) struct CachedContours {
     origin_row: i32,
     origin_col: i32,
     /// For composite-eligible glyphs: (component_name, col_offset, row_offset)
-    pub(super) composite_components: Option<Vec<(String, f32, f32)>>,
+    pub(super) composite_components: Option<std::sync::Arc<[(String, f32, f32)]>>,
     pub(super) scale: u8,
 }
 
@@ -224,7 +226,7 @@ impl crate::render::glyph_cache::CachedGlyphEntry for CachedContours {
     }
 
     fn set_resolution(&mut self, anchors: Vec<GlyphPoint>, scale: u8, origin: (i16, i16)) {
-        self.anchors = anchors;
+        self.anchors = anchors.into();
         self.scale = scale;
         self.declared_origin = origin;
     }
@@ -253,7 +255,7 @@ impl CachedContours {
             width: 0,
             height: 0,
             contours: Default::default(),
-            anchors: Vec::new(),
+            anchors: std::sync::Arc::default(),
             grid: None,
             grid_hash: 0,
             origin_row: 0,
@@ -322,7 +324,7 @@ impl CachedContours {
             width: flavored.width,
             height: flavored.height,
             contours,
-            anchors: Vec::new(),
+            anchors: std::sync::Arc::default(),
             grid: Some(flavored),
             grid_hash,
             origin_row: 0,
@@ -341,7 +343,7 @@ impl CachedContours {
         bitmap: bool,
         parent_scale: u8,
     ) -> u64 {
-        let mut hasher = std::collections::hash_map::DefaultHasher::new();
+        let mut hasher = crate::hash::key_hasher();
         bitmap.hash(&mut hasher);
         parent_scale.hash(&mut hasher);
         if let Some(grid) = own_pixels {
@@ -491,7 +493,7 @@ impl CachedContours {
                     .max(declared_extent(|c| c.height, |g| g.row(), |o| o.1))
                     .max(0) as u16,
                 contours: std::sync::Arc::new(contours),
-                anchors: Vec::new(),
+                anchors: std::sync::Arc::default(),
                 grid_hash: hash_grid_for_cache(&result, bitmap),
                 grid: Some(std::sync::Arc::new(result)),
                 origin_row,
@@ -576,7 +578,7 @@ impl CachedContours {
                     .max(declared_extent(|c| c.height, |g| g.row(), |o| o.1))
                     .max(0) as u16,
                 contours: std::sync::Arc::new(contours),
-                anchors: Vec::new(),
+                anchors: std::sync::Arc::default(),
                 grid_hash: hash_grid_for_cache(&result, bitmap),
                 grid: Some(std::sync::Arc::new(result)),
                 origin_row,
@@ -654,14 +656,14 @@ impl CachedContours {
             width: max_width as u16,
             height: max_height as u16,
             contours: std::sync::Arc::new(all_contours),
-            anchors: Vec::new(),
+            anchors: std::sync::Arc::default(),
             grid_hash: combined_grid
                 .as_ref()
                 .map_or(0, |grid| hash_grid_for_cache(grid, bitmap)),
             grid: combined_grid.map(std::sync::Arc::new),
             origin_row,
             origin_col,
-            composite_components: Some(components),
+            composite_components: Some(components.into()),
             scale: 1,
         })
     }

@@ -679,6 +679,11 @@ const FEED_CHUNK: usize = 256;
 /// The searched set is grown to a fixpoint: an `exists` may match names another
 /// `exists` declared. See the module docs for the round budget that stands in
 /// for cycle detection.
+///
+/// Of a `glyph` block this reads the name and nothing else, and the editor
+/// reuses the answer across an edit to anything else in one
+/// ([`crate::document::NameMatch::Names`]). Reading more of a block here means
+/// comparing it there.
 pub fn resolve_scopes(
     docs: &[&Document],
     name_parts: &NamePartsMap,

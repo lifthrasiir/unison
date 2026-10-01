@@ -72,6 +72,7 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Why an IDC component keeps its written name past canonicalization | `alias.rs`, `compose/split.rs` (`expand_compose`) |
 | Several names of one pattern block turning out to be one glyph; why two blocks never merge; why a merge is decided on names; which glyph a `remap` stops from merging; `keep` as the opt-out | `merge.rs` |
 | Why a scoped block's matches are still one merge candidate set | `merge.rs` (`collect_blocks`) |
+| Why the merge fixpoint skips a block no join has reached, and why that is the same σ and not an equivalent one | `merge.rs` (`settle`) |
 | What a pattern glyph block shares with every name it declares | `document/name_parts.rs` (`expand_glyph_block`) |
 | What a `$-N` or a `($N)` draws on the grid, and why it is the first expansion | `editor/item_bindings.rs`, `exists.rs` (`FirstMatches`) |
 
@@ -168,12 +169,15 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Why an expansion is face-independent, and where a face is applied to it instead | `faces.rs` (`FaceSet::union`), `render/ttf_builder/collect.rs` (`face_items`) |
 | Why only the union face is traced, and what a secondary face costs instead | `render/ttf_builder/mod.rs` (`build_faces_from`), `collect.rs` (`collect_face_cmap`) |
 | Why every map here is hashed with `rustc-hash` rather than `std`'s default, and what that costs | `hash.rs` |
+| Which hasher a content key (a digest standing for what an entry was made from) uses, and why not `rustc-hash` | `hash.rs` (`# Content keys`, `KeyHasher`) |
 | Hashing a pixel grid for a cache key: why the cells go in as one write | `document/pixel_grid.rs` (`hash_cells_into`), `render/ttf_builder/contours.rs` (`hash_grid_for_cache`), `ref_composite/mod.rs` (`hash_grid_into`) |
 | Why a glyph's own grid is cached under the grid as written, why a composite key reads a component's stored hash, and why cache entries share their contours | `render/ttf_builder/contours.rs` (`trace_own_grid`, `CachedContours::grid_hash`, `CachedContours::contours`) |
 | Which build stages run at once, and what they must not share | `render/ttf_builder/mod.rs` (`build_faces`, `build_font_pair_cached_for`), `contours.rs` (`ContourCaches`) |
 | Why a resolution round is a wave; splitting a memo off its tracer | `render/glyph_cache.rs` (`resolve_pending`, `CompositeBuilder`), `ref_composite/mod.rs` (`resolve_expansion_cached`), `render/ttf_builder/contours.rs` (`ContourBuilder`) |
 | Dropping a composite that can never resolve before the expensive loop sees it | `render/glyph_cache.rs` (`drop_unresolvable`) |
 | Why a resolve recomposes only what an edit reached | `ref_composite/mod.rs` (`CompositeGridCache`) |
+| Why `GSUB` is packed once per distinct table, and why promoting to extensions does not help | `render/ttf_builder/packed.rs` |
+| Which part of an expansion a pixel edit leaves as it was, and how the editor tells a pixel edit | `resolve.rs` (`NameMemo`), `render/ttf_builder/expand/mod.rs` (`NameLevel`), `document/mod.rs` (`Document::same_but_cells`) |
 | Which of a `build`'s outputs are produced at once | `main.rs` (`OutputWork`) |
 | Why the directory load reads its files on many threads; what a refresh re-reads | `render/ttf_builder/mod.rs` (`load_docs_from_directory_with_sources`, `DirCache`) |
 | Typing a glyph no `map` names: the cascade, why a per-glyph cost cannot answer it, the repair search | `render/reach.rs` (`Cascade`), `render/ttf_builder/collect.rs` (`remap_only_sequences`) |

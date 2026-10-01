@@ -20,6 +20,9 @@ serde = { version = "1", features = ["derive"] }
 # See `hash.rs`: every hot map here is keyed by a glyph name, and SipHash was a
 # fifth of a rebuild.
 rustc-hash = "2"
+# See `hash.rs` (`KeyHasher`): the content fingerprints the build's caches are
+# keyed on, where a collision is a wrong glyph rather than a slow lookup.
+foldhash = { version = "0.2", default-features = false }
 serde_json = "1"
 ttf2woff2 = { version = "0.13", default-features = false }
 

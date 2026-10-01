@@ -403,6 +403,7 @@ impl UniformApp {
         // starting, so the lock below is never contended — it is what makes the
         // cache shareable at all, not a queue.
         let grid_cache = self.composite_grid_cache.clone();
+        let name_memo = self.name_memo.clone();
         let face = self.selected_face.clone();
         // Only when its tab is open: what the specimen reads out of the
         // documents is a third full expansion, and nobody who cannot see it
@@ -429,7 +430,8 @@ impl UniformApp {
             let refs: Vec<&Document> = owned_docs.iter().map(|d| &**d).collect();
             let issue_line_ids =
                 crate::editor::issue_marks::snapshot_line_ids(refs.iter().copied());
-            let Some(resolution) = crate::resolve::Resolution::compute_cancellable(&refs, &cancel)
+            let Some(resolution) =
+                crate::resolve::Resolution::compute_reusing(&owned_docs, &name_memo, &cancel)
             else {
                 font_slot.set((build_gen, FontBuildOutcome::Cancelled));
                 slot.set(DerivedDataResult::Cancelled);

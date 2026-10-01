@@ -64,6 +64,9 @@ pub(crate) fn resolve_cached_named<'a, V>(
     if let Some((key, cached)) = cache.get_key_value(name) {
         return Some((key, cached));
     }
+    if crate::pattern::NamePattern::element_is_plain(name) {
+        return None;
+    }
     let expanded = crate::ref_composite::parse_ref_pattern(name)?;
     cache
         .get_key_value(&expanded.get(0))
@@ -311,8 +314,9 @@ fn drop_unresolvable<V>(cache: &HashMap<String, V>, pending: &mut Vec<PendingGly
     // of it read as a pattern.
     fn ref_known(name: &str, known: &crate::hash::HashSet<String>) -> bool {
         known.contains(name)
-            || crate::ref_composite::parse_ref_pattern(name)
-                .is_some_and(|expanded| known.contains(&expanded.get(0)))
+            || (!crate::pattern::NamePattern::element_is_plain(name)
+                && crate::ref_composite::parse_ref_pattern(name)
+                    .is_some_and(|expanded| known.contains(&expanded.get(0))))
     }
 
     let mut known: crate::hash::HashSet<String> = cache.keys().cloned().collect();
