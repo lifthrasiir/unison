@@ -147,6 +147,7 @@ from __future__ import annotations
 import argparse
 import bisect
 import gzip
+import itertools
 import os
 import re
 import sys
@@ -442,11 +443,27 @@ class Family:
     whether the block that names it is a pattern block: a character with any
     region-suffixed name of its own has no plain name to write, so a line using
     it says `han-XXXX-($-1)` and its own header says `-($han-regions)`.
+
+    `plain` is what the *plain* name offers a regional character besides: the
+    drawings under `han-XXXX:LABEL` itself. A character whose regions differ
+    only as a whole character may well be drawn once as a part (又 as
+    `han-53c8:9x16` beside per-region 15x16 shapes), and a line that names it
+    plainly reaches that drawing in every region alike. Which of the two names
+    a line writes is `feasible`'s to choose. Empty for a character that is not
+    regional, whose plain drawings are `shared` already.
     """
 
     cp: int
     regional: bool
     shared: list[Variant]
+    plain: list[Variant] = field(default_factory=list)
+
+    def options(self) -> list[tuple[list[Variant], bool]]:
+        """The ways a line may name this character: (what it offers, regional)."""
+        out = [(self.shared, self.regional)] if self.shared else []
+        if self.plain:
+            out.append((self.plain, False))
+        return out
 
 
 @dataclass
@@ -746,11 +763,13 @@ def build_families(inv: Inventory) -> None:
         per_region = {r: by_family.get(f"{stem}-{r}", {}) for r in inv.regions}
         regional = any(per_region.values())
         shared: list[Variant] = []
+        plain: list[Variant] = []
+        for label, name in sorted(by_family.get(stem, {}).items()):
+            got = inv.resolve(name)
+            if got is not None:
+                plain.append(got)
         if not regional:
-            for label, name in sorted(by_family.get(stem, {}).items()):
-                got = inv.resolve(name)
-                if got is not None:
-                    shared.append(got)
+            shared, plain = plain, []
         elif all(per_region.values()):
             labels = set.intersection(*(set(m) for m in per_region.values()))
             for label in sorted(labels):
@@ -771,7 +790,7 @@ def build_families(inv: Inventory) -> None:
                         first.cavity,
                     )
                 )
-        inv.families[cp] = Family(cp, regional, shared)
+        inv.families[cp] = Family(cp, regional, shared, plain)
 
 
 # --------------------------------------------------------------------------
@@ -1175,6 +1194,9 @@ class Verdict:
     kind: str | None  # "handdrawn", "composite", or None when nothing does
     fits: bool  # some combination of what is drawn tiles the box today
     reason: str  # why `kind` is None
+    # per component: name it `han-XXXX-($-1)` rather than `han-XXXX`, as
+    # chosen along with the answer above (`Family.options`)
+    regional: tuple[bool, ...] = ()
 
 
 def feasible(inv: Inventory, op: str, comps: list[int], inlined: bool = False) -> Verdict:
@@ -1196,19 +1218,29 @@ def feasible(inv: Inventory, op: str, comps: list[int], inlined: bool = False) -
 
     What a component *is* asked is [`Family.shared`], so a character whose
     shape differs by region is held to the labels every region draws: the line
-    names it once and that one name has to resolve in each of them.
+    names it once and that one name has to resolve in each of them. Such a
+    character may also be drawn under its plain name (`Family.plain`), and then
+    each naming is asked in turn: the line takes one that fits, and otherwise
+    stays with the regional name it always had.
     """
     families = [inv.families.get(cp) for cp in comps]
-    if any(f is None or not f.shared for f in families):
+    options = [f.options() if f is not None else [] for f in families]
+    if any(not o for o in options):
         return Verdict(None, False, "component not drawn")
-    cands = [f.shared for f in families]
-    kind = "handdrawn" if all(any(v.handdrawn for v in c) for c in cands) else "composite"
-    fits = (
-        feasible_enclosure(cands)
-        if op in ENCLOSING
-        else feasible_split(op, cands, inlined)
-    )
-    return Verdict(kind, fits, "")
+    best: tuple[tuple[bool, bool, int], Verdict] | None = None
+    for picked in itertools.product(*options):
+        cands = [c for c, _ in picked]
+        regional = tuple(r for _, r in picked)
+        kind = "handdrawn" if all(any(v.handdrawn for v in c) for c in cands) else "composite"
+        fits = (
+            feasible_enclosure(cands)
+            if op in ENCLOSING
+            else feasible_split(op, cands, inlined)
+        )
+        rank = (fits, kind == "handdrawn", sum(regional))
+        if best is None or rank > best[0]:
+            best = (rank, Verdict(kind, fits, "", regional))
+    return best[1]
 
 
 def feasible_split(op: str, cands: list[list[Variant]], inlined: bool) -> bool:
@@ -1568,14 +1600,17 @@ class Line:
         ]
 
 
-def make_line(inv: Inventory, op: str, comps: list[int], also: list[int] = ()) -> Line:
+def make_line(inv: Inventory, op: str, comps: list[int], also: list[int] = (),
+              regional: tuple[bool, ...] | None = None) -> Line:
     """The line those components spell, asking the inventory how to name each.
 
     `also` is a second component list the same block will carry (an inlined
     block's un-inlined line): a region in either of them is one the header has
     to bind, since a `($-1)` means nothing under a header that has no group.
+    `regional` is the naming `feasible` chose, where it was asked.
     """
-    regional = tuple(regional_flags(inv, comps))
+    if regional is None:
+        regional = tuple(regional_flags(inv, comps))
     patterned = any(regional) or any(regional_flags(inv, list(also)))
     return Line(op, tuple(comps), regional, patterned)
 
@@ -2052,7 +2087,8 @@ def main() -> int:
         # How each component is named, and so whether this block is a family:
         # the un-inlined line the block may keep beside the drawn one is asked
         # too, since its `($-1)` needs the same header group.
-        line = make_line(inv, op, comps, list(cand_alt[1]) if cand_alt else [])
+        line = make_line(inv, op, comps, list(cand_alt[1]) if cand_alt else [],
+                         verdict.regional)
         alt = (
             Line(cand_alt[0], tuple(cand_alt[1]),
                  tuple(regional_flags(inv, list(cand_alt[1]))), line.patterned)
