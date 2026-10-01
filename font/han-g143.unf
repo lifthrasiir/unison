@@ -33,6 +33,9 @@ glyph han-30cf0:15x16 15 16 // 𰳰
 glyph han-30cf7:15x16 15 16 // 𰳷
 ⿲ han-8864.0:5x14 han-529b:5x16 1 han-53e3:4x12 // ⿲衤力口
 
+// glyph han-30cf8-($han-regions):15x16 15 16 // 𰳸
+// ⿰ han-8864-($-1) han-5bf9 // ⿰衤对
+
 ## 145.6
 
 // glyph han-30cf9:15x16 15 16 // 𰳹
@@ -145,6 +148,9 @@ glyph han-30d30:15x16 15 16 // 𰴰 ⿰訁吕(T) ⿰訁呂(Z)
 // glyph han-30d36-($han-regions):15x16 15 16 // 𰴶
 // ⿰ han-8a01-($-1) han-4e1e // ⿰訁丞
 
+// glyph han-30d38-($han-regions):15x16 15 16 // 𰴸
+// ⿱ han-6b22 han-8a00-($-1) // ⿱欢言
+
 ## 149.7
 
 glyph han-30d3a:15x16 15 16 // 𰴺
@@ -154,6 +160,9 @@ glyph han-30d3a:15x16 15 16 // 𰴺
 
 // glyph han-30d43:15x16 15 16 // 𰵃
 // ⿰ han-8a01 han-7ade // ⿰訁竞
+
+// glyph han-30d44-($han-regions):15x16 15 16 // 𰵄
+// ⿰ han-8a01-($-1) han-96be // ⿰訁难
 
 ## 149.11
 
@@ -213,6 +222,9 @@ glyph han-30d5d:15x16 15 16 // 𰵝
 
 // glyph han-30d5f:15x16 15 16 // 𰵟
 // ⿰ han-8ba0 han-5170 // ⿰讠兰
+
+// glyph han-30d60:15x16 15 16 // 𰵠
+// ⿰ han-8ba0 han-5974 // ⿰讠奴
 
 ## 149'.6
 
@@ -445,8 +457,14 @@ glyph han-30e02:15x16 15 16 // 𰸂
 
 ## 157.4
 
+// glyph han-30e05:15x16 15 16 // 𰸅
+// ⿰ han-27fb7 han-6534 // ⿰𧾷攴
+
 // glyph han-30e06:15x16 15 16 // 𰸆
 // ⿰ han-27fb7 han-516d // ⿰𧾷六
+
+// glyph han-30e07:15x16 15 16 // 𰸇
+// ⿰ han-27fb7 han-53cc // ⿰𧾷双
 
 ## 157.6
 
@@ -624,6 +642,9 @@ glyph han-30e81:15x16 15 16 // 𰺁
 glyph han-30e82:15x16 15 16 // 𰺂
 ⿰ han-8f66:6x16-l han-5305.1:9x16 // ⿰车包
 
+// glyph han-30e83:15x16 15 16 // 𰺃
+// ⿰ han-8f66 han-5bf9 // ⿰车对
+
 ## 159'.6
 
 glyph han-30e84:15x16 15 16 // 𰺄
@@ -641,6 +662,9 @@ glyph han-30e87:15x16 15 16 // 𰺇
 
 glyph han-30e89:15x16 15 16 // 𰺉
 ⿰ han-8f66:4x16-l han-9752-g:11x16 // ⿰车青
+
+// glyph han-30e8b:15x16 15 16 // 𰺋
+// ⿰ han-8f66 han-53d6 // ⿰车取
 
 glyph han-30e8d:15x16 15 16 // 𰺍
 ⿰ han-8f66:6x16-l han-679c:9x16 // ⿰车果
@@ -813,6 +837,11 @@ glyph han-30eec:15x16 15 16 // 𰻬
 
 glyph han-30f03:15x16 15 16 // 𰼃
 ⿰ han-9149:7x16 1 han-4e0a:7x16 // ⿰酉上
+
+## 164.5
+
+// glyph han-30f06:15x16 15 16 // 𰼆
+// ⿱ han-5974 han-9149 // ⿱奴酉
 
 ## 164.8
 

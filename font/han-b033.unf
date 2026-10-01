@@ -172,7 +172,7 @@ glyph han-2158b:15x16 15 16 // 𡖋
 ⿱ han-5915:15x8 4 han-706c:15x4 // ⿱夕灬
 
 glyph han-2158c:15x16 15 16 // 𡖌
-⿱ -1 han-5915:15x8 han-4e2d:15x9 // ⿱夕中
+assume ⿱ han-5915:15x8 -1 han-4e2d:13x9 // ⿱夕中
 
 ## 36.5
 
@@ -191,6 +191,9 @@ glyph han-21591-($han-regions):15x16 15 16 // 𡖑
 
 // glyph han-2159a:15x16 15 16 // 𡖚
 // ⿱ han-540d han-4e95 // ⿱名井
+
+// glyph han-22ec8:15x16 15 16 // 𢻈
+// ⿺ han-652f han-591a // ⿺支多
 
 ## 36.8
 

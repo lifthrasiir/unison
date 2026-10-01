@@ -146,8 +146,9 @@ ref han-5973:5x14-l 5 1
 
 ## 38.2
 
-// glyph han-5974-($han-regions):15x16 15 16 // 奴
-// ⿰ han-5973 han-53c8-($-1) // ⿰女又
+glyph han-5974:15x16 15 16 // 奴
+assume ⿰ han-5973:7x16 -1 han-53c8:9x16 // ⿰女又
+glyph han-5974.0:* = han-5974:*
 
 glyph han-5975:15x16 15 16 // 奵
 ⿰ han-5973:5x14-l -1 han-4e01:11x16 // ⿰女丁
@@ -245,6 +246,9 @@ glyph han-5991:15x16 15 16 // 妑
 
 // glyph han-5992:15x16 15 16 // 妒 ⿰女户(GHPV) ⿰女戶(TJK)
 // ⿰ han-5973 han-6237 // ⿰女户
+
+// glyph han-5993:15x16 15 16 // 妓
+// ⿰ han-5973 han-652f // ⿰女支
 
 glyph han-5994:15x16 15 16 // 妔
 ⿰ han-5973:5x14-l 1 han-4ea2:9x16 // ⿰女亢
@@ -619,6 +623,12 @@ glyph han-5a33:15x16 15 16 // 娳
 
 ## 38.8
 
+// glyph han-5a35:15x16 15 16 // 娵 ⿰女取(GHTP) ⿰女⿸耳又(JK)
+// ⿰ han-5973 han-53d6 // ⿰女取
+
+// glyph han-5a36:15x16 15 16 // 娶
+// ⿱ han-53d6 han-5973 // ⿱取女
+
 glyph han-5a38:15x16 15 16 // 娸
 ⿰ han-5973:5x14-l 1 han-5176:9x16 // ⿰女其
 
@@ -664,6 +674,9 @@ glyph han-5a52:15x16 15 16 // 婒
 
 glyph han-5a54-($han-regions):15x16 15 16 // 婔
 ⿰ han-5973:5x14-l 1 han-975e-($-1):9x16 // ⿰女非
+
+// glyph han-5a5c:15x16 15 16 // 婜
+// ⿱ han-81e4 han-5973 // ⿱臤女
 
 glyph han-5a5f:15x16 15 16 // 婟
 ⿰ han-5973:5x14-l 1 han-56fa:9x16 // ⿰女固
@@ -1439,6 +1452,9 @@ glyph han-5b62:15x16 15 16 // 孢
 // glyph han-5b64-($han-regions):15x16 15 16 // 孤
 // ⿰ han-5b50-($-1) han-74dc-($-1) // ⿰子瓜
 
+// glyph han-5b65-($han-regions):15x16 15 16 // 孥
+// ⿱ han-5974 han-5b50-($-1) // ⿱奴子
+
 ## 39.6
 
 // glyph han-5b68:15x16 15 16 // 孨
@@ -1453,6 +1469,9 @@ glyph han-5b6d:15x16 15 16 // 孭
 ⿰ han-5b50.0:7x16-l han-8c9d:8x16 // ⿰子貝
 
 ## 39.8
+
+// glyph han-5b6f-($han-regions):15x16 15 16 // 孯
+// ⿱ han-81e4 han-5b50-($-1) // ⿱臤子
 
 // glyph han-5b70-($han-regions):15x16 15 16 // 孰 ⿰享{20}(GHTP) ⿰享丸(JK[V])
 // ⿰ han-4eab-($-1) han-4e38-($-1) // ⿰享丸
@@ -2019,8 +2038,8 @@ glyph han-5bf8.0:* = han-5bf8:*
 
 ## 41.2
 
-// glyph han-5bf9-($han-regions):15x16 15 16 // 对
-// ⿰ han-53c8-($-1) han-5bf8 // ⿰又寸
+glyph han-5bf9:15x16 15 16 // 对
+⿰ han-53c8:7x16-l 1 han-5bf8:7x16 // ⿰又寸
 
 ## 41.3
 

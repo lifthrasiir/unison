@@ -721,6 +721,9 @@ glyph han-7120:15x16 15 16 // 焠
 // glyph han-7122:15x16 15 16 // 焢
 // ⿰ han-706b han-7a7a // ⿰火空
 
+// glyph han-7123:15x16 15 16 // 焣
+// ⿱ han-53d6 han-706c // ⿱取灬
+
 glyph han-7126:15x16 15 16 // 焦
 ⿱ han-96b9:15x12 han-706c:15x4 // ⿱隹灬
 glyph han-7126.0:* = han-7126:*

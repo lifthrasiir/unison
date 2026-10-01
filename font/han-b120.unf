@@ -71,6 +71,9 @@ glyph han-25f9e.1:* = han-25f9e-j:*
 // glyph han-25fa2:15x16 15 16 // 𥾢
 // ⿰ han-7cf9 han-5184 // ⿰糹冄
 
+// glyph han-25fa3-($han-regions):15x16 15 16 // 𥾣 ⿰糹支(GT) ⿰糸支(P)
+// ⿰ han-7cf9-($-1) han-652f // ⿰糹支
+
 // glyph han-25fa5-($han-regions):15x16 15 16 // 𥾥
 // ⿱ han-723b-($-1) han-7cf8 // ⿱爻糸
 
@@ -94,6 +97,9 @@ glyph han-25faf-($han-regions):15x16 15 16 // 𥾯
 
 glyph han-25fb1:15x16 15 16 // 𥾱
 ⿲ han-7cf9-g:5x14 han-624c:5x16 han-4e5a:5x16 // ⿲糹扌乚
+
+// glyph han-25fb2-($han-regions):15x16 15 16 // 𥾲
+// ⿰ han-7cf9-($-1) han-6534 // ⿰糹攴
 
 glyph han-25fb6:15x16 15 16 // 𥾶
 ⿰ han-7cf9-t:5x14 1 han-6708:9x16 // ⿰糹月

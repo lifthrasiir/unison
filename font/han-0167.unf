@@ -324,6 +324,12 @@ glyph han-9216.0:* = han-9216-j:*
 // glyph han-9217:15x16 15 16 // 鈗
 // ⿰ han-91d2 han-5141 // ⿰釒允
 
+// glyph han-9218:15x16 15 16 // 鈘
+// ⿰ han-91d2 han-652f // ⿰釒支
+
+// glyph han-9219:15x16 15 16 // 鈙
+// ⿰ han-91d2 han-6534 // ⿰釒攴
+
 glyph han-921a-($han-regions):15x16 15 16 // 鈚
 ⿰ han-91d2:5x15-l 1 han-6bd4-($-1):9x16 // ⿰釒比
 
@@ -848,11 +854,17 @@ glyph han-927c.4:* = han-927c.0:*
 glyph han-927c-(g|h|t|j|p):* = han-927c.0:*
 glyph han-927c-k:* = han-927c.2:*
 
+// glyph han-92f7:15x16 15 16 // 鋷 ⿰釒取(GHTP) ⿰釒⿸耳又(JK)
+// ⿰ han-91d2 han-53d6 // ⿰釒取
+
 // glyph han-92f8:15x16 15 16 // 鋸
 // ⿰ han-91d2 han-5c45 // ⿰釒居
 
 // glyph han-92f9:15x16 15 16 // 鋹
 // ⿰ han-91d2 han-9577 // ⿰釒長
+
+// glyph han-92fb:15x16 15 16 // 鋻
+// ⿱ han-81e4 han-91d1 // ⿱臤金
 
 glyph han-92fd:15x16 15 16 // 鋽
 ⿰ han-91d2:7x16 1 han-5353:7x16 // ⿰釒卓

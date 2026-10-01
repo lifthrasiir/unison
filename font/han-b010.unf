@@ -171,6 +171,9 @@ assume ⿱ han-5165:15x8 2 han-4e8c:15x6 // ⿱入二
 
 ## 11.4
 
+// glyph han-204e0:15x16 15 16 // 𠓠
+// ⿱ han-5165 han-6534 // ⿱入攴
+
 // glyph han-204e2:15x16 15 16 // 𠓢
 // ⿱ han-5165 han-624b // ⿱入手
 
@@ -178,6 +181,9 @@ glyph han-204e3:15x16 15 16 // 𠓣
 ⿱ han-5165:15x10 han-5fc3:15x6 // ⿱入心
 
 ## 11.5
+
+// glyph han-204e5:15x16 15 16 // 𠓥
+// ⿱ han-204db han-6534 // ⿱𠓛攴
 
 glyph han-204e6:15x16 15 16 // 𠓦
 ⿱ han-5165:15x7 han-7530:11x9 // ⿱入田
@@ -207,6 +213,9 @@ glyph han-204ed-t:* = han-204ed.1:*
 
 // glyph han-204ef:15x16 15 16 // 𠓯
 // ⿱ han-5165 han-7a7a // ⿱入空
+
+// glyph han-204f0-($han-regions):15x16 15 16 // 𠓰
+// ⿱ han-5168-($-1) han-53cc // ⿱全双
 
 ## 11.11
 
@@ -251,7 +260,7 @@ assume ⿱ 1 han-516b-($-1):15x6 2 han-516b-($-1):15x6 1 // ⿱八八 (TODO)
 ## 12.4
 
 glyph han-20508-($han-regions):15x16 15 16 // 𠔈
-assume ⿱ han-516b-($-1):15x6 -2 han-4e2d:15x12 // ⿱八中
+assume ⿱ han-516b-($-1):15x6 -2 han-4e2d:11x12 // ⿱八中
 
 // glyph han-20509:15x16 15 16 // 𠔉 ⿱八夫(TJV) ⿻丷夫(Z)
 // ⿱ han-516b han-592b // ⿱八夫

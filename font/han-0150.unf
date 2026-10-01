@@ -138,6 +138,11 @@ glyph han-8c47.0:* = han-8c47:*
 // glyph han-8c48:15x16 15 16 // 豈
 // ⿱ han-5c71 han-8c46 // ⿱山豆
 
+## 151.4
+
+// glyph han-8c49:15x16 15 16 // 豉
+// ⿰ han-8c46 han-652f // ⿰豆支
+
 ## 151.6
 
 // glyph han-8c4a:15x16 15 16 // 豊
@@ -147,6 +152,9 @@ glyph han-8c47.0:* = han-8c47:*
 
 // glyph han-8c4d-($han-regions):15x16 15 16 // 豍
 // ⿰ han-8c46 han-5351-($-1) // ⿰豆卑
+
+// glyph han-8c4e:15x16 15 16 // 豎
+// ⿱ han-81e4 han-8c46 // ⿱臤豆
 
 # CJK unified ideographs: 豕 (152)
 
@@ -457,6 +465,9 @@ glyph han-8ce0:15x16 15 16 // 賠
 ⿰ han-8c9d:6x16 han-5485:9x16 // ⿰貝咅
 glyph han-8ce0.0:* = han-8ce0:*
 
+// glyph han-8ce2:15x16 15 16 // 賢
+// ⿱ han-81e4 han-8c9d // ⿱臤貝
+
 // glyph han-8ce3:15x16 15 16 // 賣
 // ⿳ han-58eb han-7f52 han-8c9d // ⿳士罒貝 <- ⿱士買
 
@@ -705,6 +716,9 @@ ref han-9fb0:15x16
 // glyph han-8da1:15x16 15 16 // 趡
 // ⿺ han-8d70 han-96b9 // ⿺走隹
 
+// glyph han-8da3:15x16 15 16 // 趣 ⿺走取(GHTJPV) ⿺走⿸耳又(K)
+// ⿺ han-8d70 han-53d6 // ⿺走取
+
 ## 156.9
 
 // glyph han-8da7:15x16 15 16 // 趧
@@ -787,6 +801,9 @@ glyph han-8dc0:15x16 15 16 // 跀
 
 glyph han-8dc1:15x16 15 16 // 跁
 ⿰ han-27fb7:5x15 1 han-5df4:9x16 // ⿰𧾷巴
+
+// glyph han-8dc2:15x16 15 16 // 跂
+// ⿰ han-27fb7 han-652f // ⿰𧾷支
 
 // glyph han-8dc3:15x16 15 16 // 跃
 // ⿰ han-27fb7 han-592d // ⿰𧾷夭
@@ -992,6 +1009,9 @@ glyph han-8e13:15x16 15 16 // 踓
 
 glyph han-8e14:15x16 15 16 // 踔
 ⿰ han-27fb7:7x14 1 han-5353:7x16 // ⿰𧾷卓
+
+// glyph han-8e19:15x16 15 16 // 踙
+// ⿰ han-27fb7 han-53d6 // ⿰𧾷取
 
 // glyph han-8e1b:15x16 15 16 // 踛
 // ⿰ han-27fb7 han-5774 // ⿰𧾷坴

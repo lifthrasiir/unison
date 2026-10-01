@@ -318,6 +318,9 @@ glyph han-27a33-($han-regions):15x16 15 16 // 𧨳
 // glyph han-27a55:15x16 15 16 // 𧩕
 // ⿰ han-8a01 han-59be // ⿰訁妾
 
+// glyph han-27a5e-($han-regions):15x16 15 16 // 𧩞
+// ⿱ han-53d6 han-8a00-($-1) // ⿱取言
+
 // glyph han-27a60:15x16 15 16 // 𧩠 ⿰訁凮(GTP) ⿰訁凬(U)
 // ⿰ han-8a01 han-51ee // ⿰訁凮
 

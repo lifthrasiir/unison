@@ -409,6 +409,9 @@ glyph han-32487-($han-regions):15x16 15 16 // 𲒇
 
 ## 14.4
 
+// glyph han-32488:15x16 15 16 // 𲒈
+// ⿱ han-5196 han-652f // ⿱冖支
+
 glyph han-32489:15x16 15 16 // 𲒉
 ⿱ han-5196:15x3 han-9fb0:15x13 // ⿱冖龰
 
@@ -1050,6 +1053,9 @@ glyph han-32637:15x16 15 16 // 𲘷
 // glyph han-32653:15x16 15 16 // 𲙓
 // ⿰ han-572d han-4e19 // ⿰圭丙
 
+// glyph han-32654:15x16 15 16 // 𲙔
+// ⿰ han-571f han-53d6 // ⿰土取
+
 // glyph han-32655:15x16 15 16 // 𲙕
 // ⿰ han-571f han-62db // ⿰土招
 
@@ -1205,6 +1211,9 @@ glyph han-326c5:15x16 15 16 // 𲛅
 
 // glyph han-326d8-($han-regions):15x16 15 16 // 𲛘
 // ⿰ han-5973 han-6ce5-($-1) // ⿰女泥
+
+// glyph han-326da:15x16 15 16 // 𲛚
+// ⿱ han-5974 han-4f1a // ⿱奴会
 
 // glyph han-326db:15x16 15 16 // 𲛛
 // ⿰ han-5973 han-5c48 // ⿰女屈

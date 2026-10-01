@@ -8,8 +8,13 @@ glyph han-2893d:15x16 15 16 // 𨤽
 glyph han-2893f:15x16 15 16 // 𨤿
 ⿰ han-91d2:5x15-l 1 han-4eba:9x16 // ⿰釒人
 
-// glyph han-28941-($han-regions):15x16 15 16 // 𨥁
-// ⿰ han-91d2 han-53c8-($-1) // ⿰釒又
+glyph han-28941:15x16 15 16 // 𨥁
+⿰ han-91d2:5x15-l 1 han-53c8:9x16 // ⿰釒又
+glyph han-28941.0:* = han-28941:*
+glyph han-28941.1:15x16 15 16 // 𨥁
+ref han-28941.0:15x16
+ref 1x1 6 0 negated
+ref 6x1 8 0 negated
 
 ## 167.3
 
@@ -60,6 +65,9 @@ glyph han-28954:15x16 15 16 // 𨥔
 glyph han-28955:15x16 15 16 // 𨥕
 ⿰ han-91d2:5x15-l 1 han-4e91:9x16 // ⿰釒云
 
+// glyph han-28956:15x16 15 16 // 𨥖
+// ⿱ han-91d1 han-53cc // ⿱金双
+
 // glyph han-28957:15x16 15 16 // 𨥗
 // ⿱ han-6c34 han-91d1 // ⿱水金
 
@@ -85,6 +93,9 @@ glyph han-2895a:15x16 15 16 // 𨥚
 // ⿱ han-20678 han-91d1 // ⿱𠙸金
 
 ## 167.5
+
+// glyph han-2896c:15x16 15 16 // 𨥬
+// ⿱ han-5974 han-91d1 // ⿱奴金
 
 glyph han-2896e:15x16 15 16 // 𨥮
 ⿰ han-91d2:7x16 1 han-793a:7x14 // ⿰釒示
@@ -289,6 +300,9 @@ glyph han-28a13:15x16 15 16 // 𨨓
 
 // glyph han-28a17:15x16 15 16 // 𨨗
 // ⿱ han-6797 han-91d1 // ⿱林金
+
+// glyph han-28a18:15x16 15 16 // 𨨘
+// ⿰ han-91d2 han-81e4 // ⿰釒臤
 
 glyph han-28a1b:15x16 15 16 // 𨨛
 ⿲ han-91d2:5x15-l han-79be:5x16 1 han-53e3:4x12 // ⿲釒禾口

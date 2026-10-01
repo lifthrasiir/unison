@@ -410,6 +410,9 @@ glyph han-5c8f:15x16 15 16 // 岏
 ⿰ han-5c71:5x12-l 1 han-5143:9x16 // ⿰山元
 glyph han-5c8f.0:* = han-5c8f:*
 
+// glyph han-5c90:15x16 15 16 // 岐
+// ⿰ han-5c71 han-652f // ⿰山支
+
 // glyph han-5c91:15x16 15 16 // 岑
 // ⿱ han-5c71 han-4eca // ⿱山今
 
@@ -2965,6 +2968,9 @@ glyph han-5e10:15x16 15 16 // 帐
 
 ## 50.5
 
+// glyph han-5e11:15x16 15 16 // 帑
+// ⿱ han-5974 han-5dfe // ⿱奴巾
+
 glyph han-5e13:15x16 15 16 // 帓
 ⿰ han-5dfe:5x16 1 han-672b:9x16 // ⿰巾末
 glyph han-5e13.0:* = han-5e13:*
@@ -3845,6 +3851,9 @@ glyph han-5e8a:15x16 15 16 // 床
 ⿸ han-5e7f:15x16.11x13 han-6728:11x13 4 3 // ⿸广木
 glyph han-5e8a.0:* = han-5e8a:*
 
+// glyph han-5e8b:15x16 15 16 // 庋
+// ⿸ han-5e7f han-652f // ⿸广支
+
 // glyph han-5e8d:15x16 15 16 // 庍
 // ⿸ han-5e7f han-65a4 // ⿸广斤
 
@@ -4625,6 +4634,9 @@ glyph han-5f24.0:* = han-5f24-j:*
 glyph han-5f28:15x16 15 16 // 弨
 ⿰ han-5f13:7x16 han-53ec:8x16 // ⿰弓召
 glyph han-5f28.0:* = han-5f28:*
+
+// glyph han-5f29:15x16 15 16 // 弩
+// ⿱ han-5974 han-5f13 // ⿱奴弓
 
 ## 57.6
 

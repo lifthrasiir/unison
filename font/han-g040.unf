@@ -667,7 +667,7 @@ glyph han-30476:15x16 15 16 // 𰑶
 // ⿲ han-5fc4 han-6c35 han-820c // ⿲忄氵舌 <- ⿰忄活
 
 glyph han-3047b:15x16 15 16 // 𰑻
-⿳ han-7acb:15x5 han-4e2d:15x6 han-5fc3:15x5 // ⿳立中心
+⿳ han-7acb:15x5 han-4e2d:11x6 han-5fc3:15x5 // ⿳立中心
 
 ## 61.10
 
@@ -822,6 +822,9 @@ glyph han-304e4:15x16 15 16 // 𰓤
 // glyph han-304e6:15x16 15 16 // 𰓦
 // ⿰ han-624b han-7a75 // ⿰手穵
 
+// glyph han-304e8:15x16 15 16 // 𰓨
+// ⿰ han-624c han-305d1 // ⿰扌𰗑
+
 // glyph han-304ea:15x16 15 16 // 𰓪
 // ⿰ han-624b han-807f // ⿰手聿
 
@@ -907,6 +910,35 @@ glyph han-30521:15x16 15 16 // 𰔡
 
 // glyph han-3053d:15x16 15 16 // 𰔽
 // ⿰ han-624b han-96da // ⿰手雚
+
+# CJK unified ideographs extension G: 支 (65)
+
+## 65.3
+
+// glyph han-30540:15x16 15 16 // 𰕀
+// ⿺ han-652f han-5ddb // ⿺支巛
+
+## 65.6
+
+// glyph han-30541:15x16 15 16 // 𰕁
+// ⿺ han-652f han-5bfb // ⿺支寻
+
+## 65.9
+
+// glyph han-30542:15x16 15 16 // 𰕂 ⿰支竒(S) ⿰支奇(Z)
+// ⿰ han-652f han-5947 // ⿰支奇
+
+# CJK unified ideographs extension G: 攴 (66)
+
+## 66.2
+
+// glyph han-30543:15x16 15 16 // 𰕃
+// ⿰ han-4e02 han-6534 // ⿰丂攴
+
+## 66.4
+
+// glyph han-30546:15x16 15 16 // 𰕆
+// ⿰ han-65b9 han-6534 // ⿰方攴
 
 # CJK unified ideographs extension G: 文 (67)
 
@@ -1041,13 +1073,24 @@ glyph han-30590:15x16 15 16 // 𰖐
 glyph han-3059b:15x16 15 16 // 𰖛
 ⿰ han-65e5:5x16 1 han-99ac:9x16 // ⿰日馬
 
+// glyph han-3059e:15x16 15 16 // 𰖞
+// ⿰ han-661f han-5bf9 // ⿰星对
+
 glyph han-3059f:15x16 15 16 // 𰖟
 ⿲ han-65e5:4x14-l han-6c35:3x12 1 han-826f-g:7x16 // ⿲日氵良
+
+// glyph han-305a0:15x16 15 16 // 𰖠
+// ⿱ han-65e5 han-96be // ⿱日难
 
 ## 72.11
 
 // glyph han-305a3:15x16 15 16 // 𰖣
 // ⿰ han-65e5 han-26cb8 // ⿰日𦲸
+
+## 72.13
+
+// glyph han-305b0:15x16 15 16 // 𰖰
+// ⿺ han-662f han-53d6 // ⿺是取
 
 ## 72.14
 
@@ -1109,11 +1152,11 @@ glyph han-305d0:15x16 15 16 // 𰗐 〾⿻{48}𠆢(S) ⿻㐄𠆢(Z)
 ..............................
 ref han-672a:15x16
 
-// glyph han-305d1-($han-regions):15x16 15 16 // 𰗑
-// ⿱ han-53c8-($-1) han-6728 // ⿱又木
+glyph han-305d1:15x16 15 16 // 𰗑
+⿱ han-53c8:15x10 -1 han-6728:15x7 // ⿱又木
 
-// glyph han-305d2-($han-regions):15x16 15 16 // 𰗒
-// ⿱ han-6728 han-53c8-($-1) // ⿱木又
+glyph han-305d2:15x16 15 16 // 𰗒
+⿱ han-6728:15x5 1 han-53c8:15x10 // ⿱木又
 
 ## 75.3
 

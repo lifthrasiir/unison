@@ -1485,15 +1485,20 @@ glyph han-2d19f:15x16 15 16 // 𭆟
 
 ## 29.3
 
-// glyph han-2d1a6-($han-regions):15x16 15 16 // 𭆦
-// ⿱ han-53c8-($-1) han-4e0a // ⿱又上
+glyph han-2d1a6:15x16 15 16 // 𭆦
+⿱ han-53c8:15x10 -1 han-4e0a:15x7 // ⿱又上
 
 ## 29.4
 
-// glyph han-2d1a8-($han-regions):15x16 15 16 // 𭆨
-// ⿱ han-53c8-($-1) han-6b62 // ⿱又止
+glyph han-2d1a8:15x16 15 16 // 𭆨
+⿱ han-53c8:15x10 -1 han-6b62:15x7 // ⿱又止
 
 ## 29.7
 
 // glyph han-2d1ae-($han-regions):15x16 15 16 // 𭆮
 // ⿱ han-8c37 han-53c8-($-1) // ⿱谷又
+
+## 29.10
+
+// glyph han-2d1b3:15x16 15 16 // 𭆳
+// ⿱ han-81e4 han-4e91 // ⿱臤云

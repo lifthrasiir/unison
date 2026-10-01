@@ -87,6 +87,9 @@ glyph han-9809:15x16 15 16 // 頉
 glyph han-980a:15x16 15 16 // 頊
 ⿰ han-248e9:7x14 1 han-9801:7x16 // ⿰𤣩頁
 
+// glyph han-980d:15x16 15 16 // 頍
+// ⿰ han-652f han-9801 // ⿰支頁
+
 glyph han-980e:15x16 15 16 // 頎
 ⿰ han-65a4:7x16 1 han-9801:7x16 // ⿰斤頁
 
@@ -127,6 +130,9 @@ glyph han-9819.2:15x16 15 16 // 頙
 ⿰ han-6b63:6x16-l han-9801:9x16 // ⿰正頁
 glyph han-9819-j:* = han-9819.0:*
 glyph han-9819-(g|t|k):* = han-9819.2:*
+
+// glyph han-981a:15x16 15 16 // 頚 ⿰圣頁(GTJ) ⿰𱑱頁(P)
+// ⿰ han-5723 han-9801 // ⿰圣頁
 
 ## 181.6
 
@@ -1200,8 +1206,9 @@ $$......................\1@@$$
 
 ## 187.2
 
-// glyph han-99ad-($han-regions):15x16 15 16 // 馭
-// ⿰ han-99ac han-53c8-($-1) // ⿰馬又
+glyph han-99ad:15x16 15 16 // 馭
+⿰ han-99ac:8x16 han-53c8:7x16 // ⿰馬又
+glyph han-99ad.0:* = han-99ad:*
 
 glyph han-99ae:15x16 15 16 // 馮
 ⿰ han-51ab:5x14 1 han-99ac:9x16 // ⿰冫馬
@@ -1230,6 +1237,9 @@ glyph han-99b4:15x16 15 16 // 馴
 // ⿱ han-99ac han-5efe // ⿱馬廾
 
 ## 187.4
+
+// glyph han-99b6:15x16 15 16 // 馶
+// ⿰ han-99ac han-652f // ⿰馬支
 
 // glyph han-99b7:15x16 15 16 // 馷
 // ⿰ han-99ac han-5dff // ⿰馬巿
@@ -1295,6 +1305,9 @@ glyph han-99cf-(h|t|j):15x16 15 16 // 駏
 
 // glyph han-99d0:15x16 15 16 // 駐
 // ⿰ han-99ac han-4e3b // ⿰馬主
+
+// glyph han-99d1:15x16 15 16 // 駑
+// ⿱ han-5974 han-99ac // ⿱奴馬
 
 glyph han-99d2:15x16 15 16 // 駒
 assume ⿰ han-99ac:8x16 -1 han-53e5:8x16 // ⿰馬句

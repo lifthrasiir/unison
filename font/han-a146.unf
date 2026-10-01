@@ -174,6 +174,9 @@ glyph han-46b0.1:* = han-46b0-g:*
 
 ## 149.4
 
+// glyph han-46b3-($han-regions):15x16 15 16 // 䚳
+// ⿰ han-8a01-($-1) han-652f // ⿰訁支
+
 glyph han-46b4-($han-regions):15x16 15 16 // 䚴
 ⿰ han-8a01-($-1):7x16 han-6708:8x16 // ⿰訁月
 
@@ -372,6 +375,11 @@ glyph han-472c:15x16 15 16 // 䜬
 // glyph han-4733:15x16 15 16 // 䜳
 // ⿱ han-8c46 han-200ca // ⿱豆𠃊
 
+## 151.4
+
+// glyph han-4734:15x16 15 16 // 䜴
+// ⿰ han-8c46 han-6534 // ⿰豆攴
+
 ## 151.5
 
 glyph han-4735:15x16 15 16 // 䜵
@@ -486,6 +494,9 @@ glyph han-477c.1:* = han-477c-g:*
 
 // glyph han-4799:15x16 15 16 // 䞙
 // ⿺ han-8d70 han-5e00 // ⿺走帀
+
+// glyph han-479a:15x16 15 16 // 䞚
+// ⿺ han-8d70 han-652f // ⿺走支
 
 // glyph han-479b:15x16 15 16 // 䞛
 // ⿺ han-8d70 han-4e0f // ⿺走丏
@@ -784,6 +795,9 @@ glyph han-4847:15x16 15 16 // 䡇
 glyph han-4849:15x16 15 16 // 䡉
 ⿰ han-8eca:5x16 1 han-4ea2:9x16 // ⿰車亢
 
+// glyph han-484b:15x16 15 16 // 䡋
+// ⿰ han-8eca han-652f // ⿰車支
+
 // glyph han-484c:15x16 15 16 // 䡌
 // ⿰ han-8eca han-53b7 // ⿰車厷
 
@@ -1073,6 +1087,9 @@ glyph han-48e6:15x16 15 16 // 䣦
 
 // glyph han-48ea:15x16 15 16 // 䣪
 // ⿰ han-9149 han-5dff // ⿰酉巿
+
+// glyph han-48eb:15x16 15 16 // 䣫
+// ⿰ han-9149 han-652f // ⿰酉支
 
 // glyph han-48ed:15x16 15 16 // 䣭
 // ⿰ han-9149 han-72ac // ⿰酉犬
@@ -1461,6 +1478,9 @@ glyph han-49f3:15x16 15 16 // 䧳
 
 ## 172.4
 
+// glyph han-49f4:15x16 15 16 // 䧴
+// ⿰ han-652f han-96b9 // ⿰支隹
+
 glyph han-49f6:15x16 15 16 // 䧶
 ⿱ han-96b9:15x9 han-516d:15x7 // ⿱隹六
 
@@ -1500,3 +1520,8 @@ glyph han-49fc-($han-regions):15x16 15 16 // 䧼
 
 // glyph han-4a02:15x16 15 16 // 䨂
 // ⿱ han-79cb han-96b9 // ⿱秋隹
+
+## 172.12
+
+// glyph han-4a07:15x16 15 16 // 䨇 ⿰隻隻(GTP) ⿱雔双(X)
+// ⿱ han-96d4 han-53cc // ⿱雔双

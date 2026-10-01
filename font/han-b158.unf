@@ -45,10 +45,16 @@ glyph han-28215-(t|j):15x16 15 16 // 𨈕
 // glyph han-28218:15x16 15 16 // 𨈘
 // ⿰ han-8eab han-5c11 // ⿰身少
 
+// glyph han-28219:15x16 15 16 // 𨈙
+// ⿰ han-8eab han-6534 // ⿰身攴
+
 glyph han-2821a-(g|p):15x16 15 16 // 𨈚
 ⿰ han-8eab.x:7x16 1 han-6bd4-($-1):7x16 // ⿰身比
 glyph han-2821a-(h|t|j):15x16 15 16 // 𨈚
 ⿰ han-8eab:9x16 han-6bd4-($-1):6x16 // ⿰身比
+
+// glyph han-2821b:15x16 15 16 // 𨈛
+// ⿰ han-8eab han-652f // ⿰身支
 
 // glyph han-2821c:15x16 15 16 // 𨈜
 // ⿰ han-8eab han-5184 // ⿰身冄
@@ -311,6 +317,9 @@ assume ⿰ han-8eca:7x16 -1 han-5206.0:9x16 // ⿰車分
 
 // glyph han-282c9:15x16 15 16 // 𨋉
 // ⿱ han-6c34 han-8eca // ⿱水車
+
+// glyph han-282cc:15x16 15 16 // 𨋌
+// ⿱ han-8eca han-53cc // ⿱車双
 
 // glyph han-282cd:15x16 15 16 // 𨋍
 // ⿰ han-8eca han-5141 // ⿰車允

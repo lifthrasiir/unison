@@ -85,8 +85,8 @@ glyph han-6b20.0:* = han-6b20:*
 glyph han-6b21:15x16 15 16 // 次 ⿰冫欠(GHJKPV) ⿰二欠(T)
 ⿰ han-51ab:5x14 1 han-6b20:9x16 // ⿰冫欠
 
-// glyph han-6b22-($han-regions):15x16 15 16 // 欢
-// ⿰ han-53c8-($-1) han-6b20 // ⿰又欠
+glyph han-6b22:15x16 15 16 // 欢
+⿰ han-53c8:7x16-l 1 han-6b20:7x16 // ⿰又欠
 
 ## 76.4
 
@@ -922,6 +922,9 @@ glyph han-6b64-($han-regions):15x16 15 16 // 此
 ⿰ han-6b62:8x16-l han-5315-($-1):7x16 // ⿰止匕
 
 ## 77.4
+
+// glyph han-6b67:15x16 15 16 // 歧
+// ⿰ han-6b62 han-652f // ⿰止支
 
 glyph han-6b68:15x16 15 16 // 歨
 ⿱ han-6b62:15x7 han-9fb0:15x9 // ⿱止龰

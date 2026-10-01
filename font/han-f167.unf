@@ -34,6 +34,9 @@ glyph han-2e86e:15x16 15 16 // 𮡮
 
 ## 167.7
 
+// glyph han-2e880:15x16 15 16 // 𮢀
+// ⿰ han-91d2 han-24f26 // ⿰釒𤼦
+
 // glyph han-2e881:15x16 15 16 // 𮢁
 // ⿰ han-91d2 han-5fcc // ⿰釒忌
 
@@ -809,6 +812,11 @@ glyph han-2ea5d:15x16 15 16 // 𮩝
 // glyph han-2ea5f-($han-regions):15x16 15 16 // 𮩟
 // ⿰ han-9996 han-4e08-($-1) // ⿰首丈
 
+## 185.8
+
+// glyph han-2ea64:15x16 15 16 // 𮩤
+// ⿱ han-81e4 han-9996 // ⿱臤首
+
 ## 185.9
 
 // glyph han-2ea65:15x16 15 16 // 𮩥
@@ -841,6 +849,9 @@ glyph han-2ea79:15x16 15 16 // 𮩹
 
 // glyph han-2ea7b:15x16 15 16 // 𮩻
 // ⿱ han-53f0 han-99ac // ⿱台馬
+
+// glyph han-2ea7c:15x16 15 16 // 𮩼
+// ⿰ han-99ac han-5974 // ⿰馬奴
 
 glyph han-2ea7d:15x16 15 16 // 𮩽
 ⿰ han-99ac:8x16 han-5f17:7x16 // ⿰馬弗
@@ -972,6 +983,11 @@ glyph han-2eaa8:15x16 15 16 // 𮪨
 
 // glyph han-2eaf0-($han-regions):15x16 15 16 // 𮫰 ⿰魚{20}(J) ⿰魚丸(Z)
 // ⿰ han-9b5a han-4e38-($-1) // ⿰魚丸
+
+## 195.4
+
+// glyph han-2eaf1:15x16 15 16 // 𮫱
+// ⿰ han-9b5a han-6534 // ⿰魚攴
 
 ## 195.6
 

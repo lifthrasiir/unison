@@ -692,6 +692,9 @@ glyph han-7ae8.0:* = han-7ae8:*
 // glyph han-7ae9:15x16 15 16 // 竩
 // ⿰ han-7acb han-5b9c // ⿰立宜
 
+// glyph han-7aea:15x16 15 16 // 竪
+// ⿱ han-81e4 han-7acb // ⿱臤立
+
 ## 117.9
 
 glyph han-7aed:15x16 15 16 // 竭
@@ -868,6 +871,9 @@ glyph han-7b2a.0:* = han-7b2a:*
 
 // glyph han-7b2e:15x16 15 16 // 笮
 // ⿱ han-25ad7 han-4e4d // ⿱𥫗乍
+
+// glyph han-7b2f:15x16 15 16 // 笯
+// ⿱ han-25ad7 han-5974 // ⿱𥫗奴
 
 // glyph han-7b30:15x16 15 16 // 笰
 // ⿱ han-25ad7 han-5f17 // ⿱𥫗弗
@@ -1063,6 +1069,9 @@ glyph han-7b81:15x16 15 16 // 箁
 
 // glyph han-7b82:15x16 15 16 // 箂
 // ⿱ han-25ad7 han-4f86 // ⿱𥫗來
+
+// glyph han-7b83:15x16 15 16 // 箃
+// ⿱ han-25ad7 han-53d6 // ⿱𥫗取
 
 // glyph han-7b84:15x16 15 16 // 箄 ⿱𥫗卑(GHTKP) ⿱𥫗⿱⿱㇒⿻日丿十(J)
 // ⿱ han-25ad7 han-5351 // ⿱𥫗卑

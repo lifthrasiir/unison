@@ -66,6 +66,9 @@ ref 2x6-xz1 11 5
 
 ## 87.5
 
+// glyph han-24500:15x16 15 16 // 𤔀
+// ⿺ han-722a han-5974 // ⿺爪奴
+
 // glyph han-24505:15x16 15 16 // 𤔅
 // ⿺ han-722a han-5931 // ⿺爪失
 
@@ -92,6 +95,9 @@ ref 2x6-xz1 11 5
 
 // glyph han-24516:15x16 15 16 // 𤔖
 // ⿰ han-679c han-722a // ⿰果爪
+
+// glyph han-2451b:15x16 15 16 // 𤔛
+// ⿱ han-53d6 han-722a // ⿱取爪
 
 ## 87.11
 
@@ -123,12 +129,22 @@ glyph han-2454f:15x16 15 16 // 𤕏
 // glyph han-24555-($han-regions):15x16 15 16 // 𤕕
 // ⿱ han-7236-($-1) han-9091 // ⿱父邑
 
+## 88.8
+
+// glyph han-24556-($han-regions):15x16 15 16 // 𤕖
+// ⿱ han-7236-($-1) han-53d6 // ⿱父取
+
 ## 88.10
 
 // glyph han-2455a-($han-regions):15x16 15 16 // 𤕚
 // ⿳ han-4ea0 han-96b9 han-7236-($-1) // ⿳亠隹父
 
 # CJK unified ideographs extension B: 爻 (89)
+
+## 89.4
+
+// glyph han-2455d-($han-regions):15x16 15 16 // 𤕝
+// ⿰ han-723b-($-1) han-6534 // ⿰爻攴
 
 ## 89.5
 
@@ -201,8 +217,8 @@ $$..@@@@@@@@@@@@@@@@@@@@@@..$$
 
 ## 90.2
 
-// glyph han-2456d-($han-regions):15x16 15 16 // 𤕭
-// ⿰ han-723f han-53c8-($-1) // ⿰爿又
+glyph han-2456d:15x16 15 16 // 𤕭
+⿰ han-723f:6x16 han-53c8:9x16 // ⿰爿又
 
 ## 90.4
 
@@ -494,6 +510,9 @@ glyph han-24625-($han-regions):15x16 15 16 // 𤘥
 // glyph han-24628:15x16 15 16 // 𤘨
 // ⿰ han-4eca han-725b // ⿰今牛
 
+// glyph han-24629:15x16 15 16 // 𤘩
+// ⿱ han-53cc han-725b // ⿱双牛
+
 // glyph han-2462a:15x16 15 16 // 𤘪
 // ⿰ han-725c han-4e39 // ⿰牜丹
 
@@ -514,6 +533,9 @@ glyph han-2462f:15x16 15 16 // 𤘯
 
 // glyph han-24632:15x16 15 16 // 𤘲
 // ⿰ han-725c han-72ac // ⿰牜犬
+
+// glyph han-24634:15x16 15 16 // 𤘴
+// ⿰ han-725c han-6534 // ⿰牜攴
 
 // glyph han-24635:15x16 15 16 // 𤘵
 // ⿱ han-65e5 han-725b // ⿱日牛
@@ -646,6 +668,9 @@ glyph han-2467e:15x16 15 16 // 𤙾 ⿰牜并(G) ⿰牜幷(Z)
 
 // glyph han-24686:15x16 15 16 // 𤚆
 // ⿰ han-725c han-9642 // ⿰牜陂
+
+// glyph han-24689:15x16 15 16 // 𤚉
+// ⿱ han-53d6 han-725b // ⿱取牛
 
 ## 93.9
 

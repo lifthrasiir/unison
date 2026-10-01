@@ -337,6 +337,9 @@ glyph han-627b.0:* = han-627b:*
 // ref han-6c36 // ⿻氶三
 // ref han-4e09
 
+// glyph han-6280:15x16 15 16 // 技
+// ⿰ han-624c han-652f // ⿰扌支
+
 // glyph han-6281:15x16 15 16 // 抁
 // ⿰ han-624c han-5141 // ⿰扌允
 
@@ -564,6 +567,9 @@ glyph han-62cd.0:* = han-62cd:*
 glyph han-62ce-($han-regions):15x16 15 16 // 拎
 ⿰ han-624c:5x16 1 han-4ee4-($-1):9x16 // ⿰扌令
 glyph han-62ce.0:* = han-62ce-j:*
+
+// glyph han-62cf:15x16 15 16 // 拏
+// ⿱ han-5974 han-624b // ⿱奴手
 
 // glyph han-62d0:15x16 15 16 // 拐 ⿰扌另(GKPV) ⿰扌叧(HMTJ)
 // ⿰ han-624c han-53e6 // ⿰扌另
@@ -947,6 +953,9 @@ glyph han-6392.1:* = han-6392-j:*
 glyph han-6392.2:* = han-6392-k:*
 glyph han-6392.3:* = han-6392-j:*
 
+// glyph han-6394:15x16 15 16 // 掔
+// ⿱ han-81e4 han-624b // ⿱臤手
+
 glyph han-6397:15x16 15 16 // 掗
 ⿰ han-624c:5x16 han-4e9e:10x16 // ⿰扌亞
 
@@ -978,6 +987,9 @@ glyph han-63a8.0:* = han-63a8:*
 
 // glyph han-63a9:15x16 15 16 // 掩
 // ⿰ han-624c han-5944 // ⿰扌奄
+
+// glyph han-63ab:15x16 15 16 // 掫 ⿰扌取(GHTP) ⿰扌⿸耳又(JK)
+// ⿰ han-624c han-53d6 // ⿰扌取
 
 // glyph han-63b0:15x16 15 16 // 掰 ⿲⿱㇒⿻二丿分手(GK) ⿲手分手(HT)
 // ⿲ han-624b han-5206 han-624b // ⿲手分手
@@ -1127,6 +1139,9 @@ glyph han-6435.0:* = han-6435:*
 
 // glyph han-6446:15x16 15 16 // 摆
 // ⿰ han-624c han-7f62 // ⿰扌罢
+
+// glyph han-644a:15x16 15 16 // 摊
+// ⿰ han-624c han-96be // ⿰扌难
 
 ## 64.11
 

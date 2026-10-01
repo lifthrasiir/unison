@@ -417,6 +417,11 @@ glyph han-2c44e:15x16 15 16 // 𬑎
 glyph han-2c457:15x16 15 16 // 𬑗
 ⿰ han-76ee:3x13-l 1 han-95f4:10x16 // ⿰目间
 
+## 109.9
+
+// glyph han-2c45d:15x16 15 16 // 𬑝
+// ⿱ han-250eb han-8db3 // ⿱𥃫足
+
 ## 109.10
 
 glyph han-2c463:15x16 15 16 // 𬑣
@@ -663,6 +668,9 @@ glyph han-2c4e2-($han-regions):15x16 15 16 // 𬓢
 // glyph han-2c509:15x16 15 16 // 𬔉 ⿱穴吕(G) ⿱穴呂(Z)
 // ⿳ han-5b80 han-516b han-5415 // ⿳宀八吕 <- ⿱穴吕
 
+// glyph han-2c50a-($han-regions):15x16 15 16 // 𬔊
+// ⿱ han-7a74-($-1) han-2d1a8 // ⿱穴𭆨
+
 ## 116.7
 
 // glyph han-2c50b:15x16 15 16 // 𬔋
@@ -906,6 +914,9 @@ glyph han-2c593:15x16 15 16 // 𬖓
 
 // glyph han-2c594:15x16 15 16 // 𬖔 ⿰米术(G) ⿰米朮(Z)
 // ⿰ han-7c73 han-672f // ⿰米术
+
+// glyph han-2c597:15x16 15 16 // 𬖗
+// ⿰ han-7c73 han-5974 // ⿰米奴
 
 ## 119.6
 

@@ -137,6 +137,9 @@ glyph han-3f75.0:* = han-3f75:*
 // glyph han-3f77:15x16 15 16 // 㽷
 // ⿸ han-7592 han-6c34 // ⿸疒水
 
+// glyph han-3f7b:15x16 15 16 // 㽻
+// ⿸ han-7592 han-652f // ⿸疒支
+
 ## 104.5
 
 glyph han-3f7d:15x16 15 16 // 㽽
@@ -541,6 +544,9 @@ glyph han-403f:15x16 15 16 // 䀿
 
 ## 109.8
 
+// glyph han-4042:15x16 15 16 // 䁂
+// ⿱ han-81e4 han-76ee // ⿱臤目
+
 // glyph han-4045:15x16 15 16 // 䁅
 // ⿰ han-76ee han-5b5f // ⿰目孟
 
@@ -869,6 +875,9 @@ glyph han-40fc:15x16 15 16 // 䃼
 
 ## 113.4
 
+// glyph han-40fd:15x16 15 16 // 䃽 ⿰礻支(GT) ⿰示支(P)
+// ⿰ han-793b han-652f // ⿰礻支
+
 glyph han-40fe-($han-regions):15x16 15 16 // 䃾
 ⿰ han-793a-or-793b-($-1):7x14 han-6bd4-($-1):8x16 // ⿰示比
 glyph han-40fe.0:* = han-40fe-j:*
@@ -1134,7 +1143,7 @@ glyph han-4191:15x16 15 16 // 䆑 ⿱穴丁(G) ⿱⿱宀儿丁(TK)
 // ⿱ han-7a74-($-1) han-5141 // ⿱穴允
 
 glyph han-4194:15x16 15 16 // 䆔 ⿱穴中(G) ⿱⿱宀儿中(TP)
-⿱ han-7a74.2:15x7 han-4e2d:15x9 // ⿱穴中
+⿱ han-7a74.2:15x7 han-4e2d:11x9 // ⿱穴中
 
 // glyph han-4195:15x16 15 16 // 䆕 ⿱穴夬(G) ⿱⿱宀儿夬(TKP)
 // ⿳ han-5b80 han-513f han-592c // ⿳宀儿夬 <- ⿱⿱宀儿夬
@@ -1274,6 +1283,9 @@ glyph han-41c6:15x16 15 16 // 䇆
 
 glyph han-41c7:15x16 15 16 // 䇇
 ⿰ han-7acb:5x16 han-6c11:10x16 // ⿰立民
+
+// glyph han-41c8:15x16 15 16 // 䇈
+// ⿰ han-7acb han-5723 // ⿰立圣
 
 glyph han-41c9:15x16 15 16 // 䇉
 ⿰ han-7acb:7x16 han-77f3:8x16 // ⿰立石

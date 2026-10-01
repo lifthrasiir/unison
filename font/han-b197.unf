@@ -31,6 +31,9 @@ glyph han-2a397-g:15x16 15 16 // 𪎗
 glyph han-2a397-(t|j):15x16 15 16 // 𪎗
 ⿸ han-9ebb.1:15x16.11x7 han-65e5:11x6 4 10 // ⿸麻日
 
+// glyph han-2a398-($han-regions):15x16 15 16 // 𪎘 ⿰麻攴(G) ⿰⿸广𣏟攴(UCS2003)
+// ⿰ han-9ebb-($-1) han-6534 // ⿰麻攴
+
 // glyph han-2a399-($han-regions):15x16 15 16 // 𪎙 ⿸麻开(G) ⿸麻幵(Z)
 // ⿸ han-9ebb-($-1) han-5f00 // ⿸麻开
 

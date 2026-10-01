@@ -597,11 +597,17 @@ glyph han-321ef:15x16 15 16 // 𲇯
 
 ## 167'.4
 
+// glyph han-321f1:15x16 15 16 // 𲇱
+// ⿰ han-9485 han-652f // ⿰钅支
+
 // glyph han-321f2:15x16 15 16 // 𲇲
 // ⿰ han-9485 han-4e13 // ⿰钅专
 
 // glyph han-321f4:15x16 15 16 // 𲇴
 // ⿰ han-9485 han-5fc3 // ⿰钅心
+
+// glyph han-321f5:15x16 15 16 // 𲇵
+// ⿰ han-9485 han-53cc // ⿰钅双
 
 ## 167'.5
 
@@ -720,6 +726,9 @@ glyph han-32228:15x16 15 16 // 𲈨
 // glyph han-32235:15x16 15 16 // 𲈵
 // ⿵ han-95e8 han-6c34 // ⿵门水
 
+// glyph han-32237:15x16 15 16 // 𲈷
+// ⿵ han-95e8 han-53cc // ⿵门双
+
 glyph han-32238:15x16 15 16 // 𲈸
 ⿵ han-95e8:15x16.11x15 han-4e11-g:10x14 2 2 // ⿵门丑
 
@@ -803,6 +812,11 @@ glyph han-32267:15x16 15 16 // 𲉧
 
 // glyph han-32268:15x16 15 16 // 𲉨
 // ⿺ han-4e5d han-96b9 // ⿺九隹
+
+## 172.4
+
+// glyph han-32269:15x16 15 16 // 𲉩
+// ⿱ han-96b9 han-53cc // ⿱隹双
 
 ## 172.5
 
@@ -958,6 +972,9 @@ glyph han-322b4:15x16 15 16 // 𲊴
 glyph han-322d5:15x16 15 16 // 𲋕
 ⿰ han-98e0-g:7x16 1 han-79be:7x16 // ⿰飠禾
 
+// glyph han-322d6-($han-regions):15x16 15 16 // 𲋖
+// ⿱ han-5974 han-98df-($-1) // ⿱奴食
+
 ## 184.9
 
 // glyph han-322db-($han-regions):15x16 15 16 // 𲋛
@@ -1102,6 +1119,9 @@ glyph han-32348:15x16 15 16 // 𲍈
 
 glyph han-3234c:15x16 15 16 // 𲍌
 ⿰ han-9c7c:7x16-l 1 han-53e4:7x16 // ⿰鱼古
+
+// glyph han-3234d:15x16 15 16 // 𲍍
+// ⿱ han-5bf9 han-9c7c // ⿱对鱼
 
 ## 195'.6
 

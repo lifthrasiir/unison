@@ -238,6 +238,9 @@ glyph han-2e264:15x16 15 16 // 𮉤
 
 ## 120'.8
 
+// glyph han-2e26a:15x16 15 16 // 𮉪
+// ⿰ han-7e9f han-53d6 // ⿰纟取
+
 glyph han-2e26c:15x16 15 16 // 𮉬
 ⿰ han-7e9f:5x14 1 han-5352:9x16 // ⿰纟卒
 
@@ -362,6 +365,9 @@ glyph han-2e2bc:15x16 15 16 // 𮊼
 // ⿰ han-593e han-7fbd-($-1) // ⿰夾羽
 
 ## 124.8
+
+// glyph han-2e2c5-($han-regions):15x16 15 16 // 𮋅
+// ⿱ han-81e4 han-7fbd-($-1) // ⿱臤羽
 
 glyph han-2e2c6:15x16 15 16 // 𮋆
 ⿳ han-6728:15x5 han-65e5:11x5 1 han-7fbd:13x5 // ⿳木日羽
@@ -592,6 +598,9 @@ glyph han-2e38f:15x16 15 16 // 𮎏
 // glyph han-2e3a1:15x16 15 16 // 𮎡
 // ⿱ han-8279 han-4ec3 // ⿱艹仃
 
+// glyph han-2e3a2-($han-regions):15x16 15 16 // 𮎢
+// ⿱ han-8279-($-1) han-53ce // ⿱艹収
+
 // glyph han-2e3a3:15x16 15 16 // 𮎣
 // ⿳ han-8279 han-65e5 han-4e5a // ⿳艹日乚 <- ⿱艹⿱日乚
 
@@ -617,6 +626,9 @@ glyph han-2e3a9:15x16 15 16 // 𮎩
 
 // glyph han-2e3ab-($han-regions):15x16 15 16 // 𮎫
 // ⿱ han-8279 han-540f-($-1) // ⿱艹吏
+
+// glyph han-2e3ad-($han-regions):15x16 15 16 // 𮎭
+// ⿱ han-8279-($-1) han-2ac59 // ⿱艹𪱙
 
 // glyph han-2e3ae:15x16 15 16 // 𮎮
 // ⿱ han-8279 han-5146 // ⿱艹兆

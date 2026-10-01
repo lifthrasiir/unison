@@ -313,6 +313,9 @@ glyph han-31de3:15x16 15 16 // 𱷣
 // glyph han-31df0:15x16 15 16 // 𱷰
 // ⿱ han-25ad7 han-5386 // ⿱𥫗历
 
+// glyph han-31df2:15x16 15 16 // 𱷲
+// ⿱ han-25ad7 han-652f // ⿱𥫗支
+
 glyph han-31df3:15x16 15 16 // 𱷳
 ⿱ han-25ad7:13x5 han-65e5:11x11 // ⿱𥫗日
 
@@ -449,6 +452,9 @@ glyph han-31e37:15x16 15 16 // 𱸷
 
 glyph han-31e39:15x16 15 16 // 𱸹
 ⿰ han-7c73:5x16 1 han-5305.1:9x16 // ⿰米包
+
+// glyph han-31e3a:15x16 15 16 // 𱸺
+// ⿱ han-5974 han-7c73 // ⿱奴米
 
 ## 119.6
 
@@ -975,6 +981,9 @@ glyph han-31fab:15x16 15 16 // 𱾫
 ⿳ -3 han-8279-v:15x3 han-6dee:15x13 han-5341:15x3 // ⿳艹淮十
 
 ## 140.14
+
+// glyph han-31fac-($han-regions):15x16 15 16 // 𱾬
+// ⿳ han-8279-($-1) han-5736 han-53d6 // ⿳艹圶取
 
 // glyph han-31fae:15x16 15 16 // 𱾮
 // ⿰ han-82e6 han-66f7 // ⿰苦曷

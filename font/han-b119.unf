@@ -5,8 +5,8 @@
 glyph han-25e27:15x16 15 16 // 𥸧
 ⿰ han-7c73:5x16 1 han-4e01:9x16 // ⿰米丁
 
-// glyph han-25e29-($han-regions):15x16 15 16 // 𥸩
-// ⿰ han-7c73 han-53c8-($-1) // ⿰米又
+glyph han-25e29:15x16 15 16 // 𥸩
+⿰ han-7c73:7x16 1 han-53c8:7x16 // ⿰米又
 
 glyph han-25e2a:15x16 15 16 // 𥸪
 ⿱ han-7c73:13x9 han-4eba:15x7 // ⿱米人
@@ -33,6 +33,9 @@ glyph han-25e32:15x16 15 16 // 𥸲
 ⿰ han-7c73:5x16 1 han-5f13:9x16 // ⿰米弓
 
 ## 119.4
+
+// glyph han-25e33:15x16 15 16 // 𥸳
+// ⿰ han-7c73 han-652f // ⿰米支
 
 // glyph han-25e34:15x16 15 16 // 𥸴 ⿰米丏(GTKP) ⿰米丐(Z)
 // ⿰ han-7c73 han-4e0f // ⿰米丏

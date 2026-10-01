@@ -481,6 +481,11 @@ glyph han-31459:15x16 15 16 // 𱑙
 
 # CJK unified ideographs extension H: 厂 (27)
 
+## 27.4
+
+// glyph han-3145c:15x16 15 16 // 𱑜
+// ⿸ han-5382 han-652f // ⿸厂支
+
 ## 27.6
 
 // glyph han-3145d:15x16 15 16 // 𱑝
@@ -535,8 +540,8 @@ glyph han-31462:15x16 15 16 // 𱑢
 
 ## 29.3
 
-// glyph han-31471-($han-regions):15x16 15 16 // 𱑱
-// ⿱ han-53c8-($-1) han-5de5 // ⿱又工
+glyph han-31471:15x16 15 16 // 𱑱
+⿱ han-53c8:15x10 han-5de5:15x6 // ⿱又工
 
 ## 29.5
 
@@ -580,6 +585,9 @@ glyph han-3148a:15x16 15 16 // 𱒊
 
 // glyph han-3148b-($han-regions):15x16 15 16 // 𱒋
 // ⿱ han-723b-($-1) han-53e3 // ⿱爻口
+
+// glyph han-3148e:15x16 15 16 // 𱒎
+// ⿰ han-53e3 han-53cc // ⿰口双
 
 ## 30.5
 
@@ -906,6 +914,9 @@ glyph han-31596:15x16 15 16 // 𱖖
 // glyph han-3159b:15x16 15 16 // 𱖛
 // ⿰ han-571f han-201b3 // ⿰土𠆳
 
+// glyph han-3159c:15x16 15 16 // 𱖜
+// ⿰ han-571f han-5723 // ⿰土圣
+
 ## 32.6
 
 glyph han-3159f:15x16 15 16 // 𱖟
@@ -1162,6 +1173,9 @@ glyph han-31648:15x16 15 16 // 𱙈
 
 glyph han-3164c:15x16 15 16 // 𱙌
 ⿰ han-5973:5x14-l 1 han-56db:9x16 // ⿰女四
+
+// glyph han-3164d:15x16 15 16 // 𱙍
+// ⿰ han-5973 han-5723 // ⿰女圣
 
 ## 38.6
 

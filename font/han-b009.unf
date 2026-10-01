@@ -178,6 +178,9 @@ glyph han-201b3:15x16 15 16 // 𠆳
 // glyph han-201b4:15x16 15 16 // 𠆴 ⿱市人(G) ⿱巿人(T)
 // ⿳ han-4ea0 han-5dfe han-4eba // ⿳亠巾人 <- ⿱市人
 
+// glyph han-201b8:15x16 15 16 // 𠆸
+// ⿰ han-4ebb han-6534 // ⿰亻攴
+
 glyph han-201bb:15x16 15 16 // 𠆻
 ⿰ han-4ebb:5x16 1 han-5f00:9x16 // ⿰亻开
 glyph han-201bb.0:15x16 15 16 // 𠆻
@@ -395,6 +398,9 @@ glyph han-2024d:15x16 15 16 // 𠉍
 
 // glyph han-20264:15x16 15 16 // 𠉤
 // ⿰ han-4ebb han-6c93 // ⿰亻沓
+
+// glyph han-20267:15x16 15 16 // 𠉧
+// ⿰ han-4ebb han-53d6 // ⿰亻取
 
 // glyph han-20272:15x16 15 16 // 𠉲
 // ⿱ han-5408 han-5df4 // ⿱合巴

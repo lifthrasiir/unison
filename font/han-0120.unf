@@ -458,6 +458,9 @@ glyph han-7d4a-(g|h|t):* = han-7d4a.x:*
 // glyph han-7d4b:15x16 15 16 // 絋 ⿰糹広(GT) ⿰糸広(J)
 // ⿰ han-7cf9 han-5e83 // ⿰糹広
 
+// glyph han-7d4c-($han-regions):15x16 15 16 // 経 ⿰糹圣(GT) ⿰糸圣(JKP)
+// ⿰ han-7cf9-($-1) han-5723 // ⿰糹圣
+
 ## 120.6
 
 // glyph han-7d4e:15x16 15 16 // 絎 ⿰糹行(GHT) ⿰糸行(JKP)
@@ -759,6 +762,9 @@ glyph han-7dc2.0:* = han-7dc2-j:*
 
 // glyph han-7dc4:15x16 15 16 // 緄 ⿰糹昆(GHT) ⿰糸昆(JKP)
 // ⿰ han-7cf9 han-6606 // ⿰糹昆
+
+// glyph han-7dc5-($han-regions):15x16 15 16 // 緅 ⿰糹取(GHT) ⿰糸⿸耳又(JK) ⿰糸取(P)
+// ⿰ han-7cf9-($-1) han-53d6 // ⿰糹取
 
 glyph han-7dcb-($han-regions):15x16 15 16 // 緋 ⿰糹非(GHT) ⿰糸非(JKP)
 ⿰ han-7cf9-($-1):5x14 1 han-975e-($-1):9x16 // ⿰糹非

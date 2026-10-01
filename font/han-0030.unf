@@ -2187,6 +2187,9 @@ glyph han-542f:15x16 15 16 // 启 ⿸户口(GHP) ⿸戶口(TJK)
 // glyph han-5430:15x16 15 16 // 吰
 // ⿰ han-53e3 han-53b7 // ⿰口厷
 
+// glyph han-5431:15x16 15 16 // 吱
+// ⿰ han-53e3 han-652f // ⿰口支
+
 // glyph han-5432:15x16 15 16 // 吲
 // ⿲ han-53e3 han-5f13 han-4e28 // ⿲口弓丨 <- ⿰口引
 
@@ -2782,6 +2785,9 @@ glyph han-5475:15x12 15 12 // 呵
 glyph han-5475:15x16 15 16 // 呵
 ⿰ han-53e3:4x12 1 han-53ef:10x16 // ⿰口可
 glyph han-5475.0:* = han-5475:*
+
+// glyph han-5476:15x16 15 16 // 呶
+// ⿰ han-53e3 han-5974 // ⿰口奴
 
 glyph han-5477:15x16 15 16 // 呷
 ⿰ han-53e3:5x12 1 han-7532:9x16 // ⿰口甲

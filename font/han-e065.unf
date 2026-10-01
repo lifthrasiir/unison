@@ -1,3 +1,27 @@
+# CJK unified ideographs extension E: 支 (65)
+
+## 65.10
+
+// glyph han-2bfa3:15x16 15 16 // 𫾣
+// ⿰ han-9ad8 han-652f // ⿰高支
+
+## 65.12
+
+// glyph han-2bfa4:15x16 15 16 // 𫾤
+// ⿺ han-582f han-652f // ⿺堯支
+
+# CJK unified ideographs extension E: 攴 (66)
+
+## 66.7
+
+// glyph han-2bfb8:15x16 15 16 // 𫾸
+// ⿱ han-5372 han-6534 // ⿱卲攴
+
+## 66.10
+
+// glyph han-2bfca:15x16 15 16 // 𫿊
+// ⿱ han-4020 han-6534 // ⿱䀠攴
+
 # CJK unified ideographs extension E: 文 (67)
 
 ## 67.2
@@ -64,6 +88,9 @@ glyph han-2c027:15x16 15 16 // 𬀧
 
 glyph han-2c02c:15x16 15 16 // 𬀬
 ⿰ han-65e5:6x16 han-53e4:9x16 // ⿰日古
+
+// glyph han-2c02e:15x16 15 16 // 𬀮
+// ⿰ han-65e5 han-5bf9 // ⿰日对
 
 ## 72.6
 
@@ -909,6 +936,9 @@ glyph han-2c29a:15x16 15 16 // 𬊚
 
 // glyph han-2c2bb:15x16 15 16 // 𬊻
 // ⿱ han-3fdf han-706b // ⿱㿟火
+
+// glyph han-2c2be:15x16 15 16 // 𬊾
+// ⿱ han-96be han-706c // ⿱难灬
 
 ## 86.11
 

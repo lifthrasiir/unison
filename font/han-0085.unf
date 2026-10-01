@@ -395,6 +395,9 @@ glyph han-6c62.0:* = han-6c62:*
 
 ## 85.4
 
+// glyph han-6c65:15x16 15 16 // 汥
+// ⿰ han-6c35 han-652f // ⿰氵支
+
 glyph han-6c66:15x16 15 16 // 汦
 ⿰ han-6c35:5x15 han-6c0f:10x16 // ⿰氵氏
 

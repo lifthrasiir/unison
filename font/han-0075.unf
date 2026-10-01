@@ -706,8 +706,9 @@ glyph han-6741.0:* = han-6741:*
 glyph han-6742:15x16 15 16 // 杂
 ⿱ han-4e5d:15x10 1 han-6728:15x5 // ⿱九木
 
-// glyph han-6743-($han-regions):15x16 15 16 // 权
-// ⿰ han-6728 han-53c8-($-1) // ⿰木又
+glyph han-6743:15x16 15 16 // 权
+assume ⿰ han-6728:7x16 -1 han-53c8:9x16 // ⿰木又
+glyph han-6743.0:* = han-6743:*
 
 ## 75.3
 
@@ -1173,6 +1174,9 @@ $$../10/......@@......\01\..$$
 H_h/..........@@..........\h_H
 glyph han-679c.0:* = han-679c:*
 
+// glyph han-679d:15x16 15 16 // 枝
+// ⿰ han-6728 han-652f // ⿰木支
+
 glyph han-679e:15x16 15 16 // 枞
 ⿲ han-6728:5x16 han-4eba:5x16 han-4eba:5x16 // ⿲木人人
 
@@ -1480,6 +1484,9 @@ glyph han-67fb.2:15x16 15 16 // 査
 // glyph han-67fc-($han-regions):15x16 15 16 // 柼
 // ⿰ han-6728 han-7a74-($-1) // ⿰木穴
 
+// glyph han-67fd:15x16 15 16 // 柽
+// ⿰ han-6728 han-5723 // ⿰木圣
+
 glyph han-67fe:15x16 15 16 // 柾
 ⿰ han-6728:7x16 han-6b63:8x16 // ⿰木正
 glyph han-67fe.0:* = han-67fe:*
@@ -1506,6 +1513,9 @@ glyph han-680d:15x16 15 16 // 栍
 
 // glyph han-680f:15x16 15 16 // 栏
 // ⿰ han-6728 han-5170 // ⿰木兰
+
+// glyph han-6811:15x16 15 16 // 树
+// ⿰ han-6728 han-5bf9 // ⿰木对
 
 ## 75.6
 
@@ -1995,6 +2005,12 @@ glyph han-68f5.0:* = han-68f5:*
 
 // glyph han-68f6:15x16 15 16 // 棶
 // ⿰ han-6728 han-4f86 // ⿰木來
+
+// glyph han-68f7:15x16 15 16 // 棷 ⿰木取(GHTKP) ⿰木⿸耳又(J)
+// ⿰ han-6728 han-53d6 // ⿰木取
+
+// glyph han-68f8:15x16 15 16 // 棸
+// ⿱ han-53d6 han-6728 // ⿱取木
 
 glyph han-68f9:15x16 15 16 // 棹
 ⿰ han-6728:5x16 1 han-5353:9x16 // ⿰木卓

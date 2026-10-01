@@ -16,10 +16,16 @@ glyph han-309a4:15x16 15 16 // 𰦤
 // glyph han-309aa:15x16 15 16 // 𰦪
 // ⿰ han-77f3 han-30370 // ⿰石𰍰
 
+// glyph han-309ab:15x16 15 16 // 𰦫
+// ⿱ han-77f3 han-53cc // ⿱石双
+
 ## 112.5
 
 // glyph han-309b1:15x16 15 16 // 𰦱
 // ⿱ han-6c11 han-77f3 // ⿱民石
+
+// glyph han-309b2:15x16 15 16 // 𰦲
+// ⿰ han-77f3 han-5bf9 // ⿰石对
 
 ## 112.6
 
@@ -211,6 +217,11 @@ glyph han-30a3c:15x16 15 16 // 𰨼
 // ⿲ han-79be han-5e73-($-1) han-7b49 // ⿲禾平等
 
 # CJK unified ideographs extension G: 穴 (116)
+
+## 116.4
+
+// glyph han-30a44-($han-regions):15x16 15 16 // 𰩄
+// ⿱ han-7a74-($-1) han-53cc // ⿱穴双
 
 ## 116.5
 
@@ -667,6 +678,11 @@ glyph han-30b2c:15x16 15 16 // 𰬬
 
 # CJK unified ideographs extension G: 网 (122)
 
+## 122.4
+
+// glyph han-30b48:15x16 15 16 // 𰭈
+// ⿱ han-7f52 han-6534 // ⿱罒攴
+
 ## 122.6
 
 // glyph han-30b4a:15x16 15 16 // 𰭊
@@ -780,6 +796,9 @@ glyph han-30b77:15x16 15 16 // 𰭷
 
 // glyph han-30b78:15x16 15 16 // 𰭸
 // ⿱ han-536d han-8033 // ⿱卭耳
+
+// glyph han-30b7a:15x16 15 16 // 𰭺
+// ⿱ han-5974 han-8033 // ⿱奴耳
 
 ## 128.12
 
@@ -913,6 +932,9 @@ glyph han-30bb8:15x16 15 16 // 𰮸
 // glyph han-30bc1:15x16 15 16 // 𰯁
 // ⿰ han-6708 han-8695 // ⿰月蚕
 
+// glyph han-30bcb:15x16 15 16 // 𰯋
+// ⿱ han-96be han-8089 // ⿱难肉
+
 ## 130.12
 
 // glyph han-30bda:15x16 15 16 // 𰯚
@@ -939,6 +961,11 @@ glyph han-30bb8:15x16 15 16 // 𰮸
 
 // glyph han-30bee:15x16 15 16 // 𰯮 ⿱卧𠃍(K) ⿱臥𠃍(Z)
 // ⿱ han-5367 han-200cd // ⿱卧𠃍
+
+## 131.6
+
+// glyph han-30bf1:15x16 15 16 // 𰯱
+// ⿱ han-81e4 han-65a4 // ⿱臤斤
 
 # CJK unified ideographs extension G: 舌 (135)
 
@@ -972,6 +999,11 @@ glyph han-30bb8:15x16 15 16 // 𰮸
 // ⿰ han-820c-($-1) han-5398 // ⿰舌厘
 
 # CJK unified ideographs extension G: 舟 (137)
+
+## 137.4
+
+// glyph han-30c0b:15x16 15 16 // 𰰋
+// ⿰ han-821f han-53cc // ⿰舟双
 
 ## 137.8
 
@@ -1053,6 +1085,9 @@ glyph han-30c1c:15x16 15 16 // 𰰜
 
 // glyph han-30c2c:15x16 15 16 // 𰰬
 // ⿱ han-8279 han-706d // ⿱艹灭
+
+// glyph han-30c31-($han-regions):15x16 15 16 // 𰰱
+// ⿱ han-8279-($-1) han-5bf9 // ⿱艹对
 
 ## 140.6
 

@@ -1089,6 +1089,9 @@ glyph han-966a.0:* = han-966a:*
 glyph han-966b-($han-regions):15x16 15 16 // 陫
 ⿰ han-961d:5x14-l 1 han-975e-($-1):9x16 // ⿰阝非
 
+// glyph han-966c:15x16 15 16 // 陬 ⿰阝取(GHTKP) ⿰阝⿸耳又(J)
+// ⿰ han-961d han-53d6 // ⿰阝取
+
 // glyph han-966d:15x16 15 16 // 陭
 // ⿰ han-961d han-5947 // ⿰阝奇
 
@@ -1358,8 +1361,8 @@ glyph han-96bc.0:* = han-96bc:*
 // glyph han-96bd:15x16 15 16 // 隽
 // ⿱ han-96b9 han-4e43 // ⿱隹乃
 
-// glyph han-96be-($han-regions):15x16 15 16 // 难
-// ⿰ han-53c8-($-1) han-96b9 // ⿰又隹
+glyph han-96be:15x16 15 16 // 难
+⿰ han-53c8:7x16-l 1 han-96b9:7x16 // ⿰又隹
 
 ## 172.3
 
