@@ -606,6 +606,7 @@ pub fn compute_composite(
         own_offset_col: saturating_i16(-min_c),
         layers,
         inherited_anchors,
+        scale: body.scale,
     })
 }
 

@@ -60,7 +60,10 @@ pub(super) fn check_ambiguous_anchors(cx: &Cx<'_>, issues: &mut Vec<Issue>) {
                         glyph_points_map
                             .entry(resolved_name.clone())
                             .or_default()
-                            .push((pt.position.clone(), pt.width(), pt.height()));
+                            .push({
+                                let (w, h) = pt.size();
+                                (pt.position.clone(), w, h)
+                            });
                     }
                 }
             }
@@ -104,6 +107,46 @@ pub(super) fn check_ambiguous_anchors(cx: &Cx<'_>, issues: &mut Vec<Issue>) {
                             });
                     }
                 }
+            }
+        }
+    }
+}
+
+/// An anchor on a `scale N` glyph whose range is not a whole number of
+/// declared cells. Anchors are matched on their size in declared cells
+/// ([`crate::document::GlyphPoint::size`]), so one fine cell of a `scale 2`
+/// glyph is a size no other glyph can state; only the position may fall
+/// between declared cells.
+pub(super) fn check_anchor_sizes(cx: &Cx<'_>, issues: &mut Vec<Issue>) {
+    for doc in cx.docs {
+        for (item_idx, item) in doc.items.iter().enumerate() {
+            let DocumentItem::Glyph {
+                name: GlyphName(n),
+                body,
+            } = item
+            else {
+                continue;
+            };
+            for pt in body.points.iter().filter(|pt| !pt.is_whole_size()) {
+                let (line, file_line) = doc.item_lines(item_idx);
+                issues.push(Issue {
+                    severity: Severity::Error,
+                    glyph: None,
+                    message: format!(
+                        "glyph '{}': anchor '{}' spans {}x{} fine cells, which is no whole \
+                         number of cells at `scale {}`; its width and height have to be \
+                         multiples of {}",
+                        substitute_name_parts(n, cx.name_parts),
+                        pt.position,
+                        pt.width(),
+                        pt.height(),
+                        body.scale,
+                        body.scale,
+                    ),
+                    file: doc.path.clone(),
+                    line,
+                    file_line,
+                });
             }
         }
     }
@@ -216,7 +259,7 @@ pub(super) fn check_centred_anchor_parity(cx: &Cx<'_>, issues: &mut Vec<Issue>) 
                         is_plus,
                     ))
                     .or_default()
-                    .entry((pt.width(), pt.height()))
+                    .entry(pt.size())
                     .or_insert((
                         doc.path.clone(),
                         line,

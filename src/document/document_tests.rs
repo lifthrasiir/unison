@@ -899,3 +899,68 @@ fn blit_negated_subtracts_exactly() {
     let d = dst.details.get(&(0, 0)).unwrap();
     assert_eq!(d.area2(), 2.0 * 2.0 / 3.0);
 }
+
+fn scaled_point(col: (i16, i16), row: (i16, i16), scale: u16) -> GlyphPoint {
+    GlyphPoint {
+        position: "+a".into(),
+        col: col.0,
+        col_end: col.1,
+        row: row.0,
+        row_end: row.1,
+        scale,
+        comment: None,
+    }
+}
+
+/// A `scale 2` range of 2×2 fine cells is one declared cell, and every
+/// reduction of it names the cell a `scale 1` `7 3` names — the high end
+/// included, which reading the last *fine* cell would put half a cell on.
+#[test]
+fn a_scaled_anchor_reduces_to_the_declared_cell_it_covers() {
+    let fine = scaled_point((14, 15), (6, 7), 2);
+    let coarse = scaled_point((7, 7), (3, 3), 1);
+    assert_eq!(fine.size(), (1, 1));
+    assert!(fine.size_matches(&coarse) && fine.is_whole_size());
+    for token in ["ul", "c", "dr", "ur"] {
+        let align = AnchorAlign::from_token(token).unwrap();
+        assert_eq!(
+            fine.aligned_point(align),
+            coarse.aligned_point(align),
+            "{token}"
+        );
+    }
+    // Half a cell across is a position, not a size.
+    let half = scaled_point((15, 16), (6, 7), 2);
+    assert_eq!(half.aligned_point(AnchorAlign::default()), (7.5, 3.0));
+    assert!(half.size_matches(&coarse));
+    // One fine cell is no whole size; it rounds up rather than to nothing.
+    let sliver = scaled_point((3, 3), (0, 1), 2);
+    assert!(!sliver.is_whole_size());
+    assert_eq!(sliver.size(), (1, 1));
+}
+
+/// Translating into a grid of another scale keeps the point exact, in the
+/// coarsest units that hold it.
+#[test]
+fn a_translated_anchor_keeps_its_fraction_and_drops_what_it_does_not_need() {
+    // Fine column ½ placed 3 whole cells over: 3½, only expressible in halves.
+    let half = scaled_point((1, 2), (0, 1), 2).translated(3, 0, 1);
+    assert_eq!(
+        (half.col, half.col_end, half.row, half.row_end, half.scale),
+        (7, 8, 0, 1, 2)
+    );
+    // A whole cell placed in a `scale 2` parent comes back to `scale 1`
+    // wherever it lands on whole cells …
+    let whole = scaled_point((1, 1), (2, 2), 1).translated(4, 2, 2);
+    assert_eq!(
+        (whole.col, whole.col_end, whole.row, whole.row_end, whole.scale),
+        (3, 3, 3, 3, 1)
+    );
+    // … and stays in the parent's halves where it does not.
+    let off = scaled_point((1, 1), (2, 2), 1).translated(1, 0, 2);
+    assert_eq!((off.col, off.col_end, off.scale), (3, 4, 2));
+    // Thirds against halves: sixths.
+    let sixths = scaled_point((1, 3), (0, 2), 3).translated(1, 0, 2);
+    assert_eq!((sixths.col, sixths.col_end, sixths.scale), (5, 10, 6));
+    assert_eq!(sixths.size(), (1, 1));
+}

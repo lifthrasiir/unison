@@ -660,14 +660,19 @@ pub(crate) fn render_grid_row(
     if let Some(DocumentItem::Glyph { body, .. }) = doc.items.get(item_idx) {
         let num_refs = body.refs.len();
         let inherited = composite.map_or(&[][..], |c| c.inherited_anchors.as_slice());
+        let inherited_on_grid: Vec<crate::document::GlyphPoint> = composite
+            .map(|c| c.inherited_anchors_on_grid().collect())
+            .unwrap_or_default();
         let declared = body.points.iter().enumerate().map(|(pi, point)| {
             let color = ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, num_refs + pi);
             (pi, point, color)
         });
-        let inherited = inherited.iter().enumerate().map(|(ii, (point, src_ref))| {
-            let color = ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, *src_ref);
-            (body.points.len() + ii, point, color)
-        });
+        let inherited = inherited.iter().zip(&inherited_on_grid).enumerate().map(
+            |(ii, ((_, src_ref), point))| {
+                let color = ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, *src_ref);
+                (body.points.len() + ii, point, color)
+            },
+        );
         for (pi, point, color) in declared.chain(inherited) {
             if row < point.row || row > point.row_end {
                 continue;

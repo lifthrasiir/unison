@@ -879,7 +879,13 @@ pub struct GlyphComposite {
     /// lists them after the declared points, colored like the source
     /// subglyph; they have no document line, so they cannot be moved or
     /// renamed.
+    ///
+    /// Exact, each at its own [`GlyphPoint::scale`], which need not be this
+    /// glyph's: what pairs them up wants them that way, and what draws them
+    /// reads [`inherited_anchors_on_grid`](Self::inherited_anchors_on_grid).
     pub inherited_anchors: Vec<(GlyphPoint, usize)>,
+    /// The composite's own `scale`, the grid every layer is drawn on.
+    pub scale: u8,
 }
 
 #[cfg_attr(all(not(feature = "editor"), not(test)), expect(dead_code))]
@@ -899,6 +905,14 @@ impl GlyphComposite {
             }
         }
         filled
+    }
+
+    /// [`inherited_anchors`](Self::inherited_anchors) on this glyph's grid.
+    #[cfg(feature = "editor")]
+    pub fn inherited_anchors_on_grid(&self) -> impl Iterator<Item = GlyphPoint> + '_ {
+        self.inherited_anchors
+            .iter()
+            .map(|(p, _)| p.on_grid(self.scale))
     }
 }
 

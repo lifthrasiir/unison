@@ -8,11 +8,15 @@
 //! grid the result is carried in are [`crate::editor::shadow`]'s, shared with
 //! the backreference shadow.
 //!
-//! Placement mirrors composition exactly — [`crate::ref_composite`]'s
-//! `try_match_minus_plus` (anchor delta, *not* scale-converted) plus
-//! `ref_effective_offset_scaled` (the target's origin, scale-converted) — so
-//! the shadow lands where the glyph really would. Candidates are subject to the
-//! same `size_matches` rule composition applies.
+//! Placement mirrors composition — [`crate::ref_composite`]'s
+//! `aligned_delta` (the anchor delta, in declared cells and then in the edited
+//! glyph's) plus `ref_effective_offset_scaled` (the target's origin,
+//! scale-converted) — so the shadow lands where the glyph really would, short
+//! of a delta finer than the edited glyph's grid, which is rounded down where
+//! composition would refuse it. Candidates are subject to the same
+//! `size_matches` rule composition applies, and since that makes the two
+//! ranges the same size, the low ends stand for both whatever the class's
+//! `align`.
 //!
 //! The shadow is part of `ViewData`, so `ViewCacheKey` carries the selected
 //! *anchor* layer. Ref layers are deliberately left out of that key: cycling
@@ -72,10 +76,21 @@ pub(crate) fn compute(
     candidates.sort_by_key(|(name, _, _)| *name);
 
     let mut builder = ShadowBuilder::new(ShadowKind::Anchor);
+    let (sp, (pc, pr)) = (
+        i64::from(point.scale.max(1)),
+        point.aligned_halves(Default::default()),
+    );
     for (_, resolved, anchor) in candidates {
         let rs = resolved.scale.max(1) as i32;
-        let row = point.row as i32 - anchor.row as i32 + resolved.origin_row * ps / rs;
-        let col = point.col as i32 - anchor.col as i32 + resolved.origin_col * ps / rs;
+        let (sa, (ac, ar)) = (
+            i64::from(anchor.scale.max(1)),
+            anchor.aligned_halves(Default::default()),
+        );
+        // `p / 2sp - a / 2sa` declared cells, in cells of the edited grid.
+        let delta =
+            |p: i64, a: i64| (i64::from(ps) * (p * sa - a * sp)).div_euclid(2 * sp * sa) as i32;
+        let row = delta(pr, ar) + resolved.origin_row * ps / rs;
+        let col = delta(pc, ac) + resolved.origin_col * ps / rs;
         let grid = if rs == ps {
             resolved.grid.clone()
         } else {
@@ -95,6 +110,7 @@ mod tests {
     fn point(position: &str, col: i16, row: i16) -> GlyphPoint {
         GlyphPoint {
             comment: None,
+            scale: 1,
             position: position.to_string(),
             col,
             row,

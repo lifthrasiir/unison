@@ -1203,7 +1203,7 @@ Flags may appear in any order, before or after the dimensions:
 * `scale N` — the glyph's grid is N times finer in both directions. `W` and `H` stay in whole
   pixels, and the rows that follow are `W × N` cells wide and `H × N` tall. Use it when a shape
   needs detail below the pixel: `glyph flag-il-david 5 6 scale 2`. Refs into and out of a scaled
-  glyph are rescaled automatically.
+  glyph are rescaled automatically, and so are its anchors — see [`anchor`](#anchor-anchor-definition).
 * `margin-x N`, `margin-x L|R`, `margin-y N`, `margin-y T|B` — the room the glyph asks for around
   its box when an IDC line gives it a slot larger than the box across the split. One value is both
   sides; two are written as one token with a `|` between them, left before right and top before
@@ -1383,6 +1383,15 @@ The size of the range is part of the anchor's identity: attachment requires the 
 same width and height, which is how a mark that needs a two-row site is kept away from a base that
 offers a one-row one. When both sizes exist, they are usually two alternatives of the same mark
 (`dia-above` and `dia-above:narrow`), and the right one is chosen for you.
+
+On a glyph with `scale N` the coordinates are the grid's fine cells, like its pixel rows, but an
+anchor's size is measured in whole cells: a `-dot` written `14..15 26..27` at `scale 2` is one
+cell square and attaches to a `+dot 7 13` on a `scale 1` glyph. Its width and height must therefore
+be multiples of N, and anything else is an error. The position has no such limit — placing a mark
+half a cell over is what a `scale 2` mark is for, and the built font places it exactly. A composite
+that precomposes such an attachment has to be able to state the offset, though: a ref offset is
+in whole cells of the composite's own grid, so an attachment landing between them is an error
+that asks for a finer `scale` on the composite.
 
 Anchors declared on a glyph are always its own; anchors arriving through a ref are exposed only with
 `inherit`.

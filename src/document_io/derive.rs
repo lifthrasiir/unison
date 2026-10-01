@@ -549,6 +549,7 @@ fn derive_items(
                                         &point_parts[0],
                                         &point_parts[1],
                                         &point_parts[2],
+                                        body.scale,
                                         sub_comment,
                                     )
                                 {

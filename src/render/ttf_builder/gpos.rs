@@ -75,8 +75,9 @@ struct CcmpGroup {
 /// for, ascending. `None` reaches every mark of the class.
 type CcmpKey = (String, Option<Vec<AnchorSize>>);
 
-/// A `+`/`-` anchor's `(width, height)` in grid cells — what a base and a mark
-/// are matched on.
+/// A `+`/`-` anchor's `(width, height)` in declared cells — what a base and a
+/// mark are matched on, whatever `scale` each is drawn at. See
+/// [`GlyphPoint::size`].
 type AnchorSize = (u16, u16);
 
 /// One base's substitution: the glyph, the alternative it gives way to, the
@@ -215,7 +216,7 @@ pub(super) fn build_anchor_gpos(
             .filter(|g| g.mark)
             .flat_map(|g| g.declared_anchors.iter())
             .filter(|p| p.position == minus_name)
-            .map(|p| (p.width(), p.height()))
+            .map(|p| p.size())
             .collect();
         sizes.sort_unstable();
         sizes.dedup();
@@ -754,7 +755,7 @@ pub(super) fn build_anchor_gpos(
                             p.position == minus_name
                                 && size_key
                                     .as_ref()
-                                    .is_none_or(|sizes| sizes.contains(&(p.width(), p.height())))
+                                    .is_none_or(|sizes| sizes.contains(&p.size()))
                         })
                 };
                 let mark_coverage = CoverageTable::format_1({
@@ -809,7 +810,7 @@ pub(super) fn build_anchor_gpos(
                             p.position == minus_name
                                 && size_key
                                     .as_ref()
-                                    .is_none_or(|sizes| sizes.contains(&(p.width(), p.height())))
+                                    .is_none_or(|sizes| sizes.contains(&p.size()))
                         })
                 })
                 .map(|g| g.name.clone())

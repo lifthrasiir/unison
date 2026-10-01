@@ -526,6 +526,7 @@ mod tests {
     fn drag_starts_from_derived_composite_offset() {
         let composite = GlyphComposite {
             inherited_anchors: Vec::new(),
+            scale: 1,
             width: 4,
             height: 2,
             own_offset_row: 2,

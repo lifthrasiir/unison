@@ -386,6 +386,7 @@ pub fn collect_issues_cancellable(
         });
         let placement = run(&|out| {
             anchors::check_ambiguous_anchors(cx, out);
+            anchors::check_anchor_sizes(cx, out);
             anchors::check_centred_anchor_parity(cx, out);
         });
         let sources = run(&|out| {

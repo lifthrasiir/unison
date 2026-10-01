@@ -155,11 +155,13 @@ fn parse_range_token(s: &str) -> Option<(i16, i16)> {
     }
 }
 
-/// Parse an anchor/point from its three token parts: position, col_range, row_range.
+/// Parse an anchor/point from its three token parts: position, col_range, row_range,
+/// on a grid at `scale`.
 pub(super) fn parse_anchor_point(
     position: &str,
     col_tok: &str,
     row_tok: &str,
+    scale: u8,
     comment: Option<String>,
 ) -> Option<GlyphPoint> {
     let (col, col_end) = parse_range_token(col_tok)?;
@@ -170,6 +172,7 @@ pub(super) fn parse_anchor_point(
         row,
         col_end,
         row_end,
+        scale: scale.max(1).into(),
         comment,
     })
 }

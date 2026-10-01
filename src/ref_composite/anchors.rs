@@ -37,6 +37,21 @@ pub(crate) enum DeriveIssue {
         minus: (u16, u16),
         plus: (u16, u16),
     },
+    /// A `-` anchor attached, but the offset it attaches at falls between the
+    /// cells of the composite's grid (at `scale`), so no ref offset can say it.
+    /// An anchor's position is free to be fractional — that is what a `scale`d
+    /// component is for — and the shaped run places the mark there exactly;
+    /// the precomposed glyph has to either agree or not be built. The offset is
+    /// still rounded down and used, but only so the editor has something to
+    /// draw: like every derive issue, this drops the glyph from the build.
+    ///
+    /// A centred class whose two sizes differ in parity lands half a cell off
+    /// by construction, and is the parity warning's to report, not this.
+    FractionalAttachment {
+        position: String,
+        ref_name: String,
+        scale: u8,
+    },
 }
 
 impl DeriveIssue {
@@ -69,6 +84,15 @@ impl DeriveIssue {
                     plus.1,
                 )
             }
+            DeriveIssue::FractionalAttachment {
+                position,
+                ref_name,
+                scale,
+            } => format!(
+                "glyph '{glyph}': ref '{ref_name}' attaches its '{position}' between the \
+                 cells of this glyph's grid (`scale {scale}`); give the glyph a `scale` fine \
+                 enough to hold the offset",
+            ),
         }
     }
 }
@@ -272,6 +296,7 @@ pub(crate) fn derive_ref_offsets_detailed(
                     gref,
                     i,
                     offset,
+                    parent_scale,
                     target_anchors,
                     &mut available_plus,
                     &mut survived_minus,
@@ -291,14 +316,15 @@ pub(crate) fn derive_ref_offsets_detailed(
                 &alternatives_list[i],
                 &available_plus,
                 aligns,
+                parent_scale,
             ) {
-                let offset = match attachment.outcome {
-                    MatchOutcome::Unique(offset) => {
-                        anchor_placed[i] = true;
-                        offset
-                    }
-                    _ => (0, 0),
-                };
+                let offset = placed_offset(
+                    &attachment,
+                    gref,
+                    parent_scale,
+                    &mut anchor_placed[i],
+                    &mut issues,
+                );
                 let alt_gref = attachment.alt.map(|alt_name| GlyphRef {
                     raw_name: None,
                     comment: None,
@@ -314,6 +340,7 @@ pub(crate) fn derive_ref_offsets_detailed(
                     alt_gref.as_ref().unwrap_or(gref),
                     i,
                     offset,
+                    parent_scale,
                     attachment.anchors,
                     &mut available_plus,
                     &mut survived_minus,
@@ -378,6 +405,7 @@ pub(crate) fn derive_ref_offsets_detailed(
                     &alt_gref,
                     i,
                     (0, 0),
+                    parent_scale,
                     alt_anchors,
                     &mut available_plus,
                     &mut survived_minus,
@@ -389,6 +417,7 @@ pub(crate) fn derive_ref_offsets_detailed(
                     gref,
                     i,
                     (0, 0),
+                    parent_scale,
                     target_anchors,
                     &mut available_plus,
                     &mut survived_minus,
@@ -416,17 +445,16 @@ pub(crate) fn derive_ref_offsets_detailed(
                 &alternatives_list[i],
                 &available_plus,
                 aligns,
+                parent_scale,
             ) {
                 Some(attachment) => {
-                    let offset = match attachment.outcome {
-                        MatchOutcome::Unique(offset) => {
-                            anchor_placed[i] = true;
-                            offset
-                        }
-                        // Ambiguity is reported by commit_ref below; commit
-                        // unattached.
-                        _ => (0, 0),
-                    };
+                    let offset = placed_offset(
+                        &attachment,
+                        gref,
+                        parent_scale,
+                        &mut anchor_placed[i],
+                        &mut issues,
+                    );
                     let name = attachment
                         .alt
                         .map_or_else(|| gref.name.clone(), str::to_string);
@@ -465,6 +493,7 @@ pub(crate) fn derive_ref_offsets_detailed(
             &resolved_gref,
             i,
             offset,
+            parent_scale,
             used_anchors,
             &mut available_plus,
             &mut survived_minus,
@@ -627,7 +656,13 @@ fn try_lookahead_alt<'a>(
 /// What matching a target's `-` anchors against the pool produced.
 enum MatchOutcome {
     NoMatch,
-    Unique((i16, i16)),
+    /// One candidate, and where it puts the ref, rounded down where that is
+    /// not whole — see [`DeriveIssue::FractionalAttachment`].
+    Unique {
+        offset: (i16, i16),
+        /// The `-` anchor whose offset is not whole, if it is not.
+        fractional: Option<String>,
+    },
     /// The first `-` anchor with any candidate had more than one — the
     /// attachment is ill-defined, and no other anchor is tried instead.
     Ambiguous,
@@ -668,29 +703,46 @@ fn align_for(aligns: &AnchorAligns, position: &str) -> AnchorAlign {
     aligns.get(class).copied().unwrap_or_default()
 }
 
-/// Where `minus` lands once `plus` has taken it: the difference of the points
-/// the class's `align` reduces the two ranges to — the same reduction
-/// `anchor_font_units` applies on the GPOS side, so a mark a shaped run
-/// places and a mark a composite places land together.
+/// Where `minus` lands once `plus` has taken it, in cells of the composite's
+/// grid at `scale`: the difference of the points the class's `align` reduces
+/// the two ranges to — the same reduction `anchor_font_units` applies on the
+/// GPOS side, so a mark a shaped run places and a mark a composite places land
+/// together.
 ///
-/// Doubled integers rather than [`GlyphPoint::aligned_point`]'s halves: a ref
-/// offset is whole grid cells, so a centred pair whose sizes differ in parity
-/// has half a cell to lose. It is lost the same way every time (downwards);
-/// `issues::anchors` is what warns about the parity that gets there.
-fn aligned_delta(plus: &GlyphPoint, minus: &GlyphPoint, align: AnchorAlign) -> (i16, i16) {
-    let twice = |low: i16, high: i16, axis: Align1| match axis {
-        Align1::Low => 2 * low as i32,
-        Align1::Center => low as i32 + high as i32,
-        Align1::High => 2 * high as i32,
+/// Exact rationals rather than [`GlyphPoint::aligned_point`]'s floats: the two
+/// anchors may be at different scales, and a ref offset is whole cells, so
+/// whether the difference is whole is the question. When it is not, it is
+/// rounded down — the same way every time — and the outcome says so; see
+/// [`DeriveIssue::FractionalAttachment`] for when that is an error.
+fn aligned_delta(
+    plus: &GlyphPoint,
+    minus: &GlyphPoint,
+    align: AnchorAlign,
+    scale: u8,
+) -> MatchOutcome {
+    let (sp, sm) = (i64::from(plus.scale.max(1)), i64::from(minus.scale.max(1)));
+    let (pc, pr) = plus.aligned_halves(align);
+    let (mc, mr) = minus.aligned_halves(align);
+    // `p / 2sp - m / 2sm` declared cells, times `scale` grid cells each.
+    let den = 2 * sp * sm;
+    let axis = |p: i64, m: i64, centred: bool, sizes: (u16, u16)| {
+        let num = i64::from(scale.max(1)) * (p * sm - m * sp);
+        let whole = num.rem_euclid(den) == 0;
+        // The half cell a centred pair of different parities is owed is the
+        // parity check's, not a fraction this has to refuse.
+        let parity_half = centred && (sizes.0 + sizes.1) % 2 == 1 && (2 * num).rem_euclid(den) == 0;
+        (
+            saturating_i16(num.div_euclid(den) as i32),
+            whole || parity_half,
+        )
     };
-    let col = twice(plus.col, plus.col_end, align.horizontal)
-        - twice(minus.col, minus.col_end, align.horizontal);
-    let row = twice(plus.row, plus.row_end, align.vertical)
-        - twice(minus.row, minus.row_end, align.vertical);
-    (
-        saturating_i16(col.div_euclid(2)),
-        saturating_i16(row.div_euclid(2)),
-    )
+    let (ps, ms) = (plus.size(), minus.size());
+    let (col, col_ok) = axis(pc, mc, align.horizontal == Align1::Center, (ps.0, ms.0));
+    let (row, row_ok) = axis(pr, mr, align.vertical == Align1::Center, (ps.1, ms.1));
+    MatchOutcome::Unique {
+        offset: (col, row),
+        fractional: (!(col_ok && row_ok)).then(|| minus.position.clone()),
+    }
 }
 
 fn try_match_minus_plus(
@@ -698,6 +750,7 @@ fn try_match_minus_plus(
     available_plus: &[PoolAnchor],
     aligns: &AnchorAligns,
     fit: Fit,
+    scale: u8,
 ) -> MatchOutcome {
     for minus in target_anchors
         .iter()
@@ -715,13 +768,38 @@ fn try_match_minus_plus(
         if candidates.next().is_some() {
             return MatchOutcome::Ambiguous;
         }
-        return MatchOutcome::Unique(aligned_delta(
-            plus,
-            minus,
-            align_for(aligns, &minus.position),
-        ));
+        return aligned_delta(plus, minus, align_for(aligns, &minus.position), scale);
     }
     MatchOutcome::NoMatch
+}
+
+/// The offset an [`Attachment`] places its ref at, `(0, 0)` for one that
+/// attaches nowhere. Ambiguity is reported by `commit_ref`, which commits the
+/// ref unattached; a fraction is reported here, and the ref placed at the
+/// rounded offset for the editor to draw — the build drops the glyph.
+fn placed_offset(
+    attachment: &Attachment<'_>,
+    gref: &GlyphRef,
+    scale: u8,
+    anchor_placed: &mut bool,
+    issues: &mut Vec<DeriveIssue>,
+) -> (i16, i16) {
+    let MatchOutcome::Unique {
+        offset,
+        ref fractional,
+    } = attachment.outcome
+    else {
+        return (0, 0);
+    };
+    if let Some(position) = fractional {
+        issues.push(DeriveIssue::FractionalAttachment {
+            position: position.clone(),
+            ref_name: attachment.alt.unwrap_or(&gref.name).to_string(),
+            scale: scale.max(1),
+        });
+    }
+    *anchor_placed = true;
+    offset
 }
 
 /// What one ref attaches through: the alternative it gave way to (`None` for
@@ -742,9 +820,10 @@ fn choose_attachment<'a>(
     alternatives: &'a [(String, Vec<GlyphPoint>)],
     available_plus: &[PoolAnchor],
     aligns: &AnchorAligns,
+    scale: u8,
 ) -> Option<Attachment<'a>> {
     for fit in [Fit::Exact, Fit::Holds] {
-        match try_match_minus_plus(target_anchors, available_plus, aligns, fit) {
+        match try_match_minus_plus(target_anchors, available_plus, aligns, fit, scale) {
             MatchOutcome::NoMatch => {}
             outcome => {
                 return Some(Attachment {
@@ -755,13 +834,12 @@ fn choose_attachment<'a>(
             }
         }
         for (alt_name, alt_anchors) in alternatives {
-            if let MatchOutcome::Unique(offset) =
-                try_match_minus_plus(alt_anchors, available_plus, aligns, fit)
-            {
+            let outcome = try_match_minus_plus(alt_anchors, available_plus, aligns, fit, scale);
+            if let MatchOutcome::Unique { .. } = outcome {
                 return Some(Attachment {
                     alt: Some(alt_name),
                     anchors: alt_anchors,
-                    outcome: MatchOutcome::Unique(offset),
+                    outcome,
                 });
             }
         }
@@ -769,22 +847,12 @@ fn choose_attachment<'a>(
     None
 }
 
-fn translate_point(p: &GlyphPoint, off_col: i16, off_row: i16) -> GlyphPoint {
-    GlyphPoint {
-        comment: None,
-        position: p.position.clone(),
-        col: saturating_i16(p.col as i32 + off_col as i32),
-        row: saturating_i16(p.row as i32 + off_row as i32),
-        col_end: saturating_i16(p.col_end as i32 + off_col as i32),
-        row_end: saturating_i16(p.row_end as i32 + off_row as i32),
-    }
-}
-
 #[expect(clippy::too_many_arguments)]
 fn commit_ref(
     gref: &GlyphRef,
     ref_idx: usize,
     offset: (i16, i16),
+    scale: u8,
     target_anchors: &[GlyphPoint],
     available_plus: &mut Vec<PoolAnchor>,
     survived_minus: &mut Vec<PoolAnchor>,
@@ -870,11 +938,11 @@ fn commit_ref(
                 issues.push(DeriveIssue::SizeMismatchedAttachment {
                     position: minus.position.clone(),
                     ref_name: gref.name.clone(),
-                    minus: (minus.width(), minus.height()),
-                    plus: (near.width(), near.height()),
+                    minus: minus.size(),
+                    plus: near.size(),
                 });
             }
-            survived_minus.push((translate_point(minus, off_col, off_row), Some(ref_idx)));
+            survived_minus.push((minus.translated(off_col, off_row, scale), Some(ref_idx)));
         }
     }
     for plus in target_anchors
@@ -894,7 +962,7 @@ fn commit_ref(
         {
             continue;
         }
-        available_plus.push((translate_point(plus, off_col, off_row), Some(ref_idx)));
+        available_plus.push((plus.translated(off_col, off_row, scale), Some(ref_idx)));
     }
 
     *out = Some(effective);

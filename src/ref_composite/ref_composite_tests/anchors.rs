@@ -191,6 +191,7 @@ map generate \u{c0}
 fn derive_reports_duplicates_and_ambiguity() {
     let anchored = |position: &str, col: i16, row: i16| GlyphPoint {
         comment: None,
+        scale: 1,
         position: position.to_string(),
         col,
         row,
@@ -344,6 +345,7 @@ fn probe_migration_worklist() {
 fn a_wider_plus_holds_a_narrower_minus() {
     let anchored = |position: &str, col: i16, col_end: i16, row: i16| GlyphPoint {
         comment: None,
+        scale: 1,
         position: position.to_string(),
         col,
         row,
@@ -423,6 +425,7 @@ fn a_wider_plus_holds_a_narrower_minus() {
 fn derive_reports_size_mismatched_attachment() {
     let anchored = |position: &str, col: i16, row: i16, w: i16| GlyphPoint {
         comment: None,
+        scale: 1,
         position: position.to_string(),
         col,
         row,
@@ -501,6 +504,7 @@ fn derive_reports_size_mismatched_attachment() {
 fn attaching_through_one_minus_retires_the_other_alternatives() {
     let anchored = |position: &str, col: i16, row: i16, w: i16| GlyphPoint {
         comment: None,
+        scale: 1,
         position: position.to_string(),
         col,
         row,

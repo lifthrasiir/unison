@@ -233,11 +233,17 @@ pub struct GlyphPoint {
     pub col_end: i16,
     /// Inclusive end of the row range. Equal to `row` for single-cell anchors.
     pub row_end: i16,
+    /// How many of the units above make one declared cell: the `scale` of the
+    /// grid the point is written on. See [`GlyphPoint::size`] for why the
+    /// point carries it rather than leaving it to the glyph.
+    pub scale: u16,
     /// Trailing `// …` comment of the `anchor` line, without its marker.
     pub comment: Option<String>,
 }
 
 impl GlyphPoint {
+    /// The range's width in the point's own units — fine cells of a `scale`d
+    /// grid. What the editor draws; [`size`](Self::size) is what is matched.
     pub fn width(&self) -> u16 {
         (self.col_end - self.col + 1) as u16
     }
@@ -246,13 +252,45 @@ impl GlyphPoint {
         (self.row_end - self.row + 1) as u16
     }
 
+    fn scale_i64(&self) -> i64 {
+        i64::from(self.scale.max(1))
+    }
+
+    /// The range's `(width, height)` in **declared** cells, which is what two
+    /// anchors are matched on.
+    ///
+    /// An anchor is written on its glyph's grid, so on a `scale N` glyph its
+    /// coordinates are fine cells — but a mark and its base are routinely
+    /// drawn at different scales, and a `scale 2` mark's 2×2 `-dot` is the
+    /// same size as a `scale 1` base's 1×1 `+dot`. Hence the scale travels
+    /// with the point instead of staying on the glyph: a composite's exposed
+    /// anchors come from components of several scales, and every consumer
+    /// that pairs two of them would otherwise have to know where each came
+    /// from.
+    ///
+    /// Only the *size* is held to whole declared cells — a range that is not
+    /// is an error (`issues::anchors`), rounded up here so it still means
+    /// something. The position is free: placing a mark at half a cell is what
+    /// a `scale 2` glyph is for.
+    pub fn size(&self) -> (u16, u16) {
+        let s = self.scale.max(1);
+        (self.width().div_ceil(s), self.height().div_ceil(s))
+    }
+
+    /// Whether the range covers whole declared cells on both axes — the rule
+    /// [`size`](Self::size) relies on.
+    pub fn is_whole_size(&self) -> bool {
+        let s = self.scale.max(1);
+        self.width().is_multiple_of(s) && self.height().is_multiple_of(s)
+    }
+
     #[cfg(any(feature = "editor", test))]
     pub fn is_single_cell(&self) -> bool {
         self.col == self.col_end && self.row == self.row_end
     }
 
     pub fn size_matches(&self, other: &GlyphPoint) -> bool {
-        self.width() == other.width() && self.height() == other.height()
+        self.size() == other.size()
     }
 
     /// Whether this `+` anchor's range is big enough to hold a `-` of
@@ -261,30 +299,88 @@ impl GlyphPoint {
     /// shaped run puts in a slot is a mark a precomposed glyph puts there
     /// too. An exact size is the case both prefer; a larger slot still holds
     /// the mark, which then reduces by the class's [`AnchorAlign`].
+    /// Both are in declared cells, as [`size`](Self::size) gives them.
     pub fn holds_size(&self, (width, height): (u16, u16)) -> bool {
-        self.width() >= width && self.height() >= height
+        let (w, h) = self.size();
+        w >= width && h >= height
     }
 
     /// [`Self::holds_size`] against another anchor's range.
     pub fn holds(&self, mark: &GlyphPoint) -> bool {
-        self.holds_size((mark.width(), mark.height()))
+        self.holds_size(mark.size())
     }
 
-    /// The `(col, row)` this anchor's range stands for under `align`, in grid
-    /// units. Half-integral where a range of even size is centred, which is
-    /// exact in font units and cancels against the other side of the pairing
-    /// whenever the two ranges are the same size — see [`AnchorAlign`], and
-    /// `issues::anchors` for the parity a centred class is held to.
+    /// The `(col, row)` this anchor's range stands for under `align`, in
+    /// declared cells. Half-integral where a range of even size is centred,
+    /// which is exact in font units and cancels against the other side of the
+    /// pairing whenever the two ranges are the same size — see
+    /// [`AnchorAlign`], and `issues::anchors` for the parity a centred class
+    /// is held to. Any fraction at all on a `scale`d glyph.
     pub fn aligned_point(&self, align: AnchorAlign) -> (f32, f32) {
-        let reduce = |low: i16, high: i16, axis: Align1| match axis {
-            Align1::Low => f32::from(low),
-            Align1::Center => f32::from(low + high) / 2.0,
-            Align1::High => f32::from(high),
+        let (col, row) = self.aligned_halves(align);
+        let den = (2 * self.scale_i64()) as f32;
+        (col as f32 / den, row as f32 / den)
+    }
+
+    /// [`aligned_point`](Self::aligned_point) exactly: numerators over
+    /// `2 * scale`.
+    ///
+    /// The reduction is of the *declared* cell the range stands for, not of
+    /// its fine cells: the high end of `14..15` on a `scale 2` glyph is
+    /// declared cell 7, as `7..7` is on a `scale 1` one, where reading the last
+    /// fine cell would give 7½. So the far edge is taken, and one declared
+    /// cell is stepped back from it.
+    pub fn aligned_halves(&self, align: AnchorAlign) -> (i64, i64) {
+        let s = self.scale_i64();
+        let reduce = |low: i16, high: i16, axis: Align1| {
+            let (low, far) = (i64::from(low), i64::from(high) + 1);
+            match axis {
+                Align1::Low => 2 * low,
+                Align1::Center => low + far - s,
+                Align1::High => 2 * far - 2 * s,
+            }
         };
         (
             reduce(self.col, self.col_end, align.horizontal),
             reduce(self.row, self.row_end, align.vertical),
         )
+    }
+
+    /// This point placed at `(col, row)` cells of a grid at `scale`, in the
+    /// coarsest units that still hold it exactly.
+    ///
+    /// The units are the least common multiple of the two scales, then
+    /// reduced: a `scale 2` component's anchor placed in a `scale 1` composite
+    /// stays in half cells only if it actually falls on one.
+    ///
+    /// Saturates where the coordinates would overflow, as the `i16`s do.
+    pub fn translated(&self, col: i16, row: i16, scale: u8) -> GlyphPoint {
+        let (own, at) = (self.scale_i64(), i64::from(scale.max(1)));
+        let unit = own / crate::math::gcd_u64(own as u64, at as u64) as i64 * at;
+        let (k, m) = (unit / own, unit / at);
+        // Edges, not cells: the far edge is what scales.
+        let mut edges = [
+            i64::from(self.col) * k + i64::from(col) * m,
+            (i64::from(self.col_end) + 1) * k + i64::from(col) * m,
+            i64::from(self.row) * k + i64::from(row) * m,
+            (i64::from(self.row_end) + 1) * k + i64::from(row) * m,
+        ];
+        let g = edges.iter().fold(unit as u64, |g, &e| {
+            crate::math::gcd_u64(g, e.unsigned_abs())
+        }) as i64;
+        for e in &mut edges {
+            *e /= g;
+        }
+        let narrow = |v: i64| v.clamp(i64::from(i16::MIN), i64::from(i16::MAX)) as i16;
+        GlyphPoint {
+            position: self.position.clone(),
+            col: narrow(edges[0]),
+            col_end: narrow(edges[1] - 1),
+            row: narrow(edges[2]),
+            row_end: narrow(edges[3] - 1),
+            scale: u16::try_from(unit / g).unwrap_or(u16::MAX),
+            comment: None,
+        }
     }
 
     /// The `anchor` line for this point, comment included. Single implementation
@@ -305,6 +401,31 @@ impl GlyphPoint {
             range(self.row, self.row_end),
             crate::document_io::comment_suffix(&self.comment),
         )
+    }
+
+    /// This point in cells of a grid at `scale`, widened outward to whole
+    /// cells where it does not fall on them. For drawing a point on a grid it
+    /// was not written on — an anchor a composite inherits from a component
+    /// of another scale — and for nothing that matches or places anchors,
+    /// which [`size`](Self::size) and [`aligned_halves`](Self::aligned_halves)
+    /// do exactly.
+    #[cfg(feature = "editor")]
+    pub fn on_grid(&self, scale: u8) -> GlyphPoint {
+        let (own, at) = (self.scale_i64(), i64::from(scale.max(1)));
+        if own == at {
+            return self.clone();
+        }
+        let narrow = |v: i64| v.clamp(i64::from(i16::MIN), i64::from(i16::MAX)) as i16;
+        let low = |v: i16| narrow((i64::from(v) * at).div_euclid(own));
+        let high = |v: i16| narrow(((i64::from(v) + 1) * at + own - 1).div_euclid(own) - 1);
+        GlyphPoint {
+            col: low(self.col),
+            col_end: high(self.col_end),
+            row: low(self.row),
+            row_end: high(self.row_end),
+            scale: at as u16,
+            ..self.clone()
+        }
     }
 
     /// A copy of this point moved by `(dcol, drow)` whole cells.

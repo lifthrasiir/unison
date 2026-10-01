@@ -277,3 +277,81 @@ anchor -slot 3..5 0
     );
     assert!(!has(&issues, Severity::Warning, "lands half a pixel off"));
 }
+
+/// A `scale 2` mark whose `-dot` sits half a cell across, and a combo of it
+/// with a `scale 1` base at the given `scale`.
+fn scaled_dot_combo(combo_scale: u8) -> String {
+    format!(
+        "\
+feature ccmp for DFLT : anchor dot
+
+glyph base 4 4
+........
+........
+........
+........
+anchor +dot 2 1
+
+glyph dot 2 4 mark scale 2
+........
+........
+........
+........
+........
+........
+........
+........
+anchor -dot 1..2 2..3
+
+glyph combo scale {combo_scale}
+ref base
+ref dot
+"
+    )
+}
+
+/// An anchor's *position* may fall between declared cells — that is what a
+/// `scale` is for — but a ref offset is whole cells of the glyph that writes
+/// it. A mark that attaches half a cell across therefore fits a `scale 2`
+/// composite and not a `scale 1` one, and the latter must say so rather than
+/// drop the half cell.
+#[test]
+fn an_attachment_finer_than_the_composites_grid_is_an_error() {
+    let fine = issues_for(&scaled_dot_combo(2));
+    assert!(
+        !fine.iter().any(|i| i.severity == Severity::Error),
+        "a `scale 2` composite holds a half-cell offset, got {:?}",
+        fine.iter().map(|i| &i.message).collect::<Vec<_>>()
+    );
+    let coarse = issues_for(&scaled_dot_combo(1));
+    assert!(
+        has(&coarse, Severity::Error, "'combo'") && has(&coarse, Severity::Error, "scale"),
+        "a `scale 1` composite cannot, got {:?}",
+        coarse.iter().map(|i| &i.message).collect::<Vec<_>>()
+    );
+}
+
+/// An anchor's *size* is in declared cells, so on a `scale N` glyph it has to
+/// be a whole multiple of N fine cells on both axes; one fine cell of a
+/// `scale 2` glyph is no size a `scale 1` glyph can match.
+#[test]
+fn an_anchor_size_that_is_not_whole_declared_cells_is_an_error() {
+    let issues = issues_for(
+        "\
+glyph dot 2 2 scale 2
+........
+........
+........
+........
+anchor -dot 1 0..1
+anchor +dot 0..1 1..2
+",
+    );
+    let errors: Vec<_> = issues
+        .iter()
+        .filter(|i| i.severity == Severity::Error)
+        .map(|i| &i.message)
+        .collect();
+    assert_eq!(errors.len(), 1, "only `-dot` is 1×2 fine cells: {errors:?}");
+    assert!(errors[0].contains("'-dot'"), "{errors:?}");
+}

@@ -1774,3 +1774,211 @@ feature ccmp for DFLT : tagging
         "the ligature output must give way to the alternative carrying the slot"
     );
 }
+
+/// A base offering a one-cell `+dot` at (2, 1), and a `scale 2` mark whose
+/// `-dot` covers the 2×2 fine cells that make one declared cell, at a half
+/// cell's offset across: `1..2` is declared column ½. `combo_scale` is the
+/// `scale` of a precomposed `combo` of the two, or `None` for no combo.
+fn scaled_dot_source(combo_scale: Option<u8>) -> String {
+    let combo = match combo_scale {
+        Some(s) => format!("glyph combo scale {s}\nref base-letter\nref dot\nmap U+00C1 = combo\n"),
+        None => String::new(),
+    };
+    format!(
+        "\
+meta height 4
+meta ascent 3
+meta descent 1
+
+glyph base-letter 4 4
+........
+........
+........
+........
+anchor +dot 2 1
+
+glyph dot 2 4 mark scale 2
+........
+........
+........
+........
+........
+........
+........
+........
+anchor -dot 1..2 2..3
+
+map U+0041 = base-letter
+map U+0301 = dot
+{combo}
+feature ccmp for DFLT : anchor dot
+"
+    )
+}
+
+/// `(base x, mark x, base y, mark y, cell)` of the one MarkBasePos pair a
+/// source builds, in font units.
+fn mark_to_base_anchor_units(input: &str) -> (i16, i16, i16, i16, i16) {
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let docs: Vec<&Document> = vec![&doc];
+    let (meta, scale, glyphs, gsub_data, _) =
+        collect_glyph_data(&docs, false).expect("should collect glyph data");
+    let name_to_gid: HashMap<String, GlyphId16> = glyphs
+        .iter()
+        .enumerate()
+        .map(|(i, g)| (g.name.clone(), GlyphId16::new((i + 1) as u16)))
+        .collect();
+    let anchor_data = build_anchor_gpos(&glyphs, &gsub_data, &name_to_gid, scale, meta.ascent());
+    let gpos = anchor_data.gpos.expect("GPOS should exist");
+    let sub = gpos
+        .lookup_list
+        .lookups
+        .iter()
+        .find_map(|l| match l.as_ref() {
+            PositionLookup::MarkToBase(lk) => Some(lk.subtables[0].clone()),
+            _ => None,
+        })
+        .expect("MarkBasePos lookup");
+    let AnchorTable::Format1(mark_anchor) = &*sub.mark_array.mark_records[0].mark_anchor else {
+        panic!("expected AnchorFormat1 on the mark");
+    };
+    let class = sub.mark_array.mark_records[0].mark_class as usize;
+    let Some(AnchorTable::Format1(base_anchor)) =
+        sub.base_array.base_records[0].base_anchors[class].as_deref()
+    else {
+        panic!("the base must offer the mark's class a Format1 anchor");
+    };
+    (
+        base_anchor.x_coordinate,
+        mark_anchor.x_coordinate,
+        base_anchor.y_coordinate,
+        mark_anchor.y_coordinate,
+        scale as i16,
+    )
+}
+
+/// An anchor on a `scale N` glyph is written in its fine cells, but it is
+/// matched and placed in declared ones: a 2×2 `-dot` at `scale 2` is the
+/// same size as a 1×1 `+dot` at `scale 1`, and `1..2` is column ½. The size
+/// used to be compared in raw cells, so the two never met, and the position
+/// was read as whole cells, so a mark that did attach landed twice as far.
+#[test]
+fn an_anchor_on_a_scaled_glyph_is_matched_and_placed_in_declared_cells() {
+    let (base_x, mark_x, base_y, mark_y, cell) =
+        mark_to_base_anchor_units(&scaled_dot_source(None));
+    assert_eq!(base_x, 2 * cell);
+    assert_eq!(mark_x, cell / 2, "column ½, not column 1");
+    // Rows grow downward from the ascent (3): row 1 is 2 cells up, and the
+    // mark's fine row 2 is declared row 1.
+    assert_eq!(base_y, 2 * cell);
+    assert_eq!(mark_y, 2 * cell);
+}
+
+/// The precomposed spelling of [`an_anchor_on_a_scaled_glyph_is_matched_and_placed_in_declared_cells`]
+/// has to put the mark where the shaped one goes: half a cell is three fine
+/// cells of a `scale 2` composite.
+#[test]
+fn a_scaled_mark_lands_at_its_half_cell_in_a_composite_fine_enough_to_hold_it() {
+    let input = scaled_dot_source(Some(2));
+    let (base_x, mark_x, _, _, cell) = mark_to_base_anchor_units(&input);
+    assert_eq!(base_x - mark_x, 3 * cell / 2, "shaped: 1½ cells");
+
+    let doc = document_io::parse_document_from_str(&input, "test.unf".into()).unwrap();
+    let docs: Vec<&Document> = vec![&doc];
+    let name_parts = crate::document::collect_name_parts(&docs);
+    let (resolved, alt_index) =
+        crate::ref_composite::resolve_named_glyphs_with_parts(&docs, &name_parts);
+    let body = doc
+        .items
+        .iter()
+        .find_map(|item| match item {
+            DocumentItem::Glyph { name, body } if name.display() == "combo" => Some(body),
+            _ => None,
+        })
+        .expect("combo");
+    let composite = crate::ref_composite::compute_composite(
+        body,
+        &resolved,
+        &name_parts,
+        &alt_index,
+        &Default::default(),
+        &crate::document::collect_anchor_aligns(doc.items.iter()),
+    )
+    .expect("combo has refs");
+    assert_eq!(
+        (
+            composite.layers[1].logical_offset_col,
+            composite.layers[1].logical_offset_row
+        ),
+        (3, 0),
+        "precomposed: 1½ cells across, in the composite's half cells"
+    );
+}
+
+/// A mark stacked on a mark of another scale: the second dot attaches to the
+/// `+dot` the first one published, which by then is half a cell into the
+/// composite — a position only the composite's own `scale 2` can hold, and
+/// one the pool must not have rounded on the way.
+#[test]
+fn a_scaled_mark_publishes_its_half_cell_anchor_to_the_next_mark() {
+    let input = "\
+meta height 4
+meta ascent 3
+meta descent 1
+
+glyph base-letter 4 4
+........
+........
+........
+........
+anchor +dot 2 1
+
+glyph dot 2 4 mark scale 2
+........
+........
+........
+........
+........
+........
+........
+........
+anchor -dot 1..2 2..3
+anchor +dot 6..7 2..3
+
+glyph combo scale 2
+ref base-letter
+ref dot
+ref dot
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let docs: Vec<&Document> = vec![&doc];
+    let name_parts = crate::document::collect_name_parts(&docs);
+    let (resolved, alt_index) =
+        crate::ref_composite::resolve_named_glyphs_with_parts(&docs, &name_parts);
+    let body = doc
+        .items
+        .iter()
+        .find_map(|item| match item {
+            DocumentItem::Glyph { name, body } if name.display() == "combo" => Some(body),
+            _ => None,
+        })
+        .expect("combo");
+    let composite = crate::ref_composite::compute_composite(
+        body,
+        &resolved,
+        &name_parts,
+        &alt_index,
+        &Default::default(),
+        &Default::default(),
+    )
+    .expect("combo has refs");
+    let cols: Vec<i16> = composite
+        .layers
+        .iter()
+        .map(|l| l.logical_offset_col)
+        .collect();
+    // Base at 0; the first dot's `-dot` (½) meets the base's 2: 1½ = 3 halves.
+    // Its `+dot` sits at 1½ + 3 = 4½, and the second dot's `-dot` meets it
+    // there: 4 = 8 halves.
+    assert_eq!(cols, vec![0, 3, 8]);
+}
