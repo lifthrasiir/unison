@@ -1,4 +1,5 @@
 pub mod assert;
+pub mod command;
 pub mod contour;
 pub mod demo;
 pub(crate) mod glyph_cache;

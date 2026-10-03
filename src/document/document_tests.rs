@@ -953,7 +953,13 @@ fn a_translated_anchor_keeps_its_fraction_and_drops_what_it_does_not_need() {
     // wherever it lands on whole cells …
     let whole = scaled_point((1, 1), (2, 2), 1).translated(4, 2, 2);
     assert_eq!(
-        (whole.col, whole.col_end, whole.row, whole.row_end, whole.scale),
+        (
+            whole.col,
+            whole.col_end,
+            whole.row,
+            whole.row_end,
+            whole.scale
+        ),
         (3, 3, 3, 3, 1)
     );
     // … and stays in the parent's halves where it does not.

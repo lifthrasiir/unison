@@ -25,6 +25,8 @@ uniform test -i DIR [--chores]                      # run every `assert`; exit 1
 uniform fix -i DIR --optimize-clearance [--dry-run] # rewrite the source, see below
 uniform probe -i DIR [--repeat N] [--edit]          # timing, no window
 uniform sequences -i DIR                            # what to type for a glyph no `map` names
+uniform render -i DIR [-o OUT.png] [--ascii] [--zoom N] [--face ID] (-g GLYPH | -t TEXT)...
+                                                    # draw glyphs or text from the built font
 ```
 
 `-o` picks the format by extension and one-vs-many by a `%` in the path — see
@@ -43,6 +45,22 @@ the composites the editor draws and the rest would each reach the editor; and it
 rebuild cancelled part-way keeps running, which is how long an edit made during a rebuild waits
 before its own rebuild starts.
 Setting `UNIFORM_PERF` prints the same per-stage timings on stderr in every mode, the editor included.
+
+`render` builds the font and draws what it is given, one row per item: `-g GLYPH` is one glyph by
+name, `-t TEXT` is text shaped the way `assert shape` shapes it, so `remap`s and anchors apply. A
+glyph name need not be reachable — a helper part, an on-demand shape such as `4x4-dr` or a glyph
+nothing maps yet is drawn all the same. `-o` writes a PNG in which every row has three panels: the
+outline build, the bitmap build, and the two laid over each other (bitmap ink pale, outline dark),
+over the pixel grid, with the baseline in red and the pen's start and end in blue. `--zoom` is the
+number of image pixels per font pixel (16 by default). `--ascii` prints the bitmap build in the
+grid's own `@@`/`..` spelling. Either way a summary line per row gives its advance, the pixel
+extent drawn and which printed row the baseline sits under. `--face` picks a face other than the
+first.
+
+```sh
+uniform render -i font/ -o rest.png -g music-rest-1r4 -t '𝄽𝄾'
+uniform render -i font/ --ascii -g music-rest-1r8-bar
+```
 
 `sequences` prints, for every glyph only a `remap` produces (the flags, the composed jamo), the
 shortest code point sequence a reader can type to get it. The answers are checked by running the

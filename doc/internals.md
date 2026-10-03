@@ -182,6 +182,7 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Why the directory load reads its files on many threads; what a refresh re-reads | `render/ttf_builder/mod.rs` (`load_docs_from_directory_with_sources`, `DirCache`) |
 | Typing a glyph no `map` names: the cascade, why a per-glyph cost cannot answer it, the repair search | `render/reach.rs` (`Cascade`), `render/ttf_builder/collect.rs` (`remap_only_sequences`) |
 | Folding a secondary `face` into the demo page's font: why a stylistic set, why last, what it cannot carry | `render/ttf_builder/fold.rs` (`fold_secondary_faces`, `allocate_feature_tags`, `FoldDelta`), `render/demo/mod.rs` (`DemoFace::unmapped`) |
+| `uniform render`: why it draws from the built font, how a name nothing maps is kept, the rasterizer | `render/command.rs`, `render/ttf_builder/mod.rs` (`build_face_variable_keeping`) |
 
 ## The demo page and the specimen
 

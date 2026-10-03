@@ -2,7 +2,7 @@
 
 Bitmap font editor with sub-pixel shape support and a TTF builder, plus the `font/` sources of the
 Unison font itself. egui/eframe GUI, Rust 2024 edition. One binary `uniform`: the GUI by default,
-and the headless `build`, `test`, `fix`, `probe` and `sequences` subcommands.
+and the headless `build`, `test`, `fix`, `probe`, `sequences` and `render` subcommands.
 
 **This file is an index, and it is loaded into every session — keep it short.** The reasoning behind
 each design lives in the module-level `//!` docs of the code that implements it; when a new
@@ -26,6 +26,10 @@ cargo run -r -- build -i font/ -o unison.ttc [-o unison-%.woff2] [--demo-html de
 cargo run -r -- test -i font/
 cargo run -r -- fix -i font/ --optimize-clearance [--dry-run]
 ```
+
+To *see* a glyph, use `render`, not your mental model of the grid: `cargo run -r -- render -i font/
+-o out.png [--ascii] -g NAME -t TEXT` draws the outline and bitmap builds from the built font (any
+glyph name, reachable or not); read the PNG.
 
 `build` and `test` print parse errors, then the `issues/` report (`error:`/`warning:` with
 `file:line:`). Warnings still build; a single `error:` exits 1 — `build` after writing every

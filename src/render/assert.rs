@@ -41,16 +41,16 @@ pub struct AssertShapeResult {
     pub passed: usize,
 }
 
-struct ShapedGlyph {
-    glyph_id: u16,
-    x_advance: i32,
-    x_offset: i32,
-    y_offset: i32,
+pub(crate) struct ShapedGlyph {
+    pub glyph_id: u16,
+    pub x_advance: i32,
+    pub x_offset: i32,
+    pub y_offset: i32,
 }
 
 /// Shape `text`, splitting it into single-script runs first; see
 /// [`crate::script_run`] for why that is required.
-fn shape_text(
+pub(crate) fn shape_text(
     font_data: &[u8],
     text: &str,
     features: &[ShapeFeatureFlag],

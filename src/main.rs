@@ -1198,7 +1198,10 @@ fn main() {
         return;
     }
 
-    // Test subcommand: uniform test --input DIR
+    if args.get(1).map(|s| s.as_str()) == Some("render") {
+        std::process::exit(render::command::run(&args[2..]));
+    }
+
     if args.get(1).map(|s| s.as_str()) == Some("sequences") {
         let mut input_dir = None;
         let mut i = 2;

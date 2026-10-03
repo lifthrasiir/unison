@@ -1076,6 +1076,11 @@ pub struct DemoFont {
     /// What the fold could not express, for the caller to print. A build with
     /// warnings still produces a page; it just shows less than the source says.
     pub warnings: Vec<String>,
+    /// Each glyph id's name, in glyph id order — what `uniform render` looks a
+    /// `-g NAME` up in. A name a second glyph repeats keeps its first id.
+    pub glyph_names: Vec<String>,
+    /// The pixel em-height: font units per pixel is `UNITS_PER_EM / height`.
+    pub height: u16,
 }
 
 /// One face as a *single* variable font carrying both drawings, whether or not
@@ -1099,6 +1104,23 @@ pub struct DemoFont {
 /// so a second scale would make every delta a lie — and this is the same choice
 /// `build_faces` makes for the shipping variable font.
 pub fn build_face_variable(docs: &[&Document], face: &crate::faces::Face) -> Option<DemoFont> {
+    build_face_variable_keeping(docs, face, &mut [])
+}
+
+/// [`build_face_variable`], with every glyph `keep` names kept as if its
+/// source said `keep` — under its own name and glyph id, rather than dropped
+/// as unreachable or absorbed into the one composite that moves it (see
+/// [`absorb`]). The names are canonicalized against the source's aliases in
+/// place, so the caller looks up the name the font actually has.
+///
+/// `uniform render`'s build: it draws glyphs by name, and a glyph being
+/// drawn is very often one nothing maps yet. An on-demand shape only exists
+/// once something refers to it, which is the caller's to arrange.
+pub fn build_face_variable_keeping(
+    docs: &[&Document],
+    face: &crate::faces::Face,
+    keep: &mut [String],
+) -> Option<DemoFont> {
     let never = crate::cancel::CancelToken::never();
     // Expanded here rather than inside the shared input, because three things
     // need the same one: the union glyph store, the primary face's cmap, and
@@ -1106,7 +1128,18 @@ pub fn build_face_variable(docs: &[&Document], face: &crate::faces::Face) -> Opt
     // `crate::faces::FaceSet::union`) and is the larger half of what this costs.
     let name_parts = crate::document::collect_name_parts(docs);
     let faces = crate::faces::FaceSet::collect(docs);
-    let expansion = expand::expand_for(docs, &name_parts, &faces.union());
+    let mut expansion = expand::expand_for(docs, &name_parts, &faces.union());
+    if !keep.is_empty() {
+        expansion.aliases.canonicalize_all(keep);
+        let keep: crate::hash::HashSet<&str> = keep.iter().map(String::as_str).collect();
+        for e in &mut expansion.items {
+            if let DocumentItem::Glyph { name, body } = &mut e.item
+                && keep.contains(name.0.as_str())
+            {
+                body.keep = true;
+            }
+        }
+    }
 
     // The *union* face, exactly as `build_faces_from` traces it, and for a
     // second reason on top of that one: a glyph only a secondary face's `map`
@@ -1156,6 +1189,7 @@ pub fn build_face_variable(docs: &[&Document], face: &crate::faces::Face) -> Opt
     meta.bitmap_axis = true;
     let ascender = (meta.ascent() as f32 * scale).round() as i16;
     let descender = -((meta.descent() as f32 * scale).round() as i16);
+    let glyph_names = glyphs.iter().map(|g| g.name.clone()).collect();
     Some(DemoFont {
         ttf: build_ttf(
             ascender,
@@ -1169,6 +1203,8 @@ pub fn build_face_variable(docs: &[&Document], face: &crate::faces::Face) -> Opt
         ),
         folded,
         warnings,
+        glyph_names,
+        height: meta.height(),
     })
 }
 
