@@ -117,8 +117,8 @@ glyph han-23f4b:15x16 15 16 // 𣽋
 // glyph han-23f4f:15x16 15 16 // 𣽏
 // ⿰ han-6c35 han-60e1 // ⿰氵惡
 
-glyph han-23f5d:15x16 15 16 // 𣽝
-⿲ -2 han-6c35:3x12 han-5de5:3x12-l han-98a8:11x16 // ⿲氵工風
+glyph han-23f5d-($han-regions):15x16 15 16 // 𣽝
+⿲ -2 han-6c35:3x12 han-5de5:3x12-l han-98a8-($-1):11x16 // ⿲氵工風
 
 // glyph han-23f62:15x16 15 16 // 𣽢
 // ⿰ han-6c35 han-20db7 // ⿰氵𠶷
@@ -192,7 +192,7 @@ glyph han-23fd8:15x16 15 16 // 𣿘
 // ⿰ han-6c35 han-76df // ⿰氵盟
 
 glyph han-24014:15x16 15 16 // 𤀔
-⿲ han-6c35:3x12 han-98e0-v:7x16 han-6b20:5x16 // ⿲氵飠欠
+⿲ han-6c35:3x12 han-98e0-or-2967f-v:7x16 han-6b20:5x16 // ⿲氵飠欠
 
 // glyph han-24017:15x16 15 16 // 𤀗 ⿰洗呂(V) ⿰洗吕(Z)
 // ⿰ han-6d17 han-5442 // ⿰洗呂
@@ -315,5 +315,5 @@ glyph han-2411c:15x16 15 16 // 𤄜
 glyph han-24151:15x16 15 16 // 𤅑
 ⿲ han-6c35:3x12 han-571f:3x13-l han-8944:9x16 // ⿲氵土襄
 
-glyph han-2415c:15x16 15 16 // 𤅜
-⿲ -6 han-6c35:3x12 han-7968:7x16 han-98a8:11x16 // ⿲氵票風
+glyph han-2415c-($han-regions):15x16 15 16 // 𤅜
+⿲ -6 han-6c35:3x12 han-7968:7x16 han-98a8-($-1):11x16 // ⿲氵票風

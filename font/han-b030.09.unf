@@ -46,8 +46,8 @@ glyph han-20dcc:15x16 15 16 // 𠷌
 // glyph han-20dd0:15x16 15 16 // 𠷐
 // ⿲ han-53e3 han-5fc4 han-4e98 // ⿲口忄亘
 
-glyph han-20dd5:15x16 15 16 // 𠷕
-⿰ han-53e3:4x12 han-98a8:11x16 // ⿰口風
+glyph han-20dd5-($han-regions):15x16 15 16 // 𠷕
+⿰ han-53e3:4x12 han-98a8-($-1):11x16 // ⿰口風
 
 glyph han-20dd8:15x16 15 16 // 𠷘
 ⿲ han-53e3:4x12 1 han-706b:5x16 han-79be:5x16 // ⿲口火禾

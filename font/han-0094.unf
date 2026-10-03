@@ -445,8 +445,8 @@ glyph han-7322.0:* = han-7322:*
 // glyph han-7324:15x16 15 16 // 猤
 // ⿰ han-72ad han-7678 // ⿰犭癸
 
-glyph han-7326:15x16 15 16 // 猦
-⿰ han-72ad:4x14 han-98a8:11x16 // ⿰犭風
+glyph han-7326-($han-regions):15x16 15 16 // 猦
+⿰ han-72ad:4x14 han-98a8-($-1):11x16 // ⿰犭風
 
 glyph han-7329:15x16 15 16 // 猩
 ⿰ han-72ad:4x14 han-661f:11x16 // ⿰犭星

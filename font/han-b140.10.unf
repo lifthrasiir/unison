@@ -48,6 +48,9 @@ glyph han-26d79-(t|j):15x16 15 16 // 𦵹
 // glyph han-26d84:15x16 15 16 // 𦶄
 // ⿱ han-8279 han-6d85 // ⿱艹涅
 
+// glyph han-26d85-($han-regions):15x16 15 16 // 𦶅
+// ⿱ han-8279-($-1) han-8ffa-($-1) // ⿱艹迺
+
 // glyph han-26d86-($han-regions):15x16 15 16 // 𦶆
 // ⿱ han-8279 han-7d10-($-1) // ⿱艹紐
 

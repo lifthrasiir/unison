@@ -716,7 +716,7 @@ glyph han-2ea12:15x16 15 16 // 𮨒
 ## 182.4
 
 glyph han-2ea27:15x16 15 16 // 𮨧
-⿺ han-98a8:15x16.5x15 han-738b:5x12 10 1 // ⿺風王
+⿺ han-98a8-k:15x16.5x15 han-738b:5x12 10 1 // ⿺風王
 
 ## 182.5
 
@@ -726,7 +726,7 @@ glyph han-2ea27:15x16 15 16 // 𮨧
 ## 182.6
 
 glyph han-2ea29:15x16 15 16 // 𮨩
-⿺ han-98a8:15x16.5x15 han-866b:5x11 10 2 // ⿺風虫
+⿺ han-98a8-j:15x16.5x15 han-866b:5x11 10 2 // ⿺風虫
 
 // glyph han-2ea2a:15x16 15 16 // 𮨪
 // ⿺ han-98a8 han-5b89 // ⿺風安
@@ -754,7 +754,7 @@ glyph han-2ea29:15x16 15 16 // 𮨩
 ## 184.3
 
 glyph han-2ea37:15x16 15 16 // 𮨷
-assume ⿰ han-98e0-j:7x16 -1 han-5de5:9x16 // ⿰飠工
+assume ⿰ han-98e0-or-2967f-j:7x16 -1 han-5de5:9x16 // ⿰飠工
 
 // glyph han-2ea38:15x16 15 16 // 𮨸
 // ⿰ han-98e0 han-4e2b // ⿰飠丫

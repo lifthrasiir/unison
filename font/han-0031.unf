@@ -1987,8 +1987,8 @@ glyph han-5837.0:* = han-5837:*
 glyph han-5837.1:15x16 15 16 // 堷
 ⿰ han-571f:5x14-l 1 han-97f3.1:9x16 // ⿰土音
 
-glyph han-5838:15x16 15 16 // 堸
-assume ⿰ han-571f:5x14-l -1 han-98a8:11x16 // ⿰土風
+glyph han-5838-($han-regions):15x16 15 16 // 堸
+assume ⿰ han-571f:5x14-l -1 han-98a8-($-1):11x16 // ⿰土風
 
 glyph han-5839:15x16 15 16 // 堹
 ⿰ han-571f:7x14-l -1 han-91cd:9x16 // ⿰土重
@@ -2068,7 +2068,7 @@ glyph han-587a-(t|j|k):15x16 15 16 // 塺
 glyph han-5882-(g|h|t|k):15x16 15 16 // 墂
 ⿰ han-571f:5x14-l 1 han-7968:9x16 // ⿰土票
 glyph han-5882-j:15x16 15 16 // 墂
-⿰ han-571f:5x14-l 1 han-7968:9x16 // ⿰土票 (TODO)
+⿰ han-571f:5x14-l 1 han-897f:9x7|1|han-793a:9x8 // ⿰土⿱西示
 
 // glyph han-5883:15x16 15 16 // 境
 // ⿰ han-571f han-7adf // ⿰土竟

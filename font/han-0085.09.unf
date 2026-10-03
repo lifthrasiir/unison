@@ -22,9 +22,9 @@ glyph han-6e1d-p:* = han-6e1d.x:*
 // glyph han-6e20:15x16 15 16 // 渠
 // ⿱ han-6d30 han-6728 // ⿱洰木
 
-glyph han-6e22:15x16 15 16 // 渢
-⿰ han-6c35:3x12 1 han-98a8:11x16 // ⿰氵風
-glyph han-6e22.0:* = han-6e22:*
+glyph han-6e22-($han-regions):15x16 15 16 // 渢
+⿰ han-6c35:3x12 1 han-98a8-($-1):11x16 // ⿰氵風
+glyph han-6e22.0:* = han-6e22-j:*
 
 // glyph han-6e23:15x16 15 16 // 渣 ⿰氵查(GHTP) ⿰氵査(JK)
 // ⿰ han-6c35 han-67e5 // ⿰氵查

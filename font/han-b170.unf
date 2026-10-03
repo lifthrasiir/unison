@@ -194,8 +194,8 @@ glyph han-28e91:15x16 15 16 // 𨺑
 
 ## 170.9
 
-glyph han-28ea2:15x16 15 16 // 𨺢
-⿰ han-961d:4x14-l han-98a8:11x16 // ⿰阝風
+glyph han-28ea2-($han-regions):15x16 15 16 // 𨺢
+⿰ han-961d:4x14-l han-98a8-($-1):11x16 // ⿰阝風
 
 // glyph han-28eaf:15x16 15 16 // 𨺯
 // ⿰ han-961d han-601d // ⿰阝思

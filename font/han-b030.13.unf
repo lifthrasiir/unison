@@ -36,7 +36,7 @@ glyph han-20fed:15x16 15 16 // 𠿭
 ⿲ han-53e3:5x12 han-6c35:3x12 han-9aa8-h:7x16 // ⿲口氵骨
 
 glyph han-20fee-($han-regions):15x16 15 16 // 𠿮
-⿲ han-53e3:3x12 han-98e0-($-1):7x16 han-6b20:5x16 // ⿲口飠欠
+⿲ han-53e3:3x12 han-98e0-or-2967f-($-1):7x16 han-6b20:5x16 // ⿲口飠欠
 
 // glyph han-20ff4:15x16 15 16 // 𠿴
 // ⿲ han-53e3 han-77f3 han-3775 // ⿲口石㝵
