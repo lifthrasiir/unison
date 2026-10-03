@@ -1176,7 +1176,7 @@ glyph han-7bc1-(g|h|t|j|k):* = han-7bc1.0:*
 glyph han-7bc1-p:* = han-7bc1.x:*
 
 glyph han-7bc2:15x16 15 16 // 篂
-⿳ -3 han-25ad7:13x5 han-65e5:11x5 han-751f:15x9 // ⿳𥫗日生
+⿳ -2 han-25ad7:13x5 han-65e5:11x5 han-751f:15x8 // ⿳𥫗日生
 glyph han-7bc2.0:* = han-7bc2:*
 
 glyph han-7bc5:15x16 15 16 // 篅

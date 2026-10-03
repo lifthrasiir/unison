@@ -2436,7 +2436,7 @@ glyph han-66c9.1:* = han-66c9:*
 ## 72.13
 
 glyph han-66d0:15x16 15 16 // 曐
-⿳ -4 han-65e5:11x5 1 han-660d:15x5 han-751f:15x9 // ⿳日昍生
+⿳ -3 han-65e5:11x5 1 han-660d:15x5 han-751f:15x8 // ⿳日昍生
 
 // glyph han-66d3:15x16 15 16 // 曓
 // ⿳ han-2317d han-5927 han-672c // ⿳𣅽大本

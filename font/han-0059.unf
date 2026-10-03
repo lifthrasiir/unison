@@ -22,6 +22,7 @@ $$..........................$$
 ref 4x1p7r8-ys0p7r8 3 4
 ref 4x1p7r8-ys0p7r8 3 8
 ref 5x1p7r8-ys0p7r8 2 12
+glyph han-5f61.0:* = han-5f61:*
 
 ## 59.4
 
@@ -94,7 +95,7 @@ $$..@@..$$
 $$..@@..$$
 $$..@@..$$
 $$..@@..$$
-glyph han-5f73:15x16 15 16 // 彳 ⿱𰀪丨(GHTJKP) ⿱㇒亻(X)
+glyph han-5f73:15x16 15 16 // 彳
 ............................$$
 ............................$$
 ............................$$
@@ -112,19 +113,25 @@ glyph han-5f73:15x16 15 16 // 彳 ⿱𰀪丨(GHTJKP) ⿱㇒亻(X)
 ............................$$
 ............................$$
 ref han-5f73:5x16
+glyph han-5f73.0:* = han-5f73:*
 
 ## 60.3
 
 glyph han-5f74-($han-regions):15x16 15 16 // 彴
 ⿰ han-5f73:5x16 1 han-52fa-($-1):9x16 // ⿰彳勺
+glyph han-5f74.0:* = han-5f74-g:*
+glyph han-5f74.1:* = han-5f74-g:*
+glyph han-5f74.2:* = han-5f74-k:*
 
 ## 60.4
 
 glyph han-5f77:15x16 15 16 // 彷
 ⿰ han-5f73:5x16 1 han-65b9:9x16 // ⿰彳方
+glyph han-5f77.0:* = han-5f77:*
 
 glyph han-5f7a:15x16 15 16 // 彺
 ⿰ han-5f73:5x16 1 han-738b:9x16 // ⿰彳王
+glyph han-5f7a.0:* = han-5f7a:*
 
 glyph han-5f7b:15x16 15 16 // 彻
 ⿲ han-5f73:3x16 han-4e03:5x16 han-5200:7x16 // ⿲彳七刀
@@ -136,6 +143,7 @@ glyph han-9fc9:15x16 15 16 // 鿉
 
 glyph han-5f7c:15x16 15 16 // 彼
 ⿰ han-5f73:5x16 1 han-76ae:9x16 // ⿰彳皮
+glyph han-5f7c.0:* = han-5f7c:*
 
 glyph han-5f7d-($han-regions):15x16 15 16 // 彽
 ⿰ han-5f73:5x16 han-6c10-($-1):10x16 // ⿰彳氐
@@ -143,21 +151,26 @@ glyph han-5f7d.0:* = han-5f7d-j:*
 
 glyph han-5f7e-($han-regions):15x16 15 16 // 彾
 ⿰ han-5f73:5x16 1 han-4ee4-($-1):9x16 // ⿰彳令
+glyph han-5f7e.0:* = han-5f7e-j:*
 
 glyph han-5f7f:15x16 15 16 // 彿
 ⿰ han-5f73:5x16 1 han-5f17:9x16 // ⿰彳弗
+glyph han-5f7f.0:* = han-5f7f:*
 
 // glyph han-5f80:15x16 15 16 // 往
 // ⿰ han-5f73 han-4e3b // ⿰彳主
 
 glyph han-5f81:15x16 15 16 // 征
 ⿰ han-5f73:5x16 han-6b63:10x16 // ⿰彳正
+glyph han-5f81.0:* = han-5f81:*
 
 glyph han-5f82:15x16 15 16 // 徂
 ⿰ han-5f73:5x16 1 han-4e14:9x16 // ⿰彳且
+glyph han-5f82.0:* = han-5f82:*
 
 glyph han-5f83:15x16 15 16 // 徃
 ⿰ han-5f73:5x16 1 han-751f:9x16 // ⿰彳生
+glyph han-5f83.0:* = han-5f83:*
 
 // glyph han-5f84:15x16 15 16 // 径 ⿰彳𢀖(G) ⿰彳圣(TJKP)
 // ⿰ han-5f73 han-5723 // ⿰彳圣
@@ -169,18 +182,24 @@ glyph han-5f83:15x16 15 16 // 徃
 
 glyph han-5f86:15x16 15 16 // 徆
 ⿰ han-5f73:5x16 han-897f:10x16 // ⿰彳西
+glyph han-5f86.0:* = han-5f86:*
+glyph han-5f86.1:15x16 15 16 // 徆
+⿰ han-5f73:5x16 han-8980:10x16 // ⿰彳覀
 
 glyph han-5f89:15x16 15 16 // 徉
 ⿰ han-5f73:5x16 1 han-7f8a:9x16 // ⿰彳羊
+glyph han-5f89.0:* = han-5f89:*
 
 glyph han-5f8a:15x16 15 16 // 徊
 ⿰ han-5f73:5x16 1 han-56de:9x16 // ⿰彳回
+glyph han-5f8a.0:* = han-5f8a:*
 
 // glyph han-5f8b:15x16 15 16 // 律
 // ⿰ han-5f73 han-807f // ⿰彳聿
 
 glyph han-5f8d:15x16 15 16 // 徍
 ⿰ han-5f73:5x16 1 han-572d:9x16 // ⿰彳圭
+glyph han-5f8d.0:* = han-5f8d:*
 
 ## 60.7
 
@@ -242,9 +261,13 @@ glyph han-5fa5:15x16 15 16 // 徥
 
 glyph han-5fa8:15x16 15 16 // 徨
 ⿰ han-5f73:5x16 1 han-7687:9x16 // ⿰彳皇
+glyph han-5fa8.0:* = han-5fa8:*
 
 glyph han-5fab:15x16 15 16 // 徫
 ⿰ han-5f73:5x16 1 han-97cb:9x16 // ⿰彳韋
+glyph han-5fab.0:* = han-5fab:*
+glyph han-5fab.1:* = han-5fab:*
+glyph han-5fab.2:* = han-5fab:* // not distinguished
 
 ## 60.10
 
@@ -255,6 +278,7 @@ glyph han-5fab:15x16 15 16 // 徫
 
 glyph han-5fb1:15x16 15 16 // 徱
 ⿰ han-5f73:5x16 1 han-7968:9x16 // ⿰彳票
+glyph han-5fb1.0:* = han-5fb1:*
 
 ## 60.12
 
