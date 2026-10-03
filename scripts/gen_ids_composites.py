@@ -368,6 +368,12 @@ def parse_or_name(name: str) -> tuple[int, int] | None:
         return None
     return int(m.group("cp"), 16), int(m.group("alt"), 16)
 
+
+def or_written(pair: tuple[int, int]) -> str:
+    """How a comment writes a `han-XXXX-or-YYYY` component: both characters,
+    in the name's order, in brackets (`[靑青]`)."""
+    return f"[{chr(pair[0])}{chr(pair[1])}]"
+
 # The region letters `$han-regions` names, for a source that states none.
 DEFAULT_REGIONS = ["g", "h", "t", "j", "k", "p", "v"]
 

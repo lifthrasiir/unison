@@ -201,7 +201,7 @@ glyph han-3f8f:15x16 15 16 // 㾏
 ## 104.7
 
 glyph han-3f94-($han-regions):15x16 15 16 // 㾔
-⿸ han-7592:15x16.11x13 han-5415-or-5442-($-1):10x12 5 4 // ⿸疒吕
+⿸ han-7592:15x16.11x13 han-5415-or-5442-($-1):10x12 5 4 // ⿸疒[吕呂]
 
 // glyph han-3f95:15x16 15 16 // 㾕
 // ⿸ han-7592 han-8f9b // ⿸疒辛
@@ -822,7 +822,7 @@ glyph han-40c6:15x16 15 16 // 䃆
 // ⿰ han-77f3 han-82f4 // ⿰石苴
 
 glyph han-40cb-($han-regions):15x16 15 16 // 䃋
-⿰ han-77f3:5x16 1 han-4fde-or-516a-($-1):9x16 // ⿰石俞
+⿰ han-77f3:5x16 1 han-4fde-or-516a-($-1):9x16 // ⿰石[俞兪]
 
 // glyph han-40cc:15x16 15 16 // 䃌 ⿰石垔(GT) ⿰石⿱覀土(P)
 // ⿰ han-77f3 han-5794 // ⿰石垔
@@ -879,17 +879,17 @@ glyph han-40fc:15x16 15 16 // 䃼
 // ⿰ han-793b han-652f // ⿰礻支
 
 glyph han-40fe-($han-regions):15x16 15 16 // 䃾
-⿰ han-793a-or-793b-($-1):7x14 han-6bd4-($-1):8x16 // ⿰示比
+⿰ han-793a-or-793b-($-1):7x14 han-6bd4-($-1):8x16 // ⿰[示礻]比
 glyph han-40fe.0:* = han-40fe-j:*
 glyph han-40fe.1:* = han-40fe-g:*
 
 glyph han-40ff-($han-regions):15x16 15 16 // 䃿
-⿰ han-793a-or-793b-($-1):5x14 1 han-592b:9x16 // ⿰礻夫
+⿰ han-793a-or-793b-($-1):5x14 1 han-592b:9x16 // ⿰[示礻]夫
 
 ## 113.5
 
 glyph han-4101-($han-regions):15x16 15 16 // 䄁
-⿰ han-793a-or-793b-($-1):5x14 1 han-4e16:9x16 // ⿰示世
+⿰ han-793a-or-793b-($-1):5x14 1 han-4e16:9x16 // ⿰[示礻]世
 glyph han-4101.0:* = han-4101-j:*
 glyph han-4101.1:* = han-4101-g:*
 
@@ -926,7 +926,7 @@ glyph han-4107-k:* = han-4107.2:*
 glyph han-4107-t:* = han-4107.x:*
 
 glyph han-4108-($han-regions):15x16 15 16 // 䄈
-⿰ han-793a-or-793b-($-1):5x14 1 han-8c46:9x16 // ⿰礻豆
+⿰ han-793a-or-793b-($-1):5x14 1 han-8c46:9x16 // ⿰[示礻]豆
 
 // glyph han-410a:15x16 15 16 // 䄊
 // ⿰ han-793b han-5fd7 // ⿰礻志
@@ -945,7 +945,7 @@ glyph han-4108-($han-regions):15x16 15 16 // 䄈
 ## 113.9
 
 glyph han-4113-($han-regions):15x16 15 16 // 䄓
-⿰ han-793a-or-793b-($-1):5x14 1 han-7687:9x16 // ⿰示皇
+⿰ han-793a-or-793b-($-1):5x14 1 han-7687:9x16 // ⿰[示礻]皇
 glyph han-4113.0:* = han-4113-j:*
 glyph han-4113.1:* = han-4113-g:*
 
@@ -953,7 +953,7 @@ glyph han-4113.1:* = han-4113-g:*
 // ⿰ han-793b han-7553 // ⿰礻畓
 
 glyph han-4116-($han-regions):15x16 15 16 // 䄖
-⿰ han-793a-or-793b-($-1):5x14 1 han-4fde-or-516a-($-1):9x16 // ⿰礻俞
+⿰ han-793a-or-793b-($-1):5x14 1 han-4fde-or-516a-($-1):9x16 // ⿰[示礻][俞兪]
 
 ## 113.12
 

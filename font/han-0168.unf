@@ -456,7 +456,7 @@ glyph han-95ab.3:* = han-95ab:*
 // ⿵ han-9580 han-826f // ⿵門良
 
 glyph han-95ad-($han-regions):15x16 15 16 // 閭
-⿵ han-9580:15x16.13x11 han-5415-or-5442-($-1):11x10 2 6 // ⿵門呂
+⿵ han-9580:15x16.13x11 han-5415-or-5442-($-1):11x10 2 6 // ⿵門[吕呂]
 glyph han-95ad.0:* = han-95ad-h:*
 glyph han-95ad.1:* = han-95ad-h:*
 glyph han-95ad.2:* = han-95ad-g:*
@@ -2465,7 +2465,7 @@ glyph han-9752-t:* = han-9752.x:*
 ## 174.5
 
 glyph han-9755-($han-regions):15x16 15 16 // 靕
-⿰ han-6b63:6x16-l han-9751-or-9752-($-1):9x16 // ⿰正靑
+⿰ han-6b63:6x16-l han-9751-or-9752-($-1):9x16 // ⿰正[靑青]
 glyph han-9755.0:* = han-9755-j:*
 glyph han-9755.1:15x16 15 16 // 靕
 ⿰ han-6b63:6x16 han-9751.0:9x16 // ⿰正靑
@@ -2487,7 +2487,7 @@ glyph han-9756.3:* = han-9756-k:*
 ## 174.6
 
 glyph han-9757-($han-regions):15x16 15 16 // 靗
-⿰ han-9751-or-9752-($-1):7x16 1 han-5149:7x16 // ⿰青光
+⿰ han-9751-or-9752-($-1):7x16 1 han-5149:7x16 // ⿰[靑青]光
 glyph han-9757.0:* = han-9757-j:*
 glyph han-9757.1:* = han-9757-j:*
 glyph han-9757.2:* = han-9757-g:*
@@ -2498,7 +2498,7 @@ glyph han-9757.2:* = han-9757-g:*
 ## 174.7
 
 glyph han-975a-($han-regions):15x16 15 16 // 靚
-⿰ han-9751-or-9752-($-1):7x16 han-898b:8x16 // ⿰靑見
+⿰ han-9751-or-9752-($-1):7x16 han-898b:8x16 // ⿰[靑青]見
 glyph han-975a.0:* = han-975a-j:*
 glyph han-975a.1:* = han-975a-j:*
 glyph han-975a.2:* = han-975a-g:*

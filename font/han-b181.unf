@@ -245,7 +245,7 @@ glyph han-294c5-($han-regions):15x16 15 16 // 𩓅
 // ⿰ han-5b9c han-9801 // ⿰宜頁
 
 glyph han-294e8-($han-regions):15x16 15 16 // 𩓨
-⿰ han-9751-or-9752-($-1):7x16 1 han-9801:7x16 // ⿰青頁
+⿰ han-9751-or-9752-($-1):7x16 1 han-9801:7x16 // ⿰[靑青]頁
 glyph han-294e8.0:* = han-294e8-j:*
 glyph han-294e8.1:* = han-294e8-g:*
 

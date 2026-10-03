@@ -809,7 +809,7 @@ glyph han-6339.0:* = han-6339:*
 // ⿰ han-624c han-593e // ⿰扌夾
 
 glyph han-6341-($han-regions):15x16 15 16 // 捁
-⿰ han-624c:5x16 han-543f-or-544a-($-1):10x16 // ⿰扌吿
+⿰ han-624c:5x16 han-543f-or-544a-($-1):10x16 // ⿰扌[吿告]
 glyph han-6341.0:* = han-6341-h:*
 
 glyph han-6346:15x16 15 16 // 捆
@@ -875,7 +875,7 @@ glyph han-635a:15x16 15 16 // 捚
 ⿰ han-624c:5x16 1 han-91cc:9x16 // ⿰扌里
 
 glyph han-635b-($han-regions):15x16 15 16 // 捛
-⿰ han-624c:3x16 1 han-5415-or-5442-($-1):11x16 // ⿰扌呂
+⿰ han-624c:3x16 1 han-5415-or-5442-($-1):11x16 // ⿰扌[吕呂]
 glyph han-635b.0:* = han-635b-t:*
 
 // glyph han-6360:15x16 15 16 // 捠
@@ -930,7 +930,7 @@ glyph han-6380.0:* = han-6380:*
 // ⿰ han-624c han-5e97 // ⿰扌店
 
 glyph han-6385-($han-regions):15x16 15 16 // 掅
-⿰ han-624c:5x16 1 han-9751-or-9752-($-1):9x16 // ⿰扌青
+⿰ han-624c:5x16 1 han-9751-or-9752-($-1):9x16 // ⿰扌[靑青]
 
 glyph han-6389:15x16 15 16 // 掉
 ⿰ han-624c:5x16 1 han-5353:9x16 // ⿰扌卓
@@ -1011,7 +1011,7 @@ glyph han-63c0:15x16 15 16 // 揀
 glyph han-63c0.0:* = han-63c0:*
 
 glyph han-63c4-($han-regions):15x16 15 16 // 揄
-⿰ han-624c:5x16 1 han-4fde-or-516a-($-1):9x16 // ⿰扌兪
+⿰ han-624c:5x16 1 han-4fde-or-516a-($-1):9x16 // ⿰扌[俞兪]
 glyph han-63c4.0:* = han-63c4-j:*
 glyph han-63c4.1:* = han-63c4-j:*
 glyph han-63c4.2:* = han-63c4-g:*

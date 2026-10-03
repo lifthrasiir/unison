@@ -1826,7 +1826,7 @@ glyph han-6889.1:15x16 15 16 // 梉
 // ⿱ han-6298 han-6728 // ⿱折木
 
 glyph han-688f-($han-regions):15x16 15 16 // 梏
-⿰ han-6728:7x16 han-543f-or-544a-($-1):8x16 // ⿰木吿
+⿰ han-6728:7x16 han-543f-or-544a-($-1):8x16 // ⿰木[吿告]
 glyph han-688f.0:* = han-688f-h:*
 glyph han-688f.1:* = han-688f-h:*
 glyph han-688f.2:* = han-688f-g:*
@@ -1861,7 +1861,7 @@ glyph han-6898.0:* = han-6898:*
 // ⿰ han-6728 han-5fcc // ⿰木忌
 
 glyph han-68a0-($han-regions):15x16 15 16 // 梠
-⿰ han-6728:5x16 1 han-5415-or-5442-($-1):9x16 // ⿰木呂
+⿰ han-6728:5x16 1 han-5415-or-5442-($-1):9x16 // ⿰木[吕呂]
 glyph han-68a0.0:* = han-68a0-h:*
 
 glyph han-68a1:15x16 15 16 // 梡
@@ -1930,7 +1930,7 @@ glyph han-68bb.0:* = han-68bb:*
 ## 75.8
 
 glyph han-68c8-($han-regions):15x16 15 16 // 棈
-⿰ han-6728:5x16 1 han-9751-or-9752-($-1):9x16 // ⿰木靑
+⿰ han-6728:5x16 1 han-9751-or-9752-($-1):9x16 // ⿰木[靑青]
 glyph han-68c8.0:* = han-68c8-j:*
 glyph han-68c8.1:* = han-68c8-g:*
 glyph han-68c8.2:* = han-68c8-j:*

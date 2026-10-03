@@ -43,6 +43,11 @@ A line with no comment whatsoever is reported only under `--missing`, and an
 alias (`glyph han-XXXX.0:15x16 = han-XXXX:15x16`) not even then -- it states the
 character twice in names already and conventionally carries no comment.
 
+A `han-XXXX-or-YYYY` component draws one character of a pair per region, and
+one comment serves every region, so its position writes both, bracketed in the
+name's order: `⿰土[靑青]` for `⿰ han-571f… han-9751-or-9752-($-1)…`. A
+bracketed pair is one position, wherever a single character would be one.
+
 A few names draw a character other than the one their own codepoint names,
 because Unicode disunified the shape after the source had drawn it: `han-5f50-g`
 draws 𫜹, not 彐. A comment on a line naming one of those may write either
@@ -115,6 +120,19 @@ def is_ids_char(ch: str) -> bool:
     return any(lo <= cp <= hi for lo, hi in IDS_RANGES)
 
 
+def unit_end(text: str, i: int) -> int | None:
+    """Where the one position starting at `text[i]` ends: a single IDS
+    character, or a bracketed pair (`[靑青]`) of them. `None` if there is none."""
+    if i >= len(text):
+        return None
+    if text[i] == "[":
+        close = text.find("]", i + 1)
+        if close > i + 1 and all(is_ids_char(ch) for ch in text[i + 1:close]):
+            return close + 1
+        return None
+    return i + 1 if is_ids_char(text[i]) else None
+
+
 # --------------------------------------------------------------------------
 # the exceptions
 # --------------------------------------------------------------------------
@@ -145,12 +163,12 @@ def chars_for(tok: str) -> list[str] | None:
 
     `None` for a token that names no han glyph at all, which is what stops the
     line it is on from being checked. A `han-XXXX-or-YYYY` component draws one
-    of the two per region, and one comment serves every region, so it may be
-    written as either.
+    of the two per region, and one comment serves every region, so it is
+    written as both (`G.or_written`), and only so.
     """
     pair = G.parse_or_name(tok)
     if pair is not None:
-        return [chr(cp) for cp in pair]
+        return [G.or_written(pair)]
     hn = G.parse_han_name(tok)
     if hn is None:
         return None
@@ -213,11 +231,12 @@ def body_of(line: str) -> str:
 
 
 def leading_ids(text: str) -> tuple[int, int]:
-    """The `(start, end)` of the run of IDS characters the comment opens with."""
+    """The `(start, end)` of the run of IDS characters (and bracketed pairs of
+    them) the comment opens with."""
     start = len(text) - len(text.lstrip())
     end = start
-    while end < len(text) and is_ids_char(text[end]):
-        end += 1
+    while (nxt := unit_end(text, end)) is not None:
+        end = nxt
     return start, end
 
 
@@ -282,12 +301,13 @@ def shown(parts: list[list[str] | None]) -> str:
 
 
 def term_end(text: str, i: int) -> int | None:
-    """Where the one IDS term starting at `text[i]` ends: a character, or an
-    operator followed by as many terms as it takes. `None` if it runs out."""
-    if i >= len(text):
+    """Where the one IDS term starting at `text[i]` ends: a character or a
+    bracketed pair, or an operator followed by as many terms as it takes.
+    `None` if it runs out."""
+    arity = G.ARITY.get(text[i], 0) if i < len(text) else 0
+    i = unit_end(text, i)
+    if i is None:
         return None
-    arity = G.ARITY.get(text[i], 0)
-    i += 1
     for _ in range(arity):
         i = term_end(text, i)
         if i is None:
@@ -298,13 +318,15 @@ def term_end(text: str, i: int) -> int | None:
 def segments(found: str, parts: list[list[str] | None]) -> list[str] | None:
     """`found` cut into one piece per position, or `None` where it will not cut.
 
-    A named position takes one character, whatever it is; an `ANY` position
+    A named position takes one character or bracketed pair, whatever it is,
+    so that a pair written as one of its characters is a wrong position to
+    repair rather than a sequence that will not cut; an `ANY` position
     takes one whole term, so that a comment may write the nested split as a
     character (`⿰吕木`) or spell it out (`⿰⿱口口木`).
     """
     out, i = [], 0
     for p in parts:
-        end = term_end(found, i) if p is ANY else (i + 1 if i < len(found) else None)
+        end = term_end(found, i) if p is ANY else unit_end(found, i)
         if end is None:
             return None
         out.append(found[i:end])
@@ -351,7 +373,7 @@ def check_line(line: str) -> tuple[str | None, str | None, str] | None:
     if parts is None:
         return None
     for p in parts:
-        if p is not ANY and not is_ids_char(p[0]):
+        if p is not ANY and not all(is_ids_char(ch) for ch in p[0].strip("[]")):
             return (p[0], None, "alien")
     at = comment_at(line)
     if at is None:
@@ -482,8 +504,10 @@ def main() -> int:
             if kind == "missing":
                 print(f"{where} no comment; the line draws {draws}")
             elif kind == "alien":
+                bad = " ".join(f"U+{ord(ch):04X}" for ch in want.strip("[]")
+                               if not is_ids_char(ch))
                 print(f"{where} the name is no han character "
-                      f"(U+{ord(want):04X}); a mistyped name?")
+                      f"({bad}); a mistyped name?")
             else:
                 print(f"{where} comment says {found}, the line draws {draws}")
             if want is None:

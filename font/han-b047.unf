@@ -568,7 +568,7 @@ glyph han-220d6-j:15x16 15 16 // 𢃖
 // ⿱ han-5176 han-5dfe // ⿱其巾
 
 glyph han-220e2-($han-regions):15x16 15 16 // 𢃢
-⿰ han-5dfe:7x16 1 han-9751-or-9752-($-1):7x16 // ⿰巾青
+⿰ han-5dfe:7x16 1 han-9751-or-9752-($-1):7x16 // ⿰巾[靑青]
 
 // glyph han-220e3:15x16 15 16 // 𢃣
 // ⿰ han-5dfe han-53d6 // ⿰巾取

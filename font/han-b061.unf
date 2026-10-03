@@ -71,7 +71,7 @@ glyph han-225bd:15x16 15 16 // 𢖽
 ⿱ han-571f:15x10 han-5fc3:15x6 // ⿱土心
 
 glyph han-225bf-($han-regions):15x16 15 16 // 𢖿
-⿱ han-5c0f-or-21b54-($-1):13x7 han-5fc3:15x9 // ⿱𡭔心
+⿱ han-5c0f-or-21b54-($-1):13x7 han-5fc3:15x9 // ⿱[小𡭔]心
 
 glyph han-225c0:15x16 15 16 // 𢗀
 ⿱ han-53e3:11x9 1 han-5fc3:15x6 // ⿱口心
@@ -382,7 +382,7 @@ glyph han-2266f:15x16 15 16 // 𢙯
 // ⿰ han-5fc4 han-5f04 // ⿰忄弄
 
 glyph han-22672-($han-regions):15x16 15 16 // 𢙲
-⿰ han-5fc4:5x16 han-5415-or-5442-($-1):10x16 // ⿰忄呂
+⿰ han-5fc4:5x16 han-5415-or-5442-($-1):10x16 // ⿰忄[吕呂]
 glyph han-22672.0:* = han-22672-t:*
 glyph han-22672.1:* = han-22672-g:*
 

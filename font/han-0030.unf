@@ -3186,7 +3186,7 @@ glyph han-54d0:15x16 15 16 // 哐
 ## 30.7
 
 glyph han-54e0-($han-regions):15x16 15 16 // 哠
-⿰ han-53e3:7x12 han-543f-or-544a-($-1):8x16 // ⿰口吿
+⿰ han-53e3:7x12 han-543f-or-544a-($-1):8x16 // ⿰口[吿告]
 glyph han-54e0.0:* = han-54e0-h:*
 glyph han-54e0.1:* = han-54e0-h:*
 glyph han-54e0.2:* = han-54e0-g:*
@@ -3673,7 +3673,7 @@ glyph han-55d7-($han-regions):15x16 15 16 // 嗗
 glyph han-55d7.0:* = han-55d7-j:*
 
 glyph han-55e2-($han-regions):15x16 15 16 // 嗢
-⿰ han-53e3:5x12 1 han-6637-or-25055-($-1):9x16 // ⿰口𥁕
+⿰ han-53e3:5x12 1 han-6637-or-25055-($-1):9x16 // ⿰口[昷𥁕]
 glyph han-55e2.0:* = han-55e2-t:*
 glyph han-55e2.1:* = han-55e2-t:*
 glyph han-55e2.2:* = han-55e2-g:*

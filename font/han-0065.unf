@@ -2233,7 +2233,7 @@ glyph han-6665:15x16 15 16 // 晥
 glyph han-6665.0:* = han-6665:*
 
 glyph han-6667-($han-regions):15x16 15 16 // 晧
-⿰ han-65e5:6x16 1 han-543f-or-544a-($-1):8x16 // ⿰日吿
+⿰ han-65e5:6x16 1 han-543f-or-544a-($-1):8x16 // ⿰日[吿告]
 glyph han-6667.0:* = han-6667-h:*
 glyph han-6667.1:* = han-6667-g:*
 glyph han-6667.2:* = han-6667-h:*

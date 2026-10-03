@@ -291,7 +291,7 @@ glyph han-31082:15x16 15 16 // 𱂂
 // ⿰ han-98e0 han-4e8e // ⿰飠于
 
 glyph han-310e3:15x16 15 16 // 𱃣
-assume ⿰ han-98e0-or-2967f-g:7x16 -1 han-4e0b:9x16 // ⿰飠下
+assume ⿰ han-98e0-or-2967f-g:7x16 -1 han-4e0b:9x16 // ⿰[飠𩙿]下
 
 ## 184.4
 
@@ -301,13 +301,13 @@ assume ⿰ han-98e0-or-2967f-g:7x16 -1 han-4e0b:9x16 // ⿰飠下
 ## 184.6
 
 glyph han-310e5:15x16 15 16 // 𱃥 ⿰𩙿刑(K) ⿰飠刑(Z)
-⿲ -2 han-98e0-or-2967f-k:7x16 han-5f00:7x16 han-5202:3x16 // ⿲飠开刂
+⿲ -2 han-98e0-or-2967f-k:7x16 han-5f00:7x16 han-5202:3x16 // ⿲[飠𩙿]开刂
 
 // glyph han-310e6:15x16 15 16 // 𱃦 ⿰𩙿而(K) ⿰飠而(Z)
 // ⿰ han-98e0 han-800c // ⿰飠而
 
 glyph han-310e7:15x16 15 16 // 𱃧
-⿰ han-98e0-or-2967f-g:7x16 1 han-5149:7x16 // ⿰飠光
+⿰ han-98e0-or-2967f-g:7x16 1 han-5149:7x16 // ⿰[飠𩙿]光
 
 ## 184.7
 
@@ -320,18 +320,18 @@ glyph han-310e7:15x16 15 16 // 𱃧
 ## 184.8
 
 glyph han-310ea:15x16 15 16 // 𱃪
-⿰ han-98e0-or-2967f-g:7x16 han-5176:8x16 // ⿰飠其
+⿰ han-98e0-or-2967f-g:7x16 han-5176:8x16 // ⿰[飠𩙿]其
 
 glyph han-310eb:15x16 15 16 // 𱃫
-⿲ -2 han-98e0-or-2967f-g:7x16 han-6708:5x16 han-6708:5x16 // ⿲飠月月
+⿲ -2 han-98e0-or-2967f-g:7x16 han-6708:5x16 han-6708:5x16 // ⿲[飠𩙿]月月
 
 ## 184.10
 
 glyph han-310ec:15x16 15 16 // 𱃬
-⿰ han-98e0-or-2967f-g:7x16 1 han-54e5:7x16 // ⿰飠哥
+⿰ han-98e0-or-2967f-g:7x16 1 han-54e5:7x16 // ⿰[飠𩙿]哥
 
 glyph han-310ed:15x16 15 16 // 𱃭
-⿲ -4 han-98e0-or-2967f-g:7x16 han-6728:5x16 han-4ea4.0:7x16 // ⿲飠木交
+⿲ -4 han-98e0-or-2967f-g:7x16 han-6728:5x16 han-4ea4.0:7x16 // ⿲[飠𩙿]木交
 
 # CJK unified ideographs extension G: 饣 (184')
 

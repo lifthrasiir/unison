@@ -184,7 +184,7 @@ glyph han-6b47:15x16 15 16 // 歇
 ⿰ han-66f7:8x16 han-6b20:7x16 // ⿰曷欠
 
 glyph han-6b48-($han-regions):15x16 15 16 // 歈
-⿰ han-4fde-or-516a-($-1):7x16 1 han-6b20:7x16 // ⿰俞欠
+⿰ han-4fde-or-516a-($-1):7x16 1 han-6b20:7x16 // ⿰[俞兪]欠
 
 ## 76.10
 
@@ -1396,7 +1396,7 @@ glyph han-6bef.0:* = han-6bef:*
 // ⿺ han-6bdb han-601d // ⿺毛思
 
 glyph han-6bf9-($han-regions):15x16 15 16 // 毹
-⿰ han-4fde-or-516a-($-1):7x16 1 han-6bdb:7x16 // ⿰兪毛
+⿰ han-4fde-or-516a-($-1):7x16 1 han-6bdb:7x16 // ⿰[俞兪]毛
 glyph han-6bf9.0:* = han-6bf9-j:*
 
 // glyph han-6bfa:15x16 15 16 // 毺 ⿺毛俞(GH) ⿺毛兪(TP)

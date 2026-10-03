@@ -697,7 +697,7 @@ glyph han-8736:15x16 15 16 // 蜶
 // ⿱ han-81e4 han-866b // ⿱臤虫
 
 glyph han-873b-($han-regions):15x16 15 16 // 蜻
-⿰ han-866b:7x16 1 han-9751-or-9752-($-1):7x16 // ⿰虫靑
+⿰ han-866b:7x16 1 han-9751-or-9752-($-1):7x16 // ⿰虫[靑青]
 glyph han-873b.0:* = han-873b-j:*
 glyph han-873b.1:* = han-873b-g:*
 glyph han-873b.2:* = han-873b-j:*
@@ -756,7 +756,7 @@ glyph han-8753-p:* = han-8753.x:*
 // ⿰ han-866b han-7686 // ⿰虫皆
 
 glyph han-8755-($han-regions):15x16 15 16 // 蝕 ⿰飠虫(GHTP) ⿰𩙿虫(JK)
-⿰ han-98e0-or-2967f-($-1):7x16 1 han-866b:7x16 // ⿰飠虫
+⿰ han-98e0-or-2967f-($-1):7x16 1 han-866b:7x16 // ⿰[飠𩙿]虫
 glyph han-8755.0:* = han-8755-g:*
 glyph han-8755.1:* = han-8755-j:*
 glyph han-8755.2:* = han-8755-g:*
@@ -1578,7 +1578,7 @@ glyph han-891a-(g|h|t):* = han-891a.x:*
 ## 145.10
 
 glyph han-891e-($han-regions):15x16 15 16 // 褞
-⿰ han-8864.0:5x14 1 han-6637-or-25055-($-1):9x16 // ⿰衤𥁕
+⿰ han-8864.0:5x14 1 han-6637-or-25055-($-1):9x16 // ⿰衤[昷𥁕]
 glyph han-891e.0:* = han-891e-t:*
 glyph han-891e.1:* = han-891e-t:*
 glyph han-891e.2:* = han-891e-g:*

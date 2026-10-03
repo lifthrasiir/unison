@@ -1260,7 +1260,7 @@ glyph han-2b3c9:15x16 15 16 // 𫏉
 ## 157.8
 
 glyph han-2b3cf-($han-regions):15x16 15 16 // 𫏏
-⿰ han-27fb7:5x15 1 han-9751-or-9752-($-1):9x16 // ⿰𧾷青
+⿰ han-27fb7:5x15 1 han-9751-or-9752-($-1):9x16 // ⿰𧾷[靑青]
 glyph han-2b3cf.0:* = han-2b3cf-j:*
 glyph han-2b3cf.1:* = han-2b3cf-g:*
 

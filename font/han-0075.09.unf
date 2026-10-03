@@ -160,7 +160,7 @@ glyph han-6994-($han-regions):15x16 15 16 // 榔 ⿰木郎(GHTV) ⿰木郞(JKP)
 ## 75.10
 
 glyph han-698a-($han-regions):15x16 15 16 // 榊
-assume ⿲ han-6728:5x16 han-793a-or-793b-($-1):5x14 han-7533:5x16 // ⿲木礻申
+assume ⿲ han-6728:5x16 han-793a-or-793b-($-1):5x14 han-7533:5x16 // ⿲木[示礻]申
 glyph han-698a.0:* = han-698a-g:*
 glyph han-698a.1:* = han-698a-j:*
 glyph han-698a.2:* = han-698a-g:*

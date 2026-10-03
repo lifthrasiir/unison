@@ -182,7 +182,7 @@ glyph han-25e89:15x16 15 16 // 𥺉
 ⿰ han-7c73:5x16 1 han-8c46:9x16 // ⿰米豆
 
 glyph han-25e8a-($han-regions):15x16 15 16 // 𥺊
-⿰ han-7c73:7x16 han-543f-or-544a-($-1):8x16 // ⿰米告
+⿰ han-7c73:7x16 han-543f-or-544a-($-1):8x16 // ⿰米[吿告]
 
 glyph han-25e8b:15x16 15 16 // 𥺋
 ⿳ -5 han-51fa:15x7 han-201a2:15x6 han-7c73:13x8 // ⿳出𠆢米 <- ⿱出⿱𠆢米
@@ -400,7 +400,7 @@ glyph han-25f31:15x16 15 16 // 𥼱
 // ⿰ han-7c73 han-55bf // ⿰米喿
 
 glyph han-25f41-($han-regions):15x16 15 16 // 𥽁 ⿰米飲(GT) ⿰米⿰食欠(P)
-⿲ -2 han-7c73:5x16 han-98e0-or-2967f-($-1):7x16 han-6b20:5x16 // ⿲米飠欠
+⿲ -2 han-7c73:5x16 han-98e0-or-2967f-($-1):7x16 han-6b20:5x16 // ⿲米[飠𩙿]欠
 
 // glyph han-25f4d:15x16 15 16 // 𥽍
 // ⿰ han-7c73 han-7981 // ⿰米禁

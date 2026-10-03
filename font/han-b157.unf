@@ -343,7 +343,7 @@ glyph han-2804f:15x16 15 16 // 𨁏
 ⿰ han-27fb7:5x15 1 han-752b:9x16 // ⿰𧾷甫
 
 glyph han-28052-($han-regions):15x16 15 16 // 𨁒
-⿰ han-27fb7:5x15 han-543f-or-544a-($-1):10x16 // ⿰𧾷告
+⿰ han-27fb7:5x15 han-543f-or-544a-($-1):10x16 // ⿰𧾷[吿告]
 
 glyph han-28056:15x16 15 16 // 𨁖
 ⿰ han-27fb7:5x15 1 han-8c37:9x16 // ⿰𧾷谷

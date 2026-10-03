@@ -393,7 +393,7 @@ glyph han-731a:15x16 15 16 // 猚
 // ⿰ han-72ad han-5b5f // ⿰犭孟
 
 glyph han-731c-($han-regions):15x16 15 16 // 猜
-⿰ han-72ad:6x16 han-9751-or-9752-($-1):9x16 // ⿰犭靑
+⿰ han-72ad:6x16 han-9751-or-9752-($-1):9x16 // ⿰犭[靑青]
 glyph han-731c.0:* = han-731c-j:*
 glyph han-731c.1:* = han-731c-g:*
 glyph han-731c.2:* = han-731c-j:*
@@ -1663,7 +1663,7 @@ glyph han-745a:15x16 15 16 // 瑚
 glyph han-745a.0:* = han-745a:*
 
 glyph han-745c-($han-regions):15x16 15 16 // 瑜
-⿰ han-248e9:5x14 1 han-4fde-or-516a-($-1):9x16 // ⿰𤣩兪
+⿰ han-248e9:5x14 1 han-4fde-or-516a-($-1):9x16 // ⿰𤣩[俞兪]
 glyph han-745c.0:* = han-745c-j:*
 glyph han-745c.1:* = han-745c-j:*
 glyph han-745c.2:* = han-745c-g:*
@@ -1700,7 +1700,7 @@ glyph han-745d.0:* = han-745d:*
 ## 96.10
 
 glyph han-7465-($han-regions):15x16 15 16 // 瑥
-⿰ han-248e9:5x14 1 han-6637-or-25055-($-1):9x16 // ⿰𤣩𥁕
+⿰ han-248e9:5x14 1 han-6637-or-25055-($-1):9x16 // ⿰𤣩[昷𥁕]
 glyph han-7465.0:* = han-7465-t:*
 glyph han-7465.1:* = han-7465-g:*
 

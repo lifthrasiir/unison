@@ -673,7 +673,7 @@ glyph han-5cfb:15x16 15 16 // 峻
 ⿰ han-5c71:7x16 1 han-590b:7x16 // ⿰山夋
 
 glyph han-5cfc-($han-regions):15x16 15 16 // 峼
-⿰ han-5c71:5x12-l han-543f-or-544a-($-1):10x16 // ⿰山吿
+⿰ han-5c71:5x12-l han-543f-or-544a-($-1):10x16 // ⿰山[吿告]
 glyph han-5cfc.0:* = han-5cfc-h:*
 glyph han-5cfc.1:* = han-5cfc-g:*
 
@@ -829,7 +829,7 @@ glyph han-5d32:15x16 15 16 // 崲
 ⿰ han-5c71:5x12-l 1 han-7687:9x16 // ⿰山皇
 
 glyph han-5d33-($han-regions):15x16 15 16 // 崳
-⿰ han-5c71:5x12-l 1 han-4fde-or-516a-($-1):9x16 // ⿰山俞
+⿰ han-5c71:5x12-l 1 han-4fde-or-516a-($-1):9x16 // ⿰山[俞兪]
 
 glyph han-5d35:15x16 15 16 // 崵
 ⿰ han-5c71:5x12-l 1 han-661c:9x16 // ⿰山昜

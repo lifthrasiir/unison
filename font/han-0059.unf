@@ -939,7 +939,7 @@ glyph han-6084-(g|h|t):* = han-6084.2:*
 // ⿰ han-5fc4 han-65f1 // ⿰忄旱
 
 glyph han-608e-($han-regions):15x16 15 16 // 悎
-⿰ han-5fc4:5x16 han-543f-or-544a-($-1):10x16 // ⿰忄吿
+⿰ han-5fc4:5x16 han-543f-or-544a-($-1):10x16 // ⿰忄[吿告]
 glyph han-608e.0:* = han-608e-h:*
 glyph han-608e.1:* = han-608e-h:*
 glyph han-608e.2:* = han-608e-g:*

@@ -670,7 +670,7 @@ glyph han-7100:15x16 15 16 // 焀
 // ⿰ han-706b han-8d64 // ⿰火赤
 
 glyph han-7105-($han-regions):15x16 15 16 // 焅
-⿰ han-706b:7x16 han-543f-or-544a-($-1):8x16 // ⿰火吿
+⿰ han-706b:7x16 han-543f-or-544a-($-1):8x16 // ⿰火[吿告]
 glyph han-7105.0:* = han-7105-h:*
 
 glyph han-7107.0:15x16 15 16 // 焇
@@ -696,7 +696,7 @@ glyph han-7111:15x16 15 16 // 焑
 ⿰ han-706b:5x14-l 1 han-56f0:9x16 // ⿰火困
 
 glyph han-7112-($han-regions):15x16 15 16 // 焒
-⿰ han-706b:5x14-l han-5415-or-5442-($-1):10x16 // ⿰火吕
+⿰ han-706b:5x14-l han-5415-or-5442-($-1):10x16 // ⿰火[吕呂]
 
 ## 86.8
 
@@ -1835,7 +1835,7 @@ glyph han-727c:15x16 15 16 // 牼
 glyph han-727c.0:* = han-727c:*
 
 glyph han-727f-($han-regions):15x16 15 16 // 牿
-⿰ han-725c:6x16 1 han-543f-or-544a-($-1):8x16 // ⿰牜吿
+⿰ han-725c:6x16 1 han-543f-or-544a-($-1):8x16 // ⿰牜[吿告]
 glyph han-727f.0:* = han-727f-h:*
 glyph han-727f.1:* = han-727f-h:*
 glyph han-727f.2:* = han-727f-g:*

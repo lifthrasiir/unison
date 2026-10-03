@@ -541,7 +541,7 @@ glyph han-20335:15x16 15 16 // 𠌵
 // ⿰ han-4ebb han-6db7 // ⿰亻涷
 
 glyph han-20343-($han-regions):15x16 15 16 // 𠍃
-⿲ -4 han-4ebb:3x16 han-98e0-or-2967f-($-1):7x16 han-51e0:9x16 // ⿲亻飠几
+⿲ -4 han-4ebb:3x16 han-98e0-or-2967f-($-1):7x16 han-51e0:9x16 // ⿲亻[飠𩙿]几
 
 // glyph han-20346:15x16 15 16 // 𠍆
 // ⿰ han-4ebb han-8389 // ⿰亻莉

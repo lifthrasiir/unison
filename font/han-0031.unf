@@ -662,7 +662,7 @@ glyph han-5703.0:* = han-5703:*
 ## 31.8
 
 glyph han-570a-($han-regions):15x16 15 16 // 圊
-⿴ han-56d7:13x16.11x14 han-9751-or-9752-($-1):11x14 2 1 // ⿴囗靑
+⿴ han-56d7:13x16.11x14 han-9751-or-9752-($-1):11x14 2 1 // ⿴囗[靑青]
 glyph han-570a.0:* = han-570a-j:*
 glyph han-570a.1:* = han-570a-j:*
 glyph han-570a.2:* = han-570a-g:*
@@ -1717,7 +1717,7 @@ glyph han-57e4:15x16 15 16 // 埤 ⿰土卑(GHTKP) ⿰土⿱⿱㇒⿻日丿十(J
 glyph han-57e4.0:* = han-57e4:*
 
 glyph han-57e5-($han-regions):15x16 15 16 // 埥
-⿰ han-571f:5x14-l 1 han-9751-or-9752-($-1):9x16 // ⿰土靑
+⿰ han-571f:5x14-l 1 han-9751-or-9752-($-1):9x16 // ⿰土[靑青]
 glyph han-57e5.0:* = han-57e5-j:*
 glyph han-57e5.1:* = han-57e5-g:*
 
@@ -2037,7 +2037,7 @@ glyph han-585b:15x16 15 16 // 塛
 // ⿱ han-9663 han-571f // ⿱陣土
 
 glyph han-586d-($han-regions):15x16 15 16 // 塭
-⿰ han-571f:5x14-l 1 han-6637-or-25055-($-1):9x16 // ⿰土昷
+⿰ han-571f:5x14-l 1 han-6637-or-25055-($-1):9x16 // ⿰土[昷𥁕]
 glyph han-586d.0:* = han-586d-g:*
 
 // glyph han-586e:15x16 15 16 // 塮

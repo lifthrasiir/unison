@@ -826,7 +826,7 @@ glyph han-3d77:15x16 15 16 // 㵷
 ## 85.15
 
 glyph han-3d7e-($han-regions):15x16 15 16 // 㵾
-⿲ han-6c35:3x12 han-9751-or-9752-($-1):7x16 han-898b:5x16 // ⿲氵青見
+⿲ han-6c35:3x12 han-9751-or-9752-($-1):7x16 han-898b:5x16 // ⿲氵[靑青]見
 glyph han-3d7e.0:* = han-3d7e-j:*
 glyph han-3d7e.1:* = han-3d7e-g:*
 
@@ -1268,7 +1268,7 @@ glyph han-3e7f:15x16 15 16 // 㹿
 ## 94.9
 
 glyph han-3e84-($han-regions):15x16 15 16 // 㺄
-⿰ han-72ad:6x16 han-4fde-or-516a-($-1):9x16 // ⿰犭俞
+⿰ han-72ad:6x16 han-4fde-or-516a-($-1):9x16 // ⿰犭[俞兪]
 
 ## 94.11
 

@@ -2233,7 +2233,7 @@ glyph han-51c6:15x16 15 16 // 准
 glyph han-51c6.0:* = han-51c6:*
 
 glyph han-51ca-($han-regions):15x16 15 16 // 凊
-⿰ han-51ab:5x14 1 han-9751-or-9752-($-1):9x16 // ⿰冫青
+⿰ han-51ab:5x14 1 han-9751-or-9752-($-1):9x16 // ⿰冫[靑青]
 glyph han-51ca.0:* = han-51ca-j:*
 glyph han-51ca.1:* = han-51ca-j:*
 glyph han-51ca.2:* = han-51ca-g:*
@@ -4131,7 +4131,7 @@ glyph han-52c1.2:15x16 15 16 // 勁
 ⿰ han-5de0.x:9x16 han-529b:6x16 // ⿰巠力
 
 glyph han-52c2-($han-regions):15x16 15 16 // 勂
-⿰ han-543f-or-544a-($-1):8x16 han-529b:7x16 // ⿰告力
+⿰ han-543f-or-544a-($-1):8x16 han-529b:7x16 // ⿰[吿告]力
 glyph han-52c2.0:* = han-52c2-j:*
 glyph han-52c2.1:* = han-52c2-g:*
 

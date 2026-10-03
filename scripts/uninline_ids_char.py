@@ -199,6 +199,12 @@ def token_cp(tok: str) -> int | None:
     return hn.cp if hn else None
 
 
+def comment_char(tok: str) -> str:
+    """What an IDC line's comment writes for the component `tok`."""
+    pair = G.parse_or_name(tok)
+    return G.or_written(pair) if pair is not None else chr(token_cp(tok))
+
+
 @dataclass
 class Site:
     """One place the character is inlined, and what replacing it comes to."""
@@ -519,7 +525,7 @@ def rewrite_idc(line: str, rule: Rule, plan: Plan) -> str:
         out.append(name)
     if gaps[-1]:
         out.append(str(gaps[-1]))
-    comps = "".join(chr(token_cp(t)) for t in merged)
+    comps = "".join(comment_char(t) for t in merged)
     text = idc_prefix(uncomment(line)) + " ".join(out) + f" // {IDC_OPS[op]}{comps}"
     if site.commented:
         text += f" {G.NO_INLINE_MARK}"

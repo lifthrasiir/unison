@@ -556,7 +556,7 @@ glyph han-8f23:15x16 15 16 // 輣
 ⿲ han-8eca:5x16 han-6708:5x16 han-6708:5x16 // ⿲車月月
 
 glyph han-8f24-($han-regions):15x16 15 16 // 輤
-⿰ han-8eca:7x16 1 han-9751-or-9752-($-1):7x16 // ⿰車青
+⿰ han-8eca:7x16 1 han-9751-or-9752-($-1):7x16 // ⿰車[靑青]
 glyph han-8f24.0:* = han-8f24-j:*
 glyph han-8f24.1:* = han-8f24-k:*
 
@@ -1890,14 +1890,14 @@ glyph han-90d6:15x16 15 16 // 郖
 ⿰ han-8c46:9x16 1 han-961d:5x16-r // ⿰豆阝
 
 glyph han-90d8-($han-regions):15x16 15 16 // 郘
-⿰ han-5415-or-5442-($-1):10x16 1 han-961d:4x16-r // ⿰呂阝
+⿰ han-5415-or-5442-($-1):10x16 1 han-961d:4x16-r // ⿰[吕呂]阝
 glyph han-90d8.0:* = han-90d8-h:*
 
 glyph han-90d9:15x16 15 16 // 郙
 ⿰ han-752b:9x16 1 han-961d:4x16-r // ⿰甫阝
 
 glyph han-90dc-($han-regions):15x16 15 16 // 郜
-⿰ han-543f-or-544a-($-1):10x16 han-961d:5x16-r // ⿰吿阝
+⿰ han-543f-or-544a-($-1):10x16 han-961d:5x16-r // ⿰[吿告]阝
 glyph han-90dc.0:* = han-90dc-h:*
 
 // glyph han-90dd:15x16 15 16 // 郝
@@ -1937,7 +1937,7 @@ glyph han-90eb:15x16 15 16 // 郫 ⿰卑阝(GHTKP) ⿰⿱⿱㇒⿻日丿十阝(J
 glyph han-90eb.0:* = han-90eb:*
 
 glyph han-90ec-($han-regions):15x16 15 16 // 郬
-⿰ han-9751-or-9752-($-1):9x16 1 han-961d:5x16-r // ⿰青阝
+⿰ han-9751-or-9752-($-1):9x16 1 han-961d:5x16-r // ⿰[靑青]阝
 
 // glyph han-90ed-($han-regions):15x16 15 16 // 郭
 // ⿰ han-4eab-($-1) han-961d // ⿰享阝
@@ -1982,7 +1982,7 @@ glyph han-90fd-($han-regions):15x16 15 16 // 都
 ⿰ han-8005-($-1):9x16 1 han-961d:5x16-r // ⿰者阝
 
 glyph han-9103-($han-regions):15x16 15 16 // 鄃
-⿰ han-4fde-or-516a-($-1):9x16 1 han-961d:5x16-r // ⿰俞阝
+⿰ han-4fde-or-516a-($-1):9x16 1 han-961d:5x16-r // ⿰[俞兪]阝
 
 // glyph han-9104:15x16 15 16 // 鄄 ⿰垔阝(GHTJK) ⿰⿱覀土阝(P)
 // ⿰ han-5794 han-961d // ⿰垔阝

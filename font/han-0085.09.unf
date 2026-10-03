@@ -407,7 +407,7 @@ glyph han-6f92:15x16 15 16 // 澒
 glyph han-6f92.0:* = han-6f92:*
 
 glyph han-6f94-($han-regions):15x16 15 16 // 澔
-⿲ han-6c35:3x12 han-767d:4x16 han-543f-or-544a-($-1):8x16 // ⿲氵白吿
+⿲ han-6c35:3x12 han-767d:4x16 han-543f-or-544a-($-1):8x16 // ⿲氵白[吿告]
 glyph han-6f94.0:* = han-6f94-h:*
 glyph han-6f94.1:* = han-6f94-h:*
 glyph han-6f94.2:* = han-6f94-g:*

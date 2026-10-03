@@ -678,7 +678,7 @@ glyph han-2467e:15x16 15 16 // 𤙾 ⿰牜并(G) ⿰牜幷(Z)
 ## 93.9
 
 glyph han-2468e-($han-regions):15x16 15 16 // 𤚎
-⿰ han-725c:6x16 han-4fde-or-516a-($-1):9x16 // ⿰牜俞
+⿰ han-725c:6x16 han-4fde-or-516a-($-1):9x16 // ⿰牜[俞兪]
 
 glyph han-2468f:15x16 15 16 // 𤚏
 ⿰ han-725c:6x16 han-91cd:9x16 // ⿰牜重
@@ -725,7 +725,7 @@ glyph han-246b4:15x16 15 16 // 𤚴
 // ⿰ han-725c han-27d2b // ⿰牜𧴫
 
 glyph han-246c1-($han-regions):15x16 15 16 // 𤛁
-⿰ han-725c:6x16 han-6637-or-25055-($-1):9x16 // ⿰牜昷
+⿰ han-725c:6x16 han-6637-or-25055-($-1):9x16 // ⿰牜[昷𥁕]
 
 // glyph han-246c2:15x16 15 16 // 𤛂
 // ⿰ han-725c han-9b3c // ⿰牜鬼

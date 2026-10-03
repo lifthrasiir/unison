@@ -749,7 +749,7 @@ glyph han-92c0:15x16 15 16 // 鋀
 glyph han-92c0.0:* = han-92c0:*
 
 glyph han-92c1-($han-regions):15x16 15 16 // 鋁
-⿰ han-91d2:5x15-l 1 han-5415-or-5442-($-1):9x16 // ⿰釒呂
+⿰ han-91d2:5x15-l 1 han-5415-or-5442-($-1):9x16 // ⿰釒[吕呂]
 glyph han-92c1.0:* = han-92c1-h:*
 
 glyph han-92c3:15x16 15 16 // 鋃
@@ -828,7 +828,7 @@ glyph han-92ea.0:* = han-92ea:*
 // ⿱ han-5229 han-91d1 // ⿱利金
 
 glyph han-92ef-($han-regions):15x16 15 16 // 鋯
-⿰ han-91d2:7x16 han-543f-or-544a-($-1):8x16 // ⿰釒吿
+⿰ han-91d2:7x16 han-543f-or-544a-($-1):8x16 // ⿰釒[吿告]
 glyph han-92ef.0:* = han-92ef-h:*
 glyph han-92ef.1:* = han-92ef-g:*
 
@@ -876,7 +876,7 @@ glyph han-9301:15x16 15 16 // 錁
 // ⿱ han-6ce2 han-91d1 // ⿱波金
 
 glyph han-9306-($han-regions):15x16 15 16 // 錆
-⿰ han-91d2:7x16 1 han-9751-or-9752-($-1):7x16 // ⿰釒青
+⿰ han-91d2:7x16 1 han-9751-or-9752-($-1):7x16 // ⿰釒[靑青]
 glyph han-9306.0:* = han-9306-g:*
 glyph han-9306.1:* = han-9306-j:*
 glyph han-9306.2:* = han-9306-g:*
@@ -1129,7 +1129,7 @@ glyph han-93b7:15x16 15 16 // 鎷
 ⿰ han-91d2:5x15-l 1 han-99ac:9x16 // ⿰釒馬
 
 glyph han-93ba-($han-regions):15x16 15 16 // 鎺
-assume ⿲ han-91d2:5x15-l han-793a-or-793b-($-1):5x14 -1 han-4e14:6x16 // ⿲釒示且
+assume ⿲ han-91d2:5x15-l han-793a-or-793b-($-1):5x14 -1 han-4e14:6x16 // ⿲釒[示礻]且
 glyph han-93ba.0:* = han-93ba-j:*
 glyph han-93ba.1:* = han-93ba-j:*
 glyph han-93ba.2:* = han-93ba-g:*

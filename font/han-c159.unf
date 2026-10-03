@@ -684,7 +684,7 @@ glyph han-2b579:15x16 15 16 // 𫕹 ⿰青生(V) ⿰靑生(Z)
 ## 174.8
 
 glyph han-2b57b-($han-regions):15x16 15 16 // 𫕻
-⿰ han-9751-or-9752-($-1):7x16 1 han-9751-or-9752-($-1):7x16 // ⿰青青
+⿰ han-9751-or-9752-($-1):7x16 1 han-9751-or-9752-($-1):7x16 // ⿰[靑青][靑青]
 
 ## 174.11
 
@@ -785,7 +785,7 @@ glyph han-2b59d:15x16 15 16 // 𫖝
 ## 184.5
 
 glyph han-2b5ce-($han-regions):15x16 15 16 // 𫗎
-⿰ han-98e0-or-2967f-($-1):7x16 1 han-5de8.0:7x16 // ⿰飠巨
+⿰ han-98e0-or-2967f-($-1):7x16 1 han-5de8.0:7x16 // ⿰[飠𩙿]巨
 
 ## 184.6
 
@@ -801,12 +801,12 @@ glyph han-2b5ce-($han-regions):15x16 15 16 // 𫗎
 ## 184.7
 
 glyph han-2b5d3:15x16 15 16 // 𫗓
-⿰ han-98e0-or-2967f-t:7x16 han-544a:8x16 // ⿰飠告
+⿰ han-98e0-or-2967f-t:7x16 han-544a:8x16 // ⿰[飠𩙿]告
 
 ## 184.9
 
 glyph han-2b5d6:15x16 15 16 // 𫗖
-⿰ han-98e0-or-2967f-k:7x16 1 han-9762:7x16 // ⿰飠面
+⿰ han-98e0-or-2967f-k:7x16 1 han-9762:7x16 // ⿰[飠𩙿]面
 
 ## 184.11
 
@@ -816,7 +816,7 @@ glyph han-2b5d6:15x16 15 16 // 𫗖
 ## 184.14
 
 glyph han-2b5dc:15x16 15 16 // 𫗜
-⿰ han-98e0-or-2967f-t:7x16 1 han-9700:7x16 // ⿰飠需
+⿰ han-98e0-or-2967f-t:7x16 1 han-9700:7x16 // ⿰[飠𩙿]需
 
 # CJK unified ideographs extension C: 饣 (184')
 

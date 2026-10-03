@@ -1008,7 +1008,7 @@ glyph han-7b63:15x16 15 16 // 筣
 // ⿱ han-25ad7 han-826f // ⿱𥫗良
 
 glyph han-7b65-($han-regions):15x16 15 16 // 筥
-⿱ han-25ad7:13x5 han-5415-or-5442-($-1):15x11 // ⿱𥫗呂
+⿱ han-25ad7:13x5 han-5415-or-5442-($-1):15x11 // ⿱𥫗[吕呂]
 glyph han-7b65.0:* = han-7b65-j:*
 
 glyph han-7b66:15x16 15 16 // 筦

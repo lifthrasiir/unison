@@ -444,7 +444,7 @@ glyph han-4775:15x16 15 16 // 䝵
 // ⿰ han-8c9d han-5c45 // ⿰貝居
 
 glyph han-477c-($han-regions):15x16 15 16 // 䝼
-⿰ han-8c9d:6x16 han-9751-or-9752-($-1):9x16 // ⿰貝青
+⿰ han-8c9d:6x16 han-9751-or-9752-($-1):9x16 // ⿰貝[靑青]
 glyph han-477c.0:* = han-477c-j:*
 glyph han-477c.1:* = han-477c-g:*
 
@@ -1135,7 +1135,7 @@ glyph han-4904:15x16 15 16 // 䤄
 ⿰ han-9149:7x16 1 han-9762:7x16 // ⿰酉面
 
 glyph han-4905-($han-regions):15x16 15 16 // 䤅
-⿰ han-9149:7x16 1 han-4fde-or-516a-($-1):7x16 // ⿰酉俞
+⿰ han-9149:7x16 1 han-4fde-or-516a-($-1):7x16 // ⿰酉[俞兪]
 
 // glyph han-4906:15x16 15 16 // 䤆
 // ⿰ han-9149 han-7678 // ⿰酉癸
@@ -1422,7 +1422,7 @@ glyph han-49c9:15x16 15 16 // 䧉
 ⿰ han-961d:5x14-l 1 han-91cc:9x16 // ⿰阝里
 
 glyph han-49ca-($han-regions):15x16 15 16 // 䧊
-⿰ han-961d:5x14-l han-543f-or-544a-($-1):10x16 // ⿰阝告
+⿰ han-961d:5x14-l han-543f-or-544a-($-1):10x16 // ⿰阝[吿告]
 
 glyph han-49cb:15x16 15 16 // 䧋
 ⿰ han-961d:5x14-l han-898b:10x16 // ⿰阝見
@@ -1506,7 +1506,7 @@ glyph han-49fb:15x16 15 16 // 䧻
 ## 172.7
 
 glyph han-49fc-($han-regions):15x16 15 16 // 䧼
-⿰ han-543f-or-544a-($-1):8x16 han-96b9:7x16 // ⿰告隹
+⿰ han-543f-or-544a-($-1):8x16 han-96b9:7x16 // ⿰[吿告]隹
 
 // glyph han-49fd:15x16 15 16 // 䧽
 // ⿰ han-91c6 han-96b9 // ⿰釆隹

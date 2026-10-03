@@ -301,7 +301,7 @@ glyph han-284e6-($han-regions):15x16 15 16 // 𨓦
 // ⿺ han-8fb6-($-1) han-6773 // ⿺辶杳
 
 glyph han-284fd-($han-regions):15x16 15 16 // 𨓽
-⿺ han-8fb6-($-1):15x16.11x14 han-9751-or-9752-($-1):11x14 4 0 // ⿺辶靑
+⿺ han-8fb6-($-1):15x16.11x14 han-9751-or-9752-($-1):11x14 4 0 // ⿺辶[靑青]
 glyph han-284fd.0:* = han-284fd-j:*
 glyph han-284fd.1:* = han-284fd-g:*
 

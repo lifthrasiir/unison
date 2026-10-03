@@ -473,7 +473,7 @@ glyph han-785d.2:* = han-785d-j:*
 glyph han-785d.3:* = han-785d-k:*
 
 glyph han-785e-($han-regions):15x16 15 16 // 硞
-⿰ han-77f3:7x16 han-543f-or-544a-($-1):8x16 // ⿰石吿
+⿰ han-77f3:7x16 han-543f-or-544a-($-1):8x16 // ⿰石[吿告]
 glyph han-785e.0:* = han-785e-h:*
 glyph han-785e.1:* = han-785e-h:*
 glyph han-785e.2:* = han-785e-g:*
@@ -543,7 +543,7 @@ glyph han-787c:15x16 15 16 // 硼
 // ⿰ han-77f3 han-5b97 // ⿰石宗
 
 glyph han-7883-($han-regions):15x16 15 16 // 碃
-⿰ han-77f3:6x16 han-9751-or-9752-($-1):9x16 // ⿰石靑
+⿰ han-77f3:6x16 han-9751-or-9752-($-1):9x16 // ⿰石[靑青]
 glyph han-7883.0:* = han-7883-j:*
 glyph han-7883.1:* = han-7883-g:*
 
@@ -917,7 +917,7 @@ glyph han-793c-v:* = han-793c.x:*
 ## 113.2
 
 glyph han-793d-($han-regions):15x16 15 16 // 礽
-⿰ han-793a-or-793b-($-1):5x14 1 han-4e43:9x16 // ⿰示乃
+⿰ han-793a-or-793b-($-1):5x14 1 han-4e43:9x16 // ⿰[示礻]乃
 glyph han-793d.0:* = han-793d-j:*
 glyph han-793d.1:* = han-793d-j:*
 glyph han-793d.2:* = han-793d-g:*
@@ -968,7 +968,7 @@ glyph han-793f-(g|h|t):* = han-793f.3:*
 glyph han-793f-p:* = han-793f.4:*
 
 glyph han-7940-($han-regions):15x16 15 16 // 祀
-⿰ han-793a-or-793b-($-1):5x14 1 han-5df3:9x16 // ⿰示巳
+⿰ han-793a-or-793b-($-1):5x14 1 han-5df3:9x16 // ⿰[示礻]巳
 glyph han-7940.0:* = han-7940-j:*
 glyph han-7940.1:* = han-7940-g:*
 glyph han-7940.2:* = han-7940-j:*
@@ -981,7 +981,7 @@ glyph han-7940.6:15x16 15 16 // 祀
 ⿰ han-793b:5x14 1 han-5df2:9x16 // ⿰礻已
 
 glyph han-7941-($han-regions):15x16 15 16 // 祁
-⿰ han-793a-or-793b-($-1):7x14 1 han-961d:7x16-r // ⿰礻阝
+⿰ han-793a-or-793b-($-1):7x14 1 han-961d:7x16-r // ⿰[示礻]阝
 glyph han-7941.0:* = han-7941-g:*
 glyph han-7941.1:* = han-7941-j:*
 glyph han-7941.2:* = han-7941-g:*
@@ -996,7 +996,7 @@ glyph han-7941.3:* = han-7941-j:*
 // ⿰ han-793b han-5929 // ⿰礻天
 
 glyph han-7947-($han-regions):15x16 15 16 // 祇
-⿰ han-793a-or-793b-($-1):5x14 han-6c0f:10x16 // ⿰礻氏
+⿰ han-793a-or-793b-($-1):5x14 han-6c0f:10x16 // ⿰[示礻]氏
 glyph han-7947.0:* = han-7947-g:*
 glyph han-7947.1:* = han-7947-j:*
 glyph han-7947.2:* = han-7947-g:*
@@ -1039,13 +1039,13 @@ glyph han-7949-(g|h|t|j):* = han-7949.0:*
 glyph han-7949-(k|p):* = han-7949.1:*
 
 glyph han-794a-($han-regions):15x16 15 16 // 祊
-⿰ han-793a-or-793b-($-1):5x14 1 han-65b9:9x16 // ⿰示方
+⿰ han-793a-or-793b-($-1):5x14 1 han-65b9:9x16 // ⿰[示礻]方
 glyph han-794a.0:* = han-794a-j:*
 glyph han-794a.1:* = han-794a-j:*
 glyph han-794a.2:* = han-794a-g:*
 
 glyph han-794c-($han-regions):15x16 15 16 // 祌
-⿰ han-793a-or-793b-($-1):5x14 1 han-4e2d:9x16 // ⿰礻中
+⿰ han-793a-or-793b-($-1):5x14 1 han-4e2d:9x16 // ⿰[示礻]中
 glyph han-794c.0:* = han-794c-g:*
 glyph han-794c.1:* = han-794c-j:*
 
@@ -1058,7 +1058,7 @@ glyph han-794c.1:* = han-794c-j:*
 ## 113.5
 
 glyph han-794f-($han-regions):15x16 15 16 // 祏
-⿰ han-793a-or-793b-($-1):7x14 han-77f3:8x16 // ⿰示石
+⿰ han-793a-or-793b-($-1):7x14 han-77f3:8x16 // ⿰[示礻]石
 glyph han-794f.0:* = han-794f-j:*
 glyph han-794f.1:* = han-794f-j:*
 glyph han-794f.2:* = han-794f-g:*
@@ -1067,16 +1067,16 @@ glyph han-794f.2:* = han-794f-g:*
 // ⿰ han-793b han-53f3 // ⿰礻右
 
 glyph han-7951-($han-regions):15x16 15 16 // 祑
-⿰ han-793a-or-793b-($-1):5x14 1 han-5931:9x16 // ⿰示失
+⿰ han-793a-or-793b-($-1):5x14 1 han-5931:9x16 // ⿰[示礻]失
 glyph han-7951.0:* = han-7951-j:*
 glyph han-7951.1:* = han-7951-j:*
 glyph han-7951.2:* = han-7951-g:*
 
 glyph han-7952-($han-regions):15x16 15 16 // 祒
-⿰ han-793a-or-793b-($-1):7x14 han-53ec:8x16 // ⿰礻召
+⿰ han-793a-or-793b-($-1):7x14 han-53ec:8x16 // ⿰[示礻]召
 
 glyph han-7954-($han-regions):15x16 15 16 // 祔
-⿲ han-793a-or-793b-($-1):5x14 han-4ebb:3x16 han-5bf8:7x16 // ⿲示亻寸
+⿲ han-793a-or-793b-($-1):5x14 han-4ebb:3x16 han-5bf8:7x16 // ⿲[示礻]亻寸
 glyph han-7954.0:* = han-7954-j:*
 glyph han-7954.1:* = han-7954-j:*
 glyph han-7954.2:* = han-7954-g:*
@@ -1112,7 +1112,7 @@ glyph han-7956-(g|h|t|j|v):* = han-7956.0:*
 glyph han-7956-(k|p):* = han-7956.1:*
 
 glyph han-7957-($han-regions):15x16 15 16 // 祗
-⿰ han-793a-or-793b-($-1):7x14 han-6c10-($-1):8x16 // ⿰示氐
+⿰ han-793a-or-793b-($-1):7x14 han-6c10-($-1):8x16 // ⿰[示礻]氐
 glyph han-7957.0:* = han-7957-j:*
 glyph han-7957.1:* = han-7957-j:*
 glyph han-7957.2:* = han-7957-h:*
@@ -1168,7 +1168,7 @@ glyph han-7959-p:* = han-7959.1:*
 // ⿰ han-793b han-53bb // ⿰礻去
 
 glyph han-795c-($han-regions):15x16 15 16 // 祜
-⿰ han-793a-or-793b-($-1):5x14 1 han-53e4:9x16 // ⿰示古
+⿰ han-793a-or-793b-($-1):5x14 1 han-53e4:9x16 // ⿰[示礻]古
 glyph han-795c.0:* = han-795c-j:*
 glyph han-795c.1:* = han-795c-j:*
 glyph han-795c.2:* = han-795c-g:*
@@ -1213,7 +1213,7 @@ glyph han-7965-(k|p):* = han-7965.0:*
 glyph han-7965-(g|h|t|j):* = han-7965.1:*
 
 glyph han-7967-($han-regions):15x16 15 16 // 祧
-⿰ han-793a-or-793b-($-1):7x14 1 han-5146:7x16 // ⿰示兆
+⿰ han-793a-or-793b-($-1):7x14 1 han-5146:7x16 // ⿰[示礻]兆
 glyph han-7967.0:* = han-7967-j:*
 glyph han-7967.1:* = han-7967-j:*
 glyph han-7967.2:* = han-7967-g:*
@@ -1256,14 +1256,14 @@ glyph han-796e-(g|t):* = han-796e.1:*
 // ⿰ han-793b han-5434 // ⿰礻吴
 
 glyph han-7970-($han-regions):15x16 15 16 // 祰
-⿰ han-793a-or-793b-($-1):7x14 han-543f-or-544a-($-1):8x16 // ⿰示吿
+⿰ han-793a-or-793b-($-1):7x14 han-543f-or-544a-($-1):8x16 // ⿰[示礻][吿告]
 glyph han-7970.0:* = han-7970-j:*
 glyph han-7970.1:* = han-7970-h:*
 glyph han-7970.2:* = han-7970-g:*
 glyph han-7970.3:* = han-7970-k:*
 
 glyph han-7975-($han-regions):15x16 15 16 // 祵
-⿰ han-793a-or-793b-($-1):5x14 1 han-56f0:9x16 // ⿰礻困
+⿰ han-793a-or-793b-($-1):5x14 1 han-56f0:9x16 // ⿰[示礻]困
 
 glyph han-8996.0:15x16 15 16 // 視
 ⿰ han-793b:7x14 han-898b:8x16 // ⿰礻見
@@ -1277,25 +1277,25 @@ glyph han-8996-(k|p):* = han-8996.1:*
 ## 113.8
 
 glyph han-797a-($han-regions):15x16 15 16 // 祺
-⿰ han-793a-or-793b-($-1):5x14 1 han-5176:9x16 // ⿰示其
+⿰ han-793a-or-793b-($-1):5x14 1 han-5176:9x16 // ⿰[示礻]其
 glyph han-797a.0:* = han-797a-j:*
 glyph han-797a.1:* = han-797a-j:*
 glyph han-797a.2:* = han-797a-g:*
 
 glyph han-797b-($han-regions):15x16 15 16 // 祻
-⿰ han-793a-or-793b-($-1):5x14 1 han-56fa:9x16 // ⿰示固
+⿰ han-793a-or-793b-($-1):5x14 1 han-56fa:9x16 // ⿰[示礻]固
 glyph han-797b.0:* = han-797b-j:*
 glyph han-797b.1:* = han-797b-j:*
 glyph han-797b.2:* = han-797b-g:*
 
 glyph han-797c-($han-regions):15x16 15 16 // 祼
-⿰ han-793a-or-793b-($-1):5x14 1 han-679c:9x16 // ⿰示果
+⿰ han-793a-or-793b-($-1):5x14 1 han-679c:9x16 // ⿰[示礻]果
 glyph han-797c.0:* = han-797c-j:*
 glyph han-797c.1:* = han-797c-j:*
 glyph han-797c.2:* = han-797c-g:*
 
 glyph han-797d-($han-regions):15x16 15 16 // 祽
-⿰ han-793a-or-793b-($-1):7x14 1 han-5352:7x16 // ⿰礻卒
+⿰ han-793a-or-793b-($-1):7x14 1 han-5352:7x16 // ⿰[示礻]卒
 
 // glyph han-7980:15x16 15 16 // 禀
 // ⿳ han-4ea0 han-56de han-793a // ⿳亠回示 <- ⿱㐭示
@@ -1328,7 +1328,7 @@ glyph han-7987-t:15x16 15 16 // 禇
 ⿰ han-793b:7x14 1 han-8005.1:7x16 // ⿰礻者
 
 glyph han-7988-($han-regions):15x16 15 16 // 禈
-⿰ han-793a-or-793b-($-1):5x14 1 han-8ecd:9x16 // ⿰礻軍
+⿰ han-793a-or-793b-($-1):5x14 1 han-8ecd:9x16 // ⿰[示礻]軍
 glyph han-7988.0:* = han-7988-k:*
 glyph han-7988.1:* = han-7988-g:*
 
@@ -1336,13 +1336,13 @@ glyph han-7988.1:* = han-7988-g:*
 // ⿰ han-793b han-5794 // ⿰礻垔
 
 glyph han-7993-($han-regions):15x16 15 16 // 禓
-⿰ han-793a-or-793b-($-1):5x14 1 han-661c:9x16 // ⿰示昜
+⿰ han-793a-or-793b-($-1):5x14 1 han-661c:9x16 // ⿰[示礻]昜
 glyph han-7993.0:* = han-7993-j:*
 glyph han-7993.1:* = han-7993-j:*
 glyph han-7993.2:* = han-7993-g:*
 
 glyph han-7994-($han-regions):15x16 15 16 // 禔
-⿰ han-793a-or-793b-($-1):5x14 1 han-662f:9x16 // ⿰示是
+⿰ han-793a-or-793b-($-1):5x14 1 han-662f:9x16 // ⿰[示礻]是
 glyph han-7994.0:* = han-7994-j:*
 glyph han-7994.1:* = han-7994-j:*
 glyph han-7994.2:* = han-7994-g:*
@@ -1362,7 +1362,7 @@ glyph han-7995:15x16 15 16 // 禕 ⿰礻韋(GHT) ⿰示韋(JKP)
 // ⿱ han-241fe han-793a // ⿱𤇾示
 
 glyph han-799e-($han-regions):15x16 15 16 // 禞
-⿰ han-793a-or-793b-($-1):5x14 1 han-9ad8:9x16 // ⿰示高
+⿰ han-793a-or-793b-($-1):5x14 1 han-9ad8:9x16 // ⿰[示礻]高
 glyph han-799e.0:* = han-799e-j:*
 glyph han-799e.1:* = han-799e-g:*
 
@@ -1385,7 +1385,7 @@ glyph han-79a1-(g|h|t):* = han-79a1.2:*
 ## 113.17
 
 glyph han-79b3-($han-regions):15x16 15 16 // 禳
-⿰ han-793a-or-793b-($-1):5x14 1 han-8944:9x16 // ⿰示襄
+⿰ han-793a-or-793b-($-1):5x14 1 han-8944:9x16 // ⿰[示礻]襄
 glyph han-79b3.0:* = han-79b3-j:*
 glyph han-79b3.1:* = han-79b3-j:*
 glyph han-79b3.2:* = han-79b3-g:*
@@ -1840,7 +1840,7 @@ glyph han-79fb.0:* = han-79fb:*
 // ⿰ han-79be han-5c81 // ⿰禾岁
 
 glyph han-7a06-($han-regions):15x16 15 16 // 稆
-⿰ han-79be:5x16 han-5415-or-5442-($-1):10x16 // ⿰禾吕
+⿰ han-79be:5x16 han-5415-or-5442-($-1):10x16 // ⿰禾[吕呂]
 
 ## 115.7
 

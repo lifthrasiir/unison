@@ -2323,7 +2323,7 @@ glyph han-5c12-p:* = han-5c12.x:*
 ## 42.3
 
 glyph han-5c16-($han-regions):15x16 15 16 // 尖
-⿱ han-5c0f-or-21b54-($-1):13x9 han-5927:15x7 // ⿱小大
+⿱ han-5c0f-or-21b54-($-1):13x9 han-5927:15x7 // ⿱[小𡭔]大
 glyph han-5c16.0:* = han-5c16-h:*
 
 glyph han-5c17:15x16 15 16 // 尗
@@ -2331,7 +2331,7 @@ glyph han-5c17:15x16 15 16 // 尗
 glyph han-5c17.0:* = han-5c17:*
 
 glyph han-5c18-($han-regions):15x16 15 16 // 尘
-⿱ han-5c0f-or-21b54-($-1):13x9 han-571f:15x7 // ⿱𡭔土
+⿱ han-5c0f-or-21b54-($-1):13x9 han-571f:15x7 // ⿱[小𡭔]土
 
 ## 42.5
 

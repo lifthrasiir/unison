@@ -1369,7 +1369,7 @@ glyph han-8060-k:* = han-8060.2:*
 ## 128.7
 
 glyph han-8055-($han-regions):15x16 15 16 // 聕
-⿰ han-8033:7x16 han-543f-or-544a-($-1):8x16 // ⿰耳吿
+⿰ han-8033:7x16 han-543f-or-544a-($-1):8x16 // ⿰耳[吿告]
 glyph han-8055.0:* = han-8055-j:*
 glyph han-8055.1:* = han-8055-g:*
 
@@ -2720,7 +2720,7 @@ glyph han-823e:15x16 15 16 // 舾
 ## 137.7
 
 glyph han-8241-($han-regions):15x16 15 16 // 艁
-⿰ han-821f:7x16 han-543f-or-544a-($-1):8x16 // ⿰舟告
+⿰ han-821f:7x16 han-543f-or-544a-($-1):8x16 // ⿰舟[吿告]
 
 glyph han-8243:15x16 15 16 // 艃
 ⿰ han-821f:7x16 1 han-91cc:7x16 // ⿰舟里

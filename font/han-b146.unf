@@ -202,7 +202,7 @@ glyph han-2783a:15x16 15 16 // 𧠺
 // ⿺ han-898b han-8a00 // ⿺見言
 
 glyph han-2783c-($han-regions):15x16 15 16 // 𧠼
-assume ⿰ han-543f-or-544a-($-1):8x16 -1 han-898b:8x16 // ⿰吿見
+assume ⿰ han-543f-or-544a-($-1):8x16 -1 han-898b:8x16 // ⿰[吿告]見
 glyph han-2783c.0:* = han-2783c-j:*
 glyph han-2783c.1:* = han-2783c-g:*
 
