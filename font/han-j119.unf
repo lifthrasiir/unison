@@ -48,6 +48,9 @@ glyph han-32dc7:15x16 15 16 // 𲷇
 
 ## 119.8
 
+// glyph han-32dca:15x16 15 16 // 𲷊
+// ⿰ han-7c73 han-5948 // ⿰米奈
+
 // glyph han-32dcc:15x16 15 16 // 𲷌
 // ⿰ han-7c73 han-59be // ⿰米妾
 
@@ -313,6 +316,13 @@ glyph han-32e6d:15x16 15 16 // 𲹭
 
 // glyph han-32e8b:15x16 15 16 // 𲺋
 // ⿱ han-5de6 han-6708 // ⿱左月
+
+# CJK unified ideographs extension J: 自 (132)
+
+## 132.3
+
+glyph han-32ec6:15x16 15 16 // 𲻆
+⿰ han-81ea:7x16 1 han-5df1:7x16 // ⿰自己
 
 # CJK unified ideographs extension J: 舌 (135)
 

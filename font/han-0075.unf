@@ -1445,8 +1445,9 @@ glyph han-67ef:15x16 15 16 // 柯
 ⿰ han-6728:7x16 han-53ef:8x16 // ⿰木可
 glyph han-67ef.0:* = han-67ef:*
 
-// glyph han-67f0:15x16 15 16 // 柰
-// ⿱ han-6728 han-793a // ⿱木示
+glyph han-67f0:15x16 15 16 // 柰
+⿱ han-6728:15x7 han-793a:15x9 // ⿱木示
+glyph han-67f0.0:* = han-67f0:*
 
 // glyph han-67f1:15x16 15 16 // 柱
 // ⿰ han-6728 han-4e3b // ⿰木主
@@ -1959,6 +1960,9 @@ glyph han-68d1.0:* = han-68d1-j:*
 glyph han-68d3:15x16 15 16 // 棓
 ⿰ han-6728:5x16 1 han-5485:9x16 // ⿰木咅
 glyph han-68d3.0:* = han-68d3:*
+
+// glyph han-68d5:15x16 15 16 // 棕
+// ⿰ han-6728 han-5b97 // ⿰木宗
 
 // glyph han-68d6:15x16 15 16 // 棖
 // ⿰ han-6728 han-9577 // ⿰木長

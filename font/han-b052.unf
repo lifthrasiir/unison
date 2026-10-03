@@ -313,6 +313,9 @@ glyph han-22258:15x16 15 16 // 𢉘
 // glyph han-222c8:15x16 15 16 // 𢋈
 // ⿸ han-5e7f han-7a23 // ⿸广稣
 
+// glyph han-222ce:15x16 15 16 // 𢋎
+// ⿸ han-5e7f han-7981 // ⿸广禁
+
 ## 53.14
 
 // glyph han-222d8:15x16 15 16 // 𢋘
@@ -414,6 +417,9 @@ glyph han-22341:15x16 15 16 // 𢍁
 
 // glyph han-2233c:15x16 15 16 // 𢌼
 // ⿳ han-4e5b han-6c34 han-5efe // ⿳乛水廾
+
+// glyph han-22342:15x16 15 16 // 𢍂
+// ⿱ han-81ea han-5efe // ⿱自廾
 
 // glyph han-22343:15x16 15 16 // 𢍃
 // ⿱ han-592d han-5349 // ⿱夭卉

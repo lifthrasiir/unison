@@ -1439,6 +1439,9 @@ glyph han-8a6e.1:* = han-8a6e-j:*
 glyph han-8a6e.2:* = han-8a6e.0:*
 glyph han-8a6e.3:* = han-8a6e.1:*
 
+glyph han-8a6f-($han-regions):15x16 15 16 // 詯
+⿰ han-8a01-($-1):5x16 1 han-81ea:9x16 // ⿰訁自
+
 glyph han-8a70-($han-regions):15x16 15 16 // 詰
 ⿰ han-8a01-($-1):5x16 1 han-5409:9x16 // ⿰訁吉
 glyph han-8a70.0:* = han-8a70-j:*
@@ -1605,6 +1608,9 @@ glyph han-8ab2.0:* = han-8ab2-j:*
 
 // glyph han-8ab3-($han-regions):15x16 15 16 // 誳
 // ⿰ han-8a01-($-1) han-5c48 // ⿰訁屈
+
+// glyph han-8ab4-($han-regions):15x16 15 16 // 誴
+// ⿰ han-8a01-($-1) han-5b97 // ⿰訁宗
 
 glyph han-8ab6-($han-regions):15x16 15 16 // 誶
 ⿰ han-8a01-($-1):5x16 1 han-5352:9x16 // ⿰訁卒

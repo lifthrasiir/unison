@@ -592,6 +592,9 @@ glyph han-26f49-(t|j):15x16 15 16 // 𦽉
 // glyph han-26f9b:15x16 15 16 // 𦾛
 // ⿱ han-8279 han-6690 // ⿱艹暐
 
+// glyph han-26fa0-($han-regions):15x16 15 16 // 𦾠 ⿰草余(V) ⿰草佘(UCS2003)
+// ⿰ han-8349-($-1) han-4f58 // ⿰草佘
+
 // glyph han-26fa4:15x16 15 16 // 𦾤
 // ⿳ han-8279 han-4fde han-5fc3 // ⿳艹俞心 <- ⿱艹愈
 

@@ -154,6 +154,9 @@ ref 1x1 7 7 negated
 glyph han-3b85:15x16 15 16 // 㮅
 ⿱ han-6728:15x7 han-96b9:15x9 // ⿱木隹
 
+// glyph han-3b88:15x16 15 16 // 㮈
+// ⿰ han-6728 han-5948 // ⿰木奈
+
 // glyph han-3b89:15x16 15 16 // 㮉
 // ⿲ han-6728 han-4ebb han-5939 // ⿲木亻夹 <- ⿰木侠
 
@@ -164,6 +167,9 @@ glyph han-3b8c:15x16 15 16 // 㮌
 
 // glyph han-3b8e:15x16 15 16 // 㮎
 // ⿰ han-6728 han-76c3 // ⿰木盃
+
+// glyph han-3b8f:15x16 15 16 // 㮏
+// ⿰ han-6728 han-67f0 // ⿰木柰
 
 // glyph han-3b92:15x16 15 16 // 㮒
 // ⿰ han-6728 han-5794 // ⿰木垔
@@ -233,6 +239,11 @@ glyph han-3bdd:15x16 15 16 // 㯝
 
 // glyph han-3be8:15x16 15 16 // 㯨
 // ⿰ han-6728 han-7c9f // ⿰木粟
+
+## 75.13
+
+// glyph han-3bf2:15x16 15 16 // 㯲
+// ⿰ han-6728 han-7981 // ⿰木禁
 
 ## 75.14
 
@@ -323,10 +334,20 @@ glyph han-3c34:15x16 15 16 // 㰴
 glyph han-3c35:15x16 15 16 // 㰵
 ⿰ han-5352:7x16 1 han-6b20:7x16 // ⿰卒欠
 
+## 76.10
+
+// glyph han-3c41:15x16 15 16 // 㱁
+// ⿰ han-795f han-6b20 // ⿰祟欠
+
 ## 76.12
 
 // glyph han-3c44:15x16 15 16 // 㱄
 // ⿰ han-9ed1 han-6b20 // ⿰黑欠
+
+## 76.13
+
+// glyph han-3c48:15x16 15 16 // 㱈
+// ⿰ han-7981 han-6b20 // ⿰禁欠
 
 ## 76.16
 
@@ -467,6 +488,11 @@ glyph han-3c9d:15x16 15 16 // 㲝
 
 glyph han-3c9e:15x16 15 16 // 㲞
 ⿰ han-5352:7x16 1 han-6bdb:7x16 // ⿰卒毛
+
+## 82.9
+
+// glyph han-3ca1:15x16 15 16 // 㲡
+// ⿰ han-67f0 han-6bdb // ⿰柰毛
 
 ## 82.10
 
@@ -698,6 +724,9 @@ glyph han-3cf9:15x16 15 16 // 㳹
 
 glyph han-3d0c:15x16 15 16 // 㴌
 ⿲ han-6c35:3x12 han-5973:5x16 han-53e4:7x16 // ⿲氵女古
+
+// glyph han-3d0e:15x16 15 16 // 㴎
+// ⿰ han-6c35 han-5948 // ⿰氵奈
 
 ## 85.9
 

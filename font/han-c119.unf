@@ -381,6 +381,13 @@ glyph han-2b18d:15x16 15 16 // 𫆍
 // glyph han-2b18f:15x16 15 16 // 𫆏
 // ⿱ han-6e10 han-8033 // ⿱渐耳
 
+# CJK unified ideographs extension C: 聿 (129)
+
+## 129.8
+
+// glyph han-2b195:15x16 15 16 // 𫆕
+// ⿰ han-5948 han-807f // ⿰奈聿
+
 # CJK unified ideographs extension C: 肉 (130)
 
 ## 130.4
@@ -425,6 +432,18 @@ glyph han-2b1c6:15x16 15 16 // 𫇆
 
 glyph han-2b1c8:15x16 15 16 // 𫇈
 ⿰ han-81e3:8x16 han-5352:7x16 // ⿰臣卒
+
+# CJK unified ideographs extension C: 自 (132)
+
+## 132.6
+
+// glyph han-2b1ca-($han-regions):15x16 15 16 // 𫇊
+// ⿰ han-81ea han-5b57-($-1) // ⿰自字
+
+## 132.9
+
+// glyph han-2b1cb:15x16 15 16 // 𫇋
+// ⿰ han-81ea han-6cc9 // ⿰自泉
 
 # CJK unified ideographs extension C: 至 (133)
 

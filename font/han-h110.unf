@@ -153,10 +153,13 @@ glyph han-31d52:15x16 15 16 // 𱵒
 // glyph han-31d56:15x16 15 16 // 𱵖 ⿰示歨(K) ⿰礻歨(Z)
 // ⿰ han-793a han-6b68 // ⿰示歨
 
-// glyph han-31d57:15x16 15 16 // 𱵗
-// ⿱ han-660e han-793a // ⿱明示
+glyph han-31d57:15x16 15 16 // 𱵗
+⿱ han-660e:15x7 1 han-793a:15x8 // ⿱明示
 
 ## 113.9
+
+// glyph han-31d5c:15x16 15 16 // 𱵜
+// ⿰ han-2bbdd han-4f58 // ⿰𫯝佘
 
 // glyph han-31d5f:15x16 15 16 // 𱵟
 // ⿰ han-793b han-7c7b // ⿰礻类

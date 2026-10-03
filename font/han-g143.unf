@@ -1237,6 +1237,11 @@ glyph han-30fe8:15x16 15 16 // 𰿨
 glyph han-30fed:15x16 15 16 // 𰿭
 assume ⿵ han-95e8:15x16.11x15 han-7530:9x11 3 3 // ⿵门田
 
+## 169'.6
+
+// glyph han-30fee:15x16 15 16 // 𰿮
+// ⿵ han-95e8 han-81ea // ⿵门自
+
 ## 169'.7
 
 // glyph han-30fef:15x16 15 16 // 𰿯

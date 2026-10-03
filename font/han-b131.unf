@@ -44,11 +44,90 @@ glyph han-268eb:15x16 15 16 // 𦣫
 
 ## 132.1
 
+// glyph han-268fa:15x16 15 16 // 𦣺
+// ⿱ han-81ea han-4e28 // ⿱自丨
+
 // glyph han-268fb:15x16 15 16 // 𦣻 ⿱一自(GTV) ⿱丆目(X)
 // ⿳ han-4e00 han-4e3f han-76ee // ⿳一丿目 <- ⿱丆目
 
 // glyph han-268fc:15x16 15 16 // 𦣼
 // ⿶ han-51f5 han-5933 // ⿶凵夳
+
+## 132.3
+
+// glyph han-268fe:15x16 15 16 // 𦣾
+// ⿱ han-81ea han-5140 // ⿱自兀
+
+// glyph han-268ff:15x16 15 16 // 𦣿
+// ⿱ han-81ea han-4e2a // ⿱自个
+
+// glyph han-26900:15x16 15 16 // 𦤀
+// ⿱ han-81ea han-5927 // ⿱自大
+
+## 132.4
+
+// glyph han-26903:15x16 15 16 // 𦤃
+// ⿱ han-81ea han-738b // ⿱自王
+
+// glyph han-26904:15x16 15 16 // 𦤄
+// ⿱ han-535d han-81ea // ⿱卝自
+
+// glyph han-26905-($han-regions):15x16 15 16 // 𦤅
+// ⿱ han-8279-($-1) han-81ea // ⿱艹自
+
+// glyph han-26906:15x16 15 16 // 𦤆
+// ⿱ han-81ea han-4e91 // ⿱自云
+
+// glyph han-26908:15x16 15 16 // 𦤈
+// ⿱ han-81ea han-4ece // ⿱自从
+
+// glyph han-2690a-($han-regions):15x16 15 16 // 𦤊
+// ⿰ han-81ea han-4e11-($-1) // ⿰自丑
+
+// glyph han-2690b:15x16 15 16 // 𦤋
+// ⿸ han-200dc han-81ea // ⿸𠃜自
+
+## 132.5
+
+// glyph han-2690d:15x16 15 16 // 𦤍
+// ⿱ han-81ea han-2067b // ⿱自𠙻
+
+// glyph han-2690e:15x16 15 16 // 𦤎
+// ⿱ han-81ea han-672c // ⿱自本
+
+// glyph han-2690f:15x16 15 16 // 𦤏
+// ⿱ han-81ea han-7530 // ⿱自田
+
+## 132.6
+
+// glyph han-26911:15x16 15 16 // 𦤑 ⿱自⿱大𰀁(H) ⿱𦤀𰀁(X)
+// ⿳ han-81ea han-5927 han-30001 // ⿳自大𰀁 <- ⿱自⿱大𰀁
+
+// glyph han-26912:15x16 15 16 // 𦤒 ⿱自⿱大彡(GT) ⿱𦤀彡(X)
+// ⿳ han-81ea han-5927 han-5f61 // ⿳自大彡 <- ⿱自⿱大彡
+
+## 132.7
+
+// glyph han-26914:15x16 15 16 // 𦤔
+// ⿱ han-81ea han-3751 // ⿱自㝑
+
+## 132.8
+
+// glyph han-26916:15x16 15 16 // 𦤖
+// ⿱ han-81ea han-5352 // ⿱自卒
+
+// glyph han-26917:15x16 15 16 // 𦤗
+// ⿱ han-81ea han-5948 // ⿱自奈
+
+## 132.11
+
+// glyph han-26924:15x16 15 16 // 𦤤
+// ⿰ han-81ea han-5bc9 // ⿰自寉
+
+## 132.12
+
+// glyph han-26925-($han-regions):15x16 15 16 // 𦤥
+// ⿱ han-81ea han-7fd4-($-1) // ⿱自翔
 
 # CJK unified ideographs extension B: 至 (133)
 
@@ -189,6 +268,9 @@ glyph han-2693e:15x16 15 16 // 𦤾
 // ⿰ han-820c-($-1) han-74dc-($-1) // ⿰舌瓜
 
 ## 135.6
+
+// glyph han-269d7-($han-regions):15x16 15 16 // 𦧗
+// ⿰ han-81ea han-820c-($-1) // ⿰自舌
 
 // glyph han-269d8:15x16 15 16 // 𦧘
 // ⿰ han-8089 han-820c // ⿰肉舌

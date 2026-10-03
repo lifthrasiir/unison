@@ -381,6 +381,9 @@ glyph han-4abc.0:* = han-4abc:*
 
 ## 181.6
 
+glyph han-4ac1:15x16 15 16 // 䫁
+⿰ han-81ea:7x16 1 han-9801:7x16 // ⿰自頁
+
 glyph han-4ac2:15x16 15 16 // 䫂
 ⿰ han-591a:7x16 1 han-9801:7x16 // ⿰多頁
 
@@ -438,6 +441,11 @@ glyph han-4af0:15x16 15 16 // 䫰
 
 // glyph han-4af1:15x16 15 16 // 䫱
 // ⿰ han-264d4 han-9801 // ⿰𦓔頁
+
+## 181.13
+
+// glyph han-4af4:15x16 15 16 // 䫴
+// ⿰ han-7981 han-9801 // ⿰禁頁
 
 ## 181.16
 
@@ -1048,6 +1056,9 @@ glyph han-4c52:15x16 15 16 // 䱒
 glyph han-4c5d:15x16 15 16 // 䱝
 ⿰ han-9b5a:7x16 han-5351.0:8x16 // ⿰魚卑
 
+// glyph han-4c5e:15x16 15 16 // 䱞
+// ⿰ han-9b5a han-5948 // ⿰魚奈
+
 // glyph han-4c5f:15x16 15 16 // 䱟
 // ⿰ han-9b5a han-5c45 // ⿰魚居
 
@@ -1280,6 +1291,9 @@ glyph han-4cef:15x16 15 16 // 䳯
 // ⿲ han-4ebb han-5446 han-9ce5 // ⿲亻呆鳥 <- ⿰保鳥
 
 ## 196.10
+
+// glyph han-4cf3:15x16 15 16 // 䳳
+// ⿰ han-795f han-9ce5 // ⿰祟鳥
 
 // glyph han-4cf4:15x16 15 16 // 䳴 ⿰眔鳥(G) ⿰⿱罒⿴{11}丨鳥(T) ⿰⿱罒⿲𰀪丨⿱丶丶鳥(P)
 // ⿰ han-7714 han-9ce5 // ⿰眔鳥

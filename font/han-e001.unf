@@ -604,7 +604,7 @@ glyph han-2b9ad:15x16 15 16 // 𫦭
 ## 19.8
 
 glyph han-2b9ae:15x16 15 16 // 𫦮
-⿰ han-5176:8x16 1 han-529b:6x16 // ⿰其力
+⿰ han-5176:8x16 han-529b:7x16 // ⿰其力
 
 glyph han-2b9af:15x16 15 16 // 𫦯
 ⿱ han-6797:15x8 1 han-529b:15x7 // ⿱林力
@@ -860,6 +860,11 @@ glyph han-2ba37:15x16 15 16 // 𫨷
 
 // glyph han-2ba3f-($han-regions):15x16 15 16 // 𫨿
 // ⿰ han-4eab-($-1) han-53c8-($-1) // ⿰享又
+
+## 29.9
+
+// glyph han-2ba40-($han-regions):15x16 15 16 // 𫩀
+// ⿰ han-67f0 han-53c8-($-1) // ⿰柰又
 
 ## 29.10
 
@@ -1407,6 +1412,9 @@ glyph han-2bb77:15x16 15 16 // 𫭷
 
 glyph han-2bb80:15x16 15 16 // 𫮀
 ⿰ han-571f:5x14-l han-5468.1:10x16 // ⿰土周
+
+// glyph han-2bb81:15x16 15 16 // 𫮁
+// ⿰ han-571f han-5b97 // ⿰土宗
 
 // glyph han-2bb82:15x16 15 16 // 𫮂
 // ⿰ han-571f han-5e99 // ⿰土庙

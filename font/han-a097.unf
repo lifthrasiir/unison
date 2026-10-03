@@ -939,6 +939,9 @@ glyph han-4108-($han-regions):15x16 15 16 // 䄈
 // glyph han-410e:15x16 15 16 // 䄎 ⿰礻奇(GHT) ⿰示奇(P)
 // ⿰ han-793b han-5947 // ⿰礻奇
 
+// glyph han-4110:15x16 15 16 // 䄐
+// ⿰ han-795f han-5df3 // ⿰祟巳
+
 ## 113.9
 
 glyph han-4113-($han-regions):15x16 15 16 // 䄓

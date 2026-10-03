@@ -661,6 +661,11 @@ glyph han-324f1:15x16 15 16 // 𲓱
 
 # CJK unified ideographs extension J: 厂 (27)
 
+## 27.6
+
+// glyph han-324fa:15x16 15 16 // 𲓺
+// ⿸ han-5382 han-81ea // ⿸厂自
+
 ## 27.10
 
 // glyph han-324fe-($han-regions):15x16 15 16 // 𲓾
@@ -787,6 +792,9 @@ glyph han-32514:15x16 15 16 // 𲔔
 
 // glyph han-32547:15x16 15 16 // 𲕇
 // ⿱ han-5982 han-53ef // ⿱如可
+
+// glyph han-32549-($han-regions):15x16 15 16 // 𲕉
+// ⿱ han-81ea han-53f1-($-1) // ⿱自叱
 
 // glyph han-3254b:15x16 15 16 // 𲕋
 // ⿰ han-53e3 han-5cb3 // ⿰口岳
@@ -1049,6 +1057,9 @@ glyph han-32637:15x16 15 16 // 𲘷
 
 // glyph han-32650:15x16 15 16 // 𲙐
 // ⿱ han-3698 han-571f // ⿱㚘土
+
+// glyph han-32652:15x16 15 16 // 𲙒
+// ⿰ han-571f han-5948 // ⿰土奈
 
 // glyph han-32653:15x16 15 16 // 𲙓
 // ⿰ han-572d han-4e19 // ⿰圭丙

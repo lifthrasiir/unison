@@ -60,6 +60,9 @@ glyph han-3069e:15x16 15 16 // 𰚞
 // glyph han-3069f:15x16 15 16 // 𰚟
 // ⿺ han-6bdb han-3775 // ⿺毛㝵
 
+// glyph han-306a0:15x16 15 16 // 𰚠
+// ⿰ han-5b97 han-6bdb // ⿰宗毛
+
 // glyph han-306a1:15x16 15 16 // 𰚡
 // ⿺ han-6bdb han-5352 // ⿺毛卒
 
@@ -854,6 +857,9 @@ glyph han-30888:15x16 15 16 // 𰢈
 
 // glyph han-3088b:15x16 15 16 // 𰢋
 // ⿰ han-248e9 han-5340 // ⿰𤣩區
+
+// glyph han-3088c:15x16 15 16 // 𰢌
+// ⿱ han-73a8 han-4f58 // ⿱玨佘
 
 // glyph han-3088d:15x16 15 16 // 𰢍
 // ⿸ han-9ebb han-7389 // ⿸麻玉

@@ -435,6 +435,9 @@ glyph han-26bdc-g:* = han-26bdc.1:*
 // glyph han-26be8:15x16 15 16 // 𦯨
 // ⿳ han-8279 han-53b6 han-5349 // ⿳艹厶卉
 
+// glyph han-26bec-($han-regions):15x16 15 16 // 𦯬
+// ⿱ han-8279-($-1) han-4f58 // ⿱艹佘
+
 glyph han-26bee-g:15x16 15 16 // 𦯮
 ⿳ han-8279.0:15x3 han-5927:15x5 han-6bdb:15x8 // ⿳艹大毛 <- ⿱艹⿱大毛
 glyph han-26bee-(t|j):15x16 15 16 // 𦯮

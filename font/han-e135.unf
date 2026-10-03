@@ -23,6 +23,11 @@
 // glyph han-2c70a:15x16 15 16 // 𬜊
 // ⿰ han-820c han-5247 // ⿰舌則
 
+## 135.13
+
+// glyph han-2c70f-($han-regions):15x16 15 16 // 𬜏
+// ⿰ han-820c-($-1) han-7981 // ⿰舌禁
+
 # CJK unified ideographs extension E: 舟 (137)
 
 ## 137.2
@@ -637,6 +642,9 @@ glyph han-2c8ec:15x16 15 16 // 𬣬
 glyph han-2c8ee:15x16 15 16 // 𬣮
 ⿰ han-8ba0:5x14 1 han-540d:9x16 // ⿰讠名
 
+// glyph han-2c8f0:15x16 15 16 // 𬣰
+// ⿰ han-8ba0 han-81ea // ⿰讠自
+
 // glyph han-2c8f1:15x16 15 16 // 𬣱
 // ⿰ han-8ba0 han-5dde // ⿰讠州
 
@@ -803,6 +811,9 @@ glyph han-2c958:15x16 15 16 // 𬥘
 
 // glyph han-2c992:15x16 15 16 // 𬦒
 // ⿺ han-8d70 han-670b // ⿺走朋
+
+// glyph han-2c993:15x16 15 16 // 𬦓
+// ⿺ han-8d70 han-5b97 // ⿺走宗
 
 ## 156.9
 

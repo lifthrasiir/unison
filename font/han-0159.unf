@@ -924,6 +924,9 @@ glyph han-8f9d.0:* = han-8f9d:*
 // glyph han-8f9f:15x16 15 16 // 辟
 // ⿰ han-21c2a han-8f9b // ⿰𡰪辛
 
+// glyph han-8fa0:15x16 15 16 // 辠
+// ⿱ han-81ea han-8f9b // ⿱自辛
+
 ## 160.7
 
 glyph han-8fa1:15x16 15 16 // 辡
@@ -1848,6 +1851,9 @@ glyph han-90c9-(g|t|p):* = han-90c9.x:*
 glyph han-90ca:15x16 15 16 // 郊
 ⿰ han-4ea4.0:9x16 1 han-961d:5x16-r // ⿰交阝
 glyph han-90ca.0:* = han-90ca:*
+
+glyph han-90cb:15x16 15 16 // 郋
+⿰ han-81ea:7x16 1 han-961d:7x16-r // ⿰自阝
 
 glyph han-90cc:15x16 15 16 // 郌
 ⿰ han-572d:5x16 han-9091:10x16 // ⿰圭邑

@@ -664,6 +664,9 @@ glyph han-7d93-p:* = han-7d93.y:*
 
 ## 120.8
 
+// glyph han-7d9c-($han-regions):15x16 15 16 // 綜 ⿰糹宗(GHT) ⿰糸宗(JKP)
+// ⿰ han-7cf9-($-1) han-5b97 // ⿰糹宗
+
 glyph han-7d9d-($han-regions):15x16 15 16 // 綝
 ⿲ han-7cf9-($-1):5x14 han-6728:5x16 han-6728:5x16 // ⿲糹木木
 glyph han-7d9d.0:* = han-7d9d-j:*
@@ -1208,6 +1211,9 @@ glyph han-7ef4:15x16 15 16 // 维
 
 glyph han-7ef8:15x16 15 16 // 绸
 ⿰ han-7e9f:5x14 han-5468-g:10x16 // ⿰纟周
+
+// glyph han-7efc:15x16 15 16 // 综
+// ⿰ han-7e9f han-5b97 // ⿰纟宗
 
 ## 120'.9
 

@@ -198,6 +198,9 @@ glyph han-4303-j:15x16 15 16 // 䌃
 
 ## 120.13
 
+// glyph han-431d-($han-regions):15x16 15 16 // 䌝 ⿰糹禁(GT) ⿰糸禁(KP)
+// ⿰ han-7cf9-($-1) han-7981 // ⿰糹禁
+
 // glyph han-431f:15x16 15 16 // 䌟 ⿰糹辟(GT) ⿰糸辟(P)
 // ⿲ han-7cf9 han-21c2a han-8f9b // ⿲糹𡰪辛 <- ⿰糹辟
 
@@ -840,6 +843,9 @@ glyph han-4476.0:* = han-4476-j:*
 glyph han-4476.1:* = han-4476-j:*
 glyph han-4476.2:* = han-4476-t:*
 
+// glyph han-4478:15x16 15 16 // 䑸
+// ⿰ han-821f han-5b97 // ⿰舟宗
+
 ## 137.9
 
 // glyph han-447a:15x16 15 16 // 䑺
@@ -954,8 +960,8 @@ glyph han-44a7-(t|j):* = han-44a7.1:*
 // glyph han-44aa:15x16 15 16 // 䒪
 // ⿱ han-8279 han-5f01 // ⿱艹弁
 
-// glyph han-44ac:15x16 15 16 // 䒬
-// ⿱ han-8279 han-793a // ⿱艹示
+glyph han-44ac-($han-regions):15x16 15 16 // 䒬
+⿱ han-8279-($-1):15x3 4 han-793a:15x9 // ⿱艹示
 
 // glyph han-44ae:15x16 15 16 // 䒮 ⿱𫇦凡(G) ⿱艹𠕵(X)
 // ⿱ han-2b1e6 han-51e1 // ⿱𫇦凡
@@ -1151,9 +1157,9 @@ glyph han-4505-(t|j):15x16 15 16 // 䔅
 // glyph han-4508:15x16 15 16 // 䔈
 // ⿳ han-8279 han-5de5 han-8c9d // ⿳艹工貝 <- ⿱艹貢
 
-glyph han-4509:(g|p)-15x16 15 16 // 䔉
+glyph han-4509-(g|p):15x16 15 16 // 䔉
 ⿱ han-8279.0:15x3 han-79dd:15x13 // ⿱艹秝
-glyph han-4509:(h|t|j)-15x16 15 16 // 䔉
+glyph han-4509-(h|t|j):15x16 15 16 // 䔉
 ⿱ han-8279.2:15x3 han-79dd:15x13 // ⿱艹秝
 
 // glyph han-450a:15x16 15 16 // 䔊

@@ -980,6 +980,11 @@ glyph han-2d073:15x16 15 16 // 𭁳
 // glyph han-2d07c:15x16 15 16 // 𭁼
 // ⿱ han-5196 han-662f // ⿱冖是
 
+## 14.13
+
+// glyph han-2d083:15x16 15 16 // 𭂃
+// ⿱ han-5196 han-7981 // ⿱冖禁
+
 # CJK unified ideographs extension F: 冫 (15)
 
 ## 15.2
@@ -1151,6 +1156,9 @@ glyph han-2d0d5:15x16 15 16 // 𭃕
 
 // glyph han-2d0d8:15x16 15 16 // 𭃘
 // ⿱ han-5200 han-8089 // ⿱刀肉
+
+// glyph han-2d0d9:15x16 15 16 // 𭃙
+// ⿱ han-5200 han-81ea // ⿱刀自
 
 // glyph han-2d0da:15x16 15 16 // 𭃚
 // ⿰ han-751f han-5203 // ⿰生刃

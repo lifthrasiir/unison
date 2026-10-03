@@ -822,6 +822,9 @@ glyph han-20b4d.0:* = han-20b4d:*
 
 ## 29.10
 
+// glyph han-20b65-($han-regions):15x16 15 16 // 𠭥
+// ⿰ han-795f han-53c8-($-1) // ⿰祟又
+
 // glyph han-20b6a-($han-regions):15x16 15 16 // 𠭪
 // ⿱ han-43b3 han-53c8-($-1) // ⿱䎳又
 

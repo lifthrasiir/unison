@@ -325,6 +325,9 @@ glyph han-344c:15x16 15 16 // 㑌
 // glyph han-3450:15x16 15 16 // 㑐
 // ⿰ han-4ebb han-5c17 // ⿰亻尗
 
+glyph han-3451:15x16 15 16 // 㑑
+⿰ han-4ebb:5x16 1 han-81ea:9x16 // ⿰亻自
+
 // glyph han-3455:15x16 15 16 // 㑕
 // ⿰ han-4ebb han-5c81 // ⿰亻岁
 
@@ -1009,6 +1012,9 @@ glyph han-3596:15x16 15 16 // 㖖
 // ⿱ han-672a han-20b9f // ⿱未𠮟
 
 ## 30.8
+
+// glyph han-35a0:15x16 15 16 // 㖠
+// ⿰ han-53e3 han-5948 // ⿰口奈
 
 glyph han-35a3:15x16 15 16 // 㖣
 ⿰ han-53e3:5x12 1 han-5485:9x16 // ⿰口咅
@@ -1748,6 +1754,9 @@ glyph han-3790:15x16 15 16 // 㞐
 ⿸ han-5c38:15x16.11x12 han-7acb:9x12 5 4 // ⿸尸立
 
 ## 44.6
+
+// glyph han-3792:15x16 15 16 // 㞒
+// ⿸ han-5c38 han-81ea // ⿸尸自
 
 // glyph han-3794:15x16 15 16 // 㞔
 // ⿸ han-5c38 han-591a // ⿸尸多

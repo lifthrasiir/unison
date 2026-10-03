@@ -158,6 +158,9 @@ glyph han-211da:15x16 15 16 // 𡇚
 // glyph han-211dc:15x16 15 16 // 𡇜
 // ⿴ han-56d7 han-820c // ⿴囗舌
 
+// glyph han-211dd:15x16 15 16 // 𡇝
+// ⿴ han-56d7 han-81ea // ⿴囗自
+
 // glyph han-211de:15x16 15 16 // 𡇞
 // ⿴ han-56d7 han-5408 // ⿴囗合
 
@@ -1063,6 +1066,9 @@ glyph han-2145d:15x16 15 16 // 𡑝
 
 glyph han-21468:15x16 15 16 // 𡑨
 ⿲ han-571f:3x13-l han-98e0-t:7x16 han-6b20:5x16 // ⿲土飠欠
+
+// glyph han-21472:15x16 15 16 // 𡑲
+// ⿰ han-571f han-7981 // ⿰土禁
 
 // glyph han-21480:15x16 15 16 // 𡒀
 // ⿳ han-56da han-7530 han-5736 // ⿳囚田圶

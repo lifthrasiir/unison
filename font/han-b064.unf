@@ -460,6 +460,9 @@ glyph han-22b8c:15x16 15 16 // 𢮌
 // glyph han-22b9d:15x16 15 16 // 𢮝
 // ⿱ han-53d6 han-624b // ⿱取手
 
+// glyph han-22bb1:15x16 15 16 // 𢮱
+// ⿰ han-624c han-5b97 // ⿰扌宗
+
 // glyph han-22bb3:15x16 15 16 // 𢮳
 // ⿰ han-624c han-96e8 // ⿰扌雨
 
@@ -637,6 +640,9 @@ glyph han-22c5b:15x16 15 16 // 𢱛
 
 // glyph han-22c7e:15x16 15 16 // 𢱾
 // ⿰ han-624c han-4673 // ⿰扌䙳
+
+// glyph han-22c89:15x16 15 16 // 𢲉
+// ⿰ han-624c han-2564a // ⿰扌𥙊
 
 // glyph han-22c8c:15x16 15 16 // 𢲌
 // ⿰ han-624c han-5c04 // ⿰扌射

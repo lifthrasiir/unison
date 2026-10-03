@@ -588,6 +588,9 @@ glyph han-9d84.2:* = han-9d84-g:*
 // glyph han-9d8c:15x16 15 16 // 鶌
 // ⿰ han-5c48 han-9ce5 // ⿰屈鳥
 
+// glyph han-9d8e:15x16 15 16 // 鶎
+// ⿰ han-5b97 han-9ce5 // ⿰宗鳥
+
 // glyph han-9d91:15x16 15 16 // 鶑
 // ⿱ han-708f han-9ce5 // ⿱炏鳥
 
@@ -984,4 +987,11 @@ glyph han-9f0e.0:* = han-9f0e:*
 
 // glyph han-9f12-($han-regions):15x16 15 16 // 鼒
 // ⿱ han-624d-($-1) han-9f0e // ⿱才鼎
+
+# CJK unified ideographs: 鼻 (209)
+
+## 209.0
+
+// glyph han-9f3b:15x16 15 16 // 鼻 ⿱自畀(GHT[V][B]) ⿱自𢌿(JKP[S])
+// ⿱ han-81ea han-2233f // ⿱自𢌿
 

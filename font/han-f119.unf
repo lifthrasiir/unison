@@ -482,6 +482,11 @@ glyph han-2e2f7:15x16 15 16 // 𮋷
 // glyph han-2e31f:15x16 15 16 // 𮌟
 // ⿰ han-6708 han-59be // ⿰月妾
 
+## 130.10
+
+// glyph han-2e330:15x16 15 16 // 𮌰 ⿰月𥙊(S) ⿰月⿱{105}示(Z)
+// ⿰ han-6708 han-2564a // ⿰月𥙊
+
 ## 130.11
 
 // glyph han-2e334:15x16 15 16 // 𮌴
@@ -511,6 +516,24 @@ glyph han-2e342:15x16 15 16 // 𮍂
 
 // glyph han-2e353-($han-regions):15x16 15 16 // 𮍓 ⿰臣⿱日羽(S) ⿰臣𦐇(Z)
 // ⿰ han-81e3 han-26407-($-1) // ⿰臣𦐇
+
+# CJK unified ideographs extension F: 自 (132)
+
+## 132.4
+
+// glyph han-2e354-($han-regions):15x16 15 16 // 𮍔
+// ⿱ han-81ea han-5206-($-1) // ⿱自分
+
+// glyph han-2e355:15x16 15 16 // 𮍕
+// ⿱ han-81ea han-722a // ⿱自爪
+
+## 132.5
+
+// glyph han-2e357:15x16 15 16 // 𮍗
+// ⿰ han-81ea han-5de6 // ⿰自左
+
+glyph han-2e358:15x16 15 16 // 𮍘
+⿰ han-81ea:7x16 han-53e5:8x16 // ⿰自句
 
 # CJK unified ideographs extension F: 舌 (135)
 
@@ -567,6 +590,9 @@ glyph han-2e389:15x16 15 16 // 𮎉
 
 glyph han-2e38b:15x16 15 16 // 𮎋
 ⿰ han-821f:7x16 han-767e:8x16 // ⿰舟百
+
+glyph han-2e38c:15x16 15 16 // 𮎌
+⿰ han-821f:7x16 1 han-81ea:7x16 // ⿰舟自
 
 ## 137.7
 

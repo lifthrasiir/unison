@@ -1534,6 +1534,9 @@ glyph han-578c:15x16 15 16 // 垌
 ⿰ han-571f:5x14-l 1 han-540c:9x16 // ⿰土同
 glyph han-578c.0:* = han-578c:*
 
+glyph han-578d:15x16 15 16 // 垍
+⿰ han-571f:5x14-l 1 han-81ea:9x16 // ⿰土自
+
 glyph han-578e:15x16 15 16 // 垎
 ⿰ han-571f:7x16 1 han-5404:7x16 // ⿰土各
 
@@ -3595,8 +3598,9 @@ glyph han-5947:15x16 15 16 // 奇
 ⿱ han-5927:15x7 1 han-53ef:15x8 // ⿱大可
 glyph han-5947.0:* = han-5947:*
 
-// glyph han-5948:15x16 15 16 // 奈
-// ⿱ han-5927 han-793a // ⿱大示
+glyph han-5948:15x16 15 16 // 奈
+⿱ han-5927:15x7 han-793a:15x9 // ⿱大示
+glyph han-5948.0:* = han-5948:*
 
 glyph han-594b:15x16 15 16 // 奋
 ⿱ han-5927:15x8 1 han-7530:11x7 // ⿱大田

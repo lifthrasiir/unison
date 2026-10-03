@@ -159,7 +159,13 @@ glyph han-6b3d:15x16 15 16 // 欽
 ⿰ han-91d2:7x16 1 han-6b20:7x16 // ⿰釒欠
 glyph han-6b3d.0:* = han-6b3d:*
 
+// glyph han-6b3e:15x16 15 16 // 款
+// ⿰ han-309ed han-6b20 // ⿰𰧭欠
+
 ## 76.9
+
+// glyph han-6b40:15x16 15 16 // 歀
+// ⿰ han-67f0 han-6b20 // ⿰柰欠
 
 // glyph han-6b42:15x16 15 16 // 歂
 // ⿰ han-8011 han-6b20 // ⿰耑欠

@@ -307,6 +307,9 @@ glyph han-22640:15x16 15 16 // 𢙀
 // glyph han-22645:15x16 15 16 // 𢙅
 // ⿱ han-5408 han-5fc3 // ⿱合心
 
+glyph han-22646:15x16 15 16 // 𢙆
+⿰ han-5fc4:5x16 1 han-81ea:9x16 // ⿰忄自
+
 // glyph han-22647:15x16 15 16 // 𢙇
 // ⿰ han-5fc4 han-8863 // ⿰忄衣
 
@@ -415,6 +418,9 @@ glyph han-22686:15x16 15 16 // 𢚆
 
 // glyph han-22691:15x16 15 16 // 𢚑
 // ⿱ han-3cc9 han-5fc3 // ⿱㳉心
+
+// glyph han-22692:15x16 15 16 // 𢚒
+// ⿱ han-4f58 han-5fc3 // ⿱佘心
 
 glyph han-22697:15x16 15 16 // 𢚗
 ⿰ han-5fc4:5x16 1 han-5b8b:9x16 // ⿰忄宋

@@ -912,6 +912,9 @@ glyph han-6370:15x16 15 16 // 捰
 // glyph han-6373:15x16 15 16 // 捳
 // ⿰ han-624c han-5cb3 // ⿰扌岳
 
+// glyph han-637a:15x16 15 16 // 捺
+// ⿰ han-624c han-5948 // ⿰扌奈
+
 glyph han-637d:15x16 15 16 // 捽
 ⿰ han-624c:5x16 1 han-5352:9x16 // ⿰扌卒
 glyph han-637d.0:* = han-637d:*

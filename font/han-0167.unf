@@ -914,6 +914,9 @@ glyph han-9312:15x16 15 16 // 錒
 // glyph han-9315:15x16 15 16 // 錕
 // ⿰ han-91d2 han-6606 // ⿰釒昆
 
+// glyph han-931d:15x16 15 16 // 錝
+// ⿰ han-91d2 han-5b97 // ⿰釒宗
+
 // glyph han-931e-($han-regions):15x16 15 16 // 錞
 // ⿰ han-91d2 han-4eab-($-1) // ⿰釒享
 
@@ -965,6 +968,9 @@ glyph han-9337.0:* = han-9337:*
 
 // glyph han-933a:15x16 15 16 // 錺
 // ⿰ han-91d2 han-82b3 // ⿰釒芳
+
+// glyph han-933c:15x16 15 16 // 錼
+// ⿰ han-91d2 han-5948 // ⿰釒奈
 
 // glyph han-933e:15x16 15 16 // 錾
 // ⿱ han-65a9 han-91d1 // ⿱斩金

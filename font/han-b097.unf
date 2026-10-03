@@ -201,6 +201,9 @@ glyph han-24bd8:15x16 15 16 // 𤯘
 glyph han-24be1:15x16 15 16 // 𤯡
 ⿰ han-751f:7x16-l 1 han-673f:7x16 // ⿰生朿
 
+// glyph han-24be3:15x16 15 16 // 𤯣
+// ⿱ han-751f han-81ea // ⿱生自
+
 glyph han-24be4:15x16 15 16 // 𤯤
 ⿰ han-5408:7x16 1 han-751f:7x16 // ⿰合生
 

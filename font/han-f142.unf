@@ -194,6 +194,9 @@ glyph han-2e573:15x16 15 16 // 𮕳
 // glyph han-2e57a:15x16 15 16 // 𮕺
 // ⿱ han-8863 han-540c // ⿱衣同
 
+// glyph han-2e57c-($han-regions):15x16 15 16 // 𮕼
+// ⿰ han-8864-($-1) han-81ea // ⿰衤自
+
 glyph han-2e57f:15x16 15 16 // 𮕿
 ⿰ han-8864.0:5x14 1 han-540d:9x16 // ⿰衤名
 
@@ -557,6 +560,9 @@ glyph han-2e689:15x16 15 16 // 𮚉
 // glyph han-2e68c:15x16 15 16 // 𮚌
 // ⿱ han-2d448 han-8c9d // ⿱𭑈貝
 
+// glyph han-2e68e:15x16 15 16 // 𮚎
+// ⿰ han-8c9d han-5948 // ⿰貝奈
+
 // glyph han-2e690:15x16 15 16 // 𮚐 ⿰貝⿱日月(S) ⿰貝冐(Z)
 // ⿰ han-8c9d han-5190 // ⿰貝冐
 
@@ -688,6 +694,9 @@ glyph han-2e6dd:15x16 15 16 // 𮛝
 
 // glyph han-2e6e0:15x16 15 16 // 𮛠
 // ⿲ han-27fb7 han-624c han-53e6 // ⿲𧾷扌另
+
+// glyph han-2e6e2:15x16 15 16 // 𮛢
+// ⿰ han-27fb7 han-5948 // ⿰𧾷奈
 
 glyph han-2e6e4:15x16 15 16 // 𮛤
 ⿰ han-27fb7:5x15 1 han-660c-k:9x16 // ⿰𧾷昌

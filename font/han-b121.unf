@@ -549,6 +549,9 @@ glyph han-2637b:15x16 15 16 // 𦍻
 // glyph han-2637d:15x16 15 16 // 𦍽
 // ⿰ han-22451 han-7f8a // ⿰𢑑羊
 
+glyph han-2637e:15x16 15 16 // 𦍾
+⿰ han-7f8a:7x16-l 1 han-81ea:7x16 // ⿰羊自
+
 // glyph han-26380:15x16 15 16 // 𦎀
 // ⿰ han-7f8a han-3566 // ⿰羊㕦
 
