@@ -85,6 +85,9 @@ glyph han-277ec:15x16 15 16 // 𧟬
 
 ## 147.3
 
+// glyph han-27809:15x16 15 16 // 𧠉
+// ⿰ han-4e5f han-898b // ⿰也見
+
 // glyph han-2780a:15x16 15 16 // 𧠊 ⿱𠔼見(G) ⿳冖一見(P)
 // ⿳ han-5196 han-4e00 han-898b // ⿳冖一見
 
@@ -251,6 +254,9 @@ assume ⿱ han-660e:15x7 han-898b:13x9 // ⿱明見
 
 glyph han-2785e:15x16 15 16 // 𧡞
 ⿲ han-4ebb:3x16 han-572d:5x16 han-898b:7x16 // ⿲亻圭見
+
+// glyph han-2785f:15x16 15 16 // 𧡟
+// ⿱ han-4e26 han-898b // ⿱並見
 
 ## 147.9
 

@@ -2,13 +2,13 @@
 
 ## 135.5
 
-// glyph han-2c705:15x16 15 16 // 𬜅
-// ⿰ han-820c han-5360 // ⿰舌占
+glyph han-2c705:15x16 15 16 // 𬜅
+⿰ han-820c.0:9x16 1 han-5360:5x16 // ⿰舌占
 
 ## 135.7
 
-// glyph han-2c707:15x16 15 16 // 𬜇
-// ⿰ han-820c han-8a00 // ⿰舌言
+glyph han-2c707:15x16 15 16 // 𬜇
+⿰ han-820c-v:9x16 -1 han-8a00-v:7x16 // ⿰舌言
 
 ## 135.8
 
@@ -102,6 +102,9 @@ glyph han-2c72a:15x16 15 16 // 𬜪
 // ⿱ han-8279 han-95ee // ⿱艹问
 
 ## 140.7
+
+// glyph han-2c72f-($han-regions):15x16 15 16 // 𬜯
+// ⿱ han-8279-($-1) han-4e24 // ⿱艹两
 
 // glyph han-2c730:15x16 15 16 // 𬜰
 // ⿳ han-8279 han-53e3 han-6587 // ⿳艹口文 <- ⿱𦬅文
@@ -463,6 +466,11 @@ glyph han-2c84a:15x16 15 16 // 𬡊
 glyph han-2c858:15x16 15 16 // 𬡘
 ⿰ han-8864.0:5x14 1 han-7f8a:9x16 // ⿰衤羊
 
+## 145.7
+
+// glyph han-2c859-($han-regions):15x16 15 16 // 𬡙
+// ⿰ han-8864-($-1) han-828a-($-1) // ⿰衤芊
+
 ## 145.8
 
 // glyph han-2c85e:15x16 15 16 // 𬡞
@@ -550,6 +558,9 @@ glyph han-2c89b:15x16 15 16 // 𬢛
 
 // glyph han-2c89f-($han-regions):15x16 15 16 // 𬢟
 // ⿰ han-8a01-($-1) han-6534 // ⿰訁攴
+
+// glyph han-2c8a0-($han-regions):15x16 15 16 // 𬢠
+// ⿰ han-8a01-($-1) han-4e2e // ⿰訁丮
 
 ## 149.5
 

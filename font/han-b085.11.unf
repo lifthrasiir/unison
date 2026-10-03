@@ -173,6 +173,9 @@ glyph han-23fbb:15x16 15 16 // 𣾻
 
 ## 85.13
 
+// glyph han-23fcb-($han-regions):15x16 15 16 // 𣿋
+// ⿰ han-6c35 han-96fd-($-1) // ⿰氵雽
+
 glyph han-23fd6:15x16 15 16 // 𣿖
 ⿲ han-6c35:3x12 han-7968:7x16 1 han-5202:4x16 // ⿲氵票刂
 

@@ -563,6 +563,11 @@ glyph han-31471:15x16 15 16 // 𱑱
 
 # CJK unified ideographs extension H: 口 (30)
 
+## 30.2
+
+// glyph han-3147f:15x16 15 16 // 𱑿
+// ⿰ han-53e3 han-4e5c // ⿰口乜
+
 ## 30.3
 
 glyph han-31480:15x16 15 16 // 𱒀
@@ -1191,6 +1196,9 @@ glyph han-3164c:15x16 15 16 // 𱙌
 // ⿰ han-5973 han-28e00 // ⿰女𨸀
 
 ## 38.7
+
+// glyph han-31654:15x16 15 16 // 𱙔
+// ⿰ han-5973 han-4e25 // ⿰女严
 
 // glyph han-31655:15x16 15 16 // 𱙕
 // ⿰ han-5973 han-573c // ⿰女圼

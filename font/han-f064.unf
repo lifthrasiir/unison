@@ -441,8 +441,8 @@ glyph han-2d975:15x16 15 16 // 𭥵
 glyph han-2d976:15x16 15 16 // 𭥶
 ⿲ han-65e5:4x14-l han-4ebb:3x16 1 han-6728:7x16 // ⿲日亻木
 
-// glyph han-2d979:15x16 15 16 // 𭥹
-// ⿰ han-65e5 han-820c // ⿰日舌
+glyph han-2d979:15x16 15 16 // 𭥹
+⿰ han-65e5:5x14-l 1 han-820c.0:9x16 // ⿰日舌
 
 glyph han-2d97a:15x16 15 16 // 𭥺
 ⿲ han-65e5:4x14-l han-6c35:3x12 1 han-5de5:7x16 // ⿲日氵工

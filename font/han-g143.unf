@@ -248,6 +248,9 @@ glyph han-30d66:15x16 15 16 // 𰵦
 // glyph han-30d67:15x16 15 16 // 𰵧
 // ⿰ han-8ba0 han-5fd7 // ⿰讠志
 
+// glyph han-30d68:15x16 15 16 // 𰵨
+// ⿰ han-8ba0 han-4e25 // ⿰讠严
+
 glyph han-30d69:15x16 15 16 // 𰵩
 ⿰ han-8ba0:5x14 1 han-752b:9x16 // ⿰讠甫
 
@@ -1239,8 +1242,8 @@ assume ⿵ han-95e8:15x16.11x15 han-7530:9x11 3 3 // ⿵门田
 
 ## 169'.6
 
-// glyph han-30fee:15x16 15 16 // 𰿮
-// ⿵ han-95e8 han-81ea // ⿵门自
+glyph han-30fee:15x16 15 16 // 𰿮
+⿵ han-95e8:15x16.11x15 han-81ea:11x13 2 2 // ⿵门自
 
 ## 169'.7
 

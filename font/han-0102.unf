@@ -3450,8 +3450,9 @@ glyph han-775b.0:* = han-775b-j:*
 glyph han-775b.1:* = han-775b-j:*
 glyph han-775b.2:* = han-775b-g:*
 
-// glyph han-775e:15x16 15 16 // 睞
-// ⿰ han-76ee han-4f86 // ⿰目來
+glyph han-775e:15x16 15 16 // 睞
+⿰ han-76ee:5x13-l 1 han-4f86:9x16 // ⿰目來
+glyph han-775e.0:* = han-775e:*
 
 glyph han-775f:15x16 15 16 // 睟
 ⿰ han-76ee:5x13-l 1 han-5352:9x16 // ⿰目卒

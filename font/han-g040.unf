@@ -39,6 +39,9 @@ glyph han-3033c:15x16 15 16 // 𰌼
 // glyph han-3033f:15x16 15 16 // 𰌿
 // ⿱ han-5b80 han-5de0 // ⿱宀巠
 
+// glyph han-30340:15x16 15 16 // 𰍀
+// ⿱ han-5b80 han-4f4f // ⿱宀住
+
 ## 40.8
 
 // glyph han-30341:15x16 15 16 // 𰍁
@@ -232,8 +235,8 @@ glyph han-3038c:15x16 15 16 // 𰎌
 // glyph han-3038f:15x16 15 16 // 𰎏
 // ⿰ han-5c71 han-4e1c // ⿰山东
 
-// glyph han-30391:15x16 15 16 // 𰎑
-// ⿱ han-5c71 han-4e1a // ⿱山业
+glyph han-30391:15x16 15 16 // 𰎑
+⿱ han-5c71:15x5 han-4e1a:15x11 // ⿱山业
 
 glyph han-30392:15x16 15 16 // 𰎒
 ⿱ han-5c71:15x5 han-767d:11x11 // ⿱山白
@@ -256,6 +259,9 @@ glyph han-30392:15x16 15 16 // 𰎒
 
 // glyph han-3039f:15x16 15 16 // 𰎟
 // ⿱ han-5c71 han-593e // ⿱山夾
+
+// glyph han-303a0:15x16 15 16 // 𰎠
+// ⿱ han-5c71 han-4e25 // ⿱山严
 
 glyph han-303a1:15x16 15 16 // 𰎡
 ⿳ han-5c71:15x5 1 han-738b:15x5 han-5927:15x5 // ⿳山王大
@@ -724,6 +730,9 @@ glyph han-304b7:15x16 15 16 // 𰒷
 glyph han-304b8:15x16 15 16 // 𰒸
 ⿰ han-624c:5x16 3 han-5369:7x16 // ⿰扌卩
 
+// glyph han-304b9:15x16 15 16 // 𰒹
+// ⿰ han-624c han-4e5c // ⿰扌乜
+
 // glyph han-304bb:15x16 15 16 // 𰒻
 // ⿰ han-624b han-4e86 // ⿰手了
 
@@ -1036,6 +1045,9 @@ glyph han-30585:15x16 15 16 // 𰖅
 // glyph han-30587:15x16 15 16 // 𰖇
 // ⿰ han-65e5 han-514b // ⿰日克
 
+// glyph han-30588:15x16 15 16 // 𰖈
+// ⿰ han-65e5 han-4e25 // ⿰日严
+
 glyph han-30589:15x16 15 16 // 𰖉
 ⿰ han-65e5:5x14-l 1 han-8c46:9x16 // ⿰日豆
 
@@ -1101,6 +1113,13 @@ glyph han-3059f:15x16 15 16 // 𰖟
 
 // glyph han-305b7:15x16 15 16 // 𰖷
 // ⿰ han-6697 han-5b89 // ⿰暗安
+
+# CJK unified ideographs extension G: 曰 (73)
+
+## 73.8
+
+// glyph han-305bf:15x16 15 16 // 𰖿
+// ⿱ han-65e5 han-5f80 // ⿱日往
 
 # CJK unified ideographs extension G: 月 (74)
 
@@ -1201,6 +1220,9 @@ glyph han-305f0:15x16 15 16 // 𰗰
 glyph han-305f3:15x16 15 16 // 𰗳
 ⿰ han-679c:7x16 1 han-738b:7x16 // ⿰果王
 
+// glyph han-305f4:15x16 15 16 // 𰗴
+// ⿰ han-6728 han-5f80 // ⿰木往
+
 // glyph han-305f7:15x16 15 16 // 𰗷
 // ⿳ han-5b80 han-516b han-5446 // ⿳宀八呆 <- ⿱穴呆
 
@@ -1282,6 +1304,9 @@ glyph han-30632:15x16 15 16 // 𰘲
 
 // glyph han-30636:15x16 15 16 // 𰘶
 // ⿰ han-6728 han-7a23 // ⿰木稣
+
+// glyph han-3063a:15x16 15 16 // 𰘺
+// ⿱ han-67f1 han-6771 // ⿱柱東
 
 ## 75.15
 

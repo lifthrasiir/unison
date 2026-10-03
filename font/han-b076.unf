@@ -97,8 +97,10 @@ glyph han-238a6:15x16 15 16 // 𣢦
 // glyph han-238a7:15x16 15 16 // 𣢧
 // ⿰ han-3b30 han-6b20 // ⿰㬰欠
 
-// glyph han-238af:15x16 15 16 // 𣢯
-// ⿰ han-820c han-6b20 // ⿰舌欠
+glyph han-238af-(g|t|p):15x16 15 16 // 𣢯
+⿰ han-820c.0:9x16 1 han-6b20:5x16 // ⿰舌欠
+glyph han-238af-j:15x16 15 16 // 𣢯
+⿰ han-820c.1:9x16 1 han-6b20:5x16 // ⿰舌欠
 
 // glyph han-238b0:15x16 15 16 // 𣢰
 // ⿰ han-5c17 han-6b20 // ⿰尗欠

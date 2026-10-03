@@ -286,8 +286,8 @@ glyph han-72e3:15x16 15 16 // 狣
 glyph han-72e4:15x16 15 16 // 狤
 ⿰ han-72ad:6x16 han-5409:9x16 // ⿰犭吉
 
-// glyph han-72e7:15x16 15 16 // 狧
-// ⿰ han-72ad han-820c // ⿰犭舌
+glyph han-72e7:15x16 15 16 // 狧
+⿰ han-72ad:6x16 han-820c.0:9x16 // ⿰犭舌
 
 // glyph han-72e9:15x16 15 16 // 狩
 // ⿰ han-72ad han-5b88 // ⿰犭守
@@ -363,8 +363,9 @@ glyph han-7309:15x16 15 16 // 猉
 // glyph han-730c:15x16 15 16 // 猌
 // ⿰ han-4f86 han-72ac // ⿰來犬
 
-// glyph han-730d:15x16 15 16 // 猍
-// ⿰ han-72ad han-4f86 // ⿰犭來
+glyph han-730d:15x16 15 16 // 猍
+⿰ han-72ad:6x16 han-4f86:9x16 // ⿰犭來
+glyph han-730d.0:* = han-730d:*
 
 // glyph han-7311:15x16 15 16 // 猑
 // ⿰ han-72ad han-6606 // ⿰犭昆

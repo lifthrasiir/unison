@@ -529,8 +529,8 @@ glyph han-22be0:15x16 15 16 // 𢯠
 // glyph han-22be5:15x16 15 16 // 𢯥
 // ⿰ han-624c han-82ab // ⿰扌芫
 
-// glyph han-22be6:15x16 15 16 // 𢯦
-// ⿰ han-624c han-4f86 // ⿰扌來
+glyph han-22be6:15x16 15 16 // 𢯦
+⿰ han-624c:5x16 1 han-4f86:9x16 // ⿰扌來
 
 ## 64.9
 

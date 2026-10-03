@@ -53,6 +53,9 @@ glyph han-8c38.0:* = han-8c38:*
 // glyph han-8c39:15x16 15 16 // 谹
 // ⿰ han-8c37 han-53b7 // ⿰谷厷
 
+// glyph han-8c3b:15x16 15 16 // 谻 ⿰谷⿻⿻㇈丿二(GP) ⿰谷丮(HTK)
+// ⿰ han-8c37 han-4e2e // ⿰谷丮
+
 ## 150.6
 
 // glyph han-8c3c:15x16 15 16 // 谼
@@ -326,6 +329,9 @@ glyph han-8c9d.0:* = han-8c9d:*
 
 // glyph han-8ca2:15x16 15 16 // 貢
 // ⿱ han-5de5 han-8c9d // ⿱工貝
+
+// glyph han-8ca4:15x16 15 16 // 貤
+// ⿰ han-8c9d han-4e5f // ⿰貝也
 
 ## 154.4
 
@@ -1105,6 +1111,9 @@ glyph han-8e24:15x16 15 16 // 踤
 // ⿰ han-27fb7 han-5e97 // ⿰𧾷店
 
 ## 157.9
+
+// glyph han-8e2b:15x16 15 16 // 踫 ⿰𧾷並(GHT) ⿰𧾷⿱䒑{70}(P)
+// ⿰ han-27fb7 han-4e26 // ⿰𧾷並
 
 glyph han-8e30-($han-regions):15x16 15 16 // 踰
 ⿰ han-27fb7:5x15 1 han-4fde-or-516a-($-1):9x16 // ⿰𧾷[俞兪]

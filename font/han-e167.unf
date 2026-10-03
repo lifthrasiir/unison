@@ -242,6 +242,11 @@ glyph han-2cb7a:15x16 15 16 // 𬭺
 glyph han-2cb85:15x16 15 16 // 𬮅
 ⿵ han-9580:15x16.13x11 han-529b:9x11 3 5 // ⿵門力
 
+## 169.3
+
+// glyph han-2cb86:15x16 15 16 // 𬮆
+// ⿵ han-9580 han-4e5f // ⿵門也
+
 ## 169.4
 
 // glyph han-2cb87:15x16 15 16 // 𬮇
@@ -569,6 +574,11 @@ glyph han-2cc1b:15x16 15 16 // 𬰛
 
 // glyph han-2cc24:15x16 15 16 // 𬰤
 // ⿰ han-9769 han-7ea3 // ⿰革纣
+
+## 177.7
+
+// glyph han-2cc25:15x16 15 16 // 𬰥
+// ⿰ han-9769 han-4e24 // ⿰革两
 
 ## 177.8
 
@@ -900,8 +910,8 @@ glyph han-2cd43:15x16 15 16 // 𬵃
 // glyph han-2cd4e:15x16 15 16 // 𬵎
 // ⿰ han-9b5a han-211ab // ⿰魚𡆫
 
-// glyph han-2cd4f:15x16 15 16 // 𬵏
-// ⿰ han-9b5a han-820c // ⿰魚舌
+glyph han-2cd4f:15x16 15 16 // 𬵏
+⿰ han-9b5a:5x16 1 han-820c-j:9x16 // ⿰魚舌
 
 // glyph han-2cd50:15x16 15 16 // 𬵐
 // ⿰ han-9b5a han-5e84 // ⿰魚庄
@@ -1104,6 +1114,9 @@ glyph han-2cdd1:15x16 15 16 // 𬷑
 glyph han-2cdd4:15x16 15 16 // 𬷔
 ⿰ han-9578:7x16 han-9ce5:8x16 // ⿰镸鳥
 
+// glyph han-2cdd7:15x16 15 16 // 𬷗
+// ⿱ han-4f4f han-9ce5 // ⿱住鳥
+
 // glyph han-2cdd8-($han-regions):15x16 15 16 // 𬷘
 // ⿲ han-5f73 han-58ec-($-1) han-9ce5 // ⿲彳壬鳥
 
@@ -1166,3 +1179,8 @@ glyph han-2cde2:15x16 15 16 // 𬷢
 
 // glyph han-2ce65:15x16 15 16 // 𬹥
 // ⿰ han-9f0e han-4e8e // ⿰鼎于
+
+## 206.4
+
+// glyph han-2ce67:15x16 15 16 // 𬹧
+// ⿰ han-9f0e han-4e2e // ⿰鼎丮

@@ -5,6 +5,11 @@
 // glyph han-2e4f0:15x16 15 16 // 𮓰
 // ⿷ han-20010 han-4e36 // ⿷𠀐丶
 
+## 142.2
+
+// glyph han-2e4f2:15x16 15 16 // 𮓲
+// ⿰ han-866b han-4e5c // ⿰虫乜
+
 ## 142.3
 
 glyph han-2e4f3:15x16 15 16 // 𮓳
@@ -50,6 +55,9 @@ glyph han-2e506:15x16 15 16 // 𮔆
 ⿰ han-866b:5x16 1 han-8840:9x14 // ⿰虫血
 
 ## 142.7
+
+// glyph han-2e50a:15x16 15 16 // 𮔊
+// ⿰ han-866b han-4e24 // ⿰虫两
 
 // glyph han-2e50b:15x16 15 16 // 𮔋
 // ⿰ han-866b han-6278 // ⿰虫扸
@@ -202,6 +210,9 @@ glyph han-2e57f:15x16 15 16 // 𮕿
 
 ## 145.7
 
+// glyph han-2e581-($han-regions):15x16 15 16 // 𮖁
+// ⿰ han-8864-($-1) han-4e24 // ⿰衤两
+
 // glyph han-2e582:15x16 15 16 // 𮖂 ⿰衤吞(G) ⿰衤呑(Z)
 // ⿰ han-8864 han-541e // ⿰衤吞
 
@@ -223,6 +234,9 @@ glyph han-2e57f:15x16 15 16 // 𮕿
 // ⿱ han-679c han-8863 // ⿱果衣
 
 ## 145.9
+
+// glyph han-2e594-($han-regions):15x16 15 16 // 𮖔
+// ⿱ han-62ec-($-1) han-8863 // ⿱括衣
 
 // glyph han-2e595:15x16 15 16 // 𮖕
 // ⿰ han-8864 han-67e5 // ⿰衤查
@@ -763,6 +777,11 @@ glyph han-2e718:15x16 15 16 // 𮜘
 
 # CJK unified ideographs extension F: 身 (158)
 
+## 158.3
+
+// glyph han-2e72e:15x16 15 16 // 𮜮
+// ⿰ han-8eab han-4e5f // ⿰身也
+
 ## 158.5
 
 // glyph han-2e730:15x16 15 16 // 𮜰
@@ -827,8 +846,8 @@ glyph han-2e74c:15x16 15 16 // 𮝌
 // glyph han-2e74f:15x16 15 16 // 𮝏
 // ⿱ han-6b64 han-8eca // ⿱此車
 
-// glyph han-2e750:15x16 15 16 // 𮝐
-// ⿰ han-8eca han-820c // ⿰車舌
+glyph han-2e750:15x16 15 16 // 𮝐
+⿰ han-8eca:5x16 1 han-820c-k:9x16 // ⿰車舌
 
 ## 159.7
 

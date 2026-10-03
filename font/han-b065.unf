@@ -115,6 +115,9 @@
 
 ## 66.3
 
+// glyph han-22eeb:15x16 15 16 // 𢻫
+// ⿰ han-4e5f han-6534 // ⿰也攴
+
 // glyph han-22eed-($han-regions):15x16 15 16 // 𢻭
 // ⿰ han-52fa-($-1) han-6534 // ⿰勺攴
 
@@ -339,6 +342,9 @@ glyph han-2304a:15x16 15 16 // 𣁊
 
 glyph han-23050:15x16 15 16 // 𣁐
 ⿰ han-6587-t:9x16 1 han-898b:5x16 // ⿰文見
+
+// glyph han-23051-($han-regions):15x16 15 16 // 𣁑
+// ⿱ han-6587-($-1) han-4f4f // ⿱文住
 
 ## 67.8
 

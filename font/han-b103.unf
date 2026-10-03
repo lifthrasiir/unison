@@ -436,6 +436,9 @@ glyph han-24db1:15x16 15 16 // 𤶱
 // glyph han-24ded-($han-regions):15x16 15 16 // 𤷭
 // ⿸ han-7592 han-7684-($-1) // ⿸疒的
 
+// glyph han-24dee:15x16 15 16 // 𤷮
+// ⿸ han-7592 han-5f80 // ⿸疒往
+
 glyph han-24df1:15x16 15 16 // 𤷱
 ⿸ han-7592:15x16.11x13 han-9580:9x12 5 4 // ⿸疒門
 

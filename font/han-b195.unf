@@ -85,6 +85,9 @@ glyph han-29d53:15x16 15 16 // 𩵓
 
 ## 195.3
 
+// glyph han-29d54:15x16 15 16 // 𩵔
+// ⿰ han-9b5a han-4e5f // ⿰魚也
+
 // glyph han-29d55:15x16 15 16 // 𩵕
 // ⿰ han-9b5a han-5203 // ⿰魚刃
 
@@ -188,8 +191,10 @@ glyph han-29d7a:15x16 15 16 // 𩵺
 // glyph han-29d82:15x16 15 16 // 𩶂
 // ⿰ han-9b5a han-5b81 // ⿰魚宁
 
-// glyph han-29d83:15x16 15 16 // 𩶃
-// ⿰ han-9b5a han-4e3b // ⿰魚主
+glyph han-29d83-(g|t):15x16 15 16 // 𩶃
+⿰ han-9b5a:5x16 1 han-4e3b:9x16 // ⿰魚主
+glyph han-29d83-j:15x16 15 16 // 𩶃
+⿰ han-9b5a:5x16 1 han-4e3b.1:9x16 // ⿰魚主
 
 // glyph han-29d84:15x16 15 16 // 𩶄 ⿰魚术(G) ⿰魚朮(TP)
 // ⿰ han-9b5a han-672f // ⿰魚术
@@ -467,6 +472,9 @@ assume ⿲ han-9b5a:5x16 han-5f73:5x16 -1 han-6b63:6x16 // ⿲魚彳正
 
 glyph han-29e3e:15x16 15 16 // 𩸾
 ⿲ han-9b5a:5x16 han-8033:6x14-l han-961d:4x16-r // ⿲魚耳阝
+
+// glyph han-29e41:15x16 15 16 // 𩹁
+// ⿰ han-9b5a han-4e26 // ⿰魚並
 
 glyph han-29e44:15x16 15 16 // 𩹄
 ⿰ han-9b5a:7x16 han-66f7:8x16 // ⿰魚曷

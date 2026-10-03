@@ -708,6 +708,9 @@ glyph han-332b3:15x16 15 16 // 𳊳
 // glyph han-332c0:15x16 15 16 // 𳋀
 // ⿺ han-98a8 han-5e72 // ⿺風干
 
+// glyph han-332c1-($han-regions):15x16 15 16 // 𳋁
+// ⿺ han-98a8-($-1) han-4e5f // ⿺風也
+
 ## 182.5
 
 // glyph han-332c2:15x16 15 16 // 𳋂
@@ -927,6 +930,9 @@ glyph han-33345:15x16 15 16 // 𳍅
 // ⿰ han-9b5a han-4f29 // ⿰魚伩
 
 ## 195.7
+
+// glyph han-3334f:15x16 15 16 // 𳍏
+// ⿰ han-9b5a han-4e24 // ⿰魚两
 
 // glyph han-33350:15x16 15 16 // 𳍐
 // ⿰ han-9b5a han-5426 // ⿰魚否

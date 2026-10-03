@@ -154,8 +154,11 @@ glyph han-8289.0:* = han-8289-g:*
 glyph han-8289.1:* = han-8289-g:*
 glyph han-8289.2:* = han-8289-t:*
 
-// glyph han-828a:15x16 15 16 // 芊
-// ⿱ han-8279 han-5343 // ⿱艹千
+glyph han-828a-($han-regions):15x16 15 16 // 芊
+⿱ han-8279-($-1):15x3 1 han-5343:15x12 // ⿱艹千
+glyph han-828a.0:* = han-828a-j:*
+glyph han-828a.1:* = han-828a-j:*
+glyph han-828a.2:* = han-828a-h:*
 
 // glyph han-828b:15x16 15 16 // 芋
 // ⿱ han-8279 han-4e8e // ⿱艹于
@@ -531,8 +534,10 @@ glyph han-82f7.0:* = han-82f7-g:*
 glyph han-82f7.1:* = han-82f7-g:*
 glyph han-82f7.2:* = han-82f7-h:*
 
-// glyph han-82f8:15x16 15 16 // 苸
-// ⿱ han-8279 han-4e4e // ⿱艹乎
+glyph han-82f8-g:15x16 15 16 // 苸
+⿱ han-8279.0:15x3 1 han-4e4e:15x12 // ⿱艹乎
+glyph han-82f8-(h|t|j):15x16 15 16 // 苸
+⿱ han-8279.2:15x3 1 han-4e4e:15x12 // ⿱艹乎
 
 // glyph han-82f9-($han-regions):15x16 15 16 // 苹
 // ⿱ han-8279 han-5e73-($-1) // ⿱艹平
@@ -686,9 +691,9 @@ glyph han-8333.2:* = han-8333-h:*
 // glyph han-8335:15x16 15 16 // 茵
 // ⿱ han-8279 han-56e0 // ⿱艹因
 
-glyph han-8336-(g|t|j|k):15x16 15 16 // 茶 
+glyph han-8336-(g|t|j|k):15x16 15 16 // 茶
 ⿳ han-8279-($-1):15x3 han-201a2:15x6 -1 han-6729:15x8 // ⿳艹𠆢朩
-glyph han-8336-(h|p|v):15x16 15 16 // 茶 
+glyph han-8336-(h|p|v):15x16 15 16 // 茶
 ⿳ han-8279-($-1):15x3 han-201a2:15x6 -1 han-6728:15x8 // ⿳艹𠆢木
 glyph han-8336.0:* = han-8336-g:*
 glyph han-8336.1:* = han-8336-g:*
@@ -768,6 +773,9 @@ glyph han-8355-($han-regions):15x16 15 16 // 荕
 glyph han-8355.0:* = han-8355-g:*
 glyph han-8355.1:* = han-8355-g:*
 glyph han-8355.2:* = han-8355-t:*
+
+// glyph han-8358-($han-regions):15x16 15 16 // 荘
+// ⿱ han-8279-($-1) han-58ee // ⿱艹壮
 
 // glyph han-8359-($han-regions):15x16 15 16 // 荙
 // ⿱ han-8279 han-8fbe-($-1) // ⿱艹达
@@ -1309,6 +1317,9 @@ glyph han-843b.2:* = han-843b-h:*
 
 // glyph han-843d:15x16 15 16 // 落
 // ⿱ han-8279 han-6d1b // ⿱艹洛
+
+// glyph han-8440-($han-regions):15x16 15 16 // 葀
+// ⿱ han-8279-($-1) han-62ec-($-1) // ⿱艹括
 
 // glyph han-8445:15x16 15 16 // 葅
 // ⿱ han-8279 han-4fce // ⿱艹俎

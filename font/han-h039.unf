@@ -287,6 +287,9 @@ glyph han-316ec:15x16 15 16 // 𱛬
 glyph han-316f4:15x16 15 16 // 𱛴
 ⿰ han-5c71:5x12-l 1 han-9c7c:9x16 // ⿰山鱼
 
+// glyph han-316f6:15x16 15 16 // 𱛶
+// ⿱ han-5c71 han-5f80 // ⿱山往
+
 ## 46.9
 
 glyph han-316f9:15x16 15 16 // 𱛹
@@ -751,8 +754,8 @@ glyph han-31869:15x16 15 16 // 𱡩
 
 ## 72.5
 
-// glyph han-3187d:15x16 15 16 // 𱡽
-// ⿰ han-65e5 han-4e3b // ⿰日主
+glyph han-3187d:15x16 15 16 // 𱡽
+⿰ han-65e5:5x14-l 1 han-4e3b:9x16 // ⿰日主
 
 glyph han-3187e:15x16 15 16 // 𱡾
 ⿰ han-65e5:5x14-l han-6c11:10x16 // ⿰日民

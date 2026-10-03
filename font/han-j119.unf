@@ -1051,6 +1051,11 @@ glyph han-330d5-($han-regions):15x16 15 16 // 𳃕
 // glyph han-330e2-($han-regions):15x16 15 16 // 𳃢
 // ⿱ han-5835-($-1) han-8db3 // ⿱堵足
 
+## 157.13
+
+// glyph han-330e5-($han-regions):15x16 15 16 // 𳃥
+// ⿰ han-27fb7 han-96fd-($-1) // ⿰𧾷雽
+
 ## 157.16
 
 // glyph han-330ee-($han-regions):15x16 15 16 // 𳃮

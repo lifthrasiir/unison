@@ -210,6 +210,9 @@ glyph han-91f2-(g|t):15x16 15 16 // 釲
 glyph han-91f2-j:15x16 15 16 // 釲
 ⿰ han-91d2:7x16 1 han-5df2:7x16 // ⿰釒已
 
+// glyph han-91f6:15x16 15 16 // 釶
+// ⿰ han-91d2 han-4e5f // ⿰釒也
+
 glyph han-91f7:15x16 15 16 // 釷
 assume ⿰ han-91d2:7x16 -1 han-571f:9x16 // ⿰釒土
 glyph han-91f7.0:* = han-91f7:*

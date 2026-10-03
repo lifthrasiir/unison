@@ -400,6 +400,9 @@ glyph han-25bbf:15x16 15 16 // 𥮿
 // glyph han-25bc1:15x16 15 16 // 𥯁
 // ⿱ han-25ad7 han-5f83 // ⿱𥫗徃
 
+// glyph han-25bc2:15x16 15 16 // 𥯂
+// ⿱ han-25ad7 han-5f80 // ⿱𥫗往
+
 // glyph han-25bc3:15x16 15 16 // 𥯃
 // ⿳ han-25ad7 han-5927 han-7535 // ⿳𥫗大电 <- ⿱𥫗奄
 
@@ -477,6 +480,9 @@ glyph han-25bf6-(t|j):15x16 15 16 // 𥯶
 
 // glyph han-25bf7:15x16 15 16 // 𥯷 ⿱𥫗胊(GT) ⿱𥫗朐(X)
 // ⿱ han-25ad7 han-80ca // ⿱𥫗胊
+
+// glyph han-25bf8:15x16 15 16 // 𥯸
+// ⿱ han-25ad7 han-67f1 // ⿱𥫗柱
 
 // glyph han-25bf9:15x16 15 16 // 𥯹
 // ⿳ han-25ad7 han-5de9 han-5efe // ⿳𥫗巩廾

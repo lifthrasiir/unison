@@ -958,6 +958,11 @@ glyph han-3969-(j|k):15x16 15 16 // 㥩
 
 # CJK unified ideographs extension A: 戶 (63)
 
+## 63.3
+
+// glyph han-39be:15x16 15 16 // 㦾 ⿸户也(GP) ⿸戶也(TJK)
+// ⿸ han-6236 han-4e5f // ⿸戶也
+
 ## 63.4
 
 glyph han-39bf-(g|p):15x16 15 16 // 㦿

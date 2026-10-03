@@ -136,8 +136,11 @@ glyph han-29485:15x16 15 16 // 𩒅
 // glyph han-29488:15x16 15 16 // 𩒈
 // ⿰ han-9801 han-5c12 // ⿰頁尒
 
-// glyph han-2948a:15x16 15 16 // 𩒊
-// ⿰ han-4e3b han-9801 // ⿰主頁
+glyph han-2948a-(g|t):15x16 15 16 // 𩒊
+⿰ han-4e3b:9x16 1 han-9801:5x16 // ⿰主頁
+glyph han-2948a-j:15x16 15 16 // 𩒊
+⿰ han-4e3b.1:9x16 1 han-9801:5x16 // ⿰主頁
+ref 1x1 4 3 negated
 
 // glyph han-2948d:15x16 15 16 // 𩒍
 // ⿰ han-31471 han-9801 // ⿰𱑱頁

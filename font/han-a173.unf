@@ -310,6 +310,9 @@ glyph han-4a9e:15x16 15 16 // 䪞 ⿱天韭(GT) ⿱夭韭(Z)
 glyph han-4aa6:15x16 15 16 // 䪦
 ⿰ han-97f3:7x16 1 han-5de5:7x16 // ⿰音工
 
+// glyph han-4aa7:15x16 15 16 // 䪧
+// ⿰ han-97f3 han-4e5f // ⿰音也
+
 glyph han-4aa8-($han-regions):15x16 15 16 // 䪨
 ⿰ han-97f3:7x16 1 han-52fa-($-1):7x16 // ⿰音勺
 

@@ -182,6 +182,11 @@ glyph han-2ec30:15x16 15 16 // 𮰰
 glyph han-2ec35:15x16 15 16 // 𮰵
 ⿳ han-5927:15x5 han-58eb:15x5 1 han-53e3:11x5 // ⿳大士口
 
+## 37.8
+
+// glyph han-2ec36:15x16 15 16 // 𮰶
+// ⿱ han-4e26 han-5927 // ⿱並大
+
 # CJK unified ideographs extension I: 女 (38)
 
 ## 38.2
@@ -587,6 +592,9 @@ glyph han-2ed00:15x16 15 16 // 𮴀
 // glyph han-2ed01:15x16 15 16 // 𮴁
 // ⿰ han-248e9 han-5c0f // ⿰𤣩小
 
+// glyph han-2ed03:15x16 15 16 // 𮴃
+// ⿰ han-248e9 han-4e5f // ⿰𤣩也
+
 ## 96.4
 
 glyph han-2ed04:15x16 15 16 // 𮴄
@@ -738,8 +746,8 @@ glyph han-2ed4c:15x16 15 16 // 𮵌
 
 ## 112.6
 
-// glyph han-2ed4d:15x16 15 16 // 𮵍
-// ⿰ han-77f3 han-820c // ⿰石舌
+glyph han-2ed4d:15x16 15 16 // 𮵍
+⿰ han-77f3:6x16 han-820c-g:9x16 // ⿰石舌
 
 // glyph han-2ed4e:15x16 15 16 // 𮵎
 // ⿱ han-77f3 han-2a8b4 // ⿱石𪢴
@@ -843,6 +851,11 @@ glyph han-2ed78:15x16 15 16 // 𮵸
 ⿳ han-25ad7:13x5 han-65e5:11x5 1 han-660d:15x5 // ⿳𥫗日昍
 
 # CJK unified ideographs extension I: 米 (119)
+
+## 119.8
+
+// glyph han-2ed7b:15x16 15 16 // 𮵻
+// ⿰ han-7c73 han-4e26 // ⿰米並
 
 ## 119.11
 
@@ -1066,6 +1079,11 @@ glyph han-2edd6:15x16 15 16 // 𮷖
 
 // glyph han-2edd8:15x16 15 16 // 𮷘
 // ⿰ han-8f66 han-6c14 // ⿰车气
+
+## 159'.6
+
+// glyph han-2edda:15x16 15 16 // 𮷚
+// ⿱ han-58ee han-8f66 // ⿱壮车
 
 # CJK unified ideographs extension I: 辶 (162)
 

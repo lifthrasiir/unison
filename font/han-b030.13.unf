@@ -77,6 +77,9 @@ glyph han-21016:15x16 15 16 // 𡀖
 // glyph han-2101a:15x16 15 16 // 𡀚
 // ⿰ han-5506 han-7cf8 // ⿰唆糸
 
+// glyph han-2101b-($han-regions):15x16 15 16 // 𡀛
+// ⿰ han-53e3 han-96fd-($-1) // ⿰口雽
+
 glyph han-2101e:15x16 15 16 // 𡀞
 ⿲ han-53e3:3x12 han-6728:5x16 han-54a0:7x16 // ⿲口木咠
 

@@ -323,8 +323,10 @@ glyph han-7827.0:* = han-7827:*
 glyph han-7829:15x16 15 16 // 砩
 ⿰ han-77f3:5x16 1 han-5f17:9x16 // ⿰石弗
 
-// glyph han-782b:15x16 15 16 // 砫
-// ⿰ han-77f3 han-4e3b // ⿰石主
+glyph han-782b-(g|h|t|p):15x16 15 16 // 砫
+⿰ han-77f3:6x16 han-4e3b:9x16 // ⿰石主
+glyph han-782b-(j|k):15x16 15 16 // 砫
+⿰ han-77f3:6x16 han-4e3b.1:9x16 // ⿰石主
 
 glyph han-782c:15x16 15 16 // 砬
 ⿰ han-77f3:8x16 han-7acb:7x16 // ⿰石立
@@ -615,6 +617,9 @@ glyph han-789a:15x16 15 16 // 碚
 ⿰ han-77f3:5x16 1 han-5485:9x16 // ⿰石咅
 glyph han-789a.0:* = han-789a:*
 
+// glyph han-78b0:15x16 15 16 // 碰 ⿰石並(GHT) ⿰石⿱䒑{70}(JK) ⿰石⿱八⿱一{70}(P)
+// ⿰ han-77f3 han-4e26 // ⿰石並
+
 ## 112.9
 
 // glyph han-789d:15x16 15 16 // 碝
@@ -722,7 +727,7 @@ glyph han-78fb.0:* = han-78fb:*
 // ⿰ han-77f3 han-96c6 // ⿰石集
 
 glyph han-78fd:15x16 15 16 // 磽
-⿰ han-77f3:7x16 1 han-582f:7x16 // ⿰石堯
+⿰ han-77f3:5x16 1 han-582f:9x16 // ⿰石堯
 glyph han-78fd.0:* = han-78fd:*
 
 // glyph han-7900:15x16 15 16 // 礀
@@ -1022,6 +1027,9 @@ glyph han-7941.0:* = han-7941-g:*
 glyph han-7941.1:* = han-7941-j:*
 glyph han-7941.2:* = han-7941-g:*
 glyph han-7941.3:* = han-7941-j:*
+
+// glyph han-7942:15x16 15 16 // 祂
+// ⿰ han-793b han-4e5f // ⿰礻也
 
 ## 113.4
 
@@ -1849,8 +1857,8 @@ glyph han-79f1.0:* = han-79f1:*
 // glyph han-79f2:15x16 15 16 // 秲
 // ⿰ han-79be han-5bfa // ⿰禾寺
 
-// glyph han-79f3:15x16 15 16 // 秳
-// ⿰ han-79be han-820c // ⿰禾舌
+glyph han-79f3:15x16 15 16 // 秳
+⿰ han-79be:5x16 1 han-820c.0:9x16 // ⿰禾舌
 
 glyph han-79f4:15x16 15 16 // 秴
 ⿰ han-79be:7x16 1 han-5408:7x16 // ⿰禾合
@@ -2055,7 +2063,7 @@ glyph han-7a4c.2:15x16 15 16 // 穌
 // ⿰ han-79be han-96c6 // ⿰禾集
 
 glyph han-7a58:15x16 15 16 // 穘
-⿰ han-79be:7x16 1 han-582f:7x16 // ⿰禾堯
+⿰ han-79be:5x16 1 han-582f:9x16 // ⿰禾堯
 
 glyph han-7a5a:15x16 15 16 // 穚
 ⿰ han-79be:5x16 1 han-55ac:9x16 // ⿰禾喬

@@ -188,8 +188,8 @@ glyph han-204e3:15x16 15 16 // 𠓣
 glyph han-204e6:15x16 15 16 // 𠓦
 ⿱ han-5165:15x7 han-7530:11x9 // ⿱入田
 
-// glyph han-204e7:15x16 15 16 // 𠓧
-// ⿱ han-5165 han-4e4e // ⿱入乎
+glyph han-204e7:15x16 15 16 // 𠓧
+⿱ han-5165:15x7 han-4e4e:15x9 // ⿱入乎
 
 // glyph han-204e8:15x16 15 16 // 𠓨
 // ⿺ han-5305 han-5165 // ⿺包入
@@ -833,6 +833,9 @@ glyph han-205dc:15x16 15 16 // 𠗜
 
 // glyph han-205e0:15x16 15 16 // 𠗠
 // ⿰ han-51ab han-5b5f // ⿰冫孟
+
+// glyph han-205e4:15x16 15 16 // 𠗤
+// ⿰ han-51ab han-5f80 // ⿰冫往
 
 ## 15.9
 

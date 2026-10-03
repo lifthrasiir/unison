@@ -414,6 +414,9 @@ glyph han-7077.0:* = han-7077:*
 glyph han-7077.1:15x16 15 16 // 灷
 ⿱ han-706b:15x6 1 han-5efe.2:15x9 // ⿱火廾
 
+// glyph han-707a:15x16 15 16 // 灺
+// ⿰ han-706b han-4e5f // ⿰火也
+
 glyph han-707b:15x16 15 16 // 灻
 ⿱ han-571f:15x6 han-706b:15x10 // ⿱土火
 
@@ -611,8 +614,13 @@ glyph han-70b2:15x16 15 16 // 炲
 glyph han-70b6:15x16 15 16 // 炶
 ⿰ han-706b:7x16 1 han-5360:7x16 // ⿰火占
 
-// glyph han-70b7:15x16 15 16 // 炷
-// ⿰ han-706b han-4e3b // ⿰火主
+glyph han-70b7.0:15x16 15 16 // 炷
+⿰ han-706b:5x14-l 1 han-4e3b.1:9x16 // ⿰火主
+glyph han-70b7.1:* = han-70b7.0:*
+glyph han-70b7.2:15x16 15 16 // 炷
+⿰ han-706b:5x14-l 1 han-4e3b:9x16 // ⿰火主
+glyph han-70b7-(j|k):* = han-70b7.0:*
+glyph han-70b7-(g|h|t|p):* = han-70b7.2:*
 
 // glyph han-70b8:15x16 15 16 // 炸
 // ⿰ han-706b han-4e4d // ⿰火乍
@@ -1432,24 +1440,6 @@ glyph han-723b-(g|h|t|p|v):* = han-723b.3:*
 
 ## 90.0
 
-glyph han-4e2c:5x14 5 14 margin-y 1 // 丬
-$$$$$$$$@@
-$$......@@
-9@0\....@@
-.\9@0\..@@
-$$.\9@0\@@
-$$...\9@@@
-$$.....\@@
-$$...../@@
-$$.../d@@@
-$$./d@0/@@
-./d@0/..@@
-d@0/....@@
-$$......@@
-$$$$$$$$@@
-glyph han-4e2c:15x16 15 16 // 丬 (also counts as the radical 90')
-ref han-4e2c:5x14 5 1
-
 glyph han-723f:5x16 5 16 // 爿
 @@......@@
 @@......@@
@@ -1851,6 +1841,9 @@ glyph han-725e.0:* = han-725e:*
 // ⿱ han-53b6 han-725b // ⿱厶牛
 
 ## 93.3
+
+// glyph han-7260:15x16 15 16 // 牠
+// ⿰ han-725c han-4e5f // ⿰牜也
 
 glyph han-7261:15x16 15 16 // 牡
 ⿰ han-725c:6x16 han-571f:9x16 // ⿰牜土

@@ -119,6 +119,9 @@ glyph han-27fc6-(g|t|j):15x16 15 16 // 𧿆
 glyph han-27fc6-v:15x16 15 16 // 𧿆
 ⿰ han-27fb7:5x15 1 han-5df2:9x16 // ⿰𧾷已
 
+// glyph han-27fc7:15x16 15 16 // 𧿇
+// ⿰ han-27fb7 han-4e5f // ⿰𧾷也
+
 glyph han-27fc8:15x16 15 16 // 𧿈
 ⿰ han-27fb7:5x15 1 han-5e7f:9x16 // ⿰𧾷广
 
@@ -445,6 +448,12 @@ glyph han-28096:15x16 15 16 // 𨂖
 ⿲ han-27fb7:5x15 han-6c35:3x12 han-7acb:7x16 // ⿲𧾷氵立
 
 ## 157.9
+
+// glyph han-2809d:15x16 15 16 // 𨂝 ⿱並足(GT) ⿱⿱䒑{70}足(P)
+// ⿱ han-4e26 han-8db3 // ⿱並足
+
+// glyph han-2809e:15x16 15 16 // 𨂞 ⿱足並(GT) ⿱足⿱䒑{70}(P)
+// ⿱ han-8db3 han-4e26 // ⿱足並
 
 glyph han-280a0:15x16 15 16 // 𨂠
 ⿰ han-27fb7:5x15 1 han-9801:9x16 // ⿰𧾷頁

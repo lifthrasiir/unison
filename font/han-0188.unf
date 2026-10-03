@@ -722,6 +722,9 @@ $$../hd@0/......@@........../1
 // glyph han-9b48-($han-regions):15x16 15 16 // 魈
 // ⿺ han-9b3c han-8096-($-1) // ⿺鬼肖
 
+// glyph han-9b49:15x16 15 16 // 魉
+// ⿺ han-9b3c han-4e24 // ⿺鬼两
+
 ## 194.8
 
 // glyph han-9b4b:15x16 15 16 // 魋
@@ -1252,8 +1255,8 @@ glyph han-9bdd.0:* = han-9bdd:*
 glyph han-9bdf:15x16 15 16 // 鯟
 ⿰ han-9b5a:5x16 1 han-6771:9x16 // ⿰魚東
 
-// glyph han-9be0:15x16 15 16 // 鯠
-// ⿰ han-9b5a han-4f86 // ⿰魚來
+glyph han-9be0:15x16 15 16 // 鯠
+⿰ han-9b5a:5x16 1 han-4f86:9x16 // ⿰魚來
 
 glyph han-9be1-($han-regions):15x16 15 16 // 鯡
 ⿰ han-9b5a:7x16 1 han-975e-($-1):7x16 // ⿰魚非

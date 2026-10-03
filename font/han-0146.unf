@@ -1261,6 +1261,9 @@ glyph han-8a10-($han-regions):15x16 15 16 // 訐
 ⿰ han-8a01-($-1):5x16 1 han-5e72:9x16 // ⿰訁干
 glyph han-8a10.0:* = han-8a10-j:*
 
+// glyph han-8a11-($han-regions):15x16 15 16 // 訑
+// ⿰ han-8a01-($-1) han-4e5f // ⿰訁也
+
 // glyph han-8a12:15x16 15 16 // 訒
 // ⿰ han-8a01 han-5203 // ⿰訁刃
 
@@ -1380,8 +1383,18 @@ glyph han-8a38-($han-regions):15x16 15 16 // 訸
 // glyph han-8a39:15x16 15 16 // 訹 ⿰訁术(GP) ⿰訁朮(HTK)
 // ⿰ han-8a01 han-672f // ⿰訁术
 
-// glyph han-8a3b-($han-regions):15x16 15 16 // 註
-// ⿰ han-8a01-($-1) han-4e3b // ⿰訁主
+glyph han-8a3b-(g|h|t|p|v):15x16 15 16 // 註
+⿰ han-8a01-($-1):5x16 1 han-4e3b:9x16 // ⿰訁主
+glyph han-8a3b-(j|k):15x16 15 16 // 註
+⿰ han-8a01-($-1):5x16 1 han-4e3b.1:9x16 // ⿰訁主
+glyph han-8a3b.0:15x16 15 16 // 註
+⿰ han-8a01.0:5x16 1 han-4e3b:9x16 // ⿰訁主
+glyph han-8a3b.1:* = han-8a3b-j:*
+glyph han-8a3b.2:* = han-8a3b.0:*
+glyph han-8a3b.3:* = han-8a3b.1:*
+glyph han-8a3b.4:15x16 15 16 // 註
+ref han-8a3b.1:15x16
+ref 1x1 10 5 negated
 
 glyph han-8a3c-($han-regions):15x16 15 16 // 証
 ⿰ han-8a01-($-1):5x16 han-6b63:10x16 // ⿰訁正
@@ -1533,8 +1546,9 @@ glyph han-8a70-($han-regions):15x16 15 16 // 詰
 ⿰ han-8a01-($-1):5x16 1 han-5409:9x16 // ⿰訁吉
 glyph han-8a70.0:* = han-8a70-j:*
 
-// glyph han-8a71:15x16 15 16 // 話
-// ⿰ han-8a01 han-820c // ⿰訁舌
+glyph han-8a71-($han-regions):15x16 15 16 // 話
+⿰ han-8a01-($-1):5x16 1 han-820c.0:9x16 // ⿰訁舌
+glyph han-8a71.0:* = han-8a71-j:*
 
 glyph han-8a73-($han-regions):15x16 15 16 // 詳
 ⿰ han-8a01-($-1):5x16 1 han-7f8a:9x16 // ⿰訁羊
@@ -1710,8 +1724,8 @@ glyph han-8ab9.1:* = han-8ab9-j:*
 glyph han-8ab9.2:* = han-8ab9-k:*
 glyph han-8ab9.3:* = han-8ab9-j:*
 
-// glyph han-8aba:15x16 15 16 // 誺
-// ⿰ han-8a01 han-4f86 // ⿰訁來
+glyph han-8aba-($han-regions):15x16 15 16 // 誺
+⿰ han-8a01-($-1):5x16 1 han-4f86:9x16 // ⿰訁來
 
 // glyph han-8abb:15x16 15 16 // 誻
 // ⿰ han-8a01 han-6c93 // ⿰訁沓
@@ -1778,6 +1792,9 @@ glyph han-8acc.0:* = han-8acc-j:*
 
 // glyph han-8acf-($han-regions):15x16 15 16 // 諏 ⿰訁取(GHTKP) ⿰訁⿸耳又(J)
 // ⿰ han-8a01-($-1) han-53d6 // ⿰訁取
+
+// glyph han-8ae9-($han-regions):15x16 15 16 // 諩 ⿰訁並(GT) ⿰訁⿱䒑{70}(P)
+// ⿰ han-8a01-($-1) han-4e26 // ⿰訁並
 
 ## 149.9
 

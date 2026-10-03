@@ -748,6 +748,9 @@ glyph han-3d16:15x16 15 16 // 㴖
 // glyph han-3d22:15x16 15 16 // 㴢
 // ⿲ han-6c35 han-6c35 han-4ef2 // ⿲氵氵仲 <- ⿰氵㳞
 
+// glyph han-3d24:15x16 15 16 // 㴤
+// ⿰ han-6c35 han-67f1 // ⿰氵柱
+
 ## 85.10
 
 glyph han-3d25-(g|t):15x16 15 16 // 㴥
@@ -1212,8 +1215,10 @@ glyph han-3e62:15x16 15 16 // 㹢
 // glyph han-3e64:15x16 15 16 // 㹤
 // ⿰ han-72ad han-53bb // ⿰犭去
 
-// glyph han-3e65:15x16 15 16 // 㹥
-// ⿰ han-72ad han-4e3b // ⿰犭主
+glyph han-3e65-(g|t|p|v):15x16 15 16 // 㹥
+⿰ han-72ad:6x16 han-4e3b:9x16 // ⿰犭主
+glyph han-3e65-j:15x16 15 16 // 㹥
+⿰ han-72ad:6x16 han-4e3b.1:9x16 // ⿰犭主
 
 glyph han-3e66:15x16 15 16 // 㹦
 ⿰ han-72ad:6x16 1 han-53ec:8x16 // ⿰犭召

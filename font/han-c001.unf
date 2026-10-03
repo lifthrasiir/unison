@@ -236,6 +236,9 @@ glyph han-2a76c:15x16 15 16 // 𪝬
 glyph han-2a770:15x16 15 16 // 𪝰
 ⿲ han-4ebb:3x16 han-248e9:3x14 han-99ac:9x16 // ⿲亻𤣩馬
 
+// glyph han-2a772:15x16 15 16 // 𪝲
+// ⿱ han-79cb han-4f4f // ⿱秋住
+
 ## 9.17
 
 // glyph han-2a77b:15x16 15 16 // 𪝻
@@ -469,8 +472,8 @@ assume ⿺ han-4e5a:15x16.13x14 han-5315-k:10x13 3 0 // ⿺乚匕
 
 ## 21.7
 
-// glyph han-2a7ea-($han-regions):15x16 15 16 // 𪟪
-// ⿱ han-5317-($-1) han-4e0d // ⿱北不
+glyph han-2a7ea:15x16 15 16 // 𪟪
+⿱ -1 han-5317-g:15x8 1 han-4e0d:15x8 // ⿱北不
 
 ## 21.11
 
@@ -790,6 +793,9 @@ glyph han-2a8ab:15x16 15 16 // 𪢫
 
 // glyph han-2a8ac:15x16 15 16 // 𪢬
 // ⿴ han-56d7 han-6606 // ⿴囗昆
+
+// glyph han-2a8ad:15x16 15 16 // 𪢭
+// ⿴ han-56d7 han-4e26 // ⿴囗並
 
 ## 31.11
 

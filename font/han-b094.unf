@@ -46,6 +46,9 @@ glyph han-24720:15x16 15 16 // 𤜠
 glyph han-24721:15x16 15 16 // 𤜡
 assume ⿰ han-72ad:6x16 2 han-961d:7x16-r // ⿰犭阝
 
+// glyph han-24723:15x16 15 16 // 𤜣
+// ⿰ han-72ad han-4e5f // ⿰犭也
+
 glyph han-24726:15x16 15 16 // 𤜦
 ⿰ han-72ad:6x16 han-51e1:9x16 // ⿰犭凡
 
@@ -95,6 +98,9 @@ glyph han-2473b-($han-regions):15x16 15 16 // 𤜻
 
 glyph han-2473d:15x16 15 16 // 𤜽 ⿰犭内(G) ⿰犭內(T)
 ⿰ han-72ad:4x14 han-5185:11x16 // ⿰犭内
+
+// glyph han-2473e:15x16 15 16 // 𤜾
+// ⿰ han-72ad han-4e2e // ⿰犭丮
 
 // glyph han-24740:15x16 15 16 // 𤝀
 // ⿰ han-6b20 han-72ac // ⿰欠犬
@@ -270,6 +276,9 @@ glyph han-2479f:15x16 15 16 // 𤞟
 
 // glyph han-247a2:15x16 15 16 // 𤞢 ⿰犭⿱卝干(GT) ⿰犭芉(P)
 // ⿰ han-72ad han-8289 // ⿰犭芉
+
+// glyph han-247a4:15x16 15 16 // 𤞤
+// ⿰ han-72ad han-4e25 // ⿰犭严
 
 glyph han-247a5:15x16 15 16 // 𤞥
 ⿰ han-72ad:6x16 han-5446:9x16 // ⿰犭呆

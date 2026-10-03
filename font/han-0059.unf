@@ -123,6 +123,9 @@ glyph han-5f74.0:* = han-5f74-g:*
 glyph han-5f74.1:* = han-5f74-g:*
 glyph han-5f74.2:* = han-5f74-k:*
 
+// glyph han-5f75:15x16 15 16 // 彵
+// ⿰ han-5f73 han-4e5f // ⿰彳也
+
 ## 60.4
 
 glyph han-5f77:15x16 15 16 // 彷
@@ -157,8 +160,13 @@ glyph han-5f7f:15x16 15 16 // 彿
 ⿰ han-5f73:5x16 1 han-5f17:9x16 // ⿰彳弗
 glyph han-5f7f.0:* = han-5f7f:*
 
-// glyph han-5f80:15x16 15 16 // 往
-// ⿰ han-5f73 han-4e3b // ⿰彳主
+glyph han-5f80:15x16 15 16 // 往
+⿰ han-5f73:5x16 1 han-4e3b:9x16 // ⿰彳主
+glyph han-5f80.0:* = han-5f80:*
+glyph han-5f80.1:15x16 15 16 // 往
+⿰ han-5f73:5x16 1 han-4e3b.1:9x16 // ⿰彳主
+glyph han-5f80.2:* = han-5f80.0:*
+glyph han-5f80.3:* = han-5f80.1:*
 
 glyph han-5f81:15x16 15 16 // 征
 ⿰ han-5f73:5x16 han-6b63:10x16 // ⿰彳正
@@ -248,8 +256,9 @@ glyph han-5f9f-(h|j):15x16 15 16 // 徟
 glyph han-5f9f-(g|t|k):15x16 15 16 // 徟
 ⿰ han-5f73:5x16 han-5468.1:10x16 // ⿰彳周
 
-// glyph han-5fa0:15x16 15 16 // 徠
-// ⿰ han-5f73 han-4f86 // ⿰彳來
+glyph han-5fa0:15x16 15 16 // 徠
+⿰ han-5f73:5x16 1 han-4f86:9x16 // ⿰彳來
+glyph han-5fa0.0:* = han-5fa0:*
 
 ## 60.9
 
@@ -484,8 +493,8 @@ glyph han-5fcc.0:* = han-5fcc:*
 // glyph han-5fcd:15x16 15 16 // 忍
 // ⿱ han-5203 han-5fc3 // ⿱刃心
 
-// glyph han-5fce:15x16 15 16 // 忎
-// ⿱ han-5343 han-5fc3 // ⿱千心
+glyph han-5fce:15x16 15 16 // 忎
+⿱ han-5343:15x7 han-5fc3:15x9 // ⿱千心
 
 glyph han-5fcf:15x16 15 16 // 忏
 ⿰ han-5fc4:5x16 1 han-5343:9x16 // ⿰忄千
@@ -518,6 +527,9 @@ glyph han-5fd8-($han-regions):15x16 15 16 // 忘
 
 glyph han-5fd9-($han-regions):15x16 15 16 // 忙
 ⿰ han-5fc4:5x16 1 han-4ea1-($-1):9x16 // ⿰忄亡
+
+// glyph han-5fda:15x16 15 16 // 忚
+// ⿰ han-5fc4 han-4e5f // ⿰忄也
 
 glyph han-5fdb:15x16 15 16 // 忛
 ⿰ han-5fc4:5x16 han-51e1:10x16 // ⿰忄凡
@@ -891,8 +903,9 @@ glyph han-606b:15x16 15 16 // 恫
 ⿰ han-5fc4:5x16 1 han-540c:9x16 // ⿰忄同
 glyph han-606b.0:* = han-606b:*
 
-// glyph han-606c:15x16 15 16 // 恬
-// ⿰ han-5fc4 han-820c // ⿰忄舌
+glyph han-606c-($han-regions):15x16 15 16 // 恬
+⿰ han-5fc4:5x16 1 han-820c-($-1):9x16 // ⿰忄舌
+glyph han-606c.0:* = han-606c-j:*
 
 glyph han-606e-($han-regions):15x16 15 16 // 恮
 ⿰ han-5fc4:5x16 1 han-5168-($-1):9x16 // ⿰忄全
@@ -1241,6 +1254,9 @@ glyph han-6132-($han-regions):15x16 15 16 // 愲
 
 // glyph han-6133:15x16 15 16 // 愳
 // ⿱ han-4020 han-5fc3 // ⿱䀠心
+
+// glyph han-6138:15x16 15 16 // 愸 ⿱勑心(GTK) ⿱𠡠心(P)
+// ⿱ han-52d1 han-5fc3 // ⿱勑心
 
 // glyph han-613a:15x16 15 16 // 愺
 // ⿰ han-5fc4 han-8349 // ⿰忄草

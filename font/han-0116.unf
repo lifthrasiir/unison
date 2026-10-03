@@ -757,6 +757,9 @@ glyph han-7afc:15x16 15 16 // 竼
 // glyph han-7afd:15x16 15 16 // 竽
 // ⿱ han-25ad7 han-4e8e // ⿱𥫗于
 
+// glyph han-7afe:15x16 15 16 // 竾
+// ⿱ han-25ad7 han-4e5f // ⿱𥫗也
+
 glyph han-7aff:15x16 15 16 // 竿
 ⿱ han-25ad7:13x5 han-5e72:15x11 // ⿱𥫗干
 glyph han-7aff.0:* = han-7aff:*

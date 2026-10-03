@@ -2260,6 +2260,9 @@ glyph han-666d.2:15x16 15 16 // 晭
 glyph han-666d-j:* = han-666d.0:*
 glyph han-666d-(g|t):* = han-666d.2:*
 
+// glyph han-666e:15x16 15 16 // 普
+// ⿱ han-4e26 han-65e5 // ⿱並日
+
 glyph han-6670:15x16 15 16 // 晰
 ⿲ han-65e5:4x14-l han-6728:5x16 han-65a4:6x16 // ⿲日木斤
 glyph han-6670.0:* = han-6670:*
@@ -2299,6 +2302,9 @@ glyph han-667d:15x16 15 16 // 晽
 glyph han-667f:15x16 15 16 // 晿
 ⿰ han-65e5:5x14-l 1 han-660c.0:9x16 // ⿰日昌
 glyph han-667f.0:* = han-667f:*
+
+// glyph han-6680:15x16 15 16 // 暀
+// ⿰ han-65e5 han-5f80 // ⿰日往
 
 // glyph han-6682:15x16 15 16 // 暂
 // ⿱ han-65a9 han-65e5 // ⿱斩日

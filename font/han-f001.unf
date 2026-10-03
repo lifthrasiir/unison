@@ -113,6 +113,9 @@ $$................../Vv'....$$
 $$............../h~H0/......$$
 $$............\1H_h/........$$
 
+// glyph han-2cebc:15x16 15 16 // 𬺼
+// ⿰ han-4e01 han-4e5f // ⿰丁也
+
 // glyph han-2cebd:15x16 15 16 // 𬺽
 // ⿱ han-4e03 han-5efe // ⿱七廾
 
@@ -239,6 +242,11 @@ $$@@..........@@..........@@$$
 
 // glyph han-2ceee:15x16 15 16 // 𬻮
 // ⿰ han-6765 han-591a // ⿰来多
+
+## 1.13
+
+// glyph han-2ceef:15x16 15 16 // 𬻯
+// ⿰ han-4e22 han-5f80 // ⿰丢往
 
 # CJK unified ideographs extension F: 丨 (2)
 
@@ -387,12 +395,23 @@ ref han-5338-j:15x16
 // glyph han-2cf27:15x16 15 16 // 𬼧
 // ⿱ han-8eab han-4e5a // ⿱身乚
 
+## 5.8
+
+// glyph han-2cf28:15x16 15 16 // 𬼨
+// ⿰ han-540d han-4e5f // ⿰名也
+
+// glyph han-2cf29:15x16 15 16 // 𬼩
+// ⿰ han-5e76 han-4e5f // ⿰并也
+
 ## 5.9
 
 glyph han-2cf2c:15x16 15 16 // 𬼬
 ⿺ han-4e59:15x16.10x14 han-54c1:9x13 5 0 // ⿺乙品
 
 ## 5.10
+
+// glyph han-2cf2e:15x16 15 16 // 𬼮
+// ⿰ han-2233f han-4e5f // ⿰𢌿也
 
 // glyph han-2cf31:15x16 15 16 // 𬼱
 // ⿱ han-6d66 han-4e59 // ⿱浦乙
@@ -619,11 +638,17 @@ glyph han-2cf82:15x16 15 16 // 𬾂
 // glyph han-2cf85:15x16 15 16 // 𬾅
 // ⿰ han-4ebb han-514b // ⿰亻克
 
+// glyph han-2cf87:15x16 15 16 // 𬾇
+// ⿱ han-201a2 han-4e24 // ⿱𠆢两
+
 // glyph han-2cf89:15x16 15 16 // 𬾉
 // ⿰ han-4ebb han-8d70 // ⿰亻走
 
 // glyph han-2cf8b:15x16 15 16 // 𬾋 ⿰亻别(G) ⿰亻別(Z)
 // ⿲ han-4ebb han-53e6 han-5202 // ⿲亻另刂
+
+// glyph han-2cf8d:15x16 15 16 // 𬾍
+// ⿰ han-4f01 han-4e5f // ⿰企也
 
 // glyph han-2cf8f:15x16 15 16 // 𬾏 ⿰亻⿰⿱㇒⿻二丿阝(G) ⿰亻邦(Z)
 // ⿲ han-4ebb han-4e30 han-961d // ⿲亻丰阝
@@ -766,6 +791,9 @@ ref han-5140:15x16
 
 glyph han-2d022:15x16 15 16 // 𭀢
 ⿳ han-5927:15x5 han-53e3:11x7 han-513f:15x4 // ⿳大口儿
+
+// glyph han-2d024:15x16 15 16 // 𭀤 ⿱䒑⿻䒑儿(J) ⿱並儿(X)
+// ⿱ han-4e26 han-513f // ⿱並儿
 
 ## 10.8
 
@@ -1207,6 +1235,9 @@ glyph han-2d0f6:15x16 15 16 // 𭃶
 glyph han-2d0ff:15x16 15 16 // 𭃿
 ⿰ han-2099d:5x16 1 han-5206-j:9x16 // ⿰𠦝分
 
+// glyph han-2d100:15x16 15 16 // 𭄀
+// ⿰ han-4e26 han-5203 // ⿰並刃
+
 ## 18.11
 
 // glyph han-2d107:15x16 15 16 // 𭄇
@@ -1399,6 +1430,11 @@ glyph han-2d160:15x16 15 16 // 𭅠
 
 // glyph han-2d163:15x16 15 16 // 𭅣
 // ⿰ han-6bd5 han-5df4 // ⿰毕巴
+
+## 24.9
+
+// glyph han-2d164-($han-regions):15x16 15 16 // 𭅤 ⿰⿱⿱㇒⿻日丿十也(S) ⿰卑也(Z)
+// ⿰ han-5351-($-1) han-4e5f // ⿰卑也
 
 ## 24.16
 
