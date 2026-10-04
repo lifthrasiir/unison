@@ -552,6 +552,12 @@ glyph han-25a93:15x16 15 16 // 𥪓
 glyph han-25a99:15x16 15 16 // 𥪙
 ⿰ han-7acb:7x16 1 han-9801:7x16 // ⿰立頁
 
+// glyph han-25a9d:15x16 15 16 // 𥪝
+// ⿺ han-7adc han-4e2d // ⿺竜中
+
+// glyph han-25a9e:15x16 15 16 // 𥪞 ⿺竜内(V) ⿺竜內(Z)
+// ⿺ han-7adc han-5185 // ⿺竜内
+
 // glyph han-25aa0:15x16 15 16 // 𥪠
 // ⿱ han-7acb han-8ecd // ⿱立軍
 

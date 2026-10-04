@@ -761,6 +761,9 @@ glyph han-95fe:15x16 15 16 // 闾
 glyph han-9603:15x16 15 16 // 阃
 ⿵ han-95e8:15x16.11x15 han-56f0:11x12 2 3 // ⿵门困
 
+// glyph han-9604:15x16 15 16 // 阄
+// ⿵ han-95e8 han-9f9f // ⿵门龟
+
 // glyph han-9606:15x16 15 16 // 阆
 // ⿵ han-95e8 han-826f // ⿵门良
 
@@ -913,6 +916,11 @@ glyph han-961f:15x16 15 16 // 队
 ⿰ han-961d:5x14-l 1 han-4eba:9x16 // ⿰阝人
 
 ## 170.3
+
+glyph han-9620-(g|h|t|p):15x16 15 16 // 阠
+⿰ han-961d:5x14-l han-5342:10x16 // ⿰阝卂
+glyph han-9620-(j|k):15x16 15 16 // 阠
+⿰ han-961d:5x14-l han-5342:10x16-r // ⿰阝卂
 
 glyph han-9621:15x16 15 16 // 阡
 ⿰ han-961d:5x14-l 1 han-5343:9x16 // ⿰阝千

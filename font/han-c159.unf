@@ -26,6 +26,9 @@ glyph han-2b3f4:15x16 15 16 // 𫏴
 // glyph han-2b3fc:15x16 15 16 // 𫏼
 // ⿱ han-3698 han-8ecd // ⿱㚘軍
 
+// glyph han-2b3fd:15x16 15 16 // 𫏽
+// ⿺ han-7adc han-8eca // ⿺竜車
+
 ## 159.11
 
 // glyph han-2b3ff:15x16 15 16 // 𫏿
@@ -605,8 +608,8 @@ glyph han-2b55a:15x16 15 16 // 𫕚
 
 ## 172.6
 
-// glyph han-2b55b:15x16 15 16 // 𫕛
-// ⿰ han-820c han-96b9 // ⿰舌隹
+glyph han-2b55b:15x16 15 16 // 𫕛
+⿰ han-820c-t:7x16 1 han-96b9:7x16 // ⿰舌隹
 
 # CJK unified ideographs extension C: 雨 (173)
 
@@ -1109,6 +1112,9 @@ glyph han-2b697:15x16 15 16 // 𫚗
 glyph han-2b699:15x16 15 16 // 𫚙
 ⿰ han-9c7c:7x16-l 1 han-752b:7x16 // ⿰鱼甫
 
+// glyph han-2b69a:15x16 15 16 // 𫚚
+// ⿰ han-9c7c han-2652e // ⿰鱼𦔮
+
 ## 195'.8
 
 glyph han-2b69d:15x16 15 16 // 𫚝
@@ -1173,6 +1179,9 @@ glyph han-2b6bb:15x16 15 16 // 𫚻
 
 // glyph han-2b6c5:15x16 15 16 // 𫛅
 // ⿰ han-2840c han-9ce5 // ⿰𨐌鳥
+
+// glyph han-2b6c8-($han-regions):15x16 15 16 // 𫛈
+// ⿰ han-9ce5 han-5b64-($-1) // ⿰鳥孤
 
 ## 196.9
 

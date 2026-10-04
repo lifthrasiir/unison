@@ -794,6 +794,9 @@ glyph han-30b6c:15x16 15 16 // 𰭬
 
 ## 128.4
 
+// glyph han-30b74:15x16 15 16 // 𰭴
+// ⿰ han-8033 han-5c24 // ⿰耳尤
+
 // glyph han-30b75-($han-regions):15x16 15 16 // 𰭵 ⿰耳丐(S) ⿰耳丏(Z)
 // ⿰ han-8033 han-4e10-($-1) // ⿰耳丐
 
@@ -863,8 +866,8 @@ glyph han-30b81:15x16 15 16 // 𰮁
 // glyph han-30b89:15x16 15 16 // 𰮉
 // ⿰ han-8089 han-4e0d // ⿰肉不
 
-// glyph han-30b8a:15x16 15 16 // 𰮊
-// ⿰ han-6708 han-725b // ⿰月牛
+glyph han-30b8a:15x16 15 16 // 𰮊
+⿰ han-6708:7x16 han-725b:8x16 // ⿰月牛
 
 // glyph han-30b8b-($han-regions):15x16 15 16 // 𰮋
 // ⿰ han-6708 han-21bc2-($-1) // ⿰月𡯂
@@ -1005,8 +1008,8 @@ glyph han-30bf5:15x16 15 16 // 𰯵
 // glyph han-30bfe:15x16 15 16 // 𰯾
 // ⿰ han-820c han-5fc5 // ⿰舌必
 
-// glyph han-30bff:15x16 15 16 // 𰯿
-// ⿰ han-820c han-76ae // ⿰舌皮
+glyph han-30bff:15x16 15 16 // 𰯿
+⿰ han-820c-j:7x16 han-76ae:8x16 // ⿰舌皮
 
 ## 135.6
 
@@ -1015,8 +1018,8 @@ glyph han-30bf5:15x16 15 16 // 𰯵
 
 ## 135.7
 
-// glyph han-30c01:15x16 15 16 // 𰰁 ⿰舌吕(G) ⿰舌呂(Z)
-// ⿰ han-820c han-5415 // ⿰舌吕
+glyph han-30c01:15x16 15 16 // 𰰁
+⿰ han-820c-g:7x16 1 han-5415:7x16 // ⿰舌吕
 
 // glyph han-30c02:15x16 15 16 // 𰰂
 // ⿰ han-4e4d han-820d // ⿰乍舍

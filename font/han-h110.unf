@@ -659,6 +659,9 @@ glyph han-31ea7:15x16 15 16 // 𱺧
 
 ## 122.4
 
+// glyph han-31eb7:15x16 15 16 // 𱺷
+// ⿱ han-7f52 han-5c24 // ⿱罒尤
+
 // glyph han-31eb8:15x16 15 16 // 𱺸
 // ⿳ han-7f52 han-5315 han-5315 // ⿳罒匕匕 <- ⿱罒𫧇
 
@@ -715,6 +718,11 @@ glyph han-31edb:15x16 15 16 // 𱻛
 
 // glyph han-31ee0-($han-regions):15x16 15 16 // 𱻠
 // ⿱ han-7fbd-($-1) han-73c0 // ⿱羽珀
+
+## 124.10
+
+// glyph han-31ee2-($han-regions):15x16 15 16 // 𱻢
+// ⿰ han-7adc han-7fbd-($-1) // ⿰竜羽
 
 ## 124.12
 

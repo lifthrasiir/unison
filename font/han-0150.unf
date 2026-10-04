@@ -1035,6 +1035,9 @@ glyph han-8e01:15x16 15 16 // 踁
 ⿰ han-27fb7:5x15 1 han-5de0:9x16 // ⿰𧾷巠
 glyph han-8e01.0:* = han-8e01:*
 
+// glyph han-8e02:15x16 15 16 // 踂
+// ⿰ han-27fb7 han-2652e // ⿰𧾷𦔮
+
 glyph han-8e03-(g|h|t):15x16 15 16 // 踃
 ⿰ han-27fb7:5x15 1 han-8096.0:9x16 // ⿰𧾷肖
 glyph han-8e03-(j|p):15x16 15 16 // 踃

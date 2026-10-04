@@ -227,6 +227,9 @@ glyph han-7d0b-(g|h|t):* = han-7d0b.x:*
 glyph han-7d0b-p:* = han-7d0b.y:*
 glyph han-7d0b-v:* = han-7d0b.z:*
 
+// glyph han-7d0c-($han-regions):15x16 15 16 // 紌 ⿰糹尤(GHT) ⿰糸尤(KP)
+// ⿰ han-7cf9-($-1) han-5c24 // ⿰糹尤
+
 // glyph han-7d0d:15x16 15 16 // 納 ⿰糹内(GV) ⿰糹內(HT) ⿰糸内(J) ⿰糸內(KP)
 // ⿰ han-7cf9 han-5185 // ⿰糹内
 
@@ -690,6 +693,9 @@ glyph han-7da2-p:* = han-7da2.z:*
 
 // glyph han-7da4:15x16 15 16 // 綤
 // ⿱ han-90b5 han-7cf8 // ⿱邵糸
+
+// glyph han-7da5-($han-regions):15x16 15 16 // 綥 ⿰糹畀(GT) ⿰糸畀(KP)
+// ⿰ han-7cf9-($-1) han-7540 // ⿰糹畀
 
 // glyph han-7da6:15x16 15 16 // 綦
 // ⿱ han-5176 han-7cf8 // ⿱其糸

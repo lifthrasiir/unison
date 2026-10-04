@@ -28,6 +28,9 @@ glyph han-2986f:15x16 15 16 // 𩡯
 
 ## 187.3
 
+// glyph han-29870:15x16 15 16 // 𩡰 ⿰馬卂(GP) ⿰馬⿹⺄十(T)
+// ⿰ han-99ac han-5342 // ⿰馬卂
+
 // glyph han-29871:15x16 15 16 // 𩡱
 // ⿱ han-5927 han-99ac // ⿱大馬
 
@@ -39,6 +42,9 @@ glyph han-2986f:15x16 15 16 // 𩡯
 
 glyph han-29874:15x16 15 16 // 𩡴
 ⿰ han-99ac:8x16 han-5343:7x16 // ⿰馬千
+
+// glyph han-29875:15x16 15 16 // 𩡵 ⿰卂馬(G) ⿰⿹⺄十馬(T)
+// ⿰ han-5342 han-99ac // ⿰卂馬
 
 glyph han-29876:15x16 15 16 // 𩡶
 ⿰ han-99ac:8x16 han-571f:7x16 // ⿰馬土
@@ -226,6 +232,9 @@ glyph han-298c6:15x16 15 16 // 𩣆
 // ⿰ han-99ac han-5b89 // ⿰馬安
 
 ## 187.7
+
+// glyph han-298d8:15x16 15 16 // 𩣘
+// ⿰ han-99ac han-2652e // ⿰馬𦔮
 
 // glyph han-298da:15x16 15 16 // 𩣚
 // ⿰ han-99ac han-5426 // ⿰馬否
@@ -444,6 +453,9 @@ glyph han-29a13:15x16 15 16 // 𩨓
 glyph han-29a15-($han-regions):15x16 15 16 // 𩨕
 ⿰ han-9aa8-($-1):7x16 1 han-5df2:7x16 // ⿰骨已
 
+// glyph han-29a16-($han-regions):15x16 15 16 // 𩨖 ⿰骨卂(G) ⿰骨⿹⺄𠂇(T)
+// ⿰ han-9aa8-($-1) han-5342 // ⿰骨卂
+
 // glyph han-29a17-($han-regions):15x16 15 16 // 𩨗 ⿰骨亏(G) ⿰骨亐(T)
 // ⿰ han-9aa8-($-1) han-4e90 // ⿰骨亐
 
@@ -499,8 +511,10 @@ glyph han-29a38-($han-regions):15x16 15 16 // 𩨸
 glyph han-29a39-($han-regions):15x16 15 16 // 𩨹
 ⿰ han-9aa8-($-1):7x16 1 han-7532:7x16 // ⿰骨甲
 
-// glyph han-29a3b-($han-regions):15x16 15 16 // 𩨻
-// ⿰ han-9aa8-($-1) han-4e3b // ⿰骨主
+glyph han-29a3b-g:15x16 15 16 // 𩨻
+⿰ han-9aa8.x:7x16 1 han-4e3b:7x16 // ⿰骨主
+glyph han-29a3b-j:15x16 15 16 // 𩨻
+⿰ han-9aa8.0:7x16 1 han-4e3b.1:7x16 // ⿰骨主
 
 glyph han-29a3c:15x16 15 16 // 𩨼
 ⿰ han-9aa8-v:7x16 han-4e18:8x16 // ⿰骨丘
@@ -545,6 +559,9 @@ glyph han-29a53-($han-regions):15x16 15 16 // 𩩓
 
 // glyph han-29a57-($han-regions):15x16 15 16 // 𩩗
 // ⿰ han-9aa8-($-1) han-820d // ⿰骨舍
+
+// glyph han-29a5a-($han-regions):15x16 15 16 // 𩩚
+// ⿰ han-9aa8-($-1) han-7540 // ⿰骨畀
 
 // glyph han-29a5b:15x16 15 16 // 𩩛
 // ⿰ han-9aa8 han-5947 // ⿰骨奇

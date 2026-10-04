@@ -98,6 +98,9 @@ glyph han-28468.1:* = han-28468-g:*
 // glyph han-28469-($han-regions):15x16 15 16 // 𨑩
 // ⿺ han-8fb6-($-1) han-5f14 // ⿺辶弔
 
+// glyph han-2846b-($han-regions):15x16 15 16 // 𨑫
+// ⿺ han-8fb6-($-1) han-5c24 // ⿺辶尤
+
 // glyph han-2846c-($han-regions):15x16 15 16 // 𨑬
 // ⿺ han-8fb6-($-1) han-5eff // ⿺辶廿
 
@@ -280,6 +283,9 @@ glyph han-284c5-t:* = han-284c5.x:*
 // glyph han-284c9-($han-regions):15x16 15 16 // 𨓉
 // ⿺ han-8fb6-($-1) han-8eab // ⿺辶身
 
+// glyph han-284ca-($han-regions):15x16 15 16 // 𨓊
+// ⿺ han-8fb6-($-1) han-2652e // ⿺辶𦔮
+
 glyph han-284d0:15x16 15 16 // 𨓐
 ⿺ han-8fb6-j:15x16.11x14 han-5442:10x12 5 0 // ⿺辶呂
 
@@ -331,6 +337,9 @@ glyph han-284ff-($han-regions):15x16 15 16 // 𨓿
 
 // glyph han-2850a-($han-regions):15x16 15 16 // 𨔊
 // ⿺ han-8fb6-($-1) han-5352 // ⿺辶卒
+
+// glyph han-2850c-($han-regions):15x16 15 16 // 𨔌
+// ⿺ han-8fb6-($-1) han-5b64-($-1) // ⿺辶孤
 
 // glyph han-28517-($han-regions):15x16 15 16 // 𨔗
 // ⿺ han-8fb6-($-1) han-5496 // ⿺辶咖

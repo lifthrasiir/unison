@@ -113,8 +113,8 @@ glyph han-22aa0:15x16 15 16 // 𢪠
 // glyph han-22aa6:15x16 15 16 // 𢪦
 // ⿰ han-624c han-20a2c // ⿰扌𠨬
 
-// glyph han-22aa7:15x16 15 16 // 𢪧
-// ⿰ han-624c han-725b // ⿰扌牛
+glyph han-22aa7:15x16 15 16 // 𢪧
+⿰ han-624c:5x16 2 han-725b:8x16 // ⿰扌牛
 
 // glyph han-22aa8:15x16 15 16 // 𢪨
 // ⿰ han-624c han-5197 // ⿰扌冗
@@ -347,6 +347,11 @@ glyph han-22b2d:15x16 15 16 // 𢬭
 glyph han-22b32:15x16 15 16 // 𢬲
 ⿲ han-624c:3x16 han-4ebb:3x16 1 han-53ef:8x16 // ⿲扌亻可
 
+glyph han-22b34-(g|t|p):15x16 15 16 // 𢬴
+⿰ han-624c:3x16 han-2652e:12x16 // ⿰扌𦔮
+glyph han-22b34-j:15x16 15 16 // 𢬴
+⿰ han-624c:3x16 han-8034.0:12x16 // ⿰扌耴
+
 glyph han-22b3a:15x16 15 16 // 𢬺
 ⿲ han-624c:3x16 han-72ad:4x14 1 han-6728:7x16 // ⿲扌犭木
 
@@ -459,6 +464,12 @@ glyph han-22b8c:15x16 15 16 // 𢮌
 
 // glyph han-22b9d:15x16 15 16 // 𢮝
 // ⿱ han-53d6 han-624b // ⿱取手
+
+// glyph han-22ba7:15x16 15 16 // 𢮧
+// ⿰ han-624c han-7540 // ⿰扌畀
+
+// glyph han-22ba9-($han-regions):15x16 15 16 // 𢮩
+// ⿰ han-624c han-5b64-($-1) // ⿰扌孤
 
 // glyph han-22bb1:15x16 15 16 // 𢮱
 // ⿰ han-624c han-5b97 // ⿰扌宗
@@ -658,6 +669,9 @@ glyph han-22c5b:15x16 15 16 // 𢱛
 
 // glyph han-22c9f:15x16 15 16 // 𢲟
 // ⿰ han-624c han-5bb0 // ⿰扌宰
+
+// glyph han-22ca3:15x16 15 16 // 𢲣
+// ⿰ han-624c han-7adc // ⿰扌竜
 
 // glyph han-22ca4:15x16 15 16 // 𢲤 ⿰手高(V) ⿰⿱㇒⿻二丿高(UCS2003)
 // ⿰ han-624b han-9ad8 // ⿰手高

@@ -229,6 +229,9 @@ glyph han-2197f:15x16 15 16 // 𡥿
 // glyph han-21983-($han-regions):15x16 15 16 // 𡦃
 // ⿱ han-241fe han-5b50-($-1) // ⿱𤇾子
 
+// glyph han-21988-($han-regions):15x16 15 16 // 𡦈
+// ⿱ han-4ee4-($-1) han-5b64-($-1) // ⿱令孤
+
 glyph han-21989:15x16 15 16 // 𡦉
 ⿲ -2 han-5b50.0:5x16-l han-866b:5x16 han-6587-t:7x16 // ⿲子虫文
 

@@ -551,6 +551,9 @@ glyph han-311a7-($han-regions):15x16 15 16 // 𱆧
 // glyph han-311ae:15x16 15 16 // 𱆮
 // ⿰ han-9b5a han-8289 // ⿰魚芉
 
+// glyph han-311b0:15x16 15 16 // 𱆰
+// ⿰ han-9b5a han-9f9f // ⿰魚龟
+
 // glyph han-311b2:15x16 15 16 // 𱆲
 // ⿰ han-9b5a han-7075 // ⿰魚灵
 
@@ -814,3 +817,23 @@ glyph han-3123e:15x16 15 16 // 𱈾
 
 // glyph han-31308:15x16 15 16 // 𱌈
 // ⿸ han-9ebb han-9efe // ⿸麻黾
+
+# CJK unified ideographs extension G: 龟 (213')
+
+## 213'.3
+
+// glyph han-31343:15x16 15 16 // 𱍃
+// ⿱ han-5927 han-9f9f // ⿱大龟
+
+## 213'.4
+
+// glyph han-31344:15x16 15 16 // 𱍄
+// ⿰ han-5184 han-9f9f // ⿰冄龟
+
+// glyph han-31346:15x16 15 16 // 𱍆
+// ⿱ han-9f9f han-706c // ⿱龟灬
+
+## 213'.5
+
+// glyph han-31347-($han-regions):15x16 15 16 // 𱍇
+// ⿰ han-51ac-($-1) han-9f9f // ⿰冬龟

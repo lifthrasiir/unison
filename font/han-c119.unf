@@ -129,6 +129,9 @@ glyph han-2b0e4:15x16 15 16 // 𫃤
 // glyph han-2b0e6-($han-regions):15x16 15 16 // 𫃦
 // ⿰ han-7cf9-($-1) han-2ba36 // ⿰糹𫨶
 
+// glyph han-2b0e7-($han-regions):15x16 15 16 // 𫃧
+// ⿰ han-7cf9-($-1) han-9f9f // ⿰糹龟
+
 // glyph han-2b0e9-($han-regions):15x16 15 16 // 𫃩
 // ⿰ han-7cf9-($-1) han-599e-($-1) // ⿰糹妞
 
@@ -356,6 +359,11 @@ glyph han-2b167:15x16 15 16 // 𫅧
 
 glyph han-2b16c:15x16 15 16 // 𫅬
 ⿰ han-97f3:7x16 han-7fbd-k:8x16 // ⿰音羽
+
+## 124.10
+
+// glyph han-2b16e-($han-regions):15x16 15 16 // 𫅮 ⿰羽⿱立电(V) ⿰羽竜(Z)
+// ⿰ han-7fbd-($-1) han-7adc // ⿰羽竜
 
 # CJK unified ideographs extension C: 耳 (128)
 

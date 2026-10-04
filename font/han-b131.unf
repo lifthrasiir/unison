@@ -35,6 +35,9 @@ ref han-81e3-mirrored:7x16 8 0
 glyph han-268eb:15x16 15 16 // 𦣫
 ⿰ han-81e3:9x16 han-5176:6x16 // ⿰臣其
 
+// glyph han-268ee-($han-regions):15x16 15 16 // 𦣮
+// ⿱ han-5b64-($-1) han-81e3 // ⿱孤臣
+
 ## 131.12
 
 // glyph han-268f3:15x16 15 16 // 𦣳
@@ -243,8 +246,8 @@ glyph han-2693e:15x16 15 16 // 𦤾
 
 ## 135.4
 
-// glyph han-269c8:15x16 15 16 // 𦧈
-// ⿰ han-820c han-4eca // ⿰舌今
+glyph han-269c8-($han-regions):15x16 15 16 // 𦧈
+⿰ han-820c-($-1):7x16 1 han-4eca-($-1):7x16 // ⿰舌今
 
 // glyph han-269c9-($han-regions):15x16 15 16 // 𦧉
 // ⿰ han-820c-($-1) han-652f // ⿰舌支
@@ -252,17 +255,17 @@ glyph han-2693e:15x16 15 16 // 𦤾
 // glyph han-269ca:15x16 15 16 // 𦧊
 // ⿰ han-820c han-5141 // ⿰舌允
 
-// glyph han-269cb:15x16 15 16 // 𦧋
-// ⿰ han-820c han-725b // ⿰舌牛
+glyph han-269cb:15x16 15 16 // 𦧋
+⿰ han-820c.0:7x16 han-725b:8x16 // ⿰舌牛
 
 // glyph han-269cd:15x16 15 16 // 𦧍
 // ⿰ han-722a han-820c // ⿰爪舌
 
-// glyph han-269ce:15x16 15 16 // 𦧎
-// ⿰ han-4eca han-820c // ⿰今舌
+glyph han-269ce-($han-regions):15x16 15 16 // 𦧎
+⿰ han-4eca-($-1):7x16 1 han-820c-($-1):7x16 // ⿰今舌
 
-// glyph han-269cf:15x16 15 16 // 𦧏
-// ⿰ han-820c han-4e95 // ⿰舌井
+glyph han-269cf-($han-regions):15x16 15 16 // 𦧏
+⿰ han-820c-($-1):7x16 1 han-4e95:7x16 // ⿰舌井
 
 // glyph han-269d0:15x16 15 16 // 𦧐
 // ⿰ han-20ad8 han-820c // ⿰𠫘舌
@@ -277,17 +280,17 @@ glyph han-269d2:15x16 15 16 // 𦧒
 
 ## 135.6
 
-// glyph han-269d7-($han-regions):15x16 15 16 // 𦧗
-// ⿰ han-81ea han-820c-($-1) // ⿰自舌
+glyph han-269d7-($han-regions):15x16 15 16 // 𦧗
+⿰ han-81ea:7x16 1 han-820c-($-1):7x16 // ⿰自舌
 
 // glyph han-269d8:15x16 15 16 // 𦧘
 // ⿰ han-8089 han-820c // ⿰肉舌
 
-// glyph han-269da:15x16 15 16 // 𦧚
-// ⿰ han-820c han-820c // ⿰舌舌
+glyph han-269da-($han-regions):15x16 15 16 // 𦧚
+⿰ han-820c-($-1):7x16 1 han-820c-($-1):7x16 // ⿰舌舌
 
-// glyph han-269db:15x16 15 16 // 𦧛
-// ⿰ han-820c han-5408 // ⿰舌合
+glyph han-269db-($han-regions):15x16 15 16 // 𦧛
+⿰ han-820c-($-1):7x16 1 han-5408:7x16 // ⿰舌合
 
 // glyph han-269dc-($han-regions):15x16 15 16 // 𦧜
 // ⿰ han-820c-($-1) han-540f-($-1) // ⿰舌吏
@@ -302,16 +305,16 @@ glyph han-269d2:15x16 15 16 // 𦧒
 // glyph han-269df:15x16 15 16 // 𦧟
 // ⿰ han-820c han-6c93 // ⿰舌沓
 
-// glyph han-269e1:15x16 15 16 // 𦧡
-// ⿰ han-708e han-820c // ⿰炎舌
+glyph han-269e1-($han-regions):15x16 15 16 // 𦧡
+⿰ han-708e:7x16 1 han-820c-($-1):7x16 // ⿰炎舌
 
 // glyph han-269e5:15x16 15 16 // 𦧥
 // ⿰ han-6c93 han-820c // ⿰沓舌
 
 ## 135.9
 
-// glyph han-269e7:15x16 15 16 // 𦧧
-// ⿰ han-820c han-662f // ⿰舌是
+glyph han-269e7-($han-regions):15x16 15 16 // 𦧧
+⿰ han-820c-($-1):7x16 1 han-662f:7x16 // ⿰舌是
 
 // glyph han-269ea:15x16 15 16 // 𦧪
 // ⿺ han-662f han-820c // ⿺是舌
@@ -330,6 +333,13 @@ glyph han-269d2:15x16 15 16 // 𦧒
 
 // glyph han-269f5:15x16 15 16 // 𦧵
 // ⿲ han-820c han-820c han-820c // ⿲舌舌舌
+
+# CJK unified ideographs extension B: 舛 (136)
+
+## 136.9
+
+// glyph han-269fe:15x16 15 16 // 𦧾 ⿰粦⿹⺄十(T) ⿰粦卂(Z)
+// ⿰ han-7ca6 han-5342 // ⿰粦卂
 
 # CJK unified ideographs extension B: 舟 (137)
 
@@ -417,8 +427,8 @@ glyph han-26a2d:15x16 15 16 // 𦨭
 
 ## 137.6
 
-// glyph han-26a2f:15x16 15 16 // 𦨯
-// ⿰ han-821f han-820c // ⿰舟舌
+glyph han-26a2f:15x16 15 16 // 𦨯
+⿰ han-821f:7x16 1 han-820c.0:7x16 // ⿰舟舌
 
 glyph han-26a30:15x16 15 16 // 𦨰
 ⿲ han-821f:7x16 han-5de5:3x12-l han-961d:5x16-r // ⿲舟工阝

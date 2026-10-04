@@ -128,8 +128,8 @@ glyph han-27d5b:15x16 15 16 // 𧵛
 // glyph han-27d5e:15x16 15 16 // 𧵞
 // ⿳ han-53e3 han-4e5d han-8c9d // ⿳口九貝
 
-// glyph han-27d5f-($han-regions):15x16 15 16 // 𧵟
-// ⿰ han-8c9d han-74dc-($-1) // ⿰貝瓜
+glyph han-27d5f:15x16 15 16 // 𧵟
+⿰ han-8c9d:6x16 han-74dc-v:9x16 // ⿰貝瓜
 
 // glyph han-27d60:15x16 15 16 // 𧵠
 // ⿱ han-51fa han-8c9d // ⿱出貝
@@ -188,6 +188,9 @@ glyph han-27d88-j:15x16 15 16 // 𧶈
 
 // glyph han-27d89:15x16 15 16 // 𧶉
 // ⿳ han-5b80 han-5143 han-8c9d // ⿳宀元貝 <- ⿱完貝
+
+// glyph han-27d8b:15x16 15 16 // 𧶋
+// ⿰ han-8c9d han-2652e // ⿰貝𦔮
 
 // glyph han-27d8f:15x16 15 16 // 𧶏
 // ⿳ han-4e0d han-53e3 han-8c9d // ⿳不口貝

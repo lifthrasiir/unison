@@ -196,8 +196,8 @@ glyph han-4a5a-($han-regions):15x16 15 16 // 䩚
 glyph han-4a5c:15x16 15 16 // 䩜
 ⿰ han-9769:7x16 1 han-7531:7x16 // ⿰革由
 
-// glyph han-4a5d-($han-regions):15x16 15 16 // 䩝
-// ⿰ han-9769 han-74dc-($-1) // ⿰革瓜
+glyph han-4a5d-($han-regions):15x16 15 16 // 䩝
+⿰ han-9769:5x16 1 han-74dc-($-1):9x16 // ⿰革瓜
 
 glyph han-4a5e:15x16 15 16 // 䩞
 ⿰ han-9769:7x16 1 han-5360:7x16 // ⿰革占
@@ -268,8 +268,10 @@ glyph han-4a7b:15x16 15 16 // 䩻
 // glyph han-4a90:15x16 15 16 // 䪐
 // ⿰ han-97cb han-5fc5 // ⿰韋必
 
-// glyph han-4a92:15x16 15 16 // 䪒
-// ⿰ han-97cb han-4e3b // ⿰韋主
+glyph han-4a92-(g|t|p):15x16 15 16 // 䪒
+⿰ han-97cb.2:7x16 1 han-4e3b.0:7x16 // ⿰韋主
+glyph han-4a92-j:15x16 15 16 // 䪒
+⿰ han-97cb.0:7x16 1 han-4e3b.1:7x16 // ⿰韋主
 
 glyph han-4a93-($han-regions):15x16 15 16 // 䪓
 ⿰ han-97cb-($-1):9x16 1 han-5360:5x16 // ⿰韋占
@@ -715,8 +717,8 @@ glyph han-4b7a:15x16 15 16 // 䭺
 glyph han-4b7b-($han-regions):15x16 15 16 // 䭻
 ⿰ han-99ac:8x16 han-5206-($-1):7x16 // ⿰馬分
 
-// glyph han-4b7d:15x16 15 16 // 䭽
-// ⿰ han-99ac han-725b // ⿰馬牛
+glyph han-4b7d:15x16 15 16 // 䭽
+⿰ han-99ac:9x16 han-725b:6x16 // ⿰馬牛
 
 // glyph han-4b7e:15x16 15 16 // 䭾
 // ⿰ han-99ac han-72ac // ⿰馬犬
@@ -850,8 +852,8 @@ glyph han-4bcd-($han-regions):15x16 15 16 // 䯍
 
 ## 188.6
 
-// glyph han-4bcf:15x16 15 16 // 䯏
-// ⿰ han-9aa8 han-820c // ⿰骨舌
+glyph han-4bcf-($han-regions):15x16 15 16 // 䯏
+⿰ han-9aa8-($-1):7x16 1 han-820c.0:7x16 // ⿰骨舌
 
 // glyph han-4bd0:15x16 15 16 // 䯐
 // ⿰ han-9aa8 han-8089 // ⿰骨肉
@@ -1017,8 +1019,8 @@ glyph han-4c41-(t|j|p):15x16 15 16 // 䱁
 glyph han-4c43:15x16 15 16 // 䱃
 ⿰ han-9b5a:7x16 1 han-5931:7x16 // ⿰魚失
 
-// glyph han-4c44-($han-regions):15x16 15 16 // 䱄
-// ⿰ han-9b5a han-74dc-($-1) // ⿰魚瓜
+glyph han-4c44:15x16 15 16 // 䱄
+⿰ han-9b5a:5x16 1 han-74dc.4:9x16 // ⿰魚瓜
 
 glyph han-4c45:15x16 15 16 // 䱅
 ⿰ han-9b5a:7x16 1 han-672b:7x16 // ⿰魚末
@@ -1254,6 +1256,9 @@ glyph han-4ccf:15x16 15 16 // 䳏
 // ⿰ han-6709 han-9ce5 // ⿰有鳥
 
 ## 196.7
+
+// glyph han-4cd6:15x16 15 16 // 䳖
+// ⿰ han-9ce5 han-2652e // ⿰鳥𦔮
 
 // glyph han-4cda:15x16 15 16 // 䳚
 // ⿰ han-65f1 han-9ce5 // ⿰旱鳥

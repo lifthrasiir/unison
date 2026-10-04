@@ -2,8 +2,10 @@
 
 ## 97.5
 
-// glyph han-3f0b-($han-regions):15x16 15 16 // 㼋
-// ⿰ han-53e4 han-74dc-($-1) // ⿰古瓜
+glyph han-3f0b-($han-regions):15x16 15 16 // 㼋
+⿰ han-53e4:5x16 1 han-74dc-($-1):9x16 // ⿰古瓜
+glyph han-3f0b.0:* = han-3f0b-j:*
+glyph han-3f0b.1:* = han-3f0b-g:*
 
 // glyph han-3f0c-($han-regions):15x16 15 16 // 㼌
 // ⿰ han-74dc-($-1) han-74dc-($-1) // ⿰瓜瓜

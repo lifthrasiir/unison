@@ -360,6 +360,9 @@ glyph han-6c59.0:* = han-6c59:*
 // glyph han-6c5a:15x16 15 16 // 汚
 // ⿰ han-6c35 han-4e90 // ⿰氵亐
 
+// glyph han-6c5b:15x16 15 16 // 汛 ⿰氵卂(GHV) ⿰氵⿹⺄十(T) ⿰氵⿹⺄𠂇(JK) ⿰氵⿻⿹⺄丿丶(P)
+// ⿰ han-6c35 han-5342 // ⿰氵卂
+
 glyph han-6c5c:15x16 15 16 // 汜
 ⿰ han-6c35:5x15 1 han-5df3:9x16 // ⿰氵巳
 glyph han-6c5c.0:* = han-6c5c:*
@@ -550,6 +553,9 @@ glyph han-6c86.0:* = han-6c86:*
 
 // glyph han-6c89:15x16 15 16 // 沉
 // ⿰ han-6c35 han-5197 // ⿰氵冗
+
+// glyph han-6c8b:15x16 15 16 // 沋
+// ⿰ han-6c35 han-5c24 // ⿰氵尤
 
 glyph han-6c8e-($han-regions):15x16 15 16 // 沎 ⿰氵化(GHT) ⿰氵⿰亻𠤎(K)
 ⿰ han-6c35:3x12 han-5316-($-1):12x16 // ⿰氵化
@@ -1300,6 +1306,9 @@ glyph han-6ddc:15x16 15 16 // 淜
 glyph han-6ddd:15x16 15 16 // 淝
 ⿲ han-6c35:3x12 han-6708:6x16 1 han-5df4:5x16 // ⿲氵月巴
 glyph han-6ddd.0:* = han-6ddd:*
+
+// glyph han-6de0:15x16 15 16 // 淠
+// ⿰ han-6c35 han-7540 // ⿰氵畀
 
 glyph han-6de1:15x12 15 12 // 淡
 ⿰ han-6c35:5x12 1 han-708e:9x12 // ⿰氵炎

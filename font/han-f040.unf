@@ -196,6 +196,11 @@ glyph han-2d549:15x16 15 16 // 𭕉
 // glyph han-2d54e:15x16 15 16 // 𭕎
 // ⿺ han-5140 han-7530 // ⿺兀田
 
+## 43.11
+
+// glyph han-2d553:15x16 15 16 // 𭕓
+// ⿰ han-7557 han-5c24 // ⿰畗尤
+
 # CJK unified ideographs extension F: 尸 (44)
 
 ## 44.2
@@ -424,6 +429,9 @@ glyph han-2d5bd:15x16 15 16 // 𭖽
 
 // glyph han-2d5cb:15x16 15 16 // 𭗋
 // ⿰ han-5c71 han-96c0 // ⿰山雀
+
+// glyph han-2d5cc-($han-regions):15x16 15 16 // 𭗌
+// ⿱ han-5c71 han-751c-($-1) // ⿱山甜
 
 // glyph han-2d5cd:15x16 15 16 // 𭗍
 // ⿳ han-5c71 han-7acb han-65e9 // ⿳山立早 <- ⿱山章
@@ -659,6 +667,9 @@ glyph han-2d652:15x16 15 16 // 𭙒
 ⿸ han-5e7f:15x16.11x13 han-5b50.0:9x10 5 5 // ⿸广子
 
 ## 53.4
+
+// glyph han-2d653:15x16 15 16 // 𭙓
+// ⿸ han-5e7f han-5c24 // ⿸广尤
 
 // glyph han-2d654:15x16 15 16 // 𭙔
 // ⿸ han-5e7f han-6bb3 // ⿸广殳
@@ -1079,6 +1090,9 @@ glyph han-2d77e:15x16 15 16 // 𭝾
 // ⿰ han-5fc4 han-22663 // ⿰忄𢙣
 
 ## 61.11
+
+// glyph han-2d78d-($han-regions):15x16 15 16 // 𭞍
+// ⿱ han-751b-($-1) han-5fc3 // ⿱甛心
 
 glyph han-2d793:15x16 15 16 // 𭞓
 ⿱ han-63a8:15x9 han-5fc3:15x7 // ⿱推心

@@ -360,6 +360,9 @@ glyph han-26060.0:* = han-26060:*
 // glyph han-26062:15x16 15 16 // 𦁢
 // ⿰ han-7cf9 han-9577 // ⿰糹長
 
+// glyph han-26063-($han-regions):15x16 15 16 // 𦁣
+// ⿰ han-7cf9-($-1) han-5b64-($-1) // ⿰糹孤
+
 // glyph han-26066:15x16 15 16 // 𦁦
 // ⿰ han-7cf9 han-5e97 // ⿰糹店
 

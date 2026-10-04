@@ -106,6 +106,9 @@ glyph han-29d59:15x16 15 16 // 𩵙
 glyph han-29d5a:15x16 15 16 // 𩵚
 ⿰ han-9b5a:7x16 1 han-571f:7x16 // ⿰魚土
 
+// glyph han-29d5b:15x16 15 16 // 𩵛
+// ⿺ han-5c22 han-9b5a // ⿺尢魚
+
 // glyph han-29d5d:15x16 15 16 // 𩵝
 // ⿰ han-9b5a han-624d // ⿰魚才
 
@@ -120,8 +123,8 @@ glyph han-29db7:15x16 15 16 // 𩶷
 
 ## 195.4
 
-// glyph han-29d60:15x16 15 16 // 𩵠
-// ⿰ han-9b5a han-725b // ⿰魚牛
+glyph han-29d60:15x16 15 16 // 𩵠
+⿰ han-9b5a:7x16 han-725b:8x16 // ⿰魚牛
 
 glyph han-29d62:15x16 15 16 // 𩵢
 ⿰ han-9b5a:7x16 1 han-6b20:7x16 // ⿰魚欠
@@ -464,6 +467,9 @@ glyph han-29e26:15x16 15 16 // 𩸦
 
 glyph han-29e2c:15x16 15 16 // 𩸬
 ⿰ han-9b5a:7x16 1 han-5485:7x16 // ⿰魚咅
+
+// glyph han-29e30-($han-regions):15x16 15 16 // 𩸰
+// ⿰ han-9b5a han-5b64-($-1) // ⿰魚孤
 
 // glyph han-29e31:15x16 15 16 // 𩸱
 // ⿰ han-9b5a han-91d1 // ⿰魚金

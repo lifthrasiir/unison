@@ -232,6 +232,9 @@ glyph han-69c1.3:* = han-69c1.1:*
 // glyph han-69d4:15x16 15 16 // 槔
 // ⿰ han-6728 han-768b // ⿰木皋
 
+// glyph han-69de:15x16 15 16 // 槞
+// ⿰ han-6728 han-7adc // ⿰木竜
+
 glyph han-69e0:15x16 15 16 // 槠
 ⿲ han-6728:5x16 han-8ba0:3x14 han-8005-g:7x16 // ⿲木讠者
 

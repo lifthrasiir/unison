@@ -317,7 +317,7 @@ glyph han-22646:15x16 15 16 // 𢙆
 // ⿰ han-5fc4 han-8863 // ⿰忄衣
 
 glyph han-22648:15x16 15 16 // 𢙈
-⿱ han-5fc3:15x7 1 han-5405:15x7 // ⿱心吅
+⿱ han-5fc3:15x7 1 han-5405:15x8 // ⿱心吅
 
 glyph han-2264a:15x16 15 16 // 𢙊
 ⿲ han-5fc4:5x16 han-51ab:3x12 han-6b20:7x16 // ⿲忄冫欠
@@ -836,6 +836,9 @@ glyph han-22837:15x16 15 16 // 𢠷
 
 glyph han-22839:15x16 15 16 // 𢠹
 ⿲ -1 han-5fc4:5x16 han-5176:6x16 han-65a4:5x16 // ⿲忄其斤
+
+// glyph han-2283e-($han-regions):15x16 15 16 // 𢠾
+// ⿱ han-269d7-($-1) han-5fc3 // ⿱𦧗心
 
 // glyph han-22840:15x16 15 16 // 𢡀
 // ⿰ han-5fc4 han-9ed1 // ⿰忄黑

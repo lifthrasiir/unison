@@ -889,8 +889,8 @@ glyph han-2e761:15x16 15 16 // 𮝡
 
 ## 159'.5
 
-// glyph han-2e774-($han-regions):15x16 15 16 // 𮝴
-// ⿰ han-8f66 han-74dc-($-1) // ⿰车瓜
+glyph han-2e774:15x16 15 16 // 𮝴
+⿰ han-8f66:6x16-l han-74dc-g:9x16 // ⿰车瓜
 
 ## 159'.6
 

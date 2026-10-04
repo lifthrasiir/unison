@@ -629,6 +629,10 @@ glyph han-7adb-($han-regions):15x16 15 16 // 竛
 assume ⿰ han-7acb:7x16 -1 han-4ee4-($-1):9x16 // ⿰立令
 glyph han-7adb.0:* = han-7adb-j:*
 
+glyph han-7adc:15x16 15 16 // 竜
+⿱ han-7acb:15x6 1 han-7535.x:13x9 // ⿱立电
+glyph han-7adc.0:* = han-7adc:*
+
 glyph han-7add:15x7 15 7 // 竝
 ⿰ han-7acb:7x7 1 han-7acb:7x7 // ⿰立立
 glyph han-7add:15x8 15 8 // 竝
@@ -1121,6 +1125,9 @@ glyph han-7b96.0:* = han-7b96:*
 // glyph han-7b9a:15x16 15 16 // 箚
 // ⿱ han-25ad7 han-34e3 // ⿱𥫗㓣
 
+// glyph han-7b9b-($han-regions):15x16 15 16 // 箛
+// ⿱ han-25ad7 han-5b64-($-1) // ⿱𥫗孤
+
 // glyph han-7b9c:15x16 15 16 // 箜
 // ⿱ han-25ad7 han-7a7a // ⿱𥫗空
 
@@ -1250,6 +1257,9 @@ glyph han-7be5.0:* = han-7be5:*
 
 // glyph han-7beb:15x16 15 16 // 篫
 // ⿳ han-25ad7 han-5de9 han-624b // ⿳𥫗巩手
+
+// glyph han-7bed:15x16 15 16 // 篭
+// ⿱ han-25ad7 han-7adc // ⿱𥫗竜
 
 // glyph han-7c15:15x16 15 16 // 簕
 // ⿱ han-25ad7 han-52d2 // ⿱𥫗勒
@@ -1527,6 +1537,11 @@ glyph han-7c76:15x16 15 16 // 籶
 // glyph han-5a04:15x16 15 16 // 娄
 // ⿱ han-7c73 han-5973 // ⿱米女
 
+glyph han-7c78-(g|h|t|p):15x16 15 16 // 籸
+⿰ han-7c73:5x16 han-5342:10x16 // ⿰米卂
+glyph han-7c78-(j|k):15x16 15 16 // 籸
+⿰ han-7c73:5x16 han-5342:10x16-r // ⿰米卂
+
 glyph han-7c79:15x16 15 16 // 籹
 ⿰ han-7c73:7x16 1 han-5973:7x16 // ⿰米女
 glyph han-7c79.0:* = han-7c79:*
@@ -1742,7 +1757,7 @@ glyph han-7ca8.0:* = han-7ca8:*
 // ⿱ han-7c73 han-5171 // ⿱米共
 
 glyph han-7cab:15x16 15 16 // 粫
-⿰ han-7c73:5x16 1 han-800c:9x16 // ⿰米而
+assume ⿰ han-7c73:7x16 -1 han-800c:9x16 // ⿰米而
 glyph han-7cab.0:* = han-7cab:*
 
 // glyph han-7cac:15x16 15 16 // 粬

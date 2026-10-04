@@ -257,6 +257,9 @@ glyph han-23d06:15x16 15 16 // 𣴆
 // glyph han-23d12:15x16 15 16 // 𣴒
 // ⿰ han-6c35 han-5c16 // ⿰氵尖
 
+// glyph han-23d13:15x16 15 16 // 𣴓
+// ⿰ han-6c35 han-4ef6 // ⿰氵件
+
 // glyph han-23d14:15x16 15 16 // 𣴔
 // ⿰ han-6c35 han-221db // ⿰氵𢇛
 
@@ -593,6 +596,9 @@ glyph han-23e71:15x16 15 16 // 𣹱
 
 // glyph han-23e74:15x16 15 16 // 𣹴
 // ⿰ han-6c35 han-771a // ⿰氵眚
+
+// glyph han-23e75:15x16 15 16 // 𣹵
+// ⿰ han-6c35 han-21ddd // ⿰氵𡷝
 
 glyph han-23e7b:15x16 15 16 // 𣹻
 ⿳ -2 han-767d:11x6 han-767d:11x6 han-6c34:15x6 // ⿳白白水

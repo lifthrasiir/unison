@@ -203,6 +203,9 @@ glyph han-26e06-g:15x16 15 16 // 𦸆
 glyph han-26e06-(t|j):15x16 15 16 // 𦸆
 ⿳ -2 han-8279.2:15x3 han-5df1:13x5 han-5176:15x10 // ⿳艹己其
 
+// glyph han-26e09-($han-regions):15x16 15 16 // 𦸉
+// ⿱ han-8279-($-1) han-24af6-($-1) // ⿱艹𤫶
+
 // glyph han-26e0a:15x16 15 16 // 𦸊 ⿱艹⿱䙲巳(G) ⿱艹䙴(T) ⿱艹⿱䙲㔾(P)
 // ⿳ han-8279 han-4672 han-5df3 // ⿳艹䙲巳
 

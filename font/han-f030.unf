@@ -224,6 +224,9 @@ glyph han-2d223:15x16 15 16 // 𭈣
 // glyph han-2d225:15x16 15 16 // 𭈥
 // ⿰ han-53e3 han-95f9 // ⿰口闹
 
+// glyph han-2d226-($han-regions):15x16 15 16 // 𭈦
+// ⿰ han-53e3 han-5b64-($-1) // ⿰口孤
+
 // glyph han-2d228:15x16 15 16 // 𭈨
 // ⿰ han-53e9 han-591a // ⿰叩多
 

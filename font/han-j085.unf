@@ -347,8 +347,8 @@ glyph han-32b45:15x16 15 16 // 𲭅
 
 ## 90.5
 
-// glyph han-32b47-($han-regions):15x16 15 16 // 𲭇
-// ⿰ han-723f han-74dc-($-1) // ⿰爿瓜
+glyph han-32b47:15x16 15 16 // 𲭇
+⿰ han-723f:6x16 han-74dc-g:9x16 // ⿰爿瓜
 
 # CJK unified ideographs extension J: 片 (91)
 

@@ -670,8 +670,8 @@ glyph han-2e9f8:15x16 15 16 // 𮧸
 
 ## 180.6
 
-// glyph han-2e9fa:15x16 15 16 // 𮧺
-// ⿰ han-820c han-97f3 // ⿰舌音
+glyph han-2e9fa:15x16 15 16 // 𮧺
+⿰ han-820c-j:7x16 1 han-97f3:7x16 // ⿰舌音
 
 ## 180.13
 

@@ -12,8 +12,8 @@ assume ⿰ han-820c-v:9x16 -1 han-8a00.x:7x16 // ⿰舌言
 
 ## 135.8
 
-// glyph han-2c708:15x16 15 16 // 𬜈
-// ⿰ han-820c han-5352 // ⿰舌卒
+glyph han-2c708:15x16 15 16 // 𬜈
+⿰ han-820c.0:7x16 1 han-5352:7x16 // ⿰舌卒
 
 ## 135.9
 
@@ -253,6 +253,9 @@ glyph han-2c779:15x16 15 16 // 𬝹
 
 // glyph han-2c790:15x16 15 16 // 𬞐
 // ⿱ han-8279 han-8dd2 // ⿱艹跒
+
+// glyph han-2c793-($han-regions):15x16 15 16 // 𬞓 ⿰萑尤(G) ⿰雈尤(Z)
+// ⿰ han-8411-($-1) han-5c24 // ⿰萑尤
 
 // glyph han-2c796-($han-regions):15x16 15 16 // 𬞖
 // ⿱ han-8279 han-8a55-($-1) // ⿱艹評
@@ -499,6 +502,11 @@ glyph han-2c868:15x16 15 16 // 𬡨
 // ⿰ han-8864-($-1) han-52d5 // ⿰衤動
 
 # CJK unified ideographs extension E: 襾 (146)
+
+## 146.4
+
+// glyph han-2c878:15x16 15 16 // 𬡸
+// ⿺ han-5c24 han-8980 // ⿺尤覀
 
 ## 146.7
 

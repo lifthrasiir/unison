@@ -209,8 +209,8 @@ glyph han-30027:15x16 15 16 // 𰀧
 
 ## 3.9
 
-// glyph han-30029:15x16 15 16 // 𰀩
-// ⿰ han-4e3b han-4e3b // ⿰主主
+glyph han-30029:15x16 15 16 // 𰀩
+⿰ han-4e3b:7x16-l 1 han-4e3b:7x16 // ⿰主主
 
 # CJK unified ideographs extension G: 丿 (4)
 
@@ -913,6 +913,9 @@ glyph han-30198:15x16 15 16 // 𰆘
 
 // glyph han-301a1:15x16 15 16 // 𰆡
 // ⿸ han-5382 han-3c2a // ⿸厂㰪
+
+// glyph han-301a5:15x16 15 16 // 𰆥 ⿸厂⿱立电(G) ⿸厂竜(Z)
+// ⿸ han-5382 han-7adc // ⿸厂竜
 
 # CJK unified ideographs extension G: 厶 (28)
 

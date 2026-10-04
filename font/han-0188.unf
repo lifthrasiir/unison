@@ -939,6 +939,9 @@ glyph han-9b75.3:15x16 15 16 // 魵
 // glyph han-9b76:15x16 15 16 // 魶 ⿰魚内(G) ⿰魚內(HTJKP)
 // ⿰ han-9b5a han-5185 // ⿰魚内
 
+// glyph han-9b77:15x16 15 16 // 魷
+// ⿰ han-9b5a han-5c24 // ⿰魚尤
+
 glyph han-9b78:15x16 15 16 // 魸
 ⿰ han-9b5a:7x16 han-7247.0:8x16 // ⿰魚片
 glyph han-9b78.0:* = han-9b78:*
@@ -1182,6 +1185,9 @@ glyph han-9bb9-(g|h|t):* = han-9bb9.1:*
 glyph han-9bbb:15x16 15 16 // 鮻
 ⿰ han-9b5a:7x16 1 han-590b:7x16 // ⿰魚夋
 glyph han-9bbb.0:* = han-9bbb:*
+
+// glyph han-9bbf:15x16 15 16 // 鮿
+// ⿰ han-9b5a han-2652e // ⿰魚𦔮
 
 glyph han-9bc2:15x16 15 16 // 鯂
 ⿰ han-9b5a:7x16 1 han-9149:7x16 // ⿰魚酉
@@ -1562,6 +1568,9 @@ glyph han-9c7e:15x16 15 16 // 鱾
 ⿰ han-9c7c:7x16-l 1 han-5df1:7x16 // ⿰鱼己
 
 ## 195'.4
+
+// glyph han-9c7f:15x16 15 16 // 鱿
+// ⿰ han-9c7c han-5c24 // ⿰鱼尤
 
 // glyph han-9c81:15x16 15 16 // 鲁
 // ⿱ han-9c7c han-65e5 // ⿱鱼日

@@ -190,6 +190,9 @@ assume ⿱ han-25ad7:13x5 -1 han-4e18:15x12 // ⿱𥫗丘
 
 ## 118.6
 
+// glyph han-25b2c:15x16 15 16 // 𥬬
+// ⿱ han-25ad7 han-5e07 // ⿱𥫗帇
+
 glyph han-25b2e:15x16 15 16 // 𥬮
 ⿱ han-25ad7:13x5 han-6c5f:15x11 // ⿱𥫗江
 
@@ -258,8 +261,10 @@ glyph han-25b45:15x16 15 16 // 𥭅
 // glyph han-25b56-($han-regions):15x16 15 16 // 𥭖
 // ⿱ han-25ad7 han-8091-($-1) // ⿱𥫗肑
 
-// glyph han-25b59:15x16 15 16 // 𥭙 ⿱𥫗𦔮(GT) ⿱𥫗耴(P)
-// ⿱ han-25ad7 han-8034 // ⿱𥫗耴
+glyph han-25b59-(g|t):15x16 15 16 // 𥭙
+⿱ han-25ad7:13x5 han-2652e:15x11 // ⿱𥫗𦔮
+glyph han-25b59-(j|p):15x16 15 16 // 𥭙
+⿱ han-25ad7:13x5 han-8034.0:15x11 // ⿱𥫗耴
 
 glyph han-25b5a-($han-regions):15x16 15 16 // 𥭚
 ⿳ han-25ad7:13x5 -1 han-4ea1-($-1):15x6 1 han-53e3:11x5 // ⿳𥫗亡口
@@ -378,6 +383,9 @@ glyph han-25b85:15x16 15 16 // 𥮅
 
 glyph han-25baf:15x16 15 16 // 𥮯
 ⿳ -5 han-25ad7:13x5 han-4ed8:15x11 han-5927:15x5 // ⿳𥫗付大
+
+// glyph han-25bb0-($han-regions):15x16 15 16 // 𥮰
+// ⿱ han-25ad7 han-5f27-($-1) // ⿱𥫗弧
 
 // glyph han-25bb2:15x16 15 16 // 𥮲
 // ⿱ han-25ad7 han-9577 // ⿱𥫗長

@@ -7,6 +7,9 @@ glyph han-27bab:15x16 15 16 // 𧮫
 
 ## 150.3
 
+// glyph han-27bac:15x16 15 16 // 𧮬 ⿰谷卂(G) ⿰谷⿹⺄十(T)
+// ⿰ han-8c37 han-5342 // ⿰谷卂
+
 // glyph han-27bad-($han-regions):15x16 15 16 // 𧮭 ⿰谷{20}(GT) ⿰谷丸(UCS2003)
 // ⿰ han-8c37 han-4e38-($-1) // ⿰谷丸
 
@@ -46,6 +49,9 @@ glyph han-27bb4:15x16 15 16 // 𧮴
 // ⿰ han-8c37 han-820d // ⿰谷舍
 
 ## 150.10
+
+// glyph han-27bc7:15x16 15 16 // 𧯇
+// ⿰ han-8c37 han-7adc // ⿰谷竜
 
 // glyph han-27bc8:15x16 15 16 // 𧯈
 // ⿰ han-8c37 han-21b74 // ⿰谷𡭴

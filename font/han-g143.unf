@@ -188,6 +188,9 @@ glyph han-30d4b:15x16 15 16 // 𰵋
 
 ## 149'.4
 
+// glyph han-30d4e:15x16 15 16 // 𰵎
+// ⿰ han-8ba0 han-5c24 // ⿰讠尤
+
 // glyph han-30d4f:15x16 15 16 // 𰵏
 // ⿰ han-8ba0 han-5c11 // ⿰讠少
 
@@ -1079,6 +1082,9 @@ glyph han-30f7d:15x16 15 16 // 𰽽
 
 // glyph han-30f7e:15x16 15 16 // 𰽾
 // ⿰ han-9485 han-8fc7 // ⿰钅过
+
+// glyph han-30f7f:15x16 15 16 // 𰽿
+// ⿰ han-9485 han-2652e // ⿰钅𦔮
 
 // glyph han-30f81:15x16 15 16 // 𰾁
 // ⿰ han-9485 han-6c5e // ⿰钅汞

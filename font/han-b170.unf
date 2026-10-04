@@ -48,8 +48,8 @@ glyph han-28e1d:15x16 15 16 // 𨸝
 // glyph han-28e20:15x16 15 16 // 𨸠
 // ⿰ han-961d han-652f // ⿰阝支
 
-// glyph han-28e21:15x16 15 16 // 𨸡
-// ⿰ han-961d han-725b // ⿰阝牛
+glyph han-28e21:15x16 15 16 // 𨸡
+⿰ han-961d:5x14-l 2 han-725b:8x16 // ⿰阝牛
 
 glyph han-28e22:15x16 15 16 // 𨸢
 ⿰ han-961d:5x14-l 1 han-65a4:9x16 // ⿰阝斤
@@ -74,8 +74,8 @@ glyph han-28e2c:15x16 15 16 // 𨸬
 glyph han-28e2d:15x16 15 16 // 𨸭
 ⿰ han-961d:5x14-l 1 han-53f5:9x16 // ⿰阝叵
 
-// glyph han-28e2f-($han-regions):15x16 15 16 // 𨸯
-// ⿰ han-961d han-74dc-($-1) // ⿰阝瓜
+glyph han-28e2f-($han-regions):15x16 15 16 // 𨸯
+⿰ han-961d:5x14-l 1 han-74dc-($-1):9x16 // ⿰阝瓜
 
 // glyph han-28e30:15x16 15 16 // 𨸰
 // ⿰ han-961d han-5c3b // ⿰阝尻
@@ -217,6 +217,9 @@ glyph han-28eb9:15x16 15 16 // 𨺹
 // glyph han-28ee2:15x16 15 16 // 𨻢
 // ⿰ han-961d han-43a1 // ⿰阝䎡
 
+// glyph han-28eeb:15x16 15 16 // 𨻫
+// ⿰ han-961d han-7adc // ⿰阝竜
+
 ## 170.11
 
 // glyph han-28ef1:15x16 15 16 // 𨻱
@@ -309,6 +312,9 @@ glyph han-28f8b:15x16 15 16 // 𨾋
 // glyph han-28f8e:15x16 15 16 // 𨾎
 // ⿺ han-5928 han-96b9 // ⿺夨隹
 
+// glyph han-28f91:15x16 15 16 // 𨾑 ⿰⿹⺄十隹(T) ⿰卂隹(Z) ⿰{10}隹(UCS2003)
+// ⿰ han-5342 han-96b9 // ⿰卂隹
+
 ## 172.4
 
 glyph han-28f92:15x16 15 16 // 𨾒
@@ -361,8 +367,10 @@ glyph han-28fa6-($han-regions):15x16 15 16 // 𨾦
 glyph han-28fa7:15x16 15 16 // 𨾧
 ⿰ han-6c11:8x16 han-96b9:7x16 // ⿰民隹
 
-// glyph han-28fa8:15x16 15 16 // 𨾨
-// ⿰ han-4e3b han-96b9 // ⿰主隹
+glyph han-28fa8-(g|t):15x16 15 16 // 𨾨
+⿰ han-4e3b:7x16-l 1 han-96b9:7x16 // ⿰主隹
+glyph han-28fa8-j:15x16 15 16 // 𨾨
+⿰ han-4e3b.1:7x16-l 1 han-96b9:7x16 // ⿰主隹
 
 glyph han-28faa:15x16 15 16 // 𨾪
 ⿲ han-4ebb:3x16 han-5bf8:5x16 han-96b9:7x16 // ⿲亻寸隹
