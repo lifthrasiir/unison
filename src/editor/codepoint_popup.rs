@@ -197,6 +197,24 @@ impl CodepointPopup {
         Self::seeded(one.or_else(|| prediction.predicted()))
     }
 
+    /// Steps the code point the digits name by `delta`, which is what a wheel
+    /// over the popup's host does. The surrogates are stepped over and the ends
+    /// of the code space hold, so a step always lands on a character; digits
+    /// that were out of range step from where they were, and an empty field has
+    /// nothing to step. The result is selected, as a seeded guess is, so
+    /// typing still replaces it.
+    pub(crate) fn step(&mut self, delta: i32) {
+        let Ok(value) = u32::from_str_radix(&self.hex, 16) else {
+            return;
+        };
+        let mut cp = (i64::from(value) + i64::from(delta)).clamp(0, 0x10FFFF);
+        if (0xD800..=0xDFFF).contains(&cp) {
+            cp = if delta > 0 { 0xE000 } else { 0xD7FF };
+        }
+        self.hex = format!("{cp:04X}");
+        self.focus_set = false;
+    }
+
     /// The character the digits currently name, if they name one.
     pub(crate) fn character(&self) -> Option<char> {
         validate_hex_codepoint(&self.hex)
@@ -409,6 +427,26 @@ mod tests {
         assert_eq!(CodepointPopup::seeded(Some('\u{41}')).hex, "0041");
         assert_eq!(CodepointPopup::seeded(Some('\u{1F600}')).hex, "1F600");
         assert_eq!(CodepointPopup::seeded(None).hex, "");
+    }
+
+    /// Stepping walks code points: over the surrogates, never below zero or
+    /// past the end, and not at all from an empty field.
+    #[test]
+    fn stepping_skips_the_surrogates_and_stays_in_range() {
+        let stepped = |hex: &str, delta: i32| {
+            let mut p = with_hex(hex);
+            p.step(delta);
+            p.hex
+        };
+        assert_eq!(stepped("41", 1), "0042");
+        assert_eq!(stepped("D7FF", 1), "E000");
+        assert_eq!(stepped("E000", -1), "D7FF");
+        assert_eq!(stepped("D900", 1), "E000");
+        assert_eq!(stepped("D900", -1), "D7FF");
+        assert_eq!(stepped("0", -1), "0000");
+        assert_eq!(stepped("10FFFF", 1), "10FFFF");
+        assert_eq!(stepped("FFFFFF", -1), "10FFFF");
+        assert_eq!(stepped("", 1), "");
     }
 
     /// The two ways the next code point is not one: the last one before the

@@ -49,6 +49,11 @@
 //! (`lock_focus`, harmless on one line), and Escape drops the focus outright —
 //! which is why dismissing hands it back explicitly.
 //!
+//! # The wheel
+//!
+//! While the palette is open a plain wheel walks its rows, wherever the
+//! pointer is, rather than scrolling whatever is under it ([`palette_wheel`]).
+//!
 //! # Where the keyboard goes back to
 //!
 //! Opening records the widget that held the keyboard ([`PaletteState`]'s
@@ -68,6 +73,7 @@ use super::commands::{Command, CommandCx};
 use super::menus::{EditTarget, MenuActions};
 use super::*;
 use crate::editor::codepoint_popup::{FieldFrame, FieldOutcome, resolve_field, restore_host_focus};
+use crate::editor::document_view::{debounced_scroll_step, swallow_wheel_delta};
 use crate::editor::list_popup::{
     ListMove, ListNav, TypedListKey, read_typed_list_key, show_window,
 };
@@ -431,6 +437,22 @@ fn take_list_keys(ctx: &egui::Context) {
     });
 }
 
+/// Whether this frame carries a plain wheel notch. While the palette is open
+/// it is the palette's wherever the pointer is: the palette is the one thing
+/// the window is waiting on, and down walks its rows down. Alt + wheel is the
+/// editor's number gesture and Ctrl/Cmd + wheel the zoom, so those are left
+/// alone.
+fn palette_wheel(ctx: &egui::Context) -> bool {
+    ctx.input(|i| {
+        !i.modifiers.alt
+            && !i.modifiers.command
+            && !i.modifiers.ctrl
+            && i.events
+                .iter()
+                .any(|e| matches!(e, egui::Event::MouseWheel { .. }))
+    })
+}
+
 /// One row: its kind letter and text on the left, what it adds on the right.
 fn palette_row(
     ui: &mut egui::Ui,
@@ -544,9 +566,21 @@ impl UniformApp {
             // one the next keystroke arrives in.
             ctx.request_repaint();
         }
+        // Anything left of a notch the palette took drains here, after it has
+        // closed too, before any scroll area below gets to read it.
+        let claimed = self.palette.is_some() && palette_wheel(ctx);
+        swallow_wheel_delta(ctx, egui::Id::new("uniform_palette_wheel"), claimed);
         let palette = self.palette.as_mut()?;
 
         let (selected, len) = (palette.nav.selected, palette.rows.len());
+        if claimed && let Some(step) = debounced_scroll_step(ctx) {
+            let walk = if step < 0 {
+                ListMove::Prev
+            } else {
+                ListMove::Next
+            };
+            palette.nav.step(walk, len);
+        }
         match ctx.input(|i| read_typed_list_key(i, selected, len)) {
             None | Some(TypedListKey::Move(ListMove::Sideways)) => {}
             Some(key) => {

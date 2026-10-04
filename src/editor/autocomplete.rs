@@ -156,6 +156,20 @@ fn move_selection(ac: &mut AutocompleteState, to: usize) {
     ac.navigated = true;
 }
 
+/// Applies one step of a walk of the listing, from a key or a wheel notch.
+pub(crate) fn walk(ac: &mut AutocompleteState, step: ListMove) {
+    let (selected, len) = (ac.nav.selected, ac.candidates.len());
+    match step {
+        ListMove::Sideways => {}
+        ListMove::To(to) => move_selection(ac, to),
+        // A step off either end moves nothing, and so walks nothing: the next
+        // character still continues what is written.
+        ListMove::Prev if selected > 0 => move_selection(ac, selected - 1),
+        ListMove::Next if selected + 1 < len => move_selection(ac, selected + 1),
+        ListMove::Prev | ListMove::Next => {}
+    }
+}
+
 pub(crate) fn update_after_edit(lines: &[DocLine], state: &mut super::EditorState) {
     let ac = match &state.autocomplete {
         Some(ac) => ac,
@@ -252,16 +266,7 @@ pub(crate) fn handle_keys(
         // caret sits at the end of, so a step off it would only dismiss the
         // popup or re-filter against half a name.
         Some(TypedListKey::Move(step)) => {
-            let ac = state.autocomplete.as_mut().expect("checked above");
-            match step {
-                ListMove::Sideways => {}
-                ListMove::To(to) => move_selection(ac, to),
-                // A step off either end moves nothing, and so walks nothing:
-                // the next character still continues what is written.
-                ListMove::Prev if selected > 0 => move_selection(ac, selected - 1),
-                ListMove::Next if selected + 1 < len => move_selection(ac, selected + 1),
-                ListMove::Prev | ListMove::Next => {}
-            }
+            walk(state.autocomplete.as_mut().expect("checked above"), step);
             return HandleResult::Consumed;
         }
         Some(TypedListKey::Accept) => {

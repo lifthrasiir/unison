@@ -29,14 +29,8 @@ fn wheel_over_the_grid_rotates_the_selected_shape() {
     assert_eq!(start.shape_id(), crate::pixel::PX_HALF1);
     let start_rotation = h.state.shape_rotation;
 
-    eprintln!("pos now = {:?}", h.grid_cell_pos(1, 0, 1));
-    for i in 0..3 {
+    for _ in 0..3 {
         h.frame();
-        eprintln!(
-            "pos after {} frames = {:?}",
-            i + 1,
-            h.grid_cell_pos(1, 0, 1)
-        );
     }
     let pos = h.grid_cell_pos(1, 0, 1);
     h.wheel_at_mod(pos, false, Modifiers::NONE);
@@ -56,14 +50,8 @@ fn shift_wheel_picks_another_shape_at_the_same_rotation() {
     let mut h = palette_harness();
     h.key(Key::F);
     h.frame();
-    eprintln!("pos now = {:?}", h.grid_cell_pos(1, 0, 1));
-    for i in 0..3 {
+    for _ in 0..3 {
         h.frame();
-        eprintln!(
-            "pos after {} frames = {:?}",
-            i + 1,
-            h.grid_cell_pos(1, 0, 1)
-        );
     }
     let pos = h.grid_cell_pos(1, 0, 1);
 
@@ -93,14 +81,8 @@ fn the_whole_palette_rotates_with_the_wheel() {
     use crate::editor::glyph_widget::{palette_shapes, rotate_shape};
 
     let mut h = palette_harness();
-    eprintln!("pos now = {:?}", h.grid_cell_pos(1, 0, 1));
-    for i in 0..3 {
+    for _ in 0..3 {
         h.frame();
-        eprintln!(
-            "pos after {} frames = {:?}",
-            i + 1,
-            h.grid_cell_pos(1, 0, 1)
-        );
     }
     let pos = h.grid_cell_pos(1, 0, 1);
     h.wheel_at_mod(pos, false, Modifiers::NONE);
@@ -234,14 +216,8 @@ fn clicking_another_palette_cell_takes_its_own_fill() {
 #[test]
 fn a_shape_shortcut_pulls_the_palette_rotation_with_it() {
     let mut h = palette_harness();
-    eprintln!("pos now = {:?}", h.grid_cell_pos(1, 0, 1));
-    for i in 0..3 {
+    for _ in 0..3 {
         h.frame();
-        eprintln!(
-            "pos after {} frames = {:?}",
-            i + 1,
-            h.grid_cell_pos(1, 0, 1)
-        );
     }
     let pos = h.grid_cell_pos(1, 0, 1);
     h.wheel_at_mod(pos, false, Modifiers::NONE);

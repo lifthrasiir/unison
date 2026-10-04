@@ -475,3 +475,31 @@ fn ctrl_k_without_autocomplete_opens_codepoint_entry() {
 }
 
 // -- visual line <-> logical line reconciliation --------------------------
+
+/// A plain wheel over the editor walks the listing instead of scrolling — down
+/// is the next candidate, up the one before — over the text and over the popup
+/// alike, and it is a walk like any other: typing on continues the selection.
+#[test]
+fn autocomplete_is_walked_with_the_wheel() {
+    let mut h = EditorHarness::new(&ac_doc());
+    h.click_text(5, 4);
+    ctrl_j(&mut h);
+    let selected = |h: &EditorHarness| h.state.autocomplete.as_ref().unwrap().nav.selected;
+    assert_eq!(selected(&h), 0);
+
+    let over_text = h.text_pos(0, 2);
+    h.wheel_at_mod(over_text, false, Modifiers::NONE);
+    assert_eq!(selected(&h), 1);
+    h.wheel_at_mod(over_text, true, Modifiers::NONE);
+    assert_eq!(selected(&h), 0);
+    // Never off the top.
+    h.wheel_at_mod(over_text, true, Modifiers::NONE);
+    assert_eq!(selected(&h), 0);
+
+    let over_popup = h.list_popup_rect().center();
+    h.wheel_at_mod(over_popup, false, Modifiers::NONE);
+    assert_eq!(selected(&h), 1);
+
+    h.type_text("x");
+    assert_eq!(h.text(5), "ref betax");
+}

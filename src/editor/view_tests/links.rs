@@ -636,3 +636,33 @@ fn any_other_key_dismisses_the_goto_choice() {
         "the dismissing key is still the editor's"
     );
 }
+
+/// The wheel walks the goto choice too, and the popup counts as part of the
+/// editor even where it hangs past the editor's edge.
+#[test]
+fn the_goto_choice_is_walked_with_the_wheel() {
+    let names: Vec<String> = (0..15).map(|i| format!("foo-{i}")).collect();
+    let refs: Vec<&str> = names.iter().map(String::as_str).collect();
+
+    let mut h = EditorHarness::new(&link_doc("ref foo-($-1) 0 0"));
+    h.viewport_height = Some(200.0);
+    h.click_text(0, 0);
+    let mut popup = choice_popup(&refs);
+    popup.anchor = egui::pos2(10.0, 150.0);
+    h.state.goto_choice = Some(popup);
+    h.frame();
+
+    h.wheel_at_mod(h.text_pos(0, 2), false, Modifiers::NONE);
+    assert_eq!(selected(&h), 1);
+
+    let rect = h.list_popup_rect();
+    assert!(
+        rect.bottom() > 250.0,
+        "the popup should hang past the editor"
+    );
+    let below_the_editor = egui::pos2(rect.center().x, rect.bottom() - 10.0);
+    h.wheel_at_mod(below_the_editor, false, Modifiers::NONE);
+    assert_eq!(selected(&h), 2);
+    h.wheel_at_mod(below_the_editor, true, Modifiers::NONE);
+    assert_eq!(selected(&h), 1);
+}

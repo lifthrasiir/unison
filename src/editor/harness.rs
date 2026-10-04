@@ -1406,6 +1406,21 @@ impl EditorHarness {
             .expect("popup rect not captured -- was the popup rendered?")
     }
 
+    /// Where the list popup — completion or the goto choice — was last drawn,
+    /// as egui remembers its area.
+    pub fn list_popup_rect(&self) -> egui::Rect {
+        let slot = if self.state.autocomplete.is_some() {
+            Slot::AutocompletePopup
+        } else if self.state.goto_choice.is_some() {
+            Slot::GotoChoicePopup
+        } else {
+            panic!("no list popup is open")
+        };
+        self.ctx
+            .memory(|m| m.area_rect(self.state.key(slot)))
+            .expect("the popup has not been drawn yet")
+    }
+
     /// Screen position of the center of a ref-layer thumbnail in the inline
     /// tools panel (only available once that panel has rendered a frame with
     /// the glyph at `edit_idx` being edited).

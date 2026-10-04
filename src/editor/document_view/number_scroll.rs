@@ -466,35 +466,6 @@ fn rewrite_region(
     }
 }
 
-/// Keeps the wheel away from the scroll area for as long as the gesture's
-/// delta is still arriving. Called every frame, with `claimed` set on the
-/// frames an Alt + wheel notch arrived over this editor — whether it stepped
-/// a number or found none to step.
-///
-/// One notch cannot be swallowed in a single frame: egui pushes a discrete
-/// wheel event into its private `unprocessed_scroll_delta` and drips it into
-/// `smooth_scroll_delta` over the following frames, so zeroing that delta on
-/// the gesture's own frame stops only the first slice of the notch and the
-/// rest still scrolls the view. There is no way to clear the reservoir, so the
-/// editor instead keeps zeroing what comes out of it until it runs dry.
-pub(super) fn swallow_wheel_delta(ui: &egui::Ui, state: &EditorState, claimed: bool) {
-    let id = state.key(Slot::ScrollSwallow);
-    let armed = claimed || ui.ctx().data(|d| d.get_temp::<bool>(id).unwrap_or(false));
-    if !armed {
-        return;
-    }
-    let residual = ui.input(|i| i.smooth_scroll_delta.y.abs());
-    ui.ctx()
-        .input_mut(|i| i.smooth_scroll_delta = egui::Vec2::ZERO);
-    // Repaint while it drains: without further input no frame would run, and
-    // the reservoir would empty into whatever frame comes next instead.
-    let draining = claimed || residual > 0.1;
-    ui.ctx().data_mut(|d| d.insert_temp(id, draining));
-    if draining {
-        ui.ctx().request_repaint();
-    }
-}
-
 /// Eats an Alt + Up/Down press that [`detect_number_bump`] did not claim, so
 /// a fruitless gesture stays fruitless instead of moving the caret, nudging a
 /// resize or stepping whatever else the bare arrow drives.

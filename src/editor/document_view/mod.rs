@@ -42,13 +42,11 @@ use layout::{
     GutterLayout, ViewCacheKey, collapsed_source_lines, doc_line_to_y, page_has_fold_marker,
 };
 pub(crate) use number_scroll::OmittedGap;
-use number_scroll::{
-    alt_wheel_here, apply_number_bump, detect_number_bump, swallow_alt_arrows, swallow_wheel_delta,
-};
+use number_scroll::{alt_wheel_here, apply_number_bump, detect_number_bump, swallow_alt_arrows};
 use paint::paint_document_area;
 use popups::{
-    show_autocomplete_popup, show_codepoint_popup, show_error_tooltip, show_goto_choice_popup,
-    show_rename_popup,
+    popup_wheel, show_autocomplete_popup, show_codepoint_popup, show_error_tooltip,
+    show_goto_choice_popup, show_rename_popup,
 };
 use scroll::{
     handle_page_scroll, lock_scroll_gesture_zone, resolve_scroll_target, scroll_cursor_into_view,
@@ -63,7 +61,9 @@ pub(crate) use layout::{
 };
 #[cfg(test)]
 pub(crate) use layout::{gutter_line_number, inline_panel_reserved_width};
-pub(crate) use scroll::{apply_scroll_physics, debounced_scroll_step, interceptor_scroll_step};
+pub(crate) use scroll::{
+    apply_scroll_physics, debounced_scroll_step, interceptor_scroll_step, swallow_wheel_delta,
+};
 
 pub(crate) const UNFILLED_OPACITY: f32 = 0.35;
 
@@ -1070,7 +1070,10 @@ fn show_document(
     // nothing else, so one that finds no number does nothing at all rather
     // than falling back to scrolling the view or moving the caret.
     let number_bump = detect_number_bump(ui, lines, state, ui.max_rect());
-    swallow_wheel_delta(ui, state, alt_wheel_here(ui, ui.max_rect()));
+    // A popup with something to step takes a plain wheel the same way; see
+    // `popups::popup_wheel`.
+    let claimed = alt_wheel_here(ui, ui.max_rect()) | popup_wheel(ui, state, ui.max_rect());
+    swallow_wheel_delta(ui.ctx(), state.key(Slot::ScrollSwallow), claimed);
     swallow_alt_arrows(ui, state);
 
     apply_scroll_physics(ui, zoom_level, state.key(Slot::ScrollAccel));

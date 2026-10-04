@@ -104,8 +104,9 @@ pub(crate) enum Slot {
     ScrollGestureZone,
     /// `(last_tick_time, consecutive_ticks)` for wheel acceleration.
     ScrollAccel,
-    /// Whether the wheel currently belongs to the Alt+wheel number gesture,
-    /// so its still-draining delta must not reach the scroll area.
+    /// Whether the wheel currently belongs to the Alt+wheel number gesture or
+    /// to an open popup, so its still-draining delta must not reach the
+    /// scroll area. See `document_view::scroll::swallow_wheel_delta`.
     ScrollSwallow,
     /// A pending PageUp/PageDown as `(direction, shift_held)`: written by key
     /// handling, consumed by `handle_page_scroll`.

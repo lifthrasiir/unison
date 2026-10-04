@@ -610,6 +610,86 @@ fn codepoint_popup_button_commits_the_preedit() {
     assert!(h.editor_has_focus(), "focus must return to the editor");
 }
 
+/// A plain wheel over the editor while the code point popup is open steps the
+/// code point instead of scrolling the view: up is the next one, down the one
+/// before, a notch at a time — over the text and over the popup alike.
+#[test]
+fn codepoint_popup_wheel_steps_the_code_point_instead_of_scrolling() {
+    let src = format!("meta height 16\n{}", tall_doc());
+    let mut h = EditorHarness::new(&src);
+    h.click_text(0, 14);
+    h.key_mod(Key::K, Modifiers::CTRL);
+    h.frame();
+    h.type_text("2603");
+
+    let over_text = h.text_pos(1, 2);
+    h.wheel_at_mod(over_text, true, Modifiers::NONE);
+    assert_eq!(h.state.preedit, "\u{2604}");
+    h.wheel_at_mod(over_text, false, Modifiers::NONE);
+    h.wheel_at_mod(over_text, false, Modifiers::NONE);
+    assert_eq!(h.state.preedit, "\u{2602}");
+    let over_popup = h.popup_rect("panel").center();
+    h.wheel_at_mod(over_popup, false, Modifiers::NONE);
+    assert_eq!(h.state.preedit, "\u{2601}");
+
+    for _ in 0..20 {
+        h.frame();
+    }
+    assert!(h.scroll_y() < 0.01, "the view scrolled to {}", h.scroll_y());
+    assert_eq!(h.text(0), "meta height 16", "nothing committed yet");
+
+    // The stepped value is selected, as a seeded one is: typing replaces it.
+    h.type_text("41");
+    assert_eq!(h.state.preedit, "A");
+}
+
+/// The rename popup has nothing to step, but the wheel still does nothing at
+/// all while it is open: scrolling would only carry the name being renamed
+/// out from under it.
+#[test]
+fn the_wheel_does_nothing_while_the_rename_popup_is_open() {
+    use crate::editor::PopupState;
+
+    let src = format!("glyph foo 2 1\n@@..\n{}", tall_doc());
+    let mut h = EditorHarness::new(&src);
+    h.click_text(0, 8);
+    h.key(Key::F2);
+    h.frame();
+    assert!(matches!(h.state.popup, PopupState::Rename { .. }));
+
+    h.wheel_at_mod(h.text_pos(0, 2), false, Modifiers::NONE);
+    h.wheel_at_mod(h.popup_rect("panel").center(), false, Modifiers::NONE);
+    for _ in 0..20 {
+        h.frame();
+    }
+    assert!(h.scroll_y() < 0.01, "the view scrolled to {}", h.scroll_y());
+    assert!(matches!(h.state.popup, PopupState::Rename { .. }));
+}
+
+/// Once the popup is gone the wheel scrolls again.
+#[test]
+fn the_wheel_scrolls_again_once_the_codepoint_popup_closes() {
+    let src = format!("meta height 16\n{}", tall_doc());
+    let mut h = EditorHarness::new(&src);
+    h.click_text(0, 14);
+    h.key_mod(Key::K, Modifiers::CTRL);
+    h.frame();
+    h.type_text("2603");
+    let pos = h.text_pos(1, 2);
+    h.wheel_at_mod(pos, false, Modifiers::NONE);
+    h.key(Key::Escape);
+    for _ in 0..20 {
+        h.frame();
+    }
+    assert!(h.scroll_y() < 0.01);
+
+    h.wheel_at_mod(pos, false, Modifiers::NONE);
+    for _ in 0..20 {
+        h.frame();
+    }
+    assert!(h.scroll_y() > 1.0, "the view no longer scrolls");
+}
+
 // ---------------------------------------------------------------------------
 // Alt + wheel over the editor bumps the number at the caret
 // ---------------------------------------------------------------------------

@@ -81,6 +81,34 @@ pub(crate) fn debounced_scroll_step(ctx: &egui::Context) -> Option<i32> {
     Some(dir)
 }
 
+/// Keeps the wheel away from every scroll area for as long as a claimed
+/// gesture's delta is still arriving. Called every frame by whatever claims the
+/// wheel (Alt + wheel over an editor, a wheel walking a popup), with `claimed`
+/// set on the frames a notch it took arrived and `id` its own memory of
+/// whether the reservoir is still draining.
+///
+/// One notch cannot be swallowed in a single frame: egui pushes a discrete
+/// wheel event into its private `unprocessed_scroll_delta` and drips it into
+/// `smooth_scroll_delta` over the following frames, so zeroing that delta on
+/// the gesture's own frame stops only the first slice of the notch and the
+/// rest still scrolls the view. There is no way to clear the reservoir, so the
+/// claimant instead keeps zeroing what comes out of it until it runs dry.
+pub(crate) fn swallow_wheel_delta(ctx: &egui::Context, id: egui::Id, claimed: bool) {
+    let armed = claimed || ctx.data(|d| d.get_temp::<bool>(id).unwrap_or(false));
+    if !armed {
+        return;
+    }
+    let residual = ctx.input(|i| i.smooth_scroll_delta.y.abs());
+    ctx.input_mut(|i| i.smooth_scroll_delta = egui::Vec2::ZERO);
+    // Repaint while it drains: without further input no frame would run, and
+    // the reservoir would empty into whatever frame comes next instead.
+    let draining = claimed || residual > 0.1;
+    ctx.data_mut(|d| d.insert_temp(id, draining));
+    if draining {
+        ctx.request_repaint();
+    }
+}
+
 /// Horizontal grid scrollbar: thickness and distance below the grid.
 pub(super) const HSCROLL_HEIGHT: f32 = 8.0;
 

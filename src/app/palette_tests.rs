@@ -454,6 +454,61 @@ mod app_tests {
         );
     }
 
+    fn wheel(dy: f32) -> Vec<egui::Event> {
+        vec![
+            egui::Event::PointerMoved(egui::pos2(500.0, 600.0)),
+            egui::Event::MouseWheel {
+                unit: egui::MouseWheelUnit::Line,
+                delta: egui::vec2(0.0, dy),
+                modifiers: egui::Modifiers::NONE,
+            },
+        ]
+    }
+
+    /// One wheel notch, then the frames its delta drips over, with the coarse
+    /// debounce expired first. Returns how much of the delta was left for
+    /// whatever scrolls after the palette has had its frame.
+    fn wheel_notch(app: &mut UniformApp, ctx: &egui::Context, dy: f32) -> f32 {
+        for _ in 0..5 {
+            frame(app, ctx, vec![]);
+        }
+        let mut left = 0.0;
+        for events in std::iter::once(wheel(dy)).chain(std::iter::repeat_n(vec![], 20)) {
+            ctx.begin_pass(egui::RawInput {
+                screen_rect: Some(egui::Rect::from_min_size(
+                    egui::Pos2::ZERO,
+                    egui::vec2(1000.0, 800.0),
+                )),
+                events,
+                ..Default::default()
+            });
+            let _ = app.palette_frame(ctx, &mut MenuActions::default());
+            left += ctx.input(|i| i.smooth_scroll_delta.y.abs());
+            let _ = ctx.end_pass();
+        }
+        left
+    }
+
+    /// A plain wheel anywhere walks the rows while the palette is open — down
+    /// is the next row — and none of the notch is left to scroll what is
+    /// under it.
+    #[test]
+    fn the_wheel_walks_the_rows_instead_of_scrolling() {
+        let (_dir, ctx, mut app) = app_with("palette-wheel");
+        // The control: with no palette the notch does scroll.
+        assert!(wheel_notch(&mut app, &ctx, -1.0) > 1.0);
+
+        frame(&mut app, &ctx, vec![cmd_p()]);
+        frame(&mut app, &ctx, vec![]);
+        let selected = |app: &UniformApp| app.palette.as_ref().unwrap().nav.selected;
+        assert_eq!(wheel_notch(&mut app, &ctx, -1.0), 0.0);
+        assert_eq!(selected(&app), 1);
+        assert_eq!(wheel_notch(&mut app, &ctx, -1.0), 0.0);
+        assert_eq!(selected(&app), 2);
+        assert_eq!(wheel_notch(&mut app, &ctx, 1.0), 0.0);
+        assert_eq!(selected(&app), 1);
+    }
+
     /// A menu entry that could do nothing now is not offered at all, and the
     /// palette does not offer itself.
     #[test]

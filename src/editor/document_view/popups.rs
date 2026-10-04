@@ -1,5 +1,12 @@
 //! Popups anchored to the caret: rename, autocomplete, the goto choice and
 //! the error tooltip.
+//!
+//! While one of them is open a plain wheel over the editor does not scroll the
+//! view ([`popup_wheel`]): scrolling would only carry the text out from under a
+//! popup that is still waiting for an answer. Where the popup has something to
+//! step — the code point popup its value, completion and the goto choice their
+//! listing — the wheel steps it instead; the rename popup has nothing, so
+//! there the wheel does nothing at all.
 
 use super::*;
 
@@ -17,6 +24,65 @@ fn caret_anchored_area(ctx: &egui::Context, state: &EditorState, slot: Slot) -> 
     egui::Area::new(state.key(slot))
         .order(egui::Order::Foreground)
         .fixed_pos(caret_anchor_pos(ctx, state))
+}
+
+/// Whether this frame's wheel belongs to an open popup of this editor, and
+/// if so the notch's step applied to it: the code point goes up with the wheel,
+/// a listing walks down with it, and the rename popup only keeps the view
+/// still.
+///
+/// "Over the editor" counts the popup itself, which may hang past the
+/// editor's edge; its area is where egui last drew it. The claim does not wait
+/// for the step: a notch the coarse debounce drops still must not scroll, so
+/// the caller swallows the wheel on the claim alone. A wheel with Alt is the
+/// number gesture's (`number_scroll`) and one with Ctrl/Cmd the zoom's, so
+/// neither is claimed here.
+pub(super) fn popup_wheel(ui: &egui::Ui, state: &mut EditorState, editor_rect: egui::Rect) -> bool {
+    use crate::editor::list_popup::ListMove;
+
+    let slot = if matches!(state.popup, PopupState::Rename { .. }) {
+        Slot::RenamePopup
+    } else if matches!(state.popup, PopupState::Codepoint(_)) {
+        Slot::CodepointPopup
+    } else if state.autocomplete.is_some() {
+        Slot::AutocompletePopup
+    } else if state.goto_choice.is_some() {
+        Slot::GotoChoicePopup
+    } else {
+        return false;
+    };
+    let popup_rect = ui.ctx().memory(|m| m.area_rect(state.key(slot)));
+    let claimed = ui.input(|i| {
+        !i.modifiers.alt
+            && !i.modifiers.command
+            && !i.modifiers.ctrl
+            && i.pointer.hover_pos().is_some_and(|p| {
+                editor_rect.contains(p) || popup_rect.is_some_and(|r| r.contains(p))
+            })
+            && i.events
+                .iter()
+                .any(|e| matches!(e, egui::Event::MouseWheel { .. }))
+    });
+    if !claimed || slot == Slot::RenamePopup {
+        return claimed;
+    }
+    let Some(step) = debounced_scroll_step(ui.ctx()) else {
+        return true;
+    };
+    let walk = if step < 0 {
+        ListMove::Prev
+    } else {
+        ListMove::Next
+    };
+    if let PopupState::Codepoint(popup) = &mut state.popup {
+        popup.step(-step);
+    } else if let Some(ac) = &mut state.autocomplete {
+        crate::editor::autocomplete::walk(ac, walk);
+    } else if let Some(popup) = &mut state.goto_choice {
+        let len = popup.choices.len();
+        popup.nav.step(walk, len);
+    }
+    true
 }
 
 /// The rename popup; returns the confirmed rename, if any.
