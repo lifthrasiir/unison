@@ -597,7 +597,9 @@ to get right when drawing:
 
 * the **outline build** draws the shape's geometry, whichever spelling you used;
 * the **bitmap build** throws the geometry away and draws a full square for every lit cell, nothing
-  for the rest.
+  for the rest. On a `scale N` glyph the square is the whole logical pixel: a real bitmap has no
+  sub-pixels, so a pixel any of whose N × N cells is lit is lit whole, and so is every pixel a
+  component placed off the pixel grid touches with a lit cell.
 
 So a diagonal stroke crossing two cells is written as two triangles, one lit and one not, and comes
 out as an antialiased diagonal at large sizes and as a staircase of whole pixels at small ones.
@@ -1222,6 +1224,8 @@ Flags may appear in any order, before or after the dimensions:
   pixels, and the rows that follow are `W × N` cells wide and `H × N` tall. Use it when a shape
   needs detail below the pixel: `glyph flag-il-david 5 6 scale 2`. Refs into and out of a scaled
   glyph are rescaled automatically, and so are its anchors — see [`anchor`](#anchor-anchor-definition).
+  The detail is the outline build's alone: the bitmap build lights whole pixels (see
+  [Pixel Grid](#pixel-grid)).
 * `margin-x N`, `margin-x L|R`, `margin-y N`, `margin-y T|B` — the room the glyph asks for around
   its box when an IDC line gives it a slot larger than the box across the split. One value is both
   sides; two are written as one token with a `|` between them, left before right and top before

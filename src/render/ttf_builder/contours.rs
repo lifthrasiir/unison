@@ -92,6 +92,21 @@ fn hash_grid_for_cache(grid: &PixelGrid, bitmap: bool) -> u64 {
     hasher.finish()
 }
 
+/// The key a glyph's own grid is traced under: its content, the flavor, and —
+/// for the bitmap flavor only, where [`bitmap_pixels`] makes it matter — the
+/// glyph's `scale`.
+fn own_trace_key(grid: &PixelGrid, bitmap: bool, scale: u8) -> u64 {
+    let key = hash_grid_for_cache(grid, bitmap);
+    if bitmap && scale > 1 {
+        let mut hasher = crate::hash::key_hasher();
+        key.hash(&mut hasher);
+        scale.hash(&mut hasher);
+        hasher.finish()
+    } else {
+        key
+    }
+}
+
 /// The grid one flavor traces a glyph's own pixels from: the bitmap flavor
 /// reads only whether each pixel is filled.
 fn flavor_grid(grid: &PixelGrid, bitmap: bool) -> PixelGrid {
@@ -121,13 +136,14 @@ fn trace_own_grid(
     cache: Option<&mut ContourCache>,
     grid: &PixelGrid,
     bitmap: bool,
+    scale: u8,
 ) -> (
     std::sync::Arc<TracedContours>,
     std::sync::Arc<PixelGrid>,
     u64,
 ) {
-    let key = hash_grid_for_cache(grid, bitmap);
-    let trace = || trace_fresh(grid, bitmap);
+    let key = own_trace_key(grid, bitmap, scale);
+    let trace = || trace_fresh(grid, bitmap, scale);
     let Some(cache) = cache else {
         let (contours, flavored) = trace();
         return (contours, flavored, key);
@@ -150,10 +166,71 @@ fn trace_own_grid(
 }
 
 /// A glyph's own grid traced for one flavor, with no memo in front of it.
-fn trace_fresh(grid: &PixelGrid, bitmap: bool) -> OwnGridTrace {
+///
+/// The flavor's grid is kept at the glyph's own resolution even where the
+/// bitmap flavor traces whole pixels: a parent that places this glyph off its
+/// pixel grid quantizes again, and has to do it from the cells as drawn.
+fn trace_fresh(grid: &PixelGrid, bitmap: bool, scale: u8) -> OwnGridTrace {
     let flavored = flavor_grid(grid, bitmap);
-    let contours = track_contour(&flavored, PX_SUBPIXEL);
+    let contours = if bitmap && scale > 1 {
+        let (pixels, row, col) = bitmap_pixels(&[(&flavored, 0, 0, false)], scale);
+        track_contour_multi_at(&[(&pixels, row, col)], PX_SUBPIXEL)
+    } else {
+        track_contour(&flavored, PX_SUBPIXEL)
+    };
     (std::sync::Arc::new(contours), std::sync::Arc::new(flavored))
+}
+
+/// What the bitmap face lights of `layers` stacked in order (a negated layer
+/// clears), at `scale` cells per logical pixel: a real bitmap has no subpixels,
+/// so a logical pixel any of whose cells is still inked is lit whole. The
+/// stack is settled first and quantized after, so a hole narrower than a pixel
+/// leaves it lit.
+///
+/// Returns the grid and the raster position of its cell `(0, 0)`, which sits on
+/// a logical pixel corner; the layers' positions are in the same raster, whose
+/// logical pixels start at multiples of `scale`.
+fn bitmap_pixels(layers: &[(&PixelGrid, i32, i32, bool)], scale: u8) -> (PixelGrid, i32, i32) {
+    let s = scale.max(1) as i32;
+    let (min_r, min_c, w, h) =
+        crate::render::contour::layer_bounds(layers.iter().map(|&(g, r, c, _)| (g, r, c)));
+    let (r0, c0) = (min_r.div_euclid(s) * s, min_c.div_euclid(s) * s);
+    let (rows, cols) = (
+        (min_r + h as i32 - r0 + s - 1) / s,
+        (min_c + w as i32 - c0 + s - 1) / s,
+    );
+    let (rows, cols) = (rows.max(0) as usize, cols.max(0) as usize);
+    let stride = (cols * s as usize).max(1);
+    let mut ink = vec![false; rows * s as usize * stride];
+    for &(grid, row, col, negated) in layers {
+        for r in 0..grid.height {
+            for c in 0..grid.width {
+                if grid.get(r, c).is_bitmap_filled() {
+                    let (y, x) = (
+                        (row - r0 + r as i32) as usize,
+                        (col - c0 + c as i32) as usize,
+                    );
+                    ink[y * stride + x] = !negated;
+                }
+            }
+        }
+    }
+    let mut out = PixelGrid::new((cols * s as usize) as u16, (rows * s as usize) as u16);
+    let s = s as usize;
+    for pr in 0..rows {
+        for pc in 0..cols {
+            let lit = (pr * s..(pr + 1) * s)
+                .any(|y| ink[y * stride + pc * s..y * stride + (pc + 1) * s].contains(&true));
+            if lit {
+                for y in pr * s..(pr + 1) * s {
+                    for x in pc * s..(pc + 1) * s {
+                        out.set(y as u16, x as u16, PixelShape::new(PX_ALMOSTFULL, true));
+                    }
+                }
+            }
+        }
+    }
+    (out, r0, c0)
 }
 
 #[derive(Clone)]
@@ -265,29 +342,34 @@ impl CachedContours {
         }
     }
 
-    pub(super) fn from_grid(grid: &PixelGrid, bitmap: bool, cc: Option<&mut ContourCache>) -> Self {
-        let (contours, flavored, grid_hash) = trace_own_grid(cc, grid, bitmap);
+    pub(super) fn from_grid(
+        grid: &PixelGrid,
+        bitmap: bool,
+        scale: u8,
+        cc: Option<&mut ContourCache>,
+    ) -> Self {
+        let (contours, flavored, grid_hash) = trace_own_grid(cc, grid, bitmap, scale);
         Self::from_trace(contours, flavored, grid_hash)
     }
 
-    /// [`Self::from_grid`] over many grids at once, as `(grid, bitmap)`.
+    /// [`Self::from_grid`] over many grids at once, as `(grid, bitmap, scale)`.
     ///
     /// The memo is read from every core and the misses are traced there too;
     /// only filing them back is serial. Seeding the cache is every drawn glyph
     /// in the font, and tracing them one after another was most of a cold
     /// build's serial time. `None` where `cancel` stopped the run short.
     pub(super) fn from_grids(
-        grids: &[(&PixelGrid, bool)],
+        grids: &[(&PixelGrid, bool, u8)],
         cc: Option<&mut ContourCache>,
         cancel: &crate::cancel::CancelToken,
     ) -> Vec<Option<Self>> {
         let memo = cc.as_deref();
         let traced = crate::parallel::map_indexed(grids.len(), cancel, |i| {
-            let (grid, bitmap) = grids[i];
-            let key = hash_grid_for_cache(grid, bitmap);
+            let (grid, bitmap, scale) = grids[i];
+            let key = own_trace_key(grid, bitmap, scale);
             match memo.and_then(|m| m.entries.get(&key)) {
                 Some(entry) => (key, entry.value.clone(), false),
-                None => (key, trace_fresh(grid, bitmap), true),
+                None => (key, trace_fresh(grid, bitmap, scale), true),
             }
         });
         if let Some(cc) = cc {
@@ -445,7 +527,10 @@ impl CachedContours {
                 }
             }
 
-            let contours = if bitmap {
+            let contours = if bitmap && ps > 1 {
+                let (pixels, row, col) = bitmap_pixels(&diff_layers, ps);
+                track_contour_multi_at(&[(&pixels, row, col)], PX_SUBPIXEL)
+            } else if bitmap {
                 let bitmap_grids: Vec<PixelGrid> = diff_layers
                     .iter()
                     .map(|(g, _, _, _)| to_bitmap_grid(g))
@@ -511,11 +596,28 @@ impl CachedContours {
             layers.push((&*sg.0, sg.1, sg.2));
         }
 
-        let needs_multi = own_pixels.is_some() || layers_have_subpixel_conflicts(&layers);
+        // The simple path below translates each component's own outline, which
+        // the bitmap flavor has already squared to the component's pixels. Off
+        // the parent's pixel grid those are no longer the parent's pixels, so
+        // the glyph is traced inline instead. The vector flavor does the same
+        // although its outline would survive the move: `meta bitmap-axis`
+        // needs both builds to agree on what is a composite
+        // (`masters::assert_composites_agree`).
+        let off_pixel_grid = ps > 1
+            && refs
+                .iter()
+                .any(|g| g.col().rem_euclid(ps as i16) != 0 || g.row().rem_euclid(ps as i16) != 0);
+        let needs_multi =
+            own_pixels.is_some() || off_pixel_grid || layers_have_subpixel_conflicts(&layers);
 
         if needs_multi {
             // Use track_contour_multi to correctly union overlapping subpixels.
-            let contours = if bitmap {
+            let contours = if bitmap && ps > 1 {
+                let stack: Vec<(&PixelGrid, i32, i32, bool)> =
+                    layers.iter().map(|&(g, r, c)| (g, r, c, false)).collect();
+                let (pixels, row, col) = bitmap_pixels(&stack, ps);
+                track_contour_multi_at(&[(&pixels, row, col)], PX_SUBPIXEL)
+            } else if bitmap {
                 let bitmap_grids: Vec<PixelGrid> =
                     layers.iter().map(|(g, _, _)| to_bitmap_grid(g)).collect();
                 let bitmap_layers: Vec<(&PixelGrid, i32, i32)> = bitmap_grids
@@ -547,8 +649,9 @@ impl CachedContours {
 
             // Pure-ref composites (no own pixels) can still use TrueType
             // composite format; the contours above serve as a fallback
-            // for inline glyphs.
-            let composite_components = if own_pixels.is_none() {
+            // for inline glyphs. Not off the pixel grid: a component's own
+            // outline is squared to its pixels, not to this glyph's.
+            let composite_components = if own_pixels.is_none() && !off_pixel_grid {
                 Some(
                     refs.iter()
                         .filter_map(|gref| {
@@ -768,7 +871,7 @@ impl crate::render::glyph_cache::CompositeBuilder<CachedContours> for ContourBui
                 // glyph whose every ref already resolved, which is the only way
                 // the tracer above gives up. Kept as the same fallback it always
                 // was rather than as a panic.
-                Some(grid) => CachedContours::from_grid(grid, flavor, None),
+                Some(grid) => CachedContours::from_grid(grid, flavor, pg.scale, None),
                 None => CachedContours::empty(),
             },
         )

@@ -877,7 +877,7 @@ pub(super) fn collect_glyph_data_with_shared(
     // is here, a few more than the walk seeds (a later duplicate of a name),
     // which costs a trace and nothing else.
     let mut seeded: HashMap<*const PixelGrid, CachedContours> = {
-        let drawn: Vec<(&PixelGrid, std::borrow::Cow<PixelGrid>, bool)> = all_items
+        let drawn: Vec<(&PixelGrid, std::borrow::Cow<PixelGrid>, bool, u8)> = all_items
             .iter()
             .filter_map(|item| match item {
                 DocumentItem::Glyph {
@@ -886,12 +886,13 @@ pub(super) fn collect_glyph_data_with_shared(
                 } if body.refs.is_empty() => {
                     let pixels = body.pixels.as_ref()?;
                     let (grid, flavor) = seed_input(name, pixels, body.desync, bitmap, &exempt);
-                    Some((pixels, grid, flavor))
+                    Some((pixels, grid, flavor, body.scale))
                 }
                 _ => None,
             })
             .collect();
-        let grids: Vec<(&PixelGrid, bool)> = drawn.iter().map(|(_, g, f)| (&**g, *f)).collect();
+        let grids: Vec<(&PixelGrid, bool, u8)> =
+            drawn.iter().map(|(_, g, f, s)| (&**g, *f, *s)).collect();
         let traced = CachedContours::from_grids(&grids, contour_cache.as_deref_mut(), cancel);
         drawn
             .iter()
@@ -903,11 +904,11 @@ pub(super) fn collect_glyph_data_with_shared(
         let cc = &mut contour_cache;
         crate::render::glyph_cache::seed_cache(
             all_items,
-            |name, pixels, desync| match seeded.remove(&(pixels as *const PixelGrid)) {
+            |name, pixels, desync, scale| match seeded.remove(&(pixels as *const PixelGrid)) {
                 Some(traced) => traced,
                 None => {
                     let (grid, flavor) = seed_input(name, pixels, desync, bitmap, &exempt);
-                    CachedContours::from_grid(&grid, flavor, cc.as_deref_mut())
+                    CachedContours::from_grid(&grid, flavor, scale, cc.as_deref_mut())
                 }
             },
             CachedContours::empty,

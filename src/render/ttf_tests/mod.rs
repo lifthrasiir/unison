@@ -13,6 +13,7 @@ use read_fonts::TableProvider;
 
 mod alias;
 mod bitmap_axis;
+mod bitmap_scale;
 mod color;
 mod composite;
 mod desync;
