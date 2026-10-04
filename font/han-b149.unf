@@ -197,8 +197,10 @@ glyph han-279d4-($han-regions):15x16 15 16 // 𧧔
 // glyph han-279d5:15x16 15 16 // 𧧕
 // ⿰ han-8a01 han-5b57 // ⿰訁字
 
-// glyph han-279d8-($han-regions):15x16 15 16 // 𧧘 ⿰訁色(G) ⿰訁⿱刀巴(T)
-// ⿰ han-8a01-($-1) han-8272 // ⿰訁色
+glyph han-279d8-g:15x16 15 16 // 𧧘
+⿰ han-8a01.x:5x16 1 han-8272:9x16 // ⿰訁色
+glyph han-279d8-t:15x16 15 16 // 𧧘
+⿰ han-8a01.x:5x16 1 han-5200:9x6|han-5df4:9x10 // ⿰訁⿱刀巴
 
 // glyph han-279dc:15x16 15 16 // 𧧜
 // ⿰ han-8a01 han-7f51 // ⿰訁网

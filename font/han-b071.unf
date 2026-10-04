@@ -526,7 +526,7 @@ glyph han-2327a:15x16 15 16 // 𣉺
 // ⿰ han-65e5 han-5340 // ⿰日區
 
 glyph han-2328c:15x16 15 16 // 𣊌
-⿲ han-65e5:4x14-l han-571f:3x13-l 1 han-96b9:7x16 // ⿲日土隹
+⿲ han-65e5:4x14-l han-571f:3x13-l han-96b9:8x16 // ⿲日土隹
 
 // glyph han-2328d:15x16 15 16 // 𣊍
 // ⿰ han-65e5 han-9ebb // ⿰日麻

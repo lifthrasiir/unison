@@ -443,6 +443,9 @@ glyph han-2e60b:15x16 15 16 // 𮘋 ⿲訁犭巳(S) ⿰訁犯(Z)
 
 ## 149.7
 
+// glyph han-2e60f-($han-regions):15x16 15 16 // 𮘏
+// ⿰ han-8a01-($-1) han-5374 // ⿰訁却
+
 glyph han-2e611:15x16 15 16 // 𮘑
 ⿲ -1 han-8a01.0:5x16 han-4e14:6x16 han-529b:5x16 // ⿲訁且力
 

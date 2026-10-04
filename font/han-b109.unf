@@ -313,8 +313,8 @@ glyph han-25167:15x16 15 16 // 𥅧
 // glyph han-25177:15x16 15 16 // 𥅷
 // ⿱ han-5c11 han-250f0 // ⿱少𥃰
 
-// glyph han-2517a:15x16 15 16 // 𥅺
-// ⿰ han-76ee han-8272 // ⿰目色
+glyph han-2517a:15x16 15 16 // 𥅺
+⿰ han-76ee:5x13-l 1 han-8272:9x16 // ⿰目色
 
 glyph han-2517c:15x16 15 16 // 𥅼
 ⿱ han-76ee:9x7 han-7c73:13x9 // ⿱目米

@@ -469,6 +469,9 @@ glyph han-6fe1:15x16 15 16 // 濡
 ⿰ han-6c35:5x15 1 han-9700:9x16 // ⿰氵需
 glyph han-6fe1.0:* = han-6fe1:*
 
+// glyph han-6fea-($han-regions):15x16 15 16 // 濪
+// ⿰ han-6c35 han-9758-($-1) // ⿰氵靘
+
 glyph han-6ff0-($han-regions):15x16 15 16 // 濰
 ⿲ han-6c35:3x12 han-7cf9-($-1):5x14 han-96b9:7x16 // ⿲氵糹隹
 glyph han-6ff0.0:* = han-6ff0-j:*

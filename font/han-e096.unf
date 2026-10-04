@@ -1364,7 +1364,7 @@ glyph han-2c69d:15x16 15 16 // 𬚝
 // ⿱ han-53ef han-8036 // ⿱可耶
 
 glyph han-2c69f:15x16 15 16 // 𬚟
-⿰ han-8033:7x16 1 han-96b9:7x16 // ⿰耳隹
+⿰ han-8033:7x16 han-96b9:8x16 // ⿰耳隹
 
 # CJK unified ideographs extension E: 聿 (129)
 

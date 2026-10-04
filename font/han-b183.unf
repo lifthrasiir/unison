@@ -315,7 +315,7 @@ glyph han-2970e-($han-regions):15x16 15 16 // 𩜎
 assume ⿰ han-98e0-or-2967f-($-1):7x16 -1 han-9751-or-9752-($-1):9x16 // ⿰[飠𩙿][靑青]
 
 glyph han-29711-($han-regions):15x16 15 16 // 𩜑
-⿰ han-98e0-or-2967f-($-1):7x16 1 han-96b9:7x16 // ⿰[飠𩙿]隹
+⿰ han-98e0-or-2967f-($-1):7x16 han-96b9:8x16 // ⿰[飠𩙿]隹
 
 // glyph han-29714-($han-regions):15x16 15 16 // 𩜔
 // ⿱ han-5f7c han-98df-($-1) // ⿱彼食

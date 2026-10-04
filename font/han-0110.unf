@@ -291,8 +291,9 @@ glyph han-781b-($han-regions):15x16 15 16 // 砛
 
 ## 112.5
 
-// glyph han-781d:15x16 15 16 // 砝
-// ⿰ han-77f3 han-53bb // ⿰石去
+glyph han-781d:15x16 15 16 // 砝
+⿰ han-77f3:6x16 han-53bb:9x16 // ⿰石去
+glyph han-781d.0:* = han-781d:*
 
 glyph han-781e:15x16 15 16 // 砞
 ⿰ han-77f3:5x16 1 han-672b:9x16 // ⿰石末
@@ -1996,7 +1997,7 @@ glyph han-7a18:15x16 15 16 // 稘
 glyph han-7a18.0:* = han-7a18:*
 
 glyph han-7a1a:15x16 15 16 // 稚
-⿰ han-79be:7x16 1 han-96b9:7x16 // ⿰禾隹
+⿰ han-79be:7x16 han-96b9:8x16 // ⿰禾隹
 glyph han-7a1a.0:* = han-7a1a:*
 glyph han-7a1a.1:* = han-7a1a:*
 glyph han-7a1a.2:15x16 15 16 // 稚

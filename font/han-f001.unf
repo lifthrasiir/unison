@@ -188,8 +188,8 @@ ref 7x6 8 10 negated
 
 ## 1.7
 
-// glyph han-2ced6:15x16 15 16 // 𬻖
-// ⿰ han-4e01 han-8272 // ⿰丁色
+glyph han-2ced6:15x16 15 16 // 𬻖
+⿰ han-4e01:5x16 -1 han-8272:11x16 // ⿰丁色
 
 ## 1.8
 
@@ -637,6 +637,9 @@ glyph han-2cf82:15x16 15 16 // 𬾂
 
 // glyph han-2cf85:15x16 15 16 // 𬾅
 // ⿰ han-4ebb han-514b // ⿰亻克
+
+// glyph han-2cf86:15x16 15 16 // 𬾆
+// ⿰ han-4ebb han-52ab // ⿰亻劫
 
 // glyph han-2cf87:15x16 15 16 // 𬾇
 // ⿱ han-201a2 han-4e24 // ⿱𠆢两

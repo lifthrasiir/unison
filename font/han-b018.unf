@@ -354,8 +354,8 @@ glyph han-207a1:15x16 15 16 // 𠞡
 // glyph han-207a5:15x16 15 16 // 𠞥
 // ⿰ han-9ebb han-5202 // ⿰麻刂
 
-// glyph han-207a7:15x16 15 16 // 𠞧
-// ⿸ han-9ebb han-5200 // ⿸麻刀
+glyph han-207a7-($han-regions):15x16 15 16 // 𠞧
+⿸ han-9ebb-($-1):15x16.11x7 han-5200:9x6 5 10 // ⿸麻刀
 
 glyph han-207b8:15x16 15 16 // 𠞸
 ⿰ han-9ce5:9x16 1 han-5202:5x16 // ⿰鳥刂
@@ -555,6 +555,9 @@ glyph han-20857:15x16 15 16 // 𠡗
 
 // glyph han-20869:15x16 15 16 // 𠡩
 // ⿱ han-5229 han-529b // ⿱利力
+
+// glyph han-2087a:15x16 15 16 // 𠡺
+// ⿱ han-5374 han-529b // ⿱却力
 
 ## 19.8
 

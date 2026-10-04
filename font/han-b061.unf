@@ -340,8 +340,8 @@ glyph han-22658:15x16 15 16 // 𢙘
 // glyph han-22659:15x16 15 16 // 𢙙
 // ⿰ han-5fc4 han-21d49 // ⿰忄𡵉
 
-// glyph han-2265a:15x16 15 16 // 𢙚
-// ⿰ han-5fc4 han-8272 // ⿰忄色
+glyph han-2265a:15x16 15 16 // 𢙚
+⿰ han-5fc4:5x16 1 han-8272:9x16 // ⿰忄色
 
 glyph han-2265b:15x16 15 16 // 𢙛
 ⿰ han-5fc4:5x16 1 han-540d:9x16 // ⿰忄名
@@ -647,6 +647,9 @@ glyph han-22746:15x16 15 16 // 𢝆
 
 // glyph han-2274c:15x16 15 16 // 𢝌
 // ⿰ han-5fc4 han-5192 // ⿰忄冒
+
+// glyph han-2274d:15x16 15 16 // 𢝍
+// ⿱ han-602f han-5fc3 // ⿱怯心
 
 // glyph han-22750:15x16 15 16 // 𢝐 ⿱𢓄心(G) ⿱⿰彳幵心(T)
 // ⿱ han-224c4 han-5fc3 // ⿱𢓄心

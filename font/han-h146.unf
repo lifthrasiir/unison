@@ -845,7 +845,7 @@ glyph han-3226a:15x16 15 16 // 𲉪
 ## 172.9
 
 glyph han-3226e:15x16 15 16 // 𲉮
-⿰ han-9801:7x16 1 han-96b9:7x16 // ⿰頁隹
+⿰ han-9801:7x16 han-96b9:8x16 // ⿰頁隹
 
 # CJK unified ideographs extension H: 雨 (173)
 

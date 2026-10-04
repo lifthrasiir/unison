@@ -527,8 +527,9 @@ glyph han-62bd:15x16 15 16 // 抽
 ⿰ han-624c:5x16 1 han-7531:9x16 // ⿰扌由
 glyph han-62bd.0:* = han-62bd:*
 
-// glyph han-62be:15x16 15 16 // 抾
-// ⿰ han-624c han-53bb // ⿰扌去
+glyph han-62be:15x16 15 16 // 抾
+⿰ han-624c:5x16 1 han-53bb:9x16 // ⿰扌去
+glyph han-62be.0:* = han-62be:*
 
 glyph han-62bf:15x16 15 16 // 抿
 ⿰ han-624c:5x16 han-6c11:10x16 // ⿰扌民

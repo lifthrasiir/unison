@@ -348,8 +348,8 @@ glyph han-2020c:15x16 15 16 // 𠈌
 // glyph han-2021b:15x16 15 16 // 𠈛
 // ⿱ han-201a2 han-5216 // ⿱𠆢刖
 
-// glyph han-2021c:15x16 15 16 // 𠈜
-// ⿰ han-4ebb han-8272 // ⿰亻色
+glyph han-2021c:15x16 15 16 // 𠈜
+⿰ han-4ebb:5x16 -1 han-8272:11x16 // ⿰亻色
 
 // glyph han-20220:15x16 15 16 // 𠈠
 // ⿰ han-4ebb han-5e74 // ⿰亻年
@@ -417,6 +417,9 @@ glyph han-2024d:15x16 15 16 // 𠉍
 
 // glyph han-20267:15x16 15 16 // 𠉧
 // ⿰ han-4ebb han-53d6 // ⿰亻取
+
+// glyph han-20268:15x16 15 16 // 𠉨
+// ⿰ han-4f49 han-5203 // ⿰佉刃
 
 // glyph han-2026b:15x16 15 16 // 𠉫
 // ⿰ han-4ebb han-5f80 // ⿰亻往

@@ -102,8 +102,8 @@ glyph han-25e51:15x16 15 16 // 𥹑
 glyph han-25e52:15x16 15 16 // 𥹒
 ⿰ han-7c73:5x16 1 han-5e73-t:9x16 // ⿰米平
 
-// glyph han-25e53:15x16 15 16 // 𥹓
-// ⿰ han-7c73 han-53bb // ⿰米去
+glyph han-25e53:15x16 15 16 // 𥹓
+⿰ han-7c73:5x16 1 han-53bb:9x16 // ⿰米去
 
 glyph han-25e55-($han-regions):15x16 15 16 // 𥹕
 ⿰ han-7c73:7x16 1 han-4ee4-($-1):7x16 // ⿰米令

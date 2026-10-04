@@ -133,8 +133,8 @@ glyph han-216dc-($han-regions):15x16 15 16 // 𡛜
 // glyph han-216de:15x16 15 16 // 𡛞
 // ⿰ han-5973 han-5f01 // ⿰女弁
 
-// glyph han-216e0:15x16 15 16 // 𡛠
-// ⿰ han-5973 han-53bb // ⿰女去
+glyph han-216e0:15x16 15 16 // 𡛠
+⿰ han-5973:6x14-l han-53bb:9x16 // ⿰女去
 
 glyph han-216e1:15x16 15 16 // 𡛡
 ⿰ han-5973:5x14-l 1 han-76ae:9x16 // ⿰女皮
@@ -201,8 +201,13 @@ glyph han-21701-($han-regions):15x16 15 16 // 𡜁
 // glyph han-21703:15x16 15 16 // 𡜃 ⿰女𠕎(GT) ⿰女肉(Z)
 // ⿰ han-5973 han-8089 // ⿰女肉
 
-// glyph han-21706:15x16 15 16 // 𡜆 ⿰女色(GT) ⿰女⿱刀巴(J)
-// ⿰ han-5973 han-8272 // ⿰女色
+glyph han-21706.0:15x16 15 16 // 𡜆
+⿰ han-5973:6x14-l han-5200:9x6|han-5df4:9x10 // ⿰女⿱刀巴
+glyph han-21706.1:* = han-21706.0:*
+glyph han-21706.2:15x16 15 16 // 𡜆
+⿰ han-5973:6x14-l han-8272:9x16 // ⿰女色
+glyph han-21706-j:* = han-21706.0:*
+glyph han-21706-(g|t):* = han-21706.2:*
 
 glyph han-21707:15x16 15 16 // 𡜇
 ⿲ han-5973:5x14-l han-5f00:7x16 han-5202:3x16 // ⿲女开刂
@@ -317,6 +322,9 @@ glyph han-2174b:15x16 15 16 // 𡝋
 
 // glyph han-2174e:15x16 15 16 // 𡝎
 // ⿳ han-65e5 han-5e72 han-5973 // ⿳日干女 <- ⿱旱女
+
+// glyph han-21754:15x16 15 16 // 𡝔
+// ⿱ han-52ab han-5973 // ⿱劫女
 
 // glyph han-21759:15x16 15 16 // 𡝙 ⿰女佘(GT) ⿰女⿱入示(Z)
 // ⿰ han-5973 han-4f58 // ⿰女佘

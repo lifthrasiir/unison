@@ -377,8 +377,8 @@ glyph han-4ab8:15x16 15 16 // 䪸
 // glyph han-4ab9:15x16 15 16 // 䪹
 // ⿰ han-4e15 han-9801 // ⿰丕頁
 
-// glyph han-4aba:15x16 15 16 // 䪺
-// ⿰ han-53bb han-9801 // ⿰去頁
+glyph han-4aba:15x16 15 16 // 䪺
+⿰ han-53bb:9x16 1 han-9801:5x16 // ⿰去頁
 
 // glyph han-4abb:15x16 15 16 // 䪻
 // ⿰ han-5f01 han-9801 // ⿰弁頁
@@ -1077,7 +1077,7 @@ glyph han-4c63:15x16 15 16 // 䱣
 ⿰ han-9b5a:7x16 1 han-5352:7x16 // ⿰魚卒
 
 glyph han-4c66:15x16 15 16 // 䱦
-⿰ han-9b5a:7x16 1 han-96b9:7x16 // ⿰魚隹
+⿰ han-9b5a:7x16 han-96b9:8x16 // ⿰魚隹
 
 // glyph han-4c68:15x16 15 16 // 䱨
 // ⿰ han-9b5a han-523a // ⿰魚刺

@@ -1672,8 +1672,9 @@ glyph han-6829.0:* = han-6829-j:*
 glyph han-6829.1:* = han-6829-j:*
 glyph han-6829.2:* = han-6829-g:*
 
-// glyph han-682c:15x16 15 16 // 栬
-// ⿰ han-6728 han-8272 // ⿰木色
+glyph han-682c:15x16 15 16 // 栬
+⿰ han-6728:5x16 1 han-8272:9x16 // ⿰木色
+glyph han-682c.0:* = han-682c:*
 
 glyph han-682d:15x16 15 16 // 栭
 ⿰ han-6728:5x16 1 han-800c:9x16 // ⿰木而

@@ -418,8 +418,8 @@ glyph han-2548b:15x16 15 16 // 𥒋
 glyph han-2548c:15x16 15 16 // 𥒌
 ⿰ han-77f3:5x16 1 han-8840:9x14 // ⿰石血
 
-// glyph han-2548d:15x16 15 16 // 𥒍
-// ⿰ han-77f3 han-8272 // ⿰石色
+glyph han-2548d:15x16 15 16 // 𥒍
+⿰ han-77f3:6x16 han-8272:9x16 // ⿰石色
 
 // glyph han-25490:15x16 15 16 // 𥒐
 // ⿱ han-572d han-77f3 // ⿱圭石

@@ -221,8 +221,8 @@ glyph han-2ae16:15x16 15 16 // 𪸖
 
 ## 86.5
 
-// glyph han-2ae18:15x16 15 16 // 𪸘
-// ⿰ han-706b han-53bb // ⿰火去
+glyph han-2ae18:15x16 15 16 // 𪸘
+⿰ han-706b:5x14-l 1 han-53bb:9x16 // ⿰火去
 
 glyph han-2ae19:15x16 15 16 // 𪸙
 ⿰ han-706b:5x14-l 1 han-672a:9x16 // ⿰火未

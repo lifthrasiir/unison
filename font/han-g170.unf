@@ -97,7 +97,7 @@ glyph han-31045:15x16 15 16 // 𱁅
 ## 172.4
 
 glyph han-31049:15x16 15 16 // 𱁉
-⿰ han-6597:7x16 1 han-96b9:7x16 // ⿰斗隹
+⿰ han-6597:7x16 han-96b9:8x16 // ⿰斗隹
 
 # CJK unified ideographs extension G: 雨 (173)
 

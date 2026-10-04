@@ -863,6 +863,9 @@ glyph han-3931:15x16 15 16 // 㤱
 // glyph han-3938:15x16 15 16 // 㤸
 // ⿰ han-5fc4 han-8d64 // ⿰忄赤
 
+// glyph han-393c:15x16 15 16 // 㤼
+// ⿰ han-5fc4 han-52ab // ⿰忄劫
+
 ## 61.8
 
 // glyph han-393f:15x16 15 16 // 㤿
@@ -1447,8 +1450,8 @@ glyph han-3add-($han-regions):15x16 15 16 // 㫝
 // glyph han-3ae1-($han-regions):15x16 15 16 // 㫡
 // ⿱ han-65e5 han-51ac-($-1) // ⿱日冬
 
-// glyph han-3ae2:15x16 15 16 // 㫢
-// ⿰ han-65e5 han-53bb // ⿰日去
+glyph han-3ae2:15x16 15 16 // 㫢
+⿰ han-65e5:5x14-l 1 han-53bb:9x16 // ⿰日去
 
 glyph han-3ae3:15x16 15 16 // 㫣
 ⿱ han-65e5:11x6 han-7535:13x10 // ⿱日电

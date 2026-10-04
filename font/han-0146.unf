@@ -1517,8 +1517,9 @@ glyph han-8a52-($han-regions):15x16 15 16 // 詒
 ⿰ han-8a01-($-1):5x16 1 han-53f0:9x16 // ⿰訁台
 glyph han-8a52.0:* = han-8a52-j:*
 
-// glyph han-8a53:15x16 15 16 // 詓
-// ⿰ han-8a01 han-53bb // ⿰訁去
+glyph han-8a53-($han-regions):15x16 15 16 // 詓
+⿰ han-8a01-($-1):5x16 1 han-53bb:9x16 // ⿰訁去
+glyph han-8a53.0:* = han-8a53-j:*
 
 glyph han-8a54-($han-regions):15x16 15 16 // 詔
 ⿰ han-8a01-($-1):5x16 han-53ec:10x16 // ⿰訁召
@@ -1642,7 +1643,7 @@ glyph han-8a80-($han-regions):15x16 15 16 // 誀
 ⿰ han-8a01-($-1):5x16 han-8033:10x16 // ⿰訁耳
 glyph han-8a80.0:* = han-8a80-j:*
 
-glyph han-8a81-($han-regions):15x16 15 16 // 誁 ⿰訁并(GHTKP) ⿰訁幷(Z)
+glyph han-8a81-($han-regions):15x16 15 16 // 誁
 ⿰ han-8a01-($-1):5x16 1 han-5e76:9x16 // ⿰訁并
 
 glyph han-8a82-($han-regions):15x16 15 16 // 誂

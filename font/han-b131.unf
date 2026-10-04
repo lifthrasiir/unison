@@ -473,7 +473,7 @@ glyph han-26a4d-j:15x16 15 16 // 𦩍
 // ⿰ han-821f han-7077 // ⿰舟灷
 
 glyph han-26a4f:15x16 15 16 // 𦩏
-⿰ han-821f:7x16 1 han-96b9:7x16 // ⿰舟隹
+⿰ han-821f:7x16 han-96b9:8x16 // ⿰舟隹
 
 // glyph han-26a51:15x16 15 16 // 𦩑
 // ⿰ han-821f han-4f86 // ⿰舟來
@@ -583,8 +583,8 @@ glyph han-26aac:15x16 15 16 // 𦪬
 // glyph han-26ad7:15x16 15 16 // 𦫗
 // ⿰ han-76ae han-8272 // ⿰皮色
 
-// glyph han-26ad9:15x16 15 16 // 𦫙
-// ⿰ han-767d han-8272 // ⿰白色
+glyph han-26ad9:15x16 15 16 // 𦫙
+⿰ han-767d:6x16 han-8272:9x16 // ⿰白色
 
 ## 139.7
 
@@ -599,8 +599,8 @@ glyph han-26aac:15x16 15 16 // 𦪬
 // glyph han-26adf:15x16 15 16 // 𦫟
 // ⿰ han-708e han-8272 // ⿰炎色
 
-// glyph han-26ae1:15x16 15 16 // 𦫡
-// ⿰ han-5176 han-8272 // ⿰其色
+glyph han-26ae1:15x16 15 16 // 𦫡
+⿰ han-5176:6x16 han-8272:9x16 // ⿰其色
 
 ## 139.9
 

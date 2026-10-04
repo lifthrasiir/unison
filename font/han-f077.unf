@@ -219,6 +219,9 @@ glyph han-2dc15:15x16 15 16 // 𭰕
 // glyph han-2dc19:15x16 15 16 // 𭰙
 // ⿰ han-6c35 han-5323 // ⿰氵匣
 
+// glyph han-2dc1a:15x16 15 16 // 𭰚
+// ⿰ han-6c35 han-5374 // ⿰氵却
+
 glyph han-2dc1b:15x16 15 16 // 𭰛
 ⿲ han-6c35:3x12 han-77f3:5x16 han-529b:7x16 // ⿲氵石力
 
@@ -487,6 +490,9 @@ glyph han-2dd21:15x16 15 16 // 𭴡 ⿰火并(K) ⿰火幷(Z)
 // ⿳ han-5b80 han-5973 han-706b // ⿳宀女火 <- ⿱安火
 
 ## 86.7
+
+// glyph han-2dd26:15x16 15 16 // 𭴦
+// ⿰ han-706b han-5374 // ⿰火却
 
 glyph han-2dd27:15x16 15 16 // 𭴧
 ⿰ han-706b:5x14-l 1 han-8c46:9x16 // ⿰火豆
@@ -757,6 +763,9 @@ glyph han-2ddde:15x16 15 16 // 𭷞
 
 ## 93.7
 
+// glyph han-2dde0:15x16 15 16 // 𭷠
+// ⿱ han-5227 han-725b // ⿱刧牛
+
 // glyph han-2dde3:15x16 15 16 // 𭷣
 // ⿳ han-53bb han-5196 han-725b // ⿳去冖牛 <- ⿱去⿱冖牛
 
@@ -907,6 +916,9 @@ glyph han-2de4a:15x16 15 16 // 𭹊 ⿲彳玉亍(K) ⿲彳王亍(B)
 ⿲ han-5f73:3x16 han-738b:7x16 han-4e8d:5x16 // ⿲彳王亍
 
 ## 96.7
+
+// glyph han-2de4c:15x16 15 16 // 𭹌
+// ⿰ han-248e9 han-5374 // ⿰𤣩却
 
 // glyph han-2de4d:15x16 15 16 // 𭹍
 // ⿰ han-248e9 han-8d64 // ⿰𤣩赤

@@ -209,8 +209,9 @@ glyph han-9aa9-($han-regions):15x16 15 16 // 骩
 // glyph han-9aab-($han-regions):15x16 15 16 // 骫 ⿰骨{20}(GKP) ⿰骨丸(HT)
 // ⿰ han-9aa8 han-4e38-($-1) // ⿰骨丸
 
-// glyph han-9aac:15x16 15 16 // 骬
-// ⿰ han-9aa8 han-4e8e // ⿰骨于
+glyph han-9aac-($han-regions):15x16 15 16 // 骬
+⿰ han-9aa8-($-1):7x16 1 han-4e8e:7x16 // ⿰骨于
+glyph han-9aac.0:* = han-9aac-j:*
 
 glyph han-9aad-($han-regions):15x16 15 16 // 骭
 ⿰ han-9aa8-($-1):7x16 1 han-5e72:7x16 // ⿰骨干
@@ -227,7 +228,7 @@ glyph han-9aaf.0:* = han-9aaf-j:*
 
 ## 188.5
 
-glyph han-9ab2-($han-regions):15x16 15 16 // 骲 ⿰骨包(GHTKP) ⿰骨⿹勹巳(J)
+glyph han-9ab2-($han-regions):15x16 15 16 // 骲
 ⿰ han-9aa8-($-1):7x16 1 han-5305.1:7x16 // ⿰骨包
 glyph han-9ab2.0:* = han-9ab2-j:*
 
@@ -268,8 +269,13 @@ glyph han-9abc.0:* = han-9abc-j:*
 
 ## 188.8
 
-glyph han-9abf-($han-regions):15x16 15 16 // 骿 ⿰骨并(GHTK) ⿰骨幷(JP)
+glyph han-9abf-(j|p):15x16 15 16 // 骿
+⿰ han-9aa8-($-1):7x16 han-5e77.0:8x16 // ⿰骨幷
+glyph han-9abf-(g|h|t|k):15x16 15 16 // 骿
 ⿰ han-9aa8-($-1):7x16 han-5e76:8x16 // ⿰骨并
+glyph han-9abf.0:* = han-9abf-j:*
+glyph han-9abf.1:* = han-9abf-j:*
+glyph han-9abf.2:* = han-9abf-h:*
 
 glyph han-9ac0-($han-regions):15x16 15 16 // 髀 ⿰骨卑(GHTKP) ⿰骨⿱⿱㇒⿻日丿十(JV)
 ⿰ han-9aa8-($-1):7x16 han-5351.0:8x16 // ⿰骨卑
@@ -961,8 +967,8 @@ glyph han-9b7a:15x16 15 16 // 魺
 glyph han-9b7b:15x16 15 16 // 魻
 ⿰ han-9b5a:7x16 1 han-7532:7x16 // ⿰魚甲
 
-// glyph han-9b7c:15x16 15 16 // 魼
-// ⿰ han-9b5a han-53bb // ⿰魚去
+glyph han-9b7c:15x16 15 16 // 魼
+⿰ han-9b5a:5x16 1 han-53bb:9x16 // ⿰魚去
 
 glyph han-9b7d:15x16 15 16 // 魽
 ⿰ han-9b5a:7x16 1 han-7518:7x16 // ⿰魚甘

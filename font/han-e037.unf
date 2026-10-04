@@ -556,8 +556,8 @@ glyph han-2bd74:15x16 15 16 // 𫵴
 
 ## 46.6
 
-// glyph han-2bd7a:15x16 15 16 // 𫵺
-// ⿰ han-5c71 han-8272 // ⿰山色
+glyph han-2bd7a:15x16 15 16 // 𫵺
+⿰ han-5c71:5x12-l 1 han-8272:9x16 // ⿰山色
 
 // glyph han-2bd7b:15x16 15 16 // 𫵻
 // ⿳ han-5c71 han-5b80 han-5973 // ⿳山宀女 <- ⿱山安

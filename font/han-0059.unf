@@ -791,8 +791,9 @@ glyph han-602c:15x16 15 16 // 怬
 // glyph han-602d:15x16 15 16 // 怭
 // ⿰ han-5fc4 han-5fc5 // ⿰忄必
 
-// glyph han-602f:15x16 15 16 // 怯
-// ⿰ han-5fc4 han-53bb // ⿰忄去
+glyph han-602f:15x16 15 16 // 怯
+⿰ han-5fc4:5x16 1 han-53bb:9x16 // ⿰忄去
+glyph han-602f.0:* = han-602f:*
 
 // glyph han-6032:15x16 15 16 // 怲
 // ⿰ han-5fc4 han-4e19 // ⿰忄丙

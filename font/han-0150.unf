@@ -1062,6 +1062,9 @@ glyph han-8e09.1:15x16 15 16 // 踉
 glyph han-8e09.2:* = han-8e09.0:*
 glyph han-8e09.3:* = han-8e09.1:*
 
+// glyph han-8e0b:15x16 15 16 // 踋
+// ⿰ han-27fb7 han-5374 // ⿰𧾷却
+
 // glyph han-8e0e:15x16 15 16 // 踎
 // ⿰ han-27fb7 han-5426 // ⿰𧾷否
 

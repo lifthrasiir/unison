@@ -439,8 +439,8 @@ glyph han-29185:15x16 15 16 // 𩆅
 
 ## 174.5
 
-// glyph han-291d8-($han-regions):15x16 15 16 // 𩇘 ⿰去青(T) ⿰去靑(Z)
-// ⿰ han-53bb han-9752-($-1) // ⿰去青
+glyph han-291d8:15x16 15 16 // 𩇘
+⿰ han-53bb:9x16 1 han-9752-t:5x16 // ⿰去青
 
 glyph han-291d9:15x16 15 16 // 𩇙 ⿰青令(T) ⿰靑令(Z)
 ⿰ han-9752-t:7x16 1 han-4ee4-t:7x16 // ⿰青令

@@ -249,6 +249,9 @@ glyph han-26013-($han-regions):15x16 15 16 // 𦀓
 glyph han-26015-($han-regions):15x16 15 16 // 𦀕
 ⿰ han-7cf9-($-1):5x14 1 han-9091:9x16 // ⿰糹邑
 
+// glyph han-26016-($han-regions):15x16 15 16 // 𦀖
+// ⿰ han-7cf9-($-1) han-52ab // ⿰糹劫
+
 // glyph han-26017:15x16 15 16 // 𦀗 ⿰糹赤(GTV) ⿰糸赤(J)
 // ⿰ han-7cf9 han-8d64 // ⿰糹赤
 

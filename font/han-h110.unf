@@ -189,8 +189,8 @@ glyph han-31d57:15x16 15 16 // 𱵗
 // glyph han-31d82:15x16 15 16 // 𱶂
 // ⿰ han-79be han-538c // ⿰禾厌
 
-// glyph han-31d85:15x16 15 16 // 𱶅
-// ⿰ han-79be han-8272 // ⿰禾色
+glyph han-31d85:15x16 15 16 // 𱶅
+⿰ han-79be:5x16 1 han-8272:9x16 // ⿰禾色
 
 ## 115.7
 
@@ -345,6 +345,9 @@ glyph han-31dfd:15x16 15 16 // 𱷽
 ⿳ han-25ad7:13x5 han-5f50-g:13x5 han-5bf8:15x6 // ⿳𥫗𫜹寸
 
 ## 118.8
+
+// glyph han-31e01:15x16 15 16 // 𱸁
+// ⿱ han-25ad7 han-286ab // ⿱𥫗𨚫
 
 // glyph han-31e04:15x16 15 16 // 𱸄
 // ⿱ han-25ad7 han-62af // ⿱𥫗抯

@@ -287,8 +287,8 @@ glyph han-24fca:15x16 15 16 // 𤿊
 // glyph han-24fcc:15x16 15 16 // 𤿌
 // ⿱ han-53e3 han-76ae // ⿱口皮
 
-// glyph han-24fcd:15x16 15 16 // 𤿍
-// ⿰ han-76ae han-4e8e // ⿰皮于
+glyph han-24fcd:15x16 15 16 // 𤿍
+⿰ han-76ae:8x16 han-4e8e:7x16 // ⿰皮于
 
 ## 107.4
 

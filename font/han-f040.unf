@@ -618,8 +618,8 @@ glyph han-2d634:15x16 15 16 // 𭘴
 
 ## 51.5
 
-// glyph han-2d63f:15x16 15 16 // 𭘿
-// ⿰ han-5e72 han-53bb // ⿰干去
+glyph han-2d63f:15x16 15 16 // 𭘿
+⿰ han-5e72:5x16 1 han-53bb:9x16 // ⿰干去
 
 glyph han-2d640:15x16 15 16 // 𭙀
 assume ⿰ han-5e72:9x16 -1 han-5360:7x16 // ⿰干占
@@ -832,8 +832,8 @@ glyph han-2d6dc:15x16 15 16 // 𭛜
 
 ## 60.5
 
-// glyph han-2d6df:15x16 15 16 // 𭛟
-// ⿰ han-5f73 han-53bb // ⿰彳去
+glyph han-2d6df:15x16 15 16 // 𭛟
+⿰ han-5f73:5x16 1 han-53bb:9x16 // ⿰彳去
 
 glyph han-2d6e1:15x16 15 16 // 𭛡
 ⿰ han-5f73:5x16 1 han-518b:9x16 // ⿰彳冋
@@ -862,8 +862,8 @@ glyph han-2d6e8:15x16 15 16 // 𭛨
 glyph han-2d6ef:15x16 15 16 // 𭛯
 ⿰ han-5f73:5x16 1 han-9752-j:9x16 // ⿰彳青
 
-// glyph han-2d6f0:15x16 15 16 // 𭛰
-// ⿲ han-5f73 han-53bb han-4e8d // ⿲彳去亍
+glyph han-2d6f0:15x16 15 16 // 𭛰
+⿲ han-5f73:3x16 han-53bb:9x16 han-4e8d:3x16 // ⿲彳去亍
 
 glyph han-2d6f1:15x16 15 16 // 𭛱
 ⿰ han-5f73:5x16 han-9763:10x16 // ⿰彳靣

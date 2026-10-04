@@ -302,8 +302,8 @@ glyph han-327ad:15x16 15 16 // 𲞭
 
 ## 50.6
 
-// glyph han-327ae:15x16 15 16 // 𲞮
-// ⿰ han-5dfe han-8272 // ⿰巾色
+glyph han-327ae:15x16 15 16 // 𲞮
+⿰ han-5dfe:5x16 1 han-8272:9x16 // ⿰巾色
 
 ## 50.8
 
