@@ -1109,14 +1109,16 @@ pub(super) fn paint_document_area(
         if panel_result.click_consumed {
             click_result = None;
         }
-        if let Some((ref_idx, action)) = panel_result.inline_ref {
+        if let Some((layer_idx, action)) = panel_result.inline_layer
+            && let Some(target) = changes::InlineTarget::of_layer(doc, edit_idx, layer_idx)
+        {
             refocus_after_menu(ui, wid);
             if apply_inline_action(
                 action,
                 lines,
                 doc,
                 state,
-                changes::InlineTarget::Ref { edit_idx, ref_idx },
+                target,
                 composites.get(&edit_idx).map(|c| &**c),
                 named_glyphs,
                 name_parts,
@@ -1410,7 +1412,7 @@ pub(super) fn paint_document_area(
                         };
                         state.suppress_grid_click = true;
                     } else if let Some(DocumentItem::Glyph { body, .. }) = doc.items.get(item_idx)
-                        && !body.refs.is_empty()
+                        && crate::editor::Layer::placed_count(body) > 0
                     {
                         state.mode = EditMode::GlyphEdit {
                             item_idx,
@@ -1463,7 +1465,7 @@ pub(super) fn paint_document_area(
         }
     }
 
-    // Right-clicking the grid while a ref layer is selected offers the same
+    // Right-clicking the grid while a placed layer is selected offers the same
     // subglyph menu as right-clicking that layer's thumbnail in the inline
     // tools panel. Whether the click landed on the grid has to be latched:
     // `context_menu` is re-evaluated every frame while the menu is open, and
@@ -1476,7 +1478,7 @@ pub(super) fn paint_document_area(
             .is_some_and(|(p, r)| r.contains(p));
         ui.ctx().data_mut(|d| d.insert_temp(grid_ctx_id, on_grid));
     }
-    let grid_subglyph_ref = match state.mode {
+    let grid_subglyph_target = match state.mode {
         EditMode::LayerMove {
             item_idx,
             layer_idx,
@@ -1484,16 +1486,14 @@ pub(super) fn paint_document_area(
             .ctx()
             .data(|d| d.get_temp::<bool>(grid_ctx_id).unwrap_or(false)) =>
         {
-            matches!(doc.items.get(item_idx),
-                    Some(DocumentItem::Glyph { body, .. }) if layer_idx < body.refs.len())
-            .then_some((item_idx, layer_idx))
+            changes::InlineTarget::of_layer(doc, item_idx, layer_idx)
         }
         _ => None,
     };
 
     // Context menu (only in Normal mode; edit modes use right-click for erasing)
     let ctx_mode_normal = matches!(state.mode, EditMode::Normal);
-    if let Some((edit_idx, ref_idx)) = grid_subglyph_ref {
+    if let Some(target) = grid_subglyph_target {
         let mut inline = None;
         response.context_menu(|ui| {
             inline = inline_tools::subglyph_context_menu(ui);
@@ -1505,8 +1505,8 @@ pub(super) fn paint_document_area(
                 lines,
                 doc,
                 state,
-                changes::InlineTarget::Ref { edit_idx, ref_idx },
-                composites.get(&edit_idx).map(|c| &**c),
+                target,
+                composites.get(&target.edit_idx()).map(|c| &**c),
                 named_glyphs,
                 name_parts,
             ) {

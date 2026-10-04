@@ -149,8 +149,9 @@ half-typed header does not demote its grid to text.
 
 A pixel grid is drawn on directly. **1** enters drawing mode on the grid at the caret; the palette
 beside the grid shows the sub-pixel shapes, and the letter keys of its rows (`asdf`, `qwer`, `zxcv`)
-cycle a family of shapes each. **2–9** select the glyph's layers — its `ref` and `anchor` lines, in
-order — for moving with the mouse or the arrows. **Escape** returns to the text.
+cycle a family of shapes each. **2–9** select the glyph's layers — its `ref` lines, the inner part
+of an enclosure line (`⿴ OUTER INNER P Q`, whose `P Q` a drag rewrites in logical cells), and its
+`anchor` lines, in that order — for dragging with the mouse. **Escape** returns to the text.
 
 **`` ` ``** enters selection mode: a rectangle of pixels can be framed, moved, copied and pasted,
 mirrored (M), flipped (I), rotated (J/K/L), inverted to the opposite shapes (O) or the opposite

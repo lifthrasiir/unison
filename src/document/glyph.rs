@@ -557,6 +557,70 @@ impl GlyphCompose {
             .count()
     }
 
+    /// Whether the line seats an inner part at offsets it writes itself: an
+    /// enclosure naming its two components. That placement is the one number
+    /// pair of an IDC line an author picks by hand, exactly as a `ref`'s, so
+    /// the editor lists the inner part as a layer of its own and lets it be
+    /// dragged ([`with_inner_offset`](Self::with_inner_offset)). It derives a
+    /// `ref` for each name whatever else is wrong with the line, so this is
+    /// the same test `expand_enclosure` makes before it places them.
+    #[cfg(any(feature = "editor", test))]
+    pub fn places_inner(&self) -> bool {
+        self.op.walls().is_some()
+            && self
+                .items
+                .iter()
+                .filter(|it| matches!(it, ComposeItem::Part { .. }))
+                .count()
+                == 2
+    }
+
+    /// The inner part's name, as resolved, on a line that
+    /// [places one](Self::places_inner).
+    #[cfg(feature = "editor")]
+    pub fn inner_name(&self) -> Option<&str> {
+        self.items
+            .iter()
+            .filter_map(|it| match it {
+                ComposeItem::Part { name, .. } => Some(name.as_str()),
+                _ => None,
+            })
+            .nth(1)
+    }
+
+    /// The inner part's offsets `(P, Q)` as the line places it: the two it
+    /// writes, or `(0, 0)` — where the derivation draws an unplaced part —
+    /// when it does not write exactly two.
+    #[cfg(feature = "editor")]
+    pub fn inner_offset(&self) -> (i16, i16) {
+        let mut gaps = self.items.iter().filter_map(|it| match it {
+            ComposeItem::Gap(n) => Some(*n),
+            _ => None,
+        });
+        match (gaps.next(), gaps.next(), gaps.next()) {
+            (Some(p), Some(q), None) => (p, q),
+            _ => (0, 0),
+        }
+    }
+
+    /// This line with the inner part placed at `(p, q)`: the numbers it wrote,
+    /// if any, dropped, and the two written after both components, where an
+    /// enclosure takes them.
+    #[cfg(feature = "editor")]
+    pub fn with_inner_offset(&self, (p, q): (i16, i16)) -> Self {
+        let mut items: Vec<ComposeItem> = self
+            .items
+            .iter()
+            .filter(|it| !matches!(it, ComposeItem::Gap(_)))
+            .cloned()
+            .collect();
+        items.extend([ComposeItem::Gap(p), ComposeItem::Gap(q)]);
+        Self {
+            items,
+            ..self.clone()
+        }
+    }
+
     /// Format as an IDC line, the way [`GlyphRef::format_line`] formats a `ref`.
     // Not editor-gated like its `ref` counterpart: `uniform fix` rewrites IDC
     // lines and is a headless command.
@@ -780,6 +844,20 @@ impl GlyphBody {
             (None, _) | (_, None) | (_, Some(LayerVisibility::Both)) => true,
             (Some(scope), Some(vis)) => scope == vis,
         }
+    }
+
+    /// The IDC lines whose inner part is a layer the editor moves
+    /// ([`GlyphCompose::places_inner`]), as indices into
+    /// [`compose`](Self::compose), in written order. A line in a glyph with no
+    /// box derives nothing, so it has no part to move either.
+    #[cfg(any(feature = "editor", test))]
+    pub fn enclosure_layers(&self) -> impl Iterator<Item = usize> + '_ {
+        let boxed = self.declared_extent().is_some();
+        self.compose
+            .iter()
+            .enumerate()
+            .filter(move |(_, c)| boxed && c.places_inner())
+            .map(|(i, _)| i)
     }
 
     pub fn new() -> Self {

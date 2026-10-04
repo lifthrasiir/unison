@@ -381,7 +381,11 @@ fn anchor_layer_color(
     {
         return ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, *src_ref);
     }
-    ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, body.refs.len() + pi)
+    ref_composite::ref_color_sv(
+        pal.ref_hsv_s,
+        pal.ref_hsv_v,
+        crate::editor::Layer::point_index(body, pi),
+    )
 }
 
 // Painting parameters, each independent of the others.
@@ -420,17 +424,19 @@ pub(crate) fn render_grid_row(
 
     let is_layer_mode =
         matches!(mode, EditMode::LayerMove { item_idx: eidx, .. } if *eidx == item_idx);
-    // LayerMove indexes refs first, then points; split the active layer index
-    // into whichever of the two it denotes.
+    // Split the active layer index into a placed glyph (a composite layer
+    // carries the same index) or an anchor (points, then inherited ones).
+    use crate::editor::Layer;
     let (active_ref, active_point) = match mode {
         EditMode::LayerMove {
             item_idx: eidx,
             layer_idx,
         } if *eidx == item_idx => match doc.items.get(item_idx) {
-            Some(DocumentItem::Glyph { body, .. }) if *layer_idx < body.refs.len() => {
-                (Some(*layer_idx), None)
-            }
-            Some(DocumentItem::Glyph { body, .. }) => (None, Some(*layer_idx - body.refs.len())),
+            Some(DocumentItem::Glyph { body, .. }) => match Layer::of(body, *layer_idx) {
+                Layer::Ref(_) | Layer::Enclosure(_) => (Some(*layer_idx), None),
+                Layer::Point(pi) => (None, Some(pi)),
+                Layer::Inherited(ii) => (None, Some(body.points.len() + ii)),
+            },
             _ => (None, None),
         },
         _ => (None, None),
@@ -658,13 +664,13 @@ pub(crate) fn render_grid_row(
     // Draw anchor markers: the declared points first, then the anchors
     // inherited through `inherit` refs, each in its source subglyph's color.
     if let Some(DocumentItem::Glyph { body, .. }) = doc.items.get(item_idx) {
-        let num_refs = body.refs.len();
+        let first_point = crate::editor::Layer::point_index(body, 0);
         let inherited = composite.map_or(&[][..], |c| c.inherited_anchors.as_slice());
         let inherited_on_grid: Vec<crate::document::GlyphPoint> = composite
             .map(|c| c.inherited_anchors_on_grid().collect())
             .unwrap_or_default();
         let declared = body.points.iter().enumerate().map(|(pi, point)| {
-            let color = ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, num_refs + pi);
+            let color = ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, first_point + pi);
             (pi, point, color)
         });
         let inherited = inherited.iter().zip(&inherited_on_grid).enumerate().map(

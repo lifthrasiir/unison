@@ -12,7 +12,8 @@ use crate::pixel;
 
 pub(crate) struct InlineToolsResult {
     pub click_consumed: bool,
-    pub inline_ref: Option<(usize, InlineAction)>,
+    /// The subglyph menu's choice, with the layer it was opened on.
+    pub inline_layer: Option<(usize, InlineAction)>,
 }
 
 /// How far the subglyph menu was asked to inline a ref layer.
@@ -25,7 +26,7 @@ pub(crate) enum InlineAction {
 }
 
 #[allow(clippy::too_many_arguments)]
-/// Step the layer selection (0 = pixel layer, 1.. = ref/point layers) by
+/// Step the layer selection (0 = pixel layer, 1.. = the subglyph layers) by
 /// `step`, switching the edit mode accordingly. Used by both scroll-wheel
 /// layer cycling on the grid and on the inline tools preview row.
 pub(crate) fn cycle_layer_mode(
@@ -35,7 +36,7 @@ pub(crate) fn cycle_layer_mode(
     inherited_count: usize,
     step: i32,
 ) {
-    let layer_count = body.refs.len() + body.points.len() + inherited_count;
+    let layer_count = crate::editor::Layer::count(body, inherited_count);
     let total = 1 + layer_count as i32;
     let current = match &state.mode {
         EditMode::GlyphEdit { .. } | EditMode::PixelSelect { .. } => 0,
@@ -97,7 +98,7 @@ pub(crate) fn draw_inline_tools_panel(
 ) -> InlineToolsResult {
     let no_action = InlineToolsResult {
         click_consumed: false,
-        inline_ref: None,
+        inline_layer: None,
     };
     let body = match doc.items.get(edit_idx) {
         Some(DocumentItem::Glyph { body, .. }) => body,
@@ -196,14 +197,18 @@ pub(crate) fn draw_inline_tools_panel(
 
     px += full_preview_size.x + 4.0 * zoom;
 
-    // Individual ref previews (always at exact preview_scale per pixel,
-    // but at least as large as the pixel layer)
+    // Individual previews of the placed glyphs — the refs, then the inner
+    // parts of enclosure lines (always at exact preview_scale per pixel, but
+    // at least as large as the pixel layer)
     let pixel_preview_w = full_preview_size.x;
     let pixel_preview_h = full_preview_size.y;
-    let mut inline_ref_action: Option<(usize, InlineAction)> = None;
-    for (ref_idx, gref) in body.refs.iter().enumerate() {
-        let resolved =
-            ref_composite::resolve_ref_name_for_view(&gref.name, named_glyphs, name_parts);
+    let mut inline_layer_action: Option<(usize, InlineAction)> = None;
+    let placed = body.refs.iter().map(|gref| gref.name.as_str()).chain(
+        body.enclosure_layers()
+            .map(|ci| body.compose[ci].inner_name().unwrap_or_default()),
+    );
+    for (layer_idx, name) in placed.enumerate() {
+        let resolved = ref_composite::resolve_ref_name_for_view(name, named_glyphs, name_parts);
         // A `scale N` glyph's grid is N times finer than its logical size, so
         // the thumbnail is sized from the logical extent and its subcells are
         // drawn at a correspondingly smaller cell size — otherwise the subglyph
@@ -223,14 +228,20 @@ pub(crate) fn draw_inline_tools_panel(
         // Publish this thumbnail's rect for the in-crate GUI test harness, so
         // tests can click it without hand-replicating the layout math above.
         #[cfg(test)]
-        crate::editor::harness::capture_ref_rect(ui.ctx(), state.id(), edit_idx, ref_idx, ref_rect);
+        crate::editor::harness::capture_ref_rect(
+            ui.ctx(),
+            state.id(),
+            edit_idx,
+            layer_idx,
+            ref_rect,
+        );
 
         let is_active = matches!(
             state.mode,
-            EditMode::LayerMove { item_idx, layer_idx } if item_idx == edit_idx && layer_idx == ref_idx
+            EditMode::LayerMove { item_idx, layer_idx: li } if item_idx == edit_idx && li == layer_idx
         );
 
-        let color = ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, ref_idx);
+        let color = ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, layer_idx);
         painter.rect_filled(ref_rect, 0.0, pal.grid_bg);
         if let Some(rg) = resolved {
             let geom = grid_render::PreviewGeom {
@@ -254,19 +265,19 @@ pub(crate) fn draw_inline_tools_panel(
         // Context menu on right-click; also use this response for left-click
         // layer selection — ui.interact() consumes the click from the parent
         // response, so click_pos would be None for ref previews.
-        let interact_id = state.keyed(Slot::RefLayerCtx, (edit_idx, ref_idx));
+        let interact_id = state.keyed(Slot::RefLayerCtx, (edit_idx, layer_idx));
         let ref_response = ui.interact(ref_rect, interact_id, egui::Sense::click());
 
         if ref_response.clicked() {
             state.mode = EditMode::LayerMove {
                 item_idx: edit_idx,
-                layer_idx: ref_idx,
+                layer_idx,
             };
         }
 
         ref_response.context_menu(|ui| {
             if let Some(action) = subglyph_context_menu(ui) {
-                inline_ref_action = Some((ref_idx, action));
+                inline_layer_action = Some((layer_idx, action));
             }
         });
 
@@ -274,9 +285,9 @@ pub(crate) fn draw_inline_tools_panel(
     }
 
     // Individual point previews (X marks at same preview scale)
-    let num_refs = body.refs.len();
+    let first_point = crate::editor::Layer::point_index(body, 0);
     for (pi, _point) in body.points.iter().enumerate() {
-        let layer_idx = num_refs + pi;
+        let layer_idx = first_point + pi;
         let point_size = egui::vec2(palette_cell, palette_cell);
         let point_rect = egui::Rect::from_min_size(egui::pos2(px, panel_y), point_size);
 
@@ -318,7 +329,7 @@ pub(crate) fn draw_inline_tools_panel(
         composite.map_or(&[], |c| &c.inherited_anchors);
     let num_points = body.points.len();
     for (ii, (_point, src_ref)) in inherited.iter().enumerate() {
-        let layer_idx = num_refs + num_points + ii;
+        let layer_idx = first_point + num_points + ii;
         let point_size = egui::vec2(palette_cell, palette_cell);
         let point_rect = egui::Rect::from_min_size(egui::pos2(px, panel_y), point_size);
 
@@ -386,10 +397,11 @@ pub(crate) fn draw_inline_tools_panel(
             shift_held,
         );
     } else if let EditMode::LayerMove { layer_idx, .. } = &state.mode {
-        let num_refs = body.refs.len();
+        use crate::editor::Layer;
         let label_y = panel_y + prh + 4.0;
         let layer_color = ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, *layer_idx);
-        if *layer_idx < num_refs {
+        let layer = Layer::of(body, *layer_idx);
+        if let Layer::Ref(_) = layer {
             // Show the resolved alternative name if it differs from the source ref.
             if let Some(comp) = composite
                 && let Some(layer) = comp.layers.iter().find(|l| l.ref_idx == *layer_idx)
@@ -405,7 +417,9 @@ pub(crate) fn draw_inline_tools_panel(
                     );
                 }
             }
-        } else if let Some(point) = body.points.get(layer_idx - num_refs) {
+        } else if let Layer::Point(pi) = layer
+            && let Some(point) = body.points.get(pi)
+        {
             // How many glyphs the shadow behind the grid is made of — the label
             // is the only place that says the dim shape is more than one glyph.
             let label = match shadow {
@@ -419,10 +433,9 @@ pub(crate) fn draw_inline_tools_panel(
                 egui::FontId::monospace(16.0_f32.max(palette_cell * 0.8)),
                 layer_color,
             );
-        } else if let Some((point, src_ref)) = composite.and_then(|c| {
-            c.inherited_anchors
-                .get(layer_idx - num_refs - body.points.len())
-        }) {
+        } else if let Layer::Inherited(ii) = layer
+            && let Some((point, src_ref)) = composite.and_then(|c| c.inherited_anchors.get(ii))
+        {
             // An inherited anchor names its source alongside the position, in
             // the source subglyph's color.
             let source = body
@@ -445,7 +458,7 @@ pub(crate) fn draw_inline_tools_panel(
 
     InlineToolsResult {
         click_consumed,
-        inline_ref: inline_ref_action,
+        inline_layer: inline_layer_action,
     }
 }
 

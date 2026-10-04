@@ -1,7 +1,7 @@
 use crate::document::{DocLine, Document, DocumentItem, PixelGrid};
 use crate::editor::ref_composite::GlyphComposite;
 use crate::editor::undo;
-use crate::editor::{EditMode, EditorId, EditorState, Slot};
+use crate::editor::{EditMode, EditorId, EditorState, Layer, Slot};
 use crate::pixel;
 
 use super::document_view::GridExtent;
@@ -287,9 +287,11 @@ pub(crate) fn handle_pixel_painting(
     }
 }
 
-/// DocLine index of the body line backing layer `layer_idx`.
+/// DocLine index of the body line backing `ref` `layer_idx`, or `anchor`
+/// `layer_idx - refs.len()`. Not an [`EditMode::LayerMove`] index: the inner
+/// parts of enclosure lines are not counted here ([`Layer`] converts).
 ///
-/// Layer indices run over the refs first and the points after, but the *lines*
+/// The indices run over the refs first and the points after, but the *lines*
 /// need not: the parser accepts `ref` and `anchor` lines in any order, so the
 /// n-th layer's line is found by scanning the body block (which starts after
 /// the header and the glyph's single `DocLine::Grid`, when it owns one) for
@@ -334,7 +336,8 @@ pub(crate) fn layer_doc_line(
     base + body.compose.len() + total
 }
 
-/// Drag a `ref` or `anchor` layer by whole grid cells, rewriting its body line.
+/// Drag a `ref` or `anchor` layer, or an enclosure's inner part, by whole grid
+/// cells, rewriting its body line.
 ///
 /// Both layer kinds and both kinds of glyph (own pixel grid or ref-only) take
 /// the same path: nothing here may depend on the glyph having a grid of its
@@ -366,25 +369,54 @@ pub(crate) fn handle_layer_drag(
         _ => return,
     };
 
-    let Some((dcol, drow)) = drag_cell_step(ui, state.id(), grid_origin, grid_cell) else {
-        return;
+    let layer = Layer::of(body, layer_idx);
+    // An enclosure line places its inner part in logical cells, so its drag
+    // steps by those; a `ref` and an `anchor` count raster cells.
+    let step_cell = match layer {
+        Layer::Enclosure(_) => grid_cell * body.scale.max(1) as f32,
+        _ => grid_cell,
     };
-
-    let new_text = if let Some(gref) = body.refs.get(layer_idx) {
-        // Start from the placement the composite actually derived, so dragging
-        // an auto-placed ref continues from where it is drawn.
-        let (row, col) = composite
-            .and_then(|comp| layer_effective_offset(comp, layer_idx))
-            .unwrap_or_else(|| (gref.row(), gref.col()));
-        format_dragged_ref(gref, col + dcol, row + drow)
-    } else if let Some(point) = body.points.get(layer_idx - body.refs.len()) {
-        point.shifted(dcol, drow).format_line()
-    } else {
+    let Some((dcol, drow)) = drag_cell_step(ui, state.id(), grid_origin, step_cell) else {
         return;
     };
 
     let header_line = item_line_starts.get(item_idx).copied().unwrap_or(0);
-    let layer_line = layer_doc_line(lines, body, header_line, layer_idx);
+    let (new_text, layer_line) = match layer {
+        Layer::Ref(ref_idx) => {
+            let Some(gref) = body.refs.get(ref_idx) else {
+                return;
+            };
+            // Start from the placement the composite actually derived, so
+            // dragging an auto-placed ref continues from where it is drawn.
+            let (row, col) = composite
+                .and_then(|comp| layer_effective_offset(comp, layer_idx))
+                .unwrap_or_else(|| (gref.row(), gref.col()));
+            (
+                format_dragged_ref(gref, col + dcol, row + drow),
+                layer_doc_line(lines, body, header_line, ref_idx),
+            )
+        }
+        Layer::Enclosure(compose_idx) => {
+            let compose = &body.compose[compose_idx];
+            let (p, q) = compose.inner_offset();
+            let Some(line) =
+                crate::editor::document_view::compose_doc_line(lines, doc, item_idx, compose_idx)
+            else {
+                return;
+            };
+            (
+                compose
+                    .with_inner_offset((p.saturating_add(dcol), q.saturating_add(drow)))
+                    .format_line(),
+                line,
+            )
+        }
+        Layer::Point(pi) => (
+            body.points[pi].shifted(dcol, drow).format_line(),
+            layer_doc_line(lines, body, header_line, body.refs.len() + pi),
+        ),
+        Layer::Inherited(_) => return,
+    };
 
     if let Some(DocLine::Text(old_text)) = lines.get(layer_line)
         && **old_text != new_text

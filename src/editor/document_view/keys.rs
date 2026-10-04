@@ -359,8 +359,8 @@ pub(super) fn handle_document_keys(
 
 /// `` ` `` and `1`..`9` select a slot of the layer palette (the inline tools
 /// preview row) directly, whatever the current mode is: slot 1 is the glyph's
-/// own pixel grid, slots 2.. are its subglyph layers in palette order (refs,
-/// then points, then inherited anchors).  `1` and `` ` `` both switch *to* the
+/// own pixel grid, slots 2.. are its subglyph layers in palette order
+/// ([`crate::editor::Layer`]).  `1` and `` ` `` both switch *to* the
 /// pixel grid and only differ in which detail mode they land in, so neither
 /// depends on a pixel grid being selected already.
 ///
@@ -439,7 +439,7 @@ fn handle_palette_shortcuts(
     let inherited = composites
         .get(&item_idx)
         .map_or(0, |c| c.inherited_anchors.len());
-    let layer_count = body.refs.len() + body.points.len() + inherited;
+    let layer_count = crate::editor::Layer::count(body, inherited);
     let layer_idx = slot - 1;
     if layer_idx < layer_count {
         state.mode = EditMode::LayerMove {

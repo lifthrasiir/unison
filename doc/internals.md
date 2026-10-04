@@ -257,6 +257,7 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Alt + wheel / Alt + Up/Down over a number | `editor/document_view/number_scroll.rs` |
 | The metrics overlay | `editor/grid_render.rs`, `editor/document_view/layout.rs` (`GlyphMetrics`) |
 | The shape palette: rotation orbits, rotation as separate state | `editor/glyph_widget.rs` |
+| The subglyph layers and their order; why an enclosure's inner part is a layer and no other IDC part is | `editor/mod.rs` (`Layer`), `document/glyph.rs` (`GlyphCompose::places_inner`), `ref_composite/composite.rs` (`compose_refs_for_view`) |
 | The anchor shadow, the backreference shadow, and what they share | `editor/anchor_shadow.rs`, `editor/backref_shadow.rs`, `editor/shadow.rs`, `editor/mod.rs` (`EditMode::PixelSelect`) |
 | The reference chart strip above a `glyph` line: where the strips are, why one fixed row height | `editor/ref_images.rs` (`REF_IMAGE_ROW`, `RefImages::end_frame`), `audit.rs` (`ref_image_root`) |
 | Files changed outside the editor; F5; the poll backend | `app/watch.rs` (`request_refresh`, `run_scan`, `apply_directory_snapshot`, `poll_snapshot`, `next_poll_delay`) |

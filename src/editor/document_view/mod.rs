@@ -54,7 +54,7 @@ use scroll::{
 
 // Re-exported so the rest of the editor keeps addressing these as
 // `document_view::*`, whichever submodule they now live in.
-pub(crate) use changes::flush_document_changes;
+pub(crate) use changes::{compose_doc_line, flush_document_changes};
 pub(crate) use layout::{
     GlyphMetrics, GridExtent, GridStrip, HeadingLine, VLineKind, ViewCache, ViewData, VisualLine,
     compute_grid_display_extent, glyph_metrics, heading_font, heading_font_size,
@@ -713,8 +713,8 @@ fn splice_ref_image_rows(vlines: &mut Vec<VisualLine>, rows: Vec<(usize, u32)>, 
 
 /// The `(item, point index)` of the anchor layer the subglyph palette has
 /// selected, if the selected layer is an anchor at all — [`EditMode::LayerMove`]
-/// indexes refs first, points after them, then the anchors inherited through
-/// `inherit` refs. The upper bound is not checked here: the inherited count
+/// indexes the placed glyphs first, points after them, then the anchors
+/// inherited through `inherit` refs ([`crate::editor::Layer`]). The upper bound is not checked here: the inherited count
 /// lives on the composite, which does not exist yet when the view cache key
 /// is built, and an out-of-range index merely selects no anchor downstream.
 fn active_point_layer(doc: &Document, mode: &EditMode) -> Option<(usize, usize)> {
@@ -728,7 +728,7 @@ fn active_point_layer(doc: &Document, mode: &EditMode) -> Option<(usize, usize)>
     let Some(DocumentItem::Glyph { body, .. }) = doc.items.get(*item_idx) else {
         return None;
     };
-    let pi = layer_idx.checked_sub(body.refs.len())?;
+    let pi = layer_idx.checked_sub(crate::editor::Layer::placed_count(body))?;
     Some((*item_idx, pi))
 }
 

@@ -242,6 +242,32 @@ pub(crate) enum InlineTarget {
     Compose { edit_idx: usize, compose_idx: usize },
 }
 
+impl InlineTarget {
+    pub(crate) fn edit_idx(self) -> usize {
+        match self {
+            Self::Ref { edit_idx, .. } | Self::Compose { edit_idx, .. } => edit_idx,
+        }
+    }
+
+    /// The line behind subglyph layer `layer_idx`, which the subglyph menu
+    /// acts on: a `ref`'s own line, or for an enclosure's inner part the IDC
+    /// line that places it — the part has no line of its own, and inlining
+    /// the line is what inlining it means. `None` for an anchor.
+    pub(crate) fn of_layer(doc: &Document, edit_idx: usize, layer_idx: usize) -> Option<Self> {
+        let DocumentItem::Glyph { body, .. } = doc.items.get(edit_idx)? else {
+            return None;
+        };
+        match crate::editor::Layer::of(body, layer_idx) {
+            crate::editor::Layer::Ref(ref_idx) => Some(Self::Ref { edit_idx, ref_idx }),
+            crate::editor::Layer::Enclosure(compose_idx) => Some(Self::Compose {
+                edit_idx,
+                compose_idx,
+            }),
+            _ => None,
+        }
+    }
+}
+
 /// The composed line the caret sits on, if it sits on one.
 ///
 /// The ordinal is *scanned* rather than computed from the line's distance to
@@ -687,7 +713,7 @@ pub(super) fn inline_compose_to_pixels(
 
 /// Which buffer line is the `compose_idx`th IDC line of this block. Scanned
 /// for the same reason [`pixel_interaction::layer_doc_line`] scans.
-fn compose_doc_line(
+pub(crate) fn compose_doc_line(
     lines: &[DocLine],
     doc: &Document,
     edit_idx: usize,

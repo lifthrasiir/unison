@@ -758,3 +758,141 @@ fn clicking_a_thumbnail_focuses_the_editor() {
     );
     assert!(h.editor_has_focus());
 }
+
+// -- an enclosure's inner part is a layer ------------------------------------
+
+/// `wall` is a 4x4 frame with a 2x2 cavity and `dot` a 2x2 block; `box` places
+/// `dot` in `wall` by an enclosure line alone, and `boxed` does the same
+/// beside a `ref` and an `anchor` of its own. Item indices: wall = 0, dot = 2,
+/// box = 4, boxed = 6. A `W H` header gives a glyph an empty grid, drawn on the
+/// line before its IDC line.
+fn enclosure_doc(placement: &str) -> String {
+    format!(
+        "glyph wall:4x4.2x2 4 4\n\
+         @@@@@@@@\n@@....@@\n@@....@@\n@@@@@@@@\n\n\
+         glyph dot:2x2 2 2\n@@@@\n@@@@\n\n\
+         glyph box 4 4\n\
+         ⿴ wall:4x4.2x2 dot:2x2{placement} // walled\n\n\
+         glyph boxed 4 4\n\
+         ⿴ wall:4x4.2x2 dot:2x2 1 1\n\
+         ref dot:2x2 0 0\n\
+         anchor top 1 0\n"
+    )
+}
+
+fn doc_line_of(h: &EditorHarness, text: &str) -> usize {
+    h.lines
+        .iter()
+        .position(|l| matches!(l, DocLine::Text(t) if **t == *text))
+        .unwrap_or_else(|| panic!("no line {text:?}"))
+}
+
+/// The inner part of an enclosure line is placed by two numbers the line
+/// writes, exactly as a `ref` is, so it is a subglyph layer like one: listed
+/// in the palette, selected by its digit, and dragged by rewriting the
+/// numbers. A drag counts the logical cells the line writes.
+#[test]
+fn enclosure_inner_part_drags_like_a_ref() {
+    let mut h = EditorHarness::new(&enclosure_doc(" 1 1"));
+    let idc = doc_line_of(&h, "⿴ wall:4x4.2x2 dot:2x2 1 1 // walled");
+    enter_layer_move(&mut h, idc - 1, 4, 0);
+    // Listed in the palette, as a `ref` is.
+    let _ = h.ref_thumbnail_rect(4, 0);
+
+    drag_left_by_cells(&mut h, egui::pos2(500.0, 5000.0), 1);
+    assert_eq!(h.text(idc), "⿴ wall:4x4.2x2 dot:2x2 0 1 // walled");
+    assert!(
+        matches!(
+            h.state.mode,
+            EditMode::LayerMove {
+                item_idx: 4,
+                layer_idx: 0
+            }
+        ),
+        "{:?}",
+        h.state.mode
+    );
+}
+
+/// A line that has not placed its inner part yet is drawn with it in the
+/// corner, and a drag places it from there.
+#[test]
+fn dragging_an_unplaced_inner_part_writes_its_offsets() {
+    let mut h = EditorHarness::new(&enclosure_doc(""));
+    let idc = doc_line_of(&h, "⿴ wall:4x4.2x2 dot:2x2 // walled");
+    enter_layer_move(&mut h, idc - 1, 4, 0);
+    drag_left_by_cells(&mut h, egui::pos2(500.0, 5000.0), 1);
+    assert_eq!(h.text(idc), "⿴ wall:4x4.2x2 dot:2x2 -1 0 // walled");
+}
+
+/// The inner part is listed after the `ref`s and before the anchors, and the
+/// digit keys follow that order.
+#[test]
+fn enclosure_layer_sits_between_refs_and_anchors() {
+    let mut h = EditorHarness::new(&enclosure_doc(" 1 1"));
+    let idc = doc_line_of(&h, "⿴ wall:4x4.2x2 dot:2x2 1 1");
+    let r = doc_line_of(&h, "ref dot:2x2 0 0");
+    let anchor = doc_line_of(&h, "anchor top 1 0");
+    enter_layer_move(&mut h, idc - 1, 6, 0);
+
+    for (key, layer_idx) in [(Key::Num2, 0), (Key::Num3, 1), (Key::Num4, 2)] {
+        h.key(key);
+        assert!(
+            matches!(h.state.mode, EditMode::LayerMove { item_idx: 6, layer_idx: l } if l == layer_idx),
+            "{key:?}: {:?}",
+            h.state.mode
+        );
+    }
+    let _ = h.ref_thumbnail_rect(6, 1);
+
+    // Each layer drags its own line and nothing else.
+    let drag = |h: &mut EditorHarness, key| {
+        // A drag pressed in empty space leaves the editor unfocused.
+        h.focus();
+        h.key(key);
+        drag_left_by_cells(h, egui::pos2(500.0, 5000.0), 1);
+    };
+    drag(&mut h, Key::Num2);
+    assert_eq!(h.text(r), "ref dot:2x2 -1 0");
+    drag(&mut h, Key::Num3);
+    assert_eq!(h.text(idc), "⿴ wall:4x4.2x2 dot:2x2 0 1");
+    drag(&mut h, Key::Num4);
+    assert_eq!(h.text(anchor), "anchor top 0 0");
+}
+
+/// The line counts the glyph's logical cells, not its `scale 2` raster's, so
+/// a drag moves it a logical cell per two raster cells crossed.
+#[test]
+fn enclosure_drag_steps_by_logical_cells() {
+    let src = enclosure_doc(" 1 1").replace("glyph box 4 4", "glyph box 4 4 scale 2");
+    let mut h = EditorHarness::new(&src);
+    let idc = doc_line_of(&h, "⿴ wall:4x4.2x2 dot:2x2 1 1 // walled");
+    enter_layer_move(&mut h, idc - 1, 4, 0);
+    drag_left_by_cells(&mut h, egui::pos2(500.0, 5000.0), 2);
+    assert_eq!(h.text(idc), "⿴ wall:4x4.2x2 dot:2x2 0 1 // walled");
+}
+
+/// The subglyph menu on the inner part acts on the line that places it: the
+/// part has no line of its own, and inlining it is inlining the line.
+#[test]
+fn subglyph_menu_on_an_enclosure_layer_inlines_its_line() {
+    let mut h = EditorHarness::new(&enclosure_doc(" 1 1"));
+    let idc = doc_line_of(&h, "⿴ wall:4x4.2x2 dot:2x2 1 1 // walled");
+    enter_layer_move(&mut h, idc - 1, 4, 0);
+
+    let thumb = h.ref_thumbnail_rect(4, 0).center();
+    h.right_click_at(thumb);
+    h.frame();
+    let item = thumb + egui::vec2(24.0, 14.0);
+    h.move_pointer(item);
+    h.click_at(item);
+    h.frame();
+
+    assert!(
+        !h.lines.iter().any(
+            |l| matches!(l, DocLine::Text(t) if t.contains("// walled") && t.starts_with('⿴'))
+        ),
+        "the IDC line should have been inlined"
+    );
+    doc_line_of(&h, "ref dot:2x2 1 1");
+}

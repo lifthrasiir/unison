@@ -412,12 +412,17 @@ impl ColorWalk<'_> {
 /// glyph being edited must place its parts exactly where the font will.
 /// Diagnostics are dropped here: `issues.rs` reports them once, from the build
 /// side, and the view's job is only to draw.
+///
+/// Each ref comes with the ordinal of the enclosure line whose inner part it
+/// is ([`GlyphBody::enclosure_layers`]), or `None` for every other part: that
+/// one part is a layer the editor moves, and the rest have no number of their
+/// own to move.
 #[cfg(any(feature = "editor", test))]
 fn compose_refs_for_view(
     body: &GlyphBody,
     named_glyphs: &HashMap<String, ResolvedGlyph>,
     name_parts: &NamePartsMap,
-) -> Vec<GlyphRef> {
+) -> Vec<(GlyphRef, Option<usize>)> {
     if body.compose.is_empty() {
         return Vec::new();
     }
@@ -428,12 +433,14 @@ fn compose_refs_for_view(
         }
     };
     let parent = body.declared_extent();
+    let enclosures: Vec<usize> = body.enclosure_layers().collect();
     body.compose
         .iter()
-        .flat_map(|c| {
+        .enumerate()
+        .flat_map(|(ci, c)| {
             // No family and no clearance rule: the check reports, and the
             // view only draws.
-            crate::compose::expand_compose(
+            let refs = crate::compose::expand_compose(
                 "",
                 parent,
                 crate::compose::Raster::of(body),
@@ -442,8 +449,12 @@ fn compose_refs_for_view(
                 None,
                 None,
             )
-            .0
-            .into_iter()
+            .0;
+            // An enclosure derives its outer part, then its inner one.
+            let inner = enclosures.iter().position(|&e| e == ci);
+            refs.into_iter()
+                .enumerate()
+                .map(move |(i, r)| (r, inner.filter(|_| i == 1)))
         })
         .collect()
 }
@@ -496,17 +507,28 @@ pub fn compute_composite(
     aligns: &crate::document::AnchorAligns,
 ) -> Option<GlyphComposite> {
     // Derived refs go in front, so the stack is the one the font builds; the
-    // layers keep pointing at *source* ref lines, so a derived layer takes an
-    // index past their end and the editor's line lookups simply miss it rather
-    // than landing on the wrong line.
+    // layers keep pointing at the editor's layer indices — the source `ref`
+    // lines, then the enclosure lines' inner parts — so an enclosure's inner
+    // part is selected and dragged like a `ref`, and any other derived layer
+    // takes an index past all of those, where the editor's lookups simply miss
+    // it rather than landing on the wrong line.
     let derived = compose_refs_for_view(body, named_glyphs, name_parts);
     if body.refs.is_empty() && derived.is_empty() {
         return None;
     }
-    let all_refs: Vec<GlyphRef> = derived.iter().chain(body.refs.iter()).cloned().collect();
-    let source_idx = |i: usize| {
-        i.checked_sub(derived.len())
-            .unwrap_or_else(|| body.refs.len() + i)
+    let all_refs: Vec<GlyphRef> = derived
+        .iter()
+        .map(|(r, _)| r)
+        .chain(body.refs.iter())
+        .cloned()
+        .collect();
+    let enclosure_count = body.enclosure_layers().count();
+    let source_idx = |i: usize| match i.checked_sub(derived.len()) {
+        Some(source) => source,
+        None => match derived[i].1 {
+            Some(k) => body.refs.len() + k,
+            None => body.refs.len() + enclosure_count + i,
+        },
     };
 
     let origin_of = |name: &str| {

@@ -160,6 +160,64 @@ impl EditMode {
     }
 }
 
+/// What an [`EditMode::LayerMove`] index denotes. The index runs over the
+/// subglyph palette in its order: the `ref` lines, then the inner parts of the
+/// enclosure lines ([`GlyphBody::enclosure_layers`]), then the `anchor`
+/// lines, then the anchors inherited through `inherit` refs. An index also
+/// picks the layer's colour, and the composite numbers its layers the same
+/// way ([`CompositeLayer::ref_idx`]).
+///
+/// The inner part of an enclosure is a layer for the reason a `ref` is: the
+/// line writes where it goes, so dragging it is rewriting two numbers. The
+/// other parts an IDC line derives are placed by sizes, not by numbers, and
+/// so are not layers at all.
+///
+/// [`GlyphBody::enclosure_layers`]: crate::document::GlyphBody::enclosure_layers
+/// [`CompositeLayer::ref_idx`]: crate::editor::ref_composite::CompositeLayer::ref_idx
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Layer {
+    Ref(usize),
+    /// An enclosure's inner part, by its line's index into `body.compose`.
+    Enclosure(usize),
+    Point(usize),
+    /// An inherited anchor. Not bounded here: the count lives on the
+    /// composite, and an index past it selects nothing downstream.
+    Inherited(usize),
+}
+
+impl Layer {
+    pub fn of(body: &crate::document::GlyphBody, layer_idx: usize) -> Self {
+        let Some(e) = layer_idx.checked_sub(body.refs.len()) else {
+            return Layer::Ref(layer_idx);
+        };
+        if let Some(ci) = body.enclosure_layers().nth(e) {
+            return Layer::Enclosure(ci);
+        }
+        let pi = e - body.enclosure_layers().count();
+        match pi.checked_sub(body.points.len()) {
+            None => Layer::Point(pi),
+            Some(ii) => Layer::Inherited(ii),
+        }
+    }
+
+    /// How many layers are placed glyphs (`ref`s and enclosures' inner parts)
+    /// — the index the anchors start at.
+    pub fn placed_count(body: &crate::document::GlyphBody) -> usize {
+        body.refs.len() + body.enclosure_layers().count()
+    }
+
+    /// The index of `anchor` line `pi`, or of inherited anchor
+    /// `pi - points.len()`: the two are one run.
+    pub fn point_index(body: &crate::document::GlyphBody, pi: usize) -> usize {
+        Self::placed_count(body) + pi
+    }
+
+    /// How many layers the glyph has, given the composite's inherited anchors.
+    pub fn count(body: &crate::document::GlyphBody, inherited: usize) -> usize {
+        Self::placed_count(body) + body.points.len() + inherited
+    }
+}
+
 #[derive(Debug)]
 pub enum PopupState {
     None,
