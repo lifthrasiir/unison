@@ -585,6 +585,9 @@ glyph han-2552c:15x16 15 16 // 𥔬
 // glyph han-2553b:15x16 15 16 // 𥔻
 // ⿱ han-795e han-77f3 // ⿱神石
 
+// glyph han-2553d-($han-regions):15x16 15 16 // 𥔽
+// ⿰ han-77f3 han-8345-($-1) // ⿰石荅
+
 // glyph han-25544:15x16 15 16 // 𥕄
 // ⿰ han-77f3 han-57cb // ⿰石埋
 

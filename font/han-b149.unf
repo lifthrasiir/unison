@@ -510,6 +510,11 @@ glyph han-27b5b-($han-regions):15x16 15 16 // 𧭛
 // glyph han-27b97:15x16 15 16 // 𧮗
 // ⿳ han-8a00 han-8aa9 han-5fc3 // ⿳言誩心
 
+## 149.20
+
+// glyph han-27b9f-($han-regions):15x16 15 16 // 𧮟
+// ⿱ han-2634c han-27b5b-($-1) // ⿱𦍌𧭛
+
 ## 149.21
 
 // glyph han-27ba3:15x16 15 16 // 𧮣

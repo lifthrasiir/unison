@@ -421,6 +421,9 @@ glyph han-24816.1:15x16 15 16 // 𤠖
 glyph han-24819:15x16 15 16 // 𤠙
 ⿰ han-72ad:6x16 han-54e5:9x16 // ⿰犭哥
 
+// glyph han-2481f-($han-regions):15x16 15 16 // 𤠟
+// ⿰ han-72ad han-8345-($-1) // ⿰犭荅
+
 // glyph han-24821:15x16 15 16 // 𤠡
 // ⿰ han-72ad han-76cd // ⿰犭盍
 

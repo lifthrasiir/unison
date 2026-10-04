@@ -1122,6 +1122,9 @@ glyph han-5729:15x16 15 16 // 圩
 ⿰ han-571f:5x14-l 1 han-4e8e:9x16 // ⿰土于
 glyph han-5729.0:* = han-5729:*
 
+// glyph han-572a:15x16 15 16 // 圪
+// ⿰ han-571f han-4e5e // ⿰土乞
+
 glyph han-572d:5x16 5 16 // 圭
 $$..@@..$$
 $$..@@..$$
@@ -2070,6 +2073,9 @@ glyph han-583c:15x16 15 16 // 堼
 // glyph han-5852:15x16 15 16 // 塒
 // ⿲ han-571f han-65e5 han-5bfa // ⿲土日寺
 
+// glyph han-5854-($han-regions):15x16 15 16 // 塔
+// ⿰ han-571f han-8345-($-1) // ⿰土荅
+
 glyph han-5859:15x16 15 16 // 塙
 ⿰ han-571f:5x14-l 1 han-9ad8:9x16 // ⿰土高
 glyph han-5859.0:* = han-5859:*
@@ -2088,6 +2094,9 @@ glyph han-585b:15x16 15 16 // 塛
 
 // glyph han-5866:15x16 15 16 // 塦
 // ⿱ han-9663 han-571f // ⿱陣土
+
+// glyph han-5867-($han-regions):15x16 15 16 // 塧
+// ⿰ han-571f han-76ca-($-1) // ⿰土益
 
 glyph han-586d-($han-regions):15x16 15 16 // 塭
 ⿰ han-571f:5x14-l 1 han-6637-or-25055-($-1):9x16 // ⿰土[昷𥁕]

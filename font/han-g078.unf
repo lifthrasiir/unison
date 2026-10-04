@@ -553,6 +553,9 @@ glyph han-307c1:15x16 15 16 // 𰟁
 // glyph han-307ce:15x16 15 16 // 𰟎
 // ⿱ han-708e han-5171 // ⿱炎共
 
+// glyph han-307cf-($han-regions):15x16 15 16 // 𰟏
+// ⿰ han-706b han-76ca-($-1) // ⿰火益
+
 ## 86.11
 
 // glyph han-307d2:15x16 15 16 // 𰟒
@@ -1299,6 +1302,11 @@ glyph han-3093c:15x16 15 16 // 𰤼
 
 // glyph han-30940:15x16 15 16 // 𰥀
 // ⿱ han-4020 han-76bf // ⿱䀠皿
+
+## 108.11
+
+// glyph han-30945-($han-regions):15x16 15 16 // 𰥅
+// ⿰ han-76ca-($-1) han-5148 // ⿰益先
 
 # CJK unified ideographs extension G: 目 (109)
 

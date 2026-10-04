@@ -284,6 +284,9 @@ glyph han-282ab:15x16 15 16 // 𨊫
 glyph han-282ad:15x16 15 16 // 𨊭
 ⿰ han-8eca:5x16 1 han-5bf8:9x16 // ⿰車寸
 
+// glyph han-282b0:15x16 15 16 // 𨊰
+// ⿰ han-8eca han-4e5e // ⿰車乞
+
 glyph han-282b1:15x16 15 16 // 𨊱
 ⿰ han-8eca:5x16 1 han-4e8e:9x16 // ⿰車于
 

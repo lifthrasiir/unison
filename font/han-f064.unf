@@ -286,8 +286,8 @@ glyph han-2d919:15x16 15 16 // 𭤙
 
 ## 68.12
 
-// glyph han-2d91d:15x16 15 16 // 𭤝
-// ⿳ han-5405 han-6597 han-5405 // ⿳吅斗吅
+glyph han-2d91d:15x16 15 16 // 𭤝
+⿳ han-5405:13x4 han-6597:15x8 han-5405:13x4 // ⿳吅斗吅
 
 # CJK unified ideographs extension F: 斤 (69)
 
@@ -408,6 +408,9 @@ glyph han-2d95b:15x16 15 16 // 𭥛
 // ⿱ han-65e5 han-5141 // ⿱日允
 
 ## 72.5
+
+// glyph han-2d961:15x16 15 16 // 𭥡
+// ⿰ han-65e9 han-4e5e // ⿰早乞
 
 glyph han-2d963:15x16 15 16 // 𭥣
 ⿱ han-5317-g:15x10 1 han-65e5:11x5 // ⿱北日

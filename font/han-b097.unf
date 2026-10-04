@@ -357,6 +357,9 @@ glyph han-24c20:15x16 15 16 // 𤰠
 glyph han-24c21-($han-regions):15x16 15 16 // 𤰡
 ⿱ han-4ea1-($-1):15x8 1 han-7530:11x7 // ⿱亡田
 
+// glyph han-24c22:15x16 15 16 // 𤰢
+// ⿰ han-7530 han-4e5e // ⿰田乞
+
 // glyph han-24c23:15x16 15 16 // 𤰣 ⿱由𬼖(G) ⿳田一匕(T)
 // ⿳ han-7530 han-4e00 han-5315 // ⿳田一匕
 
@@ -501,6 +504,9 @@ glyph han-24c55:15x16 15 16 // 𤱕
 
 glyph han-24c57:15x16 15 16 // 𤱗
 ⿱ han-7530:11x9 han-7acb:15x7 // ⿱田立
+
+// glyph han-24c58:15x16 15 16 // 𤱘
+// ⿰ han-7537 han-4e5e // ⿰男乞
 
 glyph han-24c59:15x16 15 16 // 𤱙
 ⿰ han-7530:5x14-l 1 han-672c:9x16 // ⿰田本

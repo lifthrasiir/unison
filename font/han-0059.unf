@@ -514,6 +514,9 @@ glyph han-5fd3:15x16 15 16 // 忓
 ⿰ han-5fc4:5x16 1 han-5e72:9x16 // ⿰忄干
 glyph han-5fd3.0:* = han-5fd3:*
 
+// glyph han-5fd4:15x16 15 16 // 忔
+// ⿰ han-5fc4 han-4e5e // ⿰忄乞
+
 glyph han-5fd5:15x16 15 16 // 忕
 ⿰ han-5fc4:5x16 1 han-5927:9x16 // ⿰忄大
 
@@ -871,6 +874,9 @@ glyph han-6054-(g|h|t|p):* = han-6054.2:*
 
 glyph han-6058:15x16 15 16 // 恘
 ⿲ han-5fc4:5x16 han-4ebb:3x16 han-6728:7x16 // ⿲忄亻木
+
+// glyph han-6059:15x16 15 16 // 恙
+// ⿱ han-2634c han-5fc3 // ⿱𦍌心
 
 glyph han-605a:15x16 15 16 // 恚
 ⿳ han-571f:15x5 han-571f:15x5 han-5fc3:15x6 // ⿳土土心

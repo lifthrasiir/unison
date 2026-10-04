@@ -381,6 +381,11 @@ glyph han-2e5e6:15x16 15 16 // 𮗦
 // glyph han-2e5f5-($han-regions):15x16 15 16 // 𮗵
 // ⿱ han-241fe han-89d2-($-1) // ⿱𤇾角
 
+## 148.12
+
+// glyph han-2e5f6-($han-regions):15x16 15 16 // 𮗶
+// ⿰ han-89d2-($-1) han-659d // ⿰角斝
+
 # CJK unified ideographs extension F: 言 (149)
 
 ## 149.2

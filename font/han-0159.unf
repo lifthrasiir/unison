@@ -1249,6 +1249,9 @@ glyph han-8fc2.3:* = han-8fc2-j:*
 // glyph han-8fc3-($han-regions):15x16 15 16 // 迃 ⿺辶亏(GTK) ⿺辶亐(P)
 // ⿺ han-8fb6-($-1) han-4e90 // ⿺辶亐
 
+// glyph han-8fc4-($han-regions):15x16 15 16 // 迄
+// ⿺ han-8fb6-($-1) han-4e5e // ⿺辶乞
+
 // glyph han-8fc5-($han-regions):15x16 15 16 // 迅 ⿺辶卂(GHJP) ⿺辶⿹⺄十(T) ⿺辶⿹⺄𠂇(K)
 // ⿺ han-8fb6-($-1) han-5342 // ⿺辶卂
 

@@ -236,6 +236,11 @@ glyph han-31082:15x16 15 16 // 𱂂
 // glyph han-31095:15x16 15 16 // 𱂕
 // ⿰ han-5346 han-9801 // ⿰卆頁
 
+## 181.6
+
+// glyph han-31097:15x16 15 16 // 𱂗
+// ⿰ han-2634c han-9801 // ⿰𦍌頁
+
 ## 181.7
 
 // glyph han-31098:15x16 15 16 // 𱂘
@@ -344,6 +349,11 @@ glyph han-310ed:15x16 15 16 // 𱃭
 ⿲ -4 han-98e0-or-2967f-g:7x16 han-6728:5x16 han-4ea4.0:7x16 // ⿲[飠𩙿]木交
 
 # CJK unified ideographs extension G: 饣 (184')
+
+## 184'.3
+
+// glyph han-310f1:15x16 15 16 // 𱃱
+// ⿰ han-9963 han-4e5e // ⿰饣乞
 
 ## 184'.4
 

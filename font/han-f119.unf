@@ -559,6 +559,9 @@ glyph han-2e358:15x16 15 16 // 𮍘
 glyph han-2e374:15x16 15 16 // 𮍴
 ⿰ han-820c-g:7x16 1 han-4e07:7x16 // ⿰舌万
 
+// glyph han-2e375-($han-regions):15x16 15 16 // 𮍵
+// ⿰ han-820c-($-1) han-4e5e // ⿰舌乞
+
 ## 135.5
 
 glyph han-2e376:15x16 15 16 // 𮍶

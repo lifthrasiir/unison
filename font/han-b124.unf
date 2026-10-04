@@ -647,6 +647,9 @@ glyph han-265bc-($han-regions):15x16 15 16 // 𦖼
 // glyph han-265bd:15x16 15 16 // 𦖽
 // ⿱ han-241fe han-8033 // ⿱𤇾耳
 
+// glyph han-265bf-($han-regions):15x16 15 16 // 𦖿
+// ⿰ han-8033 han-8345-($-1) // ⿰耳荅
+
 // glyph han-265c2:15x16 15 16 // 𦗂
 // ⿰ han-8033 han-6067 // ⿰耳恧
 

@@ -193,8 +193,14 @@ glyph han-6e96.0:* = han-6e96:*
 // glyph han-6e98:15x16 15 16 // 溘
 // ⿰ han-6c35 han-76cd // ⿰氵盍
 
+// glyph han-6e9a-($han-regions):15x16 15 16 // 溚
+// ⿰ han-6c35 han-8345-($-1) // ⿰氵荅
+
 // glyph han-6ea1:15x16 15 16 // 溡
 // ⿲ han-6c35 han-65e5 han-5bfa // ⿲氵日寺
+
+// glyph han-6ea2-($han-regions):15x16 15 16 // 溢 ⿰氵益(GHTKP) ⿰氵⿳⿱八一八皿(J)
+// ⿰ han-6c35 han-76ca-($-1) // ⿰氵益
 
 glyph han-6ea4:15x16 15 16 // 溤
 ⿰ han-6c35:5x15 1 han-99ac:9x16 // ⿰氵馬

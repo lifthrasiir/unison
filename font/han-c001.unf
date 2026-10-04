@@ -201,6 +201,9 @@ glyph han-2a751:15x16 15 16 // 𪝑
 // glyph han-2a759:15x16 15 16 // 𪝙
 // ⿰ han-4ebb han-76cd // ⿰亻盍
 
+// glyph han-2a75e-($han-regions):15x16 15 16 // 𪝞
+// ⿰ han-4ebb han-76ca-($-1) // ⿰亻益
+
 ## 9.11
 
 // glyph han-2a761:15x16 15 16 // 𪝡
@@ -445,6 +448,9 @@ glyph han-2a7e0:15x16 15 16 // 𪟠
 
 glyph han-2a7e1:15x16 15 16 // 𪟡
 ⿰ han-7537:7x16 han-53ef:8x16 // ⿰男可
+
+// glyph han-2a7e2-($han-regions):15x16 15 16 // 𪟢
+// ⿰ han-76ca-($-1) han-529b // ⿰益力
 
 ## 19.12
 
@@ -958,6 +964,9 @@ glyph han-2a8fa:15x16 15 16 // 𪣺
 
 // glyph han-2a90f:15x16 15 16 // 𪤏
 // ⿰ han-571f han-57fa // ⿰土基
+
+// glyph han-2a912:15x16 15 16 // 𪤒
+// ⿰ han-571f han-76d2 // ⿰土盒
 
 glyph han-2a917:15x16 15 16 // 𪤗 (U18.0: G-source fixed)
 ⿰ han-571f:5x14-l 1 han-7fcf:9x16 // ⿰土翏

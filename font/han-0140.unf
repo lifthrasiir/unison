@@ -740,8 +740,13 @@ glyph han-833d.2:* = han-833d-h:*
 // glyph han-8343:15x16 15 16 // 荃
 // ⿱ han-8279 han-5168 // ⿱艹全
 
-// glyph han-8345:15x16 15 16 // 荅
-// ⿱ han-8279 han-5408 // ⿱艹合
+glyph han-8345-($han-regions):15x16 15 16 // 荅
+⿱ han-8279-($-1):15x3 1 han-5408:15x12 // ⿱艹合
+glyph han-8345.0:* = han-8345-j:*
+glyph han-8345.1:* = han-8345-j:*
+glyph han-8345.2:15x16 15 16 // 荅
+⿱ han-4491:15x3 1 han-5408:15x12 // ⿱䒑合
+glyph han-8345.3:* = han-8345-h:*
 
 // glyph han-8346:15x16 15 16 // 荆 ⿰茾刂(G) ⿰⿱艹幵刂(T) ⿱艹𠛬(P)
 // ⿱ han-8279 han-206ec // ⿱艹𠛬

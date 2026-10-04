@@ -169,6 +169,11 @@ glyph han-204dd:15x16 15 16 // 𠓝
 glyph han-204de:15x16 15 16 // 𠓞
 assume ⿱ han-5165:15x8 2 han-4e8c:15x6 // ⿱入二
 
+## 11.3
+
+// glyph han-204df:15x16 15 16 // 𠓟
+// ⿱ han-5165 han-4e5e // ⿱入乞
+
 ## 11.4
 
 // glyph han-204e0:15x16 15 16 // 𠓠
@@ -756,6 +761,9 @@ glyph han-205ad-($han-regions):15x16 15 16 // 𠖭
 ⿰ han-51ab:5x14 1 han-4e86-($-1):9x16 // ⿰冫了
 
 ## 15.3
+
+// glyph han-205af:15x16 15 16 // 𠖯
+// ⿰ han-51ab han-4e5e // ⿰冫乞
 
 glyph han-205b0:15x16 15 16 // 𠖰
 ⿰ han-51ab:5x14 1 han-5df2:9x16 // ⿰冫已

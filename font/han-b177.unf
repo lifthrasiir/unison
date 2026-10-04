@@ -454,6 +454,9 @@ glyph han-293cc:15x16 15 16 // 𩏌
 // glyph han-293d0:15x16 15 16 // 𩏐
 // ⿰ han-97cb han-9b3c // ⿰韋鬼
 
+// glyph han-293d2-($han-regions):15x16 15 16 // 𩏒
+// ⿰ han-97cb-($-1) han-8345-($-1) // ⿰韋荅
+
 ## 178.11
 
 // glyph han-293d8:15x16 15 16 // 𩏘

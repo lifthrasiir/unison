@@ -546,6 +546,9 @@ glyph han-29e7e-(t|j|p):15x16 15 16 // 𩹾
 glyph han-29e7f:15x16 15 16 // 𩹿
 ⿲ -2 han-9b5a:5x16 han-6728:5x16 han-5404:7x16 // ⿲魚木各
 
+// glyph han-29e97-($han-regions):15x16 15 16 // 𩺗
+// ⿰ han-9b5a han-8345-($-1) // ⿰魚荅
+
 glyph han-29ea4:15x16 15 16 // 𩺤
 ⿰ han-9b5a:5x16 1 han-6817:9x16 // ⿰魚栗
 

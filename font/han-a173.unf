@@ -168,6 +168,9 @@ glyph han-4a49:15x16 15 16 // 䩉
 
 ## 177.3
 
+// glyph han-4a50:15x16 15 16 // 䩐
+// ⿰ han-9769 han-4e5e // ⿰革乞
+
 glyph han-4a51:15x16 15 16 // 䩑
 ⿰ han-9769:7x16 1 han-5f13:7x16 // ⿰革弓
 
@@ -556,6 +559,9 @@ glyph han-4dbf:15x16 15 16 // 䶿
 ⿰ han-98e0-or-2967f-t:7x16 han-513f:8x16 // ⿰[飠𩙿]儿
 
 ## 184.3
+
+// glyph han-4b23:15x16 15 16 // 䬣 ⿰飠乞(GTP) ⿰𩙿乞(K)
+// ⿰ han-2967f han-4e5e // ⿰𩙿乞
 
 // glyph han-4b24-($han-regions):15x16 15 16 // 䬤
 // ⿸ han-5c38 han-98df-($-1) // ⿸尸食
@@ -978,6 +984,9 @@ glyph han-4c33:15x16 15 16 // 䰳
 ⿰ han-9b5a:7x16 1 han-4e01:7x16 // ⿰魚丁
 
 ## 195.3
+
+// glyph han-4c34:15x16 15 16 // 䰴
+// ⿰ han-9b5a han-4e5e // ⿰魚乞
 
 glyph han-4c35:15x16 15 16 // 䰵
 ⿰ han-9b5a:7x16 1 han-5b50.0:7x16 // ⿰魚子

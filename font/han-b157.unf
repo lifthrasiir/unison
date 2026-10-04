@@ -508,6 +508,9 @@ glyph han-280d1:15x16 15 16 // 𨃑
 glyph han-280d9:15x16 15 16 // 𨃙
 ⿰ han-27fb7:5x15 1 han-6817:9x16 // ⿰𧾷栗
 
+// glyph han-280da-($han-regions):15x16 15 16 // 𨃚
+// ⿰ han-27fb7 han-8345-($-1) // ⿰𧾷荅
+
 glyph han-280db:15x16 15 16 // 𨃛
 ⿲ han-27fb7:5x15 1 han-961d:4x16-r han-8f9b:5x16 // ⿲𧾷阝辛
 

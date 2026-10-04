@@ -476,6 +476,9 @@ glyph han-59da.3:* = han-59da.1:*
 glyph han-59db:15x16 15 16 // 姛
 ⿰ han-5973:5x14-l 1 han-540c:9x16 // ⿰女同
 
+// glyph han-59dc:15x16 15 16 // 姜
+// ⿱ han-2634c han-5973 // ⿱𦍌女
+
 glyph han-59de:15x16 15 16 // 姞
 ⿰ han-5973:6x14-l han-5409:9x16 // ⿰女吉
 glyph han-59de.0:* = han-59de:*

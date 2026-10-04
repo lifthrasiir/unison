@@ -33,6 +33,9 @@ glyph han-206ac:15x16 15 16 // 𠚬
 glyph han-206ad-($han-regions):15x16 15 16 // 𠚭 ⿰勺刂(G) ⿰⿹勹㇀刂(T)
 ⿰ han-52fa-($-1):9x16 1 han-5202:5x16 // ⿰勺刂
 
+// glyph han-206ae:15x16 15 16 // 𠚮
+// ⿰ han-5200 han-4e5e // ⿰刀乞
+
 // glyph han-206af:15x16 15 16 // 𠚯
 // ⿺ han-5140 han-5202 // ⿺兀刂
 
@@ -457,6 +460,9 @@ glyph han-20834:15x16 15 16 // 𠠴
 // ⿺ han-4e5d han-529b // ⿺九力
 
 ## 19.3
+
+// glyph han-20836:15x16 15 16 // 𠠶
+// ⿰ han-4e5e han-529b // ⿰乞力
 
 // glyph han-20838:15x16 15 16 // 𠠸
 // ⿰ han-624d han-529b // ⿰才力

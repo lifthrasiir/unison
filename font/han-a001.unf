@@ -1576,8 +1576,14 @@ glyph han-3703:15x16 15 16 // 㜃
 // glyph han-3707:15x16 15 16 // 㜇
 // ⿰ han-5973 han-605a // ⿰女恚
 
+// glyph han-370b-($han-regions):15x16 15 16 // 㜋
+// ⿰ han-5973 han-76ca-($-1) // ⿰女益
+
 // glyph han-3711:15x16 15 16 // 㜑
 // ⿱ han-6d66 han-5973 // ⿱浦女
+
+// glyph han-3713-($han-regions):15x16 15 16 // 㜓
+// ⿰ han-5973 han-8345-($-1) // ⿰女荅
 
 // glyph han-3714:15x16 15 16 // 㜔
 // ⿰ han-5973 han-7ade // ⿰女竞
@@ -1664,8 +1670,8 @@ glyph han-3752:15x16 15 16 // 㝒
 
 ## 40.6
 
-// glyph han-3753:15x16 15 16 // 㝓
-// ⿱ han-5b80 han-5408 // ⿱宀合
+glyph han-3753:15x16 15 16 // 㝓
+⿱ han-5b80:15x4 han-5408:15x12 // ⿱宀合
 
 // glyph han-3754:15x16 15 16 // 㝔
 // ⿱ han-5b80 han-4ea4 // ⿱宀交

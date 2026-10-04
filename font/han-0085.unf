@@ -339,6 +339,9 @@ glyph han-6c52-(g|p):* = han-6c52.x:*
 glyph han-6c53-($han-regions):15x16 15 16 // 汓
 ⿰ han-6c35:5x15 1 han-5b50-($-1):9x16 // ⿰氵子
 
+// glyph han-6c54:15x16 15 16 // 汔
+// ⿰ han-6c35 han-4e5e // ⿰氵乞
+
 glyph han-6c55:15x16 15 16 // 汕
 ⿰ han-6c35:5x15 1 han-5c71:9x16 // ⿰氵山
 glyph han-6c55.0:* = han-6c55:*

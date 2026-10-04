@@ -668,6 +668,9 @@ glyph han-9dbb.0:* = han-9dbb-j:*
 // glyph han-9dbd:15x16 15 16 // 鶽
 // ⿰ han-96bc han-9ce5 // ⿰隼鳥
 
+// glyph han-9dc1-($han-regions):15x16 15 16 // 鷁
+// ⿰ han-76ca-($-1) han-9ce5 // ⿰益鳥
+
 // glyph han-9dc5:15x16 15 16 // 鷅
 // ⿰ han-6817 han-9ce5 // ⿰栗鳥
 

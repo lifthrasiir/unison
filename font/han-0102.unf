@@ -1307,6 +1307,9 @@ glyph han-7595-($han-regions):15x16 15 16 // 疕
 glyph han-7598:15x16 15 16 // 疘
 ⿸ han-7592:15x16.11x13 han-5de5:11x12 4 4 // ⿸疒工
 
+// glyph han-7599:15x16 15 16 // 疙
+// ⿸ han-7592 han-4e5e // ⿸疒乞
+
 glyph han-759b:15x16 15 16 // 疛
 ⿸ han-7592:15x16.11x13 han-5bf8:10x12 5 4 // ⿸疒寸
 
@@ -1590,6 +1593,9 @@ glyph han-760b.0:* = han-760b-j:*
 
 // glyph han-7623:15x16 15 16 // 瘣
 // ⿸ han-7592 han-9b3c // ⿸疒鬼
+
+// glyph han-7629-($han-regions):15x16 15 16 // 瘩
+// ⿸ han-7592 han-8345-($-1) // ⿸疒荅
 
 // glyph han-762b:15x16 15 16 // 瘫
 // ⿸ han-7592 han-96be // ⿸疒难
@@ -2740,8 +2746,8 @@ glyph han-76c5.0:* = han-76c5:*
 // glyph han-76c9:15x16 15 16 // 盉
 // ⿱ han-79be han-76bf // ⿱禾皿
 
-// glyph han-76ca-($han-regions):15x16 15 16 // 益 ⿳䒑八皿(GHTJV) ⿳⿱八一八皿(KP)
-// ⿳ han-4491 han-516b-($-1) han-76bf // ⿳䒑八皿
+glyph han-76ca-($han-regions):15x16 15 16 // 益 ⿳䒑八皿(GHTJV) ⿳⿱八一八皿(KP)
+⿳ han-4491:15x4 1 han-516b-($-1):15x6 han-76bf:15x5 // ⿳䒑八皿 (TODO)
 
 glyph han-76cd:15x16 15 16 // 盍
 ⿱ han-53bb:15x10 1 han-76bf:15x5 // ⿱去皿
@@ -2755,8 +2761,9 @@ glyph han-76cd.0:* = han-76cd:*
 
 ## 108.6
 
-// glyph han-76d2:15x16 15 16 // 盒
-// ⿱ han-5408 han-76bf // ⿱合皿
+glyph han-76d2:15x16 15 16 // 盒
+⿱ han-5408:15x12 1 han-76bf:15x3 // ⿱合皿
+glyph han-76d2.0:* = han-76d2:*
 
 // glyph han-76d3:15x16 15 16 // 盓
 // ⿱ han-6c59 han-76bf // ⿱汙皿
@@ -2766,6 +2773,9 @@ glyph han-76cd.0:* = han-76cd:*
 
 // glyph han-76d5:15x16 15 16 // 盕
 // ⿱ han-6c4e han-76bf // ⿱汎皿
+
+// glyph han-76d6:15x16 15 16 // 盖
+// ⿱ han-2634c han-76bf // ⿱𦍌皿
 
 // glyph han-76d7:15x16 15 16 // 盗
 // ⿱ han-6b21 han-76bf // ⿱次皿
@@ -3198,6 +3208,9 @@ glyph han-76f3-($han-regions):15x16 15 16 // 盳
 
 // glyph han-76f4:15x16 15 16 // 直 ⿱十{73}(GH[M]TV) ⿺𠃊𥃭(JKP[U][S])
 // ⿺ han-200ca han-250ed // ⿺𠃊𥃭
+
+// glyph han-76f5:15x16 15 16 // 盵
+// ⿰ han-76ee han-4e5e // ⿰目乞
 
 ## 109.4
 

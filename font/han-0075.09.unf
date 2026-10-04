@@ -170,6 +170,12 @@ glyph han-698a.1:* = han-698a-j:*
 glyph han-698a.2:* = han-698a-g:*
 glyph han-698a.3:* = han-698a-j:*
 
+// glyph han-698f-($han-regions):15x16 15 16 // 榏
+// ⿰ han-6728 han-76ca-($-1) // ⿰木益
+
+// glyph han-6999-($han-regions):15x16 15 16 // 榙
+// ⿰ han-6728 han-8345-($-1) // ⿰木荅
+
 // glyph han-699f:15x16 15 16 // 榟
 // ⿰ han-6728 han-5bb0 // ⿰木宰
 

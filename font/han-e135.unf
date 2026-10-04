@@ -607,6 +607,9 @@ glyph han-2c8ad:15x16 15 16 // 𬢭
 // glyph han-2c8bd:15x16 15 16 // 𬢽
 // ⿰ han-8a01 han-43a1 // ⿰訁䎡
 
+// glyph han-2c8bf-($han-regions):15x16 15 16 // 𬢿
+// ⿰ han-8a01-($-1) han-8345-($-1) // ⿰訁荅
+
 ## 149.15
 
 // glyph han-2c8d4:15x16 15 16 // 𬣔
@@ -842,6 +845,11 @@ glyph han-2c958:15x16 15 16 // 𬥘
 // glyph han-2c996:15x16 15 16 // 𬦖
 // ⿺ han-8d70 han-8ecd // ⿺走軍
 
+## 156.10
+
+// glyph han-2c99c-($han-regions):15x16 15 16 // 𬦜
+// ⿺ han-8d70 han-76ca-($-1) // ⿺走益
+
 ## 156.11
 
 // glyph han-2c99d:15x16 15 16 // 𬦝
@@ -973,6 +981,11 @@ glyph han-2c9e0-j:15x16 15 16 // 𬧠
 
 // glyph han-2c9e9:15x16 15 16 // 𬧩
 // ⿰ han-8eab han-56fd // ⿰身国
+
+## 158.10
+
+// glyph han-2c9ec-($han-regions):15x16 15 16 // 𬧬
+// ⿰ han-8eab han-76ca-($-1) // ⿰身益
 
 ## 158.11
 

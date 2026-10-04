@@ -209,6 +209,9 @@ glyph han-77f8.0:* = han-77f8:*
 glyph han-77f9:15x16 15 16 // 矹
 ⿰ han-77f3:5x16 han-5140:10x16 // ⿰石兀
 
+// glyph han-77fb:15x16 15 16 // 矻
+// ⿰ han-77f3 han-4e5e // ⿰石乞
+
 glyph han-77fc:15x16 15 16 // 矼
 ⿰ han-77f3:8x16 han-5de5:7x16 // ⿰石工
 glyph han-77fc.0:* = han-77fc:*

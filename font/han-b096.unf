@@ -101,6 +101,9 @@ ref han-248e9:7x14 0 1
 
 ## 96.3
 
+// glyph han-248ee:15x16 15 16 // 𤣮
+// ⿰ han-248e9 han-4e5e // ⿰𤣩乞
+
 glyph han-248f0:15x16 15 16 // 𤣰
 ⿰ han-248e9:5x14 1 han-571f:9x16 // ⿰𤣩土
 
@@ -499,6 +502,9 @@ glyph han-249fc:15x16 15 16 // 𤧼
 
 // glyph han-24a0d:15x16 15 16 // 𤨍
 // ⿳ han-73a8 han-5196 han-20834 // ⿳玨冖𠠴
+
+// glyph han-24a11-($han-regions):15x16 15 16 // 𤨑
+// ⿰ han-248e9 han-8345-($-1) // ⿰𤣩荅
 
 // glyph han-24a13:15x16 15 16 // 𤨓
 // ⿰ han-248e9 han-8336 // ⿰𤣩茶

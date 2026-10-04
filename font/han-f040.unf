@@ -425,6 +425,9 @@ glyph han-2d5bd:15x16 15 16 // 𭖽
 // glyph han-2d5c0:15x16 15 16 // 𭗀
 // ⿳ han-5c71 han-6298 han-53e3 // ⿳山折口 <- ⿱山哲
 
+// glyph han-2d5c6-($han-regions):15x16 15 16 // 𭗆
+// ⿱ han-5c71 han-76ca-($-1) // ⿱山益
+
 ## 46.11
 
 // glyph han-2d5cb:15x16 15 16 // 𭗋
@@ -663,6 +666,9 @@ assume ⿰ han-5e72:7x16 -1 han-826f-g:9x16 // ⿰干良
 
 ## 53.3
 
+// glyph han-2d650:15x16 15 16 // 𭙐
+// ⿸ han-5e7f han-4e5e // ⿸广乞
+
 glyph han-2d652:15x16 15 16 // 𭙒
 ⿸ han-5e7f:15x16.11x13 han-5b50.0:9x10 5 5 // ⿸广子
 
@@ -791,6 +797,11 @@ glyph han-2d6bb:15x16 15 16 // 𭚻
 glyph han-2d6bd:15x16 15 16 // 𭚽
 ⿰ han-5f13:6x16 han-5351.1:9x16 // ⿰弓卑
 
+## 57.10
+
+// glyph han-2d6c3-($han-regions):15x16 15 16 // 𭛃
+// ⿰ han-5f13 han-76ca-($-1) // ⿰弓益
+
 ## 57.14
 
 // glyph han-2d6cb:15x16 15 16 // 𭛋
@@ -875,6 +886,11 @@ glyph han-2d6fb:15x16 15 16 // 𭛻
 
 // glyph han-2d6fc:15x16 15 16 // 𭛼
 // ⿰ han-5f73 han-9996 // ⿰彳首
+
+## 60.10
+
+// glyph han-2d6fd-($han-regions):15x16 15 16 // 𭛽
+// ⿰ han-5f73 han-76ca-($-1) // ⿰彳益
 
 ## 60.11
 

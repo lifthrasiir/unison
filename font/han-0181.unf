@@ -883,6 +883,9 @@ glyph han-9907.0:* = han-9907-j:*
 // glyph han-9908-($han-regions):15x16 15 16 // 餈
 // ⿱ han-6b21 han-98df-($-1) // ⿱次食
 
+// glyph han-990a-($han-regions):15x16 15 16 // 養
+// ⿱ han-2634c han-98df-($-1) // ⿱𦍌食
+
 glyph han-990c-($han-regions):15x16 15 16 // 餌 ⿰飠耳(GHTP) ⿰𩙿耳(JK)
 ⿰ han-98e0-or-2967f-($-1):7x16 1 han-8033:7x16 // ⿰[飠𩙿]耳
 glyph han-990c.0:* = han-990c-g:*

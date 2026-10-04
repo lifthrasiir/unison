@@ -2,6 +2,9 @@
 
 ## 140.10
 
+// glyph han-24380:15x16 15 16 // 𤎀
+// ⿳ han-4e1a han-2634c han-706b // ⿳业𦍌火
+
 glyph han-26d61-(g):15x16 15 16 // 𦵡
 ⿳ han-8279.0:15x3 han-5b80:15x3 han-5415-or-5442-($-1):15x10 // ⿳艹宀[吕呂]
 glyph han-26d61-(t|j):15x16 15 16 // 𦵡
@@ -101,6 +104,9 @@ glyph han-26d94-(t|j):15x16 15 16 // 𦶔
 
 // glyph han-26da7:15x16 15 16 // 𦶧
 // ⿳ han-8279 han-516d han-8863 // ⿳艹六衣 <- ⿱艹𫋴
+
+// glyph han-26da9-($han-regions):15x16 15 16 // 𦶩
+// ⿱ han-8279-($-1) han-76ca-($-1) // ⿱艹益
 
 // glyph han-26daa:15x16 15 16 // 𦶪 ⿱茸⿰𠂇十(T) ⿱茸廾(Z)
 // ⿳ han-8279 han-8033 han-5efe // ⿳艹耳廾

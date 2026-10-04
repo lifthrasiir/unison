@@ -930,6 +930,9 @@ glyph han-9622:15x16 15 16 // 阢
 ⿰ han-961d:5x14-l han-5140:10x16 // ⿰阝兀
 glyph han-9622.0:* = han-9622:*
 
+// glyph han-9623:15x16 15 16 // 阣
+// ⿰ han-961d han-4e5e // ⿰阝乞
+
 // glyph han-9624:15x16 15 16 // 阤
 // ⿰ han-961d han-4e5f // ⿰阝也
 
@@ -1179,6 +1182,9 @@ glyph han-968d.0:* = han-968d:*
 
 // glyph han-9697:15x16 15 16 // 隗
 // ⿰ han-961d han-9b3c // ⿰阝鬼
+
+// glyph han-9698-($han-regions):15x16 15 16 // 隘
+// ⿰ han-961d han-76ca-($-1) // ⿰阝益
 
 // glyph han-9699:15x16 15 16 // 隙 ⿰阝𡭴(GJPV) ⿰阝⿱小⿱日小(HK) ⿰阝𡮂(T)
 // ⿰ han-961d han-21b82 // ⿰阝𡮂
@@ -3352,6 +3358,11 @@ glyph han-97b0-(g|p):15x16 15 16 // 鞰
 ⿰ han-9769:5x16 1 han-6637:9x16 // ⿰革昷
 glyph han-97b0-(t|j):15x16 15 16 // 鞰
 ⿰ han-9769:5x16 1 han-25055:9x16 // ⿰革𥁕
+
+## 177.10
+
+// glyph han-97b3-($han-regions):15x16 15 16 // 鞳
+// ⿰ han-9769 han-8345-($-1) // ⿰革荅
 
 ## 177.11
 

@@ -142,6 +142,9 @@ glyph han-72b4:15x16 15 16 // 犴
 ⿰ han-72ad:6x16 han-5e72:9x16 // ⿰犭干
 glyph han-72b4.0:* = han-72b4:*
 
+// glyph han-72b5:15x16 15 16 // 犵
+// ⿰ han-72ad han-4e5e // ⿰犭乞
+
 // glyph han-72b6:15x16 15 16 // 状
 // ⿲ han-51ab han-4e28 han-72ac // ⿲冫丨犬 <- ⿰丬犬
 
@@ -490,6 +493,9 @@ glyph han-733e.0:* = han-733e-j:*
 
 // glyph han-7346:15x16 15 16 // 獆
 // ⿰ han-72ad han-768b // ⿰犭皋
+
+// glyph han-7348-($han-regions):15x16 15 16 // 獈
+// ⿰ han-72ad han-76ca-($-1) // ⿰犭益
 
 ## 94.11
 
