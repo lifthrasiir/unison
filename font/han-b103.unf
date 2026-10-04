@@ -548,6 +548,9 @@ glyph han-24e6a-t:* = han-24e6a.x:*
 // glyph han-24e77:15x16 15 16 // 𤹷
 // ⿸ han-7592 han-9ce5 // ⿸疒鳥
 
+// glyph han-24e7d-($han-regions):15x16 15 16 // 𤹽
+// ⿸ han-7592 han-8a25-($-1) // ⿸疒訥
+
 // glyph han-24e7f:15x16 15 16 // 𤹿
 // ⿸ han-7592 han-9b5a // ⿸疒魚
 

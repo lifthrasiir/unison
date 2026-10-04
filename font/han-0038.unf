@@ -296,8 +296,12 @@ glyph han-599f:15x16 15 16 // 妟
 ⿱ han-65e5:11x7 han-5973:15x9 // ⿱日女
 glyph han-599f.0:* = han-599f:*
 
-// glyph han-59a0:15x16 15 16 // 妠 ⿰女内(G) ⿰女內(HTP)
-// ⿰ han-5973 han-5185 // ⿰女内
+glyph han-59a0.0:15x16 15 16 // 妠
+⿰ han-5973:5x14-l 1 han-5167:9x16 // ⿰女內
+glyph han-59a0.1:15x16 15 16 // 妠
+⿰ han-5973:5x14-l 1 han-5185:9x16 // ⿰女内
+glyph han-59a0-(h|t|p):* = han-59a0.0:*
+glyph han-59a0-(g|j):* = han-59a0.1:*
 
 glyph han-59a1:15x16 15 16 // 妡
 ⿰ han-5973:7x16 1 han-65a4:7x16 // ⿰女斤

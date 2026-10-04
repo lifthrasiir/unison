@@ -461,8 +461,8 @@ glyph han-24c43:15x16 15 16 // 𤱃
 // glyph han-24c44:15x16 15 16 // 𤱄
 // ⿰ han-7530 han-6c34 // ⿰田水
 
-// glyph han-24c45:15x16 15 16 // 𤱅 ⿰田内(G) ⿰田內(Z)
-// ⿰ han-7530 han-5185 // ⿰田内
+glyph han-24c45-($han-regions):15x16 15 16 // 𤱅
+⿰ han-7530:5x14-l 1 han-5167-or-5185-($-1):9x16 // ⿰田[內内]
 
 // glyph han-24c47-($han-regions):15x16 15 16 // 𤱇
 // ⿱ han-7236-($-1) han-7530 // ⿱父田

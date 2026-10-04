@@ -382,8 +382,8 @@ glyph han-22066-($han-regions):15x16 15 16 // 𢁦
 glyph han-22067:15x16 15 16 // 𢁧
 ⿰ han-5dfe:7x16 1 han-6b20:7x16 // ⿰巾欠
 
-// glyph han-22069:15x16 15 16 // 𢁩 ⿰巾内(G) ⿰巾內(T)
-// ⿰ han-5dfe han-5185 // ⿰巾内
+glyph han-22069-($han-regions):15x16 15 16 // 𢁩
+⿰ han-5dfe:5x16 1 han-5167-or-5185-($-1):9x16 // ⿰巾[內内]
 
 // glyph han-2206a:15x16 15 16 // 𢁪
 // ⿰ han-5dfe han-592c // ⿰巾夬

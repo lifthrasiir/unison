@@ -286,8 +286,11 @@ glyph han-868a.3:* = han-868a.1:*
 glyph han-868a-(g|h|t|j|p):* = han-868a.0:*
 glyph han-868a-k:* = han-868a.1:*
 
-// glyph han-868b:15x16 15 16 // 蚋 ⿰虫内(G) ⿰虫內(HTJKP)
-// ⿰ han-866b han-5185 // ⿰虫内
+glyph han-868b-($han-regions):15x16 15 16 // 蚋
+⿰ han-866b:5x16 1 han-5167-or-5185-($-1):9x16 // ⿰虫[內内]
+glyph han-868b.0:* = han-868b-j:*
+glyph han-868b.1:* = han-868b-j:*
+glyph han-868b.2:* = han-868b-g:*
 
 glyph han-868c.0:15x16 15 16 // 蚌
 ⿰ han-866b:5x16 1 han-4e30.0:9x16 // ⿰虫丰
@@ -478,8 +481,9 @@ glyph han-86c1:15x16 15 16 // 蛁
 ⿰ han-866b:7x16 han-53ec:8x16 // ⿰虫召
 glyph han-86c1.0:* = han-86c1:*
 
-// glyph han-86c3:15x16 15 16 // 蛃
-// ⿰ han-866b han-4e19 // ⿰虫丙
+glyph han-86c3:15x16 15 16 // 蛃
+⿰ han-866b:5x16 1 han-4e19:9x16 // ⿰虫丙
+glyph han-86c3.0:* = han-86c3:*
 
 glyph han-86c4:15x16 15 16 // 蛄
 ⿰ han-866b:7x16 1 han-53e4:7x16 // ⿰虫古

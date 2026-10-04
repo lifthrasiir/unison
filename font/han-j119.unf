@@ -21,8 +21,8 @@ glyph han-32db8:15x16 15 16 // 𲶸
 glyph han-32dba:15x16 15 16 // 𲶺
 ⿰ han-7c73:5x16 1 han-4e91:9x16 // ⿰米云
 
-// glyph han-32dbb:15x16 15 16 // 𲶻
-// ⿰ han-7c73 han-5167 // ⿰米內
+glyph han-32dbb:15x16 15 16 // 𲶻
+⿰ han-7c73:5x16 1 han-5167:9x16 // ⿰米內
 
 glyph han-32dbc:15x16 15 16 // 𲶼
 ⿰ han-7c73:5x16 1 han-4eca-t:9x16 // ⿰米今
@@ -386,6 +386,11 @@ glyph han-32ede:15x16 15 16 // 𲻞
 
 glyph han-32ee3:15x16 15 16 // 𲻣
 ⿰ han-821f:7x16 1 han-97cb-t:7x16 // ⿰舟韋
+
+## 137.11
+
+// glyph han-32ee6-($han-regions):15x16 15 16 // 𲻦
+// ⿰ han-821f han-8a25-($-1) // ⿰舟訥
 
 ## 137.12
 

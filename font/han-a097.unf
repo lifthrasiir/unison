@@ -1018,8 +1018,8 @@ glyph han-412f.1:15x16 15 16 // 䄯
 glyph han-4131:15x16 15 16 // 䄱
 ⿰ han-79be:5x16 1 han-65b9:9x16 // ⿰禾方
 
-// glyph han-4132:15x16 15 16 // 䄲 ⿰禾内(G) ⿰禾內(HT)
-// ⿰ han-79be han-5185 // ⿰禾内
+glyph han-4132-($han-regions):15x16 15 16 // 䄲
+⿰ han-79be:5x16 1 han-5167-or-5185-($-1):9x16 // ⿰禾[內内]
 
 glyph han-4133:15x16 15 16 // 䄳
 ⿰ han-79be:5x16 han-6b62:10x16 // ⿰禾止

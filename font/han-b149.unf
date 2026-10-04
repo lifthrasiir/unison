@@ -159,8 +159,8 @@ glyph han-279ba-($han-regions):15x16 15 16 // 𧦺
 glyph han-279bc:15x16 15 16 // 𧦼
 ⿰ han-8a01-g:5x16 1 han-74dc-g:9x16 // ⿰訁瓜
 
-// glyph han-279bf:15x16 15 16 // 𧦿
-// ⿰ han-8a01 han-4e19 // ⿰訁丙
+glyph han-279bf:15x16 15 16 // 𧦿
+⿰ han-8a01-v:5x16 1 han-4e19:9x16 // ⿰訁丙
 
 ## 149.6
 

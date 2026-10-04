@@ -392,6 +392,9 @@ glyph han-2d2ce:15x16 15 16 // 𭋎
 glyph han-2d2d0:15x16 15 16 // 𭋐
 ⿲ han-53e3:3x12 han-6708:5x16 han-5351.1:7x16 // ⿲口月卑
 
+// glyph han-2d2da-($han-regions):15x16 15 16 // 𭋚 ⿱訥𠮟(K) ⿱訥𫜸(Z)
+// ⿱ han-8a25-($-1) han-20b9f // ⿱訥𠮟
+
 ## 30.14
 
 glyph han-2d2df:15x16 15 16 // 𭋟

@@ -378,8 +378,8 @@ glyph han-282dd:15x16 15 16 // 𨋝
 glyph han-282e2:15x16 15 16 // 𨋢
 ⿰ han-8eca:7x16 1 han-7acb:7x16 // ⿰車立
 
-// glyph han-282e3:15x16 15 16 // 𨋣
-// ⿰ han-8eca han-4e19 // ⿰車丙
+glyph han-282e3:15x16 15 16 // 𨋣
+⿰ han-8eca:5x16 1 han-4e19:9x16 // ⿰車丙
 
 glyph han-282e5:15x16 15 16 // 𨋥
 ⿰ han-8eca:5x16 1 han-5f17:9x16 // ⿰車弗

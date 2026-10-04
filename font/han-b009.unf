@@ -562,7 +562,7 @@ glyph han-20312:15x16 15 16 // 𠌒
 // ⿲ han-4ebb han-4e28 han-9769 // ⿲亻丨革
 
 glyph han-20326:15x16 15 16 // 𠌦
-⿲ -5 han-4ebb:3x16 han-7cf9-v:5x14 1 han-5185:11x16 // ⿲亻糹内
+⿲ -3 han-4ebb:3x16 han-7cf9-v:5x14 1 han-5185:9x16 // ⿲亻糹内
 
 // glyph han-20328:15x16 15 16 // 𠌨
 // ⿰ han-4ebb han-532a // ⿰亻匪

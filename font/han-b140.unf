@@ -820,6 +820,9 @@ glyph han-26cf6-j:15x16 15 16 // 𦳶
 // glyph han-26cfb:15x16 15 16 // 𦳻
 // ⿳ han-8279 han-571f han-28670 // ⿳艹土𨙰 <- ⿱芏𨙰
 
+// glyph han-26cfc-($han-regions):15x16 15 16 // 𦳼
+// ⿱ han-8279-($-1) han-70b3 // ⿱艹炳
+
 // glyph han-26cfd:15x16 15 16 // 𦳽
 // ⿳ han-8279 han-79be han-5141 // ⿳艹禾允 <- ⿱艹⿱禾允
 

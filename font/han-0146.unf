@@ -1374,8 +1374,11 @@ glyph han-8a22.0:* = han-8a22-j:*
 // glyph han-8a24-($han-regions):15x16 15 16 // 訤
 // ⿰ han-8a01-($-1) han-723b-($-1) // ⿰訁爻
 
-// glyph han-8a25:15x16 15 16 // 訥 ⿰訁内(GV) ⿰訁內(HTJKP)
-// ⿰ han-8a01 han-5185 // ⿰訁内
+glyph han-8a25-($han-regions):15x16 15 16 // 訥
+⿰ han-8a01-($-1):5x16 1 han-5167-or-5185-($-1):9x16 // ⿰訁[內内]
+glyph han-8a25.0:* = han-8a25-j:*
+glyph han-8a25.1:* = han-8a25-j:*
+glyph han-8a25.2:* = han-8a25-g:*
 
 // glyph han-8a27-($han-regions):15x16 15 16 // 訧
 // ⿰ han-8a01-($-1) han-5c24 // ⿰訁尤

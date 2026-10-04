@@ -605,8 +605,11 @@ glyph han-70af.0:* = han-70af:*
 glyph han-70b2:15x16 15 16 // 炲
 ⿰ han-706b:7x16 1 han-53f0:7x16 // ⿰火台
 
-// glyph han-70b3:15x16 15 16 // 炳
-// ⿰ han-706b han-4e19 // ⿰火丙
+glyph han-70b3:15x16 15 16 // 炳
+⿰ han-706b:5x14-l 1 han-4e19:9x16 // ⿰火丙
+glyph han-70b3.0:* = han-70b3:*
+glyph han-70b3.1:* = han-70b3:*
+glyph han-70b3.2:* = han-70b3:*
 
 // glyph han-70b4:15x16 15 16 // 炴
 // ⿰ han-706b han-592e // ⿰火央

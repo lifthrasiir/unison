@@ -1718,8 +1718,12 @@ glyph han-80aa.0:* = han-80aa:*
 // glyph han-80ac:15x16 15 16 // 肬 ⿰月尤(GJKP) ⿰⺼尤(T)
 // ⿰ han-6708 han-5c24 // ⿰月尤
 
-// glyph han-80ad:15x16 15 16 // 肭 ⿰月内(GV) ⿰⺼內(HT) ⿰月內(JKP)
-// ⿰ han-6708 han-5185 // ⿰月内
+glyph han-80ad-($han-regions):15x16 15 16 // 肭
+⿰ han-6708:5x14-l 1 han-5167-or-5185-($-1):9x16 // ⿰月[內内]
+glyph han-80ad.0:* = han-80ad-j:*
+glyph han-80ad.1:* = han-80ad-j:*
+glyph han-80ad.2:* = han-80ad-g:*
+glyph han-80ad.3:* = han-80ad-j:*
 
 glyph han-80ae:15x16 15 16 // 肮
 ⿰ han-6708:5x14-l 1 han-4ea2:9x16 // ⿰月亢

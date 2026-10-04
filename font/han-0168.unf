@@ -3203,8 +3203,11 @@ glyph han-9776.0:* = han-9776:*
 // glyph han-9777:15x16 15 16 // 靷
 // ⿲ han-9769 han-5f13 han-4e28 // ⿲革弓丨 <- ⿰革引
 
-// glyph han-9779:15x16 15 16 // 靹 ⿰革内(G) ⿰革內(TJK)
-// ⿰ han-9769 han-5185 // ⿰革内
+glyph han-9779-($han-regions):15x16 15 16 // 靹
+⿰ han-9769:5x16 1 han-5167-or-5185-($-1):9x16 // ⿰革[內内]
+glyph han-9779.0:* = han-9779-j:*
+glyph han-9779.1:* = han-9779-j:*
+glyph han-9779.2:* = han-9779-g:*
 
 ## 177.5
 
@@ -3253,8 +3256,11 @@ glyph han-9784.3:* = han-9784.1:*
 // glyph han-9785:15x16 15 16 // 鞅
 // ⿰ han-9769 han-592e // ⿰革央
 
-// glyph han-9786:15x16 15 16 // 鞆
-// ⿰ han-9769 han-4e19 // ⿰革丙
+glyph han-9786:15x16 15 16 // 鞆
+⿰ han-9769:5x16 1 han-4e19:9x16 // ⿰革丙
+glyph han-9786.0:* = han-9786:*
+glyph han-9786.1:* = han-9786:*
+glyph han-9786.2:* = han-9786:*
 
 ## 177.6
 

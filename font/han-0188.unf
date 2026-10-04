@@ -942,8 +942,9 @@ ref han-5200:5x9 9 7
 glyph han-9b75.3:15x16 15 16 // 魵
 ⿰ han-29d4b:7x16 1 han-5206.1:7x16 // ⿰𩵋分
 
-// glyph han-9b76:15x16 15 16 // 魶 ⿰魚内(G) ⿰魚內(HTJKP)
-// ⿰ han-9b5a han-5185 // ⿰魚内
+glyph han-9b76-($han-regions):15x16 15 16 // 魶
+⿰ han-9b5a:5x16 1 han-5167-or-5185-($-1):9x16 // ⿰魚[內内]
+glyph han-9b76.0:* = han-9b76-j:*
 
 // glyph han-9b77:15x16 15 16 // 魷
 // ⿰ han-9b5a han-5c24 // ⿰魚尤

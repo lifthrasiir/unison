@@ -897,8 +897,10 @@ glyph han-3da5:15x16 15 16 // 㶥
 
 ## 86.4
 
-// glyph han-3da7:15x16 15 16 // 㶧 ⿰火内(G) ⿰火內(TP)
-// ⿰ han-706b han-5185 // ⿰火内
+glyph han-3da7-($han-regions):15x16 15 16 // 㶧
+⿰ han-706b:5x14-l 1 han-5167-or-5185-($-1):9x16 // ⿰火[內内]
+glyph han-3da7.0:* = han-3da7-j:*
+glyph han-3da7.1:* = han-3da7-g:*
 
 glyph han-3da8:15x16 15 16 // 㶨
 ⿱ han-4e0d:15x12 han-706c:15x4 // ⿱不灬

@@ -360,8 +360,8 @@ glyph han-245b3-(j|p):15x16 15 16 // 𤖳
 glyph han-245b5:15x16 15 16 // 𤖵
 ⿰ han-7247.0:8x16 han-53e5:7x16 // ⿰片句
 
-// glyph han-245b6:15x16 15 16 // 𤖶
-// ⿰ han-7247 han-4e19 // ⿰片丙
+glyph han-245b6:15x16 15 16 // 𤖶
+⿰ han-7247-v:6x16 han-4e19:9x16 // ⿰片丙
 
 glyph han-245b7-($han-regions):15x16 15 16 // 𤖷
 ⿰ han-7247-($-1):6x16 han-76ae:9x16 // ⿰片皮

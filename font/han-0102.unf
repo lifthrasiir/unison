@@ -2795,6 +2795,10 @@ glyph han-76d2.0:* = han-76d2:*
 
 glyph han-76df:15x16 15 16 // 盟
 ⿱ han-660e:15x10 1 han-76bf:15x5 // ⿱明皿
+glyph han-76df.0:* = han-76df:*
+glyph han-76df.1:* = han-76df:* // not distinguished
+glyph han-76df.2:* = han-76df.0:*
+glyph han-76df.3:* = han-76df.1:*
 
 ## 108.11
 
@@ -3304,7 +3308,7 @@ $$h/..........@@..........\h$$
 $$....../h~H..@@..H~h\......$$
 $$../h~HH_h/..@@..\h_HH~h\..$$
 $$~HH_h/......@@......\h_HH~$$
-$$h/..........@@..........\h$$
+$$h/........\1@@..........\h$$
 ref han-7f52:13x7 1 0
 glyph han-7714-(j|p):* = han-7714.0:*
 glyph han-7714-(g|t):* = han-7714.2:*
