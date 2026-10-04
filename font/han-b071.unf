@@ -728,8 +728,8 @@ glyph han-23330:15x16 15 16 // 𣌰
 // glyph han-23331:15x16 15 16 // 𣌱
 // ⿰ han-66f2 han-5c11 // ⿰曲少
 
-// glyph han-23334:15x16 15 16 // 𣌴
-// ⿰ han-66f2 han-6708 // ⿰曲月
+glyph han-23334:15x16 15 16 // 𣌴
+⿰ han-66f2:10x16 han-6708:5x16 // ⿰曲月
 
 ## 73.7
 
@@ -765,8 +765,8 @@ glyph han-23343:15x16 15 16 // 𣍃
 
 ## 73.14
 
-// glyph han-23355:15x16 15 16 // 𣍕
-// ⿰ han-66f2 han-582f // ⿰曲堯
+glyph han-23355:15x16 15 16 // 𣍕
+⿰ han-66f2:7x16 1 han-582f:7x16 // ⿰曲堯
 
 # CJK unified ideographs extension B: 月 (74)
 

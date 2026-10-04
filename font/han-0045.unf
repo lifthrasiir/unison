@@ -2681,6 +2681,11 @@ glyph han-5df4:15x16 15 16 // 巴
 ref han-5df3:15x16
 glyph han-5df4.0:* = han-5df4:*
 
+## 49.4
+
+// glyph han-5df5:15x16 15 16 // 巵
+// ⿸ han-2008b han-5df4 // ⿸𠂋巴
+
 ## 49.5
 
 glyph han-5df6:15x16 15 16 // 巶

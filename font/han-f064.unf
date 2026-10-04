@@ -294,6 +294,11 @@ glyph han-2d91d:15x16 15 16 // 𭤝
 
 # CJK unified ideographs extension F: 斤 (69)
 
+## 69.1
+
+// glyph han-2d91f:15x16 15 16 // 𭤟
+// ⿸ han-2008b han-4e05 // ⿸𠂋丅
+
 ## 69.4
 
 glyph han-2d920:15x16 15 16 // 𭤠
@@ -625,8 +630,8 @@ glyph han-2da07:15x16 15 16 // 𭨇
 
 ## 73.6
 
-// glyph han-2da1b-($han-regions):15x16 15 16 // 𭨛
-// ⿰ han-66f2 han-4eca-($-1) // ⿰曲今
+glyph han-2da1b:15x16 15 16 // 𭨛
+⿰ han-66f2:7x16 1 han-4eca-g:7x16 // ⿰曲今
 
 # CJK unified ideographs extension F: 月 (74)
 

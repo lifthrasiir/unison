@@ -1845,8 +1845,8 @@ glyph han-7cab:15x16 15 16 // 粫
 assume ⿰ han-7c73:7x16 -1 han-800c:9x16 // ⿰米而
 glyph han-7cab.0:* = han-7cab:*
 
-// glyph han-7cac:15x16 15 16 // 粬
-// ⿰ han-7c73 han-66f2 // ⿰米曲
+glyph han-7cac:15x16 15 16 // 粬
+⿰ han-7c73:5x16 han-66f2:10x16 // ⿰米曲
 
 glyph han-7cad:15x16 15 16 // 粭
 ⿰ han-7c73:7x16 1 han-5408:7x16 // ⿰米合

@@ -458,8 +458,8 @@ glyph han-2349c:15x16 15 16 // 𣒜
 glyph han-2349e:15x16 15 16 // 𣒞
 ⿰ han-6728:5x16 1 han-8eca:9x16 // ⿰木車
 
-// glyph han-234a0:15x16 15 16 // 𣒠
-// ⿰ han-672a han-66f2 // ⿰未曲
+glyph han-234a0:15x16 15 16 // 𣒠
+⿰ han-672a:7x16 1 han-66f2:7x16 // ⿰未曲
 
 // glyph han-234a2:15x16 15 16 // 𣒢
 // ⿰ han-6728 han-26b11 // ⿰木𦬑

@@ -233,8 +233,8 @@ glyph han-266ad:15x16 15 16 // 𦚭 ⿰月虫(GV) ⿰⺼虫(T)
 // glyph han-266b8:15x16 15 16 // 𦚸 ⿰月亘(GV) ⿰⺼亘(T)
 // ⿰ han-6708 han-4e98 // ⿰月亘
 
-// glyph han-266bc:15x16 15 16 // 𦚼
-// ⿰ han-6708 han-66f2 // ⿰月曲
+glyph han-266bc:15x16 15 16 // 𦚼
+⿰ han-6708:7x16 1 han-66f2:7x16 // ⿰月曲
 
 // glyph han-266c0:15x16 15 16 // 𦛀
 // ⿰ han-6708 han-2418c // ⿰月𤆌

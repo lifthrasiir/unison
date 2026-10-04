@@ -1238,8 +1238,8 @@ glyph han-2d0cb:15x16 15 16 // 𭃋
 glyph han-2d0d5:15x16 15 16 // 𭃕
 ⿰ han-5200:9x16 1 han-5409:5x16 // ⿰刀吉
 
-// glyph han-2d0d7:15x16 15 16 // 𭃗
-// ⿰ han-66f2 han-5202 // ⿰曲刂
+glyph han-2d0d7:15x16 15 16 // 𭃗
+⿰ han-66f2:10x16 1 han-5202:4x16 // ⿰曲刂
 
 // glyph han-2d0d8:15x16 15 16 // 𭃘
 // ⿱ han-5200 han-8089 // ⿱刀肉

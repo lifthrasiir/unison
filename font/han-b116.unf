@@ -127,8 +127,8 @@ glyph han-2594a-($han-regions):15x16 15 16 // 𥥊
 glyph han-25950-($han-regions):15x16 15 16 // 𥥐
 ⿱ han-7a74.0-or-7a74.2-($-1):15x6 han-4e14:15x10 // ⿱穴且
 
-// glyph han-25951:15x16 15 16 // 𥥑 ⿱穴本(G) ⿱⿱宀儿本(T)
-// ⿳ han-5b80 han-516b han-672c // ⿳宀八本
+glyph han-25951-($han-regions):15x16 15 16 // 𥥑
+⿱ han-7a74.0-or-7a74.2-($-1):15x7 -1 han-672c:15x10 // ⿱穴本
 
 glyph han-25953-($han-regions):15x16 15 16 // 𥥓
 ⿱ han-7a74.0-or-7a74.2-($-1):15x7 han-793a:15x9 // ⿱穴示

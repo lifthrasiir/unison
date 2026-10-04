@@ -407,8 +407,8 @@ glyph han-3442.1:* = han-3442:* // TODO
 
 ## 9.6
 
-// glyph han-344b:15x16 15 16 // 㑋
-// ⿰ han-4ebb han-66f2 // ⿰亻曲
+glyph han-344b:15x16 15 16 // 㑋
+⿰ han-4ebb:5x16 han-66f2:10x16 // ⿰亻曲
 
 glyph han-344c:15x16 15 16 // 㑌
 ⿰ han-4ebb:5x16 1 han-5321:9x16 // ⿰亻匡

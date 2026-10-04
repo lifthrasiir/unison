@@ -1429,8 +1429,8 @@ glyph han-2bb65:15x16 15 16 // 𫭥
 // glyph han-2bb6c:15x16 15 16 // 𫭬 ⿻⺊⿱日二(T) ⿱⺊里(X)
 // ⿻⺊⿱日二
 
-// glyph han-2bb6d:15x16 15 16 // 𫭭
-// ⿰ han-571f han-66f2 // ⿰土曲
+glyph han-2bb6d:15x16 15 16 // 𫭭
+⿰ han-571f:5x14-l han-66f2:10x16 // ⿰土曲
 
 // glyph han-2bb6f:15x16 15 16 // 𫭯
 // ⿰ han-571f han-5bfb // ⿰土寻

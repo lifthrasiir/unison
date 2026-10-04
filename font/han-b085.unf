@@ -564,6 +564,9 @@ glyph han-23e2c:15x16 15 16 // 𣸬
 // glyph han-23e38:15x16 15 16 // 𣸸
 // ⿰ han-6c35 han-6c97 // ⿰氵沗
 
+// glyph han-23e3d-($han-regions):15x16 15 16 // 𣸽 ⿰氵⿱艹夲(T) ⿰氵苯(Z)
+// ⿰ han-6c35 han-82ef-($-1) // ⿰氵苯
+
 // glyph han-23e3e:15x16 15 16 // 𣸾
 // ⿰ han-6c35 han-70b9 // ⿰氵点
 

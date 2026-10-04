@@ -507,8 +507,13 @@ glyph han-82ee-(g|p):15x16 15 16 // 苮
 glyph han-82ee-(h|t|j):15x16 15 16 // 苮
 ⿱ han-8279.2:15x3 1 han-4ed9:15x12 // ⿱艹仙
 
-// glyph han-82ef:15x16 15 16 // 苯
-// ⿱ han-8279 han-672c // ⿱艹本
+glyph han-82ef-($han-regions):15x16 15 16 // 苯
+⿱ han-8279-($-1):15x3 han-672c:15x13 // ⿱艹本
+glyph han-82ef.0:* = han-82ef-j:*
+glyph han-82ef.1:* = han-82ef-j:*
+glyph han-82ef.2:* = han-82ef-h:*
+glyph han-82ef.3:15x16 15 16 // 苯
+⿱ han-8279.0:15x3 han-5932:15x13 // ⿱艹夲
 
 // glyph han-82f0:15x16 15 16 // 苰
 // ⿱ han-8279 han-5f18 // ⿱艹弘

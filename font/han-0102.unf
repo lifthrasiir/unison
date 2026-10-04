@@ -1293,6 +1293,7 @@ $$../Vv'......................
 $$/0V/........................
 @@H_/.........................
 glyph han-7592:15x16 = han-7592:15x16.11x13
+glyph han-7592.0:* = han-7592:*
 
 ## 104.2
 
@@ -1301,9 +1302,11 @@ glyph han-7592:15x16 = han-7592:15x16.11x13
 
 glyph han-7594:15x16 15 16 // 疔
 ⿸ han-7592:15x16.11x13 han-4e01:9x12 5 4 // ⿸疒丁
+glyph han-7594.0:* = han-7594:*
 
 glyph han-7595-($han-regions):15x16 15 16 // 疕
 ⿸ han-7592:15x16.11x13 han-5315-($-1):10x13 5 3 // ⿸疒匕
+glyph han-7595.0:* = han-7595-j:*
 
 // glyph han-7597:15x16 15 16 // 疗
 // ⿸ han-7592 han-4e86 // ⿸疒了
@@ -1321,26 +1324,30 @@ glyph han-759b:15x16 15 16 // 疛
 
 glyph han-759c:15x16 15 16 // 疜
 ⿸ han-7592:15x16.11x13 han-4e0b:9x12 5 4 // ⿸疒下
+glyph han-759c.0:* = han-759c:*
 
 glyph han-759d:15x16 15 16 // 疝
 ⿸ han-7592:15x16.11x13 han-5c71:9x12 5 4 // ⿸疒山
+glyph han-759d.0:* = han-759d:*
 
 // glyph han-759f:15x16 15 16 // 疟
 // ⿸ han-7592 han-30002 // ⿸疒𰀂
 
-// glyph han-75a0:15x16 15 16 // 疠
-// ⿸ han-7592 han-4e07 // ⿸疒万
+glyph han-75a0:15x16 15 16 // 疠
+⿸ han-7592:15x16.11x13 han-4e07:9x12 5 4 // ⿸疒万
 
 ## 104.4
 
 glyph han-75a2:15x16 15 16 // 疢
 ⿸ han-7592:15x16.11x13 han-706b:11x12 4 4 // ⿸疒火
+glyph han-75a2.0:* = han-75a2:*
 
 // glyph han-75a3:15x16 15 16 // 疣
 // ⿸ han-7592 han-5c24 // ⿸疒尤
 
 glyph han-75a4:15x16 15 16 // 疤
 ⿸ han-7592:15x16.11x13 han-5df4:9x11 5 4 // ⿸疒巴
+glyph han-75a4.0:* = han-75a4:*
 
 // glyph han-75a6:15x16 15 16 // 疦
 // ⿸ han-7592 han-592c // ⿸疒夬
@@ -1402,6 +1409,7 @@ glyph han-75b8.0:* = han-75b8:*
 
 glyph han-75bd:15x16 15 16 // 疽
 ⿸ han-7592:15x16.11x13 han-4e14:9x12 5 4 // ⿸疒且
+glyph han-75bd.0:* = han-75bd:*
 
 // glyph han-75be:15x16 15 16 // 疾
 // ⿸ han-7592 han-77e2 // ⿸疒矢
@@ -1531,6 +1539,7 @@ glyph han-75e1.0:* = han-75e1:*
 
 glyph han-75f0:15x16 15 16 // 痰
 ⿸ han-7592:15x16.11x13 han-708e:9x12 5 4 // ⿸疒炎
+glyph han-75f0.0:* = han-75f0:*
 
 glyph han-75f1-($han-regions):15x16 15 16 // 痱
 ⿸ han-7592:15x16.11x13 han-975e-($-1):11x13 4 3 // ⿸疒非
@@ -1688,6 +1697,7 @@ $$../h@@H_/.$$$$$$...\_H@@v\$$
 @@@@H_h/$$$$......$$$$$$\h_H@@
 glyph han-7676:15x16 15 16 // 癶
 ref han-7676:15x5
+glyph han-7676.0:* = han-7676:*
 
 ## 105.3
 
@@ -2228,10 +2238,10 @@ glyph han-7683.0:* = han-7683:*
 
 ## 106.3
 
-glyph han-7684:15x16 15 16 // 的 ⿰白勺(GHTJPV) ⿰白⿹勹丶(K)
+glyph han-7684:15x16 15 16 // 的
 ⿰ han-767d:6x16 han-52fa.1:9x16 // ⿰白勺
 glyph han-7684.0:* = han-7684:*
-glyph han-7684.1:15x16 15 16 // 的 ⿰白勺(GHTJPV) ⿰白⿹勹丶(K)
+glyph han-7684.1:15x16 15 16 // 的
 ⿰ han-767d:6x16 han-52fa.0:9x16 // ⿰白勺
 glyph han-7684.2:* = han-7684.0:*
 glyph han-7684.3:* = han-7684.1:*
@@ -2274,7 +2284,11 @@ glyph han-768a.0:* = han-768a-j:*
 glyph han-768a.1:* = han-768a-g:*
 
 glyph han-768b:15x16 15 16 // 皋
-⿳ han-767d:11x6 han-5927:15x6 -1 han-5341:15x5 // ⿳白大十
+⿱ han-767d:11x6 han-5932:15x10 // ⿱白夲
+glyph han-768b.0:* = han-768b:*
+glyph han-768b.1:* = han-768b:*
+glyph han-768b.2:15x16 15 16 // 皋
+⿱ han-767d:11x6 han-672c:15x10 // ⿱白本
 
 glyph han-768c:15x16 15 16 // 皌
 ⿰ han-767d:6x16 han-672b:9x16 // ⿰白末
@@ -2368,6 +2382,7 @@ glyph han-76a2.0:* = han-76a2:*
 
 glyph han-76a4:15x16 15 16 // 皤
 ⿰ han-767d:6x16 han-756a:9x16 // ⿰白番
+glyph han-76a4.0:* = han-76a4:*
 
 ## 106.13
 
@@ -2440,6 +2455,7 @@ glyph han-76ae.0:* = han-76ae:*
 
 glyph han-76af:15x16 15 16 // 皯
 ⿰ han-76ae:8x16 han-5e72:7x16 // ⿰皮干
+glyph han-76af.0:* = han-76af:*
 
 ## 107.5
 
@@ -2462,6 +2478,7 @@ glyph han-76b4:15x16 15 16 // 皴
 
 glyph han-76b8:15x16 15 16 // 皸
 ⿰ han-8ecd:7x16 han-76ae:8x16 // ⿰軍皮
+glyph han-76b8.0:* = han-76b8:*
 
 glyph han-76b9:15x16 15 16 // 皹
 ⿰ han-76ae:8x16 han-8ecd:7x16 // ⿰皮軍

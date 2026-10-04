@@ -819,8 +819,8 @@ glyph han-32924:15x16 15 16 // 𲤤
 
 ## 73.5
 
-// glyph han-32952:15x16 15 16 // 𲥒
-// ⿰ han-66f2 han-5de5 // ⿰曲工
+glyph han-32952:15x16 15 16 // 𲥒
+⿰ han-66f2:10x16 han-5de5:5x12 // ⿰曲工
 
 # CJK unified ideographs extension J: 月 (74)
 

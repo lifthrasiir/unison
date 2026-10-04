@@ -879,6 +879,9 @@ glyph han-31566:15x16 15 16 // 𱕦
 glyph han-3157a:15x16 15 16 // 𱕺
 ⿴ han-56d7:13x14.11x12 han-866b:11x11 2 2 // ⿴囗虫
 
+// glyph han-3157b:15x16 15 16 // 𱕻
+// ⿴ han-56d7 han-200ad // ⿴囗𠂭
+
 // glyph han-3157c-($han-regions):15x16 15 16 // 𱕼
 // ⿴ han-56d7 han-5173-($-1) // ⿴囗关
 

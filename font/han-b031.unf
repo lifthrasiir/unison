@@ -46,7 +46,7 @@ glyph han-211ac:15x16 15 16 // 𡆬
 ⿴ han-56d7:13x14.11x12 han-5de5:9x10 3 3 // ⿴囗工
 
 glyph han-211ad:15x16 15 16 // 𡆭
-⿴ han-56d7:13x16.11x14 han-4e07:10x14 2 1 // ⿴囗万
+⿴ han-56d7:13x16.11x14 han-4e07:9x12 3 2 // ⿴囗万
 
 glyph han-211ae-g:15x16 15 16 // 𡆮
 ⿴ han-56d7:13x14.11x12 han-571f:9x10 3 3 // ⿴囗土
@@ -56,8 +56,8 @@ glyph han-211ae-j:15x16 15 16 // 𡆮
 glyph han-211af:15x16 15 16 // 𡆯
 ⿴ han-56d7:13x14.11x12 han-5c71:9x10 3 3 // ⿴囗山
 
-// glyph han-211b1:15x16 15 16 // 𡆱
-// ⿴ han-56d7 han-5f61 // ⿴囗彡
+glyph han-211b1:15x16 15 16 // 𡆱
+⿴ han-56d7:13x14.11x12 han-5f61:11x11 2 2 // ⿴囗彡
 
 // glyph han-211b2-($han-regions):15x16 15 16 // 𡆲
 // ⿴ han-56d7 han-4ea1-($-1) // ⿴囗亡

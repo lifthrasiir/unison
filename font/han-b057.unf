@@ -231,11 +231,11 @@ glyph han-223e0:15x16 15 16 // 𢏠
 glyph han-223e1:15x16 15 16 // 𢏡
 ⿰ han-5f13:6x16 han-5148:9x16 // ⿰弓先
 
-// glyph han-223e2:15x16 15 16 // 𢏢
-// ⿰ han-66f2 han-5f13 // ⿰曲弓
+glyph han-223e2:15x16 15 16 // 𢏢
+⿰ han-66f2:10x16 1 han-5f13:4x16 // ⿰曲弓
 
-// glyph han-223e3:15x16 15 16 // 𢏣
-// ⿰ han-5f13 han-66f2 // ⿰弓曲
+glyph han-223e3:15x16 15 16 // 𢏣
+⿰ han-5f13:5x16 han-66f2:10x16 // ⿰弓曲
 
 ## 57.7
 
