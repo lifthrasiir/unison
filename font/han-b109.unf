@@ -428,8 +428,8 @@ glyph han-251c3:15x16 15 16 // 𥇃
 
 ## 109.8
 
-// glyph han-22c3f:15x16 15 16 // 𢰿 ⿲⿱㇒⿻二丿目手(G) ⿲手目手(UCS2003)
-// ⿲ han-624b han-76ee han-624b // ⿲手目手
+glyph han-22c3f:15x16 15 16 // 𢰿
+⿲ han-624b:5x16-l han-76ee:3x13-l han-624b:7x16 // ⿲手目手
 
 // glyph han-251ca:15x16 15 16 // 𥇊
 // ⿰ han-76ee han-6606 // ⿰目昆

@@ -732,7 +732,7 @@ glyph han-873b.2:* = han-873b-j:*
 glyph han-873b.3:* = han-873b-g:*
 
 glyph han-873c:15x16 15 16 // 蜼
-⿰ han-866b:5x16 1 han-96b9:9x16 // ⿰虫隹
+⿰ han-866b:5x16 han-96b9:10x16 // ⿰虫隹
 glyph han-873c.0:* = han-873c:*
 
 glyph han-873e:15x16 15 16 // 蜾

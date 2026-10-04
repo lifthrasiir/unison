@@ -870,6 +870,9 @@ glyph han-5d3d.0:* = han-5d3d:*
 // glyph han-5d40:15x16 15 16 // 嵀
 // ⿱ han-5c71 han-67f1 // ⿱山柱
 
+// glyph han-5d42:15x16 15 16 // 嵂
+// ⿱ han-5c71 han-5f8b // ⿱山律
+
 // glyph han-5d4c:15x16 15 16 // 嵌
 // ⿱ han-5c71 han-2389f // ⿱山𣢟
 
@@ -3194,7 +3197,7 @@ glyph han-5e32-(g|t|p):* = han-5e32.x:*
 // ⿰ han-5dfe han-9577 // ⿰巾長
 
 glyph han-5e37:15x16 15 16 // 帷
-⿰ han-5dfe:5x16 1 han-96b9:9x16 // ⿰巾隹
+⿰ han-5dfe:5x16 han-96b9:10x16 // ⿰巾隹
 glyph han-5e37.0:* = han-5e37:*
 
 // glyph han-5e39:15x16 15 16 // 帹

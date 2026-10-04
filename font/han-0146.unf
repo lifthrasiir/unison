@@ -1760,7 +1760,7 @@ glyph han-8aaf-($han-regions):15x16 15 16 // 誯
 glyph han-8aaf.0:* = han-8aaf-j:*
 
 glyph han-8ab0-($han-regions):15x16 15 16 // 誰
-⿰ han-8a01-($-1):5x16 1 han-96b9:9x16 // ⿰訁隹
+⿰ han-8a01-($-1):5x16 han-96b9:10x16 // ⿰訁隹
 glyph han-8ab0.0:* = han-8ab0-j:*
 
 glyph han-8ab2-($han-regions):15x16 15 16 // 課
@@ -2320,7 +2320,7 @@ glyph han-8bfe:15x16 15 16 // 课
 ⿰ han-8ba0:5x14 1 han-679c:9x16 // ⿰讠果
 
 glyph han-8c01:15x16 15 16 // 谁
-⿰ han-8ba0:5x14 1 han-96b9:9x16 // ⿰讠隹
+⿰ han-8ba0:5x14 han-96b9:10x16 // ⿰讠隹
 
 glyph han-8c03:15x16 15 16 // 调
 ⿰ han-8ba0:5x14 han-5468-g:10x16 // ⿰讠周

@@ -442,6 +442,9 @@ glyph han-260ab:15x16 15 16 // 𦂫
 glyph han-260ba:15x16 15 16 // 𦂺
 ⿰ han-7cf9-v:5x14 1 han-97f3:9x16 // ⿰糹音
 
+// glyph han-260bb-($han-regions):15x16 15 16 // 𦂻
+// ⿰ han-7cf9-($-1) han-5f8b // ⿰糹律
+
 // glyph han-260bd:15x16 15 16 // 𦂽 ⿰糹突(V) ⿰糹⿱穴犬(UCS2003)
 // ⿰ han-7cf9 han-7a81 // ⿰糹突
 

@@ -1070,8 +1070,8 @@ glyph han-2e7f3:15x16 15 16 // 𮟳
 // glyph han-2e7f7:15x16 15 16 // 𮟷
 // ⿰ han-4e98 han-961d // ⿰亘阝
 
-// glyph han-2e7f8:15x16 15 16 // 𮟸
-// ⿰ han-518d han-961d // ⿰再阝
+glyph han-2e7f8:15x16 15 16 // 𮟸
+⿰ han-518d:11x16 han-961d:4x16-r // ⿰再阝
 
 // glyph han-2e7f9:15x16 15 16 // 𮟹
 // ⿱ han-5405 han-9091 // ⿱吅邑

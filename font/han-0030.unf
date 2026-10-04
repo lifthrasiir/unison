@@ -3431,9 +3431,9 @@ glyph han-552d:15x16 15 16 // 唭
 // ⿱ han-96b9 han-53e3 // ⿱隹口
 
 glyph han-552f:15x13 15 13 // 唯
-⿰ han-53e3:5x11-l 1 han-96b9:9x13 // ⿰口隹
+⿰ han-53e3:5x11-l han-96b9:10x13 // ⿰口隹
 glyph han-552f:15x16 15 16 // 唯
-⿰ han-53e3:5x12 1 han-96b9:9x16 // ⿰口隹
+⿰ han-53e3:5x12 han-96b9:10x16 // ⿰口隹
 glyph han-552f.0:* = han-552f:*
 
 glyph han-5531-($han-regions):15x16 15 16 // 唱

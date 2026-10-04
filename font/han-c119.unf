@@ -449,6 +449,11 @@ glyph han-2b1a3:15x16 15 16 // 𫆣
 // glyph han-2b1a4:15x16 15 16 // 𫆤
 // ⿰ han-6708 han-91d1 // ⿰月金
 
+## 130.9
+
+// glyph han-2b1a7:15x16 15 16 // 𫆧
+// ⿰ han-6708 han-5f8b // ⿰月律
+
 ## 130.13
 
 // glyph han-2b1ba:15x16 15 16 // 𫆺
@@ -569,8 +574,8 @@ glyph han-2b1f2-k:15x16 15 16 // 𫇲
 
 ## 140.6
 
-// glyph han-2b1f6-($han-regions):15x16 15 16 // 𫇶
-// ⿱ han-8279-($-1) han-518d // ⿱艹再
+glyph han-2b1f6-($han-regions):15x16 15 16 // 𫇶
+⿱ han-8279-($-1):15x3 1 han-518d:15x12 // ⿱艹再
 
 // glyph han-2b1f8:15x16 15 16 // 𫇸
 // ⿱ han-8279 han-7af9 // ⿱艹竹

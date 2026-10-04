@@ -257,6 +257,9 @@ glyph han-32aed:15x16 15 16 // 𲫭
 // glyph han-32af2:15x16 15 16 // 𲫲
 // ⿰ han-706b han-662d // ⿰火昭
 
+// glyph han-32af5:15x16 15 16 // 𲫵
+// ⿰ han-706b han-5f8b // ⿰火律
+
 // glyph han-32af7:15x16 15 16 // 𲫷
 // ⿱ han-59eb han-706c // ⿱姫灬
 
@@ -359,8 +362,8 @@ glyph han-32b47:15x16 15 16 // 𲭇
 
 ## 91.4
 
-// glyph han-32b4b-($han-regions):15x16 15 16 // 𲭋
-// ⿰ han-7247-($-1) han-624b // ⿰片手
+glyph han-32b4b:15x16 15 16 // 𲭋
+⿰ han-7247-j:10x16 han-624b:5x16 // ⿰片手
 
 ## 91.5
 
@@ -806,6 +809,11 @@ glyph han-32c87:15x16 15 16 // 𲲇
 
 // glyph han-32c89:15x16 15 16 // 𲲉
 // ⿰ han-76ae han-5944 // ⿰皮奄
+
+## 107.9
+
+// glyph han-32c8a:15x16 15 16 // 𲲊
+// ⿰ han-5f8b han-76ae // ⿰律皮
 
 ## 107.12
 

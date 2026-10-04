@@ -746,8 +746,8 @@ glyph han-304b8:15x16 15 16 // 𰒸
 // glyph han-304b9:15x16 15 16 // 𰒹
 // ⿰ han-624c han-4e5c // ⿰扌乜
 
-// glyph han-304bb:15x16 15 16 // 𰒻
-// ⿰ han-624b han-4e86 // ⿰手了
+glyph han-304bb:15x16 15 16 // 𰒻
+⿰ han-624b:5x16 1 han-4e86-g:9x16 // ⿰手了
 
 ## 64.3
 
@@ -766,7 +766,7 @@ glyph han-304bd:15x16 15 16 // 𰒽
 // ⿰ han-624c han-5339 // ⿰扌匹
 
 glyph han-304c1:15x16 15 16 // 𰓁
-⿰ -2 han-624b:11x16 han-6bd4.0:6x16 // ⿰手比
+⿰ han-624b:7x16 han-6bd4-g:8x16 // ⿰手比
 
 glyph han-304c4:15x16 15 16 // 𰓄
 ⿰ han-624c:5x16 1 han-957f:9x16 // ⿰扌长
@@ -783,19 +783,19 @@ glyph han-304c4:15x16 15 16 // 𰓄
 // glyph han-304c9:15x16 15 16 // 𰓉
 // ⿱ han-6587 han-624b // ⿱文手
 
-// glyph han-304cb:15x16 15 16 // 𰓋
-// ⿲ han-624c han-4e28 han-2b739 // ⿲扌丨𫜹 <- ⿰扌𠁣
+glyph han-304cb:15x16 15 16 // 𰓋
+⿰ han-624c:5x16 1 han-20063:9x16 // ⿰扌𠁣
 
 ## 64.5
 
 // glyph han-304cc:15x16 15 16 // 𰓌
 // ⿰ han-624c han-30009 // ⿰扌𰀉
 
-// glyph han-304cd:15x16 15 16 // 𰓍
-// ⿰ han-624b han-7518 // ⿰手甘
+glyph han-304cd:15x16 15 16 // 𰓍
+⿰ han-624b:5x16 han-7518:10x16 // ⿰手甘
 
-// glyph han-304ce:15x16 15 16 // 𰓎
-// ⿰ han-624b han-53ef // ⿰手可
+glyph han-304ce:15x16 15 16 // 𰓎
+⿰ han-624b:5x16 han-53ef:10x16 // ⿰手可
 
 // glyph han-304cf:15x16 15 16 // 𰓏
 // ⿰ han-624b han-53f3 // ⿰手右
@@ -803,8 +803,8 @@ glyph han-304c4:15x16 15 16 // 𰓄
 // glyph han-304d0-($han-regions):15x16 15 16 // 𰓐
 // ⿰ han-624c han-53f2-($-1) // ⿰扌史
 
-// glyph han-304d1:15x16 15 16 // 𰓑
-// ⿰ han-624b han-7532 // ⿰手甲
+glyph han-304d1:15x16 15 16 // 𰓑
+⿰ han-624b:5x16 1 han-7532:9x16 // ⿰手甲
 
 // glyph han-304d2:15x16 15 16 // 𰓒
 // ⿰ han-624b han-7535 // ⿰手电
@@ -815,8 +815,8 @@ glyph han-304c4:15x16 15 16 // 𰓄
 // glyph han-304d4:15x16 15 16 // 𰓔
 // ⿰ han-624c han-95ea // ⿰扌闪
 
-// glyph han-304d6:15x16 15 16 // 𰓖
-// ⿰ han-624b han-5f17 // ⿰手弗
+glyph han-304d6:15x16 15 16 // 𰓖
+⿰ han-624b:5x16 1 han-5f17:9x16 // ⿰手弗
 
 ## 64.6
 
@@ -861,8 +861,8 @@ glyph han-304e4:15x16 15 16 // 𰓤
 // glyph han-304ee:15x16 15 16 // 𰓮
 // ⿱ han-6253 han-672b // ⿱打末
 
-// glyph han-304ef:15x16 15 16 // 𰓯
-// ⿰ han-624b han-675f // ⿰手束
+glyph han-304ef:15x16 15 16 // 𰓯
+⿰ han-624b:5x16 1 han-675f:9x16 // ⿰手束
 
 // glyph han-304f0:15x16 15 16 // 𰓰
 // ⿰ han-624b han-593e // ⿰手夾
@@ -933,8 +933,8 @@ glyph han-30521:15x16 15 16 // 𰔡
 
 ## 64.18
 
-// glyph han-3053d:15x16 15 16 // 𰔽
-// ⿰ han-624b han-96da // ⿰手雚
+glyph han-3053d:15x16 15 16 // 𰔽
+⿰ han-624b:7x16 han-96da-g:8x16 // ⿰手雚
 
 # CJK unified ideographs extension G: 支 (65)
 

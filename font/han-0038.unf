@@ -681,7 +681,7 @@ glyph han-5a44.0:* = han-5a44:*
 // ⿰ han-5973 han-5947 // ⿰女奇
 
 glyph han-5a4e:15x16 15 16 // 婎
-⿰ han-5973:5x14-l 1 han-96b9:9x16 // ⿰女隹
+⿰ han-5973:5x14-l han-96b9:10x16 // ⿰女隹
 
 glyph han-5a50:15x16 15 16 // 婐
 ⿰ han-5973:7x16 1 han-679c:7x16 // ⿰女果

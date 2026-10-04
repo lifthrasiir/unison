@@ -83,8 +83,8 @@ glyph han-216bd-($han-regions):15x16 15 16 // 𡚽
 // glyph han-216c9:15x16 15 16 // 𡛉
 // ⿱ han-4ec1 han-5973 // ⿱仁女
 
-// glyph han-216ca:15x16 15 16 // 𡛊
-// ⿰ han-5973 han-624b // ⿰女手
+glyph han-216ca:15x16 15 16 // 𡛊
+⿰ han-5973:6x14-l han-624b:9x16 // ⿰女手
 
 // glyph han-216cb:15x16 15 16 // 𡛋
 // ⿰ han-5973 han-23b1b // ⿰女𣬛

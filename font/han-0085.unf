@@ -1345,9 +1345,9 @@ glyph han-6dec.0:* = han-6ddc:*
 // ⿰ han-6c35 han-39bf // ⿰氵㦿
 
 glyph han-6dee:15x13 15 13 // 淮
-⿰ han-6c35:5x12 1 han-96b9:9x13 // ⿰氵隹
+⿰ han-6c35:5x12 han-96b9:10x13 // ⿰氵隹
 glyph han-6dee:15x16 15 16 // 淮
-⿰ han-6c35:5x15 1 han-96b9:9x16 // ⿰氵隹
+⿰ han-6c35:5x15 han-96b9:10x16 // ⿰氵隹
 glyph han-6dee.0:* = han-6dee:*
 
 // glyph han-6df3-($han-regions):15x16 15 16 // 淳

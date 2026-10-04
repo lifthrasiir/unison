@@ -502,7 +502,7 @@ glyph han-21e4c:15x16 15 16 // 𡹌
 // ⿰ han-5c71 han-211cc // ⿰山𡇌
 
 glyph han-21e50:15x16 15 16 // 𡹐
-⿰ han-5c71:5x16 1 han-96b9:9x16 // ⿰山隹
+⿰ han-5c71:5x12-l han-96b9:10x16 // ⿰山隹
 
 glyph han-21e54:15x16 15 16 // 𡹔
 ⿲ han-5c71:5x16 han-6708:5x16 han-6708:5x16 // ⿲山月月

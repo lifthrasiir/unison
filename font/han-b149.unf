@@ -91,8 +91,8 @@ glyph han-27984:15x16 15 16 // 𧦄
 // glyph han-2798b:15x16 15 16 // 𧦋
 // ⿰ han-8a01 han-6c34 // ⿰訁水
 
-// glyph han-2798c:15x16 15 16 // 𧦌
-// ⿰ han-8a01 han-624b // ⿰訁手
+glyph han-2798c:15x16 15 16 // 𧦌
+⿰ han-8a01-t:5x16 1 han-624b:9x16 // ⿰訁手
 
 // glyph han-27990-($han-regions):15x16 15 16 // 𧦐
 // ⿰ han-8a01-($-1) han-722a // ⿰訁爪

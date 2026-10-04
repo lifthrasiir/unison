@@ -88,8 +88,8 @@ glyph han-22d26:15x16 15 16 // 𢴦
 // glyph han-22d35:15x16 15 16 // 𢴵
 // ⿰ han-624c han-7131 // ⿰扌焱
 
-// glyph han-22d3d:15x16 15 16 // 𢴽
-// ⿰ han-624b han-582f // ⿰手堯
+glyph han-22d3d:15x16 15 16 // 𢴽
+⿰ han-624b:5x16 1 han-582f:9x16 // ⿰手堯
 
 glyph han-22d3f:15x16 15 16 // 𢴿
 ⿲ han-624c:3x16 han-2099d:5x16 han-6708:7x16 // ⿲扌𠦝月

@@ -37,8 +37,9 @@ glyph han-2a709:15x16 15 16 // 𪜉
 
 ## 4.5
 
-// glyph han-2a70c:15x16 15 16 // 𪜌
-// ⿵ han-4e43 han-65e5 // ⿵乃日
+glyph han-2a70c:15x16 15 16 // 𪜌
+ref han-4e43:15x16 // ⿵乃日
+ref han-65e5:5x7 5 7
 
 ## 4.8
 

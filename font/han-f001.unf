@@ -260,8 +260,8 @@ glyph han-2cef3:15x16 15 16 // 𬻳
 
 ## 2.8
 
-// glyph han-2cef4-($han-regions):15x16 15 16 // 𬻴
-// ⿲ han-4e28 han-2b739 han-4ee4-($-1) // ⿲丨𫜹令 <- ⿰𠁣令
+glyph han-2cef4:15x16 15 16 // 𬻴
+⿰ han-20063:7x16 1 han-4ee4-g:7x16 // ⿰𠁣令
 
 ## 2.9
 

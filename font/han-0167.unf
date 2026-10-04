@@ -929,7 +929,7 @@ glyph han-930f:15x16 15 16 // 錏
 glyph han-930f.0:* = han-930f:*
 
 glyph han-9310:15x16 15 16 // 錐
-⿰ han-91d2:5x15-l 1 han-96b9:9x16 // ⿰釒隹
+⿰ han-91d2:5x15-l han-96b9:10x16 // ⿰釒隹
 glyph han-9310.0:* = han-9310:*
 
 glyph han-9312:15x16 15 16 // 錒
@@ -1700,7 +1700,7 @@ glyph han-9522:15x16 15 16 // 锢
 // ⿰ han-9485 han-7f57 // ⿰钅罗
 
 glyph han-9525:15x16 15 16 // 锥
-⿰ han-9485:5x14 1 han-96b9:9x16 // ⿰钅隹
+⿰ han-9485:5x14 han-96b9:10x16 // ⿰钅隹
 
 glyph han-9528:15x16 15 16 // 锨
 ⿲ han-9485:5x14 han-65a4:5x16 han-6b20:5x16 // ⿲钅斤欠

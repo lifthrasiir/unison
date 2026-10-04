@@ -790,6 +790,9 @@ glyph han-3302f:15x16 15 16 // 𳀯
 
 ## 145.9
 
+// glyph han-3303f-($han-regions):15x16 15 16 // 𳀿
+// ⿰ han-8864-($-1) han-5f8b // ⿰衤律
+
 // glyph han-33040:15x16 15 16 // 𳁀
 // ⿰ han-8864 han-4eb2 // ⿰衤亲
 
@@ -1079,6 +1082,11 @@ glyph han-330d5-($han-regions):15x16 15 16 // 𳃕
 
 // glyph han-330d6:15x16 15 16 // 𳃖
 // ⿰ han-27fb7 han-91d1 // ⿰𧾷金
+
+## 157.9
+
+// glyph han-330d8:15x16 15 16 // 𳃘
+// ⿰ han-27fb7 han-5f8b // ⿰𧾷律
 
 ## 157.12
 

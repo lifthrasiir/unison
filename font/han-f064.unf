@@ -13,22 +13,22 @@ glyph han-2d80e:15x16 15 16 // 𭠎
 
 ## 64.3
 
-// glyph han-2d80f:15x16 15 16 // 𭠏
-// ⿰ han-624b han-4e0b // ⿰手下
+glyph han-2d80f:15x16 15 16 // 𭠏
+⿰ han-624b:5x16 1 han-4e0b:9x16 // ⿰手下
 
 ## 64.4
 
 // glyph han-2d811:15x16 15 16 // 𭠑
 // ⿰ han-624c han-215d3 // ⿰扌𡗓
 
-// glyph han-2d813:15x16 15 16 // 𭠓
-// ⿰ han-624b han-5206 // ⿰手分
+glyph han-2d813:15x16 15 16 // 𭠓
+⿰ han-624b:5x16 1 han-5206-g:9x16 // ⿰手分
 
-// glyph han-2d814:15x16 15 16 // 𭠔
-// ⿰ han-624b han-4eca // ⿰手今
+glyph han-2d814-($han-regions):15x16 15 16 // 𭠔
+⿰ han-624b:5x16 1 han-4eca-($-1):9x16 // ⿰手今
 
-// glyph han-2d815:15x16 15 16 // 𭠕
-// ⿰ han-624b han-5348 // ⿰手午
+glyph han-2d815:15x16 15 16 // 𭠕
+⿰ han-624b:5x16 1 han-5348:9x16 // ⿰手午
 
 // glyph han-2d816-($han-regions):15x16 15 16 // 𭠖
 // ⿰ han-624b han-4e11-($-1) // ⿰手丑
@@ -52,8 +52,8 @@ glyph han-2d80e:15x16 15 16 // 𭠎
 // glyph han-2d822:15x16 15 16 // 𭠢
 // ⿰ han-6253 han-4e91 // ⿰打云
 
-// glyph han-2d823:15x16 15 16 // 𭠣
-// ⿰ han-624c han-518d // ⿰扌再
+glyph han-2d823:15x16 15 16 // 𭠣
+⿰ han-624c:3x16 1 han-518d:11x16 // ⿰扌再
 
 // glyph han-2d825:15x16 15 16 // 𭠥
 // ⿰ han-624c han-6709 // ⿰扌有
@@ -67,8 +67,8 @@ glyph han-2d829:15x16 15 16 // 𭠩
 glyph han-2d82a:15x16 15 16 // 𭠪
 ⿰ han-624c:5x16 1 han-81ea:9x16 // ⿰扌自
 
-// glyph han-2d82b:15x16 15 16 // 𭠫
-// ⿰ han-624b han-5408 // ⿰手合
+glyph han-2d82b:15x16 15 16 // 𭠫
+⿰ han-624b:5x16 1 han-5408:9x16 // ⿰手合
 
 glyph han-2d82c:15x16 15 16 // 𭠬
 ⿰ han-624c:5x16 1 han-540d:9x16 // ⿰扌名
@@ -93,8 +93,8 @@ glyph han-2d82f:15x16 15 16 // 𭠯
 // glyph han-2d837:15x16 15 16 // 𭠷
 // ⿰ han-624c han-5752 // ⿰扌坒
 
-// glyph han-2d83a:15x16 15 16 // 𭠺
-// ⿰ han-624b han-898b // ⿰手見
+glyph han-2d83a:15x16 15 16 // 𭠺
+⿰ han-624b:5x16 han-898b:10x16 // ⿰手見
 
 // glyph han-2d83b:15x16 15 16 // 𭠻 ⿰手别(G) ⿰手別(Z)
 // ⿲ han-624b han-53e6 han-5202 // ⿲手另刂
@@ -140,7 +140,7 @@ glyph han-2d85e:15x16 15 16 // 𭡞
 // ⿰ han-624c han-67f0 // ⿰扌柰
 
 glyph han-2d864:15x16 15 16 // 𭡤
-⿲ -5 han-624b:11x16 han-8c9d:5x16 1 han-5202:3x16 // ⿲手貝刂
+⿲ han-624b:5x16 han-8c9d:5x16 1 han-5202:4x16 // ⿲手貝刂
 
 // glyph han-2d865:15x16 15 16 // 𭡥
 // ⿰ han-624c han-2c659 // ⿰扌𬙙

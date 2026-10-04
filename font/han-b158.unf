@@ -501,7 +501,7 @@ glyph han-2832c:15x16 15 16 // 𨌬
 // ⿰ han-8eca han-6c93 // ⿰車沓
 
 glyph han-28334:15x16 15 16 // 𨌴
-⿰ han-8eca:5x16 1 han-96b9:9x16 // ⿰車隹
+⿰ han-8eca:5x16 han-96b9:10x16 // ⿰車隹
 
 // glyph han-28335:15x16 15 16 // 𨌵
 // ⿰ han-8eca han-5b9c // ⿰車宜

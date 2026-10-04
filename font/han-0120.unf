@@ -717,14 +717,14 @@ glyph han-7daa.2:15x16 15 16 // 綪
 ⿰ han-7cf9.z:5x14 1 han-9752.0:9x16 // ⿰糹青
 
 glyph han-7dad.0:15x16 15 16 // 維
-⿰ han-7cf9.z:5x14 1 han-96b9:9x16 // ⿰糹隹
+⿰ han-7cf9.z:5x14 han-96b9:10x16 // ⿰糹隹
 glyph han-7dad.1:* = han-7dad.0:*
 glyph han-7dad.2:15x16 15 16 // 維
-⿰ han-7cf9.w:5x14 1 han-96b9:9x16 // ⿰糹隹
+⿰ han-7cf9.w:5x14 han-96b9:10x16 // ⿰糹隹
 glyph han-7dad.x:15x16 15 16 // 維
-⿰ han-7cf9.x:5x14 1 han-96b9:9x16 // ⿰糹隹
+⿰ han-7cf9.x:5x14 han-96b9:10x16 // ⿰糹隹
 glyph han-7dad.y:15x16 15 16 // 維
-⿰ han-7cf9.y:5x14 1 han-96b9:9x16 // ⿰糹隹
+⿰ han-7cf9.y:5x14 han-96b9:10x16 // ⿰糹隹
 glyph han-7dad-(j|k):* = han-7dad.0:*
 glyph han-7dad-(g|h|t):* = han-7dad.x:*
 glyph han-7dad-p:* = han-7dad.y:*
@@ -1228,7 +1228,7 @@ glyph han-7ef0:15x16 15 16 // 绰
 // ⿰ han-7e9f han-9efe // ⿰纟黾
 
 glyph han-7ef4:15x16 15 16 // 维
-⿰ han-7e9f:5x14 1 han-96b9:9x16 // ⿰纟隹
+⿰ han-7e9f:5x14 han-96b9:10x16 // ⿰纟隹
 
 // glyph han-7ef7:15x16 15 16 // 绷
 // ⿰ han-7e9f han-670b // ⿰纟朋

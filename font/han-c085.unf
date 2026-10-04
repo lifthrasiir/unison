@@ -464,6 +464,11 @@ glyph han-2aebf:15x16 15 16 // 𪺿
 // glyph han-2aec1:15x16 15 16 // 𪻁
 // ⿰ han-72ad han-4e26 // ⿰犭並
 
+## 94.9
+
+// glyph han-2aec3:15x16 15 16 // 𪻃
+// ⿰ han-72ad han-5f8b // ⿰犭律
+
 ## 94.10
 
 // glyph han-2aec6:15x16 15 16 // 𪻆
@@ -889,7 +894,7 @@ glyph han-2afd1:15x16 15 16 // 𪿑
 ## 112.5
 
 glyph han-2afd5:15x16 15 16 // 𪿕
-⿰ han-77f3:7x16 1 han-53e5:7x16 // ⿰石句
+⿰ han-77f3:7x16 han-53e5:8x16 // ⿰石句
 
 glyph han-2afd7-($han-regions):15x16 15 16 // 𪿗
 ⿰ han-77f3:5x16 1 han-5c3c-($-1):9x16 // ⿰石尼
@@ -1075,8 +1080,8 @@ glyph han-2b044:15x16 15 16 // 𫁄
 
 ## 116.6
 
-// glyph han-2b04c:15x16 15 16 // 𫁌 ⿱⿱宀儿再(T) ⿱穴再(Z)
-// ⿳ han-5b80 han-513f han-518d // ⿳宀儿再 <- ⿱⿱宀儿再
+glyph han-2b04c:15x16 15 16 // 𫁌
+⿱ -2 han-7a74.0-or-7a74.2-t:15x5 1 han-518d:15x12 // ⿱穴再
 
 ## 116.7
 

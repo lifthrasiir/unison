@@ -38,8 +38,8 @@ glyph han-28949:15x16 15 16 // 𨥉
 // glyph han-2894a:15x16 15 16 // 𨥊 ⿰釒气(G) ⿰釒⿳𠂉一乙(T)
 // ⿰ han-91d2 han-6c14 // ⿰釒气
 
-// glyph han-2894b:15x16 15 16 // 𨥋
-// ⿰ han-91d2 han-624b // ⿰釒手
+glyph han-2894b:15x16 15 16 // 𨥋
+⿰ han-91d2:5x15-l 1 han-624b:9x16 // ⿰釒手
 
 glyph han-2894c:15x16 15 16 // 𨥌
 ⿰ han-91d2:5x15-l han-6c0f:10x16 // ⿰釒氏

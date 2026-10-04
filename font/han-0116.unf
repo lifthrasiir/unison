@@ -1251,6 +1251,9 @@ glyph han-7bb6.0:* = han-7bb6:*
 // glyph han-7bb9-($han-regions):15x16 15 16 // 箹
 // ⿱ han-25ad7 han-7d04-($-1) // ⿱𥫗約
 
+// glyph han-7bbb:15x16 15 16 // 箻
+// ⿱ han-25ad7 han-5f8b // ⿱𥫗律
+
 // glyph han-7bbd:15x16 15 16 // 箽
 // ⿱ han-25ad7 han-91cd // ⿱𥫗重
 
@@ -1348,8 +1351,11 @@ glyph han-7be5.0:* = han-7be5:*
 // glyph han-7bf0:15x16 15 16 // 篰
 // ⿱ han-25ad7 han-90e8 // ⿱𥫗部
 
-// glyph han-7bf3:15x16 15 16 // 篳
-// ⿱ han-25ad7 han-7562 // ⿱𥫗畢
+glyph han-7bf3-($han-regions):15x16 15 16 // 篳
+assume ⿱ han-25ad7:13x5 -1 han-7562-($-1):15x12 // ⿱𥫗畢
+glyph han-7bf3.0:* = han-7bf3-j:*
+glyph han-7bf3.1:* = han-7bf3-j:*
+glyph han-7bf3.2:* = han-7bf3-h:*
 
 // glyph han-7bf9:15x16 15 16 // 篹 ⿱𮅕㔾(GHTKP) ⿱𮅕巳(J)
 // ⿱ han-2e155 han-5df3 // ⿱𮅕巳

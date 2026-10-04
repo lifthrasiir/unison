@@ -1116,7 +1116,7 @@ glyph han-8e11:15x16 15 16 // 踑
 glyph han-8e11.0:* = han-8e11:*
 
 glyph han-8e13:15x16 15 16 // 踓
-⿰ han-27fb7:5x15 1 han-96b9:9x16 // ⿰𧾷隹
+⿰ han-27fb7:5x15 han-96b9:10x16 // ⿰𧾷隹
 
 glyph han-8e14:15x16 15 16 // 踔
 ⿰ han-27fb7:7x14 1 han-5353:7x16 // ⿰𧾷卓
