@@ -33,8 +33,8 @@ glyph han-32a35:15x16 15 16 // 𲨵
 // glyph han-32a39-($han-regions):15x16 15 16 // 𲨹
 // ⿰ han-6c35 han-4e10-($-1) // ⿰氵丐
 
-// glyph han-32a3b:15x16 15 16 // 𲨻
-// ⿱ han-6c34 han-725b // ⿱水牛
+glyph han-32a3b:15x16 15 16 // 𲨻
+⿱ han-6c34:15x8 han-725b:15x8 // ⿱水牛
 
 // glyph han-32a3d:15x16 15 16 // 𲨽
 // ⿱ han-6c34 han-6587 // ⿱水文
@@ -345,6 +345,11 @@ glyph han-32b40:15x16 15 16 // 𲭀
 glyph han-32b45:15x16 15 16 // 𲭅
 ⿰ han-723f:6x16 1 han-5315.0:8x16 // ⿰爿匕
 
+## 90.4
+
+// glyph han-32b46:15x16 15 16 // 𲭆
+// ⿰ han-723f han-53cd // ⿰爿反
+
 ## 90.5
 
 glyph han-32b47:15x16 15 16 // 𲭇
@@ -469,10 +474,16 @@ glyph han-32b87:15x16 15 16 // 𲮇
 // glyph han-32b88-($han-regions):15x16 15 16 // 𲮈
 // ⿰ han-72ad han-51b7-($-1) // ⿰犭冷
 
+// glyph han-32b89:15x16 15 16 // 𲮉
+// ⿰ han-72ad han-7262 // ⿰犭牢
+
 ## 94.8
 
 // glyph han-32b8d:15x16 15 16 // 𲮍
 // ⿰ han-72ad han-5948 // ⿰犭奈
+
+// glyph han-32b8e-($han-regions):15x16 15 16 // 𲮎
+// ⿰ han-72ad han-4e9b-($-1) // ⿰犭些
 
 // glyph han-32b95:15x16 15 16 // 𲮕
 // ⿰ han-72ad han-5c45 // ⿰犭居

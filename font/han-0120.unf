@@ -1105,6 +1105,9 @@ glyph han-7eb0-($han-regions):15x16 15 16 // 纰
 // glyph han-7eb1:15x16 15 16 // 纱
 // ⿰ han-7e9f han-5c11 // ⿰纟少
 
+// glyph han-7eb2:15x16 15 16 // 纲
+// ⿰ han-7e9f han-5188 // ⿰纟冈
+
 // glyph han-7eb3:15x16 15 16 // 纳
 // ⿰ han-7e9f han-5185 // ⿰纟内
 
@@ -1468,6 +1471,10 @@ glyph han-7f52:13x12 13 12 margin-x 1 // 罒
 glyph han-7f52:15x16 15 16 // 罒
 ref han-7f52:13x4 1 0
 glyph han-7f52.0:* = han-7f52:*
+
+glyph han-7f53:15x16 15 16 // 罓
+⿵ han-5182:15x16.11x14 han-3405:11x12 2 2 // ⿵冂㐅
+glyph han-7f53.0:* = han-7f53:*
 
 ## 122.3
 

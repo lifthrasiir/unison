@@ -380,6 +380,9 @@ glyph han-2d950:15x16 15 16 // 𭥐
 
 ## 72.4
 
+// glyph han-2d952:15x16 15 16 // 𭥒
+// ⿱ han-65e5 han-53cd // ⿱日反
+
 glyph han-2d953:15x16 15 16 // 𭥓
 ⿰ han-65e5:5x14-l 1 han-4e91:9x16 // ⿰日云
 
@@ -801,6 +804,9 @@ glyph han-2da91:15x16 15 16 // 𭪑
 
 glyph han-2daa5:15x16 15 16 // 𭪥
 ⿰ han-679c:7x16 1 han-4eca-g:7x16 // ⿰果今
+
+// glyph han-2daab:15x16 15 16 // 𭪫
+// ⿱ han-98ce han-6797 // ⿱风林
 
 glyph han-2daad:15x16 15 16 // 𭪭
 ⿳ han-4ea1.0:15x4 han-4e16:15x6 1 han-6728:15x5 // ⿳亡世木

@@ -127,6 +127,9 @@ glyph han-32def:15x16 15 16 // 𲷯
 // glyph han-32e00-($han-regions):15x16 15 16 // 𲸀
 // ⿰ han-7cf9-($-1) han-82b3 // ⿰糹芳
 
+// glyph han-32e01-($han-regions):15x16 15 16 // 𲸁
+// ⿰ han-7cf9-($-1) han-4e9b-($-1) // ⿰糹些
+
 ## 120.9
 
 // glyph han-32e06-($han-regions):15x16 15 16 // 𲸆
@@ -629,6 +632,9 @@ glyph han-32f9c:15x16 15 16 // 𲾜
 glyph han-32fa6:15x16 15 16 // 𲾦
 ⿰ han-866b:5x16 1 han-8a00-g:9x16 // ⿰虫言
 
+// glyph han-32fa8:15x16 15 16 // 𲾨
+// ⿰ han-866b han-7262 // ⿰虫牢
+
 ## 142.8
 
 glyph han-32fab:15x16 15 16 // 𲾫
@@ -964,6 +970,11 @@ glyph han-33099:15x16 15 16 // 𳂙
 
 # CJK unified ideographs extension J: 赤 (155)
 
+## 155.4
+
+// glyph han-330ad:15x16 15 16 // 𳂭
+// ⿰ han-8d64 han-53cd // ⿰赤反
+
 ## 155.5
 
 // glyph han-330ae-($han-regions):15x16 15 16 // 𳂮
@@ -1124,6 +1135,9 @@ glyph han-330fa:15x16 15 16 // 𳃺
 
 glyph han-33103:15x16 15 16 // 𳄃
 ⿰ han-8eca:5x16 1 han-706d:9x16 // ⿰車灭
+
+// glyph han-33104-($han-regions):15x16 15 16 // 𳄄
+// ⿰ han-8eca han-5189-($-1) // ⿰車冉
 
 glyph han-33105:15x16 15 16 // 𳄅
 ⿰ han-8eca:5x16 1 han-5360:9x16 // ⿰車占

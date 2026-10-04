@@ -298,6 +298,28 @@ glyph han-31082:15x16 15 16 // 𱂂
 // glyph han-310d2:15x16 15 16 // 𱃒
 // ⿺ han-98a8 han-8076 // ⿺風聶
 
+# CJK unified ideographs extension G: 风 (182')
+
+## 182'.3
+
+// glyph han-310d4:15x16 15 16 // 𱃔
+// ⿺ han-98ce han-5f61 // ⿺风彡
+
+## 182'.5
+
+// glyph han-310d7:15x16 15 16 // 𱃗
+// ⿺ han-98ce han-53f0 // ⿺风台
+
+## 182'.6
+
+// glyph han-310d9:15x16 15 16 // 𱃙
+// ⿺ han-98ce han-5218 // ⿺风刘
+
+## 182'.11
+
+// glyph han-310df-($han-regions):15x16 15 16 // 𱃟
+// ⿰ han-7fd2-($-1) han-98ce // ⿰習风
+
 # CJK unified ideographs extension G: 食 (184)
 
 ## 184.3
@@ -612,6 +634,9 @@ glyph han-311d2:15x16 15 16 // 𱇒
 
 // glyph han-311d4:15x16 15 16 // 𱇔
 // ⿰ han-9c7c han-5185 // ⿰鱼内
+
+// glyph han-311d6:15x16 15 16 // 𱇖
+// ⿰ han-9c7c han-53cd // ⿰鱼反
 
 // glyph han-311d7:15x16 15 16 // 𱇗
 // ⿰ han-9c7c han-4ed1 // ⿰鱼仑

@@ -177,8 +177,9 @@ glyph han-7a81-j:* = han-7a81.0:*
 glyph han-7a81-(h|t|k|p|v):* = han-7a81.1:*
 glyph han-7a81-g:* = han-7a81.x:*
 
-// glyph han-7a82:15x16 15 16 // 窂 ⿱穴牛(G) ⿱⿱宀儿牛(TJKP)
-// ⿳ han-5b80 han-513f han-725b // ⿳宀儿牛 <- ⿱⿱宀儿牛
+glyph han-7a82:15x16 15 16 // 窂
+⿱ han-7a74.2:15x6 -1 han-725b:15x11 // ⿱穴牛
+glyph han-7a82.0:* = han-7a82:*
 
 // glyph han-7a83:15x16 15 16 // 窃 ⿱穴切(G) ⿱⿱宀儿切(HTJKP)
 // ⿳ han-5b80 han-513f han-5207 // ⿳宀儿切
@@ -1659,6 +1660,9 @@ glyph han-7c81.0:* = han-7c81:*
 glyph han-7c83-($han-regions):15x16 15 16 // 粃
 ⿰ han-7c73:5x16 han-6bd4-($-1):10x16 // ⿰米比
 glyph han-7c83.0:* = han-7c83-j:*
+
+// glyph han-7c84:15x16 15 16 // 粄
+// ⿰ han-7c73 han-53cd // ⿰米反
 
 // glyph han-7c86:15x16 15 16 // 粆
 // ⿰ han-7c73 han-5c11 // ⿰米少

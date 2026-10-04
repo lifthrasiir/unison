@@ -470,6 +470,9 @@ glyph han-6c6d:15x16 15 16 // 汭 ⿰氵内(G) ⿰氵內(HTJKP)
 // glyph han-6c71:15x16 15 16 // 汱
 // ⿰ han-6c35 han-72ac // ⿰氵犬
 
+// glyph han-6c73:15x16 15 16 // 汳
+// ⿰ han-6c35 han-53cd // ⿰氵反
+
 // glyph han-6c74-($han-regions):15x16 15 16 // 汴
 // ⿰ han-6c35 han-535e-($-1) // ⿰氵卞
 
@@ -487,6 +490,9 @@ glyph han-6c76.2:* = han-6c76-g:*
 glyph han-6c78:15x16 15 16 // 汸
 ⿰ han-6c35:5x15 1 han-65b9:9x16 // ⿰氵方
 glyph han-6c78.0:* = han-6c78:*
+
+// glyph han-6c79:15x16 15 16 // 汹
+// ⿰ han-6c35 han-51f6 // ⿰氵凶
 
 // glyph han-6c7a:15x16 15 16 // 決
 // ⿰ han-6c35 han-592c // ⿰氵夬
@@ -635,6 +641,9 @@ glyph han-6ca3-($han-regions):15x16 15 16 // 沣
 
 // glyph han-6ca6:15x16 15 16 // 沦
 // ⿰ han-6c35 han-4ed1 // ⿰氵仑
+
+// glyph han-6ca8:15x16 15 16 // 沨
+// ⿰ han-6c35 han-98ce // ⿰氵风
 
 // glyph han-6caa:15x16 15 16 // 沪 ⿰氵户(GHP) ⿰氵戶(T) ⿰氵戸(J)
 // ⿰ han-6c35 han-6237 // ⿰氵户
@@ -1150,6 +1159,9 @@ glyph han-6d70.0:* = han-6d70:*
 glyph han-6d74:15x16 15 16 // 浴
 ⿰ han-6c35:5x15 1 han-8c37:9x16 // ⿰氵谷
 glyph han-6d74.0:* = han-6d74:*
+
+// glyph han-6d76:15x16 15 16 // 浶
+// ⿰ han-6c35 han-7262 // ⿰氵牢
 
 // glyph han-6d79:15x16 15 16 // 浹
 // ⿰ han-6c35 han-593e // ⿰氵夾

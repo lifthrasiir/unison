@@ -931,6 +931,11 @@ glyph han-32280:15x16 15 16 // 𲊀
 
 # CJK unified ideographs extension H: 革 (177)
 
+## 177.4
+
+// glyph han-3229b:15x16 15 16 // 𲊛
+// ⿰ han-9769 han-53cd // ⿰革反
+
 ## 177.16
 
 // glyph han-322a1:15x16 15 16 // 𲊡
@@ -1002,6 +1007,16 @@ glyph han-322b4:15x16 15 16 // 𲊴
 // glyph han-322ca:15x16 15 16 // 𲋊
 // ⿳ han-98a8 han-4fde han-5fc3 // ⿳風俞心 <- ⿱風愈
 
+# CJK unified ideographs extension H: 风 (182')
+
+## 182'.4
+
+// glyph han-322ce:15x16 15 16 // 𲋎
+// ⿰ han-53b7 han-98ce // ⿰厷风
+
+// glyph han-322cf:15x16 15 16 // 𲋏
+// ⿺ han-98ce han-6bdb // ⿺风毛
+
 # CJK unified ideographs extension H: 食 (184)
 
 ## 184.5
@@ -1058,6 +1073,9 @@ glyph han-322e4:15x16 15 16 // 𲋤
 
 glyph han-322f3:15x16 15 16 // 𲋳
 ⿰ han-99ac:7x16 1 han-6bd4.0:7x16 // ⿰馬比
+
+// glyph han-322f4:15x16 15 16 // 𲋴
+// ⿰ han-99ac han-53cd // ⿰馬反
 
 ## 187.7
 

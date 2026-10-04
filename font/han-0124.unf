@@ -1283,8 +1283,9 @@ glyph han-803b:15x16 15 16 // 耻
 assume ⿰ han-8033:6x14-l -1 han-6b62:10x16 // ⿰耳止
 glyph han-803b.0:* = han-803b:*
 
-// glyph han-803c:15x16 15 16 // 耼
-// ⿰ han-8033 han-5184 // ⿰耳冄
+glyph han-803c:15x16 15 16 // 耼
+⿰ han-8033:7x16 1 han-5184:7x16 // ⿰耳冄
+glyph han-803c.0:* = han-803c:*
 
 // glyph han-803e:15x16 15 16 // 耾
 // ⿰ han-8033 han-53b7 // ⿰耳厷
@@ -1304,6 +1305,9 @@ glyph han-8041:15x16 15 16 // 聁
 // ⿱ han-8033 han-53cc // ⿱耳双
 
 ## 128.5
+
+// glyph han-8043-($han-regions):15x16 15 16 // 聃 ⿰耳冉(GHTKP) ⿰耳⿻冄丨(J)
+// ⿰ han-8033 han-5189-($-1) // ⿰耳冉
 
 // glyph han-8045:15x16 15 16 // 聅
 // ⿰ han-8033 han-77e2 // ⿰耳矢
@@ -1733,6 +1737,9 @@ glyph han-80ae:15x16 15 16 // 肮
 
 // glyph han-80b1:15x16 15 16 // 肱 ⿰月厷(GJKPV) ⿰⺼厷(HT)
 // ⿰ han-6708 han-53b7 // ⿰月厷
+
+// glyph han-80b4:15x16 15 16 // 肴 ⿱㐅有(GHJKP) ⿱㐅⿸𠂇⺼(T)
+// ⿱ han-3405 han-6709 // ⿱㐅有
 
 glyph han-80b5:15x16 15 16 // 肵
 ⿰ han-6708:7x16 1 han-65a4:7x16 // ⿰月斤
@@ -2722,6 +2729,11 @@ glyph han-8210-($han-regions):15x16 15 16 // 舐
 ⿰ han-820c-($-1):7x16 han-6c0f:8x16 // ⿰舌氏
 glyph han-8210.0:* = han-8210-j:*
 
+## 135.5
+
+// glyph han-8211-($han-regions):15x16 15 16 // 舑
+// ⿰ han-820c-($-1) han-5189-($-1) // ⿰舌冉
+
 ## 135.8
 
 glyph han-8215-($han-regions):15x16 15 16 // 舕
@@ -2828,6 +2840,9 @@ glyph han-8225:15x16 15 16 // 舥
 
 // glyph han-8226:15x16 15 16 // 舦
 // ⿰ han-821f han-592a // ⿰舟太
+
+// glyph han-8228:15x16 15 16 // 舨
+// ⿰ han-821f han-53cd // ⿰舟反
 
 glyph han-822a:15x16 15 16 // 航
 ⿰ han-821f:7x16 1 han-4ea2:7x16 // ⿰舟亢

@@ -632,6 +632,9 @@ glyph han-2921a.0:* = han-2921a:*
 glyph han-2921a.1:15x16 15 16 // 𩈚
 ⿰ han-9762:7x16 han-5e77.0:8x16 // ⿰面幷
 
+// glyph han-2921d-($han-regions):15x16 15 16 // 𩈝
+// ⿰ han-9762 han-20b29-($-1) // ⿰面𠬩
+
 // glyph han-2921f:15x16 15 16 // 𩈟
 // ⿰ han-9762 han-22451 // ⿰面𢑑
 

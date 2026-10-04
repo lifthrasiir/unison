@@ -146,6 +146,9 @@ glyph han-2989e:15x16 15 16 // 𩢞
 glyph han-298a0:15x16 15 16 // 𩢠
 ⿰ han-53f0:7x16 han-99ac:8x16 // ⿰台馬
 
+// glyph han-298a1-($han-regions):15x16 15 16 // 𩢡
+// ⿰ han-99ac han-5189-($-1) // ⿰馬冉
+
 // glyph han-298a4:15x16 15 16 // 𩢤
 // ⿰ han-99ac han-7389 // ⿰馬玉
 
@@ -493,6 +496,9 @@ glyph han-29a23-($han-regions):15x16 15 16 // 𩨣
 
 glyph han-29a28-($han-regions):15x16 15 16 // 𩨨
 ⿰ han-9aa8-($-1):7x16 han-6bd4-($-1):8x16 // ⿰骨比
+
+// glyph han-29a29-($han-regions):15x16 15 16 // 𩨩
+// ⿰ han-9aa8-($-1) han-53cd // ⿰骨反
 
 ## 188.5
 

@@ -101,6 +101,9 @@ glyph han-25fb1:15x16 15 16 // 𥾱
 // glyph han-25fb2-($han-regions):15x16 15 16 // 𥾲
 // ⿰ han-7cf9-($-1) han-6534 // ⿰糹攴
 
+// glyph han-25fb5-($han-regions):15x16 15 16 // 𥾵
+// ⿰ han-7cf9-($-1) han-53cd // ⿰糹反
+
 glyph han-25fb6:15x16 15 16 // 𥾶
 ⿰ han-7cf9-t:5x14 1 han-6708:9x16 // ⿰糹月
 
@@ -171,6 +174,9 @@ glyph han-25fd6:15x16 15 16 // 𥿖
 
 glyph han-25fd8:15x16 15 16 // 𥿘
 ⿰ han-7cf9-t:5x14 1 han-79be:9x16 // ⿰糹禾
+
+// glyph han-25fdb-($han-regions):15x16 15 16 // 𥿛
+// ⿰ han-7cf9-($-1) han-5189-($-1) // ⿰糹冉
 
 // glyph han-25fe0-($han-regions):15x16 15 16 // 𥿠 ⿰糸布(J) ⿰糹布(V)
 // ⿰ han-7cf9-($-1) han-5e03 // ⿰糹布

@@ -1310,6 +1310,9 @@ glyph han-8fd0-(h|t):* = han-8fd0.x:*
 // glyph han-8fd2:15x16 15 16 // 迒
 // ⿺ han-8fb6 han-4ea2 // ⿺辶亢
 
+// glyph han-8fd4-($han-regions):15x16 15 16 // 返
+// ⿺ han-8fb6-($-1) han-53cd // ⿺辶反
+
 glyph han-8fd5-($han-regions):15x16 15 16 // 迕
 ⿺ han-8fb6-($-1):15x16.11x14 han-5348:9x12 5 1 // ⿺辶午
 glyph han-8fd5.0:* = han-8fd5-j:*
@@ -2314,6 +2317,9 @@ ref han-6c35:5x15 0 0 // ⿰氵酉
 
 glyph han-9155:15x16 15 16 // 酕
 ⿰ han-9149:7x16 1 han-6bdb:7x16 // ⿰酉毛
+
+// glyph han-9157:15x16 15 16 // 酗
+// ⿰ han-9149 han-51f6 // ⿰酉凶
 
 // glyph han-9158:15x16 15 16 // 酘
 // ⿰ han-9149 han-6bb3 // ⿰酉殳

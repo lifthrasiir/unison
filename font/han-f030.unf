@@ -194,6 +194,9 @@ glyph han-2d20c:15x16 15 16 // 𭈌
 // glyph han-2d20f:15x16 15 16 // 𭈏
 // ⿰ han-53e3 han-8299 // ⿰口芙
 
+// glyph han-2d210-($han-regions):15x16 15 16 // 𭈐
+// ⿰ han-53e3 han-4e9b-($-1) // ⿰口些
+
 glyph han-2d211:15x16 15 16 // 𭈑
 ⿱ han-5405:15x3 1 han-53ef:15x12 // ⿱吅可
 
@@ -766,6 +769,11 @@ glyph han-2d442:15x16 15 16 // 𭑂
 
 // glyph han-2d443:15x16 15 16 // 𭑃
 // ⿱ han-5927 han-4e8e // ⿱大于
+
+## 37.4
+
+// glyph han-2d444:15x16 15 16 // 𭑄
+// ⿱ han-51f6 han-5927 // ⿱凶大
 
 ## 37.5
 

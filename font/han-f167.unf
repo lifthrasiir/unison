@@ -752,6 +752,18 @@ glyph han-2ea29:15x16 15 16 // 𮨩
 // glyph han-2ea31:15x16 15 16 // 𮨱
 // ⿺ han-98a8 han-24f2d // ⿺風𤼭
 
+# CJK unified ideographs extension F: 风 (182')
+
+## 182'.8
+
+// glyph han-2ea34:15x16 15 16 // 𮨴
+// ⿱ han-6797 han-98ce // ⿱林风
+
+## 182'.11
+
+// glyph han-2ea35:15x16 15 16 // 𮨵
+// ⿺ han-98ce han-7fcf // ⿺风翏
+
 # CJK unified ideographs extension F: 食 (184)
 
 ## 184.3

@@ -76,6 +76,9 @@ glyph han-23b02-($han-regions):15x16 15 16 // 𣬂
 glyph han-23b05-($han-regions):15x16 15 16 // 𣬅
 ⿱ han-6bd4-($-1):15x8 han-6bd4-($-1):15x8 // ⿱比比
 
+// glyph han-23b06-($han-regions):15x16 15 16 // 𣬆
+// ⿱ han-6bd4-($-1) han-53cd // ⿱比反
+
 ## 81.6
 
 // glyph han-23b0a:15x16 15 16 // 𣬊 ⿱比开(G) ⿱比幵(T)
@@ -174,8 +177,8 @@ glyph han-23b29-($han-regions):15x16 15 16 // 𣬩
 // glyph han-23b2a:15x16 15 16 // 𣬪
 // ⿰ han-5dff han-6bdb // ⿰巿毛
 
-// glyph han-23b2d:15x16 15 16 // 𣬭
-// ⿰ han-5184 han-6bdb // ⿰冄毛
+glyph han-23b2d:15x16 15 16 // 𣬭
+⿰ han-5184:7x16 1 han-6bdb:7x16 // ⿰冄毛
 
 // glyph han-23b2e:15x16 15 16 // 𣬮
 // ⿰ han-5339 han-6bdb // ⿰匹毛
@@ -600,6 +603,9 @@ glyph han-23c5b:15x16 15 16 // 𣱛
 ⿹ han-6c14:15x16.11x9 han-706b:9x8 1 8 // ⿹气火
 
 ## 84.5
+
+// glyph han-23c5c:15x16 15 16 // 𣱜
+// ⿹ han-6c14 han-9fb1 // ⿹气龱
 
 // glyph han-23c5d:15x16 15 16 // 𣱝
 // ⿹ han-6c14 han-4e1c // ⿹气东

@@ -906,6 +906,9 @@ glyph han-9b64-($han-regions):15x16 15 16 // 魤 ⿰魚化(GHT) ⿰魚⿰亻𠤎
 glyph han-9b67:15x16 15 16 // 魧
 ⿰ han-9b5a:7x16 1 han-4ea2:7x16 // ⿰魚亢
 
+// glyph han-9b6c:15x16 15 16 // 魬
+// ⿰ han-9b5a han-53cd // ⿰魚反
+
 glyph han-9b6d:15x16 15 16 // 魭
 ⿰ han-9b5a:7x16 han-5143:8x16 // ⿰魚元
 glyph han-9b6d.0:* = han-9b6d:*

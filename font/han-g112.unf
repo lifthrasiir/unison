@@ -7,6 +7,9 @@ glyph han-309a4:15x16 15 16 // 𰦤
 
 ## 112.4
 
+// glyph han-309a5:15x16 15 16 // 𰦥
+// ⿰ han-77f3 han-53cd // ⿰石反
+
 // glyph han-309a6:15x16 15 16 // 𰦦
 // ⿰ han-77f3 han-5386 // ⿰石历
 
@@ -670,6 +673,9 @@ glyph han-30b2c:15x16 15 16 // 𰬬
 // glyph han-30b2d:15x16 15 16 // 𰬭
 // ⿰ han-7e9f han-5c01 // ⿰纟封
 
+// glyph han-30b2e:15x16 15 16 // 𰬮
+// ⿰ han-7e9f han-7275 // ⿰纟牵
+
 ## 120'.10
 
 // glyph han-30b34:15x16 15 16 // 𰬴
@@ -709,6 +715,11 @@ glyph han-30b2c:15x16 15 16 // 𰬬
 
 glyph han-30b4e:15x16 15 16 // 𰭎
 ⿳ han-7f52:13x3 han-7acb:15x10 han-5341:15x3 // ⿳罒立十
+
+## 122.10
+
+// glyph han-30b53-($han-regions):15x16 15 16 // 𰭓
+// ⿱ han-7f53 han-7d19-($-1) // ⿱罓紙
 
 ## 122.11
 
@@ -882,6 +893,9 @@ glyph han-30b8a:15x16 15 16 // 𰮊
 
 // glyph han-30b8d-($han-regions):15x16 15 16 // 𰮍
 // ⿱ han-723b-($-1) han-8089 // ⿱爻肉
+
+// glyph han-30b8e:15x16 15 16 // 𰮎
+// ⿱ han-51f6 han-8089 // ⿱凶肉
 
 // glyph han-30b8f:15x16 15 16 // 𰮏
 // ⿰ han-8089 han-6bb3 // ⿰肉殳
@@ -1063,6 +1077,11 @@ glyph han-30c0e:15x16 15 16 // 𰰎
 // ⿰ han-821f han-9032-($-1) // ⿰舟進
 
 # CJK unified ideographs extension G: 色 (139)
+
+## 139.2
+
+// glyph han-30c15:15x16 15 16 // 𰰕
+// ⿸ han-20086 han-8272 // ⿸𠂆色
 
 ## 139.5
 

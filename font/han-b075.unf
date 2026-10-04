@@ -65,6 +65,9 @@ glyph han-233c0:15x16 15 16 // 𣏀
 // glyph han-233c1:15x16 15 16 // 𣏁
 // ⿱ han-20675 han-6728 // ⿱𠙵木
 
+// glyph han-233c2:15x16 15 16 // 𣏂 ⿱㐅术(GTP) ⿱㐅朮(Z)
+// ⿱ han-3405 han-672f // ⿱㐅术
+
 glyph han-233c5:15x16 15 16 // 𣏅
 ⿱ han-571f:15x4 han-6728:15x12 // ⿱土木
 
@@ -166,6 +169,9 @@ glyph han-233f4:15x16 15 16 // 𣏴
 
 glyph han-233f6:15x16 15 16 // 𣏶
 ⿱ han-6728:15x8 han-6c34:15x8 // ⿱木水
+
+// glyph han-233f8:15x16 15 16 // 𣏸
+// ⿰ han-6728 han-23091 // ⿰木𣂑
 
 glyph han-233f9:15x16 15 16 // 𣏹
 ⿰ han-6728:5x16 1 han-706b:9x16 // ⿰木火
@@ -342,6 +348,9 @@ glyph han-23453:15x16 15 16 // 𣑓
 // glyph han-23457:15x16 15 16 // 𣑗
 // ⿲ han-6728 han-5203 han-5bf8 // ⿲木刃寸
 
+// glyph han-2345c-($han-regions):15x16 15 16 // 𣑜
+// ⿱ han-672a han-5189-($-1) // ⿱未冉
+
 // glyph han-23460:15x16 15 16 // 𣑠
 // ⿱ han-5408 han-6728 // ⿱合木
 
@@ -403,6 +412,9 @@ glyph han-2347e:15x16 15 16 // 𣑾
 
 glyph han-23482:15x16 15 16 // 𣒂
 ⿲ han-6728:5x16 han-7acb:5x16 han-5369:5x16 // ⿲木立卩
+
+// glyph han-23484-($han-regions):15x16 15 16 // 𣒄
+// ⿰ han-6728 han-4e9b-($-1) // ⿰木些
 
 // glyph han-23486:15x16 15 16 // 𣒆 ⿰木壳(G) ⿰木⿱士冗(TPV)
 // ⿰ han-6728 han-58f3 // ⿰木壳
@@ -466,6 +478,9 @@ glyph han-234a6:15x16 15 16 // 𣒦
 
 glyph han-234b1:15x16 15 16 // 𣒱
 ⿲ han-6728:5x16 han-53e3:3x12 han-6b20:7x16 // ⿲木口欠
+
+// glyph han-234b2:15x16 15 16 // 𣒲
+// ⿰ han-6728 han-7262 // ⿰木牢
 
 // glyph han-234b3:15x16 15 16 // 𣒳
 // ⿱ han-5de5 han-6789 // ⿱工枉
@@ -731,6 +746,12 @@ glyph han-235a2:15x16 15 16 // 𣖢
 // glyph han-235a4:15x16 15 16 // 𣖤
 // ⿰ han-4f86 han-53f0 // ⿰來台
 
+// glyph han-235a7-($han-regions):15x16 15 16 // 𣖧
+// ⿰ han-6728 han-67f4-($-1) // ⿰木柴
+
+// glyph han-235a8-($han-regions):15x16 15 16 // 𣖨
+// ⿰ han-6728 han-8308-($-1) // ⿰木茈
+
 ## 75.10
 
 // glyph han-235b0:15x16 15 16 // 𣖰
@@ -738,6 +759,9 @@ glyph han-235a2:15x16 15 16 // 𣖢
 
 glyph han-235c1:15x16 15 16 // 𣗁
 ⿲ han-77f3:5x16 han-6728:5x16 han-77f3:5x16 // ⿲石木石
+
+// glyph han-235c5:15x16 15 16 // 𣗅
+// ⿱ han-20020 han-4f86 // ⿱𠀠來
 
 glyph han-235d0-g:15x16 15 16 // 𣗐
 assume ⿲ han-6728:5x16 -1 han-5448.0:7x16 han-961d:4x16-r // ⿲木呈阝

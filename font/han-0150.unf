@@ -350,6 +350,9 @@ glyph han-8ca6:15x16 15 16 // 貦
 // glyph han-8ca8:15x16 15 16 // 貨 ⿱化貝(GHTJK) ⿱⿰亻匕貝(P) ⿱⿰亻匕貝(V)
 // ⿱ han-5316 han-8c9d // ⿱化貝
 
+// glyph han-8ca9:15x16 15 16 // 販
+// ⿰ han-8c9d han-53cd // ⿰貝反
+
 // glyph han-8caa:15x16 15 16 // 貪
 // ⿱ han-4eca han-8c9d // ⿱今貝
 
@@ -648,6 +651,9 @@ ref han-9fb0:15x16
 
 // glyph han-8d74:15x16 15 16 // 赴
 // ⿺ han-8d70 han-535c // ⿺走卜
+
+// glyph han-8d75:15x16 15 16 // 赵
+// ⿺ han-8d70 han-3405 // ⿺走㐅
 
 // glyph han-9faa:15x16 15 16 // 龪
 // ⿺ han-8d70 han-4eba // ⿺走人

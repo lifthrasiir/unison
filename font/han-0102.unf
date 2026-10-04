@@ -940,6 +940,9 @@ glyph han-7543-j:* = han-7543.0:*
 // glyph han-7546:15x16 15 16 // 畆
 // ⿰ han-4ea9 han-53b6 // ⿰亩厶
 
+// glyph han-7548:15x16 15 16 // 畈
+// ⿰ han-7530 han-53cd // ⿰田反
+
 glyph han-7549:15x16 15 16 // 畉
 ⿰ han-7530:5x14-l 1 han-592b:9x16 // ⿰田夫
 glyph han-7549.0:* = han-7549:*
@@ -978,6 +981,9 @@ glyph han-7556-($han-regions):15x16 15 16 // 畖
 glyph han-7557:15x16 15 16 // 畗
 ⿳ han-4ea0:15x2 1 han-53e3:11x5 1 han-7530:13x7 // ⿳亠口田
 glyph han-7557.0:* = han-7557:*
+
+// glyph han-7558-($han-regions):15x16 15 16 // 畘
+// ⿰ han-7530 han-5189-($-1) // ⿰田冉
 
 glyph han-755a:15x16 15 16 // 畚
 ⿳ han-53b6:13x5 han-5927:15x5 1 han-7530:11x5 // ⿳厶大田
@@ -1356,6 +1362,9 @@ glyph han-75a4:15x16 15 16 // 疤
 
 // glyph han-75ad:15x16 15 16 // 疭
 // ⿸ han-7592 han-4ece // ⿸疒从
+
+// glyph han-75af:15x16 15 16 // 疯
+// ⿸ han-7592 han-98ce // ⿸疒风
 
 ## 104.5
 
@@ -2244,6 +2253,9 @@ glyph han-7687:11x16 11 16 // 皇
 glyph han-7687:15x16 15 16 // 皇
 ⿱ han-767d:11x8 1 han-738b:15x7 // ⿱白王
 glyph han-7687.0:* = han-7687:*
+
+// glyph han-7688:15x16 15 16 // 皈
+// ⿰ han-767d han-53cd // ⿰白反
 
 ## 106.5
 
@@ -3240,6 +3252,9 @@ glyph han-76fc.0:* = han-76fc-j:*
 glyph han-76fd-($han-regions):15x16 15 16 // 盽
 ⿰ han-76ee:5x13-l 1 han-4e30-($-1):9x16 // ⿰目丰
 
+// glyph han-76fe:15x16 15 16 // 盾
+// ⿸ han-20086 han-250ed // ⿸𠂆𥃭
+
 glyph han-76ff-($han-regions):15x16 15 16 // 盿
 ⿰ han-76ee:6x16 han-6587-($-1):9x16 // ⿰目文
 
@@ -3258,6 +3273,9 @@ glyph han-7703:15x16 15 16 // 眃
 
 // glyph han-7704:15x16 15 16 // 眄 ⿰目丏(GHTJKP) ⿰目丐(Z)
 // ⿰ han-76ee han-4e0f // ⿰目丏
+
+// glyph han-7705:15x16 15 16 // 眅
+// ⿰ han-76ee han-53cd // ⿰目反
 
 glyph han-7706:15x16 15 16 // 眆
 ⿰ han-76ee:6x16 han-65b9:9x16 // ⿰目方

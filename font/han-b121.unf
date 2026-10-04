@@ -128,6 +128,9 @@ glyph han-2626a.0:* = han-2626a:*
 glyph han-2626c:15x16 15 16 // 𦉬
 ⿱ han-7f52:13x4 1 han-4e01:15x11 // ⿱罒丁
 
+// glyph han-2626e-($han-regions):15x16 15 16 // 𦉮
+// ⿱ han-7f53 han-5315-($-1) // ⿱罓匕
+
 // glyph han-26271:15x16 15 16 // 𦉱
 // ⿱ han-7f52 han-4e03 // ⿱罒七
 
@@ -192,6 +195,9 @@ glyph han-26286:15x16 15 16 // 𦊆
 glyph han-2628a:15x16 15 16 // 𦊊
 ⿱ han-7f52:13x4 1 han-5929:15x11 // ⿱罒天
 
+// glyph han-2628b:15x16 15 16 // 𦊋
+// ⿱ han-7f53 han-6728 // ⿱罓木
+
 ## 122.5
 
 // glyph han-2628e:15x16 15 16 // 𦊎
@@ -207,6 +213,12 @@ glyph han-26290-(t|j):15x16 15 16 // 𦊐
 
 // glyph han-26293-($han-regions):15x16 15 16 // 𦊓
 // ⿱ han-7f52 han-4ee4-($-1) // ⿱罒令
+
+// glyph han-26295:15x16 15 16 // 𦊕
+// ⿱ han-7f53 han-4e14 // ⿱罓且
+
+// glyph han-26296:15x16 15 16 // 𦊖 ⿵冈古(GT) ⿵冂⿱㐅古(X)
+// ⿵ han-5188 han-53e4 // ⿵冈古
 
 // glyph han-26298:15x16 15 16 // 𦊘
 // ⿱ han-7f51 han-79be // ⿱网禾
@@ -260,6 +272,9 @@ glyph han-262a5:15x16 15 16 // 𦊥
 
 // glyph han-262ab:15x16 15 16 // 𦊫
 // ⿱ han-7f52 han-5149 // ⿱罒光
+
+// glyph han-262ac:15x16 15 16 // 𦊬
+// ⿱ han-7f53 han-8863 // ⿱罓衣
 
 // glyph han-262ad:15x16 15 16 // 𦊭
 // ⿱ han-2053f han-5408 // ⿱𠔿合
@@ -321,6 +336,9 @@ glyph han-262c2:15x16 15 16 // 𦋂
 
 // glyph han-262c6-($han-regions):15x16 15 16 // 𦋆
 // ⿱ han-7f52 han-5b64-($-1) // ⿱罒孤
+
+// glyph han-262c7:15x16 15 16 // 𦋇
+// ⿱ han-7f53 han-5353 // ⿱罓卓
 
 glyph han-262ca:15x16 15 16 // 𦋊
 ⿱ han-7f52:13x4 han-5176:15x12 // ⿱罒其
@@ -416,6 +434,9 @@ glyph han-262fa:15x16 15 16 // 𦋺
 // ⿱ han-7f51 han-60df // ⿱网惟
 
 ## 122.12
+
+// glyph han-26313:15x16 15 16 // 𦌓
+// ⿱ han-7f53 han-3c9c // ⿱罓㲜
 
 // glyph han-26315:15x16 15 16 // 𦌕
 // ⿱ han-7f52 han-8def // ⿱罒路

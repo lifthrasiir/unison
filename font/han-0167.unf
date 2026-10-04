@@ -313,6 +313,9 @@ glyph han-9210.x:15x16 15 16 // 鈐
 glyph han-9210-(h|t|j|k|v):* = han-9210.0:*
 glyph han-9210-(g|p):* = han-9210.x:*
 
+// glyph han-9211:15x16 15 16 // 鈑
+// ⿰ han-91d2 han-53cd // ⿰釒反
+
 // glyph han-9213-($han-regions):15x16 15 16 // 鈓
 // ⿰ han-91d2 han-58ec-($-1) // ⿰釒壬
 
@@ -1444,6 +1447,12 @@ glyph han-949f:15x16 15 16 // 钟
 
 // glyph han-94a0:15x16 15 16 // 钠
 // ⿰ han-9485 han-5185 // ⿰钅内
+
+// glyph han-94a2:15x16 15 16 // 钢
+// ⿰ han-9485 han-5188 // ⿰钅冈
+
+// glyph han-94a3:15x16 15 16 // 钣
+// ⿰ han-9485 han-53cd // ⿰钅反
 
 glyph han-94a4:15x16 15 16 // 钤
 ⿰ han-9485:6x14 han-4eca-g:9x16 // ⿰钅今

@@ -119,6 +119,9 @@ glyph han-238b7:15x16 15 16 // 𣢷
 // glyph han-238bf:15x16 15 16 // 𣢿
 // ⿰ han-4ea9 han-6b20 // ⿰亩欠
 
+// glyph han-238c0-($han-regions):15x16 15 16 // 𣣀
+// ⿱ han-6b21 han-5189-($-1) // ⿱次冉
+
 glyph han-238c1:15x16 15 16 // 𣣁
 ⿲ han-5df1:3x16 han-65a4:7x16 han-6b20:5x16 // ⿲己斤欠
 

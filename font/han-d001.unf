@@ -424,6 +424,18 @@ glyph han-2b7f9:15x16 15 16 // 𫟹
 // glyph han-2b805:15x16 15 16 // 𫠅
 // ⿰ han-97e6 han-9769 // ⿰韦革
 
+# CJK unified ideographs extension D: 风 (182')
+
+## 182'.4
+
+// glyph han-2b807-($han-regions):15x16 15 16 // 𫠇
+// ⿺ han-98ce han-6587-($-1) // ⿺风文
+
+## 182'.5
+
+// glyph han-2b808:15x16 15 16 // 𫠈
+// ⿺ han-98ce han-5fc5 // ⿺风必
+
 # CJK unified ideographs extension D: 魚 (195)
 
 ## 195.10

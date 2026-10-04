@@ -612,6 +612,9 @@ glyph han-5ff6:15x16 15 16 // 忶
 ⿰ han-5fc4:5x16 1 han-4e91:9x16 // ⿰忄云
 glyph han-5ff6.0:* = han-5ff6:*
 
+// glyph han-5ff7:15x16 15 16 // 忷
+// ⿰ han-5fc4 han-51f6 // ⿰忄凶
+
 glyph han-5ff8-($han-regions):15x16 15 16 // 忸
 ⿰ han-5fc4:5x16 han-4e11-($-1):10x14 // ⿰忄丑
 glyph han-5ff8.0:* = han-5ff8-j:*

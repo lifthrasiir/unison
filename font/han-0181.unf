@@ -595,6 +595,39 @@ glyph han-98af.0:* = han-98af-j:*
 // glyph han-98cc:15x16 15 16 // 飌 ⿰雚風(GHTKP) ⿰⿱卝𨾴風(J)
 // ⿰ han-96da han-98a8 // ⿰雚風
 
+# CJK unified ideographs: 风 (182')
+
+## 182'.0
+
+glyph han-98ce:15x16 15 16 // 风
+⿵ han-20628:15x16.9x15 han-3405:7x13 4 2 // ⿵𠘨㐅
+
+## 182'.5
+
+// glyph han-98d0:15x16 15 16 // 飐
+// ⿺ han-98ce han-5360 // ⿺风占
+
+// glyph han-98d1-($han-regions):15x16 15 16 // 飑
+// ⿺ han-98ce han-5305-($-1) // ⿺风包
+
+// glyph han-98d2:15x16 15 16 // 飒
+// ⿰ han-7acb han-98ce // ⿰立风
+
+## 182'.9
+
+// glyph han-98d4:15x16 15 16 // 飔
+// ⿺ han-98ce han-601d // ⿺风思
+
+## 182'.11
+
+// glyph han-98d8:15x16 15 16 // 飘
+// ⿰ han-7968 han-98ce // ⿰票风
+
+## 182'.12
+
+// glyph han-98da:15x16 15 16 // 飚
+// ⿺ han-98ce han-7131 // ⿺风焱
+
 # CJK unified ideographs: 飛 (183)
 
 ## 183.0
@@ -765,6 +798,9 @@ glyph han-98ee-(j|k):* = han-98ee.0:*
 glyph han-98ee-g:* = han-98ee.x:*
 glyph han-98ee-p:* = han-98ee.y:*
 
+// glyph han-98ef:15x16 15 16 // 飯 ⿰飠反(GHTJP) ⿰𩙿反(K)
+// ⿰ han-2967f han-53cd // ⿰𩙿反
+
 // glyph han-98f0-($han-regions):15x16 15 16 // 飰 ⿰飠卞(GTP) ⿰𩙿卞(J)
 // ⿰ han-98e0 han-535e-($-1) // ⿰飠卞
 
@@ -824,7 +860,7 @@ glyph han-98ff-($han-regions):15x16 15 16 // 飿
 // ⿱ han-6b64-($-1) han-98df-($-1) // ⿱此食
 
 glyph han-9902-(g|h|t|p):15x16 15 16 // 餂
-⿰ han-98e0.0:7x16 1 han-820c-($-1):7x16 // ⿰𩙿舌
+⿰ han-98e0.0:7x16 1 han-820c-($-1):7x16 // ⿰飠舌
 glyph han-9902-(j|k):15x16 15 16 // 餂
 ⿰ han-2967f:7x16 1 han-820c-($-1):7x16 // ⿰𩙿舌
 glyph han-9902.0:* = han-9902-j:*
@@ -1108,6 +1144,9 @@ glyph han-9965:15x16 15 16 // 饥
 
 // glyph han-996b:15x16 15 16 // 饫
 // ⿰ han-9963 han-592d // ⿰饣夭
+
+// glyph han-996d:15x16 15 16 // 饭
+// ⿰ han-9963 han-53cd // ⿰饣反
 
 glyph han-996e:15x16 15 16 // 饮
 ⿰ han-9963:5x14 1 han-6b20:9x16 // ⿰饣欠

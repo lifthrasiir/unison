@@ -162,6 +162,9 @@ glyph han-225eb:15x16 15 16 // 𢗫
 glyph han-225ed:15x16 15 16 // 𢗭
 ⿱ han-65e5:11x11 han-5fc3:15x5 // ⿱日心
 
+// glyph han-225ee:15x16 15 16 // 𢗮
+// ⿰ han-5fc3 han-51f6 // ⿰心凶
+
 // glyph han-225ef:15x16 15 16 // 𢗯
 // ⿱ han-6708 han-5fc3 // ⿱月心
 
@@ -409,6 +412,9 @@ glyph han-2267c:15x16 15 16 // 𢙼
 
 // glyph han-22681:15x16 15 16 // 𢚁
 // ⿰ han-5fc4 han-5fcc // ⿰忄忌
+
+// glyph han-22684:15x16 15 16 // 𢚄
+// ⿰ han-5fc4 han-7262 // ⿰忄牢
 
 // glyph han-22685:15x16 15 16 // 𢚅
 // ⿱ han-626e han-5fc3 // ⿱扮心

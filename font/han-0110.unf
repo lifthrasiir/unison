@@ -292,6 +292,9 @@ glyph han-7817:15x16 15 16 // 砗
 glyph han-781b-($han-regions):15x16 15 16 // 砛
 ⿰ han-77f3:5x16 1 han-4eca-($-1):9x16 // ⿰石今
 
+// glyph han-781c:15x16 15 16 // 砜
+// ⿰ han-77f3 han-98ce // ⿰石风
+
 ## 112.5
 
 glyph han-781d:15x16 15 16 // 砝

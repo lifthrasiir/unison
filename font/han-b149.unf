@@ -129,6 +129,9 @@ glyph han-27997-($han-regions):15x16 15 16 // 𧦗
 glyph han-279a4-($han-regions):15x16 15 16 // 𧦤
 ⿲ han-8a01-($-1):5x16 han-529b:5x16 1 han-53e3:4x12 // ⿲訁力口
 
+// glyph han-279a6-($han-regions):15x16 15 16 // 𧦦
+// ⿰ han-8a01-($-1) han-5189-($-1) // ⿰訁冉
+
 // glyph han-279aa:15x16 15 16 // 𧦪
 // ⿱ han-529f han-8a00 // ⿱功言
 
@@ -263,6 +266,9 @@ glyph han-27a02-($han-regions):15x16 15 16 // 𧨂
 
 // glyph han-27a0a-($han-regions):15x16 15 16 // 𧨊
 // ⿰ han-8a01-($-1) han-538f // ⿰訁厏
+
+// glyph han-27a0c-($han-regions):15x16 15 16 // 𧨌
+// ⿰ han-8a01-($-1) han-20024 // ⿰訁𠀤
 
 glyph han-27a0e:15x16 15 16 // 𧨎
 ⿰ han-8a01.x:5x16 1 han-5b8c:9x16 // ⿰訁完

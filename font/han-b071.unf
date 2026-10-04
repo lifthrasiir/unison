@@ -113,8 +113,8 @@ glyph han-2315c-($han-regions):15x16 15 16 // 𣅜
 // glyph han-23164:15x16 15 16 // 𣅤
 // ⿰ han-65e5 han-72ac // ⿰日犬
 
-// glyph han-23167:15x16 15 16 // 𣅧
-// ⿰ han-65e5 han-5184 // ⿰日冄
+glyph han-23167:15x16 15 16 // 𣅧
+⿰ han-65e5:6x16 han-5184:9x16 // ⿰日冄
 
 glyph han-23168:15x16 15 16 // 𣅨
 ⿱ han-738b:15x8 1 han-65e5:11x7 // ⿱王日
@@ -157,8 +157,14 @@ glyph han-2317c:15x16 15 16 // 𣅼
 glyph han-2317d:15x16 15 16 // 𣅽
 ⿱ han-65e5:11x5 1 han-51fa:15x10 // ⿱日出
 
+// glyph han-2317e-($han-regions):15x16 15 16 // 𣅾
+// ⿱ han-5189-($-1) han-65e5 // ⿱冉日
+
 glyph han-2317f:15x16 15 16 // 𣅿
 ⿰ han-65e5:7x16 1 han-53f0:7x16 // ⿰日台
+
+// glyph han-23180-($han-regions):15x16 15 16 // 𣆀
+// ⿰ han-65e5 han-5189-($-1) // ⿰日冉
 
 // glyph han-23181:15x16 15 16 // 𣆁
 // ⿳ han-4e5b han-9fb0 han-65e5 // ⿳乛龰日 <- ⿱疋日
@@ -300,6 +306,9 @@ glyph han-231dc:15x16 15 16 // 𣇜
 
 glyph han-231dd:15x16 15 16 // 𣇝
 ⿲ han-65e5:4x14-l han-51ab:3x12 1 han-4ee4.2:7x16 // ⿲日冫令
+
+// glyph han-231df:15x16 15 16 // 𣇟
+// ⿱ han-65e5 han-7262 // ⿱日牢
 
 // glyph han-231e1:15x16 15 16 // 𣇡
 // ⿰ han-65e5 han-5fcc // ⿰日忌
@@ -589,6 +598,9 @@ glyph han-232ba:15x16 15 16 // 𣊺
 
 glyph han-232bf:15x16 15 16 // 𣊿
 ⿲ han-65e5:4x14-l 1 han-2099d:5x16 han-6708:5x16 // ⿲日𠦝月
+
+// glyph han-232c0:15x16 15 16 // 𣋀
+// ⿰ han-7262 han-661f // ⿰牢星
 
 // glyph han-232c2:15x16 15 16 // 𣋂
 // ⿱ han-65e5 han-671d // ⿱日朝

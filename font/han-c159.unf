@@ -783,6 +783,18 @@ glyph han-2b59d:15x16 15 16 // 𫖝
 // glyph han-2b5a1:15x16 15 16 // 𫖡
 // ⿰ han-58f3 han-9801 // ⿰壳頁
 
+# CJK unified ideographs extension C: 风 (182')
+
+## 182'.4
+
+// glyph han-2b5c7:15x16 15 16 // 𫗇
+// ⿺ han-98ce han-65e5 // ⿺风日
+
+## 182'.9
+
+// glyph han-2b5ca:15x16 15 16 // 𫗊
+// ⿺ han-98ce han-97f3 // ⿺风音
+
 # CJK unified ideographs extension C: 食 (184)
 
 ## 184.5
@@ -1206,3 +1218,10 @@ glyph han-2b6bb:15x16 15 16 // 𫚻
 
 // glyph han-2b720-($han-regions):15x16 15 16 // 𫜠
 // ⿰ han-9f0e han-5b50-($-1) // ⿰鼎子
+
+# CJK unified ideographs extension C: 龟 (213')
+
+## 213'.5
+
+// glyph han-2b733-($han-regions):15x16 15 16 // 𫜳
+// ⿰ han-5189-($-1) han-9f9f // ⿰冉龟

@@ -420,6 +420,9 @@ glyph han-59cb:15x16 15 16 // 始
 ⿰ han-5973:7x16 1 han-53f0:7x16 // ⿰女台
 glyph han-59cb.0:* = han-59cb:*
 
+// glyph han-59cc-($han-regions):15x16 15 16 // 姌
+// ⿰ han-5973 han-5189-($-1) // ⿰女冉
+
 glyph han-59cd:15x16 15 16 // 姍
 ⿰ han-5973:5x14-l 1 han-518a:9x16 // ⿰女冊
 

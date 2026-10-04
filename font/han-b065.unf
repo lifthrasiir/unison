@@ -440,6 +440,11 @@ glyph han-23083:15x16 15 16 // 𣂃
 
 # CJK unified ideographs extension B: 斤 (69)
 
+## 69.0
+
+glyph han-23091:15x16 15 16 // 𣂑
+⿸ han-20086:15x16.12x13 han-5341:11x13 4 3 // ⿸𠂆十
+
 ## 69.2
 
 glyph han-23092:15x16 15 16 // 𣂒

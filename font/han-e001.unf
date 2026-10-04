@@ -500,6 +500,11 @@ glyph han-2b95c:15x16 15 16 // 𫥜
 glyph han-2b964:15x16 15 16 // 𫥤
 ⿰ han-51fa:5x16 1 han-4e19:9x16 // ⿰出丙
 
+## 17.10
+
+// glyph han-2b966:15x16 15 16 // 𫥦
+// ⿳ han-4e5b han-9149 han-51f6 // ⿳乛酉凶
+
 ## 17.11
 
 glyph han-2b968:15x16 15 16 // 𫥨
@@ -772,7 +777,7 @@ glyph han-2b9f9:15x16 15 16 // 𫧹
 ## 27.3
 
 glyph han-2ba02:15x16 15 16 // 𫨂
-⿸ han-5382:15x16.11x15 han-5dfe:7x14 7 2 // ⿸厂巾
+⿸ han-5382:15x16.12x15 han-5dfe:11x13 4 3 // ⿸厂巾
 
 ## 27.5
 
@@ -913,6 +918,11 @@ glyph han-2ba37:15x16 15 16 // 𫨷
 
 // glyph han-2ba4c-($han-regions):15x16 15 16 // 𫩌
 // ⿱ han-48c8 han-53c8-($-1) // ⿱䣈又
+
+## 29.15
+
+// glyph han-2ba4d:15x16 15 16 // 𫩍
+// ⿰ han-53cd han-96f7 // ⿰反雷
 
 # CJK unified ideographs extension E: 口 (30)
 
@@ -1073,6 +1083,9 @@ glyph han-2ba58:15x16 15 16 // 𫩘
 // ref han-5415 // ⿻吕乚
 // ref han-4e5a
 
+// glyph han-2ba5a:15x16 15 16 // 𫩚
+// ⿰ han-53e3 han-5188 // ⿰口冈
+
 glyph han-2ba5b:15x16 15 16 // 𫩛
 ⿲ han-53e3:3x12 han-4eba:5x16 han-4eba:7x16 // ⿲口人人
 
@@ -1183,6 +1196,9 @@ glyph han-2ba9a:15x16 15 16 // 𫪚
 // glyph han-2ba9b:15x16 15 16 // 𫪛
 // ⿰ han-53e3 han-9577 // ⿰口長
 
+// glyph han-2ba9f:15x16 15 16 // 𫪟
+// ⿳ han-5405 han-3405 han-53e3 // ⿳吅㐅口
+
 // glyph han-2baa0:15x16 15 16 // 𫪠
 // ⿳ han-5405 han-5196 han-5c38 // ⿳吅冖尸
 
@@ -1243,6 +1259,9 @@ glyph han-2bacc:15x16 15 16 // 𫫌
 
 // glyph han-2bacd:15x16 15 16 // 𫫍
 // ⿰ han-53e3 han-7a85 // ⿰口窅
+
+// glyph han-2bace:15x16 15 16 // 𫫎
+// ⿳ han-708f han-3405 han-53e3 // ⿳炏㐅口
 
 // glyph han-2bad0:15x16 15 16 // 𫫐
 // ⿱ han-6d6a han-53e3 // ⿱浪口

@@ -247,6 +247,9 @@ glyph han-2a3a6-(t|j):15x16 15 16 // 𪎦 ⿸麻林(GT) ⿱麻林(UCS2003)
 // glyph han-2a478:15x16 15 16 // 𪑸
 // ⿰ han-9ed1 han-9801 // ⿰黑頁
 
+// glyph han-2a47d-($han-regions):15x16 15 16 // 𪑽
+// ⿰ han-9ed1 han-67f4-($-1) // ⿰黑柴
+
 ## 203.10
 
 // glyph han-2a485:15x16 15 16 // 𪒅
