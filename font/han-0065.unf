@@ -1957,6 +1957,9 @@ glyph han-6615:15x16 15 16 // 昕
 ⿰ han-65e5:7x16 1 han-65a4:7x16 // ⿰日斤
 glyph han-6615.0:* = han-6615:*
 
+// glyph han-6616-($han-regions):15x16 15 16 // 昖
+// ⿰ han-65e5 han-516c-($-1) // ⿰日公
+
 glyph han-6617:15x16 15 16 // 昗
 ⿱ han-65e5:11x7 han-516d:15x9 // ⿱日六
 

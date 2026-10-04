@@ -416,6 +416,9 @@ glyph han-2206f:15x16 15 16 // 𢁯
 // glyph han-22075:15x16 15 16 // 𢁵
 // ⿰ han-5dfe han-6534 // ⿰巾攴
 
+// glyph han-22077-($han-regions):15x16 15 16 // 𢁷
+// ⿰ han-5dfe han-516c-($-1) // ⿰巾公
+
 glyph han-22078:15x16 15 16 // 𢁸
 ⿰ han-5dfe:5x16 1 han-65b9:9x16 // ⿰巾方
 

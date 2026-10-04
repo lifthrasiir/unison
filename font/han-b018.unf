@@ -68,6 +68,9 @@ glyph han-206bc-($han-regions):15x16 15 16 // 𠚼
 // glyph han-206bd:15x16 15 16 // 𠚽
 // ⿰ han-652f han-5202 // ⿰支刂
 
+// glyph han-206c0-($han-regions):15x16 15 16 // 𠛀
+// ⿰ han-516c-($-1) han-5202 // ⿰公刂
+
 glyph han-206c1-g:15x16 15 16 // 𠛁
 ⿰ han-7247.0:10x16 han-5202:5x16 // ⿰片刂
 glyph han-206c1-(t|j):15x16 15 16 // 𠛁

@@ -98,6 +98,9 @@ glyph han-28468.1:* = han-28468-g:*
 // glyph han-28469-($han-regions):15x16 15 16 // 𨑩
 // ⿺ han-8fb6-($-1) han-5f14 // ⿺辶弔
 
+// glyph han-2846a-($han-regions):15x16 15 16 // 𨑪
+// ⿺ han-8fb6-($-1) han-516c-($-1) // ⿺辶公
+
 // glyph han-2846b-($han-regions):15x16 15 16 // 𨑫
 // ⿺ han-8fb6-($-1) han-5c24 // ⿺辶尤
 

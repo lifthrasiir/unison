@@ -114,6 +114,9 @@ glyph han-2473d:15x16 15 16 // 𤜽 ⿰犭内(G) ⿰犭內(T)
 glyph han-24744:15x16 15 16 // 𤝄
 ⿰ han-72ad:6x16 han-6bdb:9x16 // ⿰犭毛
 
+// glyph han-24745-($han-regions):15x16 15 16 // 𤝅
+// ⿰ han-72ad han-516c-($-1) // ⿰犭公
+
 glyph han-24746:15x16 15 16 // 𤝆
 ⿰ han-72ad:6x16 han-6b20:9x16 // ⿰犭欠
 

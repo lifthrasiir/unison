@@ -119,6 +119,9 @@ glyph han-26b15-(h|t|j):15x16 15 16 // 𦬕
 // glyph han-26b16:15x16 15 16 // 𦬖
 // ⿱ han-8279 han-4ec7 // ⿱艹仇
 
+// glyph han-26b18-($han-regions):15x16 15 16 // 𦬘
+// ⿱ han-8279-($-1) han-516c-($-1) // ⿱艹公
+
 // glyph han-26b19:15x16 15 16 // 𦬙
 // ⿱ han-8279 han-4ec6 // ⿱艹仆
 

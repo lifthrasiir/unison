@@ -13,6 +13,9 @@ assume ⿷ han-531a:15x16.14x14 han-4eba:11x13 3 2 // ⿷匚人
 // glyph han-2092f:15x16 15 16 // 𠤯
 // ⿷ han-531a han-4e0d // ⿷匚不
 
+// glyph han-20930-($han-regions):15x16 15 16 // 𠤰
+// ⿷ han-531a han-516c-($-1) // ⿷匚公
+
 // glyph han-20931:15x16 15 16 // 𠤱
 // ⿷ han-531a han-592b // ⿷匚夫
 

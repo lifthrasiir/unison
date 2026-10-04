@@ -7769,6 +7769,9 @@ glyph han-4eff:15x16 15 16 // 仿
 ⿰ han-4ebb:5x16 1 han-65b9:9x16 // ⿰亻方
 glyph han-4eff.0:* = han-4eff:*
 
+// glyph han-4f00-($han-regions):15x16 15 16 // 伀
+// ⿰ han-4ebb han-516c-($-1) // ⿰亻公
+
 glyph han-4f01:15x16 15 16 // 企
 ⿱ han-201a2:15x6 -1 han-6b62:15x11 // ⿱𠆢止
 glyph han-4f01.0:* = han-4f01:*

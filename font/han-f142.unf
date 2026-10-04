@@ -679,6 +679,9 @@ glyph han-2e6c9:15x16 15 16 // 𮛉
 // glyph han-2e6cb:15x16 15 16 // 𮛋
 // ⿰ han-27fb7 han-624b // ⿰𧾷手
 
+// glyph han-2e6cc-($han-regions):15x16 15 16 // 𮛌
+// ⿰ han-27fb7 han-516c-($-1) // ⿰𧾷公
+
 // glyph han-2e6cd:15x16 15 16 // 𮛍
 // ⿱ han-5206 han-8db3 // ⿱分足
 
@@ -1035,6 +1038,9 @@ glyph han-2e7ac:15x16 15 16 // 𮞬
 
 // glyph han-2e7ec:15x16 15 16 // 𮟬
 // ⿰ han-53cd han-961d // ⿰反阝
+
+// glyph han-2e7ed-($han-regions):15x16 15 16 // 𮟭
+// ⿰ han-516c-($-1) han-961d // ⿰公阝
 
 // glyph han-2e7ee:15x16 15 16 // 𮟮
 // ⿰ han-516d han-961d // ⿰六阝

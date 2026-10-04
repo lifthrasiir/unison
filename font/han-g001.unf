@@ -538,6 +538,11 @@ glyph han-300db:15x16 15 16 // 𰃛
 // glyph han-300df:15x16 15 16 // 𰃟
 // ⿺ han-5df4 han-516b // ⿺巴八
 
+## 12.6
+
+// glyph han-300e0-($han-regions):15x16 15 16 // 𰃠 ⿰公内(S) ⿰公內(Z)
+// ⿰ han-516c-($-1) han-5185 // ⿰公内
+
 ## 12.8
 
 // glyph han-300e3:15x16 15 16 // 𰃣

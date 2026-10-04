@@ -408,6 +408,12 @@ glyph han-31743:15x16 15 16 // 𱝃
 glyph han-31759:15x16 15 16 // 𱝙
 ⿰ han-5f13:7x16 1 han-4e2d:7x16 // ⿰弓中
 
+// glyph han-3175a-($han-regions):15x16 15 16 // 𱝚
+// ⿰ han-5f13 han-516c-($-1) // ⿰弓公
+
+// glyph han-3175b-($han-regions):15x16 15 16 // 𱝛
+// ⿱ han-516c-($-1) han-5f13 // ⿱公弓
+
 ## 57.7
 
 glyph han-3175d:15x16 15 16 // 𱝝

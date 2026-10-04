@@ -146,8 +146,8 @@ glyph han-2626c:15x16 15 16 // 𦉬
 glyph han-26274:15x16 15 16 // 𦉴
 ⿱ han-7f52:13x7 han-5341:15x9 // ⿱罒十
 
-glyph han-26275-($han-regions):15x16 15 16 // 𦉵
-⿱ han-7f52:13x3 1 han-516b-($-1):15x12 // ⿱罒八
+glyph han-26275:15x16 15 16 // 𦉵
+⿱ han-7f52:13x6 1 han-516b.0:15x9 // ⿱罒八
 
 // glyph han-26276:15x16 15 16 // 𦉶
 // ⿱ han-7f52 han-52f9 // ⿱罒勹

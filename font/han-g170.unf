@@ -13,6 +13,9 @@
 glyph han-31003:15x16 15 16 // 𱀃
 ⿰ han-961d:5x14-l 1 han-5e00:9x16 // ⿰阝帀
 
+// glyph han-31004-($han-regions):15x16 15 16 // 𱀄
+// ⿰ han-961d han-516c-($-1) // ⿰阝公
+
 // glyph han-31005:15x16 15 16 // 𱀅
 // ⿰ han-961c han-592c // ⿰阜夬
 

@@ -88,6 +88,11 @@ glyph han-468f:15x16 15 16 // 䚏
 
 # CJK unified ideographs extension A: 角 (148)
 
+## 148.4
+
+// glyph han-4697-($han-regions):15x16 15 16 // 䚗
+// ⿰ han-89d2-($-1) han-516c-($-1) // ⿰角公
+
 ## 148.6
 
 glyph han-4698-($han-regions):15x16 15 16 // 䚘
@@ -810,6 +815,9 @@ glyph han-4845:15x16 15 16 // 䡅
 ⿰ han-8eca:9x16 han-5ddd:6x16 // ⿰車川
 
 ## 159.4
+
+// glyph han-4846-($han-regions):15x16 15 16 // 䡆
+// ⿰ han-8eca han-516c-($-1) // ⿰車公
 
 glyph han-4847:15x16 15 16 // 䡇
 ⿰ han-8eca:7x16 han-5143:8x16 // ⿰車元

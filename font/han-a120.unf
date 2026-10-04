@@ -1539,8 +1539,8 @@ glyph han-461b:15x16 15 16 // 䘛
 
 ## 145.3
 
-glyph han-461c:15x16 15 16 // 䘜
-⿰ han-8864.0:5x14 1 han-5dfe:9x16 // ⿰衤巾
+glyph han-461c-($han-regions):15x16 15 16 // 䘜
+⿰ han-8864-($-1):5x14 1 han-5dfe:9x16 // ⿰衤巾
 
 ## 145.4
 

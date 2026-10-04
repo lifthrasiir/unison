@@ -143,8 +143,8 @@ glyph han-32735:15x16 15 16 // 𲜵
 
 ## 46.2
 
-glyph han-32743-($han-regions):15x16 15 16 // 𲝃
-⿱ han-5c71:15x9 1 han-516b-($-1):15x6 // ⿱山八
+glyph han-32743:15x16 15 16 // 𲝃
+⿱ han-5c71:15x9 1 han-516b-g:15x6 // ⿱山八
 
 ## 46.4
 
@@ -557,6 +557,9 @@ glyph han-32862:15x16 15 16 // 𲡢
 
 glyph han-32863:15x16 15 16 // 𲡣
 ⿰ han-624c:5x16 1 han-751f:9x16 // ⿰扌生
+
+// glyph han-32865:15x16 15 16 // 𲡥
+// ⿰ han-624c han-520b // ⿰扌刋
 
 // glyph han-32866:15x16 15 16 // 𲡦
 // ⿱ han-961f han-624b // ⿱队手
@@ -1093,6 +1096,9 @@ glyph han-32a14:15x16 15 16 // 𲨔
 
 // glyph han-32a15:15x16 15 16 // 𲨕
 // ⿹ han-6c14 han-5143 // ⿹气元
+
+// glyph han-32a16-($han-regions):15x16 15 16 // 𲨖
+// ⿹ han-6c14 han-516c-($-1) // ⿹气公
 
 // glyph han-32a17:15x16 15 16 // 𲨗
 // ⿹ han-6c14 han-6bdb // ⿹气毛

@@ -520,6 +520,9 @@ glyph han-3218f:15x16 15 16 // 𲆏
 glyph han-321a8:15x16 15 16 // 𲆨
 ⿰ han-9149:7x16 1 han-5348:7x16 // ⿰酉午
 
+// glyph han-321a9-($han-regions):15x16 15 16 // 𲆩
+// ⿰ han-9149 han-516c-($-1) // ⿰酉公
+
 ## 164.6
 
 glyph han-321aa:15x16 15 16 // 𲆪
@@ -1220,6 +1223,11 @@ glyph han-32350:15x16 15 16 // 𲍐
 
 glyph han-3235a:15x16 15 16 // 𲍚
 ⿰ han-9ce5:8x16 han-58eb:7x16 // ⿰鳥士
+
+## 196.4
+
+// glyph han-3235c-($han-regions):15x16 15 16 // 𲍜
+// ⿰ han-9ce5 han-516c-($-1) // ⿰鳥公
 
 ## 196.5
 

@@ -473,6 +473,9 @@ glyph han-226a0:15x16 15 16 // 𢚠
 glyph han-226af:15x16 15 16 // 𢚯
 ⿲ -1 han-5fc4:5x16 han-72ad:4x14 han-738b:7x16 // ⿲忄犭王
 
+// glyph han-226b1-($han-regions):15x16 15 16 // 𢚱 ⿳䒑公心(G) ⿱䒑忩(X)
+// ⿳ han-4491 han-516c-($-1) han-5fc3 // ⿳䒑公心
+
 // glyph han-226b3:15x16 15 16 // 𢚳
 // ⿱ han-6751 han-5fc3 // ⿱村心
 

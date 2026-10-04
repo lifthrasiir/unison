@@ -354,6 +354,9 @@ glyph han-7fc0.0:* = han-7fc0-j:*
 glyph han-7fc0.1:* = han-7fc0-j:*
 glyph han-7fc0.2:* = han-7fc0-g:*
 
+// glyph han-7fc1-($han-regions):15x16 15 16 // 翁 ⿱公羽(GHTKPV) ⿱公⿰习习(J)
+// ⿱ han-516c-($-1) han-7fbd-($-1) // ⿱公羽
+
 glyph han-7fc2-($han-regions):15x16 15 16 // 翂
 ⿰ han-7fbd-($-1):8x16 han-5206-($-1):7x16 // ⿰羽分
 
@@ -2846,6 +2849,9 @@ glyph han-8225:15x16 15 16 // 舥
 
 // glyph han-8228:15x16 15 16 // 舨
 // ⿰ han-821f han-53cd // ⿰舟反
+
+// glyph han-8229-($han-regions):15x16 15 16 // 舩
+// ⿰ han-821f han-516c-($-1) // ⿰舟公
 
 glyph han-822a:15x16 15 16 // 航
 ⿰ han-821f:7x16 1 han-4ea2:7x16 // ⿰舟亢

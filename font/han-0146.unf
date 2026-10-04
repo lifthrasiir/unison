@@ -1351,6 +1351,9 @@ glyph han-8a1c-($han-regions):15x16 15 16 // 訜
 // glyph han-8a1e-($han-regions):15x16 15 16 // 訞
 // ⿰ han-8a01-($-1) han-592d // ⿰訁夭
 
+// glyph han-8a1f-($han-regions):15x16 15 16 // 訟
+// ⿰ han-8a01-($-1) han-516c-($-1) // ⿰訁公
+
 // glyph han-8a20:15x16 15 16 // 訠
 // ⿲ han-8a01 han-5f13 han-4e28 // ⿲訁弓丨 <- ⿰訁引
 
@@ -2193,6 +2196,9 @@ glyph han-8bb9:15x16 15 16 // 讹
 
 // glyph han-8bbb:15x16 15 16 // 讻
 // ⿰ han-8ba0 han-51f6 // ⿰讠凶
+
+// glyph han-8bbc-($han-regions):15x16 15 16 // 讼
+// ⿰ han-8ba0 han-516c-($-1) // ⿰讠公
 
 // glyph han-8bbd:15x16 15 16 // 讽
 // ⿰ han-8ba0 han-98ce // ⿰讠风

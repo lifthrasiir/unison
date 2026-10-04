@@ -1099,8 +1099,14 @@ glyph han-677b.0:* = han-677b-j:*
 // glyph han-677d:15x16 15 16 // 杽
 // ⿰ han-6728 han-624b // ⿰木手
 
+// glyph han-677e-($han-regions):15x16 15 16 // 松
+// ⿰ han-6728 han-516c-($-1) // ⿰木公
+
 // glyph han-677f:15x16 15 16 // 板
 // ⿰ han-6728 han-53cd // ⿰木反
+
+// glyph han-6780-($han-regions):15x16 15 16 // 枀
+// ⿱ han-516c-($-1) han-6728 // ⿱公木
 
 glyph han-6782:15x16 15 16 // 枂
 ⿰ han-6728:7x16 han-6708:8x16 // ⿰木月
@@ -1293,6 +1299,9 @@ glyph han-679f:15x16 15 16 // 枟
 
 glyph han-67a8:15x16 15 16 // 枨
 ⿰ han-6728:5x16 1 han-957f:9x16 // ⿰木长
+
+// glyph han-67a9-($han-regions):15x16 15 16 // 枩
+// ⿱ han-6728 han-516c-($-1) // ⿱木公
 
 // glyph han-67ab:15x16 15 16 // 枫
 // ⿰ han-6728 han-98ce // ⿰木风

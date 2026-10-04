@@ -114,6 +114,9 @@ glyph han-980a:15x16 15 16 // 頊
 ⿰ han-248e9:5x14 1 han-9801:9x16 // ⿰𤣩頁
 glyph han-980a.0:* = han-980a:*
 
+// glyph han-980c-($han-regions):15x16 15 16 // 頌
+// ⿰ han-516c-($-1) han-9801 // ⿰公頁
+
 // glyph han-980d:15x16 15 16 // 頍
 // ⿰ han-652f han-9801 // ⿰支頁
 

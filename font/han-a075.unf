@@ -599,6 +599,9 @@ glyph han-3cbf:15x16 15 16 // 㲿
 // glyph han-3cc1:15x16 15 16 // 㳁 ⿰氵仄(GT) ⿰氵⿸𠂆人(P)
 // ⿰ han-6c35 han-4ec4 // ⿰氵仄
 
+// glyph han-3cc2-($han-regions):15x16 15 16 // 㳂
+// ⿰ han-6c35 han-516c-($-1) // ⿰氵公
+
 // glyph han-3cc3:15x16 15 16 // 㳃
 // ⿰ han-6c35 han-5346 // ⿰氵卆
 

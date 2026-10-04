@@ -243,7 +243,7 @@ glyph han-204ed-t:* = han-204ed.1:*
 ## 12.2
 
 glyph han-20501-($han-regions):15x16 15 16 // 𠔁
-assume ⿱ 1 han-516b-($-1):15x6 2 han-516b-($-1):15x6 1 // ⿱八八 (TODO)
+assume ⿱ han-516b-($-1):15x6 1 han-516b-($-1):15x9 // ⿱八八
 
 // glyph han-20502:15x16 15 16 // 𠔂 ⿰⿰丨丨八(GT) ⿰⿰㇒丨八(UCS2003)
 // ⿲ han-4e28 han-4e28 han-516b // ⿲丨丨八 <- ⿰⿰丨丨八
@@ -682,6 +682,9 @@ glyph han-20577:15x16 15 16 // 𠕷
 
 glyph han-20579:15x16 15 16 // 𠕹
 ⿱ han-5196:15x3 1 han-5929:15x12 // ⿱冖天
+
+// glyph han-2057a-($han-regions):15x16 15 16 // 𠕺
+// ⿱ han-5196 han-516c-($-1) // ⿱冖公
 
 glyph han-2057b:15x16 15 16 // 𠕻
 ⿱ han-5196:15x3 han-5143:15x13 // ⿱冖元
@@ -1291,6 +1294,9 @@ ref han-53e3:7x8 4 4
 
 // glyph han-20684:15x16 15 16 // 𠚄
 // ⿶ han-51f5 han-4ecc // ⿶凵仌
+
+// glyph han-20685-($han-regions):15x16 15 16 // 𠚅
+// ⿶ han-51f5 han-516c-($-1) // ⿶凵公
 
 ## 17.5
 

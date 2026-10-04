@@ -90,6 +90,9 @@ glyph han-268eb:15x16 15 16 // 𦣫
 // glyph han-26908:15x16 15 16 // 𦤈
 // ⿱ han-81ea han-4ece // ⿱自从
 
+// glyph han-26909-($han-regions):15x16 15 16 // 𦤉
+// ⿰ han-81ea han-516c-($-1) // ⿰自公
+
 // glyph han-2690a-($han-regions):15x16 15 16 // 𦤊
 // ⿰ han-81ea han-4e11-($-1) // ⿰自丑
 

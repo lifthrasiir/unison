@@ -433,8 +433,10 @@ glyph han-20c15:15x16 15 16 // 𠰕
 glyph han-20c18:15x16 15 16 // 𠰘
 ⿰ han-53e3:5x12 1 han-76bf:9x12 // ⿰口皿
 
-glyph han-20c19:15x16 15 16 // 𠰙 ⿰口刊(GT) ⿰口刋(V)
+glyph han-20c19-(g|t):15x16 15 16 // 𠰙
 ⿲ han-53e3:4x12 han-5e72:7x16 han-5202:4x16 // ⿲口干刂
+glyph han-20c19-(j|v):15x16 15 16 // 𠰙
+⿲ han-53e3:4x12 han-5343:7x16-l han-5202:4x16 // ⿲口千刂
 
 glyph han-20c1b:15x16 15 16 // 𠰛
 ⿱ han-5c71:15x4 han-53e4:13x12 // ⿱山古

@@ -1175,6 +1175,9 @@ assume ⿲ han-53e3:3x12 han-6708:5x16 han-9ce5:7x16 // ⿲口月鳥
 glyph han-2eb88:15x16 15 16 // 𮮈
 ⿸ han-9ebb.0:15x16.11x7 han-6728:9x7 5 9 // ⿸麻木
 
+// glyph han-2eb8a-($han-regions):15x16 15 16 // 𮮊
+// ⿸ han-9ebb-($-1) han-516c-($-1) // ⿸麻公
+
 ## 200.12
 
 // glyph han-2eb8c:15x16 15 16 // 𮮌

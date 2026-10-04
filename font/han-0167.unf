@@ -264,6 +264,9 @@ glyph han-9205:15x16 15 16 // 鈅
 ⿰ han-91d2:7x16 han-6708:8x16 // ⿰釒月
 glyph han-9205.0:* = han-9205:*
 
+// glyph han-9206-($han-regions):15x16 15 16 // 鈆
+// ⿰ han-91d2 han-516c-($-1) // ⿰釒公
+
 glyph han-9207:15x16 15 16 // 鈇
 ⿰ han-91d2:5x15-l 1 han-592b:9x16 // ⿰釒夫
 glyph han-9207.0:* = han-9207:*

@@ -47,6 +47,9 @@ glyph han-2926b-($han-regions):15x16 15 16 // 𩉫
 glyph han-2926c:15x16 15 16 // 𩉬
 ⿰ han-9769:7x16 han-6c0f:8x16 // ⿰革氏
 
+// glyph han-2926d-($han-regions):15x16 15 16 // 𩉭
+// ⿰ han-9769 han-516c-($-1) // ⿰革公
+
 glyph han-2926e:15x16 15 16 // 𩉮
 ⿰ han-9769:7x16 han-6b62:8x16 // ⿰革止
 

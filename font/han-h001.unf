@@ -917,6 +917,9 @@ glyph han-31588:15x16 15 16 // 𱖈
 // glyph han-3158c:15x16 15 16 // 𱖌
 // ⿱ han-4ecd han-571f // ⿱仍土
 
+// glyph han-3158d-($han-regions):15x16 15 16 // 𱖍
+// ⿰ han-571f han-516c-($-1) // ⿰土公
+
 // glyph han-3158e:15x16 15 16 // 𱖎
 // ⿰ han-571f han-592d // ⿰土夭
 

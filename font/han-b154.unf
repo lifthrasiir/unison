@@ -538,6 +538,9 @@ glyph han-27e30:15x16 15 16 // 𧸰
 // glyph han-27eac:15x16 15 16 // 𧺬 ⿺走內(T) ⿺走内(Z)
 // ⿺ han-8d70 han-5167 // ⿺走內
 
+// glyph han-27ead-($han-regions):15x16 15 16 // 𧺭
+// ⿺ han-8d70 han-516c-($-1) // ⿺走公
+
 // glyph han-27eae:15x16 15 16 // 𧺮
 // ⿺ han-8d70 han-5206 // ⿺走分
 

@@ -97,6 +97,9 @@ $$0P......................0P$$
 glyph han-211ba:15x16 15 16 // 𡆺
 ⿴ han-56d7:13x16.11x14 han-624b:11x13 2 1 // ⿴囗手
 
+// glyph han-211be-($han-regions):15x16 15 16 // 𡆾
+// ⿴ han-56d7 han-516c-($-1) // ⿴囗公
+
 // glyph han-211bf:15x16 15 16 // 𡆿
 // ⿴ han-56d7 han-6c0f // ⿴囗氏
 
@@ -157,6 +160,9 @@ glyph han-211d6:15x16 15 16 // 𡇖
 
 glyph han-211da:15x16 15 16 // 𡇚
 ⿴ han-56d7:13x14.11x12 han-767e:9x10 3 3 // ⿴囗百
+
+// glyph han-211db-($han-regions):15x16 15 16 // 𡇛
+// ⿴ han-7534 han-516c-($-1) // ⿴甴公
 
 // glyph han-211dc:15x16 15 16 // 𡇜
 // ⿴ han-56d7 han-820c // ⿴囗舌

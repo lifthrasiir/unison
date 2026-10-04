@@ -1001,6 +1001,9 @@ glyph han-4c37-(g|j|k):15x16 15 16 // 䰷
 glyph han-4c37-(t|p):15x16 15 16 // 䰷
 ⿰ han-9b5a:7x16 1 han-4e30.1:7x16 // ⿰魚丰
 
+// glyph han-4c38-($han-regions):15x16 15 16 // 䰸
+// ⿰ han-9b5a han-516c-($-1) // ⿰魚公
+
 glyph han-4c3a:15x16 15 16 // 䰺
 ⿰ han-9b5a:7x16 1 han-65a4:7x16 // ⿰魚斤
 
@@ -1195,6 +1198,9 @@ glyph han-4cb0:15x16 15 16 // 䲰
 
 glyph han-4cb1:15x16 15 16 // 䲱
 ⿰ han-9ce5:8x16 han-65b9:7x16 // ⿰鳥方
+
+// glyph han-4cb2-($han-regions):15x16 15 16 // 䲲
+// ⿰ han-516c-($-1) han-9ce5 // ⿰公鳥
 
 glyph han-4cb3:15x16 15 16 // 䲳
 ⿰ han-4ea2:7x16 han-9ce5:8x16 // ⿰亢鳥

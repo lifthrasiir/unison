@@ -434,6 +434,9 @@ glyph han-215f1:15x16 15 16 // 𡗱
 // glyph han-215f2:15x16 15 16 // 𡗲
 // ⿱ han-5927 han-65a4 // ⿱大斤
 
+// glyph han-215f3-($han-regions):15x16 15 16 // 𡗳
+// ⿱ han-516c-($-1) han-5927 // ⿱公大
+
 glyph han-215f4:15x16 15 16 // 𡗴
 ⿱ han-5927:15x8 han-6597:15x8 // ⿱大斗
 
