@@ -18,6 +18,7 @@ mod patterns;
 mod ragged;
 mod remap;
 mod samples;
+mod scaled_pixels;
 mod slices;
 mod unused;
 mod variation_sequences;

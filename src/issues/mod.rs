@@ -31,6 +31,7 @@ mod maps;
 mod patterns;
 mod remap;
 mod samples;
+mod scaled_pixels;
 mod slices;
 mod unused;
 
@@ -395,6 +396,7 @@ pub fn collect_issues_cancellable(
             patterns::check_props(docs, out);
             maps::check_uvs_maps(cx, out);
             patterns::check_ragged_patterns(docs, cx.name_parts, out);
+            scaled_pixels::check_scaled_pixels(cx, out);
         });
         // A rule the GSUB builder would drop, reported from where the dropping
         // is decided rather than reimplemented here; see

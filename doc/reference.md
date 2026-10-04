@@ -599,7 +599,11 @@ to get right when drawing:
 * the **bitmap build** throws the geometry away and draws a full square for every lit cell, nothing
   for the rest. On a `scale N` glyph the square is the whole logical pixel: a real bitmap has no
   sub-pixels, so a pixel any of whose N × N cells is lit is lit whole, and so is every pixel a
-  component placed off the pixel grid touches with a lit cell.
+  component placed off the pixel grid touches with a lit cell. Within one `scale N` grid, a pixel
+  whose cells mix lit with unlit, or (in a pixel with no lit cell) blank (`..`) with hardblank
+  (`$$`), is warned about: the build still decides it (lit wins; any hardblank makes an unlit pixel
+  one), but the source says two things. The warning names the pixels by row and column, from 0,
+  and is not given for a `vectoronly` glyph, which is never squared off.
 
 So a diagonal stroke crossing two cells is written as two triangles, one lit and one not, and comes
 out as an antialiased diagonal at large sizes and as a staircase of whole pixels at small ones.

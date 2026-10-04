@@ -268,6 +268,7 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Why the heap returns memory to the OS from a thread of its own | `heap.rs` |
 | What one editing scenario costs the UI thread, frame by frame, against the real font | `app/frame_profile.rs` |
 | Which parts of the expansion and the face build run on every core, and how each keeps the serial order: items and search matches cut into units, IDC lines, ink profiles, merge candidates, own-grid traces, memo keys | `/items.rs` (`expand_item`), `/compose.rs` (`expand_compose_lines`, `ink_profiles`), `merge.rs` (`collect_blocks`), `render/ttf_builder/collect.rs` (`collect_glyph_data_with_shared`), `render/ttf_builder/contours.rs` (`CachedContours::from_grids`), `render/glyph_cache.rs` (`CompositeBuilder::key`) |
+| Which mixes of cells in one `scale N` pixel are ambiguous to the bitmap build, and why a composite is not checked | `issues/scaled_pixels.rs` |
 | Why the validation checks run at once, and why the report still reads as a serial run's | `issues/mod.rs` (`collect_issues_cancellable`) |
 | Which stages notice a cancel, and why the next edit waits for the ones that do not | `issues/mod.rs` (`collect_issues_cancellable`), `/mod.rs` (`expand_documents_cancellable`), `main.rs` (`rebuild_like_the_editor`) |
 | Why the remembered face is applied before the first build | `app/mod.rs` (`with_settings`) |
