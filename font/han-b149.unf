@@ -409,8 +409,8 @@ glyph han-27ac2:15x16 15 16 // 𧫂
 // glyph han-27ae0:15x16 15 16 // 𧫠
 // ⿰ han-8a01 han-57fa // ⿰訁基
 
-// glyph han-27ae4:15x16 15 16 // 𧫤
-// ⿰ han-8a01 han-7562 // ⿰訁畢
+glyph han-27ae4-($han-regions):15x16 15 16 // 𧫤
+⿰ han-8a01-($-1):5x16 1 han-7562:9x16 // ⿰訁畢
 
 // glyph han-27af1:15x16 15 16 // 𧫱
 // ⿰ han-8a01 han-7ae0 // ⿰訁章

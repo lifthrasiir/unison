@@ -541,7 +541,7 @@ glyph han-22be9:15x16 15 16 // 𢯩
 // ⿲ han-624c han-76ee han-592c // ⿲扌目夬 <- ⿰扌䀗
 
 glyph han-22bf7:15x16 15 16 // 𢯷
-⿰ han-624c:5x16 1 han-97cb:9x16 // ⿰扌韋
+⿰ han-624c:5x16 1 han-97cb.2:9x16 // ⿰扌韋
 
 glyph han-22bf9:15x16 15 16 // 𢯹
 ⿰ han-624c:5x16 1 han-9769:9x16 // ⿰扌革

@@ -257,8 +257,10 @@ glyph han-292f5-($han-regions):15x16 15 16 // 𩋵
 glyph han-292f7:15x16 15 16 // 𩋷
 ⿲ -1 han-9769:5x16 han-675f:7x16 1 han-5202:3x16 // ⿲革束刂
 
-glyph han-292fe:15x16 15 16 // 𩋾
-⿰ han-9769:7x16 1 han-97cb:7x16 // ⿰革韋
+glyph han-292fe-(g|t|j):15x16 15 16 // 𩋾
+⿰ han-9769:7x16 1 han-97cb.2:7x16 // ⿰革韋
+glyph han-292fe-k:15x16 15 16 // 𩋾
+⿰ han-9769:7x16 1 han-97cb.0:7x16 // ⿰革韋
 
 ## 177.10
 
@@ -340,7 +342,7 @@ glyph han-29365:15x16 15 16 // 𩍥
 ## 178.3
 
 glyph han-29392:15x16 15 16 // 𩎒
-assume ⿰ han-97cb:9x16 -1 han-5e72:7x16 // ⿰韋干
+assume ⿰ han-97cb.2:9x16 -1 han-5e72:7x16 // ⿰韋干
 
 ## 178.4
 
@@ -351,44 +353,44 @@ assume ⿰ han-97cb:9x16 -1 han-5e72:7x16 // ⿰韋干
 // ⿰ han-97cb han-723b-($-1) // ⿰韋爻
 
 glyph han-29396-($han-regions):15x16 15 16 // 𩎖
-⿰ han-97cb:7x16 1 han-4eca-($-1):7x16 // ⿰韋今
+⿰ han-97cb-($-1):7x16 1 han-4eca-($-1):7x16 // ⿰韋今
 
 glyph han-29397:15x16 15 16 // 𩎗
-⿰ han-97cb:7x16 1 han-6b20:7x16 // ⿰韋欠
+⿰ han-97cb.2:7x16 1 han-6b20:7x16 // ⿰韋欠
 
 ## 178.5
 
 glyph han-29398:15x16 15 16 // 𩎘
-⿰ han-97cb:7x16 1 han-5305.1:7x16 // ⿰韋包
+⿰ han-97cb.2:7x16 1 han-5305.1:7x16 // ⿰韋包
 
 // glyph han-2939a-($han-regions):15x16 15 16 // 𩎚
 // ⿰ han-97cb han-65a5-($-1) // ⿰韋斥
 
 glyph han-2939b:15x16 15 16 // 𩎛
-⿰ han-97cb:7x16 1 han-5f17:7x16 // ⿰韋弗
+⿰ han-97cb.2:7x16 1 han-5f17:7x16 // ⿰韋弗
 
 // glyph han-2939c:15x16 15 16 // 𩎜
 // ⿰ han-97cb han-4e15 // ⿰韋丕
 
 glyph han-2939e:15x16 15 16 // 𩎞
-⿰ han-53f0:7x16 1 han-97cb:7x16 // ⿰台韋
+⿰ han-53f0:7x16 1 han-97cb-t:7x16 // ⿰台韋
 
 glyph han-2939f:15x16 15 16 // 𩎟
-⿰ han-97cb:7x16 1 han-672a:7x16 // ⿰韋未
+⿰ han-97cb.2:7x16 1 han-672a:7x16 // ⿰韋未
 
 glyph han-293a0:15x16 15 16 // 𩎠
-⿲ han-97cb:7x16 han-4ebb:3x16 han-5bf8:5x16 // ⿲韋亻寸
+⿲ han-97cb-g:7x16 han-4ebb:3x16 han-5bf8:5x16 // ⿲韋亻寸
 
 glyph han-293a1:15x16 15 16 // 𩎡
-⿰ han-5f17:7x16 1 han-97cb:7x16 // ⿰弗韋
+⿰ han-5f17:7x16 1 han-97cb.2:7x16 // ⿰弗韋
 
-glyph han-293a3:15x16 15 16 // 𩎣
-⿰ han-97cb:9x16 han-53ec:6x16 // ⿰韋召
+glyph han-293a3-($han-regions):15x16 15 16 // 𩎣
+⿰ han-97cb-($-1):9x16 han-53ec:6x16 // ⿰韋召
 
 ## 178.6
 
 glyph han-293a6:15x16 15 16 // 𩎦
-⿰ han-97cb:7x16 1 han-4ea4.0:7x16 // ⿰韋交
+⿰ han-97cb.2:7x16 1 han-4ea4.0:7x16 // ⿰韋交
 
 // glyph han-293a7:15x16 15 16 // 𩎧
 // ⿲ han-97cb han-4ebb han-72ac // ⿲韋亻犬
@@ -403,7 +405,7 @@ glyph han-293a6:15x16 15 16 // 𩎦
 // ⿰ han-97cb han-6735 // ⿰韋朵
 
 glyph han-293ac:15x16 15 16 // 𩎬
-⿰ han-97cb:7x16 1 han-5404:7x16 // ⿰韋各
+⿰ han-97cb.2:7x16 1 han-5404:7x16 // ⿰韋各
 
 // glyph han-293ae-($han-regions):15x16 15 16 // 𩎮 ⿳六韋又(G) ⿳六韋乂(T)
 // ⿳ han-516d han-97cb han-53c8-($-1) // ⿳六韋又
@@ -411,7 +413,7 @@ glyph han-293ac:15x16 15 16 // 𩎬
 ## 178.7
 
 glyph han-293af:15x16 15 16 // 𩎯
-⿰ han-97cb:7x16 1 han-675f:7x16 // ⿰韋束
+⿰ han-97cb.2:7x16 1 han-675f:7x16 // ⿰韋束
 
 // glyph han-293b1:15x16 15 16 // 𩎱
 // ⿰ han-97cb han-593e // ⿰韋夾
@@ -420,32 +422,32 @@ glyph han-293af:15x16 15 16 // 𩎯
 // ⿱ han-58f2 han-97cb // ⿱売韋
 
 glyph han-293b5:15x16 15 16 // 𩎵
-⿲ -2 han-4ebb:3x16 han-5f17:7x16 han-97cb:7x16 // ⿲亻弗韋
+⿲ -2 han-4ebb:3x16 han-5f17:7x16 han-97cb.2:7x16 // ⿲亻弗韋
 
 ## 178.8
 
 glyph han-293bb-($han-regions):15x16 15 16 // 𩎻
-⿰ han-97cb:7x16 1 han-975e-($-1):7x16 // ⿰韋非
+⿰ han-97cb.2:7x16 1 han-975e-($-1):7x16 // ⿰韋非
 
 // glyph han-293bd:15x16 15 16 // 𩎽
 // ⿰ han-97cb han-6c93 // ⿰韋沓
 
 glyph han-293bf:15x16 15 16 // 𩎿
-⿰ han-97cb:7x16 1 han-660c-t:7x16 // ⿰韋昌
+⿰ han-97cb-t:7x16 1 han-660c-t:7x16 // ⿰韋昌
 
 // glyph han-293c1:15x16 15 16 // 𩏁
 // ⿰ han-97cb han-23402 // ⿰韋𣐂
 
 glyph han-293c2:15x16 15 16 // 𩏂
-⿰ han-97cb:9x16 han-5351.0:6x16 // ⿰韋卑
+⿰ han-97cb-g:9x16 han-5351.0:6x16 // ⿰韋卑
 
 glyph han-293c3:15x16 15 16 // 𩏃
-⿲ -3 han-97cb:7x16 han-5f73:3x16 han-76ae:8x16 // ⿲韋彳皮
+⿲ -3 han-97cb.2:7x16 han-5f73:3x16 han-76ae:8x16 // ⿲韋彳皮
 
 ## 178.9
 
 glyph han-293cc:15x16 15 16 // 𩏌
-⿰ han-97cb:7x16 han-66f7:8x16 // ⿰韋曷
+⿰ han-97cb-g:7x16 han-66f7:8x16 // ⿰韋曷
 
 ## 178.10
 
@@ -465,9 +467,9 @@ glyph han-293cc:15x16 15 16 // 𩏌
 ## 178.13
 
 glyph han-293ed-(g|t):15x16 15 16 // 𩏭
-⿲ -4 han-97cb:7x16 han-91d2:5x15-l han-672c:7x16 // ⿲韋釒本
+⿲ -4 han-97cb.2:7x16 han-91d2:5x15-l han-672c:7x16 // ⿲韋釒本
 glyph han-293ed-j:15x16 15 16 // 𩏭
-⿲ -2 han-97cb:7x16 han-91d2:5x15-l han-6728:5x16 // ⿲韋釒木
+⿲ -2 han-97cb.2:7x16 han-91d2:5x15-l han-6728:5x16 // ⿲韋釒木
 
 ## 178.19
 

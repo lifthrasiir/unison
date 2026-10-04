@@ -410,7 +410,7 @@ glyph han-25001-($han-regions):15x16 15 16 // 𥀁
 // ⿱ han-5c01 han-76ae // ⿱封皮
 
 glyph han-2500a:15x16 15 16 // 𥀊
-⿰ han-76ae:8x16 han-97cb:7x16 // ⿰皮韋
+⿰ han-76ae:8x16 han-97cb.2:7x16 // ⿰皮韋
 
 ## 107.11
 

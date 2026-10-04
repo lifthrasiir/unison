@@ -12,8 +12,12 @@ glyph han-6930.1:* = han-6930:*
 glyph han-6930.2:* = han-6930.0:*
 glyph han-6930.3:* = han-6930.1:*
 
-glyph han-6932:15x16 15 16 // 椲
-⿰ han-6728:5x16 1 han-97cb:9x16 // ⿰木韋
+glyph han-6932.0:15x16 15 16 // 椲
+⿰ han-6728:5x16 1 han-97cb.0:9x16 // ⿰木韋
+glyph han-6932.1:15x16 15 16 // 椲
+⿰ han-6728:5x16 1 han-97cb.2:9x16 // ⿰木韋
+glyph han-6932-k:* = han-6932.0:*
+glyph han-6932-(g|h|t|j|p|v):* = han-6932.1:*
 
 // glyph han-693a:15x16 15 16 // 椺
 // ⿲ han-6728 han-4ebb han-5446 // ⿲木亻呆 <- ⿰木保

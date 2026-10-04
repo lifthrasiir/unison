@@ -222,6 +222,9 @@ glyph han-9aaf-($han-regions):15x16 15 16 // 骯
 ⿰ han-9aa8-($-1):7x16 1 han-4ea2:7x16 // ⿰骨亢
 glyph han-9aaf.0:* = han-9aaf-j:*
 
+// glyph han-9ab0-($han-regions):15x16 15 16 // 骰
+// ⿰ han-9aa8-($-1) han-6bb3 // ⿰骨殳
+
 ## 188.5
 
 glyph han-9ab2-($han-regions):15x16 15 16 // 骲 ⿰骨包(GHTKP) ⿰骨⿹勹巳(J)

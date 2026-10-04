@@ -923,7 +923,7 @@ glyph han-8dda.1:15x16 15 16 // 跚
 glyph han-8dda.2:* = han-8dda.0:*
 glyph han-8dda.3:* = han-8dda.1:*
 glyph han-8dda.4:15x16 15 16 // 跚
-assume ⿰ han-27fb7:5x15 han-518a.x:10x16 // ⿰𧾷冊
+assume ⿰ han-27fb7:5x15 han-20541:10x16 // ⿰𧾷𠕁
 glyph han-8dda.5:15x16 15 16 // 跚
 ⿰ han-27fb7:5x15 1 han-518c.x:9x16 // ⿰𧾷册
 glyph han-8dda-(h|t|j):* = han-8dda.0:*
@@ -1358,8 +1358,13 @@ glyph han-8eae.0:* = han-8eae-j:*
 
 ## 158.5
 
-glyph han-8eb0:15x16 15 16 // 躰
+glyph han-8eb0.0:15x16 15 16 // 躰
 ⿰ han-8eab:8x16 han-672c:7x16 // ⿰身本
+glyph han-8eb0.1:* = han-8eb0.0:*
+glyph han-8eb0.2:15x16 15 16 // 躰
+⿰ han-8eab.x:7x16 1 han-672c:7x16 // ⿰身本
+glyph han-8eb0-(h|t|j|k):* = han-8eb0.0:*
+glyph han-8eb0-(g|p):* = han-8eb0.2:*
 
 ## 158.6
 

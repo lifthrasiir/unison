@@ -176,6 +176,9 @@ glyph han-4a52:15x16 15 16 // 䩒
 
 ## 177.4
 
+// glyph han-4a54:15x16 15 16 // 䩔
+// ⿰ han-9769 han-6bb3 // ⿰革殳
+
 // glyph han-4a56:15x16 15 16 // 䩖
 // ⿰ han-9769 han-5c11 // ⿰革少
 
@@ -268,18 +271,18 @@ glyph han-4a7b:15x16 15 16 // 䩻
 // glyph han-4a92:15x16 15 16 // 䪒
 // ⿰ han-97cb han-4e3b // ⿰韋主
 
-glyph han-4a93:15x16 15 16 // 䪓
-⿰ han-97cb:9x16 1 han-5360:5x16 // ⿰韋占
+glyph han-4a93-($han-regions):15x16 15 16 // 䪓
+⿰ han-97cb-($-1):9x16 1 han-5360:5x16 // ⿰韋占
 
 ## 178.7
 
-glyph han-4a94:15x16 15 16 // 䪔
-⿰ han-97cb:7x16 1 han-752b:7x16 // ⿰韋甫
+glyph han-4a94-($han-regions):15x16 15 16 // 䪔
+⿰ han-97cb-($-1):7x16 1 han-752b:7x16 // ⿰韋甫
 
 ## 178.9
 
-glyph han-4a98:15x16 15 16 // 䪘
-⿰ han-97cb:7x16 1 han-662f:7x16 // ⿰韋是
+glyph han-4a98-($han-regions):15x16 15 16 // 䪘
+⿰ han-97cb-($-1):7x16 1 han-662f:7x16 // ⿰韋是
 
 ## 178.10
 
@@ -288,8 +291,8 @@ glyph han-4a98:15x16 15 16 // 䪘
 
 ## 178.12
 
-glyph han-4a9b:15x16 15 16 // 䪛
-⿰ han-97cb:7x16 1 han-756a:7x16 // ⿰韋番
+glyph han-4a9b-($han-regions):15x16 15 16 // 䪛
+⿰ han-97cb-($-1):7x16 1 han-756a:7x16 // ⿰韋番
 
 # CJK unified ideographs extension A: 韭 (179)
 
@@ -556,6 +559,9 @@ glyph han-4dbf:15x16 15 16 // 䶿
 // ⿸ han-5c38 han-98df-($-1) // ⿸尸食
 
 ## 184.4
+
+// glyph han-4b26:15x16 15 16 // 䬦 ⿰飠殳(GTP) ⿰𩙿殳(K)
+// ⿰ han-2967f han-6bb3 // ⿰𩙿殳
 
 glyph han-4b27-($han-regions):15x16 15 16 // 䬧
 ⿰ han-98e0-or-2967f-($-1):7x16 han-5143:8x16 // ⿰[飠𩙿]元
@@ -1151,7 +1157,7 @@ glyph han-4ca7:15x16 15 16 // 䲧
 ⿰ han-571f:7x16 han-9ce5:8x16 // ⿰土鳥
 
 glyph han-4ca8:15x16 15 16 // 䲨
-⿰ han-5de5:7x16 han-9ce5:8x16 // ⿰工鳥
+⿰ han-5de5:7x12-l han-9ce5:8x16 // ⿰工鳥
 
 // glyph han-4ca9:15x16 15 16 // 䲩
 // ⿸ han-5c38 han-9ce5 // ⿸尸鳥

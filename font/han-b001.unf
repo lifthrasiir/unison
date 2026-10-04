@@ -1326,7 +1326,7 @@ glyph han-2014d:15x16 15 16 // 𠅍
 ⿰ han-672b:7x16 1 han-4ea1-v:7x16 // ⿰末亡
 
 glyph han-2014e:15x16 15 16 // 𠅎
-⿰ han-4ea1-v:7x16 1 han-5931:7x16 // ⿰亡失
+⿰ han-4ea1.y:7x16 1 han-5931:7x16 // ⿰亡失
 
 // glyph han-2014f:15x16 15 16 // 𠅏
 // ⿳ han-4ea0 han-53e3 han-21c23 // ⿳亠口𡰣
@@ -1335,7 +1335,7 @@ glyph han-20150:15x16 15 16 // 𠅐
 ⿰ han-5931:7x16 1 han-4ea1-v:7x16 // ⿰失亡
 
 glyph han-20152:15x16 15 16 // 𠅒
-⿰ han-4ea1-v:7x16 1 han-672b:7x16 // ⿰亡末
+⿰ han-4ea1.y:7x16 1 han-672b:7x16 // ⿰亡末
 
 ## 8.7
 

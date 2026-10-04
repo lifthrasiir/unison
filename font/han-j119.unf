@@ -87,6 +87,11 @@ glyph han-32de9-($han-regions):15x16 15 16 // 𲷩
 glyph han-32dea:15x16 15 16 // 𲷪
 ⿰ han-7cf9-v:5x14 1 han-95e8:9x16 // ⿰糹门
 
+## 120.4
+
+// glyph han-32deb-($han-regions):15x16 15 16 // 𲷫 ⿰糸殳(S) ⿰糹殳(Z)
+// ⿰ han-7cf9-($-1) han-6bb3 // ⿰糹殳
+
 ## 120.5
 
 // glyph han-32dec-($han-regions):15x16 15 16 // 𲷬
@@ -374,7 +379,7 @@ glyph han-32ede:15x16 15 16 // 𲻞
 // ⿰ han-821f han-79cb // ⿰舟秋
 
 glyph han-32ee3:15x16 15 16 // 𲻣
-⿰ han-821f:7x16 1 han-97cb:7x16 // ⿰舟韋
+⿰ han-821f:7x16 1 han-97cb-t:7x16 // ⿰舟韋
 
 ## 137.12
 

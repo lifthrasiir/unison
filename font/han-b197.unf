@@ -138,6 +138,9 @@ glyph han-2a3a6-(t|j):15x16 15 16 // 𪎦 ⿸麻林(GT) ⿱麻林(UCS2003)
 // glyph han-2a42c:15x16 15 16 // 𪐬
 // ⿰ han-9ed1 han-5143 // ⿰黑元
 
+// glyph han-2a42e:15x16 15 16 // 𪐮
+// ⿰ han-9ed1 han-6bb3 // ⿰黑殳
+
 // glyph han-2a430-($han-regions):15x16 15 16 // 𪐰
 // ⿱ han-6587-($-1) han-9ed1 // ⿱文黑
 

@@ -205,8 +205,8 @@ glyph han-3b9f:15x16 15 16 // 㮟
 // glyph han-3bbe:15x16 15 16 // 㮾
 // ⿱ han-6717 han-6728 // ⿱朗木
 
-// glyph han-3bbf:15x16 15 16 // 㮿
-// ⿰ han-6728 han-7562 // ⿰木畢
+glyph han-3bbf:15x16 15 16 // 㮿
+⿰ han-6728:5x16 1 han-7562:9x16 // ⿰木畢
 
 glyph han-3bc1:15x16 15 16 // 㯁
 ⿲ -1 han-6728:5x16 han-961d:4x14-l han-5485:7x16 // ⿲木阝咅
@@ -312,7 +312,9 @@ glyph han-3c29:15x16 15 16 // 㰩
 glyph han-3c2a:15x16 15 16 // 㰪
 ⿰ han-572d:7x16 1 han-6b20:7x16 // ⿰圭欠
 
-glyph han-3c2b:15x16 15 16 // 㰫
+glyph han-3c2b-(g|t|j|k):15x16 15 16 // 㰫
+⿰ han-5148:7x16-l 1 han-6b20:7x16 // ⿰先欠
+glyph han-3c2b-p:15x16 15 16 // 㰫
 ⿰ han-5148:7x16 1 han-6b20:7x16 // ⿰先欠
 
 ## 76.7
@@ -431,6 +433,18 @@ glyph han-3c53-k:15x16 15 16 // 㱓
 
 glyph han-3c56:15x16 15 16 // 㱖
 ⿰ han-6b62:6x16-l han-5352:9x16 // ⿰止卒
+
+# CJK unified ideographs extension A: 殳 (79)
+
+## 79.3
+
+// glyph han-3c7c:15x16 15 16 // 㱼
+// ⿰ han-5df3 han-6bb3 // ⿰巳殳
+
+## 79.8
+
+// glyph han-3c81:15x16 15 16 // 㲁
+// ⿰ han-7a7a han-6bb3 // ⿰空殳
 
 # CJK unified ideographs extension A: 毛 (82)
 

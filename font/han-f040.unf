@@ -492,7 +492,7 @@ glyph han-2d604:15x16 15 16 // 𭘄
 ⿰ han-5de5:5x12-l han-5140:10x16 // ⿰工兀
 
 glyph han-2d605:15x16 15 16 // 𭘅
-assume ⿰ han-5de5:7x16 -1 han-52fa-j:9x16 // ⿰工勺
+assume ⿰ han-5de5:7x12-l -1 han-52fa-j:9x16 // ⿰工勺
 
 ## 48.5
 
@@ -503,7 +503,7 @@ assume ⿰ han-5de5:7x16 -1 han-52fa-j:9x16 // ⿰工勺
 ## 48.6
 
 glyph han-2d607:15x16 15 16 // 𭘇
-⿰ han-5de5:7x16 1 han-5404:7x16 // ⿰工各
+⿰ han-5de5:7x12-l 1 han-5404:7x16 // ⿰工各
 
 glyph han-2d608:15x16 15 16 // 𭘈
 assume ⿰ han-5de8-g:7x16 -1 han-4eca-g:9x16 // ⿰巨今
@@ -660,6 +660,9 @@ glyph han-2d652:15x16 15 16 // 𭙒
 
 ## 53.4
 
+// glyph han-2d654:15x16 15 16 // 𭙔
+// ⿸ han-5e7f han-6bb3 // ⿸广殳
+
 glyph han-2d655:15x16 15 16 // 𭙕
 ⿸ han-5e7f:15x16.11x13 han-624b:11x13 4 3 // ⿸广手
 
@@ -728,6 +731,11 @@ glyph han-2d655:15x16 15 16 // 𭙕
 
 glyph han-2d6a6:15x16 15 16 // 𭚦
 ⿰ han-5f13:6x16 han-5e7f:9x16 // ⿰弓广
+
+## 57.4
+
+// glyph han-2d6a7:15x16 15 16 // 𭚧
+// ⿰ han-5f13 han-6bb3 // ⿰弓殳
 
 ## 57.5
 

@@ -1124,8 +1124,15 @@ glyph han-8857.0:* = han-8857:*
 // glyph han-885a:15x16 15 16 // 衚
 // ⿲ han-5f73 han-80e1 han-4e8d // ⿲彳胡亍
 
-glyph han-885b:15x16 15 16 // 衛
-⿲ han-5f73:3x16 han-97cb:7x16 han-4e8d:5x16 // ⿲彳韋亍
+glyph han-885b-($han-regions):15x16 15 16 // 衛
+⿲ han-5f73:3x16 han-97cb-($-1):7x16 han-4e8d:5x16 // ⿲彳韋亍
+glyph han-885b.0:* = han-885b-j:*
+glyph han-885b.1:* = han-885b-j:*
+glyph han-885b.2:* = han-885b-j:*
+glyph han-885b.3:* = han-885b-g:*
+glyph han-885b.4:15x16 15 16 // 衛
+⿲ han-5f73:3x16 han-97cb.x:7x16 han-4e8d:5x16 // ⿲彳韋亍
+glyph han-885b.5:* = han-885b.0:*
 
 // glyph han-885c:15x16 15 16 // 衜
 // ⿲ han-5f73 han-9996 han-4e8d // ⿲彳首亍
@@ -1576,8 +1583,11 @@ glyph han-8915-(j|k):* = han-8915.0:*
 glyph han-8915-(g|h|t):* = han-8915.x:*
 glyph han-8915-p:* = han-8915.y:*
 
-glyph han-8918:15x16 15 16 // 褘
-⿰ han-8864.0:5x14 1 han-97cb:9x16 // ⿰衤韋
+glyph han-8918-($han-regions):15x16 15 16 // 褘
+⿰ han-8864.0:5x14 1 han-97cb-($-1):9x16 // ⿰衤韋
+glyph han-8918.0:* = han-8918-j:*
+glyph han-8918.1:* = han-8918-j:*
+glyph han-8918.2:* = han-8918-g:*
 
 glyph han-891a.0:15x16 15 16 // 褚
 ⿰ han-8864.0:7x14 1 han-8005.1:7x16 // ⿰衤者

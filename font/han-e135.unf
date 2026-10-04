@@ -8,7 +8,7 @@ glyph han-2c705:15x16 15 16 // 𬜅
 ## 135.7
 
 glyph han-2c707:15x16 15 16 // 𬜇
-⿰ han-820c-v:9x16 -1 han-8a00-v:7x16 // ⿰舌言
+assume ⿰ han-820c-v:9x16 -1 han-8a00.x:7x16 // ⿰舌言
 
 ## 135.8
 

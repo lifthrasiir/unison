@@ -1,3 +1,63 @@
+# CJK unified ideographs extension B: 殳 (79)
+
+## 79.4
+
+// glyph han-23a82:15x16 15 16 // 𣪂
+// ⿰ han-4e39 han-6bb3 // ⿰丹殳
+
+// glyph han-23a84:15x16 15 16 // 𣪄
+// ⿰ han-6b20 han-6bb3 // ⿰欠殳
+
+## 79.5
+
+// glyph han-23a85:15x16 15 16 // 𣪅
+// ⿰ han-6b63 han-6bb3 // ⿰正殳
+
+// glyph han-23a87:15x16 15 16 // 𣪇
+// ⿰ han-53e4 han-6bb3 // ⿰古殳
+
+## 79.6
+
+// glyph han-23a88:15x16 15 16 // 𣪈
+// ⿰ han-591a han-6bb3 // ⿰多殳
+
+## 79.7
+
+// glyph han-23a8c:15x16 15 16 // 𣪌
+// ⿰ han-8c46 han-6bb3 // ⿰豆殳
+
+// glyph han-23a95:15x16 15 16 // 𣪕
+// ⿰ han-3fdd han-6bb3 // ⿰㿝殳
+
+// glyph han-23a96:15x16 15 16 // 𣪖
+// ⿰ han-91c6 han-6bb3 // ⿰釆殳
+
+## 79.8
+
+// glyph han-23a99:15x16 15 16 // 𣪙
+// ⿰ han-5353 han-6bb3 // ⿰卓殳
+
+## 79.9
+
+// glyph han-23aa1:15x16 15 16 // 𣪡
+// ⿰ han-97cb han-6bb3 // ⿰韋殳
+
+## 79.10
+
+// glyph han-23aae:15x16 15 16 // 𣪮
+// ⿰ han-5bb0 han-6bb3 // ⿰宰殳
+
+// glyph han-23aaf:15x16 15 16 // 𣪯 ⿰宫殳(GT) ⿰宮殳(P)
+// ⿰ han-5bab han-6bb3 // ⿰宫殳
+
+## 79.12
+
+// glyph han-23abd:15x16 15 16 // 𣪽
+// ⿰ han-55ac han-6bb3 // ⿰喬殳
+
+// glyph han-23ac1:15x16 15 16 // 𣫁
+// ⿰ han-582f han-6bb3 // ⿰堯殳
+
 # CJK unified ideographs extension B: 比 (81)
 
 ## 81.3
@@ -244,7 +304,9 @@ glyph han-23b5e:15x16 15 16 // 𣭞
 // glyph han-23b60:15x16 15 16 // 𣭠
 // ⿱ han-5982 han-6bdb // ⿱如毛
 
-glyph han-23b61-(g|t|j):15x16 15 16 // 𣭡
+glyph han-23b61-(g|t):15x16 15 16 // 𣭡
+⿰ han-5148:7x16-l 1 han-6bdb:7x16 // ⿰先毛
+glyph han-23b61-j:15x16 15 16 // 𣭡
 ⿰ han-5148:7x16 1 han-6bdb:7x16 // ⿰先毛
 glyph han-23b61-p:15x16 15 16 // 𣭡
 ⿺ han-5148:15x16.8x14 han-6bdb:7x14 7 0 // ⿺先毛

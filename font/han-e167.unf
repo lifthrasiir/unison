@@ -420,8 +420,8 @@ glyph han-2cbd1:15x16 15 16 // 𬯑
 
 ## 170.11
 
-// glyph han-2cbd5:15x16 15 16 // 𬯕
-// ⿰ han-961d han-7562 // ⿰阝畢
+glyph han-2cbd5:15x16 15 16 // 𬯕
+⿰ han-961d:5x14-l 1 han-7562:9x16 // ⿰阝畢
 
 ## 170.19
 
@@ -466,6 +466,11 @@ glyph han-2cbef:15x16 15 16 // 𬯯
 
 // glyph han-2cbf8-($han-regions):15x16 15 16 // 𬯸
 // ⿱ han-96e8-($-1) han-4e38-($-1) // ⿱雨丸
+
+## 173.4
+
+// glyph han-2cbf9-($han-regions):15x16 15 16 // 𬯹
+// ⿱ han-96e8-($-1) han-6bb3 // ⿱雨殳
 
 ## 173.5
 
@@ -595,17 +600,17 @@ glyph han-2cc26:15x16 15 16 // 𬰦
 ## 178.4
 
 glyph han-2cc2a:15x16 15 16 // 𬰪
-⿰ han-97cb:7x16 1 han-5e00:7x16 // ⿰韋帀
+⿰ han-97cb-g:7x16 1 han-5e00:7x16 // ⿰韋帀
 
 ## 178.6
 
 glyph han-2cc2c:15x16 15 16 // 𬰬
-⿰ han-97cb:7x16 1 han-209d7:7x16 // ⿰韋𠧗
+⿰ han-97cb.2:7x16 1 han-209d7:7x16 // ⿰韋𠧗
 
 ## 178.17
 
 glyph han-2cc30:15x16 15 16 // 𬰰
-⿰ han-97cb:7x16 1 han-8944:7x16 // ⿰韋襄
+⿰ han-97cb-g:7x16 1 han-8944:7x16 // ⿰韋襄
 
 # CJK unified ideographs extension E: 韦 (178')
 

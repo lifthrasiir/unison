@@ -54,6 +54,32 @@ glyph han-2db74:15x16 15 16 // 𭭴
 // glyph han-2db75:15x16 15 16 // 𭭵
 // ⿰ han-6b62 han-7981 // ⿰止禁
 
+# CJK unified ideographs extension F: 殳 (79)
+
+## 79.6
+
+// glyph han-2dba9:15x16 15 16 // 𭮩
+// ⿰ han-767e han-6bb3 // ⿰百殳
+
+// glyph han-2dbaa:15x16 15 16 // 𭮪
+// ⿰ han-5409 han-6bb3 // ⿰吉殳
+
+## 79.8
+
+// glyph han-2dbb2:15x16 15 16 // 𭮲
+// ⿰ han-679c han-6bb3 // ⿰果殳
+
+// glyph han-2dbb5:15x16 15 16 // 𭮵
+// ⿰ han-2d38a han-6bb3 // ⿰𭎊殳
+
+## 79.9
+
+// glyph han-2dbb7:15x16 15 16 // 𭮷
+// ⿰ han-9801 han-6bb3 // ⿰頁殳
+
+// glyph han-2dbb8:15x16 15 16 // 𭮸
+// ⿰ han-4eb2 han-6bb3 // ⿰亲殳
+
 # CJK unified ideographs extension F: 比 (81)
 
 ## 81.5

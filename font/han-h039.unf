@@ -1148,6 +1148,13 @@ glyph han-31942:15x16 15 16 // 𱥂
 // glyph han-3194d:15x16 15 16 // 𱥍
 // ⿰ han-3c51 han-4e02 // ⿰㱑丂
 
+# CJK unified ideographs extension H: 殳 (79)
+
+## 79.18
+
+// glyph han-31959-($han-regions):15x16 15 16 // 𱥙
+// ⿰ han-96da-($-1) han-6bb3 // ⿰雚殳
+
 # CJK unified ideographs extension H: 毛 (82)
 
 ## 82.5

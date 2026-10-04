@@ -563,8 +563,12 @@ glyph han-20326:15x16 15 16 // 𠌦
 
 ## 9.11
 
-// glyph han-2032b:15x16 15 16 // 𠌫
-// ⿰ han-4ebb han-7562 // ⿰亻畢
+glyph han-2032b:15x16 15 16 // 𠌫
+⿰ han-4ebb:5x16 1 han-7562:9x16 // ⿰亻畢
+glyph han-2032b.0:* = han-2032b:*
+glyph han-2032b.1:* = han-2032b:*
+glyph han-2032b.2:* = han-2032b:* // not distinguishable
+glyph han-2032b.3:* = han-2032b:* // not distinguishable
 
 // glyph han-20331:15x16 15 16 // 𠌱
 // ⿰ han-4ebb han-595e // ⿰亻奞
@@ -710,7 +714,7 @@ glyph han-2043e:15x16 15 16 // 𠐾
 ## 9.18
 
 glyph han-20452-($han-regions):15x16 15 16 // 𠑒
-⿲ -6 han-4ebb:3x16 han-97cb:7x16 han-98a8-($-1):11x16 // ⿲亻韋風
+⿲ -6 han-4ebb:3x16 han-97cb.2:7x16 han-98a8-($-1):11x16 // ⿲亻韋風
 
 ## 9.20
 

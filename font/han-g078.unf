@@ -1,3 +1,10 @@
+# CJK unified ideographs extension G: 殳 (79)
+
+## 79.9
+
+// glyph han-30685:15x16 15 16 // 𰚅
+// ⿰ han-8ecd han-6bb3 // ⿰軍殳
+
 # CJK unified ideographs extension G: 毛 (82)
 
 ## 82.3
@@ -596,6 +603,11 @@ glyph han-307e1:15x16 15 16 // 𰟡
 // ⿰ han-56fa han-722a // ⿰固爪
 
 # CJK unified ideographs extension G: 爿 (90)
+
+## 90.4
+
+// glyph han-3080e:15x16 15 16 // 𰠎
+// ⿰ han-723f han-6bb3 // ⿰爿殳
 
 ## 90.5
 

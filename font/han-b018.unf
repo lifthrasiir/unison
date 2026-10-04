@@ -53,6 +53,9 @@ assume ⿰ han-624c:5x16 4 han-5202:6x16 // ⿰扌刂
 // glyph han-206b7:15x16 15 16 // 𠚷
 // ⿰ han-5dff han-5202 // ⿰巿刂
 
+// glyph han-206b9:15x16 15 16 // 𠚹
+// ⿰ han-6bb3 han-5202 // ⿰殳刂
+
 // glyph han-206ba:15x16 15 16 // 𠚺
 // ⿰ han-5c11 han-5202 // ⿰少刂
 
@@ -211,9 +214,10 @@ glyph han-20705:15x16 15 16 // 𠜅
 // ⿺ han-2057b han-5202 // ⿺𠕻刂
 
 glyph han-2070e:15x16 15 16 // 𠜎
+⿰ han-5148:9x16-l 1 han-5202:5x16 // ⿰先刂
+glyph han-2070e.0:* = han-2070e:*
+glyph han-2070e.1:15x16 15 16 // 𠜎
 ⿰ han-5148:9x16 1 han-5202:5x16 // ⿰先刂
-glyph han-2070e.0:* = han-2070e:* // TODO
-glyph han-2070e.1:* = han-2070e:*
 
 ## 18.7
 

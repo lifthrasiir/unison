@@ -401,6 +401,9 @@ glyph han-6294:15x16 15 16 // 抔
 ⿰ han-624c:5x16 1 han-4e0d:9x16 // ⿰扌不
 glyph han-6294.0:* = han-6294:*
 
+// glyph han-6295:15x16 15 16 // 投
+// ⿰ han-624c han-6bb3 // ⿰扌殳
+
 glyph han-6296:15x16 15 16 // 抖
 ⿰ han-624c:5x16 1 han-6597:9x16 // ⿰扌斗
 glyph han-6296.0:* = han-6296:*

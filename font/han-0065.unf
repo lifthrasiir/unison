@@ -2342,8 +2342,11 @@ glyph han-668f-(g|v):15x16 15 16 // 暏
 glyph han-668f-(t|j|k):15x16 15 16 // 暏
 ⿰ han-65e5:7x16 1 han-8005.1:7x16 // ⿰日者
 
-glyph han-6690:15x16 15 16 // 暐
-⿰ han-65e5:6x16 han-97cb:9x16 // ⿰日韋
+glyph han-6690-($han-regions):15x16 15 16 // 暐
+⿰ han-65e5:6x16 han-97cb-($-1):9x16 // ⿰日韋
+glyph han-6690.0:* = han-6690-j:*
+glyph han-6690.1:* = han-6690-j:*
+glyph han-6690.2:* = han-6690-g:*
 
 glyph han-6692:15x16 15 16 // 暒
 ⿰ han-65e5:4x14-l han-661f:11x16 // ⿰日星

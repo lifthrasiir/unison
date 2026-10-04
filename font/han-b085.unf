@@ -638,6 +638,9 @@ glyph han-23eb0-(g|t):15x16 15 16 // 𣺰
 glyph han-23eb0-(j|p):15x16 15 16 // 𣺰
 ⿲ han-6c35:3x12 han-53e3:4x12 1 han-8096.1:7x16 // ⿲氵口肖
 
+// glyph han-23eb2:15x16 15 16 // 𣺲
+// ⿲ han-6c35 han-7c73 han-6bb3 // ⿲氵米殳 <- ⿰氵⿰米殳
+
 glyph han-23eb8:15x16 15 16 // 𣺸
 ⿲ han-6c35:3x12 han-7f8a:7x16 han-706b:5x16 // ⿲氵羊火
 

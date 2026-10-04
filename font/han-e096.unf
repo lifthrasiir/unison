@@ -97,7 +97,7 @@ glyph han-2c375:15x16 15 16 // 𬍵
 // ⿰ han-248e9 han-83ab // ⿰𤣩莫
 
 glyph han-2c389:15x16 15 16 // 𬎉
-⿲ han-248e9:3x14 han-4ebb:3x16 han-97cb:9x16 // ⿲𤣩亻韋
+⿲ han-248e9:3x14 han-4ebb:3x16 han-97cb-t:9x16 // ⿲𤣩亻韋
 
 ## 96.12
 
@@ -964,6 +964,9 @@ glyph han-2c5a2:15x16 15 16 // 𬖢
 // ⿱ han-7ca6 han-53e3 // ⿱粦口
 
 ## 119.10
+
+// glyph han-2c5ab:15x16 15 16 // 𬖫
+// ⿰ han-7c9f han-6bb3 // ⿰粟殳
 
 glyph han-2c5ad:15x16 15 16 // 𬖭
 ⿲ -1 han-7c73:5x16 han-5360:5x16 1 han-65e6:5x16 // ⿲米占旦

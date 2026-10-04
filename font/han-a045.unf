@@ -1527,7 +1527,7 @@ glyph han-3af7-j:* = han-3af7.0:*
 glyph han-3af7-(g|t):* = han-3af7.1:*
 
 glyph han-3afa:15x16 15 16 // 㫺
-⿳ han-4ece:15x5 han-4ece:15x5 1 han-65e5:11x5 // ⿳从从日
+⿳ han-4ece:15x5 -1 han-4ece:15x5 han-65e5:11x7 // ⿳从从日
 
 glyph han-3aff:15x16 15 16 // 㫿
 ⿰ han-65e5:5x14-l 1 han-96b9:9x16 // ⿰日隹
@@ -1547,7 +1547,7 @@ glyph han-3b05:15x16 15 16 // 㬅
 ⿳ -3 han-65e5:11x5 1 han-7f52:13x3 han-65b9:15x10 // ⿳日罒方
 
 glyph han-3b08.0:15x16 15 16 // 㬈
-⿰ han-65e5:6x16 han-6637:9x16 // ⿰日昷
+⿰ han-65e5:5x14-l 1 han-6637:9x16 // ⿰日昷
 glyph han-3b08.1:15x16 15 16 // 㬈
 ⿰ han-65e5:5x14-l 1 han-25055:9x16 // ⿰日𥁕
 glyph han-3b08-(g|t|j|p):* = han-3b08.0:*

@@ -721,7 +721,7 @@ glyph han-2cfe8:15x16 15 16 // 𬿨
 // ⿰ han-4ebb han-9032 // ⿰亻進
 
 glyph han-2cfed:15x16 15 16 // 𬿭
-⿲ han-4ebb:3x16 han-97cb:7x16 han-4e8d:5x16 // ⿲亻韋亍
+⿲ han-4ebb:3x16 han-97cb.2:7x16 han-4e8d:5x16 // ⿲亻韋亍
 
 ## 9.13
 
@@ -1007,6 +1007,11 @@ glyph han-2d073:15x16 15 16 // 𭁳
 
 // glyph han-2d07c:15x16 15 16 // 𭁼
 // ⿱ han-5196 han-662f // ⿱冖是
+
+## 14.11
+
+// glyph han-2d082:15x16 15 16 // 𭂂
+// ⿱ han-34c1 han-2debe // ⿱㓁𭺾
 
 ## 14.13
 
@@ -1301,7 +1306,7 @@ glyph han-2d130:15x16 15 16 // 𭄰
 // ⿰ han-2b7ef han-529b // ⿰𫟯力
 
 glyph han-2d135:15x16 15 16 // 𭄵
-⿰ han-97cb:9x16 han-529b:6x16 // ⿰韋力
+⿰ han-97cb-k:9x16 han-529b:6x16 // ⿰韋力
 
 ## 19.11
 

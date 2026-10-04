@@ -872,6 +872,9 @@ glyph han-30b81:15x16 15 16 // 𰮁
 // glyph han-30b8d-($han-regions):15x16 15 16 // 𰮍
 // ⿱ han-723b-($-1) han-8089 // ⿱爻肉
 
+// glyph han-30b8f:15x16 15 16 // 𰮏
+// ⿰ han-8089 han-6bb3 // ⿰肉殳
+
 // glyph han-30b90:15x16 15 16 // 𰮐
 // ⿰ han-6708 han-5197 // ⿰月冗
 
@@ -972,6 +975,11 @@ glyph han-30bb8:15x16 15 16 // 𰮸
 
 // glyph han-30bee:15x16 15 16 // 𰯮 ⿱卧𠃍(K) ⿱臥𠃍(Z)
 // ⿱ han-5367 han-200cd // ⿱卧𠃍
+
+## 131.4
+
+// glyph han-30bef:15x16 15 16 // 𰯯
+// ⿰ han-81e3 han-6bb3 // ⿰臣殳
 
 ## 131.6
 

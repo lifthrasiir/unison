@@ -132,6 +132,9 @@ glyph han-5f77:15x16 15 16 // 彷
 ⿰ han-5f73:5x16 1 han-65b9:9x16 // ⿰彳方
 glyph han-5f77.0:* = han-5f77:*
 
+// glyph han-5f79:15x16 15 16 // 役
+// ⿰ han-5f73 han-6bb3 // ⿰彳殳
+
 glyph han-5f7a:15x16 15 16 // 彺
 ⿰ han-5f73:5x16 1 han-738b:9x16 // ⿰彳王
 glyph han-5f7a.0:* = han-5f7a:*
@@ -272,11 +275,11 @@ glyph han-5fa8:15x16 15 16 // 徨
 ⿰ han-5f73:5x16 1 han-7687:9x16 // ⿰彳皇
 glyph han-5fa8.0:* = han-5fa8:*
 
-glyph han-5fab:15x16 15 16 // 徫
-⿰ han-5f73:5x16 1 han-97cb:9x16 // ⿰彳韋
-glyph han-5fab.0:* = han-5fab:*
-glyph han-5fab.1:* = han-5fab:*
-glyph han-5fab.2:* = han-5fab:* // not distinguished
+glyph han-5fab-($han-regions):15x16 15 16 // 徫
+⿰ han-5f73:5x16 1 han-97cb-($-1):9x16 // ⿰彳韋
+glyph han-5fab.0:* = han-5fab-j:*
+glyph han-5fab.1:* = han-5fab-j:*
+glyph han-5fab.2:* = han-5fab-g:*
 
 ## 60.10
 
@@ -1193,8 +1196,11 @@ glyph han-6105:15x16 15 16 // 愅
 // glyph han-6106:15x16 15 16 // 愆
 // ⿱ han-884d han-5fc3 // ⿱衍心
 
-glyph han-6107:15x16 15 16 // 愇
-⿰ han-5fc4:5x16 1 han-97cb:9x16 // ⿰忄韋
+glyph han-6107-($han-regions):15x16 15 16 // 愇
+⿰ han-5fc4:5x16 1 han-97cb-($-1):9x16 // ⿰忄韋
+glyph han-6107.0:* = han-6107-j:*
+glyph han-6107.1:* = han-6107-j:*
+glyph han-6107.2:* = han-6107-g:*
 
 // glyph han-6108:15x16 15 16 // 愈 ⿱俞心(GHTV) ⿱兪心(JKP)
 // ⿱ han-4fde han-5fc3 // ⿱俞心

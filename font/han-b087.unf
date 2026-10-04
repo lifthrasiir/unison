@@ -58,6 +58,9 @@ ref 2x6-xz1 11 5
 
 ## 87.4
 
+// glyph han-244f6:15x16 15 16 // 𤓶 ⿰爪⿱⺈又(G) ⿺爪⿱勹又(T) ⿰爪殳(Z)
+// ⿰ han-722a han-6bb3 // ⿰爪殳
+
 // glyph han-244fa:15x16 15 16 // 𤓺
 // ⿰ han-722a han-6597 // ⿰爪斗
 
@@ -322,6 +325,9 @@ glyph han-245ab-($han-regions):15x16 15 16 // 𤖫
 ⿰ han-7247-($-1):6x16 han-51e1:9x16 // ⿰片凡
 
 ## 91.4
+
+// glyph han-245ac-($han-regions):15x16 15 16 // 𤖬
+// ⿰ han-7247-($-1) han-6bb3 // ⿰片殳
 
 glyph han-245ad-(g|j|p):15x16 15 16 // 𤖭
 ⿰ han-7247.0:8x16 han-5206-($-1):7x16 // ⿰片分

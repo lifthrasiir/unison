@@ -615,6 +615,9 @@ glyph han-6c9e:15x16 15 16 // 沞
 // glyph han-6ca0:15x16 15 16 // 沠
 // ⿰ han-6c35 han-722a // ⿰氵爪
 
+// glyph han-6ca1:15x16 15 16 // 没
+// ⿰ han-6c35 han-6bb3 // ⿰氵殳
+
 glyph han-6ca3-($han-regions):15x16 15 16 // 沣
 ⿰ han-6c35:5x15 1 han-4e30-($-1):9x16 // ⿰氵丰
 

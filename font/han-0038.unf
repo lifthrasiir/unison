@@ -737,8 +737,10 @@ glyph han-5a78:15x16 15 16 // 婸
 // glyph han-5a79:15x16 15 16 // 婹
 // ⿰ han-5973 han-8981 // ⿰女要
 
-glyph han-5a81:15x16 15 16 // 媁
-⿰ han-5973:5x14-l 1 han-97cb:9x16 // ⿰女韋
+glyph han-5a81-(g|h|t|j|p):15x16 15 16 // 媁
+⿰ han-5973:5x14-l 1 han-97cb.2:9x16 // ⿰女韋
+glyph han-5a81-k:15x16 15 16 // 媁
+⿰ han-5973:5x14-l 1 han-97cb.0:9x16 // ⿰女韋
 
 // glyph han-5a86:15x16 15 16 // 媆
 // ⿰ han-5973 han-800e // ⿰女耎

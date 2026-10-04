@@ -39,6 +39,9 @@ glyph han-28e19:15x16 15 16 // 𨸙
 // glyph han-28e1b:15x16 15 16 // 𨸛 ⿰阝气(G) ⿰阝⿳𠂉一乙(T)
 // ⿰ han-961d han-6c14 // ⿰阝气
 
+// glyph han-28e1c:15x16 15 16 // 𨸜
+// ⿰ han-961d han-6bb3 // ⿰阝殳
+
 glyph han-28e1d:15x16 15 16 // 𨸝
 ⿰ han-961d:5x14-l han-6c0f:10x16 // ⿰阝氏
 
@@ -231,6 +234,9 @@ glyph han-28efa:15x16 15 16 // 𨻺
 // glyph han-28f02:15x16 15 16 // 𨼂
 // ⿰ han-961d han-57fa // ⿰阝基
 
+// glyph han-28f08:15x16 15 16 // 𨼈
+// ⿰ han-961d han-2596d // ⿰阝𥥭
+
 ## 170.12
 
 glyph han-28f0c:15x16 15 16 // 𨼌
@@ -292,7 +298,7 @@ glyph han-28f88:15x16 15 16 // 𨾈
 ⿸ han-5c38:15x16.11x12 han-96b9:9x9 5 6 // ⿸尸隹
 
 glyph han-28f8a:15x16 15 16 // 𨾊
-⿰ han-5de5:7x16 1 han-96b9:7x16 // ⿰工隹
+⿰ han-5de5:7x12-l 1 han-96b9:7x16 // ⿰工隹
 
 glyph han-28f8b:15x16 15 16 // 𨾋
 ⿰ han-5c38:5x16 1 han-96b9:9x16 // ⿰尸隹
@@ -387,7 +393,9 @@ glyph han-28fb4:15x16 15 16 // 𨾴
 // glyph han-28fb6:15x16 15 16 // 𨾶
 // ⿰ han-5b89 han-96b9 // ⿰安隹
 
-glyph han-28fb7:15x16 15 16 // 𨾷
+glyph han-28fb7-(g|t):15x16 15 16 // 𨾷
+⿰ han-5148:7x16-l 1 han-96b9:7x16 // ⿰先隹
+glyph han-28fb7-j:15x16 15 16 // 𨾷
 ⿰ han-5148:7x16 1 han-96b9:7x16 // ⿰先隹
 
 // glyph han-28fbb-($han-regions):15x16 15 16 // 𨾻

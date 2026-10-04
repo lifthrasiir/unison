@@ -541,7 +541,7 @@ glyph han-34cb:15x16 15 16 // 㓋
 ## 18.3
 
 glyph han-34da:15x16 15 16 // 㓚
-⿰ han-5de5:9x16 1 han-5202:5x16 // ⿰工刂
+⿰ han-5de5:9x12-l 1 han-5202:5x16 // ⿰工刂
 
 glyph han-34db:15x16 15 16 // 㓛
 assume ⿰ han-5de5:7x12-l -1 han-5200:9x16 // ⿰工刀
@@ -1261,8 +1261,8 @@ glyph han-364b:15x16 15 16 // 㙋
 // glyph han-3653:15x16 15 16 // 㙓
 // ⿳ han-571f han-2a8b4 han-571f // ⿳土𪢴土 <- ⿱垚土
 
-glyph han-3654:15x16 15 16 // 㙔
-⿰ han-571f:5x14-l 1 han-97cb:9x16 // ⿰土韋
+glyph han-3654-($han-regions):15x16 15 16 // 㙔
+⿰ han-571f:5x14-l 1 han-97cb-($-1):9x16 // ⿰土韋
 
 // glyph han-3658:15x16 15 16 // 㙘
 // ⿰ han-571f han-8981 // ⿰土要

@@ -398,8 +398,8 @@ glyph han-436e:15x16 15 16 // 䍮
 
 ## 123.9
 
-glyph han-4377:15x16 15 16 // 䍷
-⿰ han-7f8a:7x16-l 1 han-97cb:7x16 // ⿰羊韋
+glyph han-4377-($han-regions):15x16 15 16 // 䍷
+⿰ han-7f8a:7x16-l 1 han-97cb-($-1):7x16 // ⿰羊韋
 
 # CJK unified ideographs extension A: 羽 (124)
 

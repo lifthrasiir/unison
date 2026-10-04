@@ -618,6 +618,9 @@ glyph han-47d9:15x16 15 16 // 䟙
 // glyph han-47dc:15x16 15 16 // 䟜 ⿰𧾷内(G) ⿰𧾷內(TP)
 // ⿰ han-27fb7 han-5185 // ⿰𧾷内
 
+// glyph han-47dd:15x16 15 16 // 䟝
+// ⿰ han-27fb7 han-6bb3 // ⿰𧾷殳
+
 // glyph han-47de:15x16 15 16 // 䟞
 // ⿰ han-27fb7 han-5c11 // ⿰𧾷少
 
@@ -1027,7 +1030,7 @@ glyph han-48bc:15x16 15 16 // 䢼
 // ⿱ han-5171 han-9091 // ⿱共邑
 
 glyph han-48be:15x16 15 16 // 䢾
-⿰ han-5148:7x16 1 han-961d:7x16-r // ⿰先阝
+⿰ han-5148:7x16-l 1 han-961d:7x16-r // ⿰先阝
 
 // glyph han-48bf:15x16 15 16 // 䢿
 // ⿰ han-5b89 han-961d // ⿰安阝

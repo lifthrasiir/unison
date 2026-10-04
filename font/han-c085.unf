@@ -736,7 +736,7 @@ glyph han-2af7d:15x16 15 16 // 𪽽
 // ⿰ han-7687 han-5144 // ⿰皇兄
 
 glyph han-2af83:15x16 15 16 // 𪾃
-⿰ han-767d:6x16 han-97cb:9x16 // ⿰白韋
+⿰ han-767d:6x16 han-97cb-t:9x16 // ⿰白韋
 
 # CJK unified ideographs extension C: 皮 (107)
 
@@ -819,8 +819,8 @@ glyph han-2afb2.0:* = han-2afb2:*
 glyph han-2afb2.1:15x16 15 16 // 𪾲
 ⿰ han-76ee:5x13-l 1 han-97f3.1:9x16 // ⿰目音
 
-glyph han-2afb3:15x16 15 16 // 𪾳
-⿰ han-76ee:6x16 han-97cb:9x16 // ⿰目韋
+glyph han-2afb3-($han-regions):15x16 15 16 // 𪾳
+⿰ han-76ee:6x16 han-97cb-($-1):9x16 // ⿰目韋
 
 ## 109.11
 
@@ -1109,7 +1109,7 @@ glyph han-2b064:15x16 15 16 // 𫁤
 // ⿲ han-7acb han-5f73 han-5bfa // ⿲立彳寺
 
 glyph han-2b068:15x16 15 16 // 𫁨
-⿰ han-7acb:5x16 1 han-97cb:9x16 // ⿰立韋
+⿰ han-7acb:5x16 1 han-97cb-t:9x16 // ⿰立韋
 
 ## 117.10
 

@@ -86,8 +86,13 @@ glyph han-6e46:15x16 15 16 // 湆
 // glyph han-6e49:15x16 15 16 // 湉
 // ⿲ han-6c35 han-5fc4 han-820c // ⿲氵忄舌 <- ⿰氵恬
 
-glyph han-6e4b:15x16 15 16 // 湋
-⿰ han-6c35:5x15 1 han-97cb:9x16 // ⿰氵韋
+glyph han-6e4b.0:15x16 15 16 // 湋
+⿰ han-6c35:5x15 1 han-97cb.2:9x16 // ⿰氵韋
+glyph han-6e4b.1:* = han-6e4b.0:*
+glyph han-6e4b.2:15x16 15 16 // 湋
+⿰ han-6c35:5x15 1 han-97cb.0:9x16 // ⿰氵韋
+glyph han-6e4b-(g|h|t|j|p):* = han-6e4b.0:*
+glyph han-6e4b-k:* = han-6e4b.2:*
 
 // glyph han-6e4c-($han-regions):15x16 15 16 // 湌
 // ⿰ han-6c35 han-98df-($-1) // ⿰氵食

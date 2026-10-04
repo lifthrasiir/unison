@@ -114,6 +114,9 @@ glyph han-24744:15x16 15 16 // 𤝄
 glyph han-24746:15x16 15 16 // 𤝆
 ⿰ han-72ad:6x16 han-6b20:9x16 // ⿰犭欠
 
+// glyph han-24748:15x16 15 16 // 𤝈
+// ⿰ han-72ad han-6bb3 // ⿰犭殳
+
 // glyph han-2474a:15x16 15 16 // 𤝊
 // ⿰ han-72ad han-5346 // ⿰犭卆
 
@@ -429,8 +432,8 @@ glyph han-24834:15x16 15 16 // 𤠴
 
 ## 94.11
 
-// glyph han-2483a:15x16 15 16 // 𤠺
-// ⿰ han-72ad han-7562 // ⿰犭畢
+glyph han-2483a:15x16 15 16 // 𤠺
+⿰ han-72ad:6x16 han-7562:9x16 // ⿰犭畢
 
 // glyph han-2483e:15x16 15 16 // 𤠾
 // ⿰ han-72ad han-5340 // ⿰犭區
