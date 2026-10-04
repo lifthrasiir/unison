@@ -67,6 +67,7 @@
 //! readings are relied on, so the tests below pin each one.
 
 use crate::hash::HashMap;
+use std::borrow::Cow;
 use std::fmt;
 
 pub const MAX_EXPANSION: usize = 1 << 16;
@@ -614,7 +615,7 @@ pub fn substitute_name_parts(s: &str, parts: &NamePartsMap) -> String {
     if !s.contains('$') {
         return s.to_string();
     }
-    substitute_with(s, &|var| parts.get(var).cloned())
+    substitute_with(s, &|var| parts.get(var).map(|v| Cow::Borrowed(&v[..])))
 }
 
 /// [`substitute_name_parts`] over an arbitrary binding: `lookup` answers with
@@ -622,8 +623,10 @@ pub fn substitute_name_parts(s: &str, parts: &NamePartsMap) -> String {
 ///
 /// Inline ranges (`$#a0..af`) are the syntax's own and are expanded whatever
 /// `lookup` says, which is why a caller with no bindings at all still goes
-/// through here.
-fn substitute_with(s: &str, lookup: &dyn Fn(&str) -> Option<Vec<String>>) -> String {
+/// through here. Borrowed where it can be: a name-parts list is substituted
+/// once per token that names it, and the Search pane asks that of every token
+/// in the font.
+fn substitute_with<'v>(s: &str, lookup: &dyn Fn(&str) -> Option<Cow<'v, [String]>>) -> String {
     let mut result = String::with_capacity(s.len());
     let chars: Vec<char> = s.chars().collect();
     let mut i = 0;
@@ -644,7 +647,7 @@ fn substitute_with(s: &str, lookup: &dyn Fn(&str) -> Option<Vec<String>>) -> Str
                 i = end_pos;
                 continue;
             }
-            Some((end_pos, values)) => (Some(values), end_pos),
+            Some((end_pos, values)) => (Some(Cow::Owned(values)), end_pos),
             None => {
                 let mut j = start + 1;
                 while j < chars.len()
@@ -669,17 +672,27 @@ fn substitute_with(s: &str, lookup: &dyn Fn(&str) -> Option<Vec<String>>) -> Str
             // `**N` closing the group multiplies the whole group, not just
             // these values; leave it in place for the pattern parser.
             Some((2, n)) if after_suffix >= chars.len() || chars[after_suffix] == ')' => {
-                result.push_str(&values.join("|"));
+                push_joined(&mut result, &values, "|");
                 result.push_str(&format!("**{n}"));
             }
             Some((_, n)) => {
-                result.push_str(&values.join(&format!("*{n}|")));
+                push_joined(&mut result, &values, &format!("*{n}|"));
                 result.push_str(&format!("*{n}"));
             }
-            None => result.push_str(&values.join("|")),
+            None => push_joined(&mut result, &values, "|"),
         }
     }
     result
+}
+
+/// `out.push_str(&values.join(sep))` without the intermediate string.
+fn push_joined(out: &mut String, values: &[String], sep: &str) {
+    for (i, v) in values.iter().enumerate() {
+        if i > 0 {
+            out.push_str(sep);
+        }
+        out.push_str(v);
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -733,7 +746,7 @@ pub fn capture_groups(s: &str) -> Vec<Vec<String>> {
 
 /// The values `$-N` stands for, or `None` when `var` is not a back-reference
 /// or names a group the pattern does not have.
-fn capture_value(var: &str, groups: &[Vec<String>]) -> Option<Vec<String>> {
+fn capture_value<'g>(var: &str, groups: &'g [Vec<String>]) -> Option<Cow<'g, [String]>> {
     let digits = var.strip_prefix("$-")?;
     if digits.is_empty() || !digits.bytes().all(|b| b.is_ascii_digit()) {
         return None;
@@ -743,7 +756,7 @@ fn capture_value(var: &str, groups: &[Vec<String>]) -> Option<Vec<String>> {
     if group.is_empty() {
         return None;
     }
-    Some(group.clone())
+    Some(Cow::Borrowed(group))
 }
 
 /// Whether `s` writes a `$-N` back-reference at all.
@@ -793,7 +806,7 @@ pub fn substitute_name_parts_and_captures(
         return s.to_string();
     }
     substitute_with(s, &|var| {
-        capture_value(var, groups).or_else(|| parts.get(var).cloned())
+        capture_value(var, groups).or_else(|| parts.get(var).map(|v| Cow::Borrowed(&v[..])))
     })
 }
 

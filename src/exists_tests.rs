@@ -847,6 +847,47 @@ fn a_repeated_slot_is_read_from_its_first_appearance() {
     );
 }
 
+/// The multi-alias halves are answered without a regex; the answer has to be
+/// the one the regex gives, and anything else has to be left to the regex.
+#[test]
+fn a_multi_alias_half_denotes_what_its_regex_does() {
+    let regex = |pattern: &str, template: &str, name: &str| {
+        template_regex(pattern, template).map(|(re, _)| re.is_match(name))
+    };
+    let search = crate::alias::multi_alias_search("han-5f74-g:");
+    for (template, taken) in [
+        ("($0)", true),
+        ("han-5f74.0:($1)", true),
+        // A name prefix that is a pattern is expanded by the regex.
+        ("han-5f74.(0|1):($1)", false),
+        ("x-($1)-y", false),
+    ] {
+        assert_eq!(
+            multi_alias_denotes(&search, template, "han-5f74.0:15x16").is_some(),
+            taken,
+            "{template}"
+        );
+        for name in [
+            "han-5f74-g:15x16",
+            "han-5f74-g:",
+            "han-5f74-k:15x16",
+            "han-5f74.0:15x16",
+            "han-5f74.1:15x16",
+            "han-5f74.0:",
+            "han-5f74.0",
+        ] {
+            assert_eq!(
+                template_denotes(&search, template, name),
+                regex(&search, template, name),
+                "{template} {name}"
+            );
+        }
+    }
+    // A search line that only looks like a multi-alias's is not one.
+    assert_eq!(multi_alias_denotes("han-.(.*)", "($0)", "han-xy"), None);
+    assert_eq!(multi_alias_denotes("han(.*)(.*)", "($0)", "han"), None);
+}
+
 #[test]
 fn a_pattern_that_is_not_a_pattern_denotes_nothing() {
     assert_eq!(template_denotes("han-(", "han-($1)", "han-4e00"), None);

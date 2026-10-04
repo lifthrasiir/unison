@@ -214,3 +214,55 @@ fn report(frames: &[(String, Duration)]) {
             .count(),
     );
 }
+
+/// The cost of one Ctrl/Cmd+click search over the whole of `font/`, as the UI
+/// thread pays it, for a few names that stress different filters: a name
+/// written in full almost everywhere, a hangul part mostly reached through
+/// patterns, and a verbatim text search.
+///
+/// ```sh
+/// cargo test -r search_profile -- --ignored --nocapture
+/// ```
+#[test]
+#[ignore]
+fn search_profile() {
+    crate::editor::harness::SKIP_SNAPSHOT.set(true);
+    let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("font");
+    let ctx = egui::Context::default();
+    let mut app = UniformApp::with_settings(&ctx, Settings::default(), Some(dir.clone()));
+    app.open_file(dir.join(FILE));
+    let deadline = Instant::now() + Duration::from_secs(120);
+    while !settled(&app) {
+        assert!(Instant::now() < deadline, "the first build never landed");
+        let _ = ctx.run(egui::RawInput::default(), |ctx| app.frame(ctx));
+        std::thread::sleep(Duration::from_millis(50));
+    }
+    let queries = [
+        (search::SearchKind::Name(LinkTargetKind::Glyph), "ca-dot"),
+        (
+            search::SearchKind::Name(LinkTargetKind::Glyph),
+            "han-5408:15x16",
+        ),
+        (search::SearchKind::Name(LinkTargetKind::Glyph), "hangul-g"),
+        (search::SearchKind::Text, "ca-dot"),
+    ];
+    for (kind, query) in queries {
+        let mut times = Vec::new();
+        for _ in 0..5 {
+            app.search.kind = kind;
+            app.search.query = query.to_string();
+            let started = Instant::now();
+            app.run_search(&ctx);
+            times.push(started.elapsed());
+        }
+        times.sort();
+        eprintln!(
+            "{:<8} {:<20} hits={:>5} min={:>8.2}ms median={:>8.2}ms",
+            kind.label(),
+            query,
+            app.search.hits().len(),
+            times[0].as_secs_f64() * 1000.0,
+            times[2].as_secs_f64() * 1000.0,
+        );
+    }
+}

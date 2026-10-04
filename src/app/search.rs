@@ -711,6 +711,11 @@ fn may_match(content: &str, query: &str, kind: SearchKind) -> bool {
 /// See [`super::docs::FontSource`] for where the text of an unopened file comes
 /// from and how it stays current.
 ///
+/// It is on the UI thread all the same, so it is kept to a frame or two: files
+/// are searched on every core, and a glyph-name search parses almost no
+/// patterns ([`pattern_denotes`]). Over `font/` the two took a click from
+/// 500 ms to 16 ms on the Mac; `frame_profile::search_profile` measures it.
+///
 /// **Declarations come first.** What a search is usually read for is where the
 /// thing *is*, and a glyph used a hundred times would otherwise bury its own
 /// `glyph` line somewhere in the middle of the list. The two groups are then in
@@ -725,54 +730,71 @@ pub(super) fn collect_hits(
     kind: SearchKind,
     name_parts: &SliceNameParts,
 ) -> (Vec<SearchHit>, usize) {
+    // One file per item, on every core: a file is the unit the ordinal counts
+    // in, so files are independent, and `map_indexed` hands them back in the
+    // order they were given.
+    let per_file =
+        crate::parallel::map_indexed(files.len(), &crate::cancel::CancelToken::never(), |i| {
+            let (path, text) = &files[i];
+            hits_in_file(path, text, query, kind, name_parts)
+        });
     let mut hits: Vec<SearchHit> = Vec::new();
     let mut file_count = 0usize;
-    for (path, text) in files {
-        let before = hits.len();
-        match text {
-            SearchText::Buffer(lines, doc) => {
-                for (ordinal, (line_idx, span)) in hits_in_doclines(lines, query, kind, name_parts)
-                    .into_iter()
-                    .enumerate()
-                {
-                    hits.push(hit(
-                        path,
-                        ordinal,
-                        doc.docline_file_line(line_idx),
-                        lines[line_idx].as_text().unwrap_or_default(),
-                        span,
-                    ));
-                }
-            }
-            SearchText::Source(content) if may_match(content, query, kind) => {
-                // Enumerated over occurrences, not over lines: a line naming
-                // the same glyph twice is two rows, and the ordinal has to
-                // agree with `hits_in_doclines` once the file opens. The walk
-                // skips the same pixel rows that walk does, for the same
-                // reason — see the module note.
-                let mut carry = LineCarry::default();
-                let mut found: Vec<(usize, &str, MatchSpan)> = Vec::new();
-                crate::document_io::walk_source_lines(content, |file_line, unit| {
-                    let SourceLine::Text(text) = unit else { return };
-                    found.extend(
-                        carry
-                            .step(text, query, kind, name_parts)
-                            .into_iter()
-                            .map(|s| (file_line, text, s)),
-                    );
-                });
-                for (ordinal, (file_line, text, span)) in found.into_iter().enumerate() {
-                    hits.push(hit(path, ordinal, file_line, text, span));
-                }
-            }
-            SearchText::Source(_) => {}
-        }
-        if hits.len() > before {
-            file_count += 1;
-        }
+    for file_hits in per_file.into_iter().flatten() {
+        file_count += usize::from(!file_hits.is_empty());
+        hits.extend(file_hits);
     }
     hits.sort_by_key(|h| !h.is_decl);
     (hits, file_count)
+}
+
+/// One file's share of [`collect_hits`], in source order.
+fn hits_in_file(
+    path: &std::path::Path,
+    text: &SearchText<'_>,
+    query: &str,
+    kind: SearchKind,
+    name_parts: &SliceNameParts,
+) -> Vec<SearchHit> {
+    match text {
+        SearchText::Buffer(lines, doc) => hits_in_doclines(lines, query, kind, name_parts)
+            .into_iter()
+            .enumerate()
+            .map(|(ordinal, (line_idx, span))| {
+                hit(
+                    path,
+                    ordinal,
+                    doc.docline_file_line(line_idx),
+                    lines[line_idx].as_text().unwrap_or_default(),
+                    span,
+                )
+            })
+            .collect(),
+        SearchText::Source(content) if may_match(content, query, kind) => {
+            // Enumerated over occurrences, not over lines: a line naming the
+            // same glyph twice is two rows, and the ordinal has to agree with
+            // `hits_in_doclines` once the file opens. The walk skips the same
+            // pixel rows that walk does, for the same reason — see the module
+            // note.
+            let mut carry = LineCarry::default();
+            let mut found: Vec<(usize, &str, MatchSpan)> = Vec::new();
+            crate::document_io::walk_source_lines(content, |file_line, unit| {
+                let SourceLine::Text(text) = unit else { return };
+                found.extend(
+                    carry
+                        .step(text, query, kind, name_parts)
+                        .into_iter()
+                        .map(|s| (file_line, text, s)),
+                );
+            });
+            found
+                .into_iter()
+                .enumerate()
+                .map(|(ordinal, (file_line, text, span))| hit(path, ordinal, file_line, text, span))
+                .collect()
+        }
+        SearchText::Source(_) => Vec::new(),
+    }
 }
 
 /// Which of the file's occurrences the row a click landed on was listed for,

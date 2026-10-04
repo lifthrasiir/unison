@@ -3,12 +3,13 @@
 //!
 //! The picture is taken from the *font*, not from the source: the project is
 //! built exactly as the demo page builds it (one variable font carrying both
-//! drawings on the `BMAP` axis, [`build_face_variable`]), the items are shaped
-//! with the same rustybuzz call `assert shape` uses, and each one is drawn at
-//! both ends of the axis. So what the picture shows is what ships — composites
-//! resolved, sub-pixel shapes traced, `remap`/anchors applied for text — and a
-//! bug anywhere on the way is visible in it, which a renderer of the grid alone
-//! would hide.
+//! drawings on the `BMAP` axis,
+//! [`build_face_variable`](crate::render::ttf_builder::build_face_variable)),
+//! the items are shaped with the same rustybuzz call `assert shape` uses, and
+//! each one is drawn at both ends of the axis. So what the picture shows is
+//! what ships — composites resolved, sub-pixel shapes traced, `remap`/anchors
+//! applied for text — and a bug anywhere on the way is visible in it, which a
+//! renderer of the grid alone would hide.
 //!
 //! Every row of the PNG is one item, in three panels: the vector build, the
 //! bitmap build, and the two laid over each other (bitmap ink pale, vector ink

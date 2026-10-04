@@ -1160,8 +1160,48 @@ fn multi_alias_search_on_line(line: &str) -> Option<String> {
 /// pattern, or a `$N` past the groups it has.
 #[cfg_attr(all(not(feature = "editor"), not(test)), expect(dead_code))]
 pub fn template_denotes(pattern: &str, template: &str, name: &str) -> Option<bool> {
+    if let Some(answer) = multi_alias_denotes(pattern, template, name) {
+        return Some(answer);
+    }
     let (re, _) = template_regex(pattern, template)?;
     Some(re.is_match(name))
+}
+
+/// [`template_denotes`] for the two halves of a multi-alias with plain
+/// prefixes, `NAME($1)` and `($0)` under `TARGET(.*)`, answered without a
+/// regex: both are a prefix and then any name at all.
+///
+/// The same shortcut [`ExistsPattern::multi_alias`] takes, for the same
+/// reason. A font writes thousands of multi-aliases and each is a search of its
+/// own, so a Search pane click compiled a regex per alias line — 6011 of them
+/// over `font/`, most of what the click cost. `None` for anything else, which
+/// the regex answers.
+fn multi_alias_denotes(pattern: &str, template: &str, name: &str) -> Option<bool> {
+    let target = pattern.strip_suffix("(.*)")?;
+    // Undo `regex::escape`, then make sure that is what it was: anything a
+    // search line wrote itself takes the general route.
+    let mut unescaped = String::with_capacity(target.len());
+    let mut chars = target.chars();
+    while let Some(c) = chars.next() {
+        let c = if c == '\\' { chars.next()? } else { c };
+        if !crate::pattern::is_glyph_name_char(c) {
+            return None;
+        }
+        unescaped.push(c);
+    }
+    if crate::alias::multi_alias_search(&unescaped) != pattern {
+        return None;
+    }
+    let prefix = match template {
+        "($0)" => unescaped.as_str(),
+        _ => template
+            .strip_suffix("($1)")
+            .filter(|p| p.chars().all(crate::pattern::is_glyph_name_char))?,
+    };
+    Some(
+        name.strip_prefix(prefix)
+            .is_some_and(|rest| !rest.contains('\n')),
+    )
 }
 
 /// The `$N` slots the header `template` under `exists pattern` binds where it

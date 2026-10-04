@@ -60,26 +60,80 @@ pub fn pattern_denotes(
         }
         None => token,
     };
-    if let Some(pattern) = exists.filter(|_| crate::exists::mentions_capture(token)) {
-        // Name parts and back-references first: a scoped header writes both
-        // kinds of `$` — `glyph han-5b50-($han-regions):($1)` — and only the
-        // slot is the search's. What is left around it is still a pattern,
-        // which [`crate::exists::template_denotes`] expands for itself.
-        let substituted =
-            crate::pattern::substitute_name_parts_and_captures(token, parts, captures);
-        return crate::exists::template_denotes(pattern, &substituted, name).unwrap_or(false);
+    // Name parts and back-references first: a scoped header writes both
+    // kinds of `$` — `glyph han-5b50-($han-regions):($1)` — and only the
+    // slot is the search's. What is left around it is still a pattern,
+    // which [`crate::exists::template_denotes`] expands for itself.
+    let scoped = exists.filter(|_| crate::exists::mentions_capture(token));
+    if let Some(answer) = decided_unparsed(token, name, scoped.is_some(), captures) {
+        return answer;
     }
     let substituted = crate::pattern::substitute_name_parts_and_captures(token, parts, captures);
+    denotes_substituted(&substituted, is_def, name, scoped)
+}
+
+/// The answer for a token whose shape alone decides it, before anything is
+/// substituted or parsed. Both cases are what [`NamePattern::matches`] and the
+/// template regex conclude anyway, only without building the pattern first —
+/// which matters because a `$-N` can stand for a whole Unicode block:
+/// `map han-cn : U+($#4e00..9fff|…) = han-($-1) han-($-1)-g …` substitutes
+/// tens of thousands of alternatives into every operand, and parsing those made
+/// that one 443-line file the longest part of a Search pane click.
+///
+/// - **The frame.** The text before the first `(` and after the last `)` is
+///   literal when it writes no `$`, `|` or `*`, so a name that does not begin
+///   and end with it is denoted by no expansion, under no grammar and no search.
+/// - **One back-reference.** `HEAD($-N)TAIL` is one group, and a one-group
+///   pattern denotes exactly its frame around each of its alternatives.
+///
+/// `None` for everything else, which is substituted and parsed.
+fn decided_unparsed(
+    token: &str,
+    name: &str,
+    scoped: bool,
+    captures: &[Vec<String>],
+) -> Option<bool> {
+    let open = token.find('(')?;
+    let close = token.rfind(')')?;
+    let (head, tail) = (&token[..open], &token[close + 1..]);
+    if head.contains(['$', '|', '*']) || tail.contains(['$', '|', '*']) || close < open {
+        return None;
+    }
+    let Some(middle) = name
+        .strip_prefix(head)
+        .and_then(|rest| rest.strip_suffix(tail))
+    else {
+        return Some(false);
+    };
+    let group = &token[open..=close];
+    let n: usize = group
+        .strip_prefix("($-")?
+        .strip_suffix(')')
+        .filter(|d| !d.is_empty() && d.bytes().all(|b| b.is_ascii_digit()))?
+        .parse()
+        .ok()?;
+    // An empty or missing group is left verbatim by the substitution, which
+    // is the general path's to read.
+    let values = captures.get(n.checked_sub(1)?).filter(|v| !v.is_empty())?;
+    (!scoped).then(|| values.iter().any(|v| v == middle))
+}
+
+/// The expensive half of [`pattern_denotes`]: the substituted token parsed, or
+/// under a search, compiled into a regex.
+fn denotes_substituted(substituted: &str, is_def: bool, name: &str, scoped: Option<&str>) -> bool {
+    if let Some(pattern) = scoped {
+        return crate::exists::template_denotes(pattern, substituted, name).unwrap_or(false);
+    }
     if substituted == name {
         return true;
     }
-    if !crate::document::is_name_pattern(&substituted) {
+    if !crate::document::is_name_pattern(substituted) {
         return false;
     }
     let parsed = if is_def {
-        NamePattern::parse(&substituted)
+        NamePattern::parse(substituted)
     } else {
-        NamePattern::parse_element(&substituted)
+        NamePattern::parse_element(substituted)
     };
     parsed.is_ok_and(|p| p.matches(name))
 }
@@ -1617,5 +1671,103 @@ mod comment_link_tests {
         // one: `a.` names nothing and links nowhere.
         assert!(links("// see a.", &["a"]).is_empty());
         assert_eq!(links("// see num.1", &["num.1"]).len(), 1);
+    }
+}
+
+/// The shortcuts in front of the pattern parse decide only what the parse
+/// would, and step aside wherever they cannot.
+#[cfg(test)]
+mod denotes_tests {
+    use super::*;
+
+    /// The answer with every shortcut bypassed.
+    fn parsed(
+        token: &str,
+        is_def: bool,
+        name: &str,
+        scoped: Option<&str>,
+        captures: &[Vec<String>],
+    ) -> bool {
+        let substituted = crate::pattern::substitute_name_parts_and_captures(
+            token,
+            &NamePartsMap::default(),
+            captures,
+        );
+        denotes_substituted(&substituted, is_def, name, scoped)
+    }
+
+    #[test]
+    fn a_shortcut_agrees_with_the_parse() {
+        let captures = vec![vec!["4e00".to_string(), "4e01".to_string()], Vec::new()];
+        let tokens = [
+            "han-($-1)",
+            "han-($-1)-g",
+            "($-1)",
+            "x-($-2)",
+            "x-($-3)",
+            "han-($-1|5000)",
+            "han-($-1*2)",
+            "fo(o|q)",
+            "(a|b)-(1|2)",
+            "a|han-(4e00)",
+            "han-(4e00)|b",
+        ];
+        let names = [
+            "han-4e00",
+            "han-4e01",
+            "han-4e00-g",
+            "han-5000",
+            "4e00",
+            "foo",
+            "a-1",
+            "a-2",
+            "b",
+            "x-",
+            "han-",
+            "a",
+        ];
+        let mut decided = 0;
+        for token in tokens {
+            for is_def in [false, true] {
+                for name in names {
+                    let Some(answer) = decided_unparsed(token, name, false, &captures) else {
+                        continue;
+                    };
+                    decided += 1;
+                    assert_eq!(
+                        answer,
+                        parsed(token, is_def, name, None, &captures),
+                        "{token} {name} def={is_def}"
+                    );
+                }
+            }
+        }
+        assert!(decided > 0);
+        // Not decided: a frame that writes pattern syntax, an empty group, and
+        // a back-reference under a search.
+        assert_eq!(
+            decided_unparsed("a|han-(4e00)", "a", false, &captures),
+            None
+        );
+        assert_eq!(decided_unparsed("x-($-2)", "x-", false, &captures), None);
+        assert_eq!(
+            decided_unparsed("han-($-1)", "han-4e00", true, &captures),
+            None
+        );
+        // The frame alone still rejects under a search, as the regex does.
+        let search = "han-([0-9a-f]{4}):15x16";
+        assert_eq!(
+            decided_unparsed("kana-($1)", "han-4e00", true, &[]),
+            Some(false)
+        );
+        assert!(!parsed("kana-($1)", true, "han-4e00", Some(search), &[]));
+        assert!(pattern_denotes(
+            "han-($1)",
+            true,
+            "han-4e00",
+            &NamePartsMap::default(),
+            Some(search),
+            &[]
+        ));
     }
 }

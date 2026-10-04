@@ -214,6 +214,7 @@ this table. The user-facing documentation is `reference.md` (the `.unf` format a
 | Go back / go forward; where a jump leaves its target and why going back restores a page | `app/history.rs` (`NavLoc::view_offset`), `editor/mod.rs` (`ScrollIntent`) |
 | `ref … goto`: a jump carried on to the drawing, why one gesture leaves two history entries, and why the redirect is read off the source rather than the resolve | `app/goto_redirect.rs` (`follow_goto_chain`, `goto_redirect`, `redirect_at_declaration`), `app/mod.rs` (`record_nav_chain`), `exists.rs` (`template_captures`), `document/glyph.rs` (`GlyphRef::goto`) |
 | The Search pane; why a search lists a name written as a pattern; why a click reads no files | `app/search.rs` (`pattern_denotes`, `may_write_a_pattern`), `app/docs.rs` (`FontSource`) |
+| What keeps a Search pane click within a frame or two: files on every core, and the patterns it decides without parsing them | `app/search.rs` (`collect_hits`), `editor/doc_links.rs` (`decided_unparsed`), `exists.rs` (`multi_alias_denotes`) |
 | What a search kind is and what adding one costs; the Ctrl/Cmd+F cycle and why the box's focus is recorded | `app/search.rs` (`SearchKind`, `SearchState`, `focus_search_box`) |
 | The Search pane's Issues and Changes lists: why file order, why Ctrl/Cmd+G steps from the caret, what one change stop is | `app/search_lists.rs`, `editor/change_marks.rs` (`hunks`, `HUNK_GAP`) |
 | A menu entry as a value, what adding one costs, and why a command requests rather than performs | `app/commands.rs` (`Command`, `CommandCx`) |
