@@ -328,8 +328,8 @@ glyph han-282c0-($han-regions):15x16 15 16 // 𨋀
 glyph han-282c2:15x16 15 16 // 𨋂
 assume ⿰ han-8eca:7x16 -1 han-5206.0:9x16 // ⿰車分
 
-// glyph han-282c5:15x16 15 16 // 𨋅
-// ⿱ han-6bd4 han-8eca // ⿱比車
+glyph han-282c5:15x16 15 16 // 𨋅
+⿱ han-6bd4-g:15x4 1 han-8eca:15x11 // ⿱比車
 
 // glyph han-282c8:15x16 15 16 // 𨋈
 // ⿱ han-8eca han-6c34 // ⿱車水

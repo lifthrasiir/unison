@@ -1515,6 +1515,9 @@ glyph han-75e1.0:* = han-75e1:*
 // glyph han-75e3:15x16 15 16 // 痣
 // ⿸ han-7592 han-5fd7 // ⿸疒志
 
+// glyph han-75e4:15x16 15 16 // 痤
+// ⿸ han-7592 han-5750 // ⿸疒坐
+
 // glyph han-75eb:15x16 15 16 // 痫
 // ⿸ han-7592 han-95f2 // ⿸疒闲
 
@@ -3463,6 +3466,9 @@ glyph han-7748-(t|j):15x16 15 16 // 睈
 ⿰ han-76ee:4x13-l han-5448.1:11x16 // ⿰目呈
 glyph han-7748-p:15x16 15 16 // 睈
 ⿰ han-76ee:4x13-l han-5448.3:11x16 // ⿰目呈
+
+// glyph han-7749:15x16 15 16 // 睉
+// ⿰ han-76ee han-5750 // ⿰目坐
 
 glyph han-774d:15x16 15 16 // 睍
 ⿰ han-76ee:5x13-l han-898b:10x16 // ⿰目見

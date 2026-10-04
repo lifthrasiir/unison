@@ -762,6 +762,9 @@ glyph han-92b7-(g|h|t):* = han-92b7.2:*
 // glyph han-92ba:15x16 15 16 // 銺
 // ⿱ han-58ef han-91d1 // ⿱壯金
 
+// glyph han-92bc:15x16 15 16 // 銼
+// ⿰ han-91d2 han-5750 // ⿰釒坐
+
 // glyph han-92be:15x16 15 16 // 銾
 // ⿰ han-91d2 han-6c5e // ⿰釒汞
 
@@ -1645,6 +1648,9 @@ glyph han-9504:15x16 15 16 // 锄
 
 glyph han-9506:15x16 15 16 // 锆
 ⿰ han-9485:6x14 1 han-544a:8x16 // ⿰钅告
+
+// glyph han-9509:15x16 15 16 // 锉
+// ⿰ han-9485 han-5750 // ⿰钅坐
 
 glyph han-950c:15x16 15 16 // 锌
 ⿰ han-9485:6x14 han-8f9b:9x16 // ⿰钅辛

@@ -107,6 +107,9 @@ glyph han-3b62:15x16 15 16 // 㭢
 glyph han-3b6a:15x16 15 16 // 㭪
 ⿰ han-6728:5x16 1 han-752b:9x16 // ⿰木甫
 
+// glyph han-3b6b:15x16 15 16 // 㭫
+// ⿰ han-6728 han-5750 // ⿰木坐
+
 // glyph han-3b6d:15x16 15 16 // 㭭 ⿰木别(G) ⿰木別(TJP)
 // ⿲ han-6728 han-53e6 han-5202 // ⿲木另刂
 

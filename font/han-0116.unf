@@ -141,8 +141,9 @@ glyph han-7a7c-(g|j|p):15x16 15 16 // 穼
 glyph han-7a7c-(t):15x16 15 16 // 穼
 ⿱ han-7a74.0-or-7a74.2-($-1):15x7 -1 han-6729:15x10 // ⿱穴朩
 
-// glyph han-7a7d:15x16 15 16 // 穽 ⿱穴井(G) ⿱⿱宀儿井(HTJKP)
-// ⿳ han-5b80 han-513f han-4e95 // ⿳宀儿井
+glyph han-7a7d-($han-regions):15x16 15 16 // 穽
+⿱ han-7a74.0-or-7a74.2-($-1):15x7 han-4e95:15x9 // ⿱穴井
+glyph han-7a7d.0:* = han-7a7d-j:*
 
 // glyph han-7a7e-($han-regions):15x16 15 16 // 穾 ⿱穴夭(G) ⿱⿱宀儿夭(HTJKP)
 // ⿱ han-7a74-($-1) han-592d // ⿱穴夭

@@ -20,8 +20,8 @@ glyph han-21b21:15x16 15 16 // 𡬡
 glyph han-21b24:15x16 15 16 // 𡬤
 ⿰ han-7533:7x16 1 han-5bf8:7x16 // ⿰申寸
 
-// glyph han-21b25:15x16 15 16 // 𡬥
-// ⿰ han-2d060 han-5bf8 // ⿰𭁠寸
+glyph han-21b25:15x16 15 16 // 𡬥
+⿰ han-2d060:9x16 han-5bf8:6x16 // ⿰𭁠寸
 
 glyph han-21b26:15x16 15 16 // 𡬦
 ⿳ han-516b-g:15x6 han-5de5:15x4 han-5bf8:15x6 // ⿳八工寸
@@ -428,6 +428,9 @@ glyph han-21bc2-($han-regions):15x16 15 16 // 𡯂
 // ⿺ han-5c22 han-6735 // ⿺尢朵
 
 ## 43.7
+
+// glyph han-21be8:15x16 15 16 // 𡯨
+// ⿺ han-5c22 han-5750 // ⿺尢坐
 
 // glyph han-21be9-($han-regions):15x16 15 16 // 𡯩
 // ⿺ han-5c22 han-8096-($-1) // ⿺尢肖

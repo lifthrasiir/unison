@@ -807,6 +807,9 @@ glyph han-40b0:15x16 15 16 // 䂰
 // glyph han-40b2:15x16 15 16 // 䂲
 // ⿱ han-52ab han-77f3 // ⿱劫石
 
+// glyph han-40b3:15x16 15 16 // 䂳
+// ⿰ han-77f3 han-5750 // ⿰石坐
+
 glyph han-40b4-($han-regions):15x16 15 16 // 䂴
 ⿰ han-77f3:8x16 han-8a00-($-1):7x16 // ⿰石言
 

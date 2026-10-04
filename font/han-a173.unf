@@ -5,8 +5,8 @@
 glyph han-4a0c:15x16 15 16 // 䨌
 ⿱ han-96e8:15x7 1 han-5143:15x8 // ⿱雨元
 
-// glyph han-4a0d-($han-regions):15x16 15 16 // 䨍
-// ⿱ han-96e8-($-1) han-4e95 // ⿱雨井
+glyph han-4a0d:15x16 15 16 // 䨍
+⿱ han-96e8:15x7 han-4e95:15x9 // ⿱雨井
 
 ## 173.5
 

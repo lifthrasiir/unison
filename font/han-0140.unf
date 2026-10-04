@@ -930,6 +930,9 @@ glyph han-8398.0:* = han-8398-g:*
 glyph han-8398.1:* = han-8398-g:*
 glyph han-8398.2:* = han-8398-h:*
 
+// glyph han-839d-($han-regions):15x16 15 16 // 莝
+// ⿱ han-8279-($-1) han-5750 // ⿱艹坐
+
 glyph han-839e-($han-regions):15x16 15 16 // 莞
 ⿳ han-8279-($-1):15x3 han-5b80:15x5 -1 han-5143:15x9 // ⿳艹宀元
 glyph han-839e.0:* = han-839e-g:*

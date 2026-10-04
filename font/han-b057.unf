@@ -254,6 +254,9 @@ glyph han-223e7-($han-regions):15x16 15 16 // 𢏧
 // glyph han-223ea:15x16 15 16 // 𢏪
 // ⿱ han-6276 han-5f13 // ⿱扶弓
 
+// glyph han-223ec:15x16 15 16 // 𢏬
+// ⿰ han-5f13 han-5750 // ⿰弓坐
+
 ## 57.8
 
 glyph han-223f3-(g|t):15x16 15 16 // 𢏳
@@ -426,6 +429,9 @@ glyph han-22451:15x16 15 16 // 𢑑
 
 // glyph han-2248f:15x16 15 16 // 𢒏
 // ⿰ han-5f61 han-752b // ⿰彡甫
+
+// glyph han-22490:15x16 15 16 // 𢒐
+// ⿰ han-5750 han-5f61 // ⿰坐彡
 
 ## 59.8
 

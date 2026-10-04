@@ -308,8 +308,8 @@ glyph han-2395c:15x16 15 16 // 𣥜
 glyph han-2395e:15x16 15 16 // 𣥞
 ⿰ han-6b62:6x16-l han-4e95:9x16 // ⿰止井
 
-// glyph han-2395f:15x16 15 16 // 𣥟
-// ⿱ han-6b62 han-4e95 // ⿱止井
+glyph han-2395f:15x16 15 16 // 𣥟
+⿱ han-6b62:15x7 han-4e95:15x9 // ⿱止井
 
 glyph han-23960:15x16 15 16 // 𣥠
 ⿰ han-3193b:7x16 1 han-6b62:7x16 // ⿰𱤻止

@@ -65,6 +65,9 @@ glyph han-20ffb:15x16 15 16 // 𠿻
 glyph han-21011:15x16 15 16 // 𡀑
 ⿲ -1 han-53e3:3x12 1 han-8eca:5x16 han-821f:7x16 // ⿲口車舟
 
+// glyph han-21013:15x16 15 16 // 𡀓
+// ⿱ han-20c60 han-5750 // ⿱𠱠坐
+
 glyph han-21014:15x16 15 16 // 𡀔
 ⿲ han-53e3:3x12 1 han-27fb7:4x14 han-5404:7x16 // ⿲口𧾷各
 

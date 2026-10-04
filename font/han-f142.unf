@@ -228,6 +228,9 @@ glyph han-2e57f:15x16 15 16 // 𮕿
 // glyph han-2e588:15x16 15 16 // 𮖈
 // ⿱ han-91c6 han-8863 // ⿱釆衣
 
+// glyph han-2e589-($han-regions):15x16 15 16 // 𮖉
+// ⿰ han-8864-($-1) han-5750 // ⿰衤坐
+
 ## 145.8
 
 // glyph han-2e590:15x16 15 16 // 𮖐
@@ -826,8 +829,8 @@ glyph han-2e741:15x16 15 16 // 𮝁
 // glyph han-2e742:15x16 15 16 // 𮝂
 // ⿰ han-8eca han-204dd // ⿰車𠓝
 
-// glyph han-2e743:15x16 15 16 // 𮝃
-// ⿱ han-706b han-8eca // ⿱火車
+glyph han-2e743:15x16 15 16 // 𮝃
+⿱ han-706b:15x5 han-8eca:15x11 // ⿱火車
 
 // glyph han-2e744:15x16 15 16 // 𮝄
 // ⿰ han-8eca han-516d // ⿰車六
@@ -843,8 +846,8 @@ glyph han-2e746:15x16 15 16 // 𮝆
 // glyph han-2e748:15x16 15 16 // 𮝈
 // ⿱ han-592e han-8eca // ⿱央車
 
-// glyph han-2e74b:15x16 15 16 // 𮝋
-// ⿱ han-52a0 han-8eca // ⿱加車
+glyph han-2e74b:15x16 15 16 // 𮝋
+⿱ han-52a0:15x5 han-8eca:15x11 // ⿱加車
 
 glyph han-2e74c:15x16 15 16 // 𮝌
 ⿰ han-8eca:5x16 1 han-76ae:9x16 // ⿰車皮
@@ -931,16 +934,18 @@ glyph han-2e781:15x16 15 16 // 𮞁
 
 ## 162.4
 
-// glyph han-2e784-($han-regions):15x16 15 16 // 𮞄
-// ⿺ han-8fb6-($-1) han-20b9b // ⿺辶𠮛
+glyph han-2e784:15x16 15 16 // 𮞄
+⿺ han-8fb6-j:15x16.11x14 han-20b9b:10x13 5 0 // ⿺辶𠮛
 
 ## 162.5
 
 // glyph han-2e788:15x16 15 16 // 𮞈
 // ⿺ han-8fb6 han-5144 // ⿺辶兄
 
-// glyph han-2e789-($han-regions):15x16 15 16 // 𮞉
-// ⿺ han-8fb6-($-1) han-56d8 // ⿺辶囘
+glyph han-2e789-($han-regions):15x16 15 16 // 𮞉
+⿺ han-8fb6-($-1):15x16.11x14 han-56d8:10x13 5 0 // ⿺辶囘
+glyph han-2e789.0:* = han-2e789-j:*
+glyph han-2e789.1:* = han-2e789-g:*
 
 // glyph han-2e78a-($han-regions):15x16 15 16 // 𮞊
 // ⿺ han-8fb6-($-1) han-4ee4-($-1) // ⿺辶令
@@ -1036,8 +1041,8 @@ glyph han-2e7ac:15x16 15 16 // 𮞬
 
 ## 163.5
 
-// glyph han-2e7ef:15x16 15 16 // 𮟯
-// ⿰ han-2d060 han-961d // ⿰𭁠阝
+glyph han-2e7ef:15x16 15 16 // 𮟯
+⿰ han-2d060:9x16 1 han-961d:5x16-r // ⿰𭁠阝
 
 glyph han-2e7f0:15x16 15 16 // 𮟰
 ⿰ han-518a:9x16 1 han-961d:5x16-r // ⿰冊阝
@@ -1058,6 +1063,9 @@ glyph han-2e7f3:15x16 15 16 // 𮟳
 
 // glyph han-2e7f7:15x16 15 16 // 𮟷
 // ⿰ han-4e98 han-961d // ⿰亘阝
+
+// glyph han-2e7f8:15x16 15 16 // 𮟸
+// ⿰ han-518d han-961d // ⿰再阝
 
 // glyph han-2e7f9:15x16 15 16 // 𮟹
 // ⿱ han-5405 han-9091 // ⿱吅邑

@@ -455,8 +455,8 @@ glyph han-6c6b:15x16 15 16 // 汫
 ⿰ han-6c35:5x15 1 han-4e95:9x16 // ⿰氵井
 glyph han-6c6b.0:* = han-6c6b:*
 
-// glyph han-6c6c:15x16 15 16 // 汬
-// ⿱ han-4e95 han-6c34 // ⿱井水
+glyph han-6c6c:15x16 15 16 // 汬
+assume ⿱ han-4e95:15x9 -1 han-6c34:15x8 // ⿱井水
 
 glyph han-6c6d:15x16 15 16 // 汭 ⿰氵内(G) ⿰氵內(HTJKP)
 ⿰ han-6c35:3x12 1 han-5185:11x16 // ⿰氵内
@@ -917,6 +917,9 @@ glyph han-6d01.2:15x16 15 16 // 洁
 glyph han-6d04:15x16 15 16 // 洄
 ⿰ han-6c35:5x15 1 han-56de:9x16 // ⿰氵回
 glyph han-6d04.0:* = han-6d04:*
+
+// glyph han-6d05:15x16 15 16 // 洅
+// ⿰ han-6c35 han-518d // ⿰氵再
 
 // glyph han-6d06:15x16 15 16 // 洆
 // ⿰ han-6c35 han-4e1e // ⿰氵丞

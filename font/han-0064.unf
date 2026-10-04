@@ -809,6 +809,9 @@ glyph han-6327-g:* = han-6327.2:*
 
 ## 64.7
 
+// glyph han-632b:15x16 15 16 // 挫
+// ⿰ han-624c han-5750 // ⿰扌坐
+
 glyph han-6330-(g|v):15x16 15 16 // 挰
 assume ⿰ han-624c:5x16 -1 han-5448.0:11x16 // ⿰扌呈
 glyph han-6330-(t|j|k):15x16 15 16 // 挰

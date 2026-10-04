@@ -605,8 +605,8 @@ glyph han-24647:15x16 15 16 // 𤙇
 glyph han-24648:15x16 15 16 // 𤙈
 ⿰ han-725c:6x16 han-5931:9x16 // ⿰牜失
 
-// glyph han-24649:15x16 15 16 // 𤙉
-// ⿰ han-725c han-2d060 // ⿰牜𭁠
+glyph han-24649:15x16 15 16 // 𤙉
+⿰ han-725c:6x16 han-2d060:9x16 // ⿰牜𭁠
 
 glyph han-2464c-($han-regions):15x16 15 16 // 𤙌
 ⿰ han-725c:6x16 han-5c3c-($-1):9x16 // ⿰牜尼

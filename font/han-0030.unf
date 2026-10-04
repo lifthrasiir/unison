@@ -3376,6 +3376,9 @@ glyph han-550e:15x16 15 16 // 唎
 ⿲ han-53e3:4x12 han-79be:7x16 han-5202:4x16 // ⿲口禾刂
 glyph han-550e.0:* = han-550e:*
 
+// glyph han-5511:15x16 15 16 // 唑
+// ⿰ han-53e3 han-5750 // ⿰口坐
+
 glyph han-5512:15x16 15 16 // 唒
 ⿰ han-53e3:5x12 1 han-9149:9x16 // ⿰口酉
 

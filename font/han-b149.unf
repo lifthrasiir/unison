@@ -246,6 +246,9 @@ glyph han-279f0-($han-regions):15x16 15 16 // 𧧰
 glyph han-279fe-($han-regions):15x16 15 16 // 𧧾
 ⿰ han-8a01-($-1):5x16 1 han-8c9d:9x16 // ⿰訁貝
 
+// glyph han-27a00-($han-regions):15x16 15 16 // 𧨀
+// ⿰ han-8a01-($-1) han-5750 // ⿰訁坐
+
 glyph han-27a02-($han-regions):15x16 15 16 // 𧨂
 ⿲ han-8a01-($-1):5x16 han-4ebb:3x16 han-53ef:7x16 // ⿲訁亻可
 

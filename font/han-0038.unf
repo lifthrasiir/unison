@@ -1631,8 +1631,9 @@ glyph han-5b8d.0:* = han-5b8d:*
 // glyph han-5b90:15x16 15 16 // 宐 ⿱宀{122}(GJP) ⿱宀⿱夕一(H) ⿱宀⿱一{122}(T)
 // ⿳ han-5b80 han-5915 han-4e00 // ⿳宀夕一 <- ⿱宀⿱夕一
 
-// glyph han-5b91:15x16 15 16 // 宑
-// ⿱ han-5b80 han-4e95 // ⿱宀井
+glyph han-5b91:15x16 15 16 // 宑
+⿱ han-5b80:15x5 han-4e95:15x11 // ⿱宀井
+glyph han-5b91.0:* = han-5b91:*
 
 glyph han-5b92:15x16 15 16 // 宒
 ⿱ han-5b80:15x5 han-6bdb:15x11 // ⿱宀毛

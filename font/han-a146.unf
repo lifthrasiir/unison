@@ -686,6 +686,9 @@ glyph han-47f3:15x16 15 16 // 䟳
 
 ## 157.7
 
+// glyph han-47f6:15x16 15 16 // 䟶
+// ⿰ han-27fb7 han-5750 // ⿰𧾷坐
+
 glyph han-47f7:15x16 15 16 // 䟷
 ⿲ han-27fb7:5x15 han-624c:3x16 han-65a4:7x16 // ⿲𧾷扌斤
 
@@ -1385,6 +1388,9 @@ assume ⿵ han-9580:15x16.13x11 han-65e6:9x10 3 6 // ⿵門旦
 // glyph han-499e:15x16 15 16 // 䦞
 // ⿵ han-9580 han-6c6a // ⿵門汪
 
+// glyph han-499f:15x16 15 16 // 䦟
+// ⿵ han-9580 han-5750 // ⿵門坐
+
 ## 169.8
 
 // glyph han-49a3:15x16 15 16 // 䦣
@@ -1403,6 +1409,13 @@ glyph han-49a5:15x16 15 16 // 䦥
 
 // glyph han-49aa:15x16 15 16 // 䦪
 // ⿵ han-9580 han-66f7 // ⿵門曷
+
+# CJK unified ideographs extension A: 门 (169')
+
+## 169'.7
+
+// glyph han-49b7:15x16 15 16 // 䦷
+// ⿵ han-95e8 han-5750 // ⿵门坐
 
 # CJK unified ideographs extension A: 阜 (170)
 

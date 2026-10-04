@@ -236,6 +236,9 @@ glyph han-25980-($han-regions):15x16 15 16 // 𥦀
 // glyph han-25989:15x16 15 16 // 𥦉
 // ⿳ han-5b80 han-516b han-5229 // ⿳宀八利 <- ⿱穴利
 
+// glyph han-2598a-($han-regions):15x16 15 16 // 𥦊 ⿱穴坐(G) ⿱⿱宀儿坐(T)
+// ⿱ han-7a74-($-1) han-5750 // ⿱穴坐
+
 // glyph han-2598b:15x16 15 16 // 𥦋 ⿱穴㤋(G) ⿱⿱宀儿㤋(T)
 // ⿳ han-5b80 han-516b han-390b // ⿳宀八㤋 <- ⿱穴㤋
 
@@ -352,6 +355,9 @@ glyph han-2599d-($han-regions):15x16 15 16 // 𥦝
 
 // glyph han-259d9-($han-regions):15x16 15 16 // 𥧙 ⿱穴𬂧(G) ⿱⿱宀儿𬂧(T)
 // ⿱ han-7a74-($-1) han-2c0a7 // ⿱穴𬂧
+
+// glyph han-259da-($han-regions):15x16 15 16 // 𥧚 ⿳穴女坐(G) ⿳⿱宀儿女坐(T)
+// ⿳ han-7a74-($-1) han-5973 han-5750 // ⿳穴女坐
 
 // glyph han-259df:15x16 15 16 // 𥧟 ⿱穴恚(G) ⿱⿱宀儿恚(T)
 // ⿳ han-5b80 han-516b han-605a // ⿳宀八恚 <- ⿱穴恚

@@ -1970,6 +1970,9 @@ glyph han-811b:15x16 15 16 // 脛
 ⿰ han-6708:5x14-l 1 han-5de0:9x16 // ⿰月巠
 glyph han-811b.0:* = han-811b:*
 
+// glyph han-811e:15x16 15 16 // 脞 ⿰月坐(GJKP) ⿰⺼坐(HT)
+// ⿰ han-6708 han-5750 // ⿰月坐
+
 // glyph han-8125:15x16 15 16 // 脥 ⿰月夾(GKP) ⿰⺼夾(HT)
 // ⿰ han-6708 han-593e // ⿰月夾
 

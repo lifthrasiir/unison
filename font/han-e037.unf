@@ -142,6 +142,9 @@ glyph han-2bc18:15x16 15 16 // 𫰘
 // glyph han-2bc1c:15x16 15 16 // 𫰜
 // ⿰ han-5973 han-3690 // ⿰女㚐
 
+// glyph han-2bc1d:15x16 15 16 // 𫰝
+// ⿰ han-5973 han-518d // ⿰女再
+
 // glyph han-2bc22:15x16 15 16 // 𫰢
 // ⿰ han-5973 han-4f1a // ⿰女会
 
@@ -396,6 +399,9 @@ glyph han-2bcdf:15x16 15 16 // 𫳟
 
 // glyph han-2bceb-($han-regions):15x16 15 16 // 𫳫
 // ⿱ han-5b80 han-795c-($-1) // ⿱宀祜
+
+// glyph han-2bcec:15x16 15 16 // 𫳬
+// ⿱ han-2bcbd han-518d // ⿱𫲽再
 
 // glyph han-2bced:15x16 15 16 // 𫳭
 // ⿱ han-5b80 han-7adc // ⿱宀竜

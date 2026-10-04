@@ -262,6 +262,9 @@ glyph han-286cd-(j|p):15x16 15 16 // 𨛍
 // glyph han-286ce:15x16 15 16 // 𨛎
 // ⿰ han-65f1 han-961d // ⿰旱阝
 
+// glyph han-286cf:15x16 15 16 // 𨛏
+// ⿰ han-5750 han-961d // ⿰坐阝
+
 glyph han-286d0:15x16 15 16 // 𨛐
 ⿰ han-590b:7x16 1 han-961d:7x16-r // ⿰夋阝
 
