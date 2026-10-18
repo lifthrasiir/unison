@@ -203,6 +203,48 @@ fn fixed_pitch_is_declared_rather_than_assumed() {
     assert_ne!(post.is_fixed_pitch(), 0);
 }
 
+/// `xAvgCharWidth` was the average over every glyph even under `meta
+/// fixed-pitch`. Windows takes `tmAveCharWidth` of a fixed-pitch font as its
+/// half-width cell: Notepad drew both U+0020 and U+3000 at `2 ×
+/// round(xAvgCharWidth × ppem)`, ~1.8em in a font of mostly full-width glyphs.
+/// A dual-width font claiming fixed pitch reports the narrow cell, as CJK
+/// monospace fonts do; one that does not keeps the average.
+#[test]
+fn fixed_pitch_average_width_is_the_narrow_cell() {
+    use read_fonts::TableProvider;
+    let body = "glyph space 1 2\n.\n.\nmap U+20 = space\n\
+                glyph a 1 2\n@\n@\nmap A = a\n\
+                glyph b 2 2\n@@\n@@\nmap U+AC00 = b\n\
+                glyph c 2 2\n@@\n@@\nmap U+AC01 = c\n\
+                glyph d 2 2\n@@\n@@\nmap U+AC02 = d\n";
+    let fixed = build_from(&format!("meta fixed-pitch\n{body}"));
+    let font = read_fonts::FontRef::new(&fixed).unwrap();
+    let space = font.cmap().unwrap().map_codepoint(0x20u32).unwrap();
+    let narrow = font.hmtx().unwrap().advance(space).unwrap();
+    let wide = font
+        .hmtx()
+        .unwrap()
+        .advance(font.cmap().unwrap().map_codepoint(0xAC00u32).unwrap())
+        .unwrap();
+    assert_eq!(wide, narrow * 2, "the source is dual-width");
+    assert_eq!(
+        font.os2().unwrap().x_avg_char_width(),
+        narrow as i16,
+        "the cell is the narrow advance"
+    );
+
+    let proportional = build_from(body);
+    let avg = read_fonts::FontRef::new(&proportional)
+        .unwrap()
+        .os2()
+        .unwrap()
+        .x_avg_char_width();
+    assert!(
+        avg > narrow as i16,
+        "without the claim it stays the average"
+    );
+}
+
 /// The default PANOSE claimed `bProportion = 9` (Monospaced) unconditionally.
 /// Windows GDI takes that claim literally and lays every glyph out on one cell
 /// — the font preview and Notepad drew a 0.5em space at roughly 1.9em. It is a

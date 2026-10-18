@@ -433,8 +433,14 @@ pub(super) fn build_ttf(
     // os2
     // Over the real glyphs only: `.notdef` is a reserved slot, not a character
     // whose width belongs in the average.
+    //
+    // Under `meta fixed-pitch` it is the space's advance instead. Windows takes
+    // `tmAveCharWidth` of a fixed-pitch font as the half-width cell, and Notepad
+    // lays out U+0020 and U+3000 alike at twice that cell rounded to a pixel —
+    // ~1.8em when the average leans on a CJK repertoire. Dual-width CJK
+    // monospace fonts report the narrow cell for the same reason.
     let real_glyphs = glyphs.split_first().map_or(&[][..], |(_, rest)| rest);
-    let avg_width = if real_glyphs.is_empty() {
+    let avg_width = if real_glyphs.is_empty() || meta.has(crate::meta::StyleFlag::FixedPitch) {
         default_aw as i16
     } else {
         let total: u32 = real_glyphs.iter().map(|g| g.advance_width as u32).sum();

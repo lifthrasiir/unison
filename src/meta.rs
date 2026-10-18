@@ -26,7 +26,8 @@
 //!   from family, subfamily and revision unless declared. Emitted for en-US
 //!   only: name ID 6 is required to be English.
 //! - **Computed** — what only the built font knows (`ulUnicodeRange` from the
-//!   cmap, `xAvgCharWidth` from the metrics). Those never come from `meta`.
+//!   cmap, `xAvgCharWidth` from the metrics, or the space's advance under
+//!   `fixed-pitch`). Those never come from `meta`.
 //!
 //! # Language slot
 //!

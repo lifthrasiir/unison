@@ -873,7 +873,9 @@ regular is a familiar and very visible bug.
 
 `fixed-pitch` is a claim about the font, not something measured from it. Unison sets it despite
 having half- and full-width cells, because terminal font pickers filter on it and every CJK
-monospace font claims it for the same reason.
+monospace font claims it for the same reason. It also makes `xAvgCharWidth` the space's advance
+rather than the average of all glyphs: Windows reads that field of a fixed-pitch font as the
+half-width cell, and Notepad lays out every character at twice it.
 
 #### Name records
 

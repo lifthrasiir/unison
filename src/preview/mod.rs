@@ -82,7 +82,7 @@ impl<'a> Paragraph<'a> {
     }
 
     /// The level to label a glyph with, given the character it came from.
-    #[cfg_attr(not(target_os = "macos"), expect(dead_code))]
+    #[cfg_attr(all(not(target_os = "macos"), not(test)), expect(dead_code))]
     fn level_of_char(&self, char_idx: usize) -> u8 {
         self.char_levels
             .get(char_idx)
